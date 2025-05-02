@@ -1,7 +1,9 @@
 #include "../TextEdit.h"
 #include "../AStorySyntaxHighlighter.h"
+#include "../MainWin.h"
+#include "../../GlobalValue.h"
 #include <QDebug>
-namespace YSE::Editor {
+namespace YSS::Editor {
 	TextEdit::TextEdit(QWidget* parent):QWidget(parent) {
 		this->setMinimumSize(800, 600);
 
@@ -15,15 +17,18 @@ namespace YSE::Editor {
 		Line->document()->setDefaultFont(QFont("Microsoft YaHei"));
 		Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	
 		Text = new QTextEdit(this);
 		Text->document()->setDefaultFont(QFont("Microsoft YaHei"));
 		Text->setTabStopDistance(qMax(20.0, TabWidth * FontMetrics->size(Qt::TextSingleLine, " ").width()));
 		Text->setLineWrapMode(QTextEdit::NoWrap);
+		Text->installEventFilter(this);
 
 		Layout = new QHBoxLayout(this);
 		Layout->addWidget(Line);
 		Layout->addWidget(Text);
-
+		Layout->setSpacing(0);
+		Layout->setContentsMargins(0, 0, 0, 0);
 		connect(Text->document(), &QTextDocument::blockCountChanged, this, &TextEdit::onBlockCountChanged);
 		connect(Text->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
 			Line->verticalScrollBar()->setValue(value);
@@ -31,11 +36,43 @@ namespace YSE::Editor {
 		connect(Line->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
 			Text->verticalScrollBar()->setValue(value);
 			});
-		Text->installEventFilter(this);
-
+		connect(Text, &QTextEdit::cursorPositionChanged, this, &TextEdit::onCursorPositionChanged);
+		connect(Text, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
 		Highlighter = new AStorySyntaxHighlighter(Text->document());
 	}
 
+	void TextEdit::openFile(const QString& path) {
+		FilePath = path;
+		QFile file(path);
+		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+			qDebug() << "Failed to open file:" << path;
+			return;
+		}
+		QTextStream in(&file);
+		in.setEncoding(QStringConverter::Utf8);
+		Text->setPlainText(in.readAll());
+		TextChanged = false;
+		file.close();
+	}
+
+	void TextEdit::saveFile(const QString& path) {
+		if (path.isEmpty()) {
+			if (FilePath.isEmpty()) {
+				qDebug() << "File path is empty.";
+				return;
+			}
+		}
+		else {
+			FilePath = path;
+		}
+		QFile file(FilePath);
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+			qDebug() << "Failed to open file:" << FilePath;
+			return;
+		}
+		file.write(Text->toPlainText().toUtf8());
+		file.close();
+	}
 	void TextEdit::onBlockCountChanged(qint32 count) {
 		qint32 delta = count - LineCount;
 		if (delta > 0) {
@@ -79,6 +116,14 @@ namespace YSE::Editor {
 		return false;
 	}
 
+	void TextEdit::closeEvent(QCloseEvent* event) {
+		if (onWidgetClose()) {
+			event->accept();
+		}
+		else {
+			event->ignore();
+		}
+	}
 	void TextEdit::onTabClicked(QKeyEvent* event) {
 		if (event->key() == Qt::Key_Backtab) {
 			if (Text->textCursor().hasSelection()) {
@@ -234,5 +279,64 @@ namespace YSE::Editor {
 
 	void TextEdit::onMouseMove(QMouseEvent* event) {
 		
+	}
+
+	void TextEdit::onCursorPositionChanged() {
+		QTextCursor cursor = Text->textCursor();
+		int index = cursor.block().blockNumber();
+		if (index == LastCursorLine) {
+			return;
+		}
+		if (Line->document()->findBlockByNumber(index).text().isEmpty()) {
+			return;
+		}
+		QTextCursor cursor2 = Line->textCursor();
+		cursor2.movePosition(QTextCursor::Start);
+		cursor2.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, index);
+		QTextBlockFormat format = cursor2.blockFormat();
+		format.setBackground(QColor("#00A2E8"));
+		cursor2.setBlockFormat(format);
+		format.setBackground(QColor("#FFFFFF"));
+		LastCursor.setBlockFormat(format);
+		LastCursorLine = index;
+		LastCursor = cursor2;
+	}
+
+	void TextEdit::onTextChanged() {
+		qDebug() << "changed";
+		TextChanged = true;
+	}
+
+	bool TextEdit::onWidgetClose() {
+		if (TextChanged) {
+			QMessageBox msgBox;
+			QFileInfo fileInfo(FilePath);
+			msgBox.setText(GlobalValue::getTr("Editor.SaveWarning.Message").arg(fileInfo.fileName()));
+			msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Save);
+			int ret = msgBox.exec();
+			switch (ret) {
+			case QMessageBox::Save:
+				saveFile();
+				TextChanged = false;
+				return true;
+			case QMessageBox::Discard:
+				// Don't save was clicked
+				return true;
+			case QMessageBox::Cancel:
+				// Cancel was clicked
+				return false;
+			default:
+				// should never be reached
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+
+	QWidget* TextEdit::getWidget() {
+		return this;
 	}
 }

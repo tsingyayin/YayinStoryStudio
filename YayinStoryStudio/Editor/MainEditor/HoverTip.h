@@ -1,7 +1,7 @@
 #pragma once
 #include <QtWidgets>
 
-namespace YSE::Editor {
+namespace YSS::Editor {
 	class HoverTip :public QWidget {
 		Q_OBJECT;
 	private:

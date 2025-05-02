@@ -1,0 +1,13 @@
+{
+	"Window": {
+		"Width": 800,
+		"Height": 600,
+		"Resizable": true,
+		"Screen": 0
+	},
+	"Preferences": {
+		"Language": "zh_CN",
+		"Theme": "theme_dark",
+		"ReloadTab": true
+	}
+}

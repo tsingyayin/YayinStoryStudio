@@ -16,6 +16,7 @@
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.26100.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.26100.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <ProjectName>YayinStoryStudio</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -32,12 +33,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.5.2</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;gui;qml;quick;widgets;3dquick</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.5.2</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;gui;qml;quick;widgets;3dquick</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -83,20 +84,50 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Editor\cpp\GlobalValue.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\StackBar.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\PlayerProxy.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\TextWidget.cpp" />
+    <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
+    <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
+    <ClCompile Include="Utility\cpp\Console.cpp" />
+    <ClCompile Include="Utility\cpp\JsonConfig.cpp" />
+    <ClCompile Include="Utility\cpp\JsonDocument.cpp" />
+    <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
     <QtRcc Include="YayinStoryEditor.qrc" />
-    <ClCompile Include="Editor\cpp\AStorySyntaxHighlighter.cpp" />
-    <ClCompile Include="Editor\cpp\HoverTip.cpp" />
-    <ClCompile Include="Editor\cpp\TextEdit.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\AStorySyntaxHighlighter.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\TextEdit.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\TextEdit.h" />
+    <QtMoc Include="Editor\MainEditor\TextEdit.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\AStorySyntaxHighlighter.h" />
+    <QtMoc Include="Editor\MainEditor\AStorySyntaxHighlighter.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\HoverTip.h" />
+    <QtMoc Include="Editor\MainEditor\HoverTip.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Editor\MainEditor\StackBarLabel.h" />
+    <QtMoc Include="Editor\MainEditor\StackBar.h" />
+    <QtMoc Include="Editor\MainEditor\TextWidget.h" />
+    <QtMoc Include="Editor\MainEditor\PlayerProxy.h" />
+    <QtMoc Include="YSP\YayinStoryPlayer.h" />
+    <QtMoc Include="Editor\MainEditor\MainWin.h" />
+    <QtMoc Include="Editor\ThemeManager.h" />
+    <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />
+    <QtMoc Include="Editor\GlobalValue.h" />
+    <ClInclude Include="Editor\MainEditor\StackWidget.h" />
+    <QtMoc Include="Editor\TitlePage\TitlePage.h" />
+    <ClInclude Include="Utility\Console.h" />
+    <ClInclude Include="Utility\JsonConfig.h" />
+    <ClInclude Include="Utility\JsonDocument.h" />
+    <ClInclude Include="Utility\JsonValueRef.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

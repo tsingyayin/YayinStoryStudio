@@ -1,0 +1,88 @@
+{
+	"ControllerMeta": [
+		{
+			"Name": "讲述控制器",
+			"ParaMeta": {
+				"__charname__": {
+					"Type": "String",
+					"Default": "",
+					"Tip": "# {name}\n角色的名称。可以是资源文件的名字，或者自定义的立绘映射名称。"	
+				},
+				"__text__": {
+					"Type": "String",
+					"Default": "",
+					"Tip": "# {name}\n角色发言内容。当角色名称不存在时，这被视作旁白。"
+				},
+				"__isaddition__": {
+					"Type": "Bool",
+					"Default": 0,
+					"Tip": "# {name}\n是否为附加文本。附加文本会在原有文本的基础上进行追加，而不是覆盖原有文本。"
+				},
+				"__nochangeslot__": {
+					"Type": "Bool",
+					"Default": 0,
+					"Tip": "# {name}\n是否不连带自动控制立绘的变化。"
+				},
+				"__staytime__": {
+					"Type": "Number",
+					"Default": 1.75,
+					"Tip": "# {name}\n停留时间。单位为秒。"
+				},
+				"__interval__": {
+					"Type": "Number",
+					"Default": 0.04,
+					"Tip": "# {name}\n文本间隔时间。单位为秒。"
+				}
+			}
+		},{
+			"Name": "背景控制器",
+			"ParaMeta":{
+				"__bgname__": {
+					"Type": "String",
+					"Default": "",
+					"Tip": "# {name}\n背景的名称。应当是资源文件的名字，不需要加后缀名。"
+				},
+				"__fadeintime__": {
+					"Type": "Number",
+					"Default": 2.0,
+					"Tip": "# {name}\n淡入时间。单位为秒。"
+				},
+				"__startpos__": {
+					"Type": "Vector",
+					"Default": "0,0,10",
+					"Tip": "# {name}\n背景的起始位置。"
+				},
+				"__endpos__": {
+					"Type": "Vector",
+					"Default": "0,0,10",
+					"Tip": "# {name}\n背景的结束位置。"
+				},
+				"__movetime__": {
+					"Type": "Number",
+					"Default": 2.0,
+					"Tip": "# {name}\n移动时间。单位为秒。"
+				},
+				"__movecurve__":{
+					"Type": "String",
+					"Default": "Linear",
+					"Tip": "# {name}\n移动曲线。",
+					"ComboBox": {
+						"Linear": "匀速运动",
+						"In": "渐加速",
+						"Out": "渐减速",
+						"InOut": "先加再减速",
+						"In2": "渐加速2",
+						"Out2": "渐减速2",
+						"InOut2": "先加再减速2",
+						"In3": "渐加速3",
+						"Out3": "渐减速3",
+						"InOut3": "先加再减速3",
+						"Bounce": "三段弹跳",
+						"ToFrom": "前快后慢的折返",
+						"Shake": "渐衰震荡"
+					}
+				}
+			}
+		}
+	]
+}

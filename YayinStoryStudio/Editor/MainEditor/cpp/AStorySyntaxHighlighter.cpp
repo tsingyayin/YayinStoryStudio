@@ -1,6 +1,6 @@
 #include "../AStorySyntaxHighlighter.h"
 
-namespace YSE::Editor {
+namespace YSS::Editor {
 	AStorySyntaxHighlighter::AStorySyntaxHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent) {
 		Format_C_BGP.setForeground(QColor("#00A2E8"));
 		Format_C_Speak.setForeground(QColor("#A349A4"));

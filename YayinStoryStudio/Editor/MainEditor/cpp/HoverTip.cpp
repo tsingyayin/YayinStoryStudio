@@ -1,6 +1,6 @@
 #include "../HoverTip.h"
 
-namespace YSE::Editor {
+namespace YSS::Editor {
 	HoverTip::HoverTip(QMouseEvent* event) : QWidget() {
 		ShowPos = event->globalPosition();
 		this->setAttribute(Qt::WA_TransparentForMouseEvents);

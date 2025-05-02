@@ -1,7 +1,7 @@
 #pragma once
 #include <QtGui>
-
-namespace YSE::Editor {
+#include "../../Utility/JsonConfig.h"
+namespace YSS::Editor {
 	class AStorySyntaxHighlighter : public QSyntaxHighlighter {
 		Q_OBJECT;
 	public:
@@ -24,6 +24,7 @@ namespace YSE::Editor {
 		QTextCharFormat Format_T_Number;
 		QTextCharFormat Format_T_Position;
 		QTextCharFormat Format_T_Keyword;
+		Utility::JsonConfig* Config = nullptr;
 	public:
 		AStorySyntaxHighlighter(QTextDocument* parent = nullptr);
 		virtual void highlightBlock(const QString& text) override;
