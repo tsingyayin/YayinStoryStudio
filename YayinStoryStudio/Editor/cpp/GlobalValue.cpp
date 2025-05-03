@@ -3,6 +3,9 @@
 namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
 	GlobalValue::GlobalValue() {
+		if (Instance != nullptr) {
+			throw std::runtime_error("GlobalValue already exists!");
+		}
 		Instance = this;
 		Theme = new YSSCore::Editor::ThemeManager(this);
 		LangServerManager = new YSSCore::Editor::LangServerManager();
@@ -16,11 +19,22 @@ namespace YSS {
 	QString GlobalValue::getTr(const QString& key) {
 		return Instance->Language->getString(key);
 	}
-	const YSSCore::Utility::JsonConfig* GlobalValue::getConfig() {
+	YSSCore::Utility::JsonConfig* GlobalValue::getConfig() {
 		return Instance->Config;
 	}
-
-	const GlobalValue* GlobalValue::getInstance() {
+	void GlobalValue::saveConfig() {
+		if (Instance->Config != nullptr) {
+			QFile file("./resource/editor_config.json");
+			if (file.open(QIODevice::WriteOnly)) {
+				file.write(Instance->Config->toString().toUtf8());
+				file.close();
+			}
+			else {
+				qDebug() << "MainWin: saveConfig failed!";
+			}
+		}
+	}
+	GlobalValue* GlobalValue::getInstance() {
 		return Instance;
 	}
 
@@ -42,7 +56,12 @@ namespace YSS {
 		}
 		Theme->loadConfig("./resource/theme/" + Config->getString("Preferences.Theme") + ".json");
 	}
-
+	void GlobalValue::setMainWindow(YSS::Editor::MainWin* mainWindow) {
+		Instance->MainWindow = mainWindow;
+	}
+	YSS::Editor::MainWin* GlobalValue::getMainWindow() {
+		return Instance->MainWindow;
+	}
 	void GlobalValue::loadLanguage() {
 		if (Language != nullptr) {
 			delete Language;

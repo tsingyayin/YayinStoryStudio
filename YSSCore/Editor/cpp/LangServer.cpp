@@ -1,12 +1,11 @@
 #include "../LangServer.h"
-
+#include "../ThemeManager.h"
 namespace YSSCore::Editor {
 	class LangServerPrivate
 	{
 		friend class LangServer;
 		friend class LangServerManager;
 	protected:
-		QSyntaxHighlighter* highlighter;
 		QString LanguageID;
 		QStringList LanguageExt;
 		QString pluginFolder = "./resource/server/";
@@ -15,7 +14,6 @@ namespace YSSCore::Editor {
 	LangServer::LangServer(QString id, QStringList ext)
 	{
 		p = new LangServerPrivate();
-		p->highlighter = nullptr;
 		p->LanguageID = id;
 		p->LanguageExt = ext;
 	}
@@ -23,16 +21,6 @@ namespace YSSCore::Editor {
 	{
 		delete p;
 	}
-	QSyntaxHighlighter* LangServer::getHighlighter()
-	{
-		return p->highlighter;
-	}
-
-	void LangServer::setHighlighter(QSyntaxHighlighter* highlighter)
-	{
-		p->highlighter = highlighter;
-	}
-
 	QString LangServer::getLangID()
 	{
 		return p->LanguageID;

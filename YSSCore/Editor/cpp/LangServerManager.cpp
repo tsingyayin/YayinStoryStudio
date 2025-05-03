@@ -1,6 +1,6 @@
 #include "../LangServerManager.h"
 #include "../LangServer.h"
-
+#include <Windows.h>
 namespace YSSCore::Editor {
 	class LangServerManagerPrivate {
 		friend class LangServerManager;

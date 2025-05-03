@@ -42,4 +42,5 @@ public:
 	AStoryLanguageServer();
 	virtual void serverEnable() override;
 	virtual void serverDisable() override;
+	virtual QSyntaxHighlighter* createHighlighter() override;
 };

@@ -4,6 +4,9 @@
 #include <Editor/ThemeManager.h>
 #include <Editor/LangServerManager.h>
 namespace YSS {
+	namespace Editor {
+		class MainWin;
+	}
 	class GlobalValue :public QObject
 	{
 		Q_OBJECT;
@@ -13,13 +16,17 @@ namespace YSS {
 		YSSCore::Utility::JsonConfig* Language = nullptr;
 		YSSCore::Editor::ThemeManager* Theme = nullptr;
 		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;
+		YSS::Editor::MainWin* MainWindow = nullptr;
 	public:
 		GlobalValue();
-		static const GlobalValue* getInstance();
+		static GlobalValue* getInstance();
 		static QColor getColor(const QString& key);
 		static QString getTr(const QString& key);
-		static const YSSCore::Utility::JsonConfig* getConfig();
+		static YSSCore::Utility::JsonConfig* getConfig();
+		static void saveConfig();
 		static YSSCore::Editor::LangServerManager* getLangServerManager();
+		static void setMainWindow(YSS::Editor::MainWin* mainWindow);
+		static YSS::Editor::MainWin* getMainWindow();
 		void loadConfig();
 		void loadLanguage();
 	};

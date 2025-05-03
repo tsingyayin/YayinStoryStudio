@@ -14,7 +14,7 @@ namespace YSS::Editor {
 		QHBoxLayout* Layout = nullptr;
 	public:
 		MainWin();
-		
+		virtual void closeEvent(QCloseEvent* event) override;
 	private:
 		void initMenu();
 	private:

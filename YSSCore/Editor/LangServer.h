@@ -1,6 +1,7 @@
 #pragma once
 #include <QtGui>
 #include "../Macro.h"
+#include <QSyntaxHighlighter>
 
 namespace YSSCore::Editor {
 	class LangServerPrivate;
@@ -12,8 +13,7 @@ namespace YSSCore::Editor {
 		~LangServer();
 		virtual void serverEnable() = 0;
 		virtual void serverDisable() = 0;
-		QSyntaxHighlighter* getHighlighter();
-		void setHighlighter(QSyntaxHighlighter* highlighter);
+		virtual QSyntaxHighlighter* createHighlighter() = 0;
 		QString getLangID();
 		QStringList getLangExts();
 		QString getPluginFolder();

@@ -10,7 +10,7 @@ namespace YSS::Editor {
 		Font = QFont("Microsoft YaHei");
 		FontMetrics = new QFontMetricsF(Font);
 
-		Line = new QTextEdit(this);
+		Line = new QTextBrowser(this);
 		Line->setReadOnly(true);
 		Line->setMaximumWidth(100);
 		Line->setAlignment(Qt::AlignRight);
@@ -29,6 +29,10 @@ namespace YSS::Editor {
 		Layout->addWidget(Text);
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
+
+		LastCursor = Line->textCursor();
+		LastCursor.movePosition(QTextCursor::Start);
+		LastCursorLine = 0;
 		connect(Text->document(), &QTextDocument::blockCountChanged, this, &TextEdit::onBlockCountChanged);
 		connect(Text->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
 			Line->verticalScrollBar()->setValue(value);
@@ -39,9 +43,26 @@ namespace YSS::Editor {
 		connect(Text, &QTextEdit::cursorPositionChanged, this, &TextEdit::onCursorPositionChanged);
 		connect(Text, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
 	}
-
+	TextEdit::~TextEdit() {
+		if (FontMetrics != nullptr) {
+			delete FontMetrics;
+		}
+		if (Highlighter != nullptr) {
+			delete Highlighter;
+		}
+	}
 	void TextEdit::openFile(const QString& path) {
 		FilePath = path;
+		QString ext = QFileInfo(path).suffix();
+		YSSCore::Editor::LangServer* server = GlobalValue::getLangServerManager()->routeExt(ext);
+		if (server!=nullptr) {
+			Highlighter = server->createHighlighter();
+			Highlighter->setDocument(Text->document());
+		}
+		else {
+			qDebug() << "No highlighter found for extension:" << ext;
+		}
+		//highlighter 应在 setText之前，否则会触发两次textChanged
 		QFile file(path);
 		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 			qDebug() << "Failed to open file:" << path;
@@ -49,18 +70,9 @@ namespace YSS::Editor {
 		}
 		QTextStream in(&file);
 		in.setEncoding(QStringConverter::Utf8);
-		Text->setPlainText(in.readAll());
+		Text->setPlainText(in.readAll());		
 		TextChanged = false;
-		//获取扩展名
-		QString ext = QFileInfo(path).suffix();
-		YSSCore::Editor::LangServer* server = GlobalValue::getLangServerManager()->routeExt(ext);
-		if (server!=nullptr) {
-			Highlighter = server->getHighlighter();
-			Highlighter->setDocument(Text->document());
-		}
-		else {
-			qDebug() << "No highlighter found for extension:" << ext;
-		}
+		LastCursor.movePosition(QTextCursor::Start);
 		file.close();
 	}
 
@@ -83,10 +95,17 @@ namespace YSS::Editor {
 		file.close();
 	}
 	void TextEdit::onBlockCountChanged(qint32 count) {
+		qDebug() << "onBlockCountChanged:" << count;
 		qint32 delta = count - LineCount;
 		if (delta > 0) {
+			QTextCursor cursor = Line->textCursor();
+			cursor.movePosition(QTextCursor::End);
+			QTextBlockFormat blockFormat = cursor.blockFormat();
+			blockFormat.setBackground(QColor("#FFFFFF"));
 			for (int i = 0; i < delta; i++) {
 				Line->append(QString::number(LineCount+i+1));
+				cursor.movePosition(QTextCursor::Down);
+				cursor.setBlockFormat(blockFormat);
 			}
 		}
 		else {
@@ -293,22 +312,32 @@ namespace YSS::Editor {
 	void TextEdit::onCursorPositionChanged() {
 		QTextCursor cursor = Text->textCursor();
 		int index = cursor.block().blockNumber();
+		qDebug() << "Current" << index << "Last" << LastCursorLine;
 		if (index == LastCursorLine) {
 			return;
+		}
+		if (index >= Line->document()->blockCount()) {
+			onBlockCountChanged(index + 1);
 		}
 		if (Line->document()->findBlockByNumber(index).text().isEmpty()) {
 			return;
 		}
-		QTextCursor cursor2 = Line->textCursor();
-		cursor2.movePosition(QTextCursor::Start);
-		cursor2.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, index);
-		QTextBlockFormat format = cursor2.blockFormat();
-		format.setBackground(QColor("#00A2E8"));
-		cursor2.setBlockFormat(format);
+		int delta = index - LastCursorLine;
+		qDebug() << "Delta" << delta;
+		QTextBlockFormat format = LastCursor.blockFormat();
 		format.setBackground(QColor("#FFFFFF"));
 		LastCursor.setBlockFormat(format);
+		qDebug() << LastCursor.block().text();
+		if (delta > 0) {
+			LastCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, delta);
+		}
+		else {
+			LastCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -delta);
+		}
+		qDebug() << LastCursor.block().text();
+		format.setBackground(QColor("#00A2E8"));
+		LastCursor.setBlockFormat(format);
 		LastCursorLine = index;
-		LastCursor = cursor2;
 	}
 
 	void TextEdit::onTextChanged() {

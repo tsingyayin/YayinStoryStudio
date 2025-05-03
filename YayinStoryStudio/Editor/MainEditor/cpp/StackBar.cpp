@@ -9,6 +9,8 @@ namespace YSS::Editor {
 		ScrollAreaWidget = new QWidget(this);
 		ScrollArea->setWidget(ScrollAreaWidget);
 		Layout = new QHBoxLayout(ScrollAreaWidget);
+		Layout->setContentsMargins(0, 0, 0, 0);
+		Layout->setSpacing(0);
 	}
 
 	bool StackBar::isLabelOpened(const QString& filePath) {
@@ -70,19 +72,21 @@ namespace YSS::Editor {
 	void StackBar::removeLabel(StackBarLabel* label) {
 		if (LabelMap.contains(label->getFilePath())) {
 			if (label == ActiveLabel) {
-				int rIndex = Labels.indexOf(ActiveLabel) - 1;
-				if (rIndex < 0) {
-					rIndex = 0;
-					if (Labels.length() > 0) {
-						ActiveLabel = Labels[rIndex];
-						ActiveLabel->setState(StackBarLabel::State::Focused);
+				int index = Labels.indexOf(ActiveLabel);
+				if (index == 0) {
+					Labels.removeFirst();
+					if (Labels.size() == 0) {
+						ActiveLabel = nullptr;
 					}
 					else {
-						ActiveLabel = nullptr;
+						ActiveLabel = Labels[0];
+						ActiveLabel->setState(StackBarLabel::State::Focused);
 					}
 				}
 				else {
-					ActiveLabel = Labels[rIndex];
+					Labels.removeAt(index);
+					index -= 1;
+					ActiveLabel = Labels[index];
 					ActiveLabel->setState(StackBarLabel::State::Focused);
 				}
 			}

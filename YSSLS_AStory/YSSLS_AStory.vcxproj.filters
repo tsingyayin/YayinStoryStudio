@@ -29,6 +29,9 @@
     <ClCompile Include="AStory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AStoryTheme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="AStory.h">
@@ -37,6 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AStoryTheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

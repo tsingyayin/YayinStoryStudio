@@ -69,8 +69,6 @@ AStoryLanguageServer::AStoryLanguageServer():
 	
 }
 void AStoryLanguageServer::serverEnable() {
-	Highlighter = new AStorySyntaxHighlighter();
-	setHighlighter(Highlighter);
 	qDebug() << getPluginFolder();
 }
 void AStoryLanguageServer::serverDisable()
@@ -78,4 +76,7 @@ void AStoryLanguageServer::serverDisable()
 	if (Highlighter != nullptr) {
 		delete Highlighter;
 	}
+}
+QSyntaxHighlighter* AStoryLanguageServer::createHighlighter() {
+	return new AStorySyntaxHighlighter();
 }

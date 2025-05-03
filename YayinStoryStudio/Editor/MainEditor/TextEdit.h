@@ -24,6 +24,7 @@ namespace YSS::Editor {
 		bool TextChanged = false;
 	public:
 		TextEdit(QWidget* parent = nullptr);
+		virtual ~TextEdit();
 		void openFile(const QString& path);
 		void saveFile(const QString& path = "");
 	private:

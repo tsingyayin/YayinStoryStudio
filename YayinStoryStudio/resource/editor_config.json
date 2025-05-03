@@ -1,13 +1,14 @@
 {
-	"Window": {
-		"Width": 800,
-		"Height": 600,
-		"Resizable": true,
-		"Screen": 0
-	},
-	"Preferences": {
-		"Language": "zh_CN",
-		"Theme": "theme_dark",
-		"ReloadTab": true
-	}
+    "Editor": {
+        "Window": {
+            "Height": 793,
+            "Screen": 0,
+            "Width": 1536
+        }
+    },
+    "Preferences": {
+        "Language": "zh_CN",
+        "ReloadTab": true,
+        "Theme": "theme_dark"
+    }
 }

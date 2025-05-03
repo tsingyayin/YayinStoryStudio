@@ -3,7 +3,7 @@
 namespace YSS::Editor {
 	TextWidget::TextWidget(QWidget* parent) : QWidget(parent) {
 		Bar = new StackBar(this);
-		Bar->setFixedHeight(100);
+		Bar->setFixedHeight(50);
 		Layout = new QVBoxLayout(this);
 		Layout->addWidget(Bar);
 		DefaultWidget = new QWidget(this);
