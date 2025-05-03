@@ -1,8 +1,8 @@
 #include "../TextEdit.h"
-#include "../AStorySyntaxHighlighter.h"
 #include "../MainWin.h"
 #include "../../GlobalValue.h"
 #include <QDebug>
+#include <Editor/LangServer.h>
 namespace YSS::Editor {
 	TextEdit::TextEdit(QWidget* parent):QWidget(parent) {
 		this->setMinimumSize(800, 600);
@@ -38,7 +38,6 @@ namespace YSS::Editor {
 			});
 		connect(Text, &QTextEdit::cursorPositionChanged, this, &TextEdit::onCursorPositionChanged);
 		connect(Text, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
-		Highlighter = new AStorySyntaxHighlighter(Text->document());
 	}
 
 	void TextEdit::openFile(const QString& path) {
@@ -52,6 +51,16 @@ namespace YSS::Editor {
 		in.setEncoding(QStringConverter::Utf8);
 		Text->setPlainText(in.readAll());
 		TextChanged = false;
+		//获取扩展名
+		QString ext = QFileInfo(path).suffix();
+		YSSCore::Editor::LangServer* server = GlobalValue::getLangServerManager()->routeExt(ext);
+		if (server!=nullptr) {
+			Highlighter = server->getHighlighter();
+			Highlighter->setDocument(Text->document());
+		}
+		else {
+			qDebug() << "No highlighter found for extension:" << ext;
+		}
 		file.close();
 	}
 

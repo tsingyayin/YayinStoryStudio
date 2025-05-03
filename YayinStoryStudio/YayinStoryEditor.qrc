@@ -1,4 +1,5 @@
 <RCC>
-    <qresource prefix="YayinStoryEditor">
+    <qresource prefix="/">
+        <file>compiled/HarmonyOS_Sans_SC_Regular.ttf</file>
     </qresource>
 </RCC>

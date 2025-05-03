@@ -4,7 +4,8 @@ namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
 	GlobalValue::GlobalValue() {
 		Instance = this;
-		Theme = new ThemeManager(this);
+		Theme = new YSSCore::Editor::ThemeManager(this);
+		LangServerManager = new YSSCore::Editor::LangServerManager();
 		loadConfig();
 		loadLanguage();
 	}
@@ -15,7 +16,7 @@ namespace YSS {
 	QString GlobalValue::getTr(const QString& key) {
 		return Instance->Language->getString(key);
 	}
-	const Utility::JsonConfig* GlobalValue::getConfig() {
+	const YSSCore::Utility::JsonConfig* GlobalValue::getConfig() {
 		return Instance->Config;
 	}
 
@@ -27,7 +28,7 @@ namespace YSS {
 		if (Config != nullptr) {
 			delete Config;
 		}
-		Config = new Utility::JsonConfig();
+		Config = new YSSCore::Utility::JsonConfig();
 		QFile file("./resource/editor_config.json");
 		QTextStream in(&file);
 		in.setEncoding(QStringConverter::Utf8);
@@ -46,7 +47,7 @@ namespace YSS {
 		if (Language != nullptr) {
 			delete Language;
 		}
-		Language = new Utility::JsonConfig();
+		Language = new YSSCore::Utility::JsonConfig();
 		QFile file("./resource/lang/" + Config->getString("Preferences.Language") + ".json");
 		QTextStream in(&file);
 		in.setEncoding(QStringConverter::Utf8);
@@ -58,5 +59,9 @@ namespace YSS {
 			qDebug() << "GlobalValue: loadLanguage failed!";
 		}
 		qDebug() << GlobalValue::getTr("General.File");
+	}
+
+	YSSCore::Editor::LangServerManager* GlobalValue::getLangServerManager() {
+		return Instance->LangServerManager;
 	}
 }

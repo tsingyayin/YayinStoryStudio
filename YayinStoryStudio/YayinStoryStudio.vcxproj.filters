@@ -23,36 +23,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="YayinStoryEditor.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\TextEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\AStorySyntaxHighlighter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility\cpp\Console.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility\cpp\JsonConfig.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility\cpp\JsonDocument.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility\cpp\JsonValueRef.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\ThemeManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp">
@@ -84,13 +61,7 @@
     <QtMoc Include="Editor\MainEditor\TextEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\MainEditor\AStorySyntaxHighlighter.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\ThemeManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
@@ -122,20 +93,13 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Utility\Console.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\JsonConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\JsonDocument.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\JsonValueRef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Editor\MainEditor\StackWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="YayinStoryEditor.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

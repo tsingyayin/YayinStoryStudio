@@ -4,6 +4,7 @@
 namespace YSS::TitlePage {
 	class TitlePage :public QWidget {
 		Q_OBJECT;
+		QLabel* Title;
 	public:
 		TitlePage();
 	};
