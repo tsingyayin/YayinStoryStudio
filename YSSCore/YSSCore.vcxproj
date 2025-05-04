@@ -55,7 +55,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'" Label="QtSettings">
     <QtInstall>6.8.3</QtInstall>
-    <QtModules>core;gui;widgets;</QtModules>
+    <QtModules>core;widgets;gui;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
@@ -105,25 +105,41 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);YSSCore_DEVELOPMENT</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>YSSCore_DEVELOPMENT</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSCore_EXPORT</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);YSSCore_EXPORT</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -174,9 +190,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
+    <ClCompile Include="Editor\cpp\EditorPluginManager.cpp" />
+    <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
+    <ClCompile Include="Editor\cpp\FileServer.cpp" />
+    <ClCompile Include="Editor\cpp\FileServerManager.cpp" />
     <ClCompile Include="Editor\cpp\LangServer.cpp" />
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
+    <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
+    <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
+    <ClCompile Include="General\cpp\Version.cpp" />
+    <ClCompile Include="General\cpp\YayinStoryStudio.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\cpp\Console.cpp" />
     <ClCompile Include="Utility\cpp\ExtTool.cpp" />
@@ -185,11 +210,22 @@
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="Editor\EditorPluginManager.h" />
+    <QtMoc Include="Editor\FileServerManager.h" />
+    <QtMoc Include="Editor\FileEditWidget.h" />
+    <QtMoc Include="Editor\TextEdit.h" />
+    <ClInclude Include="Editor\FileServer.h" />
     <ClInclude Include="Editor\LangServer.h" />
     <QtMoc Include="Editor\LangServerManager.h" />
     <QtMoc Include="Editor\ThemeManager.h" />
     <QtMoc Include="General\YSSProject.h" />
     <ClInclude Include="Editor\DebugServer.h" />
+    <QtMoc Include="Editor\EditorPlugin.h" />
+    <QtMoc Include="Editor\ProjectTemplateProvider.h" />
+    <ClInclude Include="Editor\ProjectTemplateManager.h" />
+    <ClInclude Include="General\private\AUTO_VERSION.h" />
+    <ClInclude Include="General\Version.h" />
+    <ClInclude Include="General\YayinStoryStudio.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="Utility\Console.h" />
     <ClInclude Include="Utility\ExtTool.h" />

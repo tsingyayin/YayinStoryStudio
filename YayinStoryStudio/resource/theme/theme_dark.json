@@ -3,12 +3,13 @@
 	"ThemeName": "Dark",
 	"ThemeColor": {
 		"Outline": "#2A2A2A",
-		"Background": "#1E1E1E",
+		"Background": "#2E2E2E",
+		"Text": "#FFFFFF",
 		"Editor":{
-			"LineNumber": "#4B4B4B",
-			"Selection": "#007ACC",
+			"LineNumber": "#555555",
+			"Selection": "#005C99",
 			"Text": "#FFFFFF",
-			"Background": "#2E2E2E",	
+			"Background": "#202020",	
 			"TypeColor":{
 				"String": "#FF7F27",
 				"Number": "#B5E61D",
@@ -18,78 +19,16 @@
 			},
 			"FileLabel":{
 				"Focused": {
-					"Background": "#007ACC",
+					"Background": "#005C99",
 					"Text": "#FFFFFF"
 				},
 				"Pinned": {
-					"Background": "#007ACC",
+					"Background": "#323232",
 					"Text": "#FFFFFF"
 				},
 				"Normal": {
-					"Background": "#007ACC",
-					"Text": "#FFFFFF"
-				}
-			}
-		}
-	},
-	"SyntaxNode":{
-		"AStory": {
-			"Controller": {
-				"Speak": {
-					"Front": "#FF7F27"
-				},
-				"BGP": {
-					"Front": "#FF7F27"
-				},
-				"Music": {
-					"Front": "#FF7F27"
-				},
-				"Sound": {
-					"Front": "#FF7F27"
-				},
-				"Cover": {
-					"Front": "#FF7F27"
-				},
-				"AVG": {
-					"Front": "#FF7F27"
-				},
-				"Flash": {
-					"Front": "#FF7F27"
-				},
-				"Effect": {
-					"Front": "#FF7F27"
-				},
-				"Shake": {
-					"Front": "#FF7F27"
-				},
-				"Filter": {
-					"Front": "#FF7F27"
-				},
-				"Wait": {
-					"Front": "#FF7F27"
-				},
-				"Option": {
-					"Front": "#FF7F27"
-				},
-				"Jump": {
-					"Front": "#FF7F27"
-				},
-				"Tag": {
-					"Front": "#FF7F27"
-				},
-				"Hologram": {
-					"Front": "#FF7F27"
-				},
-				"TeleAVG": {
-					"Front": "#FF7F27"
-				}
-			},
-			"Char":{
-				"Escape": {
-					"Front": "#FF7F27"
-				},
-				"TMP": {
-					"Front": "#FF7F27"
+					"Background": "#202020",
+					"Text": "#AAAAAA"
 				}
 			}
 		}

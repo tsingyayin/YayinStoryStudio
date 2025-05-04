@@ -11,12 +11,14 @@ namespace YSSCore::Editor {
 	public:
 		LangServerManager(QObject* parent = nullptr);
 		~LangServerManager();
-		void scan();
 		bool addLangServer(LangServer* server);
 		LangServer* routeID(const QString& id);
 		LangServer* routeExt(const QString& fileExt);
 		void removeServer(LangServer* server);
+		static LangServerManager* getInstance();
 	private:
 		LangServerManagerPrivate* p;
 	};
 }
+
+#define YSSLSM YSSCore::Editor::LangServerManager::getInstance()

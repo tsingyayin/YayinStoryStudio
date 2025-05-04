@@ -1,6 +1,6 @@
 #pragma once
 #include <QtWidgets>
-#include "StackWidget.h"
+#include <Editor/FileEditWidget.h>
 
 namespace YSS::Editor {
 	class StackBar;
@@ -23,17 +23,17 @@ namespace YSS::Editor {
 		QPushButton* CloseButton;
 		State CurrentState = State::Normal;
 		QHBoxLayout* Layout;
-		StackWidget* TargetWidget;
+		YSSCore::Editor::FileEditWidget* TargetWidget;
 		QString FilePath;
 	public:
-		StackBarLabel(const QString& name, const QString& filePath, StackWidget* target);
+		StackBarLabel(const QString& name, const QString& filePath, YSSCore::Editor::FileEditWidget* target);
 		virtual ~StackBarLabel() override;
 		void setName(const QString& name);
 		QString getName() const;
 		void setState(State state);
 		State getState() const;
-		void setTargetWidget(StackWidget* widget);
-		StackWidget* getTargetWidget() const;
+		void setTargetWidget(YSSCore::Editor::FileEditWidget* widget);
+		YSSCore::Editor::FileEditWidget* getTargetWidget() const;
 		QString getFilePath() const;
 	private:
 		virtual void mousePressEvent(QMouseEvent* event) override;

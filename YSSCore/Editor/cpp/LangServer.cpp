@@ -8,7 +8,6 @@ namespace YSSCore::Editor {
 	protected:
 		QString LanguageID;
 		QStringList LanguageExt;
-		QString pluginFolder = "./resource/server/";
 	};
 
 	LangServer::LangServer(QString id, QStringList ext)
@@ -29,15 +28,5 @@ namespace YSSCore::Editor {
 	QStringList LangServer::getLangExts()
 	{
 		return p->LanguageExt;
-	}
-
-	QString LangServer::getPluginFolder()
-	{
-		return p->pluginFolder;
-	}
-
-	void LangServer::setPluginFolder(const QString& folder)
-	{
-		p->pluginFolder = folder;
 	}
 }

@@ -2,7 +2,7 @@
 #include <QtWidgets>
 #include "PlayerProxy.h"
 namespace YSS::Editor {
-	class TextWidget;
+	class FileEditorArea;
 	class ResourceBrowser;
 
 	class MainWin : public QMainWindow {
@@ -10,11 +10,12 @@ namespace YSS::Editor {
 	private:	
 		QWidget* CentralWidget = nullptr;
 		ResourceBrowser* Browser = nullptr;
-		TextWidget* Editor = nullptr;
+		FileEditorArea* Editor = nullptr;
 		QHBoxLayout* Layout = nullptr;
 	public:
 		MainWin();
 		virtual void closeEvent(QCloseEvent* event) override;
+		void applyStyleSheet();
 	private:
 		void initMenu();
 	private:

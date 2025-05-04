@@ -1,8 +1,10 @@
 #include "../MainWin.h"
-#include "../TextWidget.h"
+#include "../FileEditorArea.h"
 #include "../ResourceBrowser.h"
 #include "../../GlobalValue.h"
 #include <Utility/JsonConfig.h>
+#include <Editor/ThemeManager.h>
+#include <Editor/FileServerManager.h>
 namespace YSS::Editor {
 
 	MainWin::MainWin() :QMainWindow() {
@@ -16,7 +18,7 @@ namespace YSS::Editor {
 		CentralWidget = new QWidget(this);
 		Layout = new QHBoxLayout(CentralWidget);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
-		Editor = new TextWidget(CentralWidget);
+		Editor = new FileEditorArea(CentralWidget);
 		Browser = new ResourceBrowser(CentralWidget);
 		Browser->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 		Editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -24,13 +26,12 @@ namespace YSS::Editor {
 		splitter->addWidget(Browser);
 		splitter->addWidget(Editor);
 		
-		this->setCentralWidget(CentralWidget);
-		
-		connect(Browser, &ResourceBrowser::openFile, [this](const QString& path) {
-			Editor->addTextEdit(path);
-			});
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::builtinEditorCreated,
+			Editor, &FileEditorArea::addFileEditWidget);
 
+		this->setCentralWidget(CentralWidget);
 		this->initMenu();
+		this->applyStyleSheet();
 	}
 
 	void MainWin::initMenu() {
@@ -43,6 +44,12 @@ namespace YSS::Editor {
 		FileMenu->addAction(SaveAsAction);
 	}
 
+	void MainWin::applyStyleSheet() {
+		this->setStyleSheet("QWidget{\
+			background-color: "%YSSTM->getColorString("ThemeColor.Background") % ";\
+			color: "%YSSTM->getColorString("ThemeColor.Text") % ";\
+		}");
+	}
 	void MainWin::closeEvent(QCloseEvent* event) {
 		YSSCore::Utility::JsonConfig* config = GlobalValue::getConfig();
 		config->getInt("Editor.Window.Width");

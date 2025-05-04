@@ -71,8 +71,6 @@ namespace YSSCore::Utility {
 			}
 			else {
 				for (int i = 1; i < keys.size(); i++) {
-					qDebug() << value.type();
-					qDebug() << keys[i];
 					if (value.isObject()) {
 						value = value.toObject()[keys[i]];
 					}

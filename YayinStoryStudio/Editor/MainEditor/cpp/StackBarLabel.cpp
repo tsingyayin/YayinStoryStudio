@@ -1,7 +1,8 @@
 #include "../StackBarLabel.h"
+#include <Editor/ThemeManager.h>
 
 namespace YSS::Editor {
-	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, StackWidget* target):QWidget() {
+	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, YSSCore::Editor::FileEditWidget* target):QWidget() {
 		FilePath = filePath;
 		NameLabel = new QLabel(name, this);
 		PinButton = new QPushButton("Pin", this);
@@ -12,10 +13,12 @@ namespace YSS::Editor {
 		Layout->addWidget(NameLabel);
 		Layout->addWidget(PinButton);
 		Layout->addWidget(CloseButton);
+		Layout->setContentsMargins(2, 2, 2, 2);
+		Layout->setSpacing(0);
 		this->setLayout(Layout);
 		TargetWidget = target;
 		connect(CloseButton, &QPushButton::clicked, this, [this]() {
-			bool closeable = TargetWidget->onWidgetClose();
+			bool closeable = TargetWidget->onClose();
 			if (closeable) {
 				emit closeReady(this);
 			}
@@ -40,13 +43,19 @@ namespace YSS::Editor {
 		CurrentState = state;
 		switch (state) {
 		case State::Normal:
-			this->setStyleSheet("background-color: #FFFFFF;");
+			this->setStyleSheet("QWidget{\
+				background-color: "%YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Background") % ";\
+				color:"% YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Text") %"};");
 			break;
 		case State::Focused:
-			this->setStyleSheet("background-color: #00A2E8;");
+			this->setStyleSheet("QWidget{\
+				background-color: " % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Focused.Background") % ";\
+				color:" % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Focused.Text") % "};");
 			break;
 		case State::Pinned:
-			this->setStyleSheet("background-color: #FF0000;");
+			this->setStyleSheet("QWidget{\
+				background-color: " % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Pinned.Background") % ";\
+				color:" % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Pinned.Text") % "};");
 			break;
 		default:
 			break;
@@ -57,11 +66,11 @@ namespace YSS::Editor {
 		return CurrentState;
 	}
 
-	void StackBarLabel::setTargetWidget(StackWidget* widget) {
+	void StackBarLabel::setTargetWidget(YSSCore::Editor::FileEditWidget* widget) {
 		TargetWidget = widget;
 	}
 
-	StackWidget* StackBarLabel::getTargetWidget() const {
+	YSSCore::Editor::FileEditWidget* StackBarLabel::getTargetWidget() const {
 		return TargetWidget;
 	}
 

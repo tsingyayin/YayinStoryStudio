@@ -33,7 +33,7 @@ namespace YSS::TitlePage {
 		QFont font(hosFont);
 		qApp->setFont(font);
 
-		YSSCore::Utility::ExtTool::registerFileExtension("yssls", "YSS LangServer Library");
+		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library");
 		YSS::Editor::MainWin* editor = new YSS::Editor::MainWin();
 		GlobalValue::setMainWindow(editor);
 

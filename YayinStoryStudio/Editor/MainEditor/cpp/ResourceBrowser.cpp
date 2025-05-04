@@ -1,4 +1,5 @@
 #include "../ResourceBrowser.h"
+#include <Editor/FileServerManager.h>
 
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent):QWidget(parent) {
@@ -50,7 +51,13 @@ namespace YSS::Editor {
 		QStringList files = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
 		for (const QString& file : files) {
 			QListWidgetItem* item = new QListWidgetItem(file);
-			item->setIcon(QIcon(":/icons/file.png"));
+			//if image load it as icon
+			if (file.endsWith(".png") || file.endsWith(".jpg") || file.endsWith(".jpeg")) {
+				item->setIcon(QIcon(dir.absoluteFilePath(file)));
+			}
+			else {
+				item->setIcon(QIcon(":/icons/file.png"));
+			}
 			FileList->addItem(item);
 		}
 	}
@@ -63,7 +70,7 @@ namespace YSS::Editor {
 			refreshFileList();
 		}
 		else {
-			emit openFile(filePath);
+			YSSFSM->openFile(filePath);
 		}
 	}
 }

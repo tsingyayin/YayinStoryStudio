@@ -1,0 +1,424 @@
+#include "../TextEdit.h"
+#include <QDebug>
+#include "../LangServer.h"
+#include "../ThemeManager.h"
+#include "../LangServerManager.h"
+
+namespace YSSCore::Editor {
+	TextEdit::TextEdit(QWidget* parent):YSSCore::Editor::FileEditWidget(parent) {
+		this->setMinimumSize(800, 600);
+
+		Font = QFont("Microsoft YaHei");
+		FontMetrics = new QFontMetricsF(Font);
+
+		Line = new QTextBrowser(this);
+		Line->setReadOnly(true);
+		Line->setMaximumWidth(100);
+		Line->setAlignment(Qt::AlignRight);
+		Line->document()->setDefaultFont(QFont("Microsoft YaHei"));
+		Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	
+		Text = new QTextEdit(this);
+		Text->document()->setDefaultFont(QFont("Microsoft YaHei"));
+		Text->setTabStopDistance(qMax(20.0, TabWidth * FontMetrics->size(Qt::TextSingleLine, " ").width()));
+		Text->setLineWrapMode(QTextEdit::NoWrap);
+		Text->installEventFilter(this);
+
+		Layout = new QHBoxLayout(this);
+		Layout->addWidget(Line);
+		Layout->addWidget(Text);
+		Layout->setSpacing(0);
+		Layout->setContentsMargins(0, 0, 0, 0);
+
+		LastCursor = Line->textCursor();
+		LastCursor.movePosition(QTextCursor::Start);
+		LastCursorLine = 0;
+		connect(Text->document(), &QTextDocument::blockCountChanged, this, &TextEdit::onBlockCountChanged);
+		connect(Text->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
+			Line->verticalScrollBar()->setValue(value);
+			});
+		connect(Line->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
+			Text->verticalScrollBar()->setValue(value);
+			});
+		connect(Text, &QTextEdit::cursorPositionChanged, this, &TextEdit::onCursorPositionChanged);
+		connect(Text, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
+	}
+	TextEdit::~TextEdit() {
+		if (FontMetrics != nullptr) {
+			delete FontMetrics;
+		}
+		if (Highlighter != nullptr) {
+			delete Highlighter;
+		}
+	}
+	bool TextEdit::openFile(const QString& path) {
+		FilePath = path;
+		if (path.isEmpty()) {
+			qDebug() << "File path is empty.";
+			return false;
+		}
+		QString ext = QFileInfo(path).suffix();
+		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
+		if (server!=nullptr) {
+			Highlighter = server->createHighlighter();
+			Highlighter->setDocument(Text->document());
+		}
+		else {
+			qDebug() << "No highlighter found for extension:" << ext;
+		}
+		//highlighter 应在 setText之前，否则会触发两次textChanged
+		QFile file(path);
+		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+			qDebug() << "Failed to open file:" << path;
+			return false;
+		}
+		QTextStream in(&file);
+		in.setEncoding(QStringConverter::Utf8);
+		Text->setPlainText(in.readAll());		
+		TextChanged = false;
+		LastCursor.movePosition(QTextCursor::Start);
+		file.close();
+		return true;
+	}
+
+	void TextEdit::saveFile(const QString& path) {
+		if (path.isEmpty()) {
+			if (FilePath.isEmpty()) {
+				qDebug() << "File path is empty.";
+				return;
+			}
+		}
+		else {
+			FilePath = path;
+		}
+		QFile file(FilePath);
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+			qDebug() << "Failed to open file:" << FilePath;
+			return;
+		}
+		file.write(Text->toPlainText().toUtf8());
+		file.close();
+	}
+	void TextEdit::onBlockCountChanged(qint32 count) {
+		qint32 delta = count - LineCount;
+		if (delta > 0) {
+			QTextCursor cursor = Line->textCursor();
+			cursor.movePosition(QTextCursor::End);
+			QTextBlockFormat blockFormat = cursor.blockFormat();
+			blockFormat.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
+			blockFormat.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
+			for (int i = 0; i < delta; i++) {
+				Line->append(QString::number(LineCount+i+1));
+				cursor.movePosition(QTextCursor::Down);
+				cursor.setBlockFormat(blockFormat);
+			}
+		}
+		else {
+			for (int i = 0; i < -delta; i++) {
+				QTextCursor cursor = QTextCursor(Line->document()->findBlockByNumber(LineCount - i - 1));
+				cursor.select(QTextCursor::BlockUnderCursor);
+				cursor.removeSelectedText();
+				cursor.deleteChar();
+			}
+		}
+		LineCount = count;
+	}
+
+	bool TextEdit::eventFilter(QObject* obj, QEvent* event) {
+		if (obj == Text) {
+			if (event->type() == QEvent::KeyPress) {
+				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+				if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab) {
+					onTabClicked(keyEvent);
+					return true;
+				}
+				else if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+					if (Text->textCursor().hasSelection()) { // 不改动选择时回车
+						return false;
+					}
+					onEnterClicked(keyEvent);
+					return true;
+				}
+			}
+			else if (event->type() == QEvent::MouseMove) {
+				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+				onMouseMove(mouseEvent);
+				return false;
+			}
+		}
+		return false;
+	}
+
+	void TextEdit::closeEvent(QCloseEvent* event) {
+		if (onClose()) {
+			event->accept();
+		}
+		else {
+			event->ignore();
+		}
+	}
+	void TextEdit::onTabClicked(QKeyEvent* event) {
+		if (event->key() == Qt::Key_Backtab) {
+			if (Text->textCursor().hasSelection()) {
+				QTextCursor cursor = Text->textCursor();
+				//判断cursor的行数量
+				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
+				if (lineCount > 1) {
+					for (int i = 0; i < lineCount; i++) {
+						cursor.movePosition(QTextCursor::EndOfBlock);
+						cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+						QString text = cursor.selectedText();
+						if (text.length() == 0) {
+							continue;
+						}
+						cursor.movePosition(QTextCursor::StartOfBlock);
+						//删除行首1个tab或 TabWidth个空格
+						if (text[0] == '\t') {
+							cursor.deleteChar();
+						}
+						else {
+							for (int i = 0; i < TabWidth; i++) {
+								if (text[i] == ' ') {
+									cursor.deleteChar();
+								}
+								else {
+									break;
+								}
+							}
+						}
+						cursor.movePosition(QTextCursor::NextBlock);
+					}
+				}
+			}
+			else {
+				//从行首拉到光标位置
+				QTextCursor cursor = Text->textCursor();
+				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+				QString text = cursor.selectedText();
+				//判断是否都为空白字符（空格、制表符）
+				if (text.length() == 0) {
+					return;
+				}
+				bool allSpace = true;
+				for (int i = 0; i < text.length(); i++) {
+					if (text[i] != ' ' && text[i] != '\t') {
+						allSpace = false;
+						break;
+					}
+				}
+				if (allSpace) {
+					//删除行首1个tab或 TabWidth个空格
+					cursor = Text->textCursor();
+					cursor.movePosition(QTextCursor::StartOfBlock);
+					if (text[0] == '\t') {
+						cursor.deleteChar();
+					}
+					else {
+						for (int i = 0; i < TabWidth; i++) {
+							if (text[i] == ' ') {
+								cursor.deleteChar();
+							}
+							else {
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		else {
+			if (Text->textCursor().hasSelection()) {
+				QTextCursor cursor = Text->textCursor();
+				//判断cursor的行数量
+				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
+				if (lineCount > 1) {
+					//为首行添加缩进
+					cursor.movePosition(QTextCursor::StartOfBlock);
+					if (ReloadTab) {
+						for (int i = 0; i < TabWidth; i++) {
+							cursor.insertText(QChar(' '));
+						}
+					}
+					else {
+						cursor.insertText("\t");
+					}
+					//为后续行添加缩进
+					for (int i = 1; i < lineCount; i++) {
+						cursor.movePosition(QTextCursor::NextBlock);
+						cursor.movePosition(QTextCursor::StartOfBlock);
+						if (ReloadTab) {
+							for (int i = 0; i < TabWidth; i++) {
+								cursor.insertText(QChar(' '));
+							}
+						}
+						else {
+							cursor.insertText("\t");
+						}
+					}
+				}
+			}
+			else {
+				QTextCursor cursor = Text->textCursor();
+				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+				QString text = cursor.selectedText();
+				//判断是否都为空白字符（空格、制表符）
+				bool allSpace = true;
+				for (int i = 0; i < text.length(); i++) {
+					if (text[i] != ' ' && text[i] != '\t') {
+						allSpace = false;
+						break;
+					}
+				}
+				cursor = Text->textCursor();
+				if (allSpace) {
+					if (ReloadTab) {
+						for (int i = 0; i < TabWidth; i++) {
+							cursor.insertText(QChar(' '));
+						}
+					}
+					else {
+						cursor.insertText("\t");
+					}
+				}
+				else {
+					qDebug() << "insert tab";
+					cursor.insertText("\t");
+				}
+			}
+		}
+	}
+
+	void TextEdit::onEnterClicked(QKeyEvent* event) {
+		QTextCursor cursor = Text->textCursor();
+		cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+		QString text = cursor.selectedText();
+		QString newSpace = "";
+		for (int i = 0; i < text.length(); i++) {
+			if (text[i] == ' ') {
+				newSpace += " ";
+			}
+			else if (text[i] == '\t') {
+				newSpace += "\t";
+			}
+			else {
+				break;
+			}
+		}
+		cursor = Text->textCursor();
+		cursor.insertText("\n" + newSpace);
+	}
+
+	void TextEdit::onMouseMove(QMouseEvent* event) {
+		
+	}
+
+	void TextEdit::onCursorPositionChanged() {
+		QTextCursor cursor = Text->textCursor();
+		int index = cursor.block().blockNumber();
+		if (index == LastCursorLine) {
+			return;
+		}
+		if (index >= Line->document()->blockCount()) {
+			onBlockCountChanged(index + 1);
+		}
+		if (Line->document()->findBlockByNumber(index).text().isEmpty()) {
+			return;
+		}
+		int delta = index - LastCursorLine;
+		QTextBlockFormat format = LastCursor.blockFormat();
+		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
+		format.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
+		LastCursor.setBlockFormat(format);
+		if (delta > 0) {
+			LastCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, delta);
+		}
+		else {
+			LastCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -delta);
+		}
+		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Selection"));
+		LastCursor.setBlockFormat(format);
+		LastCursorLine = index;
+	}
+
+	void TextEdit::onTextChanged() {
+		TextChanged = true;
+	}
+
+	QString TextEdit::getFilePath() const {
+		return FilePath;
+	}
+
+	QString TextEdit::getFileName() const {
+		return QFileInfo(FilePath).fileName();
+	}
+	bool TextEdit::onClose() {
+		if (TextChanged) {
+			QMessageBox msgBox;
+			QFileInfo fileInfo(FilePath);
+			msgBox.setText("Editor.SaveWarning.Message");
+			msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Save);
+			int ret = msgBox.exec();
+			switch (ret) {
+			case QMessageBox::Save:
+				saveFile();
+				TextChanged = false;
+				return true;
+			case QMessageBox::Discard:
+				// Don't save was clicked
+				return true;
+			case QMessageBox::Cancel:
+				// Cancel was clicked
+				return false;
+			default:
+				// should never be reached
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+	bool TextEdit::onSave(const QString& path) {
+		if (path.isEmpty()) {
+			saveFile(FilePath);
+		}
+		else {
+			saveFile(path);
+		}
+		TextChanged = false;
+		return true;
+	}
+	bool TextEdit::onSaveAs(const QString& path) {
+		saveFile(path);
+		TextChanged = false;
+		return true;
+	}
+	bool TextEdit::onReload() {
+		if (TextChanged) {
+			QMessageBox msgBox;
+			msgBox.setText("Editor.SaveWarning.Message");
+			msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Save);
+			int ret = msgBox.exec();
+			switch (ret) {
+			case QMessageBox::Save:
+				saveFile();
+				TextChanged = false;
+				break;
+			case QMessageBox::Discard:
+				break;
+			case QMessageBox::Cancel:
+				return false;
+			default:
+				break;
+			}
+		}
+		openFile(FilePath);
+		return true;
+	}
+	QWidget* TextEdit::getWidget() {
+		return this;
+	}
+}

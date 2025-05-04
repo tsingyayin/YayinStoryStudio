@@ -4,8 +4,6 @@
 namespace YSS::Editor {
 	class ResourceBrowser :public QWidget {
 		Q_OBJECT;
-	signals:
-		void openFile(const QString& path);
 	private:
 		QListWidget* FileList;
 		QLineEdit* CurrentPath;

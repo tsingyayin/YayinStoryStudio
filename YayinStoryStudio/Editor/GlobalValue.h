@@ -3,6 +3,8 @@
 #include <Utility/JsonConfig.h>
 #include <Editor/ThemeManager.h>
 #include <Editor/LangServerManager.h>
+#include <Editor/EditorPluginManager.h>
+#include <Editor/FileServerManager.h>
 namespace YSS {
 	namespace Editor {
 		class MainWin;
@@ -16,6 +18,8 @@ namespace YSS {
 		YSSCore::Utility::JsonConfig* Language = nullptr;
 		YSSCore::Editor::ThemeManager* Theme = nullptr;
 		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;
+		YSSCore::Editor::EditorPluginManager* PluginManager = nullptr;
+		YSSCore::Editor::FileServerManager* FileServerManager = nullptr;
 		YSS::Editor::MainWin* MainWindow = nullptr;
 	public:
 		GlobalValue();

@@ -26,9 +26,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\TextEdit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -44,7 +41,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\TextWidget.cpp">
+    <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp">
@@ -58,9 +55,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\MainEditor\TextEdit.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -76,7 +70,7 @@
     <QtMoc Include="Editor\MainEditor\StackBar.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\MainEditor\TextWidget.h">
+    <QtMoc Include="Editor\MainEditor\FileEditorArea.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\StackBarLabel.h">
@@ -91,11 +85,9 @@
     <QtMoc Include="Editor\GlobalValue.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Editor\MainEditor\StackWidget.h">
+    <QtMoc Include="Editor\ProjectPage\ProjectWin.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">

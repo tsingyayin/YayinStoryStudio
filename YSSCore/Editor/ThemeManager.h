@@ -21,3 +21,5 @@ namespace YSSCore::Editor {
 		ThemeManagerPrivate* p;
 	};
 }
+
+#define YSSTM YSSCore::Editor::ThemeManager::getInstance()

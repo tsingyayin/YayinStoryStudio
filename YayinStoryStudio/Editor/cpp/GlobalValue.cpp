@@ -9,8 +9,14 @@ namespace YSS {
 		Instance = this;
 		Theme = new YSSCore::Editor::ThemeManager(this);
 		LangServerManager = new YSSCore::Editor::LangServerManager();
+		PluginManager = new YSSCore::Editor::EditorPluginManager();
+		FileServerManager = new YSSCore::Editor::FileServerManager();
 		loadConfig();
 		loadLanguage();
+		PluginManager->programLoadPlugin();
+		QString themeFile = "./resource/theme/" + Config->getString("Preferences.Theme") + ".json";
+		Theme->loadConfig(themeFile);
+		PluginManager->loadPlugin();
 	}
 	QColor GlobalValue::getColor(const QString& key) {
 		return Instance->Theme->getColor(key);
@@ -77,7 +83,6 @@ namespace YSS {
 		else {
 			qDebug() << "GlobalValue: loadLanguage failed!";
 		}
-		qDebug() << GlobalValue::getTr("General.File");
 	}
 
 	YSSCore::Editor::LangServerManager* GlobalValue::getLangServerManager() {
