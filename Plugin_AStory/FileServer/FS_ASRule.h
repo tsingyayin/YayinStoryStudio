@@ -19,11 +19,10 @@ public:
 	virtual bool onClose();
 	virtual bool onSave(const QString& path = "");
 	virtual bool onSaveAs(const QString& path = "");
-	virtual bool onReload(); 
+	virtual bool onReload();
 private:
 	QString FilePath;
 	QVBoxLayout* Layout;
 private:
 	void generateContent(QTextStream* ts);
-
 };

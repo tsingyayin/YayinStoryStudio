@@ -219,7 +219,6 @@
     <ClInclude Include="Editor\LangServer.h" />
     <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Editor\ThemeManager.h" />
-    <QtMoc Include="General\YSSProject.h" />
     <ClInclude Include="Editor\DebugServer.h" />
     <QtMoc Include="Editor\EditorPlugin.h" />
     <QtMoc Include="Editor\ProjectTemplateProvider.h" />

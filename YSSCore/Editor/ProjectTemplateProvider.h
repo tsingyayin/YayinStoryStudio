@@ -13,7 +13,7 @@ namespace YSSCore::Editor {
 		void projectPrepared(const QString& path);
 	};
 	class ProjectTemplateProviderPrivate;
-	class YSSCoreAPI ProjectTemplateProvider  {
+	class YSSCoreAPI ProjectTemplateProvider {
 		friend class ProjectTemplateProviderPrivate;
 	public:
 		ProjectTemplateProvider();

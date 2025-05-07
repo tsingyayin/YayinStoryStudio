@@ -5,7 +5,7 @@
 #include "../LangServerManager.h"
 
 namespace YSSCore::Editor {
-	TextEdit::TextEdit(QWidget* parent):YSSCore::Editor::FileEditWidget(parent) {
+	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		this->setMinimumSize(800, 600);
 
 		Font = QFont("Microsoft YaHei");
@@ -18,7 +18,7 @@ namespace YSSCore::Editor {
 		Line->document()->setDefaultFont(QFont("Microsoft YaHei"));
 		Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	
+
 		Text = new QTextEdit(this);
 		Text->document()->setDefaultFont(QFont("Microsoft YaHei"));
 		Text->setTabStopDistance(qMax(20.0, TabWidth * FontMetrics->size(Qt::TextSingleLine, " ").width()));
@@ -60,7 +60,7 @@ namespace YSSCore::Editor {
 		}
 		QString ext = QFileInfo(path).suffix();
 		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
-		if (server!=nullptr) {
+		if (server != nullptr) {
 			Highlighter = server->createHighlighter();
 			Highlighter->setDocument(Text->document());
 		}
@@ -75,7 +75,7 @@ namespace YSSCore::Editor {
 		}
 		QTextStream in(&file);
 		in.setEncoding(QStringConverter::Utf8);
-		Text->setPlainText(in.readAll());		
+		Text->setPlainText(in.readAll());
 		TextChanged = false;
 		LastCursor.movePosition(QTextCursor::Start);
 		file.close();
@@ -109,7 +109,7 @@ namespace YSSCore::Editor {
 			blockFormat.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
 			blockFormat.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
 			for (int i = 0; i < delta; i++) {
-				Line->append(QString::number(LineCount+i+1));
+				Line->append(QString::number(LineCount + i + 1));
 				cursor.movePosition(QTextCursor::Down);
 				cursor.setBlockFormat(blockFormat);
 			}
@@ -310,7 +310,6 @@ namespace YSSCore::Editor {
 	}
 
 	void TextEdit::onMouseMove(QMouseEvent* event) {
-		
 	}
 
 	void TextEdit::onCursorPositionChanged() {

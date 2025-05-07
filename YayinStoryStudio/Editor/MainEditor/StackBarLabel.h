@@ -8,7 +8,7 @@ class QPushButton;
 
 namespace YSS::Editor {
 	class StackBar;
-	
+
 	class StackBarLabel :public QWidget {
 		Q_OBJECT;
 	signals:

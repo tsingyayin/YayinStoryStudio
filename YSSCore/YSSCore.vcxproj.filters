@@ -126,9 +126,6 @@
     <QtMoc Include="Editor\ThemeManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="General\YSSProject.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\EditorPlugin.h">
       <Filter>Header Files</Filter>
     </QtMoc>

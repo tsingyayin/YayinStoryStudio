@@ -5,7 +5,7 @@
 namespace YSSCore::Editor {
 	class LangServer;
 	class LangServerManagerPrivate;
-	class YSSCoreAPI LangServerManager{
+	class YSSCoreAPI LangServerManager {
 	public:
 		LangServerManager();
 		~LangServerManager();

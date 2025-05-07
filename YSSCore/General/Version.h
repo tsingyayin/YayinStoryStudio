@@ -1,5 +1,5 @@
 #pragma once
-#include <QtCore>
+#include <QString>
 #include "../Macro.h"
 
 #define YSSCore_VERSION_MAJOR 0

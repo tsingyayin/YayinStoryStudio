@@ -8,7 +8,7 @@ namespace YSS::Editor {
 		ScrollArea = new QScrollArea(this);
 		ScrollArea->setWidgetResizable(true);
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	
+
 		ScrollAreaWidget = new QWidget(this);
 		ScrollArea->setWidget(ScrollAreaWidget);
 		Layout = new QHBoxLayout(ScrollAreaWidget);

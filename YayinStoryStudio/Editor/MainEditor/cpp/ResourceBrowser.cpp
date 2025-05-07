@@ -6,7 +6,7 @@
 #include <QLineEdit>
 
 namespace YSS::Editor {
-	ResourceBrowser::ResourceBrowser(QWidget* parent):QWidget(parent) {
+	ResourceBrowser::ResourceBrowser(QWidget* parent) :QWidget(parent) {
 		ButtonWidget = new QWidget(this);
 
 		ButtonLayout = new QHBoxLayout(ButtonWidget);

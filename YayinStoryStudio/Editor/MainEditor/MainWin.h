@@ -8,13 +8,12 @@ class QAction;
 class QHBoxLayout;
 
 namespace YSS::Editor {
-
 	class FileEditorArea;
 	class ResourceBrowser;
 
 	class MainWin : public QMainWindow {
 		Q_OBJECT;
-	private:	
+	private:
 		QWidget* CentralWidget = nullptr;
 		ResourceBrowser* Browser = nullptr;
 		FileEditorArea* Editor = nullptr;

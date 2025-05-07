@@ -1,6 +1,6 @@
 #include "../Console.h"
 #include <iostream>
-#include <QtCore>
+#include <QRegularExpression>
 
 namespace YSSCore::Utility {
 	/*!

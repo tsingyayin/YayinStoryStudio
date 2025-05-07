@@ -4,7 +4,7 @@
 
 class QScrollArea;
 class QHBoxLayout;
- 
+
 namespace YSS::Editor {
 	class StackBarLabel;
 
@@ -30,6 +30,4 @@ namespace YSS::Editor {
 	private:
 		virtual void resizeEvent(QResizeEvent* event) override;
 	};
-
-	
 }

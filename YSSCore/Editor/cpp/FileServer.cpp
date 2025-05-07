@@ -1,5 +1,5 @@
 #include "../FileServer.h"
-#include <QtWidgets>
+#include <QWidget>
 
 namespace YSSCore::Editor {
 	class FileServerPrivate {

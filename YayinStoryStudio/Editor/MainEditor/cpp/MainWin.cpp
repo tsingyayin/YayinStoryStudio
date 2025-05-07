@@ -10,7 +10,6 @@
 #include <QSplitter>
 
 namespace YSS::Editor {
-
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/compiled/yssicon.png"));
 		int width = GlobalValue::getConfig()->getInt("Editor.Window.Width");
@@ -29,7 +28,7 @@ namespace YSS::Editor {
 		Layout->addWidget(splitter);
 		splitter->addWidget(Browser);
 		splitter->addWidget(Editor);
-		
+
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::builtinEditorCreated,
 			Editor, &FileEditorArea::addFileEditWidget);
 
@@ -50,8 +49,8 @@ namespace YSS::Editor {
 
 	void MainWin::applyStyleSheet() {
 		this->setStyleSheet("QWidget{\
-			background-color: "%YSSTM->getColorString("ThemeColor.Background") % ";\
-			color: "%YSSTM->getColorString("ThemeColor.Text") % ";\
+			background-color: " % YSSTM->getColorString("ThemeColor.Background") % ";\
+			color: " % YSSTM->getColorString("ThemeColor.Text") % ";\
 		}");
 	}
 	void MainWin::closeEvent(QCloseEvent* event) {

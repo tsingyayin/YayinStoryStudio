@@ -1,6 +1,6 @@
 #include "../YayinStoryStudio.h"
 #include "../private/AUTO_VERSION.h"
-namespace YSSCore::General{
+namespace YSSCore::General {
 	Version YayinStoryStudio::getVersion()
 	{
 		return Version(10, 0, 0, true, YSSCore_VERSION_BUILD);

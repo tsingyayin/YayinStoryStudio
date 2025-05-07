@@ -15,6 +15,4 @@ void Plugin_AStory::onPluginEnable() {
 }
 
 void Plugin_AStory::onPluginDisbale() {
-
-
 }

@@ -4,6 +4,5 @@
 
 namespace YSSCore::Editor {
 	class YSSCoreAPI DebugServer {
-
 	};
 }

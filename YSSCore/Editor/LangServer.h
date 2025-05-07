@@ -6,7 +6,7 @@
 
 namespace YSSCore::Editor {
 	class LangServerPrivate;
-	class YSSCoreAPI LangServer{
+	class YSSCoreAPI LangServer {
 		friend class LangServerPrivate;
 		friend class LangServerManager;
 	public:
@@ -19,4 +19,3 @@ namespace YSSCore::Editor {
 		LangServerPrivate* p;
 	};
 }
-

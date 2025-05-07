@@ -1,5 +1,5 @@
 #pragma once
-#include <QtCore>
+#include <QString>
 #include "../Macro.h"
 
 namespace YSSCore::Utility {

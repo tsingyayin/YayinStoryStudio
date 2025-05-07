@@ -4,7 +4,6 @@
 AStoryLanguageServer::AStoryLanguageServer() :
 	YSSCore::Editor::LangServer("AStory", { "astory" })
 {
-
 }
 
 QSyntaxHighlighter* AStoryLanguageServer::createHighlighter() {

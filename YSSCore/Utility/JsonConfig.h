@@ -1,11 +1,13 @@
 #pragma once
-#include <QtCore>
-#include "JsonValueRef.h"
+#include <QString>
+#include <QJsonValue>
+#include <QJsonDocument>
+
 #include "../Macro.h"
+
 namespace YSSCore::Utility {
-
 	class JsonConfigPrivate;
-
+	class JsonValueRef;
 	class YSSCoreAPI JsonConfig
 	{
 		friend class JsonConfigPrivate;

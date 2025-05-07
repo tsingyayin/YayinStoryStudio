@@ -1,4 +1,5 @@
 #include "../ExtTool.h"
+#include <QSettings>
 
 namespace YSSCore::Utility {
 	void ExtTool::registerFileExtension(const QString& ext, const QString& description) {

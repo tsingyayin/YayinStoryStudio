@@ -4,7 +4,6 @@
 #include <QWidget>
 namespace YSS::Editor {
 	PlayerProxy::PlayerProxy(QWidget* parent) : QObject(parent) {
-		
 	}
 
 	QWidget* PlayerProxy::doASEProxy() {

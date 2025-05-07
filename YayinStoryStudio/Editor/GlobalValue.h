@@ -14,7 +14,7 @@ namespace YSS {
 		Q_OBJECT;
 	private:
 		static GlobalValue* Instance;
-		YSSCore::Utility::JsonConfig * Config = nullptr;
+		YSSCore::Utility::JsonConfig* Config = nullptr;
 		YSSCore::Utility::JsonConfig* Language = nullptr;
 		YSSCore::Editor::ThemeManager* Theme = nullptr;
 		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;

@@ -6,7 +6,7 @@
 #include <QMouseEvent>
 
 namespace YSS::Editor {
-	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, YSSCore::Editor::FileEditWidget* target):QWidget() {
+	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, YSSCore::Editor::FileEditWidget* target) :QWidget() {
 		FilePath = filePath;
 		NameLabel = new QLabel(name, this);
 		PinButton = new QPushButton("Pin", this);
@@ -27,7 +27,6 @@ namespace YSS::Editor {
 				emit closeReady(this);
 			}
 			});
-		
 	}
 
 	StackBarLabel::~StackBarLabel() {
@@ -48,8 +47,8 @@ namespace YSS::Editor {
 		switch (state) {
 		case State::Normal:
 			this->setStyleSheet("QWidget{\
-				background-color: "%YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Background") % ";\
-				color:"% YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Text") %"};");
+				background-color: " % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Background") % ";\
+				color:" % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Text") % "};");
 			break;
 		case State::Focused:
 			this->setStyleSheet("QWidget{\

@@ -1,4 +1,8 @@
 #include "../JsonConfig.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include "../JsonValueRef.h"
 
 namespace YSSCore::Utility {
 	class JsonConfigPrivate
@@ -156,7 +160,6 @@ namespace YSSCore::Utility {
 		请注意，在对VIJsonConfig进行设置之后，需要自行使用toString()将其
 		保存到外部，否则设置的内容将会丢失。这同样发生在使用operator=()赋值操作符
 		时。
-
 
 	*/
 
@@ -562,5 +565,4 @@ namespace YSSCore::Utility {
 	{
 		return d->getValue(key).isDouble();
 	}
-
 }

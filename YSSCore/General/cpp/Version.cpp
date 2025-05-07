@@ -1,5 +1,5 @@
 #include "../Version.h"
-
+#include <QStringList>
 namespace YSSCore::General {
 	class VersionPrivate
 	{
@@ -197,5 +197,4 @@ namespace YSSCore::General {
 	{
 		return p->build;
 	}
-
 }

@@ -1,6 +1,8 @@
 #include "../JsonDocument.h"
 #include "../JsonConfig.h"
-#include <QtCore>
+#include "../JsonValueRef.h"
+#include <QFile>
+
 namespace YSSCore::Utility {
 	class JsonDocumentPrivate
 	{
@@ -445,7 +447,4 @@ namespace YSSCore::Utility {
 	bool JsonDocument::isDouble(const QString& key) {
 		return getValue(key).isDouble();
 	}
-
 }
-
-

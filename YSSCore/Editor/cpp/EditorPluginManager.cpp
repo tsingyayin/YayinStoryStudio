@@ -1,7 +1,9 @@
 #include "../EditorPluginManager.h"
 #include "../EditorPlugin.h"
 #include "../../Utility/JsonConfig.h"
-
+#include <QLibrary>
+#include <QFileInfo>
+#include <QDir>
 namespace YSSCore::Editor {
 	class EditorPluginManagerPrivate {
 		friend class EditorPluginManager;

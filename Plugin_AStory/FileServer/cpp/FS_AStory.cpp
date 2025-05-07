@@ -2,5 +2,5 @@
 
 AStoryFileServer::AStoryFileServer() {
 	setEditorType(YSSCore::Editor::FileServer::CodeEditor);
-	setSupportedFileExts({"astory"});
+	setSupportedFileExts({ "astory" });
 }

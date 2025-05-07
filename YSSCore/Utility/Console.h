@@ -1,6 +1,8 @@
 #pragma once
-#include <QtCore>
+#include <QString>
+#include <QList>
 #include <QColor>
+#include <QByteArray>
 #include "../Macro.h"
 namespace YSSCore::Utility {
 	class YSSCoreAPI Console {

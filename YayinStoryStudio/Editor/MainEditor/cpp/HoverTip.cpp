@@ -8,13 +8,12 @@ namespace YSS::Editor {
 		ShowPos = event->globalPosition();
 		this->setAttribute(Qt::WA_TransparentForMouseEvents);
 		this->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
-		
+
 		ImageLabel = new QLabel(this);
 		ImageLabel->setScaledContents(true);
-		
+
 		TextBrowser = new QTextBrowser(this);
 		TextBrowser->setOpenExternalLinks(true);
-		
 	}
 	void HoverTip::setImage(const QString& path) {
 		QPixmap pixmap(path);
@@ -25,6 +24,6 @@ namespace YSS::Editor {
 	}
 	void HoverTip::show() {
 		this->setGeometry(ShowPos.x(), ShowPos.y(), 200, 200);
-		this->show();
+		QWidget::show();
 	}
 }

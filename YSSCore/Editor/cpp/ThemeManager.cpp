@@ -1,5 +1,7 @@
 #include "../ThemeManager.h"
-#include <QtGui>
+#include <QColor>
+#include <QFile>
+#include <QIODevice>
 namespace YSSCore::Editor {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
