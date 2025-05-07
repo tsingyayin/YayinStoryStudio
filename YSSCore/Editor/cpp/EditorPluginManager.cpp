@@ -1,6 +1,5 @@
 #include "../EditorPluginManager.h"
 #include "../EditorPlugin.h"
-#include <Windows.h>
 #include "../../Utility/JsonConfig.h"
 
 namespace YSSCore::Editor {
@@ -13,7 +12,7 @@ namespace YSSCore::Editor {
 		QMap<QString, quint32> PriorityMap;
 		QList<QString> PriorityPlugins;
 		QMap<QString, QString> PluginPathMap;
-		QMap<QString, HMODULE> Dlls;
+		QMap<QString, QLibrary*> Dlls;
 		static QFileInfoList recursionGetAllDll(const QString& path) {
 			QDir dir(path);
 			QStringList filters;
@@ -28,6 +27,19 @@ namespace YSSCore::Editor {
 			return list;
 		}
 	};
+	/*!
+		\class YSSCore::Editor::EditorPluginManager
+		\inmodule YSSCore
+		\brief 此类为YayinStoryStudio提供插件管理器。
+		\since YSSCore 0.10.0
+
+		EditorPluginManager负责加载和管理插件。
+	*/
+	/*!
+		\since YSSCore 0.10.0
+		\a parent 为父对象。
+		构造EditorPluginManager对象。
+	*/
 	EditorPluginManager::EditorPluginManager(QObject* parent) : QObject(parent) {
 		p = new EditorPluginManagerPrivate();
 	}
@@ -80,25 +92,26 @@ namespace YSSCore::Editor {
 		for (QString key : p->PriorityPlugins) {
 			if (p->PluginPathMap.contains(key)) {
 				QString path = p->PluginPathMap.value(key);
-				HMODULE hModule = LoadLibraryA(path.toStdString().c_str());
-				if (hModule == nullptr) {
+				QLibrary* hLibrary = new QLibrary(path);
+				if (hLibrary->load() == false) {
 					qDebug() << "EditorPluginManager: load dll failed!";
 					return;
 				}
-				__YSSPluginDllMain PluginDllMain = (__YSSPluginDllMain)(GetProcAddress(hModule, "YSSPluginDllMain"));
+				__YSSPluginDllMain PluginDllMain = (__YSSPluginDllMain)hLibrary->resolve("YSSPluginDllMain");
 				if (PluginDllMain == nullptr) {
 					qDebug() << "EditorPluginManager: get dll entry point failed!";
-					FreeLibrary(hModule);
+					hLibrary->unload();
+					delete hLibrary;
 					return;
 				}
 				EditorPlugin* plugin = PluginDllMain();
 				if (plugin == nullptr) {
 					qDebug() << "EditorPluginManager: create EditorPlugin failed!";
-					FreeLibrary(hModule);
+					hLibrary->unload();
 					return;
 				}
 				p->Plugins.append(plugin);
-				p->Dlls.insert(plugin->getPluginID(), hModule);
+				p->Dlls.insert(plugin->getPluginID(), hLibrary);
 				p->PluginIDMap.insert(plugin->getPluginID(), plugin);
 				plugin->setPluginFolder(path);
 				qDebug() << "EditorPluginManager: load plugin:" << plugin->getPluginID();

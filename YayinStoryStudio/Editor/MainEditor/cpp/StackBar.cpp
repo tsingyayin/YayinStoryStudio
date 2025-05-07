@@ -1,4 +1,7 @@
 #include "../StackBar.h"
+#include "../StackBarLabel.h"
+#include <QScrollArea>
+#include <QHBoxLayout>
 
 namespace YSS::Editor {
 	StackBar::StackBar(QWidget* parent) : QWidget(parent) {

@@ -5,6 +5,10 @@
 #include <Utility/JsonConfig.h>
 #include <Editor/ThemeManager.h>
 #include <Editor/FileServerManager.h>
+#include <QHBoxLayout>
+#include <QMenuBar>
+#include <QSplitter>
+
 namespace YSS::Editor {
 
 	MainWin::MainWin() :QMainWindow() {

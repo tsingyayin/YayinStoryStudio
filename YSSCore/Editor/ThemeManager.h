@@ -1,5 +1,7 @@
 #pragma once
-#include <QtCore>
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtGui/QColor>
 #include "../Utility/JsonConfig.h"
 #include "../Macro.h"
 

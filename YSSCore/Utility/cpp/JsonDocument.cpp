@@ -12,9 +12,9 @@ namespace YSSCore::Utility {
 	};
 
 	/*!
-		\class JsonDocument
-		\inmodule VIMiCore
-		\since Visindigo 2.0.0
+		\class YSSCore::Utility::JsonDocument
+		\inmodule YSSCore
+		\since YSSCore 0.10.0
 		\brief 此类在VIJsonConfig的基础上增加了一种允许存在默认值的配置文件的处理方式。
 		\sa JsonConfig
 

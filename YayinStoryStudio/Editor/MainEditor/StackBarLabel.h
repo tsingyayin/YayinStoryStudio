@@ -1,6 +1,10 @@
 #pragma once
-#include <QtWidgets>
+#include <QObject>
 #include <Editor/FileEditWidget.h>
+
+class QLabel;
+class QHBoxLayout;
+class QPushButton;
 
 namespace YSS::Editor {
 	class StackBar;

@@ -1,0 +1,32 @@
+include(D:\Qt\6.5.2\Docs\Qt-6.8.3\global\qt-html-templates-offline.qdocconf)
+
+project = YSSCore
+
+indexes = D:/Qt/6.5.2/Docs/Qt-6.8.3/qtcore/qtcore.index \
+			D:/Qt/6.5.2/Docs/Qt-6.8.3/qtgui/qtgui.index \
+			D:/Qt/6.5.2/Docs/Qt-6.8.3/qtwidgets/qtwidgets.index
+
+depends = qtcore qtwidgets qtgui
+
+includepaths = D:/Qt/6.5.2/6.8.3/msvc2022_64/include/QtCore \
+				D:/Qt/6.5.2/6.8.3/msvc2022_64/include/QtGui \
+				D:/Qt/6.5.2/6.8.3/msvc2022_64/include/QtWidgets \
+				E:/source/repos/YayinStoryStudio/YSSCore
+
+headerdirs = E:/source/repos/YayinStoryStudio/YSSCore
+sourcedirs = E:/source/repos/YayinStoryStudio/YSSCore
+
+headers.fileextensions  = "*.h *.hpp"
+sources.fileextensions  = "*.cpp *.qml *.qdoc"
+
+outputdir   = html
+
+sourceencoding = UTF-8
+
+outputencoding = UTF-8
+
+naturallanguage = zh-Hans
+
+exampledirs = ./examples
+
+imagedirs   = ./images

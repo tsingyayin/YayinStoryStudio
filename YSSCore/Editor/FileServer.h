@@ -1,8 +1,11 @@
 #pragma once
-#include <QtGui>
+#include <QtCore/QString>
+#include <QtCore/QList>
 #include "../Macro.h"
-#include "FileEditWidget.h"
+
+class QWidget;
 namespace YSSCore::Editor {
+	class FileEditWidget;
 	class FileServerPrivate;
 	class YSSCoreAPI FileServer {
 	public:

@@ -1,4 +1,5 @@
 #include "../FileServerManager.h"
+#include "../FileServer.h"
 #include "../TextEdit.h"
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {

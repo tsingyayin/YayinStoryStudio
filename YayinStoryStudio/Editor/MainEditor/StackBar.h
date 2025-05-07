@@ -1,7 +1,13 @@
 #pragma once
-#include <QtWidgets>
-#include "StackBarLabel.h"
+#include <QObject>
+#include <QWidget>
+
+class QScrollArea;
+class QHBoxLayout;
+ 
 namespace YSS::Editor {
+	class StackBarLabel;
+
 	class StackBar :public QWidget {
 		Q_OBJECT;
 	signals:

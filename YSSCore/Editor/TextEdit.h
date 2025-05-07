@@ -42,6 +42,5 @@ namespace YSSCore::Editor {
 		virtual bool onSave(const QString& path = "") override;
 		virtual bool onSaveAs(const QString& path = "") override;
 		virtual bool onReload() override;
-		virtual QWidget* getWidget() override;
 	};
 }

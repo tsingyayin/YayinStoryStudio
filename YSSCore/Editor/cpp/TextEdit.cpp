@@ -418,7 +418,4 @@ namespace YSSCore::Editor {
 		openFile(FilePath);
 		return true;
 	}
-	QWidget* TextEdit::getWidget() {
-		return this;
-	}
 }

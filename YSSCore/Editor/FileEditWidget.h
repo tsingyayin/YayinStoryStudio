@@ -1,7 +1,9 @@
 #pragma once
-#include <QtCore>
-#include <QtWidgets>
+#include <QObject>
+#include <QString>
+#include <QFrame>
 #include "../Macro.h"
+
 class QWidget;
 namespace YSSCore::Editor {
 	class YSSCoreAPI FileEditWidget :public QFrame {
@@ -15,6 +17,5 @@ namespace YSSCore::Editor {
 		virtual bool onSave(const QString& path = "") = 0;
 		virtual bool onSaveAs(const QString& path = "") = 0;
 		virtual bool onReload() = 0;
-		virtual QWidget* getWidget() = 0;
 	};
 }

@@ -1,7 +1,14 @@
 #pragma once
-#include <QtWidgets>
-#include "PlayerProxy.h"
+#include <QObject>
+#include <QMainWindow>
+
+class QMenuBar;
+class QMenu;
+class QAction;
+class QHBoxLayout;
+
 namespace YSS::Editor {
+
 	class FileEditorArea;
 	class ResourceBrowser;
 
@@ -23,6 +30,5 @@ namespace YSS::Editor {
 		QMenu* FileMenu = nullptr;
 		QAction* SaveAction = nullptr;
 		QAction* SaveAsAction = nullptr;
-
 	};
 }

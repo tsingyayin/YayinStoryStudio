@@ -1,5 +1,8 @@
 #pragma once
-#include <QtWidgets>
+#include <QObject>
+
+class QWindow;
+class QWidget;
 
 namespace YSS::Editor {
 	class PlayerProxy :public QObject {

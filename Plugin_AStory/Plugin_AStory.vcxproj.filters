@@ -38,6 +38,9 @@
     <ClCompile Include="FileServer\cpp\FS_AStory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FileServer\cpp\FS_ASRule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -47,6 +50,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileServer\FS_AStory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileServer\FS_ASRule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

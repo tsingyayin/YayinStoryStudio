@@ -1,15 +1,13 @@
 #pragma once
-#include <QtCore>
-#include <QtGui>
+#include <QtCore/QString>
 #include "../Macro.h"
 
 namespace YSSCore::Editor {
 	class LangServer;
 	class LangServerManagerPrivate;
-	class YSSCoreAPI LangServerManager :public QObject{
-		Q_OBJECT;
+	class YSSCoreAPI LangServerManager{
 	public:
-		LangServerManager(QObject* parent = nullptr);
+		LangServerManager();
 		~LangServerManager();
 		bool addLangServer(LangServer* server);
 		LangServer* routeID(const QString& id);

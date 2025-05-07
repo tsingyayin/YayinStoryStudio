@@ -1,5 +1,7 @@
 #pragma once
-#include <QtWidgets>
+#include <QtCore/QObject>
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QLabel>
 
 namespace YSS::TitlePage {
 	class TitlePage :public QFrame {
@@ -8,8 +10,6 @@ namespace YSS::TitlePage {
 	public:
 		TitlePage();
 		void showEvent(QShowEvent* event) override;
-	signals:
-		void startLoad();
 	private:
 		void load();
 	};

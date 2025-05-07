@@ -1,5 +1,9 @@
 #include "../StackBarLabel.h"
 #include <Editor/ThemeManager.h>
+#include <QLabel>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QMouseEvent>
 
 namespace YSS::Editor {
 	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, YSSCore::Editor::FileEditWidget* target):QWidget() {
@@ -28,7 +32,7 @@ namespace YSS::Editor {
 
 	StackBarLabel::~StackBarLabel() {
 		if (TargetWidget != nullptr) {
-			TargetWidget->getWidget()->deleteLater();
+			TargetWidget->deleteLater();
 		}
 	}
 	void StackBarLabel::setName(const QString& name) {

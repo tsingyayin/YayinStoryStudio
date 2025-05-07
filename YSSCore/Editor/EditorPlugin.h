@@ -1,13 +1,15 @@
 #pragma once
-#include <QtCore>
+#include <QObject>
+#include <QString>
+#include <QList>
 #include "../Macro.h"
 #include "../General/Version.h"
-#include "LangServer.h"
-#include "DebugServer.h"
-#include "FileServer.h"
-#include "ProjectTemplateProvider.h"
 
 namespace YSSCore::Editor {
+	class LangServer;
+	class DebugServer;
+	class FileServer;
+	class ProjectTemplateProvider;
 	class EditorPluginPrivate;
 	class EditorPluginManager;
 

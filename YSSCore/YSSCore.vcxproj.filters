@@ -115,14 +115,14 @@
     <ClInclude Include="General\private\AUTO_VERSION.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\ProjectTemplateManager.h">
+    <ClInclude Include="YSSCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\LangServerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\LangServerManager.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\ThemeManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -138,13 +138,16 @@
     <QtMoc Include="Editor\EditorPluginManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\FileServerManager.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\FileEditWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\TextEdit.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ProjectTemplateManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\FileServerManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -1,5 +1,13 @@
 #pragma once
-#include <QtWidgets>
+#include <QObject>
+#include <QPointF>
+#include <QString>
+#include <QWidget>
+
+class QLabel;
+class QTextBrowser;
+class QVBoxLayout;
+class QMouseEvent;
 
 namespace YSS::Editor {
 	class HoverTip :public QWidget {

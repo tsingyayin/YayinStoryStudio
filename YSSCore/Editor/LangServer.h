@@ -1,5 +1,6 @@
 #pragma once
-#include <QtGui>
+#include <QString>
+#include <QList>
 #include "../Macro.h"
 #include <QSyntaxHighlighter>
 

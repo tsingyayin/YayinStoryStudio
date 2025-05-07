@@ -1,19 +1,20 @@
 #include "../Console.h"
 #include <iostream>
 #include <QtCore>
-/*!
-	\class Console
-	\inmodule VIMiCore
-	\brief VIConsole为Visindigo提供初级的控制台快捷功能。
-	\since Visindigo 2.0.0
-	\ingroup All
+
+namespace YSSCore::Utility {
+	/*!
+	\class YSSCore::Utility::Console
+	\inmodule YSSCore
+	\brief 此类为YayinStoryStudio提供初级的控制台快捷功能。
+	\since YSSCore 0.10.0
 
 	VIConsole提供输出到控制台时可能需要的颜色控制、格式控制等功能，并提供了一个用于快速打印二进制数据的函数QString::printBinary()。
 
 */
 /*!
-	\enum Console::Color
-	\since Visindigo 2.0.0
+	\enum YSSCore::Utility::Console::Color
+	\since YSSCore 0.10.0
 	\value None 无颜色
 	\value Black 黑色
 	\value Gray 灰色
@@ -33,12 +34,11 @@
 	\value White 白色
 */
 /*!
-	\since Visindigo 2.0.0
+	\since YSSCore 0.10.0
 	\a rawText 为要设置颜色的文本。
 	\a color 为颜色。
 	\a styleList 为样式列表。
 */
-namespace YSSCore::Utility {
 	QString Console::getColorString(QString rawText, Console::Color color, QList<Console::Style> styleList) {
 		QString styleString = "";
 		switch (color) {

@@ -210,19 +210,20 @@
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="YSSCore.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />
     <QtMoc Include="Editor\FileServerManager.h" />
     <QtMoc Include="Editor\FileEditWidget.h" />
     <QtMoc Include="Editor\TextEdit.h" />
     <ClInclude Include="Editor\FileServer.h" />
     <ClInclude Include="Editor\LangServer.h" />
-    <QtMoc Include="Editor\LangServerManager.h" />
+    <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Editor\ThemeManager.h" />
     <QtMoc Include="General\YSSProject.h" />
     <ClInclude Include="Editor\DebugServer.h" />
     <QtMoc Include="Editor\EditorPlugin.h" />
     <QtMoc Include="Editor\ProjectTemplateProvider.h" />
-    <ClInclude Include="Editor\ProjectTemplateManager.h" />
+    <QtMoc Include="Editor\ProjectTemplateManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />
     <ClInclude Include="General\Version.h" />
     <ClInclude Include="General\YayinStoryStudio.h" />

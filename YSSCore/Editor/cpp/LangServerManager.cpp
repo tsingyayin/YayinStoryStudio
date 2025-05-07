@@ -13,7 +13,7 @@ namespace YSSCore::Editor {
 
 	LangServerManager* LangServerManagerPrivate::Instance = nullptr;
 
-	LangServerManager::LangServerManager(QObject* parent):QObject(parent) {
+	LangServerManager::LangServerManager(){
 		LangServerManagerPrivate::Instance = this;
 		p = new LangServerManagerPrivate();
 	}

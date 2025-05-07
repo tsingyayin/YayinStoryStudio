@@ -1,0 +1,7 @@
+/*!
+	\module YSSCore
+	\title Yayin Story Studio 内核模块
+	\brief 包括了用于构建 Yayin Story Studio 内核以及插件的全部功能模块。
+	\since Yayin Story Studio 0.10.0
+
+	Yayin Story Studio 程序本体和各插件依赖此模块构建。要开发 Yayin Story Studio 的插件，请参见 \l YSSPluginDev.html .

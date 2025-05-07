@@ -1,4 +1,8 @@
 #include "../FileEditorArea.h"
+#include "../StackBar.h"
+#include "../StackBarLabel.h"
+#include <QVBoxLayout>
+#include <QLabel>
 
 namespace YSS::Editor {
 	FileEditorArea::FileEditorArea(QWidget* parent) : QWidget(parent) {
@@ -33,7 +37,7 @@ namespace YSS::Editor {
 		ActiveWidget->hide();
 		Layout->removeWidget(ActiveWidget);
 		if (label != nullptr) {
-			ActiveWidget = label->getTargetWidget()->getWidget();
+			ActiveWidget = label->getTargetWidget();
 		}
 		else {
 			ActiveWidget = DefaultWidget;

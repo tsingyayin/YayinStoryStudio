@@ -1,10 +1,12 @@
 #pragma once
-#include <QtCore>
-#include <QtWidgets>
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtWidgets/QFrame>
+#include <QtGui/QIcon>
 #include "../Macro.h"
 
 namespace YSSCore::Editor {
-	class ProjectTemplateInitWidget :public QFrame {
+	class YSSCoreAPI ProjectTemplateInitWidget :public QFrame {
 		Q_OBJECT;
 	signals:
 		void lastProjectPathChanged(const QString& path);

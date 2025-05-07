@@ -1,5 +1,9 @@
 #include "../ResourceBrowser.h"
 #include <Editor/FileServerManager.h>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QListWidget>
+#include <QLineEdit>
 
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent):QWidget(parent) {

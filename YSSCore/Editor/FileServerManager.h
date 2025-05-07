@@ -1,10 +1,14 @@
 #pragma once
-#include <QtCore>
+#include <QtCore/QObject>
+#include <QtCore/QString>
 #include "../Macro.h"
-#include "FileServer.h"
+
+class QWidget;
 namespace YSSCore::Editor {
+	class FileServer;
+	class FileEditWidget;
 	class FileServerManagerPrivate;
-	class YSSCoreAPI FileServerManager :public QObject{
+	class YSSCoreAPI FileServerManager :public QObject {
 		Q_OBJECT;
 		friend class FileServerManagerPrivate;
 	signals:

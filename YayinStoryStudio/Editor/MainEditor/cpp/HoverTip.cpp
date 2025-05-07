@@ -1,4 +1,7 @@
 #include "../HoverTip.h"
+#include <QLabel>
+#include <QTextBrowser>
+#include <QMouseEvent>
 
 namespace YSS::Editor {
 	HoverTip::HoverTip(QMouseEvent* event) : QWidget() {

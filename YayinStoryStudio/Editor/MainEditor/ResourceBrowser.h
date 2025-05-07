@@ -1,5 +1,13 @@
 #pragma once
-#include <QtWidgets>
+#include <QDir>
+#include <QWidget>
+
+class QListWidget;
+class QListWidgetItem;
+class QLineEdit;
+class QPushButton;
+class QHBoxLayout;
+class QVBoxLayout;
 
 namespace YSS::Editor {
 	class ResourceBrowser :public QWidget {

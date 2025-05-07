@@ -1,5 +1,6 @@
 #pragma once
-#include <QtCore>
+#include <QObject>
+#include <QString>
 #include "../Macro.h"
 
 namespace YSSCore::Editor {

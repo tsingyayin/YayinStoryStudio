@@ -1,6 +1,7 @@
 #include "../PlayerProxy.h"
 #include <Windows.h>
-
+#include <QWindow>
+#include <QWidget>
 namespace YSS::Editor {
 	PlayerProxy::PlayerProxy(QWidget* parent) : QObject(parent) {
 		

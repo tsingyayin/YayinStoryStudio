@@ -197,6 +197,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileServer\cpp\FS_ASRule.cpp" />
     <ClCompile Include="FileServer\cpp\FS_AStory.cpp" />
     <ClCompile Include="LangServer\cpp\LS_AStory.cpp" />
     <ClCompile Include="LangServer\cpp\SH_AStory.cpp" />
@@ -204,6 +205,7 @@
     <ClCompile Include="Plugin_AStory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileServer\FS_ASRule.h" />
     <ClInclude Include="FileServer\FS_AStory.h" />
     <ClInclude Include="LangServer\LS_AStory.h" />
     <QtMoc Include="Plugin_AStory.h" />

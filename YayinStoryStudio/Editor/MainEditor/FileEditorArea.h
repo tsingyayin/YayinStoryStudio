@@ -1,8 +1,14 @@
 #pragma once
-#include <QtWidgets>
-#include "StackBar.h"
+#include <QObject>
+#include <QWidget>
+#include <Editor/FileEditWidget.h>
+class QVBoxLayout;
+class QLabel;
 
 namespace YSS::Editor {
+	class StackBar;
+	class StackBarLabel;
+
 	class FileEditorArea :public QWidget {
 		Q_OBJECT;
 	private:
