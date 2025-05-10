@@ -1,9 +1,12 @@
 #include "../EditorPluginManager.h"
 #include "../EditorPlugin.h"
 #include "../../Utility/JsonConfig.h"
-#include <QLibrary>
-#include <QFileInfo>
-#include <QDir>
+#include <QtCore/qstring.h>
+#include <QtCore/qlibrary.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qmap.h>
+
 namespace YSSCore::Editor {
 	class EditorPluginManagerPrivate {
 		friend class EditorPluginManager;
@@ -43,14 +46,14 @@ namespace YSSCore::Editor {
 		构造EditorPluginManager对象。
 	*/
 	EditorPluginManager::EditorPluginManager(QObject* parent) : QObject(parent) {
-		p = new EditorPluginManagerPrivate();
+		d = new EditorPluginManagerPrivate();
 	}
 	EditorPluginManager::~EditorPluginManager() {
-		for (int i = 0; i < p->Plugins.size(); i++) {
-			delete p->Plugins[i];
+		for (int i = 0; i < d->Plugins.size(); i++) {
+			delete d->Plugins[i];
 		}
-		p->Plugins.clear();
-		delete p;
+		d->Plugins.clear();
+		delete d;
 	}
 	void EditorPluginManager::programLoadPlugin() {
 		QFileInfoList Plugins = EditorPluginManagerPrivate::recursionGetAllDll("./resource/plugins");
@@ -67,33 +70,33 @@ namespace YSSCore::Editor {
 			file.close();
 			Utility::JsonConfig jsonConfig(jsonStr);
 			QString id = jsonConfig.getString("ID");
-			p->PluginPathMap.insert(id, info.absoluteFilePath());
-			if (!p->PriorityMap.contains(id)) {
-				p->PriorityMap.insert(id, 0);
+			d->PluginPathMap.insert(id, info.absoluteFilePath());
+			if (!d->PriorityMap.contains(id)) {
+				d->PriorityMap.insert(id, 0);
 			}
 			qDebug() << "EditorPluginManager: plugin id:" << id;
 			if (!jsonConfig.contains("Dependencies")) {
 				continue;
 			}
 			QStringList dependIndex = jsonConfig.keys("Dependencies");
-			for (QString d : dependIndex) {
-				QString dependID = jsonConfig.getString("Dependencies." + d);
-				if (!p->PriorityMap.contains(dependID)) {
-					p->PriorityMap.insert(dependID, 1);
+			for (QString de : dependIndex) {
+				QString dependID = jsonConfig.getString("Dependencies." + de);
+				if (!d->PriorityMap.contains(dependID)) {
+					d->PriorityMap.insert(dependID, 1);
 				}
 				else {
-					p->PriorityMap[dependID] += 1;
+					d->PriorityMap[dependID] += 1;
 				}
 			}
 		}
 		// sort by priority, save path to PluginsPaths
-		p->PriorityPlugins = p->PriorityMap.keys();
-		std::sort(p->PriorityPlugins.begin(), p->PriorityPlugins.end(), [this](const QString& a, const QString& b) {
-			return p->PriorityMap[a] > p->PriorityMap[b];
+		d->PriorityPlugins = d->PriorityMap.keys();
+		std::sort(d->PriorityPlugins.begin(), d->PriorityPlugins.end(), [this](const QString& a, const QString& b) {
+			return d->PriorityMap[a] > d->PriorityMap[b];
 			});
-		for (QString key : p->PriorityPlugins) {
-			if (p->PluginPathMap.contains(key)) {
-				QString path = p->PluginPathMap.value(key);
+		for (QString key : d->PriorityPlugins) {
+			if (d->PluginPathMap.contains(key)) {
+				QString path = d->PluginPathMap.value(key);
 				QLibrary* hLibrary = new QLibrary(path);
 				if (hLibrary->load() == false) {
 					qDebug() << "EditorPluginManager: load dll failed!";
@@ -112,34 +115,34 @@ namespace YSSCore::Editor {
 					hLibrary->unload();
 					return;
 				}
-				p->Plugins.append(plugin);
-				p->Dlls.insert(plugin->getPluginID(), hLibrary);
-				p->PluginIDMap.insert(plugin->getPluginID(), plugin);
+				d->Plugins.append(plugin);
+				d->Dlls.insert(plugin->getPluginID(), hLibrary);
+				d->PluginIDMap.insert(plugin->getPluginID(), plugin);
 				plugin->setPluginFolder(path);
 				qDebug() << "EditorPluginManager: load plugin:" << plugin->getPluginID();
 			}
 		}
 	}
 	bool EditorPluginManager::isPluginEnable(const QString& id) const {
-		if (p->PluginIDMap.contains(id)) {
-			return p->PluginEnable.value(p->PluginIDMap.value(id));
+		if (d->PluginIDMap.contains(id)) {
+			return d->PluginEnable.value(d->PluginIDMap.value(id));
 		}
 		return false;
 	}
 	void EditorPluginManager::loadPlugin() {
-		for (int i = 0; i < p->PriorityPlugins.size(); i++) {
-			EditorPlugin* plugin = p->PluginIDMap[p->PriorityPlugins[i]];
-			if (p->PluginEnable.value(plugin) == false) {
+		for (int i = 0; i < d->PriorityPlugins.size(); i++) {
+			EditorPlugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
+			if (d->PluginEnable.value(plugin) == false) {
 				try {
 					plugin->onPluginEnable();
 				}
 				catch (...) {
 					qDebug() << "EditorPluginManager: plugin enable failed!";
 					plugin->onPluginDisbale();
-					p->PluginEnable.insert(plugin, false);
+					d->PluginEnable.insert(plugin, false);
 					continue;
 				}
-				p->PluginEnable.insert(plugin, true);
+				d->PluginEnable.insert(plugin, true);
 			}
 		}
 	}

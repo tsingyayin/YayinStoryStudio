@@ -12,7 +12,9 @@ namespace YSSCore::Editor {
 		void lastProjectPathChanged(const QString& path);
 		void projectPrepared(const QString& path);
 	};
+
 	class ProjectTemplateProviderPrivate;
+
 	class YSSCoreAPI ProjectTemplateProvider {
 		friend class ProjectTemplateProviderPrivate;
 	public:
@@ -22,8 +24,9 @@ namespace YSSCore::Editor {
 		QString getTemplateID();
 		QString getTemplateName();
 		QString getTemplateDescription();
+		QStringList getTemplateTags();
 		ProjectTemplateInitWidget* projectInitWidget();
 	private:
-		ProjectTemplateProviderPrivate* p;
+		ProjectTemplateProviderPrivate* d;
 	};
 }

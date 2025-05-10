@@ -77,6 +77,15 @@
     <ClCompile Include="Editor\cpp\TextEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\Translator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\YamlConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSProject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -121,6 +130,12 @@
     <ClInclude Include="Editor\LangServerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\YSSProject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\YamlConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\ThemeManager.h">
@@ -145,6 +160,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\FileServerManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\Translatior.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

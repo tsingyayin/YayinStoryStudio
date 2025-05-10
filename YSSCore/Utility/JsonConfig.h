@@ -1,10 +1,9 @@
 #pragma once
-#include <QString>
-#include <QJsonValue>
-#include <QJsonDocument>
-
+#include <QtCore/qjsondocument.h>
 #include "../Macro.h"
 
+class QString;
+class QJsonValue;
 namespace YSSCore::Utility {
 	class JsonConfigPrivate;
 	class JsonValueRef;

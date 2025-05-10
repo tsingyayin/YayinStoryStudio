@@ -1,6 +1,6 @@
 #include "../ExtTool.h"
-#include <QSettings>
-
+#include <QtCore/qsettings.h>
+#include <QtCore/qstring.h>
 namespace YSSCore::Utility {
 	void ExtTool::registerFileExtension(const QString& ext, const QString& description) {
 		QString CLASSNAME = "YayinStoryStudio";

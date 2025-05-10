@@ -1,7 +1,8 @@
 #include "../ThemeManager.h"
-#include <QColor>
-#include <QFile>
-#include <QIODevice>
+#include <QtGui/qcolor.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qiodevice.h>
+#include "../../Utility/JsonConfig.h"
 namespace YSSCore::Editor {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
@@ -11,8 +12,8 @@ namespace YSSCore::Editor {
 	};
 	ThemeManager* ThemeManagerPrivate::Instance = nullptr;
 	ThemeManager::ThemeManager(QObject* parent) : QObject(parent) {
-		p = new ThemeManagerPrivate();
-		p->Instance = this;
+		d = new ThemeManagerPrivate();
+		d->Instance = this;
 	}
 	ThemeManager* ThemeManager::getInstance() {
 		return ThemeManagerPrivate::Instance;
@@ -20,10 +21,10 @@ namespace YSSCore::Editor {
 	void ThemeManager::loadConfig(const QString& path) {
 		QFile file(path);
 		if (file.open(QIODevice::ReadOnly)) {
-			if (p->Config != nullptr) {
-				delete p->Config;
+			if (d->Config != nullptr) {
+				delete d->Config;
 			}
-			p->Config = new YSSCore::Utility::JsonConfig(file.readAll());
+			d->Config = new YSSCore::Utility::JsonConfig(file.readAll());
 			file.close();
 		}
 		else {
@@ -31,13 +32,13 @@ namespace YSSCore::Editor {
 		}
 	}
 	QString ThemeManager::getThemeName() {
-		return p->Config->getString("ThemeName");
+		return d->Config->getString("ThemeName");
 	}
 	QString ThemeManager::getThemeID() {
-		return p->Config->getString("ThemeID");
+		return d->Config->getString("ThemeID");
 	}
 	QColor ThemeManager::getColor(const QString& key) {
-		QString color = p->Config->getString(key);
+		QString color = d->Config->getString(key);
 		if (color.startsWith("#")) {
 			return QColor(color);
 		}
@@ -46,7 +47,7 @@ namespace YSSCore::Editor {
 		}
 	}
 	QString ThemeManager::getColorString(const QString& key) {
-		QString color = p->Config->getString(key);
+		QString color = d->Config->getString(key);
 		if (color.startsWith("#")) {
 			return color;
 		}

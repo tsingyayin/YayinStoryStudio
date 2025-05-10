@@ -1,6 +1,9 @@
 #include "../LangServerManager.h"
 #include "../LangServer.h"
 #include <Windows.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qmap.h>
 namespace YSSCore::Editor {
 	class LangServerManagerPrivate {
 		friend class LangServerManager;
@@ -15,59 +18,59 @@ namespace YSSCore::Editor {
 
 	LangServerManager::LangServerManager() {
 		LangServerManagerPrivate::Instance = this;
-		p = new LangServerManagerPrivate();
+		d = new LangServerManagerPrivate();
 	}
 
 	bool LangServerManager::addLangServer(LangServer* server) {
 		QString ID = server->getLangID();
 		QStringList Exts = server->getLangExts();
-		if (p->IDServers.contains(ID)) {
+		if (d->IDServers.contains(ID)) {
 			return false;
 		}
 		for (QString i : Exts) {
-			if (p->ExtServers.contains(i)) {
+			if (d->ExtServers.contains(i)) {
 				return false;
 			}
 		}
-		p->IDServers.insert(ID, server);
+		d->IDServers.insert(ID, server);
 		for (QString i : Exts) {
-			p->ExtServers.insert(i, server);
+			d->ExtServers.insert(i, server);
 		}
-		p->LangServers.append(server);
+		d->LangServers.append(server);
 		return true;
 	}
 
 	LangServer* LangServerManager::routeID(const QString& id) {
-		if (p->IDServers.contains(id)) {
-			return p->IDServers.value(id);
+		if (d->IDServers.contains(id)) {
+			return d->IDServers.value(id);
 		}
 		return nullptr;
 	}
 	LangServer* LangServerManager::routeExt(const QString& fileExt) {
-		if (p->ExtServers.contains(fileExt)) {
-			return p->ExtServers.value(fileExt);
+		if (d->ExtServers.contains(fileExt)) {
+			return d->ExtServers.value(fileExt);
 		}
 		return nullptr;
 	}
 	void LangServerManager::removeServer(LangServer* server) {
 		QString ID = server->getLangID();
 		QStringList Exts = server->getLangExts();
-		if (p->IDServers.contains(ID)) {
-			p->IDServers.remove(ID);
+		if (d->IDServers.contains(ID)) {
+			d->IDServers.remove(ID);
 		}
 		for (QString i : Exts) {
-			if (p->ExtServers.contains(i)) {
-				p->ExtServers.remove(i);
+			if (d->ExtServers.contains(i)) {
+				d->ExtServers.remove(i);
 			}
 		}
-		if (p->LangServers.contains(server)) {
-			p->LangServers.removeOne(server);
+		if (d->LangServers.contains(server)) {
+			d->LangServers.removeOne(server);
 		}
 	}
 	LangServerManager* LangServerManager::getInstance() {
 		return LangServerManagerPrivate::Instance;
 	}
 	LangServerManager::~LangServerManager() {
-		delete p;
+		delete d;
 	}
 }

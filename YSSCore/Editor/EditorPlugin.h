@@ -1,9 +1,10 @@
 #pragma once
-#include <QObject>
-#include <QString>
-#include <QList>
+#include <QtCore/qobject.h>
+#include <QtCore/qlist.h>
 #include "../Macro.h"
 #include "../General/Version.h"
+
+class QString;
 
 namespace YSSCore::Editor {
 	class LangServer;
@@ -37,7 +38,7 @@ namespace YSSCore::Editor {
 		void registerFileServer(FileServer* server);
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 	private:
-		EditorPluginPrivate* p;
+		EditorPluginPrivate* d;
 	};
 }
 

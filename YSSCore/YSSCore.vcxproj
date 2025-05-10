@@ -92,15 +92,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\DebugCache\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)library\include</IncludePath>
+    <LibraryPath>$(SolutionDir)library\bin;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\Debug\</OutDir>
+    <IncludePath>$(SolutionDir)library\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)library\bin</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutDir>$(SolutionDir)$(Platform)\ReleaseCache\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)library\include</IncludePath>
+    <LibraryPath>$(SolutionDir)library;$(LibraryPath);$(SolutionDir)library\bin;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
     <OutDir>$(SolutionDir)$(Platform)\Release\</OutDir>
+    <IncludePath>$(SolutionDir)library\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)library\bin;</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -108,7 +116,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);yaml-cppd.lib</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
@@ -122,6 +130,9 @@
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);yaml-cpp.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <ClCompile>
@@ -131,6 +142,9 @@
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);yaml-cppd.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
     <ClCompile>
@@ -140,6 +154,9 @@
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);yaml-cpp.lib</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -200,16 +217,22 @@
     <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
+    <ClCompile Include="General\cpp\Translator.cpp" />
     <ClCompile Include="General\cpp\Version.cpp" />
     <ClCompile Include="General\cpp\YayinStoryStudio.cpp" />
+    <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\cpp\Console.cpp" />
     <ClCompile Include="Utility\cpp\ExtTool.cpp" />
     <ClCompile Include="Utility\cpp\JsonConfig.cpp" />
     <ClCompile Include="Utility\cpp\JsonDocument.cpp" />
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
+    <ClCompile Include="Utility\cpp\YamlConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="General\Translatior.h" />
+    <ClInclude Include="General\YSSProject.h" />
+    <ClInclude Include="Utility\YamlConfig.h" />
     <ClInclude Include="YSSCore.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />
     <QtMoc Include="Editor\FileServerManager.h" />

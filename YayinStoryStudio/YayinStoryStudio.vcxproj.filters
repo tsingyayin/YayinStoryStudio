@@ -53,6 +53,15 @@
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">
@@ -88,10 +97,24 @@
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\ProjectPage\HistoryProjectWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ProjectPage\HistoryProjectLabel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Editor\ProjectPage\HistoryProject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

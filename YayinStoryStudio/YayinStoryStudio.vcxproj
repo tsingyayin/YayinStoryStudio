@@ -108,6 +108,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
+    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectLabel.cpp" />
+    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectWidget.cpp" />
+    <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp" />
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp" />
     <ClCompile Include="main.cpp" />
@@ -129,6 +132,12 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
+    <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
+    <QtMoc Include="Editor\ProjectPage\HistoryProjectLabel.h" />
+    <QtMoc Include="Editor\ProjectPage\HistoryProjectWidget.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

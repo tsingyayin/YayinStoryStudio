@@ -1,5 +1,6 @@
 #include "../Version.h"
-#include <QStringList>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
 namespace YSSCore::General {
 	class VersionPrivate
 	{
@@ -13,70 +14,70 @@ namespace YSSCore::General {
 	};
 	Version::Version(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build)
 	{
-		p = new VersionPrivate;
+		d = new VersionPrivate;
 		setVersion(major, minor, patch, useBuild, build);
 	}
 	Version::Version(const QString& version)
 	{
-		p = new VersionPrivate;
+		d = new VersionPrivate;
 		setVersion(version);
 	}
 	Version::Version(const Version& other)
 	{
-		p = new VersionPrivate;
-		p->major = other.p->major;
-		p->minor = other.p->minor;
-		p->patch = other.p->patch;
-		p->useBuild = other.p->useBuild;
-		p->build = other.p->build;
+		d = new VersionPrivate;
+		d->major = other.d->major;
+		d->minor = other.d->minor;
+		d->patch = other.d->patch;
+		d->useBuild = other.d->useBuild;
+		d->build = other.d->build;
 	}
 	Version::Version(Version&& other) noexcept
 	{
-		p = other.p;
-		other.p = nullptr;
+		d = other.d;
+		other.d = nullptr;
 	}
 	Version& Version::operator=(const Version& other)
 	{
 		if (this != &other) {
-			p->major = other.p->major;
-			p->minor = other.p->minor;
-			p->patch = other.p->patch;
-			p->useBuild = other.p->useBuild;
-			p->build = other.p->build;
+			d->major = other.d->major;
+			d->minor = other.d->minor;
+			d->patch = other.d->patch;
+			d->useBuild = other.d->useBuild;
+			d->build = other.d->build;
 		}
 		return *this;
 	}
 	Version& Version::operator=(Version&& other) noexcept
 	{
 		if (this != &other) {
-			if (p)
-				delete p;
-			p = other.p;
-			other.p = nullptr;
+			if (d)
+				delete d;
+			d = other.d;
+			other.d = nullptr;
 		}
 		return *this;
 	}
 	Version::~Version()
 	{
-		if (p)
-			delete p;
+		if (d)
+			delete d;
 	}
 	bool Version::operator>(const Version& other) const
 	{
-		if (p->major > other.p->major) {
+		if (d->major > other.d->major) {
 			return true;
 		}
-		else if (p->major == other.p->major) {
-			if (p->minor > other.p->minor) {
+		else if (d->major == other.d->major) {
+			if (d->minor > other.d->minor) {
 				return true;
 			}
-			else if (p->minor == other.p->minor) {
-				if (p->patch > other.p->patch) {
+			else if (d->minor == other.d->minor) {
+				if (d->patch > other.d->patch) {
 					return true;
 				}
-				else if (p->patch == other.p->patch) {
-					if (p->useBuild && other.p->useBuild) {
-						if (p->build > other.p->build) {
+				else if (d->patch == other.d->patch) {
+					if (d->useBuild && other.d->useBuild) {
+						if (d->build > other.d->build) {
 							return true;
 						}
 					}
@@ -87,20 +88,20 @@ namespace YSSCore::General {
 	}
 	bool Version::operator<(const Version& other) const
 	{
-		if (p->major < other.p->major) {
+		if (d->major < other.d->major) {
 			return true;
 		}
-		else if (p->major == other.p->major) {
-			if (p->minor < other.p->minor) {
+		else if (d->major == other.d->major) {
+			if (d->minor < other.d->minor) {
 				return true;
 			}
-			else if (p->minor == other.p->minor) {
-				if (p->patch < other.p->patch) {
+			else if (d->minor == other.d->minor) {
+				if (d->patch < other.d->patch) {
 					return true;
 				}
-				else if (p->patch == other.p->patch) {
-					if (p->useBuild && other.p->useBuild) {
-						if (p->build < other.p->build) {
+				else if (d->patch == other.d->patch) {
+					if (d->useBuild && other.d->useBuild) {
+						if (d->build < other.d->build) {
 							return true;
 						}
 					}
@@ -111,13 +112,13 @@ namespace YSSCore::General {
 	}
 	bool Version::operator==(const Version& other) const
 	{
-		if (p->major == other.p->major && p->minor == other.p->minor && p->patch == other.p->patch)
+		if (d->major == other.d->major && d->minor == other.d->minor && d->patch == other.d->patch)
 		{
-			if (p->useBuild && other.p->useBuild)
+			if (d->useBuild && other.d->useBuild)
 			{
-				return p->build == other.p->build;
+				return d->build == other.d->build;
 			}
-			else if (!p->useBuild && !other.p->useBuild)
+			else if (!d->useBuild && !other.d->useBuild)
 			{
 				return true;
 			}
@@ -138,9 +139,9 @@ namespace YSSCore::General {
 	}
 	QString Version::toString() const
 	{
-		QString version = QString("%1.%2.%3").arg(p->major).arg(p->minor).arg(p->patch);
-		if (p->useBuild)
-			version += QString(".%1").arg(p->build);
+		QString version = QString("%1.%2.%3").arg(d->major).arg(d->minor).arg(d->patch);
+		if (d->useBuild)
+			version += QString(".%1").arg(d->build);
 		return version;
 	}
 	void Version::setVersion(const QString& version)
@@ -171,30 +172,30 @@ namespace YSSCore::General {
 	}
 	void Version::setVersion(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build)
 	{
-		p->major = major;
-		p->minor = minor;
-		p->patch = patch;
-		p->useBuild = useBuild;
-		p->build = build;
+		d->major = major;
+		d->minor = minor;
+		d->patch = patch;
+		d->useBuild = useBuild;
+		d->build = build;
 	}
 	quint32 Version::getMajor() const
 	{
-		return p->major;
+		return d->major;
 	}
 	quint32 Version::getMinor() const
 	{
-		return p->minor;
+		return d->minor;
 	}
 	quint32 Version::getPatch() const
 	{
-		return p->patch;
+		return d->patch;
 	}
 	bool Version::getUseBuild() const
 	{
-		return p->useBuild;
+		return d->useBuild;
 	}
 	quint32 Version::getBuild() const
 	{
-		return p->build;
+		return d->build;
 	}
 }

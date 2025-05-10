@@ -1,6 +1,9 @@
 #pragma once
-#include <QtWidgets>
 #include "FileEditWidget.h"
+#include <QtGui/qtextcursor.h>
+class QTextEdit;
+class QHBoxLayout;
+class QSyntaxHighlighter;
 
 namespace YSSCore::Editor {
 	class HoverTip;

@@ -1,5 +1,5 @@
 #include "../FileServer.h"
-#include <QWidget>
+#include <QtWidgets/qwidget.h>
 
 namespace YSSCore::Editor {
 	class FileServerPrivate {
@@ -9,16 +9,16 @@ namespace YSSCore::Editor {
 		QStringList SupportedFileExts;
 	};
 	FileServer::FileServer() {
-		p = new FileServerPrivate();
+		d = new FileServerPrivate();
 	}
 	FileServer::~FileServer() {
-		delete p;
+		delete d;
 	}
 	FileServer::EditorType FileServer::getEditorType() {
-		return p->Type;
+		return d->Type;
 	}
 	QStringList FileServer::getSupportedFileExts() {
-		return p->SupportedFileExts;
+		return d->SupportedFileExts;
 	}
 	FileEditWidget* FileServer::createFileEditWidget() {
 		return nullptr;
@@ -30,9 +30,9 @@ namespace YSSCore::Editor {
 		return false;
 	}
 	void FileServer::setEditorType(FileServer::EditorType type) {
-		p->Type = type;
+		d->Type = type;
 	}
 	void FileServer::setSupportedFileExts(const QStringList& exts) {
-		p->SupportedFileExts = exts;
+		d->SupportedFileExts = exts;
 	}
 }

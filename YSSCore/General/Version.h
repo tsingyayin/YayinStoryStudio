@@ -1,5 +1,5 @@
 #pragma once
-#include <QString>
+#include <QtCore/qtypes.h>
 #include "../Macro.h"
 
 #define YSSCore_VERSION_MAJOR 0
@@ -10,6 +10,7 @@
 #define YSSCore_ABI_VERSION_MINOR 0
 #define Compiled_YSSABI_Version YSSCore::General::Version(YSSCore_ABI_VERSION_MAJOR, YSSCore_ABI_VERSION_MINOR, 0)
 
+class QString;
 namespace YSSCore::General {
 	class VersionPrivate;
 	class YSSCoreAPI Version
@@ -38,6 +39,6 @@ namespace YSSCore::General {
 		bool getUseBuild() const;
 		quint32 getBuild() const;
 	private:
-		VersionPrivate* p;
+		VersionPrivate* d;
 	};
 }

@@ -1,11 +1,12 @@
 #pragma once
-#include <QString>
-#include <QJsonValue>
-#include <QJsonParseError>
-#include <QJsonDocument>
-#include <QList>
+#include <QtCore/qlist.h>
 #include "../Macro.h"
 #include "JsonConfig.h"
+
+class QString;
+class QJsonValue;
+class QJsonParseError;
+class QJsonDocument;
 
 namespace YSSCore::Utility {
 	class JsonValueRef;

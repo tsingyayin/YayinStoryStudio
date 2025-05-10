@@ -3,6 +3,12 @@
 #include "../LangServer.h"
 #include "../ThemeManager.h"
 #include "../LangServerManager.h"
+#include <QtWidgets/qtextbrowser.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qscrollbar.h>
+#include <QtCore/qfileinfo.h>
+#include <QtGui/qsyntaxhighlighter.h>
+#include <QtWidgets/qmessagebox.h>
 
 namespace YSSCore::Editor {
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
@@ -164,6 +170,7 @@ namespace YSSCore::Editor {
 				QTextCursor cursor = Text->textCursor();
 				//判断cursor的行数量
 				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
+				bool reverse = cursor.position() == cursor.selectionEnd();
 				if (lineCount > 1) {
 					for (int i = 0; i < lineCount; i++) {
 						cursor.movePosition(QTextCursor::EndOfBlock);
@@ -187,7 +194,12 @@ namespace YSSCore::Editor {
 								}
 							}
 						}
-						cursor.movePosition(QTextCursor::NextBlock);
+						if (reverse) {
+							cursor.movePosition(QTextCursor::PreviousBlock);
+						}
+						else {
+							cursor.movePosition(QTextCursor::NextBlock);
+						}
 					}
 				}
 			}
@@ -232,20 +244,9 @@ namespace YSSCore::Editor {
 				QTextCursor cursor = Text->textCursor();
 				//判断cursor的行数量
 				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
+				bool reverse = cursor.position() == cursor.selectionEnd();
 				if (lineCount > 1) {
-					//为首行添加缩进
-					cursor.movePosition(QTextCursor::StartOfBlock);
-					if (ReloadTab) {
-						for (int i = 0; i < TabWidth; i++) {
-							cursor.insertText(QChar(' '));
-						}
-					}
-					else {
-						cursor.insertText("\t");
-					}
-					//为后续行添加缩进
-					for (int i = 1; i < lineCount; i++) {
-						cursor.movePosition(QTextCursor::NextBlock);
+					for (int i = 0; i < lineCount; i++) {
 						cursor.movePosition(QTextCursor::StartOfBlock);
 						if (ReloadTab) {
 							for (int i = 0; i < TabWidth; i++) {
@@ -254,6 +255,12 @@ namespace YSSCore::Editor {
 						}
 						else {
 							cursor.insertText("\t");
+						}
+						if (reverse) {
+							cursor.movePosition(QTextCursor::PreviousBlock);
+						}
+						else {
+							cursor.movePosition(QTextCursor::NextBlock);
 						}
 					}
 				}

@@ -1,6 +1,8 @@
 #include "../FileServerManager.h"
 #include "../FileServer.h"
 #include "../TextEdit.h"
+#include <QtCore/qstring.h>
+#include <QtCore/qfileinfo.h>
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
@@ -11,50 +13,50 @@ namespace YSSCore::Editor {
 	};
 	FileServerManager* FileServerManagerPrivate::Instance = nullptr;
 	FileServerManager::FileServerManager() {
-		p = new FileServerManagerPrivate();
+		d = new FileServerManagerPrivate();
 		FileServerManagerPrivate::Instance = this;
 	}
 	FileServerManager::~FileServerManager() {
-		for (int i = 0; i < p->FileServers.size(); i++) {
-			delete p->FileServers[i];
+		for (int i = 0; i < d->FileServers.size(); i++) {
+			delete d->FileServers[i];
 		}
-		p->FileServers.clear();
-		delete p;
+		d->FileServers.clear();
+		delete d;
 	}
 	FileServerManager* FileServerManager::getInstance() {
 		return FileServerManagerPrivate::Instance;
 	}
 	void FileServerManager::registerFileServer(FileServer* server) {
-		if (p->FileServers.contains(server)) {
+		if (d->FileServers.contains(server)) {
 			return;
 		}
-		p->FileServers.append(server);
+		d->FileServers.append(server);
 		QStringList fileTypes = server->getSupportedFileExts();
 		for (int i = 0; i < fileTypes.size(); i++) {
 			QString type = fileTypes[i];
-			if (!p->FileServerMap.contains(type)) {
-				p->FileServerMap.insert(type, QList<FileServer*>());
+			if (!d->FileServerMap.contains(type)) {
+				d->FileServerMap.insert(type, QList<FileServer*>());
 			}
-			p->FileServerMap[type].append(server);
+			d->FileServerMap[type].append(server);
 		}
 	}
 	void FileServerManager::unregisterFileServer(FileServer* server) {
-		if (!p->FileServers.contains(server)) {
+		if (!d->FileServers.contains(server)) {
 			return;
 		}
-		p->FileServers.removeOne(server);
+		d->FileServers.removeOne(server);
 		QStringList fileTypes = server->getSupportedFileExts();
 		for (int i = 0; i < fileTypes.size(); i++) {
 			QString type = fileTypes[i];
-			if (p->FileServerMap.contains(type)) {
-				p->FileServerMap[type].removeOne(server);
+			if (d->FileServerMap.contains(type)) {
+				d->FileServerMap[type].removeOne(server);
 			}
 		}
 	}
 	bool FileServerManager::openFile(const QString& filePath) {
 		QString ext = QFileInfo(filePath).suffix();
-		if (p->FileServerMap.contains(ext)) {
-			FileServer* server = p->FileServerMap[ext][0]; // implement use 0, will be changed later
+		if (d->FileServerMap.contains(ext)) {
+			FileServer* server = d->FileServerMap[ext][0]; // implement use 0, will be changed later
 			if (server != nullptr) {
 				bool ok;
 				FileEditWidget* feWidget = nullptr;

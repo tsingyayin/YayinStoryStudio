@@ -1,3 +1,4 @@
+#include <QtCore/qstring.h>
 #include "../EditorPlugin.h"
 #include "../LangServerManager.h"
 #include "../FileServerManager.h"
@@ -13,38 +14,38 @@ namespace YSSCore::Editor {
 		QString PluginFolder;
 	};
 	EditorPlugin::EditorPlugin(YSSCore::General::Version abiVersion, QObject* parent) : QObject(parent) {
-		p = new EditorPluginPrivate();
-		p->ABIVersion = abiVersion;
+		d = new EditorPluginPrivate();
+		d->ABIVersion = abiVersion;
 	}
 	EditorPlugin::~EditorPlugin() {
-		delete p;
+		delete d;
 	}
 	QString EditorPlugin::getPluginID() const {
-		return p->PluginID;
+		return d->PluginID;
 	}
 	QString EditorPlugin::getPluginName() const {
-		return p->PluginName;
+		return d->PluginName;
 	}
 	QStringList EditorPlugin::getPluginAuthor() const {
-		return p->PluginAuthor;
+		return d->PluginAuthor;
 	}
 	QString EditorPlugin::getPluginFolder() const {
-		return p->PluginFolder;
+		return d->PluginFolder;
 	}
 	void EditorPlugin::setPluginID(const QString& id) {
-		p->PluginID = id;
+		d->PluginID = id;
 	}
 	void EditorPlugin::setPluginName(const QString& name) {
-		p->PluginName = name;
+		d->PluginName = name;
 	}
 	void EditorPlugin::setPluginAuthor(const QStringList& author) {
-		p->PluginAuthor = author;
+		d->PluginAuthor = author;
 	}
 	void EditorPlugin::setPluginFolder(const QString& folder) {
-		p->PluginFolder = folder;
+		d->PluginFolder = folder;
 	}
 	void EditorPlugin::setPluginVersion(const YSSCore::General::Version& version) {
-		p->PluginVersion = version;
+		d->PluginVersion = version;
 	}
 	void EditorPlugin::registerLangServer(LangServer* server) {
 		LangServerManager::getInstance()->addLangServer(server);

@@ -1,9 +1,10 @@
 #pragma once
-#include <QString>
-#include <QList>
-#include <QColor>
-#include <QByteArray>
+#include <QtCore/qlist.h>
+#include <QtCore/qbytearray.h>
 #include "../Macro.h"
+
+class QString;
+class QColor;
 namespace YSSCore::Utility {
 	class YSSCoreAPI Console {
 	public:

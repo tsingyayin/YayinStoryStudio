@@ -1,8 +1,8 @@
 #pragma once
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include <QtCore/qobject.h>
 #include "../Macro.h"
 
+class QString;
 class QWidget;
 namespace YSSCore::Editor {
 	class FileServer;
@@ -22,7 +22,7 @@ namespace YSSCore::Editor {
 		void unregisterFileServer(FileServer* server);
 		bool openFile(const QString& filePath);
 	private:
-		FileServerManagerPrivate* p;
+		FileServerManagerPrivate* d;
 	};
 }
 

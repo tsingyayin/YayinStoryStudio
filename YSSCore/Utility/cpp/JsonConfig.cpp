@@ -1,7 +1,8 @@
 #include "../JsonConfig.h"
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QtCore/qjsondocument.h>
+#include <QtCore/qjsonobject.h>
+#include <QtCore/qjsonvalue.h>
+#include <QtCore/qjsonarray.h>
 #include "../JsonValueRef.h"
 
 namespace YSSCore::Utility {
@@ -241,6 +242,7 @@ namespace YSSCore::Utility {
 	*/
 	JsonConfig& JsonConfig::operator=(JsonConfig&& other) noexcept
 	{
+		if (this->d != nullptr) { delete d; }
 		d = other.d;
 		other.d = nullptr;
 		return *this;

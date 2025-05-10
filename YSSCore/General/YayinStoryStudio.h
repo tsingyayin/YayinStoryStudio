@@ -1,9 +1,10 @@
 #pragma once
-#include <QtCore>
 #include "../Macro.h"
-#include "Version.h"
+
+
 namespace YSSCore::General {
-	class YayinStoryStudio
+	class Version;
+	class YSSCoreAPI YayinStoryStudio
 	{
 	public:
 		static Version getVersion();

@@ -1,8 +1,9 @@
 #include "../JsonDocument.h"
 #include "../JsonConfig.h"
 #include "../JsonValueRef.h"
-#include <QFile>
-
+#include <QtCore/qstring.h>
+#include <QtCore/qjsondocument.h>
+#include <QtCore/qfile.h>
 namespace YSSCore::Utility {
 	class JsonDocumentPrivate
 	{

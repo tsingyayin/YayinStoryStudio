@@ -3,8 +3,10 @@
 #include <Utility/ExtTool.h>
 #include "../../MainEditor/MainWin.h"
 #include <chrono>
-#include <QFontDataBase>
-#include <QApplication>
+#include <thread>
+#include <QtGui/qfontdatabase.h>
+#include <QtWidgets/qapplication.h>
+#include <QtCore/qtimer.h>
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
 		this->setWindowIcon(QIcon(":/compiled/yssicon.png"));

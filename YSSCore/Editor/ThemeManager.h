@@ -1,10 +1,9 @@
 #pragma once
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtGui/QColor>
-#include "../Utility/JsonConfig.h"
+#include <QtCore/qobject.h>
 #include "../Macro.h"
 
+class QColor;
+class QString;
 namespace YSSCore::Editor {
 	class ThemeManagerPrivate;
 	class YSSCoreAPI ThemeManager :public QObject
@@ -20,7 +19,7 @@ namespace YSSCore::Editor {
 		QColor getColor(const QString& key);
 		QString getColorString(const QString& key);
 	private:
-		ThemeManagerPrivate* p;
+		ThemeManagerPrivate* d;
 	};
 }
 

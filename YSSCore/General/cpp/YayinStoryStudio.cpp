@@ -1,4 +1,5 @@
 #include "../YayinStoryStudio.h"
+#include "../Version.h"
 #include "../private/AUTO_VERSION.h"
 namespace YSSCore::General {
 	Version YayinStoryStudio::getVersion()

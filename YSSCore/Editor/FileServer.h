@@ -1,8 +1,8 @@
 #pragma once
-#include <QtCore/QString>
-#include <QtCore/QList>
+#include <QtCore/qlist.h>
 #include "../Macro.h"
 
+class QString;
 class QWidget;
 namespace YSSCore::Editor {
 	class FileEditWidget;
@@ -27,6 +27,6 @@ namespace YSSCore::Editor {
 		void setEditorType(EditorType type);
 		void setSupportedFileExts(const QStringList& exts);
 	private:
-		FileServerPrivate* p;
+		FileServerPrivate* d;
 	};
 }

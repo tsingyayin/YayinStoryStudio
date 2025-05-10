@@ -1,0 +1,5 @@
+Project:
+  Name: "ASE Test"
+  Description: "ASE Test"
+  DebugServerID: "ase_remote_debugger"
+  IconPath: "icon.png"

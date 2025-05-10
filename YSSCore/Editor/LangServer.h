@@ -1,8 +1,9 @@
 #pragma once
-#include <QString>
 #include <QList>
 #include "../Macro.h"
-#include <QSyntaxHighlighter>
+
+class QString;
+class QSyntaxHighlighter;
 
 namespace YSSCore::Editor {
 	class LangServerPrivate;
@@ -16,6 +17,6 @@ namespace YSSCore::Editor {
 		QString getLangID();
 		QStringList getLangExts();
 	protected:
-		LangServerPrivate* p;
+		LangServerPrivate* d;
 	};
 }

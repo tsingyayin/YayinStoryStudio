@@ -1,10 +1,10 @@
 #pragma once
-#include <QObject>
-#include <QString>
-#include <QFrame>
+#include <QtCore/qobject.h>
+#include <QtWidgets/qframe.h>
 #include "../Macro.h"
 
 class QWidget;
+class QString;
 namespace YSSCore::Editor {
 	class YSSCoreAPI FileEditWidget :public QFrame {
 		Q_OBJECT;

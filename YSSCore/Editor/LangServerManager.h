@@ -1,7 +1,7 @@
 #pragma once
-#include <QtCore/QString>
 #include "../Macro.h"
 
+class QString;
 namespace YSSCore::Editor {
 	class LangServer;
 	class LangServerManagerPrivate;
@@ -15,7 +15,7 @@ namespace YSSCore::Editor {
 		void removeServer(LangServer* server);
 		static LangServerManager* getInstance();
 	private:
-		LangServerManagerPrivate* p;
+		LangServerManagerPrivate* d;
 	};
 }
 

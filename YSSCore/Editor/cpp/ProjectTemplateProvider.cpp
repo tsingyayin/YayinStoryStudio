@@ -8,10 +8,10 @@ namespace YSSCore::Editor {
 	};
 	ProjectTemplateProvider::ProjectTemplateProvider()
 	{
-		p = new ProjectTemplateProviderPrivate;
+		d = new ProjectTemplateProviderPrivate;
 	}
 	ProjectTemplateProvider::~ProjectTemplateProvider()
 	{
-		delete p;
+		delete d;
 	}
 }

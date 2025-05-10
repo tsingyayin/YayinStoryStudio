@@ -1,5 +1,8 @@
 #include "../LangServer.h"
 #include "../ThemeManager.h"
+#include <QtCore/qstring.h>
+#include <QtGui/qsyntaxhighlighter.h>
+
 namespace YSSCore::Editor {
 	class LangServerPrivate
 	{
@@ -12,21 +15,21 @@ namespace YSSCore::Editor {
 
 	LangServer::LangServer(QString id, QStringList ext)
 	{
-		p = new LangServerPrivate();
-		p->LanguageID = id;
-		p->LanguageExt = ext;
+		d = new LangServerPrivate();
+		d->LanguageID = id;
+		d->LanguageExt = ext;
 	}
 	LangServer::~LangServer()
 	{
-		delete p;
+		delete d;
 	}
 	QString LangServer::getLangID()
 	{
-		return p->LanguageID;
+		return d->LanguageID;
 	}
 
 	QStringList LangServer::getLangExts()
 	{
-		return p->LanguageExt;
+		return d->LanguageExt;
 	}
 }

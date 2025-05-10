@@ -1,5 +1,5 @@
 #pragma once
-#include <QtCore>
+#include <QtCore/qobject.h>
 #include "../Macro.h"
 namespace YSSCore::Editor {
 	class YSSCoreAPI ProjectTemplateManager :public QObject {

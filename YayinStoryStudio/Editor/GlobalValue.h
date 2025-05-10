@@ -1,10 +1,19 @@
 #pragma once
-#include <QtCore>
-#include <Utility/JsonConfig.h>
-#include <Editor/ThemeManager.h>
-#include <Editor/LangServerManager.h>
-#include <Editor/EditorPluginManager.h>
-#include <Editor/FileServerManager.h>
+#include <QtCore/qobject.h>
+namespace YSSCore {
+	namespace Utility {
+		class JsonConfig;
+	};
+	namespace Editor {
+		class ThemeManager;
+		class LangServerManager;
+		class EditorPluginManager;
+		class FileServerManager;
+	};
+	namespace General {
+		class Translator;
+	}
+};
 namespace YSS {
 	namespace Editor {
 		class MainWin;
@@ -20,6 +29,7 @@ namespace YSS {
 		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;
 		YSSCore::Editor::EditorPluginManager* PluginManager = nullptr;
 		YSSCore::Editor::FileServerManager* FileServerManager = nullptr;
+		YSSCore::General::Translator* Translator = nullptr;
 		YSS::Editor::MainWin* MainWindow = nullptr;
 	public:
 		GlobalValue();

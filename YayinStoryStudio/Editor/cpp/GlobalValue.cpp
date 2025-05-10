@@ -1,5 +1,12 @@
 #include "../GlobalValue.h"
-#include <QtGui>
+#include <Utility/JsonConfig.h>
+#include <Editor/ThemeManager.h>
+#include <Editor/LangServerManager.h>
+#include <Editor/EditorPluginManager.h>
+#include <Editor/FileServerManager.h>
+#include <General/Translatior.h>
+#include <QtCore/qfile.h>
+#include <QtGui/qcolor.h>
 namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
 	GlobalValue::GlobalValue() {
