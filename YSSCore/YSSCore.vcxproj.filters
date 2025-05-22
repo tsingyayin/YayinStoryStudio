@@ -86,6 +86,21 @@
     <ClCompile Include="General\cpp\YSSProject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\UpdateChain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\DiffSequence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\CodeDiff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\ConfigWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\TranslationHost.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -136,6 +151,24 @@
     <ClInclude Include="Utility\YamlConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\private\UpdateChainSyntaxTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\DiffSequence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\CodeDiff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\TranslationHost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\Translator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\private\Translator_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\ThemeManager.h">
@@ -162,7 +195,10 @@
     <QtMoc Include="Editor\FileServerManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="General\Translatior.h">
+    <QtMoc Include="General\UpdateChain.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ConfigWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

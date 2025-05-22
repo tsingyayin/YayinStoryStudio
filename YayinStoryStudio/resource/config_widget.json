@@ -1,0 +1,61 @@
+{
+	"id": "Preference",
+	"type": "Frame",
+	"data": {
+		"icon": "",
+		"title": "i18n:yss.config.preference.title",
+		"text": "i18n:yss.config.preference.text"
+	},
+	"children":[
+		{
+			"id": "Language",
+			"type": "ComboBox",
+			"data": {
+				"icon": "",
+				"title": "i18n:yss.config.language.title",
+				"text": "i18n:yss.config.language.text",
+				"comboBox": [
+					{
+						"key": "zh_CN",
+						"value": "i18n:yss.config.language.zh_CN"
+					},
+					{
+						"key": "en_US",
+						"value": "i18n:yss.config.language.en_US"
+					}
+				],
+				"default": "zh_CN"
+			}
+		},
+		{
+			"id": "ReloadTab",
+			"type": "CheckBox",
+			"data": {
+				"icon": "",
+				"title": "i18n:yss.config.reloadtab.title",
+				"text": "i18n:yss.config.reloadtab.text",
+				"default": true
+			}
+		},
+		{
+			"id": "Theme",
+			"type": "ComboBox",
+			"data": {
+				"icon": "",
+				"title": "i18n:yss.config.theme.title",
+				"text": "i18n:yss.config.theme.text",
+				"comboBox": [
+					{
+						"key": "theme_dark",
+						"value": "i18n:yss.config.theme.dark"
+					},
+					{
+						"key": "theme_light",
+						"value": "i18n:yss.config.theme.light"
+					}
+				],
+				"default": "theme_dark"
+			}
+		}
+	]
+}

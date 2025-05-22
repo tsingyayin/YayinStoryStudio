@@ -70,9 +70,6 @@
     <QtMoc Include="Editor\MainEditor\MainWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="YSP\YayinStoryPlayer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\MainEditor\PlayerProxy.h">
       <Filter>Header Files</Filter>
     </QtMoc>

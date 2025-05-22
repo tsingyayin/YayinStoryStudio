@@ -3,6 +3,7 @@ import os
 import datetime
 
 AutoVersionFilePath = "\\YSSCore\\General\\private\\AUTO_VERSION.h"
+VersionNickName = "Visindigo"
 
 def getCommitCount():
     gitCommitsCount = os.popen("git log --oneline | find /v /c \"\"").read()
@@ -21,6 +22,7 @@ def spawnHeadFile(path):
     versionFile.write("#define YSSCore_VERSION_BUILD "+str(getCommitCount())+"\n")
     versionFile.write("#define YSSCore_VERSION_BUILD_DATE \""+datetime.date.today().strftime("%Y-%m-%d")+"\"\n")
     versionFile.write("#define YSSCore_VERSION_BUILD_TIME \""+datetime.datetime.now().strftime("%H:%M:%S")+"\"\n")
+    versionFile.write("#define YSSCore_VERSION_NICKNAME \""+VersionNickName+"\"\n")
     versionFile.close()
 
 

@@ -27,6 +27,6 @@ namespace YSSCore::Editor {
 		QStringList getTemplateTags();
 		ProjectTemplateInitWidget* projectInitWidget();
 	private:
-		ProjectTemplateProviderPrivate* d;
+		ProjectTemplateProviderPrivate* d; 
 	};
 }

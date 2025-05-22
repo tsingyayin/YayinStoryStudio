@@ -6,6 +6,9 @@
 
 class QString;
 
+namespace YSSCore::General {
+	class Translator;
+}
 namespace YSSCore::Editor {
 	class LangServer;
 	class DebugServer;
@@ -13,7 +16,7 @@ namespace YSSCore::Editor {
 	class ProjectTemplateProvider;
 	class EditorPluginPrivate;
 	class EditorPluginManager;
-
+	class YSSCore::General::Translator;
 	class YSSCoreAPI EditorPlugin :public QObject {
 		friend class EditorPluginManager;
 		friend class EditorPluginPrivate;
@@ -37,6 +40,7 @@ namespace YSSCore::Editor {
 		void registerDebugServer(DebugServer* server);
 		void registerFileServer(FileServer* server);
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
+		void registerTranslator(YSSCore::General::Translator* translator);
 	private:
 		EditorPluginPrivate* d;
 	};

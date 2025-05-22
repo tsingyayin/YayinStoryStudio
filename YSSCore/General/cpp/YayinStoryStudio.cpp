@@ -4,7 +4,7 @@
 namespace YSSCore::General {
 	Version YayinStoryStudio::getVersion()
 	{
-		return Version(10, 0, 0, true, YSSCore_VERSION_BUILD);
+		return Version(10, 0, 0, true, YSSCore_VERSION_BUILD, YSSCore_VERSION_NICKNAME);
 	}
 	Version YayinStoryStudio::getABIVersion()
 	{

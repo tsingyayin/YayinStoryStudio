@@ -1,6 +1,7 @@
 #include "../Version.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
+#include <QtCore/qregularexpression.h>
 namespace YSSCore::General {
 	class VersionPrivate
 	{
@@ -11,11 +12,12 @@ namespace YSSCore::General {
 		quint32 patch;
 		bool useBuild;
 		quint32 build;
+		QString nickName;
 	};
-	Version::Version(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build)
+	Version::Version(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build, const QString& nickName)
 	{
 		d = new VersionPrivate;
-		setVersion(major, minor, patch, useBuild, build);
+		setVersion(major, minor, patch, useBuild, build, nickName);
 	}
 	Version::Version(const QString& version)
 	{
@@ -140,13 +142,30 @@ namespace YSSCore::General {
 	QString Version::toString() const
 	{
 		QString version = QString("%1.%2.%3").arg(d->major).arg(d->minor).arg(d->patch);
-		if (d->useBuild)
+		if (d->useBuild) {
 			version += QString(".%1").arg(d->build);
+		}
+		if (!d->nickName.isEmpty()) {
+			version += QString(" [%1]").arg(d->nickName);
+		}
 		return version;
 	}
 	void Version::setVersion(const QString& version)
 	{
-		QStringList list = version.split(".");
+		QRegularExpression nickNameRE("[\\[\\{\\(].+[\\]\\}\\)]");
+		QRegularExpressionMatch match = nickNameRE.match(version);
+		QString nickName, versionStr;
+		if (match.hasMatch())
+		{
+			nickName = match.captured(0);
+			versionStr = version;
+			versionStr.remove(nickName);
+		}
+		else
+		{
+			versionStr = version;
+		}
+		QStringList list = versionStr.split(".");
 		if (list.size() < 3)
 			return;
 		bool ok = false;
@@ -168,15 +187,20 @@ namespace YSSCore::General {
 			if (!ok)
 				return;
 		}
-		setVersion(major, minor, patch, useBuild, build);
+		setVersion(major, minor, patch, useBuild, build, nickName);
 	}
-	void Version::setVersion(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build)
+	void Version::setVersion(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build, const QString& nickName)
 	{
 		d->major = major;
 		d->minor = minor;
 		d->patch = patch;
 		d->useBuild = useBuild;
 		d->build = build;
+		d->nickName = nickName;
+	}
+	void Version::setNickName(const QString& name)
+	{
+		d->nickName = name;
 	}
 	quint32 Version::getMajor() const
 	{
@@ -197,5 +221,9 @@ namespace YSSCore::General {
 	quint32 Version::getBuild() const
 	{
 		return d->build;
+	}
+	QString Version::getNickName() const
+	{
+		return d->nickName;
 	}
 }

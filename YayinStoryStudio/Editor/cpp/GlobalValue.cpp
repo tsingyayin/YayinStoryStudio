@@ -4,7 +4,7 @@
 #include <Editor/LangServerManager.h>
 #include <Editor/EditorPluginManager.h>
 #include <Editor/FileServerManager.h>
-#include <General/Translatior.h>
+#include <General/TranslationHost.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>
 namespace YSS {
@@ -18,6 +18,7 @@ namespace YSS {
 		LangServerManager = new YSSCore::Editor::LangServerManager();
 		PluginManager = new YSSCore::Editor::EditorPluginManager();
 		FileServerManager = new YSSCore::Editor::FileServerManager();
+		TranslationHost = new YSSCore::General::TranslationHost();
 		loadConfig();
 		loadLanguage();
 		PluginManager->programLoadPlugin();

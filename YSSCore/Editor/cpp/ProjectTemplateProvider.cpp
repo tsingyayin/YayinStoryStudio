@@ -14,4 +14,5 @@ namespace YSSCore::Editor {
 	{
 		delete d;
 	}
+
 }

@@ -11,12 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2F0011CF-E80F-4A56-ADFD-6F7720A161AB}</ProjectGuid>
+    <ProjectGuid>{16A1F8C1-A0F9-4872-A661-EC8C6EE8B2C4}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.26100.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.26100.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
-    <ProjectName>YayinStoryStudio</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -33,12 +32,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.8.3</QtInstall>
-    <QtModules>core;gui;qml;quick;widgets;3dquick</QtModules>
+    <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.8.3</QtInstall>
-    <QtModules>core;gui;qml;quick;widgets;3dquick</QtModules>
+    <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -56,26 +55,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Platform)\$(Configuration)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)YSSCore;</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);YSSCore.lib</AdditionalDependencies>
-    </Link>
-    <ClCompile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -84,7 +66,7 @@
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -101,42 +83,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\cpp\GlobalValue.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\StackBar.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\PlayerProxy.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
-    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectLabel.cpp" />
-    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectWidget.cpp" />
-    <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp" />
-    <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp" />
+    <QtRcc Include="YSSInstaller.qrc" />
+    <QtUic Include="YSSInstaller.ui" />
+    <QtMoc Include="YSSInstaller.h" />
+    <ClCompile Include="YSSInstaller.cpp" />
     <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="Editor\MainEditor\HoverTip.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="Editor\ProjectPage\ProjectWin.h" />
-    <QtMoc Include="Editor\MainEditor\StackBarLabel.h" />
-    <QtMoc Include="Editor\MainEditor\StackBar.h" />
-    <QtMoc Include="Editor\MainEditor\FileEditorArea.h" />
-    <QtMoc Include="Editor\MainEditor\PlayerProxy.h" />
-    <QtMoc Include="Editor\MainEditor\MainWin.h" />
-    <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />
-    <QtMoc Include="Editor\GlobalValue.h" />
-    <QtMoc Include="Editor\TitlePage\TitlePage.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtRcc Include="YayinStoryEditor.qrc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
-    <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
-    <QtMoc Include="Editor\ProjectPage\HistoryProjectLabel.h" />
-    <QtMoc Include="Editor\ProjectPage\HistoryProjectWidget.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

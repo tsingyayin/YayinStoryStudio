@@ -207,6 +207,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Editor\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
     <ClCompile Include="Editor\cpp\EditorPluginManager.cpp" />
     <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
@@ -217,12 +218,16 @@
     <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
+    <ClCompile Include="General\cpp\TranslationHost.cpp" />
     <ClCompile Include="General\cpp\Translator.cpp" />
+    <ClCompile Include="General\cpp\UpdateChain.cpp" />
     <ClCompile Include="General\cpp\Version.cpp" />
     <ClCompile Include="General\cpp\YayinStoryStudio.cpp" />
     <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utility\cpp\CodeDiff.cpp" />
     <ClCompile Include="Utility\cpp\Console.cpp" />
+    <ClCompile Include="Utility\cpp\DiffSequence.cpp" />
     <ClCompile Include="Utility\cpp\ExtTool.cpp" />
     <ClCompile Include="Utility\cpp\JsonConfig.cpp" />
     <ClCompile Include="Utility\cpp\JsonDocument.cpp" />
@@ -230,8 +235,15 @@
     <ClCompile Include="Utility\cpp\YamlConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="General\Translatior.h" />
+    <ClInclude Include="General\private\Translator_p.h" />
+    <ClInclude Include="General\Translator.h" />
+    <QtMoc Include="General\UpdateChain.h" />
+    <QtMoc Include="Editor\ConfigWidget.h" />
+    <ClInclude Include="General\private\UpdateChainSyntaxTest.h" />
+    <ClInclude Include="General\TranslationHost.h" />
     <ClInclude Include="General\YSSProject.h" />
+    <ClInclude Include="Utility\DiffSequence.h" />
+    <ClInclude Include="Utility\CodeDiff.h" />
     <ClInclude Include="Utility\YamlConfig.h" />
     <ClInclude Include="YSSCore.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />
