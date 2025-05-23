@@ -6,7 +6,7 @@ namespace YSSCore::General {
 		friend class TranslationHost;
 		static TranslationHost* Instance;
 		QMap<QString, Translator*> Translators;
-		Translator::LangID GlobalID;
+		Translator::LangID GlobalID = Translator::LangID::zh_CN;
 		void refreshLang(Translator::LangID langID) {
 			for (QString id : Translators.keys()) {
 				Translator* trans = Translators[id];
@@ -18,6 +18,8 @@ namespace YSSCore::General {
 	TranslationHost::TranslationHost() {
 		d = new TranslationHostPrivate;
 		TranslationHostPrivate::Instance = this;
+		YSSCore::General::YSSCoreTranslator* coreTranslator = new YSSCore::General::YSSCoreTranslator();
+		active(coreTranslator);
 	}
 	TranslationHost::~TranslationHost() {
 		delete d;

@@ -7,11 +7,12 @@
 #include <QtGui/qfontdatabase.h>
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
+#include <Editor/ConfigWidget.h>
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
-		this->setWindowIcon(QIcon(":/compiled/yssicon.png"));
+		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
 		this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-		this->setStyleSheet("QFrame{border-image:url(:/compiled/yayinstorystudio.png)}");
+		this->setStyleSheet("QFrame{border-image:url(:/yss/compiled/yayinstorystudio.png)}");
 		this->setFixedSize(900, 300);
 
 		Title = new QLabel(this);
@@ -29,7 +30,7 @@ namespace YSS::TitlePage {
 		YSS::GlobalValue* g = new YSS::GlobalValue();
 		Title->setText("Preparing Environment...");
 		this->repaint();
-		int fontID = QFontDatabase::addApplicationFont(":/compiled/HarmonyOS_Sans_SC_Regular.ttf");
+		int fontID = QFontDatabase::addApplicationFont(":/yss/compiled/HarmonyOS_Sans_SC_Regular.ttf");
 		QString hosFont = QFontDatabase::applicationFontFamilies(fontID).at(0);
 		QFont font(hosFont);
 		qApp->setFont(font);
@@ -44,6 +45,12 @@ namespace YSS::TitlePage {
 			std::this_thread::sleep_for(std::chrono::milliseconds(2000 - duration.count()));
 		}
 		editor->show();
+
+		YSSCore::Editor::ConfigWidget* configWidget = new YSSCore::Editor::ConfigWidget();
+		configWidget->setAttribute(Qt::WA_DeleteOnClose);
+		configWidget->setConfig("./resource/config_widget.json");
+		configWidget->show();
+
 		this->close();
 	}
 }

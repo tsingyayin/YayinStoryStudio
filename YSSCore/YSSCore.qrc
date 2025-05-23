@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/ysscore">
+        <file>compiled/i18n/zh_CN.json</file>
+    </qresource>
+</RCC>

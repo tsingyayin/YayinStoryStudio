@@ -5,6 +5,7 @@ class QString;
 namespace YSSCore::__Private__ {
 	class TranslatorPrivate;
 }
+
 namespace YSSCore::General {
 	class TranslationHostPrivate;
 	class TranslationHost;
@@ -33,8 +34,15 @@ namespace YSSCore::General {
 		QString getNamespace();
 		void setDefaultLang(LangID lang);
 		void setLangFilePath(QMap<LangID, QString> langFilePath);
+		void addLangFilePath(LangID id, QString filePath);
 		QString tr(const QString& key);
 	protected:
 		YSSCore::__Private__::TranslatorPrivate* d;
+	};
+	
+	class YSSCoreAPI YSSCoreTranslator : public Translator {
+	public:
+		YSSCoreTranslator();
+		static YSSCoreTranslator* getInstance();
 	};
 }

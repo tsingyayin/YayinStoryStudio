@@ -1,0 +1,24 @@
+{
+	"config":{
+		"preference":{
+			"title":"首选项",
+			"text":"定义应用程序默认行为"
+		},
+		"language":{
+			"title":"语言",
+			"text":"选择应用程序语言",
+			"zh_CN":"简体中文",
+			"en_US":"English"
+		},
+		"reloadtab":{
+			"title":"重载TAB行为",
+			"text":"控制编辑器是否应该在行首出现TAB时将其替换为空格"
+		},
+		"theme":{
+			"title":"主题",
+			"text":"选择应用程序主题",
+			"dark":"深色",
+			"light":"浅色"
+		}
+	}
+}

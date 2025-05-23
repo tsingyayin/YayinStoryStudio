@@ -1,7 +1,8 @@
 <RCC>
-    <qresource prefix="/">
-        <file>compiled/HarmonyOS_Sans_SC_Regular.ttf</file>
+    <qresource prefix="/yss">
         <file>compiled/yayinstorystudio.png</file>
         <file>compiled/yssicon.png</file>
+        <file>compiled/HarmonyOS_Sans_SC_Regular.ttf</file>
+        <file>compiled/i18n/zh_CN.json</file>
     </qresource>
 </RCC>

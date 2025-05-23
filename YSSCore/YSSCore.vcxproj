@@ -229,12 +229,16 @@
     <ClCompile Include="Utility\cpp\Console.cpp" />
     <ClCompile Include="Utility\cpp\DiffSequence.cpp" />
     <ClCompile Include="Utility\cpp\ExtTool.cpp" />
+    <ClCompile Include="Utility\cpp\FileUtility.cpp" />
     <ClCompile Include="Utility\cpp\JsonConfig.cpp" />
     <ClCompile Include="Utility\cpp\JsonDocument.cpp" />
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
+    <ClCompile Include="Utility\cpp\PathMacro.cpp" />
+    <ClCompile Include="Utility\cpp\VirtualFile.cpp" />
     <ClCompile Include="Utility\cpp\YamlConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="Editor\private\ConfigWidget_p.h" />
     <ClInclude Include="General\private\Translator_p.h" />
     <ClInclude Include="General\Translator.h" />
     <QtMoc Include="General\UpdateChain.h" />
@@ -244,6 +248,9 @@
     <ClInclude Include="General\YSSProject.h" />
     <ClInclude Include="Utility\DiffSequence.h" />
     <ClInclude Include="Utility\CodeDiff.h" />
+    <ClInclude Include="Utility\FileUtility.h" />
+    <ClInclude Include="Utility\PathMacro.h" />
+    <ClInclude Include="Utility\VirtualFile.h" />
     <ClInclude Include="Utility\YamlConfig.h" />
     <ClInclude Include="YSSCore.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />
@@ -267,6 +274,9 @@
     <ClInclude Include="Utility\JsonConfig.h" />
     <ClInclude Include="Utility\JsonDocument.h" />
     <ClInclude Include="Utility\JsonValueRef.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="YSSCore.qrc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

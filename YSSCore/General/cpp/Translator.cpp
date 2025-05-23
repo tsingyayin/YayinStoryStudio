@@ -5,6 +5,8 @@
 #include <QtCore/qtextstream.h>
 
 namespace YSSCore::__Private__ {
+	YSSCore::General::YSSCoreTranslator* TranslatorPrivate::Instance = nullptr;
+
 	bool TranslatorPrivate::loadDefault() {
 		return loadTranslationFile(DefaultID, true);
 	}
@@ -65,6 +67,9 @@ namespace YSSCore::General
 	void Translator::setLangFilePath(QMap<LangID, QString> langFilePath) {
 		d->FilePath = langFilePath;
 	}
+	void Translator::addLangFilePath(LangID id, QString path) {
+		d->FilePath.insert(id, path);
+	}
 	QString Translator::tr(const QString& key) {
 		if (d->Lang == nullptr && d->DefaultLang == nullptr)[[unlikely]] {
 			return key;
@@ -86,8 +91,39 @@ namespace YSSCore::General
 				}
 			}
 			else[[likely]] {
+				return tr;
+			}
+		}
+		else {
+			if (d->DefaultLang != nullptr) {
+				QString tr = d->DefaultLang->getString(key);
+				if (tr.isEmpty()) {
+					return key;
+				}
+				else {
+					return tr;
+				}
+			}
+			else {
 				return key;
 			}
 		}
+	}
+
+
+	YSSCoreTranslator::YSSCoreTranslator() {
+		YSSCore::__Private__::TranslatorPrivate::Instance = this;
+		setNamespace("YSSCore");
+		setDefaultLang(zh_CN);
+		setLangFilePath(
+			{
+				{zh_CN, ":/ysscore/compiled/i18n/zh_CN.json"},
+				{en_US, ":/ysscore/compiled/i18n/en_US.json"}
+			}
+		);
+	}
+
+	YSSCoreTranslator* YSSCoreTranslator::getInstance() {
+		return YSSCore::__Private__::TranslatorPrivate::Instance;
 	}
 }

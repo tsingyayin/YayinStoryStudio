@@ -5,9 +5,12 @@
 #include <General/private//UpdateChainSyntaxTest.h>
 #include <Utility/CodeDiff.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qdir.h>
+
 int main(int argc, char* argv[])
 {
 	QApplication a(argc, argv);
+	qDebug() << QDir::tempPath();
 	QFile oldFile("./resource/old.txt");
 	QFile newFile("./resource/new.txt");
 	oldFile.open(QIODevice::ReadOnly);
@@ -43,6 +46,7 @@ int main(int argc, char* argv[])
 	qDebug() << project.getProjectName();
 	qDebug() << project.getProjectDescription();
 	qDebug() << project.getProjectDebugServerID();
-	YSSCore::__Private__::MyUpdateChain updateChain;
+
+	
 	return a.exec();
 }

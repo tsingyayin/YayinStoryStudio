@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Editor\cpp\GlobalValue.cpp" />
+    <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackBar.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\PlayerProxy.cpp" />
@@ -134,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
+    <ClInclude Include="Editor\YSSTranslator.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
     <QtMoc Include="Editor\ProjectPage\HistoryProjectLabel.h" />
     <QtMoc Include="Editor\ProjectPage\HistoryProjectWidget.h" />

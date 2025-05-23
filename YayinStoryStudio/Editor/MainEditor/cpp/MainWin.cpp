@@ -11,7 +11,7 @@
 
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
-		this->setWindowIcon(QIcon(":/compiled/yssicon.png"));
+		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
 		int width = GlobalValue::getConfig()->getInt("Editor.Window.Width");
 		int height = GlobalValue::getConfig()->getInt("Editor.Window.Height");
 		this->setMinimumSize(800, 600);

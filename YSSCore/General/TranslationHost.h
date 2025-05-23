@@ -19,4 +19,4 @@ namespace YSSCore::General {
 	};
 }
 
-#define YSSTR(nameSpace, key) YSSCore::General::TranslationHost::getInstance()->tr(nameSpace, key)
+#define YSSTR YSSCore::General::TranslationHost::getInstance()->tr

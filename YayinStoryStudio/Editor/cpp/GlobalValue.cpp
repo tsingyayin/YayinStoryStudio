@@ -1,5 +1,7 @@
 #include "../GlobalValue.h"
+#include "../YSSTranslator.h"
 #include <Utility/JsonConfig.h>
+#include <Utility/PathMacro.h>
 #include <Editor/ThemeManager.h>
 #include <Editor/LangServerManager.h>
 #include <Editor/EditorPluginManager.h>
@@ -7,6 +9,7 @@
 #include <General/TranslationHost.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>
+
 namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
 	GlobalValue::GlobalValue() {
@@ -14,11 +17,14 @@ namespace YSS {
 			throw std::runtime_error("GlobalValue already exists!");
 		}
 		Instance = this;
+		PathMacro = new YSSCore::Utility::PathMacro();
 		Theme = new YSSCore::Editor::ThemeManager(this);
 		LangServerManager = new YSSCore::Editor::LangServerManager();
-		PluginManager = new YSSCore::Editor::EditorPluginManager();
 		FileServerManager = new YSSCore::Editor::FileServerManager();
 		TranslationHost = new YSSCore::General::TranslationHost();
+		YSSTranslator = new YSS::Editor::YSSTranslator();
+		TranslationHost->active(YSSTranslator);
+		PluginManager = new YSSCore::Editor::EditorPluginManager();
 		loadConfig();
 		loadLanguage();
 		PluginManager->programLoadPlugin();
