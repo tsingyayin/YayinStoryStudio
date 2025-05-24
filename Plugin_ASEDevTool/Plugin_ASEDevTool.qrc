@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugin">
+        <file>compiled/ASEDevTool/i18n/zh_CN.json</file>
+    </qresource>
+</RCC>

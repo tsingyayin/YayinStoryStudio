@@ -2,6 +2,7 @@
 #include "../EditorPlugin.h"
 #include "../LangServerManager.h"
 #include "../FileServerManager.h"
+#include "../../General/TranslationHost.h"
 namespace YSSCore::Editor {
 	class EditorPluginPrivate {
 		friend class EditorPlugin;
@@ -55,6 +56,9 @@ namespace YSSCore::Editor {
 	}
 	void EditorPlugin::registerFileServer(FileServer* server) {
 		FileServerManager::getInstance()->registerFileServer(server);
+	}
+	void EditorPlugin::registerTranslator(YSSCore::General::Translator* translator) {
+		YSSCore::General::TranslationHost::getInstance()->active(translator);
 	}
 	void EditorPlugin::registerProjectTemplateProvider(ProjectTemplateProvider* provider) {
 		//TODO;

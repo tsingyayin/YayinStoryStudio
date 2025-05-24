@@ -14,7 +14,9 @@ namespace YSSCore::Editor {
 	public:
 		ConfigWidget(QWidget* parent = nullptr);
 		virtual ~ConfigWidget();
-		bool setConfig(const QString& jsonPath);
+		void loadCWJson(const QString& CWJson);
+		void resetConfig();
+		void saveConfig();
 	private:
 		YSSCore::__Private__::ConfigWidgetPrivate* d;
 	};

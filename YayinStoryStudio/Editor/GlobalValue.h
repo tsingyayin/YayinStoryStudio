@@ -27,7 +27,6 @@ namespace YSS {
 	private:
 		static GlobalValue* Instance;
 		YSSCore::Utility::JsonConfig* Config = nullptr;
-		YSSCore::Utility::JsonConfig* Language = nullptr;
 		YSSCore::Utility::PathMacro* PathMacro = nullptr;
 		YSSCore::Editor::ThemeManager* Theme = nullptr;
 		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;
@@ -40,13 +39,11 @@ namespace YSS {
 		GlobalValue();
 		static GlobalValue* getInstance();
 		static QColor getColor(const QString& key);
-		static QString getTr(const QString& key);
 		static YSSCore::Utility::JsonConfig* getConfig();
 		static void saveConfig();
 		static YSSCore::Editor::LangServerManager* getLangServerManager();
 		static void setMainWindow(YSS::Editor::MainWin* mainWindow);
 		static YSS::Editor::MainWin* getMainWindow();
 		void loadConfig();
-		void loadLanguage();
 	};
 }

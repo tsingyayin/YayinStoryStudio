@@ -1,0 +1,23 @@
+{
+	"general":{
+		"file":"文件",
+		"save":"保存",
+		"saveAs":"另存为",
+		"saveAll":"全部保存",
+		"cancel":"取消",
+		"delete":"删除",
+		"edit":"编辑",
+		"add":"添加",
+		"search":"搜索",
+		"select":"选择",
+		"confirm":"确认",
+		"close":"关闭",
+		"ok":"确定",
+		"yes":"是",
+		"no":"否",
+		"reset":"重置",
+		"apply":"应用",
+		"export":"导出",
+		"import":"导入"
+	}
+}

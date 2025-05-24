@@ -56,9 +56,6 @@
     <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,9 +92,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\ProjectPage\HistoryProjectWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ProjectPage\HistoryProjectLabel.h">

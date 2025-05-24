@@ -29,7 +29,7 @@
     <ClCompile Include="LangServer\cpp\LS_AStory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Plugin_AStory.cpp">
+    <ClCompile Include="cpp\Plugin_ASEDevTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LangServer\cpp\SH_AStory.cpp">
@@ -39,6 +39,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileServer\cpp\FS_ASRule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectTemplateProvider\cpp\PTP_AStory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\ASEDevTranslator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -55,13 +61,24 @@
     <ClInclude Include="FileServer\FS_ASRule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ASEDevTranslator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LangServer\SH_AStory.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Plugin_AStory.h">
+    <QtMoc Include="Plugin_ASEDevTool.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="ProjectTemplateProvider\PTP_AStory.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Plugin_ASEDevTool.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

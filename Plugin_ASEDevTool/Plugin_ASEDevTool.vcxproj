@@ -93,23 +93,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Debug;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\AStory\</OutDir>
+    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Debug;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\AStory\</OutDir>
+    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
     <TargetExt>.ysp</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Release;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\AStory\</OutDir>
+    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Release;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\AStory\</OutDir>
+    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
     <TargetExt>.ysp</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -197,20 +197,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cpp\ASEDevTranslator.cpp" />
     <ClCompile Include="FileServer\cpp\FS_ASRule.cpp" />
     <ClCompile Include="FileServer\cpp\FS_AStory.cpp" />
     <ClCompile Include="LangServer\cpp\LS_AStory.cpp" />
     <ClCompile Include="LangServer\cpp\SH_AStory.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Plugin_AStory.cpp" />
+    <ClCompile Include="cpp\Plugin_ASEDevTool.cpp" />
+    <ClCompile Include="ProjectTemplateProvider\cpp\PTP_AStory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileServer\FS_ASRule.h" />
     <ClInclude Include="FileServer\FS_AStory.h" />
     <ClInclude Include="LangServer\LS_AStory.h" />
-    <QtMoc Include="Plugin_AStory.h" />
+    <ClInclude Include="ASEDevTranslator.h" />
+    <QtMoc Include="ProjectTemplateProvider\PTP_AStory.h" />
+    <QtMoc Include="Plugin_ASEDevTool.h" />
     <QtMoc Include="LangServer\SH_AStory.h" />
     <ClInclude Include="Macro.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Plugin_ASEDevTool.qrc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

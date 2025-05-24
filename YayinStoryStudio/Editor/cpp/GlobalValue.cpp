@@ -26,7 +26,6 @@ namespace YSS {
 		TranslationHost->active(YSSTranslator);
 		PluginManager = new YSSCore::Editor::EditorPluginManager();
 		loadConfig();
-		loadLanguage();
 		PluginManager->programLoadPlugin();
 		QString themeFile = "./resource/theme/" + Config->getString("Preferences.Theme") + ".json";
 		Theme->loadConfig(themeFile);
@@ -36,9 +35,6 @@ namespace YSS {
 		return Instance->Theme->getColor(key);
 	}
 
-	QString GlobalValue::getTr(const QString& key) {
-		return Instance->Language->getString(key);
-	}
 	YSSCore::Utility::JsonConfig* GlobalValue::getConfig() {
 		return Instance->Config;
 	}
@@ -81,22 +77,6 @@ namespace YSS {
 	}
 	YSS::Editor::MainWin* GlobalValue::getMainWindow() {
 		return Instance->MainWindow;
-	}
-	void GlobalValue::loadLanguage() {
-		if (Language != nullptr) {
-			delete Language;
-		}
-		Language = new YSSCore::Utility::JsonConfig();
-		QFile file("./resource/lang/" + Config->getString("Preferences.Language") + ".json");
-		QTextStream in(&file);
-		in.setEncoding(QStringConverter::Utf8);
-		if (file.open(QIODevice::ReadOnly)) {
-			Language->parse(in.readAll());
-			file.close();
-		}
-		else {
-			qDebug() << "GlobalValue: loadLanguage failed!";
-		}
 	}
 
 	YSSCore::Editor::LangServerManager* GlobalValue::getLangServerManager() {

@@ -1,0 +1,27 @@
+{
+	"aseinfo":{
+		"projectName": "项目名称",
+		"projectPath": "项目路径",
+		"path": "ASE应用程序路径",
+		"version": "ASE兼容版本",
+		"mainFileName": "主文件名称"
+	},
+	"provider"{
+		"title": "ASE项目初始化",
+		"project":{
+			"title": "项目设置",
+			"name":{
+				"title": "项目名称",
+				"text": "新的ASE项目的名称"
+			},
+			"path":{
+				"title": "项目存放文件夹",
+				"text": "新的ASE项目将被存放在此文件夹中"
+			},
+			"version":{
+				"title": "目标ASE版本",
+				"text": "默认为最新版。这将影响部分功能的可用性"
+			}
+		}
+	}
+}

@@ -8,6 +8,8 @@
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
 #include <Editor/ConfigWidget.h>
+#include <Utility/FileUtility.h>
+
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
@@ -48,7 +50,8 @@ namespace YSS::TitlePage {
 
 		YSSCore::Editor::ConfigWidget* configWidget = new YSSCore::Editor::ConfigWidget();
 		configWidget->setAttribute(Qt::WA_DeleteOnClose);
-		configWidget->setConfig("./resource/config_widget.json");
+		QString jsonStr = YSSCore::Utility::FileUtility::readAll("./resource/config_widget.json");
+		configWidget->loadCWJson(jsonStr);
 		configWidget->show();
 
 		this->close();

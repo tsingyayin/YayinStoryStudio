@@ -6,6 +6,7 @@
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qmap.h>
+#include "../../Utility/FileUtility.h"
 
 namespace YSSCore::Editor {
 	class EditorPluginManagerPrivate {
@@ -59,17 +60,13 @@ namespace YSSCore::Editor {
 		QFileInfoList Plugins = EditorPluginManagerPrivate::recursionGetAllDll("./resource/plugins");
 		for (QFileInfo info : Plugins) {
 			QString path = info.absoluteFilePath() + ".json";
-			QFile file(path);
-			if (!file.open(QIODevice::ReadOnly)) {
-				qDebug() << "EditorPluginManager: open plugin meta file failed!";
-				continue;
-			}
-			QTextStream in(&file);
-			in.setEncoding(QStringConverter::Utf8);
-			QString jsonStr = in.readAll();
-			file.close();
+			QString jsonStr = YSSCore::Utility::FileUtility::readAll(path);
 			Utility::JsonConfig jsonConfig(jsonStr);
 			QString id = jsonConfig.getString("ID");
+			if (id.isEmpty()) {
+				qDebug() << "EditorPluginManager: plugin id is empty!";
+				continue;
+			}
 			d->PluginPathMap.insert(id, info.absoluteFilePath());
 			if (!d->PriorityMap.contains(id)) {
 				d->PriorityMap.insert(id, 0);
@@ -114,6 +111,13 @@ namespace YSSCore::Editor {
 					qDebug() << "EditorPluginManager: create EditorPlugin failed!";
 					hLibrary->unload();
 					return;
+				}
+				QString pluginID = plugin->getPluginID();
+				if (pluginID != key) {
+					qDebug() << "EditorPluginManager: plugin key different from meta file!";
+					delete plugin;
+					hLibrary->unload();
+					continue;
 				}
 				d->Plugins.append(plugin);
 				d->Dlls.insert(plugin->getPluginID(), hLibrary);

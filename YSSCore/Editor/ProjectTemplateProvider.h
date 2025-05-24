@@ -11,6 +11,8 @@ namespace YSSCore::Editor {
 	signals:
 		void lastProjectPathChanged(const QString& path);
 		void projectPrepared(const QString& path);
+	public:
+		ProjectTemplateInitWidget(QWidget* parent = nullptr);
 	};
 
 	class ProjectTemplateProviderPrivate;
@@ -21,11 +23,16 @@ namespace YSSCore::Editor {
 		ProjectTemplateProvider();
 		~ProjectTemplateProvider();
 		QIcon getTemplateIcon();
+		void setTemplateIcon(const QIcon& icon);
 		QString getTemplateID();
+		void setTemplateID(const QString& id);
 		QString getTemplateName();
+		void setTemplateName(const QString& name);
 		QString getTemplateDescription();
+		void setTemplateDescription(const QString& description);
 		QStringList getTemplateTags();
-		ProjectTemplateInitWidget* projectInitWidget();
+		void setTemplateTags(const QStringList& tags);
+		virtual ProjectTemplateInitWidget* projectInitWidget() = 0;
 	private:
 		ProjectTemplateProviderPrivate* d; 
 	};

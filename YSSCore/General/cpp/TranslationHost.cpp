@@ -47,4 +47,21 @@ namespace YSSCore::General {
 			return nameSpace + "::" + key;
 		}
 	}
+	QString TranslationHost::tr(const QString& key) {
+		QStringList keys = key.split("::");
+		if (keys.length() == 2) {
+			return tr(keys[0], keys[1]);
+		}
+		return key;
+	}
+	QString TranslationHost::i18n(const QString& raw) {
+		if (raw.startsWith("i18n:")) {
+			QStringList keys = raw.mid(5).split("::");
+			if (keys.length() != 2) {
+				return raw;
+			}
+			return tr(keys[0], keys[1]);
+		}
+		return raw;
+	}
 }

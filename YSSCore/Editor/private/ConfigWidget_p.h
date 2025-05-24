@@ -7,6 +7,8 @@ class QVBoxLayout;
 class QWidget;
 class QRadioButton;
 class QComboBox;
+class QLineEdit;
+
 namespace YSSCore::Utility {
 	class JsonConfig;
 }
@@ -19,16 +21,21 @@ namespace YSSCore::__Private__ {
 		friend class YSSCore::Editor::ConfigWidget;
 	protected:
 		QString TargetConfigPath;
-		QVBoxLayout* Layout;
-		QString getTr(QString raw);
+		QVBoxLayout* Layout = nullptr;
 		YSSCore::Utility::JsonConfig* Config = nullptr;
 		QMap<QComboBox*, QString> ComboBoxDefault;
 		QMap<QRadioButton*, bool> RadioButtonDefault;
-		ConfigWidgetPrivate();
+		QMap<QLineEdit*, QString> LineEditDefault;
+		QList<QWidget*> Settings;
+		QWidget* self;
+		ConfigWidgetPrivate(QWidget* self);
 		~ConfigWidgetPrivate();
-		void loadConfig();
+		void loadCWJson(const QString& json);
+		void initConfig();
+		void syncConfig();
+		void resetConfig();
+		void spawnConfig();
 		void saveConfig();
-		void backToDefaultConfig();
 		QList<QWidget*> spawnWidget(QList<YSSCore::Utility::JsonConfig>& config);
 		QWidget* widgetSpawner(YSSCore::Utility::JsonConfig& config, const QString& parentPath = "");
 		QWidget* widgetRouter(const QString& type, const QString& node, YSSCore::Utility::JsonConfig& config);

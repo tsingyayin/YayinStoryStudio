@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QMenuBar>
 #include <QSplitter>
+#include <General/TranslationHost.h>
 
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
@@ -40,9 +41,9 @@ namespace YSS::Editor {
 	void MainWin::initMenu() {
 		MenuBar = new QMenuBar(this);
 		this->setMenuBar(MenuBar);
-		FileMenu = MenuBar->addMenu(GlobalValue::getTr("General.File"));
-		SaveAction = new QAction(GlobalValue::getTr("General.Save"), this);
-		SaveAsAction = new QAction(GlobalValue::getTr("General.SaveAs"), this);
+		FileMenu = MenuBar->addMenu(YSSTR("YSSCore::general.file"));
+		SaveAction = new QAction(YSSTR("YSSCore::general.save"), this);
+		SaveAsAction = new QAction(YSSTR("YSSCore::general.saveAs"), this);
 		FileMenu->addAction(SaveAction);
 		FileMenu->addAction(SaveAsAction);
 	}

@@ -1,22 +1,21 @@
 {
-	"target": "$(ProgramPath)/resource/test_config.json",
-	"targetType": "json",
+	"windowTitle": "i18n:ASEDevTool::provider.title",
+	"windowIcon": "icon.png",
 	"widget":[
 		{	
-			"node": "Preference",
+			"node": "Project",
 			"type": "Frame",
 			"icon": "",
-			"title": "i18n:YSS::config.preference.title",
-			"text": "i18n:YSS::config.preference.text",
+			"title": "i18n:ASEDevTool::provider.project.title",
+			"text": "",
 			"children":[
 				{
-					"node": "Language",
-					"type": "ComboBox",
+					"node": "Path",
+					"type": "LineEdit",
 					"icon": "",
-					"title": "i18n:YSS::config.language.title",
-					"text": "i18n:YSS::config.language.text",
+					"title": "i18n:ASEDevTool::provider.project.path.title",
+					"text": "i18n:ASEDevTool::provider.project.path.text",
 					"data": {
-						
 						"comboBox": [
 							{
 								"data": "zh_CN",
@@ -33,20 +32,20 @@
 				{
 					"node": "ReloadTab",
 					"type": "RadioButton",
-					"icon": "",
-					"title": "i18n:YSS::config.reloadtab.title",
-					"text": "i18n:YSS::config.reloadtab.text",
 					"data": {
+						"icon": "",
+						"title": "i18n:YSS::config.reloadtab.title",
+						"text": "i18n:YSS::config.reloadtab.text",
 						"default": true
 					}
 				},
 				{
 					"node": "Theme",
 					"type": "ComboBox",
-					"icon": "",
-					"title": "i18n:YSS::config.theme.title",
-					"text": "i18n:YSS::config.theme.text",
 					"data": {
+						"icon": "",
+						"title": "i18n:YSS::config.theme.title",
+						"text": "i18n:YSS::config.theme.text",
 						"comboBox": [
 							{
 								"data": "theme_dark",
