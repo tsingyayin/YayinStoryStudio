@@ -1,12 +1,12 @@
 {
-    "Editor": {
-        "Window": {
+    "Window": {
+        "Editor": {
             "Height": 793,
             "Screen": 0,
             "Width": 1536
         }
     },
-    "Preferences": {
+    "Preference": {
         "Language": "zh_CN",
         "ReloadTab": true,
         "Theme": "theme_dark"

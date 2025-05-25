@@ -40,6 +40,7 @@ namespace YSSCore::General {
 		bool getUseBuild() const;
 		quint32 getBuild() const;
 		QString getNickName() const;
+		static Version getYSSVersion();
 	private:
 		VersionPrivate* d;
 	};

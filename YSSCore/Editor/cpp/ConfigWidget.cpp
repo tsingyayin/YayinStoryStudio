@@ -6,6 +6,7 @@
 #include <QtWidgets>
 #include "../private/ConfigWidget_p.h"
 #include "../../Utility/PathMacro.h"
+#include "../../Widgets/MultiLabel.h"
 
 namespace YSSCore::__Private__ {
 
@@ -38,6 +39,7 @@ namespace YSSCore::__Private__ {
 		Settings = spawnWidget(widget);
 		for (QWidget* w : Settings) {
 			w->setParent(self);
+			//w->setStyleSheet("QWidget{border:1px solid black}");
 			Layout->addWidget(w);
 		}
 		this->initConfig();
@@ -143,28 +145,29 @@ namespace YSSCore::__Private__ {
 		if (parentPath != "") {
 			node = parentPath + "." + node;
 		}
-		QWidget* self = new QWidget();
+		QFrame* self = new QFrame();
 		QVBoxLayout* Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
-		QWidget* SettingFrame = new QWidget(self);
+		QFrame* SettingFrame = new QFrame(self);
 		Layout->addWidget(SettingFrame);
-		QGridLayout* SettingLayout = new QGridLayout(SettingFrame);
+		Layout->setContentsMargins(0, 0, 0, 0);
+		QHBoxLayout* SettingLayout = new QHBoxLayout(SettingFrame);
 		SettingFrame->setLayout(SettingLayout);
-		QLabel* TitleLabel = new QLabel(SettingFrame);
-		TitleLabel->setText(YSSI18N(config.getString("title")));
-		QLabel* TextLabel = new QLabel(SettingFrame);
-		TextLabel->setText(YSSI18N(config.getString("text")));
-		QLabel* IconLabel = new QLabel(SettingFrame);
-		IconLabel->setPixmap(QPixmap(config.getString("icon")));
-		SettingLayout->addWidget(IconLabel, 0, 0, 2, 1);
-		SettingLayout->addWidget(TitleLabel, 0, 1, 1, 1);
-		SettingLayout->addWidget(TextLabel, 1, 1, 1, 1);
+		SettingLayout->setContentsMargins(0, 0, 0, 0);
+		
+		YSSCore::Widgets::MultiLabel* MultiLabel = new YSSCore::Widgets::MultiLabel(SettingFrame);
+		MultiLabel->setTitle(YSSI18N(config.getString("title")));
+		MultiLabel->setDescription(YSSI18N(config.getString("text")));
+		MultiLabel->setPixmap(QPixmap(config.getString("icon")));
+		MultiLabel->setAlignment(Qt::AlignLeft);
+		SettingLayout->addWidget(MultiLabel);
+		SettingLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		if (config.contains("data")) {
 			YSSCore::Utility::JsonConfig selfConfig = config.getObject("data");
 			QWidget* target = widgetRouter(type, node, selfConfig);
 			if (target != nullptr) {
 				target->setParent(SettingFrame);
-				SettingLayout->addWidget(target, 0, 2, 2, 1);
+				SettingLayout->addWidget(target);
 			}
 			else {
 				self->deleteLater();

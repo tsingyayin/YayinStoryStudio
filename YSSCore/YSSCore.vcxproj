@@ -236,6 +236,7 @@
     <ClCompile Include="Utility\cpp\PathMacro.cpp" />
     <ClCompile Include="Utility\cpp\VirtualFile.cpp" />
     <ClCompile Include="Utility\cpp\YamlConfig.cpp" />
+    <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\private\ConfigWidget_p.h" />
@@ -246,12 +247,14 @@
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h" />
     <ClInclude Include="General\TranslationHost.h" />
     <ClInclude Include="General\YSSProject.h" />
+    <ClInclude Include="Utility\AsyncFunction.h" />
     <ClInclude Include="Utility\DiffSequence.h" />
     <ClInclude Include="Utility\CodeDiff.h" />
     <ClInclude Include="Utility\FileUtility.h" />
     <ClInclude Include="Utility\PathMacro.h" />
     <ClInclude Include="Utility\VirtualFile.h" />
     <ClInclude Include="Utility\YamlConfig.h" />
+    <ClInclude Include="Widgets\MultiLabel.h" />
     <ClInclude Include="YSSCore.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />
     <QtMoc Include="Editor\FileServerManager.h" />

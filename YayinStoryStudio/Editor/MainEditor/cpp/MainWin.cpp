@@ -13,11 +13,14 @@
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
-		int width = GlobalValue::getConfig()->getInt("Editor.Window.Width");
-		int height = GlobalValue::getConfig()->getInt("Editor.Window.Height");
+		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
+		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
 		this->setMinimumSize(800, 600);
 		this->resize(width, height);
 		this->setWindowTitle("Yayin Story Studio");
+		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
+			this->showMaximized();
+		}
 		//ProxyWidget->setParent(this);
 		CentralWidget = new QWidget(this);
 		Layout = new QHBoxLayout(CentralWidget);
@@ -56,9 +59,14 @@ namespace YSS::Editor {
 	}
 	void MainWin::closeEvent(QCloseEvent* event) {
 		YSSCore::Utility::JsonConfig* config = GlobalValue::getConfig();
-		config->getInt("Editor.Window.Width");
-		config->setInt("Editor.Window.Width", this->width());
-		config->setInt("Editor.Window.Height", this->height());
+		if (this->isMaximized()) {
+			config->setBool("Window.Editor.Maximized", true);
+		}
+		else {
+			config->setInt("Window.Editor.Width", this->width());
+			config->setInt("Window.Editor.Height", this->height());
+			config->setBool("Window.Editor.Maximized", false);
+		}
 		GlobalValue::saveConfig();
 	}
 }

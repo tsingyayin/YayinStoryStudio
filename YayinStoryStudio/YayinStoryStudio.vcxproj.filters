@@ -62,6 +62,15 @@
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">
@@ -100,6 +109,9 @@
     <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">
@@ -111,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\YSSTranslator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test_main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

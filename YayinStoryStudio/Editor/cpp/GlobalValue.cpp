@@ -27,7 +27,7 @@ namespace YSS {
 		PluginManager = new YSSCore::Editor::EditorPluginManager();
 		loadConfig();
 		PluginManager->programLoadPlugin();
-		QString themeFile = "./resource/theme/" + Config->getString("Preferences.Theme") + ".json";
+		QString themeFile = "./resource/theme/" + Config->getString("Preference.Theme") + ".json";
 		Theme->loadConfig(themeFile);
 		PluginManager->loadPlugin();
 	}
@@ -81,5 +81,9 @@ namespace YSS {
 
 	YSSCore::Editor::LangServerManager* GlobalValue::getLangServerManager() {
 		return Instance->LangServerManager;
+	}
+	
+	void GlobalValue::setCurrentProject(YSSCore::General::YSSProject* project) {
+		Instance->CurrentProject = project;
 	}
 }

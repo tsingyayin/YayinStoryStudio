@@ -6,8 +6,54 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qtextstream.h>
+#include <QtCore/qdiriterator.h>
+#include <QtGui/qdesktopservices.h>
+#include <QtCore/qurl.h>
+
+#define VI_ENUMSTR(enumName, enumValue) case enumName::enumValue: return #enumValue;
 
 namespace YSSCore::Utility {
+	class FileUtilityPrivate {
+		friend class FileUtility;
+	protected:
+		static QString getCountingUnitStr(FileUtility::CountingUnit c) {
+			switch (c)
+			{
+			case FileUtility::_0:
+				return "";
+				break;
+				VI_ENUMSTR(FileUtility, K);
+				VI_ENUMSTR(FileUtility, M);
+				VI_ENUMSTR(FileUtility, G);
+				VI_ENUMSTR(FileUtility, T);
+				VI_ENUMSTR(FileUtility, P);
+				VI_ENUMSTR(FileUtility, E);
+				VI_ENUMSTR(FileUtility, Z);
+				VI_ENUMSTR(FileUtility, Y);
+			default:
+				return "";
+			}
+		}
+		static QString getReadableSize(double rawSize, FileUtility::BinarySizeUnit u, FileUtility::CountingUnit c, FileUtility::BinarySizeFormat f) {
+			if (rawSize >= (int)f) {
+				return getReadableSize(rawSize / (int)f, u, (FileUtility::CountingUnit)(c + 1), f);
+			}
+			else {
+				QString suffix = QString::number(rawSize, 'f', 2);
+				suffix += getCountingUnitStr(c);
+				if (f == FileUtility::IEC && c != FileUtility::_0) {
+					suffix += "i";
+				}
+				if (u == FileUtility::Byte) {
+					suffix += "B";
+				}
+				else {
+					suffix += "b";
+				}
+				return suffix;
+			}
+		}
+	};
 	QStringList FileUtility::readLines(const QString& filePath) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -100,5 +146,39 @@ namespace YSSCore::Utility {
 		}
 		file.write(data);
 		file.close();
+	}
+
+	QStringList FileUtility::fileFilter(const QString& root, const QStringList& exts, bool considerSubFolder) {
+		QDirIterator it(root, exts, QDir::Files, considerSubFolder ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
+		QStringList files;
+		while (it.hasNext())
+		{
+			files << it.next();
+		}
+		return files;
+	}
+
+	qint64 FileUtility::sizeBytes(const QString& root) {
+		QDir dir(root);
+		qint64 s = 0;
+		for (QFileInfo fileInfo : dir.entryInfoList(QDir::Files)) {
+			s += fileInfo.size();
+		}
+		for (QString subDir : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+			s += sizeBytes(root + QDir::separator() + subDir);
+		}
+		return s;
+	}
+
+	QString FileUtility::readableSize(qint64 bytes, BinarySizeUnit u, BinarySizeFormat f) {
+		return FileUtilityPrivate::getReadableSize(bytes, u, CountingUnit::_0, f);
+	}
+
+	void FileUtility::openExplorer(const QString& path) {
+		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+	}
+
+	void FileUtility::openBrowser(const QString& url) {
+		QDesktopServices::openUrl(QUrl(url));
 	}
 }

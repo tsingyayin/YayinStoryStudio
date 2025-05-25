@@ -14,6 +14,7 @@ namespace YSSCore {
 	};
 	namespace General {
 		class TranslationHost;
+		class YSSProject;
 	}
 };
 namespace YSS {
@@ -35,6 +36,7 @@ namespace YSS {
 		YSS::Editor::YSSTranslator* YSSTranslator = nullptr;
 		YSSCore::General::TranslationHost* TranslationHost = nullptr;
 		YSS::Editor::MainWin* MainWindow = nullptr;
+		YSSCore::General::YSSProject* CurrentProject = nullptr;
 	public:
 		GlobalValue();
 		static GlobalValue* getInstance();
@@ -44,6 +46,7 @@ namespace YSS {
 		static YSSCore::Editor::LangServerManager* getLangServerManager();
 		static void setMainWindow(YSS::Editor::MainWin* mainWindow);
 		static YSS::Editor::MainWin* getMainWindow();
+		static void setCurrentProject(YSSCore::General::YSSProject* project);
 		void loadConfig();
 	};
 }

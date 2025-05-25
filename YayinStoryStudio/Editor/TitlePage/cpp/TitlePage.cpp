@@ -2,13 +2,14 @@
 #include "../../GlobalValue.h"
 #include <Utility/ExtTool.h>
 #include "../../MainEditor/MainWin.h"
+#include "../../ProjectPage/ProjectWin.h"
 #include <chrono>
 #include <thread>
 #include <QtGui/qfontdatabase.h>
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
-#include <Editor/ConfigWidget.h>
-#include <Utility/FileUtility.h>
+
+#include "../../../test_main.h"
 
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
@@ -48,12 +49,11 @@ namespace YSS::TitlePage {
 		}
 		editor->show();
 
-		YSSCore::Editor::ConfigWidget* configWidget = new YSSCore::Editor::ConfigWidget();
-		configWidget->setAttribute(Qt::WA_DeleteOnClose);
-		QString jsonStr = YSSCore::Utility::FileUtility::readAll("./resource/config_widget.json");
-		configWidget->loadCWJson(jsonStr);
-		configWidget->show();
-
+		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
+		win->show();
+#ifdef YSS_DEBUG
+		test_loaded();
+#endif
 		this->close();
 	}
 }

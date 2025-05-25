@@ -2,6 +2,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qregularexpression.h>
+#include "../private/AUTO_VERSION.h"
+
 namespace YSSCore::General {
 	class VersionPrivate
 	{
@@ -225,5 +227,13 @@ namespace YSSCore::General {
 	QString Version::getNickName() const
 	{
 		return d->nickName;
+	}
+	Version Version::getYSSVersion() {
+		return Version(YSSCore_VERSION_MAJOR,
+			YSSCore_VERSION_MINOR,
+			YSSCore_VERSION_PATCH,
+			true,
+			YSSCore_VERSION_BUILD,
+			YSSCore_VERSION_NICKNAME);
 	}
 }

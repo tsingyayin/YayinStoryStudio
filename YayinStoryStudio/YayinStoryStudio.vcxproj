@@ -69,6 +69,7 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);YSS_DEBUG</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -110,7 +111,10 @@
     <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectLabel.cpp" />
+    <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp" />
+    <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />
+    <ClCompile Include="test.cpp" />
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp" />
     <ClCompile Include="main.cpp" />
@@ -134,6 +138,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
+    <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
+    <ClInclude Include="test_main.h" />
     <ClInclude Include="Editor\YSSTranslator.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
     <QtMoc Include="Editor\ProjectPage\HistoryProjectLabel.h" />

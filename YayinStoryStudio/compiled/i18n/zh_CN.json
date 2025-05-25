@@ -20,5 +20,15 @@
 			"dark":"深色",
 			"light":"浅色"
 		}
+	},
+	"project":{
+		"selectToShow": "选择项目以查看详情...",
+		"noCover":"无封面",
+		"lastModifiedTime":"上次修改时间",
+		"createTime":"创建时间",
+		"size":"大小",
+		"calculating":"计算中...",
+		"showInBrowser":"打开文件夹",
+		"delete":"删除项目"
 	}
 }
