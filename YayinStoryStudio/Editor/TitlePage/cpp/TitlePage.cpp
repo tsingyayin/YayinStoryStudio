@@ -39,6 +39,7 @@ namespace YSS::TitlePage {
 		qApp->setFont(font);
 
 		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library");
+		YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template");
 		YSS::Editor::MainWin* editor = new YSS::Editor::MainWin();
 		GlobalValue::setMainWindow(editor);
 

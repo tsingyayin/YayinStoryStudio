@@ -9,6 +9,9 @@
     "Preference": {
         "Language": "zh_CN",
         "ReloadTab": true,
-        "Theme": "theme_dark"
+        "Theme": {
+            "Config": "theme_dark",
+            "Template": "default_style"   
+        }
     }
 }

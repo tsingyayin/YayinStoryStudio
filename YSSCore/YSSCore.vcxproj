@@ -216,6 +216,7 @@
     <ClCompile Include="Editor\cpp\LangServer.cpp" />
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
+    <ClCompile Include="Editor\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
     <ClCompile Include="General\cpp\TranslationHost.cpp" />
@@ -225,6 +226,7 @@
     <ClCompile Include="General\cpp\YayinStoryStudio.cpp" />
     <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utility\cpp\AsyncFunction.cpp" />
     <ClCompile Include="Utility\cpp\CodeDiff.cpp" />
     <ClCompile Include="Utility\cpp\Console.cpp" />
     <ClCompile Include="Utility\cpp\DiffSequence.cpp" />
@@ -240,6 +242,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\private\ConfigWidget_p.h" />
+    <ClInclude Include="Editor\StyleSheetTemplate.h" />
     <ClInclude Include="General\private\Translator_p.h" />
     <ClInclude Include="General\Translator.h" />
     <QtMoc Include="General\UpdateChain.h" />

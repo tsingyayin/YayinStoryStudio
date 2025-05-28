@@ -36,7 +36,7 @@ namespace YSSCore::Utility {
 	*/
 	/*!
 		\brief 构造一个空的VIJsonDocument对象。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 	*/
 	JsonDocument::JsonDocument() {
 		d = new JsonDocumentPrivate();
@@ -46,7 +46,7 @@ namespace YSSCore::Utility {
 		\brief 构造一个VIJsonDocument对象。
 		\a configPath 配置文件路径。
 		\a defaultConfigPath 默认配置文件路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 	*/
 	JsonDocument::JsonDocument(const QString& configPath, const QString& defaultConfigPath) {
 		d = new JsonDocumentPrivate();
@@ -56,7 +56,7 @@ namespace YSSCore::Utility {
 
 	/*!
 		\brief 析构VIJsonDocument对象。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 	*/
 	JsonDocument::~JsonDocument() {
 		delete d;
@@ -69,7 +69,7 @@ namespace YSSCore::Utility {
 		\a whichError 指示是谁加载失败，1表示默认配置，2表示当前配置，0表示成功。
 		\a configAutoCreate 是否自动创建配置文件，默认为true。当默认配置文件读入成功但当前配置文件读入失败时，
 		会自动在指定位置创建当前配置文件。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会从指定的配置文件中加载配置，如果加载失败，会返回一个QJsonParseError对象，whichError会指示是哪个配置文件加载失败。
 		这里的加载问题主要指语法问题，如果是文件读写时发生问题，则返回值会是QJsonParseError::NoError，但whichError会指示是
@@ -139,7 +139,7 @@ namespace YSSCore::Utility {
 
 	/*!
 		\brief 保存配置到文件。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会将当前配置保存到文件，如果文件不存在，会自动创建。考虑到读取时已经有强制文件存在的逻辑，
 		因此自动创建的场景较少，但仍不排除用户故意在读取后删除文件的情况。
@@ -160,7 +160,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取配置文件中的所有键。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定路径下的所有键，如果路径为空，则返回根键。
 	*/
@@ -171,7 +171,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的值。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空值。
 	*/
@@ -182,7 +182,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的值。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空值。
 	*/
@@ -196,7 +196,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的整数值。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的整数值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回0。
 	*/
@@ -207,7 +207,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的字符串值。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的字符串值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空字符串。
 	*/
@@ -218,7 +218,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的布尔值。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的布尔值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
@@ -229,7 +229,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的浮点数值。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的浮点数值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回0.0。
 	*/
@@ -240,7 +240,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的对象。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的对象，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空对象。
 	*/
@@ -254,7 +254,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 获取指定键的数组。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会返回指定键的数组，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空数组。
 	*/
@@ -268,7 +268,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键是否存在。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键是否存在，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
@@ -280,7 +280,7 @@ namespace YSSCore::Utility {
 		\brief 设置指定键的值。
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会设置指定键的值，如果键不存在，则会自动创建。
 	*/
@@ -292,7 +292,7 @@ namespace YSSCore::Utility {
 		\brief 设置指定键的整数值。
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会设置指定键的整数值，如果键不存在，则会自动创建。
 	*/
@@ -304,7 +304,7 @@ namespace YSSCore::Utility {
 		\brief 设置指定键的字符串值。
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会设置指定键的字符串值，如果键不存在，则会自动创建。
 	*/
@@ -316,7 +316,7 @@ namespace YSSCore::Utility {
 		\brief 设置指定键的布尔值。
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会设置指定键的布尔值，如果键不存在，则会自动创建。
 	*/
@@ -328,7 +328,7 @@ namespace YSSCore::Utility {
 		\brief 设置指定键的浮点数值。
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会设置指定键的浮点数值，如果键不存在，则会自动创建。
 	*/
@@ -340,7 +340,7 @@ namespace YSSCore::Utility {
 		\brief 设置指定键的对象。
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会设置指定键的对象，如果键不存在，则会自动创建。
 	*/
@@ -352,7 +352,7 @@ namespace YSSCore::Utility {
 		\brief 设置指定键的数组。
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会设置指定键的数组，如果键不存在，则会自动创建。
 	*/
@@ -363,7 +363,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为空。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为空，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回true。
 	*/
@@ -374,7 +374,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为null。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为null，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回true。
 	*/
@@ -385,7 +385,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为对象。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为对象，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
@@ -396,7 +396,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为数组。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为数组，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
@@ -407,7 +407,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为字符串。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为字符串，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
@@ -419,7 +419,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为布尔值。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为布尔值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
@@ -430,7 +430,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为整数。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为整数，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
@@ -441,7 +441,7 @@ namespace YSSCore::Utility {
 	/*!
 		\brief 判断指定键的值是否为浮点数。
 		\a key 键的路径。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		此函数会判断指定键的值是否为浮点数，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/

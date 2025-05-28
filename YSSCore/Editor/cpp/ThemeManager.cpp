@@ -3,11 +3,15 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qiodevice.h>
 #include "../../Utility/JsonConfig.h"
+#include "../StyleSheetTemplate.h"
+#include "../../Utility/FileUtility.h"
+
 namespace YSSCore::Editor {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
 	protected:
 		YSSCore::Utility::JsonConfig* Config = nullptr;
+		StyleSheetTemplate TemplateSS;
 		static ThemeManager* Instance;
 	};
 	ThemeManager* ThemeManagerPrivate::Instance = nullptr;
@@ -19,23 +23,27 @@ namespace YSSCore::Editor {
 		return ThemeManagerPrivate::Instance;
 	}
 	void ThemeManager::loadConfig(const QString& path) {
-		QFile file(path);
-		if (file.open(QIODevice::ReadOnly)) {
-			if (d->Config != nullptr) {
-				delete d->Config;
-			}
-			d->Config = new YSSCore::Utility::JsonConfig(file.readAll());
-			file.close();
+		QString all = YSSCore::Utility::FileUtility::readAll(path);
+		if (d->Config != nullptr) {
+			delete d->Config;
 		}
-		else {
-			qDebug() << "ThemeManager: loadConfig failed!";
-		}
+		d->Config = new YSSCore::Utility::JsonConfig(all);
+	}
+	void ThemeManager::loadStyleTemplate(const QString& path) {
+		QString all = YSSCore::Utility::FileUtility::readAll(path);
+		d->TemplateSS.parse(all);
 	}
 	QString ThemeManager::getThemeName() {
 		return d->Config->getString("ThemeName");
 	}
+	QString ThemeManager::getTemplateName(){
+		return d->TemplateSS.getTemplateName();
+	}
 	QString ThemeManager::getThemeID() {
 		return d->Config->getString("ThemeID");
+	}
+	QString ThemeManager::getTemplateID() {
+		return d->TemplateSS.getTemplateID();
 	}
 	QColor ThemeManager::getColor(const QString& key) {
 		QString color = d->Config->getString(key);
@@ -54,5 +62,11 @@ namespace YSSCore::Editor {
 		else {
 			return "#ED1C24";
 		}
+	}
+	QString ThemeManager::getRawStyleSheet(const QString& key) {
+		return d->TemplateSS.getRawStyleSheet(key);
+	}
+	QString ThemeManager::getStyleSheet(const QString& key, QWidget* getter) {
+		return d->TemplateSS.getStyleSheet(key, d->Config, getter);
 	}
 }

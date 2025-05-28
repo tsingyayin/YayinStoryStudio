@@ -11,6 +11,35 @@
 #include <QtWidgets/qmessagebox.h>
 
 namespace YSSCore::Editor {
+	/*!
+		\class YSSCore::Editor::TextEdit
+		\brief 这是YSS最关键的功能：代码编辑器.
+		\since YSSCore 0.13.0
+		\inmodule YSSCore
+
+		TextEdit是Yayin Story Studio中最关键、最核心的功能，即代码编辑器。
+		
+		此类相比于Qt提供的QTextEdit，额外提供了其所缺失的现代代码编辑必备的几项基本功能：
+		\list 1
+			\li 自动缩进
+			\li 多行Tab的缩进和反缩进
+			\li 行号
+		\endlist
+		此外，TextEdit同样像QTextEdit一样，支持Qt的所有文本编辑功能，如撤销、重做、查找替换等。
+		并且支持使用QSyntaxHighlighter高亮语法。考虑到代码文件间可能存在符号关联关系，YSS扩展了
+		语法高亮的概念，除了最基本的着色操作仍需要使用QSyntaxHighlighter外，YSS提供了LangServer
+		类来处理更复杂的语法高亮需求，如代码补全、错误提示等。
+		
+		要在YSS中使用最基本的语法着色，请实现自己的LangServer类，并将其中的createHighlighter()
+		方法返回一个QSyntaxHighlighter实例。之后再将您的LangServer类注册到LangServerManager中。
+
+		\note 一般来说，TextEdit不会单独使用。若需要使用此类，我们强烈建议将其作为您的组件的一部分，
+		而不是继承并扩展此类。
+	*/
+	/*!
+		\since YSSCore 0.13.0
+		TextEdit的构造函数。
+	*/
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		this->setMinimumSize(800, 600);
 
@@ -50,6 +79,10 @@ namespace YSSCore::Editor {
 		connect(Text, &QTextEdit::cursorPositionChanged, this, &TextEdit::onCursorPositionChanged);
 		connect(Text, &QTextEdit::textChanged, this, &TextEdit::onTextChanged);
 	}
+	/*!
+		\since YSSCore 0.13.0
+		TextEdit的析构函数。
+	*/
 	TextEdit::~TextEdit() {
 		if (FontMetrics != nullptr) {
 			delete FontMetrics;
@@ -58,6 +91,11 @@ namespace YSSCore::Editor {
 			delete Highlighter;
 		}
 	}
+	/*!
+		\since YSSCore 0.13.0
+		\a path 要打开的文件路径。
+		如果成功打开文件并加载内容，则返回true；否则返回false。
+	*/
 	bool TextEdit::openFile(const QString& path) {
 		FilePath = path;
 		if (path.isEmpty()) {
@@ -88,6 +126,10 @@ namespace YSSCore::Editor {
 		return true;
 	}
 
+	/*!
+		\since YSSCore 0.13.0
+		\a path 要保存的文件路径。如果为空，则使用当前文件路径。
+	*/
 	void TextEdit::saveFile(const QString& path) {
 		if (path.isEmpty()) {
 			if (FilePath.isEmpty()) {

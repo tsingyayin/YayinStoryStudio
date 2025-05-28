@@ -139,10 +139,10 @@ namespace YSSCore::Utility {
 	};
 
 	/*!
-		\class JsonConfig
-		\inmodule VIMiCore
+		\class YSSCore::Utility::JsonConfig
+		\inmodule YSSCore
 		\brief VIJsonConfig定义了对Json配置的操作。
-		\since Visindigo 2.0.0
+		\since YSSCore 0.10.0
 		\sa JsonDocument QJsonObject QJsonValue
 
 		VIJsonConfig提供对Json配置的读写操作，可以通过此类构建基于Json的配置。一般来说
@@ -165,7 +165,8 @@ namespace YSSCore::Utility {
 	*/
 
 	/*!
-		\since Visindigo 2.0.0
+		\fn YSSCore::Utility::JsonConfig::JsonConfig()
+		\since YSSCore 0.13.0
 		VIJsonConfig的默认构造函数
 	*/
 	JsonConfig::JsonConfig()
@@ -173,7 +174,7 @@ namespace YSSCore::Utility {
 		d = new JsonConfigPrivate();
 	}
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a jsonStr 为Json字符串。
 		VIJsonConfig的构造函数
 	*/
@@ -184,7 +185,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a json 为Json对象。
 		VIJsonConfig的构造函数
 	*/
@@ -194,7 +195,7 @@ namespace YSSCore::Utility {
 		d->JsonDoc = json;
 	}
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a other 为VIJsonConfig的另一个实例。
 		VIJsonConfig的拷贝构造函数
 	*/
@@ -205,7 +206,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a other 为VIJsonConfig的另一个实例。
 		VIJsonConfig的移动构造函数
 	*/
@@ -216,7 +217,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		VIJsonConfig的析构函数
 	*/
 	JsonConfig::~JsonConfig()
@@ -225,7 +226,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a other 为VIJsonConfig的另一个实例。
 		VIJsonConfig的赋值操作符
 	*/
@@ -236,7 +237,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a other 为VIJsonConfig的另一个实例。
 		VIJsonConfig的移动操作符
 	*/
@@ -249,7 +250,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		一个重载操作符，旨在以类似下标访问的方式访问Json对象，返回一个VIJsonValueRef实例。
 		此实例支持直接赋值，也可以使用指针操作符访问QJsonValue。此实例还重载了到QJsonValue的
@@ -260,7 +261,7 @@ namespace YSSCore::Utility {
 		return JsonValueRef(this, key);
 	}
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		获取Json对象的所有键。（不包括子对象）
 	*/
 	QStringList JsonConfig::keys(const QString& key)
@@ -270,7 +271,7 @@ namespace YSSCore::Utility {
 
 	/*!
 		\fn QJsonParseError JsonConfig::parse(const QString& jsonStr)
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a json 为Json对象。
 		解析Json字符串。
 	*/
@@ -282,7 +283,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		获取Json对象的字符串。
 	*/
 	QString JsonConfig::toString(QJsonDocument::JsonFormat format)
@@ -291,7 +292,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		获取Json对象的值。
 	*/
@@ -304,7 +305,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		获取Json对象的整数值。
 	*/
@@ -317,7 +318,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		获取Json对象的字符串值。
 	*/
@@ -329,7 +330,7 @@ namespace YSSCore::Utility {
 		return d->getValue(key).toString();
 	}
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		获取Json对象的布尔值。
 	*/
@@ -342,7 +343,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		获取Json对象的浮点数值。
 	*/
@@ -355,7 +356,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		获取Json对象的子对象。
 	*/
@@ -370,7 +371,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		获取Json对象的数组。
 	*/
@@ -390,7 +391,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否包含指定的键。
 	*/
@@ -400,7 +401,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		\a value 为值。
 		设置Json对象的值。
@@ -411,7 +412,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		\a value 为整数值。
 		设置Json对象的整数值。
@@ -423,7 +424,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		\a value 为字符串值。
 		设置Json对象的字符串值。
@@ -435,7 +436,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		\a value 为布尔值。
 		设置Json对象的布尔值。
@@ -447,7 +448,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		\a value 为浮点数值。
 		设置Json对象的浮点数值。
@@ -459,7 +460,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		\a value 为子对象。
 		设置Json对象的子对象。
@@ -471,7 +472,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		\a value 为数组。
 		设置Json对象的数组。
@@ -487,7 +488,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为空。
 	*/
@@ -497,7 +498,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为空。
 	*/
@@ -508,7 +509,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为对象。
 	*/
@@ -518,7 +519,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为数组。
 	*/
@@ -528,7 +529,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为字符串。
 	*/
@@ -539,7 +540,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为布尔值。
 	*/
@@ -549,7 +550,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为整数。
 	*/
@@ -559,7 +560,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a key 为键。
 		判断Json对象是否为浮点数。
 	*/

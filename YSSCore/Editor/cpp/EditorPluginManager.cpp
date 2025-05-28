@@ -41,6 +41,7 @@ namespace YSSCore::Editor {
 
 		EditorPluginManager负责加载和管理插件。
 	*/
+
 	/*!
 		\since YSSCore 0.10.0
 		\a parent 为父对象。

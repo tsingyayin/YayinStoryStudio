@@ -239,12 +239,101 @@ namespace YSSCore::__Private__ {
 	
 }
 namespace YSSCore::Editor {
+	/*!
+		\class YSSCore::Editor::ConfigWidget
+		\brief 此类从CWJson创建配置窗口。
+		\since Yayin Story Studio 0.13.0
+		\inmodule YSSCore
+
+		此类提供一种便捷的配置文件操作窗口创建方式，使用一种被约定为“CWJSON”的Json格式来描述配置窗口的内容。并且
+		允许窗口和一个配置文件相绑定，将结果同步到配置文件中。
+		
+		CWJson的顶层格式如下：
+		\badcode
+			{
+				"target": "$(ProgramPath)/resource/test_config.json",
+				"targetType": "json",
+				"widget":[]
+			}
+		\endcode
+		其中，target为目标配置文件的路径，targetType为目标配置文件的类型，widget为窗口的内容。
+		\note 当前，targetType仅支持json格式，目前有支持YAML的计划，但具体实现时间未定。
+
+		对于widget来说，其基本格式如下，我们以一个ComboBox类型的配置为例：
+		\badcode
+			{
+				"node": "Theme",
+				"type": "ComboBox",
+				"icon": "",
+				"title": "i18n:YSS::config.theme.title",
+				"text": "i18n:YSS::config.theme.text",
+				"data": {
+					"comboBox": [
+						{
+							"data": "theme_dark",
+							"key": "i18n:YSS::config.theme.dark"
+						},
+						{
+							"data": "theme_light",
+							"key": "i18n:YSS::config.theme.light"
+						}
+					],
+					"default": "theme_dark"
+				},
+				"children": []
+			}
+		\endcode
+		其中，node是要绑定到的配置项节点，子一级节点会自动继承父一级节点的名称。
+		type是要创建的控件类型，icon是控件的图标，title是控件的标题，text是控件的描述。
+		data是控件的具体数据，children是控件的子控件。
+
+		对于type，当前支持的类型为ComboBox、RadioButton、Frame和LineEdit。其中Frame是
+		专门用来作为容器的控件，没有输入功能。
+
+		title和text支持YSS翻译系统，当其以“i18n:”开头时，会自动进行翻译，具体参见 \l YSSCore::General::TranslationHost。
+		
+		不同的控件类型有不同的data格式，ComboBox的格式已经在上面给出，RadioButton的格式如下：
+		\badcode
+			"data": {
+				"default": true
+			}
+		\endcode
+		即只提供默认是否选中即可。而LineEdit的格式如下：
+		\badcode
+			"data": {
+				"default": "test"
+				"check": {
+					"min": 1,
+					"max": 10,
+					"regex": "^[a-zA-Z0-9]+$"
+				}
+			}
+		\endcode
+		其中，check为检查项，min和max为最小和最大长度，regex为正则表达式。
+		\note 目前，LineEdit的检查项仅支持最小和最大长度，正则表达式的检查项未实现。
+	*/
+	/*!
+		\a parent 父窗口
+		\since Yayin Story Studio 0.13.0
+		类的构造函数
+	*/
 	ConfigWidget::ConfigWidget(QWidget* parent) :QFrame(parent) {
 		d = new YSSCore::__Private__::ConfigWidgetPrivate(this);
 	}
+
+	/*!
+		\since Yayin Story Studio 0.13.0
+		析构函数
+	*/
 	ConfigWidget::~ConfigWidget() {
 		delete d;
 	}
+
+	/*!
+		\since Yayin Story Studio 0.13.0
+		\a json 为CWJson的内容
+		加载CWJson
+	*/
 	void ConfigWidget::loadCWJson(const QString& json) {
 		d->loadCWJson(json);
 	}

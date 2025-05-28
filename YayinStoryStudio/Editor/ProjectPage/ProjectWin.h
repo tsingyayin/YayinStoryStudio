@@ -25,6 +25,7 @@ namespace YSS::ProjectPage {
 		QGridLayout* Layout;
 	public:
 		ProjectWin();
+		virtual void closeEvent(QCloseEvent* event) override;
 	private:
 	};
 }

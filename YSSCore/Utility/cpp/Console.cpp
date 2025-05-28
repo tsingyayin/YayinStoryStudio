@@ -130,7 +130,7 @@ namespace YSSCore::Utility {
 
 	/*!
 		\overload
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		允许只设置一个样式。
 	*/
@@ -140,7 +140,7 @@ namespace YSSCore::Utility {
 
 	/*!
 		\overload
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		允许使用RGB颜色。
 	*/
@@ -177,7 +177,7 @@ namespace YSSCore::Utility {
 
 	/*!
 		\overload
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		允许在只设置一个样式的情况下使用RGB颜色。
 	*/
@@ -186,7 +186,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 
 		获取一行输入。
 	*/
@@ -197,7 +197,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a rawText 为要设置样式的文本。
 
 		返回一个带有警告样式的文本，即黄色加粗。
@@ -207,7 +207,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a rawText 为要设置样式的文本。
 
 		返回一个带有错误样式的文本，即红色加粗。
@@ -217,7 +217,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a rawText 为要设置样式的文本。
 
 		返回一个带有成功样式的文本，即绿色加粗。
@@ -227,7 +227,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a rawText 为要设置样式的文本。
 
 		返回一个带有通知样式的文本，即蓝色加粗。
@@ -237,7 +237,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a colorString 为带有颜色样式的文本。
 
 		返回一个不带颜色样式的文本。
@@ -248,7 +248,7 @@ namespace YSSCore::Utility {
 		return rawText;
 	}
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a msg 为要输出的文本。
 
 		此输出自动换行。
@@ -258,7 +258,7 @@ namespace YSSCore::Utility {
 	}
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a data 为要进行二进制显示的数据。
 
 		一般来说，这个函数在控制台上的输出如下所示：
@@ -325,14 +325,14 @@ namespace YSSCore::Utility {
 	}
 
 	/*! \fn template <typename T> static void Console::memory(const T * data)
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a data 为要进行二进制显示的对象
 
 		此函数本质上可看做binary()的某种意义上的重载。
 	*/
 
 	/*!
-		\since Visindigo 2.0.0
+		\since YSSCore 0.13.0
 		\a cmd 为要执行的命令。
 
 		执行一个命令。

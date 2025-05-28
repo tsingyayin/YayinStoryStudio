@@ -1,0 +1,7 @@
+!TemplateName: Default_Template
+------
+@Default
+QWidget{
+	border: 1px solid $(border.line);
+	border-radius: 5px;
+}

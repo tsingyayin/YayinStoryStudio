@@ -9,10 +9,10 @@ namespace YSSCore::Utility {
 	};
 
 	/*!
-		\class JsonValueRef
+		\class YSSCore::Utility::JsonValueRef
 		\brief 此类用于访问VIJsonConfig中的值
-		\since Visindigo 2.0.0
-		\inmodule VIMiCore
+		\since YSSCore 0.13.0
+		\inmodule YSSCore
 
 		VIJsonValueRef是一个通过在内部保存保存VIJsonConfig和Key来访问VIJsonConfig中的值的类，
 		本质上是为辅助VIJsonConfig对operator[]重载而设计的。

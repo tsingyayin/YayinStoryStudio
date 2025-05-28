@@ -54,6 +54,50 @@ namespace YSSCore::Utility {
 			}
 		}
 	};
+	/*! 
+		\class YSSCore::Utility::FileUtility
+		\brief 此类为Yayin Story Studio 提供文件操作的相关函数
+		\since Yayin Story Studio 0.13.0
+		\inmodule YSSCore
+	*/
+
+	/*!
+		\enum YSSCore::Utility::FileUtility::BinarySizeFormat
+		\brief 此枚举用于表示文件大小的单位
+		\since Yayin Story Studio 0.13.0
+		\value IEC 二进制单位
+		\value SI 十进制单位
+	*/
+
+	/*!
+		\enum YSSCore::Utility::FileUtility::BinarySizeUnit
+		\brief 此枚举用于表示文件大小的单位
+		\since Yayin Story Studio 0.13.0
+		\value bit 位
+		\value Byte 字节
+		\value Char 字符，与Byte相同
+	*/
+
+	/*!
+		\enum YSSCore::Utility::FileUtility::CountingUnit
+		\brief 此枚举用于表示文件大小的单位
+		\since Yayin Story Studio 0.13.0
+		\value _0 （无单位）
+		\value K 千
+		\value M 兆
+		\value G 吉
+		\value T 太
+		\value P 拍
+		\value E 艾
+		\value Z 泽
+		\value Y 尧
+	*/
+
+	/*! 
+		\a filePath 文件路径
+		\since Yayin Story Studio 0.13.0
+		读取文件的每一行，并返回一个QStringList
+	*/
 	QStringList FileUtility::readLines(const QString& filePath) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -69,6 +113,11 @@ namespace YSSCore::Utility {
 		file.close();
 		return rtn;
 	}
+	/*! 
+		\a filePath 文件路径
+		\since Yayin Story Studio 0.13.0
+		读取文件的所有内容，并返回一个QString
+	*/
 	QString FileUtility::readAll(const QString& filePath) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -81,6 +130,11 @@ namespace YSSCore::Utility {
 		file.close();
 		return rtn;
 	}
+	/*! 
+		\a filePath 文件路径
+		\since Yayin Story Studio 0.13.0
+		读取文件的所有内容，并返回一个QByteArray
+	*/
 	QByteArray FileUtility::readByteArray(const QString& filePath) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -91,6 +145,13 @@ namespace YSSCore::Utility {
 		file.close();
 		return rtn;
 	}
+	/*! 
+		\a filePath 文件路径
+		\a data 需要保存的数据
+		\a joinLine 行连接符
+		\since Yayin Story Studio 0.13.0
+		将QStringList保存到文件中
+	*/
 	void FileUtility::saveLines(const QString& filePath, const QStringList& lines, const QString& joinLine) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -111,6 +172,12 @@ namespace YSSCore::Utility {
 		ts << content;
 		file.close();
 	}
+	/*! 
+		\a filePath 文件路径
+		\a data 需要保存的数据
+		\since Yayin Story Studio 0.13.0
+		将QString保存到文件中
+	*/
 	void FileUtility::saveAll(const QString& filePath, const QString& data) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -130,6 +197,12 @@ namespace YSSCore::Utility {
 		ts << data;
 		file.close();
 	}
+	/*! 
+		\a filePath 文件路径
+		\a data 需要保存的数据
+		\since Yayin Story Studio 0.13.0
+		将QByteArray保存到文件中
+	*/
 	void FileUtility::saveByteArray(const QString& filePath, const QByteArray& data) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -148,6 +221,15 @@ namespace YSSCore::Utility {
 		file.close();
 	}
 
+	/*! 
+		\a root 根目录
+		\a exts 文件扩展名
+		\a considerSubFolder 是否考虑子目录
+		\since Yayin Story Studio 0.13.0
+		过滤指定目录下的文件，返回一个QStringList。
+
+		这exts应形如 "*.ext1"、"*.ext2"、"*.ext3"，请务必注意星号。
+	*/
 	QStringList FileUtility::fileFilter(const QString& root, const QStringList& exts, bool considerSubFolder) {
 		QDirIterator it(root, exts, QDir::Files, considerSubFolder ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
 		QStringList files;
@@ -158,6 +240,11 @@ namespace YSSCore::Utility {
 		return files;
 	}
 
+	/*! 
+		\a root 根目录
+		\since Yayin Story Studio 0.13.0
+		获取指定目录下的文件大小，返回一个qint64，单位为字节。
+	*/
 	qint64 FileUtility::sizeBytes(const QString& root) {
 		QDir dir(root);
 		qint64 s = 0;
@@ -170,14 +257,31 @@ namespace YSSCore::Utility {
 		return s;
 	}
 
+	/*! 
+		\a bytes 字节数
+		\a u 单位
+		\a f 格式
+		\since Yayin Story Studio 0.13.0
+		获取指定字节数的可读大小，返回一个QString。
+	*/
 	QString FileUtility::readableSize(qint64 bytes, BinarySizeUnit u, BinarySizeFormat f) {
 		return FileUtilityPrivate::getReadableSize(bytes, u, CountingUnit::_0, f);
 	}
 
+	/*! 
+		\a path 路径
+		\since Yayin Story Studio 0.13.0
+		打开指定路径的资源管理器。
+	*/
 	void FileUtility::openExplorer(const QString& path) {
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 	}
 
+	/*! 
+		\a url 链接
+		\since Yayin Story Studio 0.13.0
+		打开指定链接的浏览器。
+	*/
 	void FileUtility::openBrowser(const QString& url) {
 		QDesktopServices::openUrl(QUrl(url));
 	}
