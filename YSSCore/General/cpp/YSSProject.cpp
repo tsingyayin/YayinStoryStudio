@@ -73,6 +73,10 @@ namespace YSSCore::General {
 		return d->ProjectConfig->getString("Project.DebugServerID");
 	}
 	QString YSSProject::getProjectFolder() {
+		QFileInfo info(d->ConfigPath);
+		return info.absolutePath();
+	}
+	QString YSSProject::getProjectPath() {
 		return d->ConfigPath;
 	}
 	QString YSSProject::getProjectIconPath() {

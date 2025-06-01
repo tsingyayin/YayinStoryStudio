@@ -18,7 +18,19 @@ namespace YSSCore::Utility {
 			QStringList keys = key.split(".");
 			QJsonValue value = Json[keys[0]];
 			if (keys.size() == 1) {
-				return value.toObject().keys();
+				if (value.isObject()) {
+					return value.toObject().keys();
+				}
+				else if (value.isArray()) {
+					QStringList rtn;
+					for (int i = 0; i < value.toArray().size(); i++) {
+						rtn.append(QString::number(i));
+					}
+					return rtn;
+				}
+				else {
+					return QStringList();
+				}
 			}
 			else {
 				for (int i = 1; i < keys.size() - 1; i++) {

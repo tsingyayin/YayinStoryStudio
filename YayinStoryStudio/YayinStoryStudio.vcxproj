@@ -69,7 +69,7 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);YSS_DEBUG</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);DEBUG</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -110,10 +110,10 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
-    <ClCompile Include="Editor\ProjectPage\cpp\HistoryProjectLabel.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />
+    <ClCompile Include="Editor\SimpleWidget\cpp\EAWarningWidget.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp" />
@@ -139,10 +139,10 @@
   <ItemGroup>
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
+    <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />
     <ClInclude Include="test_main.h" />
     <ClInclude Include="Editor\YSSTranslator.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
-    <QtMoc Include="Editor\ProjectPage\HistoryProjectLabel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

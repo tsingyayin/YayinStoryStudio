@@ -28,6 +28,9 @@ namespace YSSCore::Editor {
 			delete d->Config;
 		}
 		d->Config = new YSSCore::Utility::JsonConfig(all);
+		if (d->Config->contains("Template")) {
+			loadStyleTemplate("./resource/theme/template/" + d->Config->getString("Template") + ".yst");
+		}
 	}
 	void ThemeManager::loadStyleTemplate(const QString& path) {
 		QString all = YSSCore::Utility::FileUtility::readAll(path);

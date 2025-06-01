@@ -112,7 +112,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);YSSCore_DEVELOPMENT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);YSSCore_DEVELOPMENT;DEBUG</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -136,7 +136,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSCore_EXPORT</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSCore_EXPORT;DEBUG</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <PreBuildEvent>
@@ -219,6 +219,9 @@
     <ClCompile Include="Editor\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
+    <ClCompile Include="General\cpp\Logger.cpp" />
+    <ClCompile Include="General\cpp\LoggerManager.cpp" />
+    <ClCompile Include="General\cpp\LoggerMsgHandler.cpp" />
     <ClCompile Include="General\cpp\TranslationHost.cpp" />
     <ClCompile Include="General\cpp\Translator.cpp" />
     <ClCompile Include="General\cpp\UpdateChain.cpp" />
@@ -239,10 +242,19 @@
     <ClCompile Include="Utility\cpp\VirtualFile.cpp" />
     <ClCompile Include="Utility\cpp\YamlConfig.cpp" />
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
+    <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\private\ConfigWidget_p.h" />
     <ClInclude Include="Editor\StyleSheetTemplate.h" />
+    <QtMoc Include="Widgets\MultiButton.h" />
+    <ClInclude Include="General\Log.h" />
+    <ClInclude Include="General\private\LoggerMsgHandler_impl.hpp" />
+    <ClInclude Include="General\Logger.h" />
+    <ClInclude Include="General\LoggerManager.h" />
+    <ClInclude Include="General\LoggerMsgHandler.h" />
+    <ClInclude Include="General\private\LoggerMsgHandler_p.h" />
+    <ClInclude Include="Widgets\TempFloatWidget.h" />
     <ClInclude Include="General\private\Translator_p.h" />
     <ClInclude Include="General\Translator.h" />
     <QtMoc Include="General\UpdateChain.h" />

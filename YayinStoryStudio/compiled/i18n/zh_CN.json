@@ -21,6 +21,12 @@
 			"light":"浅色"
 		}
 	},
+	"simpleWidget":{
+		"EAWarning": {
+			"title":"早 期 测 试 版 警 告",
+			"text":"当前Yayin Story Studio仍然处于早期测试阶段，在页面美化上存在严重欠缺，功能和稳定性也可能存在问题。\n使用早期测试版时，建议您经常保存并备份项目，避免数据丢失。"
+		}
+	},	
 	"project":{
 		"selectToShow": "选择项目以查看详情...",
 		"noCover":"无封面",
@@ -28,7 +34,10 @@
 		"createTime":"创建时间",
 		"size":"大小",
 		"calculating":"计算中...",
-		"showInBrowser":"打开文件夹",
-		"delete":"删除项目"
+		"showInBrowser":"在资源管理器中显示",
+		"delete":"删除项目",
+		"createNewProject":"创建新项目",
+		"openFolder":"打开文件夹",
+		"cloneFromGit":"从Git克隆"
 	}
 }

@@ -60,7 +60,7 @@ namespace YSSCore::Editor {
 						continue;
 					}
 					else {
-						d->TemplateName = para[2].trimmed();
+						d->TemplateName = para[1].trimmed();
 					}
 				}
 			}
@@ -73,11 +73,19 @@ namespace YSSCore::Editor {
 						}
 						temp.removeLast();
 						d->Templates[tempName] = temp;
-						lastIndex = i;
 					}
+					lastIndex = i;
 					tempName = lines[i].mid(1);
 				}
 			}
+		}
+		if (lastIndex != 0 && tempName != "") {
+			QString temp;
+			for (int j = lastIndex + 1; j < lines.size(); j++) {
+				temp += lines[j] + "\n";
+			}
+			temp.removeLast();
+			d->Templates[tempName] = temp;
 		}
 	}
 	QString StyleSheetTemplate::toString() {
@@ -101,11 +109,10 @@ namespace YSSCore::Editor {
 			QString temp = getRawStyleSheet(key);
 			if (config != nullptr) {
 				QStringList paras;
-				QRegularExpression reg("\\$\\([\\D\\d]+\\)");
-				QRegularExpressionMatch match = reg.match(temp);
-				for (int i = 0; i <= match.lastCapturedIndex(); ++i) {
-					QString captured = match.captured(i);
-					paras.append(captured);
+				QRegularExpression reg("\\$\\([\\D\\d]+?\\)");
+				QRegularExpressionMatchIterator matchs = reg.globalMatch(temp);
+				for (auto match : matchs ) {
+					paras.append(match.captured());
 				}
 				for (QString para : paras) {
 					temp.replace(para, config->getString(para.mid(2, para.length() - 3)));

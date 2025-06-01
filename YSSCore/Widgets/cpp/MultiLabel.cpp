@@ -14,14 +14,21 @@ namespace YSSCore::Widgets {
 	MultiLabel::MultiLabel(QWidget* parent) :QFrame(parent) {
 		d = new MultiLabelPrivate;
 		d->Title = new QLabel(this);
+		d->Title->setObjectName("TitleLabel");
 		d->Description = new QLabel(this);
+		d->Description->setObjectName("DescriptionLabel");
 		d->Icon = new QLabel(this);
+		d->Icon->setObjectName("IconLabel");
 		d->Layout = new QGridLayout(this);
 		this->setLayout(d->Layout);
-		d->Layout->addWidget(d->Icon, 0, 0, 1, 2);
+		d->Layout->addWidget(d->Icon, 0, 0, 2, 1);
 		d->Layout->addWidget(d->Title, 0, 1, 1, 1);
 		d->Layout->addWidget(d->Description, 1, 1, 1, 1);
-		d->Layout->setContentsMargins(0, 0, 0, 0);
+		d->Layout->setRowStretch(0, 2);
+		d->Layout->setRowStretch(1, 1);
+		d->Icon->setAlignment(Qt::AlignCenter);
+		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 		this->setPixmapFixedWidth(32);
 	}
 	MultiLabel::~MultiLabel() {

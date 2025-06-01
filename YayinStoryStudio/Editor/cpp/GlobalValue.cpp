@@ -19,16 +19,14 @@ namespace YSS {
 		Instance = this;
 		PathMacro = new YSSCore::Utility::PathMacro();
 		Theme = new YSSCore::Editor::ThemeManager(this);
+		loadConfig();
 		LangServerManager = new YSSCore::Editor::LangServerManager();
 		FileServerManager = new YSSCore::Editor::FileServerManager();
 		TranslationHost = new YSSCore::General::TranslationHost();
 		YSSTranslator = new YSS::Editor::YSSTranslator();
 		TranslationHost->active(YSSTranslator);
 		PluginManager = new YSSCore::Editor::EditorPluginManager();
-		loadConfig();
 		PluginManager->programLoadPlugin();
-		QString themeFile = "./resource/theme/" + Config->getString("Preference.Theme") + ".json";
-		Theme->loadConfig(themeFile);
 		PluginManager->loadPlugin();
 	}
 	QColor GlobalValue::getColor(const QString& key) {
@@ -70,7 +68,7 @@ namespace YSS {
 		else {
 			qDebug() << "MainWin: loadConfig failed!";
 		}
-		Theme->loadConfig("./resource/theme/" + Config->getString("Preferences.Theme") + ".json");
+		Theme->loadConfig("./resource/theme/config/" + Config->getString("Preference.Theme") + ".json");
 	}
 	void GlobalValue::setMainWindow(YSS::Editor::MainWin* mainWindow) {
 		Instance->MainWindow = mainWindow;

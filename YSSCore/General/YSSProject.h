@@ -19,6 +19,7 @@ namespace YSSCore::General {
 		QString getProjectDescription();
 		QString getProjectDebugServerID();
 		QString getProjectFolder();
+		QString getProjectPath();
 		QString getProjectIconPath();
 		QDateTime getProjectCreateTime();
 		QDateTime getProjectLastModifyTime();

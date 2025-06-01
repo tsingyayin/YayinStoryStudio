@@ -14,10 +14,9 @@ namespace YSS::ProjectPage {
 	private:
 		QLabel* CoverLabel;
 		QLabel* TitleLabel;
-		QLabel* ProjectPathLabel;
+		QLabel* SizeLabel;
 		QLabel* CreateTimeLabel;
 		QLabel* LastModifiedTimeLabel;
-		QLabel* SizeLabel;
 		QPushButton* ShowInBrowserButton;
 		QPushButton* DeleteButton;
 		QGridLayout* Layout;
@@ -28,5 +27,6 @@ namespace YSS::ProjectPage {
 		void initWidget();
 		void onDeleteButtonClicked();
 		void onShowInBrowserButtonClicked();
+		virtual void resizeEvent(QResizeEvent* event) override;
 	};
 }

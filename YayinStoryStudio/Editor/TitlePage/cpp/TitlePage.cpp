@@ -8,7 +8,6 @@
 #include <QtGui/qfontdatabase.h>
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
-
 #include "../../../test_main.h"
 
 namespace YSS::TitlePage {
@@ -52,7 +51,7 @@ namespace YSS::TitlePage {
 
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
-#ifdef YSS_DEBUG
+#ifdef DEBUG
 		test_loaded();
 #endif
 		this->close();
