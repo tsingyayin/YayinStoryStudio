@@ -129,20 +129,16 @@ namespace YSSCore::General {
 		}
 		return false;
 	}
-	bool Version::operator!=(const Version& other) const
-	{
+	bool Version::operator!=(const Version& other) const {
 		return !(*this == other);
 	}
-	bool Version::operator>=(const Version& other) const
-	{
+	bool Version::operator>=(const Version& other) const {
 		return *this > other || *this == other;
 	}
-	bool Version::operator<=(const Version& other) const
-	{
+	bool Version::operator<=(const Version& other) const {
 		return *this < other || *this == other;
 	}
-	QString Version::toString() const
-	{
+	QString Version::toString() {
 		QString version = QString("%1.%2.%3").arg(d->major).arg(d->minor).arg(d->patch);
 		if (d->useBuild) {
 			version += QString(".%1").arg(d->build);

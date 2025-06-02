@@ -4,7 +4,7 @@
 
 class QDateTime;
 namespace YSSCore::Utility {
-	class YamlConfig;
+	class JsonConfig;
 }
 namespace YSSCore::General {
 	class Version;
@@ -24,7 +24,8 @@ namespace YSSCore::General {
 		QDateTime getProjectCreateTime();
 		QDateTime getProjectLastModifyTime();
 		Version getProjectVersion();
-		YSSCore::Utility::YamlConfig* getProjectConfig();
+		YSSCore::Utility::JsonConfig* getProjectConfig();
+		void refreshLastModifyTime();
 		static bool createProject(const QString& folder, const QString& name);
 	private:
 		YSSProjectPrivate* d;

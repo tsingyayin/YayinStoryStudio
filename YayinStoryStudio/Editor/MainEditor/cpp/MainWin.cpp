@@ -9,6 +9,7 @@
 #include <QMenuBar>
 #include <QSplitter>
 #include <General/TranslationHost.h>
+#include <General/YSSProject.h>
 
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
@@ -39,6 +40,8 @@ namespace YSS::Editor {
 		this->setCentralWidget(CentralWidget);
 		this->initMenu();
 		this->applyStyleSheet();
+		GlobalValue::getCurrentProject()->refreshLastModifyTime();
+		GlobalValue::getCurrentProject()->saveProject();
 	}
 
 	void MainWin::initMenu() {
@@ -68,5 +71,6 @@ namespace YSS::Editor {
 			config->setBool("Window.Editor.Maximized", false);
 		}
 		GlobalValue::saveConfig();
+		GlobalValue::getCurrentProject()->saveProject();
 	}
 }

@@ -1,6 +1,11 @@
 #pragma once
 
 namespace YSSCore::General {
+	template<Printable T>
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(T t) {
+		d->Msg += t.toString();
+		return *this;
+	}
 	template<typename T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, T> pointer_map) {
 		QString temp = "QMap{";
@@ -17,7 +22,7 @@ namespace YSSCore::General {
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, T> pointer_map) {
 		QString temp = "QMap{";
 		for (QString key : pointer_map) {
-			temp += " \"" % key % "\": "% pointer_map[key].toString() % ",";
+			temp += " \"" % key % "\": " % pointer_map[key].toString() % ",";
 		}
 		temp.removeLast();
 		temp += "}";

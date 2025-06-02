@@ -39,18 +39,13 @@ namespace YSS::TitlePage {
 
 		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library");
 		YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template");
-		YSS::Editor::MainWin* editor = new YSS::Editor::MainWin();
-		GlobalValue::setMainWindow(editor);
-
+		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
+		win->show();
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		if (duration.count() < 2000) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(2000 - duration.count()));
 		}
-		editor->show();
-
-		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
-		win->show();
 #ifdef DEBUG
 		test_loaded();
 #endif

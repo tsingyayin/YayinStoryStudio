@@ -10,7 +10,7 @@ namespace YSSCore::General {
 		LoggerManager::getInstance()->msgHandlerLog(this);
 	}
 	void LoggerMsgHandler::fromString(const QString& str) {
-		d->Msg += str;
+		d->Msg += str % " ";
 	}
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QString& str) {
 		fromString("\""%str%"\"");
@@ -73,5 +73,8 @@ namespace YSSCore::General {
 	}
 	Logger* LoggerMsgHandler::getLogger() {
 		return d->Logger;
+	}
+	Logger::Level LoggerMsgHandler::getLevel() {
+		return d->Level;
 	}
 }

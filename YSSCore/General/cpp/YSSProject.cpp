@@ -2,18 +2,19 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qdir.h>
-#include "../../Utility/YamlConfig.h"
 #include "../Version.h"
+#include "../Log.h"
+#include "../../Utility/JsonConfig.h"
 
 namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
 	protected:
-		YSSCore::Utility::YamlConfig* ProjectConfig = nullptr;
+		YSSCore::Utility::JsonConfig* ProjectConfig = nullptr;
 		QString ConfigPath;
 	protected:
 		YSSProjectPrivate() {
-			ProjectConfig = new YSSCore::Utility::YamlConfig();
+			ProjectConfig = new YSSCore::Utility::JsonConfig();
 		}
 		~YSSProjectPrivate() {
 			if (ProjectConfig != nullptr) {
@@ -40,7 +41,7 @@ namespace YSSCore::General {
 		QString yamlStr = in.readAll();
 		config.close();
 		d->ConfigPath = configPath;
-		return d->ProjectConfig->parse(yamlStr);
+		return d->ProjectConfig->parse(yamlStr).error == QJsonParseError::NoError;
 	}
 	bool YSSProject::saveProject(const QString& configPath) {
 		d->updateLastModifyTime();
@@ -53,8 +54,11 @@ namespace YSSCore::General {
 			d->ConfigPath = configPath;
 		}
 		QString yamlStr = d->ProjectConfig->toString();
-		QFile config(configPath);
+		yDebug << d->ConfigPath;
+		yDebug << yamlStr;
+		QFile config(d->ConfigPath);
 		if (!config.open(QIODevice::WriteOnly)) {
+			yDebug << "false";
 			return false;
 		}
 		QTextStream out(&config);
@@ -91,8 +95,11 @@ namespace YSSCore::General {
 	Version YSSProject::getProjectVersion() {
 		return Version(d->ProjectConfig->getString("Project.Version"));
 	}
-	YSSCore::Utility::YamlConfig* YSSProject::getProjectConfig() {
+	YSSCore::Utility::JsonConfig* YSSProject::getProjectConfig() {
 		return d->ProjectConfig;
+	}
+	void YSSProject::refreshLastModifyTime() {
+		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 	}
 	bool YSSProject::createProject(const QString& folder, const QString& name) {
 		QDir dir(folder);

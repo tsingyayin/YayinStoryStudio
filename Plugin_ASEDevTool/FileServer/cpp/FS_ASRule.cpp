@@ -2,12 +2,13 @@
 #include <QFileInfo>
 #include <QLabel>
 
-ASRuleFileServer::ASRuleFileServer() {
+ASRuleFileServer::ASRuleFileServer(YSSCore::Editor::EditorPlugin* plugin):FileServer(plugin) {
 	setEditorType(YSSCore::Editor::FileServer::BuiltInEditor);
 	setSupportedFileExts({ "asrule" });
 }
 
 ASRuleFileServer::~ASRuleFileServer() {
+	FileServer::~FileServer();
 }
 
 YSSCore::Editor::FileEditWidget* ASRuleFileServer::createFileEditWidget() {

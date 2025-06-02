@@ -11,9 +11,9 @@ Plugin_ASEDevTool::Plugin_ASEDevTool() {
 }
 void Plugin_ASEDevTool::onPluginEnable() {
 	registerTranslator(new ASEDevTranslator());
-	registerLangServer(new AStoryLanguageServer());
-	registerFileServer(new AStoryFileServer());
-	registerFileServer(new ASRuleFileServer());
+	registerLangServer(new AStoryLanguageServer(this));
+	registerFileServer(new AStoryFileServer(this));
+	registerFileServer(new ASRuleFileServer(this));
 }
 
 void Plugin_ASEDevTool::onPluginDisbale() {

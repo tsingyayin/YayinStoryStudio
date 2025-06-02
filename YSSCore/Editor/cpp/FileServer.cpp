@@ -5,11 +5,13 @@ namespace YSSCore::Editor {
 	class FileServerPrivate {
 		friend class FileServer;
 	protected:
+		EditorPlugin* Plugin;
 		FileServer::EditorType Type = FileServer::EditorType::BuiltInEditor;
 		QStringList SupportedFileExts;
 	};
-	FileServer::FileServer() {
+	FileServer::FileServer(EditorPlugin* plugin) {
 		d = new FileServerPrivate();
+		d->Plugin = plugin;
 	}
 	FileServer::~FileServer() {
 		delete d;
@@ -28,6 +30,9 @@ namespace YSSCore::Editor {
 	}
 	bool FileServer::openFile(const QString& filePath) {
 		return false;
+	}
+	EditorPlugin* FileServer::getPlugin() {
+		return d->Plugin;
 	}
 	void FileServer::setEditorType(FileServer::EditorType type) {
 		d->Type = type;

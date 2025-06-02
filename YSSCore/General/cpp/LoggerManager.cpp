@@ -4,6 +4,8 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qtextstream.h>
+#include "../../Utility/Console.h"
+
 namespace YSSCore::General {
 	class LoggerManagerPrivate {
 		friend LoggerManager;
@@ -72,10 +74,30 @@ namespace YSSCore::General {
 		delete d;
 	}
 	void LoggerManager::msgHandlerLog(LoggerMsgHandler* handler) {
-		QString logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz") + "] " +
-			"[" + handler->getLogger()->getNamespace() + "]: " + handler->getMessage();
-		qDebug().noquote().nospace() << logStr;
-		d->log(logStr);
+		QString logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz") + "]" +
+			"[" + handler->getLogger()->getNamespace() + "]";
+		switch (handler->getLevel()) {
+		case Logger::Level::Debug:
+			logStr += "[DEBUG]" + handler->getMessage();
+			break;
+		case Logger::Level::Message:
+			logStr += "[MSG]" + handler->getMessage();
+			break;
+		case Logger::Level::Notice:
+			logStr += YSSCore::Utility::Console::inNoticeStyle("[NOTICE]" + handler->getMessage());
+			break;
+		case Logger::Level::Success:
+			logStr += YSSCore::Utility::Console::inSuccessStyle("[SUCCESS]" + handler->getMessage());
+			break;
+		case Logger::Level::Warning:
+			logStr += YSSCore::Utility::Console::inWarningStyle("[WARNING]" + handler->getMessage());
+			break;
+		case Logger::Level::Error:
+			logStr += YSSCore::Utility::Console::inErrorStyle("[ERROR]" + handler->getMessage());
+			break;
+		}
+		YSSCore::Utility::Console::print(logStr);
+		d->log(YSSCore::Utility::Console::getRawText(logStr));
 	}
 	void LoggerManager::setGlobalLogLevel(Logger::Level level) {
 		d->threshold = level;

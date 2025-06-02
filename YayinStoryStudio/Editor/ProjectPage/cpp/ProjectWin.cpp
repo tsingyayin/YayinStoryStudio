@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <Widgets/MultiButton.h>
 #include <QtWidgets/qscrollbar.h>
-
+#include "../../MainEditor/MainWin.h"
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
 		Config = new YSSCore::Utility::JsonConfig();
@@ -85,6 +85,15 @@ namespace YSS::ProjectPage {
 			config->setInt("Window.Project.Height", this->height());
 			config->setBool("Window.Project.Maximized", false);
 		}
+		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
+			delete project;
+			project = nullptr;
+		}
+		if (GlobalValue::getCurrentProject() != nullptr) {
+			YSS::Editor::MainWin* win = new YSS::Editor::MainWin();
+			GlobalValue::setMainWindow(win);
+			win->show();
+		}
 	}
 
 	void ProjectWin::resizeEvent(QResizeEvent* event) {
@@ -135,10 +144,12 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->addWidget(label);
 			label->setSpacing(0);
 			label->setContentsMargins(5, 5, 5, 5);
+			label->setToolTip("单击查看详情，双击打开项目");
 			//label->setFixedHeight(50);
 			label->show();
 			HistoryProjectMap[label] = project;
 			connect(label, &YSSCore::Widgets::MultiButton::clicked, this, &ProjectWin::onProjectSelected);
+			connect(label, &YSSCore::Widgets::MultiButton::doubleClicked, this, &ProjectWin::onProjectDoubleClicked);
 		}
 		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 70);
 	}
@@ -150,5 +161,12 @@ namespace YSS::ProjectPage {
 				InfoWidget->showProject(project);
 			}
 		}
+	}
+	void ProjectWin::onProjectDoubleClicked() {
+		YSSCore::Widgets::MultiButton* label = qobject_cast<YSSCore::Widgets::MultiButton*>(sender());
+		YSSCore::General::YSSProject* project = HistoryProjectMap[label];
+		HistoryProjectList.removeAll(project);
+		GlobalValue::setCurrentProject(project);
+		this->close();
 	}
 }

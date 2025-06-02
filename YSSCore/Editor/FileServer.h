@@ -7,6 +7,7 @@ class QWidget;
 namespace YSSCore::Editor {
 	class FileEditWidget;
 	class FileServerPrivate;
+	class EditorPlugin;
 	class YSSCoreAPI FileServer {
 	public:
 		enum EditorType {
@@ -16,13 +17,14 @@ namespace YSSCore::Editor {
 			ExternalProgram, //3rd party program
 			OtherEditor, //other editor
 		};
-		FileServer();
-		~FileServer();
+		FileServer(EditorPlugin* plugin);
+		virtual ~FileServer();
 		EditorType getEditorType();
 		QStringList getSupportedFileExts();
 		virtual FileEditWidget* createFileEditWidget();
 		virtual QWidget* createExternalEditor(const QString& filePath);
 		virtual bool openFile(const QString& filePath);
+		EditorPlugin* getPlugin();
 	protected:
 		void setEditorType(EditorType type);
 		void setSupportedFileExts(const QStringList& exts);

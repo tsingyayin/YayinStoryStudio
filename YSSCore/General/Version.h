@@ -10,7 +10,6 @@
 #define YSSCore_ABI_VERSION_MINOR 0
 #define Compiled_YSSABI_Version YSSCore::General::Version(YSSCore_ABI_VERSION_MAJOR, YSSCore_ABI_VERSION_MINOR, 0)
 
-class QString;
 namespace YSSCore::General {
 	class VersionPrivate;
 	class YSSCoreAPI Version
@@ -30,7 +29,7 @@ namespace YSSCore::General {
 		bool operator!=(const Version& other) const;
 		bool operator>=(const Version& other) const;
 		bool operator<=(const Version& other) const;
-		QString toString() const;
+		QString toString();
 		void setVersion(const QString& version);
 		void setVersion(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build = 0, const QString& nickName = "");
 		void setNickName(const QString& name);

@@ -7,6 +7,7 @@
 #include <QtCore/qdir.h>
 #include <QtCore/qmap.h>
 #include "../../Utility/FileUtility.h"
+#include "../../General/Log.h"
 
 namespace YSSCore::Editor {
 	class EditorPluginManagerPrivate {
@@ -142,7 +143,6 @@ namespace YSSCore::Editor {
 					plugin->onPluginEnable();
 				}
 				catch (...) {
-					qDebug() << "EditorPluginManager: plugin enable failed!";
 					plugin->onPluginDisbale();
 					d->PluginEnable.insert(plugin, false);
 					continue;

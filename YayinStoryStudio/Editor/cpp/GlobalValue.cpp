@@ -9,6 +9,7 @@
 #include <General/TranslationHost.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>
+#include <General/Log.h>
 
 namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
@@ -42,9 +43,10 @@ namespace YSS {
 			if (file.open(QIODevice::WriteOnly)) {
 				file.write(Instance->Config->toString().toUtf8());
 				file.close();
+				ySuccessF << "saved";
 			}
 			else {
-				qDebug() << "MainWin: saveConfig failed!";
+				yErrorF << "failed";
 			}
 		}
 	}
@@ -63,10 +65,10 @@ namespace YSS {
 		if (file.open(QIODevice::ReadOnly)) {
 			Config->parse(in.readAll());
 			file.close();
-			qDebug() << "MainWin: loadConfig success!";
+			ySuccessF << "success";
 		}
 		else {
-			qDebug() << "MainWin: loadConfig failed!";
+			yErrorF << "failed";
 		}
 		Theme->loadConfig("./resource/theme/config/" + Config->getString("Preference.Theme") + ".json");
 	}
@@ -83,5 +85,9 @@ namespace YSS {
 	
 	void GlobalValue::setCurrentProject(YSSCore::General::YSSProject* project) {
 		Instance->CurrentProject = project;
+	}
+
+	YSSCore::General::YSSProject* GlobalValue::getCurrentProject() {
+		return Instance->CurrentProject;
 	}
 }

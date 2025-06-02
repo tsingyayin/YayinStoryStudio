@@ -116,7 +116,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);yaml-cppd.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
@@ -131,7 +131,7 @@
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
     <Link>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);yaml-cpp.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
@@ -143,7 +143,7 @@
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);yaml-cppd.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
@@ -155,7 +155,7 @@
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
     <Link>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);yaml-cpp.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -208,6 +208,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Editor\cpp\ConfigWidget.cpp" />
+    <ClCompile Include="Editor\cpp\DebugData.cpp" />
+    <ClCompile Include="Editor\cpp\DebugFailedData.cpp" />
     <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
     <ClCompile Include="Editor\cpp\EditorPluginManager.cpp" />
     <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
@@ -240,12 +242,13 @@
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
     <ClCompile Include="Utility\cpp\PathMacro.cpp" />
     <ClCompile Include="Utility\cpp\VirtualFile.cpp" />
-    <ClCompile Include="Utility\cpp\YamlConfig.cpp" />
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\private\ConfigWidget_p.h" />
+    <ClInclude Include="Editor\DebugData.h" />
+    <ClInclude Include="Editor\DebugFailedData.h" />
     <ClInclude Include="Editor\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -268,7 +271,6 @@
     <ClInclude Include="Utility\FileUtility.h" />
     <ClInclude Include="Utility\PathMacro.h" />
     <ClInclude Include="Utility\VirtualFile.h" />
-    <ClInclude Include="Utility\YamlConfig.h" />
     <ClInclude Include="Widgets\MultiLabel.h" />
     <ClInclude Include="YSSCore.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />

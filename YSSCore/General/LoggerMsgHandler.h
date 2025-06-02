@@ -1,6 +1,7 @@
 #pragma once
 #include "../Macro.h"
 #include "Logger.h"
+#include <QtCore/qstring.h>
 #include  <QtCore/qtypes.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
@@ -9,8 +10,8 @@
 
 namespace YSSCore::General {
 	template <typename T>
-	concept Printable = requires() {
-		{ T::toString() }->std::same_as<QString>;
+	concept Printable = requires(T t) {
+		{ t.toString() }->::std::same_as<QString>;
 	};
 
 	class YSSCoreAPI LoggerMsgHandler final {
@@ -38,6 +39,7 @@ namespace YSSCore::General {
 		LoggerMsgHandler& operator<<(bool b);
 		LoggerMsgHandler& operator<<(const char* str);
 		LoggerMsgHandler& operator<<(const QStringList& strList);
+		template<Printable T> LoggerMsgHandler& operator<<(T type);
 		template<typename T>LoggerMsgHandler& operator<<(QMap<QString, T> pointer_map);
 		LoggerMsgHandler& operator<<(QMap<QString, QObject*> pointer_map);
 		template<Printable T>LoggerMsgHandler& operator<<(QMap<QString, T> printable_map);
@@ -46,6 +48,7 @@ namespace YSSCore::General {
 		template<Printable T>LoggerMsgHandler& operator<<(QList<T> qobject_list);
 		QString getMessage();
 		Logger* getLogger();
+		Logger::Level getLevel();
 	private:
 		YSSCore::__Private__::LoggerMsgHandlerPrivate* d;
 	};

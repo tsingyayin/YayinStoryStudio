@@ -93,23 +93,23 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Debug;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\resource\plugins\ASEDevTool\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Debug;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\Debug\resource\plugins\ASEDevTool\</OutDir>
     <TargetExt>.ysp</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Release;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\resource\plugins\ASEDevTool\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
     <IncludePath>$(SolutionDir)YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Release;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)YayinStoryStudio\resource\plugins\ASEDevTool\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\Release\resource\plugins\ASEDevTool\</OutDir>
     <TargetExt>.ysp</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

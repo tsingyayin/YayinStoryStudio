@@ -80,9 +80,6 @@
     <ClCompile Include="General\cpp\Translator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\YamlConfig.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="General\cpp\YSSProject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -178,9 +175,6 @@
     <ClInclude Include="General\YSSProject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\YamlConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -236,6 +230,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\DebugFailedData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\DebugData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

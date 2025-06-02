@@ -4,6 +4,8 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QLineEdit>
+#include "../../GlobalValue.h"
+#include <General/YSSProject.h>
 
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :QWidget(parent) {
@@ -25,7 +27,13 @@ namespace YSS::Editor {
 		Layout->addWidget(CurrentPath);
 		Layout->addWidget(FileList);
 
-		CurrentDir.setPath("D:/ASE/ASE 2.04.23.0/Arknights_StoryEditor_Data/StreamingAssets/Stories");
+		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		if (project != nullptr) {
+			CurrentDir.setPath(project->getProjectFolder());
+		}
+		else {
+			CurrentDir.setPath(QDir::currentPath());
+		}
 		CurrentPath->setText(CurrentDir.path());
 
 		connect(BackButton, &QPushButton::clicked, this, &ResourceBrowser::onBackButtonClicked);

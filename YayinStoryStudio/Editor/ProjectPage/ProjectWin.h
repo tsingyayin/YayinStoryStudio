@@ -46,6 +46,7 @@ namespace YSS::ProjectPage {
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:
 		void onProjectSelected();
+		void onProjectDoubleClicked();
 	private:
 		void loadProject();
 	};

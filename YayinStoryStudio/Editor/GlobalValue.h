@@ -47,6 +47,7 @@ namespace YSS {
 		static void setMainWindow(YSS::Editor::MainWin* mainWindow);
 		static YSS::Editor::MainWin* getMainWindow();
 		static void setCurrentProject(YSSCore::General::YSSProject* project);
+		static YSSCore::General::YSSProject* getCurrentProject();
 		void loadConfig();
 	};
 }

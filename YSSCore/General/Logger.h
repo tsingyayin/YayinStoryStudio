@@ -51,11 +51,11 @@ namespace YSSCore::General {
 #define yWarning YSSCore::General::Logger::global()->warning()
 #define yError YSSCore::General::Logger::global()->error()
 
-#define yDebugF yDebug<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
-#define yMessageF yMessage<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
-#define yInfoF yInfo<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
-#define yLogF yLog<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
-#define yNoticeF yNotice<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
-#define ySuccessF ySuccess<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
-#define yWarningF yWarning<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
-#define yErrorF yError<<"("<<__FILE__<<":"<<__LINE__<<": "<<__FUNCTION__<<"): "
+#define yDebugF yDebug<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define yMessageF yMessage<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define yInfoF yInfo<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define yLogF yLog<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define yNoticeF yNotice<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define ySuccessF ySuccess<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define yWarningF yWarning<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define yErrorF yError<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
