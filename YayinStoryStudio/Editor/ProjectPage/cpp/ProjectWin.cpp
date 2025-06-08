@@ -17,10 +17,11 @@
 #include "../../MainEditor/MainWin.h"
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
+		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
 		Config = new YSSCore::Utility::JsonConfig();
 		QString configAll = YSSCore::Utility::FileUtility::readAll("./resource/config/project.json");
 		Config->parse(configAll);
-		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
+		
 		
 		TitleLabel = new QLabel(this);
 		TitleLabel->setText("  Yayin Story Studio " + YSSCore::General::Version::getYSSVersion().toString());
@@ -73,6 +74,7 @@ namespace YSS::ProjectPage {
 		if (GlobalValue::getConfig()->getBool("Window.Project.Maximized")) {
 			this->showMaximized();
 		}
+		connect(InfoWidget, &ProjectInfoWidget::removeConfirmed, this, &ProjectWin::onProjectRemoved);
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event){
@@ -99,6 +101,39 @@ namespace YSS::ProjectPage {
 	void ProjectWin::resizeEvent(QResizeEvent* event) {
 		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - HistoryProjectArea->verticalScrollBar()->width());
 	}
+
+	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {
+		QWidget* widget = HistoryProjectLabelList[HistoryProjectList.indexOf(project)];
+		if (widget != nullptr) {
+			widget->hide();
+			HistoryProjectLabelList.remove(HistoryProjectList.indexOf(project));
+			HistoryProjectList.removeAll(project);
+			HistoryProjectMap.remove(static_cast<YSSCore::Widgets::MultiButton*>(widget));
+			HistoryProjectLayout->removeWidget(widget);
+			widget->deleteLater();
+		}
+		Config->remove(project->getProjectPath());
+		delete project;
+		project = nullptr;
+	}
+	void ProjectWin::onProjectSelected() {
+		YSSCore::Widgets::MultiButton* label = qobject_cast<YSSCore::Widgets::MultiButton*>(sender());
+		if (label) {
+			YSSCore::General::YSSProject* project = HistoryProjectMap[label];
+			if (project) {
+				InfoWidget->showProject(project);
+			}
+		}
+	}
+
+	void ProjectWin::onProjectDoubleClicked() {
+		YSSCore::Widgets::MultiButton* label = qobject_cast<YSSCore::Widgets::MultiButton*>(sender());
+		YSSCore::General::YSSProject* project = HistoryProjectMap[label];
+		HistoryProjectList.removeAll(project);
+		GlobalValue::setCurrentProject(project);
+		this->close();
+	}
+
 	void ProjectWin::loadProject() {
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
@@ -139,7 +174,7 @@ namespace YSS::ProjectPage {
 			label->setPressedStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Pressed"));
 			label->setTitle(project->getProjectName());
 			QString lastModifyTime = project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss");
-			label->setDescription(lastModifyTime+"\t"+ project->getProjectFolder());
+			label->setDescription(lastModifyTime + "\t" + project->getProjectFolder());
 			HistoryProjectLabelList.append(label);
 			HistoryProjectLayout->addWidget(label);
 			label->setSpacing(0);
@@ -152,21 +187,5 @@ namespace YSS::ProjectPage {
 			connect(label, &YSSCore::Widgets::MultiButton::doubleClicked, this, &ProjectWin::onProjectDoubleClicked);
 		}
 		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 70);
-	}
-	void ProjectWin::onProjectSelected() {
-		YSSCore::Widgets::MultiButton* label = qobject_cast<YSSCore::Widgets::MultiButton*>(sender());
-		if (label) {
-			YSSCore::General::YSSProject* project = HistoryProjectMap[label];
-			if (project) {
-				InfoWidget->showProject(project);
-			}
-		}
-	}
-	void ProjectWin::onProjectDoubleClicked() {
-		YSSCore::Widgets::MultiButton* label = qobject_cast<YSSCore::Widgets::MultiButton*>(sender());
-		YSSCore::General::YSSProject* project = HistoryProjectMap[label];
-		HistoryProjectList.removeAll(project);
-		GlobalValue::setCurrentProject(project);
-		this->close();
 	}
 }

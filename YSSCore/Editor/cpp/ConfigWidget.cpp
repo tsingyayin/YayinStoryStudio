@@ -193,6 +193,9 @@ namespace YSSCore::__Private__ {
 		else if (type == "RadioButton") {
 			rtn = widget_RadioButton(node, config);
 		}
+		else if (type == "LineEdit") {
+			rtn = widget_LineEdit(node, config);
+		}
 		return rtn;
 	}
 	QWidget* ConfigWidgetPrivate::widget_QFrame(const QString& node, YSSCore::Utility::JsonConfig& config) {
@@ -220,6 +223,36 @@ namespace YSSCore::__Private__ {
 		RadioButtonDefault.insert(RadioButton, defaultValue);
 		return RadioButton;
 	}
+	QWidget* ConfigWidgetPrivate::widget_LineEdit(const QString& node, YSSCore::Utility::JsonConfig& config) {
+		QLineEdit* LineEdit = new QLineEdit();
+		LineEdit->setObjectName(node);
+		QString defaultValue = config.getString("default");
+		LineEdit->setText(defaultValue);
+		connect(LineEdit, &QLineEdit::textChanged, this, &ConfigWidgetPrivate::onLineEditTextChanged);
+		LineEditDefault.insert(LineEdit, defaultValue);
+		if (config.contains("isFolder") || config.contains("isFile")) {
+			QFrame* container = new QFrame();
+			QHBoxLayout* layout = new QHBoxLayout(container);
+			LineEdit->setParent(container);
+			layout->addWidget(LineEdit);
+			QPushButton* selectButton = new QPushButton(container);
+			layout->addWidget(selectButton);
+			connect(selectButton, &QPushButton::clicked, [=]() {
+				QString folder = QFileDialog::getExistingDirectory(container,
+					YSSTR("YSSCore::general.selectFolder"),
+					"./resouces/repos",
+					QFileDialog::ShowDirsOnly
+					);
+				if (!folder.isEmpty()) {
+					LineEdit->setText(folder);
+				}
+			});
+			return container;
+		}
+		else {
+			return LineEdit;
+		}
+	}
 	void ConfigWidgetPrivate::onComboBoxIndexChanged(int index) {
 		QObject* obj = sender();
 		QString node = obj->objectName();
@@ -234,6 +267,13 @@ namespace YSSCore::__Private__ {
 		QString node = obj->objectName();
 		if (Config != nullptr) {
 			Config->setBool(node, checked);
+		}
+	}
+	void ConfigWidgetPrivate::onLineEditTextChanged(QString str) {
+		QObject* obj = sender();
+		QString node = obj->objectName();
+		if (Config != nullptr) {
+			Config->setString(node, str);
 		}
 	}
 	

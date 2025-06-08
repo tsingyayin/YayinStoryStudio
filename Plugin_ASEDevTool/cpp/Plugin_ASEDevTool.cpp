@@ -3,6 +3,7 @@
 #include "../FileServer/FS_AStory.h"
 #include "../FileServer/FS_ASRule.h"
 #include "../ASEDevTranslator.h"
+#include "../ProjectTemplateProvider/ASEAStoryPTP.h"
 Plugin_ASEDevTool::Plugin_ASEDevTool() {
 	setPluginVersion(YSSCore::General::Version(0, 1, 0));
 	setPluginID("ASEDevTool");
@@ -14,6 +15,7 @@ void Plugin_ASEDevTool::onPluginEnable() {
 	registerLangServer(new AStoryLanguageServer(this));
 	registerFileServer(new AStoryFileServer(this));
 	registerFileServer(new ASRuleFileServer(this));
+	registerProjectTemplateProvider(new ASEAStoryPTP(this));
 }
 
 void Plugin_ASEDevTool::onPluginDisbale() {

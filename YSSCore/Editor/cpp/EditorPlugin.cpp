@@ -3,17 +3,10 @@
 #include "../LangServerManager.h"
 #include "../FileServerManager.h"
 #include "../../General/TranslationHost.h"
+#include "../private/EditorPlugin_p.h"
+#include "../ProjectTemplateManager.h"
+
 namespace YSSCore::Editor {
-	class EditorPluginPrivate {
-		friend class EditorPlugin;
-	protected:
-		YSSCore::General::Version ABIVersion = YSSCore::General::Version(0, 0, 0);
-		YSSCore::General::Version PluginVersion = YSSCore::General::Version(0, 0, 0);
-		QString PluginID;
-		QString PluginName;
-		QStringList PluginAuthor;
-		QString PluginFolder;
-	};
 
 	/*! 
 		\class YSSCore::Editor::EditorPlugin
@@ -94,7 +87,7 @@ namespace YSSCore::Editor {
 		\warning 请注意，abiVersion并不是插件的版本号，也不是YSS的程序版本。它是YSS的二进制兼容版本。
 	*/
 	EditorPlugin::EditorPlugin(YSSCore::General::Version abiVersion, QObject* parent) : QObject(parent) {
-		d = new EditorPluginPrivate();
+		d = new YSSCore::__Private__::EditorPluginPrivate();
 		d->ABIVersion = abiVersion;
 	}
 	/*!
@@ -134,6 +127,13 @@ namespace YSSCore::Editor {
 	}
 	/*!
 		\since YSSCore 0.13.0
+		return 插件的设置
+	*/
+	YSSCore::Utility::JsonConfig* EditorPlugin::getPluginConfig() {
+		return &(d->Config);
+	}
+	/*!
+		\since YSSCore 0.13.0
 		\a id 插件的ID
 		设置插件的ID
 	*/
@@ -155,15 +155,6 @@ namespace YSSCore::Editor {
 	*/
 	void EditorPlugin::setPluginAuthor(const QStringList& author) {
 		d->PluginAuthor = author;
-	}
-	/*!
-		\since YSSCore 0.13.0
-		\a folder 插件的根目录
-		设置插件的根目录
-		\warning 此函数理应被弃用，因为插件的根目录应由YSS强制指定。
-	*/
-	void EditorPlugin::setPluginFolder(const QString& folder) {
-		d->PluginFolder = folder;
 	}
 	/*!
 		\since YSSCore 0.13.0
@@ -213,6 +204,6 @@ namespace YSSCore::Editor {
 		注册项目模板提供者。
 	*/
 	void EditorPlugin::registerProjectTemplateProvider(ProjectTemplateProvider* provider) {
-		//TODO;
+		YSSCore::Editor::ProjectTemplateManager::getInstance()->addProvider(provider);
 	}
 }

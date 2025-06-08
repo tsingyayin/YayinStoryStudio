@@ -6,7 +6,7 @@
 #define YSSCore_VERSION_MINOR 13
 #define YSSCore_VERSION_PATCH 0
 
-#define YSSCore_ABI_VERSION_MAJOR 7
+#define YSSCore_ABI_VERSION_MAJOR 12
 #define YSSCore_ABI_VERSION_MINOR 0
 #define Compiled_YSSABI_Version YSSCore::General::Version(YSSCore_ABI_VERSION_MAJOR, YSSCore_ABI_VERSION_MINOR, 0)
 

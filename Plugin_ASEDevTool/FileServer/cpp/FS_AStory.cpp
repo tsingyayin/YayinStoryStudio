@@ -6,5 +6,5 @@ AStoryFileServer::AStoryFileServer(YSSCore::Editor::EditorPlugin* plugin):FileSe
 }
 
 AStoryFileServer::~AStoryFileServer() {
-	FileServer::~FileServer();
+
 }

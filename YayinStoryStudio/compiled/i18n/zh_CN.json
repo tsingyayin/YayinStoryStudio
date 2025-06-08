@@ -36,6 +36,8 @@
 		"calculating":"计算中...",
 		"showInBrowser":"在资源管理器中显示",
 		"delete":"删除项目",
+		"deleteConfirm": "Yayin Story Studio 当前不支持安全删除项目到回收站。\n因此安全起见，按下确定后，只会将项目从列表中移除。\n您稍后可以在资源浏览器中自行删除项目。\n\n是否继续？",
+		"removeFromList":"从列表中移除",
 		"createNewProject":"创建新项目",
 		"openFolder":"打开文件夹",
 		"cloneFromGit":"从Git克隆"

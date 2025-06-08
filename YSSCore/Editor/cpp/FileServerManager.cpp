@@ -3,6 +3,8 @@
 #include "../TextEdit.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qfileinfo.h>
+#include "../../General/Log.h"
+
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
@@ -15,6 +17,7 @@ namespace YSSCore::Editor {
 	FileServerManager::FileServerManager() {
 		d = new FileServerManagerPrivate();
 		FileServerManagerPrivate::Instance = this;
+		ySuccessF << "Success!";
 	}
 	FileServerManager::~FileServerManager() {
 		for (int i = 0; i < d->FileServers.size(); i++) {

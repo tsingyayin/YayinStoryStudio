@@ -13,7 +13,7 @@ namespace YSSCore::Editor {
 		friend class LangServerManager;
 	public:
 		LangServer(EditorPlugin* plugin, QString id, QStringList ext);
-		~LangServer();
+		virtual ~LangServer();
 		virtual QSyntaxHighlighter* createHighlighter() = 0;
 		QString getLangID();
 		QStringList getLangExts();

@@ -5,6 +5,7 @@
 #include "../Version.h"
 #include "../Log.h"
 #include "../../Utility/JsonConfig.h"
+#include "../../Utility/FileUtility.h"
 
 namespace YSSCore::General {
 	class YSSProjectPrivate {
@@ -28,20 +29,13 @@ namespace YSSCore::General {
 	YSSProject::YSSProject() {
 		d = new YSSProjectPrivate();
 	}
+	YSSProject::~YSSProject() {
+		delete d;
+	}
 	bool YSSProject::loadProject(const QString& configPath) {
-		QFile config(configPath);
-		if (!config.exists()) {
-			return false;
-		}
-		if (!config.open(QIODevice::ReadOnly)) {
-			return false;
-		}
-		QTextStream in(&config);
-		in.setEncoding(QStringConverter::Utf8);
-		QString yamlStr = in.readAll();
-		config.close();
+		QString config = YSSCore::Utility::FileUtility::readAll(configPath);
 		d->ConfigPath = configPath;
-		return d->ProjectConfig->parse(yamlStr).error == QJsonParseError::NoError;
+		return d->ProjectConfig->parse(config).error == QJsonParseError::NoError;
 	}
 	bool YSSProject::saveProject(const QString& configPath) {
 		d->updateLastModifyTime();
@@ -53,19 +47,18 @@ namespace YSSCore::General {
 		else {
 			d->ConfigPath = configPath;
 		}
-		QString yamlStr = d->ProjectConfig->toString();
-		yDebug << d->ConfigPath;
-		yDebug << yamlStr;
-		QFile config(d->ConfigPath);
-		if (!config.open(QIODevice::WriteOnly)) {
-			yDebug << "false";
-			return false;
-		}
-		QTextStream out(&config);
-		out.setEncoding(QStringConverter::Utf8);
-		out << yamlStr;
-		config.close();
+		QString config = d->ProjectConfig->toString();
+		YSSCore::Utility::FileUtility::saveAll(d->ConfigPath, config);
 		return true;
+	}
+	void YSSProject::initProject(const QString& folder, const QString& name) {
+		d->ConfigPath = folder + "/project.yssp";
+		d->ProjectConfig->setString("Project.Name", name);
+		d->ProjectConfig->setString("Project.Description", "");
+		d->ProjectConfig->setString("Project.DebugServerID", "");
+		d->ProjectConfig->setString("Project.IconPath", "");
+		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		refreshLastModifyTime();
 	}
 	QString YSSProject::getProjectName() {
 		return d->ProjectConfig->getString("Project.Name");
@@ -100,23 +93,5 @@ namespace YSSCore::General {
 	}
 	void YSSProject::refreshLastModifyTime() {
 		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-	}
-	bool YSSProject::createProject(const QString& folder, const QString& name) {
-		QDir dir(folder);
-		if (dir.exists()) {
-			return false;
-		}
-		dir.mkpath("./");
-		QString configPath = folder + "/yssproj.yml";
-		QFile config(configPath);
-		if (!config.open(QIODevice::WriteOnly)) {
-			return false;
-		}
-		QString yamlStr = "Project:\n  Name: " + name + "\n  Description: \"\"\n  DebugServerID: \"\"\n  IconPath: \"\"\n  CreateTime: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "\n  LastModifyTime: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "\n  Version: " + Compiled_YSSABI_Version.toString();
-		QTextStream out(&config);
-		out.setEncoding(QStringConverter::Utf8);
-		out << yamlStr;
-		config.close();
-		return true;
 	}
 } 

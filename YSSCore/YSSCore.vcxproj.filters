@@ -125,7 +125,16 @@
     <ClCompile Include="General\cpp\LoggerMsgHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\DebugData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\DebugFailedData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="General\cpp\LoggerManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -238,6 +247,18 @@
     <ClInclude Include="Editor\DebugData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\private\EditorPlugin_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\ProjectTemplateManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\GeneralConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Variable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\ThemeManager.h">
@@ -256,9 +277,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\TextEdit.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\ProjectTemplateManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\FileServerManager.h">

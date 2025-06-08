@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/ysscore">
         <file>compiled/i18n/zh_CN.json</file>
+        <file>compiled/IWillFindU.txt</file>
     </qresource>
 </RCC>

@@ -6,15 +6,22 @@
 #include <General/Log.h>
 #include <Editor/DebugFailedData.h>
 #include <General/Version.h>
+#include <QtGui/qwindow.h>
+#include <Utility/FileUtility.h>
+#include <General/YayinStoryStudio.h>
 int main(int argc, char* argv[])
 {
 	QApplication a(argc, argv);
-	yInfo << "Yayin Story Studio" << YSSCore::General::Version::getYSSVersion();
-	//yWarning << "YSS Console is showed for debug use. Will be removed in release version. Do NOT close console directly incase of DATA LOSE !";
-
-	//qRegisterMetaType<YSSCore::Editor::DebugFailedData>("YSSCore::Editor::DebugFailedData");
 	QDir::setCurrent(QFileInfo(a.arguments()[0]).path());
-	yInfo << a.arguments();
+	QStringList prts = YSSCore::Utility::FileUtility::readLines(":/ysscore/compiled/IWillFindU.txt");
+	for (auto p : prts) {
+		yMessage << p;
+	}
+	yInfo << "Yayin Story Studio" << YSSCore::General::YayinStoryStudio::getVersion() << "(ABI " << YSSCore::General::YayinStoryStudio::getABIVersion() << ")";
+	yNotice << "Launch arguments" << a.arguments();
+	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
+	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";
+	qRegisterMetaType<YSSCore::Editor::DebugFailedData>("YSSCore::Editor::DebugFailedData");
 	YSS::TitlePage::TitlePage titlePage;
 	titlePage.setScreen(QApplication::screenAt(QCursor::pos()));
 	titlePage.show();
@@ -22,6 +29,7 @@ int main(int argc, char* argv[])
 	test_main(a);
 #endif
 	int c = a.exec();
+	yNotice << "Program exit in normal way";
 	YSSCore::General::LoggerManager::getInstance()->finalSave();
 	return c;
 }

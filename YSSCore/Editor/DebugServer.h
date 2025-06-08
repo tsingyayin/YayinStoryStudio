@@ -3,6 +3,7 @@
 #include "../Macro.h"
 
 namespace YSSCore::Editor {
+	class EditorPlugin;
 	class DebugData;
 	class DebugFailedData;
 	class DebugServerPrivate;
@@ -15,11 +16,13 @@ namespace YSSCore::Editor {
 		void currentExecute(const QString& filePath, quint32 lineCount);
 		void debugFailed(const DebugFailedData& data);
 	public:
-		DebugServer();
-		~DebugServer();
-	public slots:
-		virtual void onBuild() = 0;
-		virtual void onDebug() = 0;
+		DebugServer(EditorPlugin* plugin);
+		virtual ~DebugServer();
+		virtual void onBuildStart() = 0;
+		virtual void onDebugStart() = 0;
+		virtual void onDebugPause() = 0;
+		virtual void onDebugContinue() = 0;
+		virtual void onDebugStop(bool resume = false) = 0;
 		virtual void onRun() = 0;
 		virtual void nextStep() = 0;
 		virtual void nextProcess() = 0;

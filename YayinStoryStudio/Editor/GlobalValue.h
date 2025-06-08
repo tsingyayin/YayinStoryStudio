@@ -10,7 +10,7 @@ namespace YSSCore {
 		class LangServerManager;
 		class EditorPluginManager;
 		class FileServerManager;
-		
+		class ProjectTemplateManager;
 	};
 	namespace General {
 		class TranslationHost;
@@ -33,6 +33,7 @@ namespace YSS {
 		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;
 		YSSCore::Editor::EditorPluginManager* PluginManager = nullptr;
 		YSSCore::Editor::FileServerManager* FileServerManager = nullptr;
+		YSSCore::Editor::ProjectTemplateManager* TemplateManager = nullptr;
 		YSS::Editor::YSSTranslator* YSSTranslator = nullptr;
 		YSSCore::General::TranslationHost* TranslationHost = nullptr;
 		YSS::Editor::MainWin* MainWindow = nullptr;

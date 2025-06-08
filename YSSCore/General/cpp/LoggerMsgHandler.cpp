@@ -1,5 +1,6 @@
 #include "../LoggerMsgHandler.h"
 #include "../LoggerManager.h"
+#include <QtCore/qtimer.h>
 namespace YSSCore::General {
 	LoggerMsgHandler::LoggerMsgHandler(Logger* who, Logger::Level level) {
 		d = new YSSCore::__Private__::LoggerMsgHandlerPrivate;

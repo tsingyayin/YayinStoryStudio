@@ -4,6 +4,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
+#include "../../General/Log.h"
+
 namespace YSSCore::Editor {
 	class LangServerManagerPrivate {
 		friend class LangServerManager;
@@ -19,6 +21,7 @@ namespace YSSCore::Editor {
 	LangServerManager::LangServerManager() {
 		LangServerManagerPrivate::Instance = this;
 		d = new LangServerManagerPrivate();
+		ySuccessF << "Success!";
 	}
 
 	bool LangServerManager::addLangServer(LangServer* server) {

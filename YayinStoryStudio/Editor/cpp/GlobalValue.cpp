@@ -6,6 +6,8 @@
 #include <Editor/LangServerManager.h>
 #include <Editor/EditorPluginManager.h>
 #include <Editor/FileServerManager.h>
+#include <Editor/ProjectTemplateProvider.h>
+#include <Editor/ProjectTemplateManager.h>
 #include <General/TranslationHost.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>
@@ -18,14 +20,17 @@ namespace YSS {
 			throw std::runtime_error("GlobalValue already exists!");
 		}
 		Instance = this;
+		yMessage << "Program global value initializing";
 		PathMacro = new YSSCore::Utility::PathMacro();
 		Theme = new YSSCore::Editor::ThemeManager(this);
 		loadConfig();
-		LangServerManager = new YSSCore::Editor::LangServerManager();
-		FileServerManager = new YSSCore::Editor::FileServerManager();
 		TranslationHost = new YSSCore::General::TranslationHost();
 		YSSTranslator = new YSS::Editor::YSSTranslator();
 		TranslationHost->active(YSSTranslator);
+		LangServerManager = new YSSCore::Editor::LangServerManager();
+		FileServerManager = new YSSCore::Editor::FileServerManager();
+		TemplateManager = new YSSCore::Editor::ProjectTemplateManager();
+		ySuccess << "Program global value initialized !";
 		PluginManager = new YSSCore::Editor::EditorPluginManager();
 		PluginManager->programLoadPlugin();
 		PluginManager->loadPlugin();

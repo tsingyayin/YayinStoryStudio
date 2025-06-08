@@ -42,8 +42,10 @@ namespace YSSCore::__Private__ {
 		QWidget* widget_QFrame(const QString& node, YSSCore::Utility::JsonConfig& config);
 		QWidget* widget_ComboBox(const QString& node, YSSCore::Utility::JsonConfig& config);
 		QWidget* widget_RadioButton(const QString& node, YSSCore::Utility::JsonConfig& config);
+		QWidget* widget_LineEdit(const QString& node, YSSCore::Utility::JsonConfig& config);
 	private slots:
 		void onComboBoxIndexChanged(int index);
 		void onRadioButtonChanged(bool checked);
+		void onLineEditTextChanged(QString str);
 	};
 }

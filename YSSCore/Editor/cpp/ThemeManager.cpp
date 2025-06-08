@@ -5,6 +5,7 @@
 #include "../../Utility/JsonConfig.h"
 #include "../StyleSheetTemplate.h"
 #include "../../Utility/FileUtility.h"
+#include "../../General/Log.h"
 
 namespace YSSCore::Editor {
 	class ThemeManagerPrivate {
@@ -18,6 +19,7 @@ namespace YSSCore::Editor {
 	ThemeManager::ThemeManager(QObject* parent) : QObject(parent) {
 		d = new ThemeManagerPrivate();
 		d->Instance = this;
+		ySuccessF << "Success!";
 	}
 	ThemeManager* ThemeManager::getInstance() {
 		return ThemeManagerPrivate::Instance;

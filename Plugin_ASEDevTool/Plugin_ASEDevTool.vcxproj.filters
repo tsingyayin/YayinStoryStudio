@@ -41,7 +41,7 @@
     <ClCompile Include="FileServer\cpp\FS_ASRule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectTemplateProvider\cpp\PTP_AStory.cpp">
+    <ClCompile Include="ProjectTemplateProvider\cpp\ASEAStoryPTP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cpp\ASEDevTranslator.cpp">
@@ -64,6 +64,12 @@
     <ClInclude Include="ASEDevTranslator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DebugServer\DS_ASE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugServer\CrossVersion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LangServer\SH_AStory.h">
@@ -72,7 +78,7 @@
     <QtMoc Include="Plugin_ASEDevTool.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="ProjectTemplateProvider\PTP_AStory.h">
+    <QtMoc Include="ProjectTemplateProvider\ASEAStoryPTP.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

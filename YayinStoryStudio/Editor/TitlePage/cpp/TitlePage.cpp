@@ -29,16 +29,16 @@ namespace YSS::TitlePage {
 	}
 	void TitlePage::load() {
 		auto start = std::chrono::high_resolution_clock::now();
-		YSS::GlobalValue* g = new YSS::GlobalValue();
 		Title->setText("Preparing Environment...");
 		this->repaint();
+		YSS::GlobalValue* g = new YSS::GlobalValue();
 		int fontID = QFontDatabase::addApplicationFont(":/yss/compiled/HarmonyOS_Sans_SC_Regular.ttf");
 		QString hosFont = QFontDatabase::applicationFontFamilies(fontID).at(0);
 		QFont font(hosFont);
 		qApp->setFont(font);
 
 		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library");
-		YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template");
+		//YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template");
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 		auto end = std::chrono::high_resolution_clock::now();

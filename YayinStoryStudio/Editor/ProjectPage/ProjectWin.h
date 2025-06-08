@@ -45,6 +45,7 @@ namespace YSS::ProjectPage {
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:
+		void onProjectRemoved(YSSCore::General::YSSProject* project);
 		void onProjectSelected();
 		void onProjectDoubleClicked();
 	private:

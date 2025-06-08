@@ -15,7 +15,6 @@ namespace YSSCore::Widgets {
 	}
 	MultiButton::~MultiButton() {
 		delete d;
-		MultiLabel::~MultiLabel();
 	}
 	void MultiButton::setPressedStyleSheet(const QString& styleSheet) {
 		d->PressedStyleSheet = styleSheet;

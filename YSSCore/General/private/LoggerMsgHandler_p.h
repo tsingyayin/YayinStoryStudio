@@ -1,6 +1,7 @@
 #pragma once
 #include <QtCore/qstring.h>
 #include "../Logger.h"
+
 namespace YSSCore::General {
 	class LoggerMsgHandler;
 }

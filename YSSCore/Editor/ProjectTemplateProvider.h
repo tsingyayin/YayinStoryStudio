@@ -9,19 +9,19 @@ namespace YSSCore::Editor {
 	class YSSCoreAPI ProjectTemplateInitWidget :public QFrame {
 		Q_OBJECT;
 	signals:
-		void lastProjectPathChanged(const QString& path);
-		void projectPrepared(const QString& path);
+		void projectPrepared();
 	public:
 		ProjectTemplateInitWidget(QWidget* parent = nullptr);
 	};
 
+	class EditorPlugin;
 	class ProjectTemplateProviderPrivate;
 
 	class YSSCoreAPI ProjectTemplateProvider {
 		friend class ProjectTemplateProviderPrivate;
 	public:
-		ProjectTemplateProvider();
-		~ProjectTemplateProvider();
+		ProjectTemplateProvider(EditorPlugin* plugin);
+		virtual ~ProjectTemplateProvider();
 		QIcon getTemplateIcon();
 		void setTemplateIcon(const QIcon& icon);
 		QString getTemplateID();

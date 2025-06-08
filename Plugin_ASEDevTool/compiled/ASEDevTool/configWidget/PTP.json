@@ -16,17 +16,8 @@
 					"title": "i18n:ASEDevTool::provider.project.path.title",
 					"text": "i18n:ASEDevTool::provider.project.path.text",
 					"data": {
-						"comboBox": [
-							{
-								"data": "zh_CN",
-								"key": "i18n:YSS::config.language.zh_CN"
-							},
-							{
-								"data": "en_US",
-								"key": "i18n:YSS::config.language.en_US"
-							}
-						],
-						"default": "zh_CN"
+						"default": "$(ProgramPath)/resource/repos",
+						"isFolder": true
 					}
 				},
 				{

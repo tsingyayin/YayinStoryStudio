@@ -8,6 +8,7 @@
 #include <Utility/AsyncFunction.h>
 #include <QtCore/qdatetime.h>
 #include <General/Log.h>
+#include <QtWidgets/qmessagebox.h>
 
 namespace YSS::ProjectPage {
 	ProjectInfoWidget::ProjectInfoWidget(QWidget* parent) :QFrame(parent) {
@@ -22,7 +23,7 @@ namespace YSS::ProjectPage {
 		ShowInBrowserButton = new QPushButton(this);
 		DeleteButton = new QPushButton(this);
 		Layout = new QGridLayout(this);
-
+		DeleteButton->setObjectName("DeleteButton");
 		this->setLayout(Layout);
 		Layout->addWidget(CoverLabel, 0, 0, 4, 1);
 		Layout->addWidget(TitleLabel, 0, 1, 1, 3);
@@ -56,11 +57,11 @@ namespace YSS::ProjectPage {
 		initWidget();
 		Project = project;
 		QString path = project->getProjectFolder();
-		YSSAsync<qint64>(
-			[&]()->qint64 {
+		YSSAsync<qint64, QString>(
+			[](QString path)->qint64 {
 				return YSSCore::Utility::FileUtility::sizeBytes(path);
 			}, 
-			{},
+			{QString(path)},
 			[this](qint64 size) {
 				QString readable = YSSCore::Utility::FileUtility::readableSize(size);
 				SizeLabel->setText(YSSTR("YSS::project.size") + ": " + readable);
@@ -76,11 +77,49 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectInfoWidget::onDeleteButtonClicked() {
-		
+		if (Project == nullptr) {
+			return;
+		}
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(YSSTR("YSS::project.delete"));
+		msgBox.setText(YSSTR("YSS::project.deleteConfirm"));
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		int ret = msgBox.exec();
+		switch (ret) {
+		case QMessageBox::Yes:
+			emit removeConfirmed(Project);
+			return;
+		case QMessageBox::Cancel:
+			return;
+		}
+	}
+
+	void ProjectInfoWidget::onRemoveFromListButtonClicked() {
+		if (Project == nullptr) {
+			return;
+		}
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(YSSTR("YSS::project.delete"));
+		msgBox.setText(YSSTR("YSS::project.deleteConfirm"));
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		int ret = msgBox.exec();
+		switch (ret) {
+		case QMessageBox::Yes:
+			emit removeConfirmed(Project);
+			return;
+		case QMessageBox::Cancel:
+			return;
+		}
 	}
 
 	void ProjectInfoWidget::onShowInBrowserButtonClicked() {
-		
+		if (Project != nullptr) {
+			QString dir = Project->getProjectFolder();
+			yDebug << dir;
+			YSSCore::Utility::FileUtility::openExplorer(dir);
+		}
 	}
 	
 	void ProjectInfoWidget::resizeEvent(QResizeEvent* event) {

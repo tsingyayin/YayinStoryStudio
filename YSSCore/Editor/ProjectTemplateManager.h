@@ -1,10 +1,21 @@
 #pragma once
-#include <QtCore/qobject.h>
+#include <QtCore/qlist.h>
 #include "../Macro.h"
 namespace YSSCore::Editor {
-	class YSSCoreAPI ProjectTemplateManager :public QObject {
-		Q_OBJECT;
+	class ProjectTemplateProvider;
+	class ProjectTemplateManagerPrivate;
+
+	class YSSCoreAPI ProjectTemplateManager {
 	public:
+		ProjectTemplateManager();
+		ProjectTemplateManager(const ProjectTemplateManager& other) = delete;
+		ProjectTemplateManager(ProjectTemplateManager&& other) = delete;
+		~ProjectTemplateManager();
 		static ProjectTemplateManager* getInstance();
+		QList<ProjectTemplateProvider*> getProviders();
+		ProjectTemplateProvider* getProvider(const QString templateID);
+		void addProvider(ProjectTemplateProvider* provider);
+	private:
+		ProjectTemplateManagerPrivate* d;
 	};
 };

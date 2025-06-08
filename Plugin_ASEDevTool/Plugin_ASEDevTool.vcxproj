@@ -204,14 +204,16 @@
     <ClCompile Include="LangServer\cpp\SH_AStory.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cpp\Plugin_ASEDevTool.cpp" />
-    <ClCompile Include="ProjectTemplateProvider\cpp\PTP_AStory.cpp" />
+    <ClCompile Include="ProjectTemplateProvider\cpp\ASEAStoryPTP.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DebugServer\CrossVersion.h" />
+    <ClInclude Include="DebugServer\DS_ASE.h" />
     <ClInclude Include="FileServer\FS_ASRule.h" />
     <ClInclude Include="FileServer\FS_AStory.h" />
     <ClInclude Include="LangServer\LS_AStory.h" />
     <ClInclude Include="ASEDevTranslator.h" />
-    <QtMoc Include="ProjectTemplateProvider\PTP_AStory.h" />
+    <QtMoc Include="ProjectTemplateProvider\ASEAStoryPTP.h" />
     <QtMoc Include="Plugin_ASEDevTool.h" />
     <QtMoc Include="LangServer\SH_AStory.h" />
     <ClInclude Include="Macro.h" />

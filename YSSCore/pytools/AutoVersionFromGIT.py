@@ -3,12 +3,12 @@ import os
 import datetime
 
 AutoVersionFilePath = "\\YSSCore\\General\\private\\AUTO_VERSION.h"
-VersionNickName = "Visindigo"
+VersionNickName = "Technical Preview 1"
 
 def getCommitCount():
     gitCommitsCount = os.popen("git log --oneline | find /v /c \"\"").read()
     gitCommitsCount = int(gitCommitsCount)+1
-    print("Visindigo commits version now is : "+ str(gitCommitsCount))
+    print("git commits count now is : "+ str(gitCommitsCount))
     return gitCommitsCount
 
 def spawnHeadFile(path):

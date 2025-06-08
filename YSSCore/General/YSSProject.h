@@ -13,8 +13,10 @@ namespace YSSCore::General {
 		friend class YSSProjectPrivate;
 	public:
 		YSSProject();
+		virtual ~YSSProject();
 		bool loadProject(const QString& configPath);
 		bool saveProject(const QString& configPath = "");
+		void initProject(const QString& folder, const QString& name);
 		QString getProjectName();
 		QString getProjectDescription();
 		QString getProjectDebugServerID();
@@ -26,7 +28,7 @@ namespace YSSCore::General {
 		Version getProjectVersion();
 		YSSCore::Utility::JsonConfig* getProjectConfig();
 		void refreshLastModifyTime();
-		static bool createProject(const QString& folder, const QString& name);
+		
 	private:
 		YSSProjectPrivate* d;
 	};

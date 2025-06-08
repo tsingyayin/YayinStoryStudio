@@ -8,6 +8,7 @@
 #include <QtCore/qmap.h>
 #include "../../Utility/FileUtility.h"
 #include "../../General/Log.h"
+#include "../private/EditorPlugin_p.h"
 
 namespace YSSCore::Editor {
 	class EditorPluginManagerPrivate {
@@ -50,6 +51,7 @@ namespace YSSCore::Editor {
 	*/
 	EditorPluginManager::EditorPluginManager(QObject* parent) : QObject(parent) {
 		d = new EditorPluginManagerPrivate();
+		ySuccessF << "Success!";
 	}
 	EditorPluginManager::~EditorPluginManager() {
 		for (int i = 0; i < d->Plugins.size(); i++) {
@@ -59,6 +61,7 @@ namespace YSSCore::Editor {
 		delete d;
 	}
 	void EditorPluginManager::programLoadPlugin() {
+		yNotice << "Scanning plugins in ./resouces/plugins";
 		QFileInfoList Plugins = EditorPluginManagerPrivate::recursionGetAllDll("./resource/plugins");
 		for (QFileInfo info : Plugins) {
 			QString path = info.absoluteFilePath() + ".json";
@@ -66,14 +69,14 @@ namespace YSSCore::Editor {
 			Utility::JsonConfig jsonConfig(jsonStr);
 			QString id = jsonConfig.getString("ID");
 			if (id.isEmpty()) {
-				qDebug() << "EditorPluginManager: plugin id is empty!";
+				yWarning << "The json file in " << info.path() << "does not contain \"ID\" key. IGNORED";
 				continue;
 			}
 			d->PluginPathMap.insert(id, info.absoluteFilePath());
 			if (!d->PriorityMap.contains(id)) {
 				d->PriorityMap.insert(id, 0);
 			}
-			qDebug() << "EditorPluginManager: plugin id:" << id;
+			yMessage << "Plugin with meta-id" << id << "finded";
 			if (!jsonConfig.contains("Dependencies")) {
 				continue;
 			}
@@ -89,34 +92,44 @@ namespace YSSCore::Editor {
 			}
 		}
 		// sort by priority, save path to PluginsPaths
+		yMessage << "Determining loading order based on priority";
 		d->PriorityPlugins = d->PriorityMap.keys();
 		std::sort(d->PriorityPlugins.begin(), d->PriorityPlugins.end(), [this](const QString& a, const QString& b) {
 			return d->PriorityMap[a] > d->PriorityMap[b];
 			});
+		for (int i = 0; i < d->PriorityPlugins.length(); i++) {
+			yMessage << "Load order:" << d->PriorityPlugins[i] << "[" << i << "]";
+		}
 		for (QString key : d->PriorityPlugins) {
 			if (d->PluginPathMap.contains(key)) {
 				QString path = d->PluginPathMap.value(key);
 				QLibrary* hLibrary = new QLibrary(path);
 				if (hLibrary->load() == false) {
-					qDebug() << "EditorPluginManager: load dll failed!";
+					yError << "Failed when init plugin" << key << ", cannot load into memory!";
 					return;
 				}
 				__YSSPluginDllMain PluginDllMain = (__YSSPluginDllMain)hLibrary->resolve("YSSPluginDllMain");
 				if (PluginDllMain == nullptr) {
-					qDebug() << "EditorPluginManager: get dll entry point failed!";
+					yError << "Failed when init plugin" << key << ", cannot find entry point YSSPluginDllMain!";
 					hLibrary->unload();
 					delete hLibrary;
 					return;
 				}
-				EditorPlugin* plugin = PluginDllMain();
+				EditorPlugin* plugin = nullptr;
+				try {
+					plugin = PluginDllMain();
+				}
+				catch (...) {
+					yError << "Exception occured when init plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
+				}
 				if (plugin == nullptr) {
-					qDebug() << "EditorPluginManager: create EditorPlugin failed!";
+					yError << "Failed when init plugin" << key << ", cannot create EditorPlugin Instance!";
 					hLibrary->unload();
 					return;
 				}
 				QString pluginID = plugin->getPluginID();
 				if (pluginID != key) {
-					qDebug() << "EditorPluginManager: plugin key different from meta file!";
+					yError << "Failed when init plugin" << key << ", the ID from plugin instance is different from the ID from meta file.";
 					delete plugin;
 					hLibrary->unload();
 					continue;
@@ -124,8 +137,8 @@ namespace YSSCore::Editor {
 				d->Plugins.append(plugin);
 				d->Dlls.insert(plugin->getPluginID(), hLibrary);
 				d->PluginIDMap.insert(plugin->getPluginID(), plugin);
-				plugin->setPluginFolder(path);
-				qDebug() << "EditorPluginManager: load plugin:" << plugin->getPluginID();
+				plugin->d->PluginFolder = path;
+				ySuccess << "Plugin" << key << "create instance successfully. Will be enable later";
 			}
 		}
 	}
@@ -140,13 +153,16 @@ namespace YSSCore::Editor {
 			EditorPlugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
 			if (d->PluginEnable.value(plugin) == false) {
 				try {
+					yMessage << "Trying to enable plugin" << plugin->getPluginName();
 					plugin->onPluginEnable();
 				}
 				catch (...) {
+					yError << "Failed when enable plugin" << plugin->getPluginName() << ", disable function will be called. RESTART is RECOMMENDED!";
 					plugin->onPluginDisbale();
 					d->PluginEnable.insert(plugin, false);
 					continue;
 				}
+				ySuccess << "Plugin" << plugin->getPluginName() << "enabled";
 				d->PluginEnable.insert(plugin, true);
 			}
 		}

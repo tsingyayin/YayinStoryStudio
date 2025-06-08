@@ -1,6 +1,6 @@
 #include "../TranslationHost.h"
 #include "../private/Translator_p.h"
-
+#include "../Log.h"
 namespace YSSCore::General {
 	class TranslationHostPrivate {
 		friend class TranslationHost;
@@ -18,6 +18,7 @@ namespace YSSCore::General {
 	TranslationHost::TranslationHost() {
 		d = new TranslationHostPrivate;
 		TranslationHostPrivate::Instance = this;
+		ySuccessF << "Success!";
 		YSSCore::General::YSSCoreTranslator* coreTranslator = new YSSCore::General::YSSCoreTranslator();
 		active(coreTranslator);
 	}
@@ -37,6 +38,7 @@ namespace YSSCore::General {
 		d->Translators.insert(translator->getNamespace(), translator);
 		translator->d->loadDefault();
 		translator->d->loadTranslationFile(d->GlobalID);
+		yNotice << "Translator:" << translator->getNamespace() << "actived.";
 	}
 	QString TranslationHost::tr(const QString& nameSpace, const QString& key) {
 		Translator* trans = d->Translators[nameSpace];

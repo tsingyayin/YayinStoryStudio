@@ -148,6 +148,45 @@ namespace YSSCore::Utility {
 			QJsonValue val = setValue(&objNameList, &it, JsonDoc.object(), value);
 			JsonDoc.setObject(val.toObject());
 		}
+		bool remove(const QString& objName) {
+			if (objName == "") { return false; }
+			bool haveValue = false;
+			QStringList objNameList = objName.split(".");
+			QStringList::iterator it = objNameList.begin();
+			QJsonValue val = remove(&objNameList, &it, JsonDoc.object(), &haveValue);
+			JsonDoc.setObject(val.toObject());
+			return haveValue;
+		};
+		QJsonValue remove(QStringList* nameList, QStringList::iterator* it, QJsonValue val, bool* haveValue) {
+			if (*it == nameList->end() - 1) {
+				if (val.isArray()) {
+					QJsonArray arr = val.toArray();
+					if (arr.size() <= (*it)->toInt()) {
+						arr.removeAt((*it)->toInt());
+						*haveValue = true;
+					}
+					return arr;
+				}
+				else {
+					QJsonObject obj = val.toObject();
+					obj.remove(*(*it));
+					return obj;
+				}
+			}
+			else {
+				QStringList::iterator it2 = *it + 1;
+				if (val.isArray()) {
+					QJsonArray arr = val.toArray();
+					arr.replace((*it)->toInt(), remove(nameList, &it2, arr.at((*it)->toInt()), haveValue));
+					return arr;
+				}
+				else {
+					QJsonObject obj = val.toObject();
+					obj.insert(*(*it), remove(nameList, &it2, obj.value(*(*it)), haveValue));
+					return obj;
+				}
+			}
+		}
 	};
 
 	/*!
@@ -279,6 +318,10 @@ namespace YSSCore::Utility {
 	QStringList JsonConfig::keys(const QString& key)
 	{
 		return d->getKeys(key);
+	}
+
+	bool JsonConfig::remove(const QString& key) {
+		return d->remove(key);
 	}
 
 	/*!

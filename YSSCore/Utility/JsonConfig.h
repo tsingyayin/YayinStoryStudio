@@ -21,6 +21,7 @@ namespace YSSCore::Utility {
 		JsonConfig& operator=(JsonConfig&& other) noexcept;
 		JsonValueRef operator[](const QString& key);
 		QStringList keys(const QString& key = "");
+		bool remove(const QString& key);
 		QJsonParseError parse(const QString& jsonStr);
 		QString toString(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
 		QJsonValue getValue(const QString& key = "", bool* ok = nullptr);

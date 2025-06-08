@@ -217,12 +217,22 @@
     <ClCompile Include="Editor\cpp\FileServerManager.cpp" />
     <ClCompile Include="Editor\cpp\LangServer.cpp" />
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
+    <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
     <ClCompile Include="Editor\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
     <ClCompile Include="General\cpp\Logger.cpp" />
-    <ClCompile Include="General\cpp\LoggerManager.cpp" />
+    <ClCompile Include="General\cpp\LoggerManager.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
     <ClCompile Include="General\cpp\LoggerMsgHandler.cpp" />
     <ClCompile Include="General\cpp\TranslationHost.cpp" />
     <ClCompile Include="General\cpp\Translator.cpp" />
@@ -249,6 +259,7 @@
     <QtMoc Include="Editor\private\ConfigWidget_p.h" />
     <ClInclude Include="Editor\DebugData.h" />
     <ClInclude Include="Editor\DebugFailedData.h" />
+    <ClInclude Include="Editor\private\EditorPlugin_p.h" />
     <ClInclude Include="Editor\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -257,6 +268,8 @@
     <ClInclude Include="General\LoggerManager.h" />
     <ClInclude Include="General\LoggerMsgHandler.h" />
     <ClInclude Include="General\private\LoggerMsgHandler_p.h" />
+    <ClInclude Include="Utility\GeneralConfig.h" />
+    <ClInclude Include="Utility\Variable.h" />
     <ClInclude Include="Widgets\TempFloatWidget.h" />
     <ClInclude Include="General\private\Translator_p.h" />
     <ClInclude Include="General\Translator.h" />
@@ -284,7 +297,7 @@
     <ClInclude Include="Editor\DebugServer.h" />
     <QtMoc Include="Editor\EditorPlugin.h" />
     <QtMoc Include="Editor\ProjectTemplateProvider.h" />
-    <QtMoc Include="Editor\ProjectTemplateManager.h" />
+    <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />
     <ClInclude Include="General\Version.h" />
     <ClInclude Include="General\YayinStoryStudio.h" />

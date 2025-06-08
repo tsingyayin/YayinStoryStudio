@@ -30,6 +30,8 @@ namespace YSSCore::Widgets {
 		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 		this->setPixmapFixedWidth(32);
+		d->Icon->hide();
+		d->Description->hide();
 	}
 	MultiLabel::~MultiLabel() {
 		delete d;
@@ -39,9 +41,11 @@ namespace YSSCore::Widgets {
 	}
 	void MultiLabel::setDescription(const QString& str) {
 		d->Description->setText(str);
+		d->Description->show();
 	}
 	void MultiLabel::setPixmap(const QPixmap& pixmap) {
 		d->Icon->setPixmap(pixmap);
+		d->Icon->show();
 	}
 	void MultiLabel::setContentsMargins(int left, int top, int right, int bottom) {
 		d->Layout->setContentsMargins(left, top, right, bottom);

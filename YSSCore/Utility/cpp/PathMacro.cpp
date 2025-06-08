@@ -1,6 +1,8 @@
 #include "../PathMacro.h"
 #include <QtCore/qmap.h>
 #include <QtCore/qdir.h>
+#include "../../General/Log.h"
+
 namespace YSSCore::Utility {
 	class PathMacroPrivate {
 		friend class PathMacro;
@@ -16,9 +18,11 @@ namespace YSSCore::Utility {
 	PathMacro::PathMacro() {
 		d = new PathMacroPrivate;
 		PathMacroPrivate::Instance = this;
+		yWarningF << "PathMacro has not yet reached a stable design and may change at any time in the future. Please do not use this API";
 		addMacro("$(ProgramPath)", [](QString macro)->QString {
 			return QDir::currentPath();
 		});
+		ySuccessF << "Success !";
 	}
 	PathMacro::~PathMacro() {
 		delete d;
@@ -37,6 +41,7 @@ namespace YSSCore::Utility {
 		if (!macro.endsWith(")")) {
 			macro = macro + ")";
 		}
+		ySuccessF << "Path macro: " << macro << "registed";
 		d->Macros[macro] = replacer;
 	}
 }
