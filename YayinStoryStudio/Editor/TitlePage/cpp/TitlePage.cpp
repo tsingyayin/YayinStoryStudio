@@ -10,6 +10,7 @@
 #include <QtCore/qtimer.h>
 #include "../../../test_main.h"
 
+
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));

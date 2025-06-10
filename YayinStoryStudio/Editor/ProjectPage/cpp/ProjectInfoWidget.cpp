@@ -58,10 +58,10 @@ namespace YSS::ProjectPage {
 		Project = project;
 		QString path = project->getProjectFolder();
 		YSSAsync<qint64, QString>(
+			{ QString(path) },
 			[](QString path)->qint64 {
 				return YSSCore::Utility::FileUtility::sizeBytes(path);
 			}, 
-			{QString(path)},
 			[this](qint64 size) {
 				QString readable = YSSCore::Utility::FileUtility::readableSize(size);
 				SizeLabel->setText(YSSTR("YSS::project.size") + ": " + readable);

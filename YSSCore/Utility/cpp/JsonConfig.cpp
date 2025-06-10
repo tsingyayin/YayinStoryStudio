@@ -161,7 +161,7 @@ namespace YSSCore::Utility {
 			if (*it == nameList->end() - 1) {
 				if (val.isArray()) {
 					QJsonArray arr = val.toArray();
-					if (arr.size() <= (*it)->toInt()) {
+					if (arr.size() > (*it)->toInt()) {
 						arr.removeAt((*it)->toInt());
 						*haveValue = true;
 					}

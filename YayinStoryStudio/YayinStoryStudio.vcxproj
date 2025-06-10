@@ -113,6 +113,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
+    <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />

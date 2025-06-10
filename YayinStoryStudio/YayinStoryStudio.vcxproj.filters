@@ -71,6 +71,9 @@
     <ClCompile Include="Editor\SimpleWidget\cpp\EAWarningWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">

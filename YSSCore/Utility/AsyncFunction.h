@@ -10,7 +10,7 @@ namespace YSSCore::Utility {
 		std::function<void(RTN)> Then;
 		RTN Return;
 	public:
-		AsyncFunction(std::function<RTN(ARGS...)> function, std::tuple<ARGS...> args, std::function<void(RTN)> then) {
+		AsyncFunction(std::tuple<ARGS...> args, std::function<RTN(ARGS...)> function, std::function<void(RTN)> then) {
 			this->Function = function;
 			this->Args = args;
 			this->Then = then;

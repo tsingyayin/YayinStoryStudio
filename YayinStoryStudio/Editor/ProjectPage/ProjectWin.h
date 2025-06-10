@@ -48,6 +48,7 @@ namespace YSS::ProjectPage {
 		void onProjectRemoved(YSSCore::General::YSSProject* project);
 		void onProjectSelected();
 		void onProjectDoubleClicked();
+		void onOpenProject();
 	private:
 		void loadProject();
 	};

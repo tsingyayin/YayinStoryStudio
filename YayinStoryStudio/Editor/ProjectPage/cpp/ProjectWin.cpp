@@ -15,6 +15,9 @@
 #include <Widgets/MultiButton.h>
 #include <QtWidgets/qscrollbar.h>
 #include "../../MainEditor/MainWin.h"
+#include <General/Log.h>
+#include <QtWidgets/qfiledialog.h>
+
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
@@ -75,9 +78,11 @@ namespace YSS::ProjectPage {
 			this->showMaximized();
 		}
 		connect(InfoWidget, &ProjectInfoWidget::removeConfirmed, this, &ProjectWin::onProjectRemoved);
+		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProject);
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event){
+		YSSCore::Utility::FileUtility::saveAll("./resource/config/project.json", Config->toString());
 		YSSCore::Utility::JsonConfig* config = GlobalValue::getConfig();
 		if (this->isMaximized()) {
 			config->setBool("Window.Project.Maximized", true);
@@ -112,7 +117,16 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->removeWidget(widget);
 			widget->deleteLater();
 		}
-		Config->remove(project->getProjectPath());
+		QStringList keys = Config->keys("Project");
+		for (int i = 0; i < keys.size();i++) {
+			if (Config->getString("Project." + keys[i]) == project->getProjectPath()) {
+				yMessage << i;
+				Config->remove("Project." + keys[i]);
+				break;
+			}
+		}
+		
+		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 70);
 		delete project;
 		project = nullptr;
 	}
@@ -132,6 +146,34 @@ namespace YSS::ProjectPage {
 		HistoryProjectList.removeAll(project);
 		GlobalValue::setCurrentProject(project);
 		this->close();
+	}
+
+	void ProjectWin::onOpenProject() {
+		QString filePath = QFileDialog::getOpenFileName(this, "Open YSS Project File", "./resource/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
+		QString exePath = QDir::currentPath();
+		if (filePath.startsWith(exePath)) {
+			QDir dir(exePath);
+			filePath = "./"+dir.relativeFilePath(filePath);
+		}
+		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
+		bool ok = project->loadProject(filePath);
+		yDebugF << ok;
+		if (ok) {
+			bool inList = false;
+			for (QString key : Config->keys("Project")) {
+				QString projectPath = Config->getString("Project." + key);
+				if (projectPath == filePath) { inList = true; break; }
+			}
+			if (!inList) {
+				yMessage << "Add" << filePath << "to project list.";
+				Config->setString("Project." + QString::number(Config->keys("Project").size()), filePath);
+			}
+			GlobalValue::setCurrentProject(project);
+			this->close();
+		}
+		else {
+			delete project;
+		}
 	}
 
 	void ProjectWin::loadProject() {
