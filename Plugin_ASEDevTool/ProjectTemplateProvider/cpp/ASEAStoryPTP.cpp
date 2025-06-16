@@ -1,10 +1,22 @@
 #include "../ASEAStoryPTP.h"
 #include <General/TranslationHost.h>
-
+#include <Editor/ConfigWidget.h>
+#include <Utility/FileUtility.h>
 ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	: YSSCore::Editor::ProjectTemplateInitWidget(parent)
 {
+	this->setFixedSize(800, 600);
+	this->setWindowTitle(YSSTR("ASEDevTool::provider.window.title"));
+	ConfigWidget = new YSSCore::Editor::ConfigWidget(this);
+	ConfigWidget->loadCWJson(YSSCore::Utility::FileUtility::readAll( ":/plugin/compiled/ASEDevTool/configWidget/PTP.json"));
 	// Constructor implementation
+}
+void ASEAStoryPTIW::resizeEvent(QResizeEvent* event)
+{
+	YSSCore::Editor::ProjectTemplateInitWidget::resizeEvent(event);
+	if (ConfigWidget) {
+		ConfigWidget->setGeometry(0, 0, this->width(), this->height());
+	}
 }
 ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin):ProjectTemplateProvider(plugin)
 {

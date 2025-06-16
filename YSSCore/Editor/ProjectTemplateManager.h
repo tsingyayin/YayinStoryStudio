@@ -19,3 +19,5 @@ namespace YSSCore::Editor {
 		ProjectTemplateManagerPrivate* d;
 	};
 };
+
+#define YSSPTM YSSCore::Editor::ProjectTemplateManager::getInstance()

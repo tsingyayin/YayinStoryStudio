@@ -215,6 +215,8 @@
     <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
     <ClCompile Include="Editor\cpp\FileServer.cpp" />
     <ClCompile Include="Editor\cpp\FileServerManager.cpp" />
+    <ClCompile Include="Editor\cpp\FileTemplateManager.cpp" />
+    <ClCompile Include="Editor\cpp\FileTemplateProvider.cpp" />
     <ClCompile Include="Editor\cpp\LangServer.cpp" />
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp" />
@@ -254,11 +256,15 @@
     <ClCompile Include="Utility\cpp\VirtualFile.cpp" />
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
+    <ClCompile Include="Widgets\cpp\TextTags.cpp" />
+    <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\private\ConfigWidget_p.h" />
     <ClInclude Include="Editor\DebugData.h" />
     <ClInclude Include="Editor\DebugFailedData.h" />
+    <QtMoc Include="Editor\FileTemplateProvider.h" />
+    <ClInclude Include="Editor\FileTemplateManager.h" />
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
     <ClInclude Include="Editor\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
@@ -285,6 +291,8 @@
     <ClInclude Include="Utility\PathMacro.h" />
     <ClInclude Include="Utility\VirtualFile.h" />
     <ClInclude Include="Widgets\MultiLabel.h" />
+    <QtMoc Include="Widgets\TextTags.h" />
+    <ClInclude Include="Widgets\WidgetDisplayStack.h" />
     <ClInclude Include="YSSCore.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />
     <QtMoc Include="Editor\FileServerManager.h" />

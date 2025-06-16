@@ -4,7 +4,7 @@
 #include <QtCore/qjsonvalue.h>
 #include <QtCore/qjsonarray.h>
 #include "../JsonValueRef.h"
-
+#include "../../General/Log.h"
 namespace YSSCore::Utility {
 	class JsonConfigPrivate
 	{
@@ -332,6 +332,9 @@ namespace YSSCore::Utility {
 	*/
 	QJsonParseError JsonConfig::parse(const QString& jsonStr)
 	{
+		if(jsonStr.startsWith(":") || jsonStr.startsWith(".") || jsonStr.startsWith("/")) {
+			yWarningF << "May be input is file path, got " << jsonStr << ". This function only accepts Json string.";
+		}
 		QJsonParseError error;
 		d->JsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8(), &error);
 		return error;

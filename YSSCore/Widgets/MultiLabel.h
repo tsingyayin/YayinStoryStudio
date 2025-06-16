@@ -21,6 +21,8 @@ namespace YSSCore::Widgets {
 		void setSpacing(int spaceing);
 		void setAlignment(Qt::Alignment alignment);
 		void setPixmapFixedWidth(int width);
+		void addCustomWidget(QWidget* widget);
+		QWidget* getCustomWidget();
 	private:
 		MultiLabelPrivate* d;
 	};

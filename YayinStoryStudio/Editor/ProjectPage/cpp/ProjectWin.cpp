@@ -17,10 +17,12 @@
 #include "../../MainEditor/MainWin.h"
 #include <General/Log.h>
 #include <QtWidgets/qfiledialog.h>
+#include "../../NewProjectPage/NewProjectWin.h"
 
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
+		this->setMinimumSize(800, 600);
 		Config = new YSSCore::Utility::JsonConfig();
 		QString configAll = YSSCore::Utility::FileUtility::readAll("./resource/config/project.json");
 		Config->parse(configAll);
@@ -71,12 +73,13 @@ namespace YSS::ProjectPage {
 
 		int width = GlobalValue::getConfig()->getInt("Window.Project.Width");
 		int height = GlobalValue::getConfig()->getInt("Window.Project.Height");
-		this->setMinimumSize(800, 600);
+		
 		this->resize(width, height);
 		this->setWindowTitle("Welcome");
 		if (GlobalValue::getConfig()->getBool("Window.Project.Maximized")) {
 			this->showMaximized();
 		}
+		connect(CreateProjectButton, &QPushButton::clicked, this, &ProjectWin::onCreateProject);
 		connect(InfoWidget, &ProjectInfoWidget::removeConfirmed, this, &ProjectWin::onProjectRemoved);
 		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProject);
 	}
@@ -100,6 +103,7 @@ namespace YSS::ProjectPage {
 			YSS::Editor::MainWin* win = new YSS::Editor::MainWin();
 			GlobalValue::setMainWindow(win);
 			win->show();
+			this->deleteLater();
 		}
 	}
 
@@ -176,6 +180,11 @@ namespace YSS::ProjectPage {
 		}
 	}
 
+	void ProjectWin::onCreateProject() {
+		NewProjectPage::NewProjectWin* win = new NewProjectPage::NewProjectWin();
+		win->show();
+		win->setAttribute(Qt::WA_DeleteOnClose);
+	}
 	void ProjectWin::loadProject() {
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;

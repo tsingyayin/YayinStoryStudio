@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/plugin">
         <file>compiled/ASEDevTool/i18n/zh_CN.json</file>
+        <file>compiled/ASEDevTool/configWidget/PTP.json</file>
     </qresource>
 </RCC>

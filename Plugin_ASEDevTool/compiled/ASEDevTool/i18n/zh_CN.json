@@ -7,6 +7,9 @@
 		"mainFileName": "主文件名称"
 	},
 	"provider":{
+		"window":{
+			"title": "ASE 剧情项目 初始化助手"
+		},
 		"astory":{
 			"name": "ASE剧情项目",
 			"description": "使用AStory编写的ASE剧情，支持所有ASE原生功能。",

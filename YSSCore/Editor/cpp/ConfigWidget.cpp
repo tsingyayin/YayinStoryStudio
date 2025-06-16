@@ -7,6 +7,7 @@
 #include "../private/ConfigWidget_p.h"
 #include "../../Utility/PathMacro.h"
 #include "../../Widgets/MultiLabel.h"
+#include "../../General/Log.h"
 
 namespace YSSCore::__Private__ {
 
@@ -187,6 +188,7 @@ namespace YSSCore::__Private__ {
 	}
 	QWidget* ConfigWidgetPrivate::widgetRouter(const QString& type, const QString& node, YSSCore::Utility::JsonConfig& config) {
 		QWidget* rtn = nullptr;
+		yDebug << node << type;
 		if (type == "ComboBox") {
 			rtn = widget_ComboBox(node, config);
 		}

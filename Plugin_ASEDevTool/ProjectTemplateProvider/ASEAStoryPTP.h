@@ -7,6 +7,7 @@ class ASEAStoryPTIW :public YSSCore::Editor::ProjectTemplateInitWidget
 	YSSCore::Editor::ConfigWidget* ConfigWidget;
 public:
 	ASEAStoryPTIW(QWidget* parent = nullptr);
+	virtual void resizeEvent(QResizeEvent* event) override;
 };
 
 

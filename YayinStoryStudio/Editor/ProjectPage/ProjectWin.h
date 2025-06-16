@@ -49,6 +49,7 @@ namespace YSS::ProjectPage {
 		void onProjectSelected();
 		void onProjectDoubleClicked();
 		void onOpenProject();
+		void onCreateProject();
 	private:
 		void loadProject();
 	};

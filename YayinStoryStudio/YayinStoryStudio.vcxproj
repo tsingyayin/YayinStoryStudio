@@ -145,9 +145,17 @@
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="test_main.h" />
     <ClInclude Include="Editor\YSSTranslator.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="compiled\yssicon.ico" />
+    <Image Include="compiled\yssicon.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

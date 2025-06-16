@@ -10,6 +10,7 @@ namespace YSSCore::Widgets {
 		QLabel* Description;
 		QLabel* Icon;
 		QGridLayout* Layout;
+		QWidget* CustomWidget = nullptr;
 	};
 	MultiLabel::MultiLabel(QWidget* parent) :QFrame(parent) {
 		d = new MultiLabelPrivate;
@@ -68,5 +69,18 @@ namespace YSSCore::Widgets {
 	}
 	void MultiLabel::setPixmapFixedWidth(int width) {
 		d->Icon->setFixedWidth(width);
+	}
+	void MultiLabel::addCustomWidget(QWidget* widget) {
+		if (d->CustomWidget != nullptr) {
+			d->Layout->removeWidget(d->CustomWidget);
+			d->CustomWidget->deleteLater();
+		}
+		d->CustomWidget = widget;
+		widget->setParent(this);
+		d->Layout->addWidget(widget, 2, 1, 1, 1);
+		d->CustomWidget->show();
+	}
+	QWidget* MultiLabel::getCustomWidget(){
+		return d->CustomWidget;
 	}
 }
