@@ -20,21 +20,22 @@
 				"script": "脚本",
 				"arknights": "明日方舟"
 			},
-			"title": "ASE项目初始化",
-			"project":{
-				"title": "项目设置",
-				"name":{
-					"title": "项目名称",
-					"text": "新的ASE项目的名称"
-				},
-				"path":{
-					"title": "项目存放文件夹",
-					"text": "新的ASE项目将被存放在此文件夹中"
-				},
-				"version":{
-					"title": "目标ASE版本",
-					"text": "您可以在本插件的设置中增删ASE版本"
-				}
+			"title": "ASE项目初始化"
+		},
+		"project":{
+			"title": "ASE 剧情项目初始化助手",
+			"name":{
+				"title": "项目名称",
+				"text": "剧情项目的名称，当全部使用路径合法字符时，则同时也是项目文件夹的名称。"
+			},
+			"path":{
+				"title": "项目路径",
+				"text": "一个新的项目文件夹会被创建在此路径下"
+			},
+			"aseversion":{
+				"title": "目标ASE版本",
+				"text": "默认只用最新的ASE版本。如果需要使用特定的旧版ASE，请在插件设置中关联相关版本。",
+				"uptodate": "最新版本"
 			}
 		}
 	}

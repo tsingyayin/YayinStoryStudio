@@ -8,6 +8,7 @@
 #include "../../Utility/PathMacro.h"
 #include "../../Widgets/MultiLabel.h"
 #include "../../General/Log.h"
+#include "../ThemeManager.h"
 
 namespace YSSCore::__Private__ {
 
@@ -15,6 +16,7 @@ namespace YSSCore::__Private__ {
 		this->self = self;
 		this->Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
+		self->setStyleSheet(YSSTM->getStyleSheet("ConfigWidget", self));
 	}
 	ConfigWidgetPrivate::~ConfigWidgetPrivate() {
 		saveConfig();
@@ -43,6 +45,7 @@ namespace YSSCore::__Private__ {
 			//w->setStyleSheet("QWidget{border:1px solid black}");
 			Layout->addWidget(w);
 		}
+		self->setStyleSheet(YSSTM->getStyleSheet("ConfigWidget", self));
 		this->initConfig();
 	}
 	void ConfigWidgetPrivate::initConfig() {
@@ -159,13 +162,18 @@ namespace YSSCore::__Private__ {
 		YSSCore::Widgets::MultiLabel* MultiLabel = new YSSCore::Widgets::MultiLabel(SettingFrame);
 		MultiLabel->setTitle(YSSI18N(config.getString("title")));
 		MultiLabel->setDescription(YSSI18N(config.getString("text")));
-		MultiLabel->setPixmap(QPixmap(config.getString("icon")));
+		QString iconPath = config.getString("icon");
+		if (!iconPath.isEmpty()) {
+			MultiLabel->setPixmap(QPixmap(iconPath));
+		}
 		MultiLabel->setAlignment(Qt::AlignLeft);
+		MultiLabel->setFixedHeight(80);
 		SettingLayout->addWidget(MultiLabel);
 		SettingLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		if (config.contains("data")) {
 			YSSCore::Utility::JsonConfig selfConfig = config.getObject("data");
 			QWidget* target = widgetRouter(type, node, selfConfig);
+			target->setMinimumWidth(300);
 			if (target != nullptr) {
 				target->setParent(SettingFrame);
 				SettingLayout->addWidget(target);
@@ -229,10 +237,11 @@ namespace YSSCore::__Private__ {
 		QLineEdit* LineEdit = new QLineEdit();
 		LineEdit->setObjectName(node);
 		QString defaultValue = config.getString("default");
-		LineEdit->setText(defaultValue);
 		connect(LineEdit, &QLineEdit::textChanged, this, &ConfigWidgetPrivate::onLineEditTextChanged);
-		LineEditDefault.insert(LineEdit, defaultValue);
 		if (config.contains("isFolder") || config.contains("isFile")) {
+			yDebugF << YSSPathMacro(defaultValue);
+			LineEdit->setText(YSSPathMacro(defaultValue));
+			LineEditDefault.insert(LineEdit, YSSPathMacro(defaultValue));
 			QFrame* container = new QFrame();
 			QHBoxLayout* layout = new QHBoxLayout(container);
 			LineEdit->setParent(container);
@@ -242,7 +251,7 @@ namespace YSSCore::__Private__ {
 			connect(selectButton, &QPushButton::clicked, [=]() {
 				QString folder = QFileDialog::getExistingDirectory(container,
 					YSSTR("YSSCore::general.selectFolder"),
-					"./resouces/repos",
+					YSSPathMacro(defaultValue),
 					QFileDialog::ShowDirsOnly
 					);
 				if (!folder.isEmpty()) {
@@ -252,6 +261,8 @@ namespace YSSCore::__Private__ {
 			return container;
 		}
 		else {
+			LineEditDefault.insert(LineEdit, defaultValue);
+			LineEdit->setText(defaultValue);
 			return LineEdit;
 		}
 	}
@@ -280,9 +291,9 @@ namespace YSSCore::__Private__ {
 	}
 	
 }
-namespace YSSCore::Editor {
+namespace YSSCore::Widgets {
 	/*!
-		\class YSSCore::Editor::ConfigWidget
+		\class YSSCore::Widgets::ConfigWidget
 		\brief 此类从CWJson创建配置窗口。
 		\since Yayin Story Studio 0.13.0
 		\inmodule YSSCore

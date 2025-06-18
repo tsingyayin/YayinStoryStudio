@@ -207,7 +207,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\cpp\ConfigWidget.cpp" />
+    <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Editor\cpp\DebugData.cpp" />
     <ClCompile Include="Editor\cpp\DebugFailedData.cpp" />
     <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
@@ -221,9 +221,9 @@
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
-    <ClCompile Include="Editor\cpp\StyleSheetTemplate.cpp" />
+    <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
-    <ClCompile Include="Editor\cpp\ThemeManager.cpp" />
+    <ClCompile Include="Widgets\cpp\ThemeManager.cpp" />
     <ClCompile Include="General\cpp\Logger.cpp" />
     <ClCompile Include="General\cpp\LoggerManager.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
@@ -260,13 +260,12 @@
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\private\ConfigWidget_p.h" />
     <ClInclude Include="Editor\DebugData.h" />
     <ClInclude Include="Editor\DebugFailedData.h" />
     <QtMoc Include="Editor\FileTemplateProvider.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
-    <ClInclude Include="Editor\StyleSheetTemplate.h" />
+    <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
     <ClInclude Include="General\private\LoggerMsgHandler_impl.hpp" />
@@ -276,11 +275,12 @@
     <ClInclude Include="General\private\LoggerMsgHandler_p.h" />
     <ClInclude Include="Utility\GeneralConfig.h" />
     <ClInclude Include="Utility\Variable.h" />
+    <QtMoc Include="Widgets\private\ConfigWidget_p.h" />
     <ClInclude Include="Widgets\TempFloatWidget.h" />
     <ClInclude Include="General\private\Translator_p.h" />
     <ClInclude Include="General\Translator.h" />
     <QtMoc Include="General\UpdateChain.h" />
-    <QtMoc Include="Editor\ConfigWidget.h" />
+    <QtMoc Include="Widgets\ConfigWidget.h" />
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h" />
     <ClInclude Include="General\TranslationHost.h" />
     <ClInclude Include="General\YSSProject.h" />
@@ -301,7 +301,7 @@
     <ClInclude Include="Editor\FileServer.h" />
     <ClInclude Include="Editor\LangServer.h" />
     <ClInclude Include="Editor\LangServerManager.h" />
-    <QtMoc Include="Editor\ThemeManager.h" />
+    <QtMoc Include="Widgets\ThemeManager.h" />
     <ClInclude Include="Editor\DebugServer.h" />
     <QtMoc Include="Editor\EditorPlugin.h" />
     <QtMoc Include="Editor\ProjectTemplateProvider.h" />

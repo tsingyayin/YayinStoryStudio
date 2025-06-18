@@ -1,22 +1,24 @@
 #include "../ASEAStoryPTP.h"
+#include <QtWidgets/qboxlayout.h>
 #include <General/TranslationHost.h>
-#include <Editor/ConfigWidget.h>
+#include <Widgets/ConfigWidget.h>
 #include <Utility/FileUtility.h>
 ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	: YSSCore::Editor::ProjectTemplateInitWidget(parent)
 {
-	this->setFixedSize(800, 600);
+	//this->setFixedSize(800, 600);
 	this->setWindowTitle(YSSTR("ASEDevTool::provider.window.title"));
-	ConfigWidget = new YSSCore::Editor::ConfigWidget(this);
+	ConfigWidget = new YSSCore::Widgets::ConfigWidget(this);
 	ConfigWidget->loadCWJson(YSSCore::Utility::FileUtility::readAll( ":/plugin/compiled/ASEDevTool/configWidget/PTP.json"));
+	Layout = new QVBoxLayout(this);
+	Layout->setContentsMargins(0, 0, 0, 0);
+	Layout->addWidget(ConfigWidget);
 	// Constructor implementation
 }
 void ASEAStoryPTIW::resizeEvent(QResizeEvent* event)
 {
 	YSSCore::Editor::ProjectTemplateInitWidget::resizeEvent(event);
-	if (ConfigWidget) {
-		ConfigWidget->setGeometry(0, 0, this->width(), this->height());
-	}
+	
 }
 ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin):ProjectTemplateProvider(plugin)
 {

@@ -46,11 +46,23 @@ Yayin Story Studio的cpp与h文件的管理采用相对紧密的模式，即所�
 
 # 致谢
 
-感谢我的三位高中与大学同学对本项目的支持和贡献：
+* TsingYayin和他的三位高中&大学同学对本项目做出了重要支持和贡献：
 
 [Ayano_Aishi 爱诗绫里](https://space.bilibili.com/475519346) - YSP的创意贡献者，YSP是Tsing Yayin在Ayano_Aishi的启发下开发的。YSP的极其早期版本也被称为AASP。
 > 注：Ayano_Aishi 理应翻译为爱诗绫野，但由于Ayano_Aishi在提出YSP创想的时候正在没日没夜的玩《逆转裁判》，所以Tsing Yayin决定强行将其翻译为爱诗绫里。
 
 [Gra_dus 谷雨暮歌](https://space.bilibili.com/144798380) - Arknights Story Editor的作者，ASE在YSP衰落后的及时出现，接替Yayin Story Player成为了方舟社区最好的剧情播放工具。
 
-[v0v_tempest](https://space.bilibili.com/178835858) - 他没有直接参与YSP、ASE以及YSS的开发，但在这位超级活爹的辅导之下，Tsing Yayin通过了考研数学二考试，并且还帮助Tsing Yayin运营了一段时间他的Minecraft服务器。
+[v0v_tempest](https://space.bilibili.com/178835858) - 他没有直接参与YSP、ASE以及YSS的开发，但在这位超级活爹的辅导之下，Tsing Yayin通过了考研数学二考试。并且他还帮助Tsing Yayin运营了一段时间他的Minecraft服务器。
+
+* 除此之外，YSP、ASE的几位早期用户对软件社区的贡献也功不可没：
+
+[The_Universe寰宇](https://space.bilibili.com/108130502) - YSP的重要早期用户，在YSP0.6-0.9版本中提供了大量的反馈和建议。
+
+[小姐婕拉啦](https://space.bilibili.com/32201824) - 在YSP0.6-0.9版本间提供了重要数据帮助改进UI效果，为程序标准化做出了重要贡献。
+
+[三叔](https://space.bilibili.com/37691) - 制作了ASE的新手教程视频，时至今日仍然是初学者的重要参考。
+
+* 也感谢全体YSP和ASE用户，你们是我们不断前进的动力。
+
+* 特别致谢：南京工业大学 计算机与信息工程学院 徐新艳 导师。她在本科阶段教授Tsing Yayin的Python课程对项目的早期发展起到了重要作用。

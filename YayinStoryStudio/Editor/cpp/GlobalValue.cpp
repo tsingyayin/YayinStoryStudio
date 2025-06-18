@@ -2,7 +2,7 @@
 #include "../YSSTranslator.h"
 #include <Utility/JsonConfig.h>
 #include <Utility/PathMacro.h>
-#include <Editor/ThemeManager.h>
+#include <Widgets/ThemeManager.h>
 #include <Editor/LangServerManager.h>
 #include <Editor/EditorPluginManager.h>
 #include <Editor/FileServerManager.h>
@@ -22,7 +22,7 @@ namespace YSS {
 		Instance = this;
 		yMessage << "Program global value initializing";
 		PathMacro = new YSSCore::Utility::PathMacro();
-		Theme = new YSSCore::Editor::ThemeManager(this);
+		Theme = new YSSCore::Widgets::ThemeManager(this);
 		loadConfig();
 		TranslationHost = new YSSCore::General::TranslationHost();
 		YSSTranslator = new YSS::Editor::YSSTranslator();

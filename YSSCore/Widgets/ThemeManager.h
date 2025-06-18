@@ -5,7 +5,7 @@
 class QWidget;
 class QColor;
 class QString;
-namespace YSSCore::Editor {
+namespace YSSCore::Widgets {
 	class ThemeManagerPrivate;
 	class YSSCoreAPI ThemeManager :public QObject
 	{
@@ -29,4 +29,4 @@ namespace YSSCore::Editor {
 	};
 }
 
-#define YSSTM YSSCore::Editor::ThemeManager::getInstance()
+#define YSSTM YSSCore::Widgets::ThemeManager::getInstance()

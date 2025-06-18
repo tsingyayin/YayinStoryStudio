@@ -1,5 +1,5 @@
 {
-	"windowTitle": "i18n:ASEDevTool::provider.title",
+	"windowTitle": "i18n:ASEDevTool::provider.project.title",
 	"windowIcon": "icon.png",
 	"widget":[
 		{	
@@ -10,7 +10,7 @@
 			"text": "",
 			"children":[
 				{
-					"node": "Path",
+					"node": "ProjectPath",
 					"type": "LineEdit",
 					"icon": "",
 					"title": "i18n:ASEDevTool::provider.project.path.title",
@@ -21,33 +21,33 @@
 					}
 				},
 				{
-					"node": "ReloadTab",
-					"type": "RadioButton",
+					"node": "ProjectName",
+					"type": "LineEdit",
+					"icon": "",
+					"title": "i18n:ASEDevTool::provider.project.name.title",
+					"text": "i18n:ASEDevTool::provider.project.name.text",
 					"data": {
-						"icon": "",
-						"title": "i18n:YSS::config.reloadtab.title",
-						"text": "i18n:YSS::config.reloadtab.text",
-						"default": true
+						"default": "ASE Story Project"
 					}
 				},
 				{
-					"node": "Theme",
+					"node": "ASEVersion",
 					"type": "ComboBox",
+					"icon": "",
+					"title": "i18n:ASEDevTool::provider.project.aseversion.title",
+					"text": "i18n:ASEDevTool::provider.project.aseversion.text",
 					"data": {
-						"icon": "",
-						"title": "i18n:YSS::config.theme.title",
-						"text": "i18n:YSS::config.theme.text",
 						"comboBox": [
 							{
-								"data": "theme_dark",
-								"key": "i18n:YSS::config.theme.dark"
+								"data": "uptodate",
+								"key": "i18n:ASEDevTool::provider.project.aseversion.uptodate"
 							},
 							{
-								"data": "theme_light",
-								"key": "i18n:YSS::config.theme.light"
+								"data": "2.05.22.1alpha",
+								"key": "2.05.22.1alpha"
 							}
 						],
-						"default": "theme_dark"
+						"default": "uptodate"
 					}
 				}
 			]	

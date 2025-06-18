@@ -1,5 +1,4 @@
 #include "../LangServer.h"
-#include "../ThemeManager.h"
 #include <QtCore/qstring.h>
 #include <QtGui/qsyntaxhighlighter.h>
 

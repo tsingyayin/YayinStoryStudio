@@ -7,7 +7,7 @@
 #include <QtWidgets/qboxlayout.h>
 #include "../../GlobalValue.h"
 #include <Utility/JsonConfig.h>
-#include <Editor/ThemeManager.h>
+#include <Widgets/ThemeManager.h>
 #include <General/TranslationHost.h>
 #include <Utility/FileUtility.h>
 #include <General/YSSProject.h>
@@ -182,6 +182,7 @@ namespace YSS::ProjectPage {
 
 	void ProjectWin::onCreateProject() {
 		NewProjectPage::NewProjectWin* win = new NewProjectPage::NewProjectWin();
+		win->setWindowModality(Qt::ApplicationModal);
 		win->show();
 		win->setAttribute(Qt::WA_DeleteOnClose);
 	}

@@ -22,6 +22,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSSInstaller", "YSSInstalle
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_YSSFileExt", "Plugin_YSSFileExt\Plugin_YSSFileExt.vcxproj", "{375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryPlayer", "YayinStoryPlayer\YayinStoryPlayer.vcxproj", "{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -78,6 +80,14 @@ Global
 		{375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B}.ExportRelease|x64.Build.0 = Release|x64
 		{375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B}.Release|x64.ActiveCfg = Release|x64
 		{375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B}.Release|x64.Build.0 = Release|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.Debug|x64.ActiveCfg = Debug|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.Debug|x64.Build.0 = Debug|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.ExportDebug|x64.ActiveCfg = Release|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.ExportDebug|x64.Build.0 = Release|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.ExportRelease|x64.ActiveCfg = Release|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.ExportRelease|x64.Build.0 = Release|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.Release|x64.ActiveCfg = Release|x64
+		{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

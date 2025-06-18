@@ -1,5 +1,5 @@
 #include "../StackBarLabel.h"
-#include <Editor/ThemeManager.h>
+#include <Widgets/ThemeManager.h>
 #include <QLabel>
 #include <QPushButton>
 #include <QHBoxLayout>

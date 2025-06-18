@@ -7,7 +7,7 @@
 #include <QtCore/qdir.h>
 #include <Utility/FileUtility.h>
 #include <Utility/AsyncFunction.h>
-#include <Editor/ConfigWidget.h>
+#include <Widgets/ConfigWidget.h>
 
 void test_main(QApplication& a) {
 	YSSCore::Utility::CodeDiff codeDiff;

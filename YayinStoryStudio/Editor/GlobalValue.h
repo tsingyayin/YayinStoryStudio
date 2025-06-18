@@ -6,7 +6,6 @@ namespace YSSCore {
 		class PathMacro;
 	};
 	namespace Editor {
-		class ThemeManager;
 		class LangServerManager;
 		class EditorPluginManager;
 		class FileServerManager;
@@ -15,6 +14,9 @@ namespace YSSCore {
 	namespace General {
 		class TranslationHost;
 		class YSSProject;
+	};
+	namespace Widgets {
+		class ThemeManager;
 	}
 };
 namespace YSS {
@@ -29,7 +31,7 @@ namespace YSS {
 		static GlobalValue* Instance;
 		YSSCore::Utility::JsonConfig* Config = nullptr;
 		YSSCore::Utility::PathMacro* PathMacro = nullptr;
-		YSSCore::Editor::ThemeManager* Theme = nullptr;
+		YSSCore::Widgets::ThemeManager* Theme = nullptr;
 		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;
 		YSSCore::Editor::EditorPluginManager* PluginManager = nullptr;
 		YSSCore::Editor::FileServerManager* FileServerManager = nullptr;

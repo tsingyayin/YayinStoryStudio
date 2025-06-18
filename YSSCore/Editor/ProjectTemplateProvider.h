@@ -9,9 +9,11 @@ namespace YSSCore::Editor {
 	class YSSCoreAPI ProjectTemplateInitWidget :public QFrame {
 		Q_OBJECT;
 	signals:
-		void projectPrepared();
+		void projectPrepared(QString projectPath);
+		void closed();
 	public:
 		ProjectTemplateInitWidget(QWidget* parent = nullptr);
+		virtual void closeEvent(QCloseEvent* event) override;
 	};
 
 	class EditorPlugin;

@@ -3,7 +3,7 @@
 #include "../ResourceBrowser.h"
 #include "../../GlobalValue.h"
 #include <Utility/JsonConfig.h>
-#include <Editor/ThemeManager.h>
+#include <Widgets/ThemeManager.h>
 #include <Editor/FileServerManager.h>
 #include <QHBoxLayout>
 #include <QMenuBar>

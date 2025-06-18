@@ -6,7 +6,7 @@
 namespace YSSCore::__Private__ {
 	class ConfigWidgetPrivate;
 }
-namespace YSSCore::Editor {
+namespace YSSCore::Widgets {
 	class ConfigWidgetPrivate;
 	class YSSCoreAPI ConfigWidget :public QFrame {
 		friend class YSSCore::__Private__::ConfigWidgetPrivate;

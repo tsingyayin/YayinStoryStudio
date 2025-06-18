@@ -4,7 +4,7 @@
 #include <QtCore/qregularexpression.h>
 #include <QtWidgets/qwidget.h>
 #include "../../Utility/JsonConfig.h"
-namespace YSSCore::Editor {
+namespace YSSCore::Widgets {
 	class StyleSheetTemplatePrivate {
 		friend class StyleSheetTemplate;
 	protected:

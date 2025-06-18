@@ -1,10 +1,13 @@
 #pragma once
 #include <Editor/ProjectTemplateProvider.h>
-#include <Editor/ConfigWidget.h>
+#include <Widgets/ConfigWidget.h>
+
+class QVBoxLayout;
 class ASEAStoryPTIW :public YSSCore::Editor::ProjectTemplateInitWidget
 {
 	Q_OBJECT;
-	YSSCore::Editor::ConfigWidget* ConfigWidget;
+	YSSCore::Widgets::ConfigWidget* ConfigWidget;
+	QVBoxLayout* Layout;
 public:
 	ASEAStoryPTIW(QWidget* parent = nullptr);
 	virtual void resizeEvent(QResizeEvent* event) override;

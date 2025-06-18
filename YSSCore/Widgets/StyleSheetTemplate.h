@@ -7,7 +7,7 @@ class QWidget;
 namespace YSSCore::Utility {
 	class JsonConfig;
 }
-namespace YSSCore::Editor {
+namespace YSSCore::Widgets {
 	class StyleSheetTemplatePrivate;
 	class YSSCoreAPI StyleSheetTemplate {
 	public:

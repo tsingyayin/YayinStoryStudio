@@ -44,7 +44,7 @@
     <ClCompile Include="Editor\cpp\LangServerManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\ThemeManager.cpp">
+    <ClCompile Include="Widgets\cpp\ThemeManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utility\cpp\ExtTool.cpp">
@@ -92,7 +92,7 @@
     <ClCompile Include="Utility\cpp\CodeDiff.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\ConfigWidget.cpp">
+    <ClCompile Include="Widgets\cpp\ConfigWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="General\cpp\TranslationHost.cpp">
@@ -113,7 +113,7 @@
     <ClCompile Include="Utility\cpp\AsyncFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\StyleSheetTemplate.cpp">
+    <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\cpp\MultiButton.cpp">
@@ -229,7 +229,7 @@
     <ClInclude Include="Widgets\MultiLabel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\StyleSheetTemplate.h">
+    <ClInclude Include="Widgets\StyleSheetTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\TempFloatWidget.h">
@@ -279,7 +279,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\ThemeManager.h">
+    <QtMoc Include="Widgets\ThemeManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\EditorPlugin.h">
@@ -303,10 +303,7 @@
     <QtMoc Include="General\UpdateChain.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\ConfigWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\private\ConfigWidget_p.h">
+    <QtMoc Include="Widgets\ConfigWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\MultiButton.h">
@@ -316,6 +313,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\FileTemplateProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\private\ConfigWidget_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

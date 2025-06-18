@@ -1,7 +1,7 @@
 #include "../TextEdit.h"
 #include <QDebug>
 #include "../LangServer.h"
-#include "../ThemeManager.h"
+#include "../../Widgets/ThemeManager.h"
 #include "../LangServerManager.h"
 #include <QtWidgets/qtextbrowser.h>
 #include <QtWidgets/qboxlayout.h>

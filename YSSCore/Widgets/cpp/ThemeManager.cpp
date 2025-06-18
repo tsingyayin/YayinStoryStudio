@@ -7,7 +7,7 @@
 #include "../../Utility/FileUtility.h"
 #include "../../General/Log.h"
 
-namespace YSSCore::Editor {
+namespace YSSCore::Widgets {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
 	protected:

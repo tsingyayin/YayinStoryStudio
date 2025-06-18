@@ -5,7 +5,7 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 
-#include <Editor/ThemeManager.h>
+#include <Widgets/ThemeManager.h>
 #include <General/TranslationHost.h>
 #include <Editor/ProjectTemplateManager.h>
 #include <Editor/ProjectTemplateProvider.h>
@@ -98,10 +98,15 @@ namespace YSS::NewProjectPage {
 			return;
 		}
 		YSSCore::Editor::ProjectTemplateProvider* provider = ProviderMap[Button];
-		QWidget* initWidget = provider->projectInitWidget();
+		YSSCore::Editor::ProjectTemplateInitWidget* initWidget = provider->projectInitWidget();
 		if (initWidget != nullptr) {
-			initWidget->show();
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
+			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::closed,
+				this, &NewProjectWin::onTemplateInitWidgetClosed);
+			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::projectPrepared,
+				this, &NewProjectWin::onProjectPrepared);
+			initWidget->setWindowModality(Qt::ApplicationModal);
+			initWidget->show();
 		}
 	}
 	void NewProjectWin::closeEvent(QCloseEvent* event) {
@@ -109,5 +114,12 @@ namespace YSS::NewProjectPage {
 	}
 	void NewProjectWin::resizeEvent(QResizeEvent* event) {
 		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() - ProjectTemplateArea->verticalScrollBar()->width());
+	}
+	void NewProjectWin::onTemplateInitWidgetClosed() {
+		
+	}
+	void NewProjectWin::onProjectPrepared(QString projectPath) {
+
+		this->close();
 	}
 }

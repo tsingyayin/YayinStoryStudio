@@ -6,6 +6,10 @@ namespace YSSCore::Editor {
 	{
 
 	}
+	void ProjectTemplateInitWidget::closeEvent(QCloseEvent *event)
+	{
+		emit closed();
+	}
 	class ProjectTemplateProviderPrivate
 	{
 	public:

@@ -12,13 +12,13 @@ class QLineEdit;
 namespace YSSCore::Utility {
 	class JsonConfig;
 }
-namespace YSSCore::Editor {
+namespace YSSCore::Widgets {
 	class ConfigWidget;
 }
 namespace YSSCore::__Private__ {
 	class ConfigWidgetPrivate :public QObject{
 		Q_OBJECT;
-		friend class YSSCore::Editor::ConfigWidget;
+		friend class YSSCore::Widgets::ConfigWidget;
 	protected:
 		QString TargetConfigPath;
 		QVBoxLayout* Layout = nullptr;
