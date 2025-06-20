@@ -18,6 +18,8 @@ namespace YSSCore::Editor {
 namespace YSS::NewProjectPage {
 	class NewProjectWin :public QWidget {
 		Q_OBJECT;
+	signals:
+		void projectPrepared(QString projectPath);
 	private:
 		QLabel* TitleLabel;
 		QLabel* RecentTemplateTitle;

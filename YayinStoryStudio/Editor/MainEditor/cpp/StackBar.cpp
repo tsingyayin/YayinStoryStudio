@@ -2,18 +2,21 @@
 #include "../StackBarLabel.h"
 #include <QScrollArea>
 #include <QHBoxLayout>
-
+#include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
 	StackBar::StackBar(QWidget* parent) : QWidget(parent) {
 		ScrollArea = new QScrollArea(this);
 		ScrollArea->setWidgetResizable(true);
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-		ScrollAreaWidget = new QWidget(this);
+		ScrollAreaWidget = new QWidget(ScrollArea);
+		ScrollAreaWidget->setFixedSize(0, 0);
 		ScrollArea->setWidget(ScrollAreaWidget);
 		Layout = new QHBoxLayout(ScrollAreaWidget);
+		ScrollAreaWidget->setLayout(Layout);
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->setSpacing(0);
+		this->setStyleSheet(YSSTM->getStyleSheet("Default", this));
 	}
 
 	bool StackBar::isLabelOpened(const QString& filePath) {
@@ -21,6 +24,7 @@ namespace YSS::Editor {
 	}
 
 	bool StackBar::addLabel(StackBarLabel* label) {
+		label->setFixedWidth(200);
 		QString filePath = label->getFilePath();
 		if (LabelMap.contains(filePath)) {
 			return false;
@@ -28,6 +32,7 @@ namespace YSS::Editor {
 		LabelMap[filePath] = label;
 		OpenedFiles.append(filePath);
 		label->setParent(ScrollAreaWidget);
+		ScrollAreaWidget->setFixedSize(OpenedFiles.size() * 200, ScrollArea->height());
 		Labels.append(label);
 		Layout->insertWidget(-1, label);
 		label->show();

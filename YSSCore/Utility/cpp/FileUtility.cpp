@@ -9,6 +9,7 @@
 #include <QtCore/qdiriterator.h>
 #include <QtGui/qdesktopservices.h>
 #include <QtCore/qurl.h>
+#include <QtCore/qregularexpression.h>
 
 #define VI_ENUMSTR(enumName, enumValue) case enumName::enumValue: return #enumValue;
 
@@ -284,5 +285,47 @@ namespace YSSCore::Utility {
 	*/
 	void FileUtility::openBrowser(const QString& url) {
 		QDesktopServices::openUrl(QUrl(url));
+	}
+
+	QString FileUtility::toLegelFileName(const QString& name, const QString& replace) {
+		QString legalName = name;
+		legalName.replace(QRegularExpression("[\\\\/:*?\"<>|\\s!@$]"), replace);
+		return legalName;
+	}
+
+	bool FileUtility::isFileExist(const QString& filePath) {
+		QFile file(filePath);
+		return file.exists();
+	}
+
+	bool FileUtility::isDirExist(const QString& dirPath) {
+		QDir dir(dirPath);
+		return dir.exists();
+	}
+
+	bool FileUtility::isDirEmpty(const QString& dirPath) {
+		QDir dir(dirPath);
+		if (!dir.exists()) {
+			return false;
+		}
+		return dir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty();
+	}
+
+	bool FileUtility::createDir(const QString& dirPath) {
+		QDir dir(dirPath);
+		if (dir.exists()) {
+			return true;
+		}
+		return dir.mkpath(".");
+	}
+
+	QString FileUtility::getRelativeIfStartWith(const QString& startWith, const QString& path) {
+		if (path.startsWith(startWith)) {
+			QDir dir(startWith);
+			 return "./" + dir.relativeFilePath(path);
+		}
+		else {
+			return path;
+		}
 	}
 }

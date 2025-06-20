@@ -28,6 +28,7 @@
 		}
 	},	
 	"project":{
+		"projectManager":"项目管理器",
 		"selectToShow": "选择项目以查看详情...",
 		"noCover":"无封面",
 		"lastModifiedTime":"上次修改时间",
@@ -40,6 +41,7 @@
 		"removeFromList":"从列表中移除",
 		"createNewProject":"创建新项目",
 		"openFolder":"打开文件夹",
+		"openYSSProject": "打开YSS项目",
 		"cloneFromGit":"从Git克隆",
 		"createFromTemplate":"从模板新建",
 		"searchWithTags": "按标签搜索模板",

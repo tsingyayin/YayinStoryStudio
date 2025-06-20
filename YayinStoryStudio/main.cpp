@@ -31,8 +31,7 @@ int main(int argc, char* argv[])
 当前Yayin Story Studio并不完善，功能仍然严重缺失，无法正常作为开发环境使用。\n\
 此技术预览版本仅为您展示Yayin Story Studio非常早期的设计思路，以及基本希望拥有的功能的愿景。\n\
 敬请期待Yayin Story Studio后续的开发。");
-	msgBox.setStandardButtons(QMessageBox::Yes);
-	msgBox.setDefaultButton(QMessageBox::Cancel);
+	msgBox.setStandardButtons(QMessageBox::Ok);
 	int ret = msgBox.exec();
 	YSS::TitlePage::TitlePage titlePage;
 	titlePage.setScreen(QApplication::screenAt(QCursor::pos()));

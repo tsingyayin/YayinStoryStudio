@@ -16,7 +16,7 @@ namespace YSSCore::General {
 		virtual ~YSSProject();
 		bool loadProject(const QString& configPath);
 		bool saveProject(const QString& configPath = "");
-		void initProject(const QString& folder, const QString& name);
+		bool initProject(const QString& folder, const QString& name);
 		QString getProjectName();
 		QString getProjectDescription();
 		QString getProjectDebugServerID();
@@ -27,6 +27,10 @@ namespace YSSCore::General {
 		QDateTime getProjectLastModifyTime();
 		Version getProjectVersion();
 		YSSCore::Utility::JsonConfig* getProjectConfig();
+		QStringList getEditorOpenedFiles(); // return all in absolute path
+		void addEditorOpenedFile(const QString& abs_filePath);
+		void removeEditorOpenedFile(const QString& abs_filePath);
+		void removeAllEditorOpenedFiles();
 		void refreshLastModifyTime();
 		
 	private:

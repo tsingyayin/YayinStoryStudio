@@ -12,7 +12,7 @@
 
 namespace YSSCore::__Private__ {
 
-	ConfigWidgetPrivate::ConfigWidgetPrivate(QWidget* self) {
+	ConfigWidgetPrivate::ConfigWidgetPrivate(YSSCore::Widgets::ConfigWidget* self) {
 		this->self = self;
 		this->Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
@@ -167,13 +167,13 @@ namespace YSSCore::__Private__ {
 			MultiLabel->setPixmap(QPixmap(iconPath));
 		}
 		MultiLabel->setAlignment(Qt::AlignLeft);
-		MultiLabel->setFixedHeight(80);
+		//MultiLabel->setFixedHeight(80);
 		SettingLayout->addWidget(MultiLabel);
-		SettingLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		SettingLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum));
 		if (config.contains("data")) {
 			YSSCore::Utility::JsonConfig selfConfig = config.getObject("data");
 			QWidget* target = widgetRouter(type, node, selfConfig);
-			target->setMinimumWidth(300);
+			target->setMinimumWidth(200);
 			if (target != nullptr) {
 				target->setParent(SettingFrame);
 				SettingLayout->addWidget(target);
@@ -247,6 +247,7 @@ namespace YSSCore::__Private__ {
 			LineEdit->setParent(container);
 			layout->addWidget(LineEdit);
 			QPushButton* selectButton = new QPushButton(container);
+			selectButton->setText(YSSTR("YSSCore::general.preview"));
 			layout->addWidget(selectButton);
 			connect(selectButton, &QPushButton::clicked, [=]() {
 				QString folder = QFileDialog::getExistingDirectory(container,
@@ -274,6 +275,7 @@ namespace YSSCore::__Private__ {
 		if (Config != nullptr) {
 			Config->setString(node, data);
 		}
+		emit self->comboBoxIndexChanged(node, index, data);
 	}
 	void ConfigWidgetPrivate::onRadioButtonChanged(bool checked) {
 		QObject* obj = sender();
@@ -281,6 +283,7 @@ namespace YSSCore::__Private__ {
 		if (Config != nullptr) {
 			Config->setBool(node, checked);
 		}
+		emit self->radioButtonChanged(node, checked);
 	}
 	void ConfigWidgetPrivate::onLineEditTextChanged(QString str) {
 		QObject* obj = sender();
@@ -288,6 +291,7 @@ namespace YSSCore::__Private__ {
 		if (Config != nullptr) {
 			Config->setString(node, str);
 		}
+		emit self->lineEditTextChanged(node, str);
 	}
 	
 }
@@ -389,5 +393,9 @@ namespace YSSCore::Widgets {
 	*/
 	void ConfigWidget::loadCWJson(const QString& json) {
 		d->loadCWJson(json);
+	}
+
+	YSSCore::Utility::JsonConfig* ConfigWidget::getConfig() {
+		return d->Config;
 	}
 }

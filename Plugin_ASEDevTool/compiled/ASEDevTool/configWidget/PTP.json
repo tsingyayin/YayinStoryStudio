@@ -10,7 +10,7 @@
 			"text": "",
 			"children":[
 				{
-					"node": "ProjectPath",
+					"node": "Path",
 					"type": "LineEdit",
 					"icon": "",
 					"title": "i18n:ASEDevTool::provider.project.path.title",
@@ -21,7 +21,7 @@
 					}
 				},
 				{
-					"node": "ProjectName",
+					"node": "Name",
 					"type": "LineEdit",
 					"icon": "",
 					"title": "i18n:ASEDevTool::provider.project.name.title",

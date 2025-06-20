@@ -51,14 +51,26 @@ namespace YSSCore::General {
 		YSSCore::Utility::FileUtility::saveAll(d->ConfigPath, config);
 		return true;
 	}
-	void YSSProject::initProject(const QString& folder, const QString& name) {
+	bool YSSProject::initProject(const QString& folder, const QString& name) {
+		QDir dir(folder);
+		if (!YSSCore::Utility::FileUtility::isDirExist(folder)) {
+			YSSCore::Utility::FileUtility::createDir(folder);
+		}
+		else {
+			if (!YSSCore::Utility::FileUtility::isDirEmpty(folder)) {
+				yError << "Project folder is not empty:" << folder;
+				return false;
+			}
+		}
 		d->ConfigPath = folder + "/project.yssp";
 		d->ProjectConfig->setString("Project.Name", name);
 		d->ProjectConfig->setString("Project.Description", "");
 		d->ProjectConfig->setString("Project.DebugServerID", "");
 		d->ProjectConfig->setString("Project.IconPath", "");
-		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		refreshLastModifyTime();
+		saveProject();
+		return true;
 	}
 	QString YSSProject::getProjectName() {
 		return d->ProjectConfig->getString("Project.Name");
@@ -93,5 +105,38 @@ namespace YSSCore::General {
 	}
 	void YSSProject::refreshLastModifyTime() {
 		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+	}
+	QStringList YSSProject::getEditorOpenedFiles() {
+		QStringList files;
+		QStringList keys = d->ProjectConfig->keys("Editor.OpenedFiles");
+		for (const QString& key : keys) {
+			QString filePath = d->ProjectConfig->getString("Editor.OpenedFiles." + key);
+			if (filePath.startsWith("./")) {
+				filePath = getProjectFolder() + "/" + filePath.mid(2);
+			}
+			files.append(filePath);
+		}
+		return files;
+	}
+	void YSSProject::addEditorOpenedFile(const QString& filePath) {
+		QStringList files = getEditorOpenedFiles();
+		if (files.contains(filePath)) {
+			yMessage << "File already opened in editor:" << filePath;
+			return;
+		}
+		QString relativePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
+		d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), relativePath);
+	}
+	void YSSProject::removeEditorOpenedFile(const QString& filePath) {
+		QStringList files = getEditorOpenedFiles();
+		QString relativePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
+		if (!files.contains(relativePath)) {
+			yMessage << "File not opened in editor:" << relativePath;
+			return;
+		}
+		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(relativePath)));
+	}
+	void YSSProject::removeAllEditorOpenedFiles() {
+		d->ProjectConfig->remove("Editor.OpenedFiles");
 	}
 } 

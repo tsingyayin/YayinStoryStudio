@@ -27,8 +27,8 @@ namespace YSSCore::__Private__ {
 		QMap<QRadioButton*, bool> RadioButtonDefault;
 		QMap<QLineEdit*, QString> LineEditDefault;
 		QList<QWidget*> Settings;
-		QWidget* self;
-		ConfigWidgetPrivate(QWidget* self);
+		YSSCore::Widgets::ConfigWidget* self;
+		ConfigWidgetPrivate(YSSCore::Widgets::ConfigWidget* self);
 		~ConfigWidgetPrivate();
 		void loadCWJson(const QString& json);
 		void initConfig();

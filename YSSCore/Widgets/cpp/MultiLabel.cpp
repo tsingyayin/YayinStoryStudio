@@ -18,6 +18,7 @@ namespace YSSCore::Widgets {
 		d->Title->setObjectName("TitleLabel");
 		d->Description = new QLabel(this);
 		d->Description->setObjectName("DescriptionLabel");
+		d->Description->setWordWrap(true);
 		d->Icon = new QLabel(this);
 		d->Icon->setObjectName("IconLabel");
 		d->Layout = new QGridLayout(this);
@@ -42,7 +43,9 @@ namespace YSSCore::Widgets {
 	}
 	void MultiLabel::setDescription(const QString& str) {
 		d->Description->setText(str);
-		d->Description->show();
+		if (!str.isEmpty()) {
+			d->Description->show();
+		}
 	}
 	void MultiLabel::setPixmap(const QPixmap& pixmap) {
 		d->Icon->setPixmap(pixmap);

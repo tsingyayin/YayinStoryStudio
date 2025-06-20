@@ -23,6 +23,7 @@ namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
 		this->setMinimumSize(800, 600);
+		this->setWindowTitle(YSSTR("YSS::project.projectManager"));
 		Config = new YSSCore::Utility::JsonConfig();
 		QString configAll = YSSCore::Utility::FileUtility::readAll("./resource/config/project.json");
 		Config->parse(configAll);
@@ -75,13 +76,12 @@ namespace YSS::ProjectPage {
 		int height = GlobalValue::getConfig()->getInt("Window.Project.Height");
 		
 		this->resize(width, height);
-		this->setWindowTitle("Welcome");
 		if (GlobalValue::getConfig()->getBool("Window.Project.Maximized")) {
 			this->showMaximized();
 		}
 		connect(CreateProjectButton, &QPushButton::clicked, this, &ProjectWin::onCreateProject);
 		connect(InfoWidget, &ProjectInfoWidget::removeConfirmed, this, &ProjectWin::onProjectRemoved);
-		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProject);
+		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProjectClicked);
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event){
@@ -152,13 +152,14 @@ namespace YSS::ProjectPage {
 		this->close();
 	}
 
-	void ProjectWin::onOpenProject() {
-		QString filePath = QFileDialog::getOpenFileName(this, "Open YSS Project File", "./resource/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
-		QString exePath = QDir::currentPath();
-		if (filePath.startsWith(exePath)) {
-			QDir dir(exePath);
-			filePath = "./"+dir.relativeFilePath(filePath);
+	void ProjectWin::onOpenProjectClicked() {
+		onOpenProject();
+	}
+	void ProjectWin::onOpenProject(QString filePath) {
+		if (filePath.isEmpty()) {
+			filePath = QFileDialog::getOpenFileName(this, YSSTR("YSS::project.openYSSProject"), "./resource/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		}
+		filePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(),filePath);
 		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 		bool ok = project->loadProject(filePath);
 		yDebugF << ok;
@@ -185,6 +186,7 @@ namespace YSS::ProjectPage {
 		win->setWindowModality(Qt::ApplicationModal);
 		win->show();
 		win->setAttribute(Qt::WA_DeleteOnClose);
+		connect(win, &NewProjectPage::NewProjectWin::projectPrepared, this, &ProjectWin::onOpenProject);
 	}
 	void ProjectWin::loadProject() {
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {

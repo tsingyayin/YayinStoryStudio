@@ -19,6 +19,7 @@
 		"apply":"应用",
 		"export":"导出",
 		"import":"导入",
-		"selectFolder":"选择文件夹"
+		"selectFolder":"选择文件夹",
+		"preview":"预览"
 	}
 }

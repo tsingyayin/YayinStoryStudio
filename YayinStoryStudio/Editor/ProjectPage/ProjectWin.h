@@ -1,6 +1,7 @@
 #pragma once
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qstring.h>
 
 class QLabel;
 class QScrollArea;
@@ -48,7 +49,8 @@ namespace YSS::ProjectPage {
 		void onProjectRemoved(YSSCore::General::YSSProject* project);
 		void onProjectSelected();
 		void onProjectDoubleClicked();
-		void onOpenProject();
+		void onOpenProjectClicked();
+		void onOpenProject(QString projectPath = "");
 		void onCreateProject();
 	private:
 		void loadProject();

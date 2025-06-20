@@ -17,6 +17,8 @@
 namespace YSS::NewProjectPage {
 	NewProjectWin::NewProjectWin() :QWidget() {
 		this->setMinimumSize(900, 600);
+		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
+		this->setWindowTitle(YSSTR("YSS::project.createNewProject"));
 		TitleLabel = new QLabel(this);
 		TitleLabel->setObjectName("TitleLabel");
 		TitleLabel->setFixedHeight(80);
@@ -77,6 +79,9 @@ namespace YSS::NewProjectPage {
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmap(QPixmap(provider->getTemplateIcon().pixmap(QSize(64, 64))));
+			ProviderButton->setNormalStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Normal"));
+			ProviderButton->setHoverStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Hover"));
+			ProviderButton->setPressedStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->addCustomWidget(tags);
@@ -119,7 +124,7 @@ namespace YSS::NewProjectPage {
 		
 	}
 	void NewProjectWin::onProjectPrepared(QString projectPath) {
-
+		emit projectPrepared(projectPath);
 		this->close();
 	}
 }

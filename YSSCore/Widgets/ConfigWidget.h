@@ -6,17 +6,25 @@
 namespace YSSCore::__Private__ {
 	class ConfigWidgetPrivate;
 }
+namespace YSSCore::Utility {
+	class JsonConfig;
+}
 namespace YSSCore::Widgets {
 	class ConfigWidgetPrivate;
 	class YSSCoreAPI ConfigWidget :public QFrame {
 		friend class YSSCore::__Private__::ConfigWidgetPrivate;
 		Q_OBJECT;
+	signals:
+		void radioButtonChanged(const QString& node, bool checked);
+		void comboBoxIndexChanged(const QString& node, int index, QString data);
+		void lineEditTextChanged(const QString& node, const QString& text);
 	public:
 		ConfigWidget(QWidget* parent = nullptr);
 		virtual ~ConfigWidget();
 		void loadCWJson(const QString& CWJson);
 		void resetConfig();
 		void saveConfig();
+		YSSCore::Utility::JsonConfig* getConfig();
 	private:
 		YSSCore::__Private__::ConfigWidgetPrivate* d;
 	};
