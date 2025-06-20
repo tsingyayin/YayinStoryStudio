@@ -150,5 +150,11 @@
     <Image Include="compiled\yssicon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="compiled\icon\yss_plugin.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="compiled\icon\yss_project.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

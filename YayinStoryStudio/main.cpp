@@ -20,8 +20,10 @@ int main(int argc, char* argv[])
 	for (auto p : prts) {
 		yMessage << p;
 	}
+	
 	yInfo << "Yayin Story Studio" << YSSCore::General::YayinStoryStudio::getVersion() << "(ABI " << YSSCore::General::YayinStoryStudio::getABIVersion() << ")";
 	yNotice << "Launch arguments" << a.arguments();
+	yInfo << YSSCore::Utility::FileUtility::getProgramPath();
 	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
 	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";
 	qRegisterMetaType<YSSCore::Editor::DebugFailedData>("YSSCore::Editor::DebugFailedData");

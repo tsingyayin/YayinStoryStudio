@@ -9,8 +9,8 @@
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
 #include "../../../test_main.h"
-
-
+#include <QtCore/qdir.h>
+#include <Utility/FileUtility.h>
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
@@ -38,8 +38,12 @@ namespace YSS::TitlePage {
 		QFont font(hosFont);
 		qApp->setFont(font);
 
-		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library");
-		//YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template");
+		YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template",
+			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,0");
+		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library", 
+			YSSCore::Utility::FileUtility::getProgramPath()+"/YayinStoryStudio.exe,1");
+		YSSCore::Utility::ExtTool::registerFileExtension("yssp", "YSS Project",
+			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 		auto end = std::chrono::high_resolution_clock::now();

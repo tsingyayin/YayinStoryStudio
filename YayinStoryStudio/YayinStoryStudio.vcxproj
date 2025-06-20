@@ -154,6 +154,8 @@
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="compiled\icon\yss_plugin.ico" />
+    <Image Include="compiled\icon\yss_project.ico" />
     <Image Include="compiled\yssicon.ico" />
     <Image Include="compiled\yssicon.png" />
   </ItemGroup>

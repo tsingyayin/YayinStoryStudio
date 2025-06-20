@@ -10,6 +10,7 @@
 #include <QtGui/qdesktopservices.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qcoreapplication.h>
 
 #define VI_ENUMSTR(enumName, enumValue) case enumName::enumValue: return #enumValue;
 
@@ -327,5 +328,10 @@ namespace YSSCore::Utility {
 		else {
 			return path;
 		}
+	}
+
+	QString FileUtility::getProgramPath() {
+		QFileInfo fileInfo(QCoreApplication::applicationFilePath());
+		return fileInfo.absolutePath();
 	}
 }
