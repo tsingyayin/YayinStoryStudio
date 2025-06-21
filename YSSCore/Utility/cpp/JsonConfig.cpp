@@ -33,7 +33,7 @@ namespace YSSCore::Utility {
 				}
 			}
 			else {
-				for (int i = 1; i < keys.size() - 1; i++) {
+				for (int i = 1; i < keys.size() ; i++) {
 					if (value.isObject()) {
 						value = value.toObject()[keys[i]];
 					}
@@ -109,6 +109,21 @@ namespace YSSCore::Utility {
 			}
 		}
 		QJsonValue setValue(QStringList* nameList, QStringList::iterator* it, QJsonValue val, const QJsonValue& var) {
+			if (!val.toObject().contains(*(*it))) {
+				if (nameList->end() != (*it)+1) {
+					QString nextkey = *((*it)+1);
+					bool ok = false;
+					int index = nextkey.toInt(&ok);
+					QJsonObject obj = val.toObject();
+					if (ok) {
+						obj.insert(*(*it), QJsonArray());
+					}
+					else {
+						obj.insert(*(*it), QJsonValue());
+					}
+					val = obj;
+				}
+			}
 			if (*it == nameList->end() - 1) {
 				if (val.isArray()) {
 					QJsonArray arr = val.toArray();

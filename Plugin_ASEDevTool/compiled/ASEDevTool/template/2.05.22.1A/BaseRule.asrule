@@ -1,0 +1,16 @@
+__charname__	__text__/__isaddition__/__nochangeslot__/__staytime__/__interval__
+背景：__bgname__/__fadeintime__/__startpos__/__endpos__/__movetime__/__movecurve__/__isblock__
+音乐：__msname__/__introname__/__volume__/__slot__/__changetime__
+音效：__sdname__/__volume__/__iscv__
+遮罩：__cover__
+--__pcname__/__slot__/__diff__/__ishide__/__fadeintime__/__fadeouttime__/__isblock__/__startpos__/__endpos__/__movetime__/__movecurve__
+闪烁：__color__/__fadeintime__/__staytime__/__fadeouttime__/__isblock__
+特效：__name__/__lifestep__/__pos__/__simulationspeed__
+抖动：__force__/__fadeintime__/__staytime__/__fadeouttime__/__isblock__
+滤镜：__filterid__/__force__/__fadeintime__
++__waittime__
+选项：__optionA__/__optionB__/__optionC__
+前往：__sign__/__customparam__
+标记：__sign__/__customparams__
+自由文本：__text__/__showall__/__isItalic__/__fadeintime__/__fadeouttime__/__staytime__/__pos__/__isaddition__/__slot__/__interval__
+通讯：__ison__/__pcname__/__diff__/__ishide__/__pos__/__slot__/__style__

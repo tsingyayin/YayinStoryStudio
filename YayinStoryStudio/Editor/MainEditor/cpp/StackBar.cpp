@@ -3,6 +3,8 @@
 #include <QScrollArea>
 #include <QHBoxLayout>
 #include <Widgets/ThemeManager.h>
+#include "../../GlobalValue.h"
+#include <General/YSSProject.h>
 namespace YSS::Editor {
 	StackBar::StackBar(QWidget* parent) : QWidget(parent) {
 		ScrollArea = new QScrollArea(this);
@@ -43,6 +45,7 @@ namespace YSS::Editor {
 		connect(label, &StackBarLabel::labelClicked, this, &StackBar::focus);
 		connect(label, &StackBarLabel::closeReady, this, &StackBar::removeLabel);
 		ActiveLabel = label;
+		YSS::GlobalValue::getCurrentProject()->addEditorOpenedFile(filePath);
 		emit stackBarLabelChanged(label);
 		return true;
 	}
@@ -58,6 +61,7 @@ namespace YSS::Editor {
 				ActiveLabel->setState(StackBarLabel::State::Normal);
 			}
 			ActiveLabel = label;
+			YSS::GlobalValue::getCurrentProject()->setFocusedFile(filePath);
 			emit stackBarLabelChanged(label);
 		}
 	}
@@ -71,6 +75,7 @@ namespace YSS::Editor {
 			ActiveLabel->setState(StackBarLabel::State::Normal);
 		}
 		ActiveLabel = label;
+		YSS::GlobalValue::getCurrentProject()->setFocusedFile(label->getFilePath());
 		emit stackBarLabelChanged(label);
 	}
 	void StackBar::resizeEvent(QResizeEvent* event) {
@@ -102,6 +107,8 @@ namespace YSS::Editor {
 			OpenedFiles.removeAll(label->getFilePath());
 			Labels.removeAll(label);
 			Layout->removeWidget(label);
+			YSS::GlobalValue::getCurrentProject()->removeEditorOpenedFile(label->getFilePath());
+			ScrollAreaWidget->setFixedSize(OpenedFiles.size() * 200, ScrollArea->height());
 			label->deleteLater();
 			emit stackBarLabelChanged(ActiveLabel);
 		}

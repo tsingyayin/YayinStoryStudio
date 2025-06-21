@@ -2,5 +2,8 @@
     <qresource prefix="/plugin">
         <file>compiled/ASEDevTool/i18n/zh_CN.json</file>
         <file>compiled/ASEDevTool/configWidget/PTP.json</file>
+        <file>compiled/ASEDevTool/template/2.05.22.1A/Base.aschar</file>
+        <file>compiled/ASEDevTool/template/2.05.22.1A/BaseRule.asrule</file>
+        <file>compiled/ASEDevTool/template/2.05.22.1A/main.astory</file>
     </qresource>
 </RCC>

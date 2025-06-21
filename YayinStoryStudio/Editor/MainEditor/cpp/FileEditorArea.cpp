@@ -33,6 +33,11 @@ namespace YSS::Editor {
 		StackBarLabel* label = new StackBarLabel(widget->getFileName(), widget->getFilePath(), widget);
 		Bar->addLabel(label);
 	}
+	void FileEditorArea::focusOn(const QString& filePath) {
+		if (Bar->isLabelOpened(filePath)) {
+			Bar->focusOn(filePath);
+		}
+	}
 	void FileEditorArea::onStackBarLabelChanged(StackBarLabel* label) {
 		ActiveWidget->hide();
 		Layout->removeWidget(ActiveWidget);

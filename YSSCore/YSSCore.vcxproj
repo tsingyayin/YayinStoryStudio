@@ -203,7 +203,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -302,7 +302,7 @@
     <ClInclude Include="Editor\LangServer.h" />
     <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Widgets\ThemeManager.h" />
-    <ClInclude Include="Editor\DebugServer.h" />
+    <QtMoc Include="Editor\DebugServer.h" />
     <QtMoc Include="Editor\EditorPlugin.h" />
     <QtMoc Include="Editor\ProjectTemplateProvider.h" />
     <ClInclude Include="Editor\ProjectTemplateManager.h" />

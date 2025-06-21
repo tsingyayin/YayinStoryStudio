@@ -42,6 +42,12 @@ namespace YSS::Editor {
 		this->applyStyleSheet();
 		GlobalValue::getCurrentProject()->refreshLastModifyTime();
 		GlobalValue::getCurrentProject()->saveProject();
+		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
+		for (const QString& filePath : openedFiles) {
+			YSSFSM->openFile(filePath);
+		}
+		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
+		Editor->focusOn(focusedFile);
 	}
 
 	void MainWin::initMenu() {

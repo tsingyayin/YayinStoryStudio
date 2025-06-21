@@ -7,6 +7,9 @@ class QHBoxLayout;
 class QPushButton;
 class QLabel;
 
+namespace YSSCore::General {
+	class YSSProject;
+}
 class ASEAStoryPTIW :public YSSCore::Editor::ProjectTemplateInitWidget
 {
 	Q_OBJECT;
@@ -23,6 +26,7 @@ public:
 public slots:
 	void onLineEditTextChanged(const QString& node, const QString& str);
 	void onCreateButtonClicked();
+	void initResourceV2_05_22_1A(YSSCore::General::YSSProject* project);
 private:
 	void refreshWhereLabel();
 };

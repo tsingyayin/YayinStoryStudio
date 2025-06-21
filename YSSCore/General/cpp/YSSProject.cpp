@@ -116,12 +116,13 @@ namespace YSSCore::General {
 			}
 			files.append(filePath);
 		}
+		yDebugF << keys;
+		yDebugF << files;
 		return files;
 	}
 	void YSSProject::addEditorOpenedFile(const QString& filePath) {
 		QStringList files = getEditorOpenedFiles();
 		if (files.contains(filePath)) {
-			yMessage << "File already opened in editor:" << filePath;
 			return;
 		}
 		QString relativePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
@@ -131,10 +132,27 @@ namespace YSSCore::General {
 		QStringList files = getEditorOpenedFiles();
 		QString relativePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
 		if (!files.contains(relativePath)) {
-			yMessage << "File not opened in editor:" << relativePath;
 			return;
 		}
 		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(relativePath)));
+	}
+	void YSSProject::setFocusedFile(const QString& abs_filePath) {
+		if (!YSSCore::Utility::FileUtility::isFileExist(abs_filePath)) {
+			yError << "File not exist:" << abs_filePath;
+			return;
+		}
+		QString relativePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), abs_filePath);
+		d->ProjectConfig->setString("Editor.FocusedFile", relativePath);
+	}
+	QString YSSProject::getFocusedFile() {
+		QString relativePath = d->ProjectConfig->getString("Editor.FocusedFile");
+		if (relativePath.isEmpty()) {
+			return QString();
+		}
+		if (relativePath.startsWith("./")) {
+			relativePath = getProjectFolder() + "/" + relativePath.mid(2);
+		}
+		return relativePath;
 	}
 	void YSSProject::removeAllEditorOpenedFiles() {
 		d->ProjectConfig->remove("Editor.OpenedFiles");

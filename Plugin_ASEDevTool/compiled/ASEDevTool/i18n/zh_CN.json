@@ -39,7 +39,7 @@
 				"title": "项目路径",
 				"text": "一个新的项目文件夹会被创建在此路径下"
 			},
-			"aseversion":{
+			"version":{
 				"title": "目标ASE版本",
 				"text": "默认只用最新的ASE版本。如果需要使用特定的旧版ASE，请在插件设置中关联相关版本。",
 				"uptodate": "最新版本"

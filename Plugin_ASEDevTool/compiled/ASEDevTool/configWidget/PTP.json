@@ -31,20 +31,20 @@
 					}
 				},
 				{
-					"node": "ASEVersion",
+					"node": "Version",
 					"type": "ComboBox",
 					"icon": "",
-					"title": "i18n:ASEDevTool::provider.project.aseversion.title",
-					"text": "i18n:ASEDevTool::provider.project.aseversion.text",
+					"title": "i18n:ASEDevTool::provider.project.version.title",
+					"text": "i18n:ASEDevTool::provider.project.version.text",
 					"data": {
 						"comboBox": [
 							{
 								"data": "uptodate",
-								"key": "i18n:ASEDevTool::provider.project.aseversion.uptodate"
+								"key": "i18n:ASEDevTool::provider.project.version.uptodate"
 							},
 							{
-								"data": "2.05.22.1alpha",
-								"key": "2.05.22.1alpha"
+								"data": "2.05.22.1A",
+								"key": "2.05.22.1A"
 							}
 						],
 						"default": "uptodate"

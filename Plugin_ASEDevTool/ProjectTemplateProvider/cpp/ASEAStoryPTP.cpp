@@ -18,7 +18,7 @@ ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	Layout = new QVBoxLayout(this);
 	Layout->setContentsMargins(0, 0, 0, 0);
 	Layout->addWidget(ConfigWidget);
-	ButtonLayout = new QHBoxLayout(this);
+	ButtonLayout = new QHBoxLayout();
 	ButtonLayout->setContentsMargins(10, 0, 10, 0);
 	Layout->addLayout(ButtonLayout);
 	WhereLabel = new QLabel(this);
@@ -57,6 +57,18 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 	if (ok) {
 		project.getProjectConfig()->setString("Project.DebugServerID", "ASEDevTool_ASE");
 		project.saveProject();
+		QString projectFolder = project.getProjectFolder();
+		if (config->getString("Project.Version") == "2.05.22.1A" || config->getString("Project.Version") == "uptodate") {
+			initResourceV2_05_22_1A(&project);
+		}
+		else {
+			QMessageBox msgBox;
+			msgBox.setWindowTitle(YSSTR("ASEDevTool::provider.version.unsupported.title"));
+			msgBox.setText(YSSTR("ASEDevTool::provider.version.unsupported.text").arg(config->getString("Project.Version")));
+			msgBox.setStandardButtons(QMessageBox::Ok);
+			int ret = msgBox.exec();
+			return;
+		}
 		emit projectPrepared(project.getProjectPath());
 		close();
 	}
@@ -67,6 +79,32 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 		msgBox.setStandardButtons(QMessageBox::Ok);
 		int ret = msgBox.exec();
 	}
+}
+void ASEAStoryPTIW::initResourceV2_05_22_1A(YSSCore::General::YSSProject* project) {
+	project->getProjectConfig()->setString("ASEDevTool.ASEVersion", "2.05.22.1A");
+	QStringList folders = {
+			"/Resources/Audio",
+			"/Resources/BGP",
+			"/Resources/Char",
+			"/Resources/Char_Spine",
+			"/Rules/CharNameConnect",
+			"/Rules/StoryExplainer",
+			"/Stories"
+	};
+	QString projectFolder = project->getProjectFolder();
+	for (const QString& folder : folders) {
+		YSSCore::Utility::FileUtility::createDir(projectFolder + folder);
+	}
+	QString Base_aschar = YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/Base.aschar");
+	QString BaseRule_asrule = YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/BaseRule.asrule");
+	QString main_astory = YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/main.astory");
+	main_astory = main_astory.replace("$(ProjectName)", project->getProjectName());
+	YSSCore::Utility::FileUtility::saveAll(projectFolder + "/Rules/CharNameConnect/Base.aschar", Base_aschar);
+	YSSCore::Utility::FileUtility::saveAll(projectFolder + "/Rules/StoryExplainer/BaseRule.asrule", BaseRule_asrule);
+	YSSCore::Utility::FileUtility::saveAll(projectFolder + "/Stories/main.astory", main_astory);
+	project->addEditorOpenedFile(projectFolder + "/Stories/main.astory");
+	project->setFocusedFile(projectFolder + "/Stories/main.astory");
+	project->saveProject();
 }
 void ASEAStoryPTIW::refreshWhereLabel() {
 	QString completePath = ProjectPath + "/" + YSSCore::Utility::FileUtility::toLegelFileName(ProjectName);

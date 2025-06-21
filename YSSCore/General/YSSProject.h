@@ -31,6 +31,8 @@ namespace YSSCore::General {
 		void addEditorOpenedFile(const QString& abs_filePath);
 		void removeEditorOpenedFile(const QString& abs_filePath);
 		void removeAllEditorOpenedFiles();
+		void setFocusedFile(const QString& abs_filePath);
+		QString getFocusedFile(); // return absolute path
 		void refreshLastModifyTime();
 		
 	private:
