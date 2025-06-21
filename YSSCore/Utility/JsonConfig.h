@@ -31,6 +31,7 @@ namespace YSSCore::Utility {
 		double getDouble(const QString& key = "", bool* ok = nullptr);
 		JsonConfig getObject(const QString& key = "", bool* ok = nullptr);
 		QList<JsonConfig> getArray(const QString& key = "", bool* ok = nullptr);
+		QStringList getStringList(const QString& key = "", bool* ok = nullptr);
 		bool contains(const QString& key);
 		void setValue(const QString& key, const QJsonValue& value);
 		void setInt(const QString& key, qint64 value);
@@ -39,6 +40,8 @@ namespace YSSCore::Utility {
 		void setDouble(const QString& key, double value);
 		void setObject(const QString& key, const JsonConfig& value);
 		void setArray(const QString& key, const QList<JsonConfig>& value);
+		void setArray(const QString& key, const QStringList& value);
+		void setStringList(const QString& key, const QStringList& value);
 		bool isEmpty(const QString& key = "");
 		bool isNull(const QString& key = "");
 		bool isObject(const QString& key = "");

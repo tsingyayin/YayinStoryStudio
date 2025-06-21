@@ -466,6 +466,24 @@ namespace YSSCore::Utility {
 	/*!
 		\since YSSCore 0.13.0
 		\a key 为键。
+		获取Json对象的字符串列表。
+	*/
+	QStringList JsonConfig::getStringList(const QString& key, bool* ok)
+	{
+		if (ok != nullptr) {
+			*ok = d->contains(key);
+		}
+		QStringList list;
+		QJsonArray array = d->getValue(key).toArray();
+		for (const QJsonValue& value : array) {
+			list.append(value.toString());
+		}
+		return list;
+	}
+
+	/*!
+		\since YSSCore 0.13.0
+		\a key 为键。
 		判断Json对象是否包含指定的键。
 	*/
 	bool JsonConfig::contains(const QString& key)
@@ -558,6 +576,27 @@ namespace YSSCore::Utility {
 		}
 		QJsonValue v(array);
 		d->setValue(key, v);
+	}
+
+	/*!
+		\since YSSCore 0.13.0
+		\a key 为键。
+		\a value 为字符串列表。
+		设置Json对象的字符串列表。
+	*/
+	void JsonConfig::setArray(const QString& key, const QStringList& value)
+	{
+		QJsonArray array;
+		for (const QString& str : value) {
+			array.append(QJsonValue(str));
+		}
+		QJsonValue v(array);
+		d->setValue(key, v);
+	}
+
+	void JsonConfig::setStringList(const QString& key, const QStringList& value)
+	{
+		setArray(key, value);
 	}
 
 	/*!

@@ -194,6 +194,7 @@ namespace YSS::ProjectPage {
 			project = nullptr;
 		}
 		HistoryProjectList.clear();
+		QStringList okProjects;
 		for (QString key : Config->keys("Project")) {
 			QString projectPath = Config->getString("Project." + key);
 			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
@@ -203,9 +204,11 @@ namespace YSS::ProjectPage {
 				continue;
 			}
 			else {
+				okProjects.append(projectPath);
 				HistoryProjectList.append(project);
 			}
 		}
+		Config->setArray("Project", okProjects);
 		std::sort(HistoryProjectList.begin(), HistoryProjectList.end(), [](YSSCore::General::YSSProject* a, YSSCore::General::YSSProject* b) {
 			return a->getProjectLastModifyTime() > b->getProjectLastModifyTime();
 			});
