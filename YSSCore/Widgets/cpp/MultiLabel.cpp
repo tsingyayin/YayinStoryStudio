@@ -83,7 +83,7 @@ namespace YSSCore::Widgets {
 		d->Layout->addWidget(widget, 2, 1, 1, 1);
 		d->CustomWidget->show();
 	}
-	QWidget* MultiLabel::getCustomWidget(){
+	QWidget* MultiLabel::getCustomWidget() {
 		return d->CustomWidget;
 	}
 }

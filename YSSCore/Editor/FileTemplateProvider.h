@@ -9,7 +9,8 @@ namespace YSSCore::Editor {
 	class YSSCoreAPI FileTemplateInitWidget :public QFrame {
 		Q_OBJECT;
 	signals:
-		void filePrepared();
+		void filePrepared(QString filePath);
+		void closed();
 	public:
 		FileTemplateInitWidget(QWidget* parent = nullptr);
 	};

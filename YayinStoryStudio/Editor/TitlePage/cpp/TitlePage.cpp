@@ -40,8 +40,8 @@ namespace YSS::TitlePage {
 
 		YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template",
 			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,0");
-		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library", 
-			YSSCore::Utility::FileUtility::getProgramPath()+"/YayinStoryStudio.exe,1");
+		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library",
+			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,1");
 		YSSCore::Utility::ExtTool::registerFileExtension("yssp", "YSS Project",
 			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();

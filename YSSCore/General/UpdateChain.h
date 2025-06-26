@@ -25,7 +25,7 @@ namespace YSSCore::General {
 	protected:
 		UpdateChainNodePrivate* d;
 	};
-	
+
 	class YSSCoreAPI UpdateChain :public QObject {
 		Q_OBJECT;
 

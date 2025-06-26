@@ -45,7 +45,7 @@ namespace YSSCore::Widgets {
 		setStyleSheet(d->NormalStyleSheet);
 	}
 	void MultiButton::mouseDoubleClickEvent(QMouseEvent* event) {
-		emit doubleClicked();	
+		emit doubleClicked();
 	}
 	void MultiButton::enterEvent(QEnterEvent* event) {
 		MultiLabel::enterEvent(event);

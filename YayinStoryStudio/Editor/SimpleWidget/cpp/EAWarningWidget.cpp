@@ -4,7 +4,7 @@
 #include <QtWidgets/qboxlayout.h>
 
 namespace YSS::SimpleWidget {
-	EAWarningWidget::EAWarningWidget() :QWidget(){
+	EAWarningWidget::EAWarningWidget() :QWidget() {
 		Title = new QLabel(this);
 		Description = new QLabel(this);
 		OkButton = new QPushButton(this);
@@ -18,6 +18,5 @@ namespace YSS::SimpleWidget {
 		Description->setWordWrap(true);
 	}
 	void EAWarningWidget::closeEvent(QCloseEvent* event) {
-	
 	}
 }

@@ -34,7 +34,8 @@ namespace YSSCore::General {
 		void setFocusedFile(const QString& abs_filePath);
 		QString getFocusedFile(); // return absolute path
 		void refreshLastModifyTime();
-		
+		static YSSProject* getCurrentProject();
+		static void setCurrentProject(YSSProject* project);
 	private:
 		YSSProjectPrivate* d;
 	};

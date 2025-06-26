@@ -31,7 +31,6 @@ private:
 	void refreshWhereLabel();
 };
 
-
 class ASEAStoryPTP : public YSSCore::Editor::ProjectTemplateProvider
 {
 public:

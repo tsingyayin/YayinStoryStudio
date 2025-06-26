@@ -5,12 +5,12 @@
 
 class YSSInstaller : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    YSSInstaller(QWidget *parent = nullptr);
-    ~YSSInstaller();
+	YSSInstaller(QWidget* parent = nullptr);
+	~YSSInstaller();
 
 private:
-    Ui::YSSInstallerClass ui;
+	Ui::YSSInstallerClass ui;
 };

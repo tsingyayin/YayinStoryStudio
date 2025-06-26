@@ -14,7 +14,7 @@ ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	this->setMinimumWidth(800);
 	this->setWindowTitle(YSSTR("ASEDevTool::provider.window.title"));
 	ConfigWidget = new YSSCore::Widgets::ConfigWidget(this);
-	ConfigWidget->loadCWJson(YSSCore::Utility::FileUtility::readAll( ":/plugin/compiled/ASEDevTool/configWidget/PTP.json"));
+	ConfigWidget->loadCWJson(YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/configWidget/PTP.json"));
 	Layout = new QVBoxLayout(this);
 	Layout->setContentsMargins(0, 0, 0, 0);
 	Layout->addWidget(ConfigWidget);
@@ -116,11 +116,10 @@ void ASEAStoryPTIW::refreshWhereLabel() {
 		WhereLabel->setText(YSSTR("ASEDevTool::provider.window.exists").arg(completePath));
 		CreateButton->setEnabled(false);
 	}
-	
 }
-ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin):ProjectTemplateProvider(plugin)
+ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :ProjectTemplateProvider(plugin)
 {
-	setTemplateIcon(QIcon(":/plugin/compiled/ASEDevTool/icon/provider.png"));
+	setTemplateIcon(QImage(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png"));
 	setTemplateID("ASEAStoryProject");
 	setTemplateName(YSSTR("ASEDevTool::provider.astory.name"));
 	setTemplateDescription(YSSTR("ASEDevTool::provider.astory.description"));
@@ -134,6 +133,6 @@ ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin):ProjectTemplat
 	// Constructor implementation
 }
 
-YSSCore::Editor::ProjectTemplateInitWidget* ASEAStoryPTP::projectInitWidget(){
+YSSCore::Editor::ProjectTemplateInitWidget* ASEAStoryPTP::projectInitWidget() {
 	return new ASEAStoryPTIW();
 }

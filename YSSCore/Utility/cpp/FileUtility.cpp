@@ -56,7 +56,7 @@ namespace YSSCore::Utility {
 			}
 		}
 	};
-	/*! 
+	/*!
 		\class YSSCore::Utility::FileUtility
 		\brief 此类为Yayin Story Studio 提供文件操作的相关函数
 		\since Yayin Story Studio 0.13.0
@@ -95,7 +95,7 @@ namespace YSSCore::Utility {
 		\value Y 尧
 	*/
 
-	/*! 
+	/*!
 		\a filePath 文件路径
 		\since Yayin Story Studio 0.13.0
 		读取文件的每一行，并返回一个QStringList
@@ -115,7 +115,7 @@ namespace YSSCore::Utility {
 		file.close();
 		return rtn;
 	}
-	/*! 
+	/*!
 		\a filePath 文件路径
 		\since Yayin Story Studio 0.13.0
 		读取文件的所有内容，并返回一个QString
@@ -132,7 +132,7 @@ namespace YSSCore::Utility {
 		file.close();
 		return rtn;
 	}
-	/*! 
+	/*!
 		\a filePath 文件路径
 		\since Yayin Story Studio 0.13.0
 		读取文件的所有内容，并返回一个QByteArray
@@ -147,7 +147,7 @@ namespace YSSCore::Utility {
 		file.close();
 		return rtn;
 	}
-	/*! 
+	/*!
 		\a filePath 文件路径
 		\a data 需要保存的数据
 		\a joinLine 行连接符
@@ -174,7 +174,7 @@ namespace YSSCore::Utility {
 		ts << content;
 		file.close();
 	}
-	/*! 
+	/*!
 		\a filePath 文件路径
 		\a data 需要保存的数据
 		\since Yayin Story Studio 0.13.0
@@ -199,7 +199,7 @@ namespace YSSCore::Utility {
 		ts << data;
 		file.close();
 	}
-	/*! 
+	/*!
 		\a filePath 文件路径
 		\a data 需要保存的数据
 		\since Yayin Story Studio 0.13.0
@@ -223,7 +223,7 @@ namespace YSSCore::Utility {
 		file.close();
 	}
 
-	/*! 
+	/*!
 		\a root 根目录
 		\a exts 文件扩展名
 		\a considerSubFolder 是否考虑子目录
@@ -242,7 +242,7 @@ namespace YSSCore::Utility {
 		return files;
 	}
 
-	/*! 
+	/*!
 		\a root 根目录
 		\since Yayin Story Studio 0.13.0
 		获取指定目录下的文件大小，返回一个qint64，单位为字节。
@@ -259,7 +259,7 @@ namespace YSSCore::Utility {
 		return s;
 	}
 
-	/*! 
+	/*!
 		\a bytes 字节数
 		\a u 单位
 		\a f 格式
@@ -270,7 +270,7 @@ namespace YSSCore::Utility {
 		return FileUtilityPrivate::getReadableSize(bytes, u, CountingUnit::_0, f);
 	}
 
-	/*! 
+	/*!
 		\a path 路径
 		\since Yayin Story Studio 0.13.0
 		打开指定路径的资源管理器。
@@ -279,7 +279,7 @@ namespace YSSCore::Utility {
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 	}
 
-	/*! 
+	/*!
 		\a url 链接
 		\since Yayin Story Studio 0.13.0
 		打开指定链接的浏览器。
@@ -323,7 +323,7 @@ namespace YSSCore::Utility {
 	QString FileUtility::getRelativeIfStartWith(const QString& startWith, const QString& path) {
 		if (path.startsWith(startWith)) {
 			QDir dir(startWith);
-			 return "./" + dir.relativeFilePath(path);
+			return "./" + dir.relativeFilePath(path);
 		}
 		else {
 			return path;

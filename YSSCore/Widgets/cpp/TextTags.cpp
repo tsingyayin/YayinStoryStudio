@@ -33,6 +33,5 @@ namespace YSSCore::Widgets {
 	}
 
 	void TextTags::resizeEvent(QResizeEvent* event) {
-		
 	}
 }

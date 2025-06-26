@@ -11,6 +11,7 @@ namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
 	protected:
+		static YSSProject* CurrentProject;
 		YSSCore::Utility::JsonConfig* ProjectConfig = nullptr;
 		QString ConfigPath;
 	protected:
@@ -26,6 +27,9 @@ namespace YSSCore::General {
 			ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		}
 	};
+
+	YSSProject* YSSProjectPrivate::CurrentProject = nullptr;
+
 	YSSProject::YSSProject() {
 		d = new YSSProjectPrivate();
 	}
@@ -157,4 +161,14 @@ namespace YSSCore::General {
 	void YSSProject::removeAllEditorOpenedFiles() {
 		d->ProjectConfig->remove("Editor.OpenedFiles");
 	}
-} 
+	YSSProject* YSSProject::getCurrentProject() {
+		return YSSProjectPrivate::CurrentProject;
+	}
+	void YSSProject::setCurrentProject(YSSProject* project) {
+		if (YSSProjectPrivate::CurrentProject != nullptr) {
+			YSSProjectPrivate::CurrentProject->saveProject();
+			delete YSSProjectPrivate::CurrentProject;
+		}
+		YSSProjectPrivate::CurrentProject = project;
+	}
+}

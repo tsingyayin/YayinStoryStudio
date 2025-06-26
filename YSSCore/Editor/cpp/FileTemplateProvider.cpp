@@ -4,7 +4,6 @@ namespace YSSCore::Editor {
 	FileTemplateInitWidget::FileTemplateInitWidget(QWidget* parent)
 		: QFrame(parent)
 	{
-
 	}
 	class FileTemplateProviderPrivate
 	{

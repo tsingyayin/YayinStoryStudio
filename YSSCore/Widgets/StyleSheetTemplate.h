@@ -14,7 +14,7 @@ namespace YSSCore::Widgets {
 		StyleSheetTemplate();
 		~StyleSheetTemplate();
 		StyleSheetTemplate(const StyleSheetTemplate& other);
-		StyleSheetTemplate(StyleSheetTemplate&& other) noexcept; 
+		StyleSheetTemplate(StyleSheetTemplate&& other) noexcept;
 		StyleSheetTemplate& operator=(const StyleSheetTemplate& other);
 		StyleSheetTemplate& operator=(StyleSheetTemplate&& other);
 		void parse(QString& templateStr);

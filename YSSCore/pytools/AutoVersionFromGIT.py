@@ -3,7 +3,7 @@ import os
 import datetime
 
 AutoVersionFilePath = "\\YSSCore\\General\\private\\AUTO_VERSION.h"
-VersionNickName = "Technical Preview 2"
+VersionNickName = "Technical Preview 3"
 
 def getCommitCount():
     gitCommitsCount = os.popen("git log --oneline | find /v /c \"\"").read()

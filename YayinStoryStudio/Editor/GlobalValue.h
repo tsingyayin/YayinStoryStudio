@@ -39,7 +39,6 @@ namespace YSS {
 		YSS::Editor::YSSTranslator* YSSTranslator = nullptr;
 		YSSCore::General::TranslationHost* TranslationHost = nullptr;
 		YSS::Editor::MainWin* MainWindow = nullptr;
-		YSSCore::General::YSSProject* CurrentProject = nullptr;
 	public:
 		GlobalValue();
 		static GlobalValue* getInstance();

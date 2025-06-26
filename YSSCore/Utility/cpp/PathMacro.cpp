@@ -11,7 +11,7 @@ namespace YSSCore::Utility {
 		static PathMacro* Instance;
 	};
 	PathMacro* PathMacroPrivate::Instance = nullptr;
-	
+
 	PathMacro* PathMacro::getInstance() {
 		return PathMacroPrivate::Instance;
 	}
@@ -21,7 +21,7 @@ namespace YSSCore::Utility {
 		yWarningF << "PathMacro has not yet reached a stable design and may change at any time in the future. Please do not use this API";
 		addMacro("$(ProgramPath)", [](QString macro)->QString {
 			return QDir::currentPath();
-		});
+			});
 		ySuccessF << "Success !";
 	}
 	PathMacro::~PathMacro() {

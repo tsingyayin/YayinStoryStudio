@@ -9,9 +9,9 @@ namespace YSSCore::General {
 	template<typename T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, T> pointer_map) {
 		QString temp = "QMap{";
-		for (QString key: pointer_map) {
+		for (QString key : pointer_map) {
 			void* ptr = &pointer_map[key];
-			temp += " \"" % key % "\": [Object at " % QString::number(ptr,16)%"],";
+			temp += " \"" % key % "\": [Object at " % QString::number(ptr, 16) % "],";
 		}
 		temp.removeLast();
 		temp += "}";

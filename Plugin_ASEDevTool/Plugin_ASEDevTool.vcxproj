@@ -200,6 +200,7 @@
     <ClCompile Include="cpp\ASEDevTranslator.cpp" />
     <ClCompile Include="FileServer\cpp\FS_ASRule.cpp" />
     <ClCompile Include="FileServer\cpp\FS_AStory.cpp" />
+    <ClCompile Include="FileTemplateProvider\cpp\ASEAStoryFTP.cpp" />
     <ClCompile Include="LangServer\cpp\LS_AStory.cpp" />
     <ClCompile Include="LangServer\cpp\SH_AStory.cpp" />
     <ClCompile Include="main.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="DebugServer\DS_ASE.h" />
     <ClInclude Include="FileServer\FS_ASRule.h" />
     <ClInclude Include="FileServer\FS_AStory.h" />
+    <QtMoc Include="FileTemplateProvider\ASEAStoryFTP.h" />
     <ClInclude Include="LangServer\LS_AStory.h" />
     <ClInclude Include="ASEDevTranslator.h" />
     <QtMoc Include="ProjectTemplateProvider\ASEAStoryPTP.h" />

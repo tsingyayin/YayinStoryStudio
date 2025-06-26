@@ -27,8 +27,7 @@ namespace YSS::ProjectPage {
 		Config = new YSSCore::Utility::JsonConfig();
 		QString configAll = YSSCore::Utility::FileUtility::readAll("./resource/config/project.json");
 		Config->parse(configAll);
-		
-		
+
 		TitleLabel = new QLabel(this);
 		TitleLabel->setText("  Yayin Story Studio " + YSSCore::General::Version::getYSSVersion().toString());
 		TitleLabel->setObjectName("TitleLabel");
@@ -69,12 +68,12 @@ namespace YSS::ProjectPage {
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
 		this->setStyleSheet(YSSTM->getStyleSheet("ProjectWin", this));
-		
+
 		loadProject();
 
 		int width = GlobalValue::getConfig()->getInt("Window.Project.Width");
 		int height = GlobalValue::getConfig()->getInt("Window.Project.Height");
-		
+
 		this->resize(width, height);
 		if (GlobalValue::getConfig()->getBool("Window.Project.Maximized")) {
 			this->showMaximized();
@@ -84,7 +83,7 @@ namespace YSS::ProjectPage {
 		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProjectClicked);
 	}
 
-	void ProjectWin::closeEvent(QCloseEvent* event){
+	void ProjectWin::closeEvent(QCloseEvent* event) {
 		YSSCore::Utility::FileUtility::saveAll("./resource/config/project.json", Config->toString());
 		YSSCore::Utility::JsonConfig* config = GlobalValue::getConfig();
 		if (this->isMaximized()) {
@@ -122,14 +121,14 @@ namespace YSS::ProjectPage {
 			widget->deleteLater();
 		}
 		QStringList keys = Config->keys("Project");
-		for (int i = 0; i < keys.size();i++) {
+		for (int i = 0; i < keys.size(); i++) {
 			if (Config->getString("Project." + keys[i]) == project->getProjectPath()) {
 				yMessage << i;
 				Config->remove("Project." + keys[i]);
 				break;
 			}
 		}
-		
+
 		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 70);
 		delete project;
 		project = nullptr;
@@ -159,7 +158,7 @@ namespace YSS::ProjectPage {
 		if (filePath.isEmpty()) {
 			filePath = QFileDialog::getOpenFileName(this, YSSTR("YSS::project.openYSSProject"), "./resource/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		}
-		filePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(),filePath);
+		filePath = YSSCore::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(), filePath);
 		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 		bool ok = project->loadProject(filePath);
 		yDebugF << ok;

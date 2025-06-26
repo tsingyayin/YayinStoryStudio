@@ -16,14 +16,13 @@ void test_main(QApplication& a) {
 	codeDiff.compare();
 	//codeDiff.debugPrint();
 
-
 	YSSAsync<int, int, int>(
-		{ 3, 4 }, 
+		{ 3, 4 },
 		[](int a, int b)->int {
 			QThread::msleep(10000);
 			return a + b;
 		},
-		
+
 		[](int rtn) {
 			qDebug() << rtn;
 		}

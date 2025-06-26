@@ -1,10 +1,11 @@
 #include "YSSInstaller.h"
 
-YSSInstaller::YSSInstaller(QWidget *parent)
-    : QMainWindow(parent)
+YSSInstaller::YSSInstaller(QWidget* parent)
+	: QMainWindow(parent)
 {
-    ui.setupUi(this);
+	ui.setupUi(this);
 }
 
 YSSInstaller::~YSSInstaller()
-{}
+{
+}

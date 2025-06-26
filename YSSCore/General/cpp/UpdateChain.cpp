@@ -62,7 +62,7 @@ namespace YSSCore::General {
 		}
 		return *this;
 	}
-	
+
 	UpdateChain::UpdateChain(QObject* parent) : QObject(parent)
 	{
 		d = new UpdateChainPrivate;

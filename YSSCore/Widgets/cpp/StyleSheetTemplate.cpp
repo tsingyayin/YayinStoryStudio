@@ -68,7 +68,7 @@ namespace YSSCore::Widgets {
 				if (lines[i].startsWith("@")) {
 					if (lastIndex != 0) {
 						QString temp;
-						for (int j = lastIndex+1; j < i; j++) {
+						for (int j = lastIndex + 1; j < i; j++) {
 							temp += lines[j] + "\n";
 						}
 						temp.removeLast();
@@ -90,7 +90,7 @@ namespace YSSCore::Widgets {
 	}
 	QString StyleSheetTemplate::toString() {
 		QString rtn;
-		rtn += "!TemplateName: " + d->TemplateName+"\n";
+		rtn += "!TemplateName: " + d->TemplateName + "\n";
 		rtn += "------\n";
 		for (QString key : d->Templates.keys()) {
 			rtn += "@" + key + "\n";
@@ -111,7 +111,7 @@ namespace YSSCore::Widgets {
 				QStringList paras;
 				QRegularExpression reg("\\$\\([\\D\\d]+?\\)");
 				QRegularExpressionMatchIterator matchs = reg.globalMatch(temp);
-				for (auto match : matchs ) {
+				for (auto match : matchs) {
 					paras.append(match.captured());
 				}
 				for (QString para : paras) {
@@ -133,7 +133,7 @@ namespace YSSCore::Widgets {
 	QString StyleSheetTemplate::getTemplateName() {
 		return d->TemplateName;
 	}
-	QString StyleSheetTemplate::getTemplateID(){
+	QString StyleSheetTemplate::getTemplateID() {
 		return d->TemplateID;
 	}
 	void StyleSheetTemplate::setTemplateID(const QString& id) {

@@ -11,7 +11,6 @@
 #include <General/YayinStoryStudio.h>
 #include <QtWidgets/qmessagebox.h>
 
-
 int main(int argc, char* argv[])
 {
 	QApplication a(argc, argv);
@@ -20,7 +19,7 @@ int main(int argc, char* argv[])
 	for (auto p : prts) {
 		yMessage << p;
 	}
-	
+
 	yInfo << "Yayin Story Studio" << YSSCore::General::YayinStoryStudio::getVersion() << "(ABI " << YSSCore::General::YayinStoryStudio::getABIVersion() << ")";
 	yNotice << "Launch arguments" << a.arguments();
 	yInfo << YSSCore::Utility::FileUtility::getProgramPath();

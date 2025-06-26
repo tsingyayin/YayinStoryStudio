@@ -14,7 +14,7 @@ namespace YSSCore::General {
 		d->Msg += str % " ";
 	}
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QString& str) {
-		fromString("\""%str%"\"");
+		fromString("\"" % str % "\"");
 		return *this;
 	}
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(float num) {

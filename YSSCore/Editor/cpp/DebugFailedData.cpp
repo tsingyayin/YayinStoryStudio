@@ -18,7 +18,7 @@ namespace YSSCore::Editor {
 	DebugFailedData::~DebugFailedData() {
 		delete d;
 	}
-	DebugFailedData::DebugFailedData(const DebugFailedData& other) { 
+	DebugFailedData::DebugFailedData(const DebugFailedData& other) {
 		d = new DebugFailedDataPrivate;
 		d->IndexFileName = other.d->IndexFileName;
 		d->IndexFileLine = other.d->IndexFileLine;

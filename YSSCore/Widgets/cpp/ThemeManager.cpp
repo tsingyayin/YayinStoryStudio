@@ -41,7 +41,7 @@ namespace YSSCore::Widgets {
 	QString ThemeManager::getThemeName() {
 		return d->Config->getString("ThemeName");
 	}
-	QString ThemeManager::getTemplateName(){
+	QString ThemeManager::getTemplateName() {
 		return d->TemplateSS.getTemplateName();
 	}
 	QString ThemeManager::getThemeID() {

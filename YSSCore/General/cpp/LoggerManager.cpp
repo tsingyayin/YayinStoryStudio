@@ -8,7 +8,7 @@
 #include "../../Utility/Console.h"
 
 namespace YSSCore::General {
-	class LoggerManagerPrivate{
+	class LoggerManagerPrivate {
 		friend LoggerManager;
 	protected:
 		static LoggerManager* Instance;
@@ -19,19 +19,19 @@ namespace YSSCore::General {
 		quint16 current = 0;
 		QTimer Timer;
 		bool Pause = false;
-		LoggerManagerPrivate(){
+		LoggerManagerPrivate() {
 			QString birthTime = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh_mm_ss");
-			LogFile.setFileName("./resource/logs/" + birthTime+ ".yss.log");
+			LogFile.setFileName("./resource/logs/" + birthTime + ".yss.log");
 			LogFile.open(QIODevice::NewOnly | QIODevice::Text);
 			Stream = new QTextStream(&LogFile);
 			Stream->setEncoding(QStringConverter::Utf8);
 			Timer.setInterval(10000);
 			QObject::connect(&Timer, &QTimer::timeout, [this]() {
-					if (!Pause) {
-						save();
-						current = 0;
-					}
-					Pause = true;
+				if (!Pause) {
+					save();
+					current = 0;
+				}
+				Pause = true;
 				});
 			Timer.start();
 		}

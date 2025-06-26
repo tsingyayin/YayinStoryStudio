@@ -23,7 +23,7 @@ namespace YSSCore::Utility {
 		\a str 为代码行字符串。
 		CodeLine的构造函数
 	*/
-	CodeLine::CodeLine(const QString& str):DiffUnit() {
+	CodeLine::CodeLine(const QString& str) :DiffUnit() {
 		d = new CodeLinePrivate();
 		d->line = str;
 	}
@@ -71,7 +71,7 @@ namespace YSSCore::Utility {
 		DiffSequence* oldCode;
 		DiffSequence* newCode;
 	};
-	
+
 	/*!
 		\class YSSCore::Utility::CodeDiff
 		\brief 此类用于表示代码差异。
@@ -180,7 +180,7 @@ namespace YSSCore::Utility {
 		Console::print(QString("%1").arg(" ", 92, '='));
 		bool printAdd = false;
 		while (oIndex < oLength && nIndex < nLength) {
-			switch(d->oldCode->getDiffUnit(oIndex)->getDiffType()) {
+			switch (d->oldCode->getDiffUnit(oIndex)->getDiffType()) {
 			case DiffUnit::DiffType::Removed:
 				Console::print(Console::inErrorStyle(fixedLength(dynamic_cast<CodeLine*>(d->oldCode->getDiffUnit(oIndex))->getLine()))
 					+ QString("|%1%2|%3").arg(QString::number(oIndex), 8).arg(" ", 8).arg(" ", 40));
@@ -193,7 +193,7 @@ namespace YSSCore::Utility {
 				}
 				if (printAdd) {
 					while (d->newCode->getDiffUnit(nIndex)->getDiffType() == DiffUnit::DiffType::Added) {
-						Console::print(QString("%1|%2%3|").arg(" ", 40).arg(" ", 8).arg(QString::number(nIndex), 8)+
+						Console::print(QString("%1|%2%3|").arg(" ", 40).arg(" ", 8).arg(QString::number(nIndex), 8) +
 							Console::inSuccessStyle(fixedLength(dynamic_cast<CodeLine*>(d->newCode->getDiffUnit(nIndex))->getLine()))
 						);
 						nIndex++;
@@ -205,7 +205,7 @@ namespace YSSCore::Utility {
 					.arg(QString::number(oIndex), 8).arg(QString::number(nIndex), 8)
 					.arg(fixedLength(dynamic_cast<CodeLine*>(d->newCode->getDiffUnit(nIndex))->getLine())));
 				nIndex++;
-				
+
 				break;
 			}
 			oIndex++;
@@ -217,5 +217,4 @@ namespace YSSCore::Utility {
 			nIndex++;
 		}
 	}
-	
 }

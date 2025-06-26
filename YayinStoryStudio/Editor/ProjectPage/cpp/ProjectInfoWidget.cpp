@@ -38,18 +38,17 @@ namespace YSS::ProjectPage {
 		initWidget();
 	}
 
-	void ProjectInfoWidget::initWidget(){
+	void ProjectInfoWidget::initWidget() {
 		Project = nullptr;
 		CoverLabel->setText(YSSTR("YSS::project.noCover"));
 		TitleLabel->setText(YSSTR("YSS::project.selectToShow"));
-		CreateTimeLabel->setText(YSSTR("YSS::project.createTime")+": ");
-		LastModifiedTimeLabel->setText(YSSTR("YSS::project.lastModifiedTime")+": ");
+		CreateTimeLabel->setText(YSSTR("YSS::project.createTime") + ": ");
+		LastModifiedTimeLabel->setText(YSSTR("YSS::project.lastModifiedTime") + ": ");
 		SizeLabel->setText(YSSTR("YSS::project.size") + ": ");
 		ShowInBrowserButton->setText(YSSTR("YSS::project.showInBrowser"));
 		DeleteButton->setText(YSSTR("YSS::project.delete"));
 	}
 
-	
 	void ProjectInfoWidget::showProject(YSSCore::General::YSSProject* project) {
 		if (project == nullptr) {
 			return;
@@ -61,7 +60,7 @@ namespace YSS::ProjectPage {
 			{ QString(path) },
 			[](QString path)->qint64 {
 				return YSSCore::Utility::FileUtility::sizeBytes(path);
-			}, 
+			},
 			[this](qint64 size) {
 				QString readable = YSSCore::Utility::FileUtility::readableSize(size);
 				SizeLabel->setText(YSSTR("YSS::project.size") + ": " + readable);
@@ -121,7 +120,7 @@ namespace YSS::ProjectPage {
 			YSSCore::Utility::FileUtility::openExplorer(dir);
 		}
 	}
-	
+
 	void ProjectInfoWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		this->CoverLabel->setFixedHeight((float)this->CoverLabel->width() / 16 * 9); // 16:9 aspect ratio

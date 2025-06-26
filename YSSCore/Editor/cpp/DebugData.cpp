@@ -26,7 +26,7 @@ namespace YSSCore::Editor {
 		d->Paused = other.d->Paused;
 	}
 
-	DebugData::DebugData(DebugData&& other){
+	DebugData::DebugData(DebugData&& other) {
 		d = other.d;
 		other.d = nullptr;
 	}

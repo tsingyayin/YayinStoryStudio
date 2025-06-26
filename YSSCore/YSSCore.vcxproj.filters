@@ -274,6 +274,9 @@
     <ClInclude Include="Editor\FileTemplateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\ProjectMessageData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -316,6 +319,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\DebugServer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\ProjectMessageCollector.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

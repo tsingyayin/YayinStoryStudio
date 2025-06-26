@@ -16,7 +16,7 @@ namespace YSSCore::Widgets {
 	class ConfigWidget;
 }
 namespace YSSCore::__Private__ {
-	class ConfigWidgetPrivate :public QObject{
+	class ConfigWidgetPrivate :public QObject {
 		Q_OBJECT;
 		friend class YSSCore::Widgets::ConfigWidget;
 	protected:

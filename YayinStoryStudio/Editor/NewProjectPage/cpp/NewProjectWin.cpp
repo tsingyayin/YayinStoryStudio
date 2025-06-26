@@ -53,11 +53,11 @@ namespace YSS::NewProjectPage {
 		Layout->setColumnStretch(0, 3);
 		Layout->setColumnStretch(1, 2);
 
-		TitleLabel->setText(" "+YSSTR("YSS::project.createFromTemplate"));
+		TitleLabel->setText(" " + YSSTR("YSS::project.createFromTemplate"));
 		SearchLineEdit->setPlaceholderText(YSSTR("YSS::project.searchWithTags"));
 		SearchLineEdit->setFixedHeight(30);
 		RecentTemplateTitle->setText(YSSTR("YSS::project.recentUsed"));
-		
+
 		this->setStyleSheet(YSSTM->getStyleSheet("ProjectWin", this));
 
 		this->loadProjectTemplate();
@@ -78,7 +78,7 @@ namespace YSS::NewProjectPage {
 			YSSCore::Widgets::MultiButton* ProviderButton = new YSSCore::Widgets::MultiButton(ProjectTemplateWidget);
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
-			ProviderButton->setPixmap(QPixmap(provider->getTemplateIcon().pixmap(QSize(64, 64))));
+			ProviderButton->setPixmap(QPixmap::fromImage(provider->getTemplateIcon()));
 			ProviderButton->setNormalStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Normal"));
 			ProviderButton->setHoverStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Hover"));
 			ProviderButton->setPressedStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Pressed"));
@@ -115,13 +115,11 @@ namespace YSS::NewProjectPage {
 		}
 	}
 	void NewProjectWin::closeEvent(QCloseEvent* event) {
-		
 	}
 	void NewProjectWin::resizeEvent(QResizeEvent* event) {
 		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() - ProjectTemplateArea->verticalScrollBar()->width());
 	}
 	void NewProjectWin::onTemplateInitWidgetClosed() {
-		
 	}
 	void NewProjectWin::onProjectPrepared(QString projectPath) {
 		emit projectPrepared(projectPath);

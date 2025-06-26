@@ -16,7 +16,7 @@ namespace YSSCore::__Private__ {
 		if (!file.exists()) {
 			return false;
 		}
-		file.open(QIODevice::ReadOnly|QIODevice::Text);
+		file.open(QIODevice::ReadOnly | QIODevice::Text);
 		QTextStream ts(&file);
 		ts.setEncoding(QStringConverter::Utf8);
 		QString jsonConfig = ts.readAll();
@@ -62,7 +62,7 @@ namespace YSSCore::General
 		return d->ID;
 	}
 	void Translator::setDefaultLang(LangID lang) {
-		d->DefaultID= lang;
+		d->DefaultID = lang;
 	}
 	void Translator::setLangFilePath(QMap<LangID, QString> langFilePath) {
 		d->FilePath = langFilePath;
@@ -71,12 +71,12 @@ namespace YSSCore::General
 		d->FilePath.insert(id, path);
 	}
 	QString Translator::tr(const QString& key) {
-		if (d->Lang == nullptr && d->DefaultLang == nullptr)[[unlikely]] {
+		if (d->Lang == nullptr && d->DefaultLang == nullptr) [[unlikely]] {
 			return key;
 		}
-		if (d->Lang != nullptr) [[likely]]{
+		if (d->Lang != nullptr) [[likely]] {
 			QString tr = d->Lang->getString(key);
-			if (tr.isEmpty())[[unlikely]] {
+			if (tr.isEmpty()) [[unlikely]] {
 				if (d->DefaultLang != nullptr) {
 					tr = d->DefaultLang->getString(key);
 					if (tr.isEmpty()) {
@@ -90,7 +90,7 @@ namespace YSSCore::General
 					return key;
 				}
 			}
-			else[[likely]] {
+			else [[likely]] {
 				return tr;
 			}
 		}
@@ -109,7 +109,6 @@ namespace YSSCore::General
 			}
 		}
 	}
-
 
 	YSSCoreTranslator::YSSCoreTranslator() {
 		YSSCore::__Private__::TranslatorPrivate::Instance = this;

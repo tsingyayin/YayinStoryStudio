@@ -14,7 +14,7 @@ namespace YSSCore::Utility {
 		QList<DiffUnit*> DiffUnitList;
 	};
 
-	/*! 
+	/*!
 		\class YSSCore::Utility::DiffUnit
 		\brief 此类为Yayin Story Studio 提供差异比较的基类。
 		\since YSSCore 0.13.0

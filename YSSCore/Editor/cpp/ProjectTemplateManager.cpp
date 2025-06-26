@@ -3,7 +3,7 @@
 #include <QtCore/qmap.h>
 #include "../../General/Log.h"
 namespace YSSCore::Editor {
-	class ProjectTemplateManagerPrivate{
+	class ProjectTemplateManagerPrivate {
 		friend class ProjectTemplateManager;
 		QList<ProjectTemplateProvider*> Providers;
 		QMap<QString, ProjectTemplateProvider*> ProviderMap;
@@ -13,7 +13,7 @@ namespace YSSCore::Editor {
 
 	ProjectTemplateManager::ProjectTemplateManager() {
 		d = new ProjectTemplateManagerPrivate;
-		if (ProjectTemplateManagerPrivate::Instance == nullptr){
+		if (ProjectTemplateManagerPrivate::Instance == nullptr) {
 			ProjectTemplateManagerPrivate::Instance = this;
 		}
 		ySuccessF << "Success!";
@@ -30,7 +30,7 @@ namespace YSSCore::Editor {
 		return ProjectTemplateManagerPrivate::Instance;
 	}
 
-	QList<ProjectTemplateProvider*> ProjectTemplateManager::getProviders(){
+	QList<ProjectTemplateProvider*> ProjectTemplateManager::getProviders() {
 		return d->Providers;
 	}
 

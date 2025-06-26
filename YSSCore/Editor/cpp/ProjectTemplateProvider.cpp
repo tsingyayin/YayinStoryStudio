@@ -1,19 +1,18 @@
 #include "../ProjectTemplateProvider.h"
 
 namespace YSSCore::Editor {
-	ProjectTemplateInitWidget::ProjectTemplateInitWidget(QWidget *parent)
+	ProjectTemplateInitWidget::ProjectTemplateInitWidget(QWidget* parent)
 		: QFrame(parent)
 	{
-
 	}
-	void ProjectTemplateInitWidget::closeEvent(QCloseEvent *event)
+	void ProjectTemplateInitWidget::closeEvent(QCloseEvent* event)
 	{
 		emit closed();
 	}
 	class ProjectTemplateProviderPrivate
 	{
 	public:
-		QIcon TemplateIcon;
+		QImage TemplateIcon;
 		QString TemplateID;
 		QString TemplateName;
 		QString TemplateDescription;
@@ -29,11 +28,11 @@ namespace YSSCore::Editor {
 	{
 		delete d;
 	}
-	QIcon ProjectTemplateProvider::getTemplateIcon()
+	QImage ProjectTemplateProvider::getTemplateIcon()
 	{
 		return d->TemplateIcon;
 	}
-	void ProjectTemplateProvider::setTemplateIcon(const QIcon &icon)
+	void ProjectTemplateProvider::setTemplateIcon(const QImage& icon)
 	{
 		d->TemplateIcon = icon;
 	}
@@ -41,7 +40,7 @@ namespace YSSCore::Editor {
 	{
 		return d->TemplateID;
 	}
-	void ProjectTemplateProvider::setTemplateID(const QString &id)
+	void ProjectTemplateProvider::setTemplateID(const QString& id)
 	{
 		d->TemplateID = id;
 	}
@@ -49,7 +48,7 @@ namespace YSSCore::Editor {
 	{
 		return d->TemplateName;
 	}
-	void ProjectTemplateProvider::setTemplateName(const QString &name)
+	void ProjectTemplateProvider::setTemplateName(const QString& name)
 	{
 		d->TemplateName = name;
 	}
@@ -57,7 +56,7 @@ namespace YSSCore::Editor {
 	{
 		return d->TemplateDescription;
 	}
-	void ProjectTemplateProvider::setTemplateDescription(const QString &description)
+	void ProjectTemplateProvider::setTemplateDescription(const QString& description)
 	{
 		d->TemplateDescription = description;
 	}
@@ -65,7 +64,7 @@ namespace YSSCore::Editor {
 	{
 		return d->TemplateTags;
 	}
-	void ProjectTemplateProvider::setTemplateTags(const QStringList &tags)
+	void ProjectTemplateProvider::setTemplateTags(const QStringList& tags)
 	{
 		d->TemplateTags = tags;
 	}

@@ -1,7 +1,6 @@
 #pragma once
 #include "../Macro.h"
 
-
 namespace YSSCore::General {
 	class Version;
 	class YSSCoreAPI YayinStoryStudio

@@ -1,8 +1,8 @@
 #pragma once
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtWidgets/QFrame>
-#include <QtGui/QIcon>
+#include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
+#include <QtWidgets/qframe.h>
+#include <QtGui/qimage.h>
 #include "../Macro.h"
 
 namespace YSSCore::Editor {
@@ -24,8 +24,8 @@ namespace YSSCore::Editor {
 	public:
 		ProjectTemplateProvider(EditorPlugin* plugin);
 		virtual ~ProjectTemplateProvider();
-		QIcon getTemplateIcon();
-		void setTemplateIcon(const QIcon& icon);
+		QImage getTemplateIcon();
+		void setTemplateIcon(const QImage& icon);
 		QString getTemplateID();
 		void setTemplateID(const QString& id);
 		QString getTemplateName();
@@ -36,6 +36,6 @@ namespace YSSCore::Editor {
 		void setTemplateTags(const QStringList& tags);
 		virtual ProjectTemplateInitWidget* projectInitWidget() = 0;
 	private:
-		ProjectTemplateProviderPrivate* d; 
+		ProjectTemplateProviderPrivate* d;
 	};
 }

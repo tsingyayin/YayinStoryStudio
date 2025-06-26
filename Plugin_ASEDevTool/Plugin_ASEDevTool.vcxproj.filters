@@ -47,6 +47,9 @@
     <ClCompile Include="cpp\ASEDevTranslator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FileTemplateProvider\cpp\ASEAStoryFTP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -79,6 +82,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ProjectTemplateProvider\ASEAStoryPTP.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="FileTemplateProvider\ASEAStoryFTP.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

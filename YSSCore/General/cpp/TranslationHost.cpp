@@ -42,7 +42,7 @@ namespace YSSCore::General {
 	}
 	QString TranslationHost::tr(const QString& nameSpace, const QString& key) {
 		Translator* trans = d->Translators[nameSpace];
-		if (trans != nullptr)[[likely]] {
+		if (trans != nullptr) [[likely]] {
 			return trans->tr(key);
 		}
 		else {

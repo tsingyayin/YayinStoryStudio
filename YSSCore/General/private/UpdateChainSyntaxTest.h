@@ -13,7 +13,7 @@ namespace YSSCore::__Private__ {
 			};
 			doUpdate();
 		}
-		virtual QString getCurrentVersion() override{
+		virtual QString getCurrentVersion() override {
 			return QString("");
 		}
 	};

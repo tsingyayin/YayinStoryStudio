@@ -28,5 +28,4 @@ namespace YSSCore::Widgets {
 	private:
 		YSSCore::__Private__::ConfigWidgetPrivate* d;
 	};
-
 }

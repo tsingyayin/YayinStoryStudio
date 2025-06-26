@@ -11,7 +11,6 @@
 #include "../ThemeManager.h"
 
 namespace YSSCore::__Private__ {
-
 	ConfigWidgetPrivate::ConfigWidgetPrivate(YSSCore::Widgets::ConfigWidget* self) {
 		this->self = self;
 		this->Layout = new QVBoxLayout(self);
@@ -158,7 +157,7 @@ namespace YSSCore::__Private__ {
 		QHBoxLayout* SettingLayout = new QHBoxLayout(SettingFrame);
 		SettingFrame->setLayout(SettingLayout);
 		SettingLayout->setContentsMargins(0, 0, 0, 0);
-		
+
 		YSSCore::Widgets::MultiLabel* MultiLabel = new YSSCore::Widgets::MultiLabel(SettingFrame);
 		MultiLabel->setTitle(YSSI18N(config.getString("title")));
 		MultiLabel->setDescription(YSSI18N(config.getString("text")));
@@ -258,7 +257,7 @@ namespace YSSCore::__Private__ {
 				if (!folder.isEmpty()) {
 					LineEdit->setText(folder);
 				}
-			});
+				});
 			return container;
 		}
 		else {
@@ -293,7 +292,6 @@ namespace YSSCore::__Private__ {
 		}
 		emit self->lineEditTextChanged(node, str);
 	}
-	
 }
 namespace YSSCore::Widgets {
 	/*!
@@ -304,7 +302,7 @@ namespace YSSCore::Widgets {
 
 		此类提供一种便捷的配置文件操作窗口创建方式，使用一种被约定为“CWJSON”的Json格式来描述配置窗口的内容。并且
 		允许窗口和一个配置文件相绑定，将结果同步到配置文件中。
-		
+
 		CWJson的顶层格式如下：
 		\badcode
 			{
@@ -348,7 +346,7 @@ namespace YSSCore::Widgets {
 		专门用来作为容器的控件，没有输入功能。
 
 		title和text支持YSS翻译系统，当其以“i18n:”开头时，会自动进行翻译，具体参见 \l YSSCore::General::TranslationHost。
-		
+
 		不同的控件类型有不同的data格式，ComboBox的格式已经在上面给出，RadioButton的格式如下：
 		\badcode
 			"data": {

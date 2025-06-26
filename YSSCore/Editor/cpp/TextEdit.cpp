@@ -18,7 +18,7 @@ namespace YSSCore::Editor {
 		\inmodule YSSCore
 
 		TextEdit是Yayin Story Studio中最关键、最核心的功能，即代码编辑器。
-		
+
 		此类相比于Qt提供的QTextEdit，额外提供了其所缺失的现代代码编辑必备的几项基本功能：
 		\list 1
 			\li 自动缩进
@@ -29,7 +29,7 @@ namespace YSSCore::Editor {
 		并且支持使用QSyntaxHighlighter高亮语法。考虑到代码文件间可能存在符号关联关系，YSS扩展了
 		语法高亮的概念，除了最基本的着色操作仍需要使用QSyntaxHighlighter外，YSS提供了LangServer
 		类来处理更复杂的语法高亮需求，如代码补全、错误提示等。
-		
+
 		要在YSS中使用最基本的语法着色，请实现自己的LangServer类，并将其中的createHighlighter()
 		方法返回一个QSyntaxHighlighter实例。之后再将您的LangServer类注册到LangServerManager中。
 

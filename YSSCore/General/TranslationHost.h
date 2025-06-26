@@ -6,7 +6,7 @@ class QString;
 namespace YSSCore::General {
 	class Translator;
 	class TranslationHostPrivate;
-	class YSSCoreAPI TranslationHost  {
+	class YSSCoreAPI TranslationHost {
 	public:
 		static TranslationHost* getInstance();
 		TranslationHost();

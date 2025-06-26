@@ -39,7 +39,7 @@ namespace YSSCore::General {
 	protected:
 		YSSCore::__Private__::TranslatorPrivate* d;
 	};
-	
+
 	class YSSCoreAPI YSSCoreTranslator : public Translator {
 	public:
 		YSSCoreTranslator();

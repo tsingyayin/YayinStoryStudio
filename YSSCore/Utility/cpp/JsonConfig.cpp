@@ -33,7 +33,7 @@ namespace YSSCore::Utility {
 				}
 			}
 			else {
-				for (int i = 1; i < keys.size() ; i++) {
+				for (int i = 1; i < keys.size(); i++) {
 					if (value.isObject()) {
 						value = value.toObject()[keys[i]];
 					}
@@ -110,8 +110,8 @@ namespace YSSCore::Utility {
 		}
 		QJsonValue setValue(QStringList* nameList, QStringList::iterator* it, QJsonValue val, const QJsonValue& var) {
 			if (!val.toObject().contains(*(*it))) {
-				if (nameList->end() != (*it)+1) {
-					QString nextkey = *((*it)+1);
+				if (nameList->end() != (*it) + 1) {
+					QString nextkey = *((*it) + 1);
 					bool ok = false;
 					int index = nextkey.toInt(&ok);
 					QJsonObject obj = val.toObject();
@@ -347,7 +347,7 @@ namespace YSSCore::Utility {
 	*/
 	QJsonParseError JsonConfig::parse(const QString& jsonStr)
 	{
-		if(jsonStr.startsWith(":") || jsonStr.startsWith(".") || jsonStr.startsWith("/")) {
+		if (jsonStr.startsWith(":") || jsonStr.startsWith(".") || jsonStr.startsWith("/")) {
 			yWarningF << "May be input is file path, got " << jsonStr << ". This function only accepts Json string.";
 		}
 		QJsonParseError error;

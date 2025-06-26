@@ -7,8 +7,7 @@
 #include "../ProjectTemplateManager.h"
 
 namespace YSSCore::Editor {
-
-	/*! 
+	/*!
 		\class YSSCore::Editor::EditorPlugin
 		\inmodule YSSCore
 		\brief 此类为Yayin Story Studio 提供插件基类。
@@ -19,15 +18,15 @@ namespace YSSCore::Editor {
 		要开发Yayin Story Studio插件，您就必须实现此类，然后在您的项目中声明YSSPluginDllMain函数。这个
 		函数只做一件事情：新建您的插件类，并且返回它。
 		\code
-		    extern "C" YSSCore::Editor::EditorPlugin* YSSPluginDllMain() {
-		        return new YourPluginClass();
-		    }
+			extern "C" YSSCore::Editor::EditorPlugin* YSSPluginDllMain() {
+				return new YourPluginClass();
+			}
 		\endcode
 		\warning 请注意，YSSPluginDllMain函数必须是extern "C"的，否则Yayin Story Studio将无法找到它。
 
 		稍后，Yayin Story Studio将会调用您的插件的onPluginEnable()函数来启用插件。您应该在这个函数中
 		进行一些初始化工作，比如注册语言服务器、文件服务器、翻译器等。
-		
+
 		您不应该在您的插件的构造函数中进行除了基本信息设置之外的任何其他工作，尤其是尝试和YSS或其他插件交互。
 		因为在构造插件的过程中，YSS尚未准备好全部的程序功能，您极有可能遭遇nullptr。
 
@@ -71,7 +70,7 @@ namespace YSSCore::Editor {
 		分析插件的依赖信息并决定加载顺序。json文件中的ID必须和代码中实际设置的ID一致，否则Yayin Story Studio将无法
 		找到您的插件。Depend字段是一个字符串数组，表示您的插件依赖的其他插件的ID。Yayin Story Studio会在加载
 		插件时，先加载这些依赖的插件，然后再加载您的插件。
-		
+
 		请注意，Yayin Story Studio无法处理循环依赖。当两个插件相互依赖时，将具有相同的优先等级，YSS无法确定其加载顺序。
 
 		如果您的插件不依赖其他插件，可以将Depend字段省略。

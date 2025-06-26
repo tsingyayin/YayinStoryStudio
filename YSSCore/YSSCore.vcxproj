@@ -265,6 +265,8 @@
     <QtMoc Include="Editor\FileTemplateProvider.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
+    <QtMoc Include="General\ProjectMessageCollector.h" />
+    <ClInclude Include="General\ProjectMessageData.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />

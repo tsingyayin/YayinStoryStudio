@@ -12,6 +12,7 @@
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>
 #include <General/Log.h>
+#include <General/YSSProject.h>
 
 namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
@@ -87,12 +88,12 @@ namespace YSS {
 	YSSCore::Editor::LangServerManager* GlobalValue::getLangServerManager() {
 		return Instance->LangServerManager;
 	}
-	
+
 	void GlobalValue::setCurrentProject(YSSCore::General::YSSProject* project) {
-		Instance->CurrentProject = project;
+		YSSCore::General::YSSProject::setCurrentProject(project);
 	}
 
 	YSSCore::General::YSSProject* GlobalValue::getCurrentProject() {
-		return Instance->CurrentProject;
+		return YSSCore::General::YSSProject::getCurrentProject();
 	}
 }
