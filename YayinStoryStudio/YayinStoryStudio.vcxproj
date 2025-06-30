@@ -142,6 +142,7 @@
   <ItemGroup>
     <QtMoc Include="Editor\NewProjectPage\NewProjectWin.h" />
     <QtMoc Include="Editor\MainEditor\ProjectMessageViewer.h" />
+    <QtMoc Include="Editor\ProjectPage\NewsArea.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

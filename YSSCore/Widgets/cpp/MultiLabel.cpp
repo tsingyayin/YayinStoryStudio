@@ -9,6 +9,7 @@ namespace YSSCore::Widgets {
 		QLabel* Title;
 		QLabel* Description;
 		QLabel* Icon;
+		QString PixmapPath;
 		QGridLayout* Layout;
 		QWidget* CustomWidget = nullptr;
 	};
@@ -31,7 +32,7 @@ namespace YSSCore::Widgets {
 		d->Icon->setAlignment(Qt::AlignCenter);
 		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-		this->setPixmapFixedWidth(32);
+		this->setPixmapFixedWidth(64);
 		d->Icon->hide();
 		d->Description->hide();
 	}
@@ -47,8 +48,10 @@ namespace YSSCore::Widgets {
 			d->Description->show();
 		}
 	}
-	void MultiLabel::setPixmap(const QPixmap& pixmap) {
-		d->Icon->setPixmap(pixmap);
+	void MultiLabel::setPixmapPath(const QString& filePath) {
+		d->Icon->setStyleSheet("QLabel{border-image: url(" + filePath + ");}");
+		d->PixmapPath = filePath;
+		d->Icon->setFixedHeight(d->Icon->width());
 		d->Icon->show();
 	}
 	void MultiLabel::setContentsMargins(int left, int top, int right, int bottom) {
@@ -63,8 +66,8 @@ namespace YSSCore::Widgets {
 	QString MultiLabel::getDescription() {
 		return d->Description->text();
 	}
-	QPixmap MultiLabel::getPixmap() {
-		return d->Icon->pixmap();
+	QString MultiLabel::getPixmapPath() {
+		return d->PixmapPath;
 	}
 	void MultiLabel::setAlignment(Qt::Alignment align) {
 		d->Title->setAlignment(align);
@@ -82,6 +85,11 @@ namespace YSSCore::Widgets {
 		widget->setParent(this);
 		d->Layout->addWidget(widget, 2, 1, 1, 1);
 		d->CustomWidget->show();
+	}
+	void MultiLabel::resizeEvent(QResizeEvent* event) {
+		if (d->Icon->isVisible()) {
+			d->Icon->setFixedHeight(d->Icon->width());
+		}
 	}
 	QWidget* MultiLabel::getCustomWidget() {
 		return d->CustomWidget;

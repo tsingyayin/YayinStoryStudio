@@ -10,7 +10,6 @@ namespace YSS::Editor {
 		QTableWidget* MessageTable = nullptr;
 		QVBoxLayout* Layout = nullptr;
 	public:
-		ProjectMessageViewer(QWidget* parent = nullptr);
-		~ProjectMessageViewer();
+		ProjectMessageViewer(QWidget* parent = nullptr) {};
 	};
 }

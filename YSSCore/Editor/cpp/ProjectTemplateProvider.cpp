@@ -12,7 +12,7 @@ namespace YSSCore::Editor {
 	class ProjectTemplateProviderPrivate
 	{
 	public:
-		QImage TemplateIcon;
+		QString TemplateIconPath;
 		QString TemplateID;
 		QString TemplateName;
 		QString TemplateDescription;
@@ -28,13 +28,13 @@ namespace YSSCore::Editor {
 	{
 		delete d;
 	}
-	QImage ProjectTemplateProvider::getTemplateIcon()
+	QString ProjectTemplateProvider::getTemplateIconPath()
 	{
-		return d->TemplateIcon;
+		return d->TemplateIconPath;
 	}
-	void ProjectTemplateProvider::setTemplateIcon(const QImage& icon)
+	void ProjectTemplateProvider::setTemplateIconPath(const QString& iconPath)
 	{
-		d->TemplateIcon = icon;
+		d->TemplateIconPath = iconPath;
 	}
 	QString ProjectTemplateProvider::getTemplateID()
 	{

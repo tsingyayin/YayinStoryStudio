@@ -39,7 +39,8 @@ Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以�
 ## 对于每个Visual Studio项目
 * compiled - 存放要参与编译的资源，他们应该都被记录在qrc文件内。
 * resource - 存放运行时需要的资源文件。
-  
+* pytools(如果有) - 存放用于辅助开发的Python脚本，它们不参与到最终程序，只在开发和编译过程中使用。
+* doc(如果有) - 用于存放QDoc的配置和文档。
 Yayin Story Studio的cpp与h文件的管理采用相对紧密的模式，即所有的cpp文件都在h文件所在目录的`cpp`子目录下。这样做的目的是为了便于管理和查找相关文件。
 
 若要开发插件，可以用相应的PyTools提出所有头文件，或者从Release下载相应版本的头文件目录。

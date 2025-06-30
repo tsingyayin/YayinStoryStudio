@@ -32,9 +32,6 @@
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\PlayerProxy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\StackBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,9 +82,6 @@
     <QtMoc Include="Editor\MainEditor\MainWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\MainEditor\PlayerProxy.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\MainEditor\StackBar.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -125,6 +119,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\ProjectMessageViewer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ProjectPage\NewsArea.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

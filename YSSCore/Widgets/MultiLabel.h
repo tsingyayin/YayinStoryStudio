@@ -13,15 +13,16 @@ namespace YSSCore::Widgets {
 		virtual ~MultiLabel();
 		void setTitle(const QString& str);
 		void setDescription(const QString& str);
-		void setPixmap(const QPixmap& pixmap);
+		void setPixmapPath(const QString& filePath);
 		QString getTitle();
 		QString getDescription();
-		QPixmap getPixmap();
+		QString getPixmapPath();
 		void setContentsMargins(int left, int top, int right, int bottom);
 		void setSpacing(int spaceing);
 		void setAlignment(Qt::Alignment alignment);
 		void setPixmapFixedWidth(int width);
 		void addCustomWidget(QWidget* widget);
+		virtual void resizeEvent(QResizeEvent* event) override;
 		QWidget* getCustomWidget();
 	private:
 		MultiLabelPrivate* d;

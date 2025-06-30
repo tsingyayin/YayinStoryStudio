@@ -17,9 +17,7 @@ namespace YSSCore::Widgets {
 		void loadConfig(const QString& path);
 		void loadStyleTemplate(const QString& path);
 		QString getThemeName();
-		QString getTemplateName();
 		QString getThemeID();
-		QString getTemplateID();
 		QColor getColor(const QString& key);
 		QString getColorString(const QString& key);
 		QString getRawStyleSheet(const QString& key);
@@ -30,3 +28,5 @@ namespace YSSCore::Widgets {
 }
 
 #define YSSTM YSSCore::Widgets::ThemeManager::getInstance()
+#define YSSTMRSS YSSCore::Widgets::ThemeManager::getInstance()->getRawStyleSheet
+#define YSSTMSS YSSCore::Widgets::ThemeManager::getInstance()->getStyleSheet

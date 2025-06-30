@@ -24,8 +24,8 @@ namespace YSSCore::Editor {
 	public:
 		ProjectTemplateProvider(EditorPlugin* plugin);
 		virtual ~ProjectTemplateProvider();
-		QImage getTemplateIcon();
-		void setTemplateIcon(const QImage& icon);
+		QString getTemplateIconPath();
+		void setTemplateIconPath(const QString& iconPath);
 		QString getTemplateID();
 		void setTemplateID(const QString& id);
 		QString getTemplateName();

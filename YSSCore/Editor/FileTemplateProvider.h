@@ -23,8 +23,8 @@ namespace YSSCore::Editor {
 	public:
 		FileTemplateProvider(EditorPlugin* plugin);
 		virtual ~FileTemplateProvider();
-		QIcon getTemplateIcon();
-		void setTemplateIcon(const QIcon& icon);
+		QString getTemplateIconPath();
+		void setTemplateIconPath(const QString& iconPath);
 		QString getTemplateID();
 		void setTemplateID(const QString& id);
 		QString getTemplateName();

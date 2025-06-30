@@ -8,7 +8,7 @@ namespace YSSCore::Editor {
 	class FileTemplateProviderPrivate
 	{
 	public:
-		QIcon TemplateIcon;
+		QString TemplateIconPath;
 		QString TemplateID;
 		QString TemplateName;
 		QString TemplateDescription;
@@ -24,13 +24,13 @@ namespace YSSCore::Editor {
 	{
 		delete d;
 	}
-	QIcon FileTemplateProvider::getTemplateIcon()
+	QString FileTemplateProvider::getTemplateIconPath()
 	{
-		return d->TemplateIcon;
+		return d->TemplateIconPath;
 	}
-	void FileTemplateProvider::setTemplateIcon(const QIcon& icon)
+	void FileTemplateProvider::setTemplateIconPath(const QString& iconPath)
 	{
-		d->TemplateIcon = icon;
+		d->TemplateIconPath= iconPath;
 	}
 	QString FileTemplateProvider::getTemplateID()
 	{

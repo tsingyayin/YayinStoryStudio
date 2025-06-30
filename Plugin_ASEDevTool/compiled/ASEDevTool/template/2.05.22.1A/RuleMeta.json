@@ -1,0 +1,438 @@
+{
+	"RuleMeta": [
+		{
+			"Name": "talk",
+			"ParaMeta":{
+				"charname":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"text":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"isaddition":{
+					"Type": "Bool",
+					"Default": false
+				},
+				"nochangeslot":{
+					"Type": "Bool",
+					"Default": false
+				},
+				"staytime":{
+					"Type": "Number",
+					"Default": 1.75,
+					"Range": [0, "+"]
+				},
+				"interval":{
+					"Type": "Number",
+					"Default": 0.04,
+					"Range": [0, "+"]
+				}
+			}
+		},
+		{
+			"Name": "bg",
+			"ParaMeta":{
+				"bgname": {
+					"Type": "String",
+					"Default": "无",
+					"CheckRegEx": ""
+				},
+				"fadeintime": {
+					"Type": "Number",
+					"Default": 2.0,
+					"Range": [0, "+"]
+				},
+				"startpos": {
+					"Type": "Vector",
+					"Default": [0, 0, 10]
+				},
+				"endpos": {
+					"Type": "Vector",
+					"Default": [0, 0, 10]
+				},
+				"movetime": {
+					"Type": "Number",
+					"Default": 2.0,
+					"Range": [0, "+"]
+				},
+				"movecurve": {
+					"Type": "Enum",
+					"Default": "Linear",
+					"Enum": [
+						"Linear", "In", "Out", "InOut",
+						"In2", "Out2", "InOut2", "In3",
+						"Out3", "InOut3", "Bounce", "ToFrom",
+						"Shake"
+					]
+				}
+			}
+		},
+		{
+			"Name": "music",
+			"ParaMeta": {
+				"msname":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"introname":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"volume":{
+					"Type": "Number",
+					"Default": 1.0,
+					"Range": [0.0, 1.0]
+				},
+				"slot":{
+					"Type": "Number",
+					"Defualt": 0,
+					"Range": [0, 1],
+					"Integer": true
+				},
+				"changetime":{
+					"Type": "Number",
+					"Default": 1.5,
+					"Range": [0, "+"]
+				}
+			}
+		},
+		{
+			"Name": "sound",
+			"ParaMeta": {
+				"sdname":{
+					"Type":"String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"volume": {
+					"Type":"Number",
+					"Default": 1,
+					"Range": [0.0, 1.0]
+				},
+				"iscv": {
+					"Type":"Bool",
+					"Default": false
+				}
+			}
+		},
+		{
+			"Name": "cover",
+			"ParaMeta":{
+				"cover":{
+					"Type":"Bool",
+					"Default": false
+				}
+			}
+		},
+		{
+			"Name": "avg",
+			"ParaMeta":{
+				"pcname":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"slot":{
+					"Type":"Number",
+					"Defualt": 0,
+					"Range": [0,"+"],
+					"Integer":true
+				},
+				"diff":{
+					"Type":"String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"ishide":{
+					"Type":"Number",
+					"Default": 0,
+					"Range": [0.0, 3.0, "R"]
+				},
+				"fadeintime":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"]
+				},
+				"fadeouttime":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"]
+				},
+				"isblock": {
+					"Type": "Bool",
+					"Default": true
+				},
+				"startpos":{
+					"Type":"Vector",
+					"Default": ["x", 0, 7]
+				},
+				"endpos":{
+					"Type":"Vector",
+					"Default": ["x", 0, 7]
+				},
+				"movetime":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"]
+				},
+				"movecurve": {
+					"Type": "Enum",
+					"Default": "Out",
+					"Enum": [
+						"Linear", "In", "Out", "InOut",
+						"In2", "Out2", "InOut2", "In3",
+						"Out3", "InOut3", "Bounce", "ToFrom",
+						"Shake"
+					]
+				}
+			}
+		},
+		{
+			"Name": "flash",
+			"ParaMeta": {
+				"color":{
+					"Type": "Vector",
+					"Default": [1, 1, 1, 1],
+					"Range": [0, 1]
+				},
+				"fadeintime":{
+					"Type": "Number",
+					"Default": 0.1,
+					"Range": [0, "+"]
+				},
+				"staytime":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"]
+				},
+				"fadeouttime":{
+					"Type": "Number",
+					"Default": 0.5,
+					"Range": [0, "+"]
+				},
+				"isblock": {
+					"Type": "Bool",
+					"Default": true
+				}
+			}
+		},
+		{
+			"Name": "effect",
+			"ParaMeta": {
+				"name":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": "",
+					"Enum": [
+						"右日光", "多利", "左日光", "橙火", "紫火", "红尘",
+						"聚光灯", "蒸汽", "血潮", "辩论", "雨", "雨滴",
+						"雪", "暴风", "冰法术", "刀光1", "刀光2",
+						"刀光击中1", "刀光击中2", "刀光火花1", "刀光火花2", "水显",
+						"水遁", "法术击中", "火法术", "火爆", "电法术",
+						"落沙", "钝击1", "钝击2", "长枪刺击", "长枪命中",
+						"闪光击中", "信号雪花1", "信号雪花2", "黑幕上", "黑幕下",
+						"黑幕左", "黑幕右", "表情_不悦1", "表情_不悦2", "表情_介意",
+						"表情_害羞", "表情_开心1", "表情_开心2", "表情_流汗", "表情_疑惑",
+						"表情_骄傲"
+					]
+				},
+				"lifestep":{
+					"Type":"Number",
+					"Default": 1,
+					"Range": [1, "+"],
+					"Integer": true
+				},
+				"pos": {
+					"Type":"Vector",
+					"Default": [0,0,0]
+				},
+				"simulationspeed":{
+					"Type":"Number",
+					"Default": 1,
+					"Range": [0, "+"]
+				}
+			}
+		},
+		{
+			"Name": "shake",
+			"ParaMeta": {
+				"force":{
+					"Type": "Vector",
+					"Default": [0.5, 0.5, 0]
+				},
+				"fadeintime":{
+					"Type": "Number",
+					"Default": 0.1,
+					"Range": [0, "+"]
+				},
+				"staytime":{
+					"Type": "Number",
+					"Default": 0.5,
+					"Range": [0, "+"]
+				},
+				"fadeouttime":{
+					"Type": "Number",
+					"Default": 0.5,
+					"Range": [0, "+"]
+				},
+				"isblock": {
+					"Type": "Bool",
+					"Default": true
+				}
+			}
+		},
+		{
+			"Name": "filter",
+			"ParaMeta": {
+				"filterid":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, 4],
+					"Integer": true
+				},
+				"force":{
+					"Type": "Number",
+					"Default": 1,
+					"Range": [0, "+"]
+				},
+				"fadeintime":{
+					"Type": "Number",
+					"Default": 2,
+					"Range": [0, "+"]
+				}
+			}
+		},
+		{
+			"Name": "delay",
+			"ParaMeta": {
+				"delaytime":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"]
+				}
+			}
+		},
+		{
+			"Name": "option",
+			"ParaMeta": {
+				"optionX":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				}
+			}
+		},
+		{
+			"Name": "jump",
+			"ParaMeta":{
+				"sign": {
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"customparams":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				}
+			}
+		},
+		{
+			"Name": "hologram",
+			"ParaMeta":{
+				"text":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"showall":{
+					"Type": "Bool",
+					"Default": false
+				},
+				"isItalic": {
+					"Type": "Bool",
+					"Default": false
+				},
+				"fadeintime": {
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"]
+				},
+				"fadeouttime": {
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"]
+				},
+				"staytime": {
+					"Type": "Number",
+					"Default": 1.75,
+					"Range": [0, "+"]
+				},
+				"pos": {
+					"Type": "Vector",
+					"Default": [0, 0]
+				},
+				"isaddition": {
+					"Type": "Bool",
+					"Default": false
+				},
+				"slot":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"],
+					"Integer": true
+				},
+				"interval": {
+					"Type": "Number",
+					"Default": 0.04,
+					"Range": [0, "+"]
+				}
+			}
+		},
+		{
+			"Name": "tele",
+			"ParaMeta": {
+				"ison": {
+					"Type": "Bool",
+					"Default": false
+				},
+				"pcname": {
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"diff":{
+					"Type": "String",
+					"Default": "",
+					"CheckRegEx": ""
+				},
+				"ishide":{
+					"Type": "Bool",
+					"Default": false
+				},
+				"pos":{
+					"Type": "Vector",
+					"Default": [0, 0, 7]
+				},
+				"slot":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, "+"],
+					"Integer": true
+				},
+				"style":{
+					"Type": "Number",
+					"Default": 0,
+					"Range": [0, 1],
+					"Integer": true
+				}
+			}
+		}
+	]
+}

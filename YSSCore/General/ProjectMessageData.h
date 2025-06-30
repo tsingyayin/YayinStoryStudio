@@ -24,10 +24,10 @@ namespace YSSCore::General {
 		};
 	public:
 		ProjectMessageData();
-		ProjectMessageData(MessageType type, const QString& errorCode, const QString& description,
-			qint32 line_index = 0, const QString& abs_filePath = "", const QUrl& helperUrl = QUrl(""));
 		ProjectMessageData(const ProjectMessageData& other);
 		ProjectMessageData(ProjectMessageData&& other) noexcept;
+		ProjectMessageData(MessageType type, const QString& errorCode, const QString& description,
+			qint32 line_index = 0, const QString& abs_filePath = "", const QUrl& helperUrl = QUrl(""));
 		~ProjectMessageData();
 		ProjectMessageData& operator=(const ProjectMessageData& other);
 		ProjectMessageData& operator=(ProjectMessageData&& other) noexcept;

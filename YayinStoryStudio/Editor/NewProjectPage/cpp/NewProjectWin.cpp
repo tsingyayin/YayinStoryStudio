@@ -58,7 +58,7 @@ namespace YSS::NewProjectPage {
 		SearchLineEdit->setFixedHeight(30);
 		RecentTemplateTitle->setText(YSSTR("YSS::project.recentUsed"));
 
-		this->setStyleSheet(YSSTM->getStyleSheet("ProjectWin", this));
+		this->setStyleSheet(YSSTMSS("YSS::ProjectWin", this));
 
 		this->loadProjectTemplate();
 	}
@@ -78,24 +78,24 @@ namespace YSS::NewProjectPage {
 			YSSCore::Widgets::MultiButton* ProviderButton = new YSSCore::Widgets::MultiButton(ProjectTemplateWidget);
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
-			ProviderButton->setPixmap(QPixmap::fromImage(provider->getTemplateIcon()));
-			ProviderButton->setNormalStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Normal"));
-			ProviderButton->setHoverStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Hover"));
-			ProviderButton->setPressedStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Pressed"));
+			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
+			ProviderButton->setNormalStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Normal"));
+			ProviderButton->setHoverStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Hover"));
+			ProviderButton->setPressedStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->addCustomWidget(tags);
 			ProjectList.append(ProviderButton);
 			ProjectTemplateLayout->addWidget(ProviderButton);
 			ProviderMap.insert(ProviderButton, provider);
-			ProviderButton->setSpacing(0);
-			ProviderButton->setContentsMargins(5, 5, 5, 5);
+			ProviderButton->setSpacing(5);
+			ProviderButton->setContentsMargins(10, 10, 10, 10);
 			ProviderButton->show();
 			yDebug << ProviderButton->isHidden();
 			connect(ProviderButton, &YSSCore::Widgets::MultiButton::clicked, this,
 				&NewProjectWin::onTemplateButtonClicked);
 		}
-		ProjectTemplateWidget->setFixedHeight(providers.size() * 90);
+		ProjectTemplateWidget->setFixedHeight(providers.size() * 100);
 	}
 	void NewProjectWin::onTemplateButtonClicked() {
 		YSSCore::Widgets::MultiButton* Button = static_cast<YSSCore::Widgets::MultiButton*>(sender());

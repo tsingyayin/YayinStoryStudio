@@ -2,6 +2,8 @@
 #include <QtGui/qcolor.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qiodevice.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qmap.h>
 #include "../../Utility/JsonConfig.h"
 #include "../StyleSheetTemplate.h"
 #include "../../Utility/FileUtility.h"
@@ -12,8 +14,48 @@ namespace YSSCore::Widgets {
 		friend class ThemeManager;
 	protected:
 		YSSCore::Utility::JsonConfig* Config = nullptr;
-		StyleSheetTemplate TemplateSS;
+		QMap<QString, StyleSheetTemplate*> TemplateSS;
 		static ThemeManager* Instance;
+		void addStyleSheetTemplate(const QString& key, StyleSheetTemplate* templateSS) {
+			if (TemplateSS.contains(key)) {
+				delete TemplateSS[key];
+			}
+			TemplateSS[key] = templateSS;
+		}
+		QString getRawStyleSheet(const QString& key) {
+			QStringList keys = key.split("::");
+			if (keys.size() != 2) {
+				return "";
+			}
+			if (TemplateSS.contains(keys[0])) {
+				return TemplateSS[keys[0]]->getRawStyleSheet(keys[1]);
+			}
+			else {
+				yErrorF << "StyleSheetTemplate not found for key:" << key;
+				return QString();
+			}
+		}
+		QString getStyleSheet(const QString& key, YSSCore::Utility::JsonConfig* config = nullptr, QWidget* getter = nullptr) {
+			QStringList keys = key.split("::");
+			if (keys.size() != 2) {
+				return "";
+			}
+			if (TemplateSS.contains(keys[0])) {
+				return TemplateSS[keys[0]]->getStyleSheet(keys[1], config, getter);
+			}
+			else {
+				yErrorF << "StyleSheetTemplate not found for key:" << key;
+				return QString();
+			}
+		}
+		~ThemeManagerPrivate() {
+			for(auto ss: TemplateSS) {
+				delete ss;
+			}
+			if (Config != nullptr) {
+				delete Config;
+			}
+		}
 	};
 	ThemeManager* ThemeManagerPrivate::Instance = nullptr;
 	ThemeManager::ThemeManager(QObject* parent) : QObject(parent) {
@@ -36,19 +78,15 @@ namespace YSSCore::Widgets {
 	}
 	void ThemeManager::loadStyleTemplate(const QString& path) {
 		QString all = YSSCore::Utility::FileUtility::readAll(path);
-		d->TemplateSS.parse(all);
+		StyleSheetTemplate* templateSS = new StyleSheetTemplate();
+		templateSS->parse(all);
+		d->addStyleSheetTemplate(templateSS->getTemplateID(), templateSS);
 	}
 	QString ThemeManager::getThemeName() {
 		return d->Config->getString("ThemeName");
 	}
-	QString ThemeManager::getTemplateName() {
-		return d->TemplateSS.getTemplateName();
-	}
 	QString ThemeManager::getThemeID() {
 		return d->Config->getString("ThemeID");
-	}
-	QString ThemeManager::getTemplateID() {
-		return d->TemplateSS.getTemplateID();
 	}
 	QColor ThemeManager::getColor(const QString& key) {
 		QString color = d->Config->getString(key);
@@ -69,9 +107,9 @@ namespace YSSCore::Widgets {
 		}
 	}
 	QString ThemeManager::getRawStyleSheet(const QString& key) {
-		return d->TemplateSS.getRawStyleSheet(key);
+		return d->getRawStyleSheet(key);
 	}
 	QString ThemeManager::getStyleSheet(const QString& key, QWidget* getter) {
-		return d->TemplateSS.getStyleSheet(key, d->Config, getter);
+		return d->getStyleSheet(key, d->Config, getter);
 	}
 }

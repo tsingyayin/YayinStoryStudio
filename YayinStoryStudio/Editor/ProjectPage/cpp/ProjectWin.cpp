@@ -45,10 +45,13 @@ namespace YSS::ProjectPage {
 		OptionWidget = new QWidget(this);
 		CreateProjectButton = new QPushButton(OptionWidget);
 		CreateProjectButton->setText(YSSTR("YSS::project.createNewProject"));
+		CreateProjectButton->setToolTip(YSSTR("YSS::tooltips.projectWin.createNewProject"));
 		OpenFolderButton = new QPushButton(OptionWidget);
 		OpenFolderButton->setText(YSSTR("YSS::project.openFolder"));
+		OpenFolderButton->setToolTip(YSSTR("YSS::tooltips.projectWin.openFolder"));
 		CloneGitButton = new QPushButton(OptionWidget);
 		CloneGitButton->setText(YSSTR("YSS::project.cloneFromGit"));
+		CloneGitButton->setToolTip(YSSTR("YSS::tooltips.projectWin.cloneFromGit"));
 		ButtonLayout = new QVBoxLayout(OptionWidget);
 		OptionWidget->setLayout(ButtonLayout);
 		ButtonLayout->addWidget(CreateProjectButton);
@@ -67,7 +70,7 @@ namespace YSS::ProjectPage {
 		Layout->setColumnStretch(1, 1);
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
-		this->setStyleSheet(YSSTM->getStyleSheet("ProjectWin", this));
+		this->setStyleSheet(YSSTMSS("YSS::ProjectWin", this));
 
 		loadProject();
 
@@ -129,7 +132,7 @@ namespace YSS::ProjectPage {
 			}
 		}
 
-		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 70);
+		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 100);
 		delete project;
 		project = nullptr;
 	}
@@ -225,23 +228,24 @@ namespace YSS::ProjectPage {
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			YSSCore::Widgets::MultiButton* label = new YSSCore::Widgets::MultiButton(HistoryProjectWidget);
 			label->setObjectName("HistoryProject");
-			label->setNormalStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Normal"));
-			label->setHoverStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Hover"));
-			label->setPressedStyleSheet(YSSTM->getStyleSheet("ProjectWin.HistoryProject.Pressed"));
+			label->setNormalStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Normal"));
+			label->setHoverStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Hover"));
+			label->setPressedStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Pressed"));
 			label->setTitle(project->getProjectName());
 			QString lastModifyTime = project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss");
 			label->setDescription(lastModifyTime + "\t" + project->getProjectFolder());
 			HistoryProjectLabelList.append(label);
 			HistoryProjectLayout->addWidget(label);
-			label->setSpacing(0);
-			label->setContentsMargins(5, 5, 5, 5);
-			label->setToolTip("单击查看详情，双击打开项目");
+			label->setSpacing(5);
+			label->setContentsMargins(10, 10, 10, 10);
+			label->setToolTip(YSSTR("YSS::tooltips.projectWin.project"));
+			label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 			//label->setFixedHeight(50);
 			label->show();
 			HistoryProjectMap[label] = project;
 			connect(label, &YSSCore::Widgets::MultiButton::clicked, this, &ProjectWin::onProjectSelected);
 			connect(label, &YSSCore::Widgets::MultiButton::doubleClicked, this, &ProjectWin::onProjectDoubleClicked);
 		}
-		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 70);
+		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 100);
 	}
 }

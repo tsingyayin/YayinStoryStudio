@@ -15,7 +15,7 @@ namespace YSSCore::__Private__ {
 		this->self = self;
 		this->Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
-		self->setStyleSheet(YSSTM->getStyleSheet("ConfigWidget", self));
+		self->setStyleSheet(YSSTMSS("YSS::ConfigWidget", self));
 	}
 	ConfigWidgetPrivate::~ConfigWidgetPrivate() {
 		saveConfig();
@@ -44,7 +44,7 @@ namespace YSSCore::__Private__ {
 			//w->setStyleSheet("QWidget{border:1px solid black}");
 			Layout->addWidget(w);
 		}
-		self->setStyleSheet(YSSTM->getStyleSheet("ConfigWidget", self));
+		self->setStyleSheet(YSSTMSS("YSS::ConfigWidget", self));
 		this->initConfig();
 	}
 	void ConfigWidgetPrivate::initConfig() {
@@ -163,7 +163,7 @@ namespace YSSCore::__Private__ {
 		MultiLabel->setDescription(YSSI18N(config.getString("text")));
 		QString iconPath = config.getString("icon");
 		if (!iconPath.isEmpty()) {
-			MultiLabel->setPixmap(QPixmap(iconPath));
+			MultiLabel->setPixmapPath(iconPath);
 		}
 		MultiLabel->setAlignment(Qt::AlignLeft);
 		//MultiLabel->setFixedHeight(80);

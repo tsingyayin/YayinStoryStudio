@@ -119,7 +119,7 @@ void ASEAStoryPTIW::refreshWhereLabel() {
 }
 ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :ProjectTemplateProvider(plugin)
 {
-	setTemplateIcon(QImage(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png"));
+	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
 	setTemplateID("ASEAStoryProject");
 	setTemplateName(YSSTR("ASEDevTool::provider.astory.name"));
 	setTemplateDescription(YSSTR("ASEDevTool::provider.astory.description"));

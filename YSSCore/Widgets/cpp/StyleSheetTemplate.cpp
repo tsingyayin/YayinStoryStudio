@@ -63,6 +63,15 @@ namespace YSSCore::Widgets {
 						d->TemplateName = para[1].trimmed();
 					}
 				}
+				else if (lines[i].startsWith("!TemplateID")) {
+					QStringList para = lines[i].split(":");
+					if (para.length() != 2) {
+						continue;
+					}
+					else {
+						d->TemplateID = para[1].trimmed();
+					}
+				}
 			}
 			else {
 				if (lines[i].startsWith("@")) {

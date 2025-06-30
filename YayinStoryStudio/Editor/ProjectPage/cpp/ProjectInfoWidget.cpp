@@ -21,7 +21,9 @@ namespace YSS::ProjectPage {
 		LastModifiedTimeLabel = new QLabel(this);
 		SizeLabel = new QLabel(this);
 		ShowInBrowserButton = new QPushButton(this);
+		ShowInBrowserButton->setToolTip(YSSTR("YSS::tooltips.projectWin.showInBrowser"));
 		DeleteButton = new QPushButton(this);
+		DeleteButton->setToolTip(YSSTR("YSS::tooltips.projectWin.delete"));
 		Layout = new QGridLayout(this);
 		DeleteButton->setObjectName("DeleteButton");
 		this->setLayout(Layout);

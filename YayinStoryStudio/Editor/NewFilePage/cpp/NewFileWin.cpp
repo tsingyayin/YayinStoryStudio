@@ -58,7 +58,7 @@ namespace YSS::NewFilePage {
 		SearchLineEdit->setFixedHeight(30);
 		RecentTemplateTitle->setText(YSSTR("YSS::project.recentUsed"));
 
-		this->setStyleSheet(YSSTM->getStyleSheet("FileWin", this));
+		this->setStyleSheet(YSSTMSS("YSS::FileWin", this));
 
 		this->loadFileTemplate();
 	}
@@ -78,10 +78,10 @@ namespace YSS::NewFilePage {
 			YSSCore::Widgets::MultiButton* ProviderButton = new YSSCore::Widgets::MultiButton(FileTemplateWidget);
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
-			ProviderButton->setPixmap(QPixmap(provider->getTemplateIcon().pixmap(QSize(64, 64))));
-			ProviderButton->setNormalStyleSheet(YSSTM->getStyleSheet("FileWin.HistoryFile.Normal"));
-			ProviderButton->setHoverStyleSheet(YSSTM->getStyleSheet("FileWin.HistoryFile.Hover"));
-			ProviderButton->setPressedStyleSheet(YSSTM->getStyleSheet("FileWin.HistoryFile.Pressed"));
+			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
+			ProviderButton->setNormalStyleSheet(YSSTMSS("YSS::FileWin.HistoryFile.Normal"));
+			ProviderButton->setHoverStyleSheet(YSSTMSS("YSS::FileWin.HistoryFile.Hover"));
+			ProviderButton->setPressedStyleSheet(YSSTMSS("YSS::FileWin.HistoryFile.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->addCustomWidget(tags);

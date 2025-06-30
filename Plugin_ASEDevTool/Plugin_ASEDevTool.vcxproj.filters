@@ -50,6 +50,9 @@
     <ClCompile Include="FileTemplateProvider\cpp\ASEAStoryFTP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LangServer\cpp\ASEParameter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -71,6 +74,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DebugServer\CrossVersion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LangServer\ASRuleAdaptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LangServer\ASRuleParameter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LangServer\ASEController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LangServer\ASEParameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

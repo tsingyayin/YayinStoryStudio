@@ -21,12 +21,16 @@
 			"light":"浅色"
 		}
 	},
-	"simpleWidget":{
-		"EAWarning": {
-			"title":"早 期 测 试 版 警 告",
-			"text":"当前Yayin Story Studio仍然处于早期测试阶段，在页面美化上存在严重欠缺，功能和稳定性也可能存在问题。\n使用早期测试版时，建议您经常保存并备份项目，避免数据丢失。"
+	"tooltips": {
+		"projectWin":{
+			"project": "单击查看详情，双击打开该项目",
+			"showInBrowser": "从系统资源管理器中打开项目所在文件夹",
+			"delete": "从列表中移除项目",
+			"createNewProject": "从项目模板创建一个新项目",
+			"openFolder": "打开一个Yayin Story Studio 项目",
+			"cloneFromGit": "从给定的Git仓库地址克隆一个项目"
 		}
-	},	
+	},
 	"project":{
 		"projectManager":"项目管理器",
 		"selectToShow": "选择项目以查看详情...",
@@ -40,7 +44,7 @@
 		"deleteConfirm": "Yayin Story Studio 当前不支持安全删除项目到回收站。\n因此安全起见，按下确定后，只会将项目从列表中移除。\n您稍后可以在资源浏览器中自行删除项目。\n\n是否继续？",
 		"removeFromList":"从列表中移除",
 		"createNewProject":"创建新项目",
-		"openFolder":"打开文件夹",
+		"openFolder":"打开项目",
 		"openYSSProject": "打开YSS项目",
 		"cloneFromGit":"从Git克隆",
 		"createFromTemplate":"从模板新建",

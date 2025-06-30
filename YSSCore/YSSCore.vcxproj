@@ -207,6 +207,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="General\cpp\ProjectMessageCollector.cpp" />
+    <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Editor\cpp\DebugData.cpp" />
     <ClCompile Include="Editor\cpp\DebugFailedData.cpp" />
