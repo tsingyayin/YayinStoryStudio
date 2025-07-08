@@ -115,7 +115,7 @@ QString ASEParameter::getName() {
 }
 
 qint32 ASEParameter::toEnum(const QMetaEnum& metaEnum) {
-	metaEnum.keyToValue(d->RawInput.toUtf8().constData());
+	return metaEnum.keyToValue(d->RawInput.toUtf8().constData());
 }
 
 void ASEParameter::fromEnum(const QMetaEnum& metaEnum, qint32 value) {

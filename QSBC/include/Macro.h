@@ -1,23 +1,23 @@
 #pragma once
 
-#define YSSCoreAPI __declspec(dllimport)
-#ifdef YSSCore_DEVELOPMENT
-#undef YSSCoreAPI
-#define YSSCoreAPI
+#define QSBCAPI __declspec(dllimport)
+#ifdef QSBC_DEVELOPMENT
+#undef QSBCAPI
+#define QSBCAPI
 #endif
-#ifdef YSSCore_EXPORT
-#undef YSSCoreAPI
-#define YSSCoreAPI __declspec(dllexport)
+#ifdef QSBC_EXPORT
+#undef QSBCAPI
+#define QSBCAPI __declspec(dllexport)
 #endif
 
 #define VIAPIClass(name) \
 	class name##Private; \
-	class YSSCoreAPI name
-	
+	class QSBCAPI name
+
 #define VImpl(name)\
 	friend class name##Private; \
 	private: name##Private* d; \
-	
+
 #define VImplClass(name) \
 	class name##Private
 

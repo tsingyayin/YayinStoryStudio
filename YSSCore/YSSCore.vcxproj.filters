@@ -283,6 +283,9 @@
     <ClInclude Include="General\ProjectMessageData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\StringMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
