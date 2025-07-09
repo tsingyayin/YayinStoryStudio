@@ -22,18 +22,12 @@ ASRuleFileEditWidget::ASRuleFileEditWidget(QWidget* parent) : YSSCore::Editor::F
 ASRuleFileEditWidget::~ASRuleFileEditWidget() {
 	// Cleanup if needed
 }
-QString ASRuleFileEditWidget::getFilePath() const {
-	return FilePath;
-}
-QString ASRuleFileEditWidget::getFileName() const {
-	return QFileInfo(FilePath).fileName();
-}
-bool ASRuleFileEditWidget::openFile(const QString& path) {
+
+bool ASRuleFileEditWidget::onOpen(const QString& path) {
 	if (path.isEmpty()) {
 		qDebug() << "File path is empty.";
 		return false;
 	}
-	FilePath = path;
 	QFile file(path);
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		qDebug() << "Failed to open file:" << path;
@@ -52,9 +46,6 @@ bool ASRuleFileEditWidget::onClose() {
 }
 
 bool ASRuleFileEditWidget::onSave(const QString& path) {
-	return true;
-}
-bool ASRuleFileEditWidget::onSaveAs(const QString& path) {
 	return true;
 }
 bool ASRuleFileEditWidget::onReload() {

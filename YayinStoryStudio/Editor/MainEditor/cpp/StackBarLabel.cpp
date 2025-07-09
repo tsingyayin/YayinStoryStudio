@@ -22,7 +22,7 @@ namespace YSS::Editor {
 		this->setLayout(Layout);
 		TargetWidget = target;
 		connect(CloseButton, &QPushButton::clicked, this, [this]() {
-			bool closeable = TargetWidget->onClose();
+			bool closeable = TargetWidget->closeFile();
 			if (closeable) {
 				emit closeReady(this);
 			}

@@ -3,6 +3,7 @@
 #include "../Macro.h"
 
 class QString;
+class QTextDocument;
 class QSyntaxHighlighter;
 
 namespace YSSCore::Editor {
@@ -14,7 +15,7 @@ namespace YSSCore::Editor {
 	public:
 		LangServer(EditorPlugin* plugin, QString id, QStringList ext);
 		virtual ~LangServer();
-		virtual QSyntaxHighlighter* createHighlighter() = 0;
+		virtual QSyntaxHighlighter* createHighlighter(QTextDocument* doc) = 0;
 		QString getLangID();
 		QStringList getLangExts();
 		EditorPlugin* getPlugin();

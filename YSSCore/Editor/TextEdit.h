@@ -1,4 +1,5 @@
 #pragma once
+#include "../Macro.h"
 #include "FileEditWidget.h"
 #include <QtGui/qtextcursor.h>
 class QTextEdit;
@@ -7,29 +8,13 @@ class QSyntaxHighlighter;
 
 namespace YSSCore::Editor {
 	class HoverTip;
-
-	class TextEdit :public YSSCore::Editor::FileEditWidget {
+	class TextEditPrivate;
+	class YSSCoreAPI TextEdit :public YSSCore::Editor::FileEditWidget {
 		Q_OBJECT;
-	private:
-		QTextEdit* Line;
-		QTextEdit* Text;
-		QHBoxLayout* Layout;
-		qint32 LineCount = 0;
-		qint8 TabWidth = 4;
-		qint32 LastCursorLine = 0;
-		QTextCursor LastCursor;
-		QFont Font;
-		QFontMetricsF* FontMetrics;
-		QSyntaxHighlighter* Highlighter;
-		bool ReloadTab = true;
-		HoverTip* Hover = nullptr;
-		QString FilePath;
-		bool TextChanged = false;
+		VImpl(TextEdit);
 	public:
 		TextEdit(QWidget* parent = nullptr);
 		virtual ~TextEdit();
-		virtual bool openFile(const QString& path) override;
-		void saveFile(const QString& path = "");
 	private:
 		void onBlockCountChanged(qint32 count);
 		virtual bool eventFilter(QObject* obj, QEvent* event) override;
@@ -38,12 +23,10 @@ namespace YSSCore::Editor {
 		void onEnterClicked(QKeyEvent* event);
 		void onMouseMove(QMouseEvent* event);
 		void onCursorPositionChanged();
-		void onTextChanged();
-		virtual QString getFilePath() const override;
-		virtual QString getFileName() const override;
+	protected:
+		virtual bool onOpen(const QString& path) override;
 		virtual bool onClose() override;
 		virtual bool onSave(const QString& path = "") override;
-		virtual bool onSaveAs(const QString& path = "") override;
 		virtual bool onReload() override;
 	};
 }

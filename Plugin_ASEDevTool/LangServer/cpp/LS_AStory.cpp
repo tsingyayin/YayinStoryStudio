@@ -1,11 +1,11 @@
 #include "../LS_AStory.h"
 #include "../SH_AStory.h"
-
+#include <QtGui/qtextdocument.h>
 AStoryLanguageServer::AStoryLanguageServer(YSSCore::Editor::EditorPlugin* plugin) :
 	YSSCore::Editor::LangServer(plugin, "AStory", { "astory" })
 {
 }
 
-QSyntaxHighlighter* AStoryLanguageServer::createHighlighter() {
-	return new AStorySyntaxHighlighter();
+QSyntaxHighlighter* AStoryLanguageServer::createHighlighter(QTextDocument* doc) {
+	return new AStorySyntaxHighlighter(doc);
 }

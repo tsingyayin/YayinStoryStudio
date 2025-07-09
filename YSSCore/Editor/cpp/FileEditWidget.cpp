@@ -1,6 +1,14 @@
 #include "../FileEditWidget.h"
+#include <QtGui/qevent.h>
+#include <QtCore/qfileinfo.h>
 
 namespace YSSCore::Editor {
+	VImplClass(FileEditWidget) {
+		VIAPI(FileEditWidget);
+protected:
+		bool fileChanged = false;
+		QString filePath;
+	};
 	/*!
 		\class YSSCore::Editor::FileEditWidget
 		\brief 此类为Yayin Story Studio 提供文件编辑的基类。
@@ -12,7 +20,58 @@ namespace YSSCore::Editor {
 		FileEditWidget除了是继承自QFrame之外，几乎相当于纯虚接口类。此类所有成员函数均为纯虚函数。
 	*/
 	FileEditWidget::FileEditWidget(QWidget* parent) : QFrame(parent) {
-		// Constructor implementation
+		d = new FileEditWidgetPrivate;
+	}
+	FileEditWidget::~FileEditWidget() {
+		delete d;
+	}
+	QString FileEditWidget::getFilePath() const {
+		return d->filePath;
+	}
+	QString FileEditWidget::getFileName() const {
+		return QFileInfo(d->filePath).fileName();
+	}
+	bool FileEditWidget::isFileChanged() const {
+		return d->fileChanged;
+	}
+	void FileEditWidget::setFileChanged() {
+		d->fileChanged = true;
+		emit fileChanged(d->filePath);
+	}
+	void FileEditWidget::cancelFileChanged() {
+		d->fileChanged = false;
+	}
+	bool FileEditWidget::openFile(const QString& path) {
+		if (path.isEmpty()) {
+			return false;
+		}
+		d->filePath = path;
+		return onOpen(path);
+	}
+	bool FileEditWidget::saveFile(const QString& path) {
+		if (path.isEmpty()) {
+			if (d->filePath.isEmpty()) {
+				return false;
+			}			
+		} else {
+			d->filePath = path;
+		}
+		bool ok = onSave(d->filePath);
+		if (ok) {
+			d->fileChanged = false;
+			emit fileSaved(d->filePath);
+		}
+		return ok;
+	}
+	bool FileEditWidget::closeFile() {
+		return onClose();
+	}
+	void FileEditWidget::closeEvent(QCloseEvent* event) {
+		if (onClose()) {
+			event->accept();
+		} else {
+			event->ignore();
+		}
 	}
 }
 
