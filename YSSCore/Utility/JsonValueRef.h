@@ -2,14 +2,15 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qjsonvalue.h>
 #include "../Macro.h"
-
+// Forward declarations
 class QString;
-
 namespace YSSCore::Utility {
 	class JsonConfig;
 	class JsonDocument;
 	class VIJsonValueRefPrivate;
-
+}
+// Main
+namespace YSSCore::Utility {
 	class YSSCoreAPI JsonValueRef {
 		friend class JsonConfig;
 		friend class JsonDocument;

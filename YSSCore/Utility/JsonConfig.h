@@ -1,12 +1,15 @@
 #pragma once
 #include <QtCore/qjsondocument.h>
 #include "../Macro.h"
-
+// Forward declarations
 class QString;
 class QJsonValue;
 namespace YSSCore::Utility {
 	class JsonConfigPrivate;
 	class JsonValueRef;
+}
+// Main
+namespace YSSCore::Utility {
 	class YSSCoreAPI JsonConfig
 	{
 		friend class JsonConfigPrivate;

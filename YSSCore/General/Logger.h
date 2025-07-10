@@ -1,9 +1,13 @@
 #pragma once
 #include "../Macro.h"
+// Forward declarations
 class QString;
 namespace YSSCore::General {
 	class LoggerMsgHandler;
 	class LoggerPrivate;
+}
+// Main
+namespace YSSCore::General {
 	class YSSCoreAPI Logger {
 	public:
 		enum Level {
@@ -41,7 +45,7 @@ namespace YSSCore::General {
 		LoggerPrivate* d;
 	};
 }
-
+// Global Macros
 #define yDebug YSSCore::General::Logger::global()->debug()
 #define yMessage YSSCore::General::Logger::global()->message()
 #define yInfo YSSCore::General::Logger::global()->info()

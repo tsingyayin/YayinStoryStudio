@@ -2,15 +2,15 @@
 #include <QtCore/qobject.h>
 #include <QtWidgets/qframe.h>
 #include "../Macro.h"
-
+// Forward declarations
 namespace YSSCore::__Private__ {
 	class ConfigWidgetPrivate;
 }
 namespace YSSCore::Utility {
 	class JsonConfig;
 }
+// Main
 namespace YSSCore::Widgets {
-	class ConfigWidgetPrivate;
 	class YSSCoreAPI ConfigWidget :public QFrame {
 		friend class YSSCore::__Private__::ConfigWidgetPrivate;
 		Q_OBJECT;

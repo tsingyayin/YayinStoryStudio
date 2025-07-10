@@ -1,9 +1,12 @@
 #pragma once
 #include "../Macro.h"
-
+// Forward declarations
 class QWidget;
 namespace YSSCore::Widgets {
 	class WidgetDisplayStackPrivate;
+}
+// Main
+namespace YSSCore::Widgets {
 	class YSSCoreAPI WidgetDisplayStack {
 	public:
 		WidgetDisplayStack();

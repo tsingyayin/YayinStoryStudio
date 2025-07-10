@@ -7,7 +7,6 @@
 namespace YSS::Editor {
 	FileEditorArea::FileEditorArea(QWidget* parent) : QWidget(parent) {
 		Bar = new StackBar(this);
-		Bar->setFixedHeight(50);
 		Layout = new QVBoxLayout(this);
 		Layout->addWidget(Bar);
 		DefaultWidget = new QWidget(this);

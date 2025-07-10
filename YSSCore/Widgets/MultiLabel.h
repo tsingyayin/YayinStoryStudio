@@ -1,12 +1,16 @@
 #pragma once
 #include <QtWidgets/qframe.h>
 #include "../Macro.h"
+//// Forward declarations
 class QLabel;
 class QString;
 class QIcon;
 class QPixmap;
 namespace YSSCore::Widgets {
 	class MultiLabelPrivate;
+}
+// Main
+namespace YSSCore::Widgets {
 	class YSSCoreAPI MultiLabel :public QFrame {
 	public:
 		MultiLabel(QWidget* parent = nullptr);

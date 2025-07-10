@@ -1,9 +1,13 @@
 #pragma once
 #include <QtCore/qstring.h>
 #include "../Macro.h"
+// Forward declarations
 class QByteArray;
 namespace YSSCore::Utility {
 	class VirtualFilePrivate;
+}
+// Main
+namespace YSSCore::Utility {
 	class YSSCoreAPI VirtualFile {
 	public:
 		VirtualFile(const QString& savePath = "");
@@ -19,5 +23,5 @@ namespace YSSCore::Utility {
 	};
 	using TempFile = VirtualFile;
 }
-
+// Global Macros
 #define YSSVirtualFile YSSCore::Utility::VirtualFile::getInstance()->file

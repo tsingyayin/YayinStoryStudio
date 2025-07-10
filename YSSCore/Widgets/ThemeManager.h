@@ -1,12 +1,15 @@
 #pragma once
 #include <QtCore/qobject.h>
 #include "../Macro.h"
-
+// Forward declarations
 class QWidget;
 class QColor;
 class QString;
 namespace YSSCore::Widgets {
 	class ThemeManagerPrivate;
+}
+// Main
+namespace YSSCore::Widgets {
 	class YSSCoreAPI ThemeManager :public QObject
 	{
 		Q_OBJECT;
@@ -26,7 +29,7 @@ namespace YSSCore::Widgets {
 		ThemeManagerPrivate* d;
 	};
 }
-
+// Global Macros
 #define YSSTM YSSCore::Widgets::ThemeManager::getInstance()
 #define YSSTMRSS YSSCore::Widgets::ThemeManager::getInstance()->getRawStyleSheet
 #define YSSTMSS YSSCore::Widgets::ThemeManager::getInstance()->getStyleSheet

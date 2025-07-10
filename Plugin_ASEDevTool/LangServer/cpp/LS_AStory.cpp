@@ -9,3 +9,7 @@ AStoryLanguageServer::AStoryLanguageServer(YSSCore::Editor::EditorPlugin* plugin
 QSyntaxHighlighter* AStoryLanguageServer::createHighlighter(QTextDocument* doc) {
 	return new AStorySyntaxHighlighter(doc);
 }
+
+YSSCore::Editor::TabCompleterProvider* AStoryLanguageServer::createTabCompleter(QTextDocument* doc) {
+	return nullptr; //TODO
+}

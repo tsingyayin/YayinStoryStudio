@@ -268,6 +268,10 @@
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
     <QtMoc Include="General\ProjectMessageCollector.h" />
+    <QtMoc Include="Editor\private\TextEdit_p.h" />
+    <ClInclude Include="Editor\private\TabCompleterProvider_p.h" />
+    <ClInclude Include="Editor\TabCompleter.h" />
+    <ClInclude Include="Editor\TabCompleterProvider.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
     <ClInclude Include="Utility\StringMacro.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
@@ -279,7 +283,6 @@
     <ClInclude Include="General\LoggerMsgHandler.h" />
     <ClInclude Include="General\private\LoggerMsgHandler_p.h" />
     <ClInclude Include="Utility\GeneralConfig.h" />
-    <ClInclude Include="Utility\Variable.h" />
     <QtMoc Include="Widgets\private\ConfigWidget_p.h" />
     <ClInclude Include="Widgets\TempFloatWidget.h" />
     <ClInclude Include="General\private\Translator_p.h" />

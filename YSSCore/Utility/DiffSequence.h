@@ -1,9 +1,12 @@
 #pragma once
 #include "../Macro.h"
+// Forward declarations
 namespace YSSCore::Utility {
 	class DiffUnitPrivate;
 	class DiffSequencePrivate;
-
+}
+// Main
+namespace YSSCore::Utility {
 	class YSSCoreAPI DiffUnit {
 		friend class DiffUnitPrivate;
 		friend class DiffSequencePrivate;

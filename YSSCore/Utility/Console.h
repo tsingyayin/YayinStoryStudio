@@ -2,9 +2,10 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qbytearray.h>
 #include "../Macro.h"
-
+// Forward declarations
 class QString;
 class QColor;
+// Main
 namespace YSSCore::Utility {
 	class YSSCoreAPI Console {
 	public:

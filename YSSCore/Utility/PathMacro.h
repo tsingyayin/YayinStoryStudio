@@ -1,10 +1,13 @@
 #pragma once
 #include "../Macro.h"
 #include <functional>
+// Forward declarations
 class QString;
-
 namespace YSSCore::Utility {
 	class PathMacroPrivate;
+}
+// Main
+namespace YSSCore::Utility {
 	class YSSCoreAPI PathMacro {
 		friend class PathMacroPrivate;
 	public:
@@ -17,5 +20,5 @@ namespace YSSCore::Utility {
 		PathMacroPrivate* d;
 	};
 }
-
+// Global Macros
 #define YSSPathMacro YSSCore::Utility::PathMacro::getInstance()->replace

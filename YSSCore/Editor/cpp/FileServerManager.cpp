@@ -117,6 +117,14 @@ namespace YSSCore::Editor {
 					return server->openFile(filePath);
 				}
 			}
+			
+		} else {
+			FileEditWidget* feWidget = new TextEdit();
+			bool ok = feWidget->openFile(filePath);
+			if (ok) {
+				emit builtinEditorCreated(feWidget);
+				return true;
+			}
 		}
 		return false;
 	}

@@ -1,8 +1,11 @@
 #pragma once
 #include "MultiLabel.h"
-
+// Forward declarations
 namespace YSSCore::Widgets {
 	class MultiButtonPrivate;
+}
+// Main
+namespace YSSCore::Widgets {
 	class YSSCoreAPI MultiButton :public MultiLabel {
 		Q_OBJECT;
 	signals:

@@ -1,9 +1,12 @@
 #pragma once
 #include "DiffSequence.h"
 #include <QtCore/qstring.h>
-
+// Forward declarations
 namespace YSSCore::Utility {
 	class CodeLinePrivate;
+}
+// Main
+namespace YSSCore::Utility {
 	class YSSCoreAPI CodeLine :public DiffUnit {
 	public:
 		CodeLine(const QString& str);

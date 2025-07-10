@@ -2,9 +2,9 @@
 #include "../Macro.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
-
+// Forward declarations
 class QByteArray;
-
+// Main
 namespace YSSCore::Utility {
 	class YSSCoreAPI FileUtility {
 	public:

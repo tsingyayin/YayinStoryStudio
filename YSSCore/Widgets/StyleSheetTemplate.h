@@ -1,14 +1,16 @@
 #pragma once
 #include "../Macro.h"
-
+// Forward declarations
 class QString;
 class QWidget;
-
 namespace YSSCore::Utility {
 	class JsonConfig;
 }
 namespace YSSCore::Widgets {
 	class StyleSheetTemplatePrivate;
+}
+// Main
+namespace YSSCore::Widgets {
 	class YSSCoreAPI StyleSheetTemplate {
 	public:
 		StyleSheetTemplate();

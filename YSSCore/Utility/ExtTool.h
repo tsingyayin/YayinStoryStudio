@@ -1,7 +1,7 @@
 #pragma once
 #include "../Macro.h"
 #include <QtCore/qstring.h>
-
+// Main
 namespace YSSCore::Utility {
 	class YSSCoreAPI ExtTool {
 	public:

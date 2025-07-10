@@ -7,12 +7,13 @@
 #include <General/YSSProject.h>
 namespace YSS::Editor {
 	StackBar::StackBar(QWidget* parent) : QWidget(parent) {
+		this->setFixedHeight(30);
 		ScrollArea = new QScrollArea(this);
 		ScrollArea->setWidgetResizable(true);
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 		ScrollAreaWidget = new QWidget(ScrollArea);
-		ScrollAreaWidget->setFixedSize(0, 0);
+		ScrollAreaWidget->setFixedSize(0, 50);
 		ScrollArea->setWidget(ScrollAreaWidget);
 		Layout = new QHBoxLayout(ScrollAreaWidget);
 		ScrollAreaWidget->setLayout(Layout);

@@ -1,39 +1,226 @@
-#include "../TextEdit.h"
-#include <QDebug>
-#include "../LangServer.h"
 #include "../../Widgets/ThemeManager.h"
+#include "../../General/Log.h"
+#include "../TextEdit.h"
+#include "../private/TextEdit_p.h"
+#include "../LangServer.h"
 #include "../LangServerManager.h"
-#include <QtWidgets/qtextbrowser.h>
+#include <QDebug>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtCore/qfileinfo.h>
 #include <QtGui/qsyntaxhighlighter.h>
 #include <QtWidgets/qmessagebox.h>
 
-namespace YSSCore::Editor {
-	class TextEditPrivate {
-		friend class TextEdit;
-	protected:
-		QTextEdit* Line = nullptr;
-		QTextEdit* Text = nullptr;
-		QHBoxLayout* Layout = nullptr;
-		qint32 LineCount = 0;
-		qint8 TabWidth = 4;
-		qint32 LastCursorLine = 0;
-		QTextCursor LastCursor;
-		QFont Font;
-		QFontMetricsF* FontMetrics;
-		QSyntaxHighlighter* Highlighter;
-		bool ReloadTab = true;
-		HoverTip* Hover = nullptr;
-		TextEditPrivate() {};
-		~TextEditPrivate() {
-			if (FontMetrics != nullptr) {
-				delete FontMetrics;
+namespace YSSCore::__Private__ {
+	void TextEditPrivate::onBlockCountChanged(qint32 count) {
+		qint32 delta = count - LineCount;
+		if (delta > 0) {
+			QTextCursor cursor = Line->textCursor();
+			cursor.movePosition(QTextCursor::End);
+			QTextBlockFormat blockFormat = cursor.blockFormat();
+			blockFormat.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
+			blockFormat.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
+			for (int i = 0; i < delta; i++) {
+				Line->append(QString::number(LineCount + i + 1));
+				cursor.movePosition(QTextCursor::Down);
+				cursor.setBlockFormat(blockFormat);
 			}
-			// do not delete Highlighter, it will be automaticly deleted by QTextDocument.
 		}
-	};
+		else {
+			for (int i = 0; i < -delta; i++) {
+				QTextCursor cursor = QTextCursor(Line->document()->findBlockByNumber(LineCount - i - 1));
+				cursor.select(QTextCursor::BlockUnderCursor);
+				cursor.removeSelectedText();
+				cursor.deleteChar();
+			}
+		}
+		LineCount = count;
+	}
+
+	void TextEditPrivate::onCursorPositionChanged() {
+		QTextCursor cursor = Text->textCursor();
+		int index = cursor.block().blockNumber();
+		if (index == LastCursorLine) {
+			return;
+		}
+		if (index >= Line->document()->blockCount()) {
+			onBlockCountChanged(index + 1);
+		}
+		if (Line->document()->findBlockByNumber(index).text().isEmpty()) {
+			return;
+		}
+		int delta = index - LastCursorLine;
+		QTextBlockFormat format = LastCursor.blockFormat();
+		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
+		format.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
+		LastCursor.setBlockFormat(format);
+		if (delta > 0) {
+			LastCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, delta);
+		}
+		else {
+			LastCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -delta);
+		}
+		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Selection"));
+		LastCursor.setBlockFormat(format);
+		LastCursorLine = index;
+	}
+
+	void TextEditPrivate::onTabClicked(QKeyEvent* event) {
+		if (event->key() == Qt::Key_Backtab) {
+			if (Text->textCursor().hasSelection()) {
+				QTextCursor cursor = Text->textCursor();
+				//判断cursor的行数量
+				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
+				bool reverse = cursor.position() == cursor.selectionEnd();
+				if (lineCount > 1) {
+					for (int i = 0; i < lineCount; i++) {
+						cursor.movePosition(QTextCursor::EndOfBlock);
+						cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+						QString text = cursor.selectedText();
+						if (text.length() == 0) {
+							continue;
+						}
+						cursor.movePosition(QTextCursor::StartOfBlock);
+						//删除行首1个tab或 TabWidth个空格
+						if (text[0] == '\t') {
+							cursor.deleteChar();
+						}
+						else {
+							for (int i = 0; i < TabWidth; i++) {
+								if (text[i] == ' ') {
+									cursor.deleteChar();
+								}
+								else {
+									break;
+								}
+							}
+						}
+						if (reverse) {
+							cursor.movePosition(QTextCursor::PreviousBlock);
+						}
+						else {
+							cursor.movePosition(QTextCursor::NextBlock);
+						}
+					}
+				}
+			}
+			else {
+				//从行首拉到光标位置
+				QTextCursor cursor = Text->textCursor();
+				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+				QString text = cursor.selectedText();
+				//判断是否都为空白字符（空格、制表符）
+				if (text.length() == 0) {
+					return;
+				}
+				bool allSpace = true;
+				for (int i = 0; i < text.length(); i++) {
+					if (text[i] != ' ' && text[i] != '\t') {
+						allSpace = false;
+						break;
+					}
+				}
+				if (allSpace) {
+					//删除行首1个tab或 TabWidth个空格
+					cursor = Text->textCursor();
+					cursor.movePosition(QTextCursor::StartOfBlock);
+					if (text[0] == '\t') {
+						cursor.deleteChar();
+					}
+					else {
+						for (int i = 0; i < TabWidth; i++) {
+							if (text[i] == ' ') {
+								cursor.deleteChar();
+							}
+							else {
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		else {
+			if (Text->textCursor().hasSelection()) {
+				QTextCursor cursor = Text->textCursor();
+				//判断cursor的行数量
+				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
+				bool reverse = cursor.position() == cursor.selectionEnd();
+				if (lineCount > 1) {
+					for (int i = 0; i < lineCount; i++) {
+						cursor.movePosition(QTextCursor::StartOfBlock);
+						if (ReloadTab) {
+							for (int i = 0; i < TabWidth; i++) {
+								cursor.insertText(QChar(' '));
+							}
+						}
+						else {
+							cursor.insertText("\t");
+						}
+						if (reverse) {
+							cursor.movePosition(QTextCursor::PreviousBlock);
+						}
+						else {
+							cursor.movePosition(QTextCursor::NextBlock);
+						}
+					}
+				}
+			}
+			else {
+				QTextCursor cursor = Text->textCursor();
+				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+				QString text = cursor.selectedText();
+				//判断是否都为空白字符（空格、制表符）
+				bool allSpace = true;
+				for (int i = 0; i < text.length(); i++) {
+					if (text[i] != ' ' && text[i] != '\t') {
+						allSpace = false;
+						break;
+					}
+				}
+				cursor = Text->textCursor();
+				if (allSpace) {
+					if (ReloadTab) {
+						for (int i = 0; i < TabWidth; i++) {
+							cursor.insertText(QChar(' '));
+						}
+					}
+					else {
+						cursor.insertText("\t");
+					}
+				}
+				else {
+					qDebug() << "insert tab";
+					cursor.insertText("\t");
+				}
+			}
+		}
+	}
+
+	void TextEditPrivate::onEnterClicked(QKeyEvent* event) {
+		QTextCursor cursor = Text->textCursor();
+		cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+		QString text = cursor.selectedText();
+		QString newSpace = "";
+		for (int i = 0; i < text.length(); i++) {
+			if (text[i] == ' ') {
+				newSpace += " ";
+			}
+			else if (text[i] == '\t') {
+				newSpace += "\t";
+			}
+			else {
+				break;
+			}
+		}
+		cursor = Text->textCursor();
+		cursor.insertText("\n" + newSpace);
+	}
+
+	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
+	}
+}
+namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::TextEdit
 		\brief 这是YSS最关键的功能：代码编辑器.
@@ -64,7 +251,7 @@ namespace YSSCore::Editor {
 		TextEdit的构造函数。
 	*/
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
-		d = new TextEditPrivate;
+		d = new YSSCore::__Private__::TextEditPrivate;
 		this->setMinimumSize(800, 600);
 
 		d->Font = QFont("Microsoft YaHei");
@@ -93,14 +280,14 @@ namespace YSSCore::Editor {
 		d->LastCursor = d->Line->textCursor();
 		d->LastCursor.movePosition(QTextCursor::Start);
 		d->LastCursorLine = 0;
-		connect(d->Text->document(), &QTextDocument::blockCountChanged, this, &TextEdit::onBlockCountChanged);
+		connect(d->Text->document(), &QTextDocument::blockCountChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onBlockCountChanged);
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
 			d->Line->verticalScrollBar()->setValue(value);
 			});
 		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
 			d->Text->verticalScrollBar()->setValue(value);
 			});
-		connect(d->Text, &QTextEdit::cursorPositionChanged, this, &TextEdit::onCursorPositionChanged);
+		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
 	}
 	/*!
@@ -111,50 +298,25 @@ namespace YSSCore::Editor {
 		delete d;
 	}
 
-	void TextEdit::onBlockCountChanged(qint32 count) {
-		qint32 delta = count - d->LineCount;
-		if (delta > 0) {
-			QTextCursor cursor = d->Line->textCursor();
-			cursor.movePosition(QTextCursor::End);
-			QTextBlockFormat blockFormat = cursor.blockFormat();
-			blockFormat.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
-			blockFormat.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
-			for (int i = 0; i < delta; i++) {
-				d->Line->append(QString::number(d->LineCount + i + 1));
-				cursor.movePosition(QTextCursor::Down);
-				cursor.setBlockFormat(blockFormat);
-			}
-		}
-		else {
-			for (int i = 0; i < -delta; i++) {
-				QTextCursor cursor = QTextCursor(d->Line->document()->findBlockByNumber(d->LineCount - i - 1));
-				cursor.select(QTextCursor::BlockUnderCursor);
-				cursor.removeSelectedText();
-				cursor.deleteChar();
-			}
-		}
-		d->LineCount = count;
-	}
-
 	bool TextEdit::eventFilter(QObject* obj, QEvent* event) {
 		if (obj == d->Text) {
 			if (event->type() == QEvent::KeyPress) {
 				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 				if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab) {
-					onTabClicked(keyEvent);
+					d->onTabClicked(keyEvent);
 					return true;
 				}
 				else if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
 					if (d->Text->textCursor().hasSelection()) { // 不改动选择时回车
 						return false;
 					}
-					onEnterClicked(keyEvent);
+					d->onEnterClicked(keyEvent);
 					return true;
 				}
 			}
 			else if (event->type() == QEvent::MouseMove) {
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-				onMouseMove(mouseEvent);
+				d->onMouseMove(mouseEvent);
 				return false;
 			}
 		}
@@ -169,188 +331,7 @@ namespace YSSCore::Editor {
 			event->ignore();
 		}
 	}
-	void TextEdit::onTabClicked(QKeyEvent* event) {
-		if (event->key() == Qt::Key_Backtab) {
-			if (d->Text->textCursor().hasSelection()) {
-				QTextCursor cursor = d->Text->textCursor();
-				//判断cursor的行数量
-				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
-				bool reverse = cursor.position() == cursor.selectionEnd();
-				if (lineCount > 1) {
-					for (int i = 0; i < lineCount; i++) {
-						cursor.movePosition(QTextCursor::EndOfBlock);
-						cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-						QString text = cursor.selectedText();
-						if (text.length() == 0) {
-							continue;
-						}
-						cursor.movePosition(QTextCursor::StartOfBlock);
-						//删除行首1个tab或 TabWidth个空格
-						if (text[0] == '\t') {
-							cursor.deleteChar();
-						}
-						else {
-							for (int i = 0; i < d->TabWidth; i++) {
-								if (text[i] == ' ') {
-									cursor.deleteChar();
-								}
-								else {
-									break;
-								}
-							}
-						}
-						if (reverse) {
-							cursor.movePosition(QTextCursor::PreviousBlock);
-						}
-						else {
-							cursor.movePosition(QTextCursor::NextBlock);
-						}
-					}
-				}
-			}
-			else {
-				//从行首拉到光标位置
-				QTextCursor cursor = d->Text->textCursor();
-				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-				QString text = cursor.selectedText();
-				//判断是否都为空白字符（空格、制表符）
-				if (text.length() == 0) {
-					return;
-				}
-				bool allSpace = true;
-				for (int i = 0; i < text.length(); i++) {
-					if (text[i] != ' ' && text[i] != '\t') {
-						allSpace = false;
-						break;
-					}
-				}
-				if (allSpace) {
-					//删除行首1个tab或 TabWidth个空格
-					cursor = d->Text->textCursor();
-					cursor.movePosition(QTextCursor::StartOfBlock);
-					if (text[0] == '\t') {
-						cursor.deleteChar();
-					}
-					else {
-						for (int i = 0; i < d->TabWidth; i++) {
-							if (text[i] == ' ') {
-								cursor.deleteChar();
-							}
-							else {
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		else {
-			if (d->Text->textCursor().hasSelection()) {
-				QTextCursor cursor = d->Text->textCursor();
-				//判断cursor的行数量
-				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
-				bool reverse = cursor.position() == cursor.selectionEnd();
-				if (lineCount > 1) {
-					for (int i = 0; i < lineCount; i++) {
-						cursor.movePosition(QTextCursor::StartOfBlock);
-						if (d->ReloadTab) {
-							for (int i = 0; i < d->TabWidth; i++) {
-								cursor.insertText(QChar(' '));
-							}
-						}
-						else {
-							cursor.insertText("\t");
-						}
-						if (reverse) {
-							cursor.movePosition(QTextCursor::PreviousBlock);
-						}
-						else {
-							cursor.movePosition(QTextCursor::NextBlock);
-						}
-					}
-				}
-			}
-			else {
-				QTextCursor cursor = d->Text->textCursor();
-				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-				QString text = cursor.selectedText();
-				//判断是否都为空白字符（空格、制表符）
-				bool allSpace = true;
-				for (int i = 0; i < text.length(); i++) {
-					if (text[i] != ' ' && text[i] != '\t') {
-						allSpace = false;
-						break;
-					}
-				}
-				cursor = d->Text->textCursor();
-				if (allSpace) {
-					if (d->ReloadTab) {
-						for (int i = 0; i < d->TabWidth; i++) {
-							cursor.insertText(QChar(' '));
-						}
-					}
-					else {
-						cursor.insertText("\t");
-					}
-				}
-				else {
-					qDebug() << "insert tab";
-					cursor.insertText("\t");
-				}
-			}
-		}
-	}
-
-	void TextEdit::onEnterClicked(QKeyEvent* event) {
-		QTextCursor cursor = d->Text->textCursor();
-		cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-		QString text = cursor.selectedText();
-		QString newSpace = "";
-		for (int i = 0; i < text.length(); i++) {
-			if (text[i] == ' ') {
-				newSpace += " ";
-			}
-			else if (text[i] == '\t') {
-				newSpace += "\t";
-			}
-			else {
-				break;
-			}
-		}
-		cursor = d->Text->textCursor();
-		cursor.insertText("\n" + newSpace);
-	}
-
-	void TextEdit::onMouseMove(QMouseEvent* event) {
-	}
-
-	void TextEdit::onCursorPositionChanged() {
-		QTextCursor cursor = d->Text->textCursor();
-		int index = cursor.block().blockNumber();
-		if (index == d->LastCursorLine) {
-			return;
-		}
-		if (index >= d->Line->document()->blockCount()) {
-			onBlockCountChanged(index + 1);
-		}
-		if (d->Line->document()->findBlockByNumber(index).text().isEmpty()) {
-			return;
-		}
-		int delta = index - d->LastCursorLine;
-		QTextBlockFormat format = d->LastCursor.blockFormat();
-		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
-		format.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
-		d->LastCursor.setBlockFormat(format);
-		if (delta > 0) {
-			d->LastCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, delta);
-		}
-		else {
-			d->LastCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -delta);
-		}
-		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Selection"));
-		d->LastCursor.setBlockFormat(format);
-		d->LastCursorLine = index;
-	}
+	
 
 	bool TextEdit::onOpen(const QString& path) {
 	
@@ -362,9 +343,10 @@ namespace YSSCore::Editor {
 		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
 		if (server != nullptr) {
 			d->Highlighter = server->createHighlighter(d->Text->document());
+			d->TabCompleter = server->createTabCompleter(d->Text->document());
 		}
 		else {
-			qDebug() << "No highlighter found for extension:" << ext;
+			yInfo << "No Language server found for extension:" << ext;
 		}
 		//highlighter 应在 setText之前，否则会触发两次textChanged
 		QFile file(path);

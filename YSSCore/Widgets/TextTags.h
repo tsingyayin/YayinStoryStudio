@@ -1,8 +1,11 @@
 #pragma once
 #include <QtWidgets/qframe.h>
-
+// Forward declarations
 namespace YSSCore::Widgets {
 	class TextTagsPrivate;
+}
+// Main
+namespace YSSCore::Widgets {
 	class TextTags :public QFrame {
 		Q_OBJECT;
 	public:
