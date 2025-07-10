@@ -1,5 +1,5 @@
 #include "../Plugin_ASEDevTool.h"
-#include "../LangServer/LS_AStory.h"
+#include "../LangServer/AStoryLangServer.h"
 #include "../FileServer/FS_AStory.h"
 #include "../FileServer/FS_ASRule.h"
 #include "../ASEDevTranslator.h"

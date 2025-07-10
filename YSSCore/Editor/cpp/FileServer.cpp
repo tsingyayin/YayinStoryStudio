@@ -5,13 +5,12 @@ namespace YSSCore::Editor {
 	class FileServerPrivate {
 		friend class FileServer;
 	protected:
-		EditorPlugin* Plugin;
 		FileServer::EditorType Type = FileServer::EditorType::BuiltInEditor;
 		QStringList SupportedFileExts;
 	};
-	FileServer::FileServer(EditorPlugin* plugin) {
+	FileServer::FileServer(const QString& name, const QString& id, EditorPlugin* plugin):
+	EditorPluginModule(name,id,plugin){
 		d = new FileServerPrivate();
-		d->Plugin = plugin;
 	}
 	FileServer::~FileServer() {
 		delete d;
@@ -22,17 +21,17 @@ namespace YSSCore::Editor {
 	QStringList FileServer::getSupportedFileExts() {
 		return d->SupportedFileExts;
 	}
-	FileEditWidget* FileServer::createFileEditWidget() {
+	FileEditWidget* FileServer::onCreateFileEditWidget() {
 		return nullptr;
 	}
-	QWidget* FileServer::createExternalEditor(const QString& filePath) {
+	QWidget* FileServer::onCreateWindowEditor(const QString& filePath) {
 		return nullptr;
 	}
-	bool FileServer::openFile(const QString& filePath) {
+	bool FileServer::onCreateExternalEditor(const QString& filePath) {
 		return false;
 	}
-	EditorPlugin* FileServer::getPlugin() {
-		return d->Plugin;
+	bool FileServer::onOtherOpenFile(const QString& filePath) {
+		return false;
 	}
 	void FileServer::setEditorType(FileServer::EditorType type) {
 		d->Type = type;

@@ -17,12 +17,11 @@ namespace YSSCore::Editor {
 		QString TemplateName;
 		QString TemplateDescription;
 		QStringList TemplateTags;
-		EditorPlugin* Plugin;
 	};
-	ProjectTemplateProvider::ProjectTemplateProvider(EditorPlugin* plugin)
+	ProjectTemplateProvider::ProjectTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin)
+		: EditorPluginModule(name, id, plugin)
 	{
 		d = new ProjectTemplateProviderPrivate;
-		d->Plugin = plugin;
 	}
 	ProjectTemplateProvider::~ProjectTemplateProvider()
 	{

@@ -3,7 +3,7 @@
 #include <QtCore/qlist.h>
 #include "../Macro.h"
 #include "../General/Version.h"
-
+// Forward declarations
 class QString;
 namespace YSSCore::Utility {
 	class JsonConfig;
@@ -20,7 +20,10 @@ namespace YSSCore::Editor {
 	class FileServer;
 	class ProjectTemplateProvider;
 	class EditorPluginManager;
-	class YSSCore::General::Translator;
+	class EditorHelper;
+}
+// Main
+namespace YSSCore::Editor {
 	class YSSCoreAPI EditorPlugin :public QObject {
 		friend class EditorPluginManager;
 		friend class YSSCore::__Private__::EditorPluginPrivate;
@@ -45,6 +48,7 @@ namespace YSSCore::Editor {
 		void registerFileServer(FileServer* server);
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 		void registerTranslator(YSSCore::General::Translator* translator);
+		void registerEditorHelper(YSSCore::Editor::EditorHelper* helper);
 	public:
 		virtual QWidget* getPluginSettingsWidget(QWidget* parent = nullptr) = 0;
 	protected:

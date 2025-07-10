@@ -26,13 +26,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LangServer\cpp\LS_AStory.cpp">
+    <ClCompile Include="LangServer\cpp\AStoryLangServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cpp\Plugin_ASEDevTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LangServer\cpp\SH_AStory.cpp">
+    <ClCompile Include="LangServer\cpp\AStoryHighlighter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileServer\cpp\FS_AStory.cpp">
@@ -61,7 +61,7 @@
     <ClInclude Include="Macro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LangServer\LS_AStory.h">
+    <ClInclude Include="LangServer\AStoryLangServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileServer\FS_AStory.h">
@@ -90,7 +90,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="LangServer\SH_AStory.h">
+    <QtMoc Include="LangServer\AStoryHighlighter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Plugin_ASEDevTool.h">
@@ -100,6 +100,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="FileTemplateProvider\ASEAStoryFTP.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LangServer\AStoryTabCompleterProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LangServer\AStoryResourceMonitor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

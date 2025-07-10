@@ -15,6 +15,11 @@ namespace YSSCore::Editor {
 		~TabCompleterItem();
 		VIMoveable(TabCompleterItem);
 		VICopyable(TabCompleterItem);
+		QString getIconPath() const;
+		QString getText() const;
+		QString getDescription() const;
+		QString getContent() const;
+		bool isAlignment() const;
 	private:
 		TabCompleterItemPrivate* d;
 	};

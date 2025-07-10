@@ -155,6 +155,15 @@
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\EditorHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\EditorPluginModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\DebugServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -176,9 +185,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\ExtTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\FileServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\YayinStoryStudio.h">
@@ -283,13 +289,16 @@
     <ClInclude Include="Utility\StringMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\TabCompleter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Editor\TabCompleterProvider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\private\TabCompleterProvider_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorPluginModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -340,6 +349,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\private\TextEdit_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\FileServer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

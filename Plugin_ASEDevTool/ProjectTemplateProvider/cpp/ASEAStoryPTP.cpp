@@ -117,7 +117,8 @@ void ASEAStoryPTIW::refreshWhereLabel() {
 		CreateButton->setEnabled(false);
 	}
 }
-ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :ProjectTemplateProvider(plugin)
+ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :
+	ProjectTemplateProvider("ASE AStory Project Template Provider", "ASEAStoryPTP", plugin)
 {
 	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
 	setTemplateID("ASEAStoryProject");

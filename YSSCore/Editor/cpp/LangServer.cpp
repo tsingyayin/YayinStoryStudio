@@ -10,14 +10,13 @@ namespace YSSCore::Editor {
 	protected:
 		QString LanguageID;
 		QStringList LanguageExt;
-		EditorPlugin* Plugin;
 	};
 
-	LangServer::LangServer(EditorPlugin* plugin, QString id, QStringList ext)
+	LangServer::LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id , QStringList ext):
+		EditorPluginModule(name, id, plugin)
 	{
 		d = new LangServerPrivate();
-		d->Plugin = plugin;
-		d->LanguageID = id;
+		d->LanguageID = lang_id;
 		d->LanguageExt = ext;
 	}
 	LangServer::~LangServer()
@@ -34,7 +33,4 @@ namespace YSSCore::Editor {
 		return d->LanguageExt;
 	}
 
-	EditorPlugin* LangServer::getPlugin() {
-		return d->Plugin;
-	}
 }

@@ -203,8 +203,8 @@
     <ClCompile Include="FileTemplateProvider\cpp\ASEAStoryFTP.cpp" />
     <ClCompile Include="LangServer\cpp\ASEParameter.cpp" />
     <ClCompile Include="LangServer\cpp\ASRuleAdaptor.cpp" />
-    <ClCompile Include="LangServer\cpp\LS_AStory.cpp" />
-    <ClCompile Include="LangServer\cpp\SH_AStory.cpp" />
+    <ClCompile Include="LangServer\cpp\AStoryLangServer.cpp" />
+    <ClCompile Include="LangServer\cpp\AStoryHighlighter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cpp\Plugin_ASEDevTool.cpp" />
     <ClCompile Include="ProjectTemplateProvider\cpp\ASEAStoryPTP.cpp" />
@@ -218,11 +218,13 @@
     <ClInclude Include="LangServer\ASEParameter.h" />
     <ClInclude Include="LangServer\ASRuleAdaptor.h" />
     <ClInclude Include="LangServer\ASEController.h" />
-    <ClInclude Include="LangServer\LS_AStory.h" />
+    <QtMoc Include="LangServer\AStoryTabCompleterProvider.h" />
+    <QtMoc Include="LangServer\AStoryResourceMonitor.h" />
+    <ClInclude Include="LangServer\AStoryLangServer.h" />
     <ClInclude Include="ASEDevTranslator.h" />
     <QtMoc Include="ProjectTemplateProvider\ASEAStoryPTP.h" />
     <QtMoc Include="Plugin_ASEDevTool.h" />
-    <QtMoc Include="LangServer\SH_AStory.h" />
+    <QtMoc Include="LangServer\AStoryHighlighter.h" />
     <ClInclude Include="Macro.h" />
   </ItemGroup>
   <ItemGroup>

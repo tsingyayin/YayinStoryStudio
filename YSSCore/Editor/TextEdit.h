@@ -2,13 +2,14 @@
 #include "../Macro.h"
 #include "./FileEditWidget.h"
 #include <QtGui/qtextcursor.h>
+// Forward declarations
 class QTextEdit;
 class QHBoxLayout;
 class QSyntaxHighlighter;
-
 namespace YSSCore::__Private__ {
 	class TextEditPrivate;
 }
+// Main
 namespace YSSCore::Editor {
 	class YSSCoreAPI TextEdit :public YSSCore::Editor::FileEditWidget {
 		Q_OBJECT;

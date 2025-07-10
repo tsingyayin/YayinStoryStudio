@@ -78,7 +78,7 @@ namespace YSSCore::Editor {
 					}
 					break;
 				case FileServer::BuiltInEditor:
-					feWidget = server->createFileEditWidget();
+					feWidget = server->onCreateFileEditWidget();
 					if (feWidget != nullptr) {
 						ok = feWidget->openFile(filePath);
 						if (ok) {
@@ -96,25 +96,18 @@ namespace YSSCore::Editor {
 					}
 					break;
 				case FileServer::WindowEditor:
-					widget = server->createFileEditWidget();
-					if (widget != nullptr) {
-						ok = server->openFile(filePath);
-						if (ok) {
-							emit windowEditorCreated(widget);
-						}
-						else {
-							delete widget;
-							return false;
-						}
+					widget = server->onCreateWindowEditor(filePath);
+					if (feWidget != nullptr) {
+						emit windowEditorCreated(widget);
 					}
 					else {
-						delete widget;
 						return false;
 					}
 					break;
 				case FileServer::ExternalProgram:
+					return server->onCreateExternalEditor(filePath);
 				case FileServer::OtherEditor:
-					return server->openFile(filePath);
+					return server->onOtherOpenFile(filePath);
 				}
 			}
 			

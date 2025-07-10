@@ -3,8 +3,12 @@
 #include <QtCore/qstring.h>
 #include <QtWidgets/qframe.h>
 #include <QtGui/qimage.h>
-#include "../Macro.h"
-
+#include "EditorPluginModule.h"
+// Forward declarations
+namespace YSSCore::Editor {
+	class ProjectTemplateProviderPrivate;
+}
+// Main
 namespace YSSCore::Editor {
 	class YSSCoreAPI ProjectTemplateInitWidget :public QFrame {
 		Q_OBJECT;
@@ -16,13 +20,10 @@ namespace YSSCore::Editor {
 		virtual void closeEvent(QCloseEvent* event) override;
 	};
 
-	class EditorPlugin;
-	class ProjectTemplateProviderPrivate;
-
-	class YSSCoreAPI ProjectTemplateProvider {
+	class YSSCoreAPI ProjectTemplateProvider :public EditorPluginModule {
 		friend class ProjectTemplateProviderPrivate;
 	public:
-		ProjectTemplateProvider(EditorPlugin* plugin);
+		ProjectTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~ProjectTemplateProvider();
 		QString getTemplateIconPath();
 		void setTemplateIconPath(const QString& iconPath);

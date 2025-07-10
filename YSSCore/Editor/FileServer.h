@@ -1,14 +1,13 @@
 #pragma once
-#include <QtCore/qlist.h>
-#include "../Macro.h"
-
+#include "EditorPluginModule.h"
 class QString;
 class QWidget;
 namespace YSSCore::Editor {
 	class FileEditWidget;
 	class FileServerPrivate;
 	class EditorPlugin;
-	class YSSCoreAPI FileServer {
+	class YSSCoreAPI FileServer :public EditorPluginModule{
+		Q_OBJECT;
 	public:
 		enum EditorType {
 			CodeEditor,  //builtin code editor
@@ -17,14 +16,14 @@ namespace YSSCore::Editor {
 			ExternalProgram, //3rd party program
 			OtherEditor, //other editor
 		};
-		FileServer(EditorPlugin* plugin);
+		FileServer(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~FileServer();
 		EditorType getEditorType();
 		QStringList getSupportedFileExts();
-		virtual FileEditWidget* createFileEditWidget();
-		virtual QWidget* createExternalEditor(const QString& filePath);
-		virtual bool openFile(const QString& filePath);
-		EditorPlugin* getPlugin();
+		virtual FileEditWidget* onCreateFileEditWidget();
+		virtual QWidget* onCreateWindowEditor(const QString& filePath);
+		virtual bool onCreateExternalEditor(const QString& filePath);
+		virtual bool onOtherOpenFile(const QString& filePath);
 	protected:
 		void setEditorType(EditorType type);
 		void setSupportedFileExts(const QStringList& exts);

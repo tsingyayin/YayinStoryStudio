@@ -13,12 +13,11 @@ namespace YSSCore::Editor {
 		QString TemplateName;
 		QString TemplateDescription;
 		QStringList TemplateTags;
-		EditorPlugin* Plugin;
 	};
-	FileTemplateProvider::FileTemplateProvider(EditorPlugin* plugin)
+	FileTemplateProvider::FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin):
+		EditorPluginModule(name, id, plugin)
 	{
 		d = new FileTemplateProviderPrivate;
-		d->Plugin = plugin;
 	}
 	FileTemplateProvider::~FileTemplateProvider()
 	{

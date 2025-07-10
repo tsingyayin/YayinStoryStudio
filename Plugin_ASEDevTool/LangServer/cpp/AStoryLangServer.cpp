@@ -1,8 +1,9 @@
-#include "../LS_AStory.h"
-#include "../SH_AStory.h"
+#include "../AStoryLangServer.h"
+#include "../AStoryHighlighter.h"
 #include <QtGui/qtextdocument.h>
+
 AStoryLanguageServer::AStoryLanguageServer(YSSCore::Editor::EditorPlugin* plugin) :
-	YSSCore::Editor::LangServer(plugin, "AStory", { "astory" })
+	YSSCore::Editor::LangServer("ASE AStory File Language Server", "ASEAStoryLS", plugin, "AStory", {"astory"})
 {
 }
 

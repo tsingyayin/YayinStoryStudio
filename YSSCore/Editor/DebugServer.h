@@ -1,14 +1,13 @@
 #pragma once
 #include <QtCore/qobject.h>
-#include "../Macro.h"
-
+#include "EditorPluginModule.h"
 class QString;
 namespace YSSCore::Editor {
 	class EditorPlugin;
 	class DebugData;
 	class DebugFailedData;
 	class DebugServerPrivate;
-	class YSSCoreAPI DebugServer :public QObject {
+	class YSSCoreAPI DebugServer :public EditorPluginModule {
 		Q_OBJECT;
 	public:
 		enum class SupportedDebugFeature :quint16 {
@@ -31,7 +30,7 @@ namespace YSSCore::Editor {
 		void currentExecute(const QString& filePath, quint32 lineCount);
 		void debugFailed(const DebugFailedData& data);
 	public:
-		DebugServer(EditorPlugin* plugin);
+		DebugServer(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~DebugServer();
 		void setSupportedFeatures(SupportedDebugFeature features);
 		SupportedDebugFeature getSupportedFeatures();

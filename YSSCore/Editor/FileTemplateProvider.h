@@ -3,8 +3,12 @@
 #include <QtCore/QString>
 #include <QtWidgets/QFrame>
 #include <QtGui/QIcon>
-#include "../Macro.h"
-
+#include "EditorPluginModule.h"
+// Forward declarations
+namespace YSSCore::Editor {
+	class FileTemplateInitWidgetPrivate;
+}
+// Main
 namespace YSSCore::Editor {
 	class YSSCoreAPI FileTemplateInitWidget :public QFrame {
 		Q_OBJECT;
@@ -15,13 +19,10 @@ namespace YSSCore::Editor {
 		FileTemplateInitWidget(QWidget* parent = nullptr);
 	};
 
-	class EditorPlugin;
-	class FileTemplateProviderPrivate;
-
-	class YSSCoreAPI FileTemplateProvider {
+	class YSSCoreAPI FileTemplateProvider :public EditorPluginModule{
 		friend class FileTemplateProviderPrivate;
 	public:
-		FileTemplateProvider(EditorPlugin* plugin);
+		FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~FileTemplateProvider();
 		QString getTemplateIconPath();
 		void setTemplateIconPath(const QString& iconPath);

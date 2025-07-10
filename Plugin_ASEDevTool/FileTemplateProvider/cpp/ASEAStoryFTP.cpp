@@ -13,7 +13,8 @@ ASEAStoryFTIW::ASEAStoryFTIW(QWidget* parent)
 {
 }
 
-ASEAStoryFTP::ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin) :FileTemplateProvider(plugin)
+ASEAStoryFTP::ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin) :
+	FileTemplateProvider("ASE AStory File Template Provider", "ASEAStoryFTP", plugin)
 {
 	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
 	setTemplateID("ASEAStoryFile");

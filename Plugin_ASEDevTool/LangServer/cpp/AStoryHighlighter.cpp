@@ -1,4 +1,4 @@
-#include "../SH_AStory.h"
+#include "../AStoryHighlighter.h"
 
 AStorySyntaxHighlighter::AStorySyntaxHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent) {
 	Format_C_BGP.setForeground(QColor("#00A2E8"));

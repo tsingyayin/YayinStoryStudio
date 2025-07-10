@@ -1,7 +1,7 @@
 #pragma once
 #include <QList>
-#include "../Macro.h"
-
+#include "EditorPluginModule.h"
+// Forward declarations
 class QString;
 class QTextDocument;
 class QSyntaxHighlighter;
@@ -9,17 +9,19 @@ namespace YSSCore::Editor {
 	class EditorPlugin;
 	class TabCompleterProvider;
 	class LangServerPrivate;
-	class YSSCoreAPI LangServer {
+}
+// Main
+namespace YSSCore::Editor {
+	class YSSCoreAPI LangServer :public EditorPluginModule {
 		friend class LangServerPrivate;
 		friend class LangServerManager;
 	public:
-		LangServer(EditorPlugin* plugin, QString id, QStringList ext);
+		LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext);
 		virtual ~LangServer();
 		virtual QSyntaxHighlighter* createHighlighter(QTextDocument* doc) = 0;
 		virtual TabCompleterProvider* createTabCompleter(QTextDocument* doc) = 0;
 		QString getLangID();
 		QStringList getLangExts();
-		EditorPlugin* getPlugin();
 	protected:
 		LangServerPrivate* d;
 	};

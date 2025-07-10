@@ -10,6 +10,8 @@
 #define YSSCoreAPI __declspec(dllexport)
 #endif
 
+#define VInterface class
+
 #define VIAPIClass(name) \
 	class name##Private; \
 	class YSSCoreAPI name

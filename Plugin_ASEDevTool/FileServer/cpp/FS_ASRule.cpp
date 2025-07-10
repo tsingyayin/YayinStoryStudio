@@ -2,7 +2,9 @@
 #include <QFileInfo>
 #include <QLabel>
 
-ASRuleFileServer::ASRuleFileServer(YSSCore::Editor::EditorPlugin* plugin) :FileServer(plugin) {
+ASRuleFileServer::ASRuleFileServer(YSSCore::Editor::EditorPlugin* plugin) :
+	FileServer("ASE ASRule File Server", "ASEASRuleFS", plugin)
+{
 	setEditorType(YSSCore::Editor::FileServer::BuiltInEditor);
 	setSupportedFileExts({ "asrule" });
 }
@@ -11,7 +13,7 @@ ASRuleFileServer::~ASRuleFileServer() {
 	FileServer::~FileServer();
 }
 
-YSSCore::Editor::FileEditWidget* ASRuleFileServer::createFileEditWidget() {
+YSSCore::Editor::FileEditWidget* ASRuleFileServer::onCreateFileEditWidget() {
 	return new ASRuleFileEditWidget();
 }
 

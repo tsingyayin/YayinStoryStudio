@@ -7,7 +7,7 @@ class ASRuleFileServer : public YSSCore::Editor::FileServer {
 public:
 	ASRuleFileServer(YSSCore::Editor::EditorPlugin* plugin);
 	~ASRuleFileServer();
-	YSSCore::Editor::FileEditWidget* createFileEditWidget() override;
+	YSSCore::Editor::FileEditWidget* onCreateFileEditWidget() override;
 };
 
 class ASRuleFileEditWidget : public YSSCore::Editor::FileEditWidget {

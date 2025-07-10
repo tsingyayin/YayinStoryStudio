@@ -15,7 +15,6 @@ class ASEAStoryFTIW :public YSSCore::Editor::FileTemplateInitWidget
 	Q_OBJECT;
 public:
 	ASEAStoryFTIW(QWidget* parent = nullptr);
-
 private:
 };
 
