@@ -1,0 +1,21 @@
+{
+	"Dark": {
+		"Types": {
+			"String": "#F7A76D",
+			"Number": "#A1FA4F",
+			"Integer": "#A1FA4F",
+			"Float": "#A1FA4F",
+			"Enum": "#A1FB8E",
+			"Vector": "#75FA8D",
+			"Bool": "#EE8AF8",
+			"SyntaxSign": "#EDEDED",
+			"Controller": "#3282F6",
+			"AndProtect": "#73FBFD",
+			"StyleTag": "#9FFCFD",
+			"Speaker": "#B9F0F0",
+			"Comment": "#56C435",
+			"Sign_B": "#666666",
+			"Sign_T": "#73FBFD"
+		}
+	}
+}

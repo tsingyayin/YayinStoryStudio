@@ -53,6 +53,12 @@
     <ClCompile Include="LangServer\cpp\ASEParameter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LangServer\cpp\AStoryController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LangServer\cpp\AStoryControllerParseData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="LangServer\cpp\ASRuleAdaptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -79,13 +85,19 @@
     <ClInclude Include="DebugServer\CrossVersion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LangServer\ASRuleAdaptor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LangServer\ASEController.h">
+    <ClInclude Include="LangServer\AStoryController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LangServer\ASEParameter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LangServer\AStoryControllerParseData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LangServer\private\AStoryControllerParseData_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LangServer\ASRuleAdaptor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

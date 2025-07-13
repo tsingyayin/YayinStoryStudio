@@ -9,6 +9,30 @@ protected:
 	QVariant Value;
 };
 
+QString ASEParameter::typeToString(Type type) {
+	switch (type) {
+	case Type::Undefined: return "Undefined";
+	case Type::String: return "String";
+	case Type::Number: return "Number";
+	case Type::Integer: return "Integer";
+	case Type::Float: return "Float";
+	case Type::Enum: return "Enum";
+	case Type::Vector: return "Vector";
+	case Type::Bool: return "Bool";
+	default: return "None";
+	}
+}
+ASEParameter::Type ASEParameter::stringToType(const QString& typeName) {
+	if (typeName == "Undefined") return Type::Undefined;
+	if (typeName == "String") return Type::String;
+	if (typeName == "Number") return Type::Number;
+	if (typeName == "Integer") return Type::Integer;
+	if (typeName == "Float") return Type::Float;
+	if (typeName == "Enum") return Type::Enum;
+	if (typeName == "Vector") return Type::Vector;
+	if (typeName == "Bool") return Type::Bool;
+	return Type::None; // Default case
+}
 ASEParameter::ASEParameter() {
 	d = new ASEParameterPrivate;
 }

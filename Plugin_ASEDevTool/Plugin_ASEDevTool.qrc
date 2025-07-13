@@ -7,5 +7,7 @@
         <file>compiled/ASEDevTool/template/2.05.22.1A/main.astory</file>
         <file>compiled/ASEDevTool/icon/ASEA_Dark.png</file>
         <file>compiled/ASEDevTool/icon/VisindigoV_Dark.png</file>
+        <file>compiled/ASEDevTool/theme.json</file>
+        <file>compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json</file>
     </qresource>
 </RCC>

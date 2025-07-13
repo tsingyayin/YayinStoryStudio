@@ -1,31 +1,19 @@
 #pragma once
-#include "../Macro.h"
-#include <QtCore/qstringlist.h>
 #include <Macro.h>
-namespace YSSCore::Utility {
-	class JsonConfig;
-}
 class QString;
-
-class ASRuleSingleControllerPrivate;
-class ASRuleSingleController {
-	VImpl(ASRuleSingleController);
-public:
-	ASRuleSingleController();
-	ASRuleSingleController(const QString & name, const YSSCore::Utility::JsonConfig& meta, const QString & rule);
-	void setControllerName(const QString & name);
-	void setControllerASRule(const QString & rule);
-	QString getStartSign();
-	void setControllerMeta(const YSSCore::Utility::JsonConfig & meta);
-	QStringList parse(const QString& input);
-};
+class AStoryControllerParseData;
 
 class ASRuleAdaptorPrivate;
 class ASRuleAdaptor {
-	VImpl(ASRuleAdaptor);
 public:
-	ASRuleAdaptor();
+	ASRuleAdaptor(const QString& asrulePath, const QString& metaPath);
 	~ASRuleAdaptor();
-	void setRulePath(const QString& path);
-
+	VIMoveable(ASRuleAdaptor);
+	VICopyable(ASRuleAdaptor);
+	void setASRulePath(const QString& asrulePath);
+	void setMetaPath(const QString& metaPath);
+	bool loadASRule();
+	AStoryControllerParseData parse(const QString& input);
+private:
+	ASRuleAdaptorPrivate* d;
 };

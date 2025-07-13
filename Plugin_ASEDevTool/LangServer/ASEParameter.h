@@ -19,6 +19,9 @@ public:
 		None,
 	};
 public:
+	static QString typeToString(Type type);
+	static Type stringToType(const QString& typeName);
+public:
 	ASEParameter();
 	ASEParameter(const ASEParameter& other);
 	ASEParameter(ASEParameter&& other) noexcept;
