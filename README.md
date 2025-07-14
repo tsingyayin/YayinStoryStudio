@@ -1,3 +1,6 @@
+
+<img width="1800" height="600" alt="yayinstorystudio" src="https://github.com/user-attachments/assets/f5df1f1f-92c7-476e-8792-621b03a48606" />
+
 ![](https://img.shields.io/badge/Project-Visindigo-purple)
 ![](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![](https://img.shields.io/badge/Qt-6.8.3%2B-lightgreen)
@@ -52,7 +55,9 @@ Yayin Story Studio的cpp与h文件的管理采用相对紧密的模式，即所�
 [Ayano_Aishi 爱诗绫里](https://space.bilibili.com/475519346) - YSP的创意贡献者，YSP是Tsing Yayin在Ayano_Aishi的启发下开发的。YSP的极其早期版本也被称为AASP。
 > 注：Ayano_Aishi 理应翻译为爱诗绫野，但由于Ayano_Aishi在提出YSP创想的时候正在没日没夜的玩《逆转裁判》，所以Tsing Yayin决定强行将其翻译为爱诗绫里。
 
-[Gra_dus 谷雨暮歌](https://space.bilibili.com/144798380) - Arknights Story Editor的作者，ASE在YSP衰落后的及时出现，接替Yayin Story Player成为了方舟社区最好的剧情播放工具。
+> 注2：Ayano_Aishi 也是本项目的首席现代C++语言语法顾问。
+
+[Gra_dus 谷雨暮歌](https://space.bilibili.com/144798380) - Arknights Story Editor的作者，ASE在YSP衰落后及时出现，接替Yayin Story Player成为了方舟社区最好的剧情播放工具。
 
 [v0v_tempest](https://space.bilibili.com/178835858) - 他没有直接参与YSP、ASE以及YSS的开发，但在这位超级活爹的辅导之下，Tsing Yayin通过了考研数学二考试。并且他还帮助Tsing Yayin运营了一段时间他的Minecraft服务器。
 
