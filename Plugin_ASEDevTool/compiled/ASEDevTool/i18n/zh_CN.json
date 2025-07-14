@@ -45,5 +45,44 @@
 				"uptodate": "最新版本"
 			}
 		}
+	},
+	"fileProvider":{
+		"window": {
+			"create": "创建文件",
+			"where": "新文件将被创建为\"%1\"。",
+			"exists": "\"%1\"已存在！无法创建新文件。"
+		},
+		"failed": {
+			"title": "创建文件失败",
+			"text": "无法创建文件，请检查目标文件夹是否为空文件夹，或者是否有权限在此文件夹创建新文件。"
+		},
+		"astory": {
+			"name": "ASE剧情文件",
+			"description": "使用AStory编写的ASE剧情，支持所有ASE原生功能。",
+			"tags": {
+				"ase": "ASE",
+				"astory": "AStory",
+				"engine-native": "引擎原生",
+				"script": "脚本",
+				"arknights": "明日方舟"
+			},
+			"title": "ASE文件初始化"
+		},
+		"file": {
+			"title": "ASE 剧情文件初始化助手",
+			"name": {
+				"title": "文件名称",
+				"text": "剧情文件的名称，当全部使用路径合法字符时，则同时也是文件的名称。"
+			},
+			"path": {
+				"title": "文件路径",
+				"text": "一个新的剧情文件会被创建在此路径下"
+			},
+			"version": {
+				"title": "目标ASE版本",
+				"text": "默认只用最新的ASE版本。如果需要使用特定的旧版ASE，请在插件设置中关联相关版本。",
+				"uptodate": "最新版本"
+			}
+		}
 	}
 }

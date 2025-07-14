@@ -1,0 +1,56 @@
+{
+	"windowTitle": "i18n:ASEDevTool::fileProvider.file.title",
+	"windowIcon": "icon.png",
+	"widget":[
+		{	
+			"node": "File",
+			"type": "Frame",
+			"icon": "",
+			"title": "i18n:ASEDevTool::fileProvider.file.title",
+			"text": "",
+			"children":[
+				{
+					"node": "Path",
+					"type": "LineEdit",
+					"icon": "",
+					"title": "i18n:ASEDevTool::fileProvider.file.path.title",
+					"text": "i18n:ASEDevTool::fileProvider.file.path.text",
+					"data": {
+						"default": "",
+						"isFolder": true
+					}
+				},
+				{
+					"node": "Name",
+					"type": "LineEdit",
+					"icon": "",
+					"title": "i18n:ASEDevTool::fileProvider.file.name.title",
+					"text": "i18n:ASEDevTool::fileProvider.file.name.text",
+					"data": {
+						"default": "MyStory"
+					}
+				},
+				{
+					"node": "Version",
+					"type": "ComboBox",
+					"icon": "",
+					"title": "i18n:ASEDevTool::fileProvider.file.version.title",
+					"text": "i18n:ASEDevTool::fileProvider.file.version.text",
+					"data": {
+						"comboBox": [
+							{
+								"data": "uptodate",
+								"key": "i18n:ASEDevTool::fileProvider.file.version.uptodate"
+							},
+							{
+								"data": "2.05.22.1A",
+								"key": "2.05.22.1A"
+							}
+						],
+						"default": "uptodate"
+					}
+				}
+			]	
+		}
+	]
+}

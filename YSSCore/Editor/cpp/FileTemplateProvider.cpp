@@ -1,9 +1,28 @@
 #include "../FileTemplateProvider.h"
 
 namespace YSSCore::Editor {
-	FileTemplateInitWidget::FileTemplateInitWidget(QWidget* parent)
+	class FileTemplateInitWidgetPrivate
+	{
+		friend class FileTemplateInitWidget;
+	protected:
+		QString InitFolder;
+	};
+
+	FileTemplateInitWidget::FileTemplateInitWidget(const QString& initFolder,QWidget* parent)
 		: QFrame(parent)
 	{
+		d = new FileTemplateInitWidgetPrivate;
+		d->InitFolder = initFolder;
+	}
+
+	FileTemplateInitWidget::~FileTemplateInitWidget()
+	{
+		delete d;
+	}
+
+	QString FileTemplateInitWidget::getInitFolder()
+	{
+		return d->InitFolder;
 	}
 
 	class FileTemplateProviderPrivate

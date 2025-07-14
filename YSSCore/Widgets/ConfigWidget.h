@@ -23,6 +23,9 @@ namespace YSSCore::Widgets {
 		void loadCWJson(const QString& CWJson);
 		void resetConfig();
 		void saveConfig();
+		void setLineEditText(const QString& node, const QString& text);
+		void setComboBoxIndex(const QString& node, int index);
+		void setRadioButtonChecked(const QString& node, bool checked);
 		YSSCore::Utility::JsonConfig* getConfig();
 	private:
 		YSSCore::__Private__::ConfigWidgetPrivate* d;

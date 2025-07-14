@@ -9,5 +9,6 @@
         <file>compiled/ASEDevTool/icon/VisindigoV_Dark.png</file>
         <file>compiled/ASEDevTool/theme.json</file>
         <file>compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json</file>
+        <file>compiled/ASEDevTool/configWidget/FTP.json</file>
     </qresource>
 </RCC>

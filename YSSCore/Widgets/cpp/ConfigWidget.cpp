@@ -402,4 +402,41 @@ namespace YSSCore::Widgets {
 	YSSCore::Utility::JsonConfig* ConfigWidget::getConfig() {
 		return d->Config;
 	}
+
+	void ConfigWidget::resetConfig() {
+		d->resetConfig();
+	}
+
+	void ConfigWidget::saveConfig() {
+		d->saveConfig();
+	}
+
+	void ConfigWidget::setLineEditText(const QString& node, const QString& text) {
+		for (QLineEdit* obj : d->LineEditDefault.keys()) {
+			if (obj->objectName() == node) {
+				obj->setText(text);
+				return;
+			}
+		}
+	}
+
+	void ConfigWidget::setComboBoxIndex(const QString& node, int index) {
+		for (QComboBox* obj : d->ComboBoxDefault.keys()) {
+			if (obj->objectName() == node) {
+				if (index >= 0 && index < obj->count()) {
+					obj->setCurrentIndex(index);
+				}
+				return;
+			}
+		}
+	}
+
+	void ConfigWidget::setRadioButtonChecked(const QString& node, bool checked) {
+		for (QRadioButton* obj : d->RadioButtonDefault.keys()) {
+			if (obj->objectName() == node) {
+				obj->setChecked(checked);
+				return;
+			}
+		}
+	}
 }

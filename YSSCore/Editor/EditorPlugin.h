@@ -19,6 +19,7 @@ namespace YSSCore::Editor {
 	class DebugServer;
 	class FileServer;
 	class ProjectTemplateProvider;
+	class FileTemplateProvider;
 	class EditorPluginManager;
 	class EditorHelper;
 	class EditorPluginModule;
@@ -49,6 +50,7 @@ namespace YSSCore::Editor {
 		void registerDebugServer(DebugServer* server);
 		void registerFileServer(FileServer* server);
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
+		void registerFileTemplateProvider(FileTemplateProvider* provider);
 		void registerTranslator(YSSCore::General::Translator* translator);
 		void registerEditorHelper(YSSCore::Editor::EditorHelper* helper);
 	public:

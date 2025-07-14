@@ -19,7 +19,7 @@ namespace YSS::NewFilePage {
 	class NewFileWin :public QWidget {
 		Q_OBJECT;
 	signals:
-		void projectPrepared(QString projectPath);
+		void filePrepared(QString projectPath);
 	private:
 		QLabel* TitleLabel;
 		QLabel* RecentTemplateTitle;
@@ -34,8 +34,9 @@ namespace YSS::NewFilePage {
 		QWidget* FileTemplateWidget;
 		QVBoxLayout* FileTemplateLayout;
 		QGridLayout* Layout;
+		QString InitPath;
 	public:
-		NewFileWin();
+		NewFileWin(const QString& initPath);
 		~NewFileWin() {};
 		void loadRecentTemplate() {};
 		void loadFileTemplate();

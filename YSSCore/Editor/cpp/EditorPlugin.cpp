@@ -5,6 +5,7 @@
 #include "../../General/TranslationHost.h"
 #include "../private/EditorPlugin_p.h"
 #include "../ProjectTemplateManager.h"
+#include "../FileTemplateManager.h"
 
 namespace YSSCore::Editor {
 	/*!
@@ -204,5 +205,9 @@ namespace YSSCore::Editor {
 	*/
 	void EditorPlugin::registerProjectTemplateProvider(ProjectTemplateProvider* provider) {
 		YSSCore::Editor::ProjectTemplateManager::getInstance()->addProvider(provider);
+	}
+
+	void EditorPlugin::registerFileTemplateProvider(FileTemplateProvider* provider) {
+		YSSCore::Editor::FileTemplateManager::getInstance()->addProvider(provider);
 	}
 }

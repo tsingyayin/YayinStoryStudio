@@ -15,7 +15,8 @@
 #include <General/Log.h>
 
 namespace YSS::NewFilePage {
-	NewFileWin::NewFileWin() :QWidget() {
+	NewFileWin::NewFileWin(const QString& initPath) :QWidget() {
+		this->InitPath = initPath;
 		this->setMinimumSize(900, 600);
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
 		this->setWindowTitle(YSSTR("YSS::project.createNewFile"));
@@ -58,7 +59,7 @@ namespace YSS::NewFilePage {
 		SearchLineEdit->setFixedHeight(30);
 		RecentTemplateTitle->setText(YSSTR("YSS::project.recentUsed"));
 
-		this->setStyleSheet(YSSTMSS("YSS::FileWin", this));
+		this->setStyleSheet(YSSTMSS("YSS::ProjectWin", this));
 
 		this->loadFileTemplate();
 	}
@@ -103,7 +104,7 @@ namespace YSS::NewFilePage {
 			return;
 		}
 		YSSCore::Editor::FileTemplateProvider* provider = ProviderMap[Button];
-		YSSCore::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget();
+		YSSCore::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(InitPath);
 		if (initWidget != nullptr) {
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
 			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::closed,
@@ -122,7 +123,7 @@ namespace YSS::NewFilePage {
 	void NewFileWin::onTemplateInitWidgetClosed() {
 	}
 	void NewFileWin::onFilePrepared(QString projectPath) {
-		emit projectPrepared(projectPath);
+		emit filePrepared(projectPath);
 		this->close();
 	}
 }

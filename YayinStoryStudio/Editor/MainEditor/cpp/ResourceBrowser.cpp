@@ -46,9 +46,14 @@ namespace YSS::Editor {
 	}
 
 	void ResourceBrowser::onNewButtonClicked() {
-		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin();
+		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(CurrentPath->text());
 		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
 		newFileWin->setWindowModality(Qt::ApplicationModal);
+		connect(newFileWin, &YSS::NewFilePage::NewFileWin::filePrepared, this, [this](const QString& filePath) {
+			if (QFileInfo(filePath).isFile()) {
+				YSSFSM->openFile(filePath);
+			}
+			});
 		newFileWin->show();
 	}
 	void ResourceBrowser::onBackButtonClicked() {
