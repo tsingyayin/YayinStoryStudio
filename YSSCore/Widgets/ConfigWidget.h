@@ -1,5 +1,4 @@
 #pragma once
-#include <QtCore/qobject.h>
 #include <QtWidgets/qframe.h>
 #include "../Macro.h"
 // Forward declarations

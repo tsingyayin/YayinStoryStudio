@@ -21,6 +21,7 @@ namespace YSSCore::Editor {
 	class ProjectTemplateProvider;
 	class EditorPluginManager;
 	class EditorHelper;
+	class EditorPluginModule;
 }
 // Main
 namespace YSSCore::Editor {
@@ -38,6 +39,7 @@ namespace YSSCore::Editor {
 		QStringList getPluginAuthor() const;
 		QString getPluginFolder() const;
 		YSSCore::Utility::JsonConfig* getPluginConfig();
+		QList<EditorPluginModule*> getModules() const;
 	protected:
 		void setPluginVersion(const YSSCore::General::Version& version);
 		void setPluginID(const QString& id);

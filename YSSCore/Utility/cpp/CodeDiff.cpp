@@ -1,7 +1,7 @@
 #include "../CodeDiff.h"
 #include <QtCore/qstringlist.h>
 #include "../Console.h"
-#include <QtCore/qdebug.h>
+
 namespace YSSCore::Utility {
 	class CodeLinePrivate {
 		friend class CodeLine;

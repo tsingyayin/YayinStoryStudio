@@ -1,10 +1,8 @@
 #pragma once
-#include <QtCore/qobject.h>
-#include <QtCore/qstring.h>
 #include <QtWidgets/qframe.h>
-#include <QtGui/qimage.h>
 #include "EditorPluginModule.h"
 // Forward declarations
+class QString;
 namespace YSSCore::Editor {
 	class ProjectTemplateProviderPrivate;
 }

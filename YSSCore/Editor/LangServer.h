@@ -1,5 +1,5 @@
 #pragma once
-#include <QList>
+#include <QtCore/qlist.h>
 #include "EditorPluginModule.h"
 // Forward declarations
 class QString;
@@ -8,6 +8,7 @@ class QSyntaxHighlighter;
 namespace YSSCore::Editor {
 	class EditorPlugin;
 	class TabCompleterProvider;
+	class HoverInfoProvider;
 	class LangServerPrivate;
 }
 // Main
@@ -20,6 +21,7 @@ namespace YSSCore::Editor {
 		virtual ~LangServer();
 		virtual QSyntaxHighlighter* createHighlighter(QTextDocument* doc) = 0;
 		virtual TabCompleterProvider* createTabCompleter(QTextDocument* doc) = 0;
+		virtual HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) = 0;
 		QString getLangID();
 		QStringList getLangExts();
 	protected:

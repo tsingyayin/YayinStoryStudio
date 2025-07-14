@@ -5,9 +5,11 @@ namespace YSSCore::Editor {
 		: QFrame(parent)
 	{
 	}
+
 	class FileTemplateProviderPrivate
 	{
-	public:
+		friend class FileTemplateProvider;
+	protected:
 		QString TemplateIconPath;
 		QString TemplateID;
 		QString TemplateName;

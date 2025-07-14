@@ -37,9 +37,9 @@ int main(int argc, char* argv[])
 	YSS::TitlePage::TitlePage titlePage;
 	titlePage.setScreen(QApplication::screenAt(QCursor::pos()));
 	titlePage.show();
-#ifdef DEBUG
+
 	test_main(a);
-#endif
+
 	int c = a.exec();
 	yNotice << "Program exit in normal way";
 	YSSCore::General::LoggerManager::getInstance()->finalSave();

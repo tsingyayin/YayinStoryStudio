@@ -1,11 +1,13 @@
 #include "../ResourceBrowser.h"
 #include <Editor/FileServerManager.h>
+#include <Editor/FileTemplateManager.h>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QListWidget>
 #include <QLineEdit>
 #include "../../GlobalValue.h"
 #include <General/YSSProject.h>
+#include "../../NewFilePage/NewFileWin.h"
 
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :QWidget(parent) {
@@ -39,9 +41,16 @@ namespace YSS::Editor {
 		connect(BackButton, &QPushButton::clicked, this, &ResourceBrowser::onBackButtonClicked);
 		connect(RefreshButton, &QPushButton::clicked, this, &ResourceBrowser::refreshFileList);
 		connect(FileList, &QListWidget::itemDoubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
+		connect(NewButton, &QPushButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
 		refreshFileList();
 	}
 
+	void ResourceBrowser::onNewButtonClicked() {
+		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin();
+		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
+		newFileWin->setWindowModality(Qt::ApplicationModal);
+		newFileWin->show();
+	}
 	void ResourceBrowser::onBackButtonClicked() {
 		if (CurrentDir.cdUp()) {
 			CurrentPath->setText(CurrentDir.path());

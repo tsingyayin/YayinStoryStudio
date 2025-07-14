@@ -29,7 +29,7 @@ void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 		if (parseData.getControllerName() == AStoryController::Name::unknown) {
 			return; // Skip unknown controllers
 		}
-		setFormatWithParaType(0, parseData.getStartSign().size(), "Controller");
+		setFormatWithParaType(0, parseData.getStartSign().size(), "Controller." + AStoryController::toNameString(parseData.getControllerName()));
 		if (parseData.getParameterCount() == 0) {
 			return; // Skip if no parameters
 		}
@@ -95,13 +95,19 @@ void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 		}
 		if (parseData.getControllerName() == AStoryController::Name::talk) {
 			setFormatWithParaType(parseData.getStartIndex()[0], parseData.getParameters()[0].length(), "Speaker");
-			i = 1;
+			if (parseData.getParameterCount() > 1) {
+				setFormatWithParaType(parseData.getStartIndex()[1], parseData.getParameters()[1].length(), "Normal");
+			}
+			i = 2; // Start from the third parameter
+		}
+		if (i >= parseData.getParameterCount()) {
+			return; // No parameters to highlight
 		}
 		for (; i < parseData.getParameterCount(); i++) {
 			int startIndex = parseData.getStartIndex()[i];
 			QString parameter = parseData.getParameters()[i];
 			ASEParameter::Type type = parseData.getParameterTypes()[i];
-			yDebugF << startIndex << parameter << ASEParameter::typeToString(type);
+			//yDebugF << startIndex << parameter << ASEParameter::typeToString(type);
 			setFormatWithParaType(startIndex, parameter.length(), ASEParameter::typeToString(type));
 		}
 	}

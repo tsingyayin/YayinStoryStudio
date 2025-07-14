@@ -1,6 +1,6 @@
 #pragma once
-#include <QDir>
-#include <QWidget>
+#include <QtCore/qdir.h>
+#include <QtWidgets/qwidget.h>
 
 class QListWidget;
 class QListWidgetItem;
@@ -26,6 +26,7 @@ namespace YSS::Editor {
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
 	private:
+		void onNewButtonClicked();
 		void onBackButtonClicked();
 		void refreshFileList();
 		void onItemDoubleClicked(QListWidgetItem* item);

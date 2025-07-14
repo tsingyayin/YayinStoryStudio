@@ -4,7 +4,6 @@
 #include "../private/TextEdit_p.h"
 #include "../LangServer.h"
 #include "../LangServerManager.h"
-#include <QDebug>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtCore/qfileinfo.h>
@@ -190,7 +189,6 @@ namespace YSSCore::__Private__ {
 					}
 				}
 				else {
-					qDebug() << "insert tab";
 					cursor.insertText("\t");
 				}
 			}
@@ -334,9 +332,8 @@ namespace YSSCore::Editor {
 	
 
 	bool TextEdit::onOpen(const QString& path) {
-	
 		if (path.isEmpty()) {
-			qDebug() << "File path is empty.";
+			yWarningF << "File path is empty.";
 			return false;
 		}
 		QString ext = QFileInfo(path).suffix();
@@ -346,12 +343,12 @@ namespace YSSCore::Editor {
 			d->TabCompleter = server->createTabCompleter(d->Text->document());
 		}
 		else {
-			yInfo << "No Language server found for extension:" << ext;
+			yInfoF << "No Language server found for extension:" << ext;
 		}
 		//highlighter 应在 setText之前，否则会触发两次textChanged
 		QFile file(path);
 		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			qDebug() << "Failed to open file:" << path;
+			yErrorF << "Failed to open file:" << path;
 			return false;
 		}
 		QTextStream in(&file);
@@ -392,7 +389,7 @@ namespace YSSCore::Editor {
 	bool TextEdit::onSave(const QString& path) {
 		QFile file(path);
 		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-			qDebug() << "Failed to open file:" << path;
+			yErrorF << "Failed to save file:" << path;
 			return false;
 		}
 		file.write(d->Text->toPlainText().toUtf8());

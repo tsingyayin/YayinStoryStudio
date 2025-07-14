@@ -1,12 +1,11 @@
 #pragma once
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtWidgets/QFrame>
-#include <QtGui/QIcon>
+#include <QtWidgets/qframe.h>
+#include <QtCore/qstringlist.h>
 #include "EditorPluginModule.h"
 // Forward declarations
 namespace YSSCore::Editor {
 	class FileTemplateInitWidgetPrivate;
+	class FileTemplateProviderPrivate;
 }
 // Main
 namespace YSSCore::Editor {

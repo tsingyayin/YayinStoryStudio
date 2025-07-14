@@ -354,6 +354,9 @@
     <QtMoc Include="Editor\FileServer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\HoverInfoProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YSSCore.qrc">

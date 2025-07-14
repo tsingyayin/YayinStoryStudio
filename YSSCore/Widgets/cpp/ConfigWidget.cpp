@@ -3,7 +3,13 @@
 #include "../../Utility/JsonConfig.h"
 #include "../../Utility/FileUtility.h"
 #include "../../General/TranslationHost.h"
-#include <QtWidgets>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qradiobutton.h>
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qframe.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qfiledialog.h>
 #include "../private/ConfigWidget_p.h"
 #include "../../Utility/PathMacro.h"
 #include "../../Widgets/MultiLabel.h"

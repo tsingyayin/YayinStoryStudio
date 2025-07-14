@@ -48,8 +48,8 @@ namespace YSS::TitlePage {
 		win->show();
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-		if (duration.count() < 2000) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(2000 - duration.count()));
+		if (duration.count() < 1000) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000 - duration.count()));
 		}
 #ifdef DEBUG
 		test_loaded();

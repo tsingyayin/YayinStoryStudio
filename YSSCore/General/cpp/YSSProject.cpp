@@ -120,8 +120,8 @@ namespace YSSCore::General {
 			}
 			files.append(filePath);
 		}
-		yDebugF << keys;
-		yDebugF << files;
+		//yDebugF << keys;
+		//yDebugF << files;
 		return files;
 	}
 	void YSSProject::addEditorOpenedFile(const QString& filePath) {

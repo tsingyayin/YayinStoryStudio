@@ -8,7 +8,6 @@
 #include <Utility/FileUtility.h>
 #include <Utility/AsyncFunction.h>
 #include <Widgets/ConfigWidget.h>
-
 void test_main(QApplication& a) {
 	YSSCore::Utility::CodeDiff codeDiff;
 	codeDiff.setOldCode(YSSCore::Utility::FileUtility::readLines("./resource/old.txt"));

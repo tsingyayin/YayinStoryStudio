@@ -62,6 +62,10 @@
 				"Out3", "InOut3", "Bounce", "ToFrom",
 				"Shake"
 			]
+		},
+		"isblock": {
+			"Type": "Bool",
+			"Default": true
 		}
 	},
 	"music": {

@@ -1,6 +1,7 @@
 {
 	"Dark": {
 		"Types": {
+			"Normal": "#FFFFFF",
 			"String": "#F7A76D",
 			"Number": "#A1FA4F",
 			"Integer": "#A1FA4F",
@@ -9,7 +10,24 @@
 			"Vector": "#75FA8D",
 			"Bool": "#EE8AF8",
 			"SyntaxSign": "#EDEDED",
-			"Controller": "#3282F6",
+			"Controller": {
+				"talk": "#B9F0F0",
+				"bg": "#80C0FF",
+				"music": "#FFFF80",
+				"sound": "#C0C080",
+				"cover": "#80E0C0",
+				"avg": "#A0E0FF",
+				"flash": "#3580BB",
+				"effect": "#8080FF",
+				"shake": "#73FBFD",
+				"filter": "#73FBFD",
+				"delay": "#8080C0",
+				"option": "#E080C0",
+				"jump": "#73FBFD",
+				"sign": "#73FBFD",
+				"hologram": "#C0FFC0",
+				"tele": "#73FBFD"
+			},
 			"AndProtect": "#73FBFD",
 			"StyleTag": "#9FFCFD",
 			"Speaker": "#B9F0F0",

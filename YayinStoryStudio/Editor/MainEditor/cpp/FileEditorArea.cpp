@@ -1,6 +1,7 @@
 #include "../FileEditorArea.h"
 #include "../StackBar.h"
 #include "../StackBarLabel.h"
+#include <General/Log.h>
 #include <QVBoxLayout>
 #include <QLabel>
 
@@ -22,9 +23,9 @@ namespace YSS::Editor {
 	}
 
 	void FileEditorArea::addFileEditWidget(YSSCore::Editor::FileEditWidget* widget) {
-		qDebug() << widget->getFilePath();
+		//qDebug() << widget->getFilePath();
 		if (Bar->isLabelOpened(widget->getFilePath())) {
-			qDebug() << "FileEditorArea: file already opened!";
+			yDebug << "FileEditorArea: file already opened!";
 			Bar->focusOn(widget->getFilePath());
 			delete widget;
 			return;

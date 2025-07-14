@@ -1,5 +1,4 @@
 #pragma once
-#include <QtCore/qobject.h>
 #include "EditorPluginModule.h"
 class QString;
 namespace YSSCore::Editor {

@@ -8,6 +8,7 @@
 #include <Editor/FileServerManager.h>
 #include <Editor/ProjectTemplateProvider.h>
 #include <Editor/ProjectTemplateManager.h>
+#include <Editor/FileTemplateManager.h>
 #include <General/TranslationHost.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>
@@ -30,7 +31,8 @@ namespace YSS {
 		TranslationHost->active(YSSTranslator);
 		LangServerManager = new YSSCore::Editor::LangServerManager();
 		FileServerManager = new YSSCore::Editor::FileServerManager();
-		TemplateManager = new YSSCore::Editor::ProjectTemplateManager();
+		ProjectTemplateManager = new YSSCore::Editor::ProjectTemplateManager();
+		FileTemplateManager = new YSSCore::Editor::FileTemplateManager();
 		ySuccess << "Program global value initialized !";
 		PluginManager = new YSSCore::Editor::EditorPluginManager();
 		PluginManager->programLoadPlugin();

@@ -150,12 +150,14 @@
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);YSSCore_EXPORT</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
     <Link>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);</AdditionalDependencies>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -271,6 +273,7 @@
     <QtMoc Include="Editor\FileTemplateProvider.h" />
     <ClInclude Include="Editor\EditorPluginModule.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
+    <QtMoc Include="Editor\HoverInfoProvider.h" />
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
     <QtMoc Include="General\ProjectMessageCollector.h" />
     <QtMoc Include="Editor\private\TextEdit_p.h" />

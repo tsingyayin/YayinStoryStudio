@@ -97,17 +97,17 @@ void AStoryController::setControllerASRule(const QString& rule) {
 	if (index != rule.length()) {
 		d->SyntaxSigns.append(rule.mid(index));
 	}
-	yDebugF << "Parsing rule:" << rule;
+	//yDebugF << "Parsing rule:" << rule;
 	if (!rule.startsWith("__")) {
 		d->StartSign = d->SyntaxSigns.first();
 		d->SyntaxSigns.removeFirst();
-		yDebugF << "Start sign detected:" << d->StartSign;
+		//yDebugF << "Start sign detected:" << d->StartSign;
 	}
 	else {
-		yDebugF << "No start sign detected, maybe a talk controller";
+		//yDebugF << "No start sign detected, maybe a talk controller";
 	}
-	yDebugF << "Rule" << toNameString(d->Name) << "has" << d->ParameterOrder.size() << "parameters:" << d->ParameterOrder;
-	yDebugF << "Syntax signs:" << d->SyntaxSigns;
+	//yDebugF << "Rule" << toNameString(d->Name) << "has" << d->ParameterOrder.size() << "parameters:" << d->ParameterOrder;
+	//yDebugF << "Syntax signs:" << d->SyntaxSigns;
 	d->DefaultParameterTypes.clear();
 	for (auto order : d->ParameterOrder) {
 		QString stype = d->RuleMeta.getString(order + ".Type");
@@ -189,7 +189,7 @@ AStoryControllerParseData AStoryController::parse(const QString& input) {
 		int delta = replaced.size() - rawSize;
 		if (delta != 0) {
 			replaced = "&{" + replaced + "}";
-			yDebugF << "Delta" << delta << "Detected";
+			//yDebugF << "Delta" << delta << "Detected";
 			if (i + 1 != result.size()) {
 				for (int j = i + 1; j < result.size(); j++) {
 					d->ParseData.d->StartIndex[j] += delta +3; // 3 for &{}

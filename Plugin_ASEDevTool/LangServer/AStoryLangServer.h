@@ -7,4 +7,7 @@ public:
 	AStoryLanguageServer(YSSCore::Editor::EditorPlugin* plugin);
 	virtual QSyntaxHighlighter* createHighlighter(QTextDocument* doc) override;
 	virtual YSSCore::Editor::TabCompleterProvider* createTabCompleter(QTextDocument* doc) override;
+	virtual YSSCore::Editor::HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) override {
+		return nullptr; //TODO
+	}
 };

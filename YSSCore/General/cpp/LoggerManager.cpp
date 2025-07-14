@@ -77,6 +77,9 @@ namespace YSSCore::General {
 		delete d;
 	}
 	void LoggerManager::msgHandlerLog(LoggerMsgHandler* handler) {
+		// TODO:
+		// This implementation does not check the log level threshold.
+		// It will log all messages regardless of the threshold.
 		QString logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz") + "]" +
 			"[" + handler->getLogger()->getNamespace() + "]";
 		switch (handler->getLevel()) {
