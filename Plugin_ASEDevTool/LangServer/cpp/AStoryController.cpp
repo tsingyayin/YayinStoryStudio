@@ -17,21 +17,28 @@ protected:
 	QString StartSign;
 	QList<ASEParameter::Type> DefaultParameterTypes;
 	AStoryControllerParseData ParseData;
+	void speakControllerSpecial(AStoryControllerParseData * data) {
+		if (data->getParameterCount() == 1) {
+			data->d->Parameters.prepend("");
+			data->d->StartIndex.prepend(0);
+			data->d->ParameterTypes.prepend(ASEParameter::Type::String);
+		}
+	}
 };
 
 AStoryController::Name AStoryController::fromNameString(const QString& name) {
-	if (name == "talk") return AStoryController::Name::talk;
+	if (name == "speak") return AStoryController::Name::speak;
 	if (name == "bg") return AStoryController::Name::bg;
 	if (name == "music") return AStoryController::Name::music;
 	if (name == "sound") return AStoryController::Name::sound;
-	if (name == "cover") return AStoryController::Name::cover;
-	if (name == "avg") return AStoryController::Name::avg;
+	if (name == "mask") return AStoryController::Name::mask;
+	if (name == "chara") return AStoryController::Name::chara;
 	if (name == "flash") return AStoryController::Name::flash;
 	if (name == "effect") return AStoryController::Name::effect;
 	if (name == "shake") return AStoryController::Name::shake;
 	if (name == "filter") return AStoryController::Name::filter;
 	if (name == "delay") return AStoryController::Name::delay;
-	if (name == "option") return AStoryController::Name::option;
+	if (name == "branch") return AStoryController::Name::branch;
 	if (name == "jump") return AStoryController::Name::jump;
 	if (name == "sign") return AStoryController::Name::sign;
 	if (name == "hologram") return AStoryController::Name::hologram;
@@ -41,18 +48,18 @@ AStoryController::Name AStoryController::fromNameString(const QString& name) {
 
 QString AStoryController::toNameString(AStoryController::Name name) {
 	switch (name) {
-	case AStoryController::Name::talk: return "talk";
+	case AStoryController::Name::speak: return "speak";
 	case AStoryController::Name::bg: return "bg";
 	case AStoryController::Name::music: return "music";
 	case AStoryController::Name::sound: return "sound";
-	case AStoryController::Name::cover: return "cover";
-	case AStoryController::Name::avg: return "avg";
+	case AStoryController::Name::mask: return "mask";
+	case AStoryController::Name::chara: return "chara";
 	case AStoryController::Name::flash: return "flash";
 	case AStoryController::Name::effect: return "effect";
 	case AStoryController::Name::shake: return "shake";
 	case AStoryController::Name::filter: return "filter";
 	case AStoryController::Name::delay: return "delay";
-	case AStoryController::Name::option: return "option";
+	case AStoryController::Name::branch: return "branch";
 	case AStoryController::Name::jump: return "jump";
 	case AStoryController::Name::sign: return "sign";
 	case AStoryController::Name::hologram: return "hologram";
@@ -104,7 +111,7 @@ void AStoryController::setControllerASRule(const QString& rule) {
 		//yDebugF << "Start sign detected:" << d->StartSign;
 	}
 	else {
-		//yDebugF << "No start sign detected, maybe a talk controller";
+		//yDebugF << "No start sign detected, maybe a speak controller";
 	}
 	//yDebugF << "Rule" << toNameString(d->Name) << "has" << d->ParameterOrder.size() << "parameters:" << d->ParameterOrder;
 	//yDebugF << "Syntax signs:" << d->SyntaxSigns;
@@ -200,5 +207,8 @@ AStoryControllerParseData AStoryController::parse(const QString& input) {
 	}
 	d->ParseData.d->setParameters(rtn);
 	d->ParseData.d->setParameterNames(d->ParameterOrder);
+	if (d->Name == AStoryController::Name::speak) {
+		d->speakControllerSpecial(&d->ParseData);
+	}
 	return d->ParseData;
 }

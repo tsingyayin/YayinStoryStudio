@@ -1,5 +1,5 @@
 {
-	"talk":{
+	"speak":{
 		"charname":{
 			"Type": "String",
 			"Default": "",
@@ -112,13 +112,13 @@
 			"Default": false
 		}
 	},
-	"cover":{
+	"mask":{
 		"cover":{
 			"Type":"Bool",
 			"Default": false
 		}
 	},
-	"avg":{
+	"chara":{
 		"pcname":{
 			"Type": "String",
 			"Default": "",
@@ -288,7 +288,7 @@
 			"Range": [0, "+"]
 		}
 	},
-	"option": {
+	"branch": {
 		"optionA":{
 			"Type": "String",
 			"Default": "",

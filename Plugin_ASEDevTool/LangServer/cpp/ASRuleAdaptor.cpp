@@ -47,7 +47,7 @@ bool ASRuleAdaptor::loadASRule() {
 		return false;
 	}
 	AStoryController talkController;
-	talkController.setControllerName(AStoryController::toNameString(AStoryController::talk));
+	talkController.setControllerName(AStoryController::toNameString(AStoryController::speak));
 	talkController.setControllerMeta(d->Config);
 	talkController.setControllerASRule(ControllerLines.first());
 	d->TalkController = talkController;

@@ -4,10 +4,12 @@
 #include <QtCore/qstringlist.h>
 // Forward declarations
 class AStoryController;
+class AStoryControllerPrivate;
 class AStoryControllerParseData;
 // Main
 class AStoryControllerParseDataPrivate {
 	friend class AStoryControllerParseData;
+	friend class AStoryControllerPrivate;
 	friend class AStoryController;
 protected:
 	AStoryController::Name ControllerName = AStoryController::unknown;

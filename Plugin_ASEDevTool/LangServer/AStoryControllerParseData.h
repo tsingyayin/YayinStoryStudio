@@ -5,11 +5,13 @@
 #include <Macro.h>
 // Forward declarations
 class AStoryController;
+class AStoryControllerPrivate;
 class AStoryControllerParseDataPrivate;
 // Main
 class AStoryControllerParseData
 {
 	friend class AStoryController;
+	friend class AStoryControllerPrivate;
 public:
 	AStoryControllerParseData();
 	VIMoveable(AStoryControllerParseData);

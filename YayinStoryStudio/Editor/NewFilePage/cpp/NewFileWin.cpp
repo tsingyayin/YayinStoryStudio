@@ -80,23 +80,23 @@ namespace YSS::NewFilePage {
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
-			ProviderButton->setNormalStyleSheet(YSSTMSS("YSS::FileWin.HistoryFile.Normal"));
-			ProviderButton->setHoverStyleSheet(YSSTMSS("YSS::FileWin.HistoryFile.Hover"));
-			ProviderButton->setPressedStyleSheet(YSSTMSS("YSS::FileWin.HistoryFile.Pressed"));
+			ProviderButton->setNormalStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Normal"));
+			ProviderButton->setHoverStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Hover"));
+			ProviderButton->setPressedStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->addCustomWidget(tags);
 			FileList.append(ProviderButton);
 			FileTemplateLayout->addWidget(ProviderButton);
 			ProviderMap.insert(ProviderButton, provider);
-			ProviderButton->setSpacing(0);
-			ProviderButton->setContentsMargins(5, 5, 5, 5);
+			ProviderButton->setSpacing(5);
+			ProviderButton->setContentsMargins(10, 10, 10, 10);
 			ProviderButton->show();
 			yDebug << ProviderButton->isHidden();
 			connect(ProviderButton, &YSSCore::Widgets::MultiButton::clicked, this,
 				&NewFileWin::onTemplateButtonClicked);
 		}
-		FileTemplateWidget->setFixedHeight(providers.size() * 90);
+		FileTemplateWidget->setFixedHeight(providers.size() * 100);
 	}
 	void NewFileWin::onTemplateButtonClicked() {
 		YSSCore::Widgets::MultiButton* Button = static_cast<YSSCore::Widgets::MultiButton*>(sender());

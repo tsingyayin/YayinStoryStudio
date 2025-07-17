@@ -52,7 +52,7 @@ void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 			}
 			return;
 		}
-		else if (parseData.getControllerName() == AStoryController::Name::option) {
+		else if (parseData.getControllerName() == AStoryController::Name::branch) {
 			for (; i < parseData.getParameterCount(); i++) {
 				int startIndex = parseData.getStartIndex()[i];
 				QString parameter = parseData.getParameters()[i];
@@ -93,7 +93,7 @@ void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 			}
 			return;
 		}
-		if (parseData.getControllerName() == AStoryController::Name::talk) {
+		if (parseData.getControllerName() == AStoryController::Name::speak) {
 			setFormatWithParaType(parseData.getStartIndex()[0], parseData.getParameters()[0].length(), "Speaker");
 			if (parseData.getParameterCount() > 1) {
 				setFormatWithParaType(parseData.getStartIndex()[1], parseData.getParameters()[1].length(), "Normal");
