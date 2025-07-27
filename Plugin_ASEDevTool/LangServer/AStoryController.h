@@ -3,7 +3,7 @@
 #include "ASEParameter.h"
 #include <QtCore/qlist.h>
 #include <QtCore/qstringlist.h>
-#include <Macro.h>
+#include <VIMacro.h>
 namespace YSSCore::Utility {
 	class JsonConfig;
 }

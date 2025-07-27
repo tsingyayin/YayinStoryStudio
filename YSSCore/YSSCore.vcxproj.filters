@@ -164,6 +164,9 @@
     <ClCompile Include="Editor\cpp\DebugServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -299,6 +302,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorPluginModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

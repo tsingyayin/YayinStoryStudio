@@ -27,9 +27,7 @@ namespace YSSCore::Editor {
 	class TabCompleterProvider :public QObject{
 	public:
 		TabCompleterProvider(QTextDocument* parent);
-		void setDocument(QTextDocument* doc);
 		QTextDocument* getDocument() const;
-		virtual void onDocumentChanged(QTextDocument* doc) = 0;
 		virtual QList<TabCompleterItem> onTabComplete(int position, QString lineContent, QString wordContent) = 0;
 	private:
 		YSSCore::__Private__::TabCompleterProviderPrivate* d;

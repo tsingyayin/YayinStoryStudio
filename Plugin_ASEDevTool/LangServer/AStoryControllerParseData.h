@@ -2,7 +2,7 @@
 #include <QtCore/qlist.h>
 #include "ASEParameter.h"
 #include "AStoryController.h"
-#include <Macro.h>
+#include <VIMacro.h>
 // Forward declarations
 class AStoryController;
 class AStoryControllerPrivate;

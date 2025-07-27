@@ -1,5 +1,5 @@
 #pragma once
-#include <Macro.h>
+#include <VIMacro.h>
 class QString;
 class AStoryControllerParseData;
 

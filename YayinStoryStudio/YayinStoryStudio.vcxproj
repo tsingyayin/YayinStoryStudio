@@ -33,12 +33,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.8.3</QtInstall>
-    <QtModules>core;gui;qml;quick;widgets;3dquick</QtModules>
+    <QtModules>core;gui;network;qml;widgets;multimedia;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.8.3</QtInstall>
-    <QtModules>core;gui;qml;quick;widgets;3dquick</QtModules>
+    <QtModules>core;gui;network;qml;widgets;multimedia;</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
