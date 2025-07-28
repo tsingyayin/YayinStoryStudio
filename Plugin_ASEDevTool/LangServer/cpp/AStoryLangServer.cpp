@@ -1,5 +1,6 @@
 #include "../AStoryLangServer.h"
 #include "../AStoryHighlighter.h"
+#include "../AStoryTabCompleterProvider.h"
 #include <QtGui/qtextdocument.h>
 
 AStoryLanguageServer::AStoryLanguageServer(YSSCore::Editor::EditorPlugin* plugin) :
@@ -12,5 +13,5 @@ QSyntaxHighlighter* AStoryLanguageServer::createHighlighter(QTextDocument* doc) 
 }
 
 YSSCore::Editor::TabCompleterProvider* AStoryLanguageServer::createTabCompleter(QTextDocument* doc) {
-	return nullptr; //TODO
+	return new AStoryTabCompleterProvider(doc);
 }

@@ -207,6 +207,7 @@
     <ClCompile Include="LangServer\cpp\AStoryControllerParseData.cpp" />
     <ClCompile Include="LangServer\cpp\AStoryLangServer.cpp" />
     <ClCompile Include="LangServer\cpp\AStoryHighlighter.cpp" />
+    <ClCompile Include="LangServer\cpp\AStoryTabCompleterProvider.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cpp\Plugin_ASEDevTool.cpp" />
     <ClCompile Include="ProjectTemplateProvider\cpp\ASEAStoryPTP.cpp" />

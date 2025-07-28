@@ -167,6 +167,9 @@
     <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -292,12 +295,6 @@
     <ClInclude Include="Utility\StringMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\TabCompleterProvider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\private\TabCompleterProvider_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Editor\EditorHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -361,6 +358,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\HoverInfoProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\private\TabCompleterProvider_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\TabCompleterProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

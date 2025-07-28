@@ -1,16 +1,30 @@
 #include "../../Widgets/ThemeManager.h"
 #include "../../General/Log.h"
 #include "../TextEdit.h"
-#include "../private/TextEdit_p.h"
 #include "../LangServer.h"
 #include "../LangServerManager.h"
+#include "../TabCompleterProvider.h"
+#include "../private/TextEdit_p.h"
+#include "../private/TabCompleterProvider_p.h"
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtCore/qfileinfo.h>
 #include <QtGui/qsyntaxhighlighter.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtCore/qregularexpression.h>
 
 namespace YSSCore::__Private__ {
+
+	TextEditPrivate::~TextEditPrivate() {
+		if (FontMetrics != nullptr) {
+			delete FontMetrics;
+		}
+		if (TabCompleterWidget != nullptr) {
+			delete TabCompleterWidget;
+		}
+		// do not delete Highlighter, it will be automaticly deleted by QTextDocument.
+	}
+
 	void TextEditPrivate::onBlockCountChanged(qint32 count) {
 		qint32 delta = count - LineCount;
 		if (delta > 0) {
@@ -36,7 +50,25 @@ namespace YSSCore::__Private__ {
 		LineCount = count;
 	}
 
+	static bool isSignSymbol(QChar c) {
+		if (0x0020u <= c.unicode() && c.unicode() <= 0x002Fu) {
+			return true; // !"#$%&'()*+,-./
+		}else if (0x003Au <= c.unicode() && c.unicode() <= 0x0040u) {
+			return true; // :;<=>?@
+		}
+		else if (0x005Bu <= c.unicode() && c.unicode() <= 0x0060u) {
+			return true; // [\]^_`
+		}
+		else if (0x007Bu <= c.unicode() && c.unicode() <= 0x007Eu) {
+			return true; // {|}~
+		} 
+		else if (c == '\n' || c == '\r' || c == '\t' || c == ' ') {
+			return true; // \n, \r, \t, space
+		}
+		return false;
+	}
 	void TextEditPrivate::onCursorPositionChanged() {
+		onCompleter();
 		QTextCursor cursor = Text->textCursor();
 		int index = cursor.block().blockNumber();
 		if (index == LastCursorLine) {
@@ -62,6 +94,58 @@ namespace YSSCore::__Private__ {
 		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Selection"));
 		LastCursor.setBlockFormat(format);
 		LastCursorLine = index;
+	}
+	void TextEditPrivate::onCompleter() {
+		QTextCursor cursor = Text->textCursor();
+		if (TabCompleter) {
+			QList<YSSCore::Editor::TabCompleterItem> list;
+			QString content = cursor.block().text();
+			int position = cursor.positionInBlock();
+			int RIndex = position; int LIndex = position;
+			if (position != 0) {
+				for (int i = position - 1; i >= 0; i--) {
+					if (isSignSymbol(content[i])) {
+						LIndex = i + 1;
+						break;
+					}
+				}
+			}
+			else {
+				LIndex = 0;
+			}
+			for (int i = position; i < content.length(); i++) {
+				if (isSignSymbol(content[i])) {
+					RIndex = i;
+					break;
+				}
+			}
+			yDebugF << "LIndex:" << LIndex << "RIndex:" << RIndex << "Position:" << position;
+			if (RIndex != position) { // cursor in the middle of a word
+				if (TabCompleterWidget->isVisible()) {
+					TabCompleterWidget->hide();
+				}
+				return;
+			}
+			QString wordContent = content.mid(LIndex, RIndex - LIndex);
+			yDebugF << "WordContent:" << wordContent;
+			if (wordContent.isEmpty()) {
+				if (TabCompleterWidget->isVisible()) {
+					TabCompleterWidget->hide();
+				}
+				return;
+			}
+			list = TabCompleter->onTabComplete(position, content, wordContent);
+			if (list.isEmpty()) {
+				TabCompleterWidget->hide();
+				return;
+			}
+			if (!TabCompleterWidget->isVisible()) {
+				TabCompleterWidget->show();
+			}
+			TabCompleterWidget->setCompleterItems(list);
+			QRect pos = Text->cursorRect();
+			TabCompleterWidget->move(Text->mapToGlobal(QPoint(pos.x() + 10, pos.y() + pos.height() + 10)));
+		}
 	}
 
 	void TextEditPrivate::onTabClicked(QKeyEvent* event) {
@@ -339,8 +423,20 @@ namespace YSSCore::Editor {
 		QString ext = QFileInfo(path).suffix();
 		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
 		if (server != nullptr) {
+			if (d->Highlighter != nullptr) {
+				delete d->Highlighter;
+			}
 			d->Highlighter = server->createHighlighter(d->Text->document());
+			if (d->TabCompleter != nullptr) {
+				delete d->TabCompleter;
+			}
 			d->TabCompleter = server->createTabCompleter(d->Text->document());
+			if (d->TabCompleterWidget != nullptr) {
+				delete d->TabCompleterWidget;
+			}
+			if (d->TabCompleter != nullptr) {
+				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget();
+			}
 		}
 		else {
 			yInfoF << "No Language server found for extension:" << ext;

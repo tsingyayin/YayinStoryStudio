@@ -1,6 +1,7 @@
 #pragma once
 #include <QtCore/qobject.h>
 #include <QtWidgets/qtextbrowser.h>
+// Forward declarations
 namespace YSSCore::Editor {
 	class TextEdit;
 	class TabCompleterProvider;
@@ -11,6 +12,10 @@ class QTextCursor;
 class QFontMetricsF;
 class QSyntaxHighlighter;
 class HoverTip;
+namespace YSSCore::__Private__ {
+	class TabCompleterWidget;
+}
+// Main Implementation
 namespace YSSCore::__Private__ {
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
@@ -25,22 +30,19 @@ namespace YSSCore::__Private__ {
 		QTextCursor LastCursor;
 		QFont Font;
 		QFontMetricsF* FontMetrics;
-		QSyntaxHighlighter* Highlighter;
+		QSyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::TabCompleterProvider* TabCompleter = nullptr;
+		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
 		bool ReloadTab = true;
 		HoverTip* Hover = nullptr;
 		TextEditPrivate() {};
-		~TextEditPrivate() {
-			if (FontMetrics != nullptr) {
-				delete FontMetrics;
-			}
-			// do not delete Highlighter, it will be automaticly deleted by QTextDocument.
-		}
+		~TextEditPrivate();
 	protected:
 		void onBlockCountChanged(qint32 count);
 		void onTabClicked(QKeyEvent* event);
 		void onEnterClicked(QKeyEvent* event);
 		void onMouseMove(QMouseEvent* event);
 		void onCursorPositionChanged();
+		void onCompleter();
 	};
 }

@@ -213,6 +213,7 @@
     <ClCompile Include="Editor\cpp\EditorHelper.cpp" />
     <ClCompile Include="Editor\cpp\EditorPluginModule.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp" />
+    <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
@@ -278,8 +279,8 @@
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
     <QtMoc Include="General\ProjectMessageCollector.h" />
     <QtMoc Include="Editor\private\TextEdit_p.h" />
-    <ClInclude Include="Editor\private\TabCompleterProvider_p.h" />
-    <ClInclude Include="Editor\TabCompleterProvider.h" />
+    <QtMoc Include="Editor\private\TabCompleterProvider_p.h" />
+    <QtMoc Include="Editor\TabCompleterProvider.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
     <ClInclude Include="Utility\StringMacro.h" />
     <ClInclude Include="VIMacro.h" />

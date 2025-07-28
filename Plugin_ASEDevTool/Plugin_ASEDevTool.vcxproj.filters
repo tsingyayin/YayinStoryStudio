@@ -62,6 +62,9 @@
     <ClCompile Include="LangServer\cpp\ASRuleAdaptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LangServer\cpp\AStoryTabCompleterProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">

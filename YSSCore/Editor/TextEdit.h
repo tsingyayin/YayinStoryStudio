@@ -6,8 +6,13 @@
 class QTextEdit;
 class QHBoxLayout;
 class QSyntaxHighlighter;
+class QTextDocument;
+
 namespace YSSCore::__Private__ {
 	class TextEditPrivate;
+}
+namespace YSSCore::Editor {
+	class TabCompleterProvider;
 }
 // Main
 namespace YSSCore::Editor {

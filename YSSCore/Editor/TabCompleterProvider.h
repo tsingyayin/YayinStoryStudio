@@ -5,12 +5,18 @@
 class QTextDocument;
 namespace YSSCore::__Private__ {
 	class TabCompleterProviderPrivate;
+	class TextEditPrivate;
 }
 namespace YSSCore::Editor {
 	class TabCompleterItemPrivate;
-	class TabCompleterItem {
+	class TextEdit;
+}
+
+namespace YSSCore::Editor {
+	class YSSCoreAPI TabCompleterItem {
 		friend class TabCompleterItemPrivate;
 	public:
+		TabCompleterItem();
 		TabCompleterItem(QString iconPath, QString text, QString description, QString content, bool alignment = true);
 		~TabCompleterItem();
 		VIMoveable(TabCompleterItem);
@@ -24,12 +30,16 @@ namespace YSSCore::Editor {
 		TabCompleterItemPrivate* d;
 	};
 
-	class TabCompleterProvider :public QObject{
+	class YSSCoreAPI TabCompleterProvider :public QObject{
+		friend class TextEdit;
+		friend class YSSCore::__Private__::TextEditPrivate;
+		Q_OBJECT;
 	public:
-		TabCompleterProvider(QTextDocument* parent);
+		TabCompleterProvider(QTextDocument* doc);
+		virtual ~TabCompleterProvider();
 		QTextDocument* getDocument() const;
 		virtual QList<TabCompleterItem> onTabComplete(int position, QString lineContent, QString wordContent) = 0;
-	private:
+	protected:
 		YSSCore::__Private__::TabCompleterProviderPrivate* d;
 	};
 }
