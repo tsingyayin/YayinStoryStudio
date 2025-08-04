@@ -1,3 +1,7 @@
+/*
+*	Yayin Story Studio - Core Library
+* 
+*/
 #include "../../Widgets/ThemeManager.h"
 #include "../../General/Log.h"
 #include "../TextEdit.h"
@@ -128,23 +132,21 @@ namespace YSSCore::__Private__ {
 			}
 			QString wordContent = content.mid(LIndex, RIndex - LIndex);
 			yDebugF << "WordContent:" << wordContent;
-			if (wordContent.isEmpty()) {
-				if (TabCompleterWidget->isVisible()) {
-					TabCompleterWidget->hide();
-				}
+			/*if (wordContent.isEmpty()) {
+				TabCompleterWidget->hide();
 				return;
-			}
+			}*/
 			list = TabCompleter->onTabComplete(position, content, wordContent);
 			if (list.isEmpty()) {
 				TabCompleterWidget->hide();
 				return;
 			}
-			if (!TabCompleterWidget->isVisible()) {
-				TabCompleterWidget->show();
-			}
+			yDebugF << "TabCompleterWidget is shown";
 			TabCompleterWidget->setCompleterItems(list);
 			QRect pos = Text->cursorRect();
-			TabCompleterWidget->move(Text->mapToGlobal(QPoint(pos.x() + 10, pos.y() + pos.height() + 10)));
+			TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
+			TabCompleterWidget->show();
+			Text->setFocus();
 		}
 	}
 
@@ -435,7 +437,7 @@ namespace YSSCore::Editor {
 				delete d->TabCompleterWidget;
 			}
 			if (d->TabCompleter != nullptr) {
-				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget();
+				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text);
 			}
 		}
 		else {

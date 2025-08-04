@@ -155,7 +155,7 @@
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\EditorHelper.cpp">
+    <ClCompile Include="Editor\cpp\EditorProjectHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\cpp\EditorPluginModule.cpp">
@@ -168,6 +168,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\StringUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -295,13 +298,16 @@
     <ClInclude Include="Utility\StringMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\EditorHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Editor\EditorPluginModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\StringUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorProjectHelperManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -364,6 +370,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\TabCompleterProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\EditorProjectHelper.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

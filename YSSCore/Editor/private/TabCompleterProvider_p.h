@@ -8,7 +8,7 @@ class QTextDocument;
 class QTextCursor;
 class QWidget;
 class QScrollArea;
-class QHBoxLayout;
+class QVBoxLayout;
 // Main Implementation
 namespace YSSCore::__Private__ {
 	class TextEditPrivate;
@@ -30,7 +30,7 @@ namespace YSSCore::__Private__ {
 	protected:
 		QWidget* CentralWidget;
 		QScrollArea* ScrollArea;
-		QHBoxLayout* Layout;
+		QVBoxLayout* Layout;
 		QList<QWidget*> Items;
 		QList<YSSCore::Editor::TabCompleterItem> CompleterItems;
 		TabCompleterWidget(QWidget* parent = nullptr);

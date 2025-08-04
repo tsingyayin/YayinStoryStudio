@@ -210,4 +210,13 @@ namespace YSSCore::Editor {
 	void EditorPlugin::registerFileTemplateProvider(FileTemplateProvider* provider) {
 		YSSCore::Editor::FileTemplateManager::getInstance()->addProvider(provider);
 	}
+
+	/*!
+		\since YSSCore 0.13.0
+		\a helper 编辑器助手
+		注册编辑器助手。
+	*/
+	void EditorPlugin::registerEditorHelper(YSSCore::Editor::EditorHelper* helper) {
+		d->EditorHelper = helper;
+	}
 }

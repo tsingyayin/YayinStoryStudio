@@ -6,6 +6,7 @@ namespace YSSCore::Editor {
 	class TabCompleterItemPrivate {
 		friend class TabCompleterItem;
 	protected:
+		TabCompleterItem::ItemType Type = TabCompleterItem::ItemType::Default;
 		QString IconPath;
 		QString Text;
 		QString Description;
@@ -22,15 +23,16 @@ namespace YSSCore::Editor {
 		d->Alignment = true;
 	}
 
-	TabCompleterItem::TabCompleterItem(QString iconPath, QString text, QString description, QString content, bool alignment)
+	TabCompleterItem::TabCompleterItem(QString text, QString content, QString description, ItemType type, bool alignment)
 		: d(new TabCompleterItemPrivate) {
-		d->IconPath = iconPath;
+		d->IconPath = "";
 		d->Text = text;
 		d->Description = description;
 		d->Content = content;
+		d->Type = type;
 		d->Alignment = alignment;
+		setType(type, true);
 	}
-
 	TabCompleterItem::~TabCompleterItem() {
 		delete d;
 	}
@@ -39,6 +41,52 @@ namespace YSSCore::Editor {
 
 	VICopyable_Impl(TabCompleterItem);
 
+	void TabCompleterItem::setIconPath(const QString& iconPath) {
+		d->IconPath = iconPath;
+	}
+
+	void TabCompleterItem::setText(const QString& text) {
+		d->Text = text;
+	}
+
+	void TabCompleterItem::setDescription(const QString& description) {
+		d->Description = description;
+	}
+
+	void TabCompleterItem::setContent(const QString& content) {
+		d->Content = content;
+	}
+
+	void TabCompleterItem::setType(ItemType type, bool redirectIcon) {
+		if (redirectIcon) {
+			switch (type) {
+				case ItemType::Default:
+					d->IconPath = ":/ysscore/compiled/icon/default.png";
+					break;
+				case ItemType::Value:
+					d->IconPath = ":/ysscore/compiled/icon/value.png";
+					break;
+				case ItemType::Const:
+					d->IconPath = ":/ysscore/compiled/icon/const.png";
+					break;
+				case ItemType::Enum:
+					d->IconPath = ":/ysscore/compiled/icon/enum.png";
+					break;
+				case ItemType::Function:
+					d->IconPath = ":/ysscore/compiled/icon/function.png";
+					break;
+				case ItemType::Object:
+					d->IconPath = ":/ysscore/compiled/icon/object.png";
+					break;
+				case ItemType::Operator:
+					d->IconPath = ":/ysscore/compiled/icon/operator.png";
+					break;
+				default:
+					d->IconPath = ":/ysscore/compiled/icon/default.png";
+			}
+		}
+		d->Type = type;
+	}
 	QString TabCompleterItem::getIconPath() const {
 		return d->IconPath;
 	}
@@ -55,6 +103,10 @@ namespace YSSCore::Editor {
 		return d->Content;
 	}
 
+	TabCompleterItem::ItemType TabCompleterItem::getType() const {
+		return d->Type;
+	}
+		
 	bool TabCompleterItem::isAlignment() const {
 		return d->Alignment;
 	}

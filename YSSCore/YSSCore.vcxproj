@@ -210,12 +210,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
-    <ClCompile Include="Editor\cpp\EditorHelper.cpp" />
+    <ClCompile Include="Editor\cpp\EditorProjectHelper.cpp" />
     <ClCompile Include="Editor\cpp\EditorPluginModule.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
+    <ClCompile Include="Utility\cpp\StringUtility.cpp" />
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Editor\cpp\DebugData.cpp" />
     <ClCompile Include="Editor\cpp\DebugFailedData.cpp" />
@@ -269,11 +270,12 @@
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Editor\EditorHelper.h" />
+    <QtMoc Include="Editor\EditorProjectHelper.h" />
     <ClInclude Include="Editor\DebugData.h" />
     <ClInclude Include="Editor\DebugFailedData.h" />
     <QtMoc Include="Editor\FileTemplateProvider.h" />
     <ClInclude Include="Editor\EditorPluginModule.h" />
+    <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <QtMoc Include="Editor\HoverInfoProvider.h" />
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
@@ -283,6 +285,7 @@
     <QtMoc Include="Editor\TabCompleterProvider.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
     <ClInclude Include="Utility\StringMacro.h" />
+    <ClInclude Include="Utility\StringUtility.h" />
     <ClInclude Include="VIMacro.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />

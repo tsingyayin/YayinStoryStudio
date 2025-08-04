@@ -24,11 +24,7 @@ namespace YSSCore::Widgets {
 		d->Icon->setObjectName("IconLabel");
 		d->Layout = new QGridLayout(this);
 		this->setLayout(d->Layout);
-		d->Layout->addWidget(d->Icon, 0, 0, 2, 1);
-		d->Layout->addWidget(d->Title, 0, 1, 1, 1);
-		d->Layout->addWidget(d->Description, 1, 1, 1, 1);
-		d->Layout->setRowStretch(0, 2);
-		d->Layout->setRowStretch(1, 1);
+		d->Layout->addWidget(d->Title, 0, 1, 1, 1);	
 		d->Icon->setAlignment(Qt::AlignCenter);
 		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
@@ -41,16 +37,24 @@ namespace YSSCore::Widgets {
 	}
 	void MultiLabel::setTitle(const QString& str) {
 		d->Title->setText(str);
+		d->Title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	}
 	void MultiLabel::setDescription(const QString& str) {
 		d->Description->setText(str);
 		if (!str.isEmpty()) {
+			d->Layout->addWidget(d->Description, 1, 1, 1, 1);
+			d->Layout->setRowStretch(0, 2);
+			d->Layout->setRowStretch(1, 1);
 			d->Description->show();
 		}
 	}
 	void MultiLabel::setPixmapPath(const QString& filePath) {
+		if (filePath.isEmpty()) {
+			return;
+		}
 		d->Icon->setStyleSheet("QLabel{border-image: url(" + filePath + ");}");
 		d->PixmapPath = filePath;
+		d->Layout->addWidget(d->Icon, 0, 0, 2, 1);
 		d->Icon->setFixedHeight(d->Icon->width());
 		d->Icon->show();
 	}
@@ -75,6 +79,7 @@ namespace YSSCore::Widgets {
 	}
 	void MultiLabel::setPixmapFixedWidth(int width) {
 		d->Icon->setFixedWidth(width);
+		d->Icon->setFixedHeight(width);
 	}
 	void MultiLabel::addCustomWidget(QWidget* widget) {
 		if (d->CustomWidget != nullptr) {

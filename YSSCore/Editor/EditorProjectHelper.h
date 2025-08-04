@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "EditorPluginModule.h"
 // Forward declarations
 namespace YSSCore::General {
 	class YSSProject;
@@ -9,9 +9,11 @@ namespace YSSCore::Editor{
 }
 // Main
 namespace YSSCore::Editor {
-	VInterface EditorHelper {
+	class YSSCoreAPI EditorProjectHelper :public EditorPluginModule {
+		Q_OBJECT;
 public:
-		EditorHelper(EditorPlugin* plugin);
+		EditorProjectHelper(const QString& moduleName, const QString& moduleID, EditorPlugin* plugin);
+		virtual bool isHelperNeeded(YSSCore::General::YSSProject* project)  = 0;
 		virtual void onProjectLoaded(YSSCore::General::YSSProject* project) = 0;
 		virtual void onProjectUnloaded(YSSCore::General::YSSProject* project) = 0;
 	};
