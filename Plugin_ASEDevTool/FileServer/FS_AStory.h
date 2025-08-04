@@ -2,8 +2,8 @@
 #include <Editor/FileServer.h>
 #include <Editor/EditorPlugin.h>
 
-class AStoryFileServer : public YSSCore::Editor::FileServer {
+class AStoryFileServer : public Visindigo::Editor::FileServer {
 public:
-	AStoryFileServer(YSSCore::Editor::EditorPlugin* plugin);
+	AStoryFileServer(Visindigo::Editor::EditorPlugin* plugin);
 	~AStoryFileServer();
 };

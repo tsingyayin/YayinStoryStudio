@@ -64,18 +64,18 @@ namespace YSS::NewProjectPage {
 	}
 
 	void NewProjectWin::loadProjectTemplate() {
-		for (YSSCore::Widgets::MultiButton* button : ProjectList) {
+		for (Visindigo::Widgets::MultiButton* button : ProjectList) {
 			ProjectTemplateLayout->removeWidget(button);
 			ProviderMap.remove(button);
 			button->deleteLater();
 		}
 		ProjectList.clear();
-		QList<YSSCore::Editor::ProjectTemplateProvider*> providers = YSSPTM->getProviders();
-		for (YSSCore::Editor::ProjectTemplateProvider* provider : providers) {
+		QList<Visindigo::Editor::ProjectTemplateProvider*> providers = YSSPTM->getProviders();
+		for (Visindigo::Editor::ProjectTemplateProvider* provider : providers) {
 			yDebug << provider->getTemplateID();
 			yDebug << provider->getTemplateName();
 			yDebug << provider->getTemplateDescription();
-			YSSCore::Widgets::MultiButton* ProviderButton = new YSSCore::Widgets::MultiButton(ProjectTemplateWidget);
+			Visindigo::Widgets::MultiButton* ProviderButton = new Visindigo::Widgets::MultiButton(ProjectTemplateWidget);
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
@@ -92,23 +92,23 @@ namespace YSS::NewProjectPage {
 			ProviderButton->setContentsMargins(10, 10, 10, 10);
 			ProviderButton->show();
 			yDebug << ProviderButton->isHidden();
-			connect(ProviderButton, &YSSCore::Widgets::MultiButton::clicked, this,
+			connect(ProviderButton, &Visindigo::Widgets::MultiButton::clicked, this,
 				&NewProjectWin::onTemplateButtonClicked);
 		}
 		ProjectTemplateWidget->setFixedHeight(providers.size() * 100);
 	}
 	void NewProjectWin::onTemplateButtonClicked() {
-		YSSCore::Widgets::MultiButton* Button = static_cast<YSSCore::Widgets::MultiButton*>(sender());
+		Visindigo::Widgets::MultiButton* Button = static_cast<Visindigo::Widgets::MultiButton*>(sender());
 		if (Button == nullptr) {
 			return;
 		}
-		YSSCore::Editor::ProjectTemplateProvider* provider = ProviderMap[Button];
-		YSSCore::Editor::ProjectTemplateInitWidget* initWidget = provider->projectInitWidget();
+		Visindigo::Editor::ProjectTemplateProvider* provider = ProviderMap[Button];
+		Visindigo::Editor::ProjectTemplateInitWidget* initWidget = provider->projectInitWidget();
 		if (initWidget != nullptr) {
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
-			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::closed,
+			connect(initWidget, &Visindigo::Editor::ProjectTemplateInitWidget::closed,
 				this, &NewProjectWin::onTemplateInitWidgetClosed);
-			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::projectPrepared,
+			connect(initWidget, &Visindigo::Editor::ProjectTemplateInitWidget::projectPrepared,
 				this, &NewProjectWin::onProjectPrepared);
 			initWidget->setWindowModality(Qt::ApplicationModal);
 			initWidget->show();

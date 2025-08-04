@@ -38,12 +38,12 @@ namespace YSS::TitlePage {
 		QFont font(hosFont);
 		qApp->setFont(font);
 
-		YSSCore::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template",
-			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,0");
-		YSSCore::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library",
-			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,1");
-		YSSCore::Utility::ExtTool::registerFileExtension("yssp", "YSS Project",
-			YSSCore::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
+		Visindigo::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template",
+			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,0");
+		Visindigo::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library",
+			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,1");
+		Visindigo::Utility::ExtTool::registerFileExtension("yssp", "YSS Project",
+			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 		auto end = std::chrono::high_resolution_clock::now();

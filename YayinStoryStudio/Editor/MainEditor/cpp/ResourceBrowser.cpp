@@ -29,7 +29,7 @@ namespace YSS::Editor {
 		Layout->addWidget(CurrentPath);
 		Layout->addWidget(FileList);
 
-		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		Visindigo::General::YSSProject* project = GlobalValue::getCurrentProject();
 		if (project != nullptr) {
 			CurrentDir.setPath(project->getProjectFolder());
 		}

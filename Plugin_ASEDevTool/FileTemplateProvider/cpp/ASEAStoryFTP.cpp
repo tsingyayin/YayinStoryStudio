@@ -11,12 +11,12 @@
 #include <QtCore/qfile.h>
 
 ASEAStoryFTIW::ASEAStoryFTIW(const QString& initFolder, QWidget* parent)
-	: YSSCore::Editor::FileTemplateInitWidget(initFolder, parent)
+	: Visindigo::Editor::FileTemplateInitWidget(initFolder, parent)
 {
 	this->setMinimumWidth(800);
 	this->setWindowTitle(YSSTR("ASEDevTool::fileProvider.window.title"));
-	ConfigWidget = new YSSCore::Widgets::ConfigWidget(this);
-	ConfigWidget->loadCWJson(YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/configWidget/FTP.json"));
+	ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
+	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/configWidget/FTP.json"));
 	ConfigWidget->setLineEditText("File.Path", getInitFolder());
 	Layout = new QVBoxLayout(this);
 	Layout->setContentsMargins(0, 0, 0, 0);
@@ -34,13 +34,13 @@ ASEAStoryFTIW::ASEAStoryFTIW(const QString& initFolder, QWidget* parent)
 	ButtonLayout->addWidget(CreateButton);
 	FilePath = ConfigWidget->getConfig()->getString("File.Path");
 	FileName = ConfigWidget->getConfig()->getString("File.Name");
-	connect(ConfigWidget, &YSSCore::Widgets::ConfigWidget::lineEditTextChanged, this, &ASEAStoryFTIW::onLineEditTextChanged);
+	connect(ConfigWidget, &Visindigo::Widgets::ConfigWidget::lineEditTextChanged, this, &ASEAStoryFTIW::onLineEditTextChanged);
 	connect(CreateButton, &QPushButton::clicked, this, &ASEAStoryFTIW::onCreateButtonClicked);
 	refreshWhereLabel();
 }
 
 void ASEAStoryFTIW::resizeEvent(QResizeEvent* event) {
-	YSSCore::Editor::FileTemplateInitWidget::resizeEvent(event);
+	Visindigo::Editor::FileTemplateInitWidget::resizeEvent(event);
 }
 
 void ASEAStoryFTIW::onLineEditTextChanged(const QString& node, const QString& text) {
@@ -53,9 +53,9 @@ void ASEAStoryFTIW::onLineEditTextChanged(const QString& node, const QString& te
 }
 
 void ASEAStoryFTIW::onCreateButtonClicked() {
-	YSSCore::Utility::JsonConfig* config = ConfigWidget->getConfig();
+	Visindigo::Utility::JsonConfig* config = ConfigWidget->getConfig();
 	QString completePath = config->getString("File.Path") + "/" +
-		YSSCore::Utility::FileUtility::toLegelFileName(config->getString("File.Name")) + ".astory";
+		Visindigo::Utility::FileUtility::toLegelFileName(config->getString("File.Name")) + ".astory";
 	QFile file(completePath);
 	bool ok = !file.exists();
 	if (ok) {
@@ -71,7 +71,7 @@ void ASEAStoryFTIW::onCreateButtonClicked() {
 			int ret = msgBox.exec();
 			return;
 		}
-		YSSCore::Utility::FileUtility::saveLines(completePath, fileContent);
+		Visindigo::Utility::FileUtility::saveLines(completePath, fileContent);
 		emit filePrepared(completePath);
 		close();
 	}
@@ -96,8 +96,8 @@ QStringList ASEAStoryFTIW::initFileV2_05_22_1A() {
 
 void ASEAStoryFTIW::refreshWhereLabel() {
 	QString completePath = FilePath + "/" +
-		YSSCore::Utility::FileUtility::toLegelFileName(FileName) + ".astory";
-	if (!YSSCore::Utility::FileUtility::isDirExist(completePath)) {
+		Visindigo::Utility::FileUtility::toLegelFileName(FileName) + ".astory";
+	if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
 		WhereLabel->setText(YSSTR("ASEDevTool::fileProvider.window.where").arg(completePath));
 		CreateButton->setEnabled(true);
 	}
@@ -106,7 +106,7 @@ void ASEAStoryFTIW::refreshWhereLabel() {
 		CreateButton->setEnabled(false);
 	}
 }
-ASEAStoryFTP::ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin) :
+ASEAStoryFTP::ASEAStoryFTP(Visindigo::Editor::EditorPlugin* plugin) :
 	FileTemplateProvider("ASE AStory File Template Provider", "ASEAStoryFTP", plugin)
 {
 	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
@@ -123,6 +123,6 @@ ASEAStoryFTP::ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin) :
 	// Constructor implementation
 }
 
-YSSCore::Editor::FileTemplateInitWidget* ASEAStoryFTP::fileInitWidget(const QString& initPath) {
+Visindigo::Editor::FileTemplateInitWidget* ASEAStoryFTP::fileInitWidget(const QString& initPath) {
 	return new ASEAStoryFTIW(initPath);
 }

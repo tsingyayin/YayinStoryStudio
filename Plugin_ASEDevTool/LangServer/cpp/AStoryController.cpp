@@ -12,7 +12,7 @@ protected:
 	AStoryController::Name Name;
 	QString RawRule;
 	QStringList ParameterOrder;
-	YSSCore::Utility::JsonConfig RuleMeta;
+	Visindigo::Utility::JsonConfig RuleMeta;
 	QStringList SyntaxSigns;
 	QString StartSign;
 	QList<ASEParameter::Type> DefaultParameterTypes;
@@ -71,7 +71,7 @@ QString AStoryController::toNameString(AStoryController::Name name) {
 AStoryController::AStoryController() {
 	d = new AStoryControllerPrivate;
 }
-AStoryController::AStoryController(const QString & name, YSSCore::Utility::JsonConfig& config, const QString & rule) {
+AStoryController::AStoryController(const QString & name, Visindigo::Utility::JsonConfig& config, const QString & rule) {
 	d = new AStoryControllerPrivate;
 	setControllerName(name);
 	setControllerMeta(config);
@@ -131,7 +131,7 @@ QString AStoryController::getStartSign() {
 	return d->StartSign;
 }
 
-void AStoryController::setControllerMeta(YSSCore::Utility::JsonConfig& meta) {
+void AStoryController::setControllerMeta(Visindigo::Utility::JsonConfig& meta) {
 	d->RuleMeta = meta.getObject(AStoryController::toNameString(d->Name));
 }
 

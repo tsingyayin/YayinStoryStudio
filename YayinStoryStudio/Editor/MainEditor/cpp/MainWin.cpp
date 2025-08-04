@@ -34,7 +34,7 @@ namespace YSS::Editor {
 		splitter->addWidget(Browser);
 		splitter->addWidget(Editor);
 
-		connect(YSSFSM, &YSSCore::Editor::FileServerManager::builtinEditorCreated,
+		connect(YSSFSM, &Visindigo::Editor::FileServerManager::builtinEditorCreated,
 			Editor, &FileEditorArea::addFileEditWidget);
 
 		this->setCentralWidget(CentralWidget);
@@ -53,9 +53,9 @@ namespace YSS::Editor {
 	void MainWin::initMenu() {
 		MenuBar = new QMenuBar(this);
 		this->setMenuBar(MenuBar);
-		FileMenu = MenuBar->addMenu(YSSTR("YSSCore::general.file"));
-		SaveAction = new QAction(YSSTR("YSSCore::general.save"), this);
-		SaveAsAction = new QAction(YSSTR("YSSCore::general.saveAs"), this);
+		FileMenu = MenuBar->addMenu(YSSTR("Visindigo::general.file"));
+		SaveAction = new QAction(YSSTR("Visindigo::general.save"), this);
+		SaveAsAction = new QAction(YSSTR("Visindigo::general.saveAs"), this);
 		FileMenu->addAction(SaveAction);
 		FileMenu->addAction(SaveAsAction);
 	}
@@ -67,7 +67,7 @@ namespace YSS::Editor {
 		}");
 	}
 	void MainWin::closeEvent(QCloseEvent* event) {
-		YSSCore::Utility::JsonConfig* config = GlobalValue::getConfig();
+		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
 		if (this->isMaximized()) {
 			config->setBool("Window.Editor.Maximized", true);
 		}

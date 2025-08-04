@@ -11,7 +11,7 @@ class AStoryControllerParseData;
 class AStorySyntaxHighlighter : public QSyntaxHighlighter {
 	Q_OBJECT;
 private:
-	YSSCore::Utility::JsonConfig* Config = nullptr;
+	Visindigo::Utility::JsonConfig* Config = nullptr;
 	ASRuleAdaptor* RuleAdaptor = nullptr;
 public:
 	AStorySyntaxHighlighter(QTextDocument* parent = nullptr);

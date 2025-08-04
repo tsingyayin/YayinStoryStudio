@@ -65,18 +65,18 @@ namespace YSS::NewFilePage {
 	}
 
 	void NewFileWin::loadFileTemplate() {
-		for (YSSCore::Widgets::MultiButton* button : FileList) {
+		for (Visindigo::Widgets::MultiButton* button : FileList) {
 			FileTemplateLayout->removeWidget(button);
 			ProviderMap.remove(button);
 			button->deleteLater();
 		}
 		FileList.clear();
-		QList<YSSCore::Editor::FileTemplateProvider*> providers = YSSFTM->getProviders();
-		for (YSSCore::Editor::FileTemplateProvider* provider : providers) {
+		QList<Visindigo::Editor::FileTemplateProvider*> providers = YSSFTM->getProviders();
+		for (Visindigo::Editor::FileTemplateProvider* provider : providers) {
 			yDebug << provider->getTemplateID();
 			yDebug << provider->getTemplateName();
 			yDebug << provider->getTemplateDescription();
-			YSSCore::Widgets::MultiButton* ProviderButton = new YSSCore::Widgets::MultiButton(FileTemplateWidget);
+			Visindigo::Widgets::MultiButton* ProviderButton = new Visindigo::Widgets::MultiButton(FileTemplateWidget);
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
@@ -93,23 +93,23 @@ namespace YSS::NewFilePage {
 			ProviderButton->setContentsMargins(10, 10, 10, 10);
 			ProviderButton->show();
 			yDebug << ProviderButton->isHidden();
-			connect(ProviderButton, &YSSCore::Widgets::MultiButton::clicked, this,
+			connect(ProviderButton, &Visindigo::Widgets::MultiButton::clicked, this,
 				&NewFileWin::onTemplateButtonClicked);
 		}
 		FileTemplateWidget->setFixedHeight(providers.size() * 100);
 	}
 	void NewFileWin::onTemplateButtonClicked() {
-		YSSCore::Widgets::MultiButton* Button = static_cast<YSSCore::Widgets::MultiButton*>(sender());
+		Visindigo::Widgets::MultiButton* Button = static_cast<Visindigo::Widgets::MultiButton*>(sender());
 		if (Button == nullptr) {
 			return;
 		}
-		YSSCore::Editor::FileTemplateProvider* provider = ProviderMap[Button];
-		YSSCore::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(InitPath);
+		Visindigo::Editor::FileTemplateProvider* provider = ProviderMap[Button];
+		Visindigo::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(InitPath);
 		if (initWidget != nullptr) {
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
-			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::closed,
+			connect(initWidget, &Visindigo::Editor::FileTemplateInitWidget::closed,
 				this, &NewFileWin::onTemplateInitWidgetClosed);
-			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::filePrepared,
+			connect(initWidget, &Visindigo::Editor::FileTemplateInitWidget::filePrepared,
 				this, &NewFileWin::onFilePrepared);
 			initWidget->setWindowModality(Qt::ApplicationModal);
 			initWidget->show();

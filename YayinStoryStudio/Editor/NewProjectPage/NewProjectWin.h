@@ -9,10 +9,10 @@ class QScrollArea;
 class QGridLayout;
 class QVBoxLayout;
 
-namespace YSSCore::Widgets {
+namespace Visindigo::Widgets {
 	class MultiButton;
 }
-namespace YSSCore::Editor {
+namespace Visindigo::Editor {
 	class ProjectTemplateProvider;
 }
 namespace YSS::NewProjectPage {
@@ -24,9 +24,9 @@ namespace YSS::NewProjectPage {
 		QLabel* TitleLabel;
 		QLabel* RecentTemplateTitle;
 		QLineEdit* SearchLineEdit;
-		QList<YSSCore::Widgets::MultiButton*> ProjectList;
-		QList<YSSCore::Widgets::MultiButton*> RecentList;
-		QMap<YSSCore::Widgets::MultiButton*, YSSCore::Editor::ProjectTemplateProvider*> ProviderMap;
+		QList<Visindigo::Widgets::MultiButton*> ProjectList;
+		QList<Visindigo::Widgets::MultiButton*> RecentList;
+		QMap<Visindigo::Widgets::MultiButton*, Visindigo::Editor::ProjectTemplateProvider*> ProviderMap;
 		QScrollArea* RecentTemplateArea;
 		QWidget* RecentTemplateWidget;
 		QVBoxLayout* RecentTemplateLayout;

@@ -12,7 +12,7 @@ protected:
 	QString MetaPath;
 	QMap<QString, AStoryController> Controllers;
 	AStoryController TalkController; // this controller does not have start sign
-	YSSCore::Utility::JsonConfig Config;
+	Visindigo::Utility::JsonConfig Config;
 };
 ASRuleAdaptor::ASRuleAdaptor(const QString& asrulePath, const QString& metaPath)
 	:d(new ASRuleAdaptorPrivate())
@@ -38,11 +38,11 @@ void ASRuleAdaptor::setMetaPath(const QString& metaPath) {
 }
 
 bool ASRuleAdaptor::loadASRule() {
-	QJsonParseError status = d->Config.parse(YSSCore::Utility::FileUtility::readAll(d->MetaPath));
+	QJsonParseError status = d->Config.parse(Visindigo::Utility::FileUtility::readAll(d->MetaPath));
 	if (status.error != QJsonParseError::NoError) {
 		return false;
 	}
-	QStringList ControllerLines = YSSCore::Utility::FileUtility::readLines(d->ASRulePath);
+	QStringList ControllerLines = Visindigo::Utility::FileUtility::readLines(d->ASRulePath);
 	if (ControllerLines.isEmpty()) {
 		return false;
 	}

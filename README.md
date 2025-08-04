@@ -44,7 +44,7 @@ Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以�
 * .vscode - VSCode 配置文件。它可能会在日后被用于创建一个仅用于查看的VSCode工作区，现在其中的内容没有实际用途。
 * Plugin_* - 各插件项目。每个项目都是个独立的Visual Studio项目，可以单独编译。
 * YayinStoryStudio - 主程序项目。它是一个纯编辑器，各插件的扩展本质上在扩展此项目。
-* YSSCore - Yayin Story Studio的内核，要开发插件，则需要引用此项目。它包含了所有的核心功能和API。
+* Visindigo - Yayin Story Studio的内核，要开发插件，则需要引用此项目。它包含了所有的核心功能和API。
 * YSSInstaller - YSS的安装程序项目。它提供一个可视化的页面，供用户调整和更新YSS。（暂未正式开发）
 * config - 可供整个解决方案引用的，用于配置项目或进行自动化的配置文件。
 * design - 用于存放早期创意说明或其他临时性设计文件。

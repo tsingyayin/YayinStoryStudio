@@ -1,0 +1,34 @@
+#pragma once
+#include "../Macro.h"
+// Forward declarations
+class QString;
+class QWidget;
+namespace Visindigo::Utility {
+	class JsonConfig;
+}
+namespace Visindigo::Widgets {
+	class StyleSheetTemplatePrivate;
+}
+// Main
+namespace Visindigo::Widgets {
+	class VisindigoAPI StyleSheetTemplate {
+	public:
+		StyleSheetTemplate();
+		~StyleSheetTemplate();
+		StyleSheetTemplate(const StyleSheetTemplate& other);
+		StyleSheetTemplate(StyleSheetTemplate&& other) noexcept;
+		StyleSheetTemplate& operator=(const StyleSheetTemplate& other);
+		StyleSheetTemplate& operator=(StyleSheetTemplate&& other);
+		void parse(QString& templateStr);
+		QString toString();
+		QString getRawStyleSheet(const QString& key);
+		QString getStyleSheet(const QString& key, Visindigo::Utility::JsonConfig* config = nullptr, QWidget* getter = nullptr);
+		void setStyleSheetTemplate(const QString& key, const QString& styleSheet);
+		void setTemplateName(const QString& name);
+		QString getTemplateName();
+		void setTemplateID(const QString& name);
+		QString getTemplateID();
+	private:
+		StyleSheetTemplatePrivate* d;
+	};
+}

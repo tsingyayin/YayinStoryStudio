@@ -7,13 +7,13 @@ class QHBoxLayout;
 class QPushButton;
 class QLabel;
 
-namespace YSSCore::General {
+namespace Visindigo::General {
 	class YSSProject;
 }
-class ASEAStoryFTIW :public YSSCore::Editor::FileTemplateInitWidget
+class ASEAStoryFTIW :public Visindigo::Editor::FileTemplateInitWidget
 {
 	Q_OBJECT;
-	YSSCore::Widgets::ConfigWidget* ConfigWidget = nullptr;
+	Visindigo::Widgets::ConfigWidget* ConfigWidget = nullptr;
 	QLabel* WhereLabel = nullptr;
 	QPushButton* CreateButton = nullptr;
 	QVBoxLayout* Layout = nullptr;
@@ -31,9 +31,9 @@ private:
 	void refreshWhereLabel();
 };
 
-class ASEAStoryFTP : public YSSCore::Editor::FileTemplateProvider
+class ASEAStoryFTP : public Visindigo::Editor::FileTemplateProvider
 {
 public:
-	ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin);
-	virtual YSSCore::Editor::FileTemplateInitWidget* fileInitWidget(const QString& initPath) override;
+	ASEAStoryFTP(Visindigo::Editor::EditorPlugin* plugin);
+	virtual Visindigo::Editor::FileTemplateInitWidget* fileInitWidget(const QString& initPath) override;
 };

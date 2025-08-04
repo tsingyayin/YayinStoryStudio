@@ -2,10 +2,10 @@
 #include <QFileInfo>
 #include <QLabel>
 
-ASRuleFileServer::ASRuleFileServer(YSSCore::Editor::EditorPlugin* plugin) :
+ASRuleFileServer::ASRuleFileServer(Visindigo::Editor::EditorPlugin* plugin) :
 	FileServer("ASE ASRule File Server", "ASEASRuleFS", plugin)
 {
-	setEditorType(YSSCore::Editor::FileServer::BuiltInEditor);
+	setEditorType(Visindigo::Editor::FileServer::BuiltInEditor);
 	setSupportedFileExts({ "asrule" });
 }
 
@@ -13,11 +13,11 @@ ASRuleFileServer::~ASRuleFileServer() {
 	FileServer::~FileServer();
 }
 
-YSSCore::Editor::FileEditWidget* ASRuleFileServer::onCreateFileEditWidget() {
+Visindigo::Editor::FileEditWidget* ASRuleFileServer::onCreateFileEditWidget() {
 	return new ASRuleFileEditWidget();
 }
 
-ASRuleFileEditWidget::ASRuleFileEditWidget(QWidget* parent) : YSSCore::Editor::FileEditWidget(parent) {
+ASRuleFileEditWidget::ASRuleFileEditWidget(QWidget* parent) : Visindigo::Editor::FileEditWidget(parent) {
 	Layout = new QVBoxLayout(this);
 }
 

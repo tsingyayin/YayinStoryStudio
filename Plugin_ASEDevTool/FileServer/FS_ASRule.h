@@ -3,14 +3,14 @@
 #include <Editor/FileEditWidget.h>
 #include <Editor/EditorPlugin.h>
 #include <QVBoxLayout>
-class ASRuleFileServer : public YSSCore::Editor::FileServer {
+class ASRuleFileServer : public Visindigo::Editor::FileServer {
 public:
-	ASRuleFileServer(YSSCore::Editor::EditorPlugin* plugin);
+	ASRuleFileServer(Visindigo::Editor::EditorPlugin* plugin);
 	~ASRuleFileServer();
-	YSSCore::Editor::FileEditWidget* onCreateFileEditWidget() override;
+	Visindigo::Editor::FileEditWidget* onCreateFileEditWidget() override;
 };
 
-class ASRuleFileEditWidget : public YSSCore::Editor::FileEditWidget {
+class ASRuleFileEditWidget : public Visindigo::Editor::FileEditWidget {
 public:
 	ASRuleFileEditWidget(QWidget* parent = nullptr);
 	~ASRuleFileEditWidget();

@@ -6,13 +6,13 @@
 #include <Utility/FileUtility.h>
 #include <General/Log.h>
 AStorySyntaxHighlighter::AStorySyntaxHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent) {
-	YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+	Visindigo::General::YSSProject* project = Visindigo::General::YSSProject::getCurrentProject();
 	QString rootPath = project ? project->getProjectFolder() : "";
 	QString rulePath = rootPath + "/Rules/StoryExplainer/BaseRule.asrule";
 	RuleAdaptor = new ASRuleAdaptor(rulePath, ":/plugin/compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json");
 	RuleAdaptor->loadASRule();
-	Config = new YSSCore::Utility::JsonConfig();
-	Config->parse(YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/theme.json"));
+	Config = new Visindigo::Utility::JsonConfig();
+	Config->parse(Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/theme.json"));
 }
 void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 	if (text.isEmpty()) {

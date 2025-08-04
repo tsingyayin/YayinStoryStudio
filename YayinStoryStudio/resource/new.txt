@@ -4,7 +4,7 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
-namespace YSSCore::Editor {
+namespace Visindigo::Editor {
 	class LangServerManagerPrivate {
 		friend class LangServerManager;
 	protected:

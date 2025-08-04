@@ -1,0 +1,39 @@
+/*!
+	\namespace Visindigo
+	\brief 内核模块根命名空间
+
+	所有 Yayin Story Studio 内核模块的命名空间都在此命名空间下。
+
+	Yayin Story Studio 本体的命名空间为YSS，其内部子命名空间与Visindigo的子命名空间相同。
+
+	但目前不打算为 Yayin Story Studio 提供文档，因为 Yayin Story Studio 未按ABI兼容设计，
+	也没有提供可供符号链接的各辅助文件，理应不适用于二次扩展。
+
+	若开发者在开发插件的过程中确实有使用Yayin Story Studio本体中某个API的需求，请考虑在代码仓库提交一个
+	“下拉”请求，提议将该API下拉到内核模块中。若经评估确有必要，
+	我们会将该API重新设计为ABI兼容的版本，在下个版本将其下拉到内核模块中，并在Visindigo的文档中添加相关内容。
+*/
+
+/*! \namespace Visindigo::Utility
+	\brief 内核模块工具类命名空间
+
+	所有 Yayin Story Studio 内核模块的工具类都在此命名空间下。
+*/
+
+/*! \namespace Visindigo::General
+	\brief 内核模块适用编辑器和播放器的组件的命名空间
+
+	所有 Yayin Story Studio 内核模块适用编辑器和播放器的组件都在此命名空间下。
+*/
+
+/*! \namespace Visindigo::Editor
+	\brief 内核模块适用编辑器的组件的命名空间
+
+	所有 Yayin Story Studio 内核模块适用编辑器的组件都在此命名空间下。
+*/
+
+/*! \namespace Visindigo::Widgets
+	\brief 内核模块中仅作QWidgets扩展的命名空间
+
+	所有 Yayin Story Studio 内核模块中仅作QWidgets扩展的组件都在此命名空间下。
+*/

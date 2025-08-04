@@ -20,7 +20,7 @@ namespace YSS::Editor {
 		QVBoxLayout* DefaultLayout;
 	public:
 		FileEditorArea(QWidget* parent = nullptr);
-		void addFileEditWidget(YSSCore::Editor::FileEditWidget* widget);
+		void addFileEditWidget(Visindigo::Editor::FileEditWidget* widget);
 		void focusOn(const QString& filePath);
 	private:
 		void onStackBarLabelChanged(StackBarLabel* label);

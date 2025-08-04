@@ -1,7 +1,7 @@
 #pragma once
 #include <Editor/DebugServer.h>
 
-class DS_ASE :public YSSCore::Editor::DebugServer {
+class DS_ASE :public Visindigo::Editor::DebugServer {
 public:
-	DS_ASE(YSSCore::Editor::EditorPlugin* plugin);
+	DS_ASE(Visindigo::Editor::EditorPlugin* plugin);
 };

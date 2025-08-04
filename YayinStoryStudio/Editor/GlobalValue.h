@@ -1,6 +1,6 @@
 #pragma once
 #include <QtCore/qobject.h>
-namespace YSSCore {
+namespace Visindigo {
 	namespace Utility {
 		class JsonConfig;
 		class PathMacro;
@@ -30,28 +30,28 @@ namespace YSS {
 		Q_OBJECT;
 	private:
 		static GlobalValue* Instance;
-		YSSCore::Utility::JsonConfig* Config = nullptr;
-		YSSCore::Utility::PathMacro* PathMacro = nullptr;
-		YSSCore::Widgets::ThemeManager* Theme = nullptr;
-		YSSCore::Editor::LangServerManager* LangServerManager = nullptr;
-		YSSCore::Editor::EditorPluginManager* PluginManager = nullptr;
-		YSSCore::Editor::FileServerManager* FileServerManager = nullptr;
-		YSSCore::Editor::ProjectTemplateManager* ProjectTemplateManager = nullptr;
-		YSSCore::Editor::FileTemplateManager* FileTemplateManager = nullptr;
+		Visindigo::Utility::JsonConfig* Config = nullptr;
+		Visindigo::Utility::PathMacro* PathMacro = nullptr;
+		Visindigo::Widgets::ThemeManager* Theme = nullptr;
+		Visindigo::Editor::LangServerManager* LangServerManager = nullptr;
+		Visindigo::Editor::EditorPluginManager* PluginManager = nullptr;
+		Visindigo::Editor::FileServerManager* FileServerManager = nullptr;
+		Visindigo::Editor::ProjectTemplateManager* ProjectTemplateManager = nullptr;
+		Visindigo::Editor::FileTemplateManager* FileTemplateManager = nullptr;
 		YSS::Editor::YSSTranslator* YSSTranslator = nullptr;
-		YSSCore::General::TranslationHost* TranslationHost = nullptr;
+		Visindigo::General::TranslationHost* TranslationHost = nullptr;
 		YSS::Editor::MainWin* MainWindow = nullptr;
 	public:
 		GlobalValue();
 		static GlobalValue* getInstance();
 		static QColor getColor(const QString& key);
-		static YSSCore::Utility::JsonConfig* getConfig();
+		static Visindigo::Utility::JsonConfig* getConfig();
 		static void saveConfig();
-		static YSSCore::Editor::LangServerManager* getLangServerManager();
+		static Visindigo::Editor::LangServerManager* getLangServerManager();
 		static void setMainWindow(YSS::Editor::MainWin* mainWindow);
 		static YSS::Editor::MainWin* getMainWindow();
-		static void setCurrentProject(YSSCore::General::YSSProject* project);
-		static YSSCore::General::YSSProject* getCurrentProject();
+		static void setCurrentProject(Visindigo::General::YSSProject* project);
+		static Visindigo::General::YSSProject* getCurrentProject();
 		void loadConfig();
 	};
 }

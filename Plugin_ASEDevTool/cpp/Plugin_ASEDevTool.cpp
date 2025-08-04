@@ -7,7 +7,7 @@
 #include "../FileTemplateProvider/ASEAStoryFTP.h"
 
 Plugin_ASEDevTool::Plugin_ASEDevTool() {
-	setPluginVersion(YSSCore::General::Version(0, 1, 0));
+	setPluginVersion(Visindigo::General::Version(0, 1, 0));
 	setPluginID("ASEDevTool");
 	setPluginName("ASE Development Tool");
 	setPluginAuthor({ "Gra_dus" });

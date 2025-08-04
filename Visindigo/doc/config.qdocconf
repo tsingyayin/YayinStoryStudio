@@ -1,0 +1,34 @@
+include(D:\Qt\6.5.2\Docs\Qt-6.8.3\global\qt-html-templates-offline.qdocconf)
+
+project = Visindigo
+
+indexes = \
+	D:/Qt/6.5.2/Docs/Qt-6.8.3/qtcore/qtcore.index \
+	D:/Qt/6.5.2/Docs/Qt-6.8.3/qtgui/qtgui.index \
+	D:/Qt/6.5.2/Docs/Qt-6.8.3/qtwidgets/qtwidgets.index \
+	
+depends = \
+	qtcore \
+	qtwidgets \
+	qtgui
+
+includepaths = ../
+
+moduleheader = Visindigo.h
+headerdirs = ../
+sourcedirs = ../
+
+headers.fileextensions  = "*.h *.hpp"
+sources.fileextensions  = "*.cpp *.qml *.qdoc"
+
+outputdir   = html
+
+sourceencoding = UTF-8
+
+outputencoding = UTF-8
+
+naturallanguage = zh-Hans
+
+exampledirs = ./examples
+
+imagedirs   = ./images

@@ -51,7 +51,7 @@ namespace YSS::ProjectPage {
 		DeleteButton->setText(YSSTR("YSS::project.delete"));
 	}
 
-	void ProjectInfoWidget::showProject(YSSCore::General::YSSProject* project) {
+	void ProjectInfoWidget::showProject(Visindigo::General::YSSProject* project) {
 		if (project == nullptr) {
 			return;
 		}
@@ -61,10 +61,10 @@ namespace YSS::ProjectPage {
 		YSSAsync<qint64, QString>(
 			{ QString(path) },
 			[](QString path)->qint64 {
-				return YSSCore::Utility::FileUtility::sizeBytes(path);
+				return Visindigo::Utility::FileUtility::sizeBytes(path);
 			},
 			[this](qint64 size) {
-				QString readable = YSSCore::Utility::FileUtility::readableSize(size);
+				QString readable = Visindigo::Utility::FileUtility::readableSize(size);
 				SizeLabel->setText(YSSTR("YSS::project.size") + ": " + readable);
 			}
 		);
@@ -119,7 +119,7 @@ namespace YSS::ProjectPage {
 		if (Project != nullptr) {
 			QString dir = Project->getProjectFolder();
 			yDebug << dir;
-			YSSCore::Utility::FileUtility::openExplorer(dir);
+			Visindigo::Utility::FileUtility::openExplorer(dir);
 		}
 	}
 

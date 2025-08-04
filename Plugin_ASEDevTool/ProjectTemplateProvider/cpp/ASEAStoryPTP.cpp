@@ -9,12 +9,12 @@
 #include <General/YSSProject.h>
 #include <QtWidgets/qmessagebox.h>
 ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
-	: YSSCore::Editor::ProjectTemplateInitWidget(parent)
+	: Visindigo::Editor::ProjectTemplateInitWidget(parent)
 {
 	this->setMinimumWidth(800);
 	this->setWindowTitle(YSSTR("ASEDevTool::provider.window.title"));
-	ConfigWidget = new YSSCore::Widgets::ConfigWidget(this);
-	ConfigWidget->loadCWJson(YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/configWidget/PTP.json"));
+	ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
+	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/configWidget/PTP.json"));
 	Layout = new QVBoxLayout(this);
 	Layout->setContentsMargins(0, 0, 0, 0);
 	Layout->addWidget(ConfigWidget);
@@ -31,14 +31,14 @@ ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	ButtonLayout->addWidget(CreateButton);
 	ProjectPath = ConfigWidget->getConfig()->getString("Project.Path");
 	ProjectName = ConfigWidget->getConfig()->getString("Project.Name");
-	connect(ConfigWidget, &YSSCore::Widgets::ConfigWidget::lineEditTextChanged, this, &ASEAStoryPTIW::onLineEditTextChanged);
+	connect(ConfigWidget, &Visindigo::Widgets::ConfigWidget::lineEditTextChanged, this, &ASEAStoryPTIW::onLineEditTextChanged);
 	connect(CreateButton, &QPushButton::clicked, this, &ASEAStoryPTIW::onCreateButtonClicked);
 	refreshWhereLabel();
 	// Constructor implementation
 }
 void ASEAStoryPTIW::resizeEvent(QResizeEvent* event)
 {
-	YSSCore::Editor::ProjectTemplateInitWidget::resizeEvent(event);
+	Visindigo::Editor::ProjectTemplateInitWidget::resizeEvent(event);
 }
 void ASEAStoryPTIW::onLineEditTextChanged(const QString& node, const QString& str) {
 	if (node == "Project.Path") {
@@ -50,9 +50,9 @@ void ASEAStoryPTIW::onLineEditTextChanged(const QString& node, const QString& st
 	refreshWhereLabel();
 }
 void ASEAStoryPTIW::onCreateButtonClicked() {
-	YSSCore::Utility::JsonConfig* config = ConfigWidget->getConfig();
-	YSSCore::General::YSSProject project;
-	QString completePath = config->getString("Project.Path") + "/" + YSSCore::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
+	Visindigo::Utility::JsonConfig* config = ConfigWidget->getConfig();
+	Visindigo::General::YSSProject project;
+	QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
 	bool ok = project.initProject(completePath, config->getString("Project.Name"));
 	if (ok) {
 		project.getProjectConfig()->setString("Project.DebugServerID", "ASEDevTool_ASE");
@@ -80,7 +80,7 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 		int ret = msgBox.exec();
 	}
 }
-void ASEAStoryPTIW::initResourceV2_05_22_1A(YSSCore::General::YSSProject* project) {
+void ASEAStoryPTIW::initResourceV2_05_22_1A(Visindigo::General::YSSProject* project) {
 	project->getProjectConfig()->setString("ASEDevTool.ASEVersion", "2.05.22.1A");
 	QStringList folders = {
 			"/Resources/Audio",
@@ -93,22 +93,22 @@ void ASEAStoryPTIW::initResourceV2_05_22_1A(YSSCore::General::YSSProject* projec
 	};
 	QString projectFolder = project->getProjectFolder();
 	for (const QString& folder : folders) {
-		YSSCore::Utility::FileUtility::createDir(projectFolder + folder);
+		Visindigo::Utility::FileUtility::createDir(projectFolder + folder);
 	}
-	QString Base_aschar = YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/Base.aschar");
-	QString BaseRule_asrule = YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/BaseRule.asrule");
-	QString main_astory = YSSCore::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/main.astory");
+	QString Base_aschar = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/Base.aschar");
+	QString BaseRule_asrule = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/BaseRule.asrule");
+	QString main_astory = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/main.astory");
 	main_astory = main_astory.replace("$(ProjectName)", project->getProjectName());
-	YSSCore::Utility::FileUtility::saveAll(projectFolder + "/Rules/CharNameConnect/Base.aschar", Base_aschar);
-	YSSCore::Utility::FileUtility::saveAll(projectFolder + "/Rules/StoryExplainer/BaseRule.asrule", BaseRule_asrule);
-	YSSCore::Utility::FileUtility::saveAll(projectFolder + "/Stories/main.astory", main_astory);
+	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Rules/CharNameConnect/Base.aschar", Base_aschar);
+	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Rules/StoryExplainer/BaseRule.asrule", BaseRule_asrule);
+	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Stories/main.astory", main_astory);
 	project->addEditorOpenedFile(projectFolder + "/Stories/main.astory");
 	project->setFocusedFile(projectFolder + "/Stories/main.astory");
 	project->saveProject();
 }
 void ASEAStoryPTIW::refreshWhereLabel() {
-	QString completePath = ProjectPath + "/" + YSSCore::Utility::FileUtility::toLegelFileName(ProjectName);
-	if (!YSSCore::Utility::FileUtility::isDirExist(completePath)) {
+	QString completePath = ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegelFileName(ProjectName);
+	if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
 		WhereLabel->setText(YSSTR("ASEDevTool::provider.window.where").arg(completePath));
 		CreateButton->setEnabled(true);
 	}
@@ -117,7 +117,7 @@ void ASEAStoryPTIW::refreshWhereLabel() {
 		CreateButton->setEnabled(false);
 	}
 }
-ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :
+ASEAStoryPTP::ASEAStoryPTP(Visindigo::Editor::EditorPlugin* plugin) :
 	ProjectTemplateProvider("ASE AStory Project Template Provider", "ASEAStoryPTP", plugin)
 {
 	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
@@ -134,6 +134,6 @@ ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :
 	// Constructor implementation
 }
 
-YSSCore::Editor::ProjectTemplateInitWidget* ASEAStoryPTP::projectInitWidget() {
+Visindigo::Editor::ProjectTemplateInitWidget* ASEAStoryPTP::projectInitWidget() {
 	return new ASEAStoryPTIW();
 }

@@ -9,9 +9,9 @@
 #include <Utility/AsyncFunction.h>
 #include <Widgets/ConfigWidget.h>
 void test_main(QApplication& a) {
-	YSSCore::Utility::CodeDiff codeDiff;
-	codeDiff.setOldCode(YSSCore::Utility::FileUtility::readLines("./resource/old.txt"));
-	codeDiff.setNewCode(YSSCore::Utility::FileUtility::readLines("./resource/new.txt"));
+	Visindigo::Utility::CodeDiff codeDiff;
+	codeDiff.setOldCode(Visindigo::Utility::FileUtility::readLines("./resource/old.txt"));
+	codeDiff.setNewCode(Visindigo::Utility::FileUtility::readLines("./resource/new.txt"));
 	codeDiff.compare();
 	//codeDiff.debugPrint();
 
@@ -29,9 +29,9 @@ void test_main(QApplication& a) {
 }
 
 void test_loaded() {
-	//YSSCore::Editor::ConfigWidget* configWidget = new YSSCore::Editor::ConfigWidget();
+	//Visindigo::Editor::ConfigWidget* configWidget = new Visindigo::Editor::ConfigWidget();
 	//configWidget->setAttribute(Qt::WA_DeleteOnClose);
-	//QString jsonStr = YSSCore::Utility::FileUtility::readAll("./resource/config_widget.json");
+	//QString jsonStr = Visindigo::Utility::FileUtility::readAll("./resource/config_widget.json");
 	//configWidget->loadCWJson(jsonStr);
 	//configWidget->show();
 }

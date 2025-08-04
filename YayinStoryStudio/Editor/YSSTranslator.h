@@ -2,7 +2,7 @@
 #include <General/Translator.h>
 
 namespace YSS::Editor {
-	class YSSTranslator :public YSSCore::General::Translator {
+	class YSSTranslator :public Visindigo::General::Translator {
 		static YSSTranslator* Instance;
 	public:
 		static YSSTranslator* getInstance();

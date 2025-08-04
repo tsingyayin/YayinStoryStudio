@@ -23,18 +23,18 @@ namespace YSS {
 		}
 		Instance = this;
 		yMessage << "Program global value initializing";
-		PathMacro = new YSSCore::Utility::PathMacro();
-		Theme = new YSSCore::Widgets::ThemeManager(this);
+		PathMacro = new Visindigo::Utility::PathMacro();
+		Theme = new Visindigo::Widgets::ThemeManager(this);
 		loadConfig();
-		TranslationHost = new YSSCore::General::TranslationHost();
+		TranslationHost = new Visindigo::General::TranslationHost();
 		YSSTranslator = new YSS::Editor::YSSTranslator();
 		TranslationHost->active(YSSTranslator);
-		LangServerManager = new YSSCore::Editor::LangServerManager();
-		FileServerManager = new YSSCore::Editor::FileServerManager();
-		ProjectTemplateManager = new YSSCore::Editor::ProjectTemplateManager();
-		FileTemplateManager = new YSSCore::Editor::FileTemplateManager();
+		LangServerManager = new Visindigo::Editor::LangServerManager();
+		FileServerManager = new Visindigo::Editor::FileServerManager();
+		ProjectTemplateManager = new Visindigo::Editor::ProjectTemplateManager();
+		FileTemplateManager = new Visindigo::Editor::FileTemplateManager();
 		ySuccess << "Program global value initialized !";
-		PluginManager = new YSSCore::Editor::EditorPluginManager();
+		PluginManager = new Visindigo::Editor::EditorPluginManager();
 		PluginManager->programLoadPlugin();
 		PluginManager->loadPlugin();
 	}
@@ -42,7 +42,7 @@ namespace YSS {
 		return Instance->Theme->getColor(key);
 	}
 
-	YSSCore::Utility::JsonConfig* GlobalValue::getConfig() {
+	Visindigo::Utility::JsonConfig* GlobalValue::getConfig() {
 		return Instance->Config;
 	}
 	void GlobalValue::saveConfig() {
@@ -66,7 +66,7 @@ namespace YSS {
 		if (Config != nullptr) {
 			delete Config;
 		}
-		Config = new YSSCore::Utility::JsonConfig();
+		Config = new Visindigo::Utility::JsonConfig();
 		QFile file("./resource/editor_config.json");
 		QTextStream in(&file);
 		in.setEncoding(QStringConverter::Utf8);
@@ -87,15 +87,15 @@ namespace YSS {
 		return Instance->MainWindow;
 	}
 
-	YSSCore::Editor::LangServerManager* GlobalValue::getLangServerManager() {
+	Visindigo::Editor::LangServerManager* GlobalValue::getLangServerManager() {
 		return Instance->LangServerManager;
 	}
 
-	void GlobalValue::setCurrentProject(YSSCore::General::YSSProject* project) {
-		YSSCore::General::YSSProject::setCurrentProject(project);
+	void GlobalValue::setCurrentProject(Visindigo::General::YSSProject* project) {
+		Visindigo::General::YSSProject::setCurrentProject(project);
 	}
 
-	YSSCore::General::YSSProject* GlobalValue::getCurrentProject() {
-		return YSSCore::General::YSSProject::getCurrentProject();
+	Visindigo::General::YSSProject* GlobalValue::getCurrentProject() {
+		return Visindigo::General::YSSProject::getCurrentProject();
 	}
 }

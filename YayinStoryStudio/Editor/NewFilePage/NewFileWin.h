@@ -9,10 +9,10 @@ class QScrollArea;
 class QGridLayout;
 class QVBoxLayout;
 
-namespace YSSCore::Widgets {
+namespace Visindigo::Widgets {
 	class MultiButton;
 }
-namespace YSSCore::Editor {
+namespace Visindigo::Editor {
 	class FileTemplateProvider;
 }
 namespace YSS::NewFilePage {
@@ -24,9 +24,9 @@ namespace YSS::NewFilePage {
 		QLabel* TitleLabel;
 		QLabel* RecentTemplateTitle;
 		QLineEdit* SearchLineEdit;
-		QList<YSSCore::Widgets::MultiButton*> FileList;
-		QList<YSSCore::Widgets::MultiButton*> RecentList;
-		QMap<YSSCore::Widgets::MultiButton*, YSSCore::Editor::FileTemplateProvider*> ProviderMap;
+		QList<Visindigo::Widgets::MultiButton*> FileList;
+		QList<Visindigo::Widgets::MultiButton*> RecentList;
+		QMap<Visindigo::Widgets::MultiButton*, Visindigo::Editor::FileTemplateProvider*> ProviderMap;
 		QScrollArea* RecentTemplateArea;
 		QWidget* RecentTemplateWidget;
 		QVBoxLayout* RecentTemplateLayout;

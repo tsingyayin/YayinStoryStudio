@@ -15,17 +15,17 @@ int main(int argc, char* argv[])
 {
 	QApplication a(argc, argv);
 	QDir::setCurrent(QFileInfo(a.arguments()[0]).path());
-	QStringList prts = YSSCore::Utility::FileUtility::readLines(":/ysscore/compiled/IWillFindU.txt");
+	QStringList prts = Visindigo::Utility::FileUtility::readLines(":/Visindigo/compiled/IWillFindU.txt");
 	for (auto p : prts) {
 		yMessage << p;
 	}
 
-	yInfo << "Yayin Story Studio" << YSSCore::General::YayinStoryStudio::getVersion() << "(ABI " << YSSCore::General::YayinStoryStudio::getABIVersion() << ")";
+	yInfo << "Yayin Story Studio" << Visindigo::General::YayinStoryStudio::getVersion() << "(ABI " << Visindigo::General::YayinStoryStudio::getABIVersion() << ")";
 	yNotice << "Launch arguments" << a.arguments();
-	yInfo << YSSCore::Utility::FileUtility::getProgramPath();
+	yInfo << Visindigo::Utility::FileUtility::getProgramPath();
 	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
 	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";
-	qRegisterMetaType<YSSCore::Editor::DebugFailedData>("YSSCore::Editor::DebugFailedData");
+	qRegisterMetaType<Visindigo::Editor::DebugFailedData>("Visindigo::Editor::DebugFailedData");
 	QMessageBox msgBox;
 	msgBox.setWindowTitle("SEA版本警告");
 	msgBox.setText("SEA版本（超级早期体验版） 技术预览阶段警告\n\
@@ -42,6 +42,6 @@ int main(int argc, char* argv[])
 
 	int c = a.exec();
 	yNotice << "Program exit in normal way";
-	YSSCore::General::LoggerManager::getInstance()->finalSave();
+	Visindigo::General::LoggerManager::getInstance()->finalSave();
 	return c;
 }

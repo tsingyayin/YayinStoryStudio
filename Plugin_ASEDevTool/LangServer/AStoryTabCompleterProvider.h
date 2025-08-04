@@ -1,10 +1,10 @@
 #pragma once
 #include <Editor/TabCompleterProvider.h>
 
-class AStoryTabCompleterProvider : public YSSCore::Editor::TabCompleterProvider
+class AStoryTabCompleterProvider : public Visindigo::Editor::TabCompleterProvider
 {
 	Q_OBJECT;
 public:
 	AStoryTabCompleterProvider(QTextDocument* parent);
-	virtual QList<YSSCore::Editor::TabCompleterItem> onTabComplete(int position, QString lineContent, QString wordContent) override;
+	virtual QList<Visindigo::Editor::TabCompleterItem> onTabComplete(int position, QString lineContent, QString wordContent) override;
 };

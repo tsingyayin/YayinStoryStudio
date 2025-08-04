@@ -4,7 +4,7 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qstringlist.h>
 #include <VIMacro.h>
-namespace YSSCore::Utility {
+namespace Visindigo::Utility {
 	class JsonConfig;
 }
 class QString;
@@ -38,13 +38,13 @@ public:
 	static QString toNameString(Name name);
 public:
 	AStoryController();
-	AStoryController(const QString& name, YSSCore::Utility::JsonConfig& meta, const QString & rule);
+	AStoryController(const QString& name, Visindigo::Utility::JsonConfig& meta, const QString & rule);
 	VIMoveable(AStoryController);
 	VICopyable(AStoryController);
 	void setControllerName(const QString& name);
 	void setControllerASRule(const QString& rule);
 	QString getStartSign();
-	void setControllerMeta(YSSCore::Utility::JsonConfig& meta);
+	void setControllerMeta(Visindigo::Utility::JsonConfig& meta);
 	QList<ASEParameter::Type> getDefaultParameterTypes();
 	Name getControllerName();
 	QStringList getDefaultParameterNames();
