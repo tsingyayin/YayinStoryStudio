@@ -17,5 +17,11 @@ QList<Visindigo::Editor::TabCompleterItem> AStoryTabCompleterProvider::onTabComp
 	items.append(test4);
 	Visindigo::Editor::TabCompleterItem test5("天雨", "天雨", "", Visindigo::Editor::TabCompleterItem::Value);
 	items.append(test5);
+	Visindigo::Editor::TabCompleterItem test6("//", "注释", "", Visindigo::Editor::TabCompleterItem::Operator);
+	items.append(test6);
+	Visindigo::Editor::TabCompleterItem test7("Liner", "Liner", "", Visindigo::Editor::TabCompleterItem::Enum);
+	items.append(test7);
+	Visindigo::Editor::TabCompleterItem test8("普瑞赛斯", "普瑞赛斯", "", Visindigo::Editor::TabCompleterItem::Default);
+	items.append(test8);
 	return items;
 }

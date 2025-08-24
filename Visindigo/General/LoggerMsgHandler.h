@@ -39,6 +39,7 @@ namespace Visindigo::General {
 		LoggerMsgHandler& operator<<(bool b);
 		LoggerMsgHandler& operator<<(const char* str);
 		LoggerMsgHandler& operator<<(const QStringList& strList);
+		LoggerMsgHandler& operator<<(QObject* pointer);
 		template<Printable T> LoggerMsgHandler& operator<<(T type);
 		template<typename T>LoggerMsgHandler& operator<<(QMap<QString, T> pointer_map);
 		LoggerMsgHandler& operator<<(QMap<QString, QObject*> pointer_map);

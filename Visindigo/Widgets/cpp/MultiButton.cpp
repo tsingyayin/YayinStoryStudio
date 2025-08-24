@@ -1,17 +1,9 @@
 #include "../MultiButton.h"
-
+#include "../private/MultiButton_p.h"
 namespace Visindigo::Widgets {
-	class MultiButtonPrivate {
-		friend class MultiButton;
-	protected:
-		QString PressedStyleSheet;
-		QString HoveredStyleSheet;
-		QString NormalStyleSheet;
-		bool Pressed = false;
-		bool Hovered = false;
-	};
+	
 	MultiButton::MultiButton(QWidget* parent) :MultiLabel(parent) {
-		d = new MultiButtonPrivate;
+		d = new Visindigo::__Private__::MultiButtonPrivate;
 	}
 	MultiButton::~MultiButton() {
 		delete d;

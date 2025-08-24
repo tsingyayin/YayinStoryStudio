@@ -173,6 +173,9 @@
     <ClCompile Include="Utility\cpp\StringUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -203,9 +206,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\AUTO_VERSION.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Visindigo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\LangServerManager.h">
@@ -310,6 +310,9 @@
     <ClInclude Include="Editor\EditorProjectHelperManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Widgets\private\MultiButton_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -373,6 +376,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\EditorProjectHelper.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\MultiButtonGroup.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\private\MultiButtonGroup_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

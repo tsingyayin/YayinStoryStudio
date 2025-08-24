@@ -69,6 +69,15 @@ namespace Visindigo::General {
 		fromString(QString("[%1]").arg(strList.join(", ")));
 		return *this;
 	}
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(QObject* pointer) {
+		if (pointer == nullptr) {
+			fromString("nullptr");
+		}
+		else {
+			fromString(QString("%1(%2)").arg(pointer->metaObject()->className()).arg((quint64)(void*)pointer, 0, 16));
+		}
+		return *this;
+	}
 	QString LoggerMsgHandler::getMessage() {
 		return d->Msg;
 	}

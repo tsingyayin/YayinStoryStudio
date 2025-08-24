@@ -7,8 +7,12 @@
 class QTextDocument;
 class QTextCursor;
 class QWidget;
+class QTextEdit;
 class QScrollArea;
 class QVBoxLayout;
+namespace Visindigo::Widgets {
+	class MultiButtonGroup;
+}
 // Main Implementation
 namespace Visindigo::__Private__ {
 	class TextEditPrivate;
@@ -33,7 +37,12 @@ namespace Visindigo::__Private__ {
 		QVBoxLayout* Layout;
 		QList<QWidget*> Items;
 		QList<Visindigo::Editor::TabCompleterItem> CompleterItems;
-		TabCompleterWidget(QWidget* parent = nullptr);
+		QTextEdit* TextEdit = nullptr;
+		Visindigo::Widgets::MultiButtonGroup* ButtonGroup = nullptr;
+		TabCompleterWidget(QTextEdit* textEdit, QWidget* parent = nullptr);
 		void setCompleterItems(const QList<Visindigo::Editor::TabCompleterItem>& items);
+		void selectPrevious();
+		void selectNext();
+		void doComplete();
 	};
 }

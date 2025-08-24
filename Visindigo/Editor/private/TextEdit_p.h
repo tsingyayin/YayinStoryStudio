@@ -40,9 +40,13 @@ namespace Visindigo::__Private__ {
 	protected:
 		void onBlockCountChanged(qint32 count);
 		void onTabClicked(QKeyEvent* event);
+		void onTabClicked_TabCompleter(QKeyEvent* event);
+		void onTabClicked_NormalInput(QKeyEvent* event);
 		void onEnterClicked(QKeyEvent* event);
+		void onDirectionClicked(QKeyEvent* event);
 		void onMouseMove(QMouseEvent* event);
 		void onCursorPositionChanged();
 		void onCompleter();
+		void onScrollBarChanged(int value);
 	};
 }

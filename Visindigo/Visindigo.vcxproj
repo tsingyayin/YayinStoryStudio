@@ -231,6 +231,7 @@
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
+    <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp" />
     <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Widgets\cpp\ThemeManager.cpp" />
@@ -287,6 +288,9 @@
     <ClInclude Include="Utility\StringMacro.h" />
     <ClInclude Include="Utility\StringUtility.h" />
     <ClInclude Include="VIMacro.h" />
+    <QtMoc Include="Widgets\MultiButtonGroup.h" />
+    <QtMoc Include="Widgets\private\MultiButtonGroup_p.h" />
+    <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -314,7 +318,6 @@
     <ClInclude Include="Widgets\MultiLabel.h" />
     <QtMoc Include="Widgets\TextTags.h" />
     <ClInclude Include="Widgets\WidgetDisplayStack.h" />
-    <ClInclude Include="Visindigo.h" />
     <QtMoc Include="Editor\EditorPluginManager.h" />
     <QtMoc Include="Editor\FileServerManager.h" />
     <QtMoc Include="Editor\FileEditWidget.h" />

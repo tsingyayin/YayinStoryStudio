@@ -71,6 +71,7 @@ namespace Visindigo::__Private__ {
 		}
 		return false;
 	}
+
 	void TextEditPrivate::onCursorPositionChanged() {
 		onCompleter();
 		QTextCursor cursor = Text->textCursor();
@@ -99,6 +100,7 @@ namespace Visindigo::__Private__ {
 		LastCursor.setBlockFormat(format);
 		LastCursorLine = index;
 	}
+
 	void TextEditPrivate::onCompleter() {
 		QTextCursor cursor = Text->textCursor();
 		if (TabCompleter) {
@@ -151,6 +153,19 @@ namespace Visindigo::__Private__ {
 	}
 
 	void TextEditPrivate::onTabClicked(QKeyEvent* event) {
+		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+			onTabClicked_TabCompleter(event);
+		}
+		else {
+			onTabClicked_NormalInput(event);
+		}
+	}
+
+	void TextEditPrivate::onTabClicked_TabCompleter(QKeyEvent* event) {
+		TabCompleterWidget->doComplete();
+	}
+
+	void TextEditPrivate::onTabClicked_NormalInput(QKeyEvent * event) {
 		if (event->key() == Qt::Key_Backtab) {
 			if (Text->textCursor().hasSelection()) {
 				QTextCursor cursor = Text->textCursor();
@@ -301,7 +316,34 @@ namespace Visindigo::__Private__ {
 		cursor.insertText("\n" + newSpace);
 	}
 
+	void TextEditPrivate::onDirectionClicked(QKeyEvent* event) {
+		if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
+			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+				if (event->key() == Qt::Key_Up) {
+					TabCompleterWidget->selectPrevious();
+				}
+				else {
+					TabCompleterWidget->selectNext();
+				}
+			}
+		}
+	}
+
 	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
+	}
+
+	void TextEditPrivate::onScrollBarChanged(int value) {
+		QScrollBar* sender = static_cast<QScrollBar*>(this->sender());
+		if (sender == Text->verticalScrollBar()) {
+			Line->verticalScrollBar()->setValue(value);
+		} 
+		else {
+			Text->verticalScrollBar()->setValue(value);
+		}
+		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+			QRect pos = Text->cursorRect();
+			TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
+		}
 	}
 }
 namespace Visindigo::Editor {
@@ -365,12 +407,8 @@ namespace Visindigo::Editor {
 		d->LastCursor.movePosition(QTextCursor::Start);
 		d->LastCursorLine = 0;
 		connect(d->Text->document(), &QTextDocument::blockCountChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onBlockCountChanged);
-		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
-			d->Line->verticalScrollBar()->setValue(value);
-			});
-		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, [this](int value) {
-			d->Text->verticalScrollBar()->setValue(value);
-			});
+		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onScrollBarChanged); 
+		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
 	}
@@ -397,6 +435,13 @@ namespace Visindigo::Editor {
 					d->onEnterClicked(keyEvent);
 					return true;
 				}
+				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down) {
+					if (d->TabCompleterWidget!= nullptr && d->TabCompleterWidget->isVisible()) {
+						d->onDirectionClicked(keyEvent);
+						return true;
+					}
+					return false;
+				}
 			}
 			else if (event->type() == QEvent::MouseMove) {
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
@@ -415,7 +460,6 @@ namespace Visindigo::Editor {
 			event->ignore();
 		}
 	}
-	
 
 	bool TextEdit::onOpen(const QString& path) {
 		if (path.isEmpty()) {
@@ -437,7 +481,7 @@ namespace Visindigo::Editor {
 				delete d->TabCompleterWidget;
 			}
 			if (d->TabCompleter != nullptr) {
-				d->TabCompleterWidget = new Visindigo::__Private__::TabCompleterWidget(d->Text);
+				d->TabCompleterWidget = new Visindigo::__Private__::TabCompleterWidget(d->Text, d->Text);
 			}
 		}
 		else {
@@ -457,6 +501,7 @@ namespace Visindigo::Editor {
 		file.close();
 		return true;
 	}
+
 	bool TextEdit::onClose() {
 		if (isFileChanged()) {
 			QMessageBox msgBox;
@@ -484,6 +529,7 @@ namespace Visindigo::Editor {
 			return true;
 		}
 	}
+
 	bool TextEdit::onSave(const QString& path) {
 		QFile file(path);
 		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {

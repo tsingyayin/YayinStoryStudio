@@ -1,0 +1,35 @@
+Header {
+    import relative as ModuleName
+}
+
+Interface {
+    def functionName(name:type, name:type)->type
+    struct MyStruct{
+        field1:type
+        field2:type
+    }
+    class MyClass{
+        field1:type
+        field2:type
+        def myMethod(param1:type, param2:type)->type
+    }
+}
+
+Implement {
+    functionName(name, name){
+        sc >>>Hey You:Hello World!
+        sc |||Branch1:value1|||Branch2:value2|||Branch3:{name}
+        switch(sc){
+            case value1:
+                sc >>>Branch1:You Choose value1
+                break
+            case value2:
+                sc >>>Branch2:You Choose value2
+                break
+            case value3:
+                sc >>>Branch3:You Choose value3
+                break
+        }
+    }
+    MyClass::myMethod(param1, param2){}
+}

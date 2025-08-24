@@ -4,16 +4,21 @@
 #include <QtGui/qtextobject.h>
 #include <QtCore/qregularexpression.h>
 #include "../../Widgets/MultiButton.h"
+#include "../../Widgets/MultiButtonGroup.h"
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include "../TabCompleterProvider.h"
+#include "../../Widgets/ThemeManager.h"
 #include "../../General/Log.h"
+
 namespace Visindigo::__Private__ {
-	TabCompleterWidget::TabCompleterWidget(QWidget* parent)
+	TabCompleterWidget::TabCompleterWidget(QTextEdit* textEdit, QWidget* parent)
 		: QFrame(parent) {
+		this->TextEdit = textEdit;
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
 		this->setFocusPolicy(Qt::NoFocus);
+		this->ButtonGroup = new Visindigo::Widgets::MultiButtonGroup(this);
 		CentralWidget = new QWidget(this);
 		ScrollArea = new QScrollArea(this);
 		ScrollArea->setWidgetResizable(true);
@@ -22,6 +27,7 @@ namespace Visindigo::__Private__ {
 		ScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 		ScrollArea->verticalScrollBar()->setFixedWidth(16);
+		ScrollArea->verticalScrollBar()->setMinimum(0);
 		Layout = new QVBoxLayout(CentralWidget);
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->setSpacing(0);
@@ -38,8 +44,11 @@ namespace Visindigo::__Private__ {
 			item->deleteLater();
 		}
 		Items.clear();
+		ButtonGroup->removeAll();
 		CentralWidget->setFixedHeight(items.size() * 36);
 		ScrollArea->setFixedHeight(qMin(items.size() * 36, 600));
+		ScrollArea->verticalScrollBar()->setValue(0);
+		ScrollArea->verticalScrollBar()->setMaximum(items.size() * 36);
 		quint32 scrollWidth = ScrollArea->verticalScrollBar()->isVisible() ? 16 : 0;
 		this->setFixedHeight(qMin(items.size() * 36, 600));
 		yDebugF << items.size();
@@ -48,14 +57,30 @@ namespace Visindigo::__Private__ {
 			button->setTitle(item.getText());
 			button->setPixmapPath(item.getIconPath());
 			button->setPixmapFixedWidth(32);
-			//button->setDescription(item.getDescription());
 			yDebugF << item.getText() << item.getDescription();
 			Layout->addWidget(button);
 			button->show();
 			button->setFixedHeight(36);
 			button->setSpacing(2);
 			button->setContentsMargins(2, 2, 2, 2);
+			button->setNormalStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Normal", button));
+			button->setHoverStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Hover", button));
+			button->setPressedStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Pressed", button));
 			Items.append(button);
+			ButtonGroup->addButton(button);
 		}
+	}
+
+	void TabCompleterWidget::selectPrevious() {
+		qint32 index = ButtonGroup->selectPrevious();
+		ScrollArea->verticalScrollBar()->setValue(index * 36);
+	}
+	void TabCompleterWidget::selectNext() {
+		qint32 index = ButtonGroup->selectNext();
+		ScrollArea->verticalScrollBar()->setValue(index * 36);
+	}
+	void TabCompleterWidget::doComplete() {
+		// TODO
+		yDebug << "Do Complete";
 	}
 }

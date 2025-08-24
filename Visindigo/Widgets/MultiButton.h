@@ -1,12 +1,18 @@
 #pragma once
 #include "MultiLabel.h"
 // Forward declarations
-namespace Visindigo::Widgets {
+namespace Visindigo::__Private__ {
 	class MultiButtonPrivate;
+	class MultiButtonGroupPrivate;
+}
+namespace Visindigo::Widgets {
+	class MultiButtonGroup;
 }
 // Main
 namespace Visindigo::Widgets {
 	class VisindigoAPI MultiButton :public MultiLabel {
+		friend class MultiButtonGroup;
+		friend class Visindigo::__Private__::MultiButtonGroupPrivate;
 		Q_OBJECT;
 	signals:
 		void clicked();
@@ -28,7 +34,7 @@ namespace Visindigo::Widgets {
 		void mouseDoubleClickEvent(QMouseEvent* event) override;
 		void enterEvent(QEnterEvent* event) override;
 		void leaveEvent(QEvent* event) override;
-	private:
-		MultiButtonPrivate* d;
+	protected:
+		Visindigo::__Private__::MultiButtonPrivate* d;
 	};
 }
