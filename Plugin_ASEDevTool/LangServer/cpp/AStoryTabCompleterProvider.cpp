@@ -1,27 +1,26 @@
 #include "../AStoryTabCompleterProvider.h"
-
+#include "../ASRuleAdaptor.h"
+#include <General/YSSProject.h>
+#include "../AStoryController.h"
 AStoryTabCompleterProvider::AStoryTabCompleterProvider(QTextDocument* parent)
 	: Visindigo::Editor::TabCompleterProvider(parent) {
-
+	Visindigo::General::YSSProject* project = Visindigo::General::YSSProject::getCurrentProject();
+	QString rootPath = project ? project->getProjectFolder() : "";
+	QString rulePath = rootPath + "/Rules/StoryExplainer/BaseRule.asrule";
+	RuleAdaptor = new ASRuleAdaptor(rulePath, ":/plugin/compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json");
+	RuleAdaptor->loadASRule();
+	for(AStoryController& controller : RuleAdaptor->getAllControllers()) {
+		Visindigo::Editor::TabCompleterItem item(
+			AStoryController::toNameString(controller.getControllerName()), controller.getStartSign(), "", Visindigo::Editor::TabCompleterItem::Function
+		);
+		Controllers.append(item);
+	}
 }
 
 QList<Visindigo::Editor::TabCompleterItem> AStoryTabCompleterProvider::onTabComplete(int position, QString lineContent, QString wordContent) {
 	QList<Visindigo::Editor::TabCompleterItem> items;
-	Visindigo::Editor::TabCompleterItem test("背景：", "背景：", "",Visindigo::Editor::TabCompleterItem::Function);
-	items.append(test);
-	Visindigo::Editor::TabCompleterItem test2("音效：", "音效：", "", Visindigo::Editor::TabCompleterItem::Function);
-	items.append(test2);
-	Visindigo::Editor::TabCompleterItem test3("[timestamp]", "[timestamp]", "", Visindigo::Editor::TabCompleterItem::Const);
-	items.append(test3);
-	Visindigo::Editor::TabCompleterItem test4("阿米娅", "阿米娅", "", Visindigo::Editor::TabCompleterItem::Value);
-	items.append(test4);
-	Visindigo::Editor::TabCompleterItem test5("天雨", "天雨", "", Visindigo::Editor::TabCompleterItem::Value);
-	items.append(test5);
-	Visindigo::Editor::TabCompleterItem test6("//", "注释", "", Visindigo::Editor::TabCompleterItem::Operator);
-	items.append(test6);
-	Visindigo::Editor::TabCompleterItem test7("Liner", "Liner", "", Visindigo::Editor::TabCompleterItem::Enum);
-	items.append(test7);
-	Visindigo::Editor::TabCompleterItem test8("普瑞赛斯", "普瑞赛斯", "", Visindigo::Editor::TabCompleterItem::Default);
-	items.append(test8);
+	if (position == 0 && lineContent.trimmed().isEmpty()) {
+		items.append(Controllers);
+	}
 	return items;
 }

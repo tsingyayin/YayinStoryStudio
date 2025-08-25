@@ -1,5 +1,6 @@
 #pragma once
 #include <VIMacro.h>
+#include "../AStoryController.h"
 class QString;
 class AStoryControllerParseData;
 
@@ -14,6 +15,7 @@ public:
 	void setMetaPath(const QString& metaPath);
 	bool loadASRule();
 	AStoryControllerParseData parse(const QString& input);
+	QList<AStoryController> getAllControllers();
 private:
 	ASRuleAdaptorPrivate* d;
 };

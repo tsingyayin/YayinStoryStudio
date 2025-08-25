@@ -35,6 +35,9 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Projects not prepared to publish
+Spol2
+
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 .VSCodeCounter/

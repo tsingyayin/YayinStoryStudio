@@ -24,7 +24,8 @@ namespace Visindigo::Widgets {
 		qint32 selectPrevious();
 		qint32 selectNext();
 		qint32 selectButton(MultiButton* button);
-		void selectButton(quint32 index);
+		void selectButton(qint32 index);
+		MultiButton* getSelectedButton() const;
 	private:
 		Visindigo::__Private__::MultiButtonGroupPrivate* d;
 	};

@@ -26,6 +26,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryPlayer", "YayinSt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QSBC", "QSBC\QSBC.vcxproj", "{C627A5D0-3A3C-4C16-A18D-8B71CE1FE21B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spol2", "Spol2\Spol2.vcxproj", "{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -98,6 +100,14 @@ Global
 		{C627A5D0-3A3C-4C16-A18D-8B71CE1FE21B}.ExportRelease|x64.Build.0 = DllRelease|x64
 		{C627A5D0-3A3C-4C16-A18D-8B71CE1FE21B}.Release|x64.ActiveCfg = Release|x64
 		{C627A5D0-3A3C-4C16-A18D-8B71CE1FE21B}.Release|x64.Build.0 = Release|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.Debug|x64.ActiveCfg = Debug|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.Debug|x64.Build.0 = Debug|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.ExportDebug|x64.ActiveCfg = Release|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.ExportDebug|x64.Build.0 = Release|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.ExportRelease|x64.ActiveCfg = Release|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.ExportRelease|x64.Build.0 = Release|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.Release|x64.ActiveCfg = Release|x64
+		{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

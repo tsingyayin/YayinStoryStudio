@@ -2,11 +2,12 @@
 #include "../MultiButtonGroup.h"
 #include "../private/MultiButtonGroup_p.h"
 #include "../private/MultiButton_p.h"
-
+#include "../../General/Log.h"
 namespace Visindigo::__Private__ {
 	MultiButtonGroupPrivate::MultiButtonGroupPrivate(Visindigo::Widgets::MultiButtonGroup* q)
 		: QObject(q), q(q) {}
 	void MultiButtonGroupPrivate::onButtonClicked(Visindigo::Widgets::MultiButton* button) {
+		yDebugF;
 		if (CurrentPressedButton) {
 			if (CurrentPressedButton != button) {
 				CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->NormalStyleSheet);
@@ -17,6 +18,19 @@ namespace Visindigo::__Private__ {
 			CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->PressedStyleSheet);
 		}
 		CurrentPressedIndex = Buttons.indexOf(button);
+	}
+	void MultiButtonGroupPrivate::onButtonReleased(Visindigo::Widgets::MultiButton* button) {
+		// PASS
+	}
+	void MultiButtonGroupPrivate::onButtonHovered(Visindigo::Widgets::MultiButton* button) {
+		if (button == CurrentPressedButton) {
+			button->setStyleSheet(button->d->PressedStyleSheet);
+		}
+	}
+	void MultiButtonGroupPrivate::onButtonLeft(Visindigo::Widgets::MultiButton* button) {
+		if (button == CurrentPressedButton) {
+			button->setStyleSheet(button->d->PressedStyleSheet);
+		}
 	}
 }
 
@@ -35,10 +49,10 @@ namespace Visindigo::Widgets {
 				emit selectIndexChanged(d->CurrentPressedIndex);
 			}
 		);
-		connect(button, &MultiButton::hover, this, [this, button]() { emit hover(button); });
-		connect(button, &MultiButton::leave, this, [this, button]() { emit leave(button); });
+		connect(button, &MultiButton::hover, this, [this, button]() { this->d->onButtonHovered(button); emit hover(button); });
+		connect(button, &MultiButton::leave, this, [this, button]() { this->d->onButtonLeft(button); emit leave(button); });
 		connect(button, &MultiButton::pressed, this, [this, button]() { emit pressed(button); });
-		connect(button, &MultiButton::released, this, [this, button]() { emit released(button); });
+		connect(button, &MultiButton::released, this, [this, button]() { this->d->onButtonReleased(button); emit released(button); });
 		connect(button, &MultiButton::doubleClicked, this, [this, button]() { this->d->onButtonClicked(button); emit doubleClicked(button); });
 	}
 
@@ -80,10 +94,14 @@ namespace Visindigo::Widgets {
 		return d->CurrentPressedIndex;
 	}
 
-	void MultiButtonGroup::selectButton(quint32 index) {
+	void MultiButtonGroup::selectButton(qint32 index) {
 		if (d->Buttons.isEmpty()) return;
 		if (index >= d->Buttons.size()) return;
 		d->CurrentPressedIndex = index;
 		d->onButtonClicked(d->Buttons[index]);
+	}
+
+	MultiButton* MultiButtonGroup::getSelectedButton() const {
+		return d->CurrentPressedButton;
 	}
 }

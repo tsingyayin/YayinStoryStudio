@@ -8,6 +8,7 @@
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
+#include <QtWidgets/qtextedit.h>
 #include "../TabCompleterProvider.h"
 #include "../../Widgets/ThemeManager.h"
 #include "../../General/Log.h"
@@ -19,6 +20,7 @@ namespace Visindigo::__Private__ {
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
 		this->setFocusPolicy(Qt::NoFocus);
 		this->ButtonGroup = new Visindigo::Widgets::MultiButtonGroup(this);
+		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::doubleClicked, this, &TabCompleterWidget::doComplete);
 		CentralWidget = new QWidget(this);
 		ScrollArea = new QScrollArea(this);
 		ScrollArea->setWidgetResizable(true);
@@ -45,19 +47,20 @@ namespace Visindigo::__Private__ {
 		}
 		Items.clear();
 		ButtonGroup->removeAll();
+		ItemMap.clear();
 		CentralWidget->setFixedHeight(items.size() * 36);
 		ScrollArea->setFixedHeight(qMin(items.size() * 36, 600));
 		ScrollArea->verticalScrollBar()->setValue(0);
 		ScrollArea->verticalScrollBar()->setMaximum(items.size() * 36);
 		quint32 scrollWidth = ScrollArea->verticalScrollBar()->isVisible() ? 16 : 0;
 		this->setFixedHeight(qMin(items.size() * 36, 600));
-		yDebugF << items.size();
+		//yDebugF << items.size();
 		for (Visindigo::Editor::TabCompleterItem item : items) {
 			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(CentralWidget);
 			button->setTitle(item.getText());
 			button->setPixmapPath(item.getIconPath());
 			button->setPixmapFixedWidth(32);
-			yDebugF << item.getText() << item.getDescription();
+			//yDebugF << item.getText() << item.getDescription();
 			Layout->addWidget(button);
 			button->show();
 			button->setFixedHeight(36);
@@ -67,7 +70,11 @@ namespace Visindigo::__Private__ {
 			button->setHoverStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Hover", button));
 			button->setPressedStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Pressed", button));
 			Items.append(button);
+			ItemMap.insert(button, item);
 			ButtonGroup->addButton(button);
+		}
+		if (Items.size()> 0) {
+			ButtonGroup->selectButton(0);
 		}
 	}
 
@@ -75,12 +82,39 @@ namespace Visindigo::__Private__ {
 		qint32 index = ButtonGroup->selectPrevious();
 		ScrollArea->verticalScrollBar()->setValue(index * 36);
 	}
+
 	void TabCompleterWidget::selectNext() {
 		qint32 index = ButtonGroup->selectNext();
 		ScrollArea->verticalScrollBar()->setValue(index * 36);
 	}
-	void TabCompleterWidget::doComplete() {
-		// TODO
+
+	void TabCompleterWidget::doComplete(Visindigo::Widgets::MultiButton* pressed) {
+		if (pressed == nullptr) {
+			pressed = ButtonGroup->getSelectedButton();
+		}
+		if (!pressed) return;
+		Visindigo::Editor::TabCompleterItem item = ItemMap.value(pressed);
+		if (item.getContent().isEmpty()) return;
+		QTextCursor cursor = TextEdit->textCursor();
+		yDebugF << "Complete Content:" << item.isAlignment();
+		if (item.isAlignment()) {
+			QString selected;
+			while(cursor.positionInBlock() != 0) {
+				cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+				selected = cursor.selectedText();
+				if (item.getContent().startsWith(selected)) {
+					cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, selected.length());
+					cursor.insertText(item.getContent().right(item.getContent().length() - selected.length()));
+					yDebugF << "Found" << selected << " exists, insert the rest";
+					return;
+				}
+			}
+			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, selected.length());
+			cursor.insertText(item.getContent());
+		}
+		else {
+			cursor.insertText(item.getContent());
+		}
 		yDebug << "Do Complete";
 	}
 }

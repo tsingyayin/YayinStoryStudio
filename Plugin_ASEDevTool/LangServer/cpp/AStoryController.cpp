@@ -142,6 +142,10 @@ QList<ASEParameter::Type> AStoryController::getDefaultParameterTypes() {
 	return d->DefaultParameterTypes;
 }
 
+AStoryController::Name AStoryController::getControllerName() {
+	return d->Name;
+}
+
 QStringList AStoryController::getDefaultParameterNames() {
 	if (d->ParameterOrder.isEmpty()) {
 		yWarning << "Parameter order is empty for controller" << d->Name;

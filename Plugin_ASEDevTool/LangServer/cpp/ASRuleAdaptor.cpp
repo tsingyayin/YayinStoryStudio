@@ -71,3 +71,6 @@ AStoryControllerParseData ASRuleAdaptor::parse(const QString& input) {
 	parseData = d->TalkController.parse(input);
 	return parseData;
 }
+QList<AStoryController> ASRuleAdaptor::getAllControllers() {
+	return d->Controllers.values();
+}

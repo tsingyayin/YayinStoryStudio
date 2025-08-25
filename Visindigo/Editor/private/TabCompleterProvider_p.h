@@ -1,6 +1,7 @@
 #pragma once
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qmap.h>
 #include <QtWidgets/qframe.h>
 #include "../TabCompleterProvider.h"
 // Forward declarations
@@ -11,6 +12,7 @@ class QTextEdit;
 class QScrollArea;
 class QVBoxLayout;
 namespace Visindigo::Widgets {
+	class MultiButton;
 	class MultiButtonGroup;
 }
 // Main Implementation
@@ -36,6 +38,7 @@ namespace Visindigo::__Private__ {
 		QScrollArea* ScrollArea;
 		QVBoxLayout* Layout;
 		QList<QWidget*> Items;
+		QMap<Visindigo::Widgets::MultiButton*, Visindigo::Editor::TabCompleterItem> ItemMap;
 		QList<Visindigo::Editor::TabCompleterItem> CompleterItems;
 		QTextEdit* TextEdit = nullptr;
 		Visindigo::Widgets::MultiButtonGroup* ButtonGroup = nullptr;
@@ -43,6 +46,6 @@ namespace Visindigo::__Private__ {
 		void setCompleterItems(const QList<Visindigo::Editor::TabCompleterItem>& items);
 		void selectPrevious();
 		void selectNext();
-		void doComplete();
+		void doComplete(Visindigo::Widgets::MultiButton* pressed = nullptr);
 	};
 }

@@ -58,7 +58,12 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 		project.getProjectConfig()->setString("Project.DebugServerID", "ASEDevTool_ASE");
 		project.saveProject();
 		QString projectFolder = project.getProjectFolder();
-		if (config->getString("Project.Version") == "2.05.22.1A" || config->getString("Project.Version") == "uptodate") {
+		QStringList CompGroup_2_05_22_1A = {
+				"2.05.22.1A",
+				"2.08.10.0",
+				"uptodate"
+		};
+		if (CompGroup_2_05_22_1A.contains(config->getString("Project.Version"))) {
 			initResourceV2_05_22_1A(&project);
 		}
 		else {

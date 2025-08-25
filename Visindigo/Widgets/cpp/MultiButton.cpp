@@ -29,12 +29,12 @@ namespace Visindigo::Widgets {
 	}
 	void MultiButton::mouseReleaseEvent(QMouseEvent* event) {
 		MultiLabel::mouseReleaseEvent(event);
+		setStyleSheet(d->NormalStyleSheet);
+		emit released();
 		if (d->Pressed) {
 			d->Pressed = false;
 			emit clicked();
 		}
-		emit released();
-		setStyleSheet(d->NormalStyleSheet);
 	}
 	void MultiButton::mouseDoubleClickEvent(QMouseEvent* event) {
 		emit doubleClicked();

@@ -437,8 +437,10 @@ namespace Visindigo::Editor {
 				}
 				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down) {
 					if (d->TabCompleterWidget!= nullptr && d->TabCompleterWidget->isVisible()) {
-						d->onDirectionClicked(keyEvent);
-						return true;
+						if (keyEvent->modifiers() == Qt::NoModifier) {
+							d->onDirectionClicked(keyEvent);
+							return true;
+						}
 					}
 					return false;
 				}

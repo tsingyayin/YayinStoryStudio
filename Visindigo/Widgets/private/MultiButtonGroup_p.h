@@ -17,5 +17,8 @@ namespace Visindigo::__Private__ {
 		Visindigo::Widgets::MultiButtonGroup* q;
 		MultiButtonGroupPrivate(Visindigo::Widgets::MultiButtonGroup* q);
 		void onButtonClicked(Visindigo::Widgets::MultiButton* button);
+		void onButtonReleased(Visindigo::Widgets::MultiButton* button);
+		void onButtonHovered(Visindigo::Widgets::MultiButton* button);
+		void onButtonLeft(Visindigo::Widgets::MultiButton* button);
 	};
 }
