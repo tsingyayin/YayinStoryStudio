@@ -27,6 +27,9 @@ namespace Visindigo::Widgets {
 		void setHoverStyleSheet(const QString& styleSheet);
 		void setPressedStyleSheet(const QString& styleSheet);
 		void setNormalStyleSheet(const QString& styleSheet);
+		void setInactiveStyleSheet(const QString& styleSheet);
+		void setActive(bool active);
+		bool isActive();
 		bool isHovered();
 	protected:
 		void mousePressEvent(QMouseEvent* event) override;

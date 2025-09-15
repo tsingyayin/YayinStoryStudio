@@ -16,7 +16,9 @@ namespace Visindigo::__Private__ {
 		QString PressedStyleSheet;
 		QString HoveredStyleSheet;
 		QString NormalStyleSheet;
+		QString InactiveStyleSheet;
 		bool Pressed = false;
 		bool Hovered = false;
+		bool Active = true;
 	};
 }

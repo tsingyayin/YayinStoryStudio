@@ -124,6 +124,9 @@
     <QtMoc Include="Editor\ProjectPage\NewsArea.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\MainEditor\MenuBarHandler.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">

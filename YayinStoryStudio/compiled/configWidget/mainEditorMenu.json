@@ -1,0 +1,76 @@
+{
+    "menu": [
+        {
+            "ID": "file",
+            "Name": "i18n:YSS::Menu.file",
+            "Actions": [
+                {
+                    "ID": "fileOptions",
+                    "Actions": [
+                        {
+                            "ID": "newfile",
+                            "Name": "i18n:YSS::Menu.file.new",
+                            "Shortcut": [
+                                "Ctrl", "N"
+                            ]
+                        },
+                        {
+                            "ID": "open",
+                            "Name": "i18n:YSS::Menu.file.open",
+                            "Shortcut": [
+                                "Ctrl", "O"
+                            ]
+                        },
+                        {
+                            "ID": "save",
+                            "Name": "i18n:YSS::Menu.file.save",
+                            "Shortcut": [
+                                "Ctrl", "S"
+                            ]
+                        },
+                        {
+                            "ID": "saveAll",
+                            "Name": "i18n:YSS::Menu.file.saveAll",
+                            "Shortcut": [
+                                "Ctrl", "Alt", "S"
+                            ]
+                        },
+                        {
+                            "ID": "saveAs",
+                            "Name": "i18n:YSS::Menu.file.saveAs",
+                            "Shortcut": [
+                                "Ctrl", "Shift", "S"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ID": "programOptions",
+                    "Actions": [
+                        {
+                            "ID": "recentFiles",
+                            "Name": "i18n:YSS::Menu.file.backToHome",
+                            "Shortcut": [
+                                "Ctrl", "Shift", "H"
+                            ]
+                        },
+                        {
+                            "ID": "preferences",
+                            "Name": "i18n:YSS::Menu.file.preferences",
+                            "Shortcut": [
+                                "Ctrl", ","
+                            ]
+                        },
+                        {
+                            "ID": "exit",
+                            "Name": "i18n:YSS::Menu.file.exit",
+                            "Shortcut": [
+                                "Alt", "F4"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

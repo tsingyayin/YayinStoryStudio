@@ -30,6 +30,7 @@ namespace Visindigo::Utility {
 		static QString getRawText(QString colorString);
 		static void print(QString msg);
 		static void binary(const QByteArray& data);
+		static QString binaryToString(const QByteArray& data);
 		template <typename T> static inline void memory(const T* data) {
 			binary(QByteArray((char*)data, sizeof(T)));
 		};

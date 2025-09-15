@@ -18,17 +18,43 @@ namespace Visindigo::Widgets {
 		d->NormalStyleSheet = styleSheet;
 		setStyleSheet(d->NormalStyleSheet);
 	}
+	void MultiButton::setInactiveStyleSheet(const QString& styleSheet) {
+		d->InactiveStyleSheet = styleSheet;
+		if (!d->Active) {
+			setStyleSheet(d->InactiveStyleSheet);
+		}
+	}
+	void MultiButton::setActive(bool active) {
+		d->Active = active;
+		if (!d->Active) {
+			if (d->InactiveStyleSheet.isEmpty()) {
+				setStyleSheet(d->NormalStyleSheet);
+			}
+			else {
+				setStyleSheet(d->InactiveStyleSheet);
+			}
+		}
+	}
+	bool MultiButton::isActive() {
+		return d->Active;
+	}
 	bool MultiButton::isHovered() {
 		return d->Hovered;
 	}
 	void MultiButton::mousePressEvent(QMouseEvent* event) {
 		MultiLabel::mousePressEvent(event);
+		if (!d->Active) {
+			return;
+		}
 		d->Pressed = true;
 		setStyleSheet(d->PressedStyleSheet);
 		emit pressed();
 	}
 	void MultiButton::mouseReleaseEvent(QMouseEvent* event) {
 		MultiLabel::mouseReleaseEvent(event);
+		if (!d->Active) {
+			return;
+		}
 		setStyleSheet(d->NormalStyleSheet);
 		emit released();
 		if (d->Pressed) {
@@ -37,6 +63,10 @@ namespace Visindigo::Widgets {
 		}
 	}
 	void MultiButton::mouseDoubleClickEvent(QMouseEvent* event) {
+		MultiLabel::mouseDoubleClickEvent(event);
+		if (!d->Active) {
+			return;
+		}
 		emit doubleClicked();
 	}
 	void MultiButton::enterEvent(QEnterEvent* event) {

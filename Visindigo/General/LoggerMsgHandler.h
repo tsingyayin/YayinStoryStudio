@@ -5,6 +5,7 @@
 #include  <QtCore/qtypes.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
+#include <QtCore/qobject.h>
 #include <type_traits>
 #include "private/LoggerMsgHandler_p.h"
 
@@ -39,6 +40,7 @@ namespace Visindigo::General {
 		LoggerMsgHandler& operator<<(bool b);
 		LoggerMsgHandler& operator<<(const char* str);
 		LoggerMsgHandler& operator<<(const QStringList& strList);
+		LoggerMsgHandler& operator<<(const QByteArray& byteArray);
 		LoggerMsgHandler& operator<<(QObject* pointer);
 		template<Printable T> LoggerMsgHandler& operator<<(T type);
 		template<typename T>LoggerMsgHandler& operator<<(QMap<QString, T> pointer_map);

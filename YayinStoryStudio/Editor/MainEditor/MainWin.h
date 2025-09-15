@@ -6,7 +6,9 @@ class QMenuBar;
 class QMenu;
 class QAction;
 class QHBoxLayout;
-
+namespace Visindigo::Widgets {
+	class QuickMenu;
+}
 namespace YSS::Editor {
 	class FileEditorArea;
 	class ResourceBrowser;
@@ -25,6 +27,7 @@ namespace YSS::Editor {
 	private:
 		void initMenu();
 	private:
+		Visindigo::Widgets::QuickMenu* Menu = nullptr;
 		QMenuBar* MenuBar = nullptr;
 		QMenu* FileMenu = nullptr;
 		QAction* SaveAction = nullptr;

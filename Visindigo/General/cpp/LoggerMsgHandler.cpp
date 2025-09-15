@@ -1,6 +1,8 @@
 #include "../LoggerMsgHandler.h"
 #include "../LoggerManager.h"
 #include <QtCore/qtimer.h>
+#include <QtCore/qobject.h>
+#include "../../Utility/Console.h"
 namespace Visindigo::General {
 	LoggerMsgHandler::LoggerMsgHandler(Logger* who, Logger::Level level) {
 		d = new Visindigo::__Private__::LoggerMsgHandlerPrivate;
@@ -69,6 +71,10 @@ namespace Visindigo::General {
 		fromString(QString("[%1]").arg(strList.join(", ")));
 		return *this;
 	}
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QByteArray& byteArray) {
+		fromString(Visindigo::Utility::Console::binaryToString(byteArray));
+		return *this;
+	}
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QObject* pointer) {
 		if (pointer == nullptr) {
 			fromString("nullptr");
@@ -76,6 +82,32 @@ namespace Visindigo::General {
 		else {
 			fromString(QString("%1(%2)").arg(pointer->metaObject()->className()).arg((quint64)(void*)pointer, 0, 16));
 		}
+		return *this;
+	}
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, QObject*> pointer_map) {
+		QStringList list;
+		for (auto it = pointer_map.begin(); it != pointer_map.end(); ++it) {
+			if (it.value() == nullptr) {
+				list.append(it.key() % ": nullptr");
+			}
+			else {
+				list.append(it.key() % ": " % it.value()->metaObject()->className() % "(" % QString::number((quint64)(void*)it.value(), 16) % ")");
+			}
+		}
+		fromString("{" % list.join(", ") % "}");
+		return *this;
+	}
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(QList<QObject*> qobject_list) {
+		QStringList list;
+		for (QObject* obj : qobject_list) {
+			if (obj == nullptr) {
+				list.append("nullptr");
+			}
+			else {
+				list.append(QString(obj->metaObject()->className()) % "(" % QString::number((quint64)(void*)obj, 16) % ")");
+			}
+		}
+		fromString("[" % list.join(", ") % "]");
 		return *this;
 	}
 	QString LoggerMsgHandler::getMessage() {

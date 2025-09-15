@@ -4,5 +4,6 @@
         <file>compiled/yssicon.png</file>
         <file>compiled/HarmonyOS_Sans_SC_Regular.ttf</file>
         <file>compiled/i18n/zh_CN.json</file>
+        <file>compiled/configWidget/mainEditorMenu.json</file>
     </qresource>
 </RCC>

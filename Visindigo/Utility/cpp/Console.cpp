@@ -271,9 +271,13 @@ namespace Visindigo::Utility {
 		\note 如果数据中存在未初始化的内存，将会在输出的最后一行显示警告。
 	*/
 	void Console::binary(const QByteArray& data) {
-		if (data.isEmpty()) { return; }
-		print("L\\B\t00  01  02  03  04  05  06  07  |  00 01 02 03 04 05 06 07  |");
-		print("---------------------------------------------------------------------");
+		print(binaryToString(data));
+	}
+	QString Console::binaryToString(const QByteArray& data) {
+		if (data.isEmpty()) { return QString(); }
+		QString result;
+		result.append("L\\B\t00  01  02  03  04  05  06  07  |  00 01 02 03 04 05 06 07  |\n");
+		result.append("---------------------------------------------------------------------\n");
 		int B = 0;
 		int L = 0;
 		QString rawText = "";
@@ -305,7 +309,7 @@ namespace Visindigo::Utility {
 			B++;
 			L++;
 			if (B == 8) {
-				print(QString::number(L, 10) % "\t" % rawText % "|  " % chatText % " |");
+				result.append(QString::number(L, 10) % "\t" % rawText % "|  " % chatText % " |\n");
 				rawText = "";
 				chatText = "";
 				B = 0;
@@ -316,12 +320,13 @@ namespace Visindigo::Utility {
 				rawText.append("    ");
 				chatText.append("   ");
 			}
-			print(QString::number(L, 10) % "\t" % rawText % "|  " % chatText % " |");
+			result.append(QString::number(L, 10) % "\t" % rawText % "|  " % chatText % " |");
 		}
-		print("---------------------------------------------------------------------");
+		result.append("---------------------------------------------------------------------\n");
 		if (UninitializedMemory) {
-			print(inWarningStyle("Warning: Uninitialized memory detected.(Part marked as '??')\nIf this data directly comes from a struct or class, please ignore this issue"));
+			result.append("Warning: Uninitialized memory detected.(Part marked as '??')\nIf this data directly comes from a struct or class, please ignore this issue");
 		}
+		return result;
 	}
 
 	/*! \fn template <typename T> static void Console::memory(const T * data)

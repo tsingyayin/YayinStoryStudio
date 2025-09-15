@@ -4,13 +4,15 @@
 #include "../../GlobalValue.h"
 #include <Utility/JsonConfig.h>
 #include <Widgets/ThemeManager.h>
+#include <Widgets/QuickMenu.h>
+#include <Utility/FileUtility.h>
 #include <Editor/FileServerManager.h>
 #include <QHBoxLayout>
 #include <QMenuBar>
 #include <QSplitter>
 #include <General/TranslationHost.h>
 #include <General/YSSProject.h>
-
+#include "../MenuBarHandler.h"
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
@@ -51,8 +53,12 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::initMenu() {
+		Menu = new Visindigo::Widgets::QuickMenu(this);
+		Menu->setActionHandler(new MenuActionHandler(this));
+		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/yss/compiled/configWidget/mainEditorMenu.json"));
+		this->setMenuBar(Menu);
 		MenuBar = new QMenuBar(this);
-		this->setMenuBar(MenuBar);
+		//this->setMenuBar(MenuBar);
 		FileMenu = MenuBar->addMenu(YSSTR("Visindigo::general.file"));
 		SaveAction = new QAction(YSSTR("Visindigo::general.save"), this);
 		SaveAsAction = new QAction(YSSTR("Visindigo::general.saveAs"), this);

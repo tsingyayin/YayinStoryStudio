@@ -176,6 +176,12 @@
     <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\QuickMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\QtSSHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -313,6 +319,9 @@
     <ClInclude Include="Widgets\private\MultiButton_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\QtSSHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -382,6 +391,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\MultiButtonGroup_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\QuickMenu.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
