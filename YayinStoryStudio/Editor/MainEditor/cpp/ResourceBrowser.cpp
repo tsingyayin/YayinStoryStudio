@@ -29,6 +29,17 @@ namespace YSS::Editor {
 		Layout->addWidget(CurrentPath);
 		Layout->addWidget(FileList);
 
+		connect(BackButton, &QPushButton::clicked, this, &ResourceBrowser::onBackButtonClicked);
+		connect(RefreshButton, &QPushButton::clicked, this, &ResourceBrowser::refreshFileList);
+		connect(FileList, &QListWidget::itemDoubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
+		connect(NewButton, &QPushButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
+	}
+
+	void ResourceBrowser::openNewFileWindow() {
+		onNewButtonClicked();
+	}
+
+	void ResourceBrowser::showEvent(QShowEvent* event) {
 		Visindigo::General::YSSProject* project = GlobalValue::getCurrentProject();
 		if (project != nullptr) {
 			CurrentDir.setPath(project->getProjectFolder());
@@ -37,16 +48,7 @@ namespace YSS::Editor {
 			CurrentDir.setPath(QDir::currentPath());
 		}
 		CurrentPath->setText(CurrentDir.path());
-
-		connect(BackButton, &QPushButton::clicked, this, &ResourceBrowser::onBackButtonClicked);
-		connect(RefreshButton, &QPushButton::clicked, this, &ResourceBrowser::refreshFileList);
-		connect(FileList, &QListWidget::itemDoubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
-		connect(NewButton, &QPushButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
 		refreshFileList();
-	}
-
-	void ResourceBrowser::openNewFileWindow() {
-		onNewButtonClicked();
 	}
 
 	void ResourceBrowser::onNewButtonClicked() {

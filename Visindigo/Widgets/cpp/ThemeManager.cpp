@@ -89,20 +89,22 @@ namespace Visindigo::Widgets {
 		return d->Config->getString("ThemeID");
 	}
 	QColor ThemeManager::getColor(const QString& key) {
-		QString color = d->Config->getString(key);
+		QString color = d->Config->getString("ThemeColor." + key);
 		if (color.startsWith("#")) {
 			return QColor(color);
 		}
 		else {
+			yErrorF << "No such key" << key;
 			return QColor("#ED1C24");
 		}
 	}
 	QString ThemeManager::getColorString(const QString& key) {
-		QString color = d->Config->getString(key);
+		QString color = d->Config->getString("ThemeColor."+key);
 		if (color.startsWith("#")) {
 			return color;
 		}
 		else {
+			yErrorF << "No such key" << key;
 			return "#ED1C24";
 		}
 	}

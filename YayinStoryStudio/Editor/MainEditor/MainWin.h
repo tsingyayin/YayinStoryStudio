@@ -20,20 +20,18 @@ namespace YSS::Editor {
 		ResourceBrowser* Browser = nullptr;
 		FileEditorArea* Editor = nullptr;
 		QHBoxLayout* Layout = nullptr;
+		Visindigo::Widgets::QuickMenu* Menu = nullptr;
 	public:
 		MainWin();
-		virtual void closeEvent(QCloseEvent* event) override;
 		ResourceBrowser* getResourceBrowser();
 		FileEditorArea* getFileEditorArea();
 		void backToProjectWin();
 		void applyStyleSheet();
+	public:
+		virtual void closeEvent(QCloseEvent* event) override;
+		virtual void hideEvent(QHideEvent* event) override;
+		virtual void showEvent(QShowEvent* event) override;
 	private:
 		void initMenu();
-	private:
-		Visindigo::Widgets::QuickMenu* Menu = nullptr;
-		QMenuBar* MenuBar = nullptr;
-		QMenu* FileMenu = nullptr;
-		QAction* SaveAction = nullptr;
-		QAction* SaveAsAction = nullptr;
 	};
 }

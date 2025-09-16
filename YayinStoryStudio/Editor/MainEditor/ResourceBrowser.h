@@ -26,6 +26,8 @@ namespace YSS::Editor {
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
 		void openNewFileWindow();
+	public:
+		virtual void showEvent(QShowEvent* event) override;
 	private:
 		void onNewButtonClicked();
 		void onBackButtonClicked();

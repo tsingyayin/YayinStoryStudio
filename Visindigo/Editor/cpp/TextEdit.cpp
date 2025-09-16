@@ -35,8 +35,8 @@ namespace Visindigo::__Private__ {
 			QTextCursor cursor = Line->textCursor();
 			cursor.movePosition(QTextCursor::End);
 			QTextBlockFormat blockFormat = cursor.blockFormat();
-			blockFormat.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
-			blockFormat.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
+			blockFormat.setBackground(YSSTM->getColor("Editor.Background"));
+			blockFormat.setForeground(YSSTM->getColor("Editor.LineNumber"));
 			for (int i = 0; i < delta; i++) {
 				Line->append(QString::number(LineCount + i + 1));
 				cursor.movePosition(QTextCursor::Down);
@@ -87,8 +87,8 @@ namespace Visindigo::__Private__ {
 		}
 		int delta = index - LastCursorLine;
 		QTextBlockFormat format = LastCursor.blockFormat();
-		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Background"));
-		format.setForeground(YSSTM->getColor("ThemeColor.Editor.LineNumber"));
+		format.setBackground(YSSTM->getColor("Editor.Background"));
+		format.setForeground(YSSTM->getColor("Editor.LineNumber"));
 		LastCursor.setBlockFormat(format);
 		if (delta > 0) {
 			LastCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, delta);
@@ -96,7 +96,7 @@ namespace Visindigo::__Private__ {
 		else {
 			LastCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -delta);
 		}
-		format.setBackground(YSSTM->getColor("ThemeColor.Editor.Selection"));
+		format.setBackground(YSSTM->getColor("Editor.Selection"));
 		LastCursor.setBlockFormat(format);
 		LastCursorLine = index;
 	}

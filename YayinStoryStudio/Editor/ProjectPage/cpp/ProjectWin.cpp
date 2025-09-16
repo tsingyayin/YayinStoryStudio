@@ -102,9 +102,7 @@ namespace YSS::ProjectPage {
 			project = nullptr;
 		}
 		if (GlobalValue::getCurrentProject() != nullptr) {
-			YSS::Editor::MainWin* win = new YSS::Editor::MainWin();
-			GlobalValue::setMainWindow(win);
-			win->show();
+			GlobalValue::getMainWindow()->show();
 			this->deleteLater();
 		}
 	}

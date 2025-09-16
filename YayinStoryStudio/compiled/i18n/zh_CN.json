@@ -77,6 +77,11 @@
 			"toggleFullScreen": "切换全屏",
 			"toggleDevTools": "切换开发者工具"
 		},
+		"extension": {
+			"title": "扩展",
+			"manageInstalledExtensions": "管理已安装的扩展",
+			"installNewExtension": "安装新扩展"
+		},
 		"help": {
 			"title": "帮助",
 			"documentation": "文档",

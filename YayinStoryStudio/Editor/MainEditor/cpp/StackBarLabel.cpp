@@ -47,18 +47,18 @@ namespace YSS::Editor {
 		switch (state) {
 		case State::Normal:
 			this->setStyleSheet("QWidget{\
-				background-color: " % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Background") % ";\
-				color:" % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Normal.Text") % "};");
+				background-color: " % YSSTM->getColorString("Editor.FileLabel.Normal.Background") % ";\
+				color:" % YSSTM->getColorString("Editor.FileLabel.Normal.Text") % "};");
 			break;
 		case State::Focused:
 			this->setStyleSheet("QWidget{\
-				background-color: " % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Focused.Background") % ";\
-				color:" % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Focused.Text") % "};");
+				background-color: " % YSSTM->getColorString("Editor.FileLabel.Focused.Background") % ";\
+				color:" % YSSTM->getColorString("Editor.FileLabel.Focused.Text") % "};");
 			break;
 		case State::Pinned:
 			this->setStyleSheet("QWidget{\
-				background-color: " % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Pinned.Background") % ";\
-				color:" % YSSTM->getColorString("ThemeColor.Editor.FileLabel.Pinned.Text") % "};");
+				background-color: " % YSSTM->getColorString("Editor.FileLabel.Pinned.Background") % ";\
+				color:" % YSSTM->getColorString("Editor.FileLabel.Pinned.Text") % "};");
 			break;
 		default:
 			break;

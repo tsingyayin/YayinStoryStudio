@@ -1,16 +1,15 @@
-#include "../TitlePage.h"
-#include "../../GlobalValue.h"
-#include <Utility/ExtTool.h>
-#include "../../MainEditor/MainWin.h"
-#include "../../ProjectPage/ProjectWin.h"
 #include <chrono>
 #include <thread>
 #include <QtGui/qfontdatabase.h>
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
-#include "../../../test_main.h"
-#include <QtCore/qdir.h>
 #include <Utility/FileUtility.h>
+#include <Utility/ExtTool.h>
+#include "../TitlePage.h"
+#include "../../GlobalValue.h"
+#include "../../MainEditor/MainWin.h"
+#include "../../ProjectPage/ProjectWin.h"
+
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
@@ -46,6 +45,8 @@ namespace YSS::TitlePage {
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
+		YSS::Editor::MainWin* mainWin = new YSS::Editor::MainWin();
+		GlobalValue::setMainWindow(mainWin);
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		if (duration.count() < 1000) {

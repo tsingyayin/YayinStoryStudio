@@ -4,6 +4,7 @@
 #include <QtCore/qregularexpression.h>
 #include <QtWidgets/qwidget.h>
 #include "../../Utility/JsonConfig.h"
+#include "../../General/Log.h"
 namespace Visindigo::Widgets {
 	class StyleSheetTemplatePrivate {
 		friend class StyleSheetTemplate;
