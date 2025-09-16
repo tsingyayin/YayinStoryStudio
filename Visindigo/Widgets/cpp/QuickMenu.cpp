@@ -50,10 +50,14 @@ namespace Visindigo::Widgets {
 					QString fullID = id + "::" + agid + "::" + aid;
 					QAction* action = new QAction(menu);
 					action->setObjectName(fullID);
-					action->setText(YSSI18N(config.getString("menu." + key + ".Actions." + actionGroupKey + ".Actions." + actionKey + ".Name")));
+					QString text = YSSI18N(config.getString("menu." + key + ".Actions." + actionGroupKey + ".Actions." + actionKey + ".Name"));
+					if (config.keys("menu." + key + ".Actions." + actionGroupKey + ".Actions." + actionKey).contains("Shortcut")) {
+						text += "(" + config.getStringList("menu." + key + ".Actions." + actionGroupKey + ".Actions." + actionKey + ".Shortcut").join("+") + ")";
+					}
+					action->setText(text);
 					// shortcut not support yet.
 					menu->addAction(action);
-					Utility::QtSSHelper::connect(action, QString("triggered()"), d->ActionHandler, QString(fullID + "()"));
+					Utility::QtSSHelper::deepConnect(action, QString("triggered()"), d->ActionHandler, QString(fullID + "()"));
 				}
 				if (actionGroupKey != actionGroupKeys.last()) {
 					menu->addSeparator();

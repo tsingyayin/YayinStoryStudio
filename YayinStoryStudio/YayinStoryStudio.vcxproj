@@ -108,6 +108,7 @@
     <ClCompile Include="Editor\cpp\GlobalValue.cpp" />
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\MenuBarHandler.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackBar.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp" />

@@ -23,6 +23,9 @@ namespace YSS::Editor {
 	public:
 		MainWin();
 		virtual void closeEvent(QCloseEvent* event) override;
+		ResourceBrowser* getResourceBrowser();
+		FileEditorArea* getFileEditorArea();
+		void backToProjectWin();
 		void applyStyleSheet();
 	private:
 		void initMenu();

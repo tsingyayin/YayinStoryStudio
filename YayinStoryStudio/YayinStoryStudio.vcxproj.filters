@@ -74,6 +74,9 @@
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\MenuBarHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">

@@ -34,6 +34,9 @@ namespace Visindigo::Utility {
 		template <typename T> static inline void memory(const T* data) {
 			binary(QByteArray((char*)data, sizeof(T)));
 		};
+		template <typename T> static inline QString memoryToString(const T* data) {
+			return binaryToString(QByteArray((char*)data, sizeof(T)));
+		};
 		static unsigned int exec(const QString& cmd);
 	};
 }

@@ -25,6 +25,7 @@ namespace YSS::Editor {
 		QDir CurrentDir;
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
+		void openNewFileWindow();
 	private:
 		void onNewButtonClicked();
 		void onBackButtonClicked();

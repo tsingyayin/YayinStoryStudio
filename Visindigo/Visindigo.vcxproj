@@ -217,6 +217,7 @@
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
     <ClCompile Include="Utility\cpp\QtSSHelper.cpp" />
+    <ClCompile Include="Utility\cpp\ShortCutHelper.cpp" />
     <ClCompile Include="Utility\cpp\StringUtility.cpp" />
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Editor\cpp\DebugData.cpp" />
@@ -287,7 +288,9 @@
     <QtMoc Include="Editor\private\TabCompleterProvider_p.h" />
     <QtMoc Include="Editor\TabCompleterProvider.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
+    <QtMoc Include="Utility\private\qnamespace_key.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
+    <ClInclude Include="Utility\ShortCutHelper.h" />
     <ClInclude Include="Utility\StringMacro.h" />
     <ClInclude Include="Utility\StringUtility.h" />
     <ClInclude Include="VIMacro.h" />

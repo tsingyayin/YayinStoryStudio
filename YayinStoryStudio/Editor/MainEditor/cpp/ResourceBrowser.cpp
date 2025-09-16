@@ -45,6 +45,10 @@ namespace YSS::Editor {
 		refreshFileList();
 	}
 
+	void ResourceBrowser::openNewFileWindow() {
+		onNewButtonClicked();
+	}
+
 	void ResourceBrowser::onNewButtonClicked() {
 		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(CurrentPath->text());
 		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
