@@ -1,11 +1,15 @@
 #pragma once
 #include "EditorPluginModule.h"
+// Forward declarations
 class QString;
 namespace Visindigo::Editor {
 	class EditorPlugin;
 	class DebugData;
 	class DebugFailedData;
 	class DebugServerPrivate;
+}
+// Main
+namespace Visindigo::Editor {
 	class VisindigoAPI DebugServer :public EditorPluginModule {
 		Q_OBJECT;
 	public:

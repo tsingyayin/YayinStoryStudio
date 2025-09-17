@@ -1,7 +1,6 @@
 #include "../MultiButton.h"
 #include "../private/MultiButton_p.h"
 namespace Visindigo::Widgets {
-	
 	MultiButton::MultiButton(QWidget* parent) :MultiLabel(parent) {
 		d = new Visindigo::__Private__::MultiButtonPrivate;
 	}

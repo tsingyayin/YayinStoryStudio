@@ -62,7 +62,7 @@ bool ASRuleAdaptor::loadASRule() {
 }
 AStoryControllerParseData ASRuleAdaptor::parse(const QString& input) {
 	AStoryControllerParseData parseData;
-	for (auto Controller: d->Controllers) {
+	for (auto Controller : d->Controllers) {
 		if (input.startsWith(Controller.getStartSign())) {
 			parseData = Controller.parse(input);
 			return parseData;

@@ -2,6 +2,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
 #include "../Macro.h"
+// Forward declarations
 class QTextDocument;
 namespace Visindigo::__Private__ {
 	class TabCompleterProviderPrivate;
@@ -11,7 +12,7 @@ namespace Visindigo::Editor {
 	class TabCompleterItemPrivate;
 	class TextEdit;
 }
-
+// Main
 namespace Visindigo::Editor {
 	class VisindigoAPI TabCompleterItem {
 		friend class TabCompleterItemPrivate;
@@ -47,7 +48,7 @@ namespace Visindigo::Editor {
 		TabCompleterItemPrivate* d;
 	};
 
-	class VisindigoAPI TabCompleterProvider :public QObject{
+	class VisindigoAPI TabCompleterProvider :public QObject {
 		friend class TextEdit;
 		friend class Visindigo::__Private__::TextEditPrivate;
 		Q_OBJECT;

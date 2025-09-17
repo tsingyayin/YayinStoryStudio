@@ -9,7 +9,7 @@ namespace Visindigo::Widgets {
 }
 // Main
 namespace Visindigo::Widgets {
-	class VisindigoAPI QuickMenu :public QMenuBar{
+	class VisindigoAPI QuickMenu :public QMenuBar {
 		Q_OBJECT;
 	public:
 		QuickMenu(QWidget* parent = nullptr);
@@ -27,6 +27,6 @@ public: \
 	ClassName(QObject* parent = nullptr) : QObject(parent) { \
 		this->setObjectName(NodeName); \
 		__createSub(); \
-	} 
+	}
 #define SubNodes\
 	void __createSub()

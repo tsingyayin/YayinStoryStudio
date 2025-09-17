@@ -4,16 +4,16 @@
 namespace Visindigo::General {
 	class YSSProject;
 }
-namespace Visindigo::Editor{
+namespace Visindigo::Editor {
 	class EditorPlugin;
 }
 // Main
 namespace Visindigo::Editor {
 	class VisindigoAPI EditorProjectHelper :public EditorPluginModule {
 		Q_OBJECT;
-public:
+	public:
 		EditorProjectHelper(const QString& moduleName, const QString& moduleID, EditorPlugin* plugin);
-		virtual bool isHelperNeeded(Visindigo::General::YSSProject* project)  = 0;
+		virtual bool isHelperNeeded(Visindigo::General::YSSProject* project) = 0;
 		virtual void onProjectLoaded(Visindigo::General::YSSProject* project) = 0;
 		virtual void onProjectUnloaded(Visindigo::General::YSSProject* project) = 0;
 	};

@@ -8,7 +8,7 @@
 #include <General/Version.h>
 #include <QtGui/qwindow.h>
 #include <Utility/FileUtility.h>
-#include <General/YayinStoryStudio.h>
+#include <General/Version.h>
 #include <QtWidgets/qmessagebox.h>
 
 int main(int argc, char* argv[])
@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 		yMessage << p;
 	}
 
-	yInfo << "Yayin Story Studio" << Visindigo::General::YayinStoryStudio::getVersion() << "(ABI " << Visindigo::General::YayinStoryStudio::getABIVersion() << ")";
+	yInfo << "Visindigo " << Visindigo::General::Version::getAPIVersion() << "(ABI " << Visindigo::General::Version::getABIVersion() << ")";
 	yNotice << "Launch arguments" << a.arguments();
 	yInfo << Visindigo::Utility::FileUtility::getProgramPath();
 	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";

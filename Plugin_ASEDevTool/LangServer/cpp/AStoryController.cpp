@@ -71,7 +71,7 @@ QString AStoryController::toNameString(AStoryController::Name name) {
 AStoryController::AStoryController() {
 	d = new AStoryControllerPrivate;
 }
-AStoryController::AStoryController(const QString & name, Visindigo::Utility::JsonConfig& config, const QString & rule) {
+AStoryController::AStoryController(const QString& name, Visindigo::Utility::JsonConfig& config, const QString& rule) {
 	d = new AStoryControllerPrivate;
 	setControllerName(name);
 	setControllerMeta(config);
@@ -81,7 +81,7 @@ AStoryController::AStoryController(const QString & name, Visindigo::Utility::Jso
 VIMoveable_Impl(AStoryController);
 VICopyable_Impl(AStoryController);
 
-void AStoryController::setControllerName(const QString & name) {
+void AStoryController::setControllerName(const QString& name) {
 	d->Name = AStoryController::fromNameString(name);
 }
 
@@ -179,7 +179,7 @@ AStoryControllerParseData AStoryController::parse(const QString& input) {
 			}
 			d->ParseData.d->addStartIndex(removedLength);
 			result.append(protectedInput.left(index));
-			protectedInput = protectedInput.mid(index+sign.size());
+			protectedInput = protectedInput.mid(index + sign.size());
 			removedLength += index + sign.size();
 		}
 	}
@@ -203,7 +203,7 @@ AStoryControllerParseData AStoryController::parse(const QString& input) {
 			//yDebugF << "Delta" << delta << "Detected";
 			if (i + 1 != result.size()) {
 				for (int j = i + 1; j < result.size(); j++) {
-					d->ParseData.d->StartIndex[j] += delta +3; // 3 for &{}
+					d->ParseData.d->StartIndex[j] += delta + 3; // 3 for &{}
 				}
 			}
 		}

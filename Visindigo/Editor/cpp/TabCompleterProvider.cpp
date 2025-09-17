@@ -1,7 +1,7 @@
-#include "../TabCompleterProvider.h"
-#include "../private/TabCompleterProvider_p.h"
 #include <QtGui/qtextdocument.h>
-#include "../TextEdit.h"
+#include "../private/TabCompleterProvider_p.h"
+#include "../TabCompleterProvider.h"
+
 namespace Visindigo::Editor {
 	class TabCompleterItemPrivate {
 		friend class TabCompleterItem;
@@ -60,29 +60,29 @@ namespace Visindigo::Editor {
 	void TabCompleterItem::setType(ItemType type, bool redirectIcon) {
 		if (redirectIcon) {
 			switch (type) {
-				case ItemType::Default:
-					d->IconPath = ":/Visindigo/compiled/icon/default.png";
-					break;
-				case ItemType::Value:
-					d->IconPath = ":/Visindigo/compiled/icon/value.png";
-					break;
-				case ItemType::Const:
-					d->IconPath = ":/Visindigo/compiled/icon/const.png";
-					break;
-				case ItemType::Enum:
-					d->IconPath = ":/Visindigo/compiled/icon/enum.png";
-					break;
-				case ItemType::Function:
-					d->IconPath = ":/Visindigo/compiled/icon/function.png";
-					break;
-				case ItemType::Object:
-					d->IconPath = ":/Visindigo/compiled/icon/object.png";
-					break;
-				case ItemType::Operator:
-					d->IconPath = ":/Visindigo/compiled/icon/operator.png";
-					break;
-				default:
-					d->IconPath = ":/Visindigo/compiled/icon/default.png";
+			case ItemType::Default:
+				d->IconPath = ":/Visindigo/compiled/icon/default.png";
+				break;
+			case ItemType::Value:
+				d->IconPath = ":/Visindigo/compiled/icon/value.png";
+				break;
+			case ItemType::Const:
+				d->IconPath = ":/Visindigo/compiled/icon/const.png";
+				break;
+			case ItemType::Enum:
+				d->IconPath = ":/Visindigo/compiled/icon/enum.png";
+				break;
+			case ItemType::Function:
+				d->IconPath = ":/Visindigo/compiled/icon/function.png";
+				break;
+			case ItemType::Object:
+				d->IconPath = ":/Visindigo/compiled/icon/object.png";
+				break;
+			case ItemType::Operator:
+				d->IconPath = ":/Visindigo/compiled/icon/operator.png";
+				break;
+			default:
+				d->IconPath = ":/Visindigo/compiled/icon/default.png";
 			}
 		}
 		d->Type = type;
@@ -106,7 +106,7 @@ namespace Visindigo::Editor {
 	TabCompleterItem::ItemType TabCompleterItem::getType() const {
 		return d->Type;
 	}
-		
+
 	bool TabCompleterItem::isAlignment() const {
 		return d->Alignment;
 	}

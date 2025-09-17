@@ -26,7 +26,7 @@
 	private: name* q;
 
 #define p_VIAPICopyable(name)\
-	name##Private(const name& other) = default; 
+	name##Private(const name& other) = default;
 
 #define VICopyable(name)\
 	public: \
@@ -42,7 +42,7 @@
 			*d = *other.d; \
 		} \
 		return *this; \
-	} 
+	}
 
 #define VIMoveable(name)\
 	public: \
@@ -70,14 +70,14 @@
 	name(name&& other) = delete; \
 
 #define VI_Singleton_Init(name) \
-	name* name##Private::Instance = nullptr; 
+	name* name##Private::Instance = nullptr;
 
 #define VI_Singleton_Construct(name) \
 	if (name##Private ::Instance == nullptr) { \
 		name##Private::Instance = this; \
 	} else { \
 		return; \
-	} 
+	}
 
 #define VI_Singleton_Impl(name) \
 	name* name::getInstance() { \

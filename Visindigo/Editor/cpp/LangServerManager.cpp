@@ -1,10 +1,9 @@
-#include "../LangServerManager.h"
-#include "../LangServer.h"
-#include <Windows.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include "../../General/Log.h"
+#include "../LangServerManager.h"
+#include "../LangServer.h"
 
 namespace Visindigo::Editor {
 	class LangServerManagerPrivate {

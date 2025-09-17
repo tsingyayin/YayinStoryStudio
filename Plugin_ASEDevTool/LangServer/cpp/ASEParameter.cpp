@@ -84,10 +84,11 @@ void ASEParameter::parse(const QString& rawInput) {
 	};
 	if (boolValues.contains(d->RawInput)) {
 		d->Type = ASEParameter::Type::Bool;
-		if (d->RawInput.startsWith("T", Qt::CaseInsensitive) || 
+		if (d->RawInput.startsWith("T", Qt::CaseInsensitive) ||
 			d->RawInput.startsWith("Y", Qt::CaseInsensitive)) {
 			d->Value = true;
-		} else {
+		}
+		else {
 			d->Value = false;
 		}
 		return;

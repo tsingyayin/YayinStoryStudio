@@ -1,7 +1,7 @@
 #pragma once
 #include "../Macro.h"
 #include <QtCore/qstring.h>
-
+// Forward declarations
 class QDateTime;
 namespace Visindigo::Utility {
 	class JsonConfig;
@@ -9,6 +9,9 @@ namespace Visindigo::Utility {
 namespace Visindigo::General {
 	class Version;
 	class YSSProjectPrivate;
+}
+// Main
+namespace Visindigo::General {
 	class VisindigoAPI YSSProject {
 		friend class YSSProjectPrivate;
 	public:

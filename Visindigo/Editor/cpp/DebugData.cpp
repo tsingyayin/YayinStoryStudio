@@ -1,5 +1,5 @@
-#include "../DebugData.h"
 #include <QtCore/qstring.h>
+#include "../DebugData.h"
 
 namespace Visindigo::Editor {
 	class DebugDataPrivate {

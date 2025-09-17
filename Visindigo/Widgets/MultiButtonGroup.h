@@ -6,6 +6,9 @@ namespace Visindigo::__Private__ {
 }
 namespace Visindigo::Widgets {
 	class MultiButton;
+}
+// Main
+namespace Visindigo::Widgets {
 	class MultiButtonGroup : public QObject {
 		Q_OBJECT;
 		friend class Visindigo::__Private__::MultiButtonGroupPrivate;

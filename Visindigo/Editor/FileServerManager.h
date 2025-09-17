@@ -1,13 +1,16 @@
 #pragma once
 #include <QtCore/qobject.h>
 #include "../Macro.h"
-
+// Forward declarations
 class QString;
 class QWidget;
 namespace Visindigo::Editor {
 	class FileServer;
 	class FileEditWidget;
 	class FileServerManagerPrivate;
+}
+// Main
+namespace Visindigo::Editor {
 	class VisindigoAPI FileServerManager :public QObject {
 		Q_OBJECT;
 		friend class FileServerManagerPrivate;

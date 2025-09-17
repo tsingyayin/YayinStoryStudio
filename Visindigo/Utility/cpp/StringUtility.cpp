@@ -1,5 +1,4 @@
 #include "../StringUtility.h"
 
-namespace Visindigo::Utility{
-	
+namespace Visindigo::Utility {
 }

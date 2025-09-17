@@ -38,7 +38,7 @@ public:
 	static QString toNameString(Name name);
 public:
 	AStoryController();
-	AStoryController(const QString& name, Visindigo::Utility::JsonConfig& meta, const QString & rule);
+	AStoryController(const QString& name, Visindigo::Utility::JsonConfig& meta, const QString& rule);
 	VIMoveable(AStoryController);
 	VICopyable(AStoryController);
 	void setControllerName(const QString& name);

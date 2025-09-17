@@ -37,7 +37,6 @@ namespace YSS::Editor {
 		this->setCentralWidget(CentralWidget);
 		this->initMenu();
 		this->applyStyleSheet();
-		
 	}
 
 	ResourceBrowser* MainWin::getResourceBrowser() {
@@ -67,7 +66,7 @@ namespace YSS::Editor {
 	void MainWin::showEvent(QShowEvent* event) {
 		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
 		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
-		
+
 		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
 			this->showMaximized();
 		}
@@ -118,13 +117,10 @@ namespace YSS::Editor {
 		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/yss/compiled/configWidget/mainEditorMenu.json"));
 		this->setMenuBar(Menu);
 		Menu->setStyleSheet("QMenuBar{border: 1px solid white}\
-			QMenu{margin:10px;border: 1px solid "%YSSTM->getColorString("OutlineLight") % ";border-radius:5px;}\
+			QMenu{margin:10px;border: 1px solid " % YSSTM->getColorString("OutlineLight") % ";border-radius:5px;}\
 			QMenu::item:selected{background-color: " % YSSTM->getColorString("Pressed") % "; color: " % YSSTM->getColorString("Text") % ";border-radius:5px;}\
 			QMenuBar::item:selected{background-color: " % YSSTM->getColorString("Highlight") % "; color: " % YSSTM->getColorString("HighlightedText") % ";}\
 			QMenu::separator{height:1px;background:" % YSSTM->getColorString("Separator") % ";margin-left:5px;margin-right:5px;}\
 ");
 	}
-
-	
-	
 }

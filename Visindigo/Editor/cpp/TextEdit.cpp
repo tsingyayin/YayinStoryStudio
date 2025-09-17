@@ -1,24 +1,22 @@
 /*
 *	Yayin Story Studio - Core Library
-* 
+*
 */
-#include "../../Widgets/ThemeManager.h"
-#include "../../General/Log.h"
-#include "../TextEdit.h"
-#include "../LangServer.h"
-#include "../LangServerManager.h"
-#include "../TabCompleterProvider.h"
-#include "../private/TextEdit_p.h"
-#include "../private/TabCompleterProvider_p.h"
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtCore/qfileinfo.h>
 #include <QtGui/qsyntaxhighlighter.h>
 #include <QtWidgets/qmessagebox.h>
-#include <QtCore/qregularexpression.h>
+#include "../../Widgets/ThemeManager.h"
+#include "../../General/Log.h"
+#include "../private/TextEdit_p.h"
+#include "../private/TabCompleterProvider_p.h"
+#include "../TextEdit.h"
+#include "../LangServer.h"
+#include "../LangServerManager.h"
+#include "../TabCompleterProvider.h"
 
 namespace Visindigo::__Private__ {
-
 	TextEditPrivate::~TextEditPrivate() {
 		if (FontMetrics != nullptr) {
 			delete FontMetrics;
@@ -57,7 +55,8 @@ namespace Visindigo::__Private__ {
 	static bool isSignSymbol(QChar c) {
 		if (0x0020u <= c.unicode() && c.unicode() <= 0x002Fu) {
 			return true; // !"#$%&'()*+,-./
-		}else if (0x003Au <= c.unicode() && c.unicode() <= 0x0040u) {
+		}
+		else if (0x003Au <= c.unicode() && c.unicode() <= 0x0040u) {
 			return true; // :;<=>?@
 		}
 		else if (0x005Bu <= c.unicode() && c.unicode() <= 0x0060u) {
@@ -65,7 +64,7 @@ namespace Visindigo::__Private__ {
 		}
 		else if (0x007Bu <= c.unicode() && c.unicode() <= 0x007Eu) {
 			return true; // {|}~
-		} 
+		}
 		else if (c == '\n' || c == '\r' || c == '\t' || c == ' ') {
 			return true; // \n, \r, \t, space
 		}
@@ -165,7 +164,7 @@ namespace Visindigo::__Private__ {
 		TabCompleterWidget->doComplete();
 	}
 
-	void TextEditPrivate::onTabClicked_NormalInput(QKeyEvent * event) {
+	void TextEditPrivate::onTabClicked_NormalInput(QKeyEvent* event) {
 		if (event->key() == Qt::Key_Backtab) {
 			if (Text->textCursor().hasSelection()) {
 				QTextCursor cursor = Text->textCursor();
@@ -336,7 +335,7 @@ namespace Visindigo::__Private__ {
 		QScrollBar* sender = static_cast<QScrollBar*>(this->sender());
 		if (sender == Text->verticalScrollBar()) {
 			Line->verticalScrollBar()->setValue(value);
-		} 
+		}
 		else {
 			Text->verticalScrollBar()->setValue(value);
 		}
@@ -407,7 +406,7 @@ namespace Visindigo::Editor {
 		d->LastCursor.movePosition(QTextCursor::Start);
 		d->LastCursorLine = 0;
 		connect(d->Text->document(), &QTextDocument::blockCountChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onBlockCountChanged);
-		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onScrollBarChanged); 
+		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &Visindigo::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
@@ -436,7 +435,7 @@ namespace Visindigo::Editor {
 					return true;
 				}
 				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down) {
-					if (d->TabCompleterWidget!= nullptr && d->TabCompleterWidget->isVisible()) {
+					if (d->TabCompleterWidget != nullptr && d->TabCompleterWidget->isVisible()) {
 						if (keyEvent->modifiers() == Qt::NoModifier) {
 							d->onDirectionClicked(keyEvent);
 							return true;
@@ -454,6 +453,12 @@ namespace Visindigo::Editor {
 		return false;
 	}
 
+	void TextEdit::showEvent(QShowEvent* event) {
+		QFrame::showEvent(event);
+		if (d->TabCompleterWidget) {
+			d->TabCompleterWidget->hide();
+		}
+	}
 	void TextEdit::closeEvent(QCloseEvent* event) {
 		if (onClose()) {
 			event->accept();
@@ -542,7 +547,7 @@ namespace Visindigo::Editor {
 		file.close();
 		return true;
 	}
-	
+
 	bool TextEdit::onReload() {
 		if (isFileChanged()) {
 			QMessageBox msgBox;

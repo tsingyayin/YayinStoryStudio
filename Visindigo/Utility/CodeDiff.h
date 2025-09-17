@@ -4,6 +4,7 @@
 // Forward declarations
 namespace Visindigo::Utility {
 	class CodeLinePrivate;
+	class CodeDiffPrivate;
 }
 // Main
 namespace Visindigo::Utility {
@@ -17,7 +18,6 @@ namespace Visindigo::Utility {
 		CodeLinePrivate* d;
 	};
 
-	class CodeDiffPrivate;
 	class VisindigoAPI CodeDiff {
 	public:
 		CodeDiff();

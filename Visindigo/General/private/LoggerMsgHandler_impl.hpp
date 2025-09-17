@@ -1,4 +1,5 @@
 #pragma once
+#include <type_traits>
 
 namespace Visindigo::General {
 	template<Printable T>

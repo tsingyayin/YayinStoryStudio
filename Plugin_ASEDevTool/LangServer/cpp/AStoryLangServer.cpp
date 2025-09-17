@@ -4,7 +4,7 @@
 #include <QtGui/qtextdocument.h>
 
 AStoryLanguageServer::AStoryLanguageServer(Visindigo::Editor::EditorPlugin* plugin) :
-	Visindigo::Editor::LangServer("ASE AStory File Language Server", "ASEAStoryLS", plugin, "AStory", {"astory"})
+	Visindigo::Editor::LangServer("ASE AStory File Language Server", "ASEAStoryLS", plugin, "AStory", { "astory" })
 {
 }
 

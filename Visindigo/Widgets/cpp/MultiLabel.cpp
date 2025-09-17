@@ -24,7 +24,7 @@ namespace Visindigo::Widgets {
 		d->Icon->setObjectName("IconLabel");
 		d->Layout = new QGridLayout(this);
 		this->setLayout(d->Layout);
-		d->Layout->addWidget(d->Title, 0, 1, 1, 1);	
+		d->Layout->addWidget(d->Title, 0, 1, 1, 1);
 		d->Icon->setAlignment(Qt::AlignCenter);
 		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);

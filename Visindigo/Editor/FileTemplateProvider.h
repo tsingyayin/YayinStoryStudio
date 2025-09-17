@@ -22,8 +22,9 @@ namespace Visindigo::Editor {
 		FileTemplateInitWidgetPrivate* d;
 	};
 
-	class VisindigoAPI FileTemplateProvider :public EditorPluginModule{
+	class VisindigoAPI FileTemplateProvider :public EditorPluginModule {
 		friend class FileTemplateProviderPrivate;
+		Q_OBJECT;
 	public:
 		FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~FileTemplateProvider();

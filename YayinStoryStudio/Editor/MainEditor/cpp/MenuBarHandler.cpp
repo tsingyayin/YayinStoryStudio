@@ -17,6 +17,4 @@ namespace YSS::Editor {
 		yDebugF << "Exit Program";
 		YSS::GlobalValue::getMainWindow()->close();
 	}
-
-	
 }

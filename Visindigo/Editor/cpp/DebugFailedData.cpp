@@ -1,5 +1,6 @@
-#include "../DebugFailedData.h"
 #include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
+#include "../DebugFailedData.h"
 
 namespace Visindigo::Editor {
 	class DebugFailedDataPrivate {

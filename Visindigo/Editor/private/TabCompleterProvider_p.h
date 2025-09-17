@@ -18,7 +18,7 @@ namespace Visindigo::Widgets {
 // Main Implementation
 namespace Visindigo::__Private__ {
 	class TextEditPrivate;
-	class TabCompleterProviderPrivate :public QObject{
+	class TabCompleterProviderPrivate :public QObject {
 		Q_OBJECT;
 		friend class Visindigo::Editor::TabCompleterProvider;
 		friend class Visindigo::Editor::TabCompleterItem;

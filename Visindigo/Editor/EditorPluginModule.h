@@ -8,9 +8,10 @@ namespace Visindigo::Editor {
 }
 // Main
 namespace Visindigo::Editor {
-	class VisindigoAPI EditorPluginModule :public QObject{
+	class VisindigoAPI EditorPluginModule :public QObject {
 		friend class EditorPluginModulePrivate;
 		friend class EditorPlugin;
+		Q_OBJECT;
 		Q_DISABLE_COPY_MOVE(EditorPluginModule);
 	public:
 		EditorPluginModule(const QString& moduleName, const QString& moduleID, EditorPlugin* plugin);

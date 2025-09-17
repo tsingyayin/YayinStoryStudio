@@ -49,7 +49,7 @@ namespace Visindigo::Widgets {
 			}
 		}
 		~ThemeManagerPrivate() {
-			for(auto ss: TemplateSS) {
+			for (auto ss : TemplateSS) {
 				delete ss;
 			}
 			if (Config != nullptr) {
@@ -99,7 +99,7 @@ namespace Visindigo::Widgets {
 		}
 	}
 	QString ThemeManager::getColorString(const QString& key) {
-		QString color = d->Config->getString("ThemeColor."+key);
+		QString color = d->Config->getString("ThemeColor." + key);
 		if (color.startsWith("#")) {
 			return color;
 		}

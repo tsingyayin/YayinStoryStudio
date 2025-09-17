@@ -1,9 +1,9 @@
-#include "../FileServerManager.h"
-#include "../FileServer.h"
-#include "../TextEdit.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qfileinfo.h>
 #include "../../General/Log.h"
+#include "../FileServerManager.h"
+#include "../FileServer.h"
+#include "../TextEdit.h"
 
 namespace Visindigo::Editor {
 	class FileServerManagerPrivate {
@@ -110,8 +110,8 @@ namespace Visindigo::Editor {
 					return server->onOtherOpenFile(filePath);
 				}
 			}
-			
-		} else {
+		}
+		else {
 			FileEditWidget* feWidget = new TextEdit();
 			bool ok = feWidget->openFile(filePath);
 			if (ok) {

@@ -4,185 +4,186 @@ namespace Visindigo::QSBC {
 	VImplClass(SBCChunk) {
 		VIAPI(SBCChunk);
 protected:
-		SBCChunk::HeadType Head = SBCChunk::T1;
-		SBCChunk::DataType Type = SBCChunk::unknown;
-		QByteArray Data;
-		QString Name;
-		QByteArray parse(const QByteArray & data) {
-			quint8 headByte = static_cast<quint8>(data.at(0));
-			Head = static_cast<SBCChunk::HeadType>(headByte & 0b11100000);
-			Type = static_cast<SBCChunk::DataType>(headByte & 0b00011111);
-			quint64 dataSize = 0;
-			quint32 nameSize = 0;
-			quint8 headLength = 0;
-			switch (Head) {
-				case SBCChunk::T1:
-					headLength = 2;
-					nameSize = ((quint8)data.at(1)) >> 5;
-					dataSize = ((quint8)data.at(1)) & 0b00011111;
-				case SBCChunk::T2:
-					headLength = 2;
-					nameSize = ((quint8)data.at(1)) >> 4;
-					dataSize = ((quint8)data.at(1)) & 0b00001111;
-					break;
-				case SBCChunk::T3:
-					headLength = 3;
-					nameSize = ((quint8)data.at(1)) >> 2;
-					dataSize = ((quint8)data.at(2)) + (((quint8)data.at(1)) & 0b00000011) << 8; // 可能溢出，需要修改
-					break;
-				case SBCChunk::T4:
-					headLength = 3;
-					nameSize = ((quint8)data.at(1)) >> 1;
-					dataSize = ((quint8)data.at(2)) + (((quint8)data.at(1)) & 0b00000001) << 8; // 可能溢出，需要修改
-					break;
-				case SBCChunk::T5:
-					headLength = 4;
-					memcpy(&nameSize, data.constData() + 1, sizeof(quint8));
-					memcpy(&dataSize, data.constData() + 2, sizeof(quint16));
-					break;
-				case SBCChunk::T6:
-					headLength = 5;
-					memcpy(&nameSize, data.constData() + 1, sizeof(quint8));
-					memcpy(&dataSize, data.constData() + 1, sizeof(quint32));
-					dataSize = dataSize & 0x00FFFFFF; // 可能端序有误，需要验证
-					break;
-				case SBCChunk::T7:
-					headLength = 6;
-					memcpy(&nameSize, data.constData() + 1, sizeof(quint8));
-					memcpy(&dataSize, data.constData() + 2, sizeof(quint32));
-					break;
-				case SBCChunk::T8:
-					headLength = 8;
-					memcpy(&nameSize, data.constData() + 1, sizeof(quint16));
-					memcpy(&dataSize, data.constData(), sizeof(quint64));
-					dataSize = dataSize & 0x000000FFFFFFFFFF; // 可能端序有误，需要验证
-			}
-			Name = QString::fromUtf8(data.mid(headLength, nameSize));
-			Data = data.mid(headLength + nameSize, dataSize);
-			if (headLength+ nameSize + dataSize < data.size()) {
-				return data.mid(headLength + nameSize + dataSize);
-			}
-			else {
-				return QByteArray();
-			}
+	SBCChunk::HeadType Head = SBCChunk::T1;
+	SBCChunk::DataType Type = SBCChunk::unknown;
+	QByteArray Data;
+	QString Name;
+	QByteArray parse(const QByteArray & data) {
+		quint8 headByte = static_cast<quint8>(data.at(0));
+		Head = static_cast<SBCChunk::HeadType>(headByte & 0b11100000);
+		Type = static_cast<SBCChunk::DataType>(headByte & 0b00011111);
+		quint64 dataSize = 0;
+		quint32 nameSize = 0;
+		quint8 headLength = 0;
+		switch (Head) {
+		case SBCChunk::T1:
+			headLength = 2;
+			nameSize = ((quint8)data.at(1)) >> 5;
+			dataSize = ((quint8)data.at(1)) & 0b00011111;
+		case SBCChunk::T2:
+			headLength = 2;
+			nameSize = ((quint8)data.at(1)) >> 4;
+			dataSize = ((quint8)data.at(1)) & 0b00001111;
+			break;
+		case SBCChunk::T3:
+			headLength = 3;
+			nameSize = ((quint8)data.at(1)) >> 2;
+			dataSize = ((quint8)data.at(2)) + (((quint8)data.at(1)) & 0b00000011) << 8; // 可能溢出，需要修改
+			break;
+		case SBCChunk::T4:
+			headLength = 3;
+			nameSize = ((quint8)data.at(1)) >> 1;
+			dataSize = ((quint8)data.at(2)) + (((quint8)data.at(1)) & 0b00000001) << 8; // 可能溢出，需要修改
+			break;
+		case SBCChunk::T5:
+			headLength = 4;
+			memcpy(&nameSize, data.constData() + 1, sizeof(quint8));
+			memcpy(&dataSize, data.constData() + 2, sizeof(quint16));
+			break;
+		case SBCChunk::T6:
+			headLength = 5;
+			memcpy(&nameSize, data.constData() + 1, sizeof(quint8));
+			memcpy(&dataSize, data.constData() + 1, sizeof(quint32));
+			dataSize = dataSize & 0x00FFFFFF; // 可能端序有误，需要验证
+			break;
+		case SBCChunk::T7:
+			headLength = 6;
+			memcpy(&nameSize, data.constData() + 1, sizeof(quint8));
+			memcpy(&dataSize, data.constData() + 2, sizeof(quint32));
+			break;
+		case SBCChunk::T8:
+			headLength = 8;
+			memcpy(&nameSize, data.constData() + 1, sizeof(quint16));
+			memcpy(&dataSize, data.constData(), sizeof(quint64));
+			dataSize = dataSize & 0x000000FFFFFFFFFF; // 可能端序有误，需要验证
 		}
-		void setName(const QString& name) {
-			Name = name;
-			refreshHeadType();
+		Name = QString::fromUtf8(data.mid(headLength, nameSize));
+		Data = data.mid(headLength + nameSize, dataSize);
+		if (headLength + nameSize + dataSize < data.size()) {
+			return data.mid(headLength + nameSize + dataSize);
 		}
-		void setData(const QByteArray& data) {
-			Data = data;
-			refreshHeadType();
+		else {
+			return QByteArray();
 		}
-		void clearData() {
-			Data.clear();
-			refreshHeadType();
+	}
+	void setName(const QString & name) {
+		Name = name;
+		refreshHeadType();
+	}
+	void setData(const QByteArray & data) {
+		Data = data;
+		refreshHeadType();
+	}
+	void clearData() {
+		Data.clear();
+		refreshHeadType();
+	}
+	void refreshHeadType() {
+		if (Data.size() <= 0b00000111 && Name.size() <= 0b00011111) {
+			Head = SBCChunk::T1;
 		}
-		void refreshHeadType() {
-			if (Data.size() <= 0b00000111 && Name.size() <= 0b00011111) {
-				Head = SBCChunk::T1;
-			}
-			else if (Data.size() <= 0b00001111 && Name.size() <= 0b00001111) {
-				Head = SBCChunk::T2;
-			}
-			else if (Data.size() <= 0b00111111 && Name.size() <= 0b1111111111) {
-				Head = SBCChunk::T3;
-			}
-			else if (Data.size() <= 0b01111111 && Name.size() <= 0b111111111) {
-				Head = SBCChunk::T4;
-			}
-			else if (Data.size() <= 0xFF && Name.size() <= 0xFFFF) {
-				Head = SBCChunk::T5;
-			}
-			else if (Data.size() <= 0xFF && Name.size() <= 0xFFFFFF) {
-				Head = SBCChunk::T6;
-			}
-			else if (Data.size() <= 0xFF && Name.size() <= 0xFFFFFFFF) {
-				Head = SBCChunk::T7;
-			}
-			else if (Data.size() <= 0xFFFF && Name.size() <= 0xFFFFFFFFFF) {
-				Head = SBCChunk::T8;
-			}else{
-				Head = SBCChunk::T8;
-			}
+		else if (Data.size() <= 0b00001111 && Name.size() <= 0b00001111) {
+			Head = SBCChunk::T2;
 		}
-		void setArray(QList<SBCChunk> data) {
-			Type = SBCChunk::array;
-			Data.clear();
-			for (SBCChunk& chunk : data) {
-				Data.append(chunk.generate());
-			}
+		else if (Data.size() <= 0b00111111 && Name.size() <= 0b1111111111) {
+			Head = SBCChunk::T3;
 		}
-		QList<SBCChunk> getArray() const {
-			QList<SBCChunk> result;
-			QByteArray remainingData = Data;
-			while (!remainingData.isEmpty()) {
-				SBCChunk chunk;
-				remainingData = chunk.parse(remainingData);
-				result.append(chunk);
-			}
-			return result;
+		else if (Data.size() <= 0b01111111 && Name.size() <= 0b111111111) {
+			Head = SBCChunk::T4;
 		}
-		void setMap(const QMap<QString, SBCChunk>& data) {
-			Type = SBCChunk::map;
-			Data.clear();
-			for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
-				SBCChunk chunk(it.value());
-				chunk.setName(it.key());
-				Data.append(chunk.generate());
-			}
+		else if (Data.size() <= 0xFF && Name.size() <= 0xFFFF) {
+			Head = SBCChunk::T5;
 		}
-		QMap<QString, SBCChunk> getMap() const {
-			QMap<QString, SBCChunk> result;
-			QByteArray remainingData = Data;
-			while (!remainingData.isEmpty()) {
-				SBCChunk chunk;
-				remainingData = chunk.parse(remainingData);
-				result.insert(chunk.getName(), chunk);
-			}
-			return result;
+		else if (Data.size() <= 0xFF && Name.size() <= 0xFFFFFF) {
+			Head = SBCChunk::T6;
 		}
-		QByteArray generate() {
-			QByteArray result;
-			quint8 headByte = static_cast<quint8>(Head) | static_cast<quint8>(Type);
-			result.append(static_cast<char>(headByte));
-			quint32 nameSize = Name.size();
-			quint32 dataSize = Data.size();
-			switch (Head) {
-				case SBCChunk::T1:
-					result.append(static_cast<char>((nameSize << 5) | (dataSize & 0b00011111)));
-					break;
-				case SBCChunk::T2:
-					result.append(static_cast<char>((nameSize << 4) | (dataSize & 0b00001111)));
-					break;
-				case SBCChunk::T3:
-					result.append(static_cast<char>((nameSize << 2) | ((dataSize >> 8) & 0b00000011)));
-					result.append(static_cast<char>(dataSize & 0xFF));
-					break;
-				case SBCChunk::T4:
-					result.append(static_cast<char>((nameSize << 1) | ((dataSize >> 8) & 0b00000001)));
-					result.append(static_cast<char>(dataSize & 0xFF));
-					break;
-				case SBCChunk::T5:
-					result.append(static_cast<char>(nameSize));
-					result.append(reinterpret_cast<const char*>(&dataSize), sizeof(quint16)); // 可能端序有误，需要验证
-					break;
-				case SBCChunk::T6:
-					result.append(static_cast<char>(nameSize));
-					result.append(reinterpret_cast<const char*>(&dataSize), 3); // 可能端序有误，需要验证
-					break;
-				case SBCChunk::T7:
-					result.append(static_cast<char>(nameSize));
-					result.append(reinterpret_cast<const char*>(&dataSize), sizeof(quint32)); // 可能端序有误，需要验证
-					break;
-				case SBCChunk::T8:
-					result.append(reinterpret_cast<const char*>(&nameSize), sizeof(quint16)); // 可能端序有误，需要验证
-					result.append(reinterpret_cast<const char*>(&dataSize), 6); // 可能端序有误，需要验证
-			}
-			result.append(Name.toUtf8());
-			result.append(Data);
-			return result;
+		else if (Data.size() <= 0xFF && Name.size() <= 0xFFFFFFFF) {
+			Head = SBCChunk::T7;
 		}
+		else if (Data.size() <= 0xFFFF && Name.size() <= 0xFFFFFFFFFF) {
+			Head = SBCChunk::T8;
+		}
+		else {
+			Head = SBCChunk::T8;
+		}
+	}
+	void setArray(QList<SBCChunk> data) {
+		Type = SBCChunk::array;
+		Data.clear();
+		for (SBCChunk& chunk : data) {
+			Data.append(chunk.generate());
+		}
+	}
+	QList<SBCChunk> getArray() const {
+		QList<SBCChunk> result;
+		QByteArray remainingData = Data;
+		while (!remainingData.isEmpty()) {
+			SBCChunk chunk;
+			remainingData = chunk.parse(remainingData);
+			result.append(chunk);
+		}
+		return result;
+	}
+	void setMap(const QMap<QString, SBCChunk>&data) {
+		Type = SBCChunk::map;
+		Data.clear();
+		for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
+			SBCChunk chunk(it.value());
+			chunk.setName(it.key());
+			Data.append(chunk.generate());
+		}
+	}
+	QMap<QString, SBCChunk> getMap() const {
+		QMap<QString, SBCChunk> result;
+		QByteArray remainingData = Data;
+		while (!remainingData.isEmpty()) {
+			SBCChunk chunk;
+			remainingData = chunk.parse(remainingData);
+			result.insert(chunk.getName(), chunk);
+		}
+		return result;
+	}
+	QByteArray generate() {
+		QByteArray result;
+		quint8 headByte = static_cast<quint8>(Head) | static_cast<quint8>(Type);
+		result.append(static_cast<char>(headByte));
+		quint32 nameSize = Name.size();
+		quint32 dataSize = Data.size();
+		switch (Head) {
+		case SBCChunk::T1:
+			result.append(static_cast<char>((nameSize << 5) | (dataSize & 0b00011111)));
+			break;
+		case SBCChunk::T2:
+			result.append(static_cast<char>((nameSize << 4) | (dataSize & 0b00001111)));
+			break;
+		case SBCChunk::T3:
+			result.append(static_cast<char>((nameSize << 2) | ((dataSize >> 8) & 0b00000011)));
+			result.append(static_cast<char>(dataSize & 0xFF));
+			break;
+		case SBCChunk::T4:
+			result.append(static_cast<char>((nameSize << 1) | ((dataSize >> 8) & 0b00000001)));
+			result.append(static_cast<char>(dataSize & 0xFF));
+			break;
+		case SBCChunk::T5:
+			result.append(static_cast<char>(nameSize));
+			result.append(reinterpret_cast<const char*>(&dataSize), sizeof(quint16)); // 可能端序有误，需要验证
+			break;
+		case SBCChunk::T6:
+			result.append(static_cast<char>(nameSize));
+			result.append(reinterpret_cast<const char*>(&dataSize), 3); // 可能端序有误，需要验证
+			break;
+		case SBCChunk::T7:
+			result.append(static_cast<char>(nameSize));
+			result.append(reinterpret_cast<const char*>(&dataSize), sizeof(quint32)); // 可能端序有误，需要验证
+			break;
+		case SBCChunk::T8:
+			result.append(reinterpret_cast<const char*>(&nameSize), sizeof(quint16)); // 可能端序有误，需要验证
+			result.append(reinterpret_cast<const char*>(&dataSize), 6); // 可能端序有误，需要验证
+		}
+		result.append(Name.toUtf8());
+		result.append(Data);
+		return result;
+	}
 	};
 
 	SBCChunk::SBCChunk() {

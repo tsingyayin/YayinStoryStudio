@@ -1,14 +1,13 @@
 #pragma once
-#include "../Macro.h"
-#include "Logger.h"
 #include <QtCore/qstring.h>
-#include  <QtCore/qtypes.h>
+#include <QtCore/qtypes.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
-#include <type_traits>
 #include "private/LoggerMsgHandler_p.h"
-
+#include "../Macro.h"
+#include "Logger.h"
+// Main
 namespace Visindigo::General {
 	template <typename T>
 	concept Printable = requires(T t) {

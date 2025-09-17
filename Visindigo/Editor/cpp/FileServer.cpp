@@ -1,5 +1,5 @@
-#include "../FileServer.h"
 #include <QtWidgets/qwidget.h>
+#include "../FileServer.h"
 
 namespace Visindigo::Editor {
 	class FileServerPrivate {
@@ -8,8 +8,8 @@ namespace Visindigo::Editor {
 		FileServer::EditorType Type = FileServer::EditorType::BuiltInEditor;
 		QStringList SupportedFileExts;
 	};
-	FileServer::FileServer(const QString& name, const QString& id, EditorPlugin* plugin):
-	EditorPluginModule(name,id,plugin){
+	FileServer::FileServer(const QString& name, const QString& id, EditorPlugin* plugin) :
+		EditorPluginModule(name, id, plugin) {
 		d = new FileServerPrivate();
 	}
 	FileServer::~FileServer() {

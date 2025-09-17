@@ -1,17 +1,14 @@
-#include "../private/TabCompleterProvider_p.h"
-#include <QtGui/qtextdocument.h>
 #include <QtGui/qtextcursor.h>
-#include <QtGui/qtextobject.h>
-#include <QtCore/qregularexpression.h>
-#include "../../Widgets/MultiButton.h"
-#include "../../Widgets/MultiButtonGroup.h"
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qtextedit.h>
-#include "../TabCompleterProvider.h"
-#include "../../Widgets/ThemeManager.h"
 #include "../../General/Log.h"
+#include "../../Widgets/MultiButton.h"
+#include "../../Widgets/MultiButtonGroup.h"
+#include "../../Widgets/ThemeManager.h"
+#include "../private/TabCompleterProvider_p.h"
+#include "../TabCompleterProvider.h"
 
 namespace Visindigo::__Private__ {
 	TabCompleterWidget::TabCompleterWidget(QTextEdit* textEdit, QWidget* parent)
@@ -34,7 +31,7 @@ namespace Visindigo::__Private__ {
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->setSpacing(0);
 		this->setFixedWidth(300);
-		CentralWidget->setFixedWidth(300-16);
+		CentralWidget->setFixedWidth(300 - 16);
 		ScrollArea->setFixedWidth(300);
 		this->setStyleSheet("QFrame{border: 1px solid #666666; border-radius:5px}");
 	}
@@ -73,7 +70,7 @@ namespace Visindigo::__Private__ {
 			ItemMap.insert(button, item);
 			ButtonGroup->addButton(button);
 		}
-		if (Items.size()> 0) {
+		if (Items.size() > 0) {
 			ButtonGroup->selectButton(0);
 		}
 	}
@@ -99,7 +96,7 @@ namespace Visindigo::__Private__ {
 		yDebugF << "Complete Content:" << item.isAlignment();
 		if (item.isAlignment()) {
 			QString selected;
-			while(cursor.positionInBlock() != 0) {
+			while (cursor.positionInBlock() != 0) {
 				cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
 				selected = cursor.selectedText();
 				if (item.getContent().startsWith(selected)) {

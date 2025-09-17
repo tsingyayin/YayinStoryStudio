@@ -29,7 +29,7 @@ namespace YSS::ProjectPage {
 		Config->parse(configAll);
 
 		TitleLabel = new QLabel(this);
-		TitleLabel->setText("  Yayin Story Studio " + Visindigo::General::Version::getYSSVersion().toString());
+		TitleLabel->setText("  Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("TitleLabel");
 		TitleLabel->setFixedHeight(80);
 		HistoryProjectArea = new QScrollArea(this);

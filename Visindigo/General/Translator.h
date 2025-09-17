@@ -1,14 +1,17 @@
 #pragma once
 #include <QtCore/qmap.h>
 #include "../Macro.h"
+// Forward declarations
 class QString;
 namespace Visindigo::__Private__ {
 	class TranslatorPrivate;
 }
-
 namespace Visindigo::General {
 	class TranslationHostPrivate;
 	class TranslationHost;
+}
+// Main
+namespace Visindigo::General {
 	class VisindigoAPI Translator {
 		friend class Visindigo::__Private__::TranslatorPrivate;
 		friend class TranslationHostPrivate;

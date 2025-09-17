@@ -1,10 +1,14 @@
 #pragma once
-#include "../Macro.h"
-#include "./ProjectMessageData.h"
 #include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
+#include "../Macro.h"
+#include "./ProjectMessageData.h"
+// Forward declarations
 namespace Visindigo::General {
 	class ProjectMessageCollectorPrivate;
+}
+// Main
+namespace Visindigo::General {
 	class VisindigoAPI ProjectMessageCollector :public QObject {
 		Q_OBJECT;
 	signals:

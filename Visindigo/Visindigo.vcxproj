@@ -254,7 +254,6 @@
     <ClCompile Include="General\cpp\Translator.cpp" />
     <ClCompile Include="General\cpp\UpdateChain.cpp" />
     <ClCompile Include="General\cpp\Version.cpp" />
-    <ClCompile Include="General\cpp\YayinStoryStudio.cpp" />
     <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\cpp\AsyncFunction.cpp" />
@@ -278,7 +277,7 @@
     <ClInclude Include="Editor\DebugData.h" />
     <ClInclude Include="Editor\DebugFailedData.h" />
     <QtMoc Include="Editor\FileTemplateProvider.h" />
-    <ClInclude Include="Editor\EditorPluginModule.h" />
+    <QtMoc Include="Editor\EditorPluginModule.h" />
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <QtMoc Include="Editor\HoverInfoProvider.h" />
@@ -339,7 +338,6 @@
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />
     <ClInclude Include="General\Version.h" />
-    <ClInclude Include="General\YayinStoryStudio.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="Utility\Console.h" />
     <ClInclude Include="Utility\ExtTool.h" />

@@ -1,9 +1,13 @@
 #pragma once
 #include "../Macro.h"
 #include "Logger.h"
+// Forward declarations
 namespace Visindigo::General {
 	class LoggerMsgHandler;
 	class LoggerManagerPrivate;
+}
+// Main
+namespace Visindigo::General {
 	class VisindigoAPI LoggerManager {
 	public:
 #ifdef DEBUG

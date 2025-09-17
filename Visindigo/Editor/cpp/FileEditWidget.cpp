@@ -1,13 +1,13 @@
-#include "../FileEditWidget.h"
 #include <QtGui/qevent.h>
 #include <QtCore/qfileinfo.h>
+#include "../FileEditWidget.h"
 
 namespace Visindigo::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
 protected:
-		bool fileChanged = false;
-		QString filePath;
+	bool fileChanged = false;
+	QString filePath;
 	};
 	/*!
 		\class Visindigo::Editor::FileEditWidget
@@ -52,8 +52,9 @@ protected:
 		if (path.isEmpty()) {
 			if (d->filePath.isEmpty()) {
 				return false;
-			}			
-		} else {
+			}
+		}
+		else {
 			d->filePath = path;
 		}
 		bool ok = onSave(d->filePath);
@@ -69,7 +70,8 @@ protected:
 	void FileEditWidget::closeEvent(QCloseEvent* event) {
 		if (onClose()) {
 			event->accept();
-		} else {
+		}
+		else {
 			event->ignore();
 		}
 	}

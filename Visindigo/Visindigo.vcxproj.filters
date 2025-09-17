@@ -53,9 +53,6 @@
     <ClCompile Include="General\cpp\Version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="General\cpp\YayinStoryStudio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -208,9 +205,6 @@
     <ClInclude Include="Utility\ExtTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\YayinStoryStudio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\Version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -307,9 +301,6 @@
     <ClInclude Include="Utility\StringMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\EditorPluginModule.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VIMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -403,6 +394,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Utility\private\qnamespace_key.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\EditorPluginModule.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -1,5 +1,4 @@
 #pragma once
-#include <QtCore/qlist.h>
 #include "EditorPluginModule.h"
 // Forward declarations
 class QString;

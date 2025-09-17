@@ -38,7 +38,7 @@ QString AStoryControllerParseData::toString() {
 	QString rtn = "AStoryControllerParseData: %1\n";
 	rtn = rtn.arg(AStoryController::toNameString(d->ControllerName));
 	rtn += QString("Name-Types:\n");
-	for (int i = 0 ; i < d->ParameterNames.size(); i++) {
+	for (int i = 0; i < d->ParameterNames.size(); i++) {
 		rtn += QString("%1: %2\n").arg(d->ParameterNames[i], ASEParameter::typeToString(d->ParameterTypes[i]));
 	}
 	for (int i = 0; i < size; i++) {

@@ -46,7 +46,8 @@ void ASEAStoryFTIW::resizeEvent(QResizeEvent* event) {
 void ASEAStoryFTIW::onLineEditTextChanged(const QString& node, const QString& text) {
 	if (node == "File.Path") {
 		FilePath = text;
-	} else if (node == "File.Name") {
+	}
+	else if (node == "File.Name") {
 		FileName = text;
 	}
 	refreshWhereLabel();

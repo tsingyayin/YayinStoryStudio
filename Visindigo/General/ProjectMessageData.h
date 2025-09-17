@@ -3,10 +3,13 @@
 #include <QtCore/qtypes.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qurl.h>
-
+// Forward declarations
 namespace Visindigo::General {
 	class ProjectMessageCollector;
 	class ProjectMessageDataPrivate;
+}
+// Main
+namespace Visindigo::General {
 	class VisindigoAPI ProjectMessageData {
 	public:
 		enum MessageType {

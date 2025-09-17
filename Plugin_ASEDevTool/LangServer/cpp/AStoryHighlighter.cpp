@@ -73,17 +73,17 @@ void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 				for (int i = 0; i < size_3; i++) {
 					switch (i % 3) {
 					case 0: // Name
-							setFormatWithParaType(parseData.getStartIndex()[1] + delta, parts[i].length(), "String");
-							delta += parts[i].length() + 1; // +1 for the space
-							break;
+						setFormatWithParaType(parseData.getStartIndex()[1] + delta, parts[i].length(), "String");
+						delta += parts[i].length() + 1; // +1 for the space
+						break;
 					case 1: // Value
-							setFormatWithParaType(parseData.getStartIndex()[1] + delta, parts[i].length(), "Number");
-							delta += parts[i].length() + 1; // +1 for the space
-							break;
+						setFormatWithParaType(parseData.getStartIndex()[1] + delta, parts[i].length(), "Number");
+						delta += parts[i].length() + 1; // +1 for the space
+						break;
 					case 2: // Sign
-							setFormatWithParaType(parseData.getStartIndex()[1] + delta, parts[i].length(), "Sign_T", "Sign_B");
-							delta += parts[i].length() + 1; // +1 for the space
-							break;
+						setFormatWithParaType(parseData.getStartIndex()[1] + delta, parts[i].length(), "Sign_T", "Sign_B");
+						delta += parts[i].length() + 1; // +1 for the space
+						break;
 					}
 				}
 				if (parts.size() > size_3) {

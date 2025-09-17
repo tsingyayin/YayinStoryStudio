@@ -1,7 +1,8 @@
-#include "../FileTemplateProvider.h"
-#include "../FileTemplateManager.h"
 #include <QtCore/qmap.h>
 #include "../../General/Log.h"
+#include "../FileTemplateProvider.h"
+#include "../FileTemplateManager.h"
+
 namespace Visindigo::Editor {
 	class FileTemplateManagerPrivate {
 		friend class FileTemplateManager;

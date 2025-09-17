@@ -8,7 +8,7 @@ namespace Visindigo::Editor {
 		QString InitFolder;
 	};
 
-	FileTemplateInitWidget::FileTemplateInitWidget(const QString& initFolder,QWidget* parent)
+	FileTemplateInitWidget::FileTemplateInitWidget(const QString& initFolder, QWidget* parent)
 		: QFrame(parent)
 	{
 		d = new FileTemplateInitWidgetPrivate;
@@ -35,7 +35,7 @@ namespace Visindigo::Editor {
 		QString TemplateDescription;
 		QStringList TemplateTags;
 	};
-	FileTemplateProvider::FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin):
+	FileTemplateProvider::FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin) :
 		EditorPluginModule(name, id, plugin)
 	{
 		d = new FileTemplateProviderPrivate;
@@ -50,7 +50,7 @@ namespace Visindigo::Editor {
 	}
 	void FileTemplateProvider::setTemplateIconPath(const QString& iconPath)
 	{
-		d->TemplateIconPath= iconPath;
+		d->TemplateIconPath = iconPath;
 	}
 	QString FileTemplateProvider::getTemplateID()
 	{

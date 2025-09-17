@@ -1,7 +1,6 @@
 #pragma once
-#include "../Macro.h"
 #include <QtCore/qtypes.h>
-#include <QtCore/qstringlist.h>
+#include "../Macro.h"
 
 class QString;
 

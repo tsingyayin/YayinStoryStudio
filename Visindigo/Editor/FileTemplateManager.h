@@ -1,10 +1,13 @@
 #pragma once
 #include <QtCore/qlist.h>
 #include "../Macro.h"
+// Forward declarations
 namespace Visindigo::Editor {
 	class FileTemplateProvider;
 	class FileTemplateManagerPrivate;
-
+}
+// Main
+namespace Visindigo::Editor {
 	class VisindigoAPI FileTemplateManager {
 	public:
 		FileTemplateManager();
@@ -19,5 +22,5 @@ namespace Visindigo::Editor {
 		FileTemplateManagerPrivate* d;
 	};
 };
-
+// Helper macro
 #define YSSFTM Visindigo::Editor::FileTemplateManager::getInstance()

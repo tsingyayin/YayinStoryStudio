@@ -1,11 +1,14 @@
 #pragma once
 #include <QtWidgets/qframe.h>
 #include "../Macro.h"
-
+// Forward declarations
 class QWidget;
 class QString;
 namespace Visindigo::Editor {
 	class FileEditWidgetPrivate;
+}
+// Main
+namespace Visindigo::Editor {
 	class VisindigoAPI FileEditWidget :public QFrame {
 		Q_OBJECT;
 		VImpl(FileEditWidget);

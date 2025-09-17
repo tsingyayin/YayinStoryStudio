@@ -1,6 +1,6 @@
-#include "../LangServer.h"
 #include <QtCore/qstring.h>
 #include <QtGui/qsyntaxhighlighter.h>
+#include "../LangServer.h"
 
 namespace Visindigo::Editor {
 	class LangServerPrivate
@@ -12,7 +12,7 @@ namespace Visindigo::Editor {
 		QStringList LanguageExt;
 	};
 
-	LangServer::LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id , QStringList ext):
+	LangServer::LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext) :
 		EditorPluginModule(name, id, plugin)
 	{
 		d = new LangServerPrivate();
@@ -32,5 +32,4 @@ namespace Visindigo::Editor {
 	{
 		return d->LanguageExt;
 	}
-
 }

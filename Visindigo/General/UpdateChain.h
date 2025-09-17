@@ -1,14 +1,15 @@
 #pragma once
-#include "../Macro.h"
-#include <QtCore/qobject.h>
-#include <QtCore/qmap.h>
-#include <QtCore/qlist.h>
 #include <functional>
+#include <QtCore/qobject.h>
+#include "../Macro.h"
+// Forward declarations
 namespace Visindigo::General {
 	class UpdateChain;
 	class UpdateChainPrivate;
 	class UpdateChainNodePrivate;
-
+}
+// Main
+namespace Visindigo::General {
 	class VisindigoAPI UpdateChainNode
 	{
 		friend class UpdateChain;
@@ -39,4 +40,5 @@ namespace Visindigo::General {
 		UpdateChainPrivate* d;
 	};
 }
+// Helper Macro
 #define UNode(VERSION_FROM, VERSION_TO) createNode()<<#VERSION_FROM<<[this]()

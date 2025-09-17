@@ -10,7 +10,7 @@ namespace Visindigo::Editor {
 		QString ModuleID;
 	};
 
-	EditorPluginModule::EditorPluginModule(const QString& moduleName, const QString& moduleID, EditorPlugin* plugin):QObject(plugin),
+	EditorPluginModule::EditorPluginModule(const QString& moduleName, const QString& moduleID, EditorPlugin* plugin) :QObject(plugin),
 		d(new EditorPluginModulePrivate()) {
 		d->ModuleName = moduleName;
 		d->ModuleID = moduleID;

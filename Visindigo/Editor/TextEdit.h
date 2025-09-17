@@ -24,6 +24,7 @@ namespace Visindigo::Editor {
 		virtual ~TextEdit();
 	private:
 		virtual bool eventFilter(QObject* obj, QEvent* event) override;
+		virtual void showEvent(QShowEvent* event) override;
 		virtual void closeEvent(QCloseEvent* event) override;
 	protected:
 		virtual bool onOpen(const QString& path) override;

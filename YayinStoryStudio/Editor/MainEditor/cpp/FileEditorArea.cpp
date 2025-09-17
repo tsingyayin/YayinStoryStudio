@@ -38,6 +38,10 @@ namespace YSS::Editor {
 			Bar->focusOn(filePath);
 		}
 	}
+
+	void FileEditorArea::showEvent(QShowEvent* event) {
+		QWidget::showEvent(event);
+	}
 	void FileEditorArea::onStackBarLabelChanged(StackBarLabel* label) {
 		ActiveWidget->hide();
 		Layout->removeWidget(ActiveWidget);

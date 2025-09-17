@@ -1,9 +1,9 @@
 #include <QtCore/qstring.h>
+#include "../../General/TranslationHost.h"
+#include "../private/EditorPlugin_p.h"
 #include "../EditorPlugin.h"
 #include "../LangServerManager.h"
 #include "../FileServerManager.h"
-#include "../../General/TranslationHost.h"
-#include "../private/EditorPlugin_p.h"
 #include "../ProjectTemplateManager.h"
 #include "../FileTemplateManager.h"
 

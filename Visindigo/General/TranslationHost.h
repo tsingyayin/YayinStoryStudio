@@ -1,11 +1,14 @@
 #pragma once
 #include "../Macro.h"
 #include "Translator.h"
+// Forward declarations
 class QString;
-
 namespace Visindigo::General {
 	class Translator;
 	class TranslationHostPrivate;
+}
+// Main
+namespace Visindigo::General {
 	class VisindigoAPI TranslationHost {
 	public:
 		static TranslationHost* getInstance();
@@ -20,6 +23,6 @@ namespace Visindigo::General {
 		TranslationHostPrivate* d;
 	};
 }
-
+// Helper macros
 #define YSSTR Visindigo::General::TranslationHost::getInstance()->tr
 #define YSSI18N Visindigo::General::TranslationHost::getInstance()->i18n

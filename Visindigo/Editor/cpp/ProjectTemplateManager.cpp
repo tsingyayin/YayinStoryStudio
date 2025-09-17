@@ -1,7 +1,8 @@
-#include "../ProjectTemplateProvider.h"
-#include "../ProjectTemplateManager.h"
 #include <QtCore/qmap.h>
 #include "../../General/Log.h"
+#include "../ProjectTemplateProvider.h"
+#include "../ProjectTemplateManager.h"
+
 namespace Visindigo::Editor {
 	class ProjectTemplateManagerPrivate {
 		friend class ProjectTemplateManager;

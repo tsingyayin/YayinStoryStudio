@@ -9,7 +9,7 @@ AStoryTabCompleterProvider::AStoryTabCompleterProvider(QTextDocument* parent)
 	QString rulePath = rootPath + "/Rules/StoryExplainer/BaseRule.asrule";
 	RuleAdaptor = new ASRuleAdaptor(rulePath, ":/plugin/compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json");
 	RuleAdaptor->loadASRule();
-	for(AStoryController& controller : RuleAdaptor->getAllControllers()) {
+	for (AStoryController& controller : RuleAdaptor->getAllControllers()) {
 		Visindigo::Editor::TabCompleterItem item(
 			AStoryController::toNameString(controller.getControllerName()), controller.getStartSign(), "", Visindigo::Editor::TabCompleterItem::Function
 		);

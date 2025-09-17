@@ -1,14 +1,14 @@
-#include "../EditorPluginManager.h"
-#include "../EditorPlugin.h"
-#include "../../Utility/JsonConfig.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qlibrary.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
-#include <QtCore/qmap.h>
-#include "../../Utility/FileUtility.h"
 #include "../../General/Log.h"
+#include "../../Utility/JsonConfig.h"
+#include "../../Utility/FileUtility.h"
 #include "../private/EditorPlugin_p.h"
+#include <QtCore/qmap.h>
+#include "../EditorPluginManager.h"
+#include "../EditorPlugin.h"
 
 namespace Visindigo::Editor {
 	class EditorPluginManagerPrivate {

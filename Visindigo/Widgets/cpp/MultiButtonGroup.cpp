@@ -5,7 +5,8 @@
 #include "../../General/Log.h"
 namespace Visindigo::__Private__ {
 	MultiButtonGroupPrivate::MultiButtonGroupPrivate(Visindigo::Widgets::MultiButtonGroup* q)
-		: QObject(q), q(q) {}
+		: QObject(q), q(q) {
+	}
 	void MultiButtonGroupPrivate::onButtonClicked(Visindigo::Widgets::MultiButton* button) {
 		yDebugF;
 		if (CurrentPressedButton) {
@@ -42,10 +43,10 @@ namespace Visindigo::Widgets {
 		if (!button) return;
 		if (d->Buttons.contains(button)) { return; }
 		d->Buttons.append(button);
-		connect(button, &MultiButton::clicked, this, 
-			[this, button]() { 
-				this->d->onButtonClicked(button); 
-				emit clicked(button); 
+		connect(button, &MultiButton::clicked, this,
+			[this, button]() {
+				this->d->onButtonClicked(button);
+				emit clicked(button);
 				emit selectIndexChanged(d->CurrentPressedIndex);
 			}
 		);

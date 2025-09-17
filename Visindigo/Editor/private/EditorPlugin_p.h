@@ -1,12 +1,13 @@
 #pragma once
-#include "../../General/Version.h"
 #include <QtCore/qstringlist.h>
+#include "../../General/Version.h"
 #include "../../Utility/JsonConfig.h"
-
+// Forward declarations
 namespace Visindigo::Editor {
 	class EditorPlugin;
 	class EditorPluginManager;
 }
+// Main
 namespace Visindigo::__Private__ {
 	class EditorPluginPrivate {
 		friend Visindigo::Editor::EditorPlugin;

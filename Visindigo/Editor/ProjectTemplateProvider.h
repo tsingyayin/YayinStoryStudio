@@ -20,6 +20,7 @@ namespace Visindigo::Editor {
 
 	class VisindigoAPI ProjectTemplateProvider :public EditorPluginModule {
 		friend class ProjectTemplateProviderPrivate;
+		Q_OBJECT;
 	public:
 		ProjectTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~ProjectTemplateProvider();

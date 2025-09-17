@@ -15,7 +15,12 @@ namespace Visindigo::General {
 		bool useBuild;
 		quint32 build;
 		QString nickName;
+		static Version APIVersion;
+		static Version ABIVersion;
 	};
+	Version VersionPrivate::APIVersion = Version(Visindigo_VERSION_MAJOR, Visindigo_VERSION_MINOR, Visindigo_VERSION_PATCH, true, Visindigo_VERSION_BUILD, Visindigo_VERSION_NICKNAME);
+	Version VersionPrivate::ABIVersion = Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0);
+
 	Version::Version(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build, const QString& nickName)
 	{
 		d = new VersionPrivate;
@@ -224,12 +229,10 @@ namespace Visindigo::General {
 	{
 		return d->nickName;
 	}
-	Version Version::getYSSVersion() {
-		return Version(Visindigo_VERSION_MAJOR,
-			Visindigo_VERSION_MINOR,
-			Visindigo_VERSION_PATCH,
-			true,
-			Visindigo_VERSION_BUILD,
-			Visindigo_VERSION_NICKNAME);
+	Version Version::getAPIVersion() {
+		return VersionPrivate::APIVersion;
+	}
+	Version Version::getABIVersion() {
+		return VersionPrivate::ABIVersion;
 	}
 }
