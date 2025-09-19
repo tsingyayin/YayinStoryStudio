@@ -39,6 +39,14 @@ namespace YSS::Editor {
 		}
 	}
 
+	Visindigo::Editor::FileEditWidget* FileEditorArea::getCurrentFileEditWidget() {
+		return Bar->getActiveFileEditWidget();
+	}
+
+	void FileEditorArea::saveAllFiles() {
+		Bar->saveAllFiles();
+	}
+
 	void FileEditorArea::showEvent(QShowEvent* event) {
 		QWidget::showEvent(event);
 	}

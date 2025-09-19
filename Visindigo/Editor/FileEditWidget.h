@@ -25,12 +25,25 @@ namespace Visindigo::Editor {
 		void cancelFileChanged();
 		bool openFile(const QString& path);
 		bool saveFile(const QString& path = "");
+		bool reloadFile();
 		bool closeFile();
+		bool copy();
+		bool cut();
+		bool paste();
+		bool undo();
+		bool redo();
+		bool selectAll();
 	protected:
 		virtual bool onOpen(const QString& path) = 0;
 		virtual bool onClose() = 0;
 		virtual bool onSave(const QString& path = "") = 0;
 		virtual bool onReload() = 0;
+		virtual bool onCopy() = 0;
+		virtual bool onCut() = 0;
+		virtual bool onPaste() = 0;
+		virtual bool onUndo() = 0;
+		virtual bool onRedo() = 0;
+		virtual bool onSelectAll() = 0;
 	protected:
 		virtual void closeEvent(QCloseEvent* event) override;
 	};

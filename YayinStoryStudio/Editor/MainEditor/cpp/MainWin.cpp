@@ -1,19 +1,19 @@
-#include "../MainWin.h"
-#include "../FileEditorArea.h"
-#include "../ResourceBrowser.h"
-#include "../../GlobalValue.h"
+#include <QtGui/qevent.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qsplitter.h>
+#include <QtWidgets/qmessagebox.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/ThemeManager.h>
 #include <Widgets/QuickMenu.h>
 #include <Utility/FileUtility.h>
 #include <Editor/FileServerManager.h>
-#include <QHBoxLayout>
-#include <QSplitter>
-#include <General/TranslationHost.h>
 #include <General/YSSProject.h>
-#include "../MenuBarHandler.h"
 #include "../../ProjectPage/ProjectWin.h"
-
+#include "../../GlobalValue.h"
+#include "../MainWin.h"
+#include "../FileEditorArea.h"
+#include "../ResourceBrowser.h"
+#include "../MenuBarHandler.h"
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
@@ -49,9 +49,6 @@ namespace YSS::Editor {
 
 	void MainWin::backToProjectWin() {
 		this->hide();
-		if (GlobalValue::getCurrentProject()) {
-			GlobalValue::setCurrentProject(nullptr);
-		}
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 	}
@@ -85,31 +82,27 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::closeEvent(QCloseEvent* event) {
-		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
-		if (this->isMaximized()) {
-			config->setBool("Window.Editor.Maximized", true);
+		yDebugF << "MainWin Close Event";
+		if (!checkProjectNeedToSave()) {
+			event->ignore();
+			return;
 		}
-		else {
-			config->setInt("Window.Editor.Width", this->width());
-			config->setInt("Window.Editor.Height", this->height());
-			config->setBool("Window.Editor.Maximized", false);
-		}
-		GlobalValue::saveConfig();
-		GlobalValue::getCurrentProject()->saveProject();
+		saveProject();
+		closeWindow = true;
 	}
 
 	void MainWin::hideEvent(QHideEvent* event) {
-		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
-		if (this->isMaximized()) {
-			config->setBool("Window.Editor.Maximized", true);
+		if (closeWindow) {
+			event->accept();
+			return;
 		}
-		else {
-			config->setInt("Window.Editor.Width", this->width());
-			config->setInt("Window.Editor.Height", this->height());
-			config->setBool("Window.Editor.Maximized", false);
+		yDebugF << "MainWin Hide Event";
+		if (!checkProjectNeedToSave()) {
+			event->ignore();
+			return;
 		}
-		GlobalValue::saveConfig();
-		GlobalValue::getCurrentProject()->saveProject();
+		saveProject();
+		GlobalValue::setCurrentProject(nullptr);
 	}
 	void MainWin::initMenu() {
 		Menu = new Visindigo::Widgets::QuickMenu(this);
@@ -122,5 +115,34 @@ namespace YSS::Editor {
 			QMenuBar::item:selected{background-color: " % YSSTM->getColorString("Highlight") % "; color: " % YSSTM->getColorString("HighlightedText") % ";}\
 			QMenu::separator{height:1px;background:" % YSSTM->getColorString("Separator") % ";margin-left:5px;margin-right:5px;}\
 ");
+	}
+
+	bool MainWin::checkProjectNeedToSave() {
+		Visindigo::General::YSSProject* project = GlobalValue::getCurrentProject();
+		QMessageBox::StandardButton result = QMessageBox::question(this, "Save Project",
+			"Do you want to save the project \"" % project->getProjectName() % "\" before closing?",
+			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+			QMessageBox::Yes);
+		if (result == QMessageBox::Cancel) {
+			return false;
+		}
+		else if (result == QMessageBox::Yes) {
+			// sth to do , but not saveProject()
+		}
+		return true;
+	}
+
+	void MainWin::saveProject() {
+		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
+		if (this->isMaximized()) {
+			config->setBool("Window.Editor.Maximized", true);
+		}
+		else {
+			config->setInt("Window.Editor.Width", this->width());
+			config->setInt("Window.Editor.Height", this->height());
+			config->setBool("Window.Editor.Maximized", false);
+		}
+		GlobalValue::saveConfig();
+		GlobalValue::getCurrentProject()->saveProject();
 	}
 }

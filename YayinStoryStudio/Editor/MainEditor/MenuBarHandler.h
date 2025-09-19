@@ -10,18 +10,10 @@ namespace YSS::Editor {
 		SubNodes{};
 	public slots:
 		void newfile();
-		void open() {
-			yDebug << "Open File";
-		}
-		void save() {
-			yDebug << "Save File";
-		}
-		void saveAll() {
-			yDebug << "Save All Files";
-		}
-		void saveAs() {
-			yDebug << "Save File As";
-		}
+		void open();
+		void save();
+		void saveAll();
+		void saveAs();
 	};
 	class Menu_File_ProgramOptions :public QObject {
 		Q_OBJECT;
@@ -42,11 +34,31 @@ namespace YSS::Editor {
 			new Menu_File_ProgramOptions(this);
 		}
 	};
+	class Menu_Edit_EditOptions : public QObject {
+		Q_OBJECT;
+		HandlerNode(Menu_Edit_EditOptions, "editOptions");
+		SubNodes{};
+	public slots:
+		void undo();
+		void redo();
+		void cut();
+		void copy();
+		void paste();
+		void selectAll();
+	};
+	class Menu_Edit :public QObject {
+		Q_OBJECT;
+		HandlerNode(Menu_Edit, "edit");
+		SubNodes{
+			new Menu_Edit_EditOptions(this);
+		};
+	};
 	class MenuActionHandler :public QObject {
 		Q_OBJECT;
 	public:
 		MenuActionHandler(QObject* parent = nullptr) {
 			new Menu_File(this);
+			new Menu_Edit(this);
 		}
 	};
 }

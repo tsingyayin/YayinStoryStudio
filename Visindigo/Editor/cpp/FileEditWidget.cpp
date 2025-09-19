@@ -1,7 +1,7 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qfileinfo.h>
 #include "../FileEditWidget.h"
-
+#include "../../General/Log.h"
 namespace Visindigo::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
@@ -22,32 +22,44 @@ protected:
 	FileEditWidget::FileEditWidget(QWidget* parent) : QFrame(parent) {
 		d = new FileEditWidgetPrivate;
 	}
+
 	FileEditWidget::~FileEditWidget() {
 		delete d;
 	}
+
 	QString FileEditWidget::getFilePath() const {
 		return d->filePath;
 	}
+
 	QString FileEditWidget::getFileName() const {
 		return QFileInfo(d->filePath).fileName();
 	}
+
 	bool FileEditWidget::isFileChanged() const {
 		return d->fileChanged;
 	}
+
 	void FileEditWidget::setFileChanged() {
 		d->fileChanged = true;
 		emit fileChanged(d->filePath);
 	}
+
 	void FileEditWidget::cancelFileChanged() {
 		d->fileChanged = false;
 	}
+
 	bool FileEditWidget::openFile(const QString& path) {
 		if (path.isEmpty()) {
+			yWarningF << "File path is empty.";
 			return false;
 		}
-		d->filePath = path;
-		return onOpen(path);
+		if (onOpen(path)) {
+			d->filePath = path;
+			return true;
+		}
+		return false;
 	}
+
 	bool FileEditWidget::saveFile(const QString& path) {
 		if (path.isEmpty()) {
 			if (d->filePath.isEmpty()) {
@@ -64,9 +76,43 @@ protected:
 		}
 		return ok;
 	}
+
+	bool FileEditWidget::reloadFile() {
+		if (d->filePath.isEmpty()) {
+			yWarningF << "File path is empty.";
+			return false;
+		}
+		return onReload();
+	}
+
 	bool FileEditWidget::closeFile() {
 		return onClose();
 	}
+
+	bool FileEditWidget::copy() {
+		return onCopy();
+	}
+
+	bool FileEditWidget::cut() {
+		return onCut();
+	}
+
+	bool FileEditWidget::paste() {
+		return onPaste();
+	}
+
+	bool FileEditWidget::undo() {
+		return onUndo();
+	}
+
+	bool FileEditWidget::redo() {
+		return onRedo();
+	}
+
+	bool FileEditWidget::selectAll() {
+		return onSelectAll();
+	}
+
 	void FileEditWidget::closeEvent(QCloseEvent* event) {
 		if (onClose()) {
 			event->accept();

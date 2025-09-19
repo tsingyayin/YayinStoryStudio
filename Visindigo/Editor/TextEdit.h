@@ -31,6 +31,12 @@ namespace Visindigo::Editor {
 		virtual bool onClose() override;
 		virtual bool onSave(const QString& path = "") override;
 		virtual bool onReload() override;
+		virtual bool onCopy() override;
+		virtual bool onCut() override;
+		virtual bool onPaste() override;
+		virtual bool onUndo() override;
+		virtual bool onRedo() override;
+		virtual bool onSelectAll() override;
 	private:
 		Visindigo::__Private__::TextEditPrivate* d;
 	};

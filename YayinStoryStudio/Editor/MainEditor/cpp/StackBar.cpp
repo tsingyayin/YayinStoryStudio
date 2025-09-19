@@ -114,4 +114,26 @@ namespace YSS::Editor {
 			emit stackBarLabelChanged(ActiveLabel);
 		}
 	}
+
+	StackBarLabel* StackBar::getActiveLabel() const {
+		return ActiveLabel;
+	}
+
+	Visindigo::Editor::FileEditWidget* StackBar::getActiveFileEditWidget() const {
+		if (ActiveLabel != nullptr) {
+			return ActiveLabel->getTargetWidget();
+		}
+		return nullptr;
+	}
+
+	void StackBar::saveAllFiles() {
+		for (const QString& filePath : OpenedFiles) {
+			if (LabelMap.contains(filePath)) {
+				Visindigo::Editor::FileEditWidget* widget = LabelMap[filePath]->getTargetWidget();
+				if (widget != nullptr) {
+					widget->saveFile();
+				}
+			}
+		}
+	}
 }

@@ -18,6 +18,12 @@ public:
 	virtual bool onClose();
 	virtual bool onSave(const QString& path = "");
 	virtual bool onReload();
+	virtual bool onCopy() override { return false; };
+	virtual bool onCut() override { return false; };
+	virtual bool onPaste() override { return false; };
+	virtual bool onUndo() override { return false; };
+	virtual bool onRedo() override { return false; };
+	virtual bool onSelectAll() override { return false; };
 private:
 	QVBoxLayout* Layout;
 private:

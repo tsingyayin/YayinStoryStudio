@@ -39,6 +39,7 @@ namespace Visindigo::General {
 		d->patch = other.d->patch;
 		d->useBuild = other.d->useBuild;
 		d->build = other.d->build;
+		d->nickName = other.d->nickName;
 	}
 	Version::Version(Version&& other) noexcept
 	{
@@ -53,6 +54,7 @@ namespace Visindigo::General {
 			d->patch = other.d->patch;
 			d->useBuild = other.d->useBuild;
 			d->build = other.d->build;
+			d->nickName = other.d->nickName;
 		}
 		return *this;
 	}

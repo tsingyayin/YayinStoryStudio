@@ -1,13 +1,17 @@
 #pragma once
 #include <QObject>
 #include <QWidget>
-
+// Forward declarations
 class QScrollArea;
 class QHBoxLayout;
-
+namespace Visindigo::Editor {
+	class FileEditWidget;
+}
 namespace YSS::Editor {
 	class StackBarLabel;
-
+}
+// Main
+namespace YSS::Editor {
 	class StackBar :public QWidget {
 		Q_OBJECT;
 	signals:
@@ -27,6 +31,9 @@ namespace YSS::Editor {
 		void focusOn(const QString& filePath);
 		void focus(StackBarLabel* label);
 		void removeLabel(StackBarLabel* label);
+		StackBarLabel* getActiveLabel() const;
+		Visindigo::Editor::FileEditWidget* getActiveFileEditWidget() const;
+		void saveAllFiles();
 	private:
 		virtual void resizeEvent(QResizeEvent* event) override;
 	};

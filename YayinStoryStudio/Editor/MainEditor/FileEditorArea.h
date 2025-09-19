@@ -22,6 +22,8 @@ namespace YSS::Editor {
 		FileEditorArea(QWidget* parent = nullptr);
 		void addFileEditWidget(Visindigo::Editor::FileEditWidget* widget);
 		void focusOn(const QString& filePath);
+		Visindigo::Editor::FileEditWidget* getCurrentFileEditWidget();
+		void saveAllFiles();
 	public:
 		virtual void showEvent(QShowEvent* event) override;
 	private:

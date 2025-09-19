@@ -468,11 +468,12 @@ namespace Visindigo::Editor {
 		}
 	}
 
+	/*
+		\since Visindigo 0.13.0
+		打开一个文件。只有文件完全打开成功才会返回true，其他任何失败情况均返回false。
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。
+	*/
 	bool TextEdit::onOpen(const QString& path) {
-		if (path.isEmpty()) {
-			yWarningF << "File path is empty.";
-			return false;
-		}
 		QString ext = QFileInfo(path).suffix();
 		Visindigo::Editor::LangServer* server = YSSLSM->routeExt(ext);
 		if (server != nullptr) {
@@ -545,6 +546,7 @@ namespace Visindigo::Editor {
 		}
 		file.write(d->Text->toPlainText().toUtf8());
 		file.close();
+		emit fileSaved(path);
 		return true;
 	}
 
@@ -568,6 +570,36 @@ namespace Visindigo::Editor {
 			}
 		}
 		openFile(getFilePath());
+		return true;
+	}
+
+	bool TextEdit::onCopy() {
+		d->Text->copy();
+		return true;
+	}
+
+	bool TextEdit::onCut() {
+		d->Text->cut();
+		return true;
+	}
+
+	bool TextEdit::onPaste() {
+		d->Text->paste();
+		return true;
+	}
+
+	bool TextEdit::onUndo() {
+		d->Text->undo();
+		return true;
+	}
+
+	bool TextEdit::onRedo() {
+		d->Text->redo();
+		return true;
+	}
+
+	bool TextEdit::onSelectAll() {
+		d->Text->selectAll();
 		return true;
 	}
 }
