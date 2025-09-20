@@ -21,7 +21,7 @@ namespace YSS::Editor {
 		FileEditorArea* Editor = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		Visindigo::Widgets::QuickMenu* Menu = nullptr;
-		bool closeWindow = false;
+		bool asked = false;
 	public:
 		MainWin();
 		ResourceBrowser* getResourceBrowser();
@@ -32,6 +32,7 @@ namespace YSS::Editor {
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void hideEvent(QHideEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;
+		virtual void resizeEvent(QResizeEvent* event) override;
 	private:
 		void initMenu();
 		bool checkProjectNeedToSave();

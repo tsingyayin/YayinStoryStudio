@@ -37,7 +37,7 @@ bld/
 
 # Projects not prepared to publish
 src/Spol2
-
+document/qdocconfig
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 .VSCodeCounter/

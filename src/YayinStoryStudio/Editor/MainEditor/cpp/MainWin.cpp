@@ -17,10 +17,13 @@
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
-		this->setMinimumSize(800, 600);
 		this->setWindowTitle("Yayin Story Studio");
 
 		CentralWidget = new QWidget(this);
+		this->setCentralWidget(CentralWidget);
+		this->initMenu();
+		this->setMinimumSize(800, 600);
+
 		Layout = new QHBoxLayout(CentralWidget);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
 		Editor = new FileEditorArea(CentralWidget);
@@ -34,8 +37,8 @@ namespace YSS::Editor {
 		connect(YSSFSM, &Visindigo::Editor::FileServerManager::builtinEditorCreated,
 			Editor, &FileEditorArea::addFileEditWidget);
 
-		this->setCentralWidget(CentralWidget);
-		this->initMenu();
+		
+		
 		this->applyStyleSheet();
 	}
 
@@ -48,7 +51,13 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::backToProjectWin() {
-		this->hide();
+		if (!checkProjectNeedToSave()) {
+			return;
+		}
+		asked = true;
+		this->close();
+		saveProject();
+		GlobalValue::setCurrentProject(nullptr);
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 	}
@@ -61,14 +70,13 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::showEvent(QShowEvent* event) {
+		yDebugF << "Called";
 		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
 		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
 
+		this->resize(width, height);
 		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
 			this->showMaximized();
-		}
-		else {
-			this->resize(width, height);
 		}
 		GlobalValue::getCurrentProject()->refreshLastModifyTime();
 		GlobalValue::getCurrentProject()->saveProject();
@@ -78,31 +86,30 @@ namespace YSS::Editor {
 		}
 		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
 		Editor->focusOn(focusedFile);
-		this->repaint();
+		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
+		yDebugF << CentralWidget->width() << CentralWidget->height();
+		yDebugF << this->width() << this->height();
 	}
 
 	void MainWin::closeEvent(QCloseEvent* event) {
 		yDebugF << "MainWin Close Event";
-		if (!checkProjectNeedToSave()) {
-			event->ignore();
-			return;
+		if (!asked) {
+			if (!checkProjectNeedToSave()) {
+				event->ignore();
+				return;
+			}
+			saveProject();
 		}
-		saveProject();
-		closeWindow = true;
+		asked = false;
 	}
 
 	void MainWin::hideEvent(QHideEvent* event) {
-		if (closeWindow) {
-			event->accept();
-			return;
-		}
-		yDebugF << "MainWin Hide Event";
-		if (!checkProjectNeedToSave()) {
-			event->ignore();
-			return;
-		}
-		saveProject();
-		GlobalValue::setCurrentProject(nullptr);
+
+	}
+
+	void MainWin::resizeEvent(QResizeEvent* event) {
+		QMainWindow::resizeEvent(event);
+		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 	}
 	void MainWin::initMenu() {
 		Menu = new Visindigo::Widgets::QuickMenu(this);
