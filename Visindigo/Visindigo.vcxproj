@@ -210,7 +210,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
-    <ClCompile Include="Editor\cpp\EditorProjectHelper.cpp" />
     <ClCompile Include="Editor\cpp\EditorPluginModule.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
@@ -273,7 +272,6 @@
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\EditorProjectHelper.h" />
     <ClInclude Include="Editor\DebugData.h" />
     <ClInclude Include="Editor\DebugFailedData.h" />
     <QtMoc Include="Editor\FileTemplateProvider.h" />
@@ -313,7 +311,7 @@
     <QtMoc Include="General\UpdateChain.h" />
     <QtMoc Include="Widgets\ConfigWidget.h" />
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h" />
-    <ClInclude Include="General\TranslationHost.h" />
+    <QtMoc Include="General\TranslationHost.h" />
     <ClInclude Include="General\YSSProject.h" />
     <ClInclude Include="Utility\AsyncFunction.h" />
     <ClInclude Include="Utility\DiffSequence.h" />

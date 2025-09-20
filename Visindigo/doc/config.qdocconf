@@ -1,11 +1,11 @@
-include(D:\Qt\6.5.2\Docs\Qt-6.8.3\global\qt-html-templates-offline.qdocconf)
+include(D:\Qt\Docs\Qt-6.8.3\global\qt-html-templates-online.qdocconf)
 
 project = Visindigo
 
 indexes = \
-	D:/Qt/6.5.2/Docs/Qt-6.8.3/qtcore/qtcore.index \
-	D:/Qt/6.5.2/Docs/Qt-6.8.3/qtgui/qtgui.index \
-	D:/Qt/6.5.2/Docs/Qt-6.8.3/qtwidgets/qtwidgets.index \
+	D:/Qt/Docs/Qt-6.8.3/qtcore/qtcore.index \
+	D:/Qt/Docs/Qt-6.8.3/qtgui/qtgui.index \
+	D:/Qt/Docs/Qt-6.8.3/qtwidgets/qtwidgets.index \
 	
 depends = \
 	qtcore \

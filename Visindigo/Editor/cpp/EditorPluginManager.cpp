@@ -39,13 +39,13 @@ namespace Visindigo::Editor {
 		\class Visindigo::Editor::EditorPluginManager
 		\inmodule Visindigo
 		\brief 此类为YayinStoryStudio提供插件管理器。
-		\since Visindigo 0.10.0
+		\since Visindigo 0.13.0
 
 		EditorPluginManager负责加载和管理插件。
 	*/
 
 	/*!
-		\since Visindigo 0.10.0
+		\since Visindigo 0.13.0
 		\a parent 为父对象。
 		构造EditorPluginManager对象。
 	*/
@@ -53,6 +53,11 @@ namespace Visindigo::Editor {
 		d = new EditorPluginManagerPrivate();
 		ySuccessF << "Success!";
 	}
+
+	/*!
+		\since Visindigo 0.13.0
+		析构EditorPluginManager对象，卸载所有插件。一般来说，没有任何情况需要手动析构此对象。EditorPluginManager应该与使用它的应用程序有一致的生命周期。
+	*/
 	EditorPluginManager::~EditorPluginManager() {
 		for (int i = 0; i < d->Plugins.size(); i++) {
 			delete d->Plugins[i];
@@ -60,6 +65,12 @@ namespace Visindigo::Editor {
 		d->Plugins.clear();
 		delete d;
 	}
+
+	/*!
+		\since Visindigo 0.13.0
+		扫描并加载插件，但不启用它们。此函数会扫描./resources/plugins目录下的所有插件，并根据插件的依赖关系决定加载顺序。
+		按需调用此函数，然后调用loadPlugin()启用插件。
+	*/
 	void EditorPluginManager::programLoadPlugin() {
 		yNotice << "Scanning plugins in ./resouces/plugins";
 		QFileInfoList Plugins = EditorPluginManagerPrivate::recursionGetAllDll("./resource/plugins");
@@ -142,12 +153,22 @@ namespace Visindigo::Editor {
 			}
 		}
 	}
+
+	/*!
+		\since Visindigo 0.13.0
+		检查ID为\a id的插件是否被启用。
+	*/
 	bool EditorPluginManager::isPluginEnable(const QString& id) const {
 		if (d->PluginIDMap.contains(id)) {
 			return d->PluginEnable.value(d->PluginIDMap.value(id));
 		}
 		return false;
 	}
+
+	/*!
+		\since Visindigo 0.13.0
+		启用所有已加载但未启用的插件。请在调用programLoadPlugin()之后调用此函数。
+	*/
 	void EditorPluginManager::loadPlugin() {
 		for (int i = 0; i < d->PriorityPlugins.size(); i++) {
 			EditorPlugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];

@@ -21,7 +21,6 @@ namespace Visindigo::Editor {
 	class ProjectTemplateProvider;
 	class FileTemplateProvider;
 	class EditorPluginManager;
-	class EditorHelper;
 	class EditorPluginModule;
 }
 // Main
@@ -52,7 +51,6 @@ namespace Visindigo::Editor {
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 		void registerFileTemplateProvider(FileTemplateProvider* provider);
 		void registerTranslator(Visindigo::General::Translator* translator);
-		void registerEditorHelper(Visindigo::Editor::EditorHelper* helper);
 	public:
 		virtual QWidget* getPluginSettingsWidget(QWidget* parent = nullptr) = 0;
 	protected:

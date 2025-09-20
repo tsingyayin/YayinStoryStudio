@@ -6,6 +6,11 @@
 #include "../FileServerManager.h"
 #include "../ProjectTemplateManager.h"
 #include "../FileTemplateManager.h"
+#include "../LangServer.h"
+#include "../DebugServer.h"
+#include "../FileServer.h"
+#include "../ProjectTemplateProvider.h"
+#include "../FileTemplateProvider.h"
 
 namespace Visindigo::Editor {
 	/*!
@@ -75,6 +80,9 @@ namespace Visindigo::Editor {
 		请注意，Yayin Story Studio无法处理循环依赖。当两个插件相互依赖时，将具有相同的优先等级，YSS无法确定其加载顺序。
 
 		如果您的插件不依赖其他插件，可以将Depend字段省略。
+
+		考虑到C++的内存使用极其自由，用户编写代码也极其自由，因此Visindigo不保证任何插件
+		逻辑的异常安全。任何执行插件函数过程中遭遇的异常都会导致Visindigo直接崩溃。
 	*/
 
 	/*!
@@ -97,6 +105,24 @@ namespace Visindigo::Editor {
 	EditorPlugin::~EditorPlugin() {
 		delete d;
 	}
+
+	/*!
+		\fn Visindigo::Editor::EditorPlugin::onPluginEnable()
+		\since Visindigo 0.13.0
+		启用插件时调用此函数。大部分涉及到Visindigo内部资源调用的初始化都应该在此函数中进行。
+
+		如果在构造函数中初始化，则有可能因为Visindigo尚未完全初始化而导致崩溃。此外，此函数
+		还会被Visindigo捕获异常并输出到日志中。
+	*/
+
+	/*!
+		\fn Visindigo::Editor::EditorPlugin::onPluginDisbale()
+		\since Visindigo 0.13.0
+		禁用插件时调用此函数。大部分涉及到Visindigo内部资源调用的清理都应该在此函数中进行。
+		如果在析构函数中清理，则有可能因为Visindigo已经开始析构而导致崩溃。此外，此函数
+		还会被Visindigo捕获异常并输出到日志中。
+	*/
+
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的ID
@@ -131,6 +157,14 @@ namespace Visindigo::Editor {
 	*/
 	Visindigo::Utility::JsonConfig* EditorPlugin::getPluginConfig() {
 		return &(d->Config);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		return 插件包含的模块列表
+	*/
+	QList<EditorPluginModule*> EditorPlugin::getModules() const {
+		return d->Modules;
 	}
 	/*!
 		\since Visindigo 0.13.0
@@ -171,6 +205,7 @@ namespace Visindigo::Editor {
 		\note 这里的语言服务器指的是代码语言高亮、着色与分析，而非自然语言翻译器。
 	*/
 	void EditorPlugin::registerLangServer(LangServer* server) {
+		d->Modules.append(server);
 		LangServerManager::getInstance()->addLangServer(server);
 	}
 	/*!
@@ -187,6 +222,7 @@ namespace Visindigo::Editor {
 		注册文件服务器。
 	*/
 	void EditorPlugin::registerFileServer(FileServer* server) {
+		d->Modules.append(server);
 		FileServerManager::getInstance()->registerFileServer(server);
 	}
 
@@ -204,19 +240,18 @@ namespace Visindigo::Editor {
 		注册项目模板提供者。
 	*/
 	void EditorPlugin::registerProjectTemplateProvider(ProjectTemplateProvider* provider) {
+		d->Modules.append(provider);
 		Visindigo::Editor::ProjectTemplateManager::getInstance()->addProvider(provider);
-	}
-
-	void EditorPlugin::registerFileTemplateProvider(FileTemplateProvider* provider) {
-		Visindigo::Editor::FileTemplateManager::getInstance()->addProvider(provider);
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		\a helper 编辑器助手
-		注册编辑器助手。
+		\a provider 文件模板提供者
+		注册文件模板提供者。
 	*/
-	void EditorPlugin::registerEditorHelper(Visindigo::Editor::EditorHelper* helper) {
-		//d->EditorHelper = helper;
+	void EditorPlugin::registerFileTemplateProvider(FileTemplateProvider* provider) {
+		d->Modules.append(provider);
+		Visindigo::Editor::FileTemplateManager::getInstance()->addProvider(provider);
 	}
+
 }

@@ -152,9 +152,6 @@
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\EditorProjectHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\cpp\EditorPluginModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -224,9 +221,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\CodeDiff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\TranslationHost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\Translator.h">
@@ -381,9 +375,6 @@
     <QtMoc Include="Editor\TabCompleterProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\EditorProjectHelper.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Widgets\MultiButtonGroup.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -397,6 +388,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\EditorPluginModule.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\TranslationHost.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

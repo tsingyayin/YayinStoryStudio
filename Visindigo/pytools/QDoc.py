@@ -14,7 +14,7 @@ if __name__ == "__main__":
     QDocConfig = path + "\\..\\doc\\config.qdocconf"
     print("QDocPath: " + QDocPath)
     print("QDocConfig: " + QDocConfig)
-    os.system(QDocPath + " " + QDocConfig+" -indexdir D:/Qt/6.5.2/Docs/Qt-6.8.3/qtcore"
-              + " -indexdir D:/Qt/6.5.2/Docs/Qt-6.8.3/qtwidgets"
-              + " -indexdir D:/Qt/6.5.2/Docs/Qt-6.8.3/qtnetwork"
-                + " -indexdir D:/Qt/6.5.2/Docs/Qt-6.8.3/qtgui")
+    os.system(QDocPath + " " + QDocConfig+" -indexdir D:/Qt/Docs/Qt-6.8.3/qtcore"
+              + " -indexdir D:/Qt/Docs/Qt-6.8.3/qtwidgets"
+              + " -indexdir D:/Qt/Docs/Qt-6.8.3/qtnetwork"
+              + " -indexdir D:/Qt/Docs/Qt-6.8.3/qtgui")

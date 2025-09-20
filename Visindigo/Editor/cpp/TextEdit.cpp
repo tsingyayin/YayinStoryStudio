@@ -468,7 +468,7 @@ namespace Visindigo::Editor {
 		}
 	}
 
-	/*
+	/*!
 		\since Visindigo 0.13.0
 		打开一个文件。只有文件完全打开成功才会返回true，其他任何失败情况均返回false。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。

@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/qobject.h>
 #include "../Macro.h"
 #include "Translator.h"
 // Forward declarations
@@ -9,7 +10,11 @@ namespace Visindigo::General {
 }
 // Main
 namespace Visindigo::General {
-	class VisindigoAPI TranslationHost {
+	class VisindigoAPI TranslationHost :public QObject
+	{
+		Q_OBJECT;
+	signals:
+		void langChanged(Translator::LangID id);
 	public:
 		static TranslationHost* getInstance();
 		TranslationHost();

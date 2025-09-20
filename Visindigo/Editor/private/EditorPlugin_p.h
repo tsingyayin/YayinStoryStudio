@@ -5,6 +5,7 @@
 // Forward declarations
 namespace Visindigo::Editor {
 	class EditorPlugin;
+	class EditorPluginModule;
 	class EditorPluginManager;
 }
 // Main
@@ -13,6 +14,7 @@ namespace Visindigo::__Private__ {
 		friend Visindigo::Editor::EditorPlugin;
 		friend Visindigo::Editor::EditorPluginManager;
 	protected:
+		QList<Visindigo::Editor::EditorPluginModule*> Modules;
 		Visindigo::Utility::JsonConfig Config;
 		Visindigo::General::Version ABIVersion = Visindigo::General::Version(0, 0, 0);
 		Visindigo::General::Version PluginVersion = Visindigo::General::Version(0, 0, 0);

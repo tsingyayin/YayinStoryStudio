@@ -33,6 +33,7 @@ namespace Visindigo::General {
 	public:
 		Translator();
 		Translator(const QString& nameSpace);
+		virtual ~Translator();
 		void setNamespace(const QString& nameSpace);
 		QString getNamespace();
 		void setDefaultLang(LangID lang);
