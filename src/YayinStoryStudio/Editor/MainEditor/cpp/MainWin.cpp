@@ -112,8 +112,8 @@ namespace YSS::Editor {
 		Menu->setStyleSheet("QMenuBar{border: 1px solid white}\
 			QMenu{margin:10px;border: 1px solid " % YSSTM->getColorString("OutlineLight") % ";border-radius:5px;}\
 			QMenu::item:selected{background-color: " % YSSTM->getColorString("Pressed") % "; color: " % YSSTM->getColorString("Text") % ";border-radius:5px;}\
-			QMenuBar::item:selected{background-color: " % YSSTM->getColorString("Highlight") % "; color: " % YSSTM->getColorString("HighlightedText") % ";}\
-			QMenu::separator{height:1px;background:" % YSSTM->getColorString("Separator") % ";margin-left:5px;margin-right:5px;}\
+			QMenuBar::item:selected{background-color: " % YSSTM->getColorString("Pressed") % "; color: " % YSSTM->getColorString("Text") % ";}\
+			QMenu::separator{height:1px;background:" % YSSTM->getColorString("Pressed") % ";margin-left:5px;margin-right:5px;}\
 ");
 	}
 

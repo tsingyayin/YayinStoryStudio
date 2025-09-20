@@ -44,7 +44,7 @@ namespace Visindigo::Utility {
 			parts.removeLast();
 			reciver = findChildObject(reciver, parts);
 		}
-		yDebugF << finalSignalName << finalSlotName;
+		//yDebugF << finalSignalName << finalSlotName;
 		if (!emiter || !reciver) {
 			yErrorF << "emiter or reciver is null after findChildObject";
 		}

@@ -104,12 +104,13 @@ namespace Visindigo::General {
 		
 		\sa tr(const QString& key)
 	*/
-	QString TranslationHost::tr(const QString& nameSpace, const QString& key) {
+	QString TranslationHost::tra(const QString& nameSpace, const QString& key) {
 		Translator* trans = d->Translators[nameSpace];
 		if (trans != nullptr) [[likely]] {
 			return trans->tr(key);
 		}
 		else {
+			yErrorF << "No such namespace" << nameSpace << "for key" << key;
 			return nameSpace + "::" + key;
 		}
 	}
@@ -125,11 +126,12 @@ namespace Visindigo::General {
 		
 		\sa tr(const QString& nameSpace, const QString& key)
 	*/
-	QString TranslationHost::tr(const QString& key) {
+	QString TranslationHost::tra(const QString& key) {
 		QStringList keys = key.split("::");
 		if (keys.length() == 2) {
-			return tr(keys[0], keys[1]);
+			return tra(keys[0], keys[1]);
 		}
+		yErrorF << "Key" << key << "dose not use namespace syntax.";
 		return key;
 	}
 
@@ -150,7 +152,7 @@ namespace Visindigo::General {
 			if (keys.length() != 2) {
 				return raw;
 			}
-			return tr(keys[0], keys[1]);
+			return tra(keys[0], keys[1]);
 		}
 		return raw;
 	}

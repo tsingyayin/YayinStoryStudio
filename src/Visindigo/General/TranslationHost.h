@@ -21,13 +21,13 @@ namespace Visindigo::General {
 		~TranslationHost();
 		void setLangID(Translator::LangID id);
 		void active(Translator* translator);
-		QString tr(const QString& nameSpace, const QString& key);
-		QString tr(const QString& key);
+		QString tra(const QString& nameSpace, const QString& key);
+		QString tra(const QString& key);
 		QString i18n(const QString& raw);
 	private:
 		TranslationHostPrivate* d;
 	};
 }
 // Helper macros
-#define YSSTR Visindigo::General::TranslationHost::getInstance()->tr
+#define YSSTR Visindigo::General::TranslationHost::getInstance()->tra
 #define YSSI18N Visindigo::General::TranslationHost::getInstance()->i18n
