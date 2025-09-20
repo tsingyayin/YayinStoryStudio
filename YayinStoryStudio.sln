@@ -3,30 +3,30 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryStudio", "YayinStoryStudio\YayinStoryStudio.vcxproj", "{2F0011CF-E80F-4A56-ADFD-6F7720A161AB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryStudio", "src\YayinStoryStudio\YayinStoryStudio.vcxproj", "{2F0011CF-E80F-4A56-ADFD-6F7720A161AB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646} = {83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41} = {A7BAE61B-D84E-410D-A68F-805E7E0BAF41}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visindigo", "Visindigo\Visindigo.vcxproj", "{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visindigo", "src\Visindigo\Visindigo.vcxproj", "{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ASEDevTool", "Plugin_ASEDevTool\Plugin_ASEDevTool.vcxproj", "{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ASEDevTool", "src\Plugin_ASEDevTool\Plugin_ASEDevTool.vcxproj", "{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41} = {A7BAE61B-D84E-410D-A68F-805E7E0BAF41}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ImageViewer", "Plugin_ImageViewer\Plugin_ImageViewer.vcxproj", "{DD27AF3D-1781-47E5-9531-E932AF190F28}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ImageViewer", "src\Plugin_ImageViewer\Plugin_ImageViewer.vcxproj", "{DD27AF3D-1781-47E5-9531-E932AF190F28}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSSInstaller", "YSSInstaller\YSSInstaller.vcxproj", "{16A1F8C1-A0F9-4872-A661-EC8C6EE8B2C4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSSInstaller", "src\YSSInstaller\YSSInstaller.vcxproj", "{16A1F8C1-A0F9-4872-A661-EC8C6EE8B2C4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_YSSFileExt", "Plugin_YSSFileExt\Plugin_YSSFileExt.vcxproj", "{375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_YSSFileExt", "src\Plugin_YSSFileExt\Plugin_YSSFileExt.vcxproj", "{375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryPlayer", "YayinStoryPlayer\YayinStoryPlayer.vcxproj", "{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryPlayer", "src\YayinStoryPlayer\YayinStoryPlayer.vcxproj", "{CEDEAFC9-971B-4021-8CB0-C9EEEE533098}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QSBC", "QSBC\QSBC.vcxproj", "{C627A5D0-3A3C-4C16-A18D-8B71CE1FE21B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QSBC", "src\QSBC\QSBC.vcxproj", "{C627A5D0-3A3C-4C16-A18D-8B71CE1FE21B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spol2", "Spol2\Spol2.vcxproj", "{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spol2", "src\Spol2\Spol2.vcxproj", "{5EA2E90C-1DE3-4E58-9B9C-32B7AC31F7F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

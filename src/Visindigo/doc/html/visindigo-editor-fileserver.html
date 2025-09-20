@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+<!-- FileServer.cpp -->
+  <meta name="description" content="此类提供文件打开服务。">
+  <title>FileServer Class | Visindigo</title>
+  <link rel="stylesheet" type="text/css" href="style/online.css" />
+  <link rel="shortcut icon" href="//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/assets/images/favicon.ico.gzip" />
+  <script type="text/javascript"> wpThemeFolder = 'http://qt.io/wp-content/themes/oneqt'; </script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery.js.gzip"></script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery-migrate.min.js.gzip"></script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/js/combo.js.gzip"></script>
+  <script type="text/javascript" src="scripts/main.js"></script>
+  <script type="text/javascript" src="scripts/extras.js"></script>
+  <script type="text/javascript">
+  $(function(){
+     $("#footer").load("/style/qt-footer.html");
+     $("#sidebar-content").load("style/qt5-sidebar.html");
+  });
+  </script>
+  <script type="text/javascript">
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-54043535-2', 'qt.io');
+    ga('set', 'forceSSL', true);
+    ga('send', 'pageview');
+  </script>
+</head>
+<body>
+<div class="header" id="tmpl_header">
+<header class="" id="navbar"><div id="cookie-confirmation" style="display:none"><div id="cookie-confirmation-inner"><p>We bake cookies in your browser for a better experience.  Using this site means that you consent.
+<a href="https://www1.qt.io/terms-conditions/ ">Read more</a></p><div id="cookie-confirmation-buttons-area"><a href="#" id="confirmation-button">Continue »</a>
+</div></div>
+<script>
+    ('#confirmation-button').on('click', function() { ('#cookie-confirmation').fadeOut(); createCookie("cookies_nom", "yum", 180); });
+    if (!(readCookie('cookies_nom') == 'yum')) { ('#cookie-confirmation').fadeIn(); }
+</script>
+</div>
+<div class="container">
+    <div class="navbar-header cf">
+        <div id="mm-wrap">
+            <ul id="mm-helper" class="mm-menu" data-event="hover_intent" data-effect="fade" data-effect-speed="200" data-panel-width="#navbar" data-panel-inner-width="1280px" data-second-click="go" data-document-click="collapse" data-vertical-behaviour="accordion" data-breakpoint="0">
+                <li class="mm-item"><a class="mm-link" href="http://blog.qt.io/" tabindex="0">Blog</a></li>
+                <li class="mm-item"><a class="mm-link" href="https://www.qt.io/contact-us/" tabindex="0">Contact Us</a></li>
+                <li class="mm-item"><a title="Qt Account" class="mm-link" href="https://account.qt.io/" tabindex="0"></a></li>
+            </ul>
+        </div>
+        <a class="navbar-oneQt retina" data-icon="" href="https://www.qt.io/"></a>
+    </div>
+</div>
+</header>
+</div>
+<div class="main">
+<div class="main-rounded">
+<div class="navigationbar">
+    <ul class="sub-navigation">
+        <li><a href="http://wiki.qt.io/">Wiki</a></li>
+        <li><a href="http://doc.qt.io/" class="active">Documentation</a></li>
+        <li><a href="http://forum.qt.io/">Forum</a></li>
+        <li><a href="https://bugreports.qt.io/">Bug Reports</a></li>
+        <li><a href="https://codereview.qt-project.org/">Code Review</a></li>
+    </ul>
+    <div id="main_title_bar">
+        <h1>Qt Documentation</h1>
+        <div class="search_bar">
+        <script>
+            (function() {
+                var cx = '003672281345882769388:1y4pftuq8so';
+                var gcse = document.createElement('script');
+                gcse.type = 'text/javascript';
+                gcse.async = true;
+                gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(gcse, s);
+            })();
+        </script>
+        <gcse:searchbox-only resultsUrl="search-results.html"></gcse:searchbox-only>
+    </div></div>
+    <ul>
+<li><a href="visindigo-module.html" translate="no">Visindigo</a></li>
+<li>FileServer</li>
+    </ul>
+</div>
+<div class="content">
+    <div class="line">
+        <div class="content mainContent">
+<div class="sidebar">
+<div class="toc">
+<h3 id="toc">Contents</h3>
+<ul>
+<li class="level1"><a href="#public-types">Public Types</a></li>
+<li class="level1"><a href="#public-functions">Public Functions</a></li>
+<li class="level1"><a href="#protected-functions">Protected Functions</a></li>
+<li class="level1"><a href="#details">Detailed Description</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<div class="context">
+<h1 class="title" translate="no">FileServer Class</h1>
+<span class="small-subtitle" translate="no">class <a href="visindigo-module.html" translate="no">Visindigo</a>::<a href="visindigo-editor.html" translate="no">Editor</a>::FileServer</span>
+<!-- $$$FileServer-brief -->
+<p>此类提供文件打开服务。. <a href="#details">More...</a></p>
+<!-- @@@FileServer -->
+<div class="table"><table class="alignedsummary requisites" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> Header:</td><td class="memItemRight bottomAlign"> <code translate="no">#include &lt;FileServer&gt;</code></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> Since:</td><td class="memItemRight bottomAlign"> Visindigo 0.13.0</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> Inherits:</td><td class="memItemRight bottomAlign"> <a href="visindigo-editor-editorpluginmodule.html" translate="no">Visindigo::Editor::EditorPluginModule</a></td></tr>
+</table></div>
+<ul>
+<li><a href="visindigo-editor-fileserver-members.html">List of all members, including inherited members</a></li>
+</ul>
+<h2 id="public-types">Public Types</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> enum </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#EditorType-enum" translate="no">EditorType</a></b> { CodeEditor, BuiltInEditor, WindowEditor, ExternalProgram, OtherEditor }</td></tr>
+</table></div>
+<h2 id="public-functions">Public Functions</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#FileServer" translate="no">FileServer</a></b>(const QString &amp;<i>name</i>, const QString &amp;<i>id</i>, Visindigo::Editor::EditorPlugin *<i>plugin</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#dtor.FileServer" translate="no">~FileServer</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> Visindigo::Editor::FileServer::EditorType </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#getEditorType" translate="no">getEditorType</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#getSupportedFileExts" translate="no">getSupportedFileExts</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#onCreateExternalEditor" translate="no">onCreateExternalEditor</a></b>(const QString &amp;<i>filePath</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual Visindigo::Editor::FileEditWidget *</td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#onCreateFileEditWidget" translate="no">onCreateFileEditWidget</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual QWidget *</td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#onCreateWindowEditor" translate="no">onCreateWindowEditor</a></b>(const QString &amp;<i>filePath</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#onOtherOpenFile" translate="no">onOtherOpenFile</a></b>(const QString &amp;<i>filePath</i>)</td></tr>
+</table></div>
+<h2 id="protected-functions">Protected Functions</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#setEditorType" translate="no">setEditorType</a></b>(Visindigo::Editor::FileServer::EditorType <i>type</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-fileserver.html#setSupportedFileExts" translate="no">setSupportedFileExts</a></b>(const int &amp;<i>exts</i>)</td></tr>
+</table></div>
+<!-- $$$FileServer-description -->
+<div class="descr">
+<h2 id="details">Detailed Description</h2>
+<p>由于<a href="visindigo-editor.html" translate="no">Visindigo::Editor</a>被设计为一个通用的编辑器框架，因此对于“打开文件”这样的需求只能提供通用框架， 即用户通过派生此类，并将其注册到<a href="visindigo-editor-fileservermanager.html" translate="no">Visindigo::Editor::FileServerManager</a>中来实现对某类文件的打开支持。</p>
+<p>这里的打开，指的就是通过<a href="visindigo-editor-fileserver.html#EditorType-enum" translate="no">Visindigo::Editor::FileServer::EditorType</a>枚举中定义的几种方式的任意一种方式打开文件。 用户应该将自己实现的FileServer通过<a href="visindigo-editor-editorplugin.html#registerFileServer" translate="no">Visindigo::Editor::EditorPlugin::registerFileServer</a>函数注册到<a href="visindigo-editor-fileservermanager.html" translate="no">Visindigo::Editor::FileServerManager</a>中。 稍后，在调用<a href="visindigo-editor-fileservermanager.html#openFile" translate="no">Visindigo::Editor::FileServerManager::openFile</a>函数时，Visindigo会根据文件扩展名选择合适的FileServer来打开文件。</p>
+</div>
+<!-- @@@FileServer -->
+<div class="types">
+<h2>Member Type Documentation</h2>
+<!-- $$$EditorType$$$CodeEditor$$$BuiltInEditor$$$WindowEditor$$$ExternalProgram$$$OtherEditor -->
+<h3 class="fn" translate="no" id="EditorType-enum"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> enum FileServer::<span class="name">EditorType</span></h3>
+<div class="table"><table class="valuelist"><tr valign="top" class="odd"><th class="tblConst">Constant</th><th class="tblval">Value</th><th class="tbldscr">Description</th></tr>
+<tr><td class="topAlign"><code translate="no">Visindigo::Editor::FileServer::CodeEditor</code></td><td class="topAlign tblval"><code translate="no">0</code></td><td class="topAlign">使用内置代码编辑器打开文件。</td></tr>
+<tr><td class="topAlign"><code translate="no">Visindigo::Editor::FileServer::BuiltInEditor</code></td><td class="topAlign tblval"><code translate="no">1</code></td><td class="topAlign">使用内置编辑器打开文件，但不是代码编辑器。这个编辑器必须是派生自<a href="visindigo-editor-fileeditwidget.html" translate="no">Visindigo::Editor::FileEditWidget</a>的类。 需要同时实现<a href="visindigo-editor-fileserver.html#onCreateFileEditWidget" translate="no">Visindigo::Editor::FileServer::onCreateFileEditWidget</a>函数。</td></tr>
+<tr><td class="topAlign"><code translate="no">Visindigo::Editor::FileServer::WindowEditor</code></td><td class="topAlign tblval"><code translate="no">2</code></td><td class="topAlign">使用新窗口打开文件，但仍然在本程序内。这个编辑器必须是派生自<a href="https://doc.qt.io/qt/qwidget.html" translate="no">QWidget</a>的类。 需要同时实现<a href="visindigo-editor-fileserver.html#onCreateWindowEditor" translate="no">Visindigo::Editor::FileServer::onCreateWindowEditor</a>函数。</td></tr>
+<tr><td class="topAlign"><code translate="no">Visindigo::Editor::FileServer::ExternalProgram</code></td><td class="topAlign tblval"><code translate="no">3</code></td><td class="topAlign">使用第三方程序打开文件。需要同时实现<a href="visindigo-editor-fileserver.html#onCreateExternalEditor" translate="no">Visindigo::Editor::FileServer::onCreateExternalEditor</a>函数。</td></tr>
+<tr><td class="topAlign"><code translate="no">Visindigo::Editor::FileServer::OtherEditor</code></td><td class="topAlign tblval"><code translate="no">4</code></td><td class="topAlign">其他方式打开文件。需要同时实现<a href="visindigo-editor-fileserver.html#onOtherOpenFile" translate="no">Visindigo::Editor::FileServer::onOtherOpenFile</a>函数。</td></tr>
+</table></div>
+<p>This enum was introduced in Visindigo 0.13.0.</p>
+<!-- @@@EditorType -->
+</div>
+<div class="func">
+<h2>Member Function Documentation</h2>
+<!-- $$$FileServer[overload1]$$$FileServerconstQString&constQString&Visindigo::Editor::EditorPlugin* -->
+<h3 class="fn" translate="no" id="FileServer"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> FileServer::<span class="name">FileServer</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>name</i>, const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>id</i>, <span class="type"><a href="visindigo-editor-editorplugin.html" translate="no">Visindigo::Editor::EditorPlugin</a></span> *<i>plugin</i>)</h3>
+<p><i translate="no">name</i> 为文件服务的名称。 <i translate="no">id</i> 为文件服务的唯一标识符。 <i translate="no">plugin</i> 为此文件服务所属的插件。 构造FileServer对象。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@FileServer -->
+<!-- $$$~FileServer[overload1]$$$~FileServer -->
+<h3 class="fn" translate="no" id="dtor.FileServer"><code class="details extra" translate="no">[virtual noexcept, since Visindigo 0.13.0]</code> FileServer::<span class="name">~FileServer</span>()</h3>
+<p>析构<a href="visindigo-editor-fileserver.html" translate="no">FileServer</a>对象。一般来说，没有任何情况需要手动析构此对象。<a href="visindigo-editor-fileserver.html" translate="no">FileServer</a>应该与使用它的插件有一致的生命周期。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@~FileServer -->
+<!-- $$$getEditorType[overload1]$$$getEditorType -->
+<h3 class="fn" translate="no" id="getEditorType"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="visindigo-editor-fileserver.html#EditorType-enum" translate="no">Visindigo::Editor::FileServer::EditorType</a></span> FileServer::<span class="name">getEditorType</span>()</h3>
+<p>返回此文件服务的编辑器类型。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getEditorType -->
+<!-- $$$getSupportedFileExts[overload1]$$$getSupportedFileExts -->
+<h3 class="fn" translate="no" id="getSupportedFileExts"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> FileServer::<span class="name">getSupportedFileExts</span>()</h3>
+<p>返回此文件服务支持的文件扩展名列表。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getSupportedFileExts -->
+<!-- $$$onCreateExternalEditor[overload1]$$$onCreateExternalEditorconstQString& -->
+<h3 class="fn" translate="no" id="onCreateExternalEditor"><code class="details extra" translate="no">[virtual, since Visindigo 0.13.0]</code> <span class="type">bool</span> FileServer::<span class="name">onCreateExternalEditor</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>filePath</i>)</h3>
+<p>当需要使用第三方程序打开文件时调用。默认实现返回false。 <i translate="no">filePath</i> 为需要打开的文件路径。 此函数要求派生类根据<i translate="no">filePath参数使用第三方程序打开这个文件，并返回是否成功的布尔值。</i></p>
+<p><a href="visindigo-editor-fileservermanager.html" translate="no">FileServerManager</a>不会对这个函数的返回值做任何处理。它会直接返回这个值给调用者。</p>
+<p>Visindigo对第三方程序的调用没有任何要求和限制。派生类可以使用任何方式调用第三方程序。 因此Visindigo也不打算提供生命周期辅助函数。如果插件需要对第三方程序的生命周期进行管理，请自行实现。 建议使用EditorPlugin::onPluginDisable函数在插件被禁用时关闭第三方程序。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@onCreateExternalEditor -->
+<!-- $$$onCreateFileEditWidget[overload1]$$$onCreateFileEditWidget -->
+<h3 class="fn" translate="no" id="onCreateFileEditWidget"><code class="details extra" translate="no">[virtual, since Visindigo 0.13.0]</code> <span class="type"><a href="visindigo-editor-fileeditwidget.html" translate="no">Visindigo::Editor::FileEditWidget</a></span> *FileServer::<span class="name">onCreateFileEditWidget</span>()</h3>
+<p>当需要创建内置编辑器时调用。默认实现返回nullptr。 此函数没有参数。因为设计上要求派生直接返回一个新创建的<a href="visindigo-editor-fileeditwidget.html" translate="no">Visindigo::Editor::FileEditWidget</a>派生类对象即可。</p>
+<p><a href="visindigo-editor-fileservermanager.html#openFile" translate="no">FileServerManager::openFile</a>函数内部会自动对这个新的派生类对象调用openFile函数打开指定文件。</p>
+<p>一旦成功，<a href="visindigo-editor-fileservermanager.html" translate="no">FileServerManager</a>会发出FileServerManager::builtinEditorCreated信号，传递这个新的编辑器对象的指针。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@onCreateFileEditWidget -->
+<!-- $$$onCreateWindowEditor[overload1]$$$onCreateWindowEditorconstQString& -->
+<h3 class="fn" translate="no" id="onCreateWindowEditor"><code class="details extra" translate="no">[virtual, since Visindigo 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qwidget.html" translate="no">QWidget</a></span> *FileServer::<span class="name">onCreateWindowEditor</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>filePath</i>)</h3>
+<p>当需要创建新窗口编辑器时调用。默认实现返回nullptr。 <i translate="no">filePath</i> 为需要打开的文件路径。 此函数要求派生类根据<i translate="no">filePath参数创建一个新的QWidget派生类对象，并返回这个对象的指针。</i></p>
+<p>只要返回的指针不为nullptr，<a href="visindigo-editor-fileservermanager.html" translate="no">FileServerManager</a>会发出FileServerManager::windowEditorCreated信号，传递这个新的窗口对象的指针。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@onCreateWindowEditor -->
+<!-- $$$onOtherOpenFile[overload1]$$$onOtherOpenFileconstQString& -->
+<h3 class="fn" translate="no" id="onOtherOpenFile"><code class="details extra" translate="no">[virtual, since Visindigo 0.13.0]</code> <span class="type">bool</span> FileServer::<span class="name">onOtherOpenFile</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>filePath</i>)</h3>
+<p>当需要使用其他方式打开文件时调用。默认实现返回false。 <i translate="no">filePath</i> 为需要打开的文件路径。 此函数要求派生类根据<i translate="no">filePath参数使用其他方式打开这个文件，并返回是否成功的布尔值。</i> <a href="visindigo-editor-fileservermanager.html" translate="no">FileServerManager</a>不会对这个函数的返回值做任何处理。它会直接返回这个值给调用者。</p>
+<p>很难想象“其他方式”具体指什么，因此Visindigo对这个函数没有任何要求和限制。派生类可以使用任何方式打开文件。 同样的，Visindigo没有为这种方式提供任何生命周期辅助函数。如果插件需要对这种方式的生命周期进行管理，请自行实现。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@onOtherOpenFile -->
+<!-- $$$setEditorType[overload1]$$$setEditorTypeVisindigo::Editor::FileServer::EditorType -->
+<h3 class="fn" translate="no" id="setEditorType"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> FileServer::<span class="name">setEditorType</span>(<span class="type"><a href="visindigo-editor-fileserver.html#EditorType-enum" translate="no">Visindigo::Editor::FileServer::EditorType</a></span> <i>type</i>)</h3>
+<p>设置此文件服务的编辑器类型。 <i translate="no">type</i> 为新的编辑器类型。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@setEditorType -->
+<!-- $$$setSupportedFileExts[overload1]$$$setSupportedFileExtsconstint& -->
+<h3 class="fn" translate="no" id="setSupportedFileExts"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> FileServer::<span class="name">setSupportedFileExts</span>(const <span class="type">int</span> &amp;<i>exts</i>)</h3>
+<p>设置此文件服务支持的文件扩展名列表。 <i translate="no">exts</i> 为新的文件扩展名列表。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@setSupportedFileExts -->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<footer id="footerbar">
+    <div class="footer-main">
+            <div class="container clearfix">
+                <nav class="footer-nav clearfix">
+                    <div class="menu-footer-menu-container"><ul id="menu-footer-menu" class="menu"><li id="menu-item-1403" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1403"><a href="http://qt.io/download/">Download</a>
+<ul class="sub-menu">
+    <li id="menu-item-11677" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-11677"><a href="http://qt.io/download/">Start for Free</a></li>
+    <li id="menu-item-15840" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15840"><a href="http://qt.io/download-eval-for-applications-step-2/">Qt for Application Development</a></li>
+    <li id="menu-item-15841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15841"><a href="http://qt.io/request-eval-for-devices-step-2/">Qt for Device Creation</a></li>
+    <li id="menu-item-15838" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15838"><a href="http://qt.io/download-open-source/">Qt Open Source</a></li>
+    <li id="menu-item-1415" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1415"><a href="http://qt.io/terms-conditions/">Terms &amp; Conditions</a></li>
+    <li id="menu-item-14184" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14184"><a href="http://qt.io/FAQ/">Licensing FAQ</a></li>
+</ul>
+</li>
+<li id="menu-item-1355" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1355"><a href="http://qt.io/product/">Product</a>
+<ul class="sub-menu">
+    <li id="menu-item-12576" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12576"><a href="http://qt.io/product/">Qt in Use</a></li>
+    <li id="menu-item-15848" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15848"><a href="http://qt.io/application-development/">Qt for Application Development</a></li>
+    <li id="menu-item-1357" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1357"><a href="http://qt.io/qt-for-device-creation/">Qt for Device Creation</a></li>
+    <li id="menu-item-1356" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1356"><a href="http://qt.io/qt-features/">Commercial Features</a></li>
+    <li id="menu-item-15850" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15850"><a href="http://qt.io/ide/">Qt Creator IDE</a></li>
+    <li id="menu-item-1359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1359"><a href="http://qt.io/qt-quick/">Qt Quick</a></li>
+</ul>
+</li>
+<li id="menu-item-1347" class="menu-item menu-item-type-post_type menu-item-object-page current-menu-ancestor current-menu-parent current_page_parent current_page_ancestor menu-item-has-children menu-item-1347"><a href="http://qt.io/services/">Services</a>
+<ul class="sub-menu">
+    <li id="menu-item-4028" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4028"><a href="http://qt.io/services-technology-evaluation/">Technology Evaluation</a></li>
+    <li id="menu-item-4027" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4027"><a href="http://qt.io/services-proof-of-concept/">Proof of Concept</a></li>
+    <li id="menu-item-4026" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4026"><a href="http://qt.io/services-design-implementation/">Design &amp; Implementation</a></li>
+    <li id="menu-item-4025" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4025"><a href="http://qt.io/services-productization/">Productization</a></li>
+    <li id="menu-item-15863" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15863"><a href="http://qt.io/qt-training/">Qt Training</a></li>
+    <li id="menu-item-4779" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4779"><a href="https://qt.io/partners/">Partner Network</a></li>
+</ul>
+</li>
+<li id="menu-item-33" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-33"><a href="http://qt.io/developers/">Developers</a>
+<ul class="sub-menu">
+    <li id="menu-item-1365" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1365"><a href="http://doc.qt.io/">Documentation</a></li>
+    <li id="menu-item-1364" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1364"><a href="http://doc.qt.io/qt-5/qtexamplesandtutorials.html">Examples &amp; Tutorials</a></li>
+    <li id="menu-item-1363" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1363"><a href="http://doc.qt.io/qt-5/topics-app-development.html">Development Tools</a></li>
+    <li id="menu-item-1361" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1361"><a href="http://wiki.qt.io/">Wiki</a></li>
+    <li id="menu-item-1360" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1360"><a href="http://forum.qt.io/">Forums</a></li>
+    <li id="menu-item-15922" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-15922"><a href="http://wiki.qt.io/contribute">Contribute to Qt</a></li>
+</ul>
+</li>
+<li id="menu-item-1350" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1350"><a href="http://qt.io/about-us/">About us</a>
+<ul class="sub-menu">
+    <li id="menu-item-1353" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1353"><a href="http://qt.io/events/">Training &amp; Events</a></li>
+    <li id="menu-item-1354" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1354"><a href="http://qt.io/resource-center/">Resource Center</a></li>
+    <li id="menu-item-12285" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12285"><a href="http://qt.io/news/">News</a></li>
+    <li id="menu-item-1349" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1349"><a href="http://qt.io/careers/">Careers</a></li>
+    <li id="menu-item-11676" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-11676"><a href="http://qt.io/locations/">Locations</a></li>
+    <li id="menu-item-15911" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15911"><a href="http://qt.io/contact-us">Contact Us</a></li>
+</ul>
+</li>
+</ul></div></nav>
+<a href="http://qt.io/about-us/" target="_blank" class="theqtcompany"></a>
+    <div class="footer-social clearfix">
+        <div class="facebook">
+            <iframe scrolling="no" frameborder="0" allowTransparency="true" src="http://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2Fqt&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=true&amp;share=false&amp;height=21" style="border:none;overflow:hidden;height:21px;"></iframe>
+        </div>
+        <div class="twitter">
+            <iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" src="http://platform.twitter.com/widgets/follow_button.33b190ea0cba008796487b65df7f6d8e.en.html#_=1414403615717&amp;id=twitter-widget-0&amp;lang=en&amp;screen_name=qtproject&amp;show_count=true&amp;show_screen_name=false&amp;size=m" class="twitter-follow-button twitter-follow-button" title="Twitter Follow Button" data-twttr-rendered="true" style="width: 160px; height: 20px;"></iframe>
+        </div>
+    </div>
+</div>
+</div>
+<div class="disclaimer">
+<div class="container clearfix no_discs">
+    <ul id="menu-footer-submenu" class="right clearfix"><li id="menu-item-1795" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1795"><a title="Sign into your account." href="https://account.qt.io/login">Sign In</a></li>
+      <li id="menu-item-10375" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-10375"><a href="mailto:feedback@theqtcompany.com?Subject=Feedback%20about%20doc.qt.io%20site">Feedback</a></li>
+      <li id="menu-item-1494" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1494"><a href="http://qt.io/contact-us/">Contact us</a></li>
+      <li id="menu-item-4472" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4472"><a href="http://qt.io/about-us/">© 2024 The Qt Company</a></li>
+    </ul>
+</div>
+</div>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE QDOCINDEX>
+<INDEX url="" title="YSSCore Reference Documentation" version="" project="YSSCore">
+    <namespace name="" status="active" access="public" module="ysscore">
+        <namespace name="YSSCore" href="ysscore.html" status="active" access="public" location="ConfigWidget.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../ConfigWidget.h" lineno="6" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="内核模块根命名空间">
+            <namespace name="Editor" fullname="YSSCore::Editor" href="ysscore-editor.html" status="active" access="public" location="ConfigWidget.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../ConfigWidget.h" lineno="9" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="内核模块适用编辑器的组件的命名空间">
+                <class name="ConfigWidget" fullname="YSSCore::Editor::ConfigWidget" href="ysscore-editor-configwidget.html" status="active" access="public" location="ConfigWidget.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../ConfigWidget.h" lineno="11" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="此类从CWJson创建配置窗口。">
+                    <function name="~ConfigWidget" fullname="YSSCore::Editor::ConfigWidget::~ConfigWidget" href="ysscore-editor-configwidget.html#dtor.ConfigWidget" status="active" access="public" location="ConfigWidget.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../ConfigWidget.h" lineno="16" documented="true" since="Yayin Story Studio 0.13.0" meta="destructor" virtual="virtual" noexcept="true" signature="~ConfigWidget()"/>
+                </class>
+                <class name="EditorPlugin" fullname="YSSCore::Editor::EditorPlugin" href="ysscore-editor-editorplugin.html" status="active" access="public" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="20" since="YSSCore 0.13.0" documented="true" module="YSSCore" brief="此类为Yayin Story Studio 提供插件基类。">
+                    <function name="EditorPlugin" fullname="YSSCore::Editor::EditorPlugin::EditorPlugin" href="ysscore-editor-editorplugin.html#EditorPlugin" status="active" access="public" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="25" documented="true" since="YSSCore 0.13.0" meta="constructor" signature="EditorPlugin(YSSCore::General::Version abiVersion, int *parent)">
+                        <parameter type="YSSCore::General::Version" name="abiVersion" default="Compiled_YSSABI_Version"/>
+                        <parameter type="int *" name="parent" default="nullptr"/>
+                    </function>
+                    <function name="getPluginAuthor" fullname="YSSCore::Editor::EditorPlugin::getPluginAuthor" href="ysscore-editor-editorplugin.html#getPluginAuthor" status="active" access="public" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="31" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="int" signature="int getPluginAuthor() const"/>
+                    <function name="getPluginFolder" fullname="YSSCore::Editor::EditorPlugin::getPluginFolder" href="ysscore-editor-editorplugin.html#getPluginFolder" status="active" access="public" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="32" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="QString" signature="QString getPluginFolder() const"/>
+                    <function name="getPluginID" fullname="YSSCore::Editor::EditorPlugin::getPluginID" href="ysscore-editor-editorplugin.html#getPluginID" status="active" access="public" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="29" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="QString" signature="QString getPluginID() const"/>
+                    <function name="getPluginName" fullname="YSSCore::Editor::EditorPlugin::getPluginName" href="ysscore-editor-editorplugin.html#getPluginName" status="active" access="public" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="30" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="QString" signature="QString getPluginName() const"/>
+                    <function name="registerDebugServer" fullname="YSSCore::Editor::EditorPlugin::registerDebugServer" href="ysscore-editor-editorplugin.html#registerDebugServer" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="40" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void registerDebugServer(YSSCore::Editor::DebugServer *server)">
+                        <parameter type="YSSCore::Editor::DebugServer *" name="server" default=""/>
+                    </function>
+                    <function name="registerFileServer" fullname="YSSCore::Editor::EditorPlugin::registerFileServer" href="ysscore-editor-editorplugin.html#registerFileServer" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="41" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void registerFileServer(YSSCore::Editor::FileServer *server)">
+                        <parameter type="YSSCore::Editor::FileServer *" name="server" default=""/>
+                    </function>
+                    <function name="registerLangServer" fullname="YSSCore::Editor::EditorPlugin::registerLangServer" href="ysscore-editor-editorplugin.html#registerLangServer" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="39" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void registerLangServer(YSSCore::Editor::LangServer *server)">
+                        <parameter type="YSSCore::Editor::LangServer *" name="server" default=""/>
+                    </function>
+                    <function name="registerProjectTemplateProvider" fullname="YSSCore::Editor::EditorPlugin::registerProjectTemplateProvider" href="ysscore-editor-editorplugin.html#registerProjectTemplateProvider" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="42" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void registerProjectTemplateProvider(YSSCore::Editor::ProjectTemplateProvider *provider)">
+                        <parameter type="YSSCore::Editor::ProjectTemplateProvider *" name="provider" default=""/>
+                    </function>
+                    <function name="registerTranslator" fullname="YSSCore::Editor::EditorPlugin::registerTranslator" href="ysscore-editor-editorplugin.html#registerTranslator" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="43" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void registerTranslator(YSSCore::General::Translator *translator)">
+                        <parameter type="YSSCore::General::Translator *" name="translator" default=""/>
+                    </function>
+                    <function name="setPluginAuthor" fullname="YSSCore::Editor::EditorPlugin::setPluginAuthor" href="ysscore-editor-editorplugin.html#setPluginAuthor" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="37" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setPluginAuthor(const int &amp;author)">
+                        <parameter type="const int &amp;" name="author" default=""/>
+                    </function>
+                    <function name="setPluginFolder" fullname="YSSCore::Editor::EditorPlugin::setPluginFolder" href="ysscore-editor-editorplugin.html#setPluginFolder" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="38" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setPluginFolder(const QString &amp;folder)">
+                        <parameter type="const QString &amp;" name="folder" default=""/>
+                    </function>
+                    <function name="setPluginID" fullname="YSSCore::Editor::EditorPlugin::setPluginID" href="ysscore-editor-editorplugin.html#setPluginID" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="35" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setPluginID(const QString &amp;id)">
+                        <parameter type="const QString &amp;" name="id" default=""/>
+                    </function>
+                    <function name="setPluginName" fullname="YSSCore::Editor::EditorPlugin::setPluginName" href="ysscore-editor-editorplugin.html#setPluginName" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="36" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setPluginName(const QString &amp;name)">
+                        <parameter type="const QString &amp;" name="name" default=""/>
+                    </function>
+                    <function name="setPluginVersion" fullname="YSSCore::Editor::EditorPlugin::setPluginVersion" href="ysscore-editor-editorplugin.html#setPluginVersion" status="active" access="protected" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="34" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setPluginVersion(const YSSCore::General::Version &amp;version)">
+                        <parameter type="const YSSCore::General::Version &amp;" name="version" default=""/>
+                    </function>
+                    <function name="~EditorPlugin" fullname="YSSCore::Editor::EditorPlugin::~EditorPlugin" href="ysscore-editor-editorplugin.html#dtor.EditorPlugin" status="active" access="public" location="EditorPlugin.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPlugin.h" lineno="26" documented="true" since="YSSCore 0.13.0" meta="destructor" noexcept="true" signature="~EditorPlugin()"/>
+                </class>
+                <class name="EditorPluginManager" fullname="YSSCore::Editor::EditorPluginManager" href="ysscore-editor-editorpluginmanager.html" status="active" access="public" location="EditorPluginManager.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../EditorPluginManager.h" lineno="8" since="YSSCore 0.10.0" documented="true" module="YSSCore" brief="此类为YayinStoryStudio提供插件管理器。"/>
+                <class name="FileEditWidget" fullname="YSSCore::Editor::FileEditWidget" href="ysscore-editor-fileeditwidget.html" status="active" access="public" location="FileEditWidget.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../FileEditWidget.h" lineno="9" since="YSSCore 0.13.0" documented="true" module="YSSCore" brief="此类为Yayin Story Studio 提供文件编辑的基类。"/>
+                <class name="TextEdit" fullname="YSSCore::Editor::TextEdit" href="ysscore-editor-textedit.html" status="active" access="public" location="TextEdit.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../TextEdit.h" lineno="11" since="YSSCore 0.13.0" documented="true" bases="YSSCore::Editor::FileEditWidget" module="YSSCore" brief="这是YSS最关键的功能：代码编辑器">
+                    <function name="TextEdit" fullname="YSSCore::Editor::TextEdit::TextEdit" href="ysscore-editor-textedit.html#TextEdit" status="active" access="public" location="TextEdit.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../TextEdit.h" lineno="29" documented="true" since="YSSCore 0.13.0" meta="constructor" signature="TextEdit(QWidget *parent)">
+                        <parameter type="QWidget *" name="parent" default="nullptr"/>
+                    </function>
+                    <function name="openFile" fullname="YSSCore::Editor::TextEdit::openFile" href="ysscore-editor-textedit.html#openFile" status="active" access="public" location="TextEdit.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../TextEdit.h" lineno="31" documented="true" since="YSSCore 0.13.0" meta="plain" virtual="virtual" override="true" type="bool" signature="bool openFile(const QString &amp;path) override">
+                        <parameter type="const QString &amp;" name="path" default=""/>
+                    </function>
+                    <function name="saveFile" fullname="YSSCore::Editor::TextEdit::saveFile" href="ysscore-editor-textedit.html#saveFile" status="active" access="public" location="TextEdit.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../TextEdit.h" lineno="32" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void saveFile(const QString &amp;path)">
+                        <parameter type="const QString &amp;" name="path" default="&quot;&quot;"/>
+                    </function>
+                    <function name="~TextEdit" fullname="YSSCore::Editor::TextEdit::~TextEdit" href="ysscore-editor-textedit.html#dtor.TextEdit" status="active" access="public" location="TextEdit.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../TextEdit.h" lineno="30" documented="true" since="YSSCore 0.13.0" meta="destructor" virtual="virtual" noexcept="true" signature="~TextEdit()"/>
+                </class>
+            </namespace>
+            <namespace name="General" fullname="YSSCore::General" href="ysscore-general.html" status="active" access="public" location="Translator.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../General\Translator.h" lineno="9" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="内核模块适用编辑器和播放器的组件的命名空间"/>
+            <namespace name="Utility" fullname="YSSCore::Utility" href="ysscore-utility.html" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="7" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="内核模块工具类命名空间">
+                <class name="AsyncFunction" fullname="YSSCore::Utility::AsyncFunction" href="ysscore-utility-asyncfunction.html" status="active" access="public" location="AsyncFunction.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../AsyncFunction.h" lineno="7" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="异步函数类模板"/>
+                <class name="CodeDiff" fullname="YSSCore::Utility::CodeDiff" href="ysscore-utility-codediff.html" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="18" since="YSSCore 0.13.0" documented="true" module="YSSCore" brief="此类用于表示代码差异。">
+                    <function name="compare" fullname="YSSCore::Utility::CodeDiff::compare" href="ysscore-utility-codediff.html#compare" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="26" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void compare()"/>
+                    <function name="debugPrint" fullname="YSSCore::Utility::CodeDiff::debugPrint" href="ysscore-utility-codediff.html#debugPrint" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="27" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void debugPrint()"/>
+                    <function name="getNewCode" fullname="YSSCore::Utility::CodeDiff::getNewCode" href="ysscore-utility-codediff.html#getNewCode" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="25" documented="true" since="YSSCore 0.13.0" meta="plain" type="YSSCore::Utility::DiffSequence *" signature="YSSCore::Utility::DiffSequence * getNewCode()"/>
+                    <function name="getOldCode" fullname="YSSCore::Utility::CodeDiff::getOldCode" href="ysscore-utility-codediff.html#getOldCode" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="24" documented="true" since="YSSCore 0.13.0" meta="plain" type="YSSCore::Utility::DiffSequence *" signature="YSSCore::Utility::DiffSequence * getOldCode()"/>
+                    <function name="setNewCode" fullname="YSSCore::Utility::CodeDiff::setNewCode" href="ysscore-utility-codediff.html#setNewCode" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="23" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setNewCode(int newCode)">
+                        <parameter type="int" name="newCode" default=""/>
+                    </function>
+                    <function name="setOldCode" fullname="YSSCore::Utility::CodeDiff::setOldCode" href="ysscore-utility-codediff.html#setOldCode" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="22" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setOldCode(int oldCode)">
+                        <parameter type="int" name="oldCode" default=""/>
+                    </function>
+                    <function name="~CodeDiff" fullname="YSSCore::Utility::CodeDiff::~CodeDiff" href="ysscore-utility-codediff.html#dtor.CodeDiff" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="21" documented="true" since="YSSCore 0.13.0" meta="destructor" noexcept="true" signature="~CodeDiff()"/>
+                </class>
+                <class name="CodeLine" fullname="YSSCore::Utility::CodeLine" href="ysscore-utility-codeline.html" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="7" since="YSSCore 0.13.0" documented="true" bases="YSSCore::Utility::DiffUnit" module="YSSCore" brief="此类用于表示任何代码行。">
+                    <function name="getLine" fullname="YSSCore::Utility::CodeLine::getLine" href="ysscore-utility-codeline.html#getLine" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="12" documented="true" since="YSSCore 0.13.0" meta="plain" type="int" signature="int getLine()"/>
+                    <function name="onCompare" fullname="YSSCore::Utility::CodeLine::onCompare" href="ysscore-utility-codeline.html#onCompare" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="11" documented="true" since="YSSCore 0.13.0" meta="plain" virtual="virtual" override="true" type="YSSCore::Utility::DiffUnit::CompareType" signature="YSSCore::Utility::DiffUnit::CompareType onCompare(const YSSCore::Utility::DiffUnit *other) override">
+                        <parameter type="const YSSCore::Utility::DiffUnit *" name="other" default=""/>
+                    </function>
+                    <function name="~CodeLine" fullname="YSSCore::Utility::CodeLine::~CodeLine" href="ysscore-utility-codeline.html#dtor.CodeLine" status="active" access="public" location="CodeDiff.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../CodeDiff.h" lineno="10" documented="true" since="YSSCore 0.13.0" meta="destructor" virtual="virtual" noexcept="true" signature="~CodeLine()"/>
+                </class>
+                <class name="Console" fullname="YSSCore::Utility::Console" href="ysscore-utility-console.html" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="9" since="YSSCore 0.10.0" documented="true" module="YSSCore" brief="此类为YayinStoryStudio提供初级的控制台快捷功能。">
+                    <function name="binary" fullname="YSSCore::Utility::Console::binary" href="ysscore-utility-console.html#binary" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="31" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="void" signature="void binary(const int &amp;data)">
+                        <parameter type="const int &amp;" name="data" default=""/>
+                    </function>
+                    <function name="exec" fullname="YSSCore::Utility::Console::exec" href="ysscore-utility-console.html#exec" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="35" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="unsigned int" signature="unsigned int exec(const QString &amp;cmd)">
+                        <parameter type="const QString &amp;" name="cmd" default=""/>
+                    </function>
+                    <function name="getColorString" fullname="YSSCore::Utility::Console::getColorString" href="ysscore-utility-console.html#getColorString" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="20" documented="true" since="YSSCore 0.10.0" meta="plain" static="true" type="QString" signature="QString getColorString(QString rawText, YSSCore::Utility::Console::Color color, int styleList)">
+                        <parameter type="QString" name="rawText" default=""/>
+                        <parameter type="YSSCore::Utility::Console::Color" name="color" default=""/>
+                        <parameter type="int" name="styleList" default="{ Console::Style::Normal }"/>
+                    </function>
+                    <function name="getColorString" fullname="YSSCore::Utility::Console::getColorString" href="ysscore-utility-console.html#getColorString-1" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="23" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" overload="true" overload-number="1" type="QString" signature="QString getColorString(QString rawText, QColor rgb, YSSCore::Utility::Console::Style style)">
+                        <parameter type="QString" name="rawText" default=""/>
+                        <parameter type="QColor" name="rgb" default=""/>
+                        <parameter type="YSSCore::Utility::Console::Style" name="style" default="Console::Style::Normal"/>
+                    </function>
+                    <function name="getColorString" fullname="YSSCore::Utility::Console::getColorString" href="ysscore-utility-console.html#getColorString-2" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="22" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" overload="true" overload-number="2" type="QString" signature="QString getColorString(QString rawText, QColor rgb, int styleList)">
+                        <parameter type="QString" name="rawText" default=""/>
+                        <parameter type="QColor" name="rgb" default=""/>
+                        <parameter type="int" name="styleList" default="{ Console::Style::Normal }"/>
+                    </function>
+                    <function name="getColorString" fullname="YSSCore::Utility::Console::getColorString" href="ysscore-utility-console.html#getColorString-3" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="21" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" overload="true" overload-number="3" type="QString" signature="QString getColorString(QString rawText, YSSCore::Utility::Console::Color color, YSSCore::Utility::Console::Style style)">
+                        <parameter type="QString" name="rawText" default=""/>
+                        <parameter type="YSSCore::Utility::Console::Color" name="color" default=""/>
+                        <parameter type="YSSCore::Utility::Console::Style" name="style" default="Console::Style::Normal"/>
+                    </function>
+                    <function name="getLine" fullname="YSSCore::Utility::Console::getLine" href="ysscore-utility-console.html#getLine" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="24" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="QString" signature="QString getLine()"/>
+                    <function name="getRawText" fullname="YSSCore::Utility::Console::getRawText" href="ysscore-utility-console.html#getRawText" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="29" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="QString" signature="QString getRawText(QString colorString)">
+                        <parameter type="QString" name="colorString" default=""/>
+                    </function>
+                    <function name="inErrorStyle" fullname="YSSCore::Utility::Console::inErrorStyle" href="ysscore-utility-console.html#inErrorStyle" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="26" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="QString" signature="QString inErrorStyle(QString rawText)">
+                        <parameter type="QString" name="rawText" default=""/>
+                    </function>
+                    <function name="inNoticeStyle" fullname="YSSCore::Utility::Console::inNoticeStyle" href="ysscore-utility-console.html#inNoticeStyle" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="28" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="QString" signature="QString inNoticeStyle(QString rawText)">
+                        <parameter type="QString" name="rawText" default=""/>
+                    </function>
+                    <function name="inSuccessStyle" fullname="YSSCore::Utility::Console::inSuccessStyle" href="ysscore-utility-console.html#inSuccessStyle" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="27" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="QString" signature="QString inSuccessStyle(QString rawText)">
+                        <parameter type="QString" name="rawText" default=""/>
+                    </function>
+                    <function name="inWarningStyle" fullname="YSSCore::Utility::Console::inWarningStyle" href="ysscore-utility-console.html#inWarningStyle" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="25" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="QString" signature="QString inWarningStyle(QString rawText)">
+                        <parameter type="QString" name="rawText" default=""/>
+                    </function>
+                    <function name="print" fullname="YSSCore::Utility::Console::print" href="ysscore-utility-console.html#print" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="30" documented="true" since="YSSCore 0.13.0" meta="plain" static="true" type="void" signature="void print(QString msg)">
+                        <parameter type="QString" name="msg" default=""/>
+                    </function>
+                    <enum name="Color" fullname="YSSCore::Utility::Console::Color" href="ysscore-utility-console.html#Color-enum" status="active" access="public" location="Console.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../Console.h" lineno="11" since="YSSCore 0.10.0" documented="true" scoped="true">
+                        <value name="None" value="0"/>
+                        <value name="Black" value="1"/>
+                        <value name="Gray" value="2"/>
+                        <value name="Red" value="3"/>
+                        <value name="LightRed" value="4"/>
+                        <value name="Green" value="5"/>
+                        <value name="LightGreen" value="6"/>
+                        <value name="Yellow" value="7"/>
+                        <value name="LightYellow" value="8"/>
+                        <value name="Blue" value="9"/>
+                        <value name="LightBlue" value="10"/>
+                        <value name="Purple" value="11"/>
+                        <value name="LightPurple" value="12"/>
+                        <value name="Cyan" value="13"/>
+                        <value name="LightCyan" value="14"/>
+                        <value name="LightGray" value="15"/>
+                        <value name="White" value="16"/>
+                    </enum>
+                </class>
+                <class name="DiffSequence" fullname="YSSCore::Utility::DiffSequence" href="ysscore-utility-diffsequence.html" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="35" since="YSSCore 0.13.0" documented="true" module="YSSCore" brief="此类为Yayin Story Studio 提供差异比较的序列。">
+                    <function name="DiffSequence" fullname="YSSCore::Utility::DiffSequence::DiffSequence" href="ysscore-utility-diffsequence.html#DiffSequence" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="37" documented="true" since="YSSCore 0.13.0" meta="constructor" signature="DiffSequence()"/>
+                    <function name="addDiffUnit" fullname="YSSCore::Utility::DiffSequence::addDiffUnit" href="ysscore-utility-diffsequence.html#addDiffUnit" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="41" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void addDiffUnit(YSSCore::Utility::DiffUnit *unit)">
+                        <parameter type="YSSCore::Utility::DiffUnit *" name="unit" default=""/>
+                    </function>
+                    <function name="clear" fullname="YSSCore::Utility::DiffSequence::clear" href="ysscore-utility-diffsequence.html#clear" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="44" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void clear()"/>
+                    <function name="compareAsOld" fullname="YSSCore::Utility::DiffSequence::compareAsOld" href="ysscore-utility-diffsequence.html#compareAsOld" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="49" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="int" signature="int compareAsOld(const YSSCore::Utility::DiffSequence *other) const">
+                        <parameter type="const YSSCore::Utility::DiffSequence *" name="other" default=""/>
+                    </function>
+                    <function name="getDiffUnit" fullname="YSSCore::Utility::DiffSequence::getDiffUnit" href="ysscore-utility-diffsequence.html#getDiffUnit" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="42" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="YSSCore::Utility::DiffUnit *" signature="YSSCore::Utility::DiffUnit * getDiffUnit(int index) const">
+                        <parameter type="int" name="index" default=""/>
+                    </function>
+                    <function name="isEmpty" fullname="YSSCore::Utility::DiffSequence::isEmpty" href="ysscore-utility-diffsequence.html#isEmpty" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="48" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="bool" signature="bool isEmpty() const"/>
+                    <function name="operator[]" fullname="YSSCore::Utility::DiffSequence::operator[]" href="ysscore-utility-diffsequence.html#operator-5b-5d" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="43" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="YSSCore::Utility::DiffUnit *" signature="YSSCore::Utility::DiffUnit * operator[](int index) const">
+                        <parameter type="int" name="index" default=""/>
+                    </function>
+                    <function name="refresh" fullname="YSSCore::Utility::DiffSequence::refresh" href="ysscore-utility-diffsequence.html#refresh" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="45" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void refresh()"/>
+                    <function name="removeDiffUnit" fullname="YSSCore::Utility::DiffSequence::removeDiffUnit" href="ysscore-utility-diffsequence.html#removeDiffUnit" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="46" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void removeDiffUnit(int index)">
+                        <parameter type="int" name="index" default=""/>
+                    </function>
+                    <function name="size" fullname="YSSCore::Utility::DiffSequence::size" href="ysscore-utility-diffsequence.html#size" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="47" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="int" signature="int size() const"/>
+                    <function name="~DiffSequence" fullname="YSSCore::Utility::DiffSequence::~DiffSequence" href="ysscore-utility-diffsequence.html#dtor.DiffSequence" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="40" documented="true" since="YSSCore 0.13.0" meta="destructor" noexcept="true" signature="~DiffSequence()"/>
+                </class>
+                <class name="DiffUnit" fullname="YSSCore::Utility::DiffUnit" href="ysscore-utility-diffunit.html" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="7" since="YSSCore 0.13.0" documented="true" module="YSSCore" brief="此类为Yayin Story Studio 提供差异比较的基类。">
+                    <function name="DiffUnit" fullname="YSSCore::Utility::DiffUnit::DiffUnit" href="ysscore-utility-diffunit.html#DiffUnit" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="25" documented="true" since="YSSCore 0.13.0" meta="constructor" signature="DiffUnit()"/>
+                    <function name="getDiffType" fullname="YSSCore::Utility::DiffUnit::getDiffType" href="ysscore-utility-diffunit.html#getDiffType" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="30" documented="true" since="YSSCore 0.13.0" meta="plain" const="true" type="YSSCore::Utility::DiffUnit::DiffType" signature="YSSCore::Utility::DiffUnit::DiffType getDiffType() const"/>
+                    <function name="~DiffUnit" fullname="YSSCore::Utility::DiffUnit::~DiffUnit" href="ysscore-utility-diffunit.html#dtor.DiffUnit" status="active" access="public" location="DiffSequence.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\..\DiffSequence.h" lineno="28" documented="true" since="YSSCore 0.13.0" meta="destructor" virtual="virtual" noexcept="true" signature="~DiffUnit()"/>
+                </class>
+                <class name="ExtTool" fullname="YSSCore::Utility::ExtTool" href="ysscore-utility-exttool.html" status="active" access="public" location="ExtTool.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../ExtTool.h" lineno="6" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="此类为Yayin Story Studio 提供文件扩展名的相关操作">
+                    <function name="registerFileExtension" fullname="YSSCore::Utility::ExtTool::registerFileExtension" href="ysscore-utility-exttool.html#registerFileExtension" status="active" access="public" location="ExtTool.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../ExtTool.h" lineno="8" documented="true" since="Yayin Story Studio 0.13.0" meta="plain" static="true" type="void" signature="void registerFileExtension(const QString &amp;ext, const QString &amp;description)">
+                        <parameter type="const QString &amp;" name="ext" default=""/>
+                        <parameter type="const QString &amp;" name="description" default=""/>
+                    </function>
+                </class>
+                <class name="FileUtility" fullname="YSSCore::Utility::FileUtility" href="ysscore-utility-fileutility.html" status="active" access="public" location="FileUtility.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/FileUtility.h" lineno="9" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="此类为Yayin Story Studio 提供文件操作的相关函数">
+                    <function name="readableSize" fullname="YSSCore::Utility::FileUtility::readableSize" href="ysscore-utility-fileutility.html#readableSize" status="active" access="public" location="FileUtility.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/FileUtility.h" lineno="32" documented="true" since="Yayin Story Studio 0.13.0" meta="plain" static="true" type="QString" signature="QString readableSize(int bytes, YSSCore::Utility::FileUtility::BinarySizeUnit u, YSSCore::Utility::FileUtility::BinarySizeFormat f)">
+                        <parameter type="int" name="bytes" default=""/>
+                        <parameter type="YSSCore::Utility::FileUtility::BinarySizeUnit" name="u" default="Byte"/>
+                        <parameter type="YSSCore::Utility::FileUtility::BinarySizeFormat" name="f" default="IEC"/>
+                    </function>
+                    <enum name="BinarySizeFormat" fullname="YSSCore::Utility::FileUtility::BinarySizeFormat" href="ysscore-utility-fileutility.html#BinarySizeFormat-enum" status="active" access="public" location="FileUtility.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/FileUtility.h" lineno="11" since="Yayin Story Studio 0.13.0" documented="true">
+                        <value name="IEC" value="1024"/>
+                        <value name="SI" value="1000"/>
+                    </enum>
+                    <enum name="BinarySizeUnit" fullname="YSSCore::Utility::FileUtility::BinarySizeUnit" href="ysscore-utility-fileutility.html#BinarySizeUnit-enum" status="active" access="public" location="FileUtility.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/FileUtility.h" lineno="15" since="Yayin Story Studio 0.13.0" documented="true">
+                        <value name="bit" value="1"/>
+                        <value name="Byte" value="8"/>
+                        <value name="Char" value="Byte"/>
+                    </enum>
+                    <enum name="CountingUnit" fullname="YSSCore::Utility::FileUtility::CountingUnit" href="ysscore-utility-fileutility.html#CountingUnit-enum" status="active" access="public" location="FileUtility.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/FileUtility.h" lineno="20" since="Yayin Story Studio 0.13.0" documented="true">
+                        <value name="_0" value="1"/>
+                        <value name="K" value="2"/>
+                        <value name="M" value="3"/>
+                        <value name="G" value="4"/>
+                        <value name="T" value="5"/>
+                        <value name="P" value="6"/>
+                        <value name="E" value="7"/>
+                        <value name="Z" value="8"/>
+                        <value name="Y" value="9"/>
+                    </enum>
+                </class>
+                <class name="JsonConfig" fullname="YSSCore::Utility::JsonConfig" href="ysscore-utility-jsonconfig.html" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="10" since="YSSCore 0.10.0" documented="true" module="YSSCore" brief="VIJsonConfig定义了对Json配置的操作。">
+                    <function name="JsonConfig" fullname="YSSCore::Utility::JsonConfig::JsonConfig" href="ysscore-utility-jsonconfig.html#JsonConfig" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="18" documented="true" since="YSSCore 0.13.0" meta="move-constructor" noexcept="true" signature="JsonConfig(YSSCore::Utility::JsonConfig &amp;&amp;other)">
+                        <parameter type="YSSCore::Utility::JsonConfig &amp;&amp;" name="other" default=""/>
+                    </function>
+                    <function name="JsonConfig" fullname="YSSCore::Utility::JsonConfig::JsonConfig" href="ysscore-utility-jsonconfig.html#JsonConfig-1" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="15" documented="true" since="YSSCore 0.13.0" meta="constructor" overload="true" overload-number="1" signature="JsonConfig(const QString &amp;jsonStr)">
+                        <parameter type="const QString &amp;" name="jsonStr" default=""/>
+                    </function>
+                    <function name="JsonConfig" fullname="YSSCore::Utility::JsonConfig::JsonConfig" href="ysscore-utility-jsonconfig.html#JsonConfig-2" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="17" documented="true" since="YSSCore 0.13.0" meta="copy-constructor" noexcept="true" overload="true" overload-number="2" signature="JsonConfig(const YSSCore::Utility::JsonConfig &amp;other)">
+                        <parameter type="const YSSCore::Utility::JsonConfig &amp;" name="other" default=""/>
+                    </function>
+                    <function name="JsonConfig" fullname="YSSCore::Utility::JsonConfig::JsonConfig" href="ysscore-utility-jsonconfig.html#JsonConfig-3" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="16" documented="true" since="YSSCore 0.13.0" meta="constructor" overload="true" overload-number="3" signature="JsonConfig(const int &amp;json)">
+                        <parameter type="const int &amp;" name="json" default=""/>
+                    </function>
+                    <function name="contains" fullname="YSSCore::Utility::JsonConfig::contains" href="ysscore-utility-jsonconfig.html#contains" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="33" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool contains(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                    </function>
+                    <function name="getArray" fullname="YSSCore::Utility::JsonConfig::getArray" href="ysscore-utility-jsonconfig.html#getArray" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="32" documented="true" since="YSSCore 0.13.0" meta="plain" type="int" signature="int getArray(const QString &amp;key, bool *ok)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                        <parameter type="bool *" name="ok" default="nullptr"/>
+                    </function>
+                    <function name="getBool" fullname="YSSCore::Utility::JsonConfig::getBool" href="ysscore-utility-jsonconfig.html#getBool" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="29" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool getBool(const QString &amp;key, bool *ok)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                        <parameter type="bool *" name="ok" default="nullptr"/>
+                    </function>
+                    <function name="getDouble" fullname="YSSCore::Utility::JsonConfig::getDouble" href="ysscore-utility-jsonconfig.html#getDouble" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="30" documented="true" since="YSSCore 0.13.0" meta="plain" type="double" signature="double getDouble(const QString &amp;key, bool *ok)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                        <parameter type="bool *" name="ok" default="nullptr"/>
+                    </function>
+                    <function name="getInt" fullname="YSSCore::Utility::JsonConfig::getInt" href="ysscore-utility-jsonconfig.html#getInt" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="27" documented="true" since="YSSCore 0.13.0" meta="plain" type="int" signature="int getInt(const QString &amp;key, bool *ok)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                        <parameter type="bool *" name="ok" default="nullptr"/>
+                    </function>
+                    <function name="getObject" fullname="YSSCore::Utility::JsonConfig::getObject" href="ysscore-utility-jsonconfig.html#getObject" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="31" documented="true" since="YSSCore 0.13.0" meta="plain" type="YSSCore::Utility::JsonConfig" signature="YSSCore::Utility::JsonConfig getObject(const QString &amp;key, bool *ok)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                        <parameter type="bool *" name="ok" default="nullptr"/>
+                    </function>
+                    <function name="getString" fullname="YSSCore::Utility::JsonConfig::getString" href="ysscore-utility-jsonconfig.html#getString" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="28" documented="true" since="YSSCore 0.13.0" meta="plain" type="QString" signature="QString getString(const QString &amp;key, bool *ok)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                        <parameter type="bool *" name="ok" default="nullptr"/>
+                    </function>
+                    <function name="getValue" fullname="YSSCore::Utility::JsonConfig::getValue" href="ysscore-utility-jsonconfig.html#getValue" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="26" documented="true" since="YSSCore 0.13.0" meta="plain" type="QJsonValue" signature="QJsonValue getValue(const QString &amp;key, bool *ok)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                        <parameter type="bool *" name="ok" default="nullptr"/>
+                    </function>
+                    <function name="isArray" fullname="YSSCore::Utility::JsonConfig::isArray" href="ysscore-utility-jsonconfig.html#isArray" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="44" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isArray(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isBool" fullname="YSSCore::Utility::JsonConfig::isBool" href="ysscore-utility-jsonconfig.html#isBool" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="46" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isBool(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isDouble" fullname="YSSCore::Utility::JsonConfig::isDouble" href="ysscore-utility-jsonconfig.html#isDouble" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="48" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isDouble(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isEmpty" fullname="YSSCore::Utility::JsonConfig::isEmpty" href="ysscore-utility-jsonconfig.html#isEmpty" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="41" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isEmpty(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isInt" fullname="YSSCore::Utility::JsonConfig::isInt" href="ysscore-utility-jsonconfig.html#isInt" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="47" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isInt(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isNull" fullname="YSSCore::Utility::JsonConfig::isNull" href="ysscore-utility-jsonconfig.html#isNull" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="42" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isNull(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isObject" fullname="YSSCore::Utility::JsonConfig::isObject" href="ysscore-utility-jsonconfig.html#isObject" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="43" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isObject(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isString" fullname="YSSCore::Utility::JsonConfig::isString" href="ysscore-utility-jsonconfig.html#isString" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="45" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" signature="bool isString(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="keys" fullname="YSSCore::Utility::JsonConfig::keys" href="ysscore-utility-jsonconfig.html#keys" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="23" documented="true" since="YSSCore 0.13.0" meta="plain" type="int" signature="int keys(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="operator=" fullname="YSSCore::Utility::JsonConfig::operator=" href="ysscore-utility-jsonconfig.html#operator-eq" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="21" documented="true" since="YSSCore 0.13.0" meta="move-assign" noexcept="true" type="YSSCore::Utility::JsonConfig &amp;" signature="YSSCore::Utility::JsonConfig &amp; operator=(YSSCore::Utility::JsonConfig &amp;&amp;other)">
+                        <parameter type="YSSCore::Utility::JsonConfig &amp;&amp;" name="other" default=""/>
+                    </function>
+                    <function name="operator=" fullname="YSSCore::Utility::JsonConfig::operator=" href="ysscore-utility-jsonconfig.html#operator-eq-1" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="20" documented="true" since="YSSCore 0.13.0" meta="copy-assign" noexcept="true" overload="true" overload-number="1" type="YSSCore::Utility::JsonConfig &amp;" signature="YSSCore::Utility::JsonConfig &amp; operator=(const YSSCore::Utility::JsonConfig &amp;other)">
+                        <parameter type="const YSSCore::Utility::JsonConfig &amp;" name="other" default=""/>
+                    </function>
+                    <function name="operator[]" fullname="YSSCore::Utility::JsonConfig::operator[]" href="ysscore-utility-jsonconfig.html#operator-5b-5d" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="22" documented="true" since="YSSCore 0.13.0" meta="plain" type="YSSCore::Utility::JsonValueRef" signature="YSSCore::Utility::JsonValueRef operator[](const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                    </function>
+                    <function name="setArray" fullname="YSSCore::Utility::JsonConfig::setArray" href="ysscore-utility-jsonconfig.html#setArray" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="40" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setArray(const QString &amp;key, const int &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const int &amp;" name="value" default=""/>
+                    </function>
+                    <function name="setBool" fullname="YSSCore::Utility::JsonConfig::setBool" href="ysscore-utility-jsonconfig.html#setBool" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="37" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setBool(const QString &amp;key, bool value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="bool" name="value" default=""/>
+                    </function>
+                    <function name="setDouble" fullname="YSSCore::Utility::JsonConfig::setDouble" href="ysscore-utility-jsonconfig.html#setDouble" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="38" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setDouble(const QString &amp;key, double value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="double" name="value" default=""/>
+                    </function>
+                    <function name="setInt" fullname="YSSCore::Utility::JsonConfig::setInt" href="ysscore-utility-jsonconfig.html#setInt" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="35" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setInt(const QString &amp;key, int value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="int" name="value" default=""/>
+                    </function>
+                    <function name="setObject" fullname="YSSCore::Utility::JsonConfig::setObject" href="ysscore-utility-jsonconfig.html#setObject" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="39" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setObject(const QString &amp;key, const YSSCore::Utility::JsonConfig &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const YSSCore::Utility::JsonConfig &amp;" name="value" default=""/>
+                    </function>
+                    <function name="setString" fullname="YSSCore::Utility::JsonConfig::setString" href="ysscore-utility-jsonconfig.html#setString" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="36" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setString(const QString &amp;key, const QString &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const QString &amp;" name="value" default=""/>
+                    </function>
+                    <function name="setValue" fullname="YSSCore::Utility::JsonConfig::setValue" href="ysscore-utility-jsonconfig.html#setValue" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="34" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" signature="void setValue(const QString &amp;key, const QJsonValue &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const QJsonValue &amp;" name="value" default=""/>
+                    </function>
+                    <function name="toString" fullname="YSSCore::Utility::JsonConfig::toString" href="ysscore-utility-jsonconfig.html#toString" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="25" documented="true" since="YSSCore 0.13.0" meta="plain" type="QString" signature="QString toString(int format)">
+                        <parameter type="int" name="format" default=""/>
+                    </function>
+                    <function name="~JsonConfig" fullname="YSSCore::Utility::JsonConfig::~JsonConfig" href="ysscore-utility-jsonconfig.html#dtor.JsonConfig" status="active" access="public" location="JsonConfig.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Utility/JsonConfig.h" lineno="19" documented="true" since="YSSCore 0.13.0" meta="destructor" noexcept="true" signature="~JsonConfig()"/>
+                </class>
+                <class name="JsonDocument" fullname="YSSCore::Utility::JsonDocument" href="ysscore-utility-jsondocument.html" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="16" since="YSSCore 0.10.0" documented="true" module="YSSCore" brief="此类在VIJsonConfig的基础上增加了一种允许存在默认值的配置文件的处理方式。">
+                    <function name="JsonDocument" fullname="YSSCore::Utility::JsonDocument::JsonDocument" href="ysscore-utility-jsondocument.html#JsonDocument" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="20" documented="true" since="YSSCore 0.13.0" meta="constructor" brief="构造一个空的VIJsonDocument对象。" signature="JsonDocument()"/>
+                    <function name="JsonDocument" fullname="YSSCore::Utility::JsonDocument::JsonDocument" href="ysscore-utility-jsondocument.html#JsonDocument-1" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="21" documented="true" since="YSSCore 0.13.0" meta="constructor" overload="true" overload-number="1" brief="构造一个VIJsonDocument对象。 configPath 配置文件路径。 defaultConfigPath 默认配置文件路径。" signature="JsonDocument(const QString &amp;configPath, const QString &amp;defaultConfigPath)">
+                        <parameter type="const QString &amp;" name="configPath" default=""/>
+                        <parameter type="const QString &amp;" name="defaultConfigPath" default=""/>
+                    </function>
+                    <function name="contains" fullname="YSSCore::Utility::JsonDocument::contains" href="ysscore-utility-jsondocument.html#contains" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="36" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键是否存在。 key 键的路径。" signature="bool contains(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                    </function>
+                    <function name="getArray" fullname="YSSCore::Utility::JsonDocument::getArray" href="ysscore-utility-jsondocument.html#getArray" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="35" documented="true" since="YSSCore 0.13.0" meta="plain" type="int" brief="获取指定键的数组。 key 键的路径。" signature="int getArray(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="getBool" fullname="YSSCore::Utility::JsonDocument::getBool" href="ysscore-utility-jsondocument.html#getBool" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="32" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="获取指定键的布尔值。 key 键的路径。" signature="bool getBool(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="getDouble" fullname="YSSCore::Utility::JsonDocument::getDouble" href="ysscore-utility-jsondocument.html#getDouble" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="33" documented="true" since="YSSCore 0.13.0" meta="plain" type="double" brief="获取指定键的浮点数值。 key 键的路径。" signature="double getDouble(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="getInt" fullname="YSSCore::Utility::JsonDocument::getInt" href="ysscore-utility-jsondocument.html#getInt" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="30" documented="true" since="YSSCore 0.13.0" meta="plain" type="int" brief="获取指定键的整数值。 key 键的路径。" signature="int getInt(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="getObject" fullname="YSSCore::Utility::JsonDocument::getObject" href="ysscore-utility-jsondocument.html#getObject" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="34" documented="true" since="YSSCore 0.13.0" meta="plain" type="YSSCore::Utility::JsonConfig" brief="获取指定键的对象。 key 键的路径。" signature="YSSCore::Utility::JsonConfig getObject(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="getString" fullname="YSSCore::Utility::JsonDocument::getString" href="ysscore-utility-jsondocument.html#getString" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="31" documented="true" since="YSSCore 0.13.0" meta="plain" type="QString" brief="获取指定键的字符串值。 key 键的路径。" signature="QString getString(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="getValue" fullname="YSSCore::Utility::JsonDocument::getValue" href="ysscore-utility-jsondocument.html#getValue" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="29" documented="true" since="YSSCore 0.13.0" meta="plain" type="QJsonValue" brief="获取指定键的值。 key 键的路径。" signature="QJsonValue getValue(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isArray" fullname="YSSCore::Utility::JsonDocument::isArray" href="ysscore-utility-jsondocument.html#isArray" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="47" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为数组。 key 键的路径。" signature="bool isArray(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isBool" fullname="YSSCore::Utility::JsonDocument::isBool" href="ysscore-utility-jsondocument.html#isBool" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="49" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为布尔值。 key 键的路径。" signature="bool isBool(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isDouble" fullname="YSSCore::Utility::JsonDocument::isDouble" href="ysscore-utility-jsondocument.html#isDouble" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="51" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为浮点数。 key 键的路径。" signature="bool isDouble(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isEmpty" fullname="YSSCore::Utility::JsonDocument::isEmpty" href="ysscore-utility-jsondocument.html#isEmpty" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="44" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为空。 key 键的路径。" signature="bool isEmpty(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isInt" fullname="YSSCore::Utility::JsonDocument::isInt" href="ysscore-utility-jsondocument.html#isInt" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="50" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为整数。 key 键的路径。" signature="bool isInt(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isNull" fullname="YSSCore::Utility::JsonDocument::isNull" href="ysscore-utility-jsondocument.html#isNull" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="45" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为null。 key 键的路径。" signature="bool isNull(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isObject" fullname="YSSCore::Utility::JsonDocument::isObject" href="ysscore-utility-jsondocument.html#isObject" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="46" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为对象。 key 键的路径。" signature="bool isObject(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="isString" fullname="YSSCore::Utility::JsonDocument::isString" href="ysscore-utility-jsondocument.html#isString" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="48" documented="true" since="YSSCore 0.13.0" meta="plain" type="bool" brief="判断指定键的值是否为字符串。 key 键的路径。" signature="bool isString(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="keys" fullname="YSSCore::Utility::JsonDocument::keys" href="ysscore-utility-jsondocument.html#keys" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="27" documented="true" since="YSSCore 0.13.0" meta="plain" type="int" brief="获取配置文件中的所有键。 key 键的路径。" signature="int keys(const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default="&quot;&quot;"/>
+                    </function>
+                    <function name="load" fullname="YSSCore::Utility::JsonDocument::load" href="ysscore-utility-jsondocument.html#load" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="25" documented="true" since="YSSCore 0.13.0" meta="plain" type="QJsonParseError" brief="从配置文件中加载配置。 configPath 配置文件路径。 defaultConfigPath 默认配置文件路径。 whichError 指示是谁加载失败，1表示默认配置，2表示当前配置，0表示成功。 configAutoCreate 是否自动创建配置文件，默认为true。当默认配置文件读入成功但当前配置文件读入失败时， 会自动在指定位置创建当前配置文件。" signature="QJsonParseError load(const QString &amp;configPath, const QString &amp;defaultConfigPath, int *whichError, bool configAutoCreate)">
+                        <parameter type="const QString &amp;" name="configPath" default="&quot;&quot;"/>
+                        <parameter type="const QString &amp;" name="defaultConfigPath" default="&quot;&quot;"/>
+                        <parameter type="int *" name="whichError" default="nullptr"/>
+                        <parameter type="bool" name="configAutoCreate" default="true"/>
+                    </function>
+                    <function name="operator[]" fullname="YSSCore::Utility::JsonDocument::operator[]" href="ysscore-utility-jsondocument.html#operator-5b-5d" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="28" documented="true" since="YSSCore 0.13.0" meta="plain" type="YSSCore::Utility::JsonValueRef" brief="获取指定键的值。 key 键的路径。" signature="YSSCore::Utility::JsonValueRef operator[](const QString &amp;key)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                    </function>
+                    <function name="save" fullname="YSSCore::Utility::JsonDocument::save" href="ysscore-utility-jsondocument.html#save" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="26" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="保存配置到文件。" signature="void save()"/>
+                    <function name="setArray" fullname="YSSCore::Utility::JsonDocument::setArray" href="ysscore-utility-jsondocument.html#setArray" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="43" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="设置指定键的数组。 key 键的路径。 value 值。" signature="void setArray(const QString &amp;key, const int &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const int &amp;" name="value" default=""/>
+                    </function>
+                    <function name="setBool" fullname="YSSCore::Utility::JsonDocument::setBool" href="ysscore-utility-jsondocument.html#setBool" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="40" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="设置指定键的布尔值。 key 键的路径。 value 值。" signature="void setBool(const QString &amp;key, bool value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="bool" name="value" default=""/>
+                    </function>
+                    <function name="setDouble" fullname="YSSCore::Utility::JsonDocument::setDouble" href="ysscore-utility-jsondocument.html#setDouble" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="41" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="设置指定键的浮点数值。 key 键的路径。 value 值。" signature="void setDouble(const QString &amp;key, double value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="double" name="value" default=""/>
+                    </function>
+                    <function name="setInt" fullname="YSSCore::Utility::JsonDocument::setInt" href="ysscore-utility-jsondocument.html#setInt" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="38" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="设置指定键的整数值。 key 键的路径。 value 值。" signature="void setInt(const QString &amp;key, int value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="int" name="value" default=""/>
+                    </function>
+                    <function name="setObject" fullname="YSSCore::Utility::JsonDocument::setObject" href="ysscore-utility-jsondocument.html#setObject" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="42" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="设置指定键的对象。 key 键的路径。 value 值。" signature="void setObject(const QString &amp;key, const YSSCore::Utility::JsonConfig &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const YSSCore::Utility::JsonConfig &amp;" name="value" default=""/>
+                    </function>
+                    <function name="setString" fullname="YSSCore::Utility::JsonDocument::setString" href="ysscore-utility-jsondocument.html#setString" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="39" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="设置指定键的字符串值。 key 键的路径。 value 值。" signature="void setString(const QString &amp;key, const QString &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const QString &amp;" name="value" default=""/>
+                    </function>
+                    <function name="setValue" fullname="YSSCore::Utility::JsonDocument::setValue" href="ysscore-utility-jsondocument.html#setValue" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="37" documented="true" since="YSSCore 0.13.0" meta="plain" type="void" brief="设置指定键的值。 key 键的路径。 value 值。" signature="void setValue(const QString &amp;key, const QJsonValue &amp;value)">
+                        <parameter type="const QString &amp;" name="key" default=""/>
+                        <parameter type="const QJsonValue &amp;" name="value" default=""/>
+                    </function>
+                    <function name="~JsonDocument" fullname="YSSCore::Utility::JsonDocument::~JsonDocument" href="ysscore-utility-jsondocument.html#dtor.JsonDocument" status="active" access="public" location="JsonDocument.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/General/cpp\../../Utility/JsonDocument.h" lineno="24" documented="true" since="YSSCore 0.13.0" meta="destructor" noexcept="true" brief="析构VIJsonDocument对象。" signature="~JsonDocument()"/>
+                </class>
+                <class name="JsonValueRef" fullname="YSSCore::Utility::JsonValueRef" href="ysscore-utility-jsonvalueref.html" status="active" access="public" location="JsonValueRef.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Utility/cpp\../JsonValueRef.h" lineno="13" since="YSSCore 0.13.0" documented="true" module="YSSCore" brief="此类用于访问VIJsonConfig中的值"/>
+            </namespace>
+            <namespace name="Widgets" fullname="YSSCore::Widgets" href="ysscore-widgets.html" status="active" access="public" location="MultiLabel.h" filepath="E:/source/repos/YayinStoryStudio/YSSCore/Editor/cpp\../../Widgets/MultiLabel.h" lineno="8" since="Yayin Story Studio 0.13.0" documented="true" module="YSSCore" brief="内核模块中仅作QWidgets扩展的命名空间"/>
+        </namespace>
+        <page name="YSSPluginDev.html" href="yssplugindev.html" status="active" location="YSSPluginDev.qdoc" filepath="E:/source/repos/YayinStoryStudio/YSSCore/doc/YSSPluginDev.qdoc" lineno="1" since="Yayin Story Studio 0.10.0" documented="true" groups="YSSCore" subtype="page" title="YSSPluginDev" fulltitle="YSSPluginDev" subtitle="" brief="Yayin Story Studio 插件开发文档"/>
+        <group name="YSSCore" href="ysscore.html" status="internal" seen="false" title=""/>
+        <module name="YSSCore" href="ysscore-module.html" status="active" location="module.qdoc" filepath="E:/source/repos/YayinStoryStudio/YSSCore/doc/module.qdoc" lineno="1" since="Yayin Story Studio 0.13.0" documented="true" seen="true" title="Yayin Story Studio 内核模块" brief="包括了用于构建 Yayin Story Studio 内核以及插件的全部功能模块">
+            <contents name="abi-c8e74060" title="版本号和ABI" level="1"/>
+        </module>
+    </namespace>
+</INDEX>

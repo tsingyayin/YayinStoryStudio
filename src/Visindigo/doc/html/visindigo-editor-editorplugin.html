@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+<!-- EditorPlugin.cpp -->
+  <meta name="description" content="此类为Yayin Story Studio 提供插件基类。">
+  <title>EditorPlugin Class | Visindigo</title>
+  <link rel="stylesheet" type="text/css" href="style/online.css" />
+  <link rel="shortcut icon" href="//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/assets/images/favicon.ico.gzip" />
+  <script type="text/javascript"> wpThemeFolder = 'http://qt.io/wp-content/themes/oneqt'; </script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery.js.gzip"></script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery-migrate.min.js.gzip"></script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/js/combo.js.gzip"></script>
+  <script type="text/javascript" src="scripts/main.js"></script>
+  <script type="text/javascript" src="scripts/extras.js"></script>
+  <script type="text/javascript">
+  $(function(){
+     $("#footer").load("/style/qt-footer.html");
+     $("#sidebar-content").load("style/qt5-sidebar.html");
+  });
+  </script>
+  <script type="text/javascript">
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-54043535-2', 'qt.io');
+    ga('set', 'forceSSL', true);
+    ga('send', 'pageview');
+  </script>
+</head>
+<body>
+<div class="header" id="tmpl_header">
+<header class="" id="navbar"><div id="cookie-confirmation" style="display:none"><div id="cookie-confirmation-inner"><p>We bake cookies in your browser for a better experience.  Using this site means that you consent.
+<a href="https://www1.qt.io/terms-conditions/ ">Read more</a></p><div id="cookie-confirmation-buttons-area"><a href="#" id="confirmation-button">Continue »</a>
+</div></div>
+<script>
+    ('#confirmation-button').on('click', function() { ('#cookie-confirmation').fadeOut(); createCookie("cookies_nom", "yum", 180); });
+    if (!(readCookie('cookies_nom') == 'yum')) { ('#cookie-confirmation').fadeIn(); }
+</script>
+</div>
+<div class="container">
+    <div class="navbar-header cf">
+        <div id="mm-wrap">
+            <ul id="mm-helper" class="mm-menu" data-event="hover_intent" data-effect="fade" data-effect-speed="200" data-panel-width="#navbar" data-panel-inner-width="1280px" data-second-click="go" data-document-click="collapse" data-vertical-behaviour="accordion" data-breakpoint="0">
+                <li class="mm-item"><a class="mm-link" href="http://blog.qt.io/" tabindex="0">Blog</a></li>
+                <li class="mm-item"><a class="mm-link" href="https://www.qt.io/contact-us/" tabindex="0">Contact Us</a></li>
+                <li class="mm-item"><a title="Qt Account" class="mm-link" href="https://account.qt.io/" tabindex="0"></a></li>
+            </ul>
+        </div>
+        <a class="navbar-oneQt retina" data-icon="" href="https://www.qt.io/"></a>
+    </div>
+</div>
+</header>
+</div>
+<div class="main">
+<div class="main-rounded">
+<div class="navigationbar">
+    <ul class="sub-navigation">
+        <li><a href="http://wiki.qt.io/">Wiki</a></li>
+        <li><a href="http://doc.qt.io/" class="active">Documentation</a></li>
+        <li><a href="http://forum.qt.io/">Forum</a></li>
+        <li><a href="https://bugreports.qt.io/">Bug Reports</a></li>
+        <li><a href="https://codereview.qt-project.org/">Code Review</a></li>
+    </ul>
+    <div id="main_title_bar">
+        <h1>Qt Documentation</h1>
+        <div class="search_bar">
+        <script>
+            (function() {
+                var cx = '003672281345882769388:1y4pftuq8so';
+                var gcse = document.createElement('script');
+                gcse.type = 'text/javascript';
+                gcse.async = true;
+                gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(gcse, s);
+            })();
+        </script>
+        <gcse:searchbox-only resultsUrl="search-results.html"></gcse:searchbox-only>
+    </div></div>
+    <ul>
+<li><a href="visindigo-module.html" translate="no">Visindigo</a></li>
+<li>EditorPlugin</li>
+    </ul>
+</div>
+<div class="content">
+    <div class="line">
+        <div class="content mainContent">
+<div class="sidebar">
+<div class="toc">
+<h3 id="toc">Contents</h3>
+<ul>
+<li class="level1"><a href="#public-functions">Public Functions</a></li>
+<li class="level1"><a href="#protected-functions">Protected Functions</a></li>
+<li class="level1"><a href="#details">Detailed Description</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<div class="context">
+<h1 class="title" translate="no">EditorPlugin Class</h1>
+<span class="small-subtitle" translate="no">class <a href="visindigo-module.html" translate="no">Visindigo</a>::<a href="visindigo-editor.html" translate="no">Editor</a>::EditorPlugin</span>
+<!-- $$$EditorPlugin-brief -->
+<p>此类为Yayin Story Studio 提供插件基类。. <a href="#details">More...</a></p>
+<!-- @@@EditorPlugin -->
+<div class="table"><table class="alignedsummary requisites" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> Header:</td><td class="memItemRight bottomAlign"> <code translate="no">#include &lt;EditorPlugin&gt;</code></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> Since:</td><td class="memItemRight bottomAlign"> Visindigo 0.13.0</td></tr>
+</table></div>
+<ul>
+<li><a href="visindigo-editor-editorplugin-members.html">List of all members, including inherited members</a></li>
+</ul>
+<h2 id="public-functions">Public Functions</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#EditorPlugin" translate="no">EditorPlugin</a></b>(Visindigo::General::Version <i>abiVersion</i> = Compiled_YSSABI_Version, int *<i>parent</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#dtor.EditorPlugin" translate="no">~EditorPlugin</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#getModules" translate="no">getModules</a></b>() const</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#getPluginAuthor" translate="no">getPluginAuthor</a></b>() const</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> Visindigo::Utility::JsonConfig *</td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#getPluginConfig" translate="no">getPluginConfig</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> QString </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#getPluginFolder" translate="no">getPluginFolder</a></b>() const</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> QString </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#getPluginID" translate="no">getPluginID</a></b>() const</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> QString </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#getPluginName" translate="no">getPluginName</a></b>() const</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#onPluginDisbale" translate="no">onPluginDisbale</a></b>() = 0</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> virtual void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#onPluginEnable" translate="no">onPluginEnable</a></b>() = 0</td></tr>
+</table></div>
+<h2 id="protected-functions">Protected Functions</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#registerDebugServer" translate="no">registerDebugServer</a></b>(Visindigo::Editor::DebugServer *<i>server</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#registerFileServer" translate="no">registerFileServer</a></b>(Visindigo::Editor::FileServer *<i>server</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#registerFileTemplateProvider" translate="no">registerFileTemplateProvider</a></b>(Visindigo::Editor::FileTemplateProvider *<i>provider</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#registerLangServer" translate="no">registerLangServer</a></b>(Visindigo::Editor::LangServer *<i>server</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#registerProjectTemplateProvider" translate="no">registerProjectTemplateProvider</a></b>(Visindigo::Editor::ProjectTemplateProvider *<i>provider</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#registerTranslator" translate="no">registerTranslator</a></b>(Visindigo::General::Translator *<i>translator</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#setPluginAuthor" translate="no">setPluginAuthor</a></b>(const int &amp;<i>author</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#setPluginID" translate="no">setPluginID</a></b>(const QString &amp;<i>id</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#setPluginName" translate="no">setPluginName</a></b>(const QString &amp;<i>name</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-editor-editorplugin.html#setPluginVersion" translate="no">setPluginVersion</a></b>(const Visindigo::General::Version &amp;<i>version</i>)</td></tr>
+</table></div>
+<!-- $$$EditorPlugin-description -->
+<div class="descr">
+<h2 id="details">Detailed Description</h2>
+<p>EditorPlugin是所有插件的基类，所有插件都需要继承此类。</p>
+<p>要开发Yayin Story Studio插件，您就必须实现此类，然后在您的项目中声明YSSPluginDllMain函数。这个 函数只做一件事情：新建您的插件类，并且返回它。</p>
+<pre class="cpp" translate="no"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> Visindigo<span class="operator">::</span>Editor<span class="operator">::</span>EditorPlugin<span class="operator">*</span> YSSPluginDllMain() {
+        <span class="keyword">return</span> <span class="keyword">new</span> YourPluginClass();
+}</pre>
+<div class="admonition warning">
+<p><b>Warning: </b>请注意，YSSPluginDllMain函数必须是extern &quot;C&quot;的，否则Yayin Story Studio将无法找到它。</p>
+</div>
+<p>稍后，Yayin Story Studio将会调用您的插件的<a href="visindigo-editor-editorplugin.html#onPluginEnable" translate="no">onPluginEnable</a>()函数来启用插件。您应该在这个函数中 进行一些初始化工作，比如注册语言服务器、文件服务器、翻译器等。</p>
+<p>您不应该在您的插件的构造函数中进行除了基本信息设置之外的任何其他工作，尤其是尝试和YSS或其他插件交互。 因为在构造插件的过程中，YSS尚未准备好全部的程序功能，您极有可能遭遇nullptr。</p>
+<p>我们以YSS自带的ASEDevTool插件为例，向您展示插件的各个函数中应该做什么：</p>
+<pre class="cpp" translate="no">Plugin_ASEDevTool<span class="operator">::</span>Plugin_ASEDevTool() {
+        setPluginVersion(Visindigo<span class="operator">::</span>General<span class="operator">::</span>Version(<span class="number">0</span><span class="operator">,</span> <span class="number">1</span><span class="operator">,</span> <span class="number">0</span>));
+        setPluginID(<span class="string">&quot;ASEDevTool&quot;</span>);
+        setPluginName(<span class="string">&quot;ASE Development Tool&quot;</span>);
+        setPluginAuthor({ <span class="string">&quot;Gra_dus&quot;</span> });
+}
+<span class="type">void</span> Plugin_ASEDevTool<span class="operator">::</span>onPluginEnable() {
+        registerTranslator(<span class="keyword">new</span> ASEDevTranslator());
+        registerLangServer(<span class="keyword">new</span> AStoryLanguageServer());
+        registerFileServer(<span class="keyword">new</span> AStoryFileServer());
+        registerFileServer(<span class="keyword">new</span> ASRuleFileServer());
+}
+
+<span class="type">void</span> Plugin_ASEDevTool<span class="operator">::</span>onPluginDisbale() {
+}</pre>
+<p>要使Yayin Story Studio能够找到您的插件，您还需要至少三步操作：</p>
+<p>1. 在应用程序resources/plugins/目录下创建一个文件夹，命名任选，最好为您的插件ID。</p>
+<p>2. 确保您编译得到的动态链接库文件的后缀名为.ysp（这是全平台统一的），并且放在您的插件文件夹中。</p>
+<p>3. 在您的插件文件夹中新建一个与您插件文件同名的json文件，例如“yourplugin.ysp.json&quot;，并做如下编辑：</p>
+<pre class="cpp plain" translate="no">{
+        &quot;ID&quot;: &quot;YourPluginID&quot;,
+        &quot;Depend&quot;: [
+                “PluginID1&quot;,
+                “PluginID2&quot;
+        ]
+}</pre>
+<p>Yayin Story Studio在启动时会首先搜索plugins文件夹下的所有ysp文件，并且依赖这个与其同名的JSON文件 分析插件的依赖信息并决定加载顺序。json文件中的ID必须和代码中实际设置的ID一致，否则Yayin Story Studio将无法 找到您的插件。Depend字段是一个字符串数组，表示您的插件依赖的其他插件的ID。Yayin Story Studio会在加载 插件时，先加载这些依赖的插件，然后再加载您的插件。</p>
+<p>请注意，Yayin Story Studio无法处理循环依赖。当两个插件相互依赖时，将具有相同的优先等级，YSS无法确定其加载顺序。</p>
+<p>如果您的插件不依赖其他插件，可以将Depend字段省略。</p>
+<p>考虑到C++的内存使用极其自由，用户编写代码也极其自由，因此Visindigo不保证任何插件 逻辑的异常安全。任何执行插件函数过程中遭遇的异常都会导致Visindigo直接崩溃。</p>
+</div>
+<!-- @@@EditorPlugin -->
+<div class="func">
+<h2>Member Function Documentation</h2>
+<!-- $$$EditorPlugin[overload1]$$$EditorPluginVisindigo::General::Versionint* -->
+<h3 class="fn" translate="no" id="EditorPlugin"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> EditorPlugin::<span class="name">EditorPlugin</span>(<span class="type">Visindigo::General::Version</span> <i>abiVersion</i> = Compiled_YSSABI_Version, <span class="type">int</span> *<i>parent</i> = nullptr)</h3>
+<p><i translate="no">abiVersion</i> 插件的ABI版本 <i translate="no">parent</i> 插件的父对象</p>
+<p>对于abiVersion，其已经在头文件中被默认填充为Compiled_YSSABI_Version，代表您的插件编译时YSS对应的ABI版本。 在派生此类时，不需要实际传递任何参数。</p>
+<div class="admonition warning">
+<p><b>Warning: </b>请注意，abiVersion并不是插件的版本号，也不是YSS的程序版本。它是YSS的二进制兼容版本。</p>
+</div>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@EditorPlugin -->
+<!-- $$$~EditorPlugin[overload1]$$$~EditorPlugin -->
+<h3 class="fn" translate="no" id="dtor.EditorPlugin"><code class="details extra" translate="no">[virtual noexcept, since Visindigo 0.13.0]</code> EditorPlugin::<span class="name">~EditorPlugin</span>()</h3>
+<p>析构函数</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@~EditorPlugin -->
+<!-- $$$getModules[overload1]$$$getModules -->
+<h3 class="fn" translate="no" id="getModules"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> EditorPlugin::<span class="name">getModules</span>() const</h3>
+<p>return 插件包含的模块列表</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getModules -->
+<!-- $$$getPluginAuthor[overload1]$$$getPluginAuthor -->
+<h3 class="fn" translate="no" id="getPluginAuthor"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> EditorPlugin::<span class="name">getPluginAuthor</span>() const</h3>
+<p>return 插件的作者，这是一个列表。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getPluginAuthor -->
+<!-- $$$getPluginConfig[overload1]$$$getPluginConfig -->
+<h3 class="fn" translate="no" id="getPluginConfig"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> *EditorPlugin::<span class="name">getPluginConfig</span>()</h3>
+<p>return 插件的设置</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getPluginConfig -->
+<!-- $$$getPluginFolder[overload1]$$$getPluginFolder -->
+<h3 class="fn" translate="no" id="getPluginFolder"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> EditorPlugin::<span class="name">getPluginFolder</span>() const</h3>
+<p>return 插件的根目录</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getPluginFolder -->
+<!-- $$$getPluginID[overload1]$$$getPluginID -->
+<h3 class="fn" translate="no" id="getPluginID"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> EditorPlugin::<span class="name">getPluginID</span>() const</h3>
+<p>return 插件的ID</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getPluginID -->
+<!-- $$$getPluginName[overload1]$$$getPluginName -->
+<h3 class="fn" translate="no" id="getPluginName"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> EditorPlugin::<span class="name">getPluginName</span>() const</h3>
+<p>return 插件的名称</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getPluginName -->
+<!-- $$$onPluginDisbale[overload1]$$$onPluginDisbale -->
+<h3 class="fn" translate="no" id="onPluginDisbale"><code class="details extra" translate="no">[pure virtual, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">onPluginDisbale</span>()</h3>
+<p>禁用插件时调用此函数。大部分涉及到Visindigo内部资源调用的清理都应该在此函数中进行。 如果在析构函数中清理，则有可能因为Visindigo已经开始析构而导致崩溃。此外，此函数 还会被Visindigo捕获异常并输出到日志中。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@onPluginDisbale -->
+<!-- $$$onPluginEnable[overload1]$$$onPluginEnable -->
+<h3 class="fn" translate="no" id="onPluginEnable"><code class="details extra" translate="no">[pure virtual, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">onPluginEnable</span>()</h3>
+<p>启用插件时调用此函数。大部分涉及到Visindigo内部资源调用的初始化都应该在此函数中进行。</p>
+<p>如果在构造函数中初始化，则有可能因为Visindigo尚未完全初始化而导致崩溃。此外，此函数 还会被Visindigo捕获异常并输出到日志中。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@onPluginEnable -->
+<!-- $$$registerDebugServer[overload1]$$$registerDebugServerVisindigo::Editor::DebugServer* -->
+<h3 class="fn" translate="no" id="registerDebugServer"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">registerDebugServer</span>(<span class="type">Visindigo::Editor::DebugServer</span> *<i>server</i>)</h3>
+<p><i translate="no">server</i> 调试服务器 注册调试服务器。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@registerDebugServer -->
+<!-- $$$registerFileServer[overload1]$$$registerFileServerVisindigo::Editor::FileServer* -->
+<h3 class="fn" translate="no" id="registerFileServer"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">registerFileServer</span>(<span class="type"><a href="visindigo-editor-fileserver.html" translate="no">Visindigo::Editor::FileServer</a></span> *<i>server</i>)</h3>
+<p><i translate="no">server</i> 文件服务器 注册文件服务器。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@registerFileServer -->
+<!-- $$$registerFileTemplateProvider[overload1]$$$registerFileTemplateProviderVisindigo::Editor::FileTemplateProvider* -->
+<h3 class="fn" translate="no" id="registerFileTemplateProvider"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">registerFileTemplateProvider</span>(<span class="type">Visindigo::Editor::FileTemplateProvider</span> *<i>provider</i>)</h3>
+<p><i translate="no">provider</i> 文件模板提供者 注册文件模板提供者。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@registerFileTemplateProvider -->
+<!-- $$$registerLangServer[overload1]$$$registerLangServerVisindigo::Editor::LangServer* -->
+<h3 class="fn" translate="no" id="registerLangServer"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">registerLangServer</span>(<span class="type">Visindigo::Editor::LangServer</span> *<i>server</i>)</h3>
+<p><i translate="no">server</i> 语言服务器 注册语言服务器。</p>
+<div class="admonition note">
+<p><b>Note: </b>这里的语言服务器指的是代码语言高亮、着色与分析，而非自然语言翻译器。</p>
+</div>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@registerLangServer -->
+<!-- $$$registerProjectTemplateProvider[overload1]$$$registerProjectTemplateProviderVisindigo::Editor::ProjectTemplateProvider* -->
+<h3 class="fn" translate="no" id="registerProjectTemplateProvider"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">registerProjectTemplateProvider</span>(<span class="type">Visindigo::Editor::ProjectTemplateProvider</span> *<i>provider</i>)</h3>
+<p><i translate="no">provider</i> 项目模板提供者 注册项目模板提供者。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@registerProjectTemplateProvider -->
+<!-- $$$registerTranslator[overload1]$$$registerTranslatorVisindigo::General::Translator* -->
+<h3 class="fn" translate="no" id="registerTranslator"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">registerTranslator</span>(<span class="type"><a href="visindigo-general-translator.html" translate="no">Visindigo::General::Translator</a></span> *<i>translator</i>)</h3>
+<p><i translate="no">translator</i> 翻译器 注册翻译器。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@registerTranslator -->
+<!-- $$$setPluginAuthor[overload1]$$$setPluginAuthorconstint& -->
+<h3 class="fn" translate="no" id="setPluginAuthor"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">setPluginAuthor</span>(const <span class="type">int</span> &amp;<i>author</i>)</h3>
+<p><i translate="no">author</i> 插件的作者 设置插件的作者</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@setPluginAuthor -->
+<!-- $$$setPluginID[overload1]$$$setPluginIDconstQString& -->
+<h3 class="fn" translate="no" id="setPluginID"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">setPluginID</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>id</i>)</h3>
+<p><i translate="no">id</i> 插件的ID 设置插件的ID</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@setPluginID -->
+<!-- $$$setPluginName[overload1]$$$setPluginNameconstQString& -->
+<h3 class="fn" translate="no" id="setPluginName"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">setPluginName</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>name</i>)</h3>
+<p><i translate="no">name</i> 插件的名称 设置插件的名称</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@setPluginName -->
+<!-- $$$setPluginVersion[overload1]$$$setPluginVersionconstVisindigo::General::Version& -->
+<h3 class="fn" translate="no" id="setPluginVersion"><code class="details extra" translate="no">[protected, since Visindigo 0.13.0]</code> <span class="type">void</span> EditorPlugin::<span class="name">setPluginVersion</span>(const <span class="type">Visindigo::General::Version</span> &amp;<i>version</i>)</h3>
+<p><i translate="no">version</i> 插件的版本号 设置插件的版本号</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@setPluginVersion -->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<footer id="footerbar">
+    <div class="footer-main">
+            <div class="container clearfix">
+                <nav class="footer-nav clearfix">
+                    <div class="menu-footer-menu-container"><ul id="menu-footer-menu" class="menu"><li id="menu-item-1403" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1403"><a href="http://qt.io/download/">Download</a>
+<ul class="sub-menu">
+    <li id="menu-item-11677" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-11677"><a href="http://qt.io/download/">Start for Free</a></li>
+    <li id="menu-item-15840" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15840"><a href="http://qt.io/download-eval-for-applications-step-2/">Qt for Application Development</a></li>
+    <li id="menu-item-15841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15841"><a href="http://qt.io/request-eval-for-devices-step-2/">Qt for Device Creation</a></li>
+    <li id="menu-item-15838" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15838"><a href="http://qt.io/download-open-source/">Qt Open Source</a></li>
+    <li id="menu-item-1415" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1415"><a href="http://qt.io/terms-conditions/">Terms &amp; Conditions</a></li>
+    <li id="menu-item-14184" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14184"><a href="http://qt.io/FAQ/">Licensing FAQ</a></li>
+</ul>
+</li>
+<li id="menu-item-1355" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1355"><a href="http://qt.io/product/">Product</a>
+<ul class="sub-menu">
+    <li id="menu-item-12576" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12576"><a href="http://qt.io/product/">Qt in Use</a></li>
+    <li id="menu-item-15848" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15848"><a href="http://qt.io/application-development/">Qt for Application Development</a></li>
+    <li id="menu-item-1357" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1357"><a href="http://qt.io/qt-for-device-creation/">Qt for Device Creation</a></li>
+    <li id="menu-item-1356" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1356"><a href="http://qt.io/qt-features/">Commercial Features</a></li>
+    <li id="menu-item-15850" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15850"><a href="http://qt.io/ide/">Qt Creator IDE</a></li>
+    <li id="menu-item-1359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1359"><a href="http://qt.io/qt-quick/">Qt Quick</a></li>
+</ul>
+</li>
+<li id="menu-item-1347" class="menu-item menu-item-type-post_type menu-item-object-page current-menu-ancestor current-menu-parent current_page_parent current_page_ancestor menu-item-has-children menu-item-1347"><a href="http://qt.io/services/">Services</a>
+<ul class="sub-menu">
+    <li id="menu-item-4028" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4028"><a href="http://qt.io/services-technology-evaluation/">Technology Evaluation</a></li>
+    <li id="menu-item-4027" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4027"><a href="http://qt.io/services-proof-of-concept/">Proof of Concept</a></li>
+    <li id="menu-item-4026" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4026"><a href="http://qt.io/services-design-implementation/">Design &amp; Implementation</a></li>
+    <li id="menu-item-4025" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4025"><a href="http://qt.io/services-productization/">Productization</a></li>
+    <li id="menu-item-15863" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15863"><a href="http://qt.io/qt-training/">Qt Training</a></li>
+    <li id="menu-item-4779" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4779"><a href="https://qt.io/partners/">Partner Network</a></li>
+</ul>
+</li>
+<li id="menu-item-33" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-33"><a href="http://qt.io/developers/">Developers</a>
+<ul class="sub-menu">
+    <li id="menu-item-1365" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1365"><a href="http://doc.qt.io/">Documentation</a></li>
+    <li id="menu-item-1364" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1364"><a href="http://doc.qt.io/qt-5/qtexamplesandtutorials.html">Examples &amp; Tutorials</a></li>
+    <li id="menu-item-1363" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1363"><a href="http://doc.qt.io/qt-5/topics-app-development.html">Development Tools</a></li>
+    <li id="menu-item-1361" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1361"><a href="http://wiki.qt.io/">Wiki</a></li>
+    <li id="menu-item-1360" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1360"><a href="http://forum.qt.io/">Forums</a></li>
+    <li id="menu-item-15922" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-15922"><a href="http://wiki.qt.io/contribute">Contribute to Qt</a></li>
+</ul>
+</li>
+<li id="menu-item-1350" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1350"><a href="http://qt.io/about-us/">About us</a>
+<ul class="sub-menu">
+    <li id="menu-item-1353" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1353"><a href="http://qt.io/events/">Training &amp; Events</a></li>
+    <li id="menu-item-1354" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1354"><a href="http://qt.io/resource-center/">Resource Center</a></li>
+    <li id="menu-item-12285" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12285"><a href="http://qt.io/news/">News</a></li>
+    <li id="menu-item-1349" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1349"><a href="http://qt.io/careers/">Careers</a></li>
+    <li id="menu-item-11676" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-11676"><a href="http://qt.io/locations/">Locations</a></li>
+    <li id="menu-item-15911" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15911"><a href="http://qt.io/contact-us">Contact Us</a></li>
+</ul>
+</li>
+</ul></div></nav>
+<a href="http://qt.io/about-us/" target="_blank" class="theqtcompany"></a>
+    <div class="footer-social clearfix">
+        <div class="facebook">
+            <iframe scrolling="no" frameborder="0" allowTransparency="true" src="http://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2Fqt&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=true&amp;share=false&amp;height=21" style="border:none;overflow:hidden;height:21px;"></iframe>
+        </div>
+        <div class="twitter">
+            <iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" src="http://platform.twitter.com/widgets/follow_button.33b190ea0cba008796487b65df7f6d8e.en.html#_=1414403615717&amp;id=twitter-widget-0&amp;lang=en&amp;screen_name=qtproject&amp;show_count=true&amp;show_screen_name=false&amp;size=m" class="twitter-follow-button twitter-follow-button" title="Twitter Follow Button" data-twttr-rendered="true" style="width: 160px; height: 20px;"></iframe>
+        </div>
+    </div>
+</div>
+</div>
+<div class="disclaimer">
+<div class="container clearfix no_discs">
+    <ul id="menu-footer-submenu" class="right clearfix"><li id="menu-item-1795" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1795"><a title="Sign into your account." href="https://account.qt.io/login">Sign In</a></li>
+      <li id="menu-item-10375" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-10375"><a href="mailto:feedback@theqtcompany.com?Subject=Feedback%20about%20doc.qt.io%20site">Feedback</a></li>
+      <li id="menu-item-1494" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1494"><a href="http://qt.io/contact-us/">Contact us</a></li>
+      <li id="menu-item-4472" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4472"><a href="http://qt.io/about-us/">© 2024 The Qt Company</a></li>
+    </ul>
+</div>
+</div>
+</footer>
+</div>
+</body>
+</html>

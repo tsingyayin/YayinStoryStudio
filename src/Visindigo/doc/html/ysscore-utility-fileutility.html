@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+<!-- FileUtility.cpp -->
+  <meta name="description" content="此类为Yayin Story Studio 提供文件操作的相关函数">
+  <title>FileUtility Class | YSSCore</title>
+  <link rel="stylesheet" type="text/css" href="style/offline-simple.css" />
+  <script type="text/javascript">
+    document.getElementsByTagName("link").item(0).setAttribute("href", "style/offline.css");
+    // loading style sheet breaks anchors that were jumped to before
+    // so force jumping to anchor again
+    setTimeout(function() {
+        var anchor = location.hash;
+        // need to jump to different anchor first (e.g. none)
+        location.hash = "#";
+        setTimeout(function() {
+            location.hash = anchor;
+        }, 0);
+    }, 0);
+  </script>
+</head>
+<body>
+<div class="header" id="qtdocheader">
+    <div class="main">
+    <div class="main-rounded">
+        <div class="navigationbar">
+        <ul>
+<li><a href="ysscore-module.html" translate="no">YSSCore</a></li>
+<li>FileUtility</li>
+    </ul>
+    </div>
+</div>
+<div class="content">
+<div class="line">
+<div class="content mainContent">
+<div class="sidebar">
+<div class="toc">
+<h3 id="toc">Contents</h3>
+<ul>
+<li class="level1"><a href="#public-types">Public Types</a></li>
+<li class="level1"><a href="#static-public-members">Static Public Members</a></li>
+<li class="level1"><a href="#details">Detailed Description</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<h1 class="title" translate="no">FileUtility Class</h1>
+<span class="small-subtitle" translate="no">class <a href="ysscore-module.html" translate="no">YSSCore</a>::<a href="ysscore-utility.html" translate="no">Utility</a>::FileUtility</span>
+<!-- $$$FileUtility-brief -->
+<p>此类为Yayin Story Studio 提供文件操作的相关函数. <a href="#details">More...</a></p>
+<!-- @@@FileUtility -->
+<div class="table"><table class="alignedsummary requisites" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> Header:</td><td class="memItemRight bottomAlign"> <code translate="no">#include &lt;FileUtility&gt;</code></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> Since:</td><td class="memItemRight bottomAlign"> Yayin Story Studio 0.13.0</td></tr>
+</table></div>
+<ul>
+<li><a href="ysscore-utility-fileutility-members.html">List of all members, including inherited members</a></li>
+</ul>
+<h2 id="public-types">Public Types</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> enum </td><td class="memItemRight bottomAlign"><b><a href="ysscore-utility-fileutility.html#BinarySizeFormat-enum" translate="no">BinarySizeFormat</a></b> { IEC, SI }</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> enum </td><td class="memItemRight bottomAlign"><b><a href="ysscore-utility-fileutility.html#BinarySizeUnit-enum" translate="no">BinarySizeUnit</a></b> { bit, Byte, Char }</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> enum </td><td class="memItemRight bottomAlign"><b><a href="ysscore-utility-fileutility.html#CountingUnit-enum" translate="no">CountingUnit</a></b> { _0, K, M, G, T, &hellip;, Y }</td></tr>
+</table></div>
+<h2 id="static-public-members">Static Public Members</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> QString </td><td class="memItemRight bottomAlign"><b><a href="ysscore-utility-fileutility.html#readableSize" translate="no">readableSize</a></b>(int <i>bytes</i>, YSSCore::Utility::FileUtility::BinarySizeUnit <i>u</i> = Byte, YSSCore::Utility::FileUtility::BinarySizeFormat <i>f</i> = IEC)</td></tr>
+</table></div>
+<!-- $$$FileUtility-description -->
+<div class="descr">
+<h2 id="details">Detailed Description</h2>
+</div>
+<!-- @@@FileUtility -->
+<div class="types">
+<h2>Member Type Documentation</h2>
+<!-- $$$BinarySizeFormat$$$IEC$$$SI -->
+<h3 class="fn" translate="no" id="BinarySizeFormat-enum"><code class="details extra" translate="no">[since Yayin Story Studio 0.13.0]</code> enum FileUtility::<span class="name">BinarySizeFormat</span></h3>
+<p>此枚举用于表示文件大小的单位</p>
+<div class="table"><table class="valuelist"><tr valign="top" class="odd"><th class="tblConst">Constant</th><th class="tblval">Value</th><th class="tbldscr">Description</th></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::IEC</code></td><td class="topAlign tblval"><code translate="no">1024</code></td><td class="topAlign">二进制单位</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::SI</code></td><td class="topAlign tblval"><code translate="no">1000</code></td><td class="topAlign">十进制单位</td></tr>
+</table></div>
+<p>This enum was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@BinarySizeFormat -->
+<!-- $$$BinarySizeUnit$$$bit$$$Byte$$$Char -->
+<h3 class="fn" translate="no" id="BinarySizeUnit-enum"><code class="details extra" translate="no">[since Yayin Story Studio 0.13.0]</code> enum FileUtility::<span class="name">BinarySizeUnit</span></h3>
+<p>此枚举用于表示文件大小的单位</p>
+<div class="table"><table class="valuelist"><tr valign="top" class="odd"><th class="tblConst">Constant</th><th class="tblval">Value</th><th class="tbldscr">Description</th></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::bit</code></td><td class="topAlign tblval"><code translate="no">1</code></td><td class="topAlign">位</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::Byte</code></td><td class="topAlign tblval"><code translate="no">8</code></td><td class="topAlign">字节</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::Char</code></td><td class="topAlign tblval"><code translate="no">Byte</code></td><td class="topAlign">字符，与Byte相同</td></tr>
+</table></div>
+<p>This enum was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@BinarySizeUnit -->
+<!-- $$$CountingUnit$$$_0$$$K$$$M$$$G$$$T$$$P$$$E$$$Z$$$Y -->
+<h3 class="fn" translate="no" id="CountingUnit-enum"><code class="details extra" translate="no">[since Yayin Story Studio 0.13.0]</code> enum FileUtility::<span class="name">CountingUnit</span></h3>
+<p>此枚举用于表示文件大小的单位</p>
+<div class="table"><table class="valuelist"><tr valign="top" class="odd"><th class="tblConst">Constant</th><th class="tblval">Value</th><th class="tbldscr">Description</th></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::_0</code></td><td class="topAlign tblval"><code translate="no">1</code></td><td class="topAlign">（无单位）</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::K</code></td><td class="topAlign tblval"><code translate="no">2</code></td><td class="topAlign">千</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::M</code></td><td class="topAlign tblval"><code translate="no">3</code></td><td class="topAlign">兆</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::G</code></td><td class="topAlign tblval"><code translate="no">4</code></td><td class="topAlign">吉</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::T</code></td><td class="topAlign tblval"><code translate="no">5</code></td><td class="topAlign">太</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::P</code></td><td class="topAlign tblval"><code translate="no">6</code></td><td class="topAlign">拍</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::E</code></td><td class="topAlign tblval"><code translate="no">7</code></td><td class="topAlign">艾</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::Z</code></td><td class="topAlign tblval"><code translate="no">8</code></td><td class="topAlign">泽</td></tr>
+<tr><td class="topAlign"><code translate="no">YSSCore::Utility::FileUtility::Y</code></td><td class="topAlign tblval"><code translate="no">9</code></td><td class="topAlign">尧</td></tr>
+</table></div>
+<p>This enum was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@CountingUnit -->
+</div>
+<div class="func">
+<h2>Member Function Documentation</h2>
+<!-- $$$readableSize[overload1]$$$readableSizeintYSSCore::Utility::FileUtility::BinarySizeUnitYSSCore::Utility::FileUtility::BinarySizeFormat -->
+<h3 class="fn" translate="no" id="readableSize"><code class="details extra" translate="no">[static, since Yayin Story Studio 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> FileUtility::<span class="name">readableSize</span>(<span class="type">int</span> <i>bytes</i>, <span class="type"><a href="ysscore-utility-fileutility.html#BinarySizeUnit-enum" translate="no">YSSCore::Utility::FileUtility::BinarySizeUnit</a></span> <i>u</i> = Byte, <span class="type"><a href="ysscore-utility-fileutility.html#BinarySizeFormat-enum" translate="no">YSSCore::Utility::FileUtility::BinarySizeFormat</a></span> <i>f</i> = IEC)</h3>
+<p><i translate="no">bytes</i> 字节数 <i translate="no">u</i> 单位 <i translate="no">f</i> 格式 获取指定字节数的可读大小，返回一个<a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a>。</p>
+<p>This function was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@readableSize -->
+</div>
+        </div>
+       </div>
+   </div>
+   </div>
+</div>
+<div class="footer">
+   <p>
+   <abbr title="Copyright">&copy;</abbr> 2024 <span translate="no">The Qt Company Ltd.</span>
+   Documentation contributions included herein are the copyrights of
+   their respective owners.<br/>    The documentation provided herein is licensed under the terms of the    <a href="http://www.gnu.org/licenses/fdl.html">GNU Free Documentation    License version 1.3</a> as published by the <span translate="no">Free Software Foundation</span>.<br/>    <span translate="no">Qt</span> and respective logos are <a href="https://doc.qt.io/qt/trademarks.html">    trademarks</a> of <span translate="no">The Qt Company Ltd.</span> in Finland and/or other countries
+   worldwide. All other trademarks are property of their respective owners. </p>
+</div>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+<!-- JsonConfig.cpp -->
+  <meta name="description" content="VIJsonConfig定义了对Json配置的操作。">
+  <title>JsonConfig Class | Visindigo</title>
+  <link rel="stylesheet" type="text/css" href="style/online.css" />
+  <link rel="shortcut icon" href="//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/assets/images/favicon.ico.gzip" />
+  <script type="text/javascript"> wpThemeFolder = 'http://qt.io/wp-content/themes/oneqt'; </script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery.js.gzip"></script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery-migrate.min.js.gzip"></script>
+  <script type="text/javascript" src="//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/js/combo.js.gzip"></script>
+  <script type="text/javascript" src="scripts/main.js"></script>
+  <script type="text/javascript" src="scripts/extras.js"></script>
+  <script type="text/javascript">
+  $(function(){
+     $("#footer").load("/style/qt-footer.html");
+     $("#sidebar-content").load("style/qt5-sidebar.html");
+  });
+  </script>
+  <script type="text/javascript">
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-54043535-2', 'qt.io');
+    ga('set', 'forceSSL', true);
+    ga('send', 'pageview');
+  </script>
+</head>
+<body>
+<div class="header" id="tmpl_header">
+<header class="" id="navbar"><div id="cookie-confirmation" style="display:none"><div id="cookie-confirmation-inner"><p>We bake cookies in your browser for a better experience.  Using this site means that you consent.
+<a href="https://www1.qt.io/terms-conditions/ ">Read more</a></p><div id="cookie-confirmation-buttons-area"><a href="#" id="confirmation-button">Continue »</a>
+</div></div>
+<script>
+    ('#confirmation-button').on('click', function() { ('#cookie-confirmation').fadeOut(); createCookie("cookies_nom", "yum", 180); });
+    if (!(readCookie('cookies_nom') == 'yum')) { ('#cookie-confirmation').fadeIn(); }
+</script>
+</div>
+<div class="container">
+    <div class="navbar-header cf">
+        <div id="mm-wrap">
+            <ul id="mm-helper" class="mm-menu" data-event="hover_intent" data-effect="fade" data-effect-speed="200" data-panel-width="#navbar" data-panel-inner-width="1280px" data-second-click="go" data-document-click="collapse" data-vertical-behaviour="accordion" data-breakpoint="0">
+                <li class="mm-item"><a class="mm-link" href="http://blog.qt.io/" tabindex="0">Blog</a></li>
+                <li class="mm-item"><a class="mm-link" href="https://www.qt.io/contact-us/" tabindex="0">Contact Us</a></li>
+                <li class="mm-item"><a title="Qt Account" class="mm-link" href="https://account.qt.io/" tabindex="0"></a></li>
+            </ul>
+        </div>
+        <a class="navbar-oneQt retina" data-icon="" href="https://www.qt.io/"></a>
+    </div>
+</div>
+</header>
+</div>
+<div class="main">
+<div class="main-rounded">
+<div class="navigationbar">
+    <ul class="sub-navigation">
+        <li><a href="http://wiki.qt.io/">Wiki</a></li>
+        <li><a href="http://doc.qt.io/" class="active">Documentation</a></li>
+        <li><a href="http://forum.qt.io/">Forum</a></li>
+        <li><a href="https://bugreports.qt.io/">Bug Reports</a></li>
+        <li><a href="https://codereview.qt-project.org/">Code Review</a></li>
+    </ul>
+    <div id="main_title_bar">
+        <h1>Qt Documentation</h1>
+        <div class="search_bar">
+        <script>
+            (function() {
+                var cx = '003672281345882769388:1y4pftuq8so';
+                var gcse = document.createElement('script');
+                gcse.type = 'text/javascript';
+                gcse.async = true;
+                gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//www.google.com/cse/cse.js?cx=' + cx;
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(gcse, s);
+            })();
+        </script>
+        <gcse:searchbox-only resultsUrl="search-results.html"></gcse:searchbox-only>
+    </div></div>
+    <ul>
+<li><a href="visindigo-module.html" translate="no">Visindigo</a></li>
+<li>JsonConfig</li>
+    </ul>
+</div>
+<div class="content">
+    <div class="line">
+        <div class="content mainContent">
+<div class="sidebar">
+<div class="toc">
+<h3 id="toc">Contents</h3>
+<ul>
+<li class="level1"><a href="#public-functions">Public Functions</a></li>
+<li class="level1"><a href="#details">Detailed Description</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<div class="context">
+<h1 class="title" translate="no">JsonConfig Class</h1>
+<span class="small-subtitle" translate="no">class <a href="visindigo-module.html" translate="no">Visindigo</a>::<a href="visindigo-utility.html" translate="no">Utility</a>::JsonConfig</span>
+<!-- $$$JsonConfig-brief -->
+<p>VIJsonConfig定义了对Json配置的操作。. <a href="#details">More...</a></p>
+<!-- @@@JsonConfig -->
+<div class="table"><table class="alignedsummary requisites" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> Header:</td><td class="memItemRight bottomAlign"> <code translate="no">#include &lt;JsonConfig&gt;</code></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> Since:</td><td class="memItemRight bottomAlign"> Visindigo 0.10.0</td></tr>
+</table></div>
+<ul>
+<li><a href="visindigo-utility-jsonconfig-members.html">List of all members, including inherited members</a></li>
+</ul>
+<h2 id="public-functions">Public Functions</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#JsonConfig" translate="no">JsonConfig</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#JsonConfig-2" translate="no">JsonConfig</a></b>(const QString &amp;<i>jsonStr</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#JsonConfig-4" translate="no">JsonConfig</a></b>(const int &amp;<i>json</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#JsonConfig-3" translate="no">JsonConfig</a></b>(const Visindigo::Utility::JsonConfig &amp;<i>other</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#JsonConfig-1" translate="no">JsonConfig</a></b>(Visindigo::Utility::JsonConfig &amp;&amp;<i>other</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#dtor.JsonConfig" translate="no">~JsonConfig</a></b>()</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#contains" translate="no">contains</a></b>(const QString &amp;<i>key</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getArray" translate="no">getArray</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getBool" translate="no">getBool</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> double </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getDouble" translate="no">getDouble</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getInt" translate="no">getInt</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> Visindigo::Utility::JsonConfig </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getObject" translate="no">getObject</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> QString </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getString" translate="no">getString</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getStringList" translate="no">getStringList</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> QJsonValue </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#getValue" translate="no">getValue</a></b>(const QString &amp;<i>key</i> = &quot;&quot;, bool *<i>ok</i> = nullptr)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isArray" translate="no">isArray</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isBool" translate="no">isBool</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isDouble" translate="no">isDouble</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isEmpty" translate="no">isEmpty</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isInt" translate="no">isInt</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isNull" translate="no">isNull</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isObject" translate="no">isObject</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> bool </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#isString" translate="no">isString</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#keys" translate="no">keys</a></b>(const QString &amp;<i>key</i> = &quot;&quot;)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> int </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#parse" translate="no">parse</a></b>(const QString &amp;<i>jsonStr</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#setArray" translate="no">setArray</a></b>(const QString &amp;<i>key</i>, const int &amp;<i>value</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#setBool" translate="no">setBool</a></b>(const QString &amp;<i>key</i>, bool <i>value</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#setDouble" translate="no">setDouble</a></b>(const QString &amp;<i>key</i>, double <i>value</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#setInt" translate="no">setInt</a></b>(const QString &amp;<i>key</i>, int <i>value</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#setObject" translate="no">setObject</a></b>(const QString &amp;<i>key</i>, const Visindigo::Utility::JsonConfig &amp;<i>value</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#setString" translate="no">setString</a></b>(const QString &amp;<i>key</i>, const QString &amp;<i>value</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> void </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#setValue" translate="no">setValue</a></b>(const QString &amp;<i>key</i>, const QJsonValue &amp;<i>value</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> QString </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#toString" translate="no">toString</a></b>(int <i>format</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> Visindigo::Utility::JsonConfig &amp;</td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#operator-eq" translate="no">operator=</a></b>(Visindigo::Utility::JsonConfig &amp;&amp;<i>other</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> Visindigo::Utility::JsonConfig &amp;</td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#operator-eq-1" translate="no">operator=</a></b>(const Visindigo::Utility::JsonConfig &amp;<i>other</i>)</td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Visindigo 0.13.0)</code> Visindigo::Utility::JsonValueRef </td><td class="memItemRight bottomAlign"><b><a href="visindigo-utility-jsonconfig.html#operator-5b-5d" translate="no">operator[]</a></b>(const QString &amp;<i>key</i>)</td></tr>
+</table></div>
+<!-- $$$JsonConfig-description -->
+<div class="descr">
+<h2 id="details">Detailed Description</h2>
+<p>VIJsonConfig提供对Json配置的读写操作，可以通过此类构建基于Json的配置。一般来说 不需要直接使用此类，请改用VIJsonDocument。VIJsonDocument提供从文件直接读写Json， 以及允许存在默认文档的配置读写功能。VIJsonConfig使用大量QtJson支持的对象，可参见 <a href="https://doc.qt.io/qt/qjsonobject.html" translate="no">QJsonObject</a>，<a href="https://doc.qt.io/qt/qjsonvalue.html" translate="no">QJsonValue</a>等内容。</p>
+<p>VIJsonConfig不与文件直接读写挂钩，使用VIJsonConfig时，可以使用重载为 <a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a>的构造函数<b>（不建议）</b>，或者使用<a href="visindigo-utility-jsonconfig.html#parse" translate="no">parse</a>()函数将Json字符串加载到此类中。</p>
+<p>与之同理，可以使用<a href="visindigo-utility-jsonconfig.html#toString" translate="no">toString</a>()函数将Json对象转换为字符串。</p>
+<p>不建议使用具有<a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a>的构造函数，是因为此构造函数不会提示Json字符串的解析错误， 且VIJsonConfig没有提供中途获取解析错误的方法，因此仍然建议只用<a href="visindigo-utility-jsonconfig.html#parse" translate="no">parse</a>()函数。</p>
+<p>请注意，在对VIJsonConfig进行设置之后，需要自行使用<a href="visindigo-utility-jsonconfig.html#toString" translate="no">toString</a>()将其 保存到外部，否则设置的内容将会丢失。这同样发生在使用operator=()赋值操作符 时。</p>
+</div>
+<p><b>See also </b><a href="visindigo-utility-jsondocument.html" translate="no">JsonDocument</a>, <a href="https://doc.qt.io/qt/qjsonobject.html" translate="no">QJsonObject</a>, and <a href="https://doc.qt.io/qt/qjsonvalue.html" translate="no">QJsonValue</a>.</p>
+<!-- @@@JsonConfig -->
+<div class="func">
+<h2>Member Function Documentation</h2>
+<!-- $$$JsonConfig[overload1]$$$JsonConfig -->
+<h3 class="fn" translate="no" id="JsonConfig"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> JsonConfig::<span class="name">JsonConfig</span>()</h3>
+<p>VIJsonConfig的默认构造函数</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@JsonConfig -->
+<!-- $$$JsonConfig$$$JsonConfigconstQString& -->
+<h3 class="fn" translate="no" id="JsonConfig-2"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> JsonConfig::<span class="name">JsonConfig</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>jsonStr</i>)</h3>
+<p><i translate="no">jsonStr</i> 为Json字符串。 VIJsonConfig的构造函数</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@JsonConfig -->
+<!-- $$$JsonConfig$$$JsonConfigconstint& -->
+<h3 class="fn" translate="no" id="JsonConfig-4"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> JsonConfig::<span class="name">JsonConfig</span>(const <span class="type">int</span> &amp;<i>json</i>)</h3>
+<p><i translate="no">json</i> 为Json对象。 VIJsonConfig的构造函数</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@JsonConfig -->
+<!-- $$$JsonConfig$$$JsonConfigconstVisindigo::Utility::JsonConfig& -->
+<h3 class="fn" translate="no" id="JsonConfig-3"><code class="details extra" translate="no">[noexcept, since Visindigo 0.13.0]</code> JsonConfig::<span class="name">JsonConfig</span>(const <span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> &amp;<i>other</i>)</h3>
+<p><i translate="no">other</i> 为VIJsonConfig的另一个实例。 VIJsonConfig的拷贝构造函数</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@JsonConfig -->
+<!-- $$$JsonConfig$$$JsonConfigVisindigo::Utility::JsonConfig&& -->
+<h3 class="fn" translate="no" id="JsonConfig-1"><code class="details extra" translate="no">[noexcept, since Visindigo 0.13.0]</code> JsonConfig::<span class="name">JsonConfig</span>(<span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> &amp;&amp;<i>other</i>)</h3>
+<p><i translate="no">other</i> 为VIJsonConfig的另一个实例。 VIJsonConfig的移动构造函数</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@JsonConfig -->
+<!-- $$$~JsonConfig[overload1]$$$~JsonConfig -->
+<h3 class="fn" translate="no" id="dtor.JsonConfig"><code class="details extra" translate="no">[noexcept, since Visindigo 0.13.0]</code> JsonConfig::<span class="name">~JsonConfig</span>()</h3>
+<p>VIJsonConfig的析构函数</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@~JsonConfig -->
+<!-- $$$contains[overload1]$$$containsconstQString& -->
+<h3 class="fn" translate="no" id="contains"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">contains</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否包含指定的键。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@contains -->
+<!-- $$$getArray[overload1]$$$getArrayconstQString&bool* -->
+<h3 class="fn" translate="no" id="getArray"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> JsonConfig::<span class="name">getArray</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的数组。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getArray -->
+<!-- $$$getBool[overload1]$$$getBoolconstQString&bool* -->
+<h3 class="fn" translate="no" id="getBool"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">getBool</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的布尔值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getBool -->
+<!-- $$$getDouble[overload1]$$$getDoubleconstQString&bool* -->
+<h3 class="fn" translate="no" id="getDouble"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">double</span> JsonConfig::<span class="name">getDouble</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的浮点数值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getDouble -->
+<!-- $$$getInt[overload1]$$$getIntconstQString&bool* -->
+<h3 class="fn" translate="no" id="getInt"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> JsonConfig::<span class="name">getInt</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的整数值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getInt -->
+<!-- $$$getObject[overload1]$$$getObjectconstQString&bool* -->
+<h3 class="fn" translate="no" id="getObject"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> JsonConfig::<span class="name">getObject</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的子对象。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getObject -->
+<!-- $$$getString[overload1]$$$getStringconstQString&bool* -->
+<h3 class="fn" translate="no" id="getString"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> JsonConfig::<span class="name">getString</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的字符串值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getString -->
+<!-- $$$getStringList[overload1]$$$getStringListconstQString&bool* -->
+<h3 class="fn" translate="no" id="getStringList"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> JsonConfig::<span class="name">getStringList</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的字符串列表。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getStringList -->
+<!-- $$$getValue[overload1]$$$getValueconstQString&bool* -->
+<h3 class="fn" translate="no" id="getValue"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qjsonvalue.html" translate="no">QJsonValue</a></span> JsonConfig::<span class="name">getValue</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;, <span class="type">bool</span> *<i>ok</i> = nullptr)</h3>
+<p><i translate="no">key</i> 为键。 获取Json对象的值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@getValue -->
+<!-- $$$isArray[overload1]$$$isArrayconstQString& -->
+<h3 class="fn" translate="no" id="isArray"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isArray</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为数组。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isArray -->
+<!-- $$$isBool[overload1]$$$isBoolconstQString& -->
+<h3 class="fn" translate="no" id="isBool"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isBool</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为布尔值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isBool -->
+<!-- $$$isDouble[overload1]$$$isDoubleconstQString& -->
+<h3 class="fn" translate="no" id="isDouble"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isDouble</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为浮点数。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isDouble -->
+<!-- $$$isEmpty[overload1]$$$isEmptyconstQString& -->
+<h3 class="fn" translate="no" id="isEmpty"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isEmpty</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为空。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isEmpty -->
+<!-- $$$isInt[overload1]$$$isIntconstQString& -->
+<h3 class="fn" translate="no" id="isInt"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isInt</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为整数。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isInt -->
+<!-- $$$isNull[overload1]$$$isNullconstQString& -->
+<h3 class="fn" translate="no" id="isNull"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isNull</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为空。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isNull -->
+<!-- $$$isObject[overload1]$$$isObjectconstQString& -->
+<h3 class="fn" translate="no" id="isObject"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isObject</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为对象。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isObject -->
+<!-- $$$isString[overload1]$$$isStringconstQString& -->
+<h3 class="fn" translate="no" id="isString"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">bool</span> JsonConfig::<span class="name">isString</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p><i translate="no">key</i> 为键。 判断Json对象是否为字符串。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@isString -->
+<!-- $$$keys[overload1]$$$keysconstQString& -->
+<h3 class="fn" translate="no" id="keys"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> JsonConfig::<span class="name">keys</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i> = &quot;&quot;)</h3>
+<p>获取Json对象的所有键。（不包括子对象）</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@keys -->
+<!-- $$$parse[overload1]$$$parseconstQString& -->
+<h3 class="fn" translate="no" id="parse"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">int</span> JsonConfig::<span class="name">parse</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>jsonStr</i>)</h3>
+<p><i translate="no">json</i> 为Json对象。 解析Json字符串。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@parse -->
+<!-- $$$setArray[overload1]$$$setArrayconstQString&constint& -->
+<h3 class="fn" translate="no" id="setArray"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">void</span> JsonConfig::<span class="name">setArray</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>, const <span class="type">int</span> &amp;<i>value</i>)</h3>
+<p><i translate="no">key</i> 为键。 <i translate="no">value</i> 为字符串列表。 设置Json对象的字符串列表。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<p><b>See also </b><a href="visindigo-utility-jsonconfig.html#isArray" translate="no">isArray</a>().</p>
+<!-- @@@setArray -->
+<!-- $$$setBool[overload1]$$$setBoolconstQString&bool -->
+<h3 class="fn" translate="no" id="setBool"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">void</span> JsonConfig::<span class="name">setBool</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>, <span class="type">bool</span> <i>value</i>)</h3>
+<p><i translate="no">key</i> 为键。 <i translate="no">value</i> 为布尔值。 设置Json对象的布尔值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<p><b>See also </b><a href="visindigo-utility-jsonconfig.html#isBool" translate="no">isBool</a>().</p>
+<!-- @@@setBool -->
+<!-- $$$setDouble[overload1]$$$setDoubleconstQString&double -->
+<h3 class="fn" translate="no" id="setDouble"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">void</span> JsonConfig::<span class="name">setDouble</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>, <span class="type">double</span> <i>value</i>)</h3>
+<p><i translate="no">key</i> 为键。 <i translate="no">value</i> 为浮点数值。 设置Json对象的浮点数值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<p><b>See also </b><a href="visindigo-utility-jsonconfig.html#isDouble" translate="no">isDouble</a>().</p>
+<!-- @@@setDouble -->
+<!-- $$$setInt[overload1]$$$setIntconstQString&int -->
+<h3 class="fn" translate="no" id="setInt"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">void</span> JsonConfig::<span class="name">setInt</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>, <span class="type">int</span> <i>value</i>)</h3>
+<p><i translate="no">key</i> 为键。 <i translate="no">value</i> 为整数值。 设置Json对象的整数值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<p><b>See also </b><a href="visindigo-utility-jsonconfig.html#isInt" translate="no">isInt</a>().</p>
+<!-- @@@setInt -->
+<!-- $$$setObject[overload1]$$$setObjectconstQString&constVisindigo::Utility::JsonConfig& -->
+<h3 class="fn" translate="no" id="setObject"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">void</span> JsonConfig::<span class="name">setObject</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>, const <span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> &amp;<i>value</i>)</h3>
+<p><i translate="no">key</i> 为键。 <i translate="no">value</i> 为子对象。 设置Json对象的子对象。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<p><b>See also </b><a href="visindigo-utility-jsonconfig.html#isObject" translate="no">isObject</a>().</p>
+<!-- @@@setObject -->
+<!-- $$$setString[overload1]$$$setStringconstQString&constQString& -->
+<h3 class="fn" translate="no" id="setString"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">void</span> JsonConfig::<span class="name">setString</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>, const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>value</i>)</h3>
+<p><i translate="no">key</i> 为键。 <i translate="no">value</i> 为字符串值。 设置Json对象的字符串值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<p><b>See also </b><a href="visindigo-utility-jsonconfig.html#isString" translate="no">isString</a>().</p>
+<!-- @@@setString -->
+<!-- $$$setValue[overload1]$$$setValueconstQString&constQJsonValue& -->
+<h3 class="fn" translate="no" id="setValue"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type">void</span> JsonConfig::<span class="name">setValue</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>, const <span class="type"><a href="https://doc.qt.io/qt/qjsonvalue.html" translate="no">QJsonValue</a></span> &amp;<i>value</i>)</h3>
+<p><i translate="no">key</i> 为键。 <i translate="no">value</i> 为值。 设置Json对象的值。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@setValue -->
+<!-- $$$toString[overload1]$$$toStringint -->
+<h3 class="fn" translate="no" id="toString"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> JsonConfig::<span class="name">toString</span>(<span class="type">int</span> <i>format</i>)</h3>
+<p>获取Json对象的字符串。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@toString -->
+<!-- $$$operator=[overload1]$$$operator=Visindigo::Utility::JsonConfig&& -->
+<h3 class="fn" translate="no" id="operator-eq"><code class="details extra" translate="no">[noexcept, since Visindigo 0.13.0]</code> <span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> &amp;JsonConfig::<span class="name">operator=</span>(<span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> &amp;&amp;<i>other</i>)</h3>
+<p><i translate="no">other</i> 为VIJsonConfig的另一个实例。 VIJsonConfig的移动操作符</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@operator= -->
+<!-- $$$operator=$$$operator=constVisindigo::Utility::JsonConfig& -->
+<h3 class="fn" translate="no" id="operator-eq-1"><code class="details extra" translate="no">[noexcept, since Visindigo 0.13.0]</code> <span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> &amp;JsonConfig::<span class="name">operator=</span>(const <span class="type"><a href="visindigo-utility-jsonconfig.html" translate="no">Visindigo::Utility::JsonConfig</a></span> &amp;<i>other</i>)</h3>
+<p><i translate="no">other</i> 为VIJsonConfig的另一个实例。 VIJsonConfig的赋值操作符</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@operator= -->
+<!-- $$$operator[][overload1]$$$operator[]constQString& -->
+<h3 class="fn" translate="no" id="operator-5b-5d"><code class="details extra" translate="no">[since Visindigo 0.13.0]</code> <span class="type"><a href="visindigo-utility-jsonvalueref.html" translate="no">Visindigo::Utility::JsonValueRef</a></span> JsonConfig::<span class="name">operator[]</span>(const <span class="type"><a href="https://doc.qt.io/qt/qstring.html" translate="no">QString</a></span> &amp;<i>key</i>)</h3>
+<p><i translate="no">key</i> 为键。 一个重载操作符，旨在以类似下标访问的方式访问Json对象，返回一个VIJsonValueRef实例。 此实例支持直接赋值，也可以使用指针操作符访问<a href="https://doc.qt.io/qt/qjsonvalue.html" translate="no">QJsonValue</a>。此实例还重载了到<a href="https://doc.qt.io/qt/qjsonvalue.html" translate="no">QJsonValue</a>的 隐式转换，可以直接将其赋值给<a href="https://doc.qt.io/qt/qjsonvalue.html" translate="no">QJsonValue</a>。</p>
+<p>This function was introduced in Visindigo 0.13.0.</p>
+<!-- @@@operator[] -->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<footer id="footerbar">
+    <div class="footer-main">
+            <div class="container clearfix">
+                <nav class="footer-nav clearfix">
+                    <div class="menu-footer-menu-container"><ul id="menu-footer-menu" class="menu"><li id="menu-item-1403" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1403"><a href="http://qt.io/download/">Download</a>
+<ul class="sub-menu">
+    <li id="menu-item-11677" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-11677"><a href="http://qt.io/download/">Start for Free</a></li>
+    <li id="menu-item-15840" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15840"><a href="http://qt.io/download-eval-for-applications-step-2/">Qt for Application Development</a></li>
+    <li id="menu-item-15841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15841"><a href="http://qt.io/request-eval-for-devices-step-2/">Qt for Device Creation</a></li>
+    <li id="menu-item-15838" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15838"><a href="http://qt.io/download-open-source/">Qt Open Source</a></li>
+    <li id="menu-item-1415" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1415"><a href="http://qt.io/terms-conditions/">Terms &amp; Conditions</a></li>
+    <li id="menu-item-14184" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14184"><a href="http://qt.io/FAQ/">Licensing FAQ</a></li>
+</ul>
+</li>
+<li id="menu-item-1355" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1355"><a href="http://qt.io/product/">Product</a>
+<ul class="sub-menu">
+    <li id="menu-item-12576" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12576"><a href="http://qt.io/product/">Qt in Use</a></li>
+    <li id="menu-item-15848" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15848"><a href="http://qt.io/application-development/">Qt for Application Development</a></li>
+    <li id="menu-item-1357" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1357"><a href="http://qt.io/qt-for-device-creation/">Qt for Device Creation</a></li>
+    <li id="menu-item-1356" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1356"><a href="http://qt.io/qt-features/">Commercial Features</a></li>
+    <li id="menu-item-15850" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15850"><a href="http://qt.io/ide/">Qt Creator IDE</a></li>
+    <li id="menu-item-1359" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1359"><a href="http://qt.io/qt-quick/">Qt Quick</a></li>
+</ul>
+</li>
+<li id="menu-item-1347" class="menu-item menu-item-type-post_type menu-item-object-page current-menu-ancestor current-menu-parent current_page_parent current_page_ancestor menu-item-has-children menu-item-1347"><a href="http://qt.io/services/">Services</a>
+<ul class="sub-menu">
+    <li id="menu-item-4028" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4028"><a href="http://qt.io/services-technology-evaluation/">Technology Evaluation</a></li>
+    <li id="menu-item-4027" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4027"><a href="http://qt.io/services-proof-of-concept/">Proof of Concept</a></li>
+    <li id="menu-item-4026" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4026"><a href="http://qt.io/services-design-implementation/">Design &amp; Implementation</a></li>
+    <li id="menu-item-4025" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4025"><a href="http://qt.io/services-productization/">Productization</a></li>
+    <li id="menu-item-15863" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15863"><a href="http://qt.io/qt-training/">Qt Training</a></li>
+    <li id="menu-item-4779" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4779"><a href="https://qt.io/partners/">Partner Network</a></li>
+</ul>
+</li>
+<li id="menu-item-33" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-33"><a href="http://qt.io/developers/">Developers</a>
+<ul class="sub-menu">
+    <li id="menu-item-1365" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1365"><a href="http://doc.qt.io/">Documentation</a></li>
+    <li id="menu-item-1364" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1364"><a href="http://doc.qt.io/qt-5/qtexamplesandtutorials.html">Examples &amp; Tutorials</a></li>
+    <li id="menu-item-1363" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1363"><a href="http://doc.qt.io/qt-5/topics-app-development.html">Development Tools</a></li>
+    <li id="menu-item-1361" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1361"><a href="http://wiki.qt.io/">Wiki</a></li>
+    <li id="menu-item-1360" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1360"><a href="http://forum.qt.io/">Forums</a></li>
+    <li id="menu-item-15922" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-15922"><a href="http://wiki.qt.io/contribute">Contribute to Qt</a></li>
+</ul>
+</li>
+<li id="menu-item-1350" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-1350"><a href="http://qt.io/about-us/">About us</a>
+<ul class="sub-menu">
+    <li id="menu-item-1353" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1353"><a href="http://qt.io/events/">Training &amp; Events</a></li>
+    <li id="menu-item-1354" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1354"><a href="http://qt.io/resource-center/">Resource Center</a></li>
+    <li id="menu-item-12285" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12285"><a href="http://qt.io/news/">News</a></li>
+    <li id="menu-item-1349" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1349"><a href="http://qt.io/careers/">Careers</a></li>
+    <li id="menu-item-11676" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-11676"><a href="http://qt.io/locations/">Locations</a></li>
+    <li id="menu-item-15911" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15911"><a href="http://qt.io/contact-us">Contact Us</a></li>
+</ul>
+</li>
+</ul></div></nav>
+<a href="http://qt.io/about-us/" target="_blank" class="theqtcompany"></a>
+    <div class="footer-social clearfix">
+        <div class="facebook">
+            <iframe scrolling="no" frameborder="0" allowTransparency="true" src="http://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2Fqt&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=true&amp;share=false&amp;height=21" style="border:none;overflow:hidden;height:21px;"></iframe>
+        </div>
+        <div class="twitter">
+            <iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" src="http://platform.twitter.com/widgets/follow_button.33b190ea0cba008796487b65df7f6d8e.en.html#_=1414403615717&amp;id=twitter-widget-0&amp;lang=en&amp;screen_name=qtproject&amp;show_count=true&amp;show_screen_name=false&amp;size=m" class="twitter-follow-button twitter-follow-button" title="Twitter Follow Button" data-twttr-rendered="true" style="width: 160px; height: 20px;"></iframe>
+        </div>
+    </div>
+</div>
+</div>
+<div class="disclaimer">
+<div class="container clearfix no_discs">
+    <ul id="menu-footer-submenu" class="right clearfix"><li id="menu-item-1795" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1795"><a title="Sign into your account." href="https://account.qt.io/login">Sign In</a></li>
+      <li id="menu-item-10375" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-10375"><a href="mailto:feedback@theqtcompany.com?Subject=Feedback%20about%20doc.qt.io%20site">Feedback</a></li>
+      <li id="menu-item-1494" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1494"><a href="http://qt.io/contact-us/">Contact us</a></li>
+      <li id="menu-item-4472" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4472"><a href="http://qt.io/about-us/">© 2024 The Qt Company</a></li>
+    </ul>
+</div>
+</div>
+</footer>
+</div>
+</body>
+</html>

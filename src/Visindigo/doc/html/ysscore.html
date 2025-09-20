@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+<!-- namespace.qdoc -->
+  <meta name="description" content="内核模块根命名空间">
+  <title>YSSCore Namespace | YSSCore</title>
+  <link rel="stylesheet" type="text/css" href="style/offline-simple.css" />
+  <script type="text/javascript">
+    document.getElementsByTagName("link").item(0).setAttribute("href", "style/offline.css");
+    // loading style sheet breaks anchors that were jumped to before
+    // so force jumping to anchor again
+    setTimeout(function() {
+        var anchor = location.hash;
+        // need to jump to different anchor first (e.g. none)
+        location.hash = "#";
+        setTimeout(function() {
+            location.hash = anchor;
+        }, 0);
+    }, 0);
+  </script>
+</head>
+<body>
+<div class="header" id="qtdocheader">
+    <div class="main">
+    <div class="main-rounded">
+        <div class="navigationbar">
+        <ul>
+    </ul>
+    </div>
+</div>
+<div class="content">
+<div class="line">
+<div class="content mainContent">
+<div class="sidebar">
+<div class="toc">
+<h3 id="toc">Contents</h3>
+<ul>
+<li class="level1"><a href="#namespaces">Namespaces</a></li>
+<li class="level1"><a href="#details">Detailed Description</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<h1 class="title" translate="no">YSSCore Namespace</h1>
+<!-- $$$YSSCore-brief -->
+<p>内核模块根命名空间. <a href="#details">More...</a></p>
+<!-- @@@YSSCore -->
+<div class="table"><table class="alignedsummary requisites" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> Header:</td><td class="memItemRight bottomAlign"> <code translate="no">#include &lt;YSSCore&gt;</code></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> Since:</td><td class="memItemRight bottomAlign"> Yayin Story Studio 0.13.0</td></tr>
+</table></div>
+<h2 id="namespaces">Namespaces</h2>
+<div class="table"><table class="alignedsummary" translate="no">
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> namespace </td><td class="memItemRight bottomAlign"><b><a href="ysscore-editor.html" translate="no">Editor</a></b></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> namespace </td><td class="memItemRight bottomAlign"><b><a href="ysscore-general.html" translate="no">General</a></b></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> namespace </td><td class="memItemRight bottomAlign"><b><a href="ysscore-utility.html" translate="no">Utility</a></b></td></tr>
+<tr><td class="memItemLeft rightAlign topAlign"> <code class="summary extra" translate="no">(since Yayin Story Studio 0.13.0)</code> namespace </td><td class="memItemRight bottomAlign"><b><a href="ysscore-widgets.html" translate="no">Widgets</a></b></td></tr>
+</table></div>
+<!-- $$$YSSCore-description -->
+<div class="descr">
+<h2 id="details">Detailed Description</h2>
+<p>所有 Yayin Story Studio 内核模块的命名空间都在此命名空间下。</p>
+<p>Yayin Story Studio 本体的命名空间为YSS，其内部子命名空间与YSSCore的子命名空间相同。</p>
+<p>但目前不打算为 Yayin Story Studio 提供文档，因为 Yayin Story Studio 未按ABI兼容设计， 也没有提供可供符号链接的各辅助文件，理应不适用于二次扩展。</p>
+<p>若开发者在开发插件的过程中确实有使用Yayin Story Studio本体中某个API的需求，请考虑在代码仓库提交一个 “下拉”请求，提议将该API下拉到内核模块中。若经评估确有必要， 我们会将该API重新设计为ABI兼容的版本，在下个版本将其下拉到内核模块中，并在YSSCore的文档中添加相关内容。</p>
+</div>
+<!-- @@@YSSCore -->
+<div class="nmspace">
+<h2>Namespaces</h2>
+<!-- $$$Editor -->
+<h3 class="fn" translate="no" id=""><code class="details extra" translate="no">[since Yayin Story Studio 0.13.0]</code> namespace YSSCore::<span class="name">Editor</span></h3>
+<p>所有 Yayin Story Studio 内核模块适用编辑器的组件都在此命名空间下。</p>
+<p>This namespace was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@Editor -->
+<!-- $$$General -->
+<h3 class="fn" translate="no" id=""><code class="details extra" translate="no">[since Yayin Story Studio 0.13.0]</code> namespace YSSCore::<span class="name">General</span></h3>
+<p>所有 Yayin Story Studio 内核模块适用编辑器和播放器的组件都在此命名空间下。</p>
+<p>This namespace was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@General -->
+<!-- $$$Utility -->
+<h3 class="fn" translate="no" id=""><code class="details extra" translate="no">[since Yayin Story Studio 0.13.0]</code> namespace YSSCore::<span class="name">Utility</span></h3>
+<p>所有 Yayin Story Studio 内核模块的工具类都在此命名空间下。</p>
+<p>This namespace was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@Utility -->
+<!-- $$$Widgets -->
+<h3 class="fn" translate="no" id=""><code class="details extra" translate="no">[since Yayin Story Studio 0.13.0]</code> namespace YSSCore::<span class="name">Widgets</span></h3>
+<p>所有 Yayin Story Studio 内核模块中仅作QWidgets扩展的组件都在此命名空间下。</p>
+<p>This namespace was introduced in Yayin Story Studio 0.13.0.</p>
+<!-- @@@Widgets -->
+</div>
+        </div>
+       </div>
+   </div>
+   </div>
+</div>
+<div class="footer">
+   <p>
+   <abbr title="Copyright">&copy;</abbr> 2024 <span translate="no">The Qt Company Ltd.</span>
+   Documentation contributions included herein are the copyrights of
+   their respective owners.<br/>    The documentation provided herein is licensed under the terms of the    <a href="http://www.gnu.org/licenses/fdl.html">GNU Free Documentation    License version 1.3</a> as published by the <span translate="no">Free Software Foundation</span>.<br/>    <span translate="no">Qt</span> and respective logos are <a href="https://doc.qt.io/qt/trademarks.html">    trademarks</a> of <span translate="no">The Qt Company Ltd.</span> in Finland and/or other countries
+   worldwide. All other trademarks are property of their respective owners. </p>
+</div>
+</body>
+</html>
