@@ -69,9 +69,9 @@ namespace Visindigo::Editor {
 	/*!
 		\since Visindigo 0.13.0
 		扫描并加载插件，但不启用它们。此函数会扫描./resources/plugins目录下的所有插件，并根据插件的依赖关系决定加载顺序。
-		按需调用此函数，然后调用loadPlugin()启用插件。
+		按需调用此函数，然后调用enableAllPlugin()启用插件。
 	*/
-	void EditorPluginManager::programLoadPlugin() {
+	void EditorPluginManager::loadAllPlugin() {
 		yNotice << "Scanning plugins in ./resouces/plugins";
 		QFileInfoList Plugins = EditorPluginManagerPrivate::recursionGetAllDll("./resource/plugins");
 		for (QFileInfo info : Plugins) {
@@ -116,12 +116,12 @@ namespace Visindigo::Editor {
 				QString path = d->PluginPathMap.value(key);
 				QLibrary* hLibrary = new QLibrary(path);
 				if (hLibrary->load() == false) {
-					yError << "Failed when init plugin" << key << ", cannot load into memory!";
+					yError << "Failed when load plugin" << key << ", cannot load plugin file into memory!";
 					return;
 				}
 				__YSSPluginDllMain PluginDllMain = (__YSSPluginDllMain)hLibrary->resolve("YSSPluginDllMain");
 				if (PluginDllMain == nullptr) {
-					yError << "Failed when init plugin" << key << ", cannot find entry point YSSPluginDllMain!";
+					yError << "Failed when load plugin" << key << ", cannot find entry point YSSPluginDllMain!";
 					hLibrary->unload();
 					delete hLibrary;
 					return;
@@ -131,7 +131,7 @@ namespace Visindigo::Editor {
 					plugin = PluginDllMain();
 				}
 				catch (...) {
-					yError << "Exception occured when init plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
+					yError << "Exception occured when load plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
 				}
 				if (plugin == nullptr) {
 					yError << "Failed when init plugin" << key << ", cannot create EditorPlugin Instance!";
@@ -169,7 +169,7 @@ namespace Visindigo::Editor {
 		\since Visindigo 0.13.0
 		启用所有已加载但未启用的插件。请在调用programLoadPlugin()之后调用此函数。
 	*/
-	void EditorPluginManager::loadPlugin() {
+	void EditorPluginManager::enableAllPlugin() {
 		for (int i = 0; i < d->PriorityPlugins.size(); i++) {
 			EditorPlugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
 			if (d->PluginEnable.value(plugin) == false) {

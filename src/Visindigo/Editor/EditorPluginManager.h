@@ -14,8 +14,8 @@ namespace Visindigo::Editor {
 	public:
 		EditorPluginManager(QObject* parent = nullptr);
 		~EditorPluginManager();
-		void programLoadPlugin();
-		void loadPlugin();
+		void loadAllPlugin();
+		void enableAllPlugin();
 		bool isPluginEnable(const QString& id) const;
 	private:
 		EditorPluginManagerPrivate* d;

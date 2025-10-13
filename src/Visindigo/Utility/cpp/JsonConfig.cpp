@@ -114,14 +114,22 @@ namespace Visindigo::Utility {
 					QString nextkey = *((*it) + 1);
 					bool ok = false;
 					int index = nextkey.toInt(&ok);
-					QJsonObject obj = val.toObject();
-					if (ok) {
-						obj.insert(*(*it), QJsonArray());
+					if (!val.isArray()){
+						QJsonObject obj = val.toObject();
+						if (ok) {
+							obj.insert(*(*it), QJsonArray());
+						}
+						else {
+							obj.insert(*(*it), QJsonValue());
+						}
+						val = obj;
+					}else{
+						QJsonArray arr = val.toArray();
+						if (arr.size() <= (*it)->toInt()) {
+							arr.append(QJsonValue());
+						}
+						val = arr;
 					}
-					else {
-						obj.insert(*(*it), QJsonValue());
-					}
-					val = obj;
 				}
 			}
 			if (*it == nameList->end() - 1) {

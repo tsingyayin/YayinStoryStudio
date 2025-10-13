@@ -35,8 +35,8 @@ namespace YSS {
 		FileTemplateManager = new Visindigo::Editor::FileTemplateManager();
 		ySuccess << "Program global value initialized !";
 		PluginManager = new Visindigo::Editor::EditorPluginManager();
-		PluginManager->programLoadPlugin();
-		PluginManager->loadPlugin();
+		PluginManager->loadAllPlugin();
+		PluginManager->enableAllPlugin();
 	}
 	QColor GlobalValue::getColor(const QString& key) {
 		return Instance->Theme->getColor(key);

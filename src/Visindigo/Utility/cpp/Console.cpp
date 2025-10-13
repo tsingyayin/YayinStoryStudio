@@ -322,7 +322,7 @@ namespace Visindigo::Utility {
 			}
 			result.append(QString::number(L, 10) % "\t" % rawText % "|  " % chatText % " |");
 		}
-		result.append("---------------------------------------------------------------------\n");
+		result.append("\n---------------------------------------------------------------------\n");
 		if (UninitializedMemory) {
 			result.append("Warning: Uninitialized memory detected.(Part marked as '??')\nIf this data directly comes from a struct or class, please ignore this issue");
 		}

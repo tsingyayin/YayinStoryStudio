@@ -72,7 +72,7 @@ namespace Visindigo::General {
 		return *this;
 	}
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QByteArray& byteArray) {
-		fromString(Visindigo::Utility::Console::binaryToString(byteArray));
+		fromString("\n"+Visindigo::Utility::Console::binaryToString(byteArray));
 		return *this;
 	}
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QObject* pointer) {
