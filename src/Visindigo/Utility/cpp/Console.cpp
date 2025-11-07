@@ -254,7 +254,7 @@ namespace Visindigo::Utility {
 		此输出自动换行。
 	*/
 	void Console::print(QString msg) {
-		qDebug().noquote() << msg;
+		std::cout << msg.toLocal8Bit().data() << std::endl;
 	}
 
 	/*!

@@ -179,6 +179,21 @@
     <ClCompile Include="Utility\cpp\ShortCutHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\Plugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\PluginModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\Exception.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\VIApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\PluginManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -313,6 +328,18 @@
     <ClInclude Include="Utility\ShortCutHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\Command.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\VIApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\private\Plugin_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\Exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -391,6 +418,15 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\TranslationHost.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\Plugin.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\PluginModule.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\PluginManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #pragma once
 #include <VIMacro.h>
-#include "../AStoryController.h"
+#include "AStoryController.h"
 class QString;
 class AStoryControllerParseData;
 

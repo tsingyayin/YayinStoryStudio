@@ -30,7 +30,7 @@ namespace Visindigo::Editor {
 		friend class Visindigo::__Private__::EditorPluginPrivate;
 		Q_OBJECT;
 	public:
-		EditorPlugin(Visindigo::General::Version abiVersion = Compiled_YSSABI_Version, QObject* parent = nullptr);
+		EditorPlugin(Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QObject* parent = nullptr);
 		virtual ~EditorPlugin();
 		virtual void onPluginEnable() = 0;
 		virtual void onPluginDisbale() = 0;

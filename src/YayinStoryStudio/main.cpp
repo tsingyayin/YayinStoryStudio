@@ -14,14 +14,15 @@
 int main(int argc, char* argv[])
 {
 	QApplication a(argc, argv);
-	QDir::setCurrent(QFileInfo(a.arguments()[0]).path());
+	QStringList args = a.arguments();
+	QDir::setCurrent(QFileInfo(args[0]).absolutePath());
 	QStringList prts = Visindigo::Utility::FileUtility::readLines(":/Visindigo/compiled/IWillFindU.txt");
 	for (auto p : prts) {
 		yMessage << p;
 	}
 
 	yInfo << "Visindigo " << Visindigo::General::Version::getAPIVersion() << "(ABI " << Visindigo::General::Version::getABIVersion() << ")";
-	yNotice << "Launch arguments" << a.arguments();
+	yNotice << "Launch arguments" << args;
 	yInfo << Visindigo::Utility::FileUtility::getProgramPath();
 	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
 	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";

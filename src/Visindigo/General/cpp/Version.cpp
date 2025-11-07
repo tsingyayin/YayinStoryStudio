@@ -21,6 +21,16 @@ namespace Visindigo::General {
 	Version VersionPrivate::APIVersion = Version(Visindigo_VERSION_MAJOR, Visindigo_VERSION_MINOR, Visindigo_VERSION_PATCH, true, Visindigo_VERSION_BUILD, Visindigo_VERSION_NICKNAME);
 	Version VersionPrivate::ABIVersion = Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0);
 
+	Version::Version()
+	{
+		d = new VersionPrivate;
+		d->major = 0;
+		d->minor = 0;
+		d->patch = 0;
+		d->useBuild = false;
+		d->build = 0;
+		d->nickName = "";
+	}
 	Version::Version(quint32 major, quint32 minor, quint32 patch, bool useBuild, quint32 build, const QString& nickName)
 	{
 		d = new VersionPrivate;

@@ -9,7 +9,7 @@
 
 #define Visindigo_ABI_VERSION_MAJOR 12
 #define Visindigo_ABI_VERSION_MINOR 0
-#define Compiled_YSSABI_Version Visindigo::General::Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0)
+#define Compiled_VIABI_Version Visindigo::General::Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0)
 
 // Forward declarations
 namespace Visindigo::General {
@@ -21,6 +21,7 @@ namespace Visindigo::General {
 	{
 		friend class VersionPrivate;
 	public:
+		Version();
 		Version(quint32 major, quint32 minor, quint32 patch, bool useBuild = false, quint32 build = 0, const QString& nickName = "");
 		Version(const QString& version);
 		Version(const Version& other);

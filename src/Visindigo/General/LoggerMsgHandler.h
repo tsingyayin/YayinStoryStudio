@@ -41,13 +41,17 @@ namespace Visindigo::General {
 		LoggerMsgHandler& operator<<(const QStringList& strList);
 		LoggerMsgHandler& operator<<(const QByteArray& byteArray);
 		LoggerMsgHandler& operator<<(QObject* pointer);
-		template<Printable T> LoggerMsgHandler& operator<<(T type);
-		template<typename T>LoggerMsgHandler& operator<<(QMap<QString, T> pointer_map);
+
+		template<Printable T> LoggerMsgHandler& operator<<(T type); // for any type with toString() method
+
+		template<typename T> LoggerMsgHandler& operator<<(QMap<QString, T> any_map); 
 		LoggerMsgHandler& operator<<(QMap<QString, QObject*> pointer_map);
-		template<Printable T>LoggerMsgHandler& operator<<(QMap<QString, T> printable_map);
-		template<typename T>LoggerMsgHandler& operator<<(QList<T> list);
+		template<Printable T>LoggerMsgHandler& operator<<(QMap<QString, T> printable_map); // for any map with printable values
+
+		template<typename T>LoggerMsgHandler& operator<<(QList<T> any_list); 
 		LoggerMsgHandler& operator<<(QList<QObject*> qobject_list);
-		template<Printable T>LoggerMsgHandler& operator<<(QList<T> qobject_list);
+		template<Printable T>LoggerMsgHandler& operator<<(QList<T> qobject_list); // for any list with printable values
+
 		QString getMessage();
 		Logger* getLogger();
 		Logger::Level getLevel();
