@@ -1,10 +1,11 @@
 #pragma once
 #include <QtWidgets/qframe.h>
-#include "EditorPluginModule.h"
+#include "../General/PluginModule.h"
 // Forward declarations
 class QString;
 namespace Visindigo::Editor {
 	class ProjectTemplateProviderPrivate;
+	class EditorPlugin;
 }
 // Main
 namespace Visindigo::Editor {
@@ -18,7 +19,7 @@ namespace Visindigo::Editor {
 		virtual void closeEvent(QCloseEvent* event) override;
 	};
 
-	class VisindigoAPI ProjectTemplateProvider :public EditorPluginModule {
+	class VisindigoAPI ProjectTemplateProvider :public Visindigo::General::PluginModule {
 		friend class ProjectTemplateProviderPrivate;
 		Q_OBJECT;
 	public:

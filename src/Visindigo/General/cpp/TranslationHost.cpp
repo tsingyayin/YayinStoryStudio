@@ -42,7 +42,6 @@ namespace Visindigo::General {
 	*/
 	TranslationHost::TranslationHost():QObject() {
 		d = new TranslationHostPrivate;
-		TranslationHostPrivate::Instance = this;
 		ySuccessF << "Success!";
 		Visindigo::General::VisindigoTranslator* coreTranslator = new Visindigo::General::VisindigoTranslator();
 		active(coreTranslator);
@@ -61,6 +60,9 @@ namespace Visindigo::General {
 		获取TranslationHost单例对象的指针。
 	*/
 	TranslationHost* TranslationHost::getInstance() {
+		if (TranslationHostPrivate::Instance == nullptr) {
+			TranslationHostPrivate::Instance = new TranslationHost();
+		}
 		return TranslationHostPrivate::Instance;
 	}
 

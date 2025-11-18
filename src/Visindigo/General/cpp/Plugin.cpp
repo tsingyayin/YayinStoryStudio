@@ -261,7 +261,7 @@ namespace Visindigo::General {
 		\a module 要注册的模块
 		注册一个编辑器模块
 	*/
-	void Plugin::registerEditorModule(PluginModule* module) {
+	void Plugin::registerPluginModule(PluginModule* module) {
 		d->Modules.append(module);
 	}
 

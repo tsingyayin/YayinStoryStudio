@@ -1,6 +1,7 @@
 #include <QtCore/qstring.h>
 #include <QtGui/qsyntaxhighlighter.h>
 #include "../LangServer.h"
+#include "../../General/Plugin.h"
 
 namespace Visindigo::Editor {
 	class LangServerPrivate
@@ -13,7 +14,7 @@ namespace Visindigo::Editor {
 	};
 
 	LangServer::LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext) :
-		EditorPluginModule(name, id, plugin)
+		Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin)
 	{
 		d = new LangServerPrivate();
 		d->LanguageID = lang_id;

@@ -1,11 +1,12 @@
 #pragma once
 #include <QtWidgets/qframe.h>
 #include <QtCore/qstringlist.h>
-#include "EditorPluginModule.h"
+#include "../General/PluginModule.h"
 // Forward declarations
 namespace Visindigo::Editor {
 	class FileTemplateInitWidgetPrivate;
 	class FileTemplateProviderPrivate;
+	class EditorPlugin;
 }
 // Main
 namespace Visindigo::Editor {
@@ -22,7 +23,7 @@ namespace Visindigo::Editor {
 		FileTemplateInitWidgetPrivate* d;
 	};
 
-	class VisindigoAPI FileTemplateProvider :public EditorPluginModule {
+	class VisindigoAPI FileTemplateProvider :public Visindigo::General::PluginModule {
 		friend class FileTemplateProviderPrivate;
 		Q_OBJECT;
 	public:

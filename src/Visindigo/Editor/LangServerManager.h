@@ -6,14 +6,15 @@ namespace Visindigo::Editor {
 	class LangServer;
 	class LangServerManagerPrivate;
 	class VisindigoAPI LangServerManager {
-	public:
+	private:
 		LangServerManager();
+	public:
 		~LangServerManager();
+		static LangServerManager* getInstance();
 		bool addLangServer(LangServer* server);
 		LangServer* routeID(const QString& id);
 		LangServer* routeExt(const QString& fileExt);
 		void removeServer(LangServer* server);
-		static LangServerManager* getInstance();
 	private:
 		LangServerManagerPrivate* d;
 	};

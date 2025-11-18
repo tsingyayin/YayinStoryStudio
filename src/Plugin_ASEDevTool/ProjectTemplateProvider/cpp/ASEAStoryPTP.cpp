@@ -8,6 +8,7 @@
 #include <QtWidgets/qlabel.h>
 #include <General/YSSProject.h>
 #include <QtWidgets/qmessagebox.h>
+#include <Editor/EditorPlugin.h>
 ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	: Visindigo::Editor::ProjectTemplateInitWidget(parent)
 {

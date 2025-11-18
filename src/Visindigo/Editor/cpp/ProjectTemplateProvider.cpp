@@ -1,4 +1,5 @@
 #include "../ProjectTemplateProvider.h"
+#include "../../General/Plugin.h"
 
 namespace Visindigo::Editor {
 	ProjectTemplateInitWidget::ProjectTemplateInitWidget(QWidget* parent)
@@ -19,7 +20,7 @@ namespace Visindigo::Editor {
 		QStringList TemplateTags;
 	};
 	ProjectTemplateProvider::ProjectTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin)
-		: EditorPluginModule(name, id, plugin)
+		: Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin)
 	{
 		d = new ProjectTemplateProviderPrivate;
 	}

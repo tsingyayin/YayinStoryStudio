@@ -1,5 +1,5 @@
 #pragma once
-#include "EditorPluginModule.h"
+#include "../General/PluginModule.h"
 // Forward declarations
 class QString;
 class QTextDocument;
@@ -12,7 +12,7 @@ namespace Visindigo::Editor {
 }
 // Main
 namespace Visindigo::Editor {
-	class VisindigoAPI LangServer :public EditorPluginModule {
+	class VisindigoAPI LangServer :public Visindigo::General::PluginModule {
 		friend class LangServerPrivate;
 		friend class LangServerManager;
 	public:

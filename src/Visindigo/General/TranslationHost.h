@@ -15,9 +15,10 @@ namespace Visindigo::General {
 		Q_OBJECT;
 	signals:
 		void langChanged(Translator::LangID id);
-	public:
-		static TranslationHost* getInstance();
+	private:
 		TranslationHost();
+	public:
+		static TranslationHost* getInstance();	
 		~TranslationHost();
 		void setLangID(Translator::LangID id);
 		void active(Translator* translator);

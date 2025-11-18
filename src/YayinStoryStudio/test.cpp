@@ -8,7 +8,7 @@
 #include <Utility/FileUtility.h>
 #include <Utility/AsyncFunction.h>
 #include <Widgets/ConfigWidget.h>
-void test_main(QApplication& a) {
+void test_main() {
 	Visindigo::Utility::CodeDiff codeDiff;
 	codeDiff.setOldCode(Visindigo::Utility::FileUtility::readLines("./resource/old.txt"));
 	codeDiff.setNewCode(Visindigo::Utility::FileUtility::readLines("./resource/new.txt"));

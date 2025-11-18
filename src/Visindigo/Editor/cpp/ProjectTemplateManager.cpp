@@ -14,9 +14,6 @@ namespace Visindigo::Editor {
 
 	ProjectTemplateManager::ProjectTemplateManager() {
 		d = new ProjectTemplateManagerPrivate;
-		if (ProjectTemplateManagerPrivate::Instance == nullptr) {
-			ProjectTemplateManagerPrivate::Instance = this;
-		}
 		ySuccessF << "Success!";
 	}
 
@@ -28,6 +25,9 @@ namespace Visindigo::Editor {
 	}
 
 	ProjectTemplateManager* ProjectTemplateManager::getInstance() {
+		if (ProjectTemplateManagerPrivate::Instance == nullptr) {
+			ProjectTemplateManagerPrivate::Instance = new ProjectTemplateManager();
+		}
 		return ProjectTemplateManagerPrivate::Instance;
 	}
 

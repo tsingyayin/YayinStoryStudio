@@ -1,5 +1,6 @@
 #include <QtWidgets/qwidget.h>
 #include "../FileServer.h"
+#include "../../General/Plugin.h"
 
 namespace Visindigo::Editor {
 	class FileServerPrivate {
@@ -43,7 +44,7 @@ namespace Visindigo::Editor {
 		构造FileServer对象。
 	*/
 	FileServer::FileServer(const QString& name, const QString& id, EditorPlugin* plugin) :
-		EditorPluginModule(name, id, plugin) {
+		Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin) {
 		d = new FileServerPrivate();
 	}
 

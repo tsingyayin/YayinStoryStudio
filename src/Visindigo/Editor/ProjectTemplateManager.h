@@ -9,10 +9,9 @@ namespace Visindigo::Editor {
 // Main
 namespace Visindigo::Editor {
 	class VisindigoAPI ProjectTemplateManager {
-	public:
+	private:
 		ProjectTemplateManager();
-		ProjectTemplateManager(const ProjectTemplateManager& other) = delete;
-		ProjectTemplateManager(ProjectTemplateManager&& other) = delete;
+	public:
 		~ProjectTemplateManager();
 		static ProjectTemplateManager* getInstance();
 		QList<ProjectTemplateProvider*> getProviders();

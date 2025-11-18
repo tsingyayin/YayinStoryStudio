@@ -43,7 +43,6 @@ namespace Visindigo::Editor {
 	*/
 	FileServerManager::FileServerManager() {
 		d = new FileServerManagerPrivate();
-		FileServerManagerPrivate::Instance = this;
 		ySuccessF << "Success!";
 	}
 
@@ -64,6 +63,9 @@ namespace Visindigo::Editor {
 		\return 返回FileServerManager的单例对象。
 	*/
 	FileServerManager* FileServerManager::getInstance() {
+		if (FileServerManagerPrivate::Instance == nullptr) {
+			FileServerManagerPrivate::Instance = new FileServerManager();
+		}
 		return FileServerManagerPrivate::Instance;
 	}
 

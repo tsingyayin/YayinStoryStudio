@@ -3,6 +3,7 @@
 #include <QtCore/qlist.h>
 #include "../Macro.h"
 #include "../General/Version.h"
+#include "../General/Plugin.h"
 // Forward declarations
 class QString;
 namespace Visindigo::Utility {
@@ -25,34 +26,19 @@ namespace Visindigo::Editor {
 }
 // Main
 namespace Visindigo::Editor {
-	class VisindigoAPI EditorPlugin :public QObject {
+	class VisindigoAPI EditorPlugin :public Visindigo::General::Plugin {
 		friend class EditorPluginManager;
 		friend class Visindigo::__Private__::EditorPluginPrivate;
 		Q_OBJECT;
 	public:
 		EditorPlugin(Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QObject* parent = nullptr);
 		virtual ~EditorPlugin();
-		virtual void onPluginEnable() = 0;
-		virtual void onPluginDisbale() = 0;
-		QString getPluginID() const;
-		QString getPluginName() const;
-		QStringList getPluginAuthor() const;
-		QString getPluginFolder() const;
-		Visindigo::Utility::JsonConfig* getPluginConfig();
-		QList<EditorPluginModule*> getModules() const;
 	protected:
-		void setPluginVersion(const Visindigo::General::Version& version);
-		void setPluginID(const QString& id);
-		void setPluginName(const QString& name);
-		void setPluginAuthor(const QStringList& author);
 		void registerLangServer(LangServer* server);
 		void registerDebugServer(DebugServer* server);
 		void registerFileServer(FileServer* server);
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 		void registerFileTemplateProvider(FileTemplateProvider* provider);
-		void registerTranslator(Visindigo::General::Translator* translator);
-	public:
-		virtual QWidget* getPluginSettingsWidget(QWidget* parent = nullptr) = 0;
 	protected:
 		Visindigo::__Private__::EditorPluginPrivate* d;
 	};

@@ -14,9 +14,6 @@ namespace Visindigo::Editor {
 
 	FileTemplateManager::FileTemplateManager() {
 		d = new FileTemplateManagerPrivate;
-		if (FileTemplateManagerPrivate::Instance == nullptr) {
-			FileTemplateManagerPrivate::Instance = this;
-		}
 		ySuccessF << "Success!";
 	}
 
@@ -28,6 +25,9 @@ namespace Visindigo::Editor {
 	}
 
 	FileTemplateManager* FileTemplateManager::getInstance() {
+		if (FileTemplateManagerPrivate::Instance == nullptr) {
+			FileTemplateManagerPrivate::Instance = new FileTemplateManager();
+		}
 		return FileTemplateManagerPrivate::Instance;
 	}
 

@@ -17,9 +17,10 @@ namespace Visindigo::Editor {
 	signals:
 		void builtinEditorCreated(FileEditWidget* editor);
 		void windowEditorCreated(QWidget* editor);
+	private:
+		FileServerManager();
 	public:
 		static FileServerManager* getInstance();
-		FileServerManager();
 		~FileServerManager();
 		void registerFileServer(FileServer* server);
 		void unregisterFileServer(FileServer* server);

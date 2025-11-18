@@ -99,7 +99,7 @@
     <IncludePath>$(SolutionDir)src\Visindigo;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\Debug\resource\plugins\ASEDevTool\</OutDir>
-    <TargetExt>.ysp</TargetExt>
+    <TargetExt>.vpl</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <IncludePath>$(SolutionDir)src\Visindigo;$(IncludePath)</IncludePath>
@@ -110,7 +110,7 @@
     <IncludePath>$(SolutionDir)src\Visindigo;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\Release\resource\plugins\ASEDevTool\</OutDir>
-    <TargetExt>.ysp</TargetExt>
+    <TargetExt>.vpl</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>

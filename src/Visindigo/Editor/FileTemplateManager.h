@@ -9,10 +9,9 @@ namespace Visindigo::Editor {
 // Main
 namespace Visindigo::Editor {
 	class VisindigoAPI FileTemplateManager {
-	public:
+	private:
 		FileTemplateManager();
-		FileTemplateManager(const FileTemplateManager& other) = delete;
-		FileTemplateManager(FileTemplateManager&& other) = delete;
+	public:
 		~FileTemplateManager();
 		static FileTemplateManager* getInstance();
 		QList<FileTemplateProvider*> getProviders();

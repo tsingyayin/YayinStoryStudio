@@ -8,7 +8,7 @@ namespace Visindigo::Editor {
 }
 // Main
 namespace Visindigo::Editor {
-	class VisindigoAPI EditorPluginModule :public QObject {
+	class QT_DEPRECATED VisindigoAPI EditorPluginModule :public QObject {
 		friend class EditorPluginModulePrivate;
 		friend class EditorPlugin;
 		Q_OBJECT;

@@ -294,10 +294,11 @@
     <ClInclude Include="General\Exception.h" />
     <QtMoc Include="General\PluginManager.h" />
     <QtMoc Include="General\PluginModule.h" />
+    <ClInclude Include="General\Package.h" />
     <ClInclude Include="General\private\Plugin_p.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
     <QtMoc Include="Utility\private\qnamespace_key.h" />
-    <ClInclude Include="General\VIApplication.h" />
+    <QtMoc Include="General\VIApplication.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
     <ClInclude Include="Utility\ShortCutHelper.h" />
     <ClInclude Include="Utility\StringMacro.h" />

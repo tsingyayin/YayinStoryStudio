@@ -1,5 +1,6 @@
 #include <QtCore/qstring.h>
 #include "../../General/TranslationHost.h"
+#include "../../General/PluginModule.h"
 #include "../private/EditorPlugin_p.h"
 #include "../EditorPlugin.h"
 #include "../LangServerManager.h"
@@ -94,9 +95,9 @@ namespace Visindigo::Editor {
 		在派生此类时，不需要实际传递任何参数。
 		\warning 请注意，abiVersion并不是插件的版本号，也不是YSS的程序版本。它是YSS的二进制兼容版本。
 	*/
-	EditorPlugin::EditorPlugin(Visindigo::General::Version abiVersion, QObject* parent) : QObject(parent) {
+	EditorPlugin::EditorPlugin(Visindigo::General::Version abiVersion, QObject* parent) :
+		Visindigo::General::Plugin(abiVersion, "YayinStoryStudio", parent) {
 		d = new Visindigo::__Private__::EditorPluginPrivate();
-		d->ABIVersion = abiVersion;
 	}
 	/*!
 		\since Visindigo 0.13.0
@@ -123,89 +124,8 @@ namespace Visindigo::Editor {
 		还会被Visindigo捕获异常并输出到日志中。
 	*/
 
-	/*!
-		\since Visindigo 0.13.0
-		return 插件的ID
-	*/
-	QString EditorPlugin::getPluginID() const {
-		return d->PluginID;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		return 插件的名称
-	*/
-	QString EditorPlugin::getPluginName() const {
-		return d->PluginName;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		return 插件的作者，这是一个列表。
-	*/
-	QStringList EditorPlugin::getPluginAuthor() const {
-		return d->PluginAuthor;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		return 插件的根目录
-	*/
-	QString EditorPlugin::getPluginFolder() const {
-		return d->PluginFolder;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		return 插件的设置
-	*/
-	Visindigo::Utility::JsonConfig* EditorPlugin::getPluginConfig() {
-		return &(d->Config);
-	}
-
-	/*!
-		\since Visindigo 0.13.0
-		return 插件包含的模块列表
-	*/
-	QList<EditorPluginModule*> EditorPlugin::getModules() const {
-		return d->Modules;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		\a id 插件的ID
-		设置插件的ID
-	*/
-	void EditorPlugin::setPluginID(const QString& id) {
-		d->PluginID = id;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		\a name 插件的名称
-		设置插件的名称
-	*/
-	void EditorPlugin::setPluginName(const QString& name) {
-		d->PluginName = name;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		\a author 插件的作者
-		设置插件的作者
-	*/
-	void EditorPlugin::setPluginAuthor(const QStringList& author) {
-		d->PluginAuthor = author;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		\a version 插件的版本号
-		设置插件的版本号
-	*/
-	void EditorPlugin::setPluginVersion(const Visindigo::General::Version& version) {
-		d->PluginVersion = version;
-	}
-	/*!
-		\since Visindigo 0.13.0
-		\a server 语言服务器
-		注册语言服务器。
-		\note 这里的语言服务器指的是代码语言高亮、着色与分析，而非自然语言翻译器。
-	*/
 	void EditorPlugin::registerLangServer(LangServer* server) {
-		d->Modules.append(server);
+		registerPluginModule(server);
 		LangServerManager::getInstance()->addLangServer(server);
 	}
 	/*!
@@ -222,25 +142,17 @@ namespace Visindigo::Editor {
 		注册文件服务器。
 	*/
 	void EditorPlugin::registerFileServer(FileServer* server) {
-		d->Modules.append(server);
+		registerPluginModule(server);
 		FileServerManager::getInstance()->registerFileServer(server);
 	}
 
-	/*!
-		\since Visindigo 0.13.0
-		\a translator 翻译器
-		注册翻译器。
-	*/
-	void EditorPlugin::registerTranslator(Visindigo::General::Translator* translator) {
-		Visindigo::General::TranslationHost::getInstance()->active(translator);
-	}
 	/*!
 		\since Visindigo 0.13.0
 		\a provider 项目模板提供者
 		注册项目模板提供者。
 	*/
 	void EditorPlugin::registerProjectTemplateProvider(ProjectTemplateProvider* provider) {
-		d->Modules.append(provider);
+		registerPluginModule(provider);
 		Visindigo::Editor::ProjectTemplateManager::getInstance()->addProvider(provider);
 	}
 
@@ -250,7 +162,7 @@ namespace Visindigo::Editor {
 		注册文件模板提供者。
 	*/
 	void EditorPlugin::registerFileTemplateProvider(FileTemplateProvider* provider) {
-		d->Modules.append(provider);
+		registerPluginModule(provider);
 		Visindigo::Editor::FileTemplateManager::getInstance()->addProvider(provider);
 	}
 

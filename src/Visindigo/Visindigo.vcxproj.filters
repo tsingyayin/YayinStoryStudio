@@ -331,13 +331,13 @@
     <ClInclude Include="General\Command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\VIApplication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\private\Plugin_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\Exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\Package.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -427,6 +427,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\PluginManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\VIApplication.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

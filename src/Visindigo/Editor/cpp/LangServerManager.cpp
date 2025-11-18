@@ -18,7 +18,6 @@ namespace Visindigo::Editor {
 	LangServerManager* LangServerManagerPrivate::Instance = nullptr;
 
 	LangServerManager::LangServerManager() {
-		LangServerManagerPrivate::Instance = this;
 		d = new LangServerManagerPrivate();
 		ySuccessF << "Success!";
 	}
@@ -70,6 +69,9 @@ namespace Visindigo::Editor {
 		}
 	}
 	LangServerManager* LangServerManager::getInstance() {
+		if (LangServerManagerPrivate::Instance == nullptr) {
+			LangServerManagerPrivate::Instance = new LangServerManager();
+		}
 		return LangServerManagerPrivate::Instance;
 	}
 	LangServerManager::~LangServerManager() {

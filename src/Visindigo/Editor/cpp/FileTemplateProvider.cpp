@@ -1,4 +1,5 @@
 #include "../FileTemplateProvider.h"
+#include "../../General/Plugin.h"
 
 namespace Visindigo::Editor {
 	class FileTemplateInitWidgetPrivate
@@ -36,7 +37,7 @@ namespace Visindigo::Editor {
 		QStringList TemplateTags;
 	};
 	FileTemplateProvider::FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin) :
-		EditorPluginModule(name, id, plugin)
+		Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin)
 	{
 		d = new FileTemplateProviderPrivate;
 	}

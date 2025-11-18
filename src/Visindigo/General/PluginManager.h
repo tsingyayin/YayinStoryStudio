@@ -13,6 +13,9 @@ namespace Visindigo::General {
 	class VisindigoAPI PluginManager :public QObject{
 		friend class PluginManagerPrivate;
 		Q_OBJECT;
+	signals:
+		void pluginLoaded(Plugin* plugin);
+		void pluginEnabled(Plugin* plugin);
 	private:
 		PluginManager(QObject* parent = nullptr);
 	public:
@@ -20,7 +23,11 @@ namespace Visindigo::General {
 		~PluginManager();
 		void loadAllPlugin();
 		void enableAllPlugin();
+		void disableAllPlugin();
 		bool isPluginEnable(const QString& id) const;
+		bool isPluginEnable(Plugin* plugin) const;
+		qint32 getLoadedPluginCount() const;
+		qint32 getEnabledPluginCount() const;
 		Plugin* getPluginByID(const QString& id) const;
 		Plugin* getPluginByName(const QString& name) const;
 	private:

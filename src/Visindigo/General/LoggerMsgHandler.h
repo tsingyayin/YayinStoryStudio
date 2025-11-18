@@ -9,8 +9,7 @@
 #include "Logger.h"
 // Main
 namespace Visindigo::General {
-	template <typename T>
-	concept Printable = requires(T t) {
+	template <typename T> concept Printable = requires(T t) {
 		{ t.toString() }->::std::same_as<QString>;
 	};
 

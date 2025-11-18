@@ -27,8 +27,8 @@ namespace Visindigo::General {
 	public:
 		Plugin(Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QString extensionID = "Visindigo_Base", QObject * parent = nullptr);
 		virtual ~Plugin();
-		virtual void onPluginEnable() = 0;
-		virtual void onPluginDisbale() = 0;
+		virtual void onPluginEnable() {};
+		virtual void onPluginDisbale() {};
 		QString getPluginID() const;
 		QString getPluginName() const;
 		QStringList getPluginAuthor() const;
@@ -43,7 +43,7 @@ namespace Visindigo::General {
 		void setPluginID(const QString& id);
 		void setPluginName(const QString& name);
 		void setPluginAuthor(const QStringList& author);
-		void registerEditorModule(PluginModule* module);
+		void registerPluginModule(PluginModule* module);
 		void registerTranslator(Visindigo::General::Translator* translator);
 	public:
 		virtual QWidget* getPluginSettingsWidget(QWidget* parent = nullptr) { return nullptr; };
@@ -52,6 +52,7 @@ namespace Visindigo::General {
 	};
 }
 
+#define Visindigo_PluginMain_Function_Name "VisindigoPluginMain"
 typedef Visindigo::General::Plugin* (*__VisindigoPluginMain)(void);
 
 #endif // Visindigo_General_Plugin_H
