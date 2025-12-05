@@ -28,8 +28,9 @@ namespace YSS {
 		Visindigo::Widgets::ThemeManager* Theme = nullptr;
 		YSS::Editor::YSSTranslator* YSSTranslator = nullptr;
 		YSS::Editor::MainWin* MainWindow = nullptr;
-	public:
 		GlobalValue();
+		virtual ~GlobalValue();
+	public:
 		static GlobalValue* getInstance();
 		static QColor getColor(const QString& key);
 		static Visindigo::Utility::JsonConfig* getConfig();

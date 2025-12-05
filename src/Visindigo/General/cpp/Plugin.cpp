@@ -141,6 +141,22 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
+		设置插件为测试模式。测试模式下，插件不会被插件管理器自动启用，必须手动启用。
+	*/
+	void Plugin::setTestEnable() {
+		d->TestEnable = true;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		return 插件是否为测试模式
+	*/
+	bool Plugin::isTestEnable() const {
+		return d->TestEnable;
+	}
+
+	/*!
 		\fn Visindigo::Editor::Plugin::onPluginEnable()
 		\since Visindigo 0.13.0
 		启用插件时调用此函数。大部分涉及到Visindigo内部资源调用的初始化都应该在此函数中进行。

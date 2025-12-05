@@ -27,7 +27,11 @@ namespace Visindigo::General {
 	public:
 		Plugin(Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QString extensionID = "Visindigo_Base", QObject * parent = nullptr);
 		virtual ~Plugin();
+		void setTestEnable();
+		bool isTestEnable() const;
 		virtual void onPluginEnable() {};
+		virtual void onTest() {};
+		virtual void onApplicationInit() {};
 		virtual void onPluginDisbale() {};
 		QString getPluginID() const;
 		QString getPluginName() const;

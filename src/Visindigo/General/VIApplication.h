@@ -62,6 +62,7 @@ namespace Visindigo::General {
 		};
 		enum EnvKey {
 			PluginFolderPath,
+			MinimumLoadingTimeMS,
 		};
 	public:
 		static VIApplication* getInstance();

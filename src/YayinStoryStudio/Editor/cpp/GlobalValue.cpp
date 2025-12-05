@@ -13,9 +13,6 @@
 namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
 	GlobalValue::GlobalValue() {
-		if (Instance != nullptr) {
-			throw std::runtime_error("GlobalValue already exists!");
-		}
 		Instance = this;
 		yMessage << "Program global value initializing";
 		PathMacro = new Visindigo::Utility::PathMacro();
@@ -27,6 +24,9 @@ namespace YSS {
 		//PluginManager = new Visindigo::Editor::EditorPluginManager();
 		//PluginManager->loadAllPlugin();
 		//PluginManager->enableAllPlugin();
+	}
+	GlobalValue::~GlobalValue() {
+		// Nothing to do
 	}
 	QColor GlobalValue::getColor(const QString& key) {
 		return Instance->Theme->getColor(key);
@@ -49,6 +49,9 @@ namespace YSS {
 		}
 	}
 	GlobalValue* GlobalValue::getInstance() {
+		if (Instance == nullptr) {
+			Instance = new GlobalValue();
+		}
 		return Instance;
 	}
 

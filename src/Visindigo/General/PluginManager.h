@@ -23,6 +23,8 @@ namespace Visindigo::General {
 		~PluginManager();
 		void loadAllPlugin();
 		void enableAllPlugin();
+		void testAllPlugin();
+		void applicationInitAllPlugin();
 		void disableAllPlugin();
 		bool isPluginEnable(const QString& id) const;
 		bool isPluginEnable(Plugin* plugin) const;

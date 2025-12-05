@@ -7,6 +7,8 @@ namespace YSS {
 		Main();
 		virtual ~Main();
 		virtual void onPluginEnable() override;
+		virtual void onApplicationInit() override;
 		virtual void onPluginDisbale() override;
+		virtual void onTest() override;
 	};
 }

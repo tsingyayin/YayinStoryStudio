@@ -340,6 +340,9 @@
     <ClInclude Include="General\Package.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\private\VIApplication_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">

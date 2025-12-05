@@ -119,7 +119,6 @@
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />
     <ClCompile Include="Editor\SimpleWidget\cpp\EAWarningWidget.cpp" />
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp" />
-    <ClCompile Include="test.cpp" />
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp" />
     <ClCompile Include="main.cpp" />
@@ -152,7 +151,6 @@
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />
     <QtMoc Include="Editor\NewFilePage\NewFileWin.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="test_main.h" />
     <ClInclude Include="Editor\YSSTranslator.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
   </ItemGroup>

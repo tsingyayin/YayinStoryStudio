@@ -18,6 +18,7 @@ namespace Visindigo::__Private__ {
 		Visindigo::General::Plugin* q = nullptr;
 		Visindigo::General::Version ABIVersion;
 		Visindigo::General::Version PluginVersion;	
+		bool TestEnable = false;
 		QString PluginID;
 		QString PluginName;
 		QStringList PluginAuthor;

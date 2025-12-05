@@ -168,6 +168,28 @@ namespace Visindigo::General {
 		}
 	}
 
+	void PluginManager::testAllPlugin() {
+		for (int i = 0; i < d->Plugins.size(); i++) {
+			Plugin* plugin = d->Plugins[i];
+			if (plugin->isTestEnable()) {
+				yMessage << "Testing plugin" << plugin->getPluginName();
+				plugin->onTest();
+			}
+		}
+	}
+
+	void PluginManager::applicationInitAllPlugin() {
+		for (int i = 0; i < d->Plugins.size(); i++) {
+			Plugin* plugin = d->Plugins[i];
+			yMessage << plugin->getPluginName() << " is handling application init";
+			plugin->onApplicationInit();
+		}
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		禁用所有已启用的插件。请在调用enableAllPlugin()之后调用此函数。
+	*/
 	void PluginManager::disableAllPlugin() {
 		// disable in reverse order
 		for (int i = d->PriorityPlugins.size() - 1; i >= 0; i--) {

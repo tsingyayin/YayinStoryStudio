@@ -1,9 +1,27 @@
 #include <QtCore/qdir.h>
+#include <QtCore/qthread.h>
+#include <chrono>
 #include "../VIApplication.h"
+#include "../private/AUTO_VERSION.h"
+#include "../private/VIApplication_p.h"
 #include "../PluginManager.h"
 #include "../TranslationHost.h"
 #include "../Plugin.h"
 #include "../Log.h"
+#include "../../Utility/Console.h"
+
+namespace Visindigo::__Private__ {
+	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
+		yNotice << "[Loading Message Handler] " << message;
+	}
+	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::enableHandler() {
+		yNotice << "[Loading Message Handler] Enabled default console handler.";
+	}
+	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::disableHandler() {
+		yNotice << "[Loading Message Handler] Disabled default console handler.";
+	}
+}
+
 namespace Visindigo::General {
 	CoreApplication::CoreApplication(int& argc, char** argv) :QCoreApplication(argc, argv) {
 	}
@@ -40,6 +58,7 @@ namespace Visindigo::General {
 		}
 		return false;
 	}
+
 	Application::Application(int& argc, char** argv) :QApplication(argc, argv) {
 	}
 	bool Application::notify(QObject* receiver, QEvent* event) {
@@ -64,7 +83,8 @@ namespace Visindigo::General {
 		VIApplication::AppType AppType;
 		void* AppInstance;
 		QMap<VIApplication::EnvKey, QVariant> EnvConfig = {
-			{VIApplication::PluginFolderPath, "./user_data/plugins"}
+			{VIApplication::PluginFolderPath, "./user_data/plugins"},
+			{VIApplication::MinimumLoadingTimeMS, 3000},
 		};
 		Plugin* MainPlugin;
 		bool started = false;
@@ -79,11 +99,27 @@ namespace Visindigo::General {
 		return VIApplicationPrivate::Instance;
 	}
 
-	VIApplication::VIApplication(int& argc, char** argv, AppType appType) :d(new VIApplicationPrivate()) {
+	VIApplication::VIApplication(int& argc, char** argv, AppType appType) {
 		if (VIApplicationPrivate::Instance != nullptr) {
 			throw Exception(Exception::InternalError, "VIApplication instance already exists");
 		}
 		VIApplicationPrivate::Instance = this;
+		d = new VIApplicationPrivate();
+		Utility::Console::print("\033[38;2;237;28;36m===================================================================\033[0m");
+		Utility::Console::print("\033[38;2;234;54;128m╮ ╭\t─┬─\t╭──\t─┬─\t╭╮╭\t┌─╮\t─┬─\t╭─╮\t╭─╮\033[0m");
+		Utility::Console::print("\033[38;2;234;63;247m╰╮│\t │ \t╰─╮\t │ \t│││\t│ │\t │ \t│ ┐\t│ │\033[0m");
+		Utility::Console::print("\033[38;2;115;43;235m ╰╯\t─┴─\t──╯\t─┴─\t╯╰╯\t└─╯\t─┴─\t╰─╯\t╰─╯\033[0m");
+		Utility::Console::print("   \t   \t———\t  流\t   \t清  \t———\t   \t   \t");
+		Utility::Console::print("\033[38;2;50;130;246m===================================================================\033[0m");
+		Utility::Console::print("\033[38;2;234;54;128mVisindigo \033[0m" + General::Version::getABIVersion().toString() + " \"" + QString(Visindigo_VERSION_NICKNAME) + "\"" +
+#ifdef QT_DEBUG
+			" \033[38;2;255;253;85m[DEBUG compilation mode]\033[0m");
+#else
+			" \033[38;2;255;253;85m[RELEASE compilation mode]\033[0m");
+#endif
+		Utility::Console::print("\033[38;2;234;63;247mVersion Compilation Time \033[0m: \033[38;2;255;253;85m" + QString(Visindigo_VERSION_BUILD_DATE) + " " + QString(Visindigo_VERSION_BUILD_TIME) + " [" + QSysInfo::buildCpuArchitecture() + "]\033[0m");
+		Utility::Console::print(Utility::Console::inWarningStyle("Working Path: ") + Utility::Console::inNoticeStyle(QDir::currentPath()));
+		Utility::Console::print("Hello, " + QDir::home().dirName() + "! Welcome to Visindigo!");
 		d->AppType = appType;
 		d->MainPlugin = nullptr;
 		switch (appType) {
@@ -103,6 +139,8 @@ namespace Visindigo::General {
 		QDir::setCurrent(QFileInfo(args[0]).absolutePath());
 		PluginManager::getInstance(); // Initialize PluginManager
 		TranslationHost::getInstance(); // Initialize TranslationHost
+
+		d->LoadingMessageHandler = new __Private__::ApplicationLoadingMessageHandlerDefaultConsoleImpl();
 
 		connect(PluginManager::getInstance(), &PluginManager::pluginLoaded, [this](Plugin* plugin) {
 				if (d->LoadingMessageHandler) {
@@ -152,12 +190,18 @@ namespace Visindigo::General {
 
 	void VIApplication::setLoadingMessageHandler(ApplicationLoadingMessageHandler* handler) {
 		if (!d->started) {
+			if (d->LoadingMessageHandler) {
+				delete d->LoadingMessageHandler;
+			}
 			d->LoadingMessageHandler = handler;
 		}
 	}
 
 	void VIApplication::setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler) {
 		if (!d->started) {
+			if (d->ExceptionMessageHandler) {
+				delete d->ExceptionMessageHandler;
+			}
 			d->ExceptionMessageHandler = handler;
 		}
 	}
@@ -197,17 +241,33 @@ namespace Visindigo::General {
 			d->LoadingMessageHandler->enableHandler();
 			qApp->processEvents();
 		}
+		auto start = std::chrono::high_resolution_clock::now();
 		if (d->MainPlugin) {
 			d->MainPlugin->onPluginEnable();
 			if (d->LoadingMessageHandler){
 				d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
 			}
 		}
+		
 		PluginManager::getInstance()->loadAllPlugin();
 		PluginManager::getInstance()->enableAllPlugin();
+		PluginManager::getInstance()->applicationInitAllPlugin();
+		PluginManager::getInstance()->testAllPlugin();
+		auto end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+		qint32 minLoadingTime = d->EnvConfig.value(MinimumLoadingTimeMS, 3000).toInt();
+		if (duration < minLoadingTime) {
+			QThread::msleep(minLoadingTime - duration);
+		}
 		if (d->LoadingMessageHandler) {
 			d->LoadingMessageHandler->disableHandler();
 			qApp->processEvents();
+		}
+		if (d->MainPlugin) {
+			d->MainPlugin->onApplicationInit();
+			if (d->MainPlugin->isTestEnable()) {
+				d->MainPlugin->onTest();
+			}
 		}
 		int ret = 0;
 		switch (d->AppType) {

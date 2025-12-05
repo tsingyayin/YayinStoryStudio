@@ -56,9 +56,6 @@
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -144,9 +141,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\YSSTranslator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="test_main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">

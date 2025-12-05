@@ -296,6 +296,7 @@
     <QtMoc Include="General\PluginModule.h" />
     <ClInclude Include="General\Package.h" />
     <ClInclude Include="General\private\Plugin_p.h" />
+    <ClInclude Include="General\private\VIApplication_p.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
     <QtMoc Include="Utility\private\qnamespace_key.h" />
     <QtMoc Include="General\VIApplication.h" />

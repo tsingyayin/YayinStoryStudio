@@ -8,9 +8,9 @@
 
 Plugin_ASEDevTool::Plugin_ASEDevTool() {
 	setPluginVersion(Visindigo::General::Version(0, 1, 0));
-	setPluginID("ASEDevTool");
+	setPluginID("cn.yxgeneral.studioindigo.ase_dev_tool");
 	setPluginName("ASE Development Tool");
-	setPluginAuthor({ "Gra_dus" });
+	setPluginAuthor({ "Gra_dus", "Tsing Yayin"});
 }
 void Plugin_ASEDevTool::onPluginEnable() {
 	registerTranslator(new ASEDevTranslator());

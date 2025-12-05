@@ -3,7 +3,7 @@ Header {
 }
 
 Interface {
-    def functionName(name:type, name:type)->type
+    def functionName(name:type, name:type) const -> type
     struct MyStruct{
         field1:type
         field2:type

@@ -3,6 +3,7 @@
 #include <QtGui/qcolor.h>
 #include <iostream>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qsystemdetection.h>
 
 namespace Visindigo::Utility {
 	/*!
@@ -254,7 +255,11 @@ namespace Visindigo::Utility {
 		此输出自动换行。
 	*/
 	void Console::print(QString msg) {
+#ifdef Q_OS_WIN
 		std::cout << msg.toLocal8Bit().data() << std::endl;
+#else
+		qDebug().noquote() << msg;
+#endif
 	}
 
 	/*!
