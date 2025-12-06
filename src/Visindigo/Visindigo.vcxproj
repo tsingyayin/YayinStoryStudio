@@ -210,6 +210,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
+    <ClCompile Include="Editor\cpp\DebugServerManager.cpp" />
     <ClCompile Include="Editor\cpp\EditorPluginModule.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
@@ -281,6 +282,7 @@
     <ClInclude Include="Editor\DebugFailedData.h" />
     <QtMoc Include="Editor\FileTemplateProvider.h" />
     <QtMoc Include="Editor\EditorPluginModule.h" />
+    <ClInclude Include="Editor\DebugServerManager.h" />
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <QtMoc Include="Editor\HoverInfoProvider.h" />

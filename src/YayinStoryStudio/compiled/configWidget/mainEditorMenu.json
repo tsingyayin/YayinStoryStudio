@@ -126,6 +126,94 @@
             ]
         },
         {
+            "ID": "run",
+            "Name": "i18n:YSS::menu.run.title",
+            "Actions": [
+                {
+                    "ID": "runOptions",
+                    "Actions": [
+                        {
+                            "ID": "run",
+                            "Name": "i18n:YSS::menu.run.run",
+                            "Shortcut": [
+                                "F5"
+                            ]
+                        },
+                        {
+                            "ID": "debug",
+                            "Name": "i18n:YSS::menu.run.debug",
+                            "Shortcut": [
+                                "Shift", "F4", "F5"
+                            ]
+                        },
+                        {
+                            "ID": "stop",
+                            "Name": "i18n:YSS::menu.run.stop",
+                            "Shortcut": [
+                                "Shift", "F5"
+                            ]
+                        },
+                        {
+                            "ID": "restart",
+                            "Name": "i18n:YSS::menu.run.restart",
+                            "Shortcut": [
+                                "Ctrl", "Shift", "F5"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ID": "buildActions",
+                    "Actions": [
+                        {
+                            "ID": "buildProject",
+                            "Name": "i18n:YSS::menu.run.buildProject",
+                            "Shortcut": [
+                                "Ctrl", "B"
+                            ]
+                        },
+                        {
+                            "ID": "cleanProject",
+                            "Name": "i18n:YSS::menu.run.cleanProject"
+                        }
+                    ]
+                },
+                {
+                    "ID": "debugActions",
+                    "Actions": [
+                        {
+                            "ID": "nextStep",
+                            "Name": "i18n:YSS::menu.run.nextStep",
+                            "Shortcut": [
+                                "F10"
+                            ]
+                        },
+                        {
+                            "ID": "nextProcess",
+                            "Name": "i18n:YSS::menu.run.nextProcess",
+                            "Shortcut": [
+                                "F11"
+                            ]
+                        },
+                        {
+                            "ID": "pause",
+                            "Name": "i18n:YSS::menu.run.pause",
+                            "Shortcut": [
+                                "Ctrl", "F5"
+                            ]
+                        },
+                        {
+                            "ID": "continue_",
+                            "Name": "i18n:YSS::menu.run.continue_",
+                            "Shortcut": [
+                                "F5"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "ID": "view",
             "Name": "i18n:YSS::menu.view.title",
             "Actions": [

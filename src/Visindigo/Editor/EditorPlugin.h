@@ -14,6 +14,7 @@ namespace Visindigo::__Private__ {
 }
 namespace Visindigo::General {
 	class Translator;
+	class YSSProject;
 }
 namespace Visindigo::Editor {
 	class LangServer;
@@ -39,6 +40,7 @@ namespace Visindigo::Editor {
 		void registerFileServer(FileServer* server);
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 		void registerFileTemplateProvider(FileTemplateProvider* provider);
+		Visindigo::General::YSSProject* getCurrentProject();
 	protected:
 		Visindigo::__Private__::EditorPluginPrivate* d;
 	};

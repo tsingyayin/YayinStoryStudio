@@ -55,7 +55,7 @@ namespace Visindigo::General {
 	*/
 	PluginManager::PluginManager(QObject* parent) : QObject(parent) {
 		d = new PluginManagerPrivate();
-		ySuccessF << "Success!";
+		ySuccessF << "Plugin Manager initialized successfully.";
 	}
 
 	/*!
@@ -115,6 +115,9 @@ namespace Visindigo::General {
 				}
 			}
 		}
+		// TODO: check whether all dependencies are satisfied. need to add a dependency list.
+		// if not satisfied, raise exception and stop loading.
+		
 		// sort by priority, save path to PluginsPaths
 		yMessage << "Determining loading order based on priority";
 		d->PriorityPlugins = d->PriorityMap.keys();

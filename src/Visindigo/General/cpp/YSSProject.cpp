@@ -82,9 +82,6 @@ namespace Visindigo::General {
 	QString YSSProject::getProjectDescription() {
 		return d->ProjectConfig->getString("Project.Description");
 	}
-	QString YSSProject::getProjectDebugServerID() {
-		return d->ProjectConfig->getString("Project.DebugServerID");
-	}
 	QString YSSProject::getProjectFolder() {
 		QFileInfo info(d->ConfigPath);
 		return info.absolutePath();
@@ -157,6 +154,14 @@ namespace Visindigo::General {
 			relativePath = getProjectFolder() + "/" + relativePath.mid(2);
 		}
 		return relativePath;
+	}
+	QString YSSProject::getFocusedFileName() {
+		QString abs_path = getFocusedFile();
+		if (abs_path.isEmpty()) {
+			return QString();
+		}
+		QFileInfo info(abs_path);
+		return info.fileName();
 	}
 	void YSSProject::removeAllEditorOpenedFiles() {
 		d->ProjectConfig->remove("Editor.OpenedFiles");

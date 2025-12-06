@@ -5,7 +5,7 @@
 #include "../ASEDevTranslator.h"
 #include "../ProjectTemplateProvider/ASEAStoryPTP.h"
 #include "../FileTemplateProvider/ASEAStoryFTP.h"
-
+#include "../DebugServer/DS_ASE.h"
 Plugin_ASEDevTool::Plugin_ASEDevTool() {
 	setPluginVersion(Visindigo::General::Version(0, 1, 0));
 	setPluginID("cn.yxgeneral.studioindigo.ase_dev_tool");
@@ -19,6 +19,7 @@ void Plugin_ASEDevTool::onPluginEnable() {
 	registerFileServer(new ASRuleFileServer(this));
 	registerProjectTemplateProvider(new ASEAStoryPTP(this));
 	registerFileTemplateProvider(new ASEAStoryFTP(this));
+	registerDebugServer(new DS_ASE(this));
 }
 
 void Plugin_ASEDevTool::onPluginDisbale() {

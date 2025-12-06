@@ -13,7 +13,7 @@
 #include <QtWidgets/qapplication.h>
 #include <Utility/CodeDiff.h>
 #include <Utility/AsyncFunction.h>
-
+#include <General/VIApplication.h>
 namespace YSS {
 	Main::Main() {
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
@@ -34,10 +34,7 @@ namespace YSS {
 		Visindigo::Utility::ExtTool::registerFileExtension("yssp", "YSS Project",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::GlobalValue::getInstance();
-		int fontID = QFontDatabase::addApplicationFont(":/yss/compiled/HarmonyOS_Sans_SC_Regular.ttf");
-		QString hosFont = QFontDatabase::applicationFontFamilies(fontID).at(0);
-		QFont font(hosFont);
-		qApp->setFont(font);
+		VIApp->setGlobalFont(":/yss/compiled/HarmonyOS_Sans_SC_Regular.ttf");
 	}
 
 	void Main::onApplicationInit() {

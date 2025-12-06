@@ -56,7 +56,7 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 	QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
 	bool ok = project.initProject(completePath, config->getString("Project.Name"));
 	if (ok) {
-		project.getProjectConfig()->setString("Project.DebugServerID", "ASEDevTool_ASE");
+		project.getProjectConfig()->setString("Project.DebugServerID", "ASEDevTool_AStory");
 		project.saveProject();
 		QString projectFolder = project.getProjectFolder();
 		QStringList CompGroup_2_05_22_1A = {

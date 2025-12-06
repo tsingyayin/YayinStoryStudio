@@ -73,6 +73,7 @@ namespace Visindigo::General {
 		void onException(const Exception& ex);
 		void setLoadingMessageHandler(ApplicationLoadingMessageHandler* handler);
 		void setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler);
+		void setGlobalFont(const QString& fontPath, int fontID = 0);
 		int start();
 		QVariant getEnvConfig(EnvKey key) const;
 		bool applicationStarted() const;
@@ -80,3 +81,5 @@ namespace Visindigo::General {
 		VIApplicationPrivate* d;
 	};
 }
+
+#define VIApp Visindigo::General::VIApplication::getInstance()

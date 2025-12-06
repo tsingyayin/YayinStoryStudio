@@ -65,6 +65,12 @@
     <ClCompile Include="LangServer\cpp\AStoryTabCompleterProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DebugServer\cpp\ASELaunchArgu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugServer\cpp\DS_ASE.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -101,6 +107,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LangServer\ASRuleAdaptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugServer\ASELaunchArgu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

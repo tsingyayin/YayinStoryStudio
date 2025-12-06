@@ -72,6 +72,19 @@
 			"paste": "粘贴",
 			"selectAll": "全选"
 		},
+		"run": {
+			"title": "运行",
+			"run": "开始执行（不调试）",
+			"debug": "开始执行（调试）",
+			"stop": "停止",
+			"restart": "重启",
+			"buildProject": "构建项目",
+			"cleanProject": "清理构建",
+			"nextStep": "逐步",
+			"nextProcess": "逐过程",
+			"pause": "暂停",
+			"continue_": "继续"
+		},
 		"view": {
 			"title": "视图",
 			"toggleFullScreen": "切换全屏",

@@ -198,6 +198,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cpp\ASEDevTranslator.cpp" />
+    <ClCompile Include="DebugServer\cpp\ASELaunchArgu.cpp" />
+    <ClCompile Include="DebugServer\cpp\DS_ASE.cpp" />
     <ClCompile Include="FileServer\cpp\FS_ASRule.cpp" />
     <ClCompile Include="FileServer\cpp\FS_AStory.cpp" />
     <ClCompile Include="FileTemplateProvider\cpp\ASEAStoryFTP.cpp" />
@@ -213,6 +215,7 @@
     <ClCompile Include="ProjectTemplateProvider\cpp\ASEAStoryPTP.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DebugServer\ASELaunchArgu.h" />
     <ClInclude Include="DebugServer\CrossVersion.h" />
     <ClInclude Include="DebugServer\DS_ASE.h" />
     <ClInclude Include="FileServer\FS_ASRule.h" />

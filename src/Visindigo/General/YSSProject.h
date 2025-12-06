@@ -22,7 +22,6 @@ namespace Visindigo::General {
 		bool initProject(const QString& folder, const QString& name);
 		QString getProjectName();
 		QString getProjectDescription();
-		QString getProjectDebugServerID();
 		QString getProjectFolder();
 		QString getProjectPath();
 		QString getProjectIconPath();
@@ -36,6 +35,7 @@ namespace Visindigo::General {
 		void removeAllEditorOpenedFiles();
 		void setFocusedFile(const QString& abs_filePath);
 		QString getFocusedFile(); // return absolute path
+		QString getFocusedFileName(); // return only file name
 		void refreshLastModifyTime();
 		static YSSProject* getCurrentProject();
 		static void setCurrentProject(YSSProject* project);

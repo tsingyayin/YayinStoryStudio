@@ -1,7 +1,10 @@
 #pragma once
-#include "EditorPluginModule.h"
+#include "../General/PluginModule.h"
 // Forward declarations
 class QString;
+namespace Visindigo::Utility {
+	class JsonConfig;
+}
 namespace Visindigo::Editor {
 	class EditorPlugin;
 	class DebugData;
@@ -10,7 +13,7 @@ namespace Visindigo::Editor {
 }
 // Main
 namespace Visindigo::Editor {
-	class VisindigoAPI DebugServer :public EditorPluginModule {
+	class VisindigoAPI DebugServer :public Visindigo::General::PluginModule{
 		Q_OBJECT;
 	public:
 		enum class SupportedDebugFeature :quint16 {
@@ -40,12 +43,14 @@ namespace Visindigo::Editor {
 		virtual void onBuild() {};
 		virtual void onClear() {};
 		virtual void onDebugStart() {};
-		virtual void onDebugPause() {};
-		virtual void onDebugContinue() {};
-		virtual void onDebugStop(bool resume = false) {};
+		virtual void onPause() {};
+		virtual void onContinue() {};
+		virtual void onStop(bool resume = false) {};
 		virtual void onRun() {};
 		virtual void nextStep() {};
 		virtual void nextProcess() {};
+		virtual QWidget* getDebugSettingsWidget(QWidget* parent = nullptr) { return nullptr; };
+		Visindigo::Utility::JsonConfig* getDebugServerConfig();
 	private:
 		DebugServerPrivate* d;
 	};

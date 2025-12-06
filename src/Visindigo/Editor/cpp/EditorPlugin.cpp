@@ -1,6 +1,6 @@
 #include <QtCore/qstring.h>
 #include "../../General/TranslationHost.h"
-#include "../../General/PluginModule.h"
+#include "../DebugServerManager.h"
 #include "../private/EditorPlugin_p.h"
 #include "../EditorPlugin.h"
 #include "../LangServerManager.h"
@@ -134,7 +134,8 @@ namespace Visindigo::Editor {
 		注册调试服务器。
 	*/
 	void EditorPlugin::registerDebugServer(DebugServer* server) {
-		//TODO;
+		registerPluginModule(server);
+		DebugServerManager::getInstance()->addDebugServer(server);
 	}
 	/*!
 		\since Visindigo 0.13.0

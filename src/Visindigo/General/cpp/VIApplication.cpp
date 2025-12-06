@@ -9,6 +9,7 @@
 #include "../Plugin.h"
 #include "../Log.h"
 #include "../../Utility/Console.h"
+#include <QtGui/qfontdatabase.h>
 
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
@@ -204,6 +205,17 @@ namespace Visindigo::General {
 			}
 			d->ExceptionMessageHandler = handler;
 		}
+	}
+
+	void VIApplication::setGlobalFont(const QString& fontPath, int fontID) {
+		int id = QFontDatabase::addApplicationFont(fontPath);
+		if (id == -1) {
+			throw Exception(Exception::InternalError, QString("Failed to load font from %1").arg(fontPath));
+		}
+		QString family = QFontDatabase::applicationFontFamilies(id).at(fontID);
+		QFont font(family);
+		qApp->setFont(font);
+		yNotice << "Global font set to" << family;
 	}
 
 	void VIApplication::onException(const Exception& ex) {

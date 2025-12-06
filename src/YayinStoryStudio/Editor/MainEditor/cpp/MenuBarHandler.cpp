@@ -2,11 +2,25 @@
 #include <QtWidgets/qfiledialog.h>
 #include <General/YSSProject.h>
 #include <Editor/FileServerManager.h>
+#include <Utility/JsonConfig.h>
+#include <Editor/DebugServer.h>
+#include <Editor/DebugServerManager.h>
 #include "../MenuBarHandler.h"
 #include "../../GlobalValue.h"
 #include "../MainWin.h"
 #include "../ResourceBrowser.h"
 #include "../FileEditorArea.h"
+
+#define CallYSSDebugServerFunction(functionName, ...) \
+	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectConfig()->getString("Project.DebugServerID"); \
+	Visindigo::Editor::DebugServer* ds = YSSDSM->getDebugServer(debugServerID); \
+	if (ds != nullptr) { \
+		ds->functionName(__VA_ARGS__); \
+	} \
+	else { \
+		yErrorF << "Debug server" << debugServerID << "not found!"; \
+	}
+
 namespace YSS::Editor {
 	void Menu_File_FileOptions::newfile() {
 		yDebugF << "new File";
@@ -46,6 +60,16 @@ namespace YSS::Editor {
 		YSS::GlobalValue::getMainWindow()->getFileEditorArea()->saveAllFiles();
 	}
 
+	void Menu_File_ProgramOptions::backToHome() {
+		yDebugF << "Back to Home";
+		YSS::GlobalValue::getMainWindow()->backToProjectWin();
+	}
+
+	void Menu_File_ProgramOptions::exit() {
+		yDebugF << "Exit Program";
+		YSS::GlobalValue::getMainWindow()->close();
+	}
+
 	void Menu_Edit_EditOptions::undo() {
 		yDebugF << "Undo";
 		if (YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
@@ -82,13 +106,45 @@ namespace YSS::Editor {
 			YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->selectAll();
 		}
 	}
-	void Menu_File_ProgramOptions::backToHome() {
-		yDebugF << "Back to Home";
-		YSS::GlobalValue::getMainWindow()->backToProjectWin();
+
+	void Menu_Run_RunOptions::run() {
+		CallYSSDebugServerFunction(onRun);
 	}
 
-	void Menu_File_ProgramOptions::exit() {
-		yDebugF << "Exit Program";
-		YSS::GlobalValue::getMainWindow()->close();
+	void Menu_Run_RunOptions::debug() {
+		CallYSSDebugServerFunction(onDebugStart);
 	}
+
+	void Menu_Run_RunOptions::stop() {
+		CallYSSDebugServerFunction(onStop);
+	}
+
+	void Menu_Run_RunOptions::restart() {
+		CallYSSDebugServerFunction(onStop, true);
+	}
+
+	void Menu_Run_BuildActions::buildProject() {
+		CallYSSDebugServerFunction(onBuild);
+	}
+
+	void Menu_Run_BuildActions::cleanProject() {
+		CallYSSDebugServerFunction(onClear);
+	}
+
+	void Menu_Run_DebugActions::nextStep() {
+		CallYSSDebugServerFunction(nextStep);
+	}
+
+	void Menu_Run_DebugActions::nextProcess() {
+		CallYSSDebugServerFunction(nextProcess);
+	}
+
+	void Menu_Run_DebugActions::pause() {
+		CallYSSDebugServerFunction(onPause);
+	}
+
+	void Menu_Run_DebugActions::continue_() {
+		CallYSSDebugServerFunction(onContinue);
+	}
+	
 }
