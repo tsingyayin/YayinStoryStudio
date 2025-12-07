@@ -9,6 +9,7 @@
 #include <General/YSSProject.h>
 #include <QtWidgets/qmessagebox.h>
 #include <Editor/EditorPlugin.h>
+#include <QtCore/qfile.h>
 ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	: Visindigo::Editor::ProjectTemplateInitWidget(parent)
 {
@@ -56,6 +57,7 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 	QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
 	bool ok = project.initProject(completePath, config->getString("Project.Name"));
 	if (ok) {
+		project.getProjectConfig()->setString("Project.IconPath", "cover.png");
 		project.getProjectConfig()->setString("Project.DebugServerID", "ASEDevTool_AStory");
 		project.saveProject();
 		QString projectFolder = project.getProjectFolder();
@@ -104,7 +106,10 @@ void ASEAStoryPTIW::initResourceV2_05_22_1A(Visindigo::General::YSSProject* proj
 	QString Base_aschar = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/Base.aschar");
 	QString BaseRule_asrule = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/BaseRule.asrule");
 	QString main_astory = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/main.astory");
-	main_astory = main_astory.replace("$(ProjectName)", project->getProjectName());
+	QFile::copy(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/tianyu.png", projectFolder + "/Resources/Char/天雨_0.png");
+	QFile::copy(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/classic.png", projectFolder + "/Resources/BGP/经典走廊.png");
+	QFile::copy(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/classic.png", projectFolder + "/cover.png");
+	main_astory = main_astory.replace("$(TemplateName)", project->getProjectName());
 	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Rules/CharNameConnect/Base.aschar", Base_aschar);
 	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Rules/StoryExplainer/BaseRule.asrule", BaseRule_asrule);
 	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Stories/main.astory", main_astory);

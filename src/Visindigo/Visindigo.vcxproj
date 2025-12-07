@@ -316,7 +316,7 @@
     <ClInclude Include="General\Log.h" />
     <ClInclude Include="General\private\LoggerMsgHandler_impl.hpp" />
     <ClInclude Include="General\Logger.h" />
-    <ClInclude Include="General\LoggerManager.h" />
+    <QtMoc Include="General\LoggerManager.h" />
     <ClInclude Include="General\LoggerMsgHandler.h" />
     <ClInclude Include="General\private\LoggerMsgHandler_p.h" />
     <ClInclude Include="Utility\GeneralConfig.h" />

@@ -38,6 +38,6 @@ namespace Visindigo::Utility {
 		static bool isDirEmpty(const QString& dirPath);
 		static bool createDir(const QString& dirPath);
 		static QString getRelativeIfStartWith(const QString& abs_startWith, const QString& abs_path);
-		static QString getProgramPath();
+		static QString getProgramPath(char** argv = nullptr);
 	};
 }

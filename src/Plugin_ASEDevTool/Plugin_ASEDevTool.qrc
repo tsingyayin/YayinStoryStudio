@@ -10,5 +10,7 @@
         <file>compiled/ASEDevTool/theme.json</file>
         <file>compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json</file>
         <file>compiled/ASEDevTool/configWidget/FTP.json</file>
+        <file>compiled/ASEDevTool/template/2.05.22.1A/classic.png</file>
+        <file>compiled/ASEDevTool/template/2.05.22.1A/tianyu.png</file>
     </qresource>
 </RCC>

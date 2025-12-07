@@ -330,8 +330,14 @@ namespace Visindigo::Utility {
 		}
 	}
 
-	QString FileUtility::getProgramPath() {
-		QFileInfo fileInfo(QCoreApplication::applicationFilePath());
-		return fileInfo.absolutePath();
+	QString FileUtility::getProgramPath(char** argv){
+		if (argv==nullptr) {
+			QFileInfo fileInfo(QCoreApplication::applicationFilePath());
+			return fileInfo.absolutePath();
+		}
+		else {
+			QString appPath = QString::fromUtf8(argv[0]);
+			return QFileInfo(appPath).absolutePath();
+		}
 	}
 }

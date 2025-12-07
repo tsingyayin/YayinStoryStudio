@@ -271,9 +271,6 @@
     <ClInclude Include="General\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\LoggerManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\LoggerMsgHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -439,6 +436,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\VIApplication.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\LoggerManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

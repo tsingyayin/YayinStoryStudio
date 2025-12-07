@@ -61,25 +61,28 @@ namespace Visindigo::General {
 			WidgetApp,
 		};
 		enum EnvKey {
+			LogFolderPath,
+			LogFileNameTimeFormat,
+			LogTimeFormat,
 			PluginFolderPath,
 			MinimumLoadingTimeMS,
 		};
 	public:
 		static VIApplication* getInstance();
-		VIApplication(int& argc, char** argv, AppType appType = WidgetApp);
+		VIApplication(int& argc, char** argv, AppType appType = WidgetApp, bool changeWorkingDirToExeDir = true);
 		~VIApplication();
 		void setMainPlugin(Plugin* plugin);
-		void setEnvConfig(EnvKey key, const QVariant& value);
+		static void setEnvConfig(EnvKey key, const QVariant& value);
+		static QVariant getEnvConfig(EnvKey key);
 		void onException(const Exception& ex);
 		void setLoadingMessageHandler(ApplicationLoadingMessageHandler* handler);
 		void setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler);
 		void setGlobalFont(const QString& fontPath, int fontID = 0);
 		int start();
-		QVariant getEnvConfig(EnvKey key) const;
 		bool applicationStarted() const;
 	private:
 		VIApplicationPrivate* d;
 	};
 }
-
+#define VIAppStatic Visindigo::General::VIApplication
 #define VIApp Visindigo::General::VIApplication::getInstance()

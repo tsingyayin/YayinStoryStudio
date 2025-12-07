@@ -13,7 +13,7 @@ ASELaunchArgu::ASELaunchArgu()
 	: d(new ASELaunchArguPrivate()) {
 	d->workingFolder = "";
 	d->mainFileName = "";
-	d->sizeMode = SizeMode::W1920H1080;
+	d->sizeMode = SizeMode::W1600H900;
 }
 
 ASELaunchArgu::ASELaunchArgu(const QString& workingFolder, const QString& mainFileName, SizeMode mode)
@@ -54,7 +54,7 @@ ASELaunchArgu::SizeMode ASELaunchArgu::getSizeMode() const {
 QString ASELaunchArgu::toString() {
 	Visindigo::Utility::JsonConfig config;
 	config.setValue("path", d->workingFolder);
-	config.setValue("fileName", d->mainFileName);
+	config.setValue("fileName", d->mainFileName.section(".", 0, -2));
 	config.setValue("sizeMode", static_cast<qint32>(d->sizeMode));
 	return config.toString(QJsonDocument::Compact);
 }

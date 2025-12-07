@@ -27,6 +27,10 @@ void DS_ASE::onClear() {
 }
 
 void DS_ASE::onDebugStart() {
+	if (!Visindigo::General::YSSProject::getCurrentProject()->getFocusedFileName().endsWith(".astory")) {
+		yWarningF << "The focused file is not an .astory file.";
+		return;
+	}
 	if (d->ASEProgram != nullptr) {
 		if (d->ASEProgram->state() == QProcess::ProcessState::Running) {
 			emit debugMessage("ASE is already running.");
@@ -38,6 +42,8 @@ void DS_ASE::onDebugStart() {
 		}
 	}
 	d->ASEProgram = new QProcess();
+	connect(d->ASEProgram, &QProcess::readyReadStandardOutput, this, &DS_ASE::onASEStdOutput);
+	connect(d->ASEProgram, &QProcess::readyReadStandardError, this, &DS_ASE::onASEErrOutput);
 	QStringList arguments;
 	d->launchArgu.setWorkingFolder(Visindigo::General::YSSProject::getCurrentProject()->getProjectFolder());
 	d->launchArgu.setMainFileName(Visindigo::General::YSSProject::getCurrentProject()->getFocusedFileName());
@@ -89,4 +95,21 @@ void DS_ASE::nextProcess() {
 
 QWidget* DS_ASE::getDebugSettingsWidget(QWidget* parent) {
 	return nullptr;
+}
+
+void DS_ASE::onASEStdOutput() {
+	if (d->ASEProgram == nullptr) return;
+	QString output = d->ASEProgram->readAllStandardOutput();
+	yDebugF << "[ASE Std Out]" << output;
+}
+
+void DS_ASE::onASEErrOutput() {
+	if (d->ASEProgram == nullptr) return;
+	QString output = d->ASEProgram->readAllStandardError();
+	yDebugF << "[ASE Err Out]" << output;
+}
+
+void DS_ASE::ASEStdInput(const QString& input) {
+	if (d->ASEProgram == nullptr) return;
+	d->ASEProgram->write(input.toUtf8());
 }

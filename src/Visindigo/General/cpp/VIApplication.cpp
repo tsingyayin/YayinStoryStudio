@@ -83,10 +83,7 @@ namespace Visindigo::General {
 	protected:
 		VIApplication::AppType AppType;
 		void* AppInstance;
-		QMap<VIApplication::EnvKey, QVariant> EnvConfig = {
-			{VIApplication::PluginFolderPath, "./user_data/plugins"},
-			{VIApplication::MinimumLoadingTimeMS, 3000},
-		};
+		static QMap<VIApplication::EnvKey, QVariant> EnvConfig;
 		Plugin* MainPlugin;
 		bool started = false;
 		ApplicationLoadingMessageHandler* LoadingMessageHandler = nullptr;
@@ -95,17 +92,32 @@ namespace Visindigo::General {
 	};
 
 	VIApplication* VIApplicationPrivate::Instance = nullptr;
+	QMap<VIApplication::EnvKey, QVariant> VIApplicationPrivate::EnvConfig = {
+			{VIApplication::LogFolderPath, "./user_data/logs"},
+			{VIApplication::LogFileNameTimeFormat, "yyyy-MM-dd_hh_mm_ss"},
+			{VIApplication::LogTimeFormat, "yyyy-MM-dd hh:mm:ss.zzz"},
+			{VIApplication::PluginFolderPath, "./user_data/plugins"},
+			{VIApplication::MinimumLoadingTimeMS, 3000},
+	};
 
 	VIApplication* VIApplication::getInstance() {
+		if (VIApplicationPrivate::Instance == nullptr) {
+			yWarningF << "VIApplication instance not exists. Visindigo application needs to be initialized first.";
+			throw Exception(Exception::UnsupportedOperation, "VIApplication instance not exists. Visindigo application needs to be initialized first.");
+		}
 		return VIApplicationPrivate::Instance;
 	}
 
-	VIApplication::VIApplication(int& argc, char** argv, AppType appType) {
+	VIApplication::VIApplication(int& argc, char** argv, AppType appType, bool changeWorkingDirToExeDir) :QObject(nullptr) {
 		if (VIApplicationPrivate::Instance != nullptr) {
-			throw Exception(Exception::InternalError, "VIApplication instance already exists");
+			yWarningF << "VIApplication instance already exists.";
+			throw Exception(Exception::UnsupportedOperation, "VIApplication instance already exists");
 		}
 		VIApplicationPrivate::Instance = this;
 		d = new VIApplicationPrivate();
+		if (changeWorkingDirToExeDir) {
+			QDir::setCurrent(QFileInfo(argv[0]).absolutePath());
+		}
 		Utility::Console::print("\033[38;2;237;28;36m===================================================================\033[0m");
 		Utility::Console::print("\033[38;2;234;54;128m╮ ╭\t─┬─\t╭──\t─┬─\t╭╮╭\t┌─╮\t─┬─\t╭─╮\t╭─╮\033[0m");
 		Utility::Console::print("\033[38;2;234;63;247m╰╮│\t │ \t╰─╮\t │ \t│││\t│ │\t │ \t│ ┐\t│ │\033[0m");
@@ -136,8 +148,6 @@ namespace Visindigo::General {
 		default:
 			throw Exception(Exception::InvalidArgument, "Invalid AppType");
 		}
-		QStringList args = qApp->arguments();
-		QDir::setCurrent(QFileInfo(args[0]).absolutePath());
 		PluginManager::getInstance(); // Initialize PluginManager
 		TranslationHost::getInstance(); // Initialize TranslationHost
 
@@ -184,9 +194,7 @@ namespace Visindigo::General {
 	}
 
 	void VIApplication::setEnvConfig(EnvKey key, const QVariant& value) {
-		if (!d->started) {
-			d->EnvConfig.insert(key, value);
-		}
+		VIApplicationPrivate::EnvConfig.insert(key, value);
 	}
 
 	void VIApplication::setLoadingMessageHandler(ApplicationLoadingMessageHandler* handler) {
@@ -305,8 +313,8 @@ namespace Visindigo::General {
 		return ret;
 	}
 
-	QVariant VIApplication::getEnvConfig(EnvKey key) const {
-		return d->EnvConfig.value(key, QVariant());
+	QVariant VIApplication::getEnvConfig(EnvKey key){
+		return VIApplicationPrivate::EnvConfig.value(key, QVariant());
 	}
 
 	bool VIApplication::applicationStarted() const {

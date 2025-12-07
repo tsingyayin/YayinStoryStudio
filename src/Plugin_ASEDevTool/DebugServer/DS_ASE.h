@@ -16,6 +16,10 @@ public:
 	virtual void nextStep() override;
 	virtual void nextProcess() override;
 	virtual QWidget* getDebugSettingsWidget(QWidget* parent = nullptr) override;
+public slots:
+	void onASEStdOutput();
+	void onASEErrOutput();
+	void ASEStdInput(const QString& input);
 private:
 	DS_ASEPrivate* d;
 };

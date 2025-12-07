@@ -2,11 +2,11 @@
 #include "../LoggerMsgHandler.h"
 #include <QtCore/qdatetime.h>
 #include <QtCore/qfile.h>
-#include <QtCore/qfileinfo.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qtimer.h>
+#include <QtCore/qdir.h>
 #include "../../Utility/Console.h"
-
+#include "../../General/VIApplication.h"
 namespace Visindigo::General {
 	class LoggerManagerPrivate {
 		friend LoggerManager;
@@ -19,9 +19,18 @@ namespace Visindigo::General {
 		quint16 current = 0;
 		QTimer Timer;
 		bool Pause = false;
+		QString LogFileNameTimeFormat;
+		QString LogTimeFormat;
 		LoggerManagerPrivate() {
-			QString birthTime = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh_mm_ss");
-			LogFile.setFileName("./resource/logs/" + birthTime + ".yss.log");
+			LogFileNameTimeFormat = VIApp->getEnvConfig(VIApplication::LogFileNameTimeFormat).toString();
+			LogTimeFormat = VIApp->getEnvConfig(VIApplication::LogTimeFormat).toString();
+			QString birthTime = QDateTime::currentDateTime().toString(LogFileNameTimeFormat);
+			QString LogFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString();
+			LogFile.setFileName(LogFolderPath%"/"%birthTime%".log");
+			QDir logDir(LogFolderPath);
+			if (!logDir.exists()) {
+				logDir.mkpath(".");
+			}
 			LogFile.open(QIODevice::NewOnly | QIODevice::Text);
 			Stream = new QTextStream(&LogFile);
 			Stream->setEncoding(QStringConverter::Utf8);
@@ -80,7 +89,7 @@ namespace Visindigo::General {
 		// TODO:
 		// This implementation does not check the log level threshold.
 		// It will log all messages regardless of the threshold.
-		QString logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss:zzz") + "]" +
+		QString logStr = "[" + QDateTime::currentDateTime().toString(d->LogTimeFormat) + "]" +
 			"[" + handler->getLogger()->getNamespace() + "]";
 		switch (handler->getLevel()) {
 		case Logger::Level::Debug:
@@ -104,6 +113,7 @@ namespace Visindigo::General {
 		}
 		Visindigo::Utility::Console::print(logStr);
 		d->log(Visindigo::Utility::Console::getRawText(logStr));
+		emit logReceived(handler->getLogger()->getNamespace(), handler->getLevel(), handler->getMessage());
 	}
 	void LoggerManager::setGlobalLogLevel(Logger::Level level) {
 		d->threshold = level;
