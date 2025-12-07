@@ -7,10 +7,10 @@ class QHBoxLayout;
 class QPushButton;
 class QLabel;
 
-namespace Visindigo::General {
+namespace YSSCore::General {
 	class YSSProject;
 }
-class ASEAStoryPTIW :public Visindigo::Editor::ProjectTemplateInitWidget
+class ASEAStoryPTIW :public YSSCore::Editor::ProjectTemplateInitWidget
 {
 	Q_OBJECT;
 	Visindigo::Widgets::ConfigWidget* ConfigWidget;
@@ -26,14 +26,14 @@ public:
 public slots:
 	void onLineEditTextChanged(const QString& node, const QString& str);
 	void onCreateButtonClicked();
-	void initResourceV2_05_22_1A(Visindigo::General::YSSProject* project);
+	void initResourceV2_05_22_1A(YSSCore::General::YSSProject* project);
 private:
 	void refreshWhereLabel();
 };
 
-class ASEAStoryPTP : public Visindigo::Editor::ProjectTemplateProvider
+class ASEAStoryPTP : public YSSCore::Editor::ProjectTemplateProvider
 {
 public:
-	ASEAStoryPTP(Visindigo::Editor::EditorPlugin* plugin);
-	virtual Visindigo::Editor::ProjectTemplateInitWidget* projectInitWidget() override;
+	ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin);
+	virtual YSSCore::Editor::ProjectTemplateInitWidget* projectInitWidget() override;
 };

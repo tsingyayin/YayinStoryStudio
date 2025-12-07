@@ -40,7 +40,7 @@ namespace YSS::Editor {
 	}
 
 	void ResourceBrowser::showEvent(QShowEvent* event) {
-		Visindigo::General::YSSProject* project = GlobalValue::getCurrentProject();
+		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
 		if (project != nullptr) {
 			CurrentDir.setPath(project->getProjectFolder());
 		}

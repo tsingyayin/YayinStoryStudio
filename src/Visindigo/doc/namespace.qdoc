@@ -26,7 +26,7 @@
 	所有 Yayin Story Studio 内核模块适用编辑器和播放器的组件都在此命名空间下。
 */
 
-/*! \namespace Visindigo::Editor
+/*! \namespace YSSCore::Editor
 	\brief 内核模块适用编辑器的组件的命名空间
 
 	所有 Yayin Story Studio 内核模块适用编辑器的组件都在此命名空间下。

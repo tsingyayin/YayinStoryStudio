@@ -11,7 +11,7 @@
 #include <QtCore/qfile.h>
 
 ASEAStoryFTIW::ASEAStoryFTIW(const QString& initFolder, QWidget* parent)
-	: Visindigo::Editor::FileTemplateInitWidget(initFolder, parent)
+	: YSSCore::Editor::FileTemplateInitWidget(initFolder, parent)
 {
 	this->setMinimumWidth(800);
 	this->setWindowTitle(YSSTR("ASEDevTool::fileProvider.window.title"));
@@ -40,7 +40,7 @@ ASEAStoryFTIW::ASEAStoryFTIW(const QString& initFolder, QWidget* parent)
 }
 
 void ASEAStoryFTIW::resizeEvent(QResizeEvent* event) {
-	Visindigo::Editor::FileTemplateInitWidget::resizeEvent(event);
+	YSSCore::Editor::FileTemplateInitWidget::resizeEvent(event);
 }
 
 void ASEAStoryFTIW::onLineEditTextChanged(const QString& node, const QString& text) {
@@ -107,7 +107,7 @@ void ASEAStoryFTIW::refreshWhereLabel() {
 		CreateButton->setEnabled(false);
 	}
 }
-ASEAStoryFTP::ASEAStoryFTP(Visindigo::Editor::EditorPlugin* plugin) :
+ASEAStoryFTP::ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin) :
 	FileTemplateProvider("ASE AStory File Template Provider", "ASEAStoryFTP", plugin)
 {
 	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
@@ -124,6 +124,6 @@ ASEAStoryFTP::ASEAStoryFTP(Visindigo::Editor::EditorPlugin* plugin) :
 	// Constructor implementation
 }
 
-Visindigo::Editor::FileTemplateInitWidget* ASEAStoryFTP::fileInitWidget(const QString& initPath) {
+YSSCore::Editor::FileTemplateInitWidget* ASEAStoryFTP::fileInitWidget(const QString& initPath) {
 	return new ASEAStoryFTIW(initPath);
 }

@@ -71,8 +71,8 @@ namespace YSS::NewFilePage {
 			button->deleteLater();
 		}
 		FileList.clear();
-		QList<Visindigo::Editor::FileTemplateProvider*> providers = YSSFTM->getProviders();
-		for (Visindigo::Editor::FileTemplateProvider* provider : providers) {
+		QList<YSSCore::Editor::FileTemplateProvider*> providers = YSSFTM->getProviders();
+		for (YSSCore::Editor::FileTemplateProvider* provider : providers) {
 			yDebug << provider->getTemplateID();
 			yDebug << provider->getTemplateName();
 			yDebug << provider->getTemplateDescription();
@@ -103,13 +103,13 @@ namespace YSS::NewFilePage {
 		if (Button == nullptr) {
 			return;
 		}
-		Visindigo::Editor::FileTemplateProvider* provider = ProviderMap[Button];
-		Visindigo::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(InitPath);
+		YSSCore::Editor::FileTemplateProvider* provider = ProviderMap[Button];
+		YSSCore::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(InitPath);
 		if (initWidget != nullptr) {
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
-			connect(initWidget, &Visindigo::Editor::FileTemplateInitWidget::closed,
+			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::closed,
 				this, &NewFileWin::onTemplateInitWidgetClosed);
-			connect(initWidget, &Visindigo::Editor::FileTemplateInitWidget::filePrepared,
+			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::filePrepared,
 				this, &NewFileWin::onFilePrepared);
 			initWidget->setWindowModality(Qt::ApplicationModal);
 			initWidget->show();

@@ -70,8 +70,8 @@ namespace YSS::NewProjectPage {
 			button->deleteLater();
 		}
 		ProjectList.clear();
-		QList<Visindigo::Editor::ProjectTemplateProvider*> providers = YSSPTM->getProviders();
-		for (Visindigo::Editor::ProjectTemplateProvider* provider : providers) {
+		QList<YSSCore::Editor::ProjectTemplateProvider*> providers = YSSPTM->getProviders();
+		for (YSSCore::Editor::ProjectTemplateProvider* provider : providers) {
 			yDebug << provider->getTemplateID();
 			yDebug << provider->getTemplateName();
 			yDebug << provider->getTemplateDescription();
@@ -102,13 +102,13 @@ namespace YSS::NewProjectPage {
 		if (Button == nullptr) {
 			return;
 		}
-		Visindigo::Editor::ProjectTemplateProvider* provider = ProviderMap[Button];
-		Visindigo::Editor::ProjectTemplateInitWidget* initWidget = provider->projectInitWidget();
+		YSSCore::Editor::ProjectTemplateProvider* provider = ProviderMap[Button];
+		YSSCore::Editor::ProjectTemplateInitWidget* initWidget = provider->projectInitWidget();
 		if (initWidget != nullptr) {
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
-			connect(initWidget, &Visindigo::Editor::ProjectTemplateInitWidget::closed,
+			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::closed,
 				this, &NewProjectWin::onTemplateInitWidgetClosed);
-			connect(initWidget, &Visindigo::Editor::ProjectTemplateInitWidget::projectPrepared,
+			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::projectPrepared,
 				this, &NewProjectWin::onProjectPrepared);
 			initWidget->setWindowModality(Qt::ApplicationModal);
 			initWidget->show();

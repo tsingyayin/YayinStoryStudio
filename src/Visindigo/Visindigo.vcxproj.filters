@@ -38,12 +38,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\LangServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\LangServerManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Widgets\cpp\ThemeManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -53,31 +47,7 @@
     <ClCompile Include="General\cpp\Version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\EditorPlugin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\EditorPluginManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\FileEditWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\FileServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\FileServerManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\TextEdit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="General\cpp\Translator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="General\cpp\YSSProject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="General\cpp\UpdateChain.cpp">
@@ -122,16 +92,7 @@
     <ClCompile Include="General\cpp\LoggerMsgHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\DebugData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\DebugFailedData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="General\cpp\LoggerManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\cpp\TextTags.cpp">
@@ -140,28 +101,10 @@
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\FileTemplateManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\FileTemplateProvider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="General\cpp\ProjectMessageData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\EditorPluginModule.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\DebugServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utility\cpp\StringUtility.cpp">
@@ -194,9 +137,6 @@
     <ClCompile Include="General\cpp\PluginManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\DebugServerManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -214,9 +154,6 @@
     <ClInclude Include="Macro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\LangServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\ExtTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -224,12 +161,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\AUTO_VERSION.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\LangServerManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\YSSProject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h">
@@ -283,25 +214,10 @@
     <ClInclude Include="General\Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\DebugFailedData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\DebugData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\private\EditorPlugin_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\ProjectTemplateManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\GeneralConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\WidgetDisplayStack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\FileTemplateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\ProjectMessageData.h">
@@ -314,9 +230,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\StringUtility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\EditorProjectHelperManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\private\MultiButton_p.h">
@@ -343,30 +256,9 @@
     <ClInclude Include="General\private\VIApplication_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\DebugServerManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\EditorPlugin.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\ProjectTemplateProvider.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\EditorPluginManager.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\FileEditWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\TextEdit.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\FileServerManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\UpdateChain.h">
@@ -381,31 +273,10 @@
     <QtMoc Include="Widgets\TextTags.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\FileTemplateProvider.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Widgets\private\ConfigWidget_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\DebugServer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="General\ProjectMessageCollector.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\private\TextEdit_p.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\FileServer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\HoverInfoProvider.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\private\TabCompleterProvider_p.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\TabCompleterProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\MultiButtonGroup.h">
@@ -418,9 +289,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Utility\private\qnamespace_key.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\EditorPluginModule.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\TranslationHost.h">

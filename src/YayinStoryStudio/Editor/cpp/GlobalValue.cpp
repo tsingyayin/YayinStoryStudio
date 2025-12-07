@@ -21,7 +21,7 @@ namespace YSS {
 		YSSTranslator = new YSS::Editor::YSSTranslator();
 		Visindigo::General::TranslationHost::getInstance()->active(YSSTranslator);
 		ySuccess << "Program global value initialized !";
-		//PluginManager = new Visindigo::Editor::EditorPluginManager();
+		//PluginManager = new YSSCore::Editor::EditorPluginManager();
 		//PluginManager->loadAllPlugin();
 		//PluginManager->enableAllPlugin();
 	}
@@ -80,11 +80,11 @@ namespace YSS {
 		return Instance->MainWindow;
 	}
 
-	void GlobalValue::setCurrentProject(Visindigo::General::YSSProject* project) {
-		Visindigo::General::YSSProject::setCurrentProject(project);
+	void GlobalValue::setCurrentProject(YSSCore::General::YSSProject* project) {
+		YSSCore::General::YSSProject::setCurrentProject(project);
 	}
 
-	Visindigo::General::YSSProject* GlobalValue::getCurrentProject() {
-		return Visindigo::General::YSSProject::getCurrentProject();
+	YSSCore::General::YSSProject* GlobalValue::getCurrentProject() {
+		return YSSCore::General::YSSProject::getCurrentProject();
 	}
 }

@@ -5,14 +5,14 @@ class QLabel;
 class QGridLayout;
 class QPushButton;
 
-namespace Visindigo::General {
+namespace YSSCore::General {
 	class YSSProject;
 }
 namespace YSS::ProjectPage {
 	class ProjectInfoWidget :public QFrame {
 		Q_OBJECT;
 	signals:
-		void removeConfirmed(Visindigo::General::YSSProject* who);
+		void removeConfirmed(YSSCore::General::YSSProject* who);
 	private:
 		QLabel* CoverLabel;
 		QLabel* TitleLabel;
@@ -23,10 +23,10 @@ namespace YSS::ProjectPage {
 		QPushButton* RemoveFromListButton;
 		QPushButton* DeleteButton;
 		QGridLayout* Layout;
-		Visindigo::General::YSSProject* Project = nullptr;
+		YSSCore::General::YSSProject* Project = nullptr;
 	public:
 		ProjectInfoWidget(QWidget* parent);
-		void showProject(Visindigo::General::YSSProject* project);
+		void showProject(YSSCore::General::YSSProject* project);
 		void initWidget();
 		void onDeleteButtonClicked();
 		void onShowInBrowserButtonClicked();

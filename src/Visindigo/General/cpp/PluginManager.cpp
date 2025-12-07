@@ -40,7 +40,7 @@ namespace Visindigo::General {
 
 	PluginManager* PluginManagerPrivate::Instance = nullptr;
 	/*!
-		\class Visindigo::Editor::PluginManager
+		\class YSSCore::Editor::PluginManager
 		\inmodule Visindigo
 		\brief 此类为YayinStoryStudio提供插件管理器。
 		\since Visindigo 0.13.0

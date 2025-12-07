@@ -23,10 +23,10 @@ namespace YSS {
 	}
 
 	void Main::onPluginEnable() {
-		Visindigo::Editor::FileServerManager::getInstance();
-		Visindigo::Editor::ProjectTemplateManager::getInstance();
-		Visindigo::Editor::FileTemplateManager::getInstance();
-		Visindigo::Editor::LangServerManager::getInstance();
+		YSSCore::Editor::FileServerManager::getInstance();
+		YSSCore::Editor::ProjectTemplateManager::getInstance();
+		YSSCore::Editor::FileTemplateManager::getInstance();
+		YSSCore::Editor::LangServerManager::getInstance();
 		Visindigo::Utility::ExtTool::registerFileExtension("yst", "YSS StyleSheet Template",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,0");
 		Visindigo::Utility::ExtTool::registerFileExtension("ysp", "YSS Plugin Library",

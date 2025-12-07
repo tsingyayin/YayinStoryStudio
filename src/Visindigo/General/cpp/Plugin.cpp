@@ -42,7 +42,7 @@ namespace Visindigo::__Private__ {
 }
 namespace Visindigo::General {
 	/*!
-		\class Visindigo::Editor::Plugin
+		\class YSSCore::Editor::Plugin
 		\inmodule Visindigo
 		\brief 此类为Visindigo提供插件基类。
 		\since Visindigo 0.13.0
@@ -52,7 +52,7 @@ namespace Visindigo::General {
 		要开发Visindigo插件，您就必须实现此类，然后在您的项目中声明VisindigoPluginMain函数。这个
 		函数只做一件事情：新建您的插件类，并且返回它。
 		\code
-			extern "C" Visindigo::Editor::Plugin* VisindigoPluginMain() {
+			extern "C" YSSCore::Editor::Plugin* VisindigoPluginMain() {
 				return new YourPluginClass();
 			}
 		\endcode
@@ -157,7 +157,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		\fn Visindigo::Editor::Plugin::onPluginEnable()
+		\fn YSSCore::Editor::Plugin::onPluginEnable()
 		\since Visindigo 0.13.0
 		启用插件时调用此函数。大部分涉及到Visindigo内部资源调用的初始化都应该在此函数中进行。
 
@@ -166,7 +166,7 @@ namespace Visindigo::General {
 	*/
 
 	/*!
-		\fn Visindigo::Editor::Plugin::onPluginDisbale()
+		\fn YSSCore::Editor::Plugin::onPluginDisbale()
 		\since Visindigo 0.13.0
 		禁用插件时调用此函数。大部分涉及到Visindigo内部资源调用的清理都应该在此函数中进行。
 		如果在析构函数中清理，则有可能因为Visindigo已经开始析构而导致崩溃。此外，此函数

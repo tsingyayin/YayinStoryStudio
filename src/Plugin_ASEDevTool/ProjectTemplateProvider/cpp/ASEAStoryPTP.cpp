@@ -11,7 +11,7 @@
 #include <Editor/EditorPlugin.h>
 #include <QtCore/qfile.h>
 ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
-	: Visindigo::Editor::ProjectTemplateInitWidget(parent)
+	: YSSCore::Editor::ProjectTemplateInitWidget(parent)
 {
 	this->setMinimumWidth(800);
 	this->setWindowTitle(YSSTR("ASEDevTool::provider.window.title"));
@@ -40,7 +40,7 @@ ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 }
 void ASEAStoryPTIW::resizeEvent(QResizeEvent* event)
 {
-	Visindigo::Editor::ProjectTemplateInitWidget::resizeEvent(event);
+	YSSCore::Editor::ProjectTemplateInitWidget::resizeEvent(event);
 }
 void ASEAStoryPTIW::onLineEditTextChanged(const QString& node, const QString& str) {
 	if (node == "Project.Path") {
@@ -53,7 +53,7 @@ void ASEAStoryPTIW::onLineEditTextChanged(const QString& node, const QString& st
 }
 void ASEAStoryPTIW::onCreateButtonClicked() {
 	Visindigo::Utility::JsonConfig* config = ConfigWidget->getConfig();
-	Visindigo::General::YSSProject project;
+	YSSCore::General::YSSProject project;
 	QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
 	bool ok = project.initProject(completePath, config->getString("Project.Name"));
 	if (ok) {
@@ -88,7 +88,7 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 		int ret = msgBox.exec();
 	}
 }
-void ASEAStoryPTIW::initResourceV2_05_22_1A(Visindigo::General::YSSProject* project) {
+void ASEAStoryPTIW::initResourceV2_05_22_1A(YSSCore::General::YSSProject* project) {
 	project->getProjectConfig()->setString("ASEDevTool.ASEVersion", "2.05.22.1A");
 	QStringList folders = {
 			"/Resources/Audio",
@@ -128,7 +128,7 @@ void ASEAStoryPTIW::refreshWhereLabel() {
 		CreateButton->setEnabled(false);
 	}
 }
-ASEAStoryPTP::ASEAStoryPTP(Visindigo::Editor::EditorPlugin* plugin) :
+ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :
 	ProjectTemplateProvider("ASE AStory Project Template Provider", "ASEAStoryPTP", plugin)
 {
 	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
@@ -145,6 +145,6 @@ ASEAStoryPTP::ASEAStoryPTP(Visindigo::Editor::EditorPlugin* plugin) :
 	// Constructor implementation
 }
 
-Visindigo::Editor::ProjectTemplateInitWidget* ASEAStoryPTP::projectInitWidget() {
+YSSCore::Editor::ProjectTemplateInitWidget* ASEAStoryPTP::projectInitWidget() {
 	return new ASEAStoryPTIW();
 }

@@ -3,13 +3,13 @@
 
 class ASRuleAdaptor;
 
-class AStoryTabCompleterProvider : public Visindigo::Editor::TabCompleterProvider
+class AStoryTabCompleterProvider : public YSSCore::Editor::TabCompleterProvider
 {
 	Q_OBJECT;
 private:
-	QList<Visindigo::Editor::TabCompleterItem> Controllers;
+	QList<YSSCore::Editor::TabCompleterItem> Controllers;
 	ASRuleAdaptor* RuleAdaptor;
 public:
 	AStoryTabCompleterProvider(QTextDocument* parent);
-	virtual QList<Visindigo::Editor::TabCompleterItem> onTabComplete(int position, QString lineContent, QString wordContent) override;
+	virtual QList<YSSCore::Editor::TabCompleterItem> onTabComplete(int position, QString lineContent, QString wordContent) override;
 };

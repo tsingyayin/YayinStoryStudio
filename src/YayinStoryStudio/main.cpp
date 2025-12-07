@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
 	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";
 
-	//qRegisterMetaType<Visindigo::Editor::DebugFailedData>("Visindigo::Editor::DebugFailedData");
+	//qRegisterMetaType<YSSCore::Editor::DebugFailedData>("YSSCore::Editor::DebugFailedData");
 
 	QMessageBox::information(nullptr, "SEA版本警告", "SEA版本（超级早期体验版） 技术预览阶段警告\n\
 当前Yayin Story Studio并不完善，功能仍然严重缺失，无法正常作为开发环境使用。\n\

@@ -10,7 +10,7 @@ class QPushButton;
 class QGridLayout;
 class QVBoxLayout;
 
-namespace Visindigo::General {
+namespace YSSCore::General {
 	class YSSProject;
 }
 namespace Visindigo::Utility {
@@ -37,16 +37,16 @@ namespace YSS::ProjectPage {
 		QVBoxLayout* ButtonLayout;
 		ProjectInfoWidget* InfoWidget;
 		QGridLayout* Layout;
-		QList<Visindigo::General::YSSProject*> HistoryProjectList;
+		QList<YSSCore::General::YSSProject*> HistoryProjectList;
 		QList<Visindigo::Widgets::MultiButton*> HistoryProjectLabelList;
-		QMap<Visindigo::Widgets::MultiButton*, Visindigo::General::YSSProject*> HistoryProjectMap;
+		QMap<Visindigo::Widgets::MultiButton*, YSSCore::General::YSSProject*> HistoryProjectMap;
 		QList<QLabel*> HistoryProjectTimeLabelList;
 	public:
 		ProjectWin();
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:
-		void onProjectRemoved(Visindigo::General::YSSProject* project);
+		void onProjectRemoved(YSSCore::General::YSSProject* project);
 		void onProjectSelected();
 		void onProjectDoubleClicked();
 		void onOpenProjectClicked();

@@ -22,7 +22,7 @@ namespace YSS::Editor {
 		connect(Bar, &StackBar::stackBarLabelChanged, this, &FileEditorArea::onStackBarLabelChanged);
 	}
 
-	void FileEditorArea::addFileEditWidget(Visindigo::Editor::FileEditWidget* widget) {
+	void FileEditorArea::addFileEditWidget(YSSCore::Editor::FileEditWidget* widget) {
 		//qDebug() << widget->getFilePath();
 		if (Bar->isLabelOpened(widget->getFilePath())) {
 			yDebug << "FileEditorArea: file already opened!";
@@ -39,7 +39,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	Visindigo::Editor::FileEditWidget* FileEditorArea::getCurrentFileEditWidget() {
+	YSSCore::Editor::FileEditWidget* FileEditorArea::getCurrentFileEditWidget() {
 		return Bar->getActiveFileEditWidget();
 	}
 

@@ -10,7 +10,7 @@ class QLabel;
 namespace Visindigo::General {
 	class YSSProject;
 }
-class ASEAStoryFTIW :public Visindigo::Editor::FileTemplateInitWidget
+class ASEAStoryFTIW :public YSSCore::Editor::FileTemplateInitWidget
 {
 	Q_OBJECT;
 	Visindigo::Widgets::ConfigWidget* ConfigWidget = nullptr;
@@ -31,9 +31,9 @@ private:
 	void refreshWhereLabel();
 };
 
-class ASEAStoryFTP : public Visindigo::Editor::FileTemplateProvider
+class ASEAStoryFTP : public YSSCore::Editor::FileTemplateProvider
 {
 public:
-	ASEAStoryFTP(Visindigo::Editor::EditorPlugin* plugin);
-	virtual Visindigo::Editor::FileTemplateInitWidget* fileInitWidget(const QString& initPath) override;
+	ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin);
+	virtual YSSCore::Editor::FileTemplateInitWidget* fileInitWidget(const QString& initPath) override;
 };

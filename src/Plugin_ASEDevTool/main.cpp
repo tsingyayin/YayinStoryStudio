@@ -2,7 +2,7 @@
 #include "Plugin_ASEDevTool.h"
 #include <General/Plugin.h>
 #ifdef AStory_EXPORT
-extern "C" AStoryAPI Visindigo::Editor::EditorPlugin* YSSPluginDllMain(void)
+extern "C" AStoryAPI YSSCore::Editor::EditorPlugin* YSSPluginDllMain(void)
 {
 	return new Plugin_ASEDevTool();
 }

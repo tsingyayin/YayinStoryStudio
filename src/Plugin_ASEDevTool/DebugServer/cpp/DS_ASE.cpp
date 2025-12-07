@@ -10,8 +10,8 @@ public:
 	QProcess* ASEProgram = nullptr;
 	QString ASEExecutablePath = "/resource/third_party/ASE 2.05.22.1A/Arknights_StoryEditor.exe";
 };
-DS_ASE::DS_ASE(Visindigo::Editor::EditorPlugin* plugin)
-	: Visindigo::Editor::DebugServer("ASEDevTool Debug Server", "ASEDevTool_AStory", plugin), d(new DS_ASEPrivate()){
+DS_ASE::DS_ASE(YSSCore::Editor::EditorPlugin* plugin)
+	: YSSCore::Editor::DebugServer("ASEDevTool Debug Server", "ASEDevTool_AStory", plugin), d(new DS_ASEPrivate()){
 }
 
 DS_ASE::~DS_ASE() {
@@ -27,7 +27,7 @@ void DS_ASE::onClear() {
 }
 
 void DS_ASE::onDebugStart() {
-	if (!Visindigo::General::YSSProject::getCurrentProject()->getFocusedFileName().endsWith(".astory")) {
+	if (!YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName().endsWith(".astory")) {
 		yWarningF << "The focused file is not an .astory file.";
 		return;
 	}
@@ -45,8 +45,8 @@ void DS_ASE::onDebugStart() {
 	connect(d->ASEProgram, &QProcess::readyReadStandardOutput, this, &DS_ASE::onASEStdOutput);
 	connect(d->ASEProgram, &QProcess::readyReadStandardError, this, &DS_ASE::onASEErrOutput);
 	QStringList arguments;
-	d->launchArgu.setWorkingFolder(Visindigo::General::YSSProject::getCurrentProject()->getProjectFolder());
-	d->launchArgu.setMainFileName(Visindigo::General::YSSProject::getCurrentProject()->getFocusedFileName());
+	d->launchArgu.setWorkingFolder(YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder());
+	d->launchArgu.setMainFileName(YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName());
 	arguments << d->launchArgu.toString();
 	yDebugF << Visindigo::Utility::FileUtility::getProgramPath() + d->ASEExecutablePath;
 	yDebugF << arguments;

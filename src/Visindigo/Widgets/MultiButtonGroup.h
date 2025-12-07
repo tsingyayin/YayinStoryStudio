@@ -1,4 +1,5 @@
 #pragma once
+#include "../Macro.h"
 #include <QtCore/qobject.h>
 // Forward declarations
 namespace Visindigo::__Private__ {
@@ -9,7 +10,7 @@ namespace Visindigo::Widgets {
 }
 // Main
 namespace Visindigo::Widgets {
-	class MultiButtonGroup : public QObject {
+	class VisindigoAPI MultiButtonGroup : public QObject {
 		Q_OBJECT;
 		friend class Visindigo::__Private__::MultiButtonGroupPrivate;
 	signals:

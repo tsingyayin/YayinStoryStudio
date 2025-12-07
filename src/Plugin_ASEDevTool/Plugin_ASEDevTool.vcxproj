@@ -91,30 +91,30 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <IncludePath>$(SolutionDir)src\Visindigo;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\resource\plugins\ASEDevTool\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
-    <IncludePath>$(SolutionDir)src\Visindigo;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\Debug\resource\plugins\ASEDevTool\</OutDir>
     <TargetExt>.vpl</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <IncludePath>$(SolutionDir)src\Visindigo;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\resource\plugins\ASEDevTool\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
-    <IncludePath>$(SolutionDir)src\Visindigo;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Platform)\Release;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\Release\resource\plugins\ASEDevTool\</OutDir>
     <TargetExt>.vpl</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib;YSSCore.lib;</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);AStory_DEVELOPMENT</PreprocessorDefinitions>
@@ -123,7 +123,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib;YSSCore.lib;</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);AStory_EXPORT</PreprocessorDefinitions>
@@ -132,7 +132,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib;YSSCore.lib;</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);AStory_DEVELOPMENT</PreprocessorDefinitions>
@@ -141,7 +141,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);Visindigo.lib;YSSCore.lib;</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);AStory_EXPORT</PreprocessorDefinitions>

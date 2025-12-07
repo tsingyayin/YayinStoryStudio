@@ -51,7 +51,7 @@ namespace YSS::ProjectPage {
 		DeleteButton->setText(YSSTR("YSS::project.delete"));
 	}
 
-	void ProjectInfoWidget::showProject(Visindigo::General::YSSProject* project) {
+	void ProjectInfoWidget::showProject(YSSCore::General::YSSProject* project) {
 		if (project == nullptr) {
 			return;
 		}

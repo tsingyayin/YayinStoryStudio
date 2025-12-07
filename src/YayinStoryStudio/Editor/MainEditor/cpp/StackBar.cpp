@@ -119,7 +119,7 @@ namespace YSS::Editor {
 		return ActiveLabel;
 	}
 
-	Visindigo::Editor::FileEditWidget* StackBar::getActiveFileEditWidget() const {
+	YSSCore::Editor::FileEditWidget* StackBar::getActiveFileEditWidget() const {
 		if (ActiveLabel != nullptr) {
 			return ActiveLabel->getTargetWidget();
 		}
@@ -129,7 +129,7 @@ namespace YSS::Editor {
 	void StackBar::saveAllFiles() {
 		for (const QString& filePath : OpenedFiles) {
 			if (LabelMap.contains(filePath)) {
-				Visindigo::Editor::FileEditWidget* widget = LabelMap[filePath]->getTargetWidget();
+				YSSCore::Editor::FileEditWidget* widget = LabelMap[filePath]->getTargetWidget();
 				if (widget != nullptr) {
 					widget->saveFile();
 				}

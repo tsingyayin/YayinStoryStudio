@@ -1,8 +1,8 @@
 #include "../JsonLangServer.h"
 #include <QtCore/qregularexpression.h>
 namespace YSSFileExt {
-	JsonLangServer::JsonLangServer(Visindigo::Editor::EditorPlugin* plugin) :
-		Visindigo::Editor::LangServer("YSS File Extension Json Language Server",
+	JsonLangServer::JsonLangServer(YSSCore::Editor::EditorPlugin* plugin) :
+		YSSCore::Editor::LangServer("YSS File Extension Json Language Server",
 			"YSSFileExt_Json", plugin, "Json", {"json", "yssp"})
 	{
 		
@@ -12,7 +12,7 @@ namespace YSSFileExt {
 		return new JsonLangHighlighter(doc);
 	}
 
-	Visindigo::Editor::TabCompleterProvider* JsonLangServer::createTabCompleter(QTextDocument* doc) {
+	YSSCore::Editor::TabCompleterProvider* JsonLangServer::createTabCompleter(QTextDocument* doc) {
 		return nullptr; // TODO
 	}
 

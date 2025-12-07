@@ -209,11 +209,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\cpp\DebugServer.cpp" />
-    <ClCompile Include="Editor\cpp\DebugServerManager.cpp" />
-    <ClCompile Include="Editor\cpp\EditorPluginModule.cpp" />
-    <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp" />
-    <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
     <ClCompile Include="General\cpp\Exception.cpp" />
     <ClCompile Include="General\cpp\Plugin.cpp" />
     <ClCompile Include="General\cpp\PluginManager.cpp" />
@@ -225,23 +220,9 @@
     <ClCompile Include="Utility\cpp\ShortCutHelper.cpp" />
     <ClCompile Include="Utility\cpp\StringUtility.cpp" />
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
-    <ClCompile Include="Editor\cpp\DebugData.cpp" />
-    <ClCompile Include="Editor\cpp\DebugFailedData.cpp" />
-    <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
-    <ClCompile Include="Editor\cpp\EditorPluginManager.cpp" />
-    <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
-    <ClCompile Include="Editor\cpp\FileServer.cpp" />
-    <ClCompile Include="Editor\cpp\FileServerManager.cpp" />
-    <ClCompile Include="Editor\cpp\FileTemplateManager.cpp" />
-    <ClCompile Include="Editor\cpp\FileTemplateProvider.cpp" />
-    <ClCompile Include="Editor\cpp\LangServer.cpp" />
-    <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
-    <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp" />
-    <ClCompile Include="Editor\cpp\ProjectTemplateProvider.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp" />
     <ClCompile Include="Widgets\cpp\QuickMenu.cpp" />
     <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
-    <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Widgets\cpp\ThemeManager.cpp" />
     <ClCompile Include="General\cpp\Logger.cpp" />
     <ClCompile Include="General\cpp\LoggerManager.cpp">
@@ -259,7 +240,6 @@
     <ClCompile Include="General\cpp\Translator.cpp" />
     <ClCompile Include="General\cpp\UpdateChain.cpp" />
     <ClCompile Include="General\cpp\Version.cpp" />
-    <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\cpp\AsyncFunction.cpp" />
     <ClCompile Include="Utility\cpp\CodeDiff.cpp" />
@@ -278,19 +258,7 @@
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Editor\DebugData.h" />
-    <ClInclude Include="Editor\DebugFailedData.h" />
-    <QtMoc Include="Editor\FileTemplateProvider.h" />
-    <QtMoc Include="Editor\EditorPluginModule.h" />
-    <ClInclude Include="Editor\DebugServerManager.h" />
-    <ClInclude Include="Editor\EditorProjectHelperManager.h" />
-    <ClInclude Include="Editor\FileTemplateManager.h" />
-    <QtMoc Include="Editor\HoverInfoProvider.h" />
-    <ClInclude Include="Editor\private\EditorPlugin_p.h" />
     <QtMoc Include="General\ProjectMessageCollector.h" />
-    <QtMoc Include="Editor\private\TextEdit_p.h" />
-    <QtMoc Include="Editor\private\TabCompleterProvider_p.h" />
-    <QtMoc Include="Editor\TabCompleterProvider.h" />
     <ClInclude Include="General\Command.h" />
     <QtMoc Include="General\Plugin.h" />
     <ClInclude Include="General\Exception.h" />
@@ -328,7 +296,6 @@
     <QtMoc Include="Widgets\ConfigWidget.h" />
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h" />
     <QtMoc Include="General\TranslationHost.h" />
-    <ClInclude Include="General\YSSProject.h" />
     <ClInclude Include="Utility\AsyncFunction.h" />
     <ClInclude Include="Utility\DiffSequence.h" />
     <ClInclude Include="Utility\CodeDiff.h" />
@@ -338,18 +305,7 @@
     <ClInclude Include="Widgets\MultiLabel.h" />
     <QtMoc Include="Widgets\TextTags.h" />
     <ClInclude Include="Widgets\WidgetDisplayStack.h" />
-    <QtMoc Include="Editor\EditorPluginManager.h" />
-    <QtMoc Include="Editor\FileServerManager.h" />
-    <QtMoc Include="Editor\FileEditWidget.h" />
-    <QtMoc Include="Editor\TextEdit.h" />
-    <QtMoc Include="Editor\FileServer.h" />
-    <ClInclude Include="Editor\LangServer.h" />
-    <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Widgets\ThemeManager.h" />
-    <QtMoc Include="Editor\DebugServer.h" />
-    <QtMoc Include="Editor\EditorPlugin.h" />
-    <QtMoc Include="Editor\ProjectTemplateProvider.h" />
-    <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />
     <ClInclude Include="General\Version.h" />
     <ClInclude Include="Macro.h" />

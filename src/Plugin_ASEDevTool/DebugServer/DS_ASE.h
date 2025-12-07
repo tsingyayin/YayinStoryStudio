@@ -2,9 +2,9 @@
 #include <Editor/DebugServer.h>
 
 class DS_ASEPrivate;
-class DS_ASE :public Visindigo::Editor::DebugServer {
+class DS_ASE :public YSSCore::Editor::DebugServer {
 public:
-	DS_ASE(Visindigo::Editor::EditorPlugin* plugin);
+	DS_ASE(YSSCore::Editor::EditorPlugin* plugin);
 	virtual ~DS_ASE();
 	virtual void onBuild() override;
 	virtual void onClear() override;

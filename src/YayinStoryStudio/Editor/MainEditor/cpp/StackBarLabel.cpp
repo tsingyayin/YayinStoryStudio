@@ -6,7 +6,7 @@
 #include <QMouseEvent>
 
 namespace YSS::Editor {
-	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, Visindigo::Editor::FileEditWidget* target) :QWidget() {
+	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, YSSCore::Editor::FileEditWidget* target) :QWidget() {
 		FilePath = filePath;
 		NameLabel = new QLabel(name, this);
 		PinButton = new QPushButton("Pin", this);
@@ -69,11 +69,11 @@ namespace YSS::Editor {
 		return CurrentState;
 	}
 
-	void StackBarLabel::setTargetWidget(Visindigo::Editor::FileEditWidget* widget) {
+	void StackBarLabel::setTargetWidget(YSSCore::Editor::FileEditWidget* widget) {
 		TargetWidget = widget;
 	}
 
-	Visindigo::Editor::FileEditWidget* StackBarLabel::getTargetWidget() const {
+	YSSCore::Editor::FileEditWidget* StackBarLabel::getTargetWidget() const {
 		return TargetWidget;
 	}
 

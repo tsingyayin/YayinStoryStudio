@@ -7,12 +7,16 @@ namespace Visindigo {
 	};
 	namespace General {
 		class TranslationHost;
-		class YSSProject;
 	};
 	namespace Widgets {
 		class ThemeManager;
 	}
 };
+namespace YSSCore {
+	namespace General {
+		class YSSProject;
+	}
+}
 namespace YSS {
 	namespace Editor {
 		class MainWin;
@@ -37,8 +41,8 @@ namespace YSS {
 		static void saveConfig();
 		static void setMainWindow(YSS::Editor::MainWin* mainWindow);
 		static YSS::Editor::MainWin* getMainWindow();
-		static void setCurrentProject(Visindigo::General::YSSProject* project);
-		static Visindigo::General::YSSProject* getCurrentProject();
+		static void setCurrentProject(YSSCore::General::YSSProject* project);
+		static YSSCore::General::YSSProject* getCurrentProject();
 		void loadConfig();
 	};
 }

@@ -4,12 +4,12 @@
 #include <QtGui/qsyntaxhighlighter.h>
 
 namespace YSSFileExt {
-	class JsonLangServer :public Visindigo::Editor::LangServer {
+	class JsonLangServer :public YSSCore::Editor::LangServer {
 	public:
-		JsonLangServer(Visindigo::Editor::EditorPlugin* plugin);
+		JsonLangServer(YSSCore::Editor::EditorPlugin* plugin);
 		virtual QSyntaxHighlighter* createHighlighter(QTextDocument* doc) override;
-		virtual Visindigo::Editor::TabCompleterProvider* createTabCompleter(QTextDocument* doc) override;
-		virtual Visindigo::Editor::HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) override {
+		virtual YSSCore::Editor::TabCompleterProvider* createTabCompleter(QTextDocument* doc) override;
+		virtual YSSCore::Editor::HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) override {
 			return nullptr; //TODO
 		}
 	};

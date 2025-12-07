@@ -7,7 +7,7 @@
 #define Visindigo_VERSION_MINOR 13
 #define Visindigo_VERSION_PATCH 0
 
-#define Visindigo_ABI_VERSION_MAJOR 12
+#define Visindigo_ABI_VERSION_MAJOR 13
 #define Visindigo_ABI_VERSION_MINOR 0
 #define Compiled_VIABI_Version Visindigo::General::Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0)
 

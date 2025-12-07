@@ -1,9 +1,9 @@
 #include "../FS_AStory.h"
 
-AStoryFileServer::AStoryFileServer(Visindigo::Editor::EditorPlugin* plugin) :
+AStoryFileServer::AStoryFileServer(YSSCore::Editor::EditorPlugin* plugin) :
 	FileServer("ASE AStory File Server", "ASEAStoryFS", plugin)
 {
-	setEditorType(Visindigo::Editor::FileServer::CodeEditor);
+	setEditorType(YSSCore::Editor::FileServer::CodeEditor);
 	setSupportedFileExts({ "astory" });
 }
 

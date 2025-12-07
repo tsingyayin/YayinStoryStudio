@@ -4,7 +4,7 @@
 // Forward declarations
 class QScrollArea;
 class QHBoxLayout;
-namespace Visindigo::Editor {
+namespace YSSCore::Editor {
 	class FileEditWidget;
 }
 namespace YSS::Editor {
@@ -32,7 +32,7 @@ namespace YSS::Editor {
 		void focus(StackBarLabel* label);
 		void removeLabel(StackBarLabel* label);
 		StackBarLabel* getActiveLabel() const;
-		Visindigo::Editor::FileEditWidget* getActiveFileEditWidget() const;
+		YSSCore::Editor::FileEditWidget* getActiveFileEditWidget() const;
 		void saveAllFiles();
 	private:
 		virtual void resizeEvent(QResizeEvent* event) override;

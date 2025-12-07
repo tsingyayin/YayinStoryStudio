@@ -1,7 +1,7 @@
 #pragma once
 #include <Editor/EditorPlugin.h>
 
-class Plugin_YSSFileExt : public Visindigo::Editor::EditorPlugin {
+class Plugin_YSSFileExt : public YSSCore::Editor::EditorPlugin {
 	Q_OBJECT;
 public:
 	Plugin_YSSFileExt();

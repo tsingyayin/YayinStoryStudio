@@ -1,7 +1,7 @@
 #pragma once
 #include <Editor/EditorPlugin.h>
 
-class Plugin_ASEDevTool : public Visindigo::Editor::EditorPlugin {
+class Plugin_ASEDevTool : public YSSCore::Editor::EditorPlugin {
 	Q_OBJECT;
 public:
 	Plugin_ASEDevTool();

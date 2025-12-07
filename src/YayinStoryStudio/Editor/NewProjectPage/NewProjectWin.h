@@ -12,7 +12,7 @@ class QVBoxLayout;
 namespace Visindigo::Widgets {
 	class MultiButton;
 }
-namespace Visindigo::Editor {
+namespace YSSCore::Editor {
 	class ProjectTemplateProvider;
 }
 namespace YSS::NewProjectPage {
@@ -26,7 +26,7 @@ namespace YSS::NewProjectPage {
 		QLineEdit* SearchLineEdit;
 		QList<Visindigo::Widgets::MultiButton*> ProjectList;
 		QList<Visindigo::Widgets::MultiButton*> RecentList;
-		QMap<Visindigo::Widgets::MultiButton*, Visindigo::Editor::ProjectTemplateProvider*> ProviderMap;
+		QMap<Visindigo::Widgets::MultiButton*, YSSCore::Editor::ProjectTemplateProvider*> ProviderMap;
 		QScrollArea* RecentTemplateArea;
 		QWidget* RecentTemplateWidget;
 		QVBoxLayout* RecentTemplateLayout;

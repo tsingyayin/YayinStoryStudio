@@ -20,9 +20,9 @@ namespace YSS::Editor {
 		QVBoxLayout* DefaultLayout;
 	public:
 		FileEditorArea(QWidget* parent = nullptr);
-		void addFileEditWidget(Visindigo::Editor::FileEditWidget* widget);
+		void addFileEditWidget(YSSCore::Editor::FileEditWidget* widget);
 		void focusOn(const QString& filePath);
-		Visindigo::Editor::FileEditWidget* getCurrentFileEditWidget();
+		YSSCore::Editor::FileEditWidget* getCurrentFileEditWidget();
 		void saveAllFiles();
 	public:
 		virtual void showEvent(QShowEvent* event) override;

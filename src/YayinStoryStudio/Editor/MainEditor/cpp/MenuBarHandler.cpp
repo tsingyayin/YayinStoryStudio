@@ -13,7 +13,7 @@
 
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectConfig()->getString("Project.DebugServerID"); \
-	Visindigo::Editor::DebugServer* ds = YSSDSM->getDebugServer(debugServerID); \
+	YSSCore::Editor::DebugServer* ds = YSSDSM->getDebugServer(debugServerID); \
 	if (ds != nullptr) { \
 		ds->functionName(__VA_ARGS__); \
 	} \
@@ -28,7 +28,7 @@ namespace YSS::Editor {
 	}
 
 	void Menu_File_FileOptions::open() {
-		Visindigo::General::YSSProject* project = GlobalValue::getCurrentProject();
+		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
 		QDir CurrentDir;
 		if (project != nullptr) {
 			CurrentDir.setPath(project->getProjectFolder());

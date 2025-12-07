@@ -97,7 +97,7 @@ namespace YSS::ProjectPage {
 			config->setInt("Window.Project.Height", this->height());
 			config->setBool("Window.Project.Maximized", false);
 		}
-		for (Visindigo::General::YSSProject* project : HistoryProjectList) {
+		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
 			project = nullptr;
 		}
@@ -111,7 +111,7 @@ namespace YSS::ProjectPage {
 		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - HistoryProjectArea->verticalScrollBar()->width());
 	}
 
-	void ProjectWin::onProjectRemoved(Visindigo::General::YSSProject* project) {
+	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {
 		QWidget* widget = HistoryProjectLabelList[HistoryProjectList.indexOf(project)];
 		if (widget != nullptr) {
 			widget->hide();
@@ -137,7 +137,7 @@ namespace YSS::ProjectPage {
 	void ProjectWin::onProjectSelected() {
 		Visindigo::Widgets::MultiButton* label = qobject_cast<Visindigo::Widgets::MultiButton*>(sender());
 		if (label) {
-			Visindigo::General::YSSProject* project = HistoryProjectMap[label];
+			YSSCore::General::YSSProject* project = HistoryProjectMap[label];
 			if (project) {
 				InfoWidget->showProject(project);
 			}
@@ -146,7 +146,7 @@ namespace YSS::ProjectPage {
 
 	void ProjectWin::onProjectDoubleClicked() {
 		Visindigo::Widgets::MultiButton* label = qobject_cast<Visindigo::Widgets::MultiButton*>(sender());
-		Visindigo::General::YSSProject* project = HistoryProjectMap[label];
+		YSSCore::General::YSSProject* project = HistoryProjectMap[label];
 		HistoryProjectList.removeAll(project);
 		GlobalValue::setCurrentProject(project);
 		this->close();
@@ -160,7 +160,7 @@ namespace YSS::ProjectPage {
 			filePath = QFileDialog::getOpenFileName(this, YSSTR("YSS::project.openYSSProject"), "./resource/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		}
 		filePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(), filePath);
-		Visindigo::General::YSSProject* project = new Visindigo::General::YSSProject();
+		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 		bool ok = project->loadProject(filePath);
 		yDebugF << ok;
 		if (ok) {
@@ -189,7 +189,7 @@ namespace YSS::ProjectPage {
 		connect(win, &NewProjectPage::NewProjectWin::projectPrepared, this, &ProjectWin::onOpenProject);
 	}
 	void ProjectWin::loadProject() {
-		for (Visindigo::General::YSSProject* project : HistoryProjectList) {
+		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
 			project = nullptr;
 		}
@@ -197,7 +197,7 @@ namespace YSS::ProjectPage {
 		QStringList okProjects;
 		for (QString key : Config->keys("Project")) {
 			QString projectPath = Config->getString("Project." + key);
-			Visindigo::General::YSSProject* project = new Visindigo::General::YSSProject();
+			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 			bool ok = project->loadProject(projectPath);
 			if (!ok) {
 				delete project;
@@ -209,7 +209,7 @@ namespace YSS::ProjectPage {
 			}
 		}
 		Config->setArray("Project", okProjects);
-		std::sort(HistoryProjectList.begin(), HistoryProjectList.end(), [](Visindigo::General::YSSProject* a, Visindigo::General::YSSProject* b) {
+		std::sort(HistoryProjectList.begin(), HistoryProjectList.end(), [](YSSCore::General::YSSProject* a, YSSCore::General::YSSProject* b) {
 			return a->getProjectLastModifyTime() > b->getProjectLastModifyTime();
 			});
 		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
@@ -223,7 +223,7 @@ namespace YSS::ProjectPage {
 		}
 		HistoryProjectTimeLabelList.clear();
 		HistoryProjectMap.clear();
-		for (Visindigo::General::YSSProject* project : HistoryProjectList) {
+		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			Visindigo::Widgets::MultiButton* label = new Visindigo::Widgets::MultiButton(HistoryProjectWidget);
 			label->setObjectName("HistoryProject");
 			label->setNormalStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Normal"));

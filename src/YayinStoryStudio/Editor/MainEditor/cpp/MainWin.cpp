@@ -34,7 +34,7 @@ namespace YSS::Editor {
 		splitter->addWidget(Browser);
 		splitter->addWidget(Editor);
 
-		connect(YSSFSM, &Visindigo::Editor::FileServerManager::builtinEditorCreated,
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::builtinEditorCreated,
 			Editor, &FileEditorArea::addFileEditWidget);
 
 		
@@ -125,7 +125,7 @@ namespace YSS::Editor {
 	}
 
 	bool MainWin::checkProjectNeedToSave() {
-		Visindigo::General::YSSProject* project = GlobalValue::getCurrentProject();
+		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
 		QMessageBox::StandardButton result = QMessageBox::question(this, "Save Project",
 			"Do you want to save the project \"" % project->getProjectName() % "\" before closing?",
 			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
