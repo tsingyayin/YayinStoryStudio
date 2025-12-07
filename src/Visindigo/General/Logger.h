@@ -55,11 +55,11 @@ namespace Visindigo::General {
 #define yWarning Visindigo::General::Logger::global()->warning()
 #define yError Visindigo::General::Logger::global()->error()
 
-#define yDebugF yDebug<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
-#define yMessageF yMessage<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
-#define yInfoF yInfo<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
-#define yLogF yLog<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
-#define yNoticeF yNotice<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
-#define ySuccessF ySuccess<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
-#define yWarningF yWarning<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
-#define yErrorF yError<<"("<<__FUNCTION__<<":"<<__LINE__<<"):"
+#define yDebugF yDebug<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"
+#define yMessageF yMessage<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"
+#define yInfoF yInfo<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"
+#define yLogF yLog<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"
+#define yNoticeF yNotice<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"
+#define ySuccessF ySuccess<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"
+#define yWarningF yWarning<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"
+#define yErrorF yError<<"("<<__FUNCTION__<<":"<<(qint32)__LINE__<<"):"

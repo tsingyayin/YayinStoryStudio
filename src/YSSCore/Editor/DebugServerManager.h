@@ -1,5 +1,6 @@
 #ifndef YSSCore_Editor_DebugServerManager_h
 #define YSSCore_Editor_DebugServerManager_h
+#include "../Macro.h"
 #include "DebugServer.h"
 namespace YSSCore::Editor {
 	class DebugServerManagerPrivate;

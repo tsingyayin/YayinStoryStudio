@@ -1,4 +1,5 @@
 #pragma once
-#include "Logger.h"
+
 #include "LoggerMsgHandler.h"
+#include "Logger.h"
 #include "LoggerManager.h"
