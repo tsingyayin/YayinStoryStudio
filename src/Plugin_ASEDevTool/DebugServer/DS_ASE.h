@@ -20,6 +20,8 @@ public slots:
 	void onASEStdOutput();
 	void onASEErrOutput();
 	void ASEStdInput(const QString& input);
+	void onASEPipeOut();
+	void ASEPipeInput(const QString& input);
 private:
 	DS_ASEPrivate* d;
 };

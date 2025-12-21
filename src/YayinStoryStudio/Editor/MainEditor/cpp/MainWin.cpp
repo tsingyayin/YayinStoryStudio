@@ -14,6 +14,7 @@
 #include "../FileEditorArea.h"
 #include "../ResourceBrowser.h"
 #include "../MenuBarHandler.h"
+#include <General/YSSLogger.h>
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));

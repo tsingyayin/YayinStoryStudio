@@ -27,6 +27,8 @@ Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以�
 
 虽然本仓库只提供Visual Studio解决方案，但Yayin Story Studio的核心代码中考虑了跨平台问题，因此用户也可以尝试用Qt VS Tools的功能将Visual Studio解决方案转换为Qt Creator项目，从而在其他平台上编译。
 
+请注意，本项目的C++版本非常新，因此需要支持C++23或更高版本的编译器。
+
 # 版本：SEA 与 TP
 由于开发代码编辑器的复杂性，当前Yayin Story Studio仍然处于超级早期开发阶段（Super Early Access），直到我们完成了所有核心功能的开发与测试后，SEA阶段才会结束。
 
@@ -44,7 +46,8 @@ Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以�
 * .vscode - VSCode 配置文件。它可能会在日后被用于创建一个仅用于查看的VSCode工作区，现在其中的内容没有实际用途。
 * Plugin_* - 各插件项目。每个项目都是个独立的Visual Studio项目，可以单独编译。
 * YayinStoryStudio - 主程序项目。它是一个纯编辑器，各插件的扩展本质上在扩展此项目。
-* Visindigo - Yayin Story Studio的内核，要开发插件，则需要引用此项目。它包含了所有的核心功能和API。
+* YSSCore - Yayin Story Studio的内核，要开发插件，则需要引用此项目。它包含了所有的核心功能和API。
+* Visindigo - Visindigo库项目。Visindigo是一个通用的Qt库，提供了日志记录、异常处理、文件操作等功能。YSSCore和YayinStoryStudio都依赖于此项目。
 * YSSInstaller - YSS的安装程序项目。它提供一个可视化的页面，供用户调整和更新YSS。（暂未正式开发）
 * config - 可供整个解决方案引用的，用于配置项目或进行自动化的配置文件。
 * design - 用于存放早期创意说明或其他临时性设计文件。

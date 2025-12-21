@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -73,7 +73,7 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSCore_EXPORT</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -82,7 +82,7 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSCore_EXPORT</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -131,6 +131,7 @@
     <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
+    <ClCompile Include="General\cpp\YSSLogger.cpp" />
     <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -138,13 +139,16 @@
     <ClInclude Include="Editor\DebugData.h" />
     <ClInclude Include="Editor\DebugFailedData.h" />
     <ClInclude Include="Editor\DebugServerManager.h" />
+    <ClInclude Include="Editor\EditorProjectHelper.h" />
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <ClInclude Include="Editor\LangServer.h" />
     <ClInclude Include="Editor\LangServerManager.h" />
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
+    <ClInclude Include="General\YSSLogger.h" />
     <ClInclude Include="General\YSSProject.h" />
     <ClInclude Include="Macro.h" />
+    <QtMoc Include="Scripts\ES6Executer.h" />
     <QtMoc Include="Editor\TextEdit.h" />
     <QtMoc Include="Editor\TabCompleterProvider.h" />
     <QtMoc Include="Editor\ProjectTemplateProvider.h" />

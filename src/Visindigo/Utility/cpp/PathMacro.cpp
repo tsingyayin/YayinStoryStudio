@@ -18,11 +18,11 @@ namespace Visindigo::Utility {
 	PathMacro::PathMacro() {
 		d = new PathMacroPrivate;
 		PathMacroPrivate::Instance = this;
-		yWarningF << "PathMacro has not yet reached a stable design and may change at any time in the future. Please do not use this API";
+		vgWarningF << "PathMacro has not yet reached a stable design and may change at any time in the future. Please do not use this API";
 		addMacro("$(ProgramPath)", [](QString macro)->QString {
 			return QDir::currentPath();
 			});
-		ySuccessF << "Success !";
+		vgSuccessF << "Success !";
 	}
 	PathMacro::~PathMacro() {
 		delete d;
@@ -41,7 +41,7 @@ namespace Visindigo::Utility {
 		if (!macro.endsWith(")")) {
 			macro = macro + ")";
 		}
-		ySuccessF << "Path macro: " << macro << "registed";
+		vgSuccessF << "Path macro: " << macro << "registed";
 		d->Macros[macro] = replacer;
 	}
 }

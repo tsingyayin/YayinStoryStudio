@@ -16,6 +16,7 @@ namespace Visindigo::General {
 		friend class PluginManager;
 	protected:
 		static PluginManager* Instance;
+		bool loaded = false;
 		QList<Plugin*> Plugins;
 		QList<Plugin*> EnabledPlugins;
 		QMap<QString, Plugin*> PluginIDMap;
@@ -40,12 +41,45 @@ namespace Visindigo::General {
 
 	PluginManager* PluginManagerPrivate::Instance = nullptr;
 	/*!
-		\class YSSCore::Editor::PluginManager
+		\class Visindigo::General::PluginManager
+		\inheaderfile General/PluginManager.h
 		\inmodule Visindigo
-		\brief 此类为YayinStoryStudio提供插件管理器。
+		\ingroup VPlugin
+		\brief 此类为Visindigo提供插件管理器。
 		\since Visindigo 0.13.0
 
 		PluginManager负责加载和管理插件。
+
+		此类中有几个函数是由Visindigo::General::VIApplication在恰当时机自动调用的，
+		一般不需要手动调用这些函数，除非你非常清楚你在做什么。
+
+		如果你不想使用Visindigo::General::VIApplication，但又需要插件管理功能，
+		你可以手动调用这些函数，但请确保调用顺序正确：
+		\list
+		\li 1. loadAllPlugin()
+		\li 2. enableAllPlugin()
+		\li 3. applicationInitAllPlugin()
+		\li 4. testAllPlugin()
+		\li 5. disableAllPlugin()
+		\endlist
+	*/
+
+	/*!
+		\fn void Visindigo::General::PluginManager::pluginLoaded(Plugin* plugin)
+		\since Visindigo 0.13.0
+
+		\a plugin 已加载的插件对象指针。
+
+		当插件被成功加载时发出此信号。
+	*/
+
+	/*!
+		\fn void Visindigo::General::PluginManager::pluginEnabled(Plugin* plugin)
+		\since Visindigo 0.13.0
+
+		\a plugin 已启用的插件对象指针。
+
+		当插件被成功启用时发出此信号。
 	*/
 
 	/*!
@@ -55,7 +89,7 @@ namespace Visindigo::General {
 	*/
 	PluginManager::PluginManager(QObject* parent) : QObject(parent) {
 		d = new PluginManagerPrivate();
-		ySuccessF << "Plugin Manager initialized successfully.";
+		vgSuccessF << "Plugin Manager initialized successfully.";
 	}
 
 	/*!
@@ -70,6 +104,12 @@ namespace Visindigo::General {
 		delete d;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		返回PluginManager单例对象指针。单例不存在时自动创建，是获得PluginManager对象的唯一途径。
+
+		\sa VPluginManager
+	*/
 	PluginManager* PluginManager::getInstance() {
 		if (PluginManagerPrivate::Instance == nullptr) {
 			PluginManagerPrivate::Instance = new PluginManager();
@@ -79,12 +119,22 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		扫描并加载插件，但不启用它们。此函数会扫描./resources/plugins目录下的所有插件，并根据插件的依赖关系决定加载顺序。
-		按需调用此函数，然后调用enableAllPlugin()启用插件。
+		扫描并加载插件到内存里，但不启用它们。
+		
+		此函数会扫描Visindigo::General::VIApplication::EnvKey::PluginFolderPath
+		指定的目录下的所有插件，并根据插件的依赖关系决定加载顺序。
+		
+		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
+
+		\note 这个函数不能被多次调用，重复调用会被忽略。
 	*/
 	void PluginManager::loadAllPlugin() {
+		if (d->loaded) {
+			vgWarning << "Plugins have already been loaded, this operation will be ignored.";
+			return;
+		}
 		QString pluginFolder = VIApplication::getInstance()->getEnvConfig(VIApplication::PluginFolderPath).toString();
-		yNotice << "Scanning plugins in" << pluginFolder;
+		vgNoticeF << "Scanning plugins in" << pluginFolder;
 		
 		QFileInfoList Plugins = PluginManagerPrivate::recursionGetAllDll(pluginFolder);
 		for (QFileInfo info : Plugins) {
@@ -93,14 +143,14 @@ namespace Visindigo::General {
 			Utility::JsonConfig jsonConfig(jsonStr);
 			QString id = jsonConfig.getString("ID");
 			if (id.isEmpty()) {
-				yWarning << "The json file in " << info.path() << "does not contain \"ID\" key. IGNORED";
+				vgWarning << "The json file in " << info.path() << "does not contain \"ID\" key. IGNORED";
 				continue;
 			}
 			d->PluginPathMap.insert(id, info.absoluteFilePath());
 			if (!d->PriorityMap.contains(id)) {
 				d->PriorityMap.insert(id, 0);
 			}
-			yMessage << "Plugin with meta-id" << id << "finded";
+			vgMessageF << "Plugin with meta-id" << id << "finded";
 			if (!jsonConfig.contains("Dependencies")) {
 				continue;
 			}
@@ -119,25 +169,25 @@ namespace Visindigo::General {
 		// if not satisfied, raise exception and stop loading.
 		
 		// sort by priority, save path to PluginsPaths
-		yMessage << "Determining loading order based on priority";
+		vgMessageF << "Determining loading order based on priority";
 		d->PriorityPlugins = d->PriorityMap.keys();
 		std::sort(d->PriorityPlugins.begin(), d->PriorityPlugins.end(), [this](const QString& a, const QString& b) {
 			return d->PriorityMap[a] > d->PriorityMap[b];
 			});
 		for (int i = 0; i < d->PriorityPlugins.length(); i++) {
-			yMessage << "Load order:" << d->PriorityPlugins[i] << "[" << i << "]";
+			vgMessageF << "Load order:" << d->PriorityPlugins[i] << "[" << i << "]";
 		}
 		for (QString key : d->PriorityPlugins) {
 			if (d->PluginPathMap.contains(key)) {
 				QString path = d->PluginPathMap.value(key);
 				QLibrary* hLibrary = new QLibrary(path);
 				if (hLibrary->load() == false) {
-					yError << "Failed when load plugin" << key << ", cannot load plugin file into memory!";
+					vgError << "Failed when load plugin" << key << ", cannot load plugin file into memory!";
 					return;
 				}
 				__VisindigoPluginMain PluginDllMain = (__VisindigoPluginMain)hLibrary->resolve(Visindigo_PluginMain_Function_Name);
 				if (PluginDllMain == nullptr) {
-					yError << "Failed when load plugin" << key << ", cannot find entry point VisindigoPluginMain!";
+					vgError << "Failed when load plugin" << key << ", cannot find entry point VisindigoPluginMain!";
 					hLibrary->unload();
 					delete hLibrary;
 					return;
@@ -147,16 +197,16 @@ namespace Visindigo::General {
 					plugin = PluginDllMain();
 				}
 				catch (...) {
-					yError << "Exception occured when load plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
+					vgError << "Exception occured when load plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
 				}
 				if (plugin == nullptr) {
-					yError << "Failed when init plugin" << key << ", cannot create EditorPlugin Instance!";
+					vgError << "Failed when init plugin" << key << ", cannot create EditorPlugin Instance!";
 					hLibrary->unload();
 					return;
 				}
 				QString pluginID = plugin->getPluginID();
 				if (pluginID != key) {
-					yError << "Failed when init plugin" << key << ", the ID from plugin instance is different from the ID from meta file.";
+					vgError << "Failed when init plugin" << key << ", the ID from plugin instance is different from the ID from meta file.";
 					delete plugin;
 					hLibrary->unload();
 					continue;
@@ -166,25 +216,42 @@ namespace Visindigo::General {
 				d->PluginIDMap.insert(plugin->getPluginID(), plugin);
 				plugin->d->PluginFolder = path;
 				emit pluginLoaded(plugin);
-				ySuccess << "Plugin" << key << "create instance successfully. Will be enable later";
+				vgSuccessF << "Plugin" << key << "create instance successfully. Will be enable later";
 			}
 		}
+		d->loaded = true;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		测试所有已加载的插件。这调用所有插件的Visindigo::General::Plugin::onTest()函数。
+		
+		如果插件未启用测试，则跳过该插件的测试。
+
+		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
+		如果需要手动调用，请安排在applicationInitAllPlugin()之后调用此函数。
+	*/
 	void PluginManager::testAllPlugin() {
 		for (int i = 0; i < d->Plugins.size(); i++) {
 			Plugin* plugin = d->Plugins[i];
 			if (plugin->isTestEnable()) {
-				yMessage << "Testing plugin" << plugin->getPluginName();
+				vgMessageF << "Testing plugin" << plugin->getPluginName();
 				plugin->onTest();
 			}
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		在所有插件都被启用后，调用所有插件的Visindigo::General::Plugin::onApplicationInit()函数，进行应用程序初始化工作。
+
+		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
+		如果需要手动调用，请安排在enableAllPlugin()之后调用此函数。
+	*/
 	void PluginManager::applicationInitAllPlugin() {
 		for (int i = 0; i < d->Plugins.size(); i++) {
 			Plugin* plugin = d->Plugins[i];
-			yMessage << plugin->getPluginName() << " is handling application init";
+			vgMessageF << plugin->getPluginName() << " is handling application init";
 			plugin->onApplicationInit();
 		}
 	}
@@ -192,6 +259,9 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		禁用所有已启用的插件。请在调用enableAllPlugin()之后调用此函数。
+
+		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
+		如果在没有启用插件的情况下调用此函数，则不会有任何效果。
 	*/
 	void PluginManager::disableAllPlugin() {
 		// disable in reverse order
@@ -199,26 +269,47 @@ namespace Visindigo::General {
 			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
 			if (isPluginEnable(plugin)){
 				try {
-					yMessage << "Trying to disable plugin" << plugin->getPluginName();
+					vgMessageF << "Trying to disable plugin" << plugin->getPluginName();
 					plugin->onPluginDisbale();
 				}
 				catch (...) {
-					yError << "Failed when disable plugin" << plugin->getPluginName() << ", disable function may not have completed properly. RESTART is RECOMMENDED!";
+					vgError << "Failed when disable plugin" << plugin->getPluginName() << ", disable function may not have completed properly. RESTART is RECOMMENDED!";
 					continue;
 				}
-				ySuccess << "Plugin" << plugin->getPluginName() << "disabled";
+				vgSuccessF << "Plugin" << plugin->getPluginName() << "disabled";
 				d->EnabledPlugins.removeAll(plugin);
 			}
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		返回已加载的插件数量。这是被正确识别且加载到内存的插件动态链接库的数量。
+
+		根据插件加载的成功情况，插件在内存中的关系遵循如下规律：
+		\list
+		\li 1. 如果插件的metajson未被正确识别，则根本不会触发对动态链接库的加载尝试。
+		\li 2. 如果在加载插件的动态链接库时，插件主函数返回的插件实例为nullptr，
+		或ID与metajson不符，则立即析构该插件实例（如果可以），并立即卸载该动态链接库。
+		\li 3. 在启用插件时，如果发生异常，则立即调用该插件的禁用函数，并保持该插件处于未启用状态，但插件仍然保留在内存中。
+		\endlist
+		
+		\sa getEnabledPluginCount()
+	*/
 	qint32 PluginManager::getLoadedPluginCount() const {
 		return d->Plugins.size();
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		返回已启用的插件数量。这是被启用并可以使用的插件对象的数量。
+
+		\sa getLoadedPluginCount()
+	*/
 	qint32 PluginManager::getEnabledPluginCount() const {
 		return d->EnabledPlugins.size();
 	}
+
 	/*!
 		\since Visindigo 0.13.0
 		检查ID为\a id的插件是否被启用。
@@ -230,27 +321,35 @@ namespace Visindigo::General {
 		return false;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		检查\a plugin插件是否被启用。
+	*/
 	bool PluginManager::isPluginEnable(Plugin* plugin) const {
 		return d->EnabledPlugins.contains(plugin);
 	}
+
 	/*!
 		\since Visindigo 0.13.0
-		启用所有已加载但未启用的插件。请在调用programLoadPlugin()之后调用此函数。
+		启用所有已加载但未启用的插件。
+
+		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
+		如果需要手动调用，请安排在loadAllPlugin()之后调用此函数。
 	*/
 	void PluginManager::enableAllPlugin() {
 		for (int i = 0; i < d->PriorityPlugins.size(); i++) {
 			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
 			if (!isPluginEnable(plugin)) {
 				try {
-					yMessage << "Trying to enable plugin" << plugin->getPluginName();
+					vgMessageF << "Trying to enable plugin" << plugin->getPluginName();
 					plugin->onPluginEnable();
 				}
 				catch (...) {
-					yError << "Failed when enable plugin" << plugin->getPluginName() << ", disable function will be called. RESTART is RECOMMENDED!";
+					vgError << "Failed when enable plugin" << plugin->getPluginName() << ", disable function will be called. RESTART is RECOMMENDED!";
 					plugin->onPluginDisbale();
 					continue;
 				}
-				ySuccess << "Plugin" << plugin->getPluginName() << "enabled";
+				vgSuccessF << "Plugin" << plugin->getPluginName() << "enabled";
 				emit pluginEnabled(plugin);
 				d->EnabledPlugins.append(plugin);
 			}

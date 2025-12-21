@@ -37,7 +37,7 @@ namespace Visindigo::Widgets {
 		QStringList keys = config.keys("menu");
 		for (auto key : keys) {
 			QMenu* menu = new QMenu(this);
-			yDebug << "Creating menu:" << key;
+			vgDebugF << "Creating menu:" << key;
 			QString id = config.getString("menu." + key + ".ID");
 			menu->setObjectName(id);
 			menu->setTitle(YSSI18N(config.getString("menu." + key + ".Name")));
@@ -58,10 +58,12 @@ namespace Visindigo::Widgets {
 					// shortcut not support yet.
 					menu->addAction(action);
 					Utility::QtSSHelper::deepConnect(action, QString("triggered()"), d->ActionHandler, QString(fullID + "()"));
+					Utility::QtSSHelper::deepConnect(d->ActionHandler, QString(fullID + "_VisibleChanged(bool)"), action, QString("setVisible(bool)"));
 				}
 				if (actionGroupKey != actionGroupKeys.last()) {
 					menu->addSeparator();
 				}
+				Utility::QtSSHelper::deepConnect(menu, QString("aboutToShow()"), d->ActionHandler, QString(id + "::" + agid + "::aboutToShow()"));
 			}
 			this->addMenu(menu);
 		}

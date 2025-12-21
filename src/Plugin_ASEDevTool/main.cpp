@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
 	QStringList Story = Visindigo::Utility::FileUtility::readLines("E:/source/repos/YayinStoryStudio/x64/Release/resource/repos/ASE_Story_Project_3/Stories/深蓝碎片.astory");
 	Story = Story.mid(2);
 	for (auto Line : Story) {
-		yDebug << "Line: " << Line;
-		yDebug << "Parse Result: " << Adaptor.parse(Line);
-		yDebug << "----------------------------------------";
+		vgDebugF << "Line: " << Line;
+		vgDebugF << "Parse Result: " << Adaptor.parse(Line);
+		vgDebugF << "----------------------------------------";
 	}
 	/*AStoryController controller;
 	Visindigo::Utility::JsonConfig config;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	controller.setControllerName("chara");
 	controller.setControllerMeta(config);
 	controller.setControllerASRule("立绘（角色名：__pcname__，插槽编号：__slot__，差分名：__diff__，效果：__ishide__，淡入时间：__fadeintime__，淡出时间：__fadeouttime__，阻塞：__isblock__，起始位置：__startpos__，结束位置：__endpos__，移动时间：__movetime__，移动曲线：__movecurve__）");
-	yDebug << controller.parse("立绘（角色名：阿米娅&{，插槽编号：}，插槽编号：1，差分名：default，效果：true，淡入时间：0.5，淡出时间：0.5，阻塞：false，起始位置：0，结束位置：100，移动时间：1.0，移动曲线：linear）");*/
+	vgDebugF << controller.parse("立绘（角色名：阿米娅&{，插槽编号：}，插槽编号：1，差分名：default，效果：true，淡入时间：0.5，淡出时间：0.5，阻塞：false，起始位置：0，结束位置：100，移动时间：1.0，移动曲线：linear）");*/
 	Visindigo::General::LoggerManager::getInstance()->finalSave();
 	return 0;
 }

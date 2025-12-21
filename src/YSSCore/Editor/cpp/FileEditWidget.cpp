@@ -2,6 +2,7 @@
 #include <QtCore/qfileinfo.h>
 #include "../FileEditWidget.h"
 #include <General/Log.h>
+#include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
@@ -13,7 +14,7 @@ protected:
 		\class YSSCore::Editor::FileEditWidget
 		\brief 此类为Yayin Story Studio 提供文件编辑的基类。
 		\since Visindigo 0.13.0
-		\inmodule Visindigo
+		\inmodule YSSCore
 
 		FileEditWidget是所有文件编辑器的基类，所有文件编辑器都需要继承此类。
 

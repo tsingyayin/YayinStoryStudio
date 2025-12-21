@@ -1,4 +1,11 @@
 #pragma once
+
+#ifdef __cpp_lib_stacktrace 
+	#if __cpp_lib_stacktrace >= 202011L
+		#define VI_HAS_STD_STACKTRACE
+	#endif
+#endif 
+
 #define VInterface class
 
 #define VIAPIClass(name) \
@@ -55,13 +62,19 @@
 #define VI_Singleton(name) \
 	public: static name* getInstance();
 
-#define VI_p_Singleton(name) \
-	protected: static name* Instance; \
-	name(const name& other) = delete; \
-	name(name&& other) = delete; \
+#define VI_Singleton_Definition(name) \
+	static name* Instance;
 
-#define VI_Singleton_Init(name) \
+#define VI_Sigleton_Init(name) \
 	name* name##Private::Instance = nullptr;
+
+#define VI_Singleton_Impl(name) \
+	name* name::getInstance() { \
+		if (name##Private::Instance == nullptr) { \
+			name##Private::Instance = new name(); \
+		} \
+		return name##Private::Instance; \
+	}
 
 #define VI_Singleton_Construct(name) \
 	if (name##Private ::Instance == nullptr) { \
@@ -69,11 +82,3 @@
 	} else { \
 		return; \
 	}
-
-#define VI_Singleton_Impl(name) \
-	name* name::getInstance() { \
-		if (d->Instance == nullptr) { \
-			d->Instance = new name(); \
-		} \
-		return d->Instance; \
-	} 

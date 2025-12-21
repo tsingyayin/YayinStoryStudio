@@ -1,0 +1,47 @@
+/*!
+	\inmodule Visindigo
+	\namespace Visindigo
+	\brief 内核模块根命名空间
+
+	所有 Visindigo 组件均在此命名空间下。
+*/
+
+/*! 
+	\inmodule Visindigo
+	\namespace Visindigo::Utility
+	\brief 内核模块工具类命名空间
+
+	所有 Visindigo 的工具类都在此命名空间下。
+*/
+
+/*! 
+	\inmodule Visindigo
+	\namespace Visindigo::General
+	\brief 内核模块适用编辑器和播放器的组件的命名空间
+
+	所有 Visindigo 中的通用组件都在此命名空间下。
+*/
+
+/*!
+	\inmodule Visindigo
+	\namespace Visindigo::Widgets
+	\brief 内核模块中仅作QWidgets扩展的命名空间
+
+	所有 Visindigo 内核模块中仅作QWidgets扩展的组件都在此命名空间下。
+*/
+
+/*!
+	\inmodule YSSCore
+	\namespace YSSCore
+	\brief Yayin Story Studio 核心模块根命名空间
+
+	所有 YSSCore 组件均在此命名空间下。
+*/
+
+/*!
+	\inmodule YSSCore
+	\namespace YSSCore::Editor
+	\brief Yayin Story Studio 核心模块中面向编辑器的组件命名空间
+
+	所有 YSSCore 中面向编辑器的组件都在此命名空间下。
+*/

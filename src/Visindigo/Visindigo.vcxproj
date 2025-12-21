@@ -113,7 +113,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);Visindigo_DEVELOPMENT;DEBUG</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);$(Qt_LIBS_);</AdditionalDependencies>
@@ -125,7 +125,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>Visindigo_DEVELOPMENT</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
@@ -137,7 +137,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);Visindigo_EXPORT;DEBUG</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <PreBuildEvent>
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
@@ -149,7 +149,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
     <ClCompile>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);Visindigo_EXPORT</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <PreBuildEvent>
@@ -210,11 +210,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="General\cpp\Exception.cpp" />
+    <ClCompile Include="General\cpp\Exception_StdCast.cpp" />
+    <ClCompile Include="General\cpp\LogMetaData.cpp" />
     <ClCompile Include="General\cpp\Plugin.cpp" />
     <ClCompile Include="General\cpp\PluginManager.cpp" />
     <ClCompile Include="General\cpp\PluginModule.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
+    <ClCompile Include="General\cpp\StacktraceHelper.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
     <ClCompile Include="Utility\cpp\QtSSHelper.cpp" />
     <ClCompile Include="Utility\cpp\ShortCutHelper.cpp" />
@@ -264,12 +267,15 @@
     <ClInclude Include="General\Exception.h" />
     <QtMoc Include="General\PluginManager.h" />
     <QtMoc Include="General\PluginModule.h" />
+    <ClInclude Include="General\LogMetaData.h" />
     <ClInclude Include="General\Package.h" />
+    <ClInclude Include="General\private\LoggerMsgHandlerDataPool.h" />
     <ClInclude Include="General\private\Plugin_p.h" />
     <ClInclude Include="General\private\VIApplication_p.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
     <QtMoc Include="Utility\private\qnamespace_key.h" />
     <QtMoc Include="General\VIApplication.h" />
+    <ClInclude Include="General\StacktraceHelper.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
     <ClInclude Include="Utility\ShortCutHelper.h" />
     <ClInclude Include="Utility\StringMacro.h" />
@@ -277,6 +283,7 @@
     <ClInclude Include="VIMacro.h" />
     <QtMoc Include="Widgets\MultiButtonGroup.h" />
     <QtMoc Include="Widgets\private\MultiButtonGroup_p.h" />
+    <QtMoc Include="Widgets\DragWidget.h" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />

@@ -16,9 +16,9 @@
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::EditorPlugin
-		\inmodule Visindigo
+		\inmodule YSSCore
 		\brief 此类为Yayin Story Studio 提供插件基类。
-		\since Visindigo 0.13.0
+		\since YSSCore 0.13.0
 
 		EditorPlugin是所有插件的基类，所有插件都需要继承此类。
 

@@ -11,6 +11,15 @@ namespace Visindigo::General {
 		QString AbsFilePath;
 		QUrl HelperUrl;
 	};
+
+	/*!
+		\class Visindigo::General::ProjectMessageData
+		\brief 项目消息数据类，表示项目中的一条消息。
+		\inmodule Visindigo
+		\since Visindigo 0.13.0
+
+		\warning 此类没有完全开发，也没有更好的优化方案，随时可能被废弃或替换。
+	*/
 	ProjectMessageData::ProjectMessageData() {
 		d = new ProjectMessageDataPrivate();
 	}

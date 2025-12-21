@@ -16,6 +16,7 @@ namespace YSS::Editor {
 		Q_OBJECT;
 	signals:
 		void stackBarLabelChanged(StackBarLabel* label);
+		void stackBarLabelChangedWithLineNumber(StackBarLabel* label, quint32 lineNumber);
 	private:
 		QScrollArea* ScrollArea;
 		QHBoxLayout* Layout;
@@ -29,6 +30,7 @@ namespace YSS::Editor {
 		bool isLabelOpened(const QString& filePath);
 		bool addLabel(StackBarLabel* label);
 		void focusOn(const QString& filePath);
+		void focusOnWithLineNumber(const QString& filePath, quint32 lineNumber);
 		void focus(StackBarLabel* label);
 		void removeLabel(StackBarLabel* label);
 		StackBarLabel* getActiveLabel() const;

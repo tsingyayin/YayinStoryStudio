@@ -10,6 +10,7 @@
 #include "../MainWin.h"
 #include "../ResourceBrowser.h"
 #include "../FileEditorArea.h"
+#include <General/YSSLogger.h>
 
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectConfig()->getString("Project.DebugServerID"); \
@@ -18,7 +19,7 @@
 		ds->functionName(__VA_ARGS__); \
 	} \
 	else { \
-		yErrorF << "Debug server" << debugServerID << "not found!"; \
+		vgErrorF << "Debug server" << debugServerID << "not found!"; \
 	}
 
 namespace YSS::Editor {
@@ -123,6 +124,9 @@ namespace YSS::Editor {
 		CallYSSDebugServerFunction(onStop, true);
 	}
 
+	void Menu_Run_RunOptions::aboutToShow() {
+		
+	}
 	void Menu_Run_BuildActions::buildProject() {
 		CallYSSDebugServerFunction(onBuild);
 	}

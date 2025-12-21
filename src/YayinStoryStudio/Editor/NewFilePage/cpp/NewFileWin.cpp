@@ -13,6 +13,7 @@
 #include <QtCore/qlist.h>
 #include <QtGui/qicon.h>
 #include <General/Log.h>
+#include <General/YSSLogger.h>
 
 namespace YSS::NewFilePage {
 	NewFileWin::NewFileWin(const QString& initPath) :QWidget() {
@@ -73,9 +74,9 @@ namespace YSS::NewFilePage {
 		FileList.clear();
 		QList<YSSCore::Editor::FileTemplateProvider*> providers = YSSFTM->getProviders();
 		for (YSSCore::Editor::FileTemplateProvider* provider : providers) {
-			yDebug << provider->getTemplateID();
-			yDebug << provider->getTemplateName();
-			yDebug << provider->getTemplateDescription();
+			yDebugF << provider->getTemplateID();
+			yDebugF << provider->getTemplateName();
+			yDebugF << provider->getTemplateDescription();
 			Visindigo::Widgets::MultiButton* ProviderButton = new Visindigo::Widgets::MultiButton(FileTemplateWidget);
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
@@ -92,7 +93,7 @@ namespace YSS::NewFilePage {
 			ProviderButton->setSpacing(5);
 			ProviderButton->setContentsMargins(10, 10, 10, 10);
 			ProviderButton->show();
-			yDebug << ProviderButton->isHidden();
+			yDebugF << ProviderButton->isHidden();
 			connect(ProviderButton, &Visindigo::Widgets::MultiButton::clicked, this,
 				&NewFileWin::onTemplateButtonClicked);
 		}

@@ -9,7 +9,7 @@
 #include <Widgets/ThemeManager.h>
 #include "../private/TabCompleterProvider_p.h"
 #include "../TabCompleterProvider.h"
-
+#include "General/YSSLogger.h"
 namespace YSSCore::__Private__ {
 	TabCompleterWidget::TabCompleterWidget(QTextEdit* textEdit, QWidget* parent)
 		: QFrame(parent) {
@@ -112,6 +112,6 @@ namespace YSSCore::__Private__ {
 		else {
 			cursor.insertText(item.getContent());
 		}
-		yDebug << "Do Complete";
+		yDebugF << "Do Complete";
 	}
 }

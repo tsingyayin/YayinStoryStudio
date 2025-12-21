@@ -1,5 +1,6 @@
 #pragma once
 #include "../Macro.h"
+#include <QtCore/qflags.h>
 #include <General/PluginModule.h>
 // Forward declarations
 class QString;
@@ -17,7 +18,7 @@ namespace YSSCore::Editor {
 	class YSSCoreAPI DebugServer :public Visindigo::General::PluginModule{
 		Q_OBJECT;
 	public:
-		enum class SupportedDebugFeature :quint16 {
+		enum SupportedDebugFeatureFlag :quint16 {
 			None = 0b0000000000000000,
 			Build = 0b0000000000000001,
 			Clear = 0b0000000000000010, // clear all
@@ -26,8 +27,10 @@ namespace YSSCore::Editor {
 			Run = 0b0000000000010000,
 			Step = 0b0000000000100000, // next step
 			Process = 0b0000000001000000, // next process
+			Stop = 0b0000000010000000, // stop only
 			All = 0b1111111111111111,
 		};
+		Q_DECLARE_FLAGS(SupportedDebugFeature, SupportedDebugFeatureFlag);
 	signals:
 		void buildStarted();
 		void buildMessage(const QString& message);
@@ -55,4 +58,6 @@ namespace YSSCore::Editor {
 	private:
 		DebugServerPrivate* d;
 	};
+
+	Q_DECLARE_OPERATORS_FOR_FLAGS(DebugServer::SupportedDebugFeature);
 }

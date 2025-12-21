@@ -1,0 +1,58 @@
+/*!
+	\module Visindigo
+	\title Visindigo 模块
+	\brief Project Visindigo 的核心项目 “Visindigo”模块
+	\since Visindigo 0.13.0
+
+	Visindigo 是 Project Visindigo 的核心项目，旨在基于Qt框架提供更多通用的组件和功能，
+	当前仅供 Yayin Story Studio 使用，但未来可能会供更多基于Qt的应用程序使用。
+
+	\section1 版本号和ABI
+
+	Visindigo 模块在 Visindigo::General::Version 中用 Compiled_YSSABI_Version 宏定义了当前的内核ABI版本号。
+	要让开发的插件或其他附属程序在程序中记录编译时的内核版本，应在开发时使用此宏。
+	但若要获取内核本身的ABI版本号，应使用Visindigo::General::Version::getABIVersion() 函数。
+
+	每当Visindigo发生 ABI 变化时，Visindigo的版本号也会随之变化：
+	\list 1
+		\li 若ABI不能再与旧版本兼容，则主版本号加1，次版本号清零。
+		\li 若ABI仍然可以与旧版本兼容，则次版本号加1。
+		\li ABI版本不使用修订号。
+	\endlist
+	
+	要开发 Visindigo 的插件，详见Visindigo::General::Plugin 类。
+
+	\section1 无类头文件
+	Visindigo 模块还提供了一些无类头文件，提供了一些通用的宏定义和函数，详见下列头文件：
+	\list
+	\li \l {<VIMacro.h>}{VIMacro.h}
+	\endlist
+
+	\section1 子模块
+	Visindigo 将多个类合作才能提供一个完整功能的部分称作一个子模块。 Visindigo 当前包含以下子模块：
+	\list \l {VDebug}{VDebug} - Visindigo 日志系统子模块
+	\list \l {VPlugin}{VPlugin} - Visindigo 插件系统子模块
+	\endlist
+
+*/
+
+/*!
+	\module YSSCore
+	\title Yayin Story Studio 核心模块
+	\brief Yayin Story Studio 核心模块，提供Yayin Story Studio本体的基础功能
+	\since Yayin Story Studio 0.13.0
+
+	YSSCore 模块是 Yayin Story Studio 本体的核心模块，提供了 Yayin Story Studio 本体的基础功能。
+	要开发Yayin Story Studio的插件，就需要依赖此模块。
+
+
+*/
+
+/*!
+	\module YayinStoryStudio
+	\title Yayin Story Studio 本体模块
+	\brief Yayin Story Studio 本体模块，提供Yayin Story Studio的主要功能
+	\since Yayin Story Studio 0.13.0
+
+	Yayin Story Studio 模块是 Yayin Story Studio 本体的主要模块，提供了 Yayin Story Studio 的主要功能。
+*/

@@ -148,9 +148,10 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a str 为字符串，\a length 为长度。
+		\a str 为字符串
+		\a length 为长度。
 		将字符串格式化为指定长度的字符串。（这是一个应该被隐藏的内部函数）
-		\return 格式化后的字符串。
+		return 格式化后的字符串。
 	*/
 	static QString fixedLength(QString str, int length = 40) {
 		str = str.replace("\t", "    ");

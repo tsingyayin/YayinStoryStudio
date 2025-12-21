@@ -8,7 +8,7 @@ namespace Visindigo::__Private__ {
 		: QObject(q), q(q) {
 	}
 	void MultiButtonGroupPrivate::onButtonClicked(Visindigo::Widgets::MultiButton* button) {
-		yDebugF;
+		vgDebugF;
 		if (CurrentPressedButton) {
 			if (CurrentPressedButton != button) {
 				CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->NormalStyleSheet);

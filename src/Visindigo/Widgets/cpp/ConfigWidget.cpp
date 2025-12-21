@@ -201,7 +201,7 @@ namespace Visindigo::__Private__ {
 	}
 	QWidget* ConfigWidgetPrivate::widgetRouter(const QString& type, const QString& node, Visindigo::Utility::JsonConfig& config) {
 		QWidget* rtn = nullptr;
-		yDebug << node << type;
+		vgDebugF << node << type;
 		if (type == "ComboBox") {
 			rtn = widget_ComboBox(node, config);
 		}
@@ -244,7 +244,7 @@ namespace Visindigo::__Private__ {
 		QString defaultValue = config.getString("default");
 		connect(LineEdit, &QLineEdit::textChanged, this, &ConfigWidgetPrivate::onLineEditTextChanged);
 		if (config.contains("isFolder") || config.contains("isFile")) {
-			yDebugF << YSSPathMacro(defaultValue);
+			vgDebugF << YSSPathMacro(defaultValue);
 			LineEdit->setText(YSSPathMacro(defaultValue));
 			LineEditDefault.insert(LineEdit, YSSPathMacro(defaultValue));
 			QFrame* container = new QFrame();
@@ -351,7 +351,7 @@ namespace Visindigo::Widgets {
 		对于type，当前支持的类型为ComboBox、RadioButton、Frame和LineEdit。其中Frame是
 		专门用来作为容器的控件，没有输入功能。
 
-		title和text支持YSS翻译系统，当其以“i18n:”开头时，会自动进行翻译，具体参见 \l Visindigo::General::TranslationHost。
+		title和text支持YSS翻译系统，当其以“i18n:”开头时，会自动进行翻译，具体参见 \l Visindigo::General::TranslationHost
 
 		不同的控件类型有不同的data格式，ComboBox的格式已经在上面给出，RadioButton的格式如下：
 		\badcode
@@ -373,6 +373,7 @@ namespace Visindigo::Widgets {
 		其中，check为检查项，min和max为最小和最大长度，regex为正则表达式。
 		\note 目前，LineEdit的检查项仅支持最小和最大长度，正则表达式的检查项未实现。
 	*/
+
 	/*!
 		\a parent 父窗口
 		\since Yayin Story Studio 0.13.0

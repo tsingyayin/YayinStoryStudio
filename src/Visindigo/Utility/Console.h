@@ -1,6 +1,7 @@
 #pragma once
-#include <QtCore/qlist.h>
-#include <QtCore/qbytearray.h>
+#include <QString>
+#include <QList>
+#include <QByteArray>
 #include "../Macro.h"
 // Forward declarations
 class QString;

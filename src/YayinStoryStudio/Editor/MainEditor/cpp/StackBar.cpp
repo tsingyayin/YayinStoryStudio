@@ -67,6 +67,18 @@ namespace YSS::Editor {
 		}
 	}
 
+	void StackBar::focusOnWithLineNumber(const QString& filePath, quint32 lineNumber) {
+		if (LabelMap.contains(filePath)) {
+			StackBarLabel* label = LabelMap[filePath];
+			label->setState(StackBarLabel::State::Focused);
+			if (ActiveLabel != nullptr) {
+				ActiveLabel->setState(StackBarLabel::State::Normal);
+			}
+			ActiveLabel = label;
+			YSS::GlobalValue::getCurrentProject()->setFocusedFile(filePath);
+			emit stackBarLabelChangedWithLineNumber(label, lineNumber);
+		}
+	}
 	void StackBar::focus(StackBarLabel* label) {
 		if (label == ActiveLabel) {
 			return;

@@ -4,7 +4,7 @@
 #include <General/Log.h>
 #include "../LangServerManager.h"
 #include "../LangServer.h"
-
+#include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	class LangServerManagerPrivate {
 		friend class LangServerManager;

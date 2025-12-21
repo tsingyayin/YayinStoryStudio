@@ -18,8 +18,9 @@ namespace Visindigo::General {
 
 	/*!
 		\class Visindigo::General::TranslationHost
+		\inheaderfile General/TranslationHost.h
 		\since Visindigo 0.13.0
-		\ingroup Visindigo
+		\inmodule Visindigo
 		\brief 此类为YayinStoryStudio提供翻译管理器。
 
 		TranslationHost负责管理所有Translator，并提供统一的翻译接口。
@@ -42,7 +43,7 @@ namespace Visindigo::General {
 	*/
 	TranslationHost::TranslationHost():QObject() {
 		d = new TranslationHostPrivate;
-		ySuccessF << "Success!";
+		vgSuccessF << "Success!";
 		Visindigo::General::VisindigoTranslator* coreTranslator = new Visindigo::General::VisindigoTranslator();
 		active(coreTranslator);
 	}
@@ -91,7 +92,7 @@ namespace Visindigo::General {
 		d->Translators.insert(translator->getNamespace(), translator);
 		translator->d->loadDefault();
 		translator->d->loadTranslationFile(d->GlobalID);
-		yNotice << "Translator:" << translator->getNamespace() << "actived.";
+		vgNoticeF << "Translator:" << translator->getNamespace() << "actived.";
 	}
 
 
@@ -102,9 +103,9 @@ namespace Visindigo::General {
 		
 		\a nameSpace 翻译命名空间，对应Translator的getNamespace()返回值。
 		\a key 翻译键，对应Translator中定义的翻译键。
-		\return 返回翻译后的字符串，或 "nameSpace::key" 形式的字符串。
+		return 返回翻译后的字符串，或 "nameSpace::key" 形式的字符串。
 		
-		\sa tr(const QString& key)
+		\sa tra(const QString& key)
 	*/
 	QString TranslationHost::tra(const QString& nameSpace, const QString& key) {
 		Translator* trans = d->Translators[nameSpace];
@@ -112,7 +113,7 @@ namespace Visindigo::General {
 			return trans->tr(key);
 		}
 		else {
-			yErrorF << "No such namespace" << nameSpace << "for key" << key;
+			vgErrorF << "No such namespace" << nameSpace << "for key" << key;
 			return nameSpace + "::" + key;
 		}
 	}
@@ -124,16 +125,16 @@ namespace Visindigo::General {
 		如果找不到对应的Translator或翻译字符串，则返回 \a key 本身。
 		
 		\a key 翻译键，必须为 "nameSpace::key" 形式的字符串。
-		\return 返回翻译后的字符串，或 \a key 本身。
+		return 返回翻译后的字符串，或 \a key 本身。
 		
-		\sa tr(const QString& nameSpace, const QString& key)
+		\sa tra(const QString& nameSpace, const QString& key)
 	*/
 	QString TranslationHost::tra(const QString& key) {
 		QStringList keys = key.split("::");
 		if (keys.length() == 2) {
 			return tra(keys[0], keys[1]);
 		}
-		yErrorF << "Key" << key << "dose not use namespace syntax.";
+		vgErrorF << "Key" << key << "dose not use namespace syntax.";
 		return key;
 	}
 
@@ -144,7 +145,7 @@ namespace Visindigo::General {
 		如果 \a raw 不以 "i18n:" 开头，则直接返回 \a raw 本身。
 		
 		\a raw 可能需要翻译的原始字符串。
-		\return 返回翻译后的字符串，或 \a raw 本身。
+		return 返回翻译后的字符串，或 \a raw 本身。
 		
 		\sa tr(const QString& nameSpace, const QString& key)
 	*/

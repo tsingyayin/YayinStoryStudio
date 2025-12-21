@@ -9,7 +9,7 @@
 #include <QtCore/qdatetime.h>
 #include <General/Log.h>
 #include <QtWidgets/qmessagebox.h>
-
+#include <General/YSSLogger.h>
 namespace YSS::ProjectPage {
 	ProjectInfoWidget::ProjectInfoWidget(QWidget* parent) :QFrame(parent) {
 		this->setObjectName("ProjectInfoWidget");
@@ -118,7 +118,7 @@ namespace YSS::ProjectPage {
 	void ProjectInfoWidget::onShowInBrowserButtonClicked() {
 		if (Project != nullptr) {
 			QString dir = Project->getProjectFolder();
-			yDebug << dir;
+			yDebugF << dir;
 			Visindigo::Utility::FileUtility::openExplorer(dir);
 		}
 	}

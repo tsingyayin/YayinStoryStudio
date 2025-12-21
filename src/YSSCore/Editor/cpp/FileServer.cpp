@@ -12,9 +12,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::FileServer
-		\inmodule Visindigo
+		\inmodule YSSCore
 		\brief 此类提供文件打开服务。
-		\since Visindigo 0.13.0
+		\since YSSCore 0.13.0
 
 		由于YSSCore::Editor被设计为一个通用的编辑器框架，因此对于“打开文件”这样的需求只能提供通用框架，
 		即用户通过派生此类，并将其注册到YSSCore::Editor::FileServerManager中来实现对某类文件的打开支持。

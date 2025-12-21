@@ -2,6 +2,7 @@
 #include <QtCore/qobject.h>
 #include <General/Log.h>
 #include <Widgets/QuickMenu.h>
+#include <General/YSSLogger.h>
 
 namespace YSS::Editor {
 	class Menu_File_FileOptions :public QObject {
@@ -22,7 +23,7 @@ namespace YSS::Editor {
 	public slots:
 		void backToHome();
 		void preferences() {
-			yDebug << "Preferences";
+			yDebugF << "Preferences";
 		}
 		void exit();
 	};
@@ -59,11 +60,14 @@ namespace YSS::Editor {
 		Q_OBJECT;
 		HandlerNode(Menu_Run_RunOptions, "runOptions");
 		SubNodes{};
+	signals:
+		void run_VisibleChanged(bool changed);
 	public slots:
 		void run();
 		void debug();
 		void stop();
 		void restart();
+		void aboutToShow();
 	};
 	class Menu_Run_BuildActions : public QObject {
 		Q_OBJECT;

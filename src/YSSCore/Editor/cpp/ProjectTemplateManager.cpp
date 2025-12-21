@@ -2,7 +2,7 @@
 #include <General/Log.h>
 #include "../ProjectTemplateProvider.h"
 #include "../ProjectTemplateManager.h"
-
+#include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	class ProjectTemplateManagerPrivate {
 		friend class ProjectTemplateManager;

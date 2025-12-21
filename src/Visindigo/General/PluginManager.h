@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_PluginManager_H
 #define Visindigo_General_PluginManager_H
-#include <QtCore/qobject.h>
+#include <QObject>
 #include "../Macro.h"
 // Forward declarations
 class QString;
@@ -37,3 +37,5 @@ namespace Visindigo::General {
 	};
 }
 #endif // Visindigo_General_PluginManager_H
+
+#define VPluginManager Visindigo::General::PluginManager::getInstance()

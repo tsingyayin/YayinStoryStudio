@@ -4,10 +4,16 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
-#include "private/LoggerMsgHandler_p.h"
 #include "../Macro.h"
 #include "Logger.h"
+#include "private/LoggerMsgHandler_p.h"
+#include "LogMetaData.h"
+#include "StacktraceHelper.h"
 // Main
+namespace Visindigo::__Private__ {
+	class LoggerMsgHandlerDataPool;
+	class LoggerMsgHandlerPrivate;
+}
 namespace Visindigo::General {
 	template <typename T> concept Printable = requires(T t) {
 		{ t.toString() }->::std::same_as<QString>;
@@ -15,6 +21,7 @@ namespace Visindigo::General {
 
 	class VisindigoAPI LoggerMsgHandler final {
 		friend class Logger;
+		friend class Visindigo::__Private__::LoggerMsgHandlerDataPool;
 	protected:
 		LoggerMsgHandler(Logger* who, Logger::Level level);
 	public:
@@ -40,6 +47,8 @@ namespace Visindigo::General {
 		LoggerMsgHandler& operator<<(const QStringList& strList);
 		LoggerMsgHandler& operator<<(const QByteArray& byteArray);
 		LoggerMsgHandler& operator<<(QObject* pointer);
+		LoggerMsgHandler& operator<<(const LogMetaData& metaData);
+		LoggerMsgHandler& operator<<(const QList<StacktraceFrame>& stacktrace);
 
 		template<Printable T> LoggerMsgHandler& operator<<(T type); // for any type with toString() method
 
@@ -54,7 +63,9 @@ namespace Visindigo::General {
 		QString getMessage();
 		Logger* getLogger();
 		Logger::Level getLevel();
-	private:
+		LogMetaData getMetaData();
+		QList<StacktraceFrame> getStacktrace();
+	protected:
 		Visindigo::__Private__::LoggerMsgHandlerPrivate* d;
 	};
 }

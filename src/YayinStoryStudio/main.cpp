@@ -7,6 +7,7 @@
 #include <Utility/FileUtility.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/VIApplication.h>
+#include <General/YSSLogger.h>
 
 int main(int argc, char* argv[])
 {

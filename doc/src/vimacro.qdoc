@@ -1,0 +1,169 @@
+/*!
+    \headerfile <VIMacro.h>
+    \title 宏集中定义 VIMacro.h
+    \brief Visindigo 项目中使用的宏的集中定义
+    \since Visindigo 0.13.0
+    \inmodule Visindigo
+*/
+
+/*!
+    \macro VI_HAS_STD_STACKTRACE
+    \relates <Visindigo/VIMacro.h>
+    \brief 如果编译器支持 \c std::stacktrace，则定义此宏
+
+    如果编译器支持 \c std::stacktrace（C++23 标准库的一部分），则定义此宏。
+    目前仅在支持 C++23 标准且版本大于202011L时定义此宏。
+
+    此宏被定义后，VDebug中的宏 vgWarningF 和 vgErrorF 会自动附加堆栈跟踪信息。
+    Visindigo::General::Exception 类也会支持堆栈跟踪信息。
+*/
+
+/*!
+    \macro VIInterface
+    \relates <Visindigo/VIMacro.h>
+    \brief 定义接口类
+
+    C++关键字class的别名，用于标明这是一个用作接口的纯虚类。
+*/ 
+
+/*!
+    \macro VIAPIClass(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief PIMPL设计模式下的API类定义宏
+
+    用于在PIMPL设计模式下定义API类的宏，简化代码编写。
+
+    此宏实际上专供Visindigo使用，因为其中含有VisindigoAPI宏
+
+    此宏会声明一个name##Private类作为私有实现类。
+*/
+
+/*!
+    \macro VImpl(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief PIMPL设计模式下的私有实现类定义宏
+     
+    用于在PIMPL设计模式下定义私有实现类的宏，简化代码编写。
+
+    此宏会声明name为友元，并定义其为d指针。
+
+    有关Visindigo中的PIMPL设计模式的更多信息，请参见\l {v_pimpl.html}{PIMPL设计模式} 文档。
+
+    \note 这是Visindigvo所有宏里面为数不多的以\b V 开头而非\b VI 开头的宏，因为VI与Impl重复一个字母I。
+*/
+
+/*!
+    \macro VIImplClass(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief PIMPL设计模式下的私有实现类定义宏
+
+    扩展到声明一个类name##Private。带有关键字class，可以直接编写类本体。
+*/
+
+ /*!
+    \macro VIAPI(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 在Private类内定义API类为其友元和q指针。
+
+    用于在Private类内定义API类为其友元和q指针的宏，简化代码编写。
+
+    目前为止，在Visindigo的PIMPL设计模式中，真正需要q指针的场景很少，
+    所以此宏也不常用到。
+ */
+
+ /*!
+    \macro p_VIAPICopyable(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 在一个Private类内指定复制构造函数为编译器默认函数
+
+    用于在Private类内指定复制构造函数为编译器默认函数的宏，简化代码编写。
+
+    此宏不常用到。因为纯成员变量的类的复制构造通常不需要单独声明，而带有
+    指针成员类的复制构造函数通常需要自定义实现。
+*/
+
+/*!
+    \macro VICopyable(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 在一个API类声明这个类是可复制的
+
+    用于在一个API类声明这个类是可复制的宏，简化代码编写。
+    它会同时声明复制构造函数和复制赋值运算符函数。
+*/
+
+/*!
+    \macro VICopyable_Impl(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 用于为API类提供”可复制“的相关实现
+
+    用于为API类提供”可复制“的相关实现的宏，简化代码编写。
+    它会同时实现复制构造函数和复制赋值运算符函数
+    
+    这要求Private类必须都是非指针成员且可复制的。
+    因为复制的代码为
+    \code
+    *d = *other.d;
+    \endcode
+*/
+
+/*!
+    \macro VIMoveable(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 在一个API类声明这个类是可移动的
+
+    用于在一个API类声明这个类是可移动的宏，简化代码编写。
+    它会同时声明移动构造函数和移动赋值运算符函数。
+*/
+
+/*!
+    \macro VIMoveable_Impl(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 用于为API类提供”可移动“的相关实现
+
+    用于为API类提供”可移动“的相关实现的宏，简化代码编写。
+
+    它会同时实现移动构造函数和移动赋值运算符函数
+    
+    移动的代码为
+    \code
+    d = other.d;
+    other.d = nullptr;
+    \endcode
+*/
+
+/*!
+    \macro VI_Singleton(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 用于声明一个单例类
+
+    用于声明一个单例类的宏，简化代码编写。
+
+    它为这个单例类声明getInstance()静态函数。
+*/
+
+/*!
+    \macro VI_Singleton_Impl(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 用于实现一个单例类
+
+    用于实现一个单例类的宏，简化代码编写。
+
+    它为这个单例类实现getInstance()静态函数。
+*/
+
+/*!
+    \macro VI_Singleton_Definition(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 用于在Private类中定义API类的静态指针
+
+    用于在Private类中定义API类的静态指针的宏，简化代码编写。
+*/
+
+/*!
+    \macro VI_Singleton_Init(name)
+    \relates <Visindigo/VIMacro.h>
+    \brief 用于初始化单例类的静态指针
+
+    用于初始化单例类的静态指针的宏，简化代码编写。
+*/
+

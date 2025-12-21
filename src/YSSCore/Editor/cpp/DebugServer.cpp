@@ -4,7 +4,7 @@ namespace YSSCore::Editor {
 	class DebugServerPrivate {
 		friend class DebugServer;
 	protected:
-		DebugServer::SupportedDebugFeature Feature = DebugServer::SupportedDebugFeature::None;
+		DebugServer::SupportedDebugFeature Feature = DebugServer::SupportedDebugFeatureFlag::None;
 	};
 	DebugServer::DebugServer(const QString& name, const QString& id, EditorPlugin* plugin)
 		: Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin) {

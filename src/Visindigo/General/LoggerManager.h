@@ -2,6 +2,7 @@
 #include "../Macro.h"
 #include "Logger.h"
 #include <QtCore/qobject.h>
+#include "LoggerMsgHandler.h"
 // Forward declarations
 namespace Visindigo::General {
 	class LoggerMsgHandler;
@@ -12,7 +13,7 @@ namespace Visindigo::General {
 	class VisindigoAPI LoggerManager :public QObject {
 		Q_OBJECT
 	signals:
-		void logReceived(const QString& handlerName, Logger::Level level, const QString& message);
+		void logReceived(const QString& handlerName, Logger::Level level, const QString& message, const LogMetaData& metaData);
 	private:
 #ifdef DEBUG
 		LoggerManager(Logger::Level threshold = Logger::Debug);

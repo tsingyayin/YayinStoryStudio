@@ -18,6 +18,7 @@
 #include <General/Log.h>
 #include <QtWidgets/qfiledialog.h>
 #include "../../NewProjectPage/NewProjectWin.h"
+#include <General/YSSLogger.h>
 
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
@@ -124,7 +125,7 @@ namespace YSS::ProjectPage {
 		QStringList keys = Config->keys("Project");
 		for (int i = 0; i < keys.size(); i++) {
 			if (Config->getString("Project." + keys[i]) == project->getProjectPath()) {
-				yMessage << i;
+				yMessageF << i;
 				Config->remove("Project." + keys[i]);
 				break;
 			}
@@ -170,7 +171,7 @@ namespace YSS::ProjectPage {
 				if (projectPath == filePath) { inList = true; break; }
 			}
 			if (!inList) {
-				yMessage << "Add" << filePath << "to project list.";
+				yMessageF << "Add" << filePath << "to project list.";
 				Config->setString("Project." + QString::number(Config->keys("Project").size()), filePath);
 			}
 			GlobalValue::setCurrentProject(project);

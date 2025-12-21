@@ -1,9 +1,12 @@
 #include "../FileEditorArea.h"
 #include "../StackBar.h"
 #include "../StackBarLabel.h"
+#include <Editor/TextEdit.h>
 #include <General/Log.h>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <Editor/FileServerManager.h>
+#include "General/YSSLogger.h"
 
 namespace YSS::Editor {
 	FileEditorArea::FileEditorArea(QWidget* parent) : QWidget(parent) {
@@ -20,12 +23,14 @@ namespace YSS::Editor {
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->setSpacing(0);
 		connect(Bar, &StackBar::stackBarLabelChanged, this, &FileEditorArea::onStackBarLabelChanged);
+		connect(Bar, &StackBar::stackBarLabelChangedWithLineNumber, this, &FileEditorArea::onStackBarLabelChangedWithLineNumber);
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::switchLineEdit, Bar, &StackBar::focusOnWithLineNumber);
 	}
 
 	void FileEditorArea::addFileEditWidget(YSSCore::Editor::FileEditWidget* widget) {
 		//qDebug() << widget->getFilePath();
 		if (Bar->isLabelOpened(widget->getFilePath())) {
-			yDebug << "FileEditorArea: file already opened!";
+			yDebugF << "FileEditorArea: file already opened!";
 			Bar->focusOn(widget->getFilePath());
 			delete widget;
 			return;
@@ -55,6 +60,24 @@ namespace YSS::Editor {
 		Layout->removeWidget(ActiveWidget);
 		if (label != nullptr) {
 			ActiveWidget = label->getTargetWidget();
+		}
+		else {
+			ActiveWidget = DefaultWidget;
+		}
+		Layout->addWidget(ActiveWidget);
+		ActiveWidget->show();
+	}
+
+	void FileEditorArea::onStackBarLabelChangedWithLineNumber(StackBarLabel* label, quint32 lineNumber) {
+		ActiveWidget->hide();
+		Layout->removeWidget(ActiveWidget);
+		if (label != nullptr) {
+			ActiveWidget = label->getTargetWidget();
+			YSSCore::Editor::FileEditWidget* widget = label->getTargetWidget();
+			YSSCore::Editor::TextEdit* textEdit = dynamic_cast<YSSCore::Editor::TextEdit*>(widget);
+			if (textEdit != nullptr) {
+				textEdit->moveCursorToLine(static_cast<int>(lineNumber));
+			}
 		}
 		else {
 			ActiveWidget = DefaultWidget;

@@ -1,0 +1,9 @@
+/*!
+    \headerfile <General/Log.h>
+    \title VDebug日志系统集中头文件
+    \brief 包含VDebug日志系统中使用的所有类的集中头文件。
+    \since Visindigo 0.13.0
+    \ingroup VDebug
+
+    VDebug日志系统集中头文件包含了VDebug日志系统中使用的所有类的头文件，方便开发者在使用日志系统时只需包含此头文件即可。
+*/

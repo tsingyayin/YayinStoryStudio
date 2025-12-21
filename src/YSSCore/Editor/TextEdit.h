@@ -22,6 +22,10 @@ namespace YSSCore::Editor {
 	public:
 		TextEdit(QWidget* parent = nullptr);
 		virtual ~TextEdit();
+		void setPlainText(const QString& text);
+		QString getPlainText() const;
+		void moveCursorToLine(int lineNumber);
+		int getCurrentLineNumber() const;
 	private:
 		virtual bool eventFilter(QObject* obj, QEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;

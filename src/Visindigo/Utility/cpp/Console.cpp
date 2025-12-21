@@ -37,6 +37,17 @@ namespace Visindigo::Utility {
 	\value White 白色
 */
 /*!
+	\enum Visindigo::Utility::Console::Style
+	\since Visindigo 0.10.0
+	\value Normal 正常
+	\value Bold 粗体
+	\value Italic 斜体
+	\value Underline 下划线
+	\value Splash 闪烁
+	\value Inverse 反色
+	\value Strikethrough 删除线
+*/
+/*!
 	\since Visindigo 0.10.0
 	\a rawText 为要设置颜色的文本。
 	\a color 为颜色。
@@ -278,6 +289,7 @@ namespace Visindigo::Utility {
 	void Console::binary(const QByteArray& data) {
 		print(binaryToString(data));
 	}
+	
 	QString Console::binaryToString(const QByteArray& data) {
 		if (data.isEmpty()) { return QString(); }
 		QString result;

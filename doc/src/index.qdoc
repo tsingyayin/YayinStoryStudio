@@ -1,0 +1,32 @@
+/*!
+    \page index.html
+    \title Yayin Story Studio 文档首页
+    \brief Yayin Story Studio 的官方文档首页
+
+    欢迎使用 Yayin Story Studio 的官方文档！本页面提供了 Yayin Story Studio 的各个模块和功能的详细介绍，
+    这份官方文档更多的是面向开发者的，如果您是普通用户，建议参考 Yayin Story Studio 的用户手册。
+
+    如果您需要ASE教程，请另行参阅 \l {https://www.yuque.com/tsingyayin/ase/welcome}{ASE 官方文档 - 语雀} 。
+
+    \section1 模块介绍
+    Yayin Story Studio 由多个模块（子项目）构成
+    \list
+    \li Visindigo 模块：核心中的核心，提供最最基础的Qt封装和扩展功能。根命名空间即为 \l {Visindigo} {Visindigo} 。
+    \li YSSCore 模块：Yayin Story Studio 的核心模块，提供了Yayin Story Studio本体的基础功能。根命名空间为 YSSCore 。
+    \li YayinStoryStudio 模块：Yayin Story Studio 本体模块，YSS的GUI实现大多在此，根命名空间为YSS 。
+    Yayin Story Studio 没有太多文档，因为它基本上不作为开放API供外部使用。
+    \li YayinStoryPlayer 模块：一个WIP模块，暂时没有具体开发计划，原计划用于实现一个轻量级的故事播放器。
+    但由于开发者已经在参与ASE深度重构，因此该模块的开发计划被无限期搁置。
+    \li YSSInstaller 模块：一个WIP模块，暂时没有具体开发计划，用于实现YSS的更新与安装程序。
+    \endlist
+
+    \section1 贡献代码
+    Yayin Story Studio 在Github上开源，参见 \l {https://github.com/tsingyayin/YayinStoryStudio}{Yayin Story Studio Github 仓库} 。
+
+    不过目前YSS还没有准备好接受外部贡献（无论是考虑到目前暂时没有为此准备的工作流程，还是考虑到代码质量和项目稳定性），
+    因此如果您有兴趣为YSS贡献代码，请先联系开发者。
+
+    \section1 许可证
+    Yayin Story Studio中的每一个子项目均采用“一版一许可”的方式进行许可。在Github Release页面中，
+    每次发布新版本时，请自行留意对应source code中采用的许可证类型。许可证只对当前版本有效，未来版本可能会更改许可证类型。
+*/

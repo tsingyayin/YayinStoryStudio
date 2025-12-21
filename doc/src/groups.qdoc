@@ -1,0 +1,22 @@
+/*!
+    \group VDebug
+    \title VDebug日志系统子模块
+    \since Visindigo 0.13.0
+    \inmodule Visindigo
+    \brief VDebug是对Visindigo::General中的有关日志系统实现类的总称。
+
+    VDebug模块包含了Visindigo日志系统的核心实现类，包括Logger、LoggerManager和LoggerMsgHandler等。
+    这些类共同构成了一个功能强大且易于使用的日志系统，允许开发者在应用程序中方便地记录和管理日志消息。
+ 
+*/
+
+/*!
+    \group VPlugin
+    \title VPlugin插件系统子模块
+    \since Visindigo 0.13.0
+    \inmodule Visindigo
+    \brief VPlugin是对Visindigo::General中的有关插件系统实现类的总称。
+
+    VPlugin模块包含了Visindigo插件系统的核心实现类，包括Plugin、PluginManager等。
+    这些类共同构成了一个灵活且可扩展的插件系统，允许开发者为应用程序添加和管理插件，从而扩展应用程序的功能。
+*/

@@ -3,7 +3,7 @@ import os
 import datetime
 
 AutoVersionFilePath = "\\Visindigo\\General\\private\\AUTO_VERSION.h"
-VersionNickName = "Technical Preview 8"
+VersionNickName = "Technical Preview 9"
 
 def getCommitCount():
     gitCommitsCount = os.popen("git log --oneline | find /v /c \"\"").read()

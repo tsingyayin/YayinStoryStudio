@@ -31,7 +31,7 @@ namespace Visindigo::Widgets {
 				return TemplateSS[keys[0]]->getRawStyleSheet(keys[1]);
 			}
 			else {
-				yErrorF << "StyleSheetTemplate not found for key:" << key;
+				vgErrorF << "StyleSheetTemplate not found for key:" << key;
 				return QString();
 			}
 		}
@@ -44,7 +44,7 @@ namespace Visindigo::Widgets {
 				return TemplateSS[keys[0]]->getStyleSheet(keys[1], config, getter);
 			}
 			else {
-				yErrorF << "StyleSheetTemplate not found for key:" << key;
+				vgErrorF << "StyleSheetTemplate not found for key:" << key;
 				return QString();
 			}
 		}
@@ -61,7 +61,7 @@ namespace Visindigo::Widgets {
 	ThemeManager::ThemeManager(QObject* parent) : QObject(parent) {
 		d = new ThemeManagerPrivate();
 		d->Instance = this;
-		ySuccessF << "Success!";
+		vgSuccessF << "Success!";
 	}
 	ThemeManager* ThemeManager::getInstance() {
 		return ThemeManagerPrivate::Instance;
@@ -94,7 +94,7 @@ namespace Visindigo::Widgets {
 			return QColor(color);
 		}
 		else {
-			yErrorF << "No such key" << key;
+			vgErrorF << "No such key" << key;
 			return QColor("#ED1C24");
 		}
 	}
@@ -104,7 +104,7 @@ namespace Visindigo::Widgets {
 			return color;
 		}
 		else {
-			yErrorF << "No such key" << key;
+			vgErrorF << "No such key" << key;
 			return "#ED1C24";
 		}
 	}

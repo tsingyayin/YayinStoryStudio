@@ -1,5 +1,5 @@
 #pragma once
-#include <QtCore/qthread.h>
+#include <QThread>
 #include <functional>
 #include <tuple>
 namespace Visindigo::Utility {

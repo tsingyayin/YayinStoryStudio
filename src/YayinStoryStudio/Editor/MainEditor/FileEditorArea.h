@@ -28,5 +28,6 @@ namespace YSS::Editor {
 		virtual void showEvent(QShowEvent* event) override;
 	private:
 		void onStackBarLabelChanged(StackBarLabel* label);
+		void onStackBarLabelChangedWithLineNumber(StackBarLabel* label, quint32 lineNumber);
 	};
 }

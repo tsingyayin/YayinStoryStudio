@@ -9,6 +9,7 @@ namespace Visindigo::General {
 	class Plugin;
 	class PluginManager;
 	class PluginModule;
+	class Logger;
 }
 namespace Visindigo::__Private__ {
 	class PluginPrivate {
@@ -26,6 +27,7 @@ namespace Visindigo::__Private__ {
 		QString PluginExtensionID;
 		Visindigo::Utility::JsonConfig Config;
 		QList<Visindigo::General::PluginModule*> Modules;
+		Visindigo::General::Logger* Logger = nullptr;
 	protected:
 		void initializePluginFolder(const QDir& baseDir);
 		bool enablePlugin();

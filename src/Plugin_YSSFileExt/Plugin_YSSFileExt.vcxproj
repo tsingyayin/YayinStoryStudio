@@ -72,6 +72,7 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSFileExt_EXPORT</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -80,6 +81,7 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSFileExt_EXPORT</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">

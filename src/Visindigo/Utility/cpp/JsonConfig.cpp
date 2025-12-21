@@ -217,7 +217,7 @@ namespace Visindigo::Utility {
 		\inmodule Visindigo
 		\brief VIJsonConfig定义了对Json配置的操作。
 		\since Visindigo 0.10.0
-		\sa JsonDocument QJsonObject QJsonValue
+		\sa Visindigo::Utility::JsonDocument QJsonObject QJsonValue
 
 		VIJsonConfig提供对Json配置的读写操作，可以通过此类构建基于Json的配置。一般来说
 		不需要直接使用此类，请改用VIJsonDocument。VIJsonDocument提供从文件直接读写Json，
@@ -356,7 +356,7 @@ namespace Visindigo::Utility {
 	QJsonParseError JsonConfig::parse(const QString& jsonStr)
 	{
 		if (jsonStr.startsWith(":") || jsonStr.startsWith(".") || jsonStr.startsWith("/")) {
-			yWarningF << "May be input is file path, got " << jsonStr << ". This function only accepts Json string.";
+			vgWarningF << "May be input is file path, got " << jsonStr << ". This function only accepts Json string.";
 		}
 		QJsonParseError error;
 		d->JsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8(), &error);

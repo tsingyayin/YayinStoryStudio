@@ -6,7 +6,7 @@
 #include <General/Log.h>
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
-
+#include "General/YSSLogger.h"
 namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
@@ -62,7 +62,7 @@ namespace YSSCore::General {
 		}
 		else {
 			if (!Visindigo::Utility::FileUtility::isDirEmpty(folder)) {
-				yError << "Project folder is not empty:" << folder;
+				yErrorF << "Project folder is not empty:" << folder;
 				return false;
 			}
 		}
@@ -139,7 +139,7 @@ namespace YSSCore::General {
 	}
 	void YSSProject::setFocusedFile(const QString& abs_filePath) {
 		if (!Visindigo::Utility::FileUtility::isFileExist(abs_filePath)) {
-			yError << "File not exist:" << abs_filePath;
+			yErrorF << "File not exist:" << abs_filePath;
 			return;
 		}
 		QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), abs_filePath);

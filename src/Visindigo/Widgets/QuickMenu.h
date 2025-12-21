@@ -22,11 +22,20 @@ namespace Visindigo::Widgets {
 	};
 }
 // Helper macros
+#define STRINGIFY(x) #x
+#define JOINSTR(a, b) a ## b
+
 #define HandlerNode(ClassName, NodeName) \
 public: \
 	ClassName(QObject* parent = nullptr) : QObject(parent) { \
 		this->setObjectName(NodeName); \
 		__createSub(); \
 	}
+
 #define SubNodes\
 	void __createSub()
+
+#define ActionVisibleSignal(nodeName)\
+	void JOINSTR(nodeName, _VisibleChanged)(bool visible);
+
+#define setActionVisible(nodeName, visble) JOINSTR(nodeName, _VisibleChanged)(visble)

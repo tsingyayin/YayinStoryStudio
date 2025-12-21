@@ -4,7 +4,7 @@
 #include "../FileServerManager.h"
 #include "../FileServer.h"
 #include "../TextEdit.h"
-
+#include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
@@ -17,7 +17,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::FileServerManager
-		\inmodule Visindigo
+		\inmodule YSSCore
 		\since Visindigo 0.13.0
 		\brief 管理FileServer的对象。
 

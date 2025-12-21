@@ -52,6 +52,7 @@ namespace Visindigo::General
 
 	/*!
 		\class Visindigo::General::Translator
+		\inheaderfile General/Translator.h
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 		\brief Visindigo的翻译功能类，用于替代Qt自带的翻译功能。
@@ -163,7 +164,7 @@ namespace Visindigo::General
 
 	/*!
 		\since Visindigo 0.13.0
-		翻译键名为\a key的文本，并返回翻译结果。如果当前语言和默认语言均缺少该键名的翻译，则返回原键名。
+		翻译键名为\a key 的文本，并返回翻译结果。如果当前语言和默认语言均缺少该键名的翻译，则返回原键名。
 	*/
 	QString Translator::tr(const QString& key) {
 		if (d->Lang == nullptr && d->DefaultLang == nullptr) [[unlikely]] {

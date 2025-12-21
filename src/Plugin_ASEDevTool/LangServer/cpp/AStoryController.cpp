@@ -104,17 +104,17 @@ void AStoryController::setControllerASRule(const QString& rule) {
 	if (index != rule.length()) {
 		d->SyntaxSigns.append(rule.mid(index));
 	}
-	//yDebugF << "Parsing rule:" << rule;
+	//vgDebugF << "Parsing rule:" << rule;
 	if (!rule.startsWith("__")) {
 		d->StartSign = d->SyntaxSigns.first();
 		d->SyntaxSigns.removeFirst();
-		//yDebugF << "Start sign detected:" << d->StartSign;
+		//vgDebugF << "Start sign detected:" << d->StartSign;
 	}
 	else {
-		//yDebugF << "No start sign detected, maybe a speak controller";
+		//vgDebugF << "No start sign detected, maybe a speak controller";
 	}
-	//yDebugF << "Rule" << toNameString(d->Name) << "has" << d->ParameterOrder.size() << "parameters:" << d->ParameterOrder;
-	//yDebugF << "Syntax signs:" << d->SyntaxSigns;
+	//vgDebugF << "Rule" << toNameString(d->Name) << "has" << d->ParameterOrder.size() << "parameters:" << d->ParameterOrder;
+	//vgDebugF << "Syntax signs:" << d->SyntaxSigns;
 	d->DefaultParameterTypes.clear();
 	for (auto order : d->ParameterOrder) {
 		QString stype = d->RuleMeta.getString(order + ".Type");
@@ -137,7 +137,7 @@ void AStoryController::setControllerMeta(Visindigo::Utility::JsonConfig& meta) {
 
 QList<ASEParameter::Type> AStoryController::getDefaultParameterTypes() {
 	if (d->DefaultParameterTypes.isEmpty()) {
-		yWarning << "Default parameter types are empty for controller" << d->Name;
+		vgWarning << "Default parameter types are empty for controller" << d->Name;
 	}
 	return d->DefaultParameterTypes;
 }
@@ -148,7 +148,7 @@ AStoryController::Name AStoryController::getControllerName() {
 
 QStringList AStoryController::getDefaultParameterNames() {
 	if (d->ParameterOrder.isEmpty()) {
-		yWarning << "Parameter order is empty for controller" << d->Name;
+		vgWarning << "Parameter order is empty for controller" << d->Name;
 	}
 	return d->ParameterOrder;
 }
@@ -187,7 +187,7 @@ AStoryControllerParseData AStoryController::parse(const QString& input) {
 		d->ParseData.d->addStartIndex(removedLength);
 		result.append(protectedInput);
 	}
-	// yDebug << "Protected split finished" << d->Name << ":" << result;
+	// vgDebugF << "Protected split finished" << d->Name << ":" << result;
 	QStringList rtn;
 	for (int i = 0; i < result.size(); i++) {
 		QRegularExpression regex("▲★▲\\d+▲★▲");
@@ -200,7 +200,7 @@ AStoryControllerParseData AStoryController::parse(const QString& input) {
 		int delta = replaced.size() - rawSize;
 		if (delta != 0) {
 			replaced = "&{" + replaced + "}";
-			//yDebugF << "Delta" << delta << "Detected";
+			//vgDebugF << "Delta" << delta << "Detected";
 			if (i + 1 != result.size()) {
 				for (int j = i + 1; j < result.size(); j++) {
 					d->ParseData.d->StartIndex[j] += delta + 3; // 3 for &{}

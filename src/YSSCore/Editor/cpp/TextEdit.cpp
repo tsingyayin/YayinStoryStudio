@@ -17,6 +17,7 @@
 #include "../LangServer.h"
 #include "../LangServerManager.h"
 #include "../TabCompleterProvider.h"
+#include "General/YSSLogger.h"
 
 namespace YSSCore::__Private__ {
 	TextEditPrivate::~TextEditPrivate() {
@@ -421,6 +422,29 @@ namespace YSSCore::Editor {
 		delete d;
 	}
 
+	void TextEdit::setPlainText(const QString& text) {
+		d->Text->setPlainText(text);
+	}
+
+	QString TextEdit::getPlainText() const {
+		return d->Text->toPlainText();
+	}
+
+	void TextEdit::moveCursorToLine(int lineNumber) {
+		if (lineNumber < 1 || lineNumber > d->Text->document()->blockCount()) {
+			return;
+		}
+		QTextCursor cursor = d->Text->textCursor();
+		cursor.movePosition(QTextCursor::Start);
+		cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, lineNumber - 1);
+		d->Text->setTextCursor(cursor);
+	}
+
+	int TextEdit::getCurrentLineNumber() const {
+		QTextCursor cursor = d->Text->textCursor();
+		return cursor.block().blockNumber() + 1;
+	}
+
 	bool TextEdit::eventFilter(QObject* obj, QEvent* event) {
 		if (obj == d->Text) {
 			if (event->type() == QEvent::KeyPress) {
@@ -500,7 +524,7 @@ namespace YSSCore::Editor {
 		//highlighter 应在 setText之前，否则会触发两次textChanged
 		QFile file(path);
 		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			yErrorF << "Failed to open file:" << path;
+			vgErrorF << "Failed to open file:" << path;
 			return false;
 		}
 		QTextStream in(&file);
@@ -543,7 +567,7 @@ namespace YSSCore::Editor {
 	bool TextEdit::onSave(const QString& path) {
 		QFile file(path);
 		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-			yErrorF << "Failed to save file:" << path;
+			vgErrorF << "Failed to save file:" << path;
 			return false;
 		}
 		file.write(d->Text->toPlainText().toUtf8());

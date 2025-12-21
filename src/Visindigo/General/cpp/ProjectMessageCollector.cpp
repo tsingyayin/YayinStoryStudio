@@ -7,6 +7,14 @@ namespace Visindigo::General {
 		static ProjectMessageCollector* Instance;
 	};
 	ProjectMessageCollector* ProjectMessageCollectorPrivate::Instance = nullptr;
+
+	/*!
+		\class Visindigo::General::ProjectMessageCollector
+		\brief 项目消息收集器单例类。
+		\inmodule Visindigo
+		
+		\warning 此类没有完全开发，也没有更好的优化方案，随时可能被废弃或替换。
+	*/
 	ProjectMessageCollector::ProjectMessageCollector() {
 		d = new ProjectMessageCollectorPrivate();
 		if (ProjectMessageCollectorPrivate::Instance == nullptr) {

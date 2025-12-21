@@ -107,7 +107,7 @@ void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 			int startIndex = parseData.getStartIndex()[i];
 			QString parameter = parseData.getParameters()[i];
 			ASEParameter::Type type = parseData.getParameterTypes()[i];
-			//yDebugF << startIndex << parameter << ASEParameter::typeToString(type);
+			//vgDebugF << startIndex << parameter << ASEParameter::typeToString(type);
 			setFormatWithParaType(startIndex, parameter.length(), ASEParameter::typeToString(type));
 		}
 	}

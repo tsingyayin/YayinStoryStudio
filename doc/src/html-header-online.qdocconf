@@ -1,0 +1,103 @@
+# HTML Header with qt.io branding and online links
+
+HTML.stylesheets = template/style/online.css \
+                   template/style/cookie-confirm.css \
+                   template/style/gsc.css \
+                   template/style/list_arrow.png \
+                   template/style/list_expand.png \
+                   template/style/icomoon.eot \
+                   template/style/icomoon.svg \
+                   template/style/icomoon.ttf \
+                   template/style/icomoon.woff \
+                   template/style/cookiebar-x.png \
+                   template/style/doc_search.png \
+                   template/style/tech_preview.svg \
+                   template/style/theqtcompany.png
+
+
+#for including files into the qch file. Relative to the outputdir of a QDoc build.
+qhp.extraFiles += style/online.css \
+                  style/cookie-confirm.css \
+                  style/gsc.css \
+                  style/list_arrow.png \
+                  style/list_expand.png \
+                  style/icomoon.eot \
+                  style/icomoon.svg \
+                  style/icomoon.ttf \
+                  style/icomoon.woff \
+                  style/cookiebar-x.png \
+                  style/doc_search.png \
+                  style/tech_preview.svg \
+                  style/theqtcompany.png
+
+HTML.headerstyles = \
+    "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/online.css\" />\n" \
+    "  <link rel=\"shortcut icon\" href=\"//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/assets/images/favicon.ico.gzip\" />\n"
+
+HTML.headerscripts = \
+    "  <script type=\"text/javascript\"> wpThemeFolder = \'http://qt.io/wp-content/themes/oneqt\'; </script>\n" \
+    "  <script type=\"text/javascript\" src=\"//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery.js.gzip\"></script>\n" \
+    "  <script type=\"text/javascript\" src=\"//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery-migrate.min.js.gzip\"></script>\n" \
+    "  <script type=\"text/javascript\" src=\"//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/js/combo.js.gzip\"></script>\n" \
+    "  <script type=\"text/javascript\" src=\"scripts/main.js\"></script>\n" \
+    "  <script type=\"text/javascript\" src=\"scripts/extras.js\"></script>\n" \
+    "  <script type=\"text/javascript\">\n" \
+    "  \$(function(){\n" \
+    "     \$(\"#footer\").load(\"/style/qt-footer.html\");\n" \
+    "     \$(\"#sidebar-content\").load(\"style/qt5-sidebar.html\");\n" \
+    "  });\n" \
+    "  </script>\n" 
+
+HTML.scripts = template/scripts/extras.js \
+               template/scripts/main.js
+
+HTML.endheader = \
+    "</head>\n"
+
+# minimal header
+HTML.postheader = \
+    "<body>\n" \
+    "<style>\n" \
+    "  .yss-topbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #0b1a2b; color: #fff; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }\n" \
+    "  .yss-topbar .brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; }\n" \
+    "  .yss-topbar .brand img { height: 32px; width: auto; display: block; }\n" \
+    "  .yss-topbar .actions { display: flex; align-items: center; gap: 10px; }\n" \
+    "  .yss-topbar .actions a { padding: 8px 12px; color: #fff; text-decoration: none; font-size: 14px; transition: background 0.2s ease, transform 0.2s ease; }\n" \
+    "  .yss-topbar .actions a:hover { background: #1576c5; transform: translateY(-1px); }\n" \
+    "  .main { padding-top: 80px; }\n" \
+    "</style>\n" \
+    "<div class=\"header\" id=\"tmpl_header\">\n" \
+    "<header class=\"\" id=\"navbar\"><div id=\"cookie-confirmation\" style=\"display:none\"><div id=\"cookie-confirmation-inner\"><p>We bake cookies in your browser for a better experience.  Using this site means that you consent.\n" \
+    "<a href=\"https://www1.qt.io/terms-conditions/ \">Read more</a></p><div id=\"cookie-confirmation-buttons-area\"><a href=\"#\" id=\"confirmation-button\">Continue »</a>\n" \
+    "</div></div>\n" \
+    "<script>\n" \
+    "    $('#confirmation-button').on('click', function() { $('#cookie-confirmation').fadeOut(); createCookie(\"cookies_nom\", \"yum\", 180); });\n" \
+    "    if (!(readCookie('cookies_nom') == 'yum')) { $('#cookie-confirmation').fadeIn(); }\n" \
+    "</script>\n" \
+    "</div>\n" \
+    "</header>\n" \
+    "</div>\n" \
+    "<div class=\"yss-topbar\">\n" \
+    "  <div class=\"brand\">\n" \
+    "    <img src=\"images/logo.png\" alt=\"Yayin Story Studio logo\" />\n" \
+    "    <span>Yayin Story Studio 项目文档</span>\n" \
+    "  </div>\n" \
+    "  <div class=\"actions\">\n" \
+    "    <a href=\"index.html\">回到主页</a>\n" \
+    "    <a href=\"https://yuque.com/tsingyayin/yss\" target=\"_blank\" rel=\"noopener\">用户手册</a>\n" \
+    "  </div>\n" \
+    "</div>\n" \
+    "<div class=\"main\">\n" \
+    "<div class=\"main-rounded\">\n" \
+    "<div class=\"navigationbar\">\n" \
+    "    <ul>\n"
+
+HTML.postpostheader = \
+    "    </ul>\n" \
+    "</div>\n" \
+    "<div class=\"content\">\n" \
+    "    <div class=\"line\">\n" \
+    "        <div class=\"content mainContent\">\n"
+
+HTML.prologue = \
+    "<div class=\"context\">\n"

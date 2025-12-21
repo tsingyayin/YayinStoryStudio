@@ -137,6 +137,15 @@
     <ClCompile Include="General\cpp\PluginManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\LogMetaData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\StacktraceHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\Exception_StdCast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -256,6 +265,15 @@
     <ClInclude Include="General\private\VIApplication_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\private\LoggerMsgHandlerDataPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\LogMetaData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\StacktraceHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -307,6 +325,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\LoggerManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\DragWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

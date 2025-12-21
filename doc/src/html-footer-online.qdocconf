@@ -1,0 +1,19 @@
+# HTML footer for qt.io
+
+HTML.footer += \
+    "</div>\n" \
+    "</div>\n" \
+    "</div>\n" \
+    "</div>\n" \
+    "</div>\n" \
+    "<div id=\"footer\">\n" \
+        "<footer id=\"footerbar\">\n" \
+        "<div class=\"disclaimer\">\n" \
+        "<div class=\"container clearfix no_discs\">\n" \
+        "    <ul id=\"menu-footer-submenu\" class=\"right clearfix\">" \
+        "      <li id=\"menu-item-4472\" class=\"menu-item menu-item-type-custom menu-item-object-custom menu-item-4472\"><a href=\"https://github.com/tsingyayin\">Created by Tsing Yayin</a></li>\n" \
+        "    </ul>\n" \
+        "</div>\n" \
+        "</div>\n" \
+    "</footer>\n" \
+    "</div>\n"

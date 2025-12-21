@@ -1,0 +1,40 @@
+/*!
+    \page v_pimpl.html
+    \title Visindigo中的PIMPL设计模式
+    \brief Visindigo PIMPL设计模式文档
+    \since Visindigo 0.13.0
+    \inmodule Visindigo
+
+    \section1 什么是PIMPL设计模式
+    PIMPL（Pointer to IMPLementation）设计模式，也称为“编译器防火墙”或“信息隐藏”模式，
+    是一种C++编程技术，用于将类的接口与其实现细节分离。 通过这种方式，可以隐藏类的实现细节，
+    从而减少编译依赖性，提高编译速度，并增强二进制兼容性。(甚至时至今日，主要是增强二进制兼容性)
+
+    这种设计模式将全部数据成员都藏在一个单独的私有实现类中，并通过一个指向该类的指针（通常命名为d指针）进行访问。
+    这样，类的用户只需要知道接口，而不需要了解实现细节。
+
+    而私有类如果需要调用外部类（API类）的方法或访问其成员，则可以将外部类声明为友元类，并通过一个
+    q指针访问外部类。
+
+    \section1 Qt中的PIMPL设计模式
+    Qt框架广泛使用PIMPL设计模式来实现其类库。 这种模式使得Qt能够在不破坏二进制兼容性的情况下进行内部更改和优化。
+    通过将实现细节隐藏在私有类中，Qt可以在不影响公共API的情况下修改其内部实现。 这对于一个像Qt这样的大型框架尤为重要，
+    因为它允许开发人员在不强制用户重新编译其应用程序的情况下进行改进和修复。
+
+    Qt使用d_ptr和q_ptr指针实现PIMPL设计模式，并在内部使用一些特殊的宏实现了对d_ptr和q_ptr在继承时
+    的正确访问。
+
+    \section1 Visindigo中的PIMPL设计模式
+    由于Visinidgo大量借鉴了Qt的设计理念，因此Visindigo也采用了PIMPL设计模式来实现其类库。 通过使用PIMPL设计模式，
+    Visindigo能够实现与Qt类似的二进制兼容性和编译器防火墙功能。
+
+    但由于Visindigo没有Qt那样复杂，因此Visindigo没有单独为继承和派生设计相关的q_ptr和d_ptr的转换指针，
+    目前有限范围内的使用均通过手动转换实现。
+
+    \section1 Visindigo中的PIMPL宏
+    为了简化PIMPL设计模式的使用，Visindigo提供了一些宏来帮助开发人员更轻松地实现PIMPL设计模式。参见
+    \l {<Visindigo/VIMacro.h>}{VIMacro.h} 文档中的相关宏说明。
+
+    如果要为Visindigo贡献代码，则必须完全遵守PIMPL设计模式的使用规范。如果只是开发基于Visindigo的应用程序或插件，
+    则无需了解PIMPL设计模式的细节，也不强制要求使用PIMPL设计模式。
+*/

@@ -9,18 +9,18 @@
 #include <QtGui/qcolor.h>
 #include <General/Log.h>
 #include <General/YSSProject.h>
-
+#include <General/YSSLogger.h>
 namespace YSS {
 	GlobalValue* GlobalValue::Instance = nullptr;
 	GlobalValue::GlobalValue() {
 		Instance = this;
-		yMessage << "Program global value initializing";
+		yMessageF << "Program global value initializing";
 		PathMacro = new Visindigo::Utility::PathMacro();
 		Theme = new Visindigo::Widgets::ThemeManager(this);
 		loadConfig();
 		YSSTranslator = new YSS::Editor::YSSTranslator();
 		Visindigo::General::TranslationHost::getInstance()->active(YSSTranslator);
-		ySuccess << "Program global value initialized !";
+		ySuccessF << "Program global value initialized !";
 		//PluginManager = new YSSCore::Editor::EditorPluginManager();
 		//PluginManager->loadAllPlugin();
 		//PluginManager->enableAllPlugin();
@@ -44,7 +44,7 @@ namespace YSS {
 				ySuccessF << "saved";
 			}
 			else {
-				yErrorF << "failed";
+				vgErrorF << "failed";
 			}
 		}
 	}
@@ -69,7 +69,7 @@ namespace YSS {
 			ySuccessF << "success";
 		}
 		else {
-			yErrorF << "failed";
+			vgErrorF << "failed";
 		}
 		Theme->loadConfig("./resource/theme/config/" + Config->getString("Preference.Theme") + ".json");
 	}

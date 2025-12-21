@@ -1,10 +1,8 @@
 #pragma once
 #include <QtCore/qstring.h>
-#include "../Logger.h"
-
-namespace Visindigo::General {
-	class LoggerMsgHandler;
-}
+#include "General/Logger.h"
+#include "General/LogMetaData.h"
+#include "General/StacktraceHelper.h"
 
 namespace Visindigo::__Private__ {
 	/*
@@ -16,5 +14,7 @@ namespace Visindigo::__Private__ {
 		Visindigo::General::Logger* Logger;
 		QString Msg;
 		Visindigo::General::Logger::Level Level;
+		Visindigo::General::LogMetaData MetaData;
+		QList<Visindigo::General::StacktraceFrame> Stacktrace;
 	};
 }

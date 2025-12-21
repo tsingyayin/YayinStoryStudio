@@ -1,7 +1,8 @@
 #include "../ASELaunchArgu.h"
 #include <QtCore/qstring.h>
 #include <Utility/JsonConfig.h>
-
+#include <General/StacktraceHelper.h>
+#include <General/Log.h>
 class ASELaunchArguPrivate {
 	public:
 	QString workingFolder;
@@ -13,7 +14,8 @@ ASELaunchArgu::ASELaunchArgu()
 	: d(new ASELaunchArguPrivate()) {
 	d->workingFolder = "";
 	d->mainFileName = "";
-	d->sizeMode = SizeMode::W1600H900;
+	d->sizeMode = SizeMode::W1368H768;
+	vgDebugF << Visindigo::General::StacktraceHelper::getStacktrace();
 }
 
 ASELaunchArgu::ASELaunchArgu(const QString& workingFolder, const QString& mainFileName, SizeMode mode)
