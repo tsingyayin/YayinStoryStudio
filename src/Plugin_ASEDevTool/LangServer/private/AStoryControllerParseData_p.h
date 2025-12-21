@@ -18,6 +18,8 @@ protected:
 	QList<ASEParameter::Type> ParameterTypes;
 	QStringList Parameters;
 	QStringList ParameterNames;
+	QString CursorInWhichParameter;
+
 	void addStartIndex(int index) {
 		StartIndex.append(index);
 	}
@@ -42,5 +44,6 @@ protected:
 	void clearParseData() {
 		Parameters.clear();
 		StartIndex.clear();
+		CursorInWhichParameter.clear();
 	}
 };

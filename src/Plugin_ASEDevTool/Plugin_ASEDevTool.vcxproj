@@ -203,6 +203,7 @@
     <ClCompile Include="FileServer\cpp\FS_ASRule.cpp" />
     <ClCompile Include="FileServer\cpp\FS_AStory.cpp" />
     <ClCompile Include="FileTemplateProvider\cpp\ASEAStoryFTP.cpp" />
+    <ClCompile Include="LangServer\cpp\ASEHoverInfoProvider.cpp" />
     <ClCompile Include="LangServer\cpp\ASRuleAdaptor.cpp" />
     <ClCompile Include="LangServer\cpp\ASEParameter.cpp" />
     <ClCompile Include="LangServer\cpp\AStoryController.cpp" />
@@ -232,6 +233,7 @@
     <QtMoc Include="Plugin_ASEDevTool.h" />
     <QtMoc Include="LangServer\AStoryHighlighter.h" />
     <ClInclude Include="LangServer\AStoryControllerParseData.h" />
+    <QtMoc Include="LangServer\ASEHoverInfoProvider.h" />
     <ClInclude Include="LangServer\private\AStoryControllerParseData_p.h" />
     <ClInclude Include="Macro.h" />
   </ItemGroup>

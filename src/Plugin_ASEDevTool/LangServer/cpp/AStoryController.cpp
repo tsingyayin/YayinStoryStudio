@@ -153,7 +153,7 @@ QStringList AStoryController::getDefaultParameterNames() {
 	return d->ParameterOrder;
 }
 
-AStoryControllerParseData AStoryController::parse(const QString& input) {
+AStoryControllerParseData AStoryController::parse(const QString& input, qint32 cursorIndex) {
 	static QRegularExpression protect("&\\{[\\d\\D]*?\\}");
 	d->ParseData.d->clearParseData();
 	QRegularExpressionMatchIterator protectIt = protect.globalMatch(input);
@@ -209,8 +209,17 @@ AStoryControllerParseData AStoryController::parse(const QString& input) {
 		}
 		rtn.append(replaced);
 	}
+	if (cursorIndex != -1) {
+		for (int i = 0; i < d->ParseData.d->StartIndex.size(); i++) {
+			if (cursorIndex >= d->ParseData.d->StartIndex[i] &&
+				cursorIndex <= d->ParseData.d->StartIndex[i] + rtn[i].length()) {
+				d->ParseData.d->CursorInWhichParameter = d->ParseData.d->ParameterNames[i];
+				break;
+			}
+		}
+	}
 	d->ParseData.d->setParameters(rtn);
-	d->ParseData.d->setParameterNames(d->ParameterOrder);
+	
 	if (d->Name == AStoryController::Name::speak) {
 		d->speakControllerSpecial(&d->ParseData);
 	}

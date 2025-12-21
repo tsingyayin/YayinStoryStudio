@@ -11,8 +11,8 @@
 #include "../TabCompleterProvider.h"
 #include "General/YSSLogger.h"
 namespace YSSCore::__Private__ {
-	TabCompleterWidget::TabCompleterWidget(QTextEdit* textEdit, QWidget* parent)
-		: QFrame(parent) {
+	TabCompleterWidget::TabCompleterWidget(QTextEdit* textEdit)
+		: QFrame(textEdit) {
 		this->TextEdit = textEdit;
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
 		this->setFocusPolicy(Qt::NoFocus);

@@ -11,13 +11,16 @@
 #include <QtWidgets/qtextbrowser.h>
 #include <Widgets/ThemeManager.h>
 #include <General/Log.h>
-#include "../private/TextEdit_p.h"
-#include "../private/TabCompleterProvider_p.h"
-#include "../TextEdit.h"
-#include "../LangServer.h"
-#include "../LangServerManager.h"
-#include "../TabCompleterProvider.h"
+#include "Editor/private/TextEdit_p.h"
+#include "Editor/private/TabCompleterProvider_p.h"
+#include "Editor/private/HoverInfoProvider_p.h"
+#include "Editor/TextEdit.h"
+#include "Editor/LangServer.h"
+#include "Editor/LangServerManager.h"
+#include "Editor/TabCompleterProvider.h"
+#include "Editor/HoverInfoProvider.h"
 #include "General/YSSLogger.h"
+#include <QtCore/qtimer.h>
 
 namespace YSSCore::__Private__ {
 	TextEditPrivate::~TextEditPrivate() {
@@ -76,6 +79,7 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onCursorPositionChanged() {
 		onCompleter();
+		onHoverInfo(false);
 		QTextCursor cursor = Text->textCursor();
 		int index = cursor.block().blockNumber();
 		if (index == LastCursorLine) {
@@ -332,6 +336,61 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
+		HoverTimer->start(HoverTimeout);
+		if (HoverInfoWidget!= nullptr && HoverInfoWidget->isVisible()) {
+			HoverInfoWidget->hide();
+		}
+	}
+
+	void TextEditPrivate::onHoverTimeout() {
+		onHoverInfo(true);
+	}
+
+	void TextEditPrivate::onHoverInfo(bool triggeFromHover) {
+		if (HoverInfoProvider != nullptr) {
+			QPoint pos = QCursor::pos();
+			HoverInfoProvider->d->HoverSetSth = false;
+			if (!Text->viewport()->rect().contains(Text->mapFromGlobal(pos))) {
+				HoverTimer->stop();
+				HoverInfoWidget->hide();
+				return;
+			}
+			HoverInfoProvider->d->TriggerFromHover = triggeFromHover;
+			QTextCursor cursor = Text->cursorForPosition(Text->mapFromGlobal(pos));
+			QString content = cursor.block().text();
+			int position = cursor.positionInBlock();
+			HoverInfoProvider->onMouseHover(content, position);
+			if (!HoverInfoProvider->d->HoverSetSth) {
+				HoverInfoWidget->hide();
+			}
+			else {
+				switch (HoverInfoProvider->d->CurrentFormat) {
+					case YSSCore::Editor::HoverInfoProvider::PlainText:
+						HoverInfoWidget->setPlainText(HoverInfoProvider->d->Content);
+						break;
+					case YSSCore::Editor::HoverInfoProvider::Markdown:
+						HoverInfoWidget->setMarkdown(HoverInfoProvider->d->Content);
+						break;
+					case YSSCore::Editor::HoverInfoProvider::Html:
+						HoverInfoWidget->setHtml(HoverInfoProvider->d->Content);
+						break;
+					default:
+						HoverInfoWidget->setPlainText(HoverInfoProvider->d->Content);
+						break;
+				}
+				HoverInfoWidget->show();
+				if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
+					QRect tpos = TabCompleterWidget->geometry();
+					HoverInfoWidget->move(tpos.x() + tpos.width(), tpos.y());
+				}
+				else {
+					QRect lpos = Text->cursorRect(cursor);
+					HoverInfoWidget->move(QPoint(lpos.x() + 10, lpos.y() + 20));
+				}
+			}
+			HoverTimer->stop();
+
+		}
 	}
 
 	void TextEditPrivate::onScrollBarChanged(int value) {
@@ -381,7 +440,7 @@ namespace YSSCore::Editor {
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		d = new YSSCore::__Private__::TextEditPrivate;
 		this->setMinimumSize(800, 600);
-
+		this->setMouseTracking(true);
 		d->Font = QFont("Microsoft YaHei");
 		d->FontMetrics = new QFontMetricsF(d->Font);
 
@@ -398,6 +457,8 @@ namespace YSSCore::Editor {
 		d->Text->setTabStopDistance(qMax(20.0, d->TabWidth * d->FontMetrics->size(Qt::TextSingleLine, " ").width()));
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
 		d->Text->installEventFilter(this);
+		d->Text->viewport()->setMouseTracking(true);
+		d->Text->viewport()->installEventFilter(this);
 
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->addWidget(d->Line);
@@ -408,11 +469,15 @@ namespace YSSCore::Editor {
 		d->LastCursor = d->Line->textCursor();
 		d->LastCursor.movePosition(QTextCursor::Start);
 		d->LastCursorLine = 0;
+
+		d->HoverTimer = new QTimer(this);
+		d->HoverTimer->setInterval(d->HoverTimeout);
 		connect(d->Text->document(), &QTextDocument::blockCountChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onBlockCountChanged);
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
+		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
 	}
 	/*!
 		\since Visindigo 0.13.0
@@ -470,7 +535,9 @@ namespace YSSCore::Editor {
 					return false;
 				}
 			}
-			else if (event->type() == QEvent::MouseMove) {
+		}
+		else if (obj == d->Text->viewport()) {
+			if (event->type() == QEvent::MouseMove) {
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 				d->onMouseMove(mouseEvent);
 				return false;
@@ -485,6 +552,7 @@ namespace YSSCore::Editor {
 			d->TabCompleterWidget->hide();
 		}
 	}
+
 	void TextEdit::closeEvent(QCloseEvent* event) {
 		if (onClose()) {
 			event->accept();
@@ -492,6 +560,9 @@ namespace YSSCore::Editor {
 		else {
 			event->ignore();
 		}
+	}
+
+	void TextEdit::mouseMoveEvent(QMouseEvent* event) {
 	}
 
 	/*!
@@ -515,7 +586,14 @@ namespace YSSCore::Editor {
 				delete d->TabCompleterWidget;
 			}
 			if (d->TabCompleter != nullptr) {
-				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text, d->Text);
+				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text);
+			}
+			d->HoverInfoProvider = server->createHoverInfoProvider(d->Text->document());
+			if (d->HoverInfoWidget != nullptr) {
+				delete d->HoverInfoWidget;
+			}
+			if (d->HoverInfoProvider != nullptr) {
+				d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
 			}
 		}
 		else {

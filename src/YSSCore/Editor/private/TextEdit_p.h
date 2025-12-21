@@ -2,26 +2,29 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qtextcursor.h>
+#include <QtCore/qpoint.h>
 // Forward declarations
 namespace YSSCore::Editor {
 	class TextEdit;
 	class TabCompleterProvider;
+	class HoverInfoProvider;
 }
 class QTextEdit;
 class QHBoxLayout;
 class QFontMetricsF;
 class QSyntaxHighlighter;
-class HoverTip;
 class QKeyEvent;
 class QMouseEvent;
 namespace YSSCore::__Private__ {
 	class TabCompleterWidget;
+	class HoverInfoWidget;
 }
 // Main Implementation
 namespace YSSCore::__Private__ {
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TextEdit;
+		friend class YSSCore::Editor::HoverInfoProvider;
 	protected:
 		QTextEdit* Line = nullptr;
 		QTextEdit* Text = nullptr;
@@ -35,8 +38,11 @@ namespace YSSCore::__Private__ {
 		QSyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::TabCompleterProvider* TabCompleter = nullptr;
 		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
+		YSSCore::Editor::HoverInfoProvider* HoverInfoProvider = nullptr;
+		YSSCore::__Private__::HoverInfoWidget* HoverInfoWidget = nullptr;
 		bool ReloadTab = true;
-		HoverTip* Hover = nullptr;
+		qint32 HoverTimeout = 800;
+		QTimer* HoverTimer = nullptr;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	protected:
@@ -47,6 +53,8 @@ namespace YSSCore::__Private__ {
 		void onEnterClicked(QKeyEvent* event);
 		void onDirectionClicked(QKeyEvent* event);
 		void onMouseMove(QMouseEvent* event);
+		void onHoverTimeout();
+		void onHoverInfo(bool triggeFromHover);
 		void onCursorPositionChanged();
 		void onCompleter();
 		void onScrollBarChanged(int value);

@@ -24,6 +24,7 @@ public:
 	QList<int> getStartIndex();
 	QString toString();
 	QString getStartSign();
+	QString getCursorInWhichParameter();
 protected:
 	AStoryControllerParseDataPrivate* d;
 };

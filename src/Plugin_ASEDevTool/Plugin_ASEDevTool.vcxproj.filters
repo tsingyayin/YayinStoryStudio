@@ -71,6 +71,9 @@
     <ClCompile Include="DebugServer\cpp\DS_ASE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LangServer\cpp\ASEHoverInfoProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -130,6 +133,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="LangServer\AStoryResourceMonitor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LangServer\ASEHoverInfoProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

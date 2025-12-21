@@ -48,5 +48,5 @@ public:
 	QList<ASEParameter::Type> getDefaultParameterTypes();
 	Name getControllerName();
 	QStringList getDefaultParameterNames();
-	AStoryControllerParseData parse(const QString& input);
+	AStoryControllerParseData parse(const QString& input, qint32 cursorPos = -1);
 };

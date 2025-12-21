@@ -60,15 +60,15 @@ bool ASRuleAdaptor::loadASRule() {
 	}
 	return true;
 }
-AStoryControllerParseData ASRuleAdaptor::parse(const QString& input) {
+AStoryControllerParseData ASRuleAdaptor::parse(const QString& input, qint32 position) {
 	AStoryControllerParseData parseData;
 	for (auto Controller : d->Controllers) {
 		if (input.startsWith(Controller.getStartSign())) {
-			parseData = Controller.parse(input);
+			parseData = Controller.parse(input, position);
 			return parseData;
 		}
 	}
-	parseData = d->TalkController.parse(input);
+	parseData = d->TalkController.parse(input, position);
 	return parseData;
 }
 QList<AStoryController> ASRuleAdaptor::getAllControllers() {

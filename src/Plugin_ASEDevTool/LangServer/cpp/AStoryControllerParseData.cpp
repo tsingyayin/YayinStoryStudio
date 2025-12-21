@@ -55,3 +55,7 @@ QString AStoryControllerParseData::toString() {
 QString AStoryControllerParseData::getStartSign() {
 	return d->StartSign;
 }
+
+QString AStoryControllerParseData::getCursorInWhichParameter() {
+	return d->CursorInWhichParameter;
+}

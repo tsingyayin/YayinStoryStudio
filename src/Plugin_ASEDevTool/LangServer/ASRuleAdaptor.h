@@ -14,7 +14,7 @@ public:
 	void setASRulePath(const QString& asrulePath);
 	void setMetaPath(const QString& metaPath);
 	bool loadASRule();
-	AStoryControllerParseData parse(const QString& input);
+	AStoryControllerParseData parse(const QString& input, qint32 position = -1);
 	QList<AStoryController> getAllControllers();
 private:
 	ASRuleAdaptorPrivate* d;

@@ -42,7 +42,7 @@ namespace YSSCore::__Private__ {
 		QList<YSSCore::Editor::TabCompleterItem> CompleterItems;
 		QTextEdit* TextEdit = nullptr;
 		Visindigo::Widgets::MultiButtonGroup* ButtonGroup = nullptr;
-		TabCompleterWidget(QTextEdit* textEdit, QWidget* parent = nullptr);
+		TabCompleterWidget(QTextEdit* textEdit);
 		void setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items);
 		void selectPrevious();
 		void selectNext();
