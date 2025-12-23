@@ -258,6 +258,7 @@
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
     <ClCompile Include="Widgets\cpp\TextTags.cpp" />
+    <ClCompile Include="Widgets\cpp\VirtualConsole.cpp" />
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -286,6 +287,7 @@
     <QtMoc Include="Widgets\DragWidget.h" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
+    <QtMoc Include="Widgets\private\VirtualConsole_p.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -311,6 +313,7 @@
     <ClInclude Include="Utility\VirtualFile.h" />
     <ClInclude Include="Widgets\MultiLabel.h" />
     <QtMoc Include="Widgets\TextTags.h" />
+    <QtMoc Include="Widgets\VirtualConsole.h" />
     <ClInclude Include="Widgets\WidgetDisplayStack.h" />
     <QtMoc Include="Widgets\ThemeManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />

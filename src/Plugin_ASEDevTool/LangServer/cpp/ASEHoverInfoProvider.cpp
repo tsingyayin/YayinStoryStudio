@@ -22,7 +22,9 @@ void AStoryHoverInfoProvider::onMouseHover(const QString& text, int position)
 		}
 	}
 	AStoryControllerParseData parseData = RuleAdaptor->parse(text, position);
-	QString md = AStoryController::toNameString(parseData.getControllerName()) + "\n\n";
+	AStoryController::Name controllerName = parseData.getControllerName();
+	QString md = "# "+RuleAdaptor->getParameterDocument(controllerName, "#title")%" ("+AStoryController::toNameString(controllerName)+")\n\n";
+	md += RuleAdaptor->getParameterDocument(controllerName, "#description") + "\n\n";
 	yDebugF << "Cursor in parameter:" << parseData.getCursorInWhichParameter();
 	for (auto s : parseData.getParameterNames()) {
 		if (s != parseData.getCursorInWhichParameter()) [[likly]]{
@@ -32,6 +34,8 @@ void AStoryHoverInfoProvider::onMouseHover(const QString& text, int position)
 			md += " <font color=#66CCFF>" + s + "</font> ";
 		}
 	}
+	md += "\n\n" + RuleAdaptor->getParameterDocument(controllerName, parseData.getCursorInWhichParameter()); + "\n";
+	
 	yDebugF << md;
 	setMarkdown(md);
 }

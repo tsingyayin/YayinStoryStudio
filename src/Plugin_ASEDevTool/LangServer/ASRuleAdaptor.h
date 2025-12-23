@@ -16,6 +16,7 @@ public:
 	bool loadASRule();
 	AStoryControllerParseData parse(const QString& input, qint32 position = -1);
 	QList<AStoryController> getAllControllers();
+	QString getParameterDocument(const AStoryController::Name controllerName, const QString& parameterName);
 private:
 	ASRuleAdaptorPrivate* d;
 };

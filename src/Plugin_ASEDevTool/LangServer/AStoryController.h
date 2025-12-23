@@ -49,4 +49,5 @@ public:
 	Name getControllerName();
 	QStringList getDefaultParameterNames();
 	AStoryControllerParseData parse(const QString& input, qint32 cursorPos = -1);
+	QString getParameterDocument(const QString& parameterName);
 };

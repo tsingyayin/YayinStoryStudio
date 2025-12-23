@@ -74,3 +74,14 @@ AStoryControllerParseData ASRuleAdaptor::parse(const QString& input, qint32 posi
 QList<AStoryController> ASRuleAdaptor::getAllControllers() {
 	return d->Controllers.values();
 }
+QString ASRuleAdaptor::getParameterDocument(const AStoryController::Name controllerName, const QString& parameterName) {
+	for (auto Controller : d->Controllers) {
+		if (Controller.getControllerName() == controllerName) {
+			return Controller.getParameterDocument(parameterName);
+		}
+	}
+	if (d->TalkController.getControllerName() == controllerName) {
+		return d->TalkController.getParameterDocument(parameterName);
+	}
+	return QString();
+}

@@ -5,7 +5,7 @@
 #include <QtCore/qregularexpression.h>
 #include <Utility/JsonConfig.h>
 #include <General/Log.h>
-
+#include <General/TranslationHost.h>
 VImplClass(AStoryController) {
 	friend class AStoryController;
 protected:
@@ -224,4 +224,17 @@ AStoryControllerParseData AStoryController::parse(const QString& input, qint32 c
 		d->speakControllerSpecial(&d->ParseData);
 	}
 	return d->ParseData;
+}
+
+QString AStoryController::getParameterDocument(const QString& parameterName) {
+	if (parameterName.isEmpty()) {
+		return YSSTR("ASEDevTool::Document.NotInAnyParameter");
+	}
+	QString key = "Document."+toNameString(d->Name)+"."+parameterName;
+	QString doc = YSSTR("ASEDevTool::"+key);
+	if (doc!= key) {
+		return doc;
+	}else{
+		return YSSTR("ASEDevTool::Document.Default");
+	}
 }

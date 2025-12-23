@@ -35,6 +35,7 @@ namespace YSSCore::__Private__ {
 		void setPlainText(const QString& text);
 		void setMarkdown(const QString& md);
 		void setHtml(const QString& html);
+		void scrollBy(qint32 deltaY);
 	};
 }
 #endif

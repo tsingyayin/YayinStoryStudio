@@ -3,6 +3,7 @@
 #include <QtGui/qfont.h>
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qpoint.h>
+#include <QtGui/qevent.h>
 // Forward declarations
 namespace YSSCore::Editor {
 	class TextEdit;
@@ -43,6 +44,7 @@ namespace YSSCore::__Private__ {
 		bool ReloadTab = true;
 		qint32 HoverTimeout = 800;
 		QTimer* HoverTimer = nullptr;
+		QPoint LastMousePos;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	protected:
@@ -53,6 +55,7 @@ namespace YSSCore::__Private__ {
 		void onEnterClicked(QKeyEvent* event);
 		void onDirectionClicked(QKeyEvent* event);
 		void onMouseMove(QMouseEvent* event);
+		bool onMouseScroll(QWheelEvent* event);
 		void onHoverTimeout();
 		void onHoverInfo(bool triggeFromHover);
 		void onCursorPositionChanged();

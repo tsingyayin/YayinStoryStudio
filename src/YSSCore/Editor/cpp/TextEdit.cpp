@@ -336,12 +336,30 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
+		float dist = std::sqrt(std::pow(LastMousePos.x() - event->pos().x(), 2) + std::pow(LastMousePos.y() - event->pos().y(), 2));
+		if (dist >  10.0f) { // only reset timer when mouse moved enough distance
+			HoverTimer->start(HoverTimeout);
+			LastMousePos = event->pos();
+		}
+		else {
+			return;
+		}
 		HoverTimer->start(HoverTimeout);
 		if (HoverInfoWidget!= nullptr && HoverInfoWidget->isVisible()) {
 			HoverInfoWidget->hide();
 		}
 	}
 
+	bool TextEditPrivate::onMouseScroll(QWheelEvent* event) {
+		if (HoverInfoWidget && HoverInfoWidget->isVisible()) {
+			// scroll the hover info widget
+			HoverInfoWidget->scrollBy(-event->angleDelta().y());
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	void TextEditPrivate::onHoverTimeout() {
 		onHoverInfo(true);
 	}
@@ -350,13 +368,21 @@ namespace YSSCore::__Private__ {
 		if (HoverInfoProvider != nullptr) {
 			QPoint pos = QCursor::pos();
 			HoverInfoProvider->d->HoverSetSth = false;
-			if (!Text->viewport()->rect().contains(Text->mapFromGlobal(pos))) {
-				HoverTimer->stop();
-				HoverInfoWidget->hide();
-				return;
+			if (triggeFromHover) {
+				if (!Text->viewport()->rect().contains(Text->mapFromGlobal(pos))) {
+					HoverTimer->stop();
+					HoverInfoWidget->hide();
+					return;
+				}
 			}
 			HoverInfoProvider->d->TriggerFromHover = triggeFromHover;
-			QTextCursor cursor = Text->cursorForPosition(Text->mapFromGlobal(pos));
+			QTextCursor cursor;
+			if (triggeFromHover) {
+				cursor = Text->cursorForPosition(Text->mapFromGlobal(pos));
+			}
+			else {
+				cursor = Text->textCursor();
+			}
 			QString content = cursor.block().text();
 			int position = cursor.positionInBlock();
 			HoverInfoProvider->onMouseHover(content, position);
@@ -541,6 +567,9 @@ namespace YSSCore::Editor {
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 				d->onMouseMove(mouseEvent);
 				return false;
+			}else if (event->type() == QEvent::Wheel) {
+				QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
+				return d->onMouseScroll(wheelEvent);
 			}
 		}
 		return false;

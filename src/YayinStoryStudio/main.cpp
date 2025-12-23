@@ -8,7 +8,7 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
-
+#include <Widgets/VirtualConsole.h>
 int main(int argc, char* argv[])
 {
 	VIAppStatic::setEnvConfig(Visindigo::General::VIApplication::LogFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/logs");
@@ -35,6 +35,10 @@ int main(int argc, char* argv[])
 
 	app.setMainPlugin(new YSS::Main());
 	app.setLoadingMessageHandler(new YSS::TitlePage::TitlePage());
+
+	auto console = new Visindigo::Widgets::VirtualConsole();
+	console->setMinimumSize(800, 600);
+	//console->show();
 	int c = app.start();
 	return c;
 }

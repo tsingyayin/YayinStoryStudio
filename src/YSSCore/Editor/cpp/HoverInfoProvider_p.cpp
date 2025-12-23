@@ -1,4 +1,5 @@
 #include "Editor/private/HoverInfoProvider_p.h"
+#include <QtWidgets/qscrollbar.h>
 namespace YSSCore::__Private__ {
 	HoverInfoWidget::HoverInfoWidget(QWidget* parent) :QFrame(parent) {
 		this->setMinimumSize(400, 80);
@@ -19,5 +20,10 @@ namespace YSSCore::__Private__ {
 
 	void HoverInfoWidget::setHtml(const QString& html) {
 		ContentArea->setHtml(html);
+	}
+
+	void HoverInfoWidget::scrollBy(qint32 deltaY) {
+		QScrollBar* vBar = ContentArea->verticalScrollBar();
+		vBar->setValue(vBar->value() + deltaY);
 	}
 }
