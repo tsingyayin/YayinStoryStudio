@@ -203,7 +203,7 @@ namespace Visindigo::General {
 			break;
 		}
 		d->log(Visindigo::Utility::Console::getRawText(logStr));
-		emit logReceived(handler->getLogger()->getNamespace(), handler->getLevel(), handler->getMessage(), handler->getMetaData());
+		emit logReceived(handler->getLogger()->getNamespace(), handler->getLevel(), handler->getMessage(), logStr, handler->getMetaData());
 	}
 
 	/*!

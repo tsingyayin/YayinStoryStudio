@@ -49,22 +49,22 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.8.3</QtInstall>
+    <QtInstall>6.10.1</QtInstall>
     <QtModules>core;gui;widgets;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'" Label="QtSettings">
-    <QtInstall>6.8.3</QtInstall>
+    <QtInstall>6.10.1</QtInstall>
     <QtModules>core;widgets;gui;</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.8.3</QtInstall>
+    <QtInstall>6.10.1</QtInstall>
     <QtModules>core;gui;widgets;</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'" Label="QtSettings">
-    <QtInstall>6.8.3</QtInstall>
+    <QtInstall>6.10.1</QtInstall>
     <QtModules>core;gui;widgets;</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
@@ -158,6 +158,8 @@
     <Link>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -219,6 +221,9 @@
     <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
     <ClCompile Include="General\cpp\StacktraceHelper.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
+    <ClCompile Include="Utility\cpp\GeneralConfig.cpp" />
+    <ClCompile Include="Utility\cpp\GeneralConfigMemPool.cpp" />
+    <ClCompile Include="Utility\cpp\GeneralConfigParser.cpp" />
     <ClCompile Include="Utility\cpp\QtSSHelper.cpp" />
     <ClCompile Include="Utility\cpp\ShortCutHelper.cpp" />
     <ClCompile Include="Utility\cpp\StringUtility.cpp" />
@@ -258,7 +263,7 @@
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
     <ClCompile Include="Widgets\cpp\TextTags.cpp" />
-    <ClCompile Include="Widgets\cpp\VirtualConsole.cpp" />
+    <ClCompile Include="Widgets\cpp\Terminal.cpp" />
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +282,8 @@
     <QtMoc Include="Utility\private\qnamespace_key.h" />
     <QtMoc Include="General\VIApplication.h" />
     <ClInclude Include="General\StacktraceHelper.h" />
+    <ClInclude Include="Utility\GeneralConfigParser.h" />
+    <ClInclude Include="Utility\private\GeneralConfig_p.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
     <ClInclude Include="Utility\ShortCutHelper.h" />
     <ClInclude Include="Utility\StringMacro.h" />
@@ -287,7 +294,7 @@
     <QtMoc Include="Widgets\DragWidget.h" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
-    <QtMoc Include="Widgets\private\VirtualConsole_p.h" />
+    <QtMoc Include="Widgets\private\Terminal_p.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -313,7 +320,7 @@
     <ClInclude Include="Utility\VirtualFile.h" />
     <ClInclude Include="Widgets\MultiLabel.h" />
     <QtMoc Include="Widgets\TextTags.h" />
-    <QtMoc Include="Widgets\VirtualConsole.h" />
+    <QtMoc Include="Widgets\Terminal.h" />
     <ClInclude Include="Widgets\WidgetDisplayStack.h" />
     <QtMoc Include="Widgets\ThemeManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />

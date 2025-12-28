@@ -89,6 +89,9 @@
     <ClCompile Include="Editor\cpp\HoverInfoProvider_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\DebugStepData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\private\EditorPlugin_p.h">
@@ -128,6 +131,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\YSSLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\DebugStepData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

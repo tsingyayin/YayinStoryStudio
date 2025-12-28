@@ -72,7 +72,7 @@ namespace YSS::ProjectPage {
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
 		this->setStyleSheet(YSSTMSS("YSS::ProjectWin", this));
-
+		this->HistoryProjectArea->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
 		loadProject();
 
 		int width = GlobalValue::getConfig()->getInt("Window.Project.Width");

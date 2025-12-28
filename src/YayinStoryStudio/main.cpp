@@ -8,7 +8,7 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
-#include <Widgets/VirtualConsole.h>
+#include <Widgets/Terminal.h>
 int main(int argc, char* argv[])
 {
 	VIAppStatic::setEnvConfig(Visindigo::General::VIApplication::LogFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/logs");
@@ -21,7 +21,6 @@ int main(int argc, char* argv[])
 	for (auto p : prts) {
 		yMessage << p;
 	}
-
 	yInfo << "Yayin Story Studio " << Visindigo::General::Version::getAPIVersion();
 	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
 	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";
@@ -33,11 +32,13 @@ int main(int argc, char* argv[])
 此技术预览版本仅为您展示Yayin Story Studio非常早期的设计思路，以及基本希望拥有的功能的愿景。\n\
 敬请期待Yayin Story Studio后续的开发。", QMessageBox::Ok);
 
-	app.setMainPlugin(new YSS::Main());
+	YSS::Main* mainPlugin = new YSS::Main();
+	mainPlugin->setTestEnable();
+	app.setMainPlugin(mainPlugin);
 	app.setLoadingMessageHandler(new YSS::TitlePage::TitlePage());
 
-	auto console = new Visindigo::Widgets::VirtualConsole();
-	console->setMinimumSize(800, 600);
+	//auto console = new Visindigo::Widgets::Terminal();
+	//console->setMinimumSize(800, 600);
 	//console->show();
 	int c = app.start();
 	return c;

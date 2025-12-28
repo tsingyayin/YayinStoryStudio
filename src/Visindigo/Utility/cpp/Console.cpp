@@ -259,6 +259,123 @@ namespace Visindigo::Utility {
 		rawText = rawText.remove(QRegularExpression("\u001B\\[[(0-9)*;*]*m"));
 		return rawText;
 	}
+
+	/*!
+		\since Visindigo 0.13.0
+		\a cmdColorString 为带有颜色样式的文本。
+		返回一个HTML格式的字符串，适用于在HTML环境中显示。
+	*/
+	QString Console::cmdColorToHtmlString(QString cmdColorString) {
+		QString rawText = getRawText(cmdColorString);
+		QString htmlString = cmdColorString;
+		htmlString = htmlString.replace("\033[0m", "</span>");
+		QRegularExpression re("\033\\[(.*?)m");
+		QRegularExpressionMatchIterator i = re.globalMatch(htmlString);
+		while (i.hasNext()) {
+			QRegularExpressionMatch match = i.next();
+			QStringList params = match.captured(1).split(";");
+			QString styleString = "<span style=\"";
+			for (const QString& param : params) {
+				int code = param.toInt();
+				switch (code) {
+				case 0:
+					styleString += "font-weight: normal; font-style: normal; text-decoration: none; color: initial; background-color: initial;";
+					break;
+				case 1:
+					styleString += "font-weight: bold;";
+					break;
+				case 3:
+					styleString += "font-style: italic;";
+					break;
+				case 4:
+					styleString += "text-decoration: underline;";
+					break;
+				case 5:
+					// Blink is not supported in HTML
+					break;
+				case 7:
+					styleString += "filter: invert(100%);";
+					break;
+				case 9:
+					styleString += "text-decoration: line-through;";
+					break;
+				case 30:
+					styleString += "color: black;";
+					break;
+				case 31:
+					styleString += "color: red;";
+					break;
+				case 32:
+					styleString += "color: green;";
+					break;
+				case 33:
+					styleString += "color: yellow;";
+					break;
+				case 34:
+					styleString += "color: blue;";
+					break;
+				case 35:
+					styleString += "color: purple;";
+					break;
+				case 36:
+					styleString += "color: cyan;";
+					break;
+				case 37:
+					styleString += "color: lightgray;";
+					break;
+				case 90:
+					styleString += "color: gray;";
+					break;
+				case 91:
+					styleString += "color: lightred;";
+					break;
+				case 92:
+					styleString += "color: lightgreen;";
+					break;
+				case 93:
+					styleString += "color: lightyellow;";
+					break;
+				case 94:
+					styleString += "color: lightblue;";
+					break;
+				case 95:
+					styleString += "color: lightpurple;";
+					break;
+				case 96:
+					styleString += "color: lightcyan;";
+					break;
+				case 97:
+					styleString += "color: white;";
+					break;
+				default:
+					// Handle 38;2;r;g;b (foreground color)
+					if (code == 38 && params.size() >= 5 && params[1] == "2") {
+						int r = params[2].toInt();
+						int g = params[3].toInt();
+						int b = params[4].toInt();
+						styleString += QString("color: rgb(%1, %2, %3);").arg(r).arg(g).arg(b);
+					}
+					// Handle 48;2;r;g;b (background color)
+					else if (code == 48 && params.size() >= 5 && params[1] == "2") {
+						int r = params[2].toInt();
+						int g = params[3].toInt();
+						int b = params[4].toInt();
+						styleString += QString("background-color: rgb(%1, %2, %3);").arg(r).arg(g).arg(b);
+					}
+					break;
+				}
+			}
+			styleString += "\">";
+			htmlString.replace(match.captured(0), styleString);
+		}
+		// handle \t \r \n
+		htmlString = htmlString.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+		htmlString = htmlString.replace("\r\n", "<br>");
+		htmlString = htmlString.replace("\r", "<br>");
+		htmlString = htmlString.replace("\n", "<br>");
+		return htmlString;
+	}
+
 	/*!
 		\since Visindigo 0.13.0
 		\a msg 为要输出的文本。

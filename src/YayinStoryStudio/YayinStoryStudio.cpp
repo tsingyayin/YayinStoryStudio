@@ -5,15 +5,15 @@
 #include <Editor/LangServerManager.h>
 #include <Utility/ExtTool.h>
 #include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
 #include "Editor/GlobalValue.h"
-#include <QtGui/qfontdatabase.h>
-#include <QtGui/qguiapplication.h>
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/ProjectPage/ProjectWin.h"
-#include <QtWidgets/qapplication.h>
-#include <Utility/CodeDiff.h>
-#include <Utility/AsyncFunction.h>
 #include <General/VIApplication.h>
+#include <Utility/GeneralConfig.h>
+#include <Utility/GeneralConfigParser.h>
+#include "General/YSSLogger.h"
+#include <chrono>
 namespace YSS {
 	Main::Main() {
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
@@ -49,23 +49,69 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
-		Visindigo::Utility::CodeDiff codeDiff;
-		codeDiff.setOldCode(Visindigo::Utility::FileUtility::readLines("./resource/old.txt"));
-		codeDiff.setNewCode(Visindigo::Utility::FileUtility::readLines("./resource/new.txt"));
-		codeDiff.compare();
-		//codeDiff.debugPrint();
+		QString jsonStr = Visindigo::Utility::FileUtility::readAll(":/yss/compiled/configWidget/mainEditorMenu.json");
+		auto start = std::chrono::high_resolution_clock::now();
+		Visindigo::Utility::GeneralConfig* configt = Visindigo::Utility::GeneralConfigParser::parseFromJson(jsonStr);
+		QString output = Visindigo::Utility::GeneralConfigParser::serializeToJson(configt, Visindigo::Utility::GeneralConfig::StringFormat::Formatted, 4);
+		delete configt;
+		yDebug << output;
+		for (int i = 0; i < 1000; i++) {
+			Visindigo::Utility::GeneralConfig* config = Visindigo::Utility::GeneralConfigParser::parseFromJson(jsonStr);
+			delete config;
+		}
+		auto end = std::chrono::high_resolution_clock::now();
+		yDebug << "GeneralConfig 1000次 构造、解析和析构耗时 " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms";
+		Visindigo::Utility::GeneralConfig* config = Visindigo::Utility::GeneralConfigParser::parseFromJson(jsonStr);
+		start = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 1000; i++) {
+			config->setString("测试字符串", "menu.0.Actions.0.Actions.0.ID");
+		}
+		end = std::chrono::high_resolution_clock::now();
+		yDebug << "GeneralConfig 1000次 七层写耗时 " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " micro seconds";
+		start = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 1000; i++) {
+			QString val = config->getString("menu.0.Actions.0.Actions.0.ID");
+		}
+		end = std::chrono::high_resolution_clock::now();
+		yDebug << "GeneralConfig 1000次 七层读耗时 " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " micro seconds";
+		start = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 1000; i++) {
+			QString output = Visindigo::Utility::GeneralConfigParser::serializeToJson(config, Visindigo::Utility::GeneralConfig::StringFormat::Formatted, 4);
+		}
+		end = std::chrono::high_resolution_clock::now();
+		yDebug << "GeneralConfig 1000次 序列化耗时 " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms";
+		
+		auto jstart = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 1000; i++) {
+			Visindigo::Utility::JsonConfig* jsonConfig = new Visindigo::Utility::JsonConfig();
+			jsonConfig->parse(jsonStr);
+			delete jsonConfig;
+		}
+		auto jend = std::chrono::high_resolution_clock::now();
+		yDebug << "JsonConfig 1000次 构造、解析和析构耗时 " << std::chrono::duration_cast<std::chrono::milliseconds>(jend - jstart).count() << " ms";
 
-		YSSAsync<int, int, int>(
-			{ 3, 4 },
-			[](int a, int b)->int {
-				QThread::msleep(10000);
-				return a + b;
-			},
+		Visindigo::Utility::JsonConfig* jsonConfig = new Visindigo::Utility::JsonConfig();
+		jsonConfig->parse(jsonStr);
+		jstart = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 1000; i++) {
+			jsonConfig->setString("测试字符串", "menu.0.Actions.0.Actions.0.ID");
+		}
+		jend = std::chrono::high_resolution_clock::now();
+		yDebug << "JsonConfig 1000次 七层写耗时 " << std::chrono::duration_cast<std::chrono::microseconds>(jend - jstart).count() << " micro seconds";
 
-			[](int rtn) {
-				qDebug() << rtn;
-			}
-		);
+		jstart = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 1000; i++) {
+			QString val = jsonConfig->getString("menu.0.Actions.0.Actions.0.ID");
+		}
+		jend = std::chrono::high_resolution_clock::now();
+		yDebug << "JsonConfig 1000次 七层读耗时 " << std::chrono::duration_cast<std::chrono::microseconds>(jend - jstart).count() << " micro seconds";
+		jstart = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 1000; i++) {
+			QString output = jsonConfig->toString( QJsonDocument::JsonFormat::Indented);
+		}
+		jend = std::chrono::high_resolution_clock::now();
+		yDebug << "JsonConfig 1000次 序列化耗时 " << std::chrono::duration_cast<std::chrono::milliseconds>(jend - jstart).count() << " ms";
+
 	}
 	Main::~Main() {
 

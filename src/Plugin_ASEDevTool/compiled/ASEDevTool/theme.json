@@ -28,6 +28,9 @@
 				"hologram": "#C0FFC0",
 				"tele": "#73FBFD"
 			},
+			"IRSign": "#73FBFD",
+			"IRTag": "#FFFD55",
+			"IRParam": "#B9F0F0",
 			"AndProtect": "#73FBFD",
 			"StyleTag": "#9FFCFD",
 			"Speaker": "#B9F0F0",

@@ -1,5 +1,5 @@
-#ifndef Visindigo_Widgets_VirtualConsole_p_h
-#define Visindigo_Widgets_VirtualConsole_p_h
+#ifndef Visindigo_Widgets_Terminal_p_h
+#define Visindigo_Widgets_Terminal_p_h
 #include "../../Macro.h"
 #include <QtCore/qobject.h>
 class QTextBrowser;
@@ -8,11 +8,11 @@ class QPushButton;
 class QGridLayout;
 class QTextStream;
 namespace Visindigo::Widgets {
-	class VirtualConsole;
+	class Terminal;
 }
 namespace Visindigo::__Private__ {
-	class VirtualConsolePrivate :public QObject {
-		friend class Visindigo::Widgets::VirtualConsole;
+	class TerminalPrivate :public QObject {
+		friend class Visindigo::Widgets::Terminal;
 		Q_OBJECT;
 	protected:
 		QTextBrowser* consoleView;
@@ -26,14 +26,10 @@ namespace Visindigo::__Private__ {
 		bool enableStyle = true;
 		qint32 maxCacheLines = 100;
 		QTextStream* stdInStream = nullptr;
-		QTextStream* stdOutStream = nullptr;
-		QTextStream* stdErrStream = nullptr;
-		VirtualConsolePrivate();
-		~VirtualConsolePrivate();
+		TerminalPrivate();
+		~TerminalPrivate();
 		void writeToStdIn(const QString& line);
 		void onStdInputAvailable();
-		void onStdOutputAvailable();
-		void onStdErrorAvailable();
 	};
 }
-#endif // Visindigo_Widgets_VirtualConsole_p_h
+#endif // Visindigo_Widgets_Terminal_p_h

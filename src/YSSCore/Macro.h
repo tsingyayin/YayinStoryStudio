@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/qtypes.h>
 
 #define YSSCoreAPI __declspec(dllimport)
 #ifdef YSSCore_DEVELOPMENT

@@ -22,7 +22,8 @@ void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 		setFormatWithParaType(0, text.length(), "SyntaxSign");
 	}
 	else if (text.startsWith("//")) {
-		setFormatWithParaType(0, text.length(), "Comment");
+		parseCommentIRCommand(text);
+		
 	}
 	else {
 		AStoryControllerParseData parseData = RuleAdaptor->parse(text);
@@ -121,4 +122,17 @@ void AStorySyntaxHighlighter::setFormatWithParaType(int start, int length, QStri
 		format.setBackground(QColor(Config->getString("Dark.Types." + type_B)));
 	}
 	setFormat(start, length, format);
+}
+void AStorySyntaxHighlighter::parseCommentIRCommand(const QString& text) {
+	if (text.startsWith("//@IR%")) {
+		setFormatWithParaType(0, 6, "IRSign");
+		QString commandText = text.mid(6).trimmed();
+		if (commandText.startsWith("FILE!") || commandText.startsWith("LANG!") || commandText.startsWith("CODE!")) {
+			setFormatWithParaType(6, 5, "IRTag");
+			setFormatWithParaType(11, commandText.mid(5).trimmed().length(), "IRParam");
+		}
+	}
+	else {
+		setFormatWithParaType(0, text.length(), "Comment");
+	}
 }

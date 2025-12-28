@@ -476,7 +476,7 @@ namespace YSSCore::Editor {
 		d->Line->setAlignment(Qt::AlignRight);
 		d->Line->document()->setDefaultFont(QFont("Microsoft YaHei"));
 		d->Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		d->Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+		d->Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 		d->Text = new QTextEdit(this);
 		d->Text->document()->setDefaultFont(QFont("Microsoft YaHei"));
@@ -485,7 +485,7 @@ namespace YSSCore::Editor {
 		d->Text->installEventFilter(this);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(this);
-
+		d->Text->verticalScrollBar()->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->addWidget(d->Line);
 		d->Layout->addWidget(d->Text);

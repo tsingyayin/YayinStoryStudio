@@ -1,5 +1,6 @@
 #include "../ASELaunchArgu.h"
 #include <QtCore/qstring.h>
+#include <QtCore/qjsonvalue.h>
 #include <Utility/JsonConfig.h>
 #include <General/StacktraceHelper.h>
 #include <General/Log.h>

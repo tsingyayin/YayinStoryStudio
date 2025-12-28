@@ -7,6 +7,20 @@ namespace Visindigo::Utility {
 		\inmodule Visindigo
 
 		此类提供一种便捷的函数异步方式。
+
+		\code
+		YSSAsync<int, int, int>(
+			{ 3, 4 },
+			[](int a, int b)->int {
+				QThread::msleep(10000);
+				return a + b;
+			},
+
+			[](int rtn) {
+				qDebug() << rtn;
+			}
+		);
+		\endcode
 	*/
 
 	/*!

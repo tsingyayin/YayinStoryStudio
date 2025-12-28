@@ -13,7 +13,7 @@ namespace Visindigo::General {
 	class VisindigoAPI LoggerManager :public QObject {
 		Q_OBJECT
 	signals:
-		void logReceived(const QString& handlerName, Logger::Level level, const QString& message, const LogMetaData& metaData);
+		void logReceived(const QString& handlerName, Logger::Level level, const QString& message, const QString& consoleStr, const LogMetaData& metaData);
 	private:
 #ifdef DEBUG
 		LoggerManager(Logger::Level threshold = Logger::Debug);

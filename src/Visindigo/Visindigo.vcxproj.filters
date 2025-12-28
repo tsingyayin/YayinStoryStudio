@@ -146,7 +146,16 @@
     <ClCompile Include="General\cpp\Exception_StdCast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Widgets\cpp\VirtualConsole.cpp">
+    <ClCompile Include="Widgets\cpp\Terminal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\GeneralConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\GeneralConfigParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\GeneralConfigMemPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -277,6 +286,12 @@
     <ClInclude Include="General\StacktraceHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\GeneralConfigParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\private\GeneralConfig_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -333,10 +348,10 @@
     <QtMoc Include="Widgets\DragWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Widgets\VirtualConsole.h">
+    <QtMoc Include="Widgets\Terminal.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Widgets\private\VirtualConsole_p.h">
+    <QtMoc Include="Widgets\private\Terminal_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

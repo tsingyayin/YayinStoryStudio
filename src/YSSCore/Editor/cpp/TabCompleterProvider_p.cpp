@@ -33,7 +33,8 @@ namespace YSSCore::__Private__ {
 		this->setFixedWidth(300);
 		CentralWidget->setFixedWidth(300 - 16);
 		ScrollArea->setFixedWidth(300);
-		this->setStyleSheet("QFrame{border: 1px solid #666666; border-radius:5px}");
+		this->setStyleSheet(YSSTMSS("YSS::Default"));
+		this->ScrollArea->verticalScrollBar()->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
 	}
 
 	void TabCompleterWidget::setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items) {

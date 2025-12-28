@@ -1,16 +1,16 @@
-#ifndef Visindigo_Widgets_VirtualConsole_h
-#define Visindigo_Widgets_VirtualConsole_h
+#ifndef Visindigo_Widgets_Terminal_h
+#define Visindigo_Widgets_Terminal_h
 #include "../Macro.h"
 #include <QtWidgets/qframe.h>
 namespace Visindigo::__Private__ {
-	class VirtualConsolePrivate;
+	class TerminalPrivate;
 }
 namespace Visindigo::Widgets {
-	class VisindigoAPI VirtualConsole :public QFrame {
+	class VisindigoAPI Terminal :public QFrame {
 		Q_OBJECT;
 	public:
-		VirtualConsole(QWidget* parent = nullptr);
-		~VirtualConsole() override;
+		Terminal(QWidget* parent = nullptr);
+		~Terminal() override;
 		void setUseInput(bool enable);
 		bool isInputUsed() const;
 		void setSendOnEnter(bool enable);
@@ -26,7 +26,7 @@ namespace Visindigo::Widgets {
 		void setEnableStyle(bool enable);
 		bool isStyleEnabled() const;
 	private:
-		Visindigo::__Private__::VirtualConsolePrivate* d;
+		Visindigo::__Private__::TerminalPrivate* d;
 	};
 }
-#endif // Visindigo_Widgets_VirtualConsole_h
+#endif // Visindigo_Widgets_Terminal_h

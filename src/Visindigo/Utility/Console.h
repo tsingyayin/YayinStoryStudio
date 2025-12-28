@@ -29,6 +29,7 @@ namespace Visindigo::Utility {
 		static QString inSuccessStyle(QString rawText);
 		static QString inNoticeStyle(QString rawText);
 		static QString getRawText(QString colorString);
+		static QString cmdColorToHtmlString(QString cmdColorString);
 		static void print(QString msg);
 		static void binary(const QByteArray& data);
 		static QString binaryToString(const QByteArray& data);

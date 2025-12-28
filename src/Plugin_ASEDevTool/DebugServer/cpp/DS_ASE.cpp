@@ -18,6 +18,22 @@ public:
 DS_ASE::DS_ASE(YSSCore::Editor::EditorPlugin* plugin)
 	: YSSCore::Editor::DebugServer("ASEDevTool Debug Server", "ASEDevTool_AStory", plugin), d(new DS_ASEPrivate()){
 	setSupportedFeatures(DebugServer::Debug | DebugServer::Stop);
+	d->ASEDebugPipe = new QLocalSocket();
+	connect(d->ASEDebugPipe, &QLocalSocket::readyRead, this, &DS_ASE::onASEPipeOut);
+	connect(d->ASEDebugPipe, &QLocalSocket::disconnected, [this]() {
+		vgDebugF << "ASE debug pipe disconnected.";
+		d->ASEDebugPipe->deleteLater();
+		d->ASEDebugPipe = nullptr;
+		});
+	connect(d->ASEDebugPipe, &QLocalSocket::connected, [this]() {
+		vgDebugF << "ASE debug pipe connected.";
+		ASEPipeInput("test hello\n");
+		vgDebugF << "Hello message send";
+		});
+	connect(d->ASEDebugPipe, &QLocalSocket::errorOccurred, [this](QLocalSocket::LocalSocketError socketError) {
+		vgDebugF << "ASE debug pipe error:" << socketError;
+		});
+	d->ASEDebugPipe->setServerName("ASEDebugPipe");
 }
 
 DS_ASE::~DS_ASE() {
@@ -63,16 +79,18 @@ void DS_ASE::onDebugStart() {
 		d->ASEProgram = nullptr;
 		return;
 	}
-	if (d->ASEDebugPipe != nullptr) {
-		d->ASEDebugPipe->deleteLater();
-		d->ASEDebugPipe = nullptr;
-	}
+	d->ASEDebugPipe->disconnectFromServer();
 	QTimer* timer = new QTimer();
-	timer->setSingleShot(true);
 	timer->setInterval(3000);
 	connect(timer, &QTimer::timeout, [this, timer]() {
-		this->onRun();
-		timer->deleteLater();
+		d->ASEDebugPipe->connectToServer(QIODevice::ReadWrite);
+		if (d->ASEDebugPipe->state() == QLocalSocket::ConnectedState) {
+			timer->stop();
+			timer->deleteLater();
+		}
+		else {
+			vgDebugF << "Trying to connect ASE debug pipe...";
+		}
 		});
 	timer->start();
 }
@@ -107,29 +125,7 @@ void DS_ASE::onStop(bool resume) {
 }
 
 void DS_ASE::onRun() {
-	d->ASEDebugPipe = new QLocalSocket();
-	connect(d->ASEDebugPipe, &QLocalSocket::readyRead, this, &DS_ASE::onASEPipeOut);
-	connect(d->ASEDebugPipe, &QLocalSocket::disconnected, [this]() {
-		vgDebugF << "ASE debug pipe disconnected.";
-		d->ASEDebugPipe->deleteLater();
-		d->ASEDebugPipe = nullptr;
-		});
-	connect(d->ASEDebugPipe, &QLocalSocket::connected, [this]() {
-		vgDebugF << "ASE debug pipe connected.";
-		ASEPipeInput("test hello\n");
-		vgDebugF << "Hello message send";
-		});
-	connect(d->ASEDebugPipe, &QLocalSocket::errorOccurred, [this](QLocalSocket::LocalSocketError socketError) {
-		vgDebugF << "ASE debug pipe error:" << socketError;
-		});
-	d->ASEDebugPipe->setServerName("ASEDebugPipe");
-	d->ASEDebugPipe->connectToServer(QIODevice::ReadWrite);
-	if (!d->ASEDebugPipe->waitForConnected(10000)) {
-		vgDebugF << "ASE debug pipe connection failed.";
-		d->ASEDebugPipe->deleteLater();
-		d->ASEDebugPipe = nullptr;
-		return;
-	}
+	
 }
 
 void DS_ASE::nextStep() {

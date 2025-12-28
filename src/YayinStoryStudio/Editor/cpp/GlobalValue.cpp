@@ -3,7 +3,7 @@
 #include <Utility/JsonConfig.h>
 #include <Utility/PathMacro.h>
 #include <Widgets/ThemeManager.h>
-#include <Editor/LangServerManager.h>
+#include <QtCore/qtextstream.h>
 #include <General/TranslationHost.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>

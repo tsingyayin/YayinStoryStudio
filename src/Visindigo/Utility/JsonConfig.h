@@ -1,8 +1,8 @@
 #pragma once
 #include <QtCore/qjsondocument.h>
+#include <QtCore/qstring.h>
 #include "../Macro.h"
 // Forward declarations
-class QString;
 class QJsonValue;
 namespace Visindigo::Utility {
 	class JsonConfigPrivate;

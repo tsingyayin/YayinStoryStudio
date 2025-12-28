@@ -22,6 +22,15 @@ namespace Visindigo::Utility {
 
 		DiffUnit是所有差异比较单元的基类，所有差异比较单元都需要继承此类。
 		目前来说，DiffUnit主要用于代码差异比较以及文件差异比较，分别用于Git和增量更新。
+
+		\code
+		Visindigo::Utility::CodeDiff codeDiff;
+		codeDiff.setOldCode(Visindigo::Utility::FileUtility::readLines("./resource/old.txt"));
+		codeDiff.setNewCode(Visindigo::Utility::FileUtility::readLines("./resource/new.txt"));
+		codeDiff.compare();
+		codeDiff.debugPrint()
+		\endcode
+
 	*/
 
 	/*!

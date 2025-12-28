@@ -1,5 +1,7 @@
 #include "Editor/private/HoverInfoProvider_p.h"
 #include <QtWidgets/qscrollbar.h>
+#include <Widgets/ThemeManager.h>
+
 namespace YSSCore::__Private__ {
 	HoverInfoWidget::HoverInfoWidget(QWidget* parent) :QFrame(parent) {
 		this->setMinimumSize(400, 80);
@@ -7,7 +9,8 @@ namespace YSSCore::__Private__ {
 		Layout = new QVBoxLayout(this);
 		this->setLayout(Layout);
 		Layout->addWidget(ContentArea);
-		this->setStyleSheet("QFrame{border: 1px solid #666666; border-radius:5px}");
+		this->setStyleSheet(YSSTMSS("YSS::Default"));
+		this->ContentArea->verticalScrollBar()->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
 	}
 
 	void HoverInfoWidget::setPlainText(const QString& text) {

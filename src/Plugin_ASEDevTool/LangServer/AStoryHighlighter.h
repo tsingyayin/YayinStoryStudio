@@ -16,6 +16,7 @@ private:
 public:
 	AStorySyntaxHighlighter(QTextDocument* parent = nullptr);
 	virtual void highlightBlock(const QString& text) override;
+	void parseCommentIRCommand(const QString& text);
 private:
 	void setFormatWithParaType(int start, int length, QString type_T, QString type_B = "");
 };

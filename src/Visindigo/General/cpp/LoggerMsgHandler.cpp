@@ -105,7 +105,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这里展示qint8类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(qint8 num) {
-		fromString(QChar(num));
+		fromString(QChar((char)num));
 		return *this;
 	}
 
