@@ -51,12 +51,12 @@ namespace YSS {
 	void Main::onTest() {
 		QString jsonStr = Visindigo::Utility::FileUtility::readAll(":/yss/compiled/configWidget/mainEditorMenu.json");
 		auto start = std::chrono::high_resolution_clock::now();
-		Visindigo::Utility::GeneralConfig* configt = Visindigo::Utility::GeneralConfigParser::parseFromJson(jsonStr);
+		Visindigo::Utility::GeneralConfig* configt = Visindigo::Utility::GeneralConfigParser::parseFromJson_2(jsonStr);
 		QString output = Visindigo::Utility::GeneralConfigParser::serializeToJson(configt, Visindigo::Utility::GeneralConfig::StringFormat::Formatted, 4);
 		delete configt;
 		yDebug << output;
 		for (int i = 0; i < 1000; i++) {
-			Visindigo::Utility::GeneralConfig* config = Visindigo::Utility::GeneralConfigParser::parseFromJson(jsonStr);
+			Visindigo::Utility::GeneralConfig* config = Visindigo::Utility::GeneralConfigParser::parseFromJson_2(jsonStr);
 			delete config;
 		}
 		auto end = std::chrono::high_resolution_clock::now();
@@ -111,7 +111,7 @@ namespace YSS {
 		}
 		jend = std::chrono::high_resolution_clock::now();
 		yDebug << "JsonConfig 1000次 序列化耗时 " << std::chrono::duration_cast<std::chrono::milliseconds>(jend - jstart).count() << " ms";
-
+		
 	}
 	Main::~Main() {
 

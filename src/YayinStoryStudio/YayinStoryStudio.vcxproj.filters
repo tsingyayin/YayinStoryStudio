@@ -130,6 +130,9 @@
     <QtMoc Include="Editor\MainEditor\MenuBarHandler.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="YayinStoryStudio.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">
@@ -144,9 +147,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="YayinStoryStudio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

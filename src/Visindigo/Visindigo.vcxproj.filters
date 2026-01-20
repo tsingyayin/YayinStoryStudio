@@ -152,10 +152,25 @@
     <ClCompile Include="Utility\cpp\GeneralConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\GeneralConfigParser.cpp">
+    <ClCompile Include="Utility\cpp\GeneralConfigParser_Json.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utility\cpp\GeneralConfigMemPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\GeneralConfigParser_Yaml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\BandizipBinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\cpp\TitleWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\cpp\ColorTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\cpp\WidgetResizeTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -292,6 +307,9 @@
     <ClInclude Include="Utility\private\GeneralConfig_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\ColorTool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -352,6 +370,18 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\Terminal_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Utility\BandizipBinder.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\TitleWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\private\TitleWidget_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\WidgetResizeTool.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

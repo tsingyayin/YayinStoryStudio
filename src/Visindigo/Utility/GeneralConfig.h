@@ -2,6 +2,7 @@
 #define Visindigo_Utility_GeneralConfig_h
 #include "../Macro.h"
 #include <QtCore/qmap.h>
+#include <QtCore/qhash.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
 
@@ -39,7 +40,6 @@ namespace Visindigo::Utility {
 		GeneralConfig(const GeneralConfigList& value);
 		GeneralConfig(const GeneralConfigMap& value);
 		virtual ~GeneralConfig();
-
 		static GeneralConfig* copyFrom(GeneralConfig* other);
 
 		qint64 getInt(const QString& key = "", qint64 def = 0, bool* ok = nullptr);

@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
 	VIAppStatic::setEnvConfig(Visindigo::General::VIApplication::LogFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/logs");
 	VIAppStatic::setEnvConfig(Visindigo::General::VIApplication::PluginFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/plugins");
 	VIAppStatic::setEnvConfig(Visindigo::General::VIApplication::MinimumLoadingTimeMS, 2000);
+	VIAppStatic::setEnvConfig(Visindigo::General::VIApplication::UseVirtualTerminal, true);
 	Visindigo::General::VIApplication app(argc, argv, Visindigo::General::VIApplication::WidgetApp);
 	
 
@@ -37,9 +38,6 @@ int main(int argc, char* argv[])
 	app.setMainPlugin(mainPlugin);
 	app.setLoadingMessageHandler(new YSS::TitlePage::TitlePage());
 
-	//auto console = new Visindigo::Widgets::Terminal();
-	//console->setMinimumSize(800, 600);
-	//console->show();
 	int c = app.start();
 	return c;
 }

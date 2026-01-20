@@ -266,8 +266,15 @@ namespace Visindigo::Utility {
 		返回一个HTML格式的字符串，适用于在HTML环境中显示。
 	*/
 	QString Console::cmdColorToHtmlString(QString cmdColorString) {
-		QString rawText = getRawText(cmdColorString);
-		QString htmlString = cmdColorString;
+		QString htmlString = cmdColorString.toHtmlEscaped();
+		htmlString = htmlString.replace("\r\n", "\n");
+		htmlString = htmlString.replace("\r", "\n");
+		htmlString = htmlString.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+		htmlString = htmlString.replace(" ", "&nbsp;");
+		htmlString = htmlString.replace("\n", "<br>");
+		if (!htmlString.contains("\033")) {
+			return QString("<span>%1</span>").arg(htmlString);
+		}
 		htmlString = htmlString.replace("\033[0m", "</span>");
 		QRegularExpression re("\033\\[(.*?)m");
 		QRegularExpressionMatchIterator i = re.globalMatch(htmlString);
@@ -275,9 +282,27 @@ namespace Visindigo::Utility {
 			QRegularExpressionMatch match = i.next();
 			QStringList params = match.captured(1).split(";");
 			QString styleString = "<span style=\"";
-			for (const QString& param : params) {
-				int code = param.toInt();
+			for (int i = 0; i < params.size(); i++) {
+				int code = params[i].toInt();
 				switch (code) {
+				case 38:
+					if (code == 38 && params.size() >= 5 && params[1] == "2" || i == 0) {
+						int r = params[2].toInt();
+						int g = params[3].toInt();
+						int b = params[4].toInt();
+						styleString += QString("color: rgb(%1, %2, %3);").arg(r).arg(g).arg(b);
+						i += 4;
+					}
+					break;
+				case 48:
+					if (code == 48 && params.size() >= 5 && params[1] == "2" || i == 0) {
+						int r = params[2].toInt();
+						int g = params[3].toInt();
+						int b = params[4].toInt();
+						styleString += QString("background-color: rgb(%1, %2, %3);").arg(r).arg(g).arg(b);
+						i += 4;
+					}
+					break;
 				case 0:
 					styleString += "font-weight: normal; font-style: normal; text-decoration: none; color: initial; background-color: initial;";
 					break;
@@ -348,31 +373,12 @@ namespace Visindigo::Utility {
 					styleString += "color: white;";
 					break;
 				default:
-					// Handle 38;2;r;g;b (foreground color)
-					if (code == 38 && params.size() >= 5 && params[1] == "2") {
-						int r = params[2].toInt();
-						int g = params[3].toInt();
-						int b = params[4].toInt();
-						styleString += QString("color: rgb(%1, %2, %3);").arg(r).arg(g).arg(b);
-					}
-					// Handle 48;2;r;g;b (background color)
-					else if (code == 48 && params.size() >= 5 && params[1] == "2") {
-						int r = params[2].toInt();
-						int g = params[3].toInt();
-						int b = params[4].toInt();
-						styleString += QString("background-color: rgb(%1, %2, %3);").arg(r).arg(g).arg(b);
-					}
 					break;
 				}
 			}
 			styleString += "\">";
 			htmlString.replace(match.captured(0), styleString);
 		}
-		// handle \t \r \n
-		htmlString = htmlString.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
-		htmlString = htmlString.replace("\r\n", "<br>");
-		htmlString = htmlString.replace("\r", "<br>");
-		htmlString = htmlString.replace("\n", "<br>");
 		return htmlString;
 	}
 
@@ -383,11 +389,7 @@ namespace Visindigo::Utility {
 		此输出自动换行。
 	*/
 	void Console::print(QString msg) {
-#ifdef Q_OS_WIN
-		std::cout << msg.toLocal8Bit().data() << std::endl;
-#else
-		qDebug().noquote() << msg;
-#endif
+		qt_message_output(QtDebugMsg, QMessageLogContext(), msg);
 	}
 
 	/*!

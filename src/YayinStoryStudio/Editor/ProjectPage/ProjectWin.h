@@ -2,7 +2,6 @@
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
-
 class QLabel;
 class QScrollArea;
 class QWidget;
@@ -18,6 +17,8 @@ namespace Visindigo::Utility {
 }
 namespace Visindigo::Widgets {
 	class MultiButton;
+	class TitleWidget;
+	class WidgetResizeTool;
 }
 namespace YSS::ProjectPage {
 	class ProjectInfoWidget;
@@ -25,6 +26,8 @@ namespace YSS::ProjectPage {
 		Q_OBJECT;
 	private:
 		Visindigo::Utility::JsonConfig* Config;
+		Visindigo::Widgets::TitleWidget* TitleWidget;
+		Visindigo::Widgets::WidgetResizeTool* ResizeTool;
 		QLabel* TitleLabel;
 		QScrollArea* HistoryProjectArea;
 		QWidget* HistoryProjectWidget;

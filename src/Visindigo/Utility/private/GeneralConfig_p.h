@@ -23,7 +23,7 @@ namespace Visindigo::__Private__ {
 		GeneralConfigPrivate* create(QStringList* nodes);
 		bool contains(const QString& key);
 		void changeRoot(Visindigo::Utility::GeneralConfig* newRoot);
-		void changeQ(Visindigo::Utility::GeneralConfig* newQ);
+		void changeParent(Visindigo::Utility::GeneralConfig* newQ);
 		void clear();
 	};
 

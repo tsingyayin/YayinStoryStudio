@@ -3,6 +3,7 @@
 
 namespace YSS {
 	class Main :public Visindigo::General::Package {
+		Q_OBJECT;
 	public:
 		Main();
 		virtual ~Main();

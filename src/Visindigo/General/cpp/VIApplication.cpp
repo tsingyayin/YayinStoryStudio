@@ -10,7 +10,7 @@
 #include "../Log.h"
 #include "../../Utility/Console.h"
 #include <QtGui/qfontdatabase.h>
-
+#include "Widgets/Terminal.h"
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
 		vgNoticeF << "[Loading Message Handler] " << message;
@@ -21,92 +21,63 @@ namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::disableHandler() {
 		vgNoticeF << "[Loading Message Handler] Disabled default console handler.";
 	}
-}
 
-namespace Visindigo::General {
-	/*!
-		\class Visindigo::General::CoreApplication
-		\inheaderfile General/VIApplication.h
-		\brief Visindigo控制台应用程序类，继承自QCoreApplication，用于处理全局异常捕获。
-		\since Visindigo 0.13.0
-		\inmodule Visindigo
-		
-		CoreApplication类继承自Qt的QCoreApplication类，重写了notify()函数以实现全局异常捕获功能。
-		虽然此类是公开的，但用户绝不要直接使用它，它由Visindigo::General::VIApplication类根据应用程序类型自动创建和管理。
-	*/
 	CoreApplication::CoreApplication(int& argc, char** argv) :QCoreApplication(argc, argv) {
 	}
 	bool CoreApplication::notify(QObject* receiver, QEvent* event) {
 		try {
 			return QCoreApplication::notify(receiver, event);
 		}
-		catch (const Exception& ex) {
-			VIApplication::getInstance()->onException(ex);
+		catch (const Visindigo::General::Exception& ex) {
+			Visindigo::General::VIApplication::getInstance()->onException(ex);
 		}
 		catch (const std::exception& e) {
-			VIApplication::getInstance()->onException(Exception::fromStdException(e));
+			Visindigo::General::VIApplication::getInstance()->onException(Visindigo::General::Exception::fromStdException(e));
 		}
 		catch (...) {
-			VIApplication::getInstance()->onException(Exception(Exception::Unknown, "Unknown exception caught in CoreApplication::notify", true));
+			Visindigo::General::VIApplication::getInstance()->onException(Visindigo::General::Exception(Visindigo::General::Exception::Unknown, "Unknown exception caught in CoreApplication::notify", true));
 		}
 		return false;
 	}
 
-	/*!
-		\class Visindigo::General::GuiApplication
-		\inheaderfile General/VIApplication.h
-		\brief Visindigo GUI应用程序类，继承自QGuiApplication，用于处理全局异常捕获。
-		\since Visindigo 0.13.0
-		\inmodule Visindigo
-
-		GuiApplication类继承自Qt的QGuiApplication类，重写了notify()函数以实现全局异常捕获功能。
-		虽然此类是公开的，但用户绝不要直接使用它，它由Visindigo::General::VIApplication类根据应用程序类型自动创建和管理。
-	*/
 	GuiApplication::GuiApplication(int& argc, char** argv) :QGuiApplication(argc, argv) {
 	}
 	bool GuiApplication::notify(QObject* receiver, QEvent* event) {
 		try {
 			return QGuiApplication::notify(receiver, event);
 		}
-		catch (const Exception& ex) {
-			VIApplication::getInstance()->onException(ex);
+		catch (const Visindigo::General::Exception& ex) {
+			Visindigo::General::VIApplication::getInstance()->onException(ex);
 		}
 		catch (const std::exception& e) {
-			VIApplication::getInstance()->onException(Exception::fromStdException(e));
+			Visindigo::General::VIApplication::getInstance()->onException(Visindigo::General::Exception::fromStdException(e));
 		}
 		catch (...) {
-			VIApplication::getInstance()->onException(Exception(Exception::Unknown, "Unknown exception caught in GuiApplication::notify", true));
+			Visindigo::General::VIApplication::getInstance()->onException(Visindigo::General::Exception(Visindigo::General::Exception::Unknown, "Unknown exception caught in GuiApplication::notify", true));
 		}
 		return false;
 	}
 
-	/*!
-		\class Visindigo::General::Application
-		\inheaderfile General/VIApplication.h
-		\brief Visindigo Widget应用程序类，继承自QApplication，用于处理全局异常捕获。
-		\since Visindigo 0.13.0
-		\inmodule Visindigo
-
-		Application类继承自Qt的QApplication类，重写了notify()函数以实现全局异常捕获功能。
-		虽然此类是公开的，但用户绝不要直接使用它，它由Visindigo::General::VIApplication类根据应用程序类型自动创建和管理。
-	*/
 	Application::Application(int& argc, char** argv) :QApplication(argc, argv) {
 	}
 	bool Application::notify(QObject* receiver, QEvent* event) {
 		try {
 			return QApplication::notify(receiver, event);
 		}
-		catch (const Exception& ex) {
-			VIApplication::getInstance()->onException(ex);
+		catch (const Visindigo::General::Exception& ex) {
+			Visindigo::General::VIApplication::getInstance()->onException(ex);
 		}
 		catch (const std::exception& e) {
-			VIApplication::getInstance()->onException(Exception::fromStdException(e));
+			Visindigo::General::VIApplication::getInstance()->onException(Visindigo::General::Exception::fromStdException(e));
 		}
 		catch (...) {
-			VIApplication::getInstance()->onException(Exception(Exception::Unknown, "Unknown exception caught in Application::notify", true));
+			Visindigo::General::VIApplication::getInstance()->onException(Visindigo::General::Exception(Visindigo::General::Exception::Unknown, "Unknown exception caught in Application::notify", true));
 		}
 		return false;
 	}
+}
+
+namespace Visindigo::General {
 
 	/*!
 		\class Visindigo::General::ApplicationLoadingMessageHandler
@@ -186,14 +157,16 @@ namespace Visindigo::General {
 	class VIApplicationPrivate {
 		friend class VIApplication;
 	protected:
+		static QMap<VIApplication::EnvKey, QVariant> EnvConfig;
+		static VIApplication* Instance;
+
 		VIApplication::AppType AppType;
 		void* AppInstance;
-		static QMap<VIApplication::EnvKey, QVariant> EnvConfig;
 		Plugin* MainPlugin;
 		bool started = false;
 		ApplicationLoadingMessageHandler* LoadingMessageHandler = nullptr;
 		ApplicationExceptionMessageHandler* ExceptionMessageHandler = nullptr;
-		static VIApplication* Instance;
+		Widgets::Terminal* VirtualTerminal = nullptr;
 	};
 
 	VIApplication* VIApplicationPrivate::Instance = nullptr;
@@ -203,6 +176,7 @@ namespace Visindigo::General {
 			{VIApplication::LogTimeFormat, "yyyy-MM-dd hh:mm:ss.zzz"},
 			{VIApplication::PluginFolderPath, "./user_data/plugins"},
 			{VIApplication::MinimumLoadingTimeMS, 3000},
+			{VIApplication::UseVirtualTerminal, false},
 	};
 
 	/*!
@@ -315,13 +289,32 @@ namespace Visindigo::General {
 		if (changeWorkingDirToExeDir) {
 			QDir::setCurrent(QFileInfo(argv[0]).absolutePath());
 		}
-		Utility::Console::print("\033[38;2;237;28;36m===================================================================\033[0m");
-		Utility::Console::print("\033[38;2;234;54;128m╮ ╭\t─┬─\t╭──\t─┬─\t╭╮╭\t┌─╮\t─┬─\t╭─╮\t╭─╮\033[0m");
-		Utility::Console::print("\033[38;2;234;63;247m╰╮│\t │ \t╰─╮\t │ \t│││\t│ │\t │ \t│ ┐\t│ │\033[0m");
-		Utility::Console::print("\033[38;2;115;43;235m ╰╯\t─┴─\t──╯\t─┴─\t╯╰╯\t└─╯\t─┴─\t╰─╯\t╰─╯\033[0m");
-		Utility::Console::print("   \t   \t———\t  流\t   \t清  \t———\t   \t   \t");
-		Utility::Console::print("\033[38;2;50;130;246m===================================================================\033[0m");
-		Utility::Console::print("\033[38;2;234;54;128mVisindigo \033[0m" + General::Version::getABIVersion().toString() + " \"" + QString(Visindigo_VERSION_NICKNAME) + "\"" +
+		d->AppType = appType;
+		d->MainPlugin = nullptr;
+		switch (appType) {
+		case CoreApp:
+			d->AppInstance = new Visindigo::__Private__::CoreApplication(argc, argv);
+			break;
+		case GuiApp:
+			d->AppInstance = new Visindigo::__Private__::GuiApplication(argc, argv);
+			break;
+		case WidgetApp:
+			d->AppInstance = new Visindigo::__Private__::Application(argc, argv);
+			break;
+		default:
+			throw Exception(Exception::InvalidArgument, "Invalid AppType");
+		}
+		if (VIApplication::getEnvConfig(VIApplication::UseVirtualTerminal).toBool()) {
+			d->VirtualTerminal = new Widgets::Terminal();
+			d->VirtualTerminal->show();
+		}
+		vgDebug << ("\033[38;2;237;28;36m===================================================================\033[0m");
+		vgDebug << ("\033[38;2;234;54;128m╮ ╭\t─┬─\t╭──\t─┬─\t╭╮╭\t┌─╮\t─┬─\t╭─╮\t╭─╮\033[0m");
+		vgDebug << ("\033[38;2;234;63;247m╰╮│\t │ \t╰─╮\t │ \t│││\t│ │\t │ \t│ ┐\t│ │\033[0m");
+		vgDebug << ("\033[38;2;115;43;235m ╰╯\t─┴─\t──╯\t─┴─\t╯╰╯\t└─╯\t─┴─\t╰─╯\t╰─╯\033[0m");
+		vgDebug << ("   \t   \t———\t  流\t   \t清  \t———\t   \t   \t");
+		vgDebug << ("\033[38;2;50;130;246m===================================================================\033[0m");
+		vgDebug << ("\033[38;2;234;54;128mVisindigo \033[0m" + General::Version::getABIVersion().toString() + " \"" + QString(Visindigo_VERSION_NICKNAME) + "\"" +
 #ifdef QT_DEBUG
 			" \033[38;2;255;253;85m[DEBUG compilation mode]\033[0m");
 #else
@@ -330,21 +323,6 @@ namespace Visindigo::General {
 		Utility::Console::print("\033[38;2;234;63;247mVersion Compilation Time \033[0m: \033[38;2;255;253;85m" + QString(Visindigo_VERSION_BUILD_DATE) + " " + QString(Visindigo_VERSION_BUILD_TIME) + " [" + QSysInfo::buildCpuArchitecture() + "]\033[0m");
 		Utility::Console::print(Utility::Console::inWarningStyle("Working Path: ") + Utility::Console::inNoticeStyle(QDir::currentPath()));
 		Utility::Console::print("Hello, " + QDir::home().dirName() + "! Welcome to Visindigo!");
-		d->AppType = appType;
-		d->MainPlugin = nullptr;
-		switch (appType) {
-		case CoreApp:
-			d->AppInstance = new CoreApplication(argc, argv);
-			break;
-		case GuiApp:
-			d->AppInstance = new GuiApplication(argc, argv);
-			break;
-		case WidgetApp:
-			d->AppInstance = new Application(argc, argv);
-			break;
-		default:
-			throw Exception(Exception::InvalidArgument, "Invalid AppType");
-		}
 		PluginManager::getInstance(); // Initialize PluginManager
 		TranslationHost::getInstance(); // Initialize TranslationHost
 
@@ -373,13 +351,13 @@ namespace Visindigo::General {
 		if (d->AppInstance) {
 			switch (d->AppType) {
 			case CoreApp:
-				delete static_cast<CoreApplication*>(d->AppInstance);
+				delete static_cast<Visindigo::__Private__::CoreApplication*>(d->AppInstance);
 				break;
 			case GuiApp:
-				delete static_cast<GuiApplication*>(d->AppInstance);
+				delete static_cast<Visindigo::__Private__::GuiApplication*>(d->AppInstance);
 				break;
 			case WidgetApp:
-				delete static_cast<Application*>(d->AppInstance);
+				delete static_cast<Visindigo::__Private__::Application*>(d->AppInstance);
 				break;
 			}
 			d->AppInstance = nullptr;
@@ -501,13 +479,13 @@ namespace Visindigo::General {
 			vgError << "Critical exception caught, exiting application.";
 			switch (d->AppType) {
 			case CoreApp:
-				static_cast<CoreApplication*>(d->AppInstance)->exit(-1);
+				static_cast<Visindigo::__Private__::CoreApplication*>(d->AppInstance)->exit(-1);
 				break;
 			case GuiApp:
-				static_cast<GuiApplication*>(d->AppInstance)->exit(-1);
+				static_cast<Visindigo::__Private__::GuiApplication*>(d->AppInstance)->exit(-1);
 				break;
 			case WidgetApp:
-				static_cast<Application*>(d->AppInstance)->exit(-1);
+				static_cast<Visindigo::__Private__::Application*>(d->AppInstance)->exit(-1);
 				break;
 			}
 		}
@@ -564,13 +542,13 @@ namespace Visindigo::General {
 		int ret = 0;
 		switch (d->AppType) {
 		case CoreApp:
-			ret = static_cast<CoreApplication*>(d->AppInstance)->exec();
+			ret = static_cast<Visindigo::__Private__::CoreApplication*>(d->AppInstance)->exec();
 			break;
 		case GuiApp:
-			ret = static_cast<GuiApplication*>(d->AppInstance)->exec();
+			ret = static_cast<Visindigo::__Private__::GuiApplication*>(d->AppInstance)->exec();
 			break;
 		case WidgetApp:
-			ret = static_cast<Application*>(d->AppInstance)->exec();
+			ret = static_cast<Visindigo::__Private__::Application*>(d->AppInstance)->exec();
 			break;
 		default:
 			throw Exception(Exception::InvalidArgument, "Invalid AppType");
@@ -606,5 +584,15 @@ namespace Visindigo::General {
 	*/
 	bool VIApplication::applicationStarted() const {
 		return d->started;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		获取应用程序的虚拟终端窗口。
+		返回值为指向虚拟终端窗口对象的指针。如果未启用虚拟终端功能，则返回nullptr。
+		此函数允许用户获取应用程序的虚拟终端窗口，以便在其中执行命令行操作。
+	*/
+	Widgets::Terminal* VIApplication::getVirtualTerminal() const {
+		return d->VirtualTerminal;
 	}
 }

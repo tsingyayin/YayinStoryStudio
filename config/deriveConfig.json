@@ -1,0 +1,25 @@
+{
+    "output": "./binary",
+    "projects": {
+        "Visindigo": {
+            "proj_path": "./src/Visindigo",
+            "modules": [ "General", "Utility", "Widgets"],
+            "bin_main_name": "Visindigo",
+            "bin_ext_names": ["dll", "exp", "lib", "pdb", "ilk", "map"],
+            "ignore_header_suffixes": ["_p"],
+            "platforms": ["x64"],
+            "release_build_paths": ["./x64/Release"],
+            "debug_build_paths": ["./x64/Debug"]
+        },
+        "YSSCore": {
+            "proj_path": "./src/YSSCore",
+            "modules": [ "Editor" ],
+            "bin_main_name": "YSSCore",
+            "bin_ext_names": ["dll", "exp", "lib", "pdb", "ilk", "map"],
+            "ignore_header_suffixes": ["_p"],
+            "platforms": ["x64"],
+            "release_build_paths": ["./x64/Release"],
+            "debug_build_paths": ["./x64/Debug"]
+        }
+    }
+}

@@ -19,20 +19,28 @@
 #include <QtWidgets/qfiledialog.h>
 #include "../../NewProjectPage/NewProjectWin.h"
 #include <General/YSSLogger.h>
+#include <Widgets/TitleWidget.h>
+#include <Widgets/WidgetResizeTool.h>
 
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
+		TitleWidget = new Visindigo::Widgets::TitleWidget(this);
+		TitleWidget->setTitleText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
+		ResizeTool = new Visindigo::Widgets::WidgetResizeTool(this, Visindigo::Widgets::WidgetResizeTool::RB, 5);
+
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
-		this->setMinimumSize(800, 600);
+		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(YSSTR("YSS::project.projectManager"));
 		Config = new Visindigo::Utility::JsonConfig();
 		QString configAll = Visindigo::Utility::FileUtility::readAll("./resource/config/project.json");
 		Config->parse(configAll);
-
+		TitleWidget->setFixedHeight(40);
+		TitleWidget->setMinimumWidth(1366);
 		TitleLabel = new QLabel(this);
 		TitleLabel->setText("  Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("TitleLabel");
 		TitleLabel->setFixedHeight(80);
+		TitleLabel->hide();
 		HistoryProjectArea = new QScrollArea(this);
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);
 		HistoryProjectLayout = new QVBoxLayout(HistoryProjectWidget);
@@ -62,7 +70,8 @@ namespace YSS::ProjectPage {
 		Layout = new QGridLayout(this);
 
 		this->setLayout(Layout);
-		Layout->addWidget(TitleLabel, 0, 0, 1, 2);
+		Layout->addWidget(TitleWidget, 0, 0, 1, 2);
+		//Layout->addWidget(TitleLabel, 0, 0, 1, 2);
 		Layout->addWidget(HistoryProjectArea, 1, 0, 1, 1);
 		Layout->addWidget(NewsWidget, 1, 1, 1, 1);
 		Layout->addWidget(InfoWidget, 2, 0, 1, 1);
@@ -110,6 +119,7 @@ namespace YSS::ProjectPage {
 
 	void ProjectWin::resizeEvent(QResizeEvent* event) {
 		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - HistoryProjectArea->verticalScrollBar()->width());
+		TitleWidget->setFixedWidth(this->width());
 	}
 
 	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {

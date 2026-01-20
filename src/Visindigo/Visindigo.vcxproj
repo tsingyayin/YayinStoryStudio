@@ -221,9 +221,12 @@
     <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
     <ClCompile Include="General\cpp\StacktraceHelper.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
+    <ClCompile Include="Utility\cpp\BandizipBinder.cpp" />
+    <ClCompile Include="Utility\cpp\ColorTool.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfig.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfigMemPool.cpp" />
-    <ClCompile Include="Utility\cpp\GeneralConfigParser.cpp" />
+    <ClCompile Include="Utility\cpp\GeneralConfigParser_Json.cpp" />
+    <ClCompile Include="Utility\cpp\GeneralConfigParser_Yaml.cpp" />
     <ClCompile Include="Utility\cpp\QtSSHelper.cpp" />
     <ClCompile Include="Utility\cpp\ShortCutHelper.cpp" />
     <ClCompile Include="Utility\cpp\StringUtility.cpp" />
@@ -264,7 +267,9 @@
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
     <ClCompile Include="Widgets\cpp\TextTags.cpp" />
     <ClCompile Include="Widgets\cpp\Terminal.cpp" />
+    <ClCompile Include="Widgets\cpp\TitleWidget.cpp" />
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
+    <ClCompile Include="Widgets\cpp\WidgetResizeTool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="General\ProjectMessageCollector.h" />
@@ -282,6 +287,8 @@
     <QtMoc Include="Utility\private\qnamespace_key.h" />
     <QtMoc Include="General\VIApplication.h" />
     <ClInclude Include="General\StacktraceHelper.h" />
+    <QtMoc Include="Utility\BandizipBinder.h" />
+    <ClInclude Include="Utility\ColorTool.h" />
     <ClInclude Include="Utility\GeneralConfigParser.h" />
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
@@ -292,9 +299,11 @@
     <QtMoc Include="Widgets\MultiButtonGroup.h" />
     <QtMoc Include="Widgets\private\MultiButtonGroup_p.h" />
     <QtMoc Include="Widgets\DragWidget.h" />
+    <QtMoc Include="Widgets\WidgetResizeTool.h" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
     <QtMoc Include="Widgets\private\Terminal_p.h" />
+    <QtMoc Include="Widgets\private\TitleWidget_p.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -321,6 +330,7 @@
     <ClInclude Include="Widgets\MultiLabel.h" />
     <QtMoc Include="Widgets\TextTags.h" />
     <QtMoc Include="Widgets\Terminal.h" />
+    <QtMoc Include="Widgets\TitleWidget.h" />
     <ClInclude Include="Widgets\WidgetDisplayStack.h" />
     <QtMoc Include="Widgets\ThemeManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />

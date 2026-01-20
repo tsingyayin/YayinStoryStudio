@@ -11,29 +11,10 @@
 //   use smart pointers, but this is impossible in practice, so it is impossible to ensure 
 //   that the program can continue to run safely after an exception occurs.
 
-
+namespace Visindigo::Widgets { 
+	class Terminal;
+}
 namespace Visindigo::General {
-	class VisindigoAPI CoreApplication :public QCoreApplication {
-	public:
-		CoreApplication(int& argc, char** argv);
-		virtual ~CoreApplication() {}
-		virtual bool notify(QObject* receiver, QEvent* event) override;
-	};
-
-	class VisindigoAPI GuiApplication :public QGuiApplication {
-	public:
-		GuiApplication(int& argc, char** argv);
-		virtual ~GuiApplication() {}
-		virtual bool notify(QObject* receiver, QEvent* event) override;
-	};
-
-	class VisindigoAPI Application :public QApplication {
-	public:
-		Application(int& argc, char** argv);
-		virtual ~Application() {}
-		virtual bool notify(QObject* receiver, QEvent* event) override;
-	};
-
 	class VIApplicationPrivate;
 	class Plugin;
 
@@ -66,6 +47,7 @@ namespace Visindigo::General {
 			LogTimeFormat,
 			PluginFolderPath,
 			MinimumLoadingTimeMS,
+			UseVirtualTerminal,
 		};
 	public:
 		static VIApplication* getInstance();
@@ -80,6 +62,7 @@ namespace Visindigo::General {
 		void setGlobalFont(const QString& fontPath, int fontID = 0);
 		int start();
 		bool applicationStarted() const;
+		Widgets::Terminal* getVirtualTerminal() const;
 	private:
 		VIApplicationPrivate* d;
 	};

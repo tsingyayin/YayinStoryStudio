@@ -143,7 +143,7 @@
     <QtRcc Include="YayinStoryEditor.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="YayinStoryStudio.h" />
+    <QtMoc Include="YayinStoryStudio.h" />
     <QtMoc Include="Editor\NewProjectPage\NewProjectWin.h" />
     <QtMoc Include="Editor\MainEditor\ProjectMessageViewer.h" />
     <QtMoc Include="Editor\ProjectPage\NewsArea.h" />

@@ -53,7 +53,9 @@ namespace Visindigo::Widgets {
 
 	Terminal::Terminal(QWidget* parent)
 		: QFrame(parent), d(new Visindigo::__Private__::TerminalPrivate) {
+		this->setMinimumSize(800, 600);
 		d->consoleView = new QTextBrowser(this); 
+		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
 		connect(Visindigo::General::LoggerManager::getInstance(), &Visindigo::General::LoggerManager::logReceived, 
 			[this](
 				const QString& handlerName, Visindigo::General::Logger::Level level, 
@@ -93,6 +95,7 @@ namespace Visindigo::Widgets {
 		QFont font("Cascadia Mono");
 		d->consoleView->setFont(font);
 		d->inputLine->setFont(font);
+		vgDebug << "Terminal initialized.";
 	}
 
 	Terminal::~Terminal() {
