@@ -25,7 +25,10 @@ namespace YSSCore::Editor {
 		~FileServerManager();
 		void registerFileServer(FileServer* server);
 		void unregisterFileServer(FileServer* server);
-		bool openFile(const QString& filePath);
+		bool openFile(const QString& filePath, const QString& preferredServerId = QString(), bool useFallback = true);
+		QStringList getSupportedFileExts();
+		QStringList getAvailableFileServerForFileExt(const QString& fileExt);
+		void setPriorityForFileExt(const QString& fileExt, const QStringList& serverIds);
 	private:
 		FileServerManagerPrivate* d;
 	};
