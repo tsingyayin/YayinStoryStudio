@@ -16,7 +16,6 @@ namespace YSS {
 		Instance = this;
 		yMessageF << "Program global value initializing";
 		PathMacro = new Visindigo::Utility::PathMacro();
-		Theme = new Visindigo::Widgets::ThemeManager(this);
 		loadConfig();
 		YSSTranslator = new YSS::Editor::YSSTranslator();
 		Visindigo::General::TranslationHost::getInstance()->active(YSSTranslator);
@@ -71,7 +70,6 @@ namespace YSS {
 		else {
 			vgErrorF << "failed";
 		}
-		Theme->loadConfig("./resource/theme/config/" + Config->getString("Preference.Theme") + ".json");
 	}
 	void GlobalValue::setMainWindow(YSS::Editor::MainWin* mainWindow) {
 		Instance->MainWindow = mainWindow;

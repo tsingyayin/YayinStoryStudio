@@ -17,6 +17,7 @@ namespace Visindigo::__Private__ {
 		Q_OBJECT;
 	public:
 		bool useSign = true;
+		bool isMaximized = false;
 		TitleWidget_MaxButton(QWidget* parent = nullptr);
 		virtual void paintEvent(QPaintEvent* event) override;
 	};
@@ -37,11 +38,13 @@ namespace Visindigo::__Private__ {
 		TitleWidget_MinButton* MinButton;
 		TitleWidget_MaxButton* MaxButton;
 		TitleWidget_CloseButton* CloseButton;
+		QLabel* PixmapLabel;
 		QLabel* TextLabel;
 		QHBoxLayout* Layout = nullptr;
 		QWidget* InsertWidget = nullptr;
 		QWidget* TopWidget = nullptr;
 		QPoint LastMousePos;
+		QString PixmapPath;
 		bool DragMoveEnable = true;
 		Visindigo::Widgets::TitleWidget::TitleButtonFeature ButtonFeature = Visindigo::Widgets::TitleWidget::All;
 		Visindigo::Widgets::TitleWidget::ButtonStyleFeature ButtonStyle = Visindigo::Widgets::TitleWidget::Win32Style;

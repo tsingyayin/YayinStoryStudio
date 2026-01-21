@@ -20,6 +20,9 @@
     \li YSSInstaller 模块：一个WIP模块，暂时没有具体开发计划，用于实现YSS的更新与安装程序。
     \endlist
 
+    \section1 附带实用工具
+    Yayin Story Studio 项目附带了一些用于辅助开发和测试的Python工具，参见 \l {pytools.html}{项目附带的Python工具} 文档。
+
     \section1 贡献代码
     Yayin Story Studio 在Github上开源，参见 \l {https://github.com/tsingyayin/YayinStoryStudio}{Yayin Story Studio Github 仓库} 。
 

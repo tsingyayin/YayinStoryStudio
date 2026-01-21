@@ -1,0 +1,83 @@
+/*!
+    \page pytools.html
+    \title 项目附带的Python工具
+    \brief Visindigo项目附带的Python工具文档
+    \since Visindigo 0.13.0
+    \inmodule Visindigo
+
+    Visindigo项目附带了一些用于辅助开发和测试的Python工具。这些工具可以帮助开发人员更高效地进行开发工作，
+    并提供了一些方便的功能来简化常见任务。Visindigo尽量使各Python工具都位于pytools文件夹下，但也有例外。
+
+    所有Visindigo Pytools均统一要求使用Python 3.12 及以上版本来运行这些工具。
+
+    \section1 Visindigo Doc Generator
+    Visindigo Doc是一个调用QDOC进行文档生成的Python脚本。
+    \list
+    \li 1. QDoc.py - QDoc的Python封装脚本，位于doc/scripts/QDoc.py，基本上它只是根据参数去调用Qt自带的qdoc工具。
+    \li 2. QDocToCN.py - QDoc.py默认会自动调用的一个脚本，它将QDOC模板中的英文内容翻译为中文内容，位于doc/scripts/QDocToCN.py。
+    这个脚本也可以独立使用，只要在import后，调用该模块的main()函数即可，其中传递文档输出文件夹路径作为参数。
+    \endlist
+    在doc/scripts中，还有一个bat文件，其中的代码可以在安装了Node.js并且有http-server包的情况下，
+    直接启动一个本地服务器来预览生成的文档。它不被QDoc.py调用。可按需自行启动。
+
+    使用Visindigo Doc需要配置config/para.yml：
+    \list
+    \li qt.installPath - Qt安装路径，必须配置。定位到具有编译器名称的文件夹即可，如"path/version/msvc2022_64"。
+    \li qt.docIndexPath - Qt文档索引文件qtdoc.index的路径，必须配置。该文件通常位于Qt安装目录下的Docs文件夹中。
+    \li qt.translationCN - 是否启用中文翻译功能，默认为true。如果设置为false，则跳过QDocToCN的调用。
+    \endlist
+
+    \section1 AutoVersion From Git
+    AutoVersion From Git是一个用于自动从Git仓库获取release次数并自动生成头文件宏定义的Python脚本。
+    该脚本位于src/Visindigo/pytools/AutoVersionFromGit.py，它很简单，但无法直接复制挪用，建议按需修改后使用。
+
+    \section1 Visindigo Library Derive
+    Visindigo Library Derive是一个用于将当前仓库内相关内容按特定结构提取出来以便发行的Python脚本。
+    该脚本位于pytools/VisindigoLibraryDerive.py，它会将非private头文件、库文件、调试符号等内容提取到指定文件夹中，
+    以便进行发行打包。
+
+    它默认只提取Visindigo和YSSCore两个库的内容，如果需要提取其他库，则需要填写配置文件config/deriveConfig.json。
+    \list
+    \li output - 提取输出路径，必须配置。
+    \li projects.[name].proj_path - 需要提取的项目所在路径。注意，配置节点中的[name]就作为输出时的项目名称使用。
+    \li projects.[name].modules - 需要提取的模块名称列表。这指的是项目路径下一级文件夹的名称。注意项目根文件夹文件是默认需要提取的。
+    \li projects.[name].bin_main_name - 需要提取的二进制文件的主名称。
+    \li projects.[name].bin_ext_name - 需要提取的二进制文件的扩展名称，是列表，因此你可以同时提取包括多种扩展名但主名称相同的文件。
+    这很常见，如同时提取.dll、.lib、.pdb等文件。
+    \li projects.[name].ignore_header_suffixes - 需要忽略提取的头文件主名称后缀列表。按Qt的命名习惯，private头文件通常以_p结尾，因此本项目已经填入的值为["_p"]。
+    \li projects.[name].platforms - 需要提取的目标平台列表。如只提取windows x86_64平台，则填写["x64"]即可。这个影响的是输出的文件夹名称。
+    \li projects.[name].release_build_paths - 需要提取的release版本构建文件夹路径列表。需要和platforms一一对应。
+    \li projects.[name].debug_build_paths - 需要提取的debug版本构建文件夹路径列表。需要和platforms一一对应。
+    \endlist
+
+    输出文件夹结构如下所示：
+    \badcode
+    output/
+        [project_name]/
+            include/
+                [module_name]/
+                    *.h
+            bin/
+                [platform_name]/
+                    [Release|Debug]/
+                        *.lib
+                        *.dll
+                        *.pdb
+    \endcode
+
+    modules的设计是因为匹配Visindigo的文件管理习惯，即
+    \badcode
+    Project/
+        Module1/
+            cpp/
+                *.cpp
+            *.h
+        Module2/
+            cpp/
+                *.cpp
+            *.h
+    \endcode
+    对于src、include本来就已经分开的项目而言，proj_path应该直接定位到include，然后按需要填写modules。
+    如果是定位到根目录，然后modules填写为["include"]，则会导致导出的头文件都在include/include/目录下，
+    即发生一个多余的include文件夹嵌套。
+*/

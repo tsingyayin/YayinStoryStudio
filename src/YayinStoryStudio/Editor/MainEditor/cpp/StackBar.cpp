@@ -19,7 +19,7 @@ namespace YSS::Editor {
 		ScrollAreaWidget->setLayout(Layout);
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->setSpacing(0);
-		this->setStyleSheet(YSSTMSS("YSS::Default", this));
+		this->setStyleSheet(VISTMGT("YSS::Default", this));
 	}
 
 	bool StackBar::isLabelOpened(const QString& filePath) {

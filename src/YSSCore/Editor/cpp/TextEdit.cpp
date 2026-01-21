@@ -39,8 +39,8 @@ namespace YSSCore::__Private__ {
 			QTextCursor cursor = Line->textCursor();
 			cursor.movePosition(QTextCursor::End);
 			QTextBlockFormat blockFormat = cursor.blockFormat();
-			blockFormat.setBackground(YSSTM->getColor("Editor.Background"));
-			blockFormat.setForeground(YSSTM->getColor("Editor.LineNumber"));
+			blockFormat.setBackground(VISTM->getColor("Editor.Background"));
+			blockFormat.setForeground(VISTM->getColor("Editor.LineNumber"));
 			for (int i = 0; i < delta; i++) {
 				Line->append(QString::number(LineCount + i + 1));
 				cursor.movePosition(QTextCursor::Down);
@@ -93,8 +93,8 @@ namespace YSSCore::__Private__ {
 		}
 		int delta = index - LastCursorLine;
 		QTextBlockFormat format = LastCursor.blockFormat();
-		format.setBackground(YSSTM->getColor("Editor.Background"));
-		format.setForeground(YSSTM->getColor("Editor.LineNumber"));
+		format.setBackground(VISTM->getColor("Editor.Background"));
+		format.setForeground(VISTM->getColor("Editor.LineNumber"));
 		LastCursor.setBlockFormat(format);
 		if (delta > 0) {
 			LastCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, delta);
@@ -102,7 +102,7 @@ namespace YSSCore::__Private__ {
 		else {
 			LastCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -delta);
 		}
-		format.setBackground(YSSTM->getColor("Editor.Selection"));
+		format.setBackground(VISTM->getColor("Editor.Selection"));
 		LastCursor.setBlockFormat(format);
 		LastCursorLine = index;
 	}
@@ -485,7 +485,7 @@ namespace YSSCore::Editor {
 		d->Text->installEventFilter(this);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(this);
-		d->Text->verticalScrollBar()->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
+		d->Text->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->addWidget(d->Line);
 		d->Layout->addWidget(d->Text);

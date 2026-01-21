@@ -15,6 +15,7 @@
 #include "../ResourceBrowser.h"
 #include "../MenuBarHandler.h"
 #include <General/YSSLogger.h>
+#include <Utility/ColorTool.h>
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
@@ -65,8 +66,8 @@ namespace YSS::Editor {
 
 	void MainWin::applyStyleSheet() {
 		this->setStyleSheet("QWidget{\
-			background-color: " % YSSTM->getColorString("Background") % ";\
-			color: " % YSSTM->getColorString("Text") % ";\
+			background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Background")) % ";\
+			color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Text")) % ";\
 		}");
 	}
 
@@ -118,10 +119,12 @@ namespace YSS::Editor {
 		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/yss/compiled/configWidget/mainEditorMenu.json"));
 		this->setMenuBar(Menu);
 		Menu->setStyleSheet("QMenuBar{border: 1px solid white}\
-			QMenu{margin:10px;border: 1px solid " % YSSTM->getColorString("OutlineLight") % ";border-radius:5px;}\
-			QMenu::item:selected{background-color: " % YSSTM->getColorString("Pressed") % "; color: " % YSSTM->getColorString("Text") % ";border-radius:5px;}\
-			QMenuBar::item:selected{background-color: " % YSSTM->getColorString("Pressed") % "; color: " % YSSTM->getColorString("Text") % ";}\
-			QMenu::separator{height:1px;background:" % YSSTM->getColorString("Pressed") % ";margin-left:5px;margin-right:5px;}\
+			QMenu{margin:10px;border: 1px solid " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("OutlineLight")) % ";border-radius:5px;}\
+			QMenu::item:selected{background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Pressed")) % "; color: " 
+			% Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Text")) % ";border-radius:5px;}\
+			QMenuBar::item:selected{background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Pressed")) % "; color: " 
+			% Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Text")) % ";}\
+			QMenu::separator{height:1px;background:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Pressed")) % ";margin-left:5px;margin-right:5px;}\
 ");
 	}
 

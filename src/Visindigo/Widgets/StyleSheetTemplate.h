@@ -1,5 +1,6 @@
 #pragma once
 #include "../Macro.h"
+#include <QtCore/qstringlist.h>
 // Forward declarations
 class QString;
 class QWidget;
@@ -15,19 +16,21 @@ namespace Visindigo::Widgets {
 	public:
 		StyleSheetTemplate();
 		~StyleSheetTemplate();
-		StyleSheetTemplate(const StyleSheetTemplate& other);
-		StyleSheetTemplate(StyleSheetTemplate&& other) noexcept;
-		StyleSheetTemplate& operator=(const StyleSheetTemplate& other);
-		StyleSheetTemplate& operator=(StyleSheetTemplate&& other);
-		void parse(QString& templateStr);
+		VIMoveable(StyleSheetTemplate);
+		VICopyable(StyleSheetTemplate);
+		bool parse(QString& templateStr);
 		QString toString();
-		QString getRawStyleSheet(const QString& key);
-		QString getStyleSheet(const QString& key, Visindigo::Utility::JsonConfig* config = nullptr, QWidget* getter = nullptr);
-		void setStyleSheetTemplate(const QString& key, const QString& styleSheet);
+		QString getRawStyleSheet(const QString& keyWithNamespace);
+		QString getRawStyleSheet(const QString& namespaceStr, const QString& key);
+		QString getStyleSheet(const QString& keyWithNamespace, const QString& themeID, Visindigo::Utility::JsonConfig* config = nullptr, QWidget* getter = nullptr);
+		QStringList getNamespaces() const;
+		void setStyleSheetTemplate(const QString& namespaceStr, const QString& key, const QString& styleSheet);
+		void setStyleSheetTemplate(const QString& keyWithNamespace, const QString& styleSheet);
+		QString getTemplateID() const;
+		QString getTemplateName() const;
+		void setTemplateID(const QString& id);
 		void setTemplateName(const QString& name);
-		QString getTemplateName();
-		void setTemplateID(const QString& name);
-		QString getTemplateID();
+		void merge(const StyleSheetTemplate& other);
 	private:
 		StyleSheetTemplatePrivate* d;
 	};

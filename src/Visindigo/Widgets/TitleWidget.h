@@ -33,15 +33,22 @@ namespace Visindigo::Widgets {
 		TitleWidget(QWidget* parent = nullptr, QWidget* topWidget = nullptr, bool autoSetupTopWidget = true, bool enableDragMove = true);
 		virtual ~TitleWidget();
 		void setTopWidget(QWidget* topWidget);
+		QWidget* getTopWidget() const;
 		void setTitleText(const QString& text);
+		QString getTitleText() const;
+		void setPixmapPath(const QString& filePath);
+		QString getPixmapPath() const;
 		void setTitleButtonFeature(TitleButtonFeature feature);
+		TitleButtonFeature getTitleButtonFeature() const;
 		void setButtonStyle(ButtonStyleFeature style);
 		ButtonStyleFeature getButtonStyle() const;
 		void setupTopWidget();
 		void setDragMoveEnable(bool enable);
-		void setInsertWidget(QWidget* widget);
-		void setTitleAlignment(Qt::Alignment alignment);
 		bool isDragMoveEnable() const;
+		void setInsertWidget(QWidget* widget);
+		QWidget* getInsertWidget() const;
+		void setTitleAlignment(Qt::Alignment alignment);
+		Qt::Alignment getTitleAlignment() const;
 	private:
 		__Private__::TitleWidgetPrivate* d;
 	};

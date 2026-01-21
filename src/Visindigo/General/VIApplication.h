@@ -48,6 +48,7 @@ namespace Visindigo::General {
 			PluginFolderPath,
 			MinimumLoadingTimeMS,
 			UseVirtualTerminal,
+			ThemeFolderPath,
 		};
 	public:
 		static VIApplication* getInstance();
@@ -67,5 +68,5 @@ namespace Visindigo::General {
 		VIApplicationPrivate* d;
 	};
 }
-#define VIAppStatic Visindigo::General::VIApplication
+#define VISetEnv(key, value) Visindigo::General::VIApplication::setEnvConfig(key, value)
 #define VIApp Visindigo::General::VIApplication::getInstance()

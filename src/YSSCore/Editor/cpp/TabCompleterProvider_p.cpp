@@ -33,8 +33,8 @@ namespace YSSCore::__Private__ {
 		this->setFixedWidth(300);
 		CentralWidget->setFixedWidth(300 - 16);
 		ScrollArea->setFixedWidth(300);
-		this->setStyleSheet(YSSTMSS("YSS::Default"));
-		this->ScrollArea->verticalScrollBar()->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
+		this->setStyleSheet(VISTMGT("YSS::Default"));
+		this->ScrollArea->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 	}
 
 	void TabCompleterWidget::setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items) {
@@ -64,9 +64,9 @@ namespace YSSCore::__Private__ {
 			button->setFixedHeight(36);
 			button->setSpacing(2);
 			button->setContentsMargins(2, 2, 2, 2);
-			button->setNormalStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Normal", button));
-			button->setHoverStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Hover", button));
-			button->setPressedStyleSheet(YSSTMSS("YSS::TextEdit.TabCompleter.Pressed", button));
+			button->setNormalStyleSheet(VISTMGT("YSS::TextEdit.TabCompleter.Normal", button));
+			button->setHoverStyleSheet(VISTMGT("YSS::TextEdit.TabCompleter.Hover", button));
+			button->setPressedStyleSheet(VISTMGT("YSS::TextEdit.TabCompleter.Pressed", button));
 			Items.append(button);
 			ItemMap.insert(button, item);
 			ButtonGroup->addButton(button);

@@ -30,9 +30,12 @@ if __name__ == "__main__":
     QDocConfig = path + "\\..\\src\\config.qdocconf"
     print("QDocPath: " + QDocPath)
     print("QDocConfig: " + QDocConfig)
-    para:str = QDocPath+" "+QDocConfig + " -indexdir D:/Qt/Docs/Qt-6.8.3"
-    os.system(para)
-    QDocToCN.main(path + "\\..\\html")
+    docPara:str = QDocPath+" "+QDocConfig + " -indexdir D:/Qt/Docs/Qt-6.8.3"
+    os.system(docPara)
+    if para["qt"]["translationCN"]:
+        QDocToCN.main(path + "\\..\\html")
+    else:
+        print("跳过中文翻译步骤。")
     copyImageFolder(path + "\\..\\src\\template\\images", path + "\\..\\html\\images")
     end = datetime.datetime.now()
     print("完成于 " + end.strftime("%Y-%m-%d %H:%M:%S") + "，耗时 " + str((end - start).seconds) + " 秒。")

@@ -9,8 +9,8 @@ namespace YSSCore::__Private__ {
 		Layout = new QVBoxLayout(this);
 		this->setLayout(Layout);
 		Layout->addWidget(ContentArea);
-		this->setStyleSheet(YSSTMSS("YSS::Default"));
-		this->ContentArea->verticalScrollBar()->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
+		this->setStyleSheet(VISTMGT("YSS::Default"));
+		this->ContentArea->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 	}
 
 	void HoverInfoWidget::setPlainText(const QString& text) {

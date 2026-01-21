@@ -91,7 +91,7 @@ namespace Visindigo::General {
 }
 
 /*!
-	\macro VPluginManager 
+	\macro VISPM 
 	\since Visindigo 0.13.0
 	\relates Visindigo::General::PluginManager
 

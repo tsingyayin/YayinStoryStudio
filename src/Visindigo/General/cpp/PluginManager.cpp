@@ -108,7 +108,7 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		返回PluginManager单例对象指针。单例不存在时自动创建，是获得PluginManager对象的唯一途径。
 
-		\sa VPluginManager
+		\sa VISPM
 	*/
 	PluginManager* PluginManager::getInstance() {
 		if (PluginManagerPrivate::Instance == nullptr) {

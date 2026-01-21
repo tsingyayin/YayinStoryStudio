@@ -80,8 +80,8 @@ namespace YSS::ProjectPage {
 		Layout->setColumnStretch(1, 1);
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
-		this->setStyleSheet(YSSTMSS("YSS::ProjectWin", this));
-		this->HistoryProjectArea->setStyleSheet(YSSTMSS("YSS::NormalScrollBar", this));
+		this->setStyleSheet(VISTMGT("YSS::ProjectWin", this));
+		this->HistoryProjectArea->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 		loadProject();
 
 		int width = GlobalValue::getConfig()->getInt("Window.Project.Width");
@@ -99,14 +99,10 @@ namespace YSS::ProjectPage {
 	void ProjectWin::closeEvent(QCloseEvent* event) {
 		Visindigo::Utility::FileUtility::saveAll("./resource/config/project.json", Config->toString());
 		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
-		if (this->isMaximized()) {
-			config->setBool("Window.Project.Maximized", true);
-		}
-		else {
-			config->setInt("Window.Project.Width", this->width());
-			config->setInt("Window.Project.Height", this->height());
-			config->setBool("Window.Project.Maximized", false);
-		}
+		config->setInt("Window.Project.Width", this->normalGeometry().width());
+		config->setInt("Window.Project.Height", this->normalGeometry().height());
+		config->setBool("Window.Project.Maximized", this->isMaximized());
+		GlobalValue::saveConfig();
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
 			project = nullptr;
@@ -237,9 +233,9 @@ namespace YSS::ProjectPage {
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			Visindigo::Widgets::MultiButton* label = new Visindigo::Widgets::MultiButton(HistoryProjectWidget);
 			label->setObjectName("HistoryProject");
-			label->setNormalStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Normal"));
-			label->setHoverStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Hover"));
-			label->setPressedStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Pressed"));
+			label->setNormalStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Normal"));
+			label->setHoverStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Hover"));
+			label->setPressedStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Pressed"));
 			label->setTitle(project->getProjectName());
 			QString lastModifyTime = project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss");
 			label->setDescription(lastModifyTime + "\t" + project->getProjectFolder());

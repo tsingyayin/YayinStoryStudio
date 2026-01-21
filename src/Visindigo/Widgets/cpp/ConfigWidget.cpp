@@ -21,7 +21,7 @@ namespace Visindigo::__Private__ {
 		this->self = self;
 		this->Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
-		self->setStyleSheet(YSSTMSS("YSS::ConfigWidget", self));
+		self->setStyleSheet(VISTMGT("YSS::ConfigWidget", self));
 	}
 	ConfigWidgetPrivate::~ConfigWidgetPrivate() {
 		saveConfig();
@@ -50,7 +50,7 @@ namespace Visindigo::__Private__ {
 			//w->setStyleSheet("QWidget{border:1px solid black}");
 			Layout->addWidget(w);
 		}
-		self->setStyleSheet(YSSTMSS("YSS::ConfigWidget", self));
+		self->setStyleSheet(VISTMGT("YSS::ConfigWidget", self));
 		this->initConfig();
 	}
 	void ConfigWidgetPrivate::initConfig() {

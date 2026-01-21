@@ -59,7 +59,7 @@ namespace YSS::NewProjectPage {
 		SearchLineEdit->setFixedHeight(30);
 		RecentTemplateTitle->setText(YSSTR("YSS::project.recentUsed"));
 
-		this->setStyleSheet(YSSTMSS("YSS::ProjectWin", this));
+		this->setStyleSheet(VISTMGT("YSS::ProjectWin", this));
 
 		this->loadProjectTemplate();
 	}
@@ -80,9 +80,9 @@ namespace YSS::NewProjectPage {
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
-			ProviderButton->setNormalStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Normal"));
-			ProviderButton->setHoverStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Hover"));
-			ProviderButton->setPressedStyleSheet(YSSTMSS("YSS::ProjectWin.HistoryProject.Pressed"));
+			ProviderButton->setNormalStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Normal"));
+			ProviderButton->setHoverStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Hover"));
+			ProviderButton->setPressedStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->addCustomWidget(tags);

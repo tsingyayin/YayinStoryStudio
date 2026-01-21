@@ -2,6 +2,7 @@
 #define Visindigo_Utility_ColorTool_h
 #include "../Macro.h"
 #include <QtGui/qcolor.h>
+class QString;
 namespace Visindigo::Utility {
 	class VisindigoAPI ColorTool {
 	public:
@@ -21,6 +22,7 @@ namespace Visindigo::Utility {
 			return (((5 *g) + (2 * r) + b) > 1024);
 		};
 		static bool isLightColor(const QColor& color) noexcept;
+		static QString toColorString(const QColor& color, ColorStrFormat format = rgbHex) noexcept;
 	};
 }
 #endif

@@ -30,8 +30,9 @@
 
 	\section1 子模块
 	Visindigo 将多个类合作才能提供一个完整功能的部分称作一个子模块。 Visindigo 当前包含以下子模块：
-	\list \l {VDebug}{VDebug} - Visindigo 日志系统子模块
-	\list \l {VPlugin}{VPlugin} - Visindigo 插件系统子模块
+	\list
+	\li \l {VDebug}{VDebug} - Visindigo 日志系统子模块
+	\li \l {VPlugin}{VPlugin} - Visindigo 插件系统子模块
 	\endlist
 
 */

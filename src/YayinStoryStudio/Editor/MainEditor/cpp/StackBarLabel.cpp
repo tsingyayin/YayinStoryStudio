@@ -1,9 +1,10 @@
 #include "../StackBarLabel.h"
 #include <Widgets/ThemeManager.h>
-#include <QLabel>
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QMouseEvent>
+#include <Utility/ColorTool.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtGui/qevent.h>
 
 namespace YSS::Editor {
 	StackBarLabel::StackBarLabel(const QString& name, const QString& filePath, YSSCore::Editor::FileEditWidget* target) :QWidget() {
@@ -47,18 +48,18 @@ namespace YSS::Editor {
 		switch (state) {
 		case State::Normal:
 			this->setStyleSheet("QWidget{\
-				background-color: " % YSSTM->getColorString("Editor.FileLabel.Normal.Background") % ";\
-				color:" % YSSTM->getColorString("Editor.FileLabel.Normal.Text") % "};");
+				background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Normal.Background")) % ";\
+				color:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Normal.Text")) % "};");
 			break;
 		case State::Focused:
 			this->setStyleSheet("QWidget{\
-				background-color: " % YSSTM->getColorString("Editor.FileLabel.Focused.Background") % ";\
-				color:" % YSSTM->getColorString("Editor.FileLabel.Focused.Text") % "};");
+				background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Focused.Background")) % ";\
+				color:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Focused.Text")) % "};");
 			break;
 		case State::Pinned:
 			this->setStyleSheet("QWidget{\
-				background-color: " % YSSTM->getColorString("Editor.FileLabel.Pinned.Background") % ";\
-				color:" % YSSTM->getColorString("Editor.FileLabel.Pinned.Text") % "};");
+				background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Pinned.Background")) % ";\
+				color:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Pinned.Text")) % "};");
 			break;
 		default:
 			break;

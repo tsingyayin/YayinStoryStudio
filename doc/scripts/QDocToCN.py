@@ -29,7 +29,7 @@ REPLACEMENTS = [
             r"<p>\s*This\s+(function|enum|class|module|typedef)\s+was\s+introduced\s+in\s+(.+?)\.\s*</p>",
             re.IGNORECASE
         ),
-        r"<p>这个 \1 从 \2 开始支持。</p>"
+        r"<p>这个\1 从 \2 开始支持。</p>"
     ),
 
     # ---------- 导航链接 ----------
@@ -82,6 +82,16 @@ REPLACEMENTS = [
     (re.compile(r">List of All Members for (?P<name>.+?)<", re.IGNORECASE), r">所有 \g<name> 的成员列表<"),
     (re.compile(r">This is the complete list of members for <", re.IGNORECASE), ">这是完整的成员列表：<"),
     (re.compile(r">, including inherited members.<", re.IGNORECASE), ">，包含继承成员。<"),
+
+    # ---------- 固有说明 ----------
+    # eg. The TitleButtonFeature type is a typedef for QFlags<TitleButtonFlag>. It stores an OR combination of TitleButtonFlag values.
+    (
+        re.compile(
+            r'The\s+(?P<name>\w+)\s+type\s+is\s+a\s+typedef\s+for\s+(.+?)\.\s+It\s+stores\s+an\s+OR\s+combination\s+of\s+(.+?)\s+values\.',
+            re.IGNORECASE
+        ),
+        r'\g<name> 类型是 \2 的一个类型别名。它存储了多个 \3 值的OR组合，可供安全计算。'
+    ),
 ]
 
 

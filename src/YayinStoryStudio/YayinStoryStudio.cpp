@@ -45,6 +45,7 @@ namespace YSS {
 	}
 
 	void Main::onPluginDisbale() {
+		GlobalValue::saveConfig();
 		// Plugin disabled actions
 	}
 

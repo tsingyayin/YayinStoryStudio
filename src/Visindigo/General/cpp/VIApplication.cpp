@@ -11,6 +11,7 @@
 #include "../../Utility/Console.h"
 #include <QtGui/qfontdatabase.h>
 #include "Widgets/Terminal.h"
+#include "Widgets/ThemeManager.h"
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
 		vgNoticeF << "[Loading Message Handler] " << message;
@@ -177,6 +178,7 @@ namespace Visindigo::General {
 			{VIApplication::PluginFolderPath, "./user_data/plugins"},
 			{VIApplication::MinimumLoadingTimeMS, 3000},
 			{VIApplication::UseVirtualTerminal, false},
+			{VIApplication::ThemeFolderPath, "./user_data/themes"}
 	};
 
 	/*!
@@ -518,10 +520,35 @@ namespace Visindigo::General {
 				d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
 			}
 		}
-		
+		if (d->AppType == WidgetApp) {
+			Widgets::ThemeManager::getInstance();
+		}
+		if (d->LoadingMessageHandler) {
+			d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
+			qApp->processEvents();
+		}
 		PluginManager::getInstance()->loadAllPlugin();
+		if (d->AppType == WidgetApp) {
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage("Merging themes...");
+				qApp->processEvents();
+			}
+			Widgets::ThemeManager::getInstance()->mergeAndApply();
+		}
+		if (d->LoadingMessageHandler) {
+			d->LoadingMessageHandler->onLoadingMessage("Enabling all plugins...");
+			qApp->processEvents();
+		}
 		PluginManager::getInstance()->enableAllPlugin();
+		if (d->LoadingMessageHandler) {
+			d->LoadingMessageHandler->onLoadingMessage("Initializing application...");
+			qApp->processEvents();
+		}
 		PluginManager::getInstance()->applicationInitAllPlugin();
+		if (d->LoadingMessageHandler) {
+			d->LoadingMessageHandler->onLoadingMessage("Running tests...");
+			qApp->processEvents();
+		}
 		PluginManager::getInstance()->testAllPlugin();
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
@@ -553,10 +580,10 @@ namespace Visindigo::General {
 		default:
 			throw Exception(Exception::InvalidArgument, "Invalid AppType");
 		}
-		PluginManager::getInstance()->disableAllPlugin();
-		if (d->MainPlugin){
+		if (d->MainPlugin) {
 			d->MainPlugin->onPluginDisbale();
-		}	
+		}
+		PluginManager::getInstance()->disableAllPlugin();
 		Visindigo::General::LoggerManager::getInstance()->finalSave();
 		d->started = false;
 		vgNoticeF << "Application exited with code" << ret;

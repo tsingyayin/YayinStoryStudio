@@ -37,6 +37,13 @@ namespace Visindigo::Widgets {
 		}
 		QWidget* parentWidget = qobject_cast<QWidget*>(target);
 		if (parentWidget != nullptr && event->type() == QEvent::MouseMove) {
+			if (!parentWidget->isEnabled()) {
+				return QObject::eventFilter(target, event);
+			}
+			if (parentWidget->isMaximized() || parentWidget->isFullScreen()) {
+				parentWidget->unsetCursor();
+				return QObject::eventFilter(target, event);
+			}
 			QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 			QPointF pos = mouseEvent->position();
 			QRect rect = parentWidget->rect();

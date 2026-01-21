@@ -1,3 +1,4 @@
 qt:
   installPath: "D:\\Qt\\6.8.3\\msvc2022_64"
   docIndexPath: "D:\\Qt\\Docs\\Qt-6.8.3\\qtdoc\\qtdoc.index"
+  translationCN: true
