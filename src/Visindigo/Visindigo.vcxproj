@@ -211,6 +211,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="General\cpp\CommandHandler.cpp" />
+    <ClCompile Include="General\cpp\CommandHost.cpp" />
     <ClCompile Include="General\cpp\Exception.cpp" />
     <ClCompile Include="General\cpp\Exception_StdCast.cpp" />
     <ClCompile Include="General\cpp\LogMetaData.cpp" />
@@ -224,7 +226,6 @@
     <ClCompile Include="Utility\cpp\BandizipBinder.cpp" />
     <ClCompile Include="Utility\cpp\ColorTool.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfig.cpp" />
-    <ClCompile Include="Utility\cpp\GeneralConfigMemPool.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfigParser_Json.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfigParser_Yaml.cpp" />
     <ClCompile Include="Utility\cpp\QtSSHelper.cpp" />
@@ -273,8 +274,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="General\ProjectMessageCollector.h" />
-    <ClInclude Include="General\Command.h" />
+    <QtMoc Include="General\CommandHost.h" />
     <QtMoc Include="General\Plugin.h" />
+    <ClInclude Include="General\CommandHandler.h" />
     <ClInclude Include="General\Exception.h" />
     <QtMoc Include="General\PluginManager.h" />
     <QtMoc Include="General\PluginModule.h" />

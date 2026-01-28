@@ -7,9 +7,10 @@
 #include <QtWidgets/qscrollbar.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qiodevice.h>
+#include <QtGui/qevent.h>
 #include "General/Log.h"
 #include "Utility/Console.h"
-
+#include "General/CommandHost.h"
 namespace Visindigo::__Private__ {
 	TerminalPrivate::TerminalPrivate()
 		: QObject(nullptr) {
@@ -48,6 +49,44 @@ namespace Visindigo::__Private__ {
 			}
 		}
 	}
+
+	bool TerminalPrivate::eventFilter(QObject* obj, QEvent* event) {
+		if (obj == inputLine) {
+			if (event->type() == QEvent::KeyPress) {
+				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+				if (keyEvent->key() == Qt::Key_Up){
+					QString startWith = inputLine->text().mid(0, inputLine->cursorPosition());
+					if (startWith != this->commandStartWith) {
+						commandHistory = VISCH->getCommandHistory(startWith);
+						commandStartWith = startWith;
+						historyIndex = -1;
+					}
+					if (!commandHistory.isEmpty()) {
+						if (historyIndex + 1 < commandHistory.size()) {
+							historyIndex++;
+							inputLine->setText(commandHistory[historyIndex]);
+							inputLine->setCursorPosition(inputLine->text().length());
+						}
+					}
+				}
+				else if (keyEvent->key() == Qt::Key_Down) {
+					if (!commandHistory.isEmpty()) {
+						if (historyIndex - 1 >= 0) {
+							historyIndex--;
+							inputLine->setText(commandHistory[historyIndex]);
+							inputLine->setCursorPosition(inputLine->text().length());
+						}
+						else {
+							historyIndex = -1;
+							inputLine->clear();
+						}
+					}
+				}
+				return false;
+			}
+		}
+		return QObject::eventFilter(obj, event);
+	}
 }
 namespace Visindigo::Widgets {
 
@@ -64,6 +103,7 @@ namespace Visindigo::Widgets {
 					d->consoleView->append(Visindigo::Utility::Console::cmdColorToHtmlString(consoleStr));
 			});
 		d->inputLine = new QLineEdit(this);
+		d->inputLine->installEventFilter(d);
 		d->sendButton = new QPushButton(tr("Send"), this);
 		d->layout = new QGridLayout(this);
 		d->layout->addWidget(d->consoleView, 0, 0, 1, 2);
@@ -73,19 +113,15 @@ namespace Visindigo::Widgets {
 		connect(d->sendButton, &QPushButton::clicked, [this]() {
 			if (d->useInput) {
 				QString line = d->inputLine->text();
-				if (!line.isEmpty()) {
-					addLine(line);
-					d->inputLine->clear();
-				}
+				VISCH->executeCommand(line);
+				d->inputLine->clear();
 			}
 		});
 		connect(d->inputLine, &QLineEdit::returnPressed, [this]() {
 			if (d->useInput && d->sendOnEnter) {
 				QString line = d->inputLine->text();
-				if (!line.isEmpty()) {
-					addLine(line);
-					d->inputLine->clear();
-				}
+				VISCH->executeCommand(line);
+				d->inputLine->clear();
 			}
 		});
 

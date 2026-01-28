@@ -33,7 +33,11 @@ namespace Visindigo::__Private__ {
 	class TitleWidgetPrivate :public QObject{
 		Q_OBJECT;
 		friend class Visindigo::Widgets::TitleWidget;
+		friend class TitleWidget_MinButton;
+		friend class TitleWidget_MaxButton;
+		friend class TitleWidget_CloseButton;
 	protected:
+		QColor SignColor = QColor(100, 100, 100);
 		Visindigo::Widgets::TitleWidget* q;
 		TitleWidget_MinButton* MinButton;
 		TitleWidget_MaxButton* MaxButton;
@@ -45,6 +49,7 @@ namespace Visindigo::__Private__ {
 		QWidget* TopWidget = nullptr;
 		QPoint LastMousePos;
 		QString PixmapPath;
+		QSpacerItem* Spacer = nullptr;
 		bool DragMoveEnable = true;
 		Visindigo::Widgets::TitleWidget::TitleButtonFeature ButtonFeature = Visindigo::Widgets::TitleWidget::All;
 		Visindigo::Widgets::TitleWidget::ButtonStyleFeature ButtonStyle = Visindigo::Widgets::TitleWidget::Win32Style;

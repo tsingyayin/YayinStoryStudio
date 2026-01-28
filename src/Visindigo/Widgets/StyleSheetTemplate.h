@@ -1,6 +1,8 @@
 #pragma once
 #include "../Macro.h"
 #include <QtCore/qstringlist.h>
+#include <QtGui/qcolor.h>
+
 // Forward declarations
 class QString;
 class QWidget;
@@ -22,7 +24,7 @@ namespace Visindigo::Widgets {
 		QString toString();
 		QString getRawStyleSheet(const QString& keyWithNamespace);
 		QString getRawStyleSheet(const QString& namespaceStr, const QString& key);
-		QString getStyleSheet(const QString& keyWithNamespace, const QString& themeID, Visindigo::Utility::JsonConfig* config = nullptr, QWidget* getter = nullptr);
+		QString getStyleSheet(const QString& keyWithNamespace, QWidget* getter = nullptr);
 		QStringList getNamespaces() const;
 		void setStyleSheetTemplate(const QString& namespaceStr, const QString& key, const QString& styleSheet);
 		void setStyleSheetTemplate(const QString& keyWithNamespace, const QString& styleSheet);

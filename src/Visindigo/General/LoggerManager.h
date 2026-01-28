@@ -5,6 +5,7 @@
 #include "LoggerMsgHandler.h"
 // Forward declarations
 namespace Visindigo::General {
+	class Exception;
 	class LoggerMsgHandler;
 	class LoggerManagerPrivate;
 }
@@ -26,6 +27,7 @@ namespace Visindigo::General {
 		void msgHandlerLog(LoggerMsgHandler* handler);
 		void setGlobalLogLevel(Logger::Level level);
 		void finalSave();
+		void generateCrashReport(const Exception& ex);
 	private:
 		LoggerManagerPrivate* d;
 	};

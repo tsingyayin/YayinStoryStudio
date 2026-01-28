@@ -3,14 +3,14 @@ import os
 import sys
 import QDocToCN
 import datetime
-def copyImageFolder(src:str, dest:str):
+def copyFolder(src:str, dest:str):
     if not os.path.exists(dest):
         os.makedirs(dest)
     for item in os.listdir(src):
         s = os.path.join(src, item)
         d = os.path.join(dest, item)
         if os.path.isdir(s):
-            copyImageFolder(s, d)
+            copyFolder(s, d)
         else:
             if not os.path.exists(d):
                 with open(s, "rb") as fsrc:
@@ -36,6 +36,8 @@ if __name__ == "__main__":
         QDocToCN.main(path + "\\..\\html")
     else:
         print("跳过中文翻译步骤。")
-    copyImageFolder(path + "\\..\\src\\template\\images", path + "\\..\\html\\images")
+    copyFolder(path + "\\..\\src\\template\\images", path + "\\..\\html\\images")
+    copyFolder(path + "\\..\\src\\template\\style", path + "\\..\\html\\style")
+    copyFolder(path + "\\..\\src\\template\\scripts", path + "\\..\\html\\scripts")
     end = datetime.datetime.now()
     print("完成于 " + end.strftime("%Y-%m-%d %H:%M:%S") + "，耗时 " + str((end - start).seconds) + " 秒。")

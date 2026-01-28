@@ -24,7 +24,7 @@ namespace Visindigo::Widgets {
 		};
 		Q_DECLARE_FLAGS(Borders, Border);
 	public:
-		WidgetResizeTool(QWidget* parent, Borders borders = All, int borderWidth = 5);
+		WidgetResizeTool(QWidget* parent, Borders borders = All, int borderWidth = 5, QWidget* topWidget = nullptr);
 		~WidgetResizeTool();
 		void setEnableBorder(Borders borders);
 		virtual bool eventFilter(QObject* target, QEvent* event) override;

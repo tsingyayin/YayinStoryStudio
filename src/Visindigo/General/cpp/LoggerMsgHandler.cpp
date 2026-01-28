@@ -36,6 +36,10 @@ namespace Visindigo::General {
 			{ t.toString() }->::std::same_as<QString>;
 		};
 		\endcode
+
+		遗憾的是，由于QDoc的缺陷，Printable概念无法在文档中正确显示。因此在本文档中，如果一个
+		函数的详情提到“符合Printable概念”，请参考上面的定义。它们应该是template<Printable T>的形式，
+		而非template<typename T>的形式。
 	*/
 
 	/*!
@@ -254,6 +258,19 @@ namespace Visindigo::General {
 			else {
 				list.append(it.key() % ": " % it.value()->metaObject()->className() % "(" % QString::number((quint64)(void*)it.value(), 16) % ")");
 			}
+		}
+		fromString("{" % list.join(", ") % "}");
+		return *this;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		重载<<运算符以承接各种类型的日志消息。这里展示QMap的key为QString，value为QString类型的实现。
+	*/
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, QString> string_map) {
+		QStringList list;
+		for (auto it = string_map.begin(); it != string_map.end(); ++it) {
+			list.append(it.key() % ": \"" % it.value() % "\"");
 		}
 		fromString("{" % list.join(", ") % "}");
 		return *this;

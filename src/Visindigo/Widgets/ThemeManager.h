@@ -8,6 +8,7 @@ class QColor;
 class QString;
 namespace Visindigo::Widgets {
 	class ThemeManagerPrivate;
+	class ColorfulWidget;
 }
 namespace Visindigo::General {
 	class Plugin;
@@ -23,11 +24,12 @@ namespace Visindigo::Widgets {
 		void programThemeChanged(const QString& themeID);
 	public:
 		enum ThemeID {
-			System = -1,
+			__InAnimation__ = -1,
 			Unknown = Qt::ColorScheme::Unknown,
 			Light = Qt::ColorScheme::Light,
 			Dark = Qt::ColorScheme::Dark,
-			White, Black
+			White, Black,
+			__UserMin__ = 1000
 		};
 		static QString themeIDToString(ThemeID id);
 		static ThemeID stringToThemeID(const QString& str);
@@ -38,7 +40,7 @@ namespace Visindigo::Widgets {
 		static ThemeManager* getInstance();
 		~ThemeManager();
 		bool pluginRegisterColorScheme(Visindigo::General::Plugin* plugin, const QString& jsonStr);
-		bool pluginRegisterStyleTemplate(Visindigo::General::Plugin* plugin, QString& vstStr);
+		bool pluginRegisterStyleTemplate(Visindigo::General::Plugin* plugin, QString vstStr);
 		bool isColorSchemeFromPlugin(const QString& ID);
 		bool isStyleTemplateFromPlugin(const QString& ID);
 		void loadAndRefresh(bool autoMergeAndApply = true);
@@ -50,6 +52,10 @@ namespace Visindigo::Widgets {
 		void clearStyleTemplatePriority();
 		void setColorSchemePriority(const QStringList& schemeIDList);
 		void setStyleTemplatePriority(const QStringList& templateIDList);
+		void setAnimationDuration(qint32 ms);
+		void setAnimationFrameRate(qint32 rate);
+		qint32 getAnimationDuration();
+		qint32 getAnimationFrameRate();
 		void mergeAndApply();
 		QStringList getAllColorSchemes();
 		QStringList getAvailableColorSchemes();
@@ -63,11 +69,23 @@ namespace Visindigo::Widgets {
 		QColor getColor(const QString& key);
 		QString getRawTemplate(const QString& key);
 		QString getTemplate(const QString& key, QWidget* getter = nullptr);
+		void registerColorfulWidget(ColorfulWidget* widget);
+		void unregisterColorfulWidget(ColorfulWidget* widget);
+		bool isColorfulWidgetRegistered(ColorfulWidget* widget);
 	private:
 		ThemeManagerPrivate* d;
+	};
+
+	class VisindigoAPI ColorfulWidget {
+	public:
+		virtual void onThemeChanged() = 0;
+		void setColorfulEnable(bool enable);
+		bool isColorfulEnabled();
+		virtual ~ColorfulWidget();
 	};
 }
 // Global Macros
 #define VISTM Visindigo::Widgets::ThemeManager::getInstance()
-#define VISTMGRT Visindigo::Widgets::ThemeManager::getInstance()->getRawTemplate
-#define VISTMGT Visindigo::Widgets::ThemeManager::getInstance()->getTemplate
+#define VISTMGRT VISTM->getRawTemplate
+#define VISTMGT VISTM->getTemplate
+#define applyVIStyleTemplate(key) setStyleSheet(VISTMGT(key, this))

@@ -5,6 +5,6 @@
 namespace Visindigo::Utility {
 	class VisindigoAPI StringUtility {
 	public:
-		const QString& getWordContent(const QString& lineContent, qint32 position, qint32* startposition = nullptr) const;
+		QStringList escapeSplit(const QString& raw, const QString& sep, QChar escapeChar = '\\', Qt::SplitBehaviorFlags behavior = Qt::KeepEmptyParts) const;
 	};
 }

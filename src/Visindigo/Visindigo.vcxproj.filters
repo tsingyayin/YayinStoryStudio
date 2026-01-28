@@ -155,9 +155,6 @@
     <ClCompile Include="Utility\cpp\GeneralConfigParser_Json.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\GeneralConfigMemPool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\cpp\GeneralConfigParser_Yaml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -171,6 +168,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\cpp\WidgetResizeTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\CommandHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\CommandHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -277,9 +280,6 @@
     <ClInclude Include="Utility\ShortCutHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\Command.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\private\Plugin_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -308,6 +308,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\ColorTool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\CommandHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -382,6 +385,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\WidgetResizeTool.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\CommandHost.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

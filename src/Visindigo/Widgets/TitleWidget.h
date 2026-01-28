@@ -4,6 +4,9 @@
 #include <QtWidgets/qframe.h>
 namespace Visindigo::__Private__ {
 	class TitleWidgetPrivate;
+	class TitleWidget_MinButton;
+	class TitleWidget_MaxButton;
+	class TitleWidget_CloseButton;
 }
 
 namespace Visindigo::Widgets {
@@ -11,6 +14,9 @@ namespace Visindigo::Widgets {
 	class VisindigoAPI TitleWidget :public QFrame {
 		Q_OBJECT;
 		friend class TitleWidgetPrivate;
+		friend class Visindigo::__Private__::TitleWidget_MinButton;
+		friend class Visindigo::__Private__::TitleWidget_MaxButton;
+		friend class Visindigo::__Private__::TitleWidget_CloseButton;
 	public:
 		enum TitleButtonFlag {
 			Minimumize = 0x01,
@@ -32,6 +38,7 @@ namespace Visindigo::Widgets {
 	public:
 		TitleWidget(QWidget* parent = nullptr, QWidget* topWidget = nullptr, bool autoSetupTopWidget = true, bool enableDragMove = true);
 		virtual ~TitleWidget();
+		void setSignColor(const QColor& color);
 		void setTopWidget(QWidget* topWidget);
 		QWidget* getTopWidget() const;
 		void setTitleText(const QString& text);
@@ -49,7 +56,7 @@ namespace Visindigo::Widgets {
 		QWidget* getInsertWidget() const;
 		void setTitleAlignment(Qt::Alignment alignment);
 		Qt::Alignment getTitleAlignment() const;
-	private:
+	protected:
 		__Private__::TitleWidgetPrivate* d;
 	};
 	Q_DECLARE_OPERATORS_FOR_FLAGS(TitleWidget::TitleButtonFeature);

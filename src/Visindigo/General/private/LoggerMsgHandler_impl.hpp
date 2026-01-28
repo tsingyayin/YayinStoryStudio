@@ -12,7 +12,7 @@ namespace Visindigo::General {
 		QString temp = "QMap{";
 		for (QString key : pointer_map) {
 			void* ptr = &pointer_map[key];
-			temp += " \"" % key % "\": [Object at " % QString::number(ptr, 16) % "],";
+			temp += " \"" % key % "\": [Object at " % QString::number((quint64)ptr, 16) % "],";
 		}
 		temp.removeLast();
 		temp += "}";

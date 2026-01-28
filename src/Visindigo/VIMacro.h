@@ -6,6 +6,13 @@
 	#endif
 #endif 
 
+#define VINotNull // marker for not nullable
+#define VINullable // marker for nullable
+#define VIUnstable // marker for a weak pointer
+#define VIContent // marker for a string contains content itself
+#define VIPath // marker for a string represents a path, not a content
+#define VITransferred // marker for a transferred value
+
 #define VInterface class
 
 #define VIAPIClass(name) \
@@ -81,4 +88,22 @@
 		name##Private::Instance = this; \
 	} else { \
 		return; \
+	}
+
+#define VI_Delete(ptr)\
+	if (ptr) { \
+		delete ptr; \
+		ptr = nullptr; \
+	}
+
+#define VI_DeleteArray(ptr) \
+	if (ptr) { \
+		delete[] ptr; \
+		ptr = nullptr; \
+	}
+
+#define VI_DeleteQObject(ptr) \
+	if (ptr) { \
+		ptr->deleteLater(); \
+		ptr = nullptr; \
 	}

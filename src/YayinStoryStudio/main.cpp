@@ -13,8 +13,10 @@ int main(int argc, char* argv[])
 {
 	VISetEnv(Visindigo::General::VIApplication::LogFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/logs");
 	VISetEnv(Visindigo::General::VIApplication::PluginFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/plugins");
+	VISetEnv(Visindigo::General::VIApplication::ThemeFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/themes");
 	VISetEnv(Visindigo::General::VIApplication::MinimumLoadingTimeMS, 2000);
 	VISetEnv(Visindigo::General::VIApplication::UseVirtualTerminal, true);
+	VISetEnv(Visindigo::General::VIApplication::SaveCommandHistory, true);
 	Visindigo::General::VIApplication app(argc, argv, Visindigo::General::VIApplication::WidgetApp);
 	
 

@@ -2,12 +2,16 @@
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
+#include <Widgets/ThemeManager.h>
+#include <QtWidgets/qgraphicseffect.h>
+
 class QLabel;
 class QScrollArea;
 class QWidget;
 class QPushButton;
 class QGridLayout;
 class QVBoxLayout;
+class QRadioButton;
 
 namespace YSSCore::General {
 	class YSSProject;
@@ -22,12 +26,14 @@ namespace Visindigo::Widgets {
 }
 namespace YSS::ProjectPage {
 	class ProjectInfoWidget;
-	class ProjectWin :public QFrame {
+	class ProjectWin :public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	private:
 		Visindigo::Utility::JsonConfig* Config;
 		Visindigo::Widgets::TitleWidget* TitleWidget;
 		Visindigo::Widgets::WidgetResizeTool* ResizeTool;
+		QFrame* BGFrame;
+		QGraphicsOpacityEffect* OpacityEffect;
 		QLabel* TitleLabel;
 		QScrollArea* HistoryProjectArea;
 		QWidget* HistoryProjectWidget;
@@ -37,6 +43,7 @@ namespace YSS::ProjectPage {
 		QPushButton* CreateProjectButton;
 		QPushButton* OpenFolderButton;
 		QPushButton* CloneGitButton;
+		QRadioButton* ThemeLightButton;
 		QVBoxLayout* ButtonLayout;
 		ProjectInfoWidget* InfoWidget;
 		QGridLayout* Layout;
@@ -55,6 +62,7 @@ namespace YSS::ProjectPage {
 		void onOpenProjectClicked();
 		void onOpenProject(QString projectPath = "");
 		void onCreateProject();
+		virtual void onThemeChanged() override;
 	private:
 		void loadProject();
 	};

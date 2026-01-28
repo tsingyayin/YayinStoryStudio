@@ -1,10 +1,12 @@
-#include "../StyleSheetTemplate.h"
+#include "Widgets/StyleSheetTemplate.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qregularexpression.h>
 #include <QtWidgets/qwidget.h>
-#include "../../Utility/JsonConfig.h"
-#include "../../General/Log.h"
+#include "Utility/JsonConfig.h"
+#include "Utility/ColorTool.h"
+#include "General/Log.h"
+#include "Widgets/ThemeManager.h"
 namespace Visindigo::Widgets {
 	class StyleSheetTemplatePrivate {
 		friend class StyleSheetTemplate;
@@ -86,6 +88,9 @@ namespace Visindigo::Widgets {
 						namespaceStr = para[1].trimmed();
 					}
 				}
+				else if (lines[i].startsWith("#")) {
+					continue; // comment line
+				}
 			}
 		}
 		if (lastIndex != 0 && keyStr != "") {
@@ -131,36 +136,29 @@ namespace Visindigo::Widgets {
 		return d->NamespacedTemplates[namespaceStr][key];
 	}
 
-	QString StyleSheetTemplate::getStyleSheet(const QString& keyWithNamespace, const QString& themeID, Visindigo::Utility::JsonConfig* config, QWidget* getter) {
-		if (config == nullptr && getter == nullptr) {
-			return getRawStyleSheet(keyWithNamespace);
+	QString StyleSheetTemplate::getStyleSheet(const QString& keyWithNamespace, QWidget* getter) {
+		QString temp = getRawStyleSheet(keyWithNamespace);
+		QStringList paras;
+		QRegularExpression reg("\\$\\([\\D\\d]+?\\)");
+		QRegularExpressionMatchIterator matchs = reg.globalMatch(temp);
+		for (auto match : matchs) {
+			paras.append(match.captured());
 		}
-		else {
-			QString temp = getRawStyleSheet(keyWithNamespace);
-			if (config != nullptr) {
-				QStringList paras;
-				QRegularExpression reg("\\$\\([\\D\\d]+?\\)");
-				QRegularExpressionMatchIterator matchs = reg.globalMatch(temp);
-				for (auto match : matchs) {
-					paras.append(match.captured());
-				}
-				for (QString para : paras) {
-					temp.replace(para, config->getString("Themes." + themeID + "." + para.mid(2, para.length() - 3)));
-				}
-			}
-			if (getter != nullptr) {
-				QStringList paras;
-				QRegularExpression reg("\\$\\{[\\D\\d]+?\\}");
-				QRegularExpressionMatchIterator matchs = reg.globalMatch(temp);
-				for (auto match : matchs) {
-					paras.append(match.captured());
-				}
-				for (QString para : paras) {
-					temp.replace(para, getter->property(para.mid(2, para.length() - 3).toUtf8().constData()).toString());
-				}
-			}
-			return temp;
+		for (QString para : paras) {
+			temp.replace(para, Visindigo::Utility::ColorTool::toColorString(VISTM->getColor(para.mid(2, para.length() - 3))));
 		}
+		if (getter != nullptr) {
+			QStringList paras;
+			QRegularExpression reg("\\$\\{[\\D\\d]+?\\}");
+			QRegularExpressionMatchIterator matchs = reg.globalMatch(temp);
+			for (auto match : matchs) {
+				paras.append(match.captured());
+			}
+			for (QString para : paras) {
+				temp.replace(para, getter->property(para.mid(2, para.length() - 3).toUtf8().constData()).toString());
+			}
+		}
+		return temp;
 	}
 
 	QStringList StyleSheetTemplate::getNamespaces() const {

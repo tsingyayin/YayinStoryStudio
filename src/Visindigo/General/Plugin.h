@@ -51,6 +51,8 @@ namespace Visindigo::General {
 		void setPluginAuthor(const QStringList& author);
 		void registerPluginModule(PluginModule* module);
 		void registerTranslator(Visindigo::General::Translator* translator);
+		void registerColorScheme(const QString& schemeFilePath);
+		void registerStyleTemplate(const QString& templateFilePath);
 	public:
 		virtual QWidget* getPluginSettingsWidget(QWidget* parent = nullptr) { return nullptr; };
 	protected:

@@ -5,6 +5,9 @@
 #include "General/PluginModule.h"
 #include "General/Version.h"
 #include "General/Logger.h"
+#include "Widgets/ThemeManager.h"
+#include "Utility/FileUtility.h"
+
 namespace Visindigo::__Private__ {
 	void PluginPrivate::initializePluginFolder(const QDir& baseDir) {
 		PluginFolder = QDir(baseDir.filePath(PluginID));
@@ -295,6 +298,7 @@ namespace Visindigo::General {
 	Visindigo::General::Version Plugin::getPluginABIVersion() const {
 		return d->ABIVersion;
 	}
+
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的扩展ID
@@ -302,6 +306,15 @@ namespace Visindigo::General {
 	QString Plugin::getPluginExtensionID() const {
 		return d->PluginExtensionID;
 	}
+
+	/*!
+		\since Visindigo 0.13.0
+		return 插件的日志记录器
+	*/
+	Visindigo::General::Logger* Plugin::getLogger() const {
+		return d->Logger;
+	}
+
 	/*!
 		\since Visindigo 0.13.0
 		\a id 插件的ID
@@ -353,5 +366,23 @@ namespace Visindigo::General {
 	void Plugin::registerTranslator(Visindigo::General::Translator* translator) {
 		// NOTICE: Translator has not extend PluginModule yet, need to be changed later
 		Visindigo::General::TranslationHost::getInstance()->active(translator);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		\a schemeFilePath 颜色方案文件路径
+		注册一个颜色方案
+	*/
+	void Plugin::registerColorScheme(const QString& schemeFilePath) {
+		VISTM->pluginRegisterColorScheme(this, Visindigo::Utility::FileUtility::readAll(schemeFilePath));
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		\a templateFilePath 样式模板文件路径
+		注册一个样式模板
+	*/
+	void Plugin::registerStyleTemplate(const QString& templateFilePath) {
+		VISTM->pluginRegisterStyleTemplate(this, Visindigo::Utility::FileUtility::readAll(templateFilePath));
 	}
 }

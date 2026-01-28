@@ -53,7 +53,9 @@ namespace Visindigo::General {
 		template<Printable T> LoggerMsgHandler& operator<<(T type); // for any type with toString() method
 
 		template<typename T> LoggerMsgHandler& operator<<(QMap<QString, T> any_map); 
+
 		LoggerMsgHandler& operator<<(QMap<QString, QObject*> pointer_map);
+		LoggerMsgHandler& operator<<(QMap<QString, QString> string_map);
 		template<Printable T>LoggerMsgHandler& operator<<(QMap<QString, T> printable_map); // for any map with printable values
 
 		template<typename T>LoggerMsgHandler& operator<<(QList<T> any_list); 

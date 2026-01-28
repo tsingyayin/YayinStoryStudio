@@ -19,12 +19,6 @@ namespace Visindigo::Widgets {
 		qint32 getMaxCacheLines() const;
 		void clearConsole();
 		void addLine(const QString& line);
-		void setAutoScroll(bool enable);
-		bool isAutoScroll() const;
-		void setAutoListen(bool enable);
-		bool isAutoListen() const;
-		void setEnableStyle(bool enable);
-		bool isStyleEnabled() const;
 	private:
 		Visindigo::__Private__::TerminalPrivate* d;
 	};

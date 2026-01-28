@@ -12,6 +12,7 @@
 #include <QtGui/qfontdatabase.h>
 #include "Widgets/Terminal.h"
 #include "Widgets/ThemeManager.h"
+#include "General/CommandHost.h"
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
 		vgNoticeF << "[Loading Message Handler] " << message;
@@ -178,7 +179,8 @@ namespace Visindigo::General {
 			{VIApplication::PluginFolderPath, "./user_data/plugins"},
 			{VIApplication::MinimumLoadingTimeMS, 3000},
 			{VIApplication::UseVirtualTerminal, false},
-			{VIApplication::ThemeFolderPath, "./user_data/themes"}
+			{VIApplication::ThemeFolderPath, "./user_data/themes"},
+			{VIApplication::SaveCommandHistory, false},
 	};
 
 	/*!
@@ -267,11 +269,14 @@ namespace Visindigo::General {
 		\enum Visindigo::General::VIApplication::EnvKey
 		\since Visindigo 0.13.0
 		此枚举定义了VIApplication支持的环境配置键。
-		\value LogFolderPath 日志文件夹路径，类型为QString，默认值为"./user_data/logs"。
+		\value LogFolderPath 日志文件夹路径，类型为QString，默认值为"./user_data/logs"。值得注意的是，这个文件夹也用于存放崩溃报告文件和命令行历史记录文件。
 		\value LogFileNameTimeFormat 日志文件名时间格式，类型为QString，默认值为"yyyy-MM-dd_hh_mm_ss"。
 		\value LogTimeFormat 日志时间格式，类型为QString，默认值为"yyyy-MM-dd hh:mm:ss.zzz"。
 		\value PluginFolderPath 插件文件夹路径，类型为QString，默认值为"./user_data/plugins"。
 		\value MinimumLoadingTimeMS 最小加载时间（毫秒），类型为qint, 默认值为3000。
+		\value UseVirtualTerminal 是否使用虚拟终端，类型为bool，默认值为false。
+		\value ThemeFolderPath 主题文件夹路径，类型为QString，默认值为"./user_data/themes"。
+		\value SaveCommandHistory 是否保存命令历史，类型为bool，默认值为false。
 	*/
 
 	/*!
@@ -477,8 +482,10 @@ namespace Visindigo::General {
 		else {
 			vgError << "No exception message handler set, exception message:" << ex.getMessage();
 		}
+		Visindigo::General::LoggerManager::getInstance()->generateCrashReport(ex);
 		if (ex.isCritical() && d->started) {
 			vgError << "Critical exception caught, exiting application.";
+			Visindigo::General::LoggerManager::getInstance()->finalSave();
 			switch (d->AppType) {
 			case CoreApp:
 				static_cast<Visindigo::__Private__::CoreApplication*>(d->AppInstance)->exit(-1);
@@ -505,89 +512,107 @@ namespace Visindigo::General {
 		此函数是VIApplication类的核心功能，负责管理应用程序的生命周期。
 	*/
 	int VIApplication::start() {
-		if (d->started) {
-			throw Exception(Exception::InternalError, "Application already started");
-		}
-		d->started = true;
-		if (d->LoadingMessageHandler) {
-			d->LoadingMessageHandler->enableHandler();
-			qApp->processEvents();
-		}
-		auto start = std::chrono::high_resolution_clock::now();
-		if (d->MainPlugin) {
-			d->MainPlugin->onPluginEnable();
-			if (d->LoadingMessageHandler){
-				d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
+		try {
+			if (d->started) {
+				throw Exception(Exception::InternalError, "Application already started");
 			}
-		}
-		if (d->AppType == WidgetApp) {
-			Widgets::ThemeManager::getInstance();
-		}
-		if (d->LoadingMessageHandler) {
-			d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
-			qApp->processEvents();
-		}
-		PluginManager::getInstance()->loadAllPlugin();
-		if (d->AppType == WidgetApp) {
+			d->started = true;
 			if (d->LoadingMessageHandler) {
-				d->LoadingMessageHandler->onLoadingMessage("Merging themes...");
+				d->LoadingMessageHandler->enableHandler();
 				qApp->processEvents();
 			}
-			Widgets::ThemeManager::getInstance()->mergeAndApply();
-		}
-		if (d->LoadingMessageHandler) {
-			d->LoadingMessageHandler->onLoadingMessage("Enabling all plugins...");
-			qApp->processEvents();
-		}
-		PluginManager::getInstance()->enableAllPlugin();
-		if (d->LoadingMessageHandler) {
-			d->LoadingMessageHandler->onLoadingMessage("Initializing application...");
-			qApp->processEvents();
-		}
-		PluginManager::getInstance()->applicationInitAllPlugin();
-		if (d->LoadingMessageHandler) {
-			d->LoadingMessageHandler->onLoadingMessage("Running tests...");
-			qApp->processEvents();
-		}
-		PluginManager::getInstance()->testAllPlugin();
-		auto end = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-		qint32 minLoadingTime = d->EnvConfig.value(MinimumLoadingTimeMS, 3000).toInt();
-		if (duration < minLoadingTime) {
-			QThread::msleep(minLoadingTime - duration);
-		}
-		if (d->LoadingMessageHandler) {
-			d->LoadingMessageHandler->disableHandler();
-			qApp->processEvents();
-		}
-		if (d->MainPlugin) {
-			d->MainPlugin->onApplicationInit();
-			if (d->MainPlugin->isTestEnable()) {
-				d->MainPlugin->onTest();
+			auto start = std::chrono::high_resolution_clock::now();
+
+			if (d->AppType == WidgetApp) {
+				Widgets::ThemeManager::getInstance();
 			}
+
+			if (d->MainPlugin) {
+				d->MainPlugin->onPluginEnable();
+				if (d->LoadingMessageHandler) {
+					d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
+				}
+			}
+
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
+				qApp->processEvents();
+			}
+			PluginManager::getInstance()->loadAllPlugin();
+			if (d->AppType == WidgetApp) {
+				if (d->LoadingMessageHandler) {
+					d->LoadingMessageHandler->onLoadingMessage("Merging themes...");
+					qApp->processEvents();
+				}
+				Widgets::ThemeManager::getInstance()->mergeAndApply();
+			}
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage("Enabling all plugins...");
+				qApp->processEvents();
+			}
+			PluginManager::getInstance()->enableAllPlugin();
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage("Initializing application...");
+				qApp->processEvents();
+			}
+			PluginManager::getInstance()->applicationInitAllPlugin();
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage("Running tests...");
+				qApp->processEvents();
+			}
+			PluginManager::getInstance()->testAllPlugin();
+			auto end = std::chrono::high_resolution_clock::now();
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+			qint32 minLoadingTime = d->EnvConfig.value(MinimumLoadingTimeMS, 3000).toInt();
+			if (duration < minLoadingTime) {
+				QThread::msleep(minLoadingTime - duration);
+			}
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->disableHandler();
+				qApp->processEvents();
+			}
+			if (d->MainPlugin) {
+				d->MainPlugin->onApplicationInit();
+				if (d->MainPlugin->isTestEnable()) {
+					d->MainPlugin->onTest();
+				}
+			}
+			int ret = 0;
+			switch (d->AppType) {
+			case CoreApp:
+				ret = static_cast<Visindigo::__Private__::CoreApplication*>(d->AppInstance)->exec();
+				break;
+			case GuiApp:
+				ret = static_cast<Visindigo::__Private__::GuiApplication*>(d->AppInstance)->exec();
+				break;
+			case WidgetApp:
+				ret = static_cast<Visindigo::__Private__::Application*>(d->AppInstance)->exec();
+				break;
+			default:
+				throw Exception(Exception::InvalidArgument, "Invalid AppType");
+			}
+			if (d->MainPlugin) {
+				d->MainPlugin->onPluginDisbale();
+			}
+			PluginManager::getInstance()->disableAllPlugin();
+			Visindigo::General::LoggerManager::getInstance()->finalSave();
+			VISCH->deleteLater();
+			d->started = false;
+			vgNoticeF << "Application exited with code" << ret;
+			return ret;
 		}
-		int ret = 0;
-		switch (d->AppType) {
-		case CoreApp:
-			ret = static_cast<Visindigo::__Private__::CoreApplication*>(d->AppInstance)->exec();
-			break;
-		case GuiApp:
-			ret = static_cast<Visindigo::__Private__::GuiApplication*>(d->AppInstance)->exec();
-			break;
-		case WidgetApp:
-			ret = static_cast<Visindigo::__Private__::Application*>(d->AppInstance)->exec();
-			break;
-		default:
-			throw Exception(Exception::InvalidArgument, "Invalid AppType");
+		catch (const Exception& ex) {
+			this->onException(ex);
+			return -1;
+		} 
+		catch (const std::exception& e) {
+			this->onException(Exception::fromStdException(e));
+			return -1;
 		}
-		if (d->MainPlugin) {
-			d->MainPlugin->onPluginDisbale();
+		catch (...) {
+			this->onException(Exception(Exception::Unknown, "Unknown exception caught in VIApplication::start", true));
+			return -1;
 		}
-		PluginManager::getInstance()->disableAllPlugin();
-		Visindigo::General::LoggerManager::getInstance()->finalSave();
-		d->started = false;
-		vgNoticeF << "Application exited with code" << ret;
-		return ret;
 	}
 
 	/*!

@@ -9,5 +9,6 @@
         <file>compiled/icon/object.png</file>
         <file>compiled/icon/operator.png</file>
         <file>compiled/icon/value.png</file>
+        <file>compiled/default/defaultTheme.json</file>
     </qresource>
 </RCC>

@@ -59,6 +59,7 @@ namespace Visindigo::General {
 			Std_BadVariantAccess, // since C++ 17
 		};
 	public:
+		static QString typeToString(Type type);
 		static Exception fromStdException(const std::exception& e);
 	public:
 		Exception(Type type, QString message = "", 

@@ -8,7 +8,7 @@
 
 /*!
     \macro VI_HAS_STD_STACKTRACE
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 如果编译器支持 \c std::stacktrace，则定义此宏
 
     如果编译器支持 \c std::stacktrace（C++23 标准库的一部分），则定义此宏。
@@ -19,8 +19,77 @@
 */
 
 /*!
+    \macro VINotNull
+    \relates <VIMacro.h>
+    \brief 标记指针参数不能为空的宏
+
+    这是个纯标记，标记参数时，代表该指针必须不能为空指针。
+
+    标记返回值时，代表该值一定不可能是空指针。
+*/
+
+/*!
+    \macro VINullable
+    \relates <VIMacro.h>
+    \brief 标记指针参数可以为空的宏
+
+    这是个纯标记，标记参数时，代表该指针可以为空指针。
+    函数内部一定会检查该指针是否为空指针。
+
+    标记返回值时，代表该值可能是空指针，使用前必须检查。
+*/
+
+/*!
+    \macro VIUnstable
+    \relates <VIMacro.h>
+    \brief 标记一个指针为弱引用的宏
+
+    这是个纯标记，标记函数或类时，代表该函数或类处于不稳定状态，可能会在未来版本中发生重大更改或被移除。
+
+    一般不用于标记参数，但用于标记返回值，且通常标记指针类型。
+
+    当标记一个返回值指针时，代表该指针对应资源生命周期不可控，可能在任何时候被销毁，
+    因此这个指针应该即用即弃，不能保存以备后用。
+
+    注意，如果标记返回值，则VIUnstable在函数类型之前，如果标记函数，则VIUnstable在函数类型之后。
+*/
+
+/*!
+    \macro VIContent
+    \relates <VIMacro.h>
+    \brief 标记一个QString携带内容而非路径的宏
+
+    这是个纯标记，表示一个QString携带的是内容本体，而非带有该内容的文件路径。
+*/
+
+/*!
+    \macro VIPath
+    \relates <VIMacro.h>
+    \brief 标记一个QString携带路径而非内容的宏
+
+    这是个纯标记，表示一个QString携带的是文件路径，而非该路径所指向的内容本体。
+*/
+
+/*!
+    \macro VITransferred
+    \relates <VIMacro.h>
+    \brief 标记一个参数所有权会被转移的宏
+
+    这是个纯标记，标记参数时，代表该函数（或函数所在的类）会接管指针所有权，
+    指针在传递后不应被外部释放。
+
+    标记返回值时，代表由调用者接管指针所有权，调用者有责任释放该指针。
+
+    不用于标记指针的情况下，标记参数时，代表该函数出于某些原因会直接修改传入值的内容，
+    因此在传递后该值不应再被外部使用。
+
+    一般不用于标记非指针的返回值。如果出现，通常可能是用于标记一个保存了指针的容器类，
+    调用者有责任释放该容器类内的指针。
+*/
+
+/*!
     \macro VIInterface
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 定义接口类
 
     C++关键字class的别名，用于标明这是一个用作接口的纯虚类。
@@ -28,7 +97,7 @@
 
 /*!
     \macro VIAPIClass(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief PIMPL设计模式下的API类定义宏
 
     用于在PIMPL设计模式下定义API类的宏，简化代码编写。
@@ -40,7 +109,7 @@
 
 /*!
     \macro VImpl(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief PIMPL设计模式下的私有实现类定义宏
      
     用于在PIMPL设计模式下定义私有实现类的宏，简化代码编写。
@@ -54,7 +123,7 @@
 
 /*!
     \macro VIImplClass(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief PIMPL设计模式下的私有实现类定义宏
 
     扩展到声明一个类name##Private。带有关键字class，可以直接编写类本体。
@@ -62,7 +131,7 @@
 
  /*!
     \macro VIAPI(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 在Private类内定义API类为其友元和q指针。
 
     用于在Private类内定义API类为其友元和q指针的宏，简化代码编写。
@@ -73,7 +142,7 @@
 
  /*!
     \macro p_VIAPICopyable(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 在一个Private类内指定复制构造函数为编译器默认函数
 
     用于在Private类内指定复制构造函数为编译器默认函数的宏，简化代码编写。
@@ -84,7 +153,7 @@
 
 /*!
     \macro VICopyable(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 在一个API类声明这个类是可复制的
 
     用于在一个API类声明这个类是可复制的宏，简化代码编写。
@@ -93,7 +162,7 @@
 
 /*!
     \macro VICopyable_Impl(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 用于为API类提供”可复制“的相关实现
 
     用于为API类提供”可复制“的相关实现的宏，简化代码编写。
@@ -108,7 +177,7 @@
 
 /*!
     \macro VIMoveable(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 在一个API类声明这个类是可移动的
 
     用于在一个API类声明这个类是可移动的宏，简化代码编写。
@@ -117,7 +186,7 @@
 
 /*!
     \macro VIMoveable_Impl(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 用于为API类提供”可移动“的相关实现
 
     用于为API类提供”可移动“的相关实现的宏，简化代码编写。
@@ -133,7 +202,7 @@
 
 /*!
     \macro VI_Singleton(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 用于声明一个单例类
 
     用于声明一个单例类的宏，简化代码编写。
@@ -143,7 +212,7 @@
 
 /*!
     \macro VI_Singleton_Impl(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 用于实现一个单例类
 
     用于实现一个单例类的宏，简化代码编写。
@@ -153,7 +222,7 @@
 
 /*!
     \macro VI_Singleton_Definition(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 用于在Private类中定义API类的静态指针
 
     用于在Private类中定义API类的静态指针的宏，简化代码编写。
@@ -161,7 +230,7 @@
 
 /*!
     \macro VI_Singleton_Init(name)
-    \relates <Visindigo/VIMacro.h>
+    \relates <VIMacro.h>
     \brief 用于初始化单例类的静态指针
 
     用于初始化单例类的静态指针的宏，简化代码编写。

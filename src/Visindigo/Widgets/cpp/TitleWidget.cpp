@@ -22,12 +22,22 @@ namespace Visindigo::__Private__ {
 	};
 	
 	void TitleWidgetPrivate::adjustElements() {
-		if (Layout) {
-			Layout->deleteLater();
+		if (!Layout) {
+			Layout = new QHBoxLayout(q);
+			Layout->setContentsMargins(0, 0, 0, 0);
+			Layout->setSpacing(5);
 		}
-		Layout = new QHBoxLayout(q);
-		Layout->setContentsMargins(0, 0, 0, 0);
-		Layout->setSpacing(5);
+		if (Layout) {
+			Layout->removeWidget(PixmapLabel);
+			Layout->removeWidget(TextLabel);
+			Layout->removeWidget(MinButton);
+			Layout->removeWidget(MaxButton);
+			Layout->removeWidget(CloseButton);
+			Layout->removeItem(Spacer);
+			if (InsertWidget) {
+				Layout->removeWidget(InsertWidget);
+			}
+		}
 		if (ButtonStyle.testAnyFlag(Visindigo::Widgets::TitleWidget::ButtonRight)) {
 			if (!PixmapPath.isEmpty()) {
 				PixmapLabel->show();
@@ -40,7 +50,7 @@ namespace Visindigo::__Private__ {
 			if (InsertWidget) {
 				Layout->addWidget(InsertWidget);
 			}
-			Layout->addStretch();
+			Layout->addItem(Spacer);
 			if (ButtonFeature.testAnyFlag(Visindigo::Widgets::TitleWidget::Minimumize)) {
 				MinButton->show();
 				Layout->addWidget(MinButton);
@@ -88,7 +98,7 @@ namespace Visindigo::__Private__ {
 			if (InsertWidget) {
 				Layout->addWidget(InsertWidget);
 			}
-			Layout->addStretch();
+			Layout->addItem(Spacer);
 			Layout->addWidget(TextLabel);
 			if (!PixmapPath.isEmpty()) {
 				PixmapLabel->show();
@@ -176,10 +186,9 @@ namespace Visindigo::__Private__ {
 			QSize size = this->size();
 			QPainter painter(this);
 			painter.setRenderHint(QPainter::Antialiasing);
-			QColor btnColor = this->palette().color(QPalette::Button);
-			bool isLight = Utility::ColorTool::isLightColor(btnColor);
+			QColor btnColor = ((Visindigo::Widgets::TitleWidget*)this->parent())->d->SignColor;
 			QPen pen;
-			pen.setColor(isLight ? Qt::black : Qt::white);
+			pen.setColor(btnColor);
 			pen.setWidth(1);
 			painter.save();
 			painter.setPen(pen);
@@ -195,10 +204,9 @@ namespace Visindigo::__Private__ {
 			QSize size = this->size();
 			QPainter painter(this);
 			painter.setRenderHint(QPainter::Antialiasing);
-			QColor btnColor = this->palette().color(QPalette::Button);
-			bool isLight = Utility::ColorTool::isLightColor(btnColor);
+			QColor btnColor = ((Visindigo::Widgets::TitleWidget*)this->parent())->d->SignColor;
 			QPen pen;
-			pen.setColor(isLight ? Qt::black : Qt::white);
+			pen.setColor(btnColor);
 			pen.setWidth(1);
 			painter.save();
 			painter.setPen(pen);
@@ -221,10 +229,9 @@ namespace Visindigo::__Private__ {
 			QSize size = this->size();
 			QPainter painter(this);
 			painter.setRenderHint(QPainter::Antialiasing);
-			QColor btnColor = this->palette().color(QPalette::Button);
-			bool isLight = Utility::ColorTool::isLightColor(btnColor);
+			QColor btnColor = ((Visindigo::Widgets::TitleWidget*)this->parent())->d->SignColor;
 			QPen pen;
-			pen.setColor(isLight ? Qt::black : Qt::white);
+			pen.setColor(btnColor);
 			pen.setWidth(1);
 			painter.save();
 			painter.setPen(pen);
@@ -303,15 +310,18 @@ namespace Visindigo::Widgets {
 			d->TopWidget = topWidget;
 			
 		}
+		d->Spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 		d->TopWidget->installEventFilter(d);
 		d->MinButton = new Visindigo::__Private__::TitleWidget_MinButton(this);
-		d->MinButton->setObjectName("MinButton");
+		d->MinButton->setObjectName("TitleWidget_MinButton");
 		d->MaxButton = new Visindigo::__Private__::TitleWidget_MaxButton(this);
-		d->MaxButton->setObjectName("MaxButton");
+		d->MaxButton->setObjectName("TitleWidget_MaxButton");
 		d->CloseButton = new Visindigo::__Private__::TitleWidget_CloseButton(this);
-		d->CloseButton->setObjectName("CloseButton");
+		d->CloseButton->setObjectName("TitleWidget_CloseButton");
 		d->PixmapLabel = new QLabel(this);
+		d->PixmapLabel->setObjectName("TitleWidget_PixmapLabel");
 		d->TextLabel = new QLabel(this);
+		d->TextLabel->setObjectName("TitleWidget_TextLabel");
 		d->DragMoveEnable = enableDragMove;
 		this->installEventFilter(d);
 		d->TextLabel->installEventFilter(d);
@@ -366,6 +376,16 @@ namespace Visindigo::Widgets {
 		delete d;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		设置符号模式下按钮的符号颜色
+	*/
+	void TitleWidget::setSignColor(const QColor& color) {
+		d->SignColor = color;
+		d->MinButton->update();
+		d->MaxButton->update();
+		d->CloseButton->update();
+	}
 	/*!
 		\since Visindigo 0.13.0
 		设置 TitleWidget 所管理的顶层窗口为 \a topWidget。

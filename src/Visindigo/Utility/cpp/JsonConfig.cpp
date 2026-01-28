@@ -351,7 +351,8 @@ namespace Visindigo::Utility {
 		\fn QJsonParseError JsonConfig::parse(const QString& jsonStr)
 		\since Visindigo 0.13.0
 		\a json 为Json对象。
-		解析Json字符串。
+		解析Json字符串。如果解析成功，返回的QJsonParseError的error属性为QJsonParseError::NoError。
+		并立即覆盖全部原有内容。如果解析失败，返回的QJsonParseError的error属性为相应的错误类型。
 	*/
 	QJsonParseError JsonConfig::parse(const QString& jsonStr)
 	{

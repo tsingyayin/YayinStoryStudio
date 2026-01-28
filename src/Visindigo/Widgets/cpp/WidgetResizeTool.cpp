@@ -1,10 +1,13 @@
 #include "Widgets/WidgetResizeTool.h"
 #include <QtGui/qevent.h>
+#include <QtCore/qtimer.h>
 #include "General/Log.h"
 namespace Visindigo::Widgets {
 	class WidgetResizeToolPrivate :public QObject {
 		friend class Visindigo::Widgets::WidgetResizeTool;
 	protected:
+		QWidget* topParent = nullptr;
+		QTimer* mouseChecker = nullptr;
 		WidgetResizeTool::Borders EnabledBorders;
 		int borderWidth;
 		QPoint lastMousePos;
@@ -13,14 +16,41 @@ namespace Visindigo::Widgets {
 		bool onRight = false;
 		bool onTop = false;
 		bool onBottom = false;
+
+		bool mouseInBorderArea(const QPointF& pos, const QRect& rect) {
+			bool onLeft = pos.x() <= borderWidth;
+			bool onRight = pos.x() >= rect.width() - borderWidth;
+			bool onTop = pos.y() <= borderWidth;
+			bool onBottom = pos.y() >= rect.height() - borderWidth;
+			return onLeft || onRight || onTop || onBottom;
+		}
 	};
 
-	WidgetResizeTool::WidgetResizeTool(QWidget* parent, Borders borders, int borderWidth) :QObject((QObject*)parent) {
+	WidgetResizeTool::WidgetResizeTool(QWidget* parent, Borders borders, int borderWidth, QWidget* topParent) :QObject((QObject*)parent) {
 		d = new WidgetResizeToolPrivate();
 		d->EnabledBorders = borders;
 		d->borderWidth = borderWidth;
-		parent->installEventFilter(this);
-		parent->setMouseTracking(true);
+		d->mouseChecker = new QTimer(this);
+		d->mouseChecker->setInterval(50);
+		
+		if (topParent != nullptr) {
+			d->topParent = topParent;
+		}
+		else {
+			d->topParent = parent;
+		}
+		d->topParent->installEventFilter(this);
+		d->topParent->setMouseTracking(true);
+
+		connect(d->mouseChecker, &QTimer::timeout, this, [this]() {
+			QPoint pos = d->topParent->mapFromGlobal(QCursor::pos());
+			QRect rect = d->topParent->rect();
+			if (!d->mouseInBorderArea(pos, rect)) {
+				d->topParent->unsetCursor();
+				d->resizing = false;
+				d->mouseChecker->stop();
+			}
+			});
 	}
 
 	WidgetResizeTool::~WidgetResizeTool() {
@@ -32,7 +62,7 @@ namespace Visindigo::Widgets {
 	}
 
 	bool WidgetResizeTool::eventFilter(QObject* target, QEvent* event) {
-		if (target!=this->parent()) {
+		if (target != d->topParent) {
 			return QObject::eventFilter(target, event);
 		}
 		QWidget* parentWidget = qobject_cast<QWidget*>(target);
@@ -93,6 +123,7 @@ namespace Visindigo::Widgets {
 					if (!d->resizing) {
 						d->resizing = true;
 						d->lastMousePos = mouseEvent->globalPos();
+						d->mouseChecker->start();
 						return false; // cannot resize on the first move event
 					}
 					if (cursorShape != Qt::ArrowCursor) {
@@ -155,7 +186,6 @@ namespace Visindigo::Widgets {
 			return false;	
 		}
 		else {
-
 			return QObject::eventFilter(target, event);
 		}
 		return QObject::eventFilter(target, event);

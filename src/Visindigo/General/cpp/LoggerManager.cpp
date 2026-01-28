@@ -1,12 +1,13 @@
-#include "../LoggerManager.h"
-#include "../LoggerMsgHandler.h"
+#include "General/LoggerManager.h"
+#include "General/LoggerMsgHandler.h"
 #include <QtCore/qdatetime.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qdir.h>
-#include "../../Utility/Console.h"
-#include "../../General/VIApplication.h"
+#include "Utility/Console.h"
+#include "General/VIApplication.h"
+#include "General/Exception.h"
 namespace Visindigo::General {
 	class LoggerManagerPrivate {
 		friend LoggerManager;
@@ -226,5 +227,50 @@ namespace Visindigo::General {
 	*/
 	void LoggerManager::finalSave() {
 		d->save();
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		生成崩溃报告。
+		\a ex 指向Exception对象的引用，包含了崩溃的相关信息。
+		此函数用于生成崩溃报告文件，包含了崩溃时的堆栈信息和其他相关数据。
+		这个函数由VIApplication在捕获到会导致程序崩溃的异常时自动调用。
+
+		一般来说不需要用户手动调用此函数，但也可以用它生成异常的报告。
+		它不含任何附带异常处理或程序终止的逻辑，仅负责生成报告文件。
+	*/
+	void LoggerManager::generateCrashReport(const Exception& ex) {
+		QString crashReportFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString() + "/crashreports";
+		QDir crashReportDir(crashReportFolderPath);
+		if (!crashReportDir.exists()) {
+			crashReportDir.mkpath(".");
+		}
+		QString crashReportFileName = QDateTime::currentDateTime().toString(d->LogFileNameTimeFormat) % "_crashreport.log";
+		QFile crashReportFile(crashReportFolderPath % "/" % crashReportFileName);
+		if (crashReportFile.open(QIODevice::NewOnly | QIODevice::Text)) {
+			QTextStream stream(&crashReportFile);
+			stream.setEncoding(QStringConverter::Utf8);
+			stream << "Visindigo Crash Report\n";
+			stream << "Generated on " % QDateTime::currentDateTime().toString(Qt::ISODate) % "\n\n";
+			stream << "When executing function:\n";
+			stream << ex.getFunction() % " (" % ex.getFile() % ":" % QString::number(ex.getLine()) % ")\n\n";
+			stream << "The following exception was thrown:\n";
+			stream << "Exception Type: " % Exception::typeToString(ex.getType()) % "\n";
+			stream << "Exception Message: " % ex.getMessage() % "\n\n";
+			stream << "Stacktrace:\n";
+			stream << "Index\tBinary File ! Function (+Address) in Source File at Line Number\n";
+			quint32 index = 0;
+			for (const StacktraceFrame& frame : ex.getStacktrace()) {
+				stream << QString("%1\t%2 ! %3 (+%4) in %5 at %6\n")
+					.arg(QString::number(index))
+					.arg(frame.getBinaryFileName())
+					.arg(frame.getFunctionName())
+					.arg(QString::number(frame.getAddress(), 16).toUpper())
+					.arg(frame.getSourceFileName())
+					.arg(QString::number(frame.getLineNumber()));
+				index++;
+			}
+			crashReportFile.close();
+		}
 	}
 }

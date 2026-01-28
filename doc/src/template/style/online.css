@@ -651,7 +651,7 @@ div.multi-column div {
   display:block;
   position:relative;
   position:sticky;
-  float:left;
+  float:right;
   -webkit-box-sizing:border-box;
   -moz-box-sizing:border-box;
   -ms-box-sizing:border-box;
@@ -666,7 +666,8 @@ div.multi-column div {
 .toc,.sectionlist {
   padding:25px;
   background-color:#fff;
-  margin-bottom:1.25em
+  margin-bottom:1.25em;
+  position: fixed;
 }
 .sidebar .sectionlist p {
   margin-bottom:0

@@ -228,16 +228,15 @@ namespace Visindigo::Utility {
 		\a exts 文件扩展名
 		\a considerSubFolder 是否考虑子目录
 		\since Yayin Story Studio 0.13.0
-		过滤指定目录下的文件，返回一个QStringList。
+		过滤指定目录下的文件，返回一个QStringList。它总是返回绝对路径。
 
 		这exts应形如 "*.ext1"、"*.ext2"、"*.ext3"，请务必注意星号。
 	*/
 	QStringList FileUtility::fileFilter(const QString& root, const QStringList& exts, bool considerSubFolder) {
-		QDirIterator it(root, exts, QDir::Files, considerSubFolder ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
+		QDirListing list(root, exts, (considerSubFolder ? QDirListing::IteratorFlag::Recursive : QDirListing::IteratorFlag::Default) | QDirListing::IteratorFlag::FilesOnly);
 		QStringList files;
-		while (it.hasNext())
-		{
-			files << it.next();
+		for(auto li: list){
+			files.append(li.absoluteFilePath());
 		}
 		return files;
 	}

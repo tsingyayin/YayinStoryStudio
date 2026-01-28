@@ -464,7 +464,7 @@ namespace Visindigo::Utility {
 		默认构造函数，创建一个类型为None的空节点。
 	*/
 	GeneralConfig::GeneralConfig() {
-		d = VPGCMP->getPrivate(this);
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 	}
 
 	/*!
@@ -472,7 +472,7 @@ namespace Visindigo::Utility {
 		使用整数值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(qint64 value){
-		d = VPGCMP->getPrivate(this);
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = Type::Integer;
 		d->Value = value;
 	}
@@ -482,7 +482,7 @@ namespace Visindigo::Utility {
 		使用实数值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(qreal value) {
-		d = VPGCMP->getPrivate(this);
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = Type::Real;
 		memcpy(&(d->Value), &value, sizeof(d->Value));
 	}
@@ -492,7 +492,7 @@ namespace Visindigo::Utility {
 		使用布尔值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(bool value){
-		d = VPGCMP->getPrivate(this);
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = Type::Bool;
 		d->Value = value;
 	}
@@ -502,7 +502,7 @@ namespace Visindigo::Utility {
 		使用字符串值构造一个节点。如果isRef为true，则构造一个引用节点。
 	*/
 	GeneralConfig::GeneralConfig(const QString& value, bool isRef) {
-		d = VPGCMP->getPrivate(this);
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = isRef ? Type::Reference : Type::String;
 		d->Value = (qint64)(new QString(value));
 	}
@@ -512,7 +512,7 @@ namespace Visindigo::Utility {
 		使用列表值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(const GeneralConfigList& value) {
-		d = VPGCMP->getPrivate(this);
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = Type::List;
 		d->Value = (qint64)(new GeneralConfigList(value));
 		if (d->Value) {
@@ -533,7 +533,7 @@ namespace Visindigo::Utility {
 		使用映射值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(const GeneralConfigMap& value) {
-		d = VPGCMP->getPrivate(this);
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = Type::Map;
 		d->Value = (qint64)(new GeneralConfigMap(value));
 		if (d->Value) {
@@ -553,7 +553,44 @@ namespace Visindigo::Utility {
 		析构函数，递归地释放节点及其子节点占用的内存。
 	*/
 	GeneralConfig::~GeneralConfig() { 
-		VPGCMP->releasePrivate(d);
+		delete d;
+	}
+
+	GeneralConfig::GeneralConfig(const GeneralConfig& other) {
+		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
+		d->copyFrom(other.d);
+		d->changeRoot(this);
+	}
+	/*!
+		\since Visindigo 0.13.0
+		移动构造函数，转移节点及其子节点的所有权。
+	*/
+	GeneralConfig::GeneralConfig(GeneralConfig&& other) noexcept {
+		d = other.d;
+		d->q = this;
+		d->changeParent(this);
+		if (d->Parent == nullptr) {
+			d->changeRoot(this);
+		}
+		other.d = nullptr;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		移动赋值运算符，转移节点及其子节点的所有权。
+	*/
+	GeneralConfig& GeneralConfig::operator=(GeneralConfig&& other) noexcept {
+		if (this != &other) {
+			delete d;
+			d = other.d;
+			d->q = this;
+			d->changeParent(this);
+			if (d->Parent == nullptr) {
+				d->changeRoot(this);
+			}
+			other.d = nullptr;
+		}
+		return *this;
 	}
 
 	/*!
@@ -564,6 +601,7 @@ namespace Visindigo::Utility {
 		GeneralConfig* newConfig = new Visindigo::Utility::GeneralConfig();
 		newConfig->d->copyFrom(other->d);
 		newConfig->d->changeRoot(newConfig);
+		newConfig->d->changeParent(newConfig);
 		return newConfig;
 	}
 

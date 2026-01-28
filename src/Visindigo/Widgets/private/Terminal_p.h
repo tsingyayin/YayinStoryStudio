@@ -26,10 +26,14 @@ namespace Visindigo::__Private__ {
 		bool enableStyle = true;
 		qint32 maxCacheLines = 100;
 		QTextStream* stdInStream = nullptr;
+		QStringList commandHistory;
+		QString commandStartWith;
+		qsizetype historyIndex = -1;
 		TerminalPrivate();
 		~TerminalPrivate();
 		void writeToStdIn(const QString& line);
 		void onStdInputAvailable();
+		bool eventFilter(QObject* obj, QEvent* event) override;
 	};
 }
 #endif // Visindigo_Widgets_Terminal_p_h

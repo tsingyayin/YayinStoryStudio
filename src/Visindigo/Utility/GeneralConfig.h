@@ -40,6 +40,8 @@ namespace Visindigo::Utility {
 		GeneralConfig(const GeneralConfigList& value);
 		GeneralConfig(const GeneralConfigMap& value);
 		virtual ~GeneralConfig();
+		VIMoveable(GeneralConfig);
+		VICopyable(GeneralConfig);
 		static GeneralConfig* copyFrom(GeneralConfig* other);
 
 		qint64 getInt(const QString& key = "", qint64 def = 0, bool* ok = nullptr);
@@ -47,8 +49,8 @@ namespace Visindigo::Utility {
 		bool getBool(const QString& key = "", bool def = false, bool* ok = nullptr);
 		QString getString(const QString& key = "", const QString& def = "", bool* ok = nullptr);
 		QString getRefNode(const QString& key = "", const QString& def = "", bool* ok = nullptr);
-		GeneralConfigList getList(const QString& key = "", const GeneralConfigList& def = {}, bool* ok = nullptr);
-		GeneralConfigMap getMap(const QString& key = "", const GeneralConfigMap& def = {}, bool* ok = nullptr);
+		VIUnstable GeneralConfigList getList(const QString& key = "", const GeneralConfigList& def = {}, bool* ok = nullptr);
+		VIUnstable GeneralConfigMap getMap(const QString& key = "", const GeneralConfigMap& def = {}, bool* ok = nullptr);
 		QString getComment(const QString& key = "", bool* ok = nullptr, bool isHeadComment = false);
 		GeneralConfig* getChildNode(const QString& key);
 		QStringList getKeys(const QString& key = "", bool* ok = nullptr);
@@ -58,8 +60,8 @@ namespace Visindigo::Utility {
 		void setBool(bool value, const QString& key = "");
 		void setString(const QString& value, const QString& key = "");
 		void setRefNode(const QString& value, const QString& key = "");
-		void setList(const GeneralConfigList& value, const QString& key = "");
-		void setMap(const GeneralConfigMap& value, const QString& key = "");
+		void setList(const VITransferred GeneralConfigList& value, const QString& key = "");
+		void setMap(const VITransferred GeneralConfigMap& value, const QString& key = "");
 		void setComment(const QString& comment, const QString& key = "", bool isHeadComment = false);
 		
 

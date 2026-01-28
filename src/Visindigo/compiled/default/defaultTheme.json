@@ -1,0 +1,46 @@
+{
+	"SchemeID": "#Default",
+	"SchemeName": "Visindigo Default Color Scheme",
+	"Themes": {
+		"Dark":{
+			"Background_Light": "#3A3A3A",
+			"Background_Normal": "#2E2E2E",
+			"Background_Dark": "#202020",
+			"Primary_Light": "#e292fa",
+			"Primary_Normal": "#c320f5",
+			"Primary_Dark": "#a90fd8",
+			"Reject_Light": "#FF6F61",
+			"Reject_Normal": "#EB3324",
+			"Reject_Dark": "#C1271A",
+			"Success_Light": "#0DFF44",
+			"Success_Normal": "#00DB25",
+			"Success_Dark": "#00B31E",
+			"Outline_Light": "#3A3A3A",
+			"Outline_Normal": "#2A2A2A",
+			"Outline_Dark": "#1A1A1A",
+			"Text_Light": "#FFFFFF",
+			"Text_Normal": "#DDDDDD",
+			"Text_Dark": "#BBBBBB"
+		},
+		"Light":{
+			"Background_Light": "#F0F0F0",
+			"Background_Normal": "#FFFFFF",
+			"Background_Dark": "#E0E0E0",
+			"Primary_Light": "#5AA0FF",
+			"Primary_Normal": "#3282F6",
+			"Primary_Dark": "#0078C7",
+			"Reject_Light": "#FF6F61",
+			"Reject_Normal": "#EB3324",
+			"Reject_Dark": "#C1271A",
+			"Success_Light": "#0DFF44",
+			"Success_Normal": "#00DB25",
+			"Success_Dark": "#00B31E",
+			"Outline_Light": "#D0D0D0",
+			"Outline_Normal": "#B0B0B0",
+			"Outline_Dark": "#909090",
+			"Text_Light": "#000000",
+			"Text_Normal": "#222222",
+			"Text_Dark": "#444444"
+		}
+	}
+}

@@ -49,6 +49,7 @@ namespace Visindigo::General {
 			MinimumLoadingTimeMS,
 			UseVirtualTerminal,
 			ThemeFolderPath,
+			SaveCommandHistory,
 		};
 	public:
 		static VIApplication* getInstance();

@@ -26,17 +26,5 @@ namespace Visindigo::__Private__ {
 		void changeParent(Visindigo::Utility::GeneralConfig* newQ);
 		void clear();
 	};
-
-	class GeneralConfigMemPool {
-		static GeneralConfigMemPool* Instance;
-		QList<void*> MemPages;
-		QStack<GeneralConfigPrivate*> FreePrivates;
-		GeneralConfigMemPool();
-	public:
-		static GeneralConfigMemPool* getInstance();
-		GeneralConfigPrivate* getPrivate(Visindigo::Utility::GeneralConfig* q);
-		void releasePrivate(GeneralConfigPrivate* p);
-	};
 }
-#define VPGCMP Visindigo::__Private__::GeneralConfigMemPool::getInstance()
 #endif // Visindigo_Utility_GeneralConfig_p_h

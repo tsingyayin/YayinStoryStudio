@@ -10,6 +10,59 @@
 namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
+		将异常类型枚举值转换为字符串表示形式。
+	*/
+	QString Exception::typeToString(Type type) {
+		switch (type) {
+		case Unknown: return "Unknown";
+		case Other: return "Other";
+		case IOError: return "IOError";
+		case ParseError: return "ParseError";
+		case InvalidArgument: return "InvalidArgument";
+		case OutOfRange: return "OutOfRange";
+		case NotFound: return "NotFound";
+		case AlreadyExists: return "AlreadyExists";
+		case PermissionDenied: return "PermissionDenied";
+		case Timeout: return "Timeout";
+		case UnsupportedOperation: return "UnsupportedOperation";
+		case InternalError: return "InternalError";
+		case OutOfMemory: return "OutOfMemory";
+		case Std_Unknown: return "Std_Unknown";
+		case Std_Other: return "Std_Other";
+		case Std_LogicError: return "Std_LogicError";
+		case Std_InvalidArgument: return "Std_InvalidArgument";
+		case Std_DomainError: return "Std_DomainError";
+		case Std_LengthError: return "Std_LengthError";
+		case Std_OutOfRange: return "Std_OutOfRange";
+		case Std_FutureError: return "Std_FutureError";
+		case Std_RuntimeError: return "Std_RuntimeError";
+		case Std_RangeError: return "Std_RangeError";
+		case Std_OverflowError: return "Std_OverflowError";
+		case Std_UnderflowError: return "Std_UnderflowError";
+		case Std_RegexError: return "Std_RegexError";
+		case Std_SystemError: return "Std_SystemError";
+		case Std_IOFailure: return "Std_IOFailure";
+		case Std_FileSystemError: return "Std_FileSystemError";
+		case Std_TXException: return "Std_TXException";
+		case Std_LocalTimeNone: return "Std_LocalTimeNone";
+		case Std_LocalTimeAmbiguous: return "Std_LocalTimeAmbiguous";
+		case Std_FormatError: return "Std_FormatError";
+		case Std_BadTypeid: return "Std_BadTypeid";
+		case Std_BadCast: return "Std_BadCast";
+		case Std_BadAnyCast: return "Std_BadAnyCast";
+		case Std_BadOptionalAccess: return "Std_BadOptionalAccess";
+		case Std_BadExpectedAccess: return "Std_BadExpectedAccess";
+		case Std_BadWeakPtr: return "Std_BadWeakPtr";
+		case Std_BadFunctionCall: return "Std_BadFunctionCall";
+		case Std_BadAlloc: return "Std_BadAlloc";
+		case Std_BadArrayNewLength: return "Std_BadArrayNewLength";
+		case Std_BadException: return "Std_BadException";
+		case Std_BadVariantAccess: return "Std_BadVariantAccess";
+			default: return "Unknown";
+		}
+	}
+	/*!
+		\since Visindigo 0.13.0
 		\a e 标准异常对象
 		将标准异常对象转换为 Visindigo::General::Exception 对象。
 
