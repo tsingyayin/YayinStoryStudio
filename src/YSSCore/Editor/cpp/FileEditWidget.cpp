@@ -50,7 +50,7 @@ protected:
 
 	/*!
 		获取当前文件编辑器的文件路径。
-		\return 返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
+		return 返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
 	*/
 	QString FileEditWidget::getFilePath() const {
 		return d->filePath;
@@ -58,7 +58,7 @@ protected:
 
 	/*!
 		获取当前文件编辑器的文件名。
-		\return 返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
+		return 返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
 	*/
 	QString FileEditWidget::getFileName() const {
 		return QFileInfo(d->filePath).fileName();
@@ -66,7 +66,7 @@ protected:
 
 	/*!
 		判断当前文件内容是否被修改。
-		\return 如果文件内容被修改，返回true；否则返回false。
+		return 如果文件内容被修改，返回true；否则返回false。
 	*/
 	bool FileEditWidget::isFileChanged() const {
 		return d->fileChanged;
@@ -92,7 +92,7 @@ protected:
 	/*!
 		打开指定路径的文件，并加载其内容。
 		\a path 要打开的文件路径。
-		\return 如果文件成功打开并加载，返回true；否则返回false。
+		return 如果文件成功打开并加载，返回true；否则返回false。
 
 		此类在判定文件路径是否为空后，调用派生类实现的onOpen()函数以实际打开文件。
 	*/
@@ -111,7 +111,7 @@ protected:
 	/*!
 		保存当前文件编辑器的内容到指定路径。
 		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
-		\return 如果文件成功保存，返回true；否则返回false。
+		return 如果文件成功保存，返回true；否则返回false。
 		此类在判定文件路径是否为空后，调用派生类实现的onSave()函数以实际保存文件。
 		一旦文件成功保存，fileChanged状态会被重置为false，并触发fileSaved信号。
 	*/
@@ -134,7 +134,7 @@ protected:
 
 	/*!
 		重新加载当前文件编辑器的内容。
-		\return 如果文件成功重新加载，返回true；否则返回false。
+		return 如果文件成功重新加载，返回true；否则返回false。
 		此类在判定当前文件路径是否为空后，调用派生类实现的onReload()函数以实际重新加载文件。
 	*/
 	bool FileEditWidget::reloadFile() {
@@ -147,7 +147,7 @@ protected:
 
 	/*!
 		关闭当前文件编辑器。
-		\return 如果文件编辑器可以关闭，返回true；否则返回false。
+		return 如果文件编辑器可以关闭，返回true；否则返回false。
 		此类调用派生类实现的onClose()函数以实际处理关闭逻辑。
 	*/
 	bool FileEditWidget::closeFile() {
@@ -156,7 +156,7 @@ protected:
 
 	/*!
 		复制当前选中的内容到剪贴板。
-		\return 如果复制操作成功，返回true；否则返回false。
+		return 如果复制操作成功，返回true；否则返回false。
 		此类调用派生类实现的onCopy()函数以实际处理复制逻辑。
 	*/
 	bool FileEditWidget::copy() {
@@ -165,7 +165,7 @@ protected:
 
 	/*!
 		剪切当前选中的内容到剪贴板。
-		\return 如果剪切操作成功，返回true；否则返回false。
+		return 如果剪切操作成功，返回true；否则返回false。
 		此类调用派生类实现的onCut()函数以实际处理剪切逻辑。
 	*/
 	bool FileEditWidget::cut() {
@@ -174,7 +174,7 @@ protected:
 
 	/*!
 		从剪贴板粘贴内容到当前光标位置。
-		\return 如果粘贴操作成功，返回true；否则返回false。
+		return 如果粘贴操作成功，返回true；否则返回false。
 		此类调用派生类实现的onPaste()函数以实际处理粘贴逻辑。
 	*/
 	bool FileEditWidget::paste() {
@@ -183,7 +183,7 @@ protected:
 
 	/*!
 		撤销上一次编辑操作。
-		\return 如果撤销操作成功，返回true；否则返回false。
+		return 如果撤销操作成功，返回true；否则返回false。
 		此类调用派生类实现的onUndo()函数以实际处理撤销逻辑。
 	*/
 	bool FileEditWidget::undo() {
@@ -192,7 +192,7 @@ protected:
 
 	/*!
 		重做上一次被撤销的编辑操作。
-		\return 如果重做操作成功，返回true；否则返回false。
+		return 如果重做操作成功，返回true；否则返回false。
 		此类调用派生类实现的onRedo()函数以实际处理重做逻辑。
 	*/
 	bool FileEditWidget::redo() {
@@ -201,7 +201,7 @@ protected:
 
 	/*!
 		选中当前文件编辑器中的所有内容。
-		\return 如果全选操作成功，返回true；否则返回false。
+		return 如果全选操作成功，返回true；否则返回false。
 		此类调用派生类实现的onSelectAll()函数以实际处理全选逻辑。
 	*/
 	bool FileEditWidget::selectAll() {
@@ -230,60 +230,60 @@ protected:
 	派生类必须实现此纯虚函数以处理文件打开逻辑。
 	\a path 要打开的文件路径。
 
-	\return 如果文件成功打开并加载，返回true；否则返回false。
+	return 如果文件成功打开并加载，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onClose() = 0
 	派生类必须实现此纯虚函数以处理文件关闭逻辑。
-	\return 如果文件编辑器可以关闭，返回true；否则返回false。
+	return 如果文件编辑器可以关闭，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onSave(const QString& path = "") = 0
 	派生类必须实现此纯虚函数以处理文件保存逻辑。
 	\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
-	\return 如果文件成功保存，返回true；否则返回false。
+	return 如果文件成功保存，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onReload() = 0
 	派生类必须实现此纯虚函数以处理文件重新加载逻辑。
-	\return 如果文件成功重新加载，返回true；否则返回false。
+	return 如果文件成功重新加载，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onCopy() = 0
 	派生类必须实现此纯虚函数以处理复制逻辑。
-	\return 如果复制操作成功，返回true；否则返回false。
+	return 如果复制操作成功，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onCut() = 0
 	派生类必须实现此纯虚函数以处理剪切逻辑。
-	\return 如果剪切操作成功，返回true；否则返回false。
+	return 如果剪切操作成功，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onPaste() = 0
 	派生类必须实现此纯虚函数以处理粘贴逻辑。
-	\return 如果粘贴操作成功，返回true；否则返回false。
+	return 如果粘贴操作成功，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onUndo() = 0
 	派生类必须实现此纯虚函数以处理撤销逻辑。
-	\return 如果撤销操作成功，返回true；否则返回false。
+	return 如果撤销操作成功，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onRedo() = 0
 	派生类必须实现此纯虚函数以处理重做逻辑。
-	\return 如果重做操作成功，返回true；否则返回false。
+	return 如果重做操作成功，返回true；否则返回false。
 */
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onSelectAll() = 0
 	派生类必须实现此纯虚函数以处理全选逻辑。
-	\return 如果全选操作成功，返回true；否则返回false。
+	return 如果全选操作成功，返回true；否则返回false。
 */

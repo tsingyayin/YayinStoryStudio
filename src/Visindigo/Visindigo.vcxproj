@@ -269,6 +269,7 @@
     <ClCompile Include="Widgets\cpp\TextTags.cpp" />
     <ClCompile Include="Widgets\cpp\Terminal.cpp" />
     <ClCompile Include="Widgets\cpp\TitleWidget.cpp" />
+    <ClCompile Include="Widgets\cpp\VIWidgets_p.cpp" />
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
     <ClCompile Include="Widgets\cpp\WidgetResizeTool.cpp" />
   </ItemGroup>
@@ -306,6 +307,7 @@
     <QtMoc Include="Widgets\QuickMenu.h" />
     <QtMoc Include="Widgets\private\Terminal_p.h" />
     <QtMoc Include="Widgets\private\TitleWidget_p.h" />
+    <ClInclude Include="Widgets\private\VIWidgets_p.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />

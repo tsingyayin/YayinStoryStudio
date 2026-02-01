@@ -66,7 +66,7 @@ namespace Visindigo::General {
 		\inheaderfile General/LoggerManager.h
 		\brief LoggerManager是日志记录器管理器，用于管理全局日志对象并处理日志消息。
 		\inmodule Visindigo 
-		\ingroup VDebug
+		\ingroup VIDebug
 		\since Visindigo 0.13.0
 
 		VDebug是一种用于在Qt开发中与QDebug提供相似功能的日志管理。

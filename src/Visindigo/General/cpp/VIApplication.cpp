@@ -13,6 +13,7 @@
 #include "Widgets/Terminal.h"
 #include "Widgets/ThemeManager.h"
 #include "General/CommandHost.h"
+#include "Widgets/private/VIWidgets_p.h"
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
 		vgNoticeF << "[Loading Message Handler] " << message;
@@ -525,6 +526,7 @@ namespace Visindigo::General {
 
 			if (d->AppType == WidgetApp) {
 				Widgets::ThemeManager::getInstance();
+				__Private__::VIWidgetsCommandHandler::getInstance()->enable();
 			}
 
 			if (d->MainPlugin) {

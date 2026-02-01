@@ -4,67 +4,6 @@
 #include "General/VIApplication.h"
 #include "Utility/FileUtility.h"
 namespace Visindigo::General {
-	class CommandErrorDataPrivate {
-		friend class CommandErrorData;
-	protected:
-		CommandErrorData::ErrorType Type;
-		QString Message;
-		QString Command;
-		qsizetype ErrorPosition;
-	};
-
-	CommandErrorData::CommandErrorData(bool noError)
-		: d(new CommandErrorDataPrivate()) {
-		if (noError) {
-			d->Type = NoError;
-		} else {
-			d->Type = UnknownError;
-		}
-		d->Message = QString();
-		d->Command = QString();
-		d->ErrorPosition = -1;
-	}
-
-	CommandErrorData::CommandErrorData(CommandErrorData::ErrorType type)
-		: d(new CommandErrorDataPrivate()) {
-		d->Type = type;
-		d->Message = QString();
-		d->Command = QString();
-		d->ErrorPosition = -1;
-	}
-
-	CommandErrorData::CommandErrorData(CommandErrorData::ErrorType type, const QString& message, const QString& command, qsizetype errorPosition)
-		: d(new CommandErrorDataPrivate()) {
-		d->Type = type;
-		d->Message = message;
-		d->Command = command;
-		d->ErrorPosition = errorPosition;
-		
-	}
-	
-	VIMoveable_Impl(CommandErrorData);
-	VICopyable_Impl(CommandErrorData);
-
-	CommandErrorData::~CommandErrorData() {
-		delete d;
-	}
-
-	CommandErrorData::ErrorType CommandErrorData::getErrorType() const {
-		return d->Type;
-	}
-
-	QString CommandErrorData::getErrorMessage() const {
-		return d->Message;
-	}
-
-	QString CommandErrorData::getCommand() const {
-		return d->Command;
-	}
-
-	qsizetype CommandErrorData::getErrorPosition() const {
-		return d->ErrorPosition;
-	}
-
 	class CommandHostPrivate {
 		friend class CommandHost;
 	protected:

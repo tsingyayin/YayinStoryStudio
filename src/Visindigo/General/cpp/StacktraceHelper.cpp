@@ -23,7 +23,7 @@ namespace Visindigo::General {
 		\inheaderfile General/StacktraceHelper.h
 		\brief 堆栈跟踪帧数据类。
 		\inmodule Visindigo
-		\ingroup VDebug
+		\ingroup VIDebug
 		\since Visindigo 0.13.0
 
 		StacktraceFrame 类表示程序执行堆栈中的单个帧信息。它包含函数名称、源文件名、
@@ -221,7 +221,7 @@ namespace Visindigo::General {
 		\inheaderfile General/StacktraceHelper.h
 		\brief 堆栈跟踪帮助类。
 		\inmodule Visindigo
-		\ingroup VDebug
+		\ingroup VIDebug
 		\since Visindigo 0.13.0
 
 		StacktraceHelper 类提供获取当前执行堆栈跟踪信息的静态方法。

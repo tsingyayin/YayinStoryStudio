@@ -15,7 +15,7 @@ namespace Visindigo::General {
 		\brief 日志元数据类，用于存储日志消息的附加信息。
 		\inmodule Visindigo
 		\since Visindigo 0.13.0
-		\ingroup VDebug
+		\ingroup VIDebug
 
 		LogMetaData 类用于存储与日志消息相关的附加信息，例如函数名称和行号。
 		这些信息可以帮助开发者更好地定位日志消息的来源，从而更有效地进行调试和问题排查。

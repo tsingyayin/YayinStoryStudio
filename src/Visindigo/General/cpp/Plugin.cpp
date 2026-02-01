@@ -48,7 +48,7 @@ namespace Visindigo::General {
 		\class Visindigo::General::Plugin
 		\inheaderfile General/Plugin.h
 		\inmodule Visindigo
-		\ingroup VPlugin
+		\ingroup VIPlugin
 		\brief 此类为Visindigo提供插件基类。
 		\since Visindigo 0.13.0
 

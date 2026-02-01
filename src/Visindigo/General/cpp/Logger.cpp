@@ -17,7 +17,7 @@ namespace Visindigo::General {
 		\brief 日志记录器类，用于记录和管理日志消息。
 		\inmodule Visindigo
 		\since Visindigo 0.13.0
-		\ingroup VDebug
+		\ingroup VIDebug
 		
 		Logger 类是日志记录器的实例组件，用于管理来自不同命名空间的日志消息。
 		它允许设置日志级别阈值，以过滤不需要的日志消息。

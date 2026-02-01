@@ -7,11 +7,15 @@ class QWidget;
 class QColor;
 class QString;
 namespace Visindigo::Widgets {
+	class StyleSheetTemplate;
 	class ThemeManagerPrivate;
 	class ColorfulWidget;
 }
 namespace Visindigo::General {
 	class Plugin;
+}
+namespace Visindigo::Utility {
+	class JsonConfig;
 }
 // Main
 namespace Visindigo::Widgets {
@@ -72,6 +76,8 @@ namespace Visindigo::Widgets {
 		void registerColorfulWidget(ColorfulWidget* widget);
 		void unregisterColorfulWidget(ColorfulWidget* widget);
 		bool isColorfulWidgetRegistered(ColorfulWidget* widget);
+		StyleSheetTemplate getMergedStyleSheetTemplate();
+		Visindigo::Utility::JsonConfig getMergedColorScheme();
 	private:
 		ThemeManagerPrivate* d;
 	};

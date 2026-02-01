@@ -176,6 +176,9 @@
     <ClCompile Include="General\cpp\CommandHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\VIWidgets_p.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -311,6 +314,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\CommandHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\private\VIWidgets_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

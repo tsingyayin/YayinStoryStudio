@@ -5,7 +5,33 @@
 #include <QtCore/qstringlist.h>
 #include "Utility/JsonConfig.h"
 namespace Visindigo::General {
-	class CommandErrorData;
+	class CommandErrorDataPrivate;
+	class VisindigoAPI CommandErrorData {
+	public:
+		enum ErrorType {
+			UnknownError,
+			NoError,
+			UnknownCommand,
+			InvalidArguments,
+			NoSuchKey,
+			ExecutionFailed
+		};
+	public:
+		CommandErrorData(bool noError);
+		CommandErrorData(ErrorType type = NoError);
+		CommandErrorData(ErrorType type, const QString& message = "", const QString& command = "", qsizetype errorPosition = -1);
+		VIMoveable(CommandErrorData);
+		VICopyable(CommandErrorData);
+		~CommandErrorData();
+		ErrorType getErrorType() const;
+		QString getErrorMessage() const;
+		QString getCommand() const;
+		qsizetype getErrorPosition() const;
+
+	private:
+		CommandErrorDataPrivate* d;
+	};
+
 	class CommandHandlerPrivate;
 	class VisindigoAPI CommandHandler {
 	public:

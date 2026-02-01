@@ -36,6 +36,9 @@ REPLACEMENTS = [
     (re.compile(r'>Public Functions<', re.IGNORECASE), '>公开成员函数<'),
     (re.compile(r'>Protected Functions<', re.IGNORECASE), '>受保护成员函数<'),
     (re.compile(r'>Private Functions<', re.IGNORECASE), '>私有成员函数<'),
+    (re.compile(r'>Public Slots<', re.IGNORECASE), '>公开槽函数<'),
+    (re.compile(r'>Protected Slots<', re.IGNORECASE), '>受保护槽函数<'),
+    (re.compile(r'>Private Slots<', re.IGNORECASE), '>私有槽函数<'),
 
     (re.compile(r'>Public Types<', re.IGNORECASE), '>公开类型<'),
     (re.compile(r'>Protected Types<', re.IGNORECASE), '>受保护类型<'),

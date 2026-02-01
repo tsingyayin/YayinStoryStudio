@@ -12,6 +12,7 @@
 #include "General/Plugin.h"
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
+#include <QtGui/qpalette.h>
 
 namespace Visindigo::Widgets {
 	class ThemeManagerPrivate {
@@ -89,6 +90,7 @@ namespace Visindigo::Widgets {
 		\inheaderfile Widgets/ThemeManager.h
 		\brief ThemeManager提供了比QPalette更强大的主题管理功能。
 		\inmodule Visindigo
+		\ingroup VITheme
 		\since Visindigo 0.13.0
 
 		\note 这是一个从旧版Visindigo继承下来的功能（VIWidgets/VIDynamicStyleSheet），但已经重新实现，因此行为和接口与旧版
@@ -441,6 +443,11 @@ namespace Visindigo::Widgets {
 			}
 			});
 		vgSuccessF << "Success!";
+		connect(qApp, &QGuiApplication::paletteChanged, this, [this]() {
+			vgDebugF << "Application palette changed.";
+			QPalette appPalette = qApp->palette();
+			vgDebugF << "New palette:" << appPalette.color(QPalette::Window).name() << appPalette.color(QPalette::WindowText).name();
+			});
 	}
 
 	/*!
@@ -836,7 +843,6 @@ namespace Visindigo::Widgets {
 		如果指定的主题ID不存在于合并后的配色方案中，则返回false。
 	*/
 	bool ThemeManager::changeColorTheme(const QString& themeID) {
-		vgDebugF << d->MergedColorScheme->toString();
 		if (!d->MergedColorScheme->keys("Themes").contains(themeID)) {
 			vgErrorF << "ThemeID" << themeID << "not found in merged color scheme. Change failed.";
 			return false;
@@ -961,6 +967,23 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
+		获取合并后的样式模板对象。
+	*/
+	StyleSheetTemplate ThemeManager::getMergedStyleSheetTemplate() {
+		return d->MergedTemplate;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		获取合并后的配色方案对象。
+	*/
+	Visindigo::Utility::JsonConfig ThemeManager::getMergedColorScheme() {
+		Visindigo::Utility::JsonConfig ret = *d->MergedColorScheme;
+		return ret;
+	}
+
+	/*!
 		\macro VISTM
 		\since Visindigo 0.13.0
 		简化获取ThemeManager实例的过程，等同于Visindigo::Widgets::ThemeManager::getInstance()
@@ -978,6 +1001,26 @@ namespace Visindigo::Widgets {
 		简化获取原始样式表字符串的过程，等同于Visindigo::Widgets::ThemeManager::getInstance()->getRawTemplate
 	*/
 
+	/*!
+		\class Visindigo::Widgets::ColorfulWidget
+		\since Visindigo 0.13.0
+		\brief ColorfulWidget是一个接口类，表示支持主题变化动画的组件。
+		\inheaderfile Widgets/ThemeManager.h
+		\ingroup VITheme
+		\inmodule Visindigo
+		用户可以通过继承ColorfulWidget类，并实现onThemeChanged方法来响应主题变化动画。
+	*/
+
+	/*!
+		\fn virtual void Visindigo::Widgets::ColorfulWidget::onThemeChanged() = 0
+		\since Visindigo 0.13.0
+		当主题变化动画进行时调用此方法。用户应在此方法中重新设置组件的样式表。
+	*/
+
+	/*!
+		\since Visindigo 0.13.0
+		启用或禁用主题变化动画支持。
+	*/
 	void ColorfulWidget::setColorfulEnable(bool enable) {
 		if (enable) {
 			Visindigo::Widgets::ThemeManager::getInstance()->registerColorfulWidget(this);
@@ -987,10 +1030,18 @@ namespace Visindigo::Widgets {
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		检查主题变化动画支持是否已启用。
+	*/
 	bool ColorfulWidget::isColorfulEnabled() {
 		return Visindigo::Widgets::ThemeManager::getInstance()->isColorfulWidgetRegistered(this);
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		析构函数，自动从ThemeManager注销此组件。
+	*/
 	ColorfulWidget::~ColorfulWidget() {
 		Visindigo::Widgets::ThemeManager::getInstance()->unregisterColorfulWidget(this);
 	}

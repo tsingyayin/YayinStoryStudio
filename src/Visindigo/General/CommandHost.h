@@ -8,36 +8,10 @@
 namespace Visindigo::General {
 	class CommandHandler;
 	class CommandHostPrivate;
+	class CommandErrorData;
 }
 // Main
 namespace Visindigo::General {
-	class CommandErrorDataPrivate;
-	class VisindigoAPI CommandErrorData {
-	public:
-		enum ErrorType {
-			UnknownError,
-			NoError,
-			UnknownCommand,
-			InvalidArguments,
-			NoSuchKey,
-			ExecutionFailed
-		};
-	public:
-		CommandErrorData(bool noError);
-		CommandErrorData(ErrorType type = NoError);
-		CommandErrorData(ErrorType type, const QString& message = "", const QString& command = "", qsizetype errorPosition = -1);
-		VIMoveable(CommandErrorData);
-		VICopyable(CommandErrorData);
-		~CommandErrorData();
-		ErrorType getErrorType() const;
-		QString getErrorMessage() const;
-		QString getCommand() const;
-		qsizetype getErrorPosition() const;
-		
-	private:
-		CommandErrorDataPrivate* d;
-	};
-
 	class VisindigoAPI CommandHost :public QObject{
 		Q_OBJECT;
 	private:
@@ -64,6 +38,7 @@ namespace Visindigo::General {
 		CommandHostPrivate* d;
 	};
 
+	class StdInCommandListenerPrivate;
 	class VisindigoAPI StdInCommandListener {
 	private:
 		StdInCommandListener();
@@ -73,6 +48,8 @@ namespace Visindigo::General {
 		void enable();
 		void disable();
 		bool isEnabled() const;
+	private:
+		StdInCommandListenerPrivate* d;
 	};
 }
 

@@ -13,7 +13,7 @@ namespace Visindigo::General {
 		\class Visindigo::General::PluginModule
 		\inheaderfile General/PluginModule.h
 		\inmodule Visindigo
-		\ingroup VPlugin
+		\ingroup VIPlugin
 		\brief 此类为Yayin Story Studio 提供插件模块基类。
 		\since Visindigo 0.13.0
 		PluginModule是插件模块的基类，所有插件模块都需要继承此类。

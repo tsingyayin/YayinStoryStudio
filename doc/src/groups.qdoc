@@ -1,5 +1,5 @@
 /*!
-    \group VDebug
+    \group VIDebug
     \title VDebug日志系统子模块
     \since Visindigo 0.13.0
     \inmodule Visindigo
@@ -11,12 +11,34 @@
 */
 
 /*!
-    \group VPlugin
-    \title VPlugin插件系统子模块
+    \group VIPlugin
+    \title VIPlugin插件系统子模块
     \since Visindigo 0.13.0
     \inmodule Visindigo
-    \brief VPlugin是对Visindigo::General中的有关插件系统实现类的总称。
+    \brief VIPlugin是对Visindigo::General中的有关插件系统实现类的总称。
 
-    VPlugin模块包含了Visindigo插件系统的核心实现类，包括Plugin、PluginManager等。
+    VIPlugin模块包含了Visindigo插件系统的核心实现类，包括Plugin、PluginManager等。
     这些类共同构成了一个灵活且可扩展的插件系统，允许开发者为应用程序添加和管理插件，从而扩展应用程序的功能。
+*/
+
+/*!
+    \group VITheme
+    \title VITheme主题系统子模块
+    \since Visindigo 0.13.0
+    \inmodule Visindigo
+    \brief VITheme是对Visindigo::Widgets中的有关主题系统实现类的总称。
+
+    VITheme模块包含了Visindigo主题系统的核心实现类，包括StyleSheetTemplate、ThemeManager等。
+    这些类共同形成了一个灵活的样式模板+颜色主题系统，允许开发者为应用程序创建和管理不同的主题，从而提升用户界面的视觉效果和一致性。
+*/
+
+/*!
+    \group VICommand
+    \title VICommand命令系统子模块
+    \since Visindigo 0.13.0
+    \inmodule Visindigo
+    \brief VICommand是对Visindigo::General中的有关命令系统实现类的总称。
+
+    VICommand模块包含了Visindigo命令系统的核心实现类，包括CommandHost、CommandHandler等。
+    这些类为应用程序提供了一个命令解析与执行的框架，允许开发者通过命令与用户进行交互，从而实现更灵活的功能控制。
 */

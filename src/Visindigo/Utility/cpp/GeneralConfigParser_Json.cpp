@@ -371,6 +371,15 @@ namespace Visindigo::Utility {
 	enum JsonValueType {
 		Unknown, String, Integer, Real, Bool, Null, Map, List
 	};
+
+	/*!
+		\since Visindigo 0.13.0
+		\a json 要解析的字符串
+		\a ok 成功状态值
+		从Json字符串解析到GeneralConfig（实验性实现，问题尚不明确）
+
+		\warning 带有goto的逻辑危险函数，谨慎维护。
+	*/
 	GeneralConfig* GeneralConfigParser::parseFromJson_2(const QString& json, bool* ok) {
 		QByteArray content = json.toUtf8();
 		const char* dataPtr = content.constData();
@@ -522,7 +531,7 @@ namespace Visindigo::Utility {
 					type = JsonValueType::Map;
 				}
 				else {
-					goto endParse;
+					goto endParse; // no more data to parse, end here
 				}
 			}
 			break;
@@ -547,7 +556,7 @@ namespace Visindigo::Utility {
 					type = JsonValueType::List;
 				}
 				else {
-					goto endParse;
+					goto endParse; // no more data to parse, end here
 				}
 			}
 			default:
