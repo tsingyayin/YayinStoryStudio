@@ -179,6 +179,12 @@
     <ClCompile Include="Widgets\cpp\VIWidgets_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\LiquidGlassEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\PluginBinaryHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -394,6 +400,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\CommandHost.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\LiquidGlassEffect.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\PluginBinaryHelper.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

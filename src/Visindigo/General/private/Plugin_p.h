@@ -17,6 +17,7 @@ namespace Visindigo::__Private__ {
 		friend class Visindigo::General::PluginManager;
 	protected:
 		Visindigo::General::Plugin* q = nullptr;
+		Visindigo::General::Version APIVersion;
 		Visindigo::General::Version ABIVersion;
 		Visindigo::General::Version PluginVersion;	
 		bool TestEnable = false;

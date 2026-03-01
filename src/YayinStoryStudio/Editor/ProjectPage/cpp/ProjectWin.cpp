@@ -22,42 +22,21 @@
 #include <Widgets/TitleWidget.h>
 #include <Widgets/WidgetResizeTool.h>
 #include <QtWidgets/qradiobutton.h>
+
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
-		
 		this->setAttribute(Qt::WA_TranslucentBackground);
-		BGFrame = new QFrame(this);
-		BGFrame->setObjectName("Background");
-		OpacityEffect = new QGraphicsOpacityEffect(BGFrame);
-		OpacityEffect->setOpacity(0.9);
-		BGFrame->setGraphicsEffect(OpacityEffect);
-		
-		TitleWidget = new Visindigo::Widgets::TitleWidget(this);
-		TitleWidget->setTitleText("选择项目");
-		ResizeTool = new Visindigo::Widgets::WidgetResizeTool(BGFrame, Visindigo::Widgets::WidgetResizeTool::RB, 5, this);
-
 		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
 		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(YSSTR("YSS::project.projectManager"));
 		Config = new Visindigo::Utility::JsonConfig();
 		QString configAll = Visindigo::Utility::FileUtility::readAll("./resource/config/project.json");
 		Config->parse(configAll);
-		TitleWidget->setFixedHeight(40);
-		TitleWidget->setMinimumWidth(1300);
-		//TitleLabel = new QLabel(TitleWidget);
-		//TitleLabel->setText("Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
-		//TitleLabel->setObjectName("SubTitleLabel");
-		ThemeLightButton = new QRadioButton(TitleWidget);
-		connect(ThemeLightButton, &QRadioButton::toggled, [this](bool checked) {
-			if (checked) {
-				VISTM->changeColorTheme("Light");
-			}
-			else {
-				VISTM->changeColorTheme("Dark");
-			}
-			});
-		//TitleLabel->setFixedHeight(80);
-		TitleWidget->setInsertWidget(ThemeLightButton);
+		TitleLabel = new QLabel(this);
+		TitleLabel->setText("Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
+		TitleLabel->setObjectName("SubTitleLabel");
+		TitleLabel->setFixedHeight(80);
+
 		HistoryProjectArea = new QScrollArea(this);
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);
 		HistoryProjectLayout = new QVBoxLayout(HistoryProjectWidget);
@@ -87,7 +66,7 @@ namespace YSS::ProjectPage {
 		Layout = new QGridLayout(this);
 
 		this->setLayout(Layout);
-		Layout->addWidget(TitleWidget, 0, 0, 1, 2);
+		Layout->addWidget(TitleLabel, 0, 0, 1, 2);
 		Layout->addWidget(HistoryProjectArea, 1, 0, 1, 1);
 		Layout->addWidget(NewsWidget, 1, 1, 1, 1);
 		Layout->addWidget(InfoWidget, 2, 0, 1, 1);
@@ -132,7 +111,6 @@ namespace YSS::ProjectPage {
 
 	void ProjectWin::resizeEvent(QResizeEvent* event) {
 		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - HistoryProjectArea->verticalScrollBar()->width());
-		BGFrame->setFixedSize(this->size());
 	}
 
 	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {
@@ -272,8 +250,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::onThemeChanged() {
-		//yDebugF << VISTMGT("YSS::ProjectWin",this);
+		yDebugF << VISTMGT("YSS::ProjectWin",this);
 		this->applyVIStyleTemplate("YSS::ProjectWin");
-		this->TitleWidget->setSignColor(VISTM->getColor("Text_Normal"));
 	}
 }

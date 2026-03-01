@@ -87,6 +87,9 @@
     <QtRcc Include="qml.qrc" />
     <None Include="main.qml" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="StoryLine\StoryAction.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />

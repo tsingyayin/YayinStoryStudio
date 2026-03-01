@@ -8,6 +8,7 @@ namespace Visindigo::General {
 	class Translator;
 	class TranslationHostPrivate;
 }
+using VI18NStr = QString;
 // Main
 namespace Visindigo::General {
 	class VisindigoAPI TranslationHost :public QObject
@@ -24,7 +25,7 @@ namespace Visindigo::General {
 		void active(Translator* translator);
 		QString tra(const QString& nameSpace, const QString& key);
 		QString tra(const QString& key);
-		QString i18n(const QString& raw);
+		QString i18n(const VI18NStr& raw);
 	private:
 		TranslationHostPrivate* d;
 	};

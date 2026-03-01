@@ -2,13 +2,13 @@
 #include "Editor/TitlePage/TitlePage.h"
 #include "YayinStoryStudio.h"
 #include <General/Log.h>
-#include <Editor/DebugFailedData.h>
 #include <General/Version.h>
 #include <Utility/FileUtility.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
-#include <Widgets/Terminal.h>
+#include <General/LoggerMsgHandler.h>
+
 int main(int argc, char* argv[])
 {
 	VISetEnv(Visindigo::General::VIApplication::LogFolderPath, Visindigo::Utility::FileUtility::getProgramPath(argv) + "/resource/logs");
@@ -25,6 +25,12 @@ int main(int argc, char* argv[])
 		yMessage << p;
 	}
 	yInfo << "Yayin Story Studio " << Visindigo::General::Version::getAPIVersion();
+
+	yDebug << QImage::Format_ARGB32;
+	Visindigo::General::testTemplate(23);
+	Visindigo::General::testTemplate(QImage::Format_ARGB32);
+	qDebug() << QImage::Format_ARGB32;
+
 	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
 	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";
 

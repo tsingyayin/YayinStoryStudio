@@ -3,7 +3,7 @@
 #include "../private/LoggerMsgHandler_p.h"
 #include <QtCore/qobject.h>
 #include "../../Utility/Console.h"
-
+#include <QtGui/qregion.h>
 namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::LoggerMsgHandler
@@ -79,7 +79,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示QString类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是QString类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QString& str) {
 		fromString("\"" % str % "\"");
@@ -88,7 +88,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示float类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是float类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(float num) {
 		fromString(QString::number(num));
@@ -97,7 +97,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示double类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是double类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(double num) {
 		fromString(QString::number(num));
@@ -106,7 +106,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示qint8类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是qint8类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(qint8 num) {
 		fromString(QChar((char)num));
@@ -115,7 +115,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示quint8类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是quint8类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(quint8 num) {
 		fromString(QString::number(num));
@@ -124,7 +124,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示qint16类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是qint16类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(qint16 num) {
 		fromString(QString::number(num));
@@ -133,7 +133,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示quint16类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是quint16类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(quint16 num) {
 		fromString(QString::number((quint32)num));
@@ -142,7 +142,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示qint32类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是qint32类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(qint32 num) {
 		fromString(QString::number(num));
@@ -151,7 +151,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示quint32类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是quint32类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(quint32 num) {
 		fromString(QString::number(num));
@@ -160,7 +160,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示qint64类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是qint64类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(qint64 num) {
 		fromString(QString::number(num));
@@ -169,7 +169,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示quint64类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是quint64类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(quint64 num) {
 		fromString(QString::number(num));
@@ -178,7 +178,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示bool类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是bool类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(bool b) {
 		fromString(b ? "true" : "false");
@@ -187,7 +187,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示const char*类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是const char*类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const char* str) {
 		fromString(QString::fromUtf8(str));
@@ -196,7 +196,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示QStringList类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是QStringList类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QStringList& strList) {
 		fromString(QString("[%1]").arg(strList.join(", ")));
@@ -205,7 +205,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示QByteArray类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是QByteArray类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QByteArray& byteArray) {
 		fromString("\n"+Visindigo::Utility::Console::binaryToString(byteArray));
@@ -214,7 +214,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示QObject*类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是QObject*类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QObject* pointer) {
 		if (pointer == nullptr) {
@@ -246,7 +246,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示QMap的key为QString，value为QObject*指针类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是QMap的key为QString，value为QObject*指针类型的实现。
 		它输出每个键值对的key和value的类名及地址。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, QObject*> pointer_map) {
@@ -265,7 +265,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示QMap的key为QString，value为QString类型的实现。
+		重载<<运算符以承接各种类型的日志消息。这是QMap的key为QString，value为QString类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, QString> string_map) {
 		QStringList list;
@@ -278,7 +278,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		重载<<运算符以承接各种类型的日志消息。这里展示成员为QObject*指针类型的QList的实现。
+		重载<<运算符以承接各种类型的日志消息。这是成员为QObject*指针类型的QList的实现。
 		它输出每个QObject指针的类名及地址。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QList<QObject*> qobject_list) {
@@ -295,6 +295,23 @@ namespace Visindigo::General {
 		return *this;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		重载<<运算符以承接各种类型的日志消息。这是QSize类型的实现。
+	*/
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QSize& size) {
+		fromString(QString("QSize(%1, %2)").arg(size.width()).arg(size.height()));
+		return *this;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		重载<<运算符以承接各种类型的日志消息。这是QRect类型的实现。
+	*/
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QRect& rect) {
+		fromString(QString("QRect(%1, %2, %3, %4)").arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height()));
+		return *this;
+	}
 	/*!
 		\since Visindigo 0.13.0
 		获取日志消息内容。

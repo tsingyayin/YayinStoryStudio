@@ -9,7 +9,12 @@
 #include "private/LoggerMsgHandler_p.h"
 #include "LogMetaData.h"
 #include "StacktraceHelper.h"
-// Main
+#include <QtCore/qmetaobject.h>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qdebug.h>
+// Forward declarations
+class QSize;
+class QRect;
 namespace Visindigo::__Private__ {
 	class LoggerMsgHandlerDataPool;
 	class LoggerMsgHandlerPrivate;
@@ -18,7 +23,19 @@ namespace Visindigo::General {
 	template <typename T> concept Printable = requires(T t) {
 		{ t.toString() }->::std::same_as<QString>;
 	};
-
+	//template<typename ADLFallback> void qt_getEnumMetaObject(const ADLFallback&) {}
+	template<typename T> concept EnumHasQFlag = requires(T t) {
+		requires std::is_enum_v<T>;
+		requires std::is_same_v<const QMetaObject*, decltype(qt_getEnumMetaObject<QFlags<T>>(t))>;
+	};
+	template<typename T> concept EnumHasQEnum = requires(T t) {
+		requires std::is_enum_v<T>;
+		requires !std::is_same_v<const QMetaObject*, decltype(qt_getEnumMetaObject<QFlags<T>>(t))>;
+		requires std::is_same_v<const QMetaObject*, decltype(qt_getEnumMetaObject<T>(t))>;
+	};
+}
+namespace Visindigo::General {
+	// Main
 	class VisindigoAPI LoggerMsgHandler final {
 		friend class Logger;
 		friend class Visindigo::__Private__::LoggerMsgHandlerDataPool;
@@ -52,15 +69,18 @@ namespace Visindigo::General {
 
 		template<Printable T> LoggerMsgHandler& operator<<(T type); // for any type with toString() method
 
-		template<typename T> LoggerMsgHandler& operator<<(QMap<QString, T> any_map); 
+		template<typename T> LoggerMsgHandler& operator<<(QMap<QString, T> any_map);
 
 		LoggerMsgHandler& operator<<(QMap<QString, QObject*> pointer_map);
 		LoggerMsgHandler& operator<<(QMap<QString, QString> string_map);
 		template<Printable T>LoggerMsgHandler& operator<<(QMap<QString, T> printable_map); // for any map with printable values
 
-		template<typename T>LoggerMsgHandler& operator<<(QList<T> any_list); 
+		template<typename T>LoggerMsgHandler& operator<<(QList<T> any_list);
 		LoggerMsgHandler& operator<<(QList<QObject*> qobject_list);
 		template<Printable T>LoggerMsgHandler& operator<<(QList<T> qobject_list); // for any list with printable values
+
+		LoggerMsgHandler& operator<<(const QSize& size);
+		LoggerMsgHandler& operator<<(const QRect& rect);
 
 		QString getMessage();
 		Logger* getLogger();
@@ -70,6 +90,21 @@ namespace Visindigo::General {
 	protected:
 		Visindigo::__Private__::LoggerMsgHandlerPrivate* d;
 	};
+	template<typename T>
+	void testTemplate(T t) {
+		// do nothing, just for testing concepts
+	}
+
+	template<EnumHasQEnum T>
+	void testTemplate(T t) {
+		static_assert(false, "qenum detected");
+	}
+
+	template<EnumHasQFlag T>
+	void testTemplate(T t) {
+		static_assert(false, "qflag detected");
+	}
+
 }
 
 #include "private/LoggerMsgHandler_impl.hpp"

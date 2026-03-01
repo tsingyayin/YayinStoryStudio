@@ -255,7 +255,7 @@ namespace Visindigo::General {
 	/*!
 		将版本号转换为字符串表示，格式为 "major.minor.patch[.build] [nickName]"。
 	*/
-	QString Version::toString() {
+	QString Version::toString() const {
 		QString version = QString("%1.%2.%3").arg(d->major).arg(d->minor).arg(d->patch);
 		if (d->useBuild) {
 			version += QString(".%1").arg(d->build);

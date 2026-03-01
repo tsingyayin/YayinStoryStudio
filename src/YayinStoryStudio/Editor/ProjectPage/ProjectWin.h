@@ -30,10 +30,6 @@ namespace YSS::ProjectPage {
 		Q_OBJECT;
 	private:
 		Visindigo::Utility::JsonConfig* Config;
-		Visindigo::Widgets::TitleWidget* TitleWidget;
-		Visindigo::Widgets::WidgetResizeTool* ResizeTool;
-		QFrame* BGFrame;
-		QGraphicsOpacityEffect* OpacityEffect;
 		QLabel* TitleLabel;
 		QScrollArea* HistoryProjectArea;
 		QWidget* HistoryProjectWidget;

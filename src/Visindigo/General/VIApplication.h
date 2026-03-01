@@ -41,6 +41,7 @@ namespace Visindigo::General {
 			GuiApp,
 			WidgetApp,
 		};
+		Q_ENUM(AppType);
 		enum EnvKey {
 			LogFolderPath,
 			LogFileNameTimeFormat,
@@ -51,6 +52,7 @@ namespace Visindigo::General {
 			ThemeFolderPath,
 			SaveCommandHistory,
 		};
+		Q_ENUM(EnvKey);
 	public:
 		static VIApplication* getInstance();
 		VIApplication(int& argc, char** argv, AppType appType = WidgetApp, bool changeWorkingDirToExeDir = true);

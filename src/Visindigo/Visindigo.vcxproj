@@ -217,6 +217,7 @@
     <ClCompile Include="General\cpp\Exception_StdCast.cpp" />
     <ClCompile Include="General\cpp\LogMetaData.cpp" />
     <ClCompile Include="General\cpp\Plugin.cpp" />
+    <ClCompile Include="General\cpp\PluginBinaryHelper.cpp" />
     <ClCompile Include="General\cpp\PluginManager.cpp" />
     <ClCompile Include="General\cpp\PluginModule.cpp" />
     <ClCompile Include="General\cpp\ProjectMessageCollector.cpp" />
@@ -232,6 +233,7 @@
     <ClCompile Include="Utility\cpp\ShortCutHelper.cpp" />
     <ClCompile Include="Utility\cpp\StringUtility.cpp" />
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
+    <ClCompile Include="Widgets\cpp\LiquidGlassEffect.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp" />
     <ClCompile Include="Widgets\cpp\QuickMenu.cpp" />
     <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
@@ -283,6 +285,7 @@
     <QtMoc Include="General\PluginModule.h" />
     <ClInclude Include="General\LogMetaData.h" />
     <ClInclude Include="General\Package.h" />
+    <QtMoc Include="General\PluginBinaryHelper.h" />
     <ClInclude Include="General\private\LoggerMsgHandlerDataPool.h" />
     <ClInclude Include="General\private\Plugin_p.h" />
     <ClInclude Include="General\private\VIApplication_p.h" />
@@ -303,6 +306,7 @@
     <QtMoc Include="Widgets\private\MultiButtonGroup_p.h" />
     <QtMoc Include="Widgets\DragWidget.h" />
     <QtMoc Include="Widgets\WidgetResizeTool.h" />
+    <QtMoc Include="Widgets\LiquidGlassEffect.h" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
     <QtMoc Include="Widgets\private\Terminal_p.h" />

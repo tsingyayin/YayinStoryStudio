@@ -157,12 +157,17 @@ namespace Visindigo::General {
 	*/
 
 	/*!
+		\a apiVersion 插件的API版本
 		\a abiVersion 插件的ABI版本
 		\a extID 插件的扩展ID
 		\a parent 插件的父对象
 		\since Visindigo 0.13.0
 
+
 		对于abiVersion，其已经在头文件中被默认填充为Compiled_YSSABI_Version，代表您的插件编译时Visindigo对应的ABI版本。
+
+		apiVersion和abiVersion拥有相同行为。它们都是用来确保插件与Visindigo之间的二进制接口兼容性的。Visindigo在加载插件时会检查
+		API和ABI版本，以确保插件能够正确地与当前运行的Visindigo版本进行交互。
 
 		插件的扩展ID，是提供给插件扩展开发者的一个标识符，用于确定该插件到底属于哪一类插件。
 
@@ -175,8 +180,9 @@ namespace Visindigo::General {
 		\warning 请尤其注意，abiVersion并不是该插件的版本号，也不是Visindigo的API版本。它是Visindigo的ABI版本，它已经
 		被默认填充了。
 	*/
-	Plugin::Plugin(Visindigo::General::Version abiVersion, QString extID, QObject* parent) : QObject(parent) {
+	Plugin::Plugin(Visindigo::General::Version apiVersion, Visindigo::General::Version abiVersion, QString extID, QObject* parent) : QObject(parent) {
 		d = new Visindigo::__Private__::PluginPrivate();
+		d->APIVersion = apiVersion;
 		d->ABIVersion = abiVersion;
 		d->PluginExtensionID = extID;
 		d->Logger = new Logger("UnnamedPlugin");
