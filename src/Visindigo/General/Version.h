@@ -29,10 +29,8 @@ namespace Visindigo::General {
 		Version();
 		Version(quint32 major, quint32 minor, quint32 patch, bool useBuild = false, quint32 build = 0, const QString& nickName = "");
 		Version(const QString& version);
-		Version(const Version& other);
-		Version(Version&& other) noexcept;
-		Version& operator=(const Version& other);
-		Version& operator=(Version&& other) noexcept;
+		VIMoveable(Version);
+		VICopyable(Version);
 		~Version();
 		bool operator>(const Version& other) const;
 		bool operator<(const Version& other) const;

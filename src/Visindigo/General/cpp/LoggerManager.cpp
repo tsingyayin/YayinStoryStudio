@@ -15,7 +15,7 @@ namespace Visindigo::General {
 		static LoggerManager* Instance;
 		Logger::Level threshold;
 		QFile LogFile;
-		QTextStream* Stream;
+		QTextStream* Stream = nullptr;
 		quint16 cache = 30;
 		quint16 current = 0;
 		QTimer Timer;
@@ -32,7 +32,9 @@ namespace Visindigo::General {
 			if (!logDir.exists()) {
 				logDir.mkpath(".");
 			}
-			LogFile.open(QIODevice::NewOnly | QIODevice::Text);
+			if (!LogFile.open(QIODevice::NewOnly | QIODevice::Text)) {
+				return;
+			};
 			Stream = new QTextStream(&LogFile);
 			Stream->setEncoding(QStringConverter::Utf8);
 			Timer.setInterval(10000);
@@ -48,11 +50,13 @@ namespace Visindigo::General {
 		void log(QString line) {
 			Pause = false;
 			Timer.start();
-			*Stream << line << "\n";
-			current++;
-			if (current == cache) {
-				current = 0;
-				Stream->flush();
+			if (Stream) {
+				*Stream << line << "\n";
+				current++;
+				if (current == cache) {
+					current = 0;
+					Stream->flush();
+				}
 			}
 		}
 		void save() {

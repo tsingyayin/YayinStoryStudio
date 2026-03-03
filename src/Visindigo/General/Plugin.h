@@ -42,6 +42,7 @@ namespace Visindigo::General {
 		QList<PluginModule*> getModules() const;
 		Visindigo::General::Version getPluginVersion() const;
 		Visindigo::General::Version getPluginABIVersion() const;
+		Visindigo::General::Version getPluginAPIVersion() const;
 		QString getPluginExtensionID() const;
 		Logger* getLogger() const;
 	protected:

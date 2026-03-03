@@ -23,55 +23,55 @@ namespace Visindigo::__Private__ {
 		self->setLayout(Layout);
 		self->setStyleSheet(VISTMGT("YSS::ConfigWidget", self));
 	}
+
 	ConfigWidgetPrivate::~ConfigWidgetPrivate() {
 		saveConfig();
-		if (Config != nullptr) {
-			delete Config;
-		}
 	}
 
 	void ConfigWidgetPrivate::loadCWJson(const QString& json) {
-		if (Config != nullptr) {
-			delete Config;
-		}
 		Visindigo::Utility::JsonConfig cwJson;
 		cwJson.parse(json);
 		TargetConfigPath = YSSPathMacro(cwJson.getString("target"));
-		if (!Settings.isEmpty()) {
-			for (QWidget* w : Settings) {
+		TargetConfigNode = cwJson.getString("targetNode");
+		if (!SettingsWidget.isEmpty()) {
+			for (QWidget* w : SettingsWidget) {
 				w->deleteLater();
 			}
 		}
-		Settings.clear();
+		SettingsWidget.clear();
 		QList<Visindigo::Utility::JsonConfig> widget = cwJson.getArray("widget");
-		Settings = spawnWidget(widget);
-		for (QWidget* w : Settings) {
+		SettingsWidget = spawnWidget(widget);
+		for (QWidget* w : SettingsWidget) {
 			w->setParent(self);
-			//w->setStyleSheet("QWidget{border:1px solid black}");
+			//w->setStyleSheet("QWidget{border:1px solid black}"); // for debug
 			Layout->addWidget(w);
 		}
 		self->setStyleSheet(VISTMGT("YSS::ConfigWidget", self));
 		this->initConfig();
 	}
+
 	void ConfigWidgetPrivate::initConfig() {
 		QString config = Visindigo::Utility::FileUtility::readAll(TargetConfigPath);
-		if (Config != nullptr) {
-			delete Config;
+		Config = Visindigo::Utility::JsonConfig();
+		if (!config.isEmpty()) {
+			Config.parse(config);
 		}
-		Config = new Visindigo::Utility::JsonConfig;
-		Config->parse(config);
 		if (TargetConfigPath.isEmpty() || config.isEmpty()) {
 			spawnConfig();
 		}
 		else {
+			if (TargetConfigNode != "") {
+				Config = Visindigo::Utility::JsonConfig(Config.getObject(TargetConfigNode));
+			}
 			syncConfig();
 		}
-		self->setWindowTitle(YSSI18N(Config->getString("windowTitle")));
-		self->setWindowIcon(QIcon(Config->getString("windowIcon")));
+		self->setWindowTitle(YSSI18N(Config.getString("windowTitle")));
+		self->setWindowIcon(QIcon(Config.getString("windowIcon")));
 	}
+
 	void ConfigWidgetPrivate::syncConfig() {
 		for (QComboBox* obj : ComboBoxDefault.keys()) {
-			QString data = Config->getString(obj->objectName());
+			QString data = Config.getString(obj->objectName());
 			for (int i = 0; i < obj->count(); i++) {
 				if (obj->itemData(i) == data) {
 					obj->setCurrentIndex(i);
@@ -80,7 +80,7 @@ namespace Visindigo::__Private__ {
 			}
 		}
 		for (QRadioButton* obj : RadioButtonDefault.keys()) {
-			bool selected = Config->getBool(obj->objectName());
+			bool selected = Config.getBool(obj->objectName());
 			if (obj->isChecked() == selected) {
 				continue;
 			}
@@ -89,17 +89,16 @@ namespace Visindigo::__Private__ {
 			}
 		}
 		for (QLineEdit* obj : LineEditDefault.keys()) {
-			QString data = Config->getString(obj->objectName());
+			QString data = Config.getString(obj->objectName());
 			obj->setText(data);
 		}
 	}
+
 	void ConfigWidgetPrivate::resetConfig() {
-		if (Config != nullptr) {
-			delete Config;
-		}
-		Config = new Visindigo::Utility::JsonConfig;
+		Config = Visindigo::Utility::JsonConfig();
 		spawnConfig();
 	}
+
 	void ConfigWidgetPrivate::spawnConfig() {
 		for (QComboBox* obj : ComboBoxDefault.keys()) {
 			QString data = ComboBoxDefault[obj];
@@ -109,7 +108,7 @@ namespace Visindigo::__Private__ {
 					break;
 				}
 			}
-			Config->setString(obj->objectName(), data);
+			Config.setString(obj->objectName(), data);
 		}
 		for (QRadioButton* obj : RadioButtonDefault.keys()) {
 			bool selected = RadioButtonDefault[obj];
@@ -119,23 +118,36 @@ namespace Visindigo::__Private__ {
 			else {
 				obj->toggle();
 			}
-			Config->setBool(obj->objectName(), RadioButtonDefault[obj]);
+			Config.setBool(obj->objectName(), RadioButtonDefault[obj]);
 		}
 		for (QLineEdit* obj : LineEditDefault.keys()) {
 			QString data = LineEditDefault[obj];
 			obj->setText(data);
-			Config->setString(obj->objectName(), LineEditDefault[obj]);
+			Config.setString(obj->objectName(), LineEditDefault[obj]);
 		}
 	}
+
 	void ConfigWidgetPrivate::saveConfig() {
-		if (Config == nullptr || TargetConfigPath.isEmpty()) {
+		if (TargetConfigPath.isEmpty()) {
 			return;
 		}
-		QString config = Config->toString();
-		if (config.isEmpty()) {
-			return;
+		if (TargetConfigNode.isEmpty()) {
+			QString config = Config.toString();
+			if (config.isEmpty()) {
+				return;
+			}
+			Visindigo::Utility::FileUtility::saveAll(TargetConfigPath, config);
 		}
-		Visindigo::Utility::FileUtility::saveAll(TargetConfigPath, config);
+		else {
+			Visindigo::Utility::JsonConfig rawConfig;
+			rawConfig.parse(Visindigo::Utility::FileUtility::readAll(TargetConfigPath));
+			rawConfig.setObject(TargetConfigNode, Config);
+			QString config = rawConfig.toString();
+			if (config.isEmpty()) {
+				return;
+			}
+			Visindigo::Utility::FileUtility::saveAll(TargetConfigPath, config);
+		}
 	}
 
 	QList<QWidget*> ConfigWidgetPrivate::spawnWidget(QList<Visindigo::Utility::JsonConfig>& config) {
@@ -148,6 +160,7 @@ namespace Visindigo::__Private__ {
 		}
 		return rtn;
 	}
+
 	QWidget* ConfigWidgetPrivate::widgetSpawner(Visindigo::Utility::JsonConfig& config, const QString& parentPath) {
 		QString type = config.getString("type");
 		QString node = config.getString("node");
@@ -177,7 +190,7 @@ namespace Visindigo::__Private__ {
 		SettingLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum));
 		if (config.contains("data")) {
 			Visindigo::Utility::JsonConfig selfConfig = config.getObject("data");
-			QWidget* target = widgetRouter(type, node, selfConfig);
+			QWidget* target = widgetRouter(type, node, selfConfig, config.getBool("readOnly"));
 			target->setMinimumWidth(200);
 			if (target != nullptr) {
 				target->setParent(SettingFrame);
@@ -199,24 +212,27 @@ namespace Visindigo::__Private__ {
 		}
 		return self;
 	}
-	QWidget* ConfigWidgetPrivate::widgetRouter(const QString& type, const QString& node, Visindigo::Utility::JsonConfig& config) {
+
+	QWidget* ConfigWidgetPrivate::widgetRouter(const QString& type, const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		QWidget* rtn = nullptr;
 		vgDebugF << node << type;
 		if (type == "ComboBox") {
-			rtn = widget_ComboBox(node, config);
+			rtn = widget_ComboBox(node, config, readOnly);
 		}
 		else if (type == "RadioButton") {
-			rtn = widget_RadioButton(node, config);
+			rtn = widget_RadioButton(node, config, readOnly);
 		}
 		else if (type == "LineEdit") {
-			rtn = widget_LineEdit(node, config);
+			rtn = widget_LineEdit(node, config, readOnly);
 		}
 		return rtn;
 	}
-	QWidget* ConfigWidgetPrivate::widget_QFrame(const QString& node, Visindigo::Utility::JsonConfig& config) {
+
+	QWidget* ConfigWidgetPrivate::widget_QFrame(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		return nullptr; // delete this function later
 	}
-	QWidget* ConfigWidgetPrivate::widget_ComboBox(const QString& node, Visindigo::Utility::JsonConfig& config) {
+
+	QWidget* ConfigWidgetPrivate::widget_ComboBox(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		QComboBox* ComboBox = new QComboBox();
 		ComboBox->setObjectName(node);
 		connect(ComboBox, &QComboBox::currentIndexChanged, this, &ConfigWidgetPrivate::onComboBoxIndexChanged);
@@ -228,17 +244,25 @@ namespace Visindigo::__Private__ {
 		}
 		QString defaultValue = config.getString("default");
 		ComboBoxDefault.insert(ComboBox, defaultValue);
+		if (readOnly) {
+			ComboBox->setEnabled(false);
+		}
 		return ComboBox;
 	}
-	QWidget* ConfigWidgetPrivate::widget_RadioButton(const QString& node, Visindigo::Utility::JsonConfig& config) {
+
+	QWidget* ConfigWidgetPrivate::widget_RadioButton(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		QRadioButton* RadioButton = new QRadioButton();
 		RadioButton->setObjectName(node);
 		connect(RadioButton, &QRadioButton::toggled, this, &ConfigWidgetPrivate::onRadioButtonChanged);
 		bool defaultValue = config.getBool("default");
 		RadioButtonDefault.insert(RadioButton, defaultValue);
+		if (readOnly) {
+			RadioButton->setEnabled(false);
+		}
 		return RadioButton;
 	}
-	QWidget* ConfigWidgetPrivate::widget_LineEdit(const QString& node, Visindigo::Utility::JsonConfig& config) {
+
+	QWidget* ConfigWidgetPrivate::widget_LineEdit(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		QLineEdit* LineEdit = new QLineEdit();
 		LineEdit->setObjectName(node);
 		QString defaultValue = config.getString("default");
@@ -264,41 +288,46 @@ namespace Visindigo::__Private__ {
 					LineEdit->setText(folder);
 				}
 				});
+			if (readOnly) {
+				selectButton->setEnabled(false);
+				LineEdit->setEnabled(false);
+			}
 			return container;
 		}
 		else {
 			LineEditDefault.insert(LineEdit, defaultValue);
 			LineEdit->setText(defaultValue);
+			if (readOnly) {
+				LineEdit->setEnabled(false);
+			}
 			return LineEdit;
 		}
 	}
+
 	void ConfigWidgetPrivate::onComboBoxIndexChanged(int index) {
 		QObject* obj = sender();
 		QString node = obj->objectName();
 		QComboBox* comboBox = static_cast<QComboBox*>(obj);
 		QString data = comboBox->itemData(index).toString();
-		if (Config != nullptr) {
-			Config->setString(node, data);
-		}
+		Config.setString(node, data);
 		emit self->comboBoxIndexChanged(node, index, data);
 	}
+
 	void ConfigWidgetPrivate::onRadioButtonChanged(bool checked) {
 		QObject* obj = sender();
 		QString node = obj->objectName();
-		if (Config != nullptr) {
-			Config->setBool(node, checked);
-		}
+		Config.setBool(node, checked);
 		emit self->radioButtonChanged(node, checked);
 	}
+
 	void ConfigWidgetPrivate::onLineEditTextChanged(QString str) {
 		QObject* obj = sender();
 		QString node = obj->objectName();
-		if (Config != nullptr) {
-			Config->setString(node, str);
-		}
+		Config.setString(node, str);
 		emit self->lineEditTextChanged(node, str);
 	}
 }
+
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::ConfigWidget
@@ -314,10 +343,22 @@ namespace Visindigo::Widgets {
 			{
 				"target": "$(ProgramPath)/resource/test_config.json",
 				"targetType": "json",
+				“targetNode": "someConfig.node",
 				"widget":[]
 			}
 		\endcode
 		其中，target为目标配置文件的路径，targetType为目标配置文件的类型，widget为窗口的内容。
+		target键不存在的时候，则不和任何特定文件绑定，只在内存中保存配置数据。调用
+		saveConfig()不产生任何效果，可以自行调用getConfig()将其另行处理。
+
+		当targetNode被设置的时候，则只读取target中targetNode节点的数据进行初始化，并且只将targetNode节点的数据进行保存，其他节点的数据不受影响。
+
+		这对于一份文件存储多个不同模块的配置时非常有用，可以让不同模块的配置窗口只关心自己对应的节点，而不需要担心其他节点的数据被覆盖。
+
+		在有targetNode设置的情况下，存储数据时会先读取整个文件的数据，更新targetNode节点的数据后再写回文件，
+		这个操作在单线程情况下是安全的（无论有多少个ConfigWidget准备写入这个Config文件），但
+		多线程时可能会出现竞争条件，导致数据丢失或损坏，因此在多线程环境下使用时需要注意。
+
 		\note 当前，targetType仅支持json格式，目前有支持YAML的计划，但具体实现时间未定。
 
 		对于widget来说，其基本格式如下，我们以一个ComboBox类型的配置为例：
@@ -328,6 +369,7 @@ namespace Visindigo::Widgets {
 				"icon": "",
 				"title": "i18n:YSS::config.theme.title",
 				"text": "i18n:YSS::config.theme.text",
+				“readOnly": false,
 				"data": {
 					"comboBox": [
 						{
@@ -349,7 +391,10 @@ namespace Visindigo::Widgets {
 		data是控件的具体数据，children是控件的子控件。
 
 		对于type，当前支持的类型为ComboBox、RadioButton、Frame和LineEdit。其中Frame是
-		专门用来作为容器的控件，没有输入功能。
+		专门用来作为容器的控件，没有输入功能。因此Frame没有data项目。
+
+		\note 实际上，内部逻辑是，只有检测到data项目时，再根据不同的type来初始化数据控件。因此当type不为
+		Frame且漏写data时，其效果如同使用Frame，即没有输入功能，仅作为容器使用。
 
 		title和text支持YSS翻译系统，当其以“i18n:”开头时，会自动进行翻译，具体参见 \l Visindigo::General::TranslationHost
 
@@ -401,7 +446,7 @@ namespace Visindigo::Widgets {
 	}
 
 	Visindigo::Utility::JsonConfig* ConfigWidget::getConfig() {
-		return d->Config;
+		return &d->Config;
 	}
 
 	void ConfigWidget::resetConfig() {

@@ -18,6 +18,7 @@ namespace YSS::ProjectPage {
 		CoverLabel->setAlignment(Qt::AlignCenter);
 		CoverLabel->setObjectName("ProjectCoverLabel");
 		TitleLabel = new QLabel(this);
+		TitleLabel->setObjectName("ProjectTitleLabel");
 		CreateTimeLabel = new QLabel(this);
 		LastModifiedTimeLabel = new QLabel(this);
 		SizeLabel = new QLabel(this);
@@ -35,10 +36,12 @@ namespace YSS::ProjectPage {
 		Layout->addWidget(LastModifiedTimeLabel, 3, 1, 1, 1);
 		Layout->addWidget(ShowInBrowserButton, 2, 3, 1, 1);
 		Layout->addWidget(DeleteButton, 3, 3, 1, 1);
-
+		
 		connect(DeleteButton, &QPushButton::clicked, this, &ProjectInfoWidget::onDeleteButtonClicked);
 		connect(ShowInBrowserButton, &QPushButton::clicked, this, &ProjectInfoWidget::onShowInBrowserButtonClicked);
 		initWidget();
+		setColorfulEnable(true);
+		onThemeChanged();
 	}
 
 	void ProjectInfoWidget::initWidget() {
@@ -127,5 +130,10 @@ namespace YSS::ProjectPage {
 	void ProjectInfoWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		this->CoverLabel->setFixedHeight((float)this->CoverLabel->width() / 16 * 9); // 16:9 aspect ratio
+	}
+
+	void ProjectInfoWidget::onThemeChanged() {
+		vgDebugF << "ProjectInfo";
+		this->applyVIStyleTemplate("YSS::ProjectInfo");
 	}
 }

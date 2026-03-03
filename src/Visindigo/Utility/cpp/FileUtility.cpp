@@ -11,7 +11,7 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qcoreapplication.h>
-
+#include "General/Log.h"
 #define VI_ENUMSTR(enumName, enumValue) case enumName::enumValue: return #enumValue;
 
 namespace Visindigo::Utility {
@@ -105,7 +105,9 @@ namespace Visindigo::Utility {
 		if (!file.exists()) {
 			return QStringList();
 		}
-		file.open(QIODevice::ReadOnly | QIODevice::Text);
+		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+			return QStringList();
+		}
 		QTextStream ts(&file);
 		ts.setEncoding(QStringConverter::Utf8);
 		QStringList rtn;
@@ -125,7 +127,9 @@ namespace Visindigo::Utility {
 		if (!file.exists()) {
 			return QString();
 		}
-		file.open(QIODevice::ReadOnly | QIODevice::Text);
+		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+			return QString();
+		}
 		QTextStream ts(&file);
 		ts.setEncoding(QStringConverter::Utf8);
 		QString rtn = ts.readAll();
@@ -142,7 +146,9 @@ namespace Visindigo::Utility {
 		if (!file.exists()) {
 			return QByteArray();
 		}
-		file.open(QIODevice::ReadOnly);
+		if (!file.open(QIODevice::ReadOnly)) {
+			return QByteArray();
+		}
 		QByteArray rtn = file.readAll();
 		file.close();
 		return rtn;
@@ -163,10 +169,14 @@ namespace Visindigo::Utility {
 			if (!dir.exists(folder)) {
 				dir.mkpath(folder);
 			}
-			file.open(QIODevice::NewOnly | QIODevice::Text);
+			if (!file.open(QIODevice::NewOnly | QIODevice::Text)) {
+				vgErrorF << "Failed to open file, nothing saved: " << filePath;
+			}
 		}
 		else {
-			file.open(QIODevice::WriteOnly | QIODevice::Text);
+			if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+				vgErrorF << "Failed to open file, nothing saved: " << filePath;
+			}
 		}
 		QString content = lines.join(joinLine);
 		QTextStream ts(&file);
@@ -189,10 +199,14 @@ namespace Visindigo::Utility {
 			if (!dir.exists(folder)) {
 				dir.mkpath(folder);
 			}
-			file.open(QIODevice::NewOnly | QIODevice::Text);
+			if (!file.open(QIODevice::NewOnly | QIODevice::Text)) {
+				vgErrorF << "Failed to open file, nothing saved: " << filePath;
+			}
 		}
 		else {
-			file.open(QIODevice::WriteOnly | QIODevice::Text);
+			if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+				vgErrorF << "Failed to open file, nothing saved: " << filePath;
+			}
 		}
 		QTextStream ts(&file);
 		ts.setEncoding(QStringConverter::Utf8);
@@ -214,10 +228,14 @@ namespace Visindigo::Utility {
 			if (!dir.exists(folder)) {
 				dir.mkpath(folder);
 			}
-			file.open(QIODevice::NewOnly);
+			if (!file.open(QIODevice::NewOnly)) {
+				vgErrorF << "Failed to open file, nothing saved: " << filePath;
+			}
 		}
 		else {
-			file.open(QIODevice::WriteOnly);
+			if (!file.open(QIODevice::WriteOnly)) {
+				vgErrorF << "Failed to open file, nothing saved: " << filePath;
+			}
 		}
 		file.write(data);
 		file.close();

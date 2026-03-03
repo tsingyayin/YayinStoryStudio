@@ -1,5 +1,6 @@
 #pragma once
 #include <QtWidgets/qframe.h>
+#include <Widgets/ThemeManager.h>
 
 class QLabel;
 class QGridLayout;
@@ -9,7 +10,7 @@ namespace YSSCore::General {
 	class YSSProject;
 }
 namespace YSS::ProjectPage {
-	class ProjectInfoWidget :public QFrame {
+	class ProjectInfoWidget :public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
 		void removeConfirmed(YSSCore::General::YSSProject* who);
@@ -32,5 +33,6 @@ namespace YSS::ProjectPage {
 		void onShowInBrowserButtonClicked();
 		void onRemoveFromListButtonClicked();
 		virtual void resizeEvent(QResizeEvent* event) override;
+		virtual void onThemeChanged() override;
 	};
 }

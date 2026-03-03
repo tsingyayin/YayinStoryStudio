@@ -19,17 +19,18 @@ namespace Visindigo::General {
 	public:
 		enum class LoadPluginResult {
 			Unknown = 0,
-			Success = 1,
-			PlatformNotSupported = 2,
-			InvalidPlugin = 3,
-			IncompatibleABI = 4,
-			IncompatibleAPI = 5,
-			AlreadyLoaded = 6,
-			DependencyNotFound = 7,
-			DependencyLoadFailed = 8,
-			MetadataNotFound = 8,
-			MetadataNotSame = 9,
-			PluginIDConflict = 10,
+			Success,
+			PlatformNotSupported,
+			InvalidPluginBinary,
+			EntryPointNotFound,
+			ConstructorError,
+			IncompatibleABI,
+			IncompatibleAPI,
+			AlreadyLoaded,
+			DependencyNotFound,
+			DependencyLoadFailed,
+			MetadataNotFound,
+			MetadataNotSame,
 		};
 		Q_ENUM(LoadPluginResult);
 	private:

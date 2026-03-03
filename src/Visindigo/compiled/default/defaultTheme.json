@@ -3,8 +3,8 @@
 	"SchemeName": "Visindigo Default Color Scheme",
 	"Themes": {
 		"Dark":{
-			"Background_Light": "#3A3A3A",
-			"Background_Normal": "#2E2E2E",
+			"Background_Light": "#505050",
+			"Background_Normal": "#303030",
 			"Background_Dark": "#202020",
 			"Primary_Light": "#e292fa",
 			"Primary_Normal": "#c320f5",
@@ -23,9 +23,9 @@
 			"Text_Dark": "#BBBBBB"
 		},
 		"Light":{
-			"Background_Light": "#F0F0F0",
-			"Background_Normal": "#FFFFFF",
-			"Background_Dark": "#E0E0E0",
+			"Background_Light": "#FFFFFF",
+			"Background_Normal": "#E0E0E0",
+			"Background_Dark": "#D0D0D0",
 			"Primary_Light": "#5AA0FF",
 			"Primary_Normal": "#3282F6",
 			"Primary_Dark": "#0078C7",

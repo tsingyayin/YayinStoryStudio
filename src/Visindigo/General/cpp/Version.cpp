@@ -382,17 +382,41 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		返回Visindigo在编译时的API版本号。
+		返回Visindigo在编译时的API版本号。这个版本号存储在动态链接库里，
+		表达Visindigo本身的版本号。需要查询插件（包）的版本号，请参见
+		Visindigo::General::Plugin自己的相关函数。
 	*/
 	Version Version::getAPIVersion() {
 		return VersionPrivate::APIVersion;
 	}
 
 	/*!
-		返回Visindigo在编译时的ABI版本号。
+		返回Visindigo在编译时的ABI版本号。这个版本号存储在动态链接库里，
+		表达Visindigo本身的版本号。需要查询插件（包）的版本号，请参见
+		Visindigo::General::Plugin自己的相关函数。
 	*/
 	Version Version::getABIVersion() {
 		return VersionPrivate::ABIVersion;
+	}
+
+	/*!
+		\a env 运行环境的版本号
+		\a tar 目标版本号
+		检查运行环境的API版本号 \a env 是否兼容目标版本号 \a tar。
+		只要环境版本号小于等于目标版本号，就被认为兼容。因此必要时应该通过ABI作为兼容性检查的补充。
+	*/
+	bool Version::isCompatibleAPIVersion(const Version& env, const Version& tar) {
+		return env <= tar;
+	}
+
+	/*!
+		\a env 运行环境的版本号
+		\a tar 目标版本号
+		检查运行环境的ABI版本号 \a env 是否兼容目标版本号 \a tar。
+		兼容的条件是：主版本号相同，次版本号不小于目标版本号的次版本号。
+	*/
+	bool Version::isCompatibleABIVersion(const Version& env, const Version& tar) {
+		return env.getMajor() == tar.getMajor() && env.getMinor() >= tar.getMinor();
 	}
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <QtCore/qobject.h>
+// Forward declarations
 namespace Visindigo {
 	namespace Utility {
 		class JsonConfig;
@@ -22,6 +23,9 @@ namespace YSS {
 		class MainWin;
 		class YSSTranslator;
 	}
+}
+// Main
+namespace YSS {
 	class GlobalValue :public QObject
 	{
 		Q_OBJECT;

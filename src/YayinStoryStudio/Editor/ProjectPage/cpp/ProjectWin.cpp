@@ -19,8 +19,6 @@
 #include <QtWidgets/qfiledialog.h>
 #include "Editor/NewProjectPage/NewProjectWin.h"
 #include <General/YSSLogger.h>
-#include <Widgets/TitleWidget.h>
-#include <Widgets/WidgetResizeTool.h>
 #include <QtWidgets/qradiobutton.h>
 
 namespace YSS::ProjectPage {
@@ -33,8 +31,8 @@ namespace YSS::ProjectPage {
 		QString configAll = Visindigo::Utility::FileUtility::readAll("./resource/config/project.json");
 		Config->parse(configAll);
 		TitleLabel = new QLabel(this);
-		TitleLabel->setText("Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
-		TitleLabel->setObjectName("SubTitleLabel");
+		TitleLabel->setText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
+		TitleLabel->setObjectName("ProgramTitleLabel");
 		TitleLabel->setFixedHeight(80);
 
 		HistoryProjectArea = new QScrollArea(this);
@@ -73,8 +71,8 @@ namespace YSS::ProjectPage {
 		Layout->addWidget(OptionWidget, 2, 1, 1, 1);
 		Layout->setColumnStretch(0, 3);
 		Layout->setColumnStretch(1, 1);
-		Layout->setSpacing(20);
-		Layout->setContentsMargins(14, 14, 14, 14);
+		Layout->setSpacing(0);
+		Layout->setContentsMargins(0, 0, 0, 0);
 		//this->HistoryProjectArea->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 		loadProject();
 

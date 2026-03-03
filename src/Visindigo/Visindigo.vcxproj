@@ -296,6 +296,7 @@
     <QtMoc Include="Utility\BandizipBinder.h" />
     <ClInclude Include="Utility\ColorTool.h" />
     <ClInclude Include="Utility\GeneralConfigParser.h" />
+    <ClInclude Include="Utility\Optional.h" />
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
     <ClInclude Include="Utility\ShortCutHelper.h" />

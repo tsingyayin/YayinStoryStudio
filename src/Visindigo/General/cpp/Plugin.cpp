@@ -307,6 +307,13 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		return 插件的API版本号
+	*/
+	Visindigo::General::Version Plugin::getPluginAPIVersion() const {
+		return d->APIVersion;
+	}
+	/*!
+		\since Visindigo 0.13.0
 		return 插件的扩展ID
 	*/
 	QString Plugin::getPluginExtensionID() const {
