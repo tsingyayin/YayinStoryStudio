@@ -14,6 +14,8 @@
 #include "Widgets/ThemeManager.h"
 #include "General/CommandHost.h"
 #include "Widgets/private/VIWidgets_p.h"
+#include "General/private/VIGeneral_p.h"
+
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
 		vgNoticeF << "[Loading Message Handler] " << message;
@@ -238,17 +240,20 @@ namespace Visindigo::General {
 		\list
 		\li 1. QApplication/QGuiApplication/QCoreApplication与VIApplication同时实例化，因此在
 		VIApplication实例化之前，也不能使用部分Qt的功能。Qt的环境变量设置函数也应该在VIApplication实例化之前调用。
-		\li 2. 启用LoadingMessageHandler（如果有设置）。
-		\li 3. 调用主插件的Plugin::onPluginEnable()函数。
-		\li 4. 按优先级顺序加载全部插件到内存，然后按优先级顺序调用它们的Plugin::onPluginEnable()函数。
-		\li 5. 按优先级顺序调用全部插件的Plugin::onApplicationInit()函数。
-		\li 6. 按优先级顺序调用全部插件的Plugin::onTest()函数（如果对应插件启用了测试功能）。
-		\li 7. 禁用LoadingMessageHandler（如果有设置）。
-		\li 8. 调用主插件的Plugin::onApplicationInit()函数和Plugin::onTest()函数（如果启用了测试功能）。
-		\li 9. 应用程序正式启动，进入事件循环。
-		\li 10. 当应用程序退出时，按优先级顺序逆序调用全部插件的Plugin::onPluginDisable()函数。
-		\li 11. 调用主插件的Plugin::onPluginDisable()函数
-		\li 12. 保存日志文件并清理资源。
+		\li 2. 调用Visindigo内部各模块对应内置插件的onPluginEnable()函数
+		\li 3. 启用LoadingMessageHandler（如果有设置）。
+		\li 4. 调用主插件的Plugin::onPluginEnable()函数。
+		\li 5. 按优先级顺序加载全部插件到内存，然后按优先级顺序调用它们的Plugin::onPluginEnable()函数。
+		\li 6. 按优先级顺序调用全部插件的Plugin::onApplicationInit()函数。
+		\li 7. 按优先级顺序调用全部插件的Plugin::onTest()函数（如果对应插件启用了测试功能）。
+		\li 8. 禁用LoadingMessageHandler（如果有设置）。
+		\li 9. 调用Visindigo内部各模块对应内置插件的onApplicationInit()函数
+		\li 10. 调用主插件的Plugin::onApplicationInit()函数和Plugin::onTest()函数（如果启用了测试功能）。
+		\li 11. 应用程序正式启动，进入事件循环。
+		\li 12. 当应用程序退出时，按优先级顺序逆序调用全部插件的Plugin::onPluginDisable()函数。
+		\li 13. 调用主插件的Plugin::onPluginDisable()函数
+		\li 14. 调用Visindigo内部各模块对应内置插件的onPluginDisable()函数。
+		\li 15. 保存日志文件并清理资源。
 		\endlist
 
 		\note 如您所见，此表没有给发出日志管理器的实例化时间，因为它是按需实例化的，即在第一次使用日志功能时才会实例化。
@@ -524,9 +529,12 @@ namespace Visindigo::General {
 			}
 			auto start = std::chrono::high_resolution_clock::now();
 
+			__Private__::VisindigoCore* corePlugin = new __Private__::VisindigoCore();
+			corePlugin->onPluginEnable();
+			__Private__::VisindigoWidgets* widgetsPlugin = nullptr;
 			if (d->AppType == WidgetApp) {
-				Widgets::ThemeManager::getInstance();
-				__Private__::VIWidgetsCommandHandler::getInstance()->enable();
+				widgetsPlugin = new __Private__::VisindigoWidgets();
+				widgetsPlugin->onPluginEnable();
 			}
 
 			if (d->MainPlugin) {
@@ -573,12 +581,20 @@ namespace Visindigo::General {
 				d->LoadingMessageHandler->disableHandler();
 				qApp->processEvents();
 			}
+
+			//built-in plugin will never run test.
+			corePlugin->onApplicationInit();
+			if (widgetsPlugin) {
+				widgetsPlugin->onApplicationInit();
+			}
+			
 			if (d->MainPlugin) {
 				d->MainPlugin->onApplicationInit();
 				if (d->MainPlugin->isTestEnable()) {
 					d->MainPlugin->onTest();
 				}
 			}
+
 			int ret = 0;
 			switch (d->AppType) {
 			case CoreApp:
@@ -593,12 +609,19 @@ namespace Visindigo::General {
 			default:
 				throw Exception(Exception::InvalidArgument, "Invalid AppType");
 			}
-			if (d->MainPlugin) {
-				d->MainPlugin->onPluginDisbale();
-			}
+			
 			PluginManager::getInstance()->disableAllPlugin();
+			if (d->MainPlugin) {
+				d->MainPlugin->onPluginDisable();
+			}
+			if (widgetsPlugin) {
+				widgetsPlugin->onPluginDisable();
+				widgetsPlugin->deleteLater();
+			}
+			corePlugin->onPluginDisable();
 			Visindigo::General::LoggerManager::getInstance()->finalSave();
 			VISCH->deleteLater();
+			corePlugin->deleteLater();
 			d->started = false;
 			vgNoticeF << "Application exited with code" << ret;
 			return ret;

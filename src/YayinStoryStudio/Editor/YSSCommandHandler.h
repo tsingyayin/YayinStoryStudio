@@ -1,10 +1,10 @@
 #pragma once
 #include <General/CommandHandler.h>
 #include <General/CommandHost.h>
-namespace YSS {
+namespace YSS::Editor {
 	class YSSCommandHandler : public Visindigo::General::CommandHandler {
 	public:
-		YSSCommandHandler();
+		YSSCommandHandler(Visindigo::General::Plugin* parent);
 		virtual Visindigo::General::CommandErrorData onCommand(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) override;
 		virtual QStringList onComplete(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) override;
 	};

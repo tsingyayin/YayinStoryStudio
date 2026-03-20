@@ -66,30 +66,6 @@
 		return *this; \
 	} \
 
-#define VI_Singleton(name) \
-	public: static name* getInstance();
-
-#define VI_Singleton_Definition(name) \
-	static name* Instance;
-
-#define VI_Sigleton_Init(name) \
-	name* name##Private::Instance = nullptr;
-
-#define VI_Singleton_Impl(name) \
-	name* name::getInstance() { \
-		if (name##Private::Instance == nullptr) { \
-			name##Private::Instance = new name(); \
-		} \
-		return name##Private::Instance; \
-	}
-
-#define VI_Singleton_Construct(name) \
-	if (name##Private ::Instance == nullptr) { \
-		name##Private::Instance = this; \
-	} else { \
-		return; \
-	}
-
 #define VI_Delete(ptr)\
 	if (ptr) { \
 		delete ptr; \

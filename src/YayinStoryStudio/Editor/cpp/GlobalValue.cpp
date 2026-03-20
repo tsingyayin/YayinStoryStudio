@@ -1,10 +1,9 @@
 #include "../GlobalValue.h"
-#include "../YSSTranslator.h"
+
 #include <Utility/JsonConfig.h>
 #include <Utility/PathMacro.h>
 #include <Widgets/ThemeManager.h>
 #include <QtCore/qtextstream.h>
-#include <General/TranslationHost.h>
 #include <QtCore/qfile.h>
 #include <QtGui/qcolor.h>
 #include <General/Log.h>
@@ -17,8 +16,6 @@ namespace YSS {
 		yMessageF << "Program global value initializing";
 		PathMacro = new Visindigo::Utility::PathMacro();
 		loadConfig();
-		YSSTranslator = new YSS::Editor::YSSTranslator();
-		Visindigo::General::TranslationHost::getInstance()->active(YSSTranslator);
 		ySuccessF << "Program global value initialized !";
 		//PluginManager = new YSSCore::Editor::EditorPluginManager();
 		//PluginManager->loadAllPlugin();

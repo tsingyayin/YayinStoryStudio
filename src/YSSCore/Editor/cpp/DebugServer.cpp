@@ -1,5 +1,5 @@
 #include "../DebugServer.h"
-
+#include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {
 	class DebugServerPrivate {
 		friend class DebugServer;
@@ -7,7 +7,7 @@ namespace YSSCore::Editor {
 		DebugServer::SupportedDebugFeature Feature = DebugServer::SupportedDebugFeatureFlag::None;
 	};
 	DebugServer::DebugServer(const QString& name, const QString& id, EditorPlugin* plugin)
-		: Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin) {
+		: Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_DebugServer, name ) {
 		d = new DebugServerPrivate();
 	}
 	DebugServer::~DebugServer() {

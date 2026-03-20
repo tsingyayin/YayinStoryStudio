@@ -95,17 +95,11 @@ namespace Visindigo::General
 
 	/*!
 		\since Visindigo 0.13.0
-		构造Translator对象，默认命名空间为空。
-	*/
-	Translator::Translator() {
-		d = new Visindigo::__Private__::TranslatorPrivate;
-	}
-
-	/*!
-		\since Visindigo 0.13.0
 		构造Translator对象，并设置命名空间。
 	*/
-	Translator::Translator(const QString& nameSpace) {
+	Translator::Translator(Plugin* parent, const QString& nameSpace) 
+		: PluginModule(parent, "translator", VIModuleType_Translator, nameSpace)
+	{
 		d = new Visindigo::__Private__::TranslatorPrivate;
 		setNamespace(nameSpace);
 	}
@@ -206,19 +200,5 @@ namespace Visindigo::General
 		}
 	}
 
-	VisindigoTranslator::VisindigoTranslator() {
-		Visindigo::__Private__::TranslatorPrivate::Instance = this;
-		setNamespace("Visindigo");
-		setDefaultLang(zh_CN);
-		setLangFilePath(
-			{
-				{zh_CN, ":/Visindigo/compiled/i18n/zh_CN.json"},
-				{en_US, ":/Visindigo/compiled/i18n/en_US.json"}
-			}
-		);
-	}
-
-	VisindigoTranslator* VisindigoTranslator::getInstance() {
-		return Visindigo::__Private__::TranslatorPrivate::Instance;
-	}
+	
 }

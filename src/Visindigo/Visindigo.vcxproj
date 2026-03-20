@@ -216,6 +216,7 @@
     <ClCompile Include="General\cpp\Exception.cpp" />
     <ClCompile Include="General\cpp\Exception_StdCast.cpp" />
     <ClCompile Include="General\cpp\LogMetaData.cpp" />
+    <ClCompile Include="General\cpp\Placeholder.cpp" />
     <ClCompile Include="General\cpp\Plugin.cpp" />
     <ClCompile Include="General\cpp\PluginBinaryHelper.cpp" />
     <ClCompile Include="General\cpp\PluginManager.cpp" />
@@ -224,6 +225,7 @@
     <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
     <ClCompile Include="General\cpp\StacktraceHelper.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
+    <ClCompile Include="General\cpp\VIGeneral_p.cpp" />
     <ClCompile Include="Utility\cpp\BandizipBinder.cpp" />
     <ClCompile Include="Utility\cpp\ColorTool.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfig.cpp" />
@@ -279,16 +281,19 @@
     <QtMoc Include="General\ProjectMessageCollector.h" />
     <QtMoc Include="General\CommandHost.h" />
     <QtMoc Include="General\Plugin.h" />
-    <ClInclude Include="General\CommandHandler.h" />
-    <ClInclude Include="General\Exception.h" />
+    <QtMoc Include="General\CommandHandler.h" />
+    <QtMoc Include="General\Exception.h" />
     <QtMoc Include="General\PluginManager.h" />
     <QtMoc Include="General\PluginModule.h" />
     <ClInclude Include="General\LogMetaData.h" />
+    <QtMoc Include="General\Placeholder.h" />
     <ClInclude Include="General\Package.h" />
     <QtMoc Include="General\PluginBinaryHelper.h" />
+    <ClInclude Include="General\Permission.h" />
     <ClInclude Include="General\private\LoggerMsgHandlerDataPool.h" />
     <ClInclude Include="General\private\Plugin_p.h" />
     <ClInclude Include="General\private\VIApplication_p.h" />
+    <QtMoc Include="General\private\VIGeneral_p.h" />
     <ClInclude Include="General\ProjectMessageData.h" />
     <QtMoc Include="Utility\private\qnamespace_key.h" />
     <QtMoc Include="General\VIApplication.h" />
@@ -312,7 +317,7 @@
     <QtMoc Include="Widgets\QuickMenu.h" />
     <QtMoc Include="Widgets\private\Terminal_p.h" />
     <QtMoc Include="Widgets\private\TitleWidget_p.h" />
-    <ClInclude Include="Widgets\private\VIWidgets_p.h" />
+    <QtMoc Include="Widgets\private\VIWidgets_p.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -325,7 +330,7 @@
     <QtMoc Include="Widgets\private\ConfigWidget_p.h" />
     <ClInclude Include="Widgets\TempFloatWidget.h" />
     <ClInclude Include="General\private\Translator_p.h" />
-    <ClInclude Include="General\Translator.h" />
+    <QtMoc Include="General\Translator.h" />
     <QtMoc Include="General\UpdateChain.h" />
     <QtMoc Include="Widgets\ConfigWidget.h" />
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h" />

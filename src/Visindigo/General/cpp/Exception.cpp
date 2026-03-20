@@ -36,6 +36,7 @@ namespace Visindigo::General {
 		\value IOError 输入输出异常类型
 		\value ParseError 解析异常类型
 		\value InvalidArgument 无效参数异常类型
+		\value NullPointer 空指针异常类型
 		\value OutOfRange 越界异常类型
 		\value NotFound 未找到异常类型
 		\value AlreadyExists 已存在异常类型

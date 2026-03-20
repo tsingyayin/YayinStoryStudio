@@ -1,7 +1,7 @@
 #include <QtWidgets/qwidget.h>
 #include "../FileServer.h"
 #include <General/Plugin.h>
-
+#include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {
 	class FileServerPrivate {
 		friend class FileServer;
@@ -44,7 +44,7 @@ namespace YSSCore::Editor {
 		构造FileServer对象。
 	*/
 	FileServer::FileServer(const QString& name, const QString& id, EditorPlugin* plugin) :
-		Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin) {
+		Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_FileServer, name) {
 		d = new FileServerPrivate();
 	}
 

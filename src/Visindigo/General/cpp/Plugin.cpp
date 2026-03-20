@@ -7,7 +7,9 @@
 #include "General/Logger.h"
 #include "Widgets/ThemeManager.h"
 #include "Utility/FileUtility.h"
-
+#include "General/Placeholder.h"
+#include "General/CommandHost.h"
+#include "General/CommandHandler.h"
 namespace Visindigo::__Private__ {
 	void PluginPrivate::initializePluginFolder(const QDir& baseDir) {
 		PluginFolder = QDir(baseDir.filePath(PluginID));
@@ -35,7 +37,7 @@ namespace Visindigo::__Private__ {
 				auto module = Modules.at(i);
 				module->onModuleDisable();
 			}
-			q->onPluginDisbale();
+			q->onPluginDisable();
 		}
 		catch (...) {
 			return false;
@@ -69,7 +71,7 @@ namespace Visindigo::General {
 		所有插件都已启用后才能进行的操作
 		\li onTest()：如果您的插件或应用程序被设置为启用测试功能（通过调用setTestEnable()函数），则在所有插件的onApplicationInit()函数调用完毕后，
 		它会被按一定顺序调用。您可以在此函数中执行一些测试代码
-		\li onPluginDisbale()：当插件或应用程序被禁用时调用。在此函数中，您应进行插件或应用程序的清理工作，大部分析构造操作应该在此进行。
+		\li onPluginDisable()：当插件或应用程序被禁用时调用。在此函数中，您应进行插件或应用程序的清理工作，大部分析构造操作应该在此进行。
 		\li 析构函数：不推荐实现这个函数，保留为编译器默认值即可。如果您确实需要实现它，请确保在析构函数中不与Visindigo或其他插件交互。
 		\endlist
 
@@ -222,7 +224,7 @@ namespace Visindigo::General {
 	*/
 
 	/*!
-		\fn void Visindigo::General::Plugin::onPluginDisbale()
+		\fn void Visindigo::General::Plugin::onPluginDisable()
 		\since Visindigo 0.13.0
 		禁用插件时调用此函数。大部分涉及到Visindigo内部资源调用的清理都应该在此函数中进行。
 		如果在析构函数中清理，则有可能因为Visindigo已经开始析构而导致崩溃。此外，此函数
@@ -289,6 +291,54 @@ namespace Visindigo::General {
 		return d->Modules;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		\a id 模块的ID
+		return 插件中ID为\a id的模块，如果没有找到，则返回nullptr
+
+		请注意，出于从ID搜索模块可能并不常用考虑，在注册模块到插件时，
+		并不会立即将他们存入Map中以节省空间和提高性能，因此使用此
+		函数第一次搜索某个ID时会很慢，因为插件需要现场遍历一次模块列表。
+
+		但搜索到后会将结果存入Map中，因此第二次搜索同一个ID时性能会相对较好。
+	*/
+	PluginModule* Plugin::getModuleByID(const QString& id) const {
+		if (d->ModuleIDMap.contains(id)) {
+			return d->ModuleIDMap.value(id);
+		}
+		for (auto module : d->Modules) {
+			if (module->getModuleID() == id) {
+				d->ModuleIDMap.insert(id, module);
+				return module;
+			}
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		\a typeID 特定类型的ID
+		return 插件中全部类型ID为\a typeID的模块列表，如果没有找到，则返回一个空列表
+
+		请注意，出于从类型ID搜索模块可能并不常用考虑，在注册模块到插件时，
+		并不会立即将他们存入Map中以节省空间和提高性能，因此使用此
+		函数第一次搜索某个类型ID时会很慢，因为插件需要现场遍历一次模块列表。
+
+		但搜索到后会将结果存入Map中，因此第二次搜索同一个类型ID时性能会相对较好。
+	*/
+	QList<PluginModule*> Plugin::getModuleByTypeID(const QString& typeID) const {
+		if (d->ModuleTypeIDMap.contains(typeID)) {
+			return d->ModuleTypeIDMap.value(typeID);
+		}
+		QList<PluginModule*> result;
+		for (auto module : d->Modules) {
+			if (module->getModuleTypeID() == typeID) {
+				result.append(module);
+			}
+		}
+		d->ModuleTypeIDMap.insert(typeID, result);
+		return result;
+	}
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的版本号
@@ -365,20 +415,42 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		\a module 要注册的模块
-		注册一个编辑器模块
+		注册一个插件模块
 	*/
 	void Plugin::registerPluginModule(PluginModule* module) {
 		d->Modules.append(module);
+		if (d->ModuleTypeIDMap.contains(module->getModuleTypeID())) {
+			d->ModuleTypeIDMap[module->getModuleTypeID()].append(module);
+		}
+		if (module->getModuleTypeID() == QString(VIModuleType_Translator)) {
+			TranslationHost::getInstance()->registerTranslator(dynamic_cast<Translator*>(module));
+		}
+		else if (module->getModuleTypeID() == QString(VIModuleType_PlaceholderProvider)) {
+			PlaceholderManager::getInstance()->registerProvider(dynamic_cast<PlaceholderProvider*>(module));
+		}
+		else if (module->getModuleTypeID() == QString(VIModuleType_CommandHandler)) {
+			CommandHost::getInstance()->registerCommand(dynamic_cast<CommandHandler*>(module));
+			dynamic_cast<CommandHandler*>(module)->enable();
+		}
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		\a translator 要注册的翻译器
-		注册一个翻译器
+		\a module 要注销的模块
+		注销一个插件模块
 	*/
-	void Plugin::registerTranslator(Visindigo::General::Translator* translator) {
-		// NOTICE: Translator has not extend PluginModule yet, need to be changed later
-		Visindigo::General::TranslationHost::getInstance()->active(translator);
+	void Plugin::unregisterPluginModule(PluginModule* module) {
+		d->Modules.removeAll(module);
+		d->ModuleIDMap.remove(module->getModuleID());
+		if (d->ModuleTypeIDMap.contains(module->getModuleTypeID())) {
+			d->ModuleTypeIDMap[module->getModuleTypeID()].removeAll(module);
+		}
+		if (module->getModuleTypeID() == QString(VIModuleType_Translator)) {
+			TranslationHost::getInstance()->unregisterTranslator(dynamic_cast<Translator*>(module));
+		}
+		else if (module->getModuleTypeID() == QString(VIModuleType_PlaceholderProvider)) {
+			
+		}
 	}
 
 	/*!

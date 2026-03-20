@@ -185,6 +185,12 @@
     <ClCompile Include="General\cpp\PluginBinaryHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\Placeholder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\VIGeneral_p.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -218,9 +224,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\CodeDiff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\Translator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\Translator_p.h">
@@ -292,9 +295,6 @@
     <ClInclude Include="General\private\Plugin_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\Exception.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\Package.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -319,13 +319,10 @@
     <ClInclude Include="Utility\ColorTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\CommandHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Widgets\private\VIWidgets_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\Optional.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\Permission.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -409,6 +406,24 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\PluginBinaryHelper.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\Placeholder.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\Exception.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\Translator.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\private\VIGeneral_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\CommandHandler.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\private\VIWidgets_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -4,6 +4,12 @@
 #include "../Macro.h"
 #include <General/Version.h>
 #include <General/Plugin.h>
+#define YSSPluginModule_LangServer "cn.yxgeneral.yss.langserver"
+#define YSSPluginModule_DebugServer "cn.yxgeneral.yss.debugserver"
+#define YSSPluginModule_FileServer "cn.yxgeneral.yss.fileserver"
+#define YSSPluginModule_ProjectTemplateProvider "cn.yxgeneral.yss.project_template_provider"
+#define YSSPluginModule_FileTemplateProvider "cn.yxgeneral.yss.file_template_provider"
+
 // Forward declarations
 class QString;
 namespace Visindigo::Utility {

@@ -44,8 +44,6 @@ namespace Visindigo::General {
 	TranslationHost::TranslationHost():QObject() {
 		d = new TranslationHostPrivate;
 		vgSuccessF << "Success!";
-		Visindigo::General::VisindigoTranslator* coreTranslator = new Visindigo::General::VisindigoTranslator();
-		active(coreTranslator);
 	}
 
 	/*!
@@ -85,7 +83,11 @@ namespace Visindigo::General {
 		注册后，TranslationHost会自动加载该Translator的默认语言文件和当前全局语言文件。
 		如果同一个Translator对象被重复注册，则不会有任何效果。
 	*/
-	void TranslationHost::active(Translator* translator) {
+	void TranslationHost::registerTranslator(Translator* translator) {
+		if (not translator) {
+			vgErrorF << "Translator pointer is null.";
+			return;
+		}
 		if (d->Translators.contains(translator->getNamespace())) {
 			return;
 		}
@@ -95,6 +97,22 @@ namespace Visindigo::General {
 		vgNoticeF << "Translator:" << translator->getNamespace() << "actived.";
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		从TranslationHost中注销一个Translator对象 \a translator 。
+		注销后，TranslationHost将不再管理该Translator，也不会再使用它进行翻译。
+		如果 \a translator 没有被注册，则不会有任何效果。
+	*/
+	void TranslationHost::unregisterTranslator(Translator* translator) {
+		if (not translator) {
+			vgErrorF << "Translator pointer is null.";
+			return;
+		}
+		if (d->Translators.contains(translator->getNamespace())) {
+			d->Translators.remove(translator->getNamespace());
+			vgNoticeF << "Translator:" << translator->getNamespace() << "unregistered.";
+		}
+	}
 
 	/*!
 		\since Visindigo 0.13.0

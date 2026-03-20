@@ -1,8 +1,8 @@
 #include "Editor/YSSCommandHandler.h"
 #include <General/Log.h>
-namespace YSS {
-	YSSCommandHandler::YSSCommandHandler()
-		: Visindigo::General::CommandHandler("yss") {
+namespace YSS::Editor {
+	YSSCommandHandler::YSSCommandHandler(Visindigo::General::Plugin* parent)
+		: Visindigo::General::CommandHandler(parent, "yss") {
 		// Constructor implementation (if needed)
 	}
 	Visindigo::General::CommandErrorData YSSCommandHandler::onCommand(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) {

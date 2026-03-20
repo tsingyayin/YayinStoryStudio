@@ -1,6 +1,6 @@
 #include "../FileTemplateProvider.h"
 #include <General/Plugin.h>
-
+#include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {
 	class FileTemplateInitWidgetPrivate
 	{
@@ -37,7 +37,7 @@ namespace YSSCore::Editor {
 		QStringList TemplateTags;
 	};
 	FileTemplateProvider::FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin) :
-		Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin)
+		Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_FileTemplateProvider, name)
 	{
 		d = new FileTemplateProviderPrivate;
 	}

@@ -1,5 +1,7 @@
 #include "../PluginModule.h"
 #include "../Plugin.h"
+#include "General/Exception.h"
+#include "General/Plugin.h"
 namespace Visindigo::General {
 	class PluginModulePrivate {
 		friend class PluginModule;
@@ -7,6 +9,7 @@ namespace Visindigo::General {
 		Plugin* ParentPlugin;
 		QString ModuleName;
 		QString ModuleID;
+		QString ModuleTypeID;
 	};
 
 	/*!
@@ -18,20 +21,41 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		PluginModule是插件模块的基类，所有插件模块都需要继承此类。
 
+		插件模块是插件的组成部分，提供了插件的具体功能实现。每个插件模块都属于一个插件。
+
+		moduleID是插件模块在当前插件内的唯一标识符，用于区分同一插件内的不同模块。
+		typeID是插件模块的类型标识符，用于区分不同类型的模块。
+
+		moduleID在插件内必须唯一，但不同插件之间则可重复，因此moduleID应该尽量短，
+		并建议只用小写下划线命名法，以提高可读性和易用性。而typeID则需要在整个应用程序
+		内保持唯一，因此建议使用带有域名限定的命名方式，如"cn.yxgeneral.visindigo.placeholder_provider"。
+
+		插件模块可以在被启用或禁用时执行特定的操作，以实现动态加载和卸载功能。
 	*/
 
 	/*!
-		\a moduleName 模块名称
-		\a moduleID 模块唯一标识符
 		\a plugin 所属插件对象指针
+		\a moduleID 模块唯一标识符
+		\a typeID 模块类型标识符
+		\a moduleName 模块名称
 
 		构造函数，创建一个插件模块对象。
 	*/
-	PluginModule::PluginModule(const QString& moduleName, const QString& moduleID, Plugin* plugin) :QObject(plugin) {
+	PluginModule::PluginModule(Plugin* parent, const QString& moduleID, const QString& typeID, const QString& moduleName) :QObject(parent){
 		d = new PluginModulePrivate();
-		d->ParentPlugin = plugin;
-		d->ModuleName = moduleName;
+		if (not parent) {
+			VI_Throw_ST(Exception::NullPointer, "plugin pointer is null");
+		}
+		d->ParentPlugin = parent;
+		d->ParentPlugin->registerPluginModule(this);
+		if (moduleName == QString()) {
+			d->ModuleName = moduleID;
+		}
+		else {
+			d->ModuleName = moduleName;
+		}
 		d->ModuleID = moduleID;
+		d->ModuleTypeID = typeID;
 	}
 
 	/*!
@@ -39,15 +63,6 @@ namespace Visindigo::General {
 	*/
 	PluginModule::~PluginModule() {
 		delete d;
-	}
-
-	/*!
-		\a plugin 所属插件对象指针。
-
-		设置所属插件对象。
-	*/
-	void PluginModule::setPlugin(Plugin* plugin) {
-		d->ParentPlugin = plugin;
 	}
 
 	/*!
@@ -69,6 +84,13 @@ namespace Visindigo::General {
 	*/
 	QString PluginModule::getModuleID() const {
 		return d->ModuleID;
+	}
+
+	/*!
+		返回模块类型标识符。
+	*/
+	QString PluginModule::getModuleTypeID() const {
+		return d->ModuleTypeID;
 	}
 
 	/*!

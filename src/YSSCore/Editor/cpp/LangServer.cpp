@@ -2,7 +2,7 @@
 #include <QtGui/qsyntaxhighlighter.h>
 #include "../LangServer.h"
 #include <General/Plugin.h>
-
+#include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {
 	class LangServerPrivate
 	{
@@ -14,7 +14,7 @@ namespace YSSCore::Editor {
 	};
 
 	LangServer::LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext) :
-		Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin)
+		Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_LangServer, name)
 	{
 		d = new LangServerPrivate();
 		d->LanguageID = lang_id;

@@ -22,7 +22,8 @@ namespace Visindigo::General {
 		static TranslationHost* getInstance();	
 		~TranslationHost();
 		void setLangID(Translator::LangID id);
-		void active(Translator* translator);
+		void registerTranslator(Translator* translator);
+		void unregisterTranslator(Translator* translator);
 		QString tra(const QString& nameSpace, const QString& key);
 		QString tra(const QString& key);
 		QString i18n(const VI18NStr& raw);

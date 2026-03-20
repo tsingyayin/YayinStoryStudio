@@ -11,6 +11,6 @@ void Plugin_YSSFileExt::onPluginEnable() {
 	registerLangServer(new YSSFileExt::JsonLangServer(this));
 }
 
-void Plugin_YSSFileExt::onPluginDisbale() {
+void Plugin_YSSFileExt::onPluginDisable() {
 
 }

@@ -52,7 +52,7 @@ namespace YSSCore::Editor {
 				registerFileServer(new ASRuleFileServer());
 			}
 
-			void Plugin_ASEDevTool::onPluginDisbale() {
+			void Plugin_ASEDevTool::onPluginDisable() {
 			}
 		\endcode
 
@@ -117,7 +117,7 @@ namespace YSSCore::Editor {
 	*/
 
 	/*!
-		\fn YSSCore::Editor::EditorPlugin::onPluginDisbale()
+		\fn YSSCore::Editor::EditorPlugin::onPluginDisable()
 		\since Visindigo 0.13.0
 		禁用插件时调用此函数。大部分涉及到Visindigo内部资源调用的清理都应该在此函数中进行。
 		如果在析构函数中清理，则有可能因为Visindigo已经开始析构而导致崩溃。此外，此函数

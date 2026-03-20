@@ -1,10 +1,7 @@
 #include "../YSSTranslator.h"
 
 namespace YSS::Editor {
-	YSSTranslator* YSSTranslator::Instance = nullptr;
-	YSSTranslator::YSSTranslator() {
-		Instance = this;
-		setNamespace("YSS");
+	YSSTranslator::YSSTranslator(Visindigo::General::Plugin* parent) : Translator(parent, "YSS") {
 		setDefaultLang(zh_CN);
 		setLangFilePath({
 			{ zh_CN, ":/yss/compiled/i18n/zh_CN.json" },

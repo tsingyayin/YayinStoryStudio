@@ -1,13 +1,7 @@
 #include "../ASEDevTranslator.h"
-
-ASEDevTranslator* ASEDevTranslator::Instance = nullptr;
-
-ASEDevTranslator* ASEDevTranslator::getInstance() {
-	return Instance;
-}
-ASEDevTranslator::ASEDevTranslator() {
-	Instance = this;
-	setNamespace("ASEDevTool");
+ASEDevTranslator::ASEDevTranslator(Visindigo::General::Plugin* parent) :
+	Visindigo::General::Translator(parent, "ASEDevTool")
+{
 	setDefaultLang(zh_CN);
 	setLangFilePath({
 		{zh_CN, ":/plugin/compiled/ASEDevTool/i18n/zh_CN.json"},

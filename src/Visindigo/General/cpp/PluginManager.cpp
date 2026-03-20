@@ -29,6 +29,10 @@ namespace Visindigo::General {
 		QMap<IDString, QLibrary*> Dlls;
 		QMap<IDString, QStringList> Dependencies;
 		QMap<IDString, Visindigo::General::PluginManager::LoadPluginResult> LoadResults;
+		QMap<IDString, QString> PluginTypeDescriptions;
+		QMap<IDString, QString> PluginTypeNames;
+		QMap<IDString, QString> PluginModuleTypeDescriptions;
+		QMap<IDString, QString> PluginModuleTypeNames;
 		static QFileInfoList recursionGetAllDll(const QString& path) {
 			QDir dir(path);
 			QStringList filters;
@@ -344,7 +348,7 @@ namespace Visindigo::General {
 			if (isPluginEnable(plugin)){
 				try {
 					vgMessageF << "Trying to disable plugin" << plugin->getPluginName();
-					plugin->onPluginDisbale();
+					plugin->onPluginDisable();
 				}
 				catch (...) {
 					vgError << "Failed when disable plugin" << plugin->getPluginName() << ", disable function may not have completed properly. RESTART is RECOMMENDED!";
@@ -420,7 +424,7 @@ namespace Visindigo::General {
 				}
 				catch (...) {
 					vgError << "Failed when enable plugin" << plugin->getPluginName() << ", disable function will be called. RESTART is RECOMMENDED!";
-					plugin->onPluginDisbale();
+					plugin->onPluginDisable();
 					continue;
 				}
 				vgSuccessF << "Plugin" << plugin->getPluginName() << "enabled";
@@ -428,5 +432,78 @@ namespace Visindigo::General {
 				d->EnabledPlugins.append(plugin);
 			}
 		}
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		根据插件ID获取插件对象指针。如果插件ID不存在或未被正确加载，则返回nullptr。
+	*/
+	Plugin* PluginManager::getPluginByID(const QString& id) const {
+		if (d->PluginIDMap.contains(id)) {
+			return d->PluginIDMap.value(id);
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		根据插件名称获取插件对象指针。如果插件名称不存在或未被正确加载，则返回nullptr。
+	*/
+	Plugin* PluginManager::getPluginByName(const QString& name) const {
+		for (int i = 0; i < d->Plugins.size(); i++) {
+			if (d->Plugins[i]->getPluginName() == name) {
+				return d->Plugins[i];
+			}
+		}
+		return nullptr;
+	}
+
+	PluginManager::LoadPluginResult PluginManager::getPluginLoadResultByID(const QString& id) const {
+		if (d->LoadResults.contains(id)) {
+			return d->LoadResults.value(id);
+		}
+		return LoadPluginResult::Unknown;
+	}
+
+	QList<Plugin*> PluginManager::getLoadedPlugins() const {
+		return d->Plugins;
+	}
+
+	QMap<QString, PluginManager::LoadPluginResult> PluginManager::getAllPluginLoadResults() const {
+		return d->LoadResults;
+	}
+
+	void PluginManager::setPluginTypeDescription(const QString& typeID, const QString& typeName, const QString& description) {
+		d->PluginTypeNames[typeID] = typeName;
+		d->PluginTypeDescriptions[typeID] = description;
+	}
+
+	QString PluginManager::getPluginTypeName(const QString& typeID) const {
+		return d->PluginTypeNames.value(typeID, QString());
+	}
+
+	QString PluginManager::getPluginTypeDescription(const QString& typeID) const {
+		return d->PluginTypeDescriptions.value(typeID, QString());
+	}
+
+	QStringList PluginManager::getAllPluginTypeID() const {
+		return d->PluginTypeNames.keys();
+	}
+
+	void PluginManager::setPluginModuleTypeDescription(const QString& typeID, const QString& typeName, const QString& description) {
+		d->PluginModuleTypeNames[typeID] = typeName;
+		d->PluginModuleTypeDescriptions[typeID] = description;
+	}
+
+	QString PluginManager::getPluginModuleTypeName(const QString& typeID) const {
+		return d->PluginModuleTypeNames.value(typeID, QString());
+	}
+
+	QString PluginManager::getPluginModuleTypeDescription(const QString& typeID) const {
+		return d->PluginModuleTypeDescriptions.value(typeID, QString());
+	}
+
+	QStringList PluginManager::getAllPluginModuleTypeID() const {
+		return d->PluginModuleTypeNames.keys();
 	}
 }

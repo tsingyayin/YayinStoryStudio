@@ -3,6 +3,7 @@
 #include "General/Log.h"
 #include "General/VIApplication.h"
 #include "Utility/FileUtility.h"
+
 namespace Visindigo::General {
 	class CommandHostPrivate {
 		friend class CommandHost;
@@ -163,6 +164,7 @@ namespace Visindigo::General {
 		if (d->saveCommandHistory) {
 			d->CommandHistory = Visindigo::Utility::FileUtility::readLines(d->savedPath);
 		}
+		
 	}
 
 	/*!

@@ -3,9 +3,7 @@
 
 namespace YSS::Editor {
 	class YSSTranslator :public Visindigo::General::Translator {
-		static YSSTranslator* Instance;
 	public:
-		static YSSTranslator* getInstance();
-		YSSTranslator();
+		YSSTranslator(Visindigo::General::Plugin* parent);
 	};
 }

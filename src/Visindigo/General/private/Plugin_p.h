@@ -29,6 +29,8 @@ namespace Visindigo::__Private__ {
 		Visindigo::Utility::JsonConfig Config;
 		QList<Visindigo::General::PluginModule*> Modules;
 		Visindigo::General::Logger* Logger = nullptr;
+		QMap<QString, Visindigo::General::PluginModule*> ModuleIDMap;
+		QMap<QString, QList<Visindigo::General::PluginModule*>> ModuleTypeIDMap;
 	protected:
 		void initializePluginFolder(const QDir& baseDir);
 		bool enablePlugin();

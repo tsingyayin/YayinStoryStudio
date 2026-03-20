@@ -165,21 +165,20 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		默认构造函数。创建一个未初始化的命令处理程序对象。它不做任何事
-	*/
-	CommandHandler::CommandHandler() {
-		d = new CommandHandlerPrivate();
-	}
-
-	/*!
-		\since Visindigo 0.13.0
 		构造函数。创建一个命令处理程序对象，并设置其命令名称和可选的别名列表。
 		\a commandName 指定命令的名称，不能为空且不能包含空格。
 		\a alias 指定命令的别名列表，默认为空列表。别名不能为空且不能包含空格。
 	*/
-	CommandHandler::CommandHandler(const QString& commandName, const QStringList& alias) {
+	CommandHandler::CommandHandler(Plugin* parent, const QString& moduleID, const QString& commandName, const QStringList& alias) :
+		PluginModule(parent, moduleID, VIModuleType_CommandHandler, commandName)
+	{
 		d = new CommandHandlerPrivate();
-		setCommandName(commandName);
+		if (commandName.isEmpty()) {
+			setCommandName(moduleID);
+		}
+		else {
+			setCommandName(commandName);
+		}
 		setAlias(alias);
 	}
 

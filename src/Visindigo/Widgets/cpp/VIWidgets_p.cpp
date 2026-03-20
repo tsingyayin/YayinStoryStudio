@@ -2,18 +2,31 @@
 #include "Widgets/ThemeManager.h"
 #include "General/Log.h"
 namespace Visindigo::__Private__ {
-	static VIWidgetsCommandHandler* s_instance = nullptr;
-	VIWidgetsCommandHandler::VIWidgetsCommandHandler()
-		:General::CommandHandler("viwidgets", {"viw"}) {
+	VisindigoWidgets::VisindigoWidgets()
+		:General::Plugin() {
 	}
-	VIWidgetsCommandHandler* VIWidgetsCommandHandler::getInstance() {
-		if (s_instance == nullptr) {
-			s_instance = new VIWidgetsCommandHandler();
-		}
-		return s_instance;
+	VisindigoWidgets::~VisindigoWidgets() {
+	
+	}
+	void VisindigoWidgets::onPluginEnable() {
+		Widgets::ThemeManager::getInstance();
+		registerPluginModule(new VIWidgetsCommandHandler(this));
+	}
+	void VisindigoWidgets::onPluginDisable() {
+		vgInfo << "Disabling Visindigo Widgets Plugin...";
+	}
+	void VisindigoWidgets::onApplicationInit() {
+		vgInfo << "Initializing Visindigo Widgets Plugin...";
+	}
+	void VisindigoWidgets::onTest() {
+		vgInfo << "Testing Visindigo Widgets Plugin...";
+	}
+	static VIWidgetsCommandHandler* s_instance = nullptr;
+	VIWidgetsCommandHandler::VIWidgetsCommandHandler(Visindigo::General::Plugin* parent)
+		:General::CommandHandler(parent, "viwidgets", "viwidgets", {"viw"}) {
 	}
 	VIWidgetsCommandHandler::~VIWidgetsCommandHandler() {
-		s_instance = nullptr;
+	
 	}
 	General::CommandErrorData VIWidgetsCommandHandler::onCommand(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) {
 		switch (unnamedArgs.size()) {

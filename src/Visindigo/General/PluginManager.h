@@ -50,9 +50,16 @@ namespace Visindigo::General {
 		Plugin* getPluginByID(const QString& id) const;
 		Plugin* getPluginByName(const QString& name) const;
 		LoadPluginResult getPluginLoadResultByID(const QString& id) const;
-		LoadPluginResult getPluginLoadResultByName(const QString& name) const;
 		QList<Plugin*> getLoadedPlugins() const;
 		QMap<QString, LoadPluginResult> getAllPluginLoadResults() const;
+		void setPluginTypeDescription(const QString& typeID, const QString& typeName, const QString& description);
+		QString getPluginTypeName(const QString& typeID) const;
+		QString getPluginTypeDescription(const QString& typeID) const;
+		QStringList getAllPluginTypeID() const;
+		void setPluginModuleTypeDescription(const QString& typeID, const QString& typeName, const QString& description);
+		QString getPluginModuleTypeName(const QString& typeID) const;
+		QString getPluginModuleTypeDescription(const QString& typeID) const;
+		QStringList getAllPluginModuleTypeID() const;
 	private:
 		PluginManagerPrivate* d;
 	};

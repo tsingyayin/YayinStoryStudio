@@ -23,6 +23,7 @@ namespace Visindigo::General {
 namespace Visindigo::General {
 	class VisindigoAPI Plugin :public QObject {
 		friend class PluginManager;
+		friend class PluginModule;
 		friend class Visindigo::__Private__::PluginPrivate;
 		Q_OBJECT;
 	public:
@@ -33,13 +34,15 @@ namespace Visindigo::General {
 		virtual void onPluginEnable() {};
 		virtual void onTest() {};
 		virtual void onApplicationInit() {};
-		virtual void onPluginDisbale() {};
+		virtual void onPluginDisable() {};
 		QString getPluginID() const;
 		QString getPluginName() const;
 		QStringList getPluginAuthor() const;
 		QDir getPluginFolder() const;
 		Visindigo::Utility::JsonConfig* getPluginConfig();
 		QList<PluginModule*> getModules() const;
+		PluginModule* getModuleByID(const QString& id) const;
+		QList<PluginModule*> getModuleByTypeID(const QString& typeID) const;
 		Visindigo::General::Version getPluginVersion() const;
 		Visindigo::General::Version getPluginABIVersion() const;
 		Visindigo::General::Version getPluginAPIVersion() const;
@@ -51,7 +54,7 @@ namespace Visindigo::General {
 		void setPluginName(const QString& name);
 		void setPluginAuthor(const QStringList& author);
 		void registerPluginModule(PluginModule* module);
-		void registerTranslator(Visindigo::General::Translator* translator);
+		void unregisterPluginModule(PluginModule* module);
 		void registerColorScheme(const QString& schemeFilePath);
 		void registerStyleTemplate(const QString& templateFilePath);
 	public:

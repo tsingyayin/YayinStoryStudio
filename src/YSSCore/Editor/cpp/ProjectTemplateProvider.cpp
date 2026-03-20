@@ -1,6 +1,6 @@
 #include "../ProjectTemplateProvider.h"
 #include <General/Plugin.h>
-
+#include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {
 	ProjectTemplateInitWidget::ProjectTemplateInitWidget(QWidget* parent)
 		: QFrame(parent)
@@ -20,7 +20,7 @@ namespace YSSCore::Editor {
 		QStringList TemplateTags;
 	};
 	ProjectTemplateProvider::ProjectTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin)
-		: Visindigo::General::PluginModule(name, id, (Visindigo::General::Plugin*)plugin)
+		: Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_ProjectTemplateProvider ,name)
 	{
 		d = new ProjectTemplateProviderPrivate;
 	}

@@ -13,7 +13,7 @@ Plugin_ASEDevTool::Plugin_ASEDevTool() {
 	setPluginAuthor({ "Gra_dus", "Tsing Yayin"});
 }
 void Plugin_ASEDevTool::onPluginEnable() {
-	registerTranslator(new ASEDevTranslator());
+	registerPluginModule(new ASEDevTranslator(this));
 	registerLangServer(new AStoryLanguageServer(this));
 	registerFileServer(new AStoryFileServer(this));
 	registerFileServer(new ASRuleFileServer(this));
@@ -22,5 +22,5 @@ void Plugin_ASEDevTool::onPluginEnable() {
 	registerDebugServer(new DS_ASE(this));
 }
 
-void Plugin_ASEDevTool::onPluginDisbale() {
+void Plugin_ASEDevTool::onPluginDisable() {
 }

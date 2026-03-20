@@ -5,16 +5,13 @@
 #include <Editor/LangServerManager.h>
 #include <Utility/ExtTool.h>
 #include <Utility/FileUtility.h>
-#include <Utility/JsonConfig.h>
 #include "Editor/GlobalValue.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/ProjectPage/ProjectWin.h"
 #include <General/VIApplication.h>
-#include <Utility/GeneralConfig.h>
-#include <Utility/GeneralConfigParser.h>
-#include "General/YSSLogger.h"
-#include <chrono>
 #include "Editor/YSSCommandHandler.h"
+#include "Editor/YSSTranslator.h"
+
 namespace YSS {
 	Main::Main() {
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
@@ -39,8 +36,8 @@ namespace YSS {
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::GlobalValue::getInstance();
 		VIApp->setGlobalFont(":/yss/compiled/HarmonyOS_Sans_SC_Regular.ttf");
-		YSS::YSSCommandHandler* cmdHandler = new YSS::YSSCommandHandler();
-		cmdHandler->enable();
+		registerPluginModule(new YSS::Editor::YSSCommandHandler(this));
+		registerPluginModule(new YSS::Editor::YSSTranslator(this));
 	}
 
 	void Main::onApplicationInit() {
@@ -50,7 +47,7 @@ namespace YSS {
 		GlobalValue::setMainWindow(mainWin);
 	}
 
-	void Main::onPluginDisbale() {
+	void Main::onPluginDisable() {
 		GlobalValue::saveConfig();
 		// Plugin disabled actions
 	}

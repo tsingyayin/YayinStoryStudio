@@ -2,8 +2,9 @@
 #define Visindigo_General_CommandHandler_h
 #include "../Macro.h"
 #include <QtCore/qstring.h>
-#include <QtCore/qstringlist.h>
+#include "General/PluginModule.h"
 #include "Utility/JsonConfig.h"
+
 namespace Visindigo::General {
 	class CommandErrorDataPrivate;
 	class VisindigoAPI CommandErrorData {
@@ -33,10 +34,11 @@ namespace Visindigo::General {
 	};
 
 	class CommandHandlerPrivate;
-	class VisindigoAPI CommandHandler {
+	class VisindigoAPI CommandHandler :public PluginModule {
+		friend class CommandHandlerPrivate;
+		Q_OBJECT;
 	public:
-		CommandHandler();
-		CommandHandler(const QString& commandName, const QStringList& alias = QStringList());
+		CommandHandler(Plugin* parent, const QString& moduleID, const QString& commandName = QString(), const QStringList& alias = QStringList());
 		void setCommandName(const QString& commandName);
 		QString getCommandName() const;
 		void setAlias(const QStringList& alias);

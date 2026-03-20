@@ -1,13 +1,15 @@
 #ifndef Visindigo_General_Exception_H
 #define Visindigo_General_Exception_H
 #include "../Macro.h"
+#include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include "General/StacktraceHelper.h"
 namespace Visindigo::General {
 	class StacktraceFrame;
 	class ExceptionPrivate;
-	class VisindigoAPI Exception {
+	class VisindigoAPI Exception :public QObject {
+		Q_OBJECT;
 	public:
 		enum Type : qint32{
 			Unknown = 0x0000000,
@@ -16,6 +18,7 @@ namespace Visindigo::General {
 			IOError,
 			ParseError,
 			InvalidArgument,
+			NullPointer,
 			OutOfRange,
 			NotFound,
 			AlreadyExists,
@@ -58,6 +61,7 @@ namespace Visindigo::General {
 			Std_BadException,
 			Std_BadVariantAccess, // since C++ 17
 		};
+		Q_ENUM(Type);
 	public:
 		static QString typeToString(Type type);
 		static Exception fromStdException(const std::exception& e);
@@ -85,4 +89,6 @@ namespace Visindigo::General {
 #endif // Visindigo_General_Exception_H
 
 #define VI_Throw(type, message) throw Visindigo::General::Exception(type, message, true, __FILE__, __LINE__, Q_FUNC_INFO)
+#define VI_SafeThrow(type, message) throw Visindigo::General::Exception(type, message, false, __FILE__, __LINE__, Q_FUNC_INFO)
 #define VI_Throw_ST(type, message) throw Visindigo::General::Exception(type, message, true, __FILE__, __LINE__, Q_FUNC_INFO, Visindigo::General::StacktraceHelper::getStacktrace())
+#define VI_SafeThrow_ST(type, message) throw Visindigo::General::Exception(type, message, false, __FILE__, __LINE__, Q_FUNC_INFO, Visindigo::General::StacktraceHelper::getStacktrace())
