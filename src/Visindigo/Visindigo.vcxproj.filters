@@ -191,6 +191,9 @@
     <ClCompile Include="General\cpp\VIGeneral_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\PixmapCacheHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -323,6 +326,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\Permission.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\PixmapCacheHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

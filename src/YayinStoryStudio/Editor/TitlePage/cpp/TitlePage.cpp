@@ -6,13 +6,13 @@
 
 namespace YSS::TitlePage {
 	TitlePage::TitlePage() :QFrame() {
-		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		// translucent background
 		this->setAttribute(Qt::WA_TranslucentBackground);
 
 		Background = new QLabel(this);
-		Background->setStyleSheet("QFrame{border-image:url(:/yss/compiled/yayinstorystudio.png);border-radius:10px;}");
+		Background->setStyleSheet("QFrame{border-image:url(:/resource/cn.yxgeneral.yayinstorystudio/yayinstorystudio.png);border-radius:10px;}");
 		this->setFixedSize(900, 300);
 		Background->setGeometry(20, 20, 860, 260);
 		ShadowEffect = new QGraphicsDropShadowEffect(this);

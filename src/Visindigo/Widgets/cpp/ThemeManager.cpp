@@ -405,7 +405,7 @@ namespace Visindigo::Widgets {
 	ThemeManager::ThemeManager(QObject* parent) : QObject(parent) {
 		d = new ThemeManagerPrivate();
 		d->DefaultColorScheme = new Visindigo::Utility::JsonConfig();
-		d->DefaultColorScheme->parse(Visindigo::Utility::FileUtility::readAll(":/Visindigo/compiled/default/defaultTheme.json"));
+		d->DefaultColorScheme->parse(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.visindigo/default/defaultTheme.json"));
 		//d->ColorSchemes["#Default"] = d->DefaultColorScheme;
 		d->ConfigPath = VIApp->getEnvConfig(Visindigo::General::VIApplication::EnvKey::ThemeFolderPath).toString();
 		d->Config = new Visindigo::Utility::JsonConfig();
@@ -548,6 +548,7 @@ namespace Visindigo::Widgets {
 		这也不会更改当前的配色方案和样式模板优先级列表。
 	*/
 	void ThemeManager::loadAndRefresh(bool autoMergeAndApply) {
+		vgDebugF << "Loading color schemes and style templates from file system at path:" << d->ConfigPath;
 		QMap<QString, StyleSheetTemplate> pluginTemplates = QMap<QString, StyleSheetTemplate>();
 		QMap<QString, Visindigo::Utility::JsonConfig*> pluginSchemes = QMap<QString, Visindigo::Utility::JsonConfig*>();
 		for (auto json : d->ColorSchemes.keys()){
@@ -570,8 +571,8 @@ namespace Visindigo::Widgets {
 		}
 		d->Templates = pluginTemplates;
 
-		QStringList templates = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, { "*.vst" });
-		QStringList schemes = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, { "*.json" });
+		QStringList templates = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, {"*.vst"}, true);
+		QStringList schemes = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, {"*.json"}, true);
 
 		for(auto name : templates) {
 			QString all = Visindigo::Utility::FileUtility::readAll(name);

@@ -4,6 +4,7 @@
 #include <QtCore/qstringlist.h>
 // Forward declarations
 class QByteArray;
+class QDateTime;
 // Main
 namespace Visindigo::Utility {
 	class VisindigoAPI FileUtility {
@@ -39,5 +40,10 @@ namespace Visindigo::Utility {
 		static bool createDir(const QString& dirPath);
 		static QString getRelativeIfStartWith(const QString& abs_startWith, const QString& abs_path);
 		static QString getProgramPath(char** argv = nullptr);
+		static QDateTime getFileCreateTime(const QString& filePath);
+		static QDateTime getFileModifyTime(const QString& filePath);
+		static QDateTime getFileAccessTime(const QString& filePath);
+		static void deleteFile(const QString& filePath, bool moveToTrash = true);
+		
 	};
 }

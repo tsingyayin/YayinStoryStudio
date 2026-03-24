@@ -24,7 +24,7 @@
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
 		this->setAttribute(Qt::WA_TranslucentBackground);
-		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(YSSTR("YSS::project.projectManager"));
 		Config = new Visindigo::Utility::JsonConfig();

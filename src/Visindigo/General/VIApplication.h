@@ -47,6 +47,7 @@ namespace Visindigo::General {
 			LogFileNameTimeFormat,
 			LogTimeFormat,
 			PluginFolderPath,
+			PluginConfigPath,
 			MinimumLoadingTimeMS,
 			UseVirtualTerminal,
 			ThemeFolderPath,

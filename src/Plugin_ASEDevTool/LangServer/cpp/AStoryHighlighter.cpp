@@ -9,10 +9,10 @@ AStorySyntaxHighlighter::AStorySyntaxHighlighter(QTextDocument* parent) : QSynta
 	YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 	QString rootPath = project ? project->getProjectFolder() : "";
 	QString rulePath = rootPath + "/Rules/StoryExplainer/BaseRule.asrule";
-	RuleAdaptor = new ASRuleAdaptor(rulePath, ":/plugin/compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json");
+	RuleAdaptor = new ASRuleAdaptor(rulePath, ":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/RuleMeta.json");
 	RuleAdaptor->loadASRule();
 	Config = new Visindigo::Utility::JsonConfig();
-	Config->parse(Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/theme.json"));
+	Config->parse(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/theme.json"));
 }
 void AStorySyntaxHighlighter::highlightBlock(const QString& text) {
 	if (text.isEmpty()) {

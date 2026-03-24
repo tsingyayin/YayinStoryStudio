@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include <Editor/ProjectTemplateProvider.h>
 #include <Widgets/ConfigWidget.h>
 

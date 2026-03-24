@@ -237,6 +237,7 @@
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Widgets\cpp\LiquidGlassEffect.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp" />
+    <ClCompile Include="Widgets\cpp\PixmapCacheHelper.cpp" />
     <ClCompile Include="Widgets\cpp\QuickMenu.cpp" />
     <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Widgets\cpp\ThemeManager.cpp" />
@@ -313,6 +314,7 @@
     <QtMoc Include="Widgets\DragWidget.h" />
     <QtMoc Include="Widgets\WidgetResizeTool.h" />
     <QtMoc Include="Widgets\LiquidGlassEffect.h" />
+    <ClInclude Include="Widgets\PixmapCacheHelper.h" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
     <QtMoc Include="Widgets\private\Terminal_p.h" />

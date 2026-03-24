@@ -16,7 +16,7 @@ ASEAStoryFTIW::ASEAStoryFTIW(const QString& initFolder, QWidget* parent)
 	this->setMinimumWidth(800);
 	this->setWindowTitle(YSSTR("ASEDevTool::fileProvider.window.title"));
 	ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
-	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/configWidget/FTP.json"));
+	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/configWidget/FTP.json"));
 	ConfigWidget->setLineEditText("File.Path", getInitFolder());
 	Layout = new QVBoxLayout(this);
 	Layout->setContentsMargins(0, 0, 0, 0);
@@ -110,7 +110,7 @@ void ASEAStoryFTIW::refreshWhereLabel() {
 ASEAStoryFTP::ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin) :
 	FileTemplateProvider("ASE AStory File Template Provider", "ASEAStoryFTP", plugin)
 {
-	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
+	setTemplateIconPath(":/resource/cn.yxgeneral.ase_dev_tool/icon/ASEA_Dark.png");
 	setTemplateID("ASEAStoryFile");
 	setTemplateName(YSSTR("ASEDevTool::fileProvider.astory.name"));
 	setTemplateDescription(YSSTR("ASEDevTool::fileProvider.astory.description"));

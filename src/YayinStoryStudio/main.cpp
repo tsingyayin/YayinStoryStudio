@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	Visindigo::General::VIApplication app(argc, argv, Visindigo::General::VIApplication::WidgetApp);
 	
 
-	QStringList prts = Visindigo::Utility::FileUtility::readLines(":/Visindigo/compiled/IWillFindU.txt");
+	QStringList prts = Visindigo::Utility::FileUtility::readLines(":/resource/cn.yxgeneral.visindigo/IWillFindU.txt");
 	for (auto p : prts) {
 		yMessage << p;
 	}

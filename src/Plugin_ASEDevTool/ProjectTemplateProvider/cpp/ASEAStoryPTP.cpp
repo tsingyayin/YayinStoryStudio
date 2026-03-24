@@ -16,7 +16,7 @@ ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	this->setMinimumWidth(800);
 	this->setWindowTitle(YSSTR("ASEDevTool::provider.window.title"));
 	ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
-	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/configWidget/PTP.json"));
+	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/configWidget/PTP.json"));
 	Layout = new QVBoxLayout(this);
 	Layout->setContentsMargins(0, 0, 0, 0);
 	Layout->addWidget(ConfigWidget);
@@ -103,12 +103,12 @@ void ASEAStoryPTIW::initResourceV2_05_22_1A(YSSCore::General::YSSProject* projec
 	for (const QString& folder : folders) {
 		Visindigo::Utility::FileUtility::createDir(projectFolder + folder);
 	}
-	QString Base_aschar = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/Base.aschar");
-	QString BaseRule_asrule = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/BaseRule.asrule");
-	QString main_astory = Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/main.astory");
-	QFile::copy(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/tianyu.png", projectFolder + "/Resources/Char/天雨_0.png");
-	QFile::copy(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/classic.png", projectFolder + "/Resources/BGP/经典走廊.png");
-	QFile::copy(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/classic.png", projectFolder + "/cover.png");
+	QString Base_aschar = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/Base.aschar");
+	QString BaseRule_asrule = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/BaseRule.asrule");
+	QString main_astory = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/main.astory");
+	QFile::copy(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/tianyu.png", projectFolder + "/Resources/Char/天雨_0.png");
+	QFile::copy(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/classic.png", projectFolder + "/Resources/BGP/经典走廊.png");
+	QFile::copy(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/classic.png", projectFolder + "/cover.png");
 	main_astory = main_astory.replace("$(TemplateName)", project->getProjectName());
 	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Rules/CharNameConnect/Base.aschar", Base_aschar);
 	Visindigo::Utility::FileUtility::saveAll(projectFolder + "/Rules/StoryExplainer/BaseRule.asrule", BaseRule_asrule);
@@ -131,7 +131,7 @@ void ASEAStoryPTIW::refreshWhereLabel() {
 ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :
 	ProjectTemplateProvider("ASE AStory Project Template Provider", "ASEAStoryPTP", plugin)
 {
-	setTemplateIconPath(":/plugin/compiled/ASEDevTool/icon/ASEA_Dark.png");
+	setTemplateIconPath(":/resource/cn.yxgeneral.ase_dev_tool/icon/ASEA_Dark.png");
 	setTemplateID("ASEAStoryProject");
 	setTemplateName(YSSTR("ASEDevTool::provider.astory.name"));
 	setTemplateDescription(YSSTR("ASEDevTool::provider.astory.description"));

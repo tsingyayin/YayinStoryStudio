@@ -18,7 +18,7 @@
 #include <Utility/ColorTool.h>
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
-		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle("Yayin Story Studio");
 
 		CentralWidget = new QWidget(this);
@@ -116,7 +116,7 @@ namespace YSS::Editor {
 	void MainWin::initMenu() {
 		Menu = new Visindigo::Widgets::QuickMenu(this);
 		Menu->setActionHandler(new YSS::Editor::MenuActionHandler(this));
-		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/yss/compiled/configWidget/mainEditorMenu.json"));
+		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json"));
 		this->setMenuBar(Menu);
 		Menu->setStyleSheet("QMenuBar{border: 1px solid white}\
 			QMenu{margin:10px;border: 1px solid " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("OutlineLight")) % ";border-radius:5px;}\

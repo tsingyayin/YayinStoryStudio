@@ -175,11 +175,28 @@ namespace Visindigo::General {
 	};
 
 	VIApplication* VIApplicationPrivate::Instance = nullptr;
+
+	/*!
+		\enum Visindigo::General::VIApplication::EnvKey
+		\since Visindigo 0.13.0
+		此枚举定义了VIApplication支持的环境配置键。
+		\value LogFolderPath 日志文件夹路径，类型为QString，默认值为"./user_data/logs"。值得注意的是，这个文件夹也用于存放崩溃报告文件和命令行历史记录文件。
+		\value LogFileNameTimeFormat 日志文件名时间格式，类型为QString，默认值为"yyyy-MM-dd_hh_mm_ss"。
+		\value LogTimeFormat 日志时间格式，类型为QString，默认值为"yyyy-MM-dd hh:mm:ss.zzz"。
+		\value PluginFolderPath 插件文件夹路径，类型为QString，默认值为"./user_data/plugins"。
+		\value PluginConfigPath 存放各插件配置文件的文件夹根路径，类型为QString，默认值为"./user_data/config/plugins"。注意，
+			由于程序会扫描整个PluginFolderPath目录来加载插件，因此不建议把这个目录设为PluginFolderPath的子目录，可能会影响插件加载性能。
+		\value MinimumLoadingTimeMS 最小加载时间（毫秒），这个停留时间有助于显示一段时间的程序Logo。类型为qint, 默认值为3000。
+		\value UseVirtualTerminal 是否使用虚拟终端，类型为bool，默认值为false。
+		\value ThemeFolderPath 主题文件夹路径，类型为QString，默认值为"./user_data/themes"。
+		\value SaveCommandHistory 是否保存命令历史，类型为bool，默认值为false。
+	*/
 	QMap<VIApplication::EnvKey, QVariant> VIApplicationPrivate::EnvConfig = {
 			{VIApplication::LogFolderPath, "./user_data/logs"},
 			{VIApplication::LogFileNameTimeFormat, "yyyy-MM-dd_hh_mm_ss"},
 			{VIApplication::LogTimeFormat, "yyyy-MM-dd hh:mm:ss.zzz"},
 			{VIApplication::PluginFolderPath, "./user_data/plugins"},
+			{VIApplication::PluginConfigPath, "./user_data/config/plugins"},
 			{VIApplication::MinimumLoadingTimeMS, 3000},
 			{VIApplication::UseVirtualTerminal, false},
 			{VIApplication::ThemeFolderPath, "./user_data/themes"},
@@ -269,20 +286,6 @@ namespace Visindigo::General {
 		\value WidgetApp 表示Widget应用程序，等同于Qt中的QApplication。
 
 		提示：如果要创建QML应用程序，请使用GuiApp类型。
-	*/
-
-	/*!
-		\enum Visindigo::General::VIApplication::EnvKey
-		\since Visindigo 0.13.0
-		此枚举定义了VIApplication支持的环境配置键。
-		\value LogFolderPath 日志文件夹路径，类型为QString，默认值为"./user_data/logs"。值得注意的是，这个文件夹也用于存放崩溃报告文件和命令行历史记录文件。
-		\value LogFileNameTimeFormat 日志文件名时间格式，类型为QString，默认值为"yyyy-MM-dd_hh_mm_ss"。
-		\value LogTimeFormat 日志时间格式，类型为QString，默认值为"yyyy-MM-dd hh:mm:ss.zzz"。
-		\value PluginFolderPath 插件文件夹路径，类型为QString，默认值为"./user_data/plugins"。
-		\value MinimumLoadingTimeMS 最小加载时间（毫秒），类型为qint, 默认值为3000。
-		\value UseVirtualTerminal 是否使用虚拟终端，类型为bool，默认值为false。
-		\value ThemeFolderPath 主题文件夹路径，类型为QString，默认值为"./user_data/themes"。
-		\value SaveCommandHistory 是否保存命令历史，类型为bool，默认值为false。
 	*/
 
 	/*!

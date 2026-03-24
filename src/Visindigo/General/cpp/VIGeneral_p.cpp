@@ -45,8 +45,8 @@ namespace Visindigo::__Private__ {
 		setDefaultLang(zh_CN);
 		setLangFilePath(
 			{
-				{zh_CN, ":/Visindigo/compiled/i18n/zh_CN.json"},
-				{en_US, ":/Visindigo/compiled/i18n/en_US.json"}
+				{zh_CN, ":/resource/cn.yxgeneral.visindigo/i18n/zh_CN.json"},
+				{en_US, ":/resource/cn.yxgeneral.visindigo/i18n/en_US.json"}
 			}
 		);
 	}

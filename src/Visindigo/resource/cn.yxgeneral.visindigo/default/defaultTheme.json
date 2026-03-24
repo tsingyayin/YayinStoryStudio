@@ -4,8 +4,8 @@
 	"Themes": {
 		"Dark":{
 			"Background_Light": "#505050",
-			"Background_Normal": "#303030",
-			"Background_Dark": "#202020",
+			"Background_Normal": "#393939",
+			"Background_Dark": "#303030",
 			"Primary_Light": "#e292fa",
 			"Primary_Normal": "#c320f5",
 			"Primary_Dark": "#a90fd8",

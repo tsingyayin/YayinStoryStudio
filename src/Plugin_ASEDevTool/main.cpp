@@ -24,8 +24,8 @@ int main(int argc, char* argv[])
 {
 	QCoreApplication app(argc, argv);
 
-	ASRuleAdaptor Adaptor(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/BaseRule.asrule",
-		":/plugin/compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json");
+	ASRuleAdaptor Adaptor(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/BaseRule.asrule",
+		":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/RuleMeta.json");
 	QStringList Story = Visindigo::Utility::FileUtility::readLines("E:/source/repos/YayinStoryStudio/x64/Release/resource/repos/ASE_Story_Project_3/Stories/深蓝碎片.astory");
 	Story = Story.mid(2);
 	for (auto Line : Story) {
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	}
 	/*AStoryController controller;
 	Visindigo::Utility::JsonConfig config;
-	config.parse(Visindigo::Utility::FileUtility::readAll(":/plugin/compiled/ASEDevTool/template/2.05.22.1A/RuleMeta.json"));
+	config.parse(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/RuleMeta.json"));
 	controller.setControllerName("chara");
 	controller.setControllerMeta(config);
 	controller.setControllerASRule("立绘（角色名：__pcname__，插槽编号：__slot__，差分名：__diff__，效果：__ishide__，淡入时间：__fadeintime__，淡出时间：__fadeouttime__，阻塞：__isblock__，起始位置：__startpos__，结束位置：__endpos__，移动时间：__movetime__，移动曲线：__movecurve__）");

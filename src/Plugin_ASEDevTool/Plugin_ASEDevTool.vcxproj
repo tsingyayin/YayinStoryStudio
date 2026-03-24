@@ -221,6 +221,7 @@
     <ClInclude Include="DebugServer\DS_ASE.h" />
     <ClInclude Include="FileServer\FS_ASRule.h" />
     <ClInclude Include="FileServer\FS_AStory.h" />
+    <ClInclude Include="ProjectTemplateProvider\ASEAStory2PTP.h" />
     <QtMoc Include="FileTemplateProvider\ASEAStoryFTP.h" />
     <ClInclude Include="LangServer\ASEParameter.h" />
     <ClInclude Include="LangServer\ASRuleAdaptor.h" />

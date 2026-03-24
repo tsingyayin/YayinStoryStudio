@@ -18,7 +18,7 @@
 namespace YSS::NewProjectPage {
 	NewProjectWin::NewProjectWin() :QWidget() {
 		this->setMinimumSize(900, 600);
-		this->setWindowIcon(QIcon(":/yss/compiled/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle(YSSTR("YSS::project.createNewProject"));
 		TitleLabel = new QLabel(this);
 		TitleLabel->setObjectName("TitleLabel");

@@ -142,7 +142,7 @@ namespace Visindigo::Widgets {
 						namespaceStr = para[1].trimmed();
 					}
 				}
-				else if (lines[i].startsWith("#")) {
+				else if (lines[i].trimmed().startsWith("//")) {
 					continue; // comment line
 				}
 			}

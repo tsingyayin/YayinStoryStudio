@@ -6,7 +6,6 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qtextstream.h>
-#include <QtCore/qdiriterator.h>
 #include <QtGui/qdesktopservices.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qregularexpression.h>
@@ -355,6 +354,43 @@ namespace Visindigo::Utility {
 		else {
 			QString appPath = QString::fromUtf8(argv[0]);
 			return QFileInfo(appPath).absolutePath();
+		}
+	}
+
+	QDateTime FileUtility::getFileCreateTime(const QString& filePath) {
+		QFileInfo fileInfo(filePath);
+		if (!fileInfo.exists()) {
+			return QDateTime();
+		}
+		return fileInfo.birthTime();
+	}
+
+	QDateTime FileUtility::getFileModifyTime(const QString& filePath) {
+		QFileInfo fileInfo(filePath);
+		if (!fileInfo.exists()) {
+			return QDateTime();
+		}
+		return fileInfo.lastModified();
+	}
+
+	QDateTime FileUtility::getFileAccessTime(const QString& filePath) {
+		QFileInfo fileInfo(filePath);
+		if (!fileInfo.exists()) {
+			return QDateTime();
+		}
+		return fileInfo.lastRead();
+	}
+
+	void FileUtility::deleteFile(const QString& filePath, bool moveToTrash) {
+		QFile file(filePath);
+		if (!file.exists()) {
+			return;
+		}
+		if (moveToTrash) {
+			file.moveToTrash();
+		}
+		else {
+			file.remove();
 		}
 	}
 }
