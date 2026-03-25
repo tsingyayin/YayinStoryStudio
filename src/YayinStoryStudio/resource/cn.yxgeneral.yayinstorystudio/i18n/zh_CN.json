@@ -49,7 +49,14 @@
 		"cloneFromGit":"从Git克隆",
 		"createFromTemplate":"从模板新建",
 		"searchWithTags": "按标签搜索模板",
-		"recentUsed":"最近使用"
+		"recentUsed":"最近使用",
+		"openProjectFailed":{
+			"message":"打开项目失败",
+			"ParseError":"项目文件解析失败，可能是因为项目文件存在语法错误或已经损坏。",
+			"InvaildConfig":"项目配置无效，缺少必要的字段或字段类型不正确。",
+			"UnknownError":"发生未知错误，无法打开项目。"
+		},
+		"news": "这里应该有一些关于Yayin Story Studio的最新消息，但现在暂时还没实现。"
 	},
 	"menu": {
 		"file": {

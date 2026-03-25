@@ -30,6 +30,8 @@ namespace YSSCore::Editor {
 		int getCurrentLineNumber() const;
 		void setHoverTimeout(qint32 ms);
 		qint32 getHoverTimeout() const;
+		void setTabReload(bool reload);
+		bool isTabReload() const;
 	private:
 		virtual bool eventFilter(QObject* obj, QEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;

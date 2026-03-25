@@ -31,7 +31,6 @@ namespace YSS {
 		Q_OBJECT;
 	private:
 		static GlobalValue* Instance;
-		Visindigo::Utility::JsonConfig* Config = nullptr;
 		Visindigo::Utility::PathMacro* PathMacro = nullptr;
 		Visindigo::Widgets::ThemeManager* Theme = nullptr;
 		YSS::Editor::YSSTranslator* YSSTranslator = nullptr;
@@ -47,6 +46,5 @@ namespace YSS {
 		static YSS::Editor::MainWin* getMainWindow();
 		static void setCurrentProject(YSSCore::General::YSSProject* project);
 		static YSSCore::General::YSSProject* getCurrentProject();
-		void loadConfig();
 	};
 }

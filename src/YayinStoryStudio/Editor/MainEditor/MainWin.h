@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
 #include <QMainWindow>
-
+#include <Widgets/ThemeManager.h>
 class QMenuBar;
 class QMenu;
 class QAction;
@@ -13,7 +13,7 @@ namespace YSS::Editor {
 	class FileEditorArea;
 	class ResourceBrowser;
 
-	class MainWin : public QMainWindow {
+	class MainWin : public QMainWindow, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	private:
 		QWidget* CentralWidget = nullptr;
@@ -27,7 +27,7 @@ namespace YSS::Editor {
 		ResourceBrowser* getResourceBrowser();
 		FileEditorArea* getFileEditorArea();
 		void backToProjectWin();
-		void applyStyleSheet();
+		virtual void onThemeChanged() override;
 	public:
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void hideEvent(QHideEvent* event) override;

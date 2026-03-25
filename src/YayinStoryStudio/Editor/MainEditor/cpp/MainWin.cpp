@@ -40,8 +40,8 @@ namespace YSS::Editor {
 			Editor, &FileEditorArea::addFileEditWidget);
 
 		
-		
-		this->applyStyleSheet();
+		setColorfulEnable(true);
+		onThemeChanged();
 	}
 
 	ResourceBrowser* MainWin::getResourceBrowser() {
@@ -64,11 +64,8 @@ namespace YSS::Editor {
 		win->show();
 	}
 
-	void MainWin::applyStyleSheet() {
-		this->setStyleSheet("QWidget{\
-			background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Background")) % ";\
-			color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Text")) % ";\
-		}");
+	void MainWin::onThemeChanged() {
+		this->applyVIStyleTemplate("YSS::MainWin");
 	}
 
 	void MainWin::showEvent(QShowEvent* event) {

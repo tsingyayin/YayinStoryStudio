@@ -6,12 +6,14 @@
 #include "../ProjectTemplateProvider/ASEAStoryPTP.h"
 #include "../FileTemplateProvider/ASEAStoryFTP.h"
 #include "../DebugServer/DS_ASE.h"
+
 Plugin_ASEDevTool::Plugin_ASEDevTool() {
 	setPluginVersion(Visindigo::General::Version(0, 1, 0));
 	setPluginID("cn.yxgeneral.ase_dev_tool");
 	setPluginName("ASE Development Tool");
 	setPluginAuthor({ "Gra_dus", "Tsing Yayin"});
 }
+
 void Plugin_ASEDevTool::onPluginEnable() {
 	registerPluginModule(new ASEDevTranslator(this));
 	registerLangServer(new AStoryLanguageServer(this));

@@ -42,7 +42,7 @@ namespace YSSCore::__Private__ {
 		YSSCore::Editor::HoverInfoProvider* HoverInfoProvider = nullptr;
 		YSSCore::__Private__::HoverInfoWidget* HoverInfoWidget = nullptr;
 		bool ReloadTab = true;
-		qint32 HoverTimeout = 800;
+		qint32 HoverTimeout = 400;
 		QTimer* HoverTimer = nullptr;
 		QPoint LastMousePos;
 		TextEditPrivate() {};

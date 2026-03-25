@@ -125,6 +125,12 @@ namespace Visindigo::Widgets {
 					if (lastIndex != 0) {
 						QString temp;
 						for (int j = lastIndex + 1; j < i; j++) {
+							if (lines[j].trimmed() == "") {
+								continue;
+							}
+							else if (lines[j].trimmed().startsWith("//")) { // comment.
+								continue;
+							}
 							temp += lines[j] + "\n";
 						}
 						temp.removeLast();
@@ -141,9 +147,6 @@ namespace Visindigo::Widgets {
 					else {
 						namespaceStr = para[1].trimmed();
 					}
-				}
-				else if (lines[i].trimmed().startsWith("//")) {
-					continue; // comment line
 				}
 			}
 		}

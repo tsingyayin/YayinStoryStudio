@@ -536,6 +536,15 @@ namespace YSSCore::Editor {
 		return cursor.block().blockNumber() + 1;
 	}
 
+	void TextEdit::setHoverTimeout(qint32 ms) {
+		d->HoverTimeout = ms;
+		d->HoverTimer->setInterval(ms);
+	}
+
+	qint32 TextEdit::getHoverTimeout() const {
+		return d->HoverTimeout;
+	}
+
 	bool TextEdit::eventFilter(QObject* obj, QEvent* event) {
 		if (obj == d->Text) {
 			if (event->type() == QEvent::KeyPress) {

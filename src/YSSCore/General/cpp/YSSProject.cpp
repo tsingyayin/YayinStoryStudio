@@ -37,10 +37,29 @@ namespace YSSCore::General {
 	YSSProject::~YSSProject() {
 		delete d;
 	}
-	bool YSSProject::loadProject(const QString& configPath) {
+	YSSProject::LoadProjectResult YSSProject::loadProject(const QString& configPath) {
 		QString config = Visindigo::Utility::FileUtility::readAll(configPath);
 		d->ConfigPath = configPath;
-		return d->ProjectConfig->parse(config).error == QJsonParseError::NoError;
+		bool ok = d->ProjectConfig->parse(config).error == QJsonParseError::NoError;
+		if (not ok) {
+			return LoadProjectResult::ParseError;
+		}
+		QStringList crucialKeys = {
+			"Project.Name",
+			"Project.CreateTime",
+			"Project.LastModifyTime",
+			"Project.Version",
+			"Project.DebugServerID",
+			"Project.Description",
+			"Project.IconPath"
+		};
+		for (const QString& key : crucialKeys) {
+			if (!d->ProjectConfig->contains(key)) {
+				yErrorF << "Project config missing crucial key:" << key;
+				return LoadProjectResult::InvalidConfig;
+			}
+		}
+		return LoadProjectResult::Success;
 	}
 	bool YSSProject::saveProject(const QString& configPath) {
 		d->updateLastModifyTime();

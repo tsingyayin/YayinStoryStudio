@@ -1,5 +1,5 @@
 #include "../GlobalValue.h"
-
+#include "YayinStoryStudio.h"
 #include <Utility/JsonConfig.h>
 #include <Utility/PathMacro.h>
 #include <Widgets/ThemeManager.h>
@@ -15,7 +15,6 @@ namespace YSS {
 		Instance = this;
 		yMessageF << "Program global value initializing";
 		PathMacro = new Visindigo::Utility::PathMacro();
-		loadConfig();
 		ySuccessF << "Program global value initialized !";
 		//PluginManager = new YSSCore::Editor::EditorPluginManager();
 		//PluginManager->loadAllPlugin();
@@ -29,20 +28,10 @@ namespace YSS {
 	}
 
 	Visindigo::Utility::JsonConfig* GlobalValue::getConfig() {
-		return Instance->Config;
+		return YSSApp->getPluginConfig();
 	}
 	void GlobalValue::saveConfig() {
-		if (Instance->Config != nullptr) {
-			QFile file("./resource/editor_config.json");
-			if (file.open(QIODevice::WriteOnly)) {
-				file.write(Instance->Config->toString().toUtf8());
-				file.close();
-				ySuccessF << "saved";
-			}
-			else {
-				vgErrorF << "failed";
-			}
-		}
+		YSSApp->savePluginConfig();
 	}
 	GlobalValue* GlobalValue::getInstance() {
 		if (Instance == nullptr) {
@@ -51,23 +40,6 @@ namespace YSS {
 		return Instance;
 	}
 
-	void GlobalValue::loadConfig() {
-		if (Config != nullptr) {
-			delete Config;
-		}
-		Config = new Visindigo::Utility::JsonConfig();
-		QFile file("./resource/editor_config.json");
-		QTextStream in(&file);
-		in.setEncoding(QStringConverter::Utf8);
-		if (file.open(QIODevice::ReadOnly)) {
-			Config->parse(in.readAll());
-			file.close();
-			ySuccessF << "success";
-		}
-		else {
-			vgErrorF << "failed";
-		}
-	}
 	void GlobalValue::setMainWindow(YSS::Editor::MainWin* mainWindow) {
 		Instance->MainWindow = mainWindow;
 	}

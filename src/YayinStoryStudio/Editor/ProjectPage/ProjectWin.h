@@ -29,7 +29,6 @@ namespace YSS::ProjectPage {
 	class ProjectWin :public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	private:
-		Visindigo::Utility::JsonConfig* Config;
 		QLabel* TitleLabel;
 		QScrollArea* HistoryProjectArea;
 		QWidget* HistoryProjectWidget;

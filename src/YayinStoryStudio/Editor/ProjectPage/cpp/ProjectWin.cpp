@@ -20,6 +20,7 @@
 #include "Editor/NewProjectPage/NewProjectWin.h"
 #include <General/YSSLogger.h>
 #include <QtWidgets/qradiobutton.h>
+#include <QtWidgets/qmessagebox.h>
 
 namespace YSS::ProjectPage {
 	ProjectWin::ProjectWin() :QFrame() {
@@ -27,9 +28,6 @@ namespace YSS::ProjectPage {
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(YSSTR("YSS::project.projectManager"));
-		Config = new Visindigo::Utility::JsonConfig();
-		QString configAll = Visindigo::Utility::FileUtility::readAll("./resource/config/project.json");
-		Config->parse(configAll);
 		TitleLabel = new QLabel(this);
 		TitleLabel->setText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("ProgramTitleLabel");
@@ -38,13 +36,23 @@ namespace YSS::ProjectPage {
 		HistoryProjectArea = new QScrollArea(this);
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);
 		HistoryProjectLayout = new QVBoxLayout(HistoryProjectWidget);
-		HistoryProjectLayout->setContentsMargins(20, 20, 20, 20);
-		HistoryProjectLayout->setSpacing(20);
+		HistoryProjectLayout->setContentsMargins(6, 6, 6, 6);
+		HistoryProjectLayout->setSpacing(6);
 		HistoryProjectWidget->setLayout(HistoryProjectLayout);
 		HistoryProjectArea->setWidget(HistoryProjectWidget);
 		HistoryProjectArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		HistoryProjectArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 		NewsWidget = new QWidget(this);
+		QLabel* newsLabel = new QLabel(NewsWidget);
+		newsLabel->setAlignment(Qt::AlignCenter);
+		newsLabel->setText(YSSTR("YSS::project.news"));
+		newsLabel->setWordWrap(true);
+		QVBoxLayout* newsLayout = new QVBoxLayout(NewsWidget);
+		newsLayout->setContentsMargins(6, 6, 6, 6);
+		newsLayout->addWidget(newsLabel);
+		NewsWidget->setMaximumWidth(300);
+		NewsWidget->setLayout(newsLayout);
+
 		OptionWidget = new QWidget(this);
 		CreateProjectButton = new QPushButton(OptionWidget);
 		CreateProjectButton->setText(YSSTR("YSS::project.createNewProject"));
@@ -55,6 +63,7 @@ namespace YSS::ProjectPage {
 		CloneGitButton = new QPushButton(OptionWidget);
 		CloneGitButton->setText(YSSTR("YSS::project.cloneFromGit"));
 		CloneGitButton->setToolTip(YSSTR("YSS::tooltips.projectWin.cloneFromGit"));
+		CloneGitButton->hide();
 		ButtonLayout = new QVBoxLayout(OptionWidget);
 		OptionWidget->setLayout(ButtonLayout);
 		ButtonLayout->addWidget(CreateProjectButton);
@@ -91,7 +100,6 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event) {
-		Visindigo::Utility::FileUtility::saveAll("./resource/config/project.json", Config->toString());
 		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
 		config->setInt("Window.Project.Width", this->normalGeometry().width());
 		config->setInt("Window.Project.Height", this->normalGeometry().height());
@@ -121,16 +129,18 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->removeWidget(widget);
 			widget->deleteLater();
 		}
-		QStringList keys = Config->keys("Project");
+		Visindigo::Utility::JsonConfig* Config = GlobalValue::getConfig();
+		QStringList keys = Config->keys("RecentProjects");
 		for (int i = 0; i < keys.size(); i++) {
-			if (Config->getString("Project." + keys[i]) == project->getProjectPath()) {
+			if (Config->getString("RecentProjects." + keys[i]) == project->getProjectPath()) {
 				yMessageF << i;
-				Config->remove("Project." + keys[i]);
+				Config->remove("RecentProjects." + keys[i]);
 				break;
 			}
 		}
+		GlobalValue::saveConfig();
 
-		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 100);
+		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * (HistoryProjectLabelList.first()->height() + HistoryProjectLayout->spacing()) + HistoryProjectLayout->contentsMargins().top() + HistoryProjectLayout->contentsMargins().bottom());
 		delete project;
 		project = nullptr;
 	}
@@ -157,26 +167,42 @@ namespace YSS::ProjectPage {
 	}
 	void ProjectWin::onOpenProject(QString filePath) {
 		if (filePath.isEmpty()) {
-			filePath = QFileDialog::getOpenFileName(this, YSSTR("YSS::project.openYSSProject"), "./resource/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
+			filePath = QFileDialog::getOpenFileName(this, YSSTR("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		}
 		filePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(), filePath);
+		Visindigo::Utility::JsonConfig* Config = GlobalValue::getConfig();
 		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
-		bool ok = project->loadProject(filePath);
-		yDebugF << ok;
-		if (ok) {
+		YSSCore::General::YSSProject::LoadProjectResult res = project->loadProject(filePath);
+		if (res == YSSCore::General::YSSProject::Success) {
 			bool inList = false;
-			for (QString key : Config->keys("Project")) {
-				QString projectPath = Config->getString("Project." + key);
+			for (QString key : Config->keys("RecentProjects")) {
+				QString projectPath = Config->getString("RecentProjects." + key);
 				if (projectPath == filePath) { inList = true; break; }
 			}
 			if (!inList) {
 				yMessageF << "Add" << filePath << "to project list.";
-				Config->setString("Project." + QString::number(Config->keys("Project").size()), filePath);
+				Config->setString("RecentProjects." + QString::number(Config->keys("RecentProjects").size()), filePath);
 			}
 			GlobalValue::setCurrentProject(project);
 			this->close();
 		}
 		else {
+			QMessageBox msgBox;
+			msgBox.setIcon(QMessageBox::Critical);
+			msgBox.setText(YSSTR("YSS::project.openProjectFailed.message"));
+			switch (res) {
+			case YSSCore::General::YSSProject::ParseError:
+				msgBox.setInformativeText(YSSTR("YSS::project.openProjectFailed.ParseError"));
+				break;
+			case YSSCore::General::YSSProject::InvalidConfig:
+				msgBox.setInformativeText(YSSTR("YSS::project.openProjectFailed.InvalidConfig"));
+				break;
+			default:
+				msgBox.setInformativeText(YSSTR("YSS::project.openProjectFailed.UnknownError"));
+				break;
+			}
+			msgBox.setStandardButtons(QMessageBox::Ok);
+			msgBox.exec();
 			delete project;
 		}
 	}
@@ -195,11 +221,12 @@ namespace YSS::ProjectPage {
 		}
 		HistoryProjectList.clear();
 		QStringList okProjects;
-		for (QString key : Config->keys("Project")) {
-			QString projectPath = Config->getString("Project." + key);
+		Visindigo::Utility::JsonConfig* Config = GlobalValue::getConfig();
+		for (QString key : Config->keys("RecentProjects")) {
+			QString projectPath = Config->getString("RecentProjects." + key);
 			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
-			bool ok = project->loadProject(projectPath);
-			if (!ok) {
+			YSSCore::General::YSSProject::LoadProjectResult res = project->loadProject(projectPath);
+			if (res!=YSSCore::General::YSSProject::Success) {
 				delete project;
 				continue;
 			}
@@ -208,7 +235,7 @@ namespace YSS::ProjectPage {
 				HistoryProjectList.append(project);
 			}
 		}
-		Config->setArray("Project", okProjects);
+		Config->setArray("RecentProjects", okProjects);
 		std::sort(HistoryProjectList.begin(), HistoryProjectList.end(), [](YSSCore::General::YSSProject* a, YSSCore::General::YSSProject* b) {
 			return a->getProjectLastModifyTime() > b->getProjectLastModifyTime();
 			});
@@ -226,9 +253,6 @@ namespace YSS::ProjectPage {
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			Visindigo::Widgets::MultiButton* label = new Visindigo::Widgets::MultiButton(HistoryProjectWidget);
 			label->setObjectName("HistoryProject");
-			label->setNormalStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Normal"));
-			label->setHoverStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Hover"));
-			label->setPressedStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Pressed"));
 			label->setTitle(project->getProjectName());
 			QString lastModifyTime = project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss");
 			label->setDescription(lastModifyTime + "\t" + project->getProjectFolder());
@@ -248,7 +272,12 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::onThemeChanged() {
-		yDebugF << VISTMGT("YSS::ProjectWin",this);
+		yDebugF << VISTMGT("YSS::General.MultiButton.Normal",this);
 		this->applyVIStyleTemplate("YSS::ProjectWin");
+		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
+			label->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
+			label->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
+			label->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
+		}
 	}
 }

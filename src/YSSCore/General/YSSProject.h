@@ -16,9 +16,16 @@ namespace YSSCore::General {
 	class YSSCoreAPI YSSProject {
 		friend class YSSProjectPrivate;
 	public:
+		enum LoadProjectResult {
+			Unknown = 0,
+			Success,
+			ParseError,
+			InvalidConfig
+		};
+	public:
 		YSSProject();
 		virtual ~YSSProject();
-		bool loadProject(const QString& configPath);
+		LoadProjectResult loadProject(const QString& configPath);
 		bool saveProject(const QString& configPath = "");
 		bool initProject(const QString& folder, const QString& name);
 		QString getProjectName();
