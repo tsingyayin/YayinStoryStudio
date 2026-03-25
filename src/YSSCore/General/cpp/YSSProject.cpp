@@ -7,6 +7,7 @@
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
 #include "General/YSSLogger.h"
+#include <General/Plugin.h>
 namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
@@ -69,7 +70,6 @@ namespace YSSCore::General {
 		d->ConfigPath = folder + "/project.yssp";
 		d->ProjectConfig->setString("Project.Name", name);
 		d->ProjectConfig->setString("Project.Description", "");
-		d->ProjectConfig->setString("Project.DebugServerID", "");
 		d->ProjectConfig->setString("Project.IconPath", "");
 		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		refreshLastModifyTime();
@@ -92,18 +92,51 @@ namespace YSSCore::General {
 	QString YSSProject::getProjectIconPath() {
 		return d->ProjectConfig->getString("Project.IconPath");
 	}
+	void YSSProject::setProjectName(const QString& name) {
+		d->ProjectConfig->setString("Project.Name", name);
+	}
+	void YSSProject::setProjectDescription(const QString& description) {
+		d->ProjectConfig->setString("Project.Description", description);
+	}
+	void YSSProject::setProjectIconPath(const QString& iconPath) {
+		d->ProjectConfig->setString("Project.IconPath", iconPath);
+	}
 	QDateTime YSSProject::getProjectCreateTime() {
 		return QDateTime::fromString(d->ProjectConfig->getString("Project.CreateTime"), "yyyy-MM-dd hh:mm:ss");
 	}
 	QDateTime YSSProject::getProjectLastModifyTime() {
 		return QDateTime::fromString(d->ProjectConfig->getString("Project.LastModifyTime"), "yyyy-MM-dd hh:mm:ss");
 	}
+	QString YSSProject::getProjectDebugServerID() {
+		return d->ProjectConfig->getString("Project.DebugServerID");
+	}
+	void YSSProject::setProjectDebugServerID(const QString& id) {
+		d->ProjectConfig->setString("Project.DebugServerID", id);
+	}
 	Visindigo::General::Version YSSProject::getProjectVersion() {
 		return Visindigo::General::Version(d->ProjectConfig->getString("Project.Version"));
 	}
-	Visindigo::Utility::JsonConfig* YSSProject::getProjectConfig() {
-		return d->ProjectConfig;
+	
+	Visindigo::Utility::JsonConfig YSSProject::getProjectConfigForPlugin(Visindigo::General::Plugin* plugin) {
+		QString key = "MetaData." + plugin->getPluginID();
+		return d->ProjectConfig->getObject(key);
 	}
+
+	Visindigo::Utility::JsonConfig YSSProject::getProjectConfigForPlugin(const QString& pluginID) {
+		QString key = "MetaData." + pluginID;
+		return d->ProjectConfig->getObject(key);
+	}
+
+	void YSSProject::saveProjectConfigForPlugin(Visindigo::General::Plugin* plugin, const Visindigo::Utility::JsonConfig& config) {
+		QString key = "MetaData." + plugin->getPluginID();
+		d->ProjectConfig->setObject(key, config);
+	}
+
+	void YSSProject::saveProjectConfigForPlugin(const QString& pluginID, const Visindigo::Utility::JsonConfig& config) {
+		QString key = "MetaData." + pluginID;
+		d->ProjectConfig->setObject(key, config);
+	}
+
 	void YSSProject::refreshLastModifyTime() {
 		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 	}

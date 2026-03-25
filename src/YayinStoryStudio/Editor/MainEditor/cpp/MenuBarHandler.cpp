@@ -11,9 +11,10 @@
 #include "../ResourceBrowser.h"
 #include "../FileEditorArea.h"
 #include <General/YSSLogger.h>
+#include "YayinStoryStudio.h"
 
 #define CallYSSDebugServerFunction(functionName, ...) \
-	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectConfig()->getString("Project.DebugServerID"); \
+	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID(); \
 	YSSCore::Editor::DebugServer* ds = YSSDSM->getDebugServer(debugServerID); \
 	if (ds != nullptr) { \
 		ds->functionName(__VA_ARGS__); \

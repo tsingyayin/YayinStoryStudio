@@ -16,7 +16,7 @@ public:
 	QLocalSocket* ASEDebugPipe = nullptr;
 };
 DS_ASE::DS_ASE(YSSCore::Editor::EditorPlugin* plugin)
-	: YSSCore::Editor::DebugServer("ASEDevTool Debug Server", "ASEDevTool_AStory", plugin), d(new DS_ASEPrivate()){
+	: YSSCore::Editor::DebugServer("ASEDevTool Debug Server", "cn.yxgeneral.ase_dev_tool.astory", plugin), d(new DS_ASEPrivate()){
 	setSupportedFeatures(DebugServer::Debug | DebugServer::Stop);
 	d->ASEDebugPipe = new QLocalSocket();
 	connect(d->ASEDebugPipe, &QLocalSocket::readyRead, this, &DS_ASE::onASEPipeOut);

@@ -393,4 +393,21 @@ namespace Visindigo::Utility {
 			file.remove();
 		}
 	}
+
+	void FileUtility::copyFile(const QString& srcPath, const QString& dstPath, bool overwrite) {
+		QFile srcFile(srcPath);
+		if (!srcFile.exists()) {
+			return;
+		}
+		QFile dstFile(dstPath);
+		if (dstFile.exists()) {
+			if (overwrite) {
+				dstFile.remove();
+			}
+			else {
+				return;
+			}
+		}
+		srcFile.copy(dstPath);
+	}
 }

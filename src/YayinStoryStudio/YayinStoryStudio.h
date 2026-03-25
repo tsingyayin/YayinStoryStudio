@@ -4,6 +4,8 @@
 namespace YSS {
 	class Main :public Visindigo::General::Package {
 		Q_OBJECT;
+	private:
+		static Main* Instance;
 	public:
 		Main();
 		virtual ~Main();
@@ -11,5 +13,8 @@ namespace YSS {
 		virtual void onApplicationInit() override;
 		virtual void onPluginDisable() override;
 		virtual void onTest() override;
+		static Main* getInstance();
 	};
 }
+
+#define YSSApp YSS::Main::getInstance()

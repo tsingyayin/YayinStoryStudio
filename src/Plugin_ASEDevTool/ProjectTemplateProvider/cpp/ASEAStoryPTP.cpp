@@ -57,8 +57,8 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 	QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
 	bool ok = project.initProject(completePath, config->getString("Project.Name"));
 	if (ok) {
-		project.getProjectConfig()->setString("Project.IconPath", "cover.png");
-		project.getProjectConfig()->setString("Project.DebugServerID", "ASEDevTool_AStory");
+		project.setProjectIconPath("cover.png");
+		project.setProjectDebugServerID("cn.yxgeneral.ase_dev_tool.astory");
 		project.saveProject();
 		QString projectFolder = project.getProjectFolder();
 		QStringList CompGroup_2_05_22_1A = {
@@ -89,7 +89,9 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 	}
 }
 void ASEAStoryPTIW::initResourceV2_05_22_1A(YSSCore::General::YSSProject* project) {
-	project->getProjectConfig()->setString("ASEDevTool.ASEVersion", "2.05.22.1A");
+	Visindigo::Utility::JsonConfig projectConfig = project->getProjectConfigForPlugin("cn.yxgeneral.ase_dev_tool");
+	projectConfig.setString("ASEVersion", "2.05.22.1A");
+	project->saveProjectConfigForPlugin("cn.yxgeneral.ase_dev_tool", projectConfig);
 	QStringList folders = {
 			"/Resources/Audio",
 			"/Resources/BGP",

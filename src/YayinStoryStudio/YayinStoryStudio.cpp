@@ -13,9 +13,12 @@
 #include "Editor/YSSTranslator.h"
 
 namespace YSS {
+	Main* Main::Instance = nullptr;
+
 	Main::Main() {
+		Instance = this;
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
-		setPluginID("cn.yxgeneral.weavestudio.yss");
+		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
 	}
@@ -58,5 +61,9 @@ namespace YSS {
 	}
 	Main::~Main() {
 
+	}
+
+	Main* Main::getInstance() {
+		return Instance;
 	}
 }

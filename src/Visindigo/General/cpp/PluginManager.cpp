@@ -419,6 +419,8 @@ namespace Visindigo::General {
 			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
 			if (!isPluginEnable(plugin)) {
 				try {
+					plugin->d->initializePluginFolder(VIApp->getEnvConfig(VIApplication::ConfigPath).toString()+"/plugins");
+					plugin->d->setPluginLoadType(Plugin::LoadType::FromDisk);
 					vgMessageF << "Trying to enable plugin" << plugin->getPluginName();
 					plugin->onPluginEnable();
 				}

@@ -12,9 +12,9 @@
 #include <QtGui/qfontdatabase.h>
 #include "Widgets/Terminal.h"
 #include "Widgets/ThemeManager.h"
-#include "General/CommandHost.h"
 #include "Widgets/private/VIWidgets_p.h"
 #include "General/private/VIGeneral_p.h"
+#include "General/private/Plugin_p.h"
 
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
@@ -172,6 +172,8 @@ namespace Visindigo::General {
 		ApplicationLoadingMessageHandler* LoadingMessageHandler = nullptr;
 		ApplicationExceptionMessageHandler* ExceptionMessageHandler = nullptr;
 		Widgets::Terminal* VirtualTerminal = nullptr;
+
+		QList<Plugin*> DependencyPlugins;
 	};
 
 	VIApplication* VIApplicationPrivate::Instance = nullptr;
@@ -184,7 +186,7 @@ namespace Visindigo::General {
 		\value LogFileNameTimeFormat 日志文件名时间格式，类型为QString，默认值为"yyyy-MM-dd_hh_mm_ss"。
 		\value LogTimeFormat 日志时间格式，类型为QString，默认值为"yyyy-MM-dd hh:mm:ss.zzz"。
 		\value PluginFolderPath 插件文件夹路径，类型为QString，默认值为"./user_data/plugins"。
-		\value PluginConfigPath 存放各插件配置文件的文件夹根路径，类型为QString，默认值为"./user_data/config/plugins"。注意，
+		\value ConfigPath 存放各插件配置文件的文件夹根路径，类型为QString，默认值为"./user_data/config/plugins"。注意，
 			由于程序会扫描整个PluginFolderPath目录来加载插件，因此不建议把这个目录设为PluginFolderPath的子目录，可能会影响插件加载性能。
 		\value MinimumLoadingTimeMS 最小加载时间（毫秒），这个停留时间有助于显示一段时间的程序Logo。类型为qint, 默认值为3000。
 		\value UseVirtualTerminal 是否使用虚拟终端，类型为bool，默认值为false。
@@ -196,7 +198,7 @@ namespace Visindigo::General {
 			{VIApplication::LogFileNameTimeFormat, "yyyy-MM-dd_hh_mm_ss"},
 			{VIApplication::LogTimeFormat, "yyyy-MM-dd hh:mm:ss.zzz"},
 			{VIApplication::PluginFolderPath, "./user_data/plugins"},
-			{VIApplication::PluginConfigPath, "./user_data/config/plugins"},
+			{VIApplication::ConfigPath, "./user_data/config"},
 			{VIApplication::MinimumLoadingTimeMS, 3000},
 			{VIApplication::UseVirtualTerminal, false},
 			{VIApplication::ThemeFolderPath, "./user_data/themes"},
@@ -394,8 +396,14 @@ namespace Visindigo::General {
 		但这强烈不推荐，因为会破坏Visinidgo对于应用程序加载与释放逻辑的封装。
 	*/
 	void VIApplication::setMainPlugin(Plugin* plugin) {
-		if (!d->started) {
+		if (not d->started) {
 			d->MainPlugin = plugin;
+		}
+	}
+
+	void VIApplication::addDependencyPlugin(Plugin* plugin) {
+		if (not d->started) {
+			d->DependencyPlugins.append(plugin);
 		}
 	}
 
@@ -423,7 +431,7 @@ namespace Visindigo::General {
 		必须在调用start()函数之前设置加载消息处理器，如果在应用程序已经启动后调用此函数，将不会生效。
 	*/
 	void VIApplication::setLoadingMessageHandler(ApplicationLoadingMessageHandler* handler) {
-		if (!d->started) {
+		if (not d->started) {
 			if (d->LoadingMessageHandler) {
 				delete d->LoadingMessageHandler;
 			}
@@ -440,7 +448,7 @@ namespace Visindigo::General {
 		必须在调用start()函数之前设置异常消息处理器，如果在应用程序已经启动后调用此函数，将不会生效。
 	*/
 	void VIApplication::setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler) {
-		if (!d->started) {
+		if (not d->started) {
 			if (d->ExceptionMessageHandler) {
 				delete d->ExceptionMessageHandler;
 			}
@@ -540,7 +548,16 @@ namespace Visindigo::General {
 				widgetsPlugin->onPluginEnable();
 			}
 
+			for (auto dp: d->DependencyPlugins) {
+				dp->d->setPluginLoadType(Plugin::LoadType::FromMemory);
+				dp->d->initializePluginFolder(getEnvConfig(ConfigPath).toString()+"/depends");
+				dp->onPluginEnable();
+				d->LoadingMessageHandler->onLoadingMessage(QString("Dependency plugin %1 enabled").arg(dp->getPluginName()));
+			}
+
 			if (d->MainPlugin) {
+				d->MainPlugin->d->setPluginLoadType(Plugin::LoadType::MainPlugin);
+				d->MainPlugin->d->initializePluginFolder(getEnvConfig(ConfigPath).toString() + "/program");
 				d->MainPlugin->onPluginEnable();
 				if (d->LoadingMessageHandler) {
 					d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
@@ -551,6 +568,7 @@ namespace Visindigo::General {
 				d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
 				qApp->processEvents();
 			}
+
 			PluginManager::getInstance()->loadAllPlugin();
 			if (d->AppType == WidgetApp) {
 				if (d->LoadingMessageHandler) {
@@ -617,16 +635,24 @@ namespace Visindigo::General {
 			if (d->MainPlugin) {
 				d->MainPlugin->onPluginDisable();
 			}
+
+			for (auto it = d->DependencyPlugins.rbegin(); it != d->DependencyPlugins.rend(); ++it) {
+				(*it)->onPluginDisable();
+				(*it)->deleteLater();
+			}
+
 			if (widgetsPlugin) {
 				widgetsPlugin->onPluginDisable();
 				widgetsPlugin->deleteLater();
 			}
+
 			corePlugin->onPluginDisable();
-			Visindigo::General::LoggerManager::getInstance()->finalSave();
-			VISCH->deleteLater();
 			corePlugin->deleteLater();
+
 			d->started = false;
 			vgNoticeF << "Application exited with code" << ret;
+
+			Visindigo::General::LoggerManager::getInstance()->finalSave();
 			return ret;
 		}
 		catch (const Exception& ex) {

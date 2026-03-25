@@ -47,7 +47,7 @@ namespace Visindigo::General {
 			LogFileNameTimeFormat,
 			LogTimeFormat,
 			PluginFolderPath,
-			PluginConfigPath,
+			ConfigPath,
 			MinimumLoadingTimeMS,
 			UseVirtualTerminal,
 			ThemeFolderPath,
@@ -59,6 +59,7 @@ namespace Visindigo::General {
 		VIApplication(int& argc, char** argv, AppType appType = WidgetApp, bool changeWorkingDirToExeDir = true);
 		~VIApplication();
 		void setMainPlugin(Plugin* plugin);
+		void addDependencyPlugin(Plugin* plugin);
 		static void setEnvConfig(EnvKey key, const QVariant& value);
 		static QVariant getEnvConfig(EnvKey key);
 		void onException(const Exception& ex);

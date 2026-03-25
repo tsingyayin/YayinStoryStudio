@@ -7,6 +7,7 @@ namespace Visindigo::Utility {
 	class JsonConfig;
 }
 namespace Visindigo::General {
+	class Plugin;
 	class Version;
 	class YSSProjectPrivate;
 }
@@ -25,10 +26,18 @@ namespace YSSCore::General {
 		QString getProjectFolder();
 		QString getProjectPath();
 		QString getProjectIconPath();
+		void setProjectName(const QString& name);
+		void setProjectDescription(const QString& description);
+		void setProjectIconPath(const QString& iconPath);
 		QDateTime getProjectCreateTime();
 		QDateTime getProjectLastModifyTime();
+		QString getProjectDebugServerID();
+		void setProjectDebugServerID(const QString& id);
 		Visindigo::General::Version getProjectVersion();
-		Visindigo::Utility::JsonConfig* getProjectConfig();
+		Visindigo::Utility::JsonConfig getProjectConfigForPlugin(Visindigo::General::Plugin* plugin);
+		Visindigo::Utility::JsonConfig getProjectConfigForPlugin(const QString& pluginID);
+		void saveProjectConfigForPlugin(Visindigo::General::Plugin* plugin, const Visindigo::Utility::JsonConfig& config);
+		void saveProjectConfigForPlugin(const QString& pluginID, const Visindigo::Utility::JsonConfig& config);
 		QStringList getEditorOpenedFiles(); // return all in absolute path
 		void addEditorOpenedFile(const QString& abs_filePath);
 		void removeEditorOpenedFile(const QString& abs_filePath);

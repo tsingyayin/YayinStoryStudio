@@ -25,7 +25,15 @@ namespace Visindigo::General {
 		friend class PluginManager;
 		friend class PluginModule;
 		friend class Visindigo::__Private__::PluginPrivate;
+		friend class VIApplication;
 		Q_OBJECT;
+	public:
+		enum LoadType {
+			Unknown = 0,
+			FromDisk,
+			FromMemory,
+			MainPlugin
+		};
 	public:
 		Plugin(Visindigo::General::Version apiVersion = Compiled_VIAPI_Version, Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QString extensionID = "Visindigo_Base", QObject * parent = nullptr);
 		virtual ~Plugin();
@@ -40,6 +48,9 @@ namespace Visindigo::General {
 		QStringList getPluginAuthor() const;
 		QDir getPluginFolder() const;
 		Visindigo::Utility::JsonConfig* getPluginConfig();
+		void savePluginConfig();
+		void reloadPluginConfig();
+		LoadType getPluginLoadType() const;
 		QList<PluginModule*> getModules() const;
 		PluginModule* getModuleByID(const QString& id) const;
 		QList<PluginModule*> getModuleByTypeID(const QString& typeID) const;
@@ -66,5 +77,10 @@ namespace Visindigo::General {
 
 #define Visindigo_PluginMain_Function_Name "VisindigoPluginMain"
 typedef Visindigo::General::Plugin* (*__VisindigoPluginMain)(void);
+
+#define VIPlugin(PluginClass)\
+public:\
+	static PluginClass* getInstance();
+#define VIPluginInstance(PluginClass) PluginClass::getInstance()
 
 #endif // Visindigo_General_Plugin_H

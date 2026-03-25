@@ -10,12 +10,32 @@
 #include "General/Placeholder.h"
 #include "General/CommandHost.h"
 #include "General/CommandHandler.h"
+#include "General/Log.h"
+
 namespace Visindigo::__Private__ {
 	void PluginPrivate::initializePluginFolder(const QDir& baseDir) {
 		PluginFolder = QDir(baseDir.filePath(PluginID));
 		if (!PluginFolder.exists()) {
 			PluginFolder.mkpath(".");
 		}
+		loadConfig();
+	}
+
+	void PluginPrivate::setPluginLoadType(Visindigo::General::Plugin::LoadType loadType) {
+		LoadType = loadType;
+	}
+
+	void PluginPrivate::loadConfig() {
+		if (not Visindigo::Utility::FileUtility::isFileExist(PluginFolder.filePath("config.json"))) {
+			if (Visindigo::Utility::FileUtility::isFileExist(":/resource/" % PluginID % "/config.json")) {
+				Visindigo::Utility::FileUtility::copyFile(":/resource/" % PluginID % "/config.json", PluginFolder.filePath("config.json"));
+			}
+			else {
+				vgWarning << "No default config found for plugin " << PluginID << ", creating an empty config.";
+				Visindigo::Utility::FileUtility::saveAll(PluginFolder.filePath("config.json"), "{}");
+			}
+		}
+		Config.parse(Visindigo::Utility::FileUtility::readAll(PluginFolder.filePath("config.json")));
 	}
 
 	bool PluginPrivate::enablePlugin() {
@@ -132,6 +152,16 @@ namespace Visindigo::General {
 
 		考虑到C++的内存使用极其自由，用户编写代码也极其自由，因此Visindigo不保证任何插件
 		逻辑的异常安全。任何执行插件函数过程中遭遇的异常都会导致Visindigo直接崩溃。
+	*/
+
+	/*!
+		\enum Visindigo::General::Plugin::LoadType
+		\since Visindigo 0.13.0
+		\value Unknown 插件的加载类型未知
+		\value FromDisk 插件是从磁盘加载的，这些插件在PluginManager::getLoadedPlugins中可用
+		\value FromMemory 插件是从内存加载的，即应用程序在编译时直接链接的插件，这些插件在
+			VIApplication::getPackages()中可用。这个函数不会返回主插件。
+		\value MainPlugin 插件是作为应用程序的主插件加载的，这插件在VIApplication::getMainPlugin()中可用
 	*/
 
 	/*! 
@@ -281,6 +311,30 @@ namespace Visindigo::General {
 	*/
 	Visindigo::Utility::JsonConfig* Plugin::getPluginConfig() {
 		return &(d->Config);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		保存插件的设置到磁盘
+	*/
+	void Plugin::savePluginConfig() {
+		Visindigo::Utility::FileUtility::saveAll(d->PluginFolder.filePath("config.json"), d->Config.toString());
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		从磁盘重新加载插件的设置
+	*/
+	void Plugin::reloadPluginConfig() {
+		d->loadConfig();
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		return 插件的加载方式
+	*/
+	Plugin::LoadType Plugin::getPluginLoadType() const {
+		return d->LoadType;
 	}
 
 	/*!
