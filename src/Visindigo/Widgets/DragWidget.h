@@ -1,6 +1,6 @@
 #ifndef Visindigo_Widgets_DragWidget_h
 #define Visindigo_Widgets_DragWidget_h
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtWidgets/qwidget.h>
 
 namespace Visindigo::Widgets {

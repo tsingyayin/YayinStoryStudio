@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include "./ProjectMessageData.h"
 // Forward declarations
 namespace Visindigo::General {

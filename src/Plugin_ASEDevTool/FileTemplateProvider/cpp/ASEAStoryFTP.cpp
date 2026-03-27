@@ -14,7 +14,7 @@ ASEAStoryFTIW::ASEAStoryFTIW(const QString& initFolder, QWidget* parent)
 	: YSSCore::Editor::FileTemplateInitWidget(initFolder, parent)
 {
 	this->setMinimumWidth(800);
-	this->setWindowTitle(YSSTR("ASEDevTool::fileProvider.window.title"));
+	this->setWindowTitle(VITR("ASEDevTool::fileProvider.window.title"));
 	ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
 	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/configWidget/FTP.json"));
 	ConfigWidget->setLineEditText("File.Path", getInitFolder());
@@ -27,7 +27,7 @@ ASEAStoryFTIW::ASEAStoryFTIW(const QString& initFolder, QWidget* parent)
 	WhereLabel = new QLabel(this);
 	WhereLabel->setWordWrap(true);
 	ButtonLayout->addWidget(WhereLabel);
-	CreateButton = new QPushButton(YSSTR("ASEDevTool::provider.window.create"), this);
+	CreateButton = new QPushButton(VITR("ASEDevTool::provider.window.create"), this);
 	CreateButton->setObjectName("CreateButton");
 	CreateButton->setMinimumWidth(120);
 	CreateButton->setMaximumWidth(160);
@@ -66,8 +66,8 @@ void ASEAStoryFTIW::onCreateButtonClicked() {
 		}
 		else {
 			QMessageBox msgBox;
-			msgBox.setWindowTitle(YSSTR("ASEDevTool::fileProvider.version.unsupported.title"));
-			msgBox.setText(YSSTR("ASEDevTool::fileProvider.version.unsupported.text").arg(config->getString("File.Version")));
+			msgBox.setWindowTitle(VITR("ASEDevTool::fileProvider.version.unsupported.title"));
+			msgBox.setText(VITR("ASEDevTool::fileProvider.version.unsupported.text").arg(config->getString("File.Version")));
 			msgBox.setStandardButtons(QMessageBox::Ok);
 			int ret = msgBox.exec();
 			return;
@@ -78,7 +78,7 @@ void ASEAStoryFTIW::onCreateButtonClicked() {
 	}
 	else {
 		QMessageBox msgBox;
-		msgBox.setWindowTitle(YSSTR("ASEDevTool::fileProvider.failed.title"));
+		msgBox.setWindowTitle(VITR("ASEDevTool::fileProvider.failed.title"));
 		msgBox.setText("ASEDevTool::fileProvider.failed.text");
 		msgBox.setStandardButtons(QMessageBox::Ok);
 		int ret = msgBox.exec();
@@ -99,11 +99,11 @@ void ASEAStoryFTIW::refreshWhereLabel() {
 	QString completePath = FilePath + "/" +
 		Visindigo::Utility::FileUtility::toLegelFileName(FileName) + ".astory";
 	if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
-		WhereLabel->setText(YSSTR("ASEDevTool::fileProvider.window.where").arg(completePath));
+		WhereLabel->setText(VITR("ASEDevTool::fileProvider.window.where").arg(completePath));
 		CreateButton->setEnabled(true);
 	}
 	else {
-		WhereLabel->setText(YSSTR("ASEDevTool::fileProvider.window.exists").arg(completePath));
+		WhereLabel->setText(VITR("ASEDevTool::fileProvider.window.exists").arg(completePath));
 		CreateButton->setEnabled(false);
 	}
 }
@@ -112,14 +112,14 @@ ASEAStoryFTP::ASEAStoryFTP(YSSCore::Editor::EditorPlugin* plugin) :
 {
 	setTemplateIconPath(":/resource/cn.yxgeneral.ase_dev_tool/icon/ASEA_Dark.png");
 	setTemplateID("ASEAStoryFile");
-	setTemplateName(YSSTR("ASEDevTool::fileProvider.astory.name"));
-	setTemplateDescription(YSSTR("ASEDevTool::fileProvider.astory.description"));
+	setTemplateName(VITR("ASEDevTool::fileProvider.astory.name"));
+	setTemplateDescription(VITR("ASEDevTool::fileProvider.astory.description"));
 	setTemplateTags(QStringList({
-			YSSTR("ASEDevTool::fileProvider.astory.tags.ase"),
-			YSSTR("ASEDevTool::fileProvider.astory.tags.astory"),
-			YSSTR("ASEDevTool::fileProvider.astory.tags.engine-native"),
-			YSSTR("ASEDevTool::fileProvider.astory.tags.script"),
-			YSSTR("ASEDevTool::fileProvider.astory.tags.arknights")
+			VITR("ASEDevTool::fileProvider.astory.tags.ase"),
+			VITR("ASEDevTool::fileProvider.astory.tags.astory"),
+			VITR("ASEDevTool::fileProvider.astory.tags.engine-native"),
+			VITR("ASEDevTool::fileProvider.astory.tags.script"),
+			VITR("ASEDevTool::fileProvider.astory.tags.arknights")
 		}));
 	// Constructor implementation
 }

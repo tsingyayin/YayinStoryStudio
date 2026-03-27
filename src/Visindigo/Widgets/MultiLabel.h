@@ -1,6 +1,6 @@
 #pragma once
 #include <QtWidgets/qframe.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 //// Forward declarations
 class QLabel;
 class QString;

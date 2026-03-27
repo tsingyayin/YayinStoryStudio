@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 namespace Visindigo::Utility {
 	class DiffUnitPrivate;

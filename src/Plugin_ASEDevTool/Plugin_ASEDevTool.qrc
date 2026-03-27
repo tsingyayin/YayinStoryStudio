@@ -12,5 +12,6 @@
         <file>resource/cn.yxgeneral.ase_dev_tool/configWidget/FTP.json</file>
         <file>resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/classic.png</file>
         <file>resource/cn.yxgeneral.ase_dev_tool/template/2.05.22.1A/tianyu.png</file>
+        <file>resource/cn.yxgeneral.ase_dev_tool/icon.png</file>
     </qresource>
 </RCC>

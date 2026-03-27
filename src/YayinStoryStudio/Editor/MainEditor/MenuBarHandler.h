@@ -22,9 +22,9 @@ namespace YSS::Editor {
 		SubNodes{};
 	public slots:
 		void backToHome();
-		void preferences() {
-			yDebugF << "Preferences";
-		}
+		void pluginAndPreferences();
+		void about();
+		void documentation();
 		void exit();
 	};
 	class Menu_File :public QObject {

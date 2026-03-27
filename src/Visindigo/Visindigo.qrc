@@ -10,5 +10,6 @@
         <file>resource/cn.yxgeneral.visindigo/icon/operator.png</file>
         <file>resource/cn.yxgeneral.visindigo/icon/value.png</file>
         <file>resource/cn.yxgeneral.visindigo/default/defaultTheme.json</file>
+        <file>resource/cn.yxgeneral.visindigo/icon.png</file>
     </qresource>
 </RCC>

@@ -228,13 +228,13 @@ AStoryControllerParseData AStoryController::parse(const QString& input, qint32 c
 
 QString AStoryController::getParameterDocument(const QString& parameterName) {
 	if (parameterName.isEmpty()) {
-		return YSSTR("ASEDevTool::Document.NotInAnyParameter");
+		return VITR("ASEDevTool::Document.NotInAnyParameter");
 	}
 	QString key = "Document."+toNameString(d->Name)+"."+parameterName;
-	QString doc = YSSTR("ASEDevTool::"+key);
+	QString doc = VITR("ASEDevTool::"+key);
 	if (doc!= key) {
 		return doc;
 	}else{
-		return YSSTR("ASEDevTool::Document.Default");
+		return VITR("ASEDevTool::Document.Default");
 	}
 }

@@ -3,7 +3,7 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 namespace Visindigo::General {
 	class CommandHandler;

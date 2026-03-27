@@ -27,7 +27,7 @@ namespace YSS::ProjectPage {
 		this->setAttribute(Qt::WA_TranslucentBackground);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setMinimumSize(1366, 768);
-		this->setWindowTitle(YSSTR("YSS::project.projectManager"));
+		this->setWindowTitle(VITR("YSS::project.projectManager"));
 		TitleLabel = new QLabel(this);
 		TitleLabel->setText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("ProgramTitleLabel");
@@ -45,7 +45,7 @@ namespace YSS::ProjectPage {
 		NewsWidget = new QWidget(this);
 		QLabel* newsLabel = new QLabel(NewsWidget);
 		newsLabel->setAlignment(Qt::AlignCenter);
-		newsLabel->setText(YSSTR("YSS::project.news"));
+		newsLabel->setText(VITR("YSS::project.news"));
 		newsLabel->setWordWrap(true);
 		QVBoxLayout* newsLayout = new QVBoxLayout(NewsWidget);
 		newsLayout->setContentsMargins(6, 6, 6, 6);
@@ -55,14 +55,14 @@ namespace YSS::ProjectPage {
 
 		OptionWidget = new QWidget(this);
 		CreateProjectButton = new QPushButton(OptionWidget);
-		CreateProjectButton->setText(YSSTR("YSS::project.createNewProject"));
-		CreateProjectButton->setToolTip(YSSTR("YSS::tooltips.projectWin.createNewProject"));
+		CreateProjectButton->setText(VITR("YSS::project.createNewProject"));
+		CreateProjectButton->setToolTip(VITR("YSS::tooltips.projectWin.createNewProject"));
 		OpenFolderButton = new QPushButton(OptionWidget);
-		OpenFolderButton->setText(YSSTR("YSS::project.openFolder"));
-		OpenFolderButton->setToolTip(YSSTR("YSS::tooltips.projectWin.openFolder"));
+		OpenFolderButton->setText(VITR("YSS::project.openFolder"));
+		OpenFolderButton->setToolTip(VITR("YSS::tooltips.projectWin.openFolder"));
 		CloneGitButton = new QPushButton(OptionWidget);
-		CloneGitButton->setText(YSSTR("YSS::project.cloneFromGit"));
-		CloneGitButton->setToolTip(YSSTR("YSS::tooltips.projectWin.cloneFromGit"));
+		CloneGitButton->setText(VITR("YSS::project.cloneFromGit"));
+		CloneGitButton->setToolTip(VITR("YSS::tooltips.projectWin.cloneFromGit"));
 		CloneGitButton->hide();
 		ButtonLayout = new QVBoxLayout(OptionWidget);
 		OptionWidget->setLayout(ButtonLayout);
@@ -167,7 +167,7 @@ namespace YSS::ProjectPage {
 	}
 	void ProjectWin::onOpenProject(QString filePath) {
 		if (filePath.isEmpty()) {
-			filePath = QFileDialog::getOpenFileName(this, YSSTR("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
+			filePath = QFileDialog::getOpenFileName(this, VITR("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		}
 		filePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(), filePath);
 		Visindigo::Utility::JsonConfig* Config = GlobalValue::getConfig();
@@ -189,16 +189,16 @@ namespace YSS::ProjectPage {
 		else {
 			QMessageBox msgBox;
 			msgBox.setIcon(QMessageBox::Critical);
-			msgBox.setText(YSSTR("YSS::project.openProjectFailed.message"));
+			msgBox.setText(VITR("YSS::project.openProjectFailed.message"));
 			switch (res) {
 			case YSSCore::General::YSSProject::ParseError:
-				msgBox.setInformativeText(YSSTR("YSS::project.openProjectFailed.ParseError"));
+				msgBox.setInformativeText(VITR("YSS::project.openProjectFailed.ParseError"));
 				break;
 			case YSSCore::General::YSSProject::InvalidConfig:
-				msgBox.setInformativeText(YSSTR("YSS::project.openProjectFailed.InvalidConfig"));
+				msgBox.setInformativeText(VITR("YSS::project.openProjectFailed.InvalidConfig"));
 				break;
 			default:
-				msgBox.setInformativeText(YSSTR("YSS::project.openProjectFailed.UnknownError"));
+				msgBox.setInformativeText(VITR("YSS::project.openProjectFailed.UnknownError"));
 				break;
 			}
 			msgBox.setStandardButtons(QMessageBox::Ok);
@@ -260,7 +260,7 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->addWidget(label);
 			label->setSpacing(5);
 			label->setContentsMargins(10, 10, 10, 10);
-			label->setToolTip(YSSTR("YSS::tooltips.projectWin.project"));
+			label->setToolTip(VITR("YSS::tooltips.projectWin.project"));
 			label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 			//label->setFixedHeight(50);
 			label->show();

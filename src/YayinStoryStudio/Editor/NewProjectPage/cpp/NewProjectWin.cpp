@@ -19,7 +19,7 @@ namespace YSS::NewProjectPage {
 	NewProjectWin::NewProjectWin() :QWidget() {
 		this->setMinimumSize(900, 600);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
-		this->setWindowTitle(YSSTR("YSS::project.createNewProject"));
+		this->setWindowTitle(VITR("YSS::project.createNewProject"));
 		TitleLabel = new QLabel(this);
 		TitleLabel->setObjectName("TitleLabel");
 		TitleLabel->setFixedHeight(80);
@@ -54,10 +54,10 @@ namespace YSS::NewProjectPage {
 		Layout->setColumnStretch(0, 3);
 		Layout->setColumnStretch(1, 2);
 
-		TitleLabel->setText(" " + YSSTR("YSS::project.createFromTemplate"));
-		SearchLineEdit->setPlaceholderText(YSSTR("YSS::project.searchWithTags"));
+		TitleLabel->setText(" " + VITR("YSS::project.createFromTemplate"));
+		SearchLineEdit->setPlaceholderText(VITR("YSS::project.searchWithTags"));
 		SearchLineEdit->setFixedHeight(30);
-		RecentTemplateTitle->setText(YSSTR("YSS::project.recentUsed"));
+		RecentTemplateTitle->setText(VITR("YSS::project.recentUsed"));
 
 		this->setStyleSheet(VISTMGT("YSS::ProjectWin", this));
 

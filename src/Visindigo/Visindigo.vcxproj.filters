@@ -194,6 +194,9 @@
     <ClCompile Include="Widgets\cpp\PixmapCacheHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\PluginManageWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -206,9 +209,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\JsonValueRef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Macro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\ExtTool.h">
@@ -331,6 +331,9 @@
     <ClInclude Include="Widgets\PixmapCacheHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VICompileMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -430,6 +433,15 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\VIWidgets_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\PluginManageWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\GlobalMessageHost.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\private\PluginManageWidget_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

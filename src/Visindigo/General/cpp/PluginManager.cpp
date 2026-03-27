@@ -20,6 +20,7 @@ namespace Visindigo::General {
 	protected:
 		static PluginManager* Instance;
 		bool loaded = false;
+		QStringList DeactivatedPluginIDList;
 		QList<Plugin*> Plugins;
 		QList<Plugin*> EnabledPlugins;
 		QMap<IDString, Plugin*> PluginIDMap;
@@ -191,6 +192,11 @@ namespace Visindigo::General {
 		}
 		for (QString key : d->PriorityPlugins) {
 			d->LoadResults[key] = PluginManager::LoadPluginResult::Unknown;
+			if (d->DeactivatedPluginIDList.contains(key)) {
+				vgWarning << "Plugin with id" << key << "is in deactivated list, the plugin in will be ignored.";
+				d->LoadResults[key] = PluginManager::LoadPluginResult::Deactivated;
+				continue;
+			}
 			QStringList dependList = d->Dependencies.value(key);
 			bool dependFailed = false;
 			for (IDString depend : dependList) {
@@ -201,8 +207,14 @@ namespace Visindigo::General {
 				}
 				else {
 					if (d->LoadResults[depend] != PluginManager::LoadPluginResult::Success) {
-						vgError << "Failed when load plugin" << key << ", dependency" << depend << "failed to load!";
-						d->LoadResults[key] = PluginManager::LoadPluginResult::DependencyLoadFailed;
+						if (d->LoadResults[depend] == PluginManager::LoadPluginResult::Deactivated){
+							vgError << "Failed when load plugin" << key << ", dependency" << depend << "is deactivated!";
+							d->LoadResults[key] = PluginManager::LoadPluginResult::Deactivated;
+						}
+						else {
+							vgError << "Failed when load plugin" << key << ", as dependency" << depend << "failed to load!";
+							d->LoadResults[key] = PluginManager::LoadPluginResult::DependencyLoadFailed;
+						}
 						dependFailed = true;
 					}
 					else {
@@ -405,6 +417,70 @@ namespace Visindigo::General {
 	*/
 	bool PluginManager::isPluginEnable(Plugin* plugin) const {
 		return d->EnabledPlugins.contains(plugin);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		设置ID为\a id的插件的禁用状态，true为禁用，false为启用。
+
+		被设置为false状态的插件将在加载动态链接库到内存这一步时被跳过，因此也不会启用。
+		请注意，如果这插件是其他插件的依赖项，那么依赖它的所有插件都会被连带禁用。
+		
+		只要调用这个函数，它就会同步修改主插件配置文件中"Plugins.Deactivated"项的内容，以确保这个设置在下次启动时仍然有效。
+		被连带禁用的插件不会出现在这个配置项中，这个配置项永远只包含被手动设置为禁用状态的插件ID。
+
+	*/
+	void PluginManager::setPluginDeactivate(const QString& id, bool deactivate) {
+		if (!deactivate) {
+			d->DeactivatedPluginIDList.removeAll(id);
+		}
+		else {
+			if (!d->DeactivatedPluginIDList.contains(id)) {
+				d->DeactivatedPluginIDList.append(id);
+			}
+		}
+		VIApp->getMainPlugin()->getPluginConfig()->setStringList("Plugins.Deactivated", d->DeactivatedPluginIDList);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		检查ID为\a id的插件是否被手动设置为禁用状态。
+
+		请注意，和禁用状态有关的几个函数都有以下要点：
+		\list
+		\li 1. 激活状态是个纯配置的项目，和插件是否实际被加载和启用没有关系。
+		即使在全部插件都没加载的阶段，也可以设置某个插件的激活状态。它不依赖插件实例，只从ID判断。
+		\li 2. 一个插件被配置为禁用状态后，依赖它的所有插件都会被连带设置为禁用状态。
+		但连带禁用的插件不会出现在禁用列表中，这个列表永远只含有被手动指定为禁用的插件ID。
+
+		如果需要知道所有被禁用（无论是手动禁用还是连带禁用）的插件ID，
+		可以使用getPluginLoadResultByID()函数来判断插件的加载结果是否为Deactivated。
+	*/
+	bool PluginManager::isPluginDeactivate(const QString& id) const {
+		return d->DeactivatedPluginIDList.contains(id);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		从配置文件中加载被设置为未激活状态的插件ID列表。这个函数会在用户通过
+		VIApplication::setMainPlugin()设置主插件时被自动调用，
+		以确保在加载插件之前就正确地识别出哪些插件被设置为未激活状态。
+
+		这个配置会自动寄生到主插件的配置文件中，路径为"Plugins.Deactivated"，
+		因此你也可以直接编辑配置文件来修改这个列表。
+	*/
+	void PluginManager::loadDeactivatePluginList() {
+		d->DeactivatedPluginIDList = VIApp->getMainPlugin()->getPluginConfig()->getStringList("Plugins.Deactivated");
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		返回所有被设置为未激活状态的插件ID列表。
+		
+		请注意，这只包括被手动设置为未激活状态的插件ID，而不包括那些因为依赖关系而被自动禁用的插件ID。
+	*/
+	QStringList PluginManager::getDeactivatedPluginIDList() const {
+		return d->DeactivatedPluginIDList;
 	}
 
 	/*!

@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qstring.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 class QJsonValue;
 namespace Visindigo::Utility {
@@ -36,6 +36,7 @@ namespace Visindigo::Utility {
 		QList<JsonConfig> getArray(const QString& key = "", bool* ok = nullptr);
 		QStringList getStringList(const QString& key = "", bool* ok = nullptr);
 		bool contains(const QString& key);
+		void clear();
 		void setValue(const QString& key, const QJsonValue& value);
 		void setInt(const QString& key, qint64 value);
 		void setString(const QString& key, const QString& value);

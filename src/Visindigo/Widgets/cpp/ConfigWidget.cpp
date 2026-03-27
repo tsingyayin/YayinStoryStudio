@@ -15,6 +15,9 @@
 #include "../../Widgets/MultiLabel.h"
 #include "../../General/Log.h"
 #include "../ThemeManager.h"
+#include <QtWidgets/qtextedit.h>
+#include <QtGui/qcolor.h>
+#include <QtWidgets/qcolordialog.h>
 
 namespace Visindigo::__Private__ {
 	ConfigWidgetPrivate::ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self) {
@@ -65,7 +68,7 @@ namespace Visindigo::__Private__ {
 			}
 			syncConfig();
 		}
-		self->setWindowTitle(YSSI18N(Config.getString("windowTitle")));
+		self->setWindowTitle(VI18N(Config.getString("windowTitle")));
 		self->setWindowIcon(QIcon(Config.getString("windowIcon")));
 	}
 
@@ -95,7 +98,7 @@ namespace Visindigo::__Private__ {
 	}
 
 	void ConfigWidgetPrivate::resetConfig() {
-		Config = Visindigo::Utility::JsonConfig();
+		Config.clear();
 		spawnConfig();
 	}
 
@@ -178,8 +181,8 @@ namespace Visindigo::__Private__ {
 		SettingLayout->setContentsMargins(0, 0, 0, 0);
 
 		Visindigo::Widgets::MultiLabel* MultiLabel = new Visindigo::Widgets::MultiLabel(SettingFrame);
-		MultiLabel->setTitle(YSSI18N(config.getString("title")));
-		MultiLabel->setDescription(YSSI18N(config.getString("text")));
+		MultiLabel->setTitle(VI18N(config.getString("title")));
+		MultiLabel->setDescription(VI18N(config.getString("text")));
 		QString iconPath = config.getString("icon");
 		if (!iconPath.isEmpty()) {
 			MultiLabel->setPixmapPath(iconPath);
@@ -216,7 +219,10 @@ namespace Visindigo::__Private__ {
 	QWidget* ConfigWidgetPrivate::widgetRouter(const QString& type, const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		QWidget* rtn = nullptr;
 		vgDebugF << node << type;
-		if (type == "ComboBox") {
+		if (type == "Frame") {
+			rtn = widget_QFrame(node, config, readOnly);
+		}
+		else if (type == "ComboBox") {
 			rtn = widget_ComboBox(node, config, readOnly);
 		}
 		else if (type == "RadioButton") {
@@ -225,11 +231,18 @@ namespace Visindigo::__Private__ {
 		else if (type == "LineEdit") {
 			rtn = widget_LineEdit(node, config, readOnly);
 		}
+		else if (type == "TextEdit") {
+			rtn = widget_TextEdit(node, config, readOnly);
+		}
+		else if (type == "ColorDialog") {
+			rtn = widget_ColorDialog(node, config, readOnly);
+		}
 		return rtn;
 	}
 
 	QWidget* ConfigWidgetPrivate::widget_QFrame(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
-		return nullptr; // delete this function later
+		// TODO: implement a shrink-expand frame
+		return nullptr; 
 	}
 
 	QWidget* ConfigWidgetPrivate::widget_ComboBox(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
@@ -239,7 +252,7 @@ namespace Visindigo::__Private__ {
 		QList<Visindigo::Utility::JsonConfig> items = config.getArray("comboBox");
 		for (Visindigo::Utility::JsonConfig item : items) {
 			QString combo_data = item.getString("data");
-			QString combo_key = YSSI18N(item.getString("key"));
+			QString combo_key = VI18N(item.getString("key"));
 			ComboBox->addItem(combo_key, combo_data);
 		}
 		QString defaultValue = config.getString("default");
@@ -276,11 +289,11 @@ namespace Visindigo::__Private__ {
 			LineEdit->setParent(container);
 			layout->addWidget(LineEdit);
 			QPushButton* selectButton = new QPushButton(container);
-			selectButton->setText(YSSTR("Visindigo::general.preview"));
+			selectButton->setText(VITR("Visindigo::general.preview"));
 			layout->addWidget(selectButton);
 			connect(selectButton, &QPushButton::clicked, [=]() {
 				QString folder = QFileDialog::getExistingDirectory(container,
-					YSSTR("Visindigo::general.selectFolder"),
+					VITR("Visindigo::general.selectFolder"),
 					YSSPathMacro(defaultValue),
 					QFileDialog::ShowDirsOnly
 					);
@@ -302,6 +315,40 @@ namespace Visindigo::__Private__ {
 			}
 			return LineEdit;
 		}
+	}
+
+	QWidget* ConfigWidgetPrivate::widget_TextEdit(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
+		QTextEdit* TextEdit = new QTextEdit();
+		TextEdit->setObjectName(node);
+		QString defaultValue = config.getString("default");
+		connect(TextEdit, &QTextEdit::textChanged, this, &ConfigWidgetPrivate::onTextEditTextChanged);
+		TextEditDefault.insert(TextEdit, defaultValue);
+		TextEdit->setText(defaultValue);
+		if (readOnly) {
+			TextEdit->setEnabled(false);
+		}
+		return TextEdit;
+	}
+
+	QWidget* ConfigWidgetPrivate::widget_ColorDialog(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
+		QPushButton* ColorButton = new QPushButton();
+		ColorButton->setObjectName(node);
+		QString defaultValue = config.getString("default");
+		QColor defaultColor(defaultValue);
+		ColorButton->setStyleSheet(QString("QPushButton#%1{background-color: %1}").
+			arg(ColorButton->objectName()).arg(defaultColor.name(QColor::HexArgb)));
+		connect(ColorButton, &QPushButton::clicked, [=]() {
+			QColor clr = QColorDialog::getColor(defaultColor, self);
+			if (clr.isValid()) {
+				ColorButton->setStyleSheet(QString("QPushButton#%1{background-color: %1}").
+					arg(ColorButton->objectName()).arg(clr.name(QColor::HexArgb)));
+				onColorChanged(clr);
+			}
+			});
+		if (readOnly) {
+			ColorButton->setEnabled(false);
+		}
+		return ColorButton;
 	}
 
 	void ConfigWidgetPrivate::onComboBoxIndexChanged(int index) {
@@ -326,13 +373,29 @@ namespace Visindigo::__Private__ {
 		Config.setString(node, str);
 		emit self->lineEditTextChanged(node, str);
 	}
+
+	void ConfigWidgetPrivate::onTextEditTextChanged() {
+		QObject* obj = sender();
+		QString node = obj->objectName();
+		QTextEdit* textEdit = static_cast<QTextEdit*>(obj);
+		QString str = textEdit->toPlainText();
+		Config.setString(node, str);
+		emit self->textEditTextChanged(node, str);
+	}
+	
+	void ConfigWidgetPrivate::onColorChanged(const QColor& clr) {
+		QObject* obj = sender();
+		QString node = obj->objectName();
+		Config.setString(node, clr.name(QColor::HexArgb));
+		emit self->colorChanged(node, clr);
+	}
 }
 
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::ConfigWidget
 		\brief 此类从CWJson创建配置窗口。
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
 		此类提供一种便捷的配置文件操作窗口创建方式，使用一种被约定为“CWJSON”的Json格式来描述配置窗口的内容。并且
@@ -421,7 +484,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\a parent 父窗口
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		类的构造函数
 	*/
 	ConfigWidget::ConfigWidget(QWidget* parent) :QFrame(parent) {
@@ -429,7 +492,7 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		析构函数
 	*/
 	ConfigWidget::~ConfigWidget() {
@@ -437,7 +500,7 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		\a json 为CWJson的内容
 		加载CWJson
 	*/
@@ -445,18 +508,58 @@ namespace Visindigo::Widgets {
 		d->loadCWJson(json);
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		手动设置目标配置文件路径和节点信息。
+
+		注意CWJson是只读的且只读一次，除非重新调用loadCWJson，否则
+		调用此函数后CWJson中关于target和targetNode的设置将不再生效，但也不会被改写。
+	*/
+	void ConfigWidget::setTargetConfig(const QString& path, const QString& node, const QString& fileType) {
+		d->TargetConfigPath = YSSPathMacro(path);
+		d->TargetConfigNode = node;
+		d->initConfig();
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		获取当下的配置数据，返回一个JsonConfig对象的指针，可以直接对其进行读写操作来获取或修改配置数据。
+		返回的JsonConfig指针在此类的生命周期内始终有效，直到此类被销毁为止。
+	*/
 	Visindigo::Utility::JsonConfig* ConfigWidget::getConfig() {
 		return &d->Config;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		重置配置数据为默认值，默认值在CWJson中进行设置。
+	*/
 	void ConfigWidget::resetConfig() {
 		d->resetConfig();
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		将当前配置数据同步到窗口中，更新窗口的显示状态。
+	*/
+	void ConfigWidget::syncConfig() {
+		d->syncConfig();
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		将当前配置数据保存到目标配置文件中。
+
+		如果目标文件路径未设置，则此函数不执行任何操作。
+	*/
 	void ConfigWidget::saveConfig() {
 		d->saveConfig();
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		手动设置某个LineEdit的文本内容。
+	*/
 	void ConfigWidget::setLineEditText(const QString& node, const QString& text) {
 		for (QLineEdit* obj : d->LineEditDefault.keys()) {
 			if (obj->objectName() == node) {
@@ -466,6 +569,10 @@ namespace Visindigo::Widgets {
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		手动设置某个ComboBox的选中项。
+	*/
 	void ConfigWidget::setComboBoxIndex(const QString& node, int index) {
 		for (QComboBox* obj : d->ComboBoxDefault.keys()) {
 			if (obj->objectName() == node) {
@@ -477,6 +584,10 @@ namespace Visindigo::Widgets {
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		手动设置某个RadioButton的选中状态。
+	*/
 	void ConfigWidget::setRadioButtonChecked(const QString& node, bool checked) {
 		for (QRadioButton* obj : d->RadioButtonDefault.keys()) {
 			if (obj->objectName() == node) {

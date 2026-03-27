@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtCore/qstring.h>
 // Main
 namespace Visindigo::Utility {

@@ -1,6 +1,6 @@
 #ifndef Visindigo_Widgets_Terminal_p_h
 #define Visindigo_Widgets_Terminal_p_h
-#include "../../Macro.h"
+#include "../../VICompileMacro.h"
 #include <QtCore/qobject.h>
 class QTextBrowser;
 class QLineEdit;

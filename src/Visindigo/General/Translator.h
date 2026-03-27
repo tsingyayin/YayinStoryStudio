@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/qmap.h>
 #include "General/PluginModule.h"
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 class QString;
 namespace Visindigo::__Private__ {

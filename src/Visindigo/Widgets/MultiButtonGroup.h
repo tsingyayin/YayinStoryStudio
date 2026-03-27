@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtCore/qobject.h>
 // Forward declarations
 namespace Visindigo::__Private__ {

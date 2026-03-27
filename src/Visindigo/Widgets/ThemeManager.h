@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/qobject.h>
 #include <QtGui/qstylehints.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 class QWidget;
 class QColor;

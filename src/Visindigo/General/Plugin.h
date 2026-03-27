@@ -2,7 +2,7 @@
 #define Visindigo_General_Plugin_H
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
-#include "Macro.h"
+#include "VICompileMacro.h"
 #include "General/Version.h"
 // Forward declarations
 class QString;
@@ -59,6 +59,7 @@ namespace Visindigo::General {
 		Visindigo::General::Version getPluginAPIVersion() const;
 		QString getPluginExtensionID() const;
 		Logger* getLogger() const;
+		virtual QWidget* getConfigWidget();
 	protected:
 		void setPluginVersion(const Visindigo::General::Version& version);
 		void setPluginID(const QString& id);

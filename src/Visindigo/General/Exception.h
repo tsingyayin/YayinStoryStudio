@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_Exception_H
 #define Visindigo_General_Exception_H
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>

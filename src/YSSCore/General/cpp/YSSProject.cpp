@@ -90,7 +90,10 @@ namespace YSSCore::General {
 		d->ProjectConfig->setString("Project.Name", name);
 		d->ProjectConfig->setString("Project.Description", "");
 		d->ProjectConfig->setString("Project.IconPath", "");
+		d->ProjectConfig->setString("Project.Version", "0.1");
+		d->ProjectConfig->setString("Project.DebugServerID", "");
 		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		refreshLastModifyTime();
 		saveProject();
 		return true;

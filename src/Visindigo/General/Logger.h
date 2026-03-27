@@ -1,6 +1,6 @@
 #pragma once
 #include <QtCore/qstring.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 
 namespace Visindigo::General {

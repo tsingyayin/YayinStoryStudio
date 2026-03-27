@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QObject>
 #include <Qt>
 class QString;

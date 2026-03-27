@@ -1,6 +1,6 @@
 #pragma once
 #include <QtWidgets/qgraphicseffect.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 namespace Visindigo::Widgets {
 	class LiquidGlassEffectPrivate;
 	class VisindigoAPI LiquidGlassEffect : public QGraphicsEffect {

@@ -67,8 +67,10 @@
 			"saveAll": "全部保存",
 			"saveAs": "另存为",
 			"backToHome": "返回首页",
-			"preferences": "首选项",
-			"exit": "退出"
+			"pluginAndPreferences": "插件和首选项",
+			"exit": "退出",
+			"documentation": "文档",
+			"about": "关于 Yayin Story Studio"
 		},
 		"edit": {
 			"title": "编辑",
@@ -91,22 +93,6 @@
 			"nextProcess": "逐过程",
 			"pause": "暂停",
 			"continue_": "继续"
-		},
-		"view": {
-			"title": "视图",
-			"toggleFullScreen": "切换全屏",
-			"toggleDevTools": "切换开发者工具"
-		},
-		"extension": {
-			"title": "扩展",
-			"manageInstalledExtensions": "管理已安装的扩展",
-			"installNewExtension": "安装新扩展"
-		},
-		"help": {
-			"title": "帮助",
-			"documentation": "文档",
-			"reportIssue": "报告问题",
-			"about": "关于 Yayin Story Studio"
 		}
 	}
 }

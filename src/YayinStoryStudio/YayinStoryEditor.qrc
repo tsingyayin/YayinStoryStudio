@@ -6,5 +6,6 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/zh_CN.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/test_bg.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon.png</file>
     </qresource>
 </RCC>

@@ -1,4 +1,5 @@
 #pragma once
+#include <QtGui/qcolor.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
@@ -9,6 +10,9 @@ class QWidget;
 class QRadioButton;
 class QComboBox;
 class QLineEdit;
+class QTextEdit;
+class QLabel;
+
 namespace Visindigo::Widgets {
 	class ConfigWidget;
 }
@@ -25,6 +29,8 @@ namespace Visindigo::__Private__ {
 		QMap<QComboBox*, QString> ComboBoxDefault;
 		QMap<QRadioButton*, bool> RadioButtonDefault;
 		QMap<QLineEdit*, QString> LineEditDefault;
+		QMap<QTextEdit*, QString> TextEditDefault;
+		QMap<QLabel*, QString> ColorDialogDefault;
 		QList<QWidget*> SettingsWidget;
 		Visindigo::Widgets::ConfigWidget* self;
 		ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self);
@@ -42,9 +48,13 @@ namespace Visindigo::__Private__ {
 		QWidget* widget_ComboBox(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
 		QWidget* widget_RadioButton(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
 		QWidget* widget_LineEdit(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
+		QWidget* widget_TextEdit(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
+		QWidget* widget_ColorDialog(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
 	private slots:
 		void onComboBoxIndexChanged(int index);
 		void onRadioButtonChanged(bool checked);
 		void onLineEditTextChanged(QString str);
+		void onTextEditTextChanged();
+		void onColorChanged(const QColor& clr);
 	};
 }

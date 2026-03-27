@@ -4,7 +4,7 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include "Logger.h"
 #include "private/LoggerMsgHandler_p.h"
 #include "LogMetaData.h"

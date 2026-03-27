@@ -1,7 +1,7 @@
 #ifndef Visindigo_General_PluginManager_H
 #define Visindigo_General_PluginManager_H
 #include <QObject>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 class QString;
 namespace Visindigo::General {
@@ -20,6 +20,7 @@ namespace Visindigo::General {
 		enum class LoadPluginResult {
 			Unknown = 0,
 			Success,
+			Deactivated,
 			PlatformNotSupported,
 			InvalidPluginBinary,
 			EntryPointNotFound,
@@ -45,6 +46,10 @@ namespace Visindigo::General {
 		void disableAllPlugin();
 		bool isPluginEnable(const QString& id) const;
 		bool isPluginEnable(Plugin* plugin) const;
+		void setPluginDeactivate(const QString& id, bool deactivate);
+		bool isPluginDeactivate(const QString& id) const;
+		void loadDeactivatePluginList();
+		QStringList getDeactivatedPluginIDList() const;
 		qint32 getLoadedPluginCount() const;
 		qint32 getEnabledPluginCount() const;
 		Plugin* getPluginByID(const QString& id) const;

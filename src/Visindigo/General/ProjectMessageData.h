@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtCore/qtypes.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qurl.h>

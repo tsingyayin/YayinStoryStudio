@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include "Logger.h"
 #include <QtCore/qobject.h>
 #include "LoggerMsgHandler.h"

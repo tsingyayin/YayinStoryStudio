@@ -1,6 +1,6 @@
 #pragma once
 #include <QtCore/qobject.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include "Translator.h"
 // Forward declarations
 class QString;
@@ -32,5 +32,5 @@ namespace Visindigo::General {
 	};
 }
 // Helper macros
-#define YSSTR Visindigo::General::TranslationHost::getInstance()->tra
-#define YSSI18N Visindigo::General::TranslationHost::getInstance()->i18n
+#define VITR Visindigo::General::TranslationHost::getInstance()->tra
+#define VI18N Visindigo::General::TranslationHost::getInstance()->i18n

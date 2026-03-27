@@ -1,6 +1,6 @@
 #ifndef Visindigo_Widgets_Terminal_h
 #define Visindigo_Widgets_Terminal_h
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtWidgets/qframe.h>
 namespace Visindigo::__Private__ {
 	class TerminalPrivate;

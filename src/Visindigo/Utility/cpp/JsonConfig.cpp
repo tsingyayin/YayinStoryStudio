@@ -502,6 +502,15 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		清空Json对象的内容。
+	*/
+	void JsonConfig::clear()
+	{
+		d->JsonDoc.setObject(QJsonObject());
+	}
+
+	/*!
+		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为值。
 		设置Json对象的值。

@@ -2,7 +2,7 @@
 #include <QString>
 #include <QList>
 #include <QByteArray>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 class QString;
 class QColor;

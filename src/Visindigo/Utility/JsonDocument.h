@@ -1,6 +1,6 @@
 #pragma once
 #include <QtCore/qlist.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include "JsonConfig.h"
 // Forward declarations
 class QString;

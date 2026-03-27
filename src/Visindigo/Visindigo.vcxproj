@@ -238,6 +238,7 @@
     <ClCompile Include="Widgets\cpp\LiquidGlassEffect.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp" />
     <ClCompile Include="Widgets\cpp\PixmapCacheHelper.cpp" />
+    <ClCompile Include="Widgets\cpp\PluginManageWidget.cpp" />
     <ClCompile Include="Widgets\cpp\QuickMenu.cpp" />
     <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Widgets\cpp\ThemeManager.cpp" />
@@ -286,6 +287,7 @@
     <QtMoc Include="General\Exception.h" />
     <QtMoc Include="General\PluginManager.h" />
     <QtMoc Include="General\PluginModule.h" />
+    <QtMoc Include="General\GlobalMessageHost.h" />
     <ClInclude Include="General\LogMetaData.h" />
     <QtMoc Include="General\Placeholder.h" />
     <ClInclude Include="General\Package.h" />
@@ -308,6 +310,7 @@
     <ClInclude Include="Utility\ShortCutHelper.h" />
     <ClInclude Include="Utility\StringMacro.h" />
     <ClInclude Include="Utility\StringUtility.h" />
+    <ClInclude Include="VICompileMacro.h" />
     <ClInclude Include="VIMacro.h" />
     <QtMoc Include="Widgets\MultiButtonGroup.h" />
     <QtMoc Include="Widgets\private\MultiButtonGroup_p.h" />
@@ -315,11 +318,13 @@
     <QtMoc Include="Widgets\WidgetResizeTool.h" />
     <QtMoc Include="Widgets\LiquidGlassEffect.h" />
     <ClInclude Include="Widgets\PixmapCacheHelper.h" />
+    <QtMoc Include="Widgets\PluginManageWidget.h" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
     <QtMoc Include="Widgets\private\Terminal_p.h" />
     <QtMoc Include="Widgets\private\TitleWidget_p.h" />
     <QtMoc Include="Widgets\private\VIWidgets_p.h" />
+    <QtMoc Include="Widgets\private\PluginManageWidget_p.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
@@ -351,7 +356,6 @@
     <QtMoc Include="Widgets\ThemeManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />
     <ClInclude Include="General\Version.h" />
-    <ClInclude Include="Macro.h" />
     <ClInclude Include="Utility\Console.h" />
     <ClInclude Include="Utility\ExtTool.h" />
     <ClInclude Include="Utility\JsonConfig.h" />

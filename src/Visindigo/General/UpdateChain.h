@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 #include <QtCore/qobject.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 namespace Visindigo::General {
 	class UpdateChain;

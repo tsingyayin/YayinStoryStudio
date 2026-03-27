@@ -1,6 +1,6 @@
 #ifndef Visindigo_Widgets_PixmapCacheHelper_h
 #define Visindigo_Widgets_PixmapCacheHelper_h
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qsize.h>
 

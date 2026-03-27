@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/qlist.h>
 #include <QtCore/qjsonvalue.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 class QString;
 namespace Visindigo::Utility {

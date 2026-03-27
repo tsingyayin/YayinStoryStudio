@@ -1,6 +1,6 @@
 #ifndef Visindigo_Utility_ColorTool_h
 #define Visindigo_Utility_ColorTool_h
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtGui/qcolor.h>
 class QString;
 namespace Visindigo::Utility {

@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_CommandHandler_h
 #define Visindigo_General_CommandHandler_h
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtCore/qstring.h>
 #include "General/PluginModule.h"
 #include "Utility/JsonConfig.h"

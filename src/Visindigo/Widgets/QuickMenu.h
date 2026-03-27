@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qmenubar.h>
 // Forward declarations

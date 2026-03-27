@@ -1,6 +1,6 @@
 #pragma once
 #include <QtCore/qstring.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include "General/private/AUTO_VERSION.h"
 // Visindigo version macro
 #define Visindigo_VERSION_MAJOR 0

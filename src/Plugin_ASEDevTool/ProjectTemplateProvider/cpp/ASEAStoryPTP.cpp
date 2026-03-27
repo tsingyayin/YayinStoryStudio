@@ -14,7 +14,7 @@ ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	: YSSCore::Editor::ProjectTemplateInitWidget(parent)
 {
 	this->setMinimumWidth(800);
-	this->setWindowTitle(YSSTR("ASEDevTool::provider.window.title"));
+	this->setWindowTitle(VITR("ASEDevTool::provider.window.title"));
 	ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
 	ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.ase_dev_tool/configWidget/PTP.json"));
 	Layout = new QVBoxLayout(this);
@@ -26,7 +26,7 @@ ASEAStoryPTIW::ASEAStoryPTIW(QWidget* parent)
 	WhereLabel = new QLabel(this);
 	WhereLabel->setWordWrap(true);
 	ButtonLayout->addWidget(WhereLabel);
-	CreateButton = new QPushButton(YSSTR("ASEDevTool::provider.window.create"), this);
+	CreateButton = new QPushButton(VITR("ASEDevTool::provider.window.create"), this);
 	CreateButton->setObjectName("CreateButton");
 	CreateButton->setMinimumWidth(120);
 	CreateButton->setMaximumWidth(160);
@@ -71,8 +71,8 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 		}
 		else {
 			QMessageBox msgBox;
-			msgBox.setWindowTitle(YSSTR("ASEDevTool::provider.version.unsupported.title"));
-			msgBox.setText(YSSTR("ASEDevTool::provider.version.unsupported.text").arg(config->getString("Project.Version")));
+			msgBox.setWindowTitle(VITR("ASEDevTool::provider.version.unsupported.title"));
+			msgBox.setText(VITR("ASEDevTool::provider.version.unsupported.text").arg(config->getString("Project.Version")));
 			msgBox.setStandardButtons(QMessageBox::Ok);
 			int ret = msgBox.exec();
 			return;
@@ -82,7 +82,7 @@ void ASEAStoryPTIW::onCreateButtonClicked() {
 	}
 	else {
 		QMessageBox msgBox;
-		msgBox.setWindowTitle(YSSTR("ASEDevTool::provider.failed.title"));
+		msgBox.setWindowTitle(VITR("ASEDevTool::provider.failed.title"));
 		msgBox.setText("ASEDevTool::provider.failed.text");
 		msgBox.setStandardButtons(QMessageBox::Ok);
 		int ret = msgBox.exec();
@@ -122,11 +122,11 @@ void ASEAStoryPTIW::initResourceV2_05_22_1A(YSSCore::General::YSSProject* projec
 void ASEAStoryPTIW::refreshWhereLabel() {
 	QString completePath = ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegelFileName(ProjectName);
 	if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
-		WhereLabel->setText(YSSTR("ASEDevTool::provider.window.where").arg(completePath));
+		WhereLabel->setText(VITR("ASEDevTool::provider.window.where").arg(completePath));
 		CreateButton->setEnabled(true);
 	}
 	else {
-		WhereLabel->setText(YSSTR("ASEDevTool::provider.window.exists").arg(completePath));
+		WhereLabel->setText(VITR("ASEDevTool::provider.window.exists").arg(completePath));
 		CreateButton->setEnabled(false);
 	}
 }
@@ -135,14 +135,14 @@ ASEAStoryPTP::ASEAStoryPTP(YSSCore::Editor::EditorPlugin* plugin) :
 {
 	setTemplateIconPath(":/resource/cn.yxgeneral.ase_dev_tool/icon/ASEA_Dark.png");
 	setTemplateID("ASEAStoryProject");
-	setTemplateName(YSSTR("ASEDevTool::provider.astory.name"));
-	setTemplateDescription(YSSTR("ASEDevTool::provider.astory.description"));
+	setTemplateName(VITR("ASEDevTool::provider.astory.name"));
+	setTemplateDescription(VITR("ASEDevTool::provider.astory.description"));
 	setTemplateTags(QStringList({
-			YSSTR("ASEDevTool::provider.astory.tags.ase"),
-			YSSTR("ASEDevTool::provider.astory.tags.astory"),
-			YSSTR("ASEDevTool::provider.astory.tags.engine-native"),
-			YSSTR("ASEDevTool::provider.astory.tags.script"),
-			YSSTR("ASEDevTool::provider.astory.tags.arknights")
+			VITR("ASEDevTool::provider.astory.tags.ase"),
+			VITR("ASEDevTool::provider.astory.tags.astory"),
+			VITR("ASEDevTool::provider.astory.tags.engine-native"),
+			VITR("ASEDevTool::provider.astory.tags.script"),
+			VITR("ASEDevTool::provider.astory.tags.arknights")
 		}));
 	// Constructor implementation
 }

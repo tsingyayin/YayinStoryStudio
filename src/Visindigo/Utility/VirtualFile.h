@@ -1,6 +1,6 @@
 #pragma once
 #include <QtCore/qstring.h>
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 // Forward declarations
 class QByteArray;
 namespace Visindigo::Utility {

@@ -12,7 +12,7 @@
 #include "../FileEditorArea.h"
 #include <General/YSSLogger.h>
 #include "YayinStoryStudio.h"
-
+#include <Widgets/PluginManageWidget.h>
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID(); \
 	YSSCore::Editor::DebugServer* ds = YSSDSM->getDebugServer(debugServerID); \
@@ -65,6 +65,24 @@ namespace YSS::Editor {
 	void Menu_File_ProgramOptions::backToHome() {
 		yDebugF << "Back to Home";
 		YSS::GlobalValue::getMainWindow()->backToProjectWin();
+	}
+
+	void Menu_File_ProgramOptions::pluginAndPreferences() {
+		yDebugF << "Plugin and Preference";
+		auto widget = new Visindigo::Widgets::PluginManageWidget();
+		widget->setAttribute(Qt::WA_DeleteOnClose);
+		widget->setWindowModality(Qt::ApplicationModal);
+		widget->show();
+	}
+
+	void Menu_File_ProgramOptions::about() {
+		yDebugF << "About";
+		
+	}
+
+	void Menu_File_ProgramOptions::documentation() {
+		yDebugF << "Documentation";
+		
 	}
 
 	void Menu_File_ProgramOptions::exit() {

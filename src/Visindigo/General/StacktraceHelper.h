@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_StacktraceHelper_H
 #define Visindigo_General_StacktraceHelper_H
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include <QtCore/qlist.h>
 class QString;
 namespace Visindigo::General {

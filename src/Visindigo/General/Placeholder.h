@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_Placeholder_h
 #define Visindigo_General_Placeholder_h
-#include "../Macro.h"
+#include "../VICompileMacro.h"
 #include "General/PluginModule.h"
 class QString;
 namespace Visindigo::General {

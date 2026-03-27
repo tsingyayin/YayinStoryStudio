@@ -59,7 +59,9 @@ namespace Visindigo::General {
 		VIApplication(int& argc, char** argv, AppType appType = WidgetApp, bool changeWorkingDirToExeDir = true);
 		~VIApplication();
 		void setMainPlugin(Plugin* plugin);
+		Plugin* getMainPlugin() const;
 		void addDependencyPlugin(Plugin* plugin);
+		QList<Plugin*> getDependencyPlugins() const;
 		static void setEnvConfig(EnvKey key, const QVariant& value);
 		static QVariant getEnvConfig(EnvKey key);
 		void onException(const Exception& ex);

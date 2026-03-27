@@ -229,7 +229,8 @@ namespace Visindigo::General {
 
 		VIApplication类是Visindigo应用程序的基类，负责初始化和管理Visindigo的核心功能模块，如插件管理器和翻译管理器。
 
-		在使用Visindigo的任何功能之前，推荐首先创建VIApplication的实例。（确实部分功能不依赖VIApplication工作）
+		在使用Visindigo的任何功能之前，必须首先创建VIApplication的实例，并在start之前正确设置有效的MainPlugin。
+		如果MainPlugin无效，则应用程序将无法启动。
 		VIApplication类提供了多种应用程序类型的支持，包括控制台应用程序、GUI应用程序和Widget应用程序，分别
 		等同于Qt中的QCoreApplication、QGuiApplication和QApplication。
 
@@ -392,19 +393,49 @@ namespace Visindigo::General {
 		主插件是应用程序的核心逻辑所在，VIApplication会在启动过程中调用主插件的相关函数以初始化应用程序。
 		必须在调用start()函数之前设置主插件，如果在应用程序已经启动后调用此函数，将不会生效。
 
-		Visindigo允许用户不使用主插件，在start()函数前使用自由代码初始化自己的程序，
-		但这强烈不推荐，因为会破坏Visinidgo对于应用程序加载与释放逻辑的封装。
+		Visindigo不允许用户不使用主插件，因为部分程序配置和功能是通过主插件来实现的，
+		如果没有主插件，应用程序将无法正常运行。所以，也不建议在main函数中额外编写其他涉及
+		资源加载或初始化的代码，应该把这些逻辑放在主插件中实现，避免破坏逻辑封装。
 	*/
 	void VIApplication::setMainPlugin(Plugin* plugin) {
 		if (not d->started) {
 			d->MainPlugin = plugin;
+			d->MainPlugin->d->setPluginLoadType(Plugin::LoadType::MainPlugin);
+			d->MainPlugin->d->initializePluginFolder(getEnvConfig(ConfigPath).toString() + "/program");
+			PluginManager::getInstance()->loadDeactivatePluginList();
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		获取当前设置的主插件对象的指针。
+		如果尚未设置主插件，则返回nullptr。
+	*/
+	Plugin* VIApplication::getMainPlugin() const {
+		return d->MainPlugin;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		添加一个依赖插件。
+		\a plugin 指向依赖插件对象的指针。依赖插件必须继承自Visindigo::General::Plugin类。
+		依赖插件是主插件依赖的插件，VIApplication会在启动过程中先加载并启用这些依赖插件，然后再加载和启用主插件。
+		必须在调用start()函数之前添加依赖插件，如果在应用程序已经启动后调用此函数，将不会生效。
+		注意，添加依赖插件并不会自动将它们添加到主插件的依赖列表中，用户需要手动在主插件中调用Plugin::addDependency()函数来添加这些依赖关系。
+	*/
 	void VIApplication::addDependencyPlugin(Plugin* plugin) {
 		if (not d->started) {
 			d->DependencyPlugins.append(plugin);
 		}
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		获取当前设置的全部依赖插件对象的指针列表。
+		如果尚未添加任何依赖插件，则返回一个空列表。
+	*/
+	QList<Plugin*> VIApplication::getDependencyPlugins() const {
+		return d->DependencyPlugins;
 	}
 
 	/*!
@@ -416,7 +447,7 @@ namespace Visindigo::General {
 		此函数允许用户自定义应用程序的环境配置参数，如日志文件路径、插件文件路径等。
 		必须在创建VIApplication实例之前调用此函数，否则可能无法生效。
 
-		实际上在启动程序之后仍然会正确保存这些配置，但某些功能可能已经初始化完毕，无法应用新的配置。
+		实际上在启动程序之后仍然会正确保存这些配置，但某些功能在启动后不会重新应用新的配置。
 	*/
 	void VIApplication::setEnvConfig(EnvKey key, const QVariant& value) {
 		VIApplicationPrivate::EnvConfig.insert(key, value);
@@ -531,7 +562,7 @@ namespace Visindigo::General {
 	int VIApplication::start() {
 		try {
 			if (d->started) {
-				throw Exception(Exception::InternalError, "Application already started");
+				VI_Throw(Exception::InternalError, "Application already started");
 			}
 			d->started = true;
 			if (d->LoadingMessageHandler) {
@@ -539,6 +570,9 @@ namespace Visindigo::General {
 				qApp->processEvents();
 			}
 			auto start = std::chrono::high_resolution_clock::now();
+			if (not d->MainPlugin) {
+				VI_Throw(Exception::NullPointer, "Main plugin is not set. Please set a valid main plugin before starting the application.");
+			}
 
 			__Private__::VisindigoCore* corePlugin = new __Private__::VisindigoCore();
 			corePlugin->onPluginEnable();
@@ -555,15 +589,11 @@ namespace Visindigo::General {
 				d->LoadingMessageHandler->onLoadingMessage(QString("Dependency plugin %1 enabled").arg(dp->getPluginName()));
 			}
 
-			if (d->MainPlugin) {
-				d->MainPlugin->d->setPluginLoadType(Plugin::LoadType::MainPlugin);
-				d->MainPlugin->d->initializePluginFolder(getEnvConfig(ConfigPath).toString() + "/program");
-				d->MainPlugin->onPluginEnable();
-				if (d->LoadingMessageHandler) {
-					d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
-				}
+			d->MainPlugin->onPluginEnable();
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
 			}
-
+			
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
 				qApp->processEvents();

@@ -46,29 +46,28 @@
                 },
                 {
                     "ID": "programOptions",
-                    "Actions": [
-                        {
-                            "ID": "backToHome",
-                            "Name": "i18n:YSS::menu.file.backToHome",
-                            "Shortcut": [
-                                "Ctrl", "Shift", "H"
-                            ]
-                        },
-                        {
-                            "ID": "preferences",
-                            "Name": "i18n:YSS::menu.file.preferences",
-                            "Shortcut": [
-                                "Ctrl", ","
-                            ]
-                        },
-                        {
-                            "ID": "exit",
-                            "Name": "i18n:YSS::menu.file.exit",
-                            "Shortcut": [
-                                "Alt", "F4"
-                            ]
-                        }
-                    ]
+                  "Actions": [
+                    {
+                      "ID": "backToHome",
+                      "Name": "i18n:YSS::menu.file.backToHome"
+                    },
+                    {
+                      "ID": "pluginAndPreferences",
+                      "Name": "i18n:YSS::menu.file.pluginAndPreferences"
+                    },
+                    {
+                      "ID": "about",
+                      "Name": "i18n:YSS::menu.file.about"
+                    },
+                    {
+                      "ID": "documentation",
+                      "Name": "i18n:YSS::menu.file.documentation"
+                    },
+                    {
+                      "ID": "exit",
+                      "Name": "i18n:YSS::menu.file.exit"
+                    }
+                  ]
                 }
             ]
         },
@@ -208,73 +207,6 @@
                             "Shortcut": [
                                 "F5"
                             ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "ID": "view",
-            "Name": "i18n:YSS::menu.view.title",
-            "Actions": [
-                {
-                    "ID": "viewOptions",
-                    "Actions": [
-                        {
-                            "ID": "toggleFullScreen",
-                            "Name": "i18n:YSS::menu.view.toggleFullScreen",
-                            "Shortcut": [
-                                "F11"
-                            ]
-                        },
-                        {
-                            "ID": "toggleDevTools",
-                            "Name": "i18n:YSS::menu.view.toggleDevTools",
-                            "Shortcut": [
-                                "Ctrl", "Shift", "I"
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "ID": "extension",
-            "Name": "i18n:YSS::menu.extension.title",
-            "Actions": [
-                {
-                    "ID": "manageExtensions",
-                    "Actions": [
-                        {
-                            "ID": "manageInstalledExtensions",
-                            "Name": "i18n:YSS::menu.extension.manageInstalledExtensions"
-                        },
-                        {
-                            "ID": "installNewExtension",
-                            "Name": "i18n:YSS::menu.extension.installNewExtension"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "ID": "help",
-            "Name": "i18n:YSS::menu.help.title",
-            "Actions": [
-                {
-                    "ID": "helpOptions",
-                    "Actions": [
-                        {
-                            "ID": "documentation",
-                            "Name": "i18n:YSS::menu.help.documentation"
-                        },
-                        {
-                            "ID": "reportIssue",
-                            "Name": "i18n:YSS::menu.help.reportIssue"
-                        },
-                        {
-                            "ID": "about",
-                            "Name": "i18n:YSS::menu.help.about"
                         }
                     ]
                 }
