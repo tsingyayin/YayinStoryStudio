@@ -15,6 +15,20 @@ namespace YSS {
 		virtual void onTest() override;
 		static Main* getInstance();
 	};
+
+	class TestSerialization{
+		Q_GADGET;
+		Q_PROPERTY(int value1 MEMBER value1);
+		Q_PROPERTY(QString value2 MEMBER value2);
+		Q_PROPERTY(QStringList testList MEMBER testList);
+	public:
+		TestSerialization() {};
+		~TestSerialization() {};
+	public:
+		int value1;
+		QString value2;
+		QStringList testList;
+	};
 }
 
 #define YSSApp YSS::Main::getInstance()

@@ -16,6 +16,7 @@
 #include "../MenuBarHandler.h"
 #include <General/YSSLogger.h>
 #include <Utility/ColorTool.h>
+#include <General/TranslationHost.h>
 namespace YSS::Editor {
 	MainWin::MainWin() :QMainWindow() {
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
@@ -100,6 +101,7 @@ namespace YSS::Editor {
 			saveProject();
 		}
 		asked = false;
+		this->deleteLater();
 	}
 
 	void MainWin::hideEvent(QHideEvent* event) {
@@ -115,20 +117,12 @@ namespace YSS::Editor {
 		Menu->setActionHandler(new YSS::Editor::MenuActionHandler(this));
 		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json"));
 		this->setMenuBar(Menu);
-		Menu->setStyleSheet("QMenuBar{border: 1px solid white}\
-			QMenu{margin:10px;border: 1px solid " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("OutlineLight")) % ";border-radius:5px;}\
-			QMenu::item:selected{background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Pressed")) % "; color: " 
-			% Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Text")) % ";border-radius:5px;}\
-			QMenuBar::item:selected{background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Pressed")) % "; color: " 
-			% Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Text")) % ";}\
-			QMenu::separator{height:1px;background:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Pressed")) % ";margin-left:5px;margin-right:5px;}\
-");
 	}
 
 	bool MainWin::checkProjectNeedToSave() {
 		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
-		QMessageBox::StandardButton result = QMessageBox::question(this, "Save Project",
-			"Do you want to save the project \"" % project->getProjectName() % "\" before closing?",
+		QMessageBox::StandardButton result = QMessageBox::question(this, VITR("YSS::project.saveQuestion.title"),
+			VITR("YSS::project.saveQuestion.text").arg(project->getProjectName()),
 			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
 			QMessageBox::Yes);
 		if (result == QMessageBox::Cancel) {

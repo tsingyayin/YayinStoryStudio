@@ -167,6 +167,8 @@ namespace Visindigo::General {
 
 		VIApplication::AppType AppType;
 		void* AppInstance;
+		Visindigo::__Private__::VisindigoCore* CorePlugin;
+		Visindigo::__Private__::VisindigoWidgets* WidgetsPlugin;
 		Plugin* MainPlugin;
 		bool started = false;
 		ApplicationLoadingMessageHandler* LoadingMessageHandler = nullptr;
@@ -190,6 +192,8 @@ namespace Visindigo::General {
 			由于程序会扫描整个PluginFolderPath目录来加载插件，因此不建议把这个目录设为PluginFolderPath的子目录，可能会影响插件加载性能。
 		\value MinimumLoadingTimeMS 最小加载时间（毫秒），这个停留时间有助于显示一段时间的程序Logo。类型为qint, 默认值为3000。
 		\value UseVirtualTerminal 是否使用虚拟终端，类型为bool，默认值为false。
+		\value TerminalAutoShow 是否自动显示虚拟终端，类型为bool，默认值为false。仅当UseVirtualTerminal为true时有效。
+			如果为true，则在应用程序启动时会自动显示虚拟终端窗口；如果为false，则需要用户手动调用VIApplication::getVirtualTerminal()->show()来显示虚拟终端窗口。
 		\value ThemeFolderPath 主题文件夹路径，类型为QString，默认值为"./user_data/themes"。
 		\value SaveCommandHistory 是否保存命令历史，类型为bool，默认值为false。
 	*/
@@ -201,6 +205,7 @@ namespace Visindigo::General {
 			{VIApplication::ConfigPath, "./user_data/config"},
 			{VIApplication::MinimumLoadingTimeMS, 3000},
 			{VIApplication::UseVirtualTerminal, false},
+			{VIApplication::TerminalAutoShow, false},
 			{VIApplication::ThemeFolderPath, "./user_data/themes"},
 			{VIApplication::SaveCommandHistory, false},
 	};
@@ -325,7 +330,9 @@ namespace Visindigo::General {
 		}
 		if (VIApplication::getEnvConfig(VIApplication::UseVirtualTerminal).toBool()) {
 			d->VirtualTerminal = new Widgets::Terminal();
-			d->VirtualTerminal->show();
+			if (VIApplication::getEnvConfig(VIApplication::TerminalAutoShow).toBool()) {
+				d->VirtualTerminal->show();
+			}
 		}
 		vgDebug << ("\033[38;2;237;28;36m===================================================================\033[0m");
 		vgDebug << ("\033[38;2;234;54;128m╮ ╭\t─┬─\t╭──\t─┬─\t╭╮╭\t┌─╮\t─┬─\t╭─╮\t╭─╮\033[0m");

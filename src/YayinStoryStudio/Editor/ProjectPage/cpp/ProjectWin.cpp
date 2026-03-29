@@ -111,8 +111,8 @@ namespace YSS::ProjectPage {
 		}
 		if (GlobalValue::getCurrentProject() != nullptr) {
 			GlobalValue::getMainWindow()->show();
-			this->deleteLater();
 		}
+		this->deleteLater();
 	}
 
 	void ProjectWin::resizeEvent(QResizeEvent* event) {

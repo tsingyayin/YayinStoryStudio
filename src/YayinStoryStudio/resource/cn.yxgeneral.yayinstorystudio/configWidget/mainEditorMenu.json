@@ -46,28 +46,32 @@
                 },
                 {
                     "ID": "programOptions",
-                  "Actions": [
-                    {
-                      "ID": "backToHome",
-                      "Name": "i18n:YSS::menu.file.backToHome"
-                    },
-                    {
-                      "ID": "pluginAndPreferences",
-                      "Name": "i18n:YSS::menu.file.pluginAndPreferences"
-                    },
-                    {
-                      "ID": "about",
-                      "Name": "i18n:YSS::menu.file.about"
-                    },
-                    {
-                      "ID": "documentation",
-                      "Name": "i18n:YSS::menu.file.documentation"
-                    },
-                    {
-                      "ID": "exit",
-                      "Name": "i18n:YSS::menu.file.exit"
-                    }
-                  ]
+                    "Actions": [
+                        {
+                            "ID": "backToHome",
+                            "Name": "i18n:YSS::menu.file.backToHome"
+                        },
+                        {
+                            "ID": "pluginAndPreferences",
+                            "Name": "i18n:YSS::menu.file.pluginAndPreferences"
+                        },
+                        {
+                            "ID": "terminal",
+                            "Name": "i18n:YSS::menu.file.terminal"
+                        },
+                        {
+                            "ID": "about",
+                            "Name": "i18n:YSS::menu.file.about"
+                        },
+                        {
+                            "ID": "documentation",
+                            "Name": "i18n:YSS::menu.file.documentation"
+                        },
+                        {
+                            "ID": "exit",
+                            "Name": "i18n:YSS::menu.file.exit"
+                        }
+                    ]
                 }
             ]
         },

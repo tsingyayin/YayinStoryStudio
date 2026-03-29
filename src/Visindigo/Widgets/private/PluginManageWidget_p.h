@@ -2,6 +2,7 @@
 #define Visindigo_Widgets_PluginManageWidget_p_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
+
 class QLabel;
 class QCheckBox;
 class QPushButton;
@@ -11,6 +12,7 @@ class QVBoxLayout;
 namespace Visindigo::General {
 	class Plugin;
 }
+
 namespace Visindigo::__Private__ {
 	class Divider :public QFrame {
 		Q_OBJECT;

@@ -202,9 +202,6 @@
     <ClInclude Include="Utility\Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\JsonConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\JsonDocument.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -442,6 +439,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\PluginManageWidget_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Utility\JsonConfig.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

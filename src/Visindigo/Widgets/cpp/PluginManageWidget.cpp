@@ -12,6 +12,7 @@
 #include "Utility/FileUtility.h"
 #include "General/Log.h"
 #include <QtCore/qdir.h>
+#include <QtWidgets/qscrollbar.h>
 
 namespace Visindigo::__Private__ {
 	Divider::Divider(const QString& title, const QString& description, QWidget* parent) : QFrame(parent)
@@ -153,6 +154,7 @@ namespace Visindigo::Widgets {
 		d->ScrollAreaLayout->setAlignment(Qt::AlignTop);
 		d->ScrollAreaWidget->setLayout(d->ScrollAreaLayout);
 		d->ScrollArea->setWidget(d->ScrollAreaWidget);
+		d->ScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		this->setMinimumSize(500, 600);
 		refreshPluginList();
 	}
@@ -263,7 +265,11 @@ namespace Visindigo::Widgets {
 			d->EmptyLabels.append(emptyLabel);
 			d->ScrollAreaLayout->addWidget(emptyLabel);
 		}
+		
 		d->ScrollAreaWidget->setFixedHeight(d->ScrollAreaLayout->sizeHint().height());
+		d->ScrollAreaWidget->setFixedWidth(this->width() - d->ScrollArea->verticalScrollBar()->width());
+		d->ScrollArea->setGeometry(0, 0, this->width(), this->height());
+		
 	}
 
 	PluginManageWidget::~PluginManageWidget()

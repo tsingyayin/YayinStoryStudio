@@ -11,6 +11,8 @@
 #include "General/Log.h"
 #include "Utility/Console.h"
 #include "General/CommandHost.h"
+#include "General/TranslationHost.h"
+
 namespace Visindigo::__Private__ {
 	TerminalPrivate::TerminalPrivate()
 		: QObject(nullptr) {
@@ -92,7 +94,9 @@ namespace Visindigo::Widgets {
 
 	Terminal::Terminal(QWidget* parent)
 		: QFrame(parent), d(new Visindigo::__Private__::TerminalPrivate) {
+		this->setWindowTitle("Visindigo Terminal");
 		this->setMinimumSize(800, 600);
+		QFont font("Cascadia Mono");
 		d->consoleView = new QTextBrowser(this); 
 		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
 		connect(Visindigo::General::LoggerManager::getInstance(), &Visindigo::General::LoggerManager::logReceived, 
@@ -104,7 +108,9 @@ namespace Visindigo::Widgets {
 			});
 		d->inputLine = new QLineEdit(this);
 		d->inputLine->installEventFilter(d);
-		d->sendButton = new QPushButton(tr("Send"), this);
+		d->consoleView->setFont(font);
+		d->inputLine->setFont(font);
+		d->sendButton = new QPushButton("OK", this);
 		d->layout = new QGridLayout(this);
 		d->layout->addWidget(d->consoleView, 0, 0, 1, 2);
 		d->layout->addWidget(d->inputLine, 1, 0);
@@ -124,13 +130,8 @@ namespace Visindigo::Widgets {
 				d->inputLine->clear();
 			}
 		});
-
-		this->setStyleSheet("\
-				QWidget{color: #FFFFFF;background-color: #000000}\
-			");
-		QFont font("Cascadia Mono");
-		d->consoleView->setFont(font);
-		d->inputLine->setFont(font);
+		
+		
 		vgDebug << "Terminal initialized.";
 	}
 

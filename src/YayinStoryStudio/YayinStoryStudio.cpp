@@ -11,7 +11,7 @@
 #include <General/VIApplication.h>
 #include "Editor/YSSCommandHandler.h"
 #include "Editor/YSSTranslator.h"
-
+#include <General/Log.h>
 namespace YSS {
 	Main* Main::Instance = nullptr;
 

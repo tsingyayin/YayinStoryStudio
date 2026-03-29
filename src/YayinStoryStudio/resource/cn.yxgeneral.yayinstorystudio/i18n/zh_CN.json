@@ -56,7 +56,11 @@
 			"InvaildConfig":"项目配置无效，缺少必要的字段或字段类型不正确。",
 			"UnknownError":"发生未知错误，无法打开项目。"
 		},
-		"news": "这里应该有一些关于Yayin Story Studio的最新消息，但现在暂时还没实现。"
+		"news": "这里应该有一些关于Yayin Story Studio的最新消息，但现在暂时还没实现。",
+		"saveQuestion": {
+			"title": "要关闭程序吗？",
+			"text": "您的项目%1已经发生修改，且还未保存。是否要保存项目？"
+		}
 	},
 	"menu": {
 		"file": {
@@ -67,6 +71,7 @@
 			"saveAll": "全部保存",
 			"saveAs": "另存为",
 			"backToHome": "返回首页",
+			"terminal": "终端",
 			"pluginAndPreferences": "插件和首选项",
 			"exit": "退出",
 			"documentation": "文档",

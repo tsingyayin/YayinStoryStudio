@@ -50,6 +50,7 @@ namespace Visindigo::General {
 			ConfigPath,
 			MinimumLoadingTimeMS,
 			UseVirtualTerminal,
+			TerminalAutoShow,
 			ThemeFolderPath,
 			SaveCommandHistory,
 		};

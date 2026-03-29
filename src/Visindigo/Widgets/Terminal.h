@@ -6,6 +6,9 @@ namespace Visindigo::__Private__ {
 	class TerminalPrivate;
 }
 namespace Visindigo::Widgets {
+	/* IMPORTANT NOTICE :
+		This widget will be changed in Visindigo 0.14.0.
+	*/
 	class VisindigoAPI Terminal :public QFrame {
 		Q_OBJECT;
 	public:

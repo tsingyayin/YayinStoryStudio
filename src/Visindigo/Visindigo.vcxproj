@@ -358,7 +358,7 @@
     <ClInclude Include="General\Version.h" />
     <ClInclude Include="Utility\Console.h" />
     <ClInclude Include="Utility\ExtTool.h" />
-    <ClInclude Include="Utility\JsonConfig.h" />
+    <QtMoc Include="Utility\JsonConfig.h" />
     <ClInclude Include="Utility\JsonDocument.h" />
     <ClInclude Include="Utility\JsonValueRef.h" />
   </ItemGroup>

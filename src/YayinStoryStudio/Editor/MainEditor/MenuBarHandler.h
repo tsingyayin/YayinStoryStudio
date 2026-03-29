@@ -22,6 +22,7 @@ namespace YSS::Editor {
 		SubNodes{};
 	public slots:
 		void backToHome();
+		void terminal();
 		void pluginAndPreferences();
 		void about();
 		void documentation();

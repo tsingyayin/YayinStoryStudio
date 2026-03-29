@@ -117,6 +117,7 @@ namespace YSS::NewFilePage {
 		}
 	}
 	void NewFileWin::closeEvent(QCloseEvent* event) {
+		this->deleteLater();
 	}
 	void NewFileWin::resizeEvent(QResizeEvent* event) {
 		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() - FileTemplateArea->verticalScrollBar()->width());

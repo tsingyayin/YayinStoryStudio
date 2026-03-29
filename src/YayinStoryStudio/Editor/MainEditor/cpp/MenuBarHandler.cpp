@@ -2,7 +2,6 @@
 #include <QtWidgets/qfiledialog.h>
 #include <General/YSSProject.h>
 #include <Editor/FileServerManager.h>
-#include <Utility/JsonConfig.h>
 #include <Editor/DebugServer.h>
 #include <Editor/DebugServerManager.h>
 #include "../MenuBarHandler.h"
@@ -11,8 +10,10 @@
 #include "../ResourceBrowser.h"
 #include "../FileEditorArea.h"
 #include <General/YSSLogger.h>
-#include "YayinStoryStudio.h"
 #include <Widgets/PluginManageWidget.h>
+#include <General/VIApplication.h>
+#include <Widgets/Terminal.h>
+
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID(); \
 	YSSCore::Editor::DebugServer* ds = YSSDSM->getDebugServer(debugServerID); \
@@ -67,6 +68,12 @@ namespace YSS::Editor {
 		YSS::GlobalValue::getMainWindow()->backToProjectWin();
 	}
 
+	void Menu_File_ProgramOptions::terminal() {
+		auto terminal = VIApp->getVirtualTerminal();
+		if (terminal) { 
+			terminal->show();
+		}
+	}
 	void Menu_File_ProgramOptions::pluginAndPreferences() {
 		yDebugF << "Plugin and Preference";
 		auto widget = new Visindigo::Widgets::PluginManageWidget();

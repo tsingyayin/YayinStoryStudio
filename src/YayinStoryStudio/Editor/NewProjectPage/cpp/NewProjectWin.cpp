@@ -116,6 +116,7 @@ namespace YSS::NewProjectPage {
 		}
 	}
 	void NewProjectWin::closeEvent(QCloseEvent* event) {
+		this->deleteLater();
 	}
 	void NewProjectWin::resizeEvent(QResizeEvent* event) {
 		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() - ProjectTemplateArea->verticalScrollBar()->width());
