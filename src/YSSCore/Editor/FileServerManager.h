@@ -29,6 +29,8 @@ namespace YSSCore::Editor {
 		QStringList getSupportedFileExts();
 		QStringList getAvailableFileServerForFileExt(const QString& fileExt);
 		void setPriorityForFileExt(const QString& fileExt, const QStringList& serverIds);
+		void setEspeciallyFocusEnable(const QString& fileExt, bool enable);
+		bool isEspeciallyFocusEnable(const QString& fileExt);
 	private:
 		FileServerManagerPrivate* d;
 	};

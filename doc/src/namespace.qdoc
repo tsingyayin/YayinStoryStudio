@@ -45,3 +45,27 @@
 
 	所有 YSSCore 中面向编辑器的组件都在此命名空间下。
 */
+
+/*!
+	\inmodule ASERStudio
+	\namespace ASERStudio
+	\brief ASER Studio 模块根命名空间
+
+	所有 ASER Studio 组件均在此命名空间下。
+*/
+
+/*!
+	\inmodule ASERStudio
+	\namespace ASERStudio::AStorySyntax
+	\brief ASER Studio 中有关AStoryX但无关ASE-Remake的组件命名空间
+
+	所有 ASER Studio 中有关AStoryX但无关ASE-Remake的组件都在此命名空间下。
+*/
+
+/*!
+	\inmodule ASERStudio
+	\namespace ASERStudio::ASEREnv
+	\brief ASER Studio 中有关ASE-Remake但无关AStoryX的组件命名空间
+
+	所有 ASER Studio 中有关ASE-Remake但无关AStoryX的组件都在此命名空间下。
+*/

@@ -46,8 +46,8 @@ namespace YSS {
 	void Main::onApplicationInit() {
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
-		YSS::Editor::MainWin* mainWin = new YSS::Editor::MainWin();
-		GlobalValue::setMainWindow(mainWin);
+		//YSS::TestDragWidget* tw = new YSS::TestDragWidget();
+		//tw->show();
 	}
 
 	void Main::onPluginDisable() {
@@ -65,5 +65,25 @@ namespace YSS {
 
 	Main* Main::getInstance() {
 		return Instance;
+	}
+
+	TestDragWidget::TestDragWidget(QWidget* parent):QWidget(parent) {
+		DragArea = new Visindigo::Widgets::DragWidget(this);
+		Label1 = new QLabel("Test1", this);
+		Label2 = new QLabel("Test2", this);
+		Label3 = new QLabel("Test3", this);
+		Label4 = new QLabel("Test4", this);
+		DragArea->addWidget(Label1);
+		DragArea->addWidget(Label2);
+		DragArea->addWidget(Label3);
+		DragArea->addWidget(Label4);
+		this->setStyleSheet(R"(
+	QWidget{
+		border: 1px solid white;
+	}
+)");
+	}
+	void TestDragWidget::resizeEvent(QResizeEvent* event) {
+		DragArea->setGeometry(0, 0, width(), height());
 	}
 }

@@ -1,0 +1,23 @@
+由ASERStudio自动生成的剧情文件
+#useRule:BaseRule
+#version:2
+
+#aliases
+tianyu->天雨
+#endaliases
+
+背景：经典走廊
++2
+遮罩：1
+--tianyu:0/0
+天雨	看上去你成功创建了一个新的ASE-Remake剧情文件。
+--tianyu:1/0
+天雨	你可以在这里编写你的剧情内容了。
+--无/0
+ 
++2
+背景：无
+
+// 此文件由ASE Dev Tool自动生成，从短横线行到本注释上方为您
+// 的剧情内容。请勿删除短横线行以及其上方的首行内容，这是AStory
+// 语法要求的文件头信息。

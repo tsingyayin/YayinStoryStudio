@@ -1,7 +1,6 @@
 #include "../GlobalValue.h"
 #include "YayinStoryStudio.h"
 #include <Utility/JsonConfig.h>
-#include <Utility/PathMacro.h>
 #include <Widgets/ThemeManager.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qfile.h>
@@ -14,11 +13,7 @@ namespace YSS {
 	GlobalValue::GlobalValue() {
 		Instance = this;
 		yMessageF << "Program global value initializing";
-		PathMacro = new Visindigo::Utility::PathMacro();
 		ySuccessF << "Program global value initialized !";
-		//PluginManager = new YSSCore::Editor::EditorPluginManager();
-		//PluginManager->loadAllPlugin();
-		//PluginManager->enableAllPlugin();
 	}
 	GlobalValue::~GlobalValue() {
 		// Nothing to do
@@ -38,13 +33,6 @@ namespace YSS {
 			Instance = new GlobalValue();
 		}
 		return Instance;
-	}
-
-	void GlobalValue::setMainWindow(YSS::Editor::MainWin* mainWindow) {
-		Instance->MainWindow = mainWindow;
-	}
-	YSS::Editor::MainWin* GlobalValue::getMainWindow() {
-		return Instance->MainWindow;
 	}
 
 	void GlobalValue::setCurrentProject(YSSCore::General::YSSProject* project) {

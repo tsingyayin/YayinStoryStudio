@@ -16,7 +16,7 @@
 					"title": "i18n:ASEDevTool::provider.project.path.title",
 					"text": "i18n:ASEDevTool::provider.project.path.text",
 					"data": {
-						"default": "$(ProgramPath)/resource/repos",
+						"default": "$(visindigo::programPath)/user_data/repos",
 						"isFolder": true
 					}
 				},

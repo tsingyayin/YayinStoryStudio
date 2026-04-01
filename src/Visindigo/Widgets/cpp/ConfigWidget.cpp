@@ -11,14 +11,13 @@
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qfiledialog.h>
 #include "../private/ConfigWidget_p.h"
-#include "../../Utility/PathMacro.h"
 #include "../../Widgets/MultiLabel.h"
 #include "../../General/Log.h"
 #include "../ThemeManager.h"
 #include <QtWidgets/qtextedit.h>
 #include <QtGui/qcolor.h>
 #include <QtWidgets/qcolordialog.h>
-
+#include "General/Placeholder.h"
 namespace Visindigo::__Private__ {
 	ConfigWidgetPrivate::ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self) {
 		this->self = self;
@@ -34,7 +33,7 @@ namespace Visindigo::__Private__ {
 	void ConfigWidgetPrivate::loadCWJson(const QString& json) {
 		Visindigo::Utility::JsonConfig cwJson;
 		cwJson.parse(json);
-		TargetConfigPath = YSSPathMacro(cwJson.getString("target"));
+		TargetConfigPath = VIPlaceholder(cwJson.getString("target"));
 		TargetConfigNode = cwJson.getString("targetNode");
 		if (!SettingsWidget.isEmpty()) {
 			for (QWidget* w : SettingsWidget) {
@@ -281,9 +280,8 @@ namespace Visindigo::__Private__ {
 		QString defaultValue = config.getString("default");
 		connect(LineEdit, &QLineEdit::textChanged, this, &ConfigWidgetPrivate::onLineEditTextChanged);
 		if (config.contains("isFolder") || config.contains("isFile")) {
-			vgDebugF << YSSPathMacro(defaultValue);
-			LineEdit->setText(YSSPathMacro(defaultValue));
-			LineEditDefault.insert(LineEdit, YSSPathMacro(defaultValue));
+			LineEdit->setText(VIPlaceholder(defaultValue));
+			LineEditDefault.insert(LineEdit, VIPlaceholder(defaultValue));
 			QFrame* container = new QFrame();
 			QHBoxLayout* layout = new QHBoxLayout(container);
 			LineEdit->setParent(container);
@@ -294,7 +292,7 @@ namespace Visindigo::__Private__ {
 			connect(selectButton, &QPushButton::clicked, [=]() {
 				QString folder = QFileDialog::getExistingDirectory(container,
 					VITR("Visindigo::general.selectFolder"),
-					YSSPathMacro(defaultValue),
+					VIPlaceholder(defaultValue),
 					QFileDialog::ShowDirsOnly
 					);
 				if (!folder.isEmpty()) {
@@ -516,7 +514,7 @@ namespace Visindigo::Widgets {
 		调用此函数后CWJson中关于target和targetNode的设置将不再生效，但也不会被改写。
 	*/
 	void ConfigWidget::setTargetConfig(const QString& path, const QString& node, const QString& fileType) {
-		d->TargetConfigPath = YSSPathMacro(path);
+		d->TargetConfigPath = VIPlaceholder(path);
 		d->TargetConfigNode = node;
 		d->initConfig();
 	}

@@ -12,6 +12,7 @@ namespace YSSCore::Editor {
 		QList<FileServer*> FileServers;
 		QMap<QString, QList<FileServer*>> FileServerMap;
 		QMap<QString, QList<FileServer*>> FileServerPriorityMap;
+		QMap<QString, bool> EspeciallyFocusEnableMap;
 		static FileServerManager* Instance;
 
 		bool openFile(const QString& filePath, FileServer* server) {
@@ -181,9 +182,13 @@ namespace YSSCore::Editor {
 		\since Visindgo 0.13.0
 		打开一个文件。如果有合适的FileServer注册，则使用该FileServer打开文件，否则使用内置的文本编辑器打开文件。
 		\a filePath 要打开的文件路径。
-		\a preferredServerId 优先使用的FileServer ID。如果该参数不为空，则FileServerManager会优先尝试该FileServer打开文件。
+		\a preferredServerId 优先使用的FileServer ID。
 		\a useFallback 是否在没有任何FileServer成功打开文件时使用内置文本编辑器打开文件。默认为true。
 		如果文件成功打开则返回true，否则返回false.
+
+		如果存在优先使用的FileServerID且该FileServer成功打开文件，则会优先使用该FileServer。
+		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
+		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		QString ext = QFileInfo(filePath).suffix();
@@ -200,7 +205,27 @@ namespace YSSCore::Editor {
 						break;
 					}
 				}
-				servers.prepend(server);
+				if (server) {
+					if (d->openFile(filePath, server)) {
+						return true;
+					}
+				}
+			}
+			if (isEspeciallyFocusEnable(ext)) {
+				qint64 especiallyFocus = -1;
+				FileServer* especiallyFocusServer = nullptr;
+				for (auto server : servers) {
+					int currentFocus = server->especiallyFocusFile(filePath);
+					if (currentFocus > 0 && currentFocus > especiallyFocus) {
+						especiallyFocus = currentFocus;
+						especiallyFocusServer = server;
+					}
+				}
+				if (especiallyFocusServer) {
+					if (d->openFile(filePath, especiallyFocusServer)) {
+						return true;
+					}
+				}
 			}
 			for (auto server : servers) {
 				if (d->openFile(filePath, server)) {
@@ -265,5 +290,28 @@ namespace YSSCore::Editor {
 				}
 			}
 		}
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		启用或禁用某种文件类型的特别关注强度功能。
+		\a fileExt 文件类型后缀名（不含点号）。
+		\a enable 是否启用特别关注强度功能。默认为true。
+	*/
+	void FileServerManager::setEspeciallyFocusEnable(const QString& fileExt, bool enable) {
+		d->EspeciallyFocusEnableMap[fileExt] = enable;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		检查某种文件类型的特别关注强度功能是否启用。
+		\a fileExt 文件类型后缀名（不含点号）。
+		\a 返回某种文件类型的特别关注强度功能是否启用。
+	*/
+	bool FileServerManager::isEspeciallyFocusEnable(const QString& fileExt) {
+		if (d->EspeciallyFocusEnableMap.contains(fileExt)) {
+			return d->EspeciallyFocusEnableMap[fileExt];
+		}
+		return true; // default enable
 	}
 }

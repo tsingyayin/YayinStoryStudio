@@ -340,15 +340,17 @@ namespace Visindigo::General {
 		vgDebug << ("\033[38;2;115;43;235m ╰╯\t─┴─\t──╯\t─┴─\t╯╰╯\t└─╯\t─┴─\t╰─╯\t╰─╯\033[0m");
 		vgDebug << ("   \t   \t———\t  流\t   \t清  \t———\t   \t   \t");
 		vgDebug << ("\033[38;2;50;130;246m===================================================================\033[0m");
-		vgDebug << ("\033[38;2;234;54;128mVisindigo \033[0m" + General::Version::getABIVersion().toString() + " \"" + QString(Visindigo_VERSION_NICKNAME) + "\"" +
+		vgDebug << "\033[38;2;234;54;128mABI" << General::Version::getABIVersion().toString() << "API" 
+			<< General::Version::getAPIVersion().toString() << 
 #ifdef QT_DEBUG
-			" \033[38;2;255;253;85m[DEBUG compilation mode]\033[0m");
+			"\033[38;2;255;253;85m[DEBUG compilation mode]\033[0m";
 #else
-			" \033[38;2;255;253;85m[RELEASE compilation mode]\033[0m");
+			"\033[38;2;255;253;85m[RELEASE compilation mode]\033[0m";
 #endif
-		Utility::Console::print("\033[38;2;234;63;247mVersion Compilation Time \033[0m: \033[38;2;255;253;85m" + QString(Visindigo_VERSION_BUILD_DATE) + " " + QString(Visindigo_VERSION_BUILD_TIME) + " [" + QSysInfo::buildCpuArchitecture() + "]\033[0m");
-		Utility::Console::print(Utility::Console::inWarningStyle("Working Path: ") + Utility::Console::inNoticeStyle(QDir::currentPath()));
-		Utility::Console::print("Hello, " + QDir::home().dirName() + "! Welcome to Visindigo!");
+		vgDebug << "\033[38;2;234;63;247mVersion Compilation Time \033[0m: \033[38;2;255;253;85m" << QString(Visindigo_VERSION_BUILD_DATE) << 
+			QString(Visindigo_VERSION_BUILD_TIME) << "[" << QSysInfo::buildCpuArchitecture() << "]\033[0m";
+		vgDebug << Utility::Console::inWarningStyle("Working Path: ") << Utility::Console::inNoticeStyle(QDir::currentPath());
+		vgDebug << "Hello," << QDir::home().dirName() << "! Welcome to Visindigo!";
 		PluginManager::getInstance(); // Initialize PluginManager
 		TranslationHost::getInstance(); // Initialize TranslationHost
 
@@ -356,14 +358,14 @@ namespace Visindigo::General {
 
 		connect(PluginManager::getInstance(), &PluginManager::pluginLoaded, [this](Plugin* plugin) {
 				if (d->LoadingMessageHandler) {
-					d->LoadingMessageHandler->onLoadingMessage(QString("Plugin %1 loaded").arg(plugin->getPluginName()));
+					d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.loaded").arg(plugin->getPluginName()));
 					qApp->processEvents();
 				}
 			});
 
 		connect(PluginManager::getInstance(), &PluginManager::pluginEnabled, [this](Plugin* plugin) {
 				if (d->LoadingMessageHandler) {
-					d->LoadingMessageHandler->onLoadingMessage(QString("Plugin %1 enabled").arg(plugin->getPluginName()));
+					d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.enabled").arg(plugin->getPluginName()));
 					qApp->processEvents();
 				}
 			});

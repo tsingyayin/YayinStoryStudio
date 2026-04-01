@@ -65,9 +65,6 @@
     <ClCompile Include="General\cpp\TranslationHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\PathMacro.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\cpp\VirtualFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -197,6 +194,9 @@
     <ClCompile Include="Widgets\cpp\PluginManageWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\DragWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -227,9 +227,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\Translator_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\PathMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\VirtualFile.h">
@@ -442,6 +439,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Utility\JsonConfig.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\private\DragWidget_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

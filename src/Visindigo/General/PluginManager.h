@@ -71,4 +71,4 @@ namespace Visindigo::General {
 }
 #endif // Visindigo_General_PluginManager_H
 
-#define VISPM Visindigo::General::PluginManager::getInstance()
+#define VIPLM Visindigo::General::PluginManager::getInstance()

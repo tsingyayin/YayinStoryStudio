@@ -25,6 +25,7 @@ namespace YSSCore::Editor {
 		virtual ~FileServer();
 		EditorType getEditorType();
 		QStringList getSupportedFileExts();
+		virtual qint64 especiallyFocusFile(const QString& filePath);
 		virtual FileEditWidget* onCreateFileEditWidget();
 		virtual QWidget* onCreateWindowEditor(const QString& filePath);
 		virtual bool onCreateExternalEditor(const QString& filePath);

@@ -35,4 +35,8 @@ namespace Visindigo::General {
 		PlaceholderManagerPrivate* d;
 	};
 }
+
+#define VIPM Visindigo::General::PlaceholderManager::getInstance()
+#define VIPlaceholder(str) VIPM->requestPlaceholder(str)
+
 #endif // Visindigo_General_Placeholder_h

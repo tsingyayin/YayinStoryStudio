@@ -535,7 +535,7 @@ namespace Visindigo::Utility {
 		\a key 为键。
 		获取Json对象的整数值。
 	*/
-	qint64 JsonConfig::getInt(const QString& key, bool* ok)
+	qint64 JsonConfig::getInt(const QString& key, bool* ok) const
 	{
 		if (ok != nullptr) {
 			*ok = d->contains(key);
@@ -548,7 +548,7 @@ namespace Visindigo::Utility {
 		\a key 为键。
 		获取Json对象的字符串值。
 	*/
-	QString JsonConfig::getString(const QString& key, bool* ok)
+	QString JsonConfig::getString(const QString& key, bool* ok) const
 	{
 		if (ok != nullptr) {
 			*ok = d->contains(key);
@@ -560,7 +560,7 @@ namespace Visindigo::Utility {
 		\a key 为键。
 		获取Json对象的布尔值。
 	*/
-	bool JsonConfig::getBool(const QString& key, bool* ok)
+	bool JsonConfig::getBool(const QString& key, bool* ok) const
 	{
 		if (ok != nullptr) {
 			*ok = d->contains(key);
@@ -573,7 +573,7 @@ namespace Visindigo::Utility {
 		\a key 为键。
 		获取Json对象的浮点数值。
 	*/
-	double JsonConfig::getDouble(const QString& key, bool* ok)
+	double JsonConfig::getDouble(const QString& key, bool* ok) const
 	{
 		if (ok != nullptr) {
 			*ok = d->contains(key);
@@ -586,7 +586,7 @@ namespace Visindigo::Utility {
 		\a key 为键。
 		获取Json对象的子对象。
 	*/
-	JsonConfig JsonConfig::getObject(const QString& key, bool* ok)
+	JsonConfig JsonConfig::getObject(const QString& key, bool* ok) const
 	{
 		if (ok != nullptr) {
 			*ok = d->contains(key);
@@ -601,7 +601,7 @@ namespace Visindigo::Utility {
 		\a key 为键。
 		获取Json对象的数组。
 	*/
-	QList<JsonConfig> JsonConfig::getArray(const QString& key, bool* ok)
+	QList<JsonConfig> JsonConfig::getArray(const QString& key, bool* ok) const
 	{
 		if (ok != nullptr) {
 			*ok = d->contains(key);
@@ -621,7 +621,7 @@ namespace Visindigo::Utility {
 		\a key 为键。
 		获取Json对象的字符串列表。
 	*/
-	QStringList JsonConfig::getStringList(const QString& key, bool* ok)
+	QStringList JsonConfig::getStringList(const QString& key, bool* ok) const
 	{
 		if (ok != nullptr) {
 			*ok = d->contains(key);

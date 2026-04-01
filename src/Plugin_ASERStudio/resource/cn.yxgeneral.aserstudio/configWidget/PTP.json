@@ -1,0 +1,60 @@
+{
+	"windowTitle": "i18n:ASERStudio::provider.project.title",
+	"windowIcon": "icon.png",
+	"widget":[
+		{	
+			"node": "Project",
+			"type": "Frame",
+			"icon": "",
+			"title": "i18n:ASERStudio::provider.project.title",
+			"text": "",
+			"children":[
+				{
+					"node": "Path",
+					"type": "LineEdit",
+					"icon": "",
+					"title": "i18n:ASERStudio::provider.project.path.title",
+					"text": "i18n:ASERStudio::provider.project.path.text",
+					"data": {
+						"default": "$(visindigo::programPath)/user_data/repos",
+						"isFolder": true
+					}
+				},
+				{
+					"node": "Name",
+					"type": "LineEdit",
+					"icon": "",
+					"title": "i18n:ASERStudio::provider.project.name.title",
+					"text": "i18n:ASERStudio::provider.project.name.text",
+					"data": {
+						"default": "ASE Story Project"
+					}
+				},
+				{
+					"node": "Version",
+					"type": "ComboBox",
+					"icon": "",
+					"title": "i18n:ASERStudio::provider.project.version.title",
+					"text": "i18n:ASERStudio::provider.project.version.text",
+					"data": {
+						"comboBox": [
+							{
+								"data": "uptodate",
+								"key": "i18n:ASERStudio::provider.project.version.uptodate"
+							},
+							{
+								"data": "2.08.10.0",
+								"key": "2.08.10.0"
+							},
+							{
+								"data": "2.05.22.1A",
+								"key": "2.05.22.1A"
+							}
+						],
+						"default": "uptodate"
+					}
+				}
+			]	
+		}
+	]
+}

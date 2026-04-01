@@ -45,8 +45,6 @@
 
 	YSSCore 模块是 Yayin Story Studio 本体的核心模块，提供了 Yayin Story Studio 本体的基础功能。
 	要开发Yayin Story Studio的插件，就需要依赖此模块。
-
-
 */
 
 /*!
@@ -56,4 +54,18 @@
 	\since Yayin Story Studio 0.13.0
 
 	Yayin Story Studio 模块是 Yayin Story Studio 本体的主要模块，提供了 Yayin Story Studio 的主要功能。
+*/
+
+/*!
+	\module ASERStudio
+	\title ASE-Remake Studio 模块
+	\brief YSS重要插件，提供了ASE-Remake开发环境
+	\since Yayin Story Studio 0.13.0
+
+	ASE-Remake Studio模块是重要的Yayin Story Studio插件，提供了ASE-Remake开发环境，
+	允许用户在Yayin Story Studio中开发ASE-Remake项目。
+
+	ASERStudio模块也被设计用于在C++上提供对ASE-Ramake核心功能的访问，以及
+	对AStoryX脚本的解析。非Visindigo应用程序也可以使用ASERStudio的插件文件
+	作为动态链接库来访问这些功能。
 */

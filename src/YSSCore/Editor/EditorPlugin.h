@@ -9,6 +9,7 @@
 #define YSSPluginModule_FileServer "cn.yxgeneral.yss.fileserver"
 #define YSSPluginModule_ProjectTemplateProvider "cn.yxgeneral.yss.project_template_provider"
 #define YSSPluginModule_FileTemplateProvider "cn.yxgeneral.yss.file_template_provider"
+#define YSSPluginTypeID "YayinStoryStudio"
 
 // Forward declarations
 class QString;
@@ -42,6 +43,9 @@ namespace YSSCore::Editor {
 	public:
 		EditorPlugin(Visindigo::General::Version apiVersion = Compiled_VIAPI_Version, Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QObject* parent = nullptr);
 		virtual ~EditorPlugin();
+	public:
+		virtual void onProjectOpen(YSSCore::General::YSSProject* project) {};
+		virtual void onProjectClose(YSSCore::General::YSSProject* project) {};
 	protected:
 		void registerLangServer(LangServer* server);
 		void registerDebugServer(DebugServer* server);

@@ -109,9 +109,10 @@ namespace YSS::ProjectPage {
 			delete project;
 			project = nullptr;
 		}
-		if (GlobalValue::getCurrentProject() != nullptr) {
-			GlobalValue::getMainWindow()->show();
+		if (YSS::Editor::MainWin::getInstance() == nullptr) {
+			new YSS::Editor::MainWin();
 		}
+		YSS::Editor::MainWin::getInstance()->show();
 		this->deleteLater();
 	}
 

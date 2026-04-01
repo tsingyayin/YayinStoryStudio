@@ -47,19 +47,13 @@ namespace YSS::Editor {
 		CurrentState = state;
 		switch (state) {
 		case State::Normal:
-			this->setStyleSheet("QWidget{\
-				background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Normal.Background")) % ";\
-				color:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Normal.Text")) % "};");
+			
 			break;
 		case State::Focused:
-			this->setStyleSheet("QWidget{\
-				background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Focused.Background")) % ";\
-				color:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Focused.Text")) % "};");
+			
 			break;
 		case State::Pinned:
-			this->setStyleSheet("QWidget{\
-				background-color: " % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Pinned.Background")) % ";\
-				color:" % Visindigo::Utility::ColorTool::toColorString(VISTM->getColor("Editor.FileLabel.Pinned.Text")) % "};");
+			
 			break;
 		default:
 			break;

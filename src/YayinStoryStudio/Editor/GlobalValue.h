@@ -42,8 +42,6 @@ namespace YSS {
 		static QColor getColor(const QString& key);
 		static Visindigo::Utility::JsonConfig* getConfig();
 		static void saveConfig();
-		static void setMainWindow(YSS::Editor::MainWin* mainWindow);
-		static YSS::Editor::MainWin* getMainWindow();
 		static void setCurrentProject(YSSCore::General::YSSProject* project);
 		static YSSCore::General::YSSProject* getCurrentProject();
 	};

@@ -6,7 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryStudio", "src\YayinStoryStudio\YayinStoryStudio.vcxproj", "{2F0011CF-E80F-4A56-ADFD-6F7720A161AB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B} = {375CB1E5-8F3E-4B2B-B562-049DEEF2DE6B}
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646} = {83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02} = {4F8329D6-5B4F-4B3D-8314-34A31018FC02}
 		{8F08AE0A-238A-459C-9F7C-3CE15B4F7F20} = {8F08AE0A-238A-459C-9F7C-3CE15B4F7F20}
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41} = {A7BAE61B-D84E-410D-A68F-805E7E0BAF41}
 	EndProjectSection
@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSSCore", "src\YSSCore\YSSC
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VKCompute", "src\VKCompute\VKCompute.vcxproj", "{5E30872D-417E-4876-ACC2-0E703D92B5F8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ASERStudio", "src\Plugin_ASERStudio\Plugin_ASERStudio.vcxproj", "{4F8329D6-5B4F-4B3D-8314-34A31018FC02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -118,6 +120,14 @@ Global
 		{5E30872D-417E-4876-ACC2-0E703D92B5F8}.ExportRelease|x64.Build.0 = Release|x64
 		{5E30872D-417E-4876-ACC2-0E703D92B5F8}.Release|x64.ActiveCfg = Release|x64
 		{5E30872D-417E-4876-ACC2-0E703D92B5F8}.Release|x64.Build.0 = Release|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.Debug|x64.ActiveCfg = Debug|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.Debug|x64.Build.0 = Debug|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.ExportDebug|x64.ActiveCfg = Release|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.ExportDebug|x64.Build.0 = Release|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.ExportRelease|x64.ActiveCfg = Release|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.ExportRelease|x64.Build.0 = Release|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.Release|x64.ActiveCfg = Release|x64
+		{4F8329D6-5B4F-4B3D-8314-34A31018FC02}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

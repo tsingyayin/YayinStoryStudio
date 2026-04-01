@@ -1,6 +1,8 @@
 #pragma once
 #include <General/Package.h>
-
+#include <QtWidgets/qwidget.h>
+#include <QtWidgets/qlabel.h>
+#include <Widgets/DragWidget.h>
 namespace YSS {
 	class Main :public Visindigo::General::Package {
 		Q_OBJECT;
@@ -16,18 +18,17 @@ namespace YSS {
 		static Main* getInstance();
 	};
 
-	class TestSerialization{
-		Q_GADGET;
-		Q_PROPERTY(int value1 MEMBER value1);
-		Q_PROPERTY(QString value2 MEMBER value2);
-		Q_PROPERTY(QStringList testList MEMBER testList);
+	class TestDragWidget :public QWidget{
+		Q_OBJECT;
 	public:
-		TestSerialization() {};
-		~TestSerialization() {};
+		Visindigo::Widgets::DragWidget* DragArea;
+		QLabel* Label1;
+		QLabel* Label2;
+		QLabel* Label3;
+		QLabel* Label4;
 	public:
-		int value1;
-		QString value2;
-		QStringList testList;
+		TestDragWidget(QWidget* parent = nullptr);
+		virtual void resizeEvent(QResizeEvent* event) override;
 	};
 }
 

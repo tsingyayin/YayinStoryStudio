@@ -17,6 +17,7 @@ includepaths += .\
 	../../src/Visindigo \
 	../../src/YSSCore \
 	../../src/YayinStoryStudio \
+	../../src/Plugin_ASERStudio \
 	D:/Qt/6.10.1/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.1/msvc2022_64/include/QtGui \
 	D:/Qt/6.10.1/msvc2022_64/include/QtWidgets \
@@ -28,6 +29,7 @@ headerdirs += .\
 	../../src/Visindigo \
 	../../src/YSSCore \
 	../../src/YayinStoryStudio \
+	../../src/Plugin_ASERStudio \
 	D:/Qt/6.10.1/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.1/msvc2022_64/include/QtGui \
 	D:/Qt/6.10.1/msvc2022_64/include/QtWidgets \
@@ -39,7 +41,8 @@ sourcedirs +=.\
 	../../src \
 	../../src/Visindigo \
 	../../src/YSSCore \
-	../../src/YayinStoryStudio
+	../../src/YayinStoryStudio \
+	../../src/Plugin_ASERStudio
 
 headers.fileextensions  = "*.h *.hpp"
 sources.fileextensions  = "*.cpp *.qml *.qdoc"

@@ -1,0 +1,529 @@
+{
+  "rules": [
+    {
+      "Key": "Background",
+      "Value": {
+        "header": "背景：",
+        "requiredParametersName": "ImageName",
+        "requiredParametersSeparator": "+",
+        "optionalParameters": [
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StartPosition",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "EndPosition",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "MoveTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "MoveCurve",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StitchVertically",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Music",
+      "Value": {
+        "header": "音乐：",
+        "requiredParametersName": "AudioName",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Volume",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "SlotIndex",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Position",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "SoundEffect",
+      "Value": {
+        "header": "音效：",
+        "requiredParametersName": "AudioName",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Volume",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Position",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Steps",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Mask",
+      "Value": {
+        "header": "遮罩：",
+        "requiredParametersName": "IsOn",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [],
+        "isAdvanced": true
+      }
+    },
+    {
+      "Key": "Character",
+      "Value": {
+        "header": "--",
+        "requiredParametersName": "Character&Variant",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "SlotIndex",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StayTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeOutTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Effects",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Alpha",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "RenderOrder",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StartPosition",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "EndPosition",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "MoveTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "MoveCurve",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Choice",
+      "Value": {
+        "header": "选项：",
+        "requiredParametersName": "ChoiceContent",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "OutputVariable",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": true
+      }
+    },
+    {
+      "Key": "Delay",
+      "Value": {
+        "header": "+",
+        "requiredParametersName": "DelayTime",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [],
+        "isAdvanced": true
+      }
+    },
+    {
+      "Key": "VisualEffect",
+      "Value": {
+        "header": "特效：",
+        "requiredParametersName": "VisualEffectId",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Steps",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Position",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "RenderOrder",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Interlude",
+      "Value": {
+        "header": "插播：",
+        "requiredParametersName": "Character&Variant",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "SlotIndex",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsOn",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Type",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Effects",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "RenderOrder",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Position",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "ColorMask",
+      "Value": {
+        "header": "色层：",
+        "requiredParametersName": "Color",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StayTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeOutTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Shake",
+      "Value": {
+        "header": "抖动：",
+        "requiredParametersName": "Intensity",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StayTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeOutTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "FreeText",
+      "Value": {
+        "header": "自由文本：",
+        "requiredParametersName": "Content",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "IsAdditional",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Immediate",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Alignment",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StayTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeOutTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "SlotIndex",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "AsSceneObject",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Position",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "RenderOrder",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Interval",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "ExtraStayTime",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Cut",
+      "Value": {
+        "header": "裁切：",
+        "requiredParametersName": "Intensity",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Angle",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "SlotIndex",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "StayTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "FadeOutTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "RenderOrder",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Filter",
+      "Value": {
+        "header": "滤镜：",
+        "requiredParametersName": "Type&Intensity",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "FadeInTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "AnimatedText",
+      "Value": {
+        "header": "动态文本：",
+        "requiredParametersName": "Content",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Type",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    },
+    {
+      "Key": "Sign",
+      "Value": {
+        "header": "标记：",
+        "requiredParametersName": "Name",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [],
+        "isAdvanced": true
+      }
+    },
+    {
+      "Key": "Variable",
+      "Value": {
+        "header": "变量：",
+        "requiredParametersName": "Name",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Expression",
+            "prefix": "="
+          }
+        ],
+        "isAdvanced": true
+      }
+    },
+    {
+      "Key": "Judge",
+      "Value": {
+        "header": "判断：",
+        "requiredParametersName": "Name",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Expressions",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": true
+      }
+    },
+    {
+      "Key": "Branch",
+      "Value": {
+        "header": "分支：",
+        "requiredParametersName": "Name",
+        "requiredParametersSeparator": ":",
+        "optionalParameters": [
+          {
+            "parameterName": "Branches",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": true
+      }
+    },
+    {
+      "Key": "Dialog",
+      "Value": {
+        "header": null,
+        "requiredParametersName": "Speaker&Content",
+        "requiredParametersSeparator": "\t",
+        "optionalParameters": [
+          {
+            "parameterName": "IsAdditional",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "ModifyCharacters",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "BasicStayTime",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "Interval",
+            "prefix": "/"
+          },
+          {
+            "parameterName": "ExtraStayTime",
+            "prefix": "/"
+          }
+        ],
+        "isAdvanced": false
+      }
+    }
+  ]
+}

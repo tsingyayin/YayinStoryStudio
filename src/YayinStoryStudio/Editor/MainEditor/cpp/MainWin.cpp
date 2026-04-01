@@ -17,8 +17,18 @@
 #include <General/YSSLogger.h>
 #include <Utility/ColorTool.h>
 #include <General/TranslationHost.h>
+#include <General/PluginManager.h>
+#include <General/Plugin.h>
+#include <Editor/EditorPlugin.h>
 namespace YSS::Editor {
+	MainWin* MainWin::Instance = nullptr;
+
+	MainWin* MainWin::getInstance() {
+		return Instance;
+	}
+
 	MainWin::MainWin() :QMainWindow() {
+		Instance = this;
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle("Yayin Story Studio");
 
@@ -70,6 +80,15 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::showEvent(QShowEvent* event) {
+		for (Visindigo::General::Plugin* plugin: VIPLM->getLoadedPlugins()) {
+			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
+				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
+				if (editorPlugin) {
+					editorPlugin->onProjectOpen(GlobalValue::getCurrentProject());
+				}
+			}
+		}
+		QWidget::showEvent(event);
 		yDebugF << "Called";
 		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
 		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
@@ -98,9 +117,18 @@ namespace YSS::Editor {
 				event->ignore();
 				return;
 			}
+			for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
+				if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
+					YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
+					if (editorPlugin) {
+						editorPlugin->onProjectClose(GlobalValue::getCurrentProject());
+					}
+				}
+			}
 			saveProject();
 		}
 		asked = false;
+		Instance = nullptr;
 		this->deleteLater();
 	}
 

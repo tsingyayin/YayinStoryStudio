@@ -74,6 +74,32 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since Visindigo 0.13.0
+		这是个有意思的函数，允许你在一定程度上影响文件打开时使用的文件服务的优先级。
+
+		如果你有一个文件服务A和一个文件服务B，它们都支持打开.txt文件。
+		默认情况下，Visindigo会根据它们被注册的先后顺序来决定使用哪个服务打开.txt文件
+		（如果通过调用YSSCore::FileServerManager::setPriorityForFileExt函数设置了优先级，则会根据优先级来决定）。
+
+		但如果从来没有通过YSSCore::FileServerManager::setEspeciallyFocusEnable函数的带false调用以禁用
+		特别关注功能，那么当YSS尝试打开文件时，它会调用所有支持该文件扩展名的文件服务的especiallyFocusFile函数，
+		看看是否有哪个服务特别关注这个文件。并在所有关注度中选取最高的那个服务来打开这个文件。
+
+		这对那些复用现有文件后缀名但用于特殊用途的文件特别有用。譬如，你有一个json文件是作为
+		某种配置，你希望为其实现可视化的操作功能，那么你就可以在注册json后缀的文件服务里
+		通过这个函数特别关注打开json文件时是否为你的这一配置文件，通过返回一个较高的关注度
+		来让YSS优先使用你的文件服务来打开这个文件。
+
+		它默认返回-1。任何小于或等于0的值都会被直接忽略，而且这个函数不用于降低某个文件服务的优先级。
+		通过返回更小的值来降低优先级是没有任何效果的。
+
+		虽然不提倡，但如果你需要对某个文件拥有绝对优先权，请直接返回int64的最大值。
+	*/
+	qint64 FileServer::especiallyFocusFile(const QString& filePath) {
+		return -1;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
 		当需要创建内置编辑器时调用。默认实现返回nullptr。
 		此函数没有参数。因为设计上要求派生直接返回一个新创建的YSSCore::Editor::FileEditWidget派生类对象即可。
 		

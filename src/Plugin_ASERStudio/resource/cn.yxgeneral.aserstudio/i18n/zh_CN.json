@@ -1,0 +1,208 @@
+{
+    "diagnostic": {
+        "undefined": {
+            "name": "未定义",
+            "message": "诊断信息中的Undefined通常代表这里没有任何问题。",
+            "fixAdvice": "你一般不需要考虑这个诊断信息，除非你发现了其他异常行为。"
+        },
+        "unknownError": {
+            "name": "未知错误",
+            "message": "发生了一个未知错误，可能是由于内部错误或未处理的异常引起的。",
+            "fixAdvice": "请尝试重新启动ASER Studio，如果问题持续存在，请联系技术支持并提供相关日志。"
+        },
+        "ruleNotSelected": {
+            "name": "未选择语法规则",
+            "message": "文档%1没有通过#useRule指令指定任何语法规则。",
+            "fixAdvice": "尝试在文档第二行增加#useRule:%1，指定%1中定义的语法规则。"
+        },
+        "noSuchRule": {
+            "name": "语法规则不存在",
+            "message": "文档%1通过#useRule指令指定的语法规则%2无效。",
+            "fixAdvice": "检查%1文档中#useRule指令的参数，确保它正确地指定了一个存在的语法规则。目前有效的规则有%2"
+        },
+        "noSuchController": {
+            "name": "控制器不存在",
+            "message": "没有这样的控制器%1。",
+            "fixAdvice": "检查你的代码中是否正确地引用了规则%1指定的控制器前缀，确保它已经被定义并且名称拼写正确。"
+        },
+        "missingRequiredParameter": {
+            "name": "缺少必需参数",
+            "message": "控制器%1缺少必需的参数%2。",
+            "fixAdvice": "%1控制器缺少必须参数%2。"
+        },
+        "parameterTypeMismatch": {
+            "name": "参数类型不匹配",
+            "message": "控制器%1的参数%2类型不匹配，期望类型是%3，但实际类型是%4。",
+            "fixAdvice": "检查控制器%1的参数%2，确保它的类型与预期的%3一致。"
+        },
+        "parameterOutOfRange": {
+            "name": "参数超出范围",
+            "message": "控制器%1的参数%2值%3超出允许的范围%4。",
+            "fixAdvice": "检查控制器%1的参数%2，确保它的值在允许的范围%4内。"
+        },
+        "parameterFormatError": {
+            "name": "参数格式错误",
+            "message": "控制器%1的参数%2格式错误，期望格式是%3。",
+            "fixAdvice": "检查控制器%1的参数%2，确保它的格式符合预期的%3。"
+        },
+        "unexceptedParameter": {
+            "name": "意外的参数",
+            "message": "控制器%1收到了一个意外的参数%2。",
+            "fixAdvice": "检查控制器%1的定义，确保它只接受预期的参数，并且没有多余的参数被传递。"
+        },
+        "unclosedSymbol": {
+            "name": "未闭合的符号",
+            "message": "在文档%1中，符号%2未正确闭合。",
+            "fixAdvice": "检查文档%1中的符号%2，确保它们正确地闭合。(请在合适的位置添加%3符号来闭合它们)"
+        },
+        "variableNotDefined": {
+            "name": "变量未定义",
+            "message": "变量%2未定义。",
+            "fixAdvice": "请检查%1的拼写，或者确保你已经通过语句%1在此之前定义了这个变量。"
+        },
+        "useTabInsteadSpace": {
+            "name": "使用制表符代替空格",
+            "message": "应使用制表符的地方使用了空格。",
+            "fixAdvice": "将空格替换为制表符(Tab)。"
+        },
+        "useSpaceInsteadTab": {
+            "name": "使用空格代替制表符",
+            "message": "应使用空格的地方使用了制表符。",
+            "fixAdvice": "将制表符(Tab)替换为适当数量的空格。"
+        },
+        "useEnglishPunctuation": {
+            "name": "使用英文标点",
+            "message": "应使用英文标点的地方使用了中文标点。",
+            "fixAdvice": "将中文标点替换为对应的英文标点。"
+        },
+        "useChinesePunctuation": {
+            "name": "使用中文标点",
+            "message": "应使用中文标点的地方使用了英文标点。",
+            "fixAdvice": "将英文标点替换为对应的中文标点。"
+        },
+        "noSuchBlock": {
+            "name": "调用块不存在",
+            "message": "没有这样的块%1。",
+            "fixAdvice": "请检查%1的拼写，或者确保你已经通过语句%1在此之前定义了这个块。"
+        },
+        "blockNameConflict": {
+            "name": "块名冲突",
+            "message": "块%1已经在%2行中存在定义了。",
+            "fixAdvice": "为这个块或%1行中已经定义的块选择一个不同的名称。"
+        },
+        "instrumentRedundant": {
+            "name": "冗余的指令",
+            "message": "指令%1在这里是冗余的，它和%1行中的指令重复",
+            "fixAdvice": "删除这个冗余的%1指令"
+        },
+        "noSuchPreprocessor": {
+            "name": "预处理器不存在",
+            "message": "没有这样的预处理器%1。",
+            "fixAdvice": "请检查%1的拼写"
+        },
+        "unknownWarning": {
+            "name": "未知警告",
+            "message": "发生了一个未知警告，可能是由于内部错误或未处理的异常引起的。",
+            "fixAdvice": "请尝试重新启动ASER Studio，如果问题持续存在，请联系技术支持并提供相关日志。"
+        },
+        "nosuchResource": {
+            "name": "资源不存在",
+            "message": "没有这样的资源%1。",
+            "fixAdvice": "请检查%1的拼写，或者在你的项目中添加一个名为%1的资源。"
+        }
+    },
+    "value":{
+        "integer": "整数",
+        "float": "浮点数",
+        "string": "字符串",
+        "bool": "布尔值",
+        "enum": "枚举值",
+        "vector": "向量"
+    },
+    "aseinfo":{
+		"projectName": "项目名称",
+		"projectPath": "项目路径",
+		"path": "ASE应用程序路径",
+		"version": "ASE兼容版本",
+		"mainFileName": "主文件名称"
+	},
+	"provider":{
+		"window":{
+			"title": "ASE-Remake 剧情项目 初始化助手",
+			"create": "创建项目",
+			"where": "新的项目会在\"%1\"中创建。",
+			"exists": "\"%1\"已存在或非空！无法在此创建新项目。"
+		},
+		"failed": {
+			"title": "创建项目失败",
+			"text": "无法创建项目，请检查目标文件夹是否为空文件夹，或者是否有权限在此文件夹创建新文件。"
+		},
+		"astory":{
+			"name": "ASE-Remake 剧情项目",
+			"description": "使用AStoryX编写的ASE-Remake剧情",
+			"tags": {
+				"ase": "ASE-Remake",
+				"astory": "AStoryX",
+				"engine-native": "引擎原生",
+				"script": "脚本",
+				"arknights": "明日方舟"
+			},
+			"title": "ASE项目初始化"
+		},
+		"project":{
+			"title": "ASE-Remake 剧情项目 初始化助手",
+			"name":{
+				"title": "项目名称",
+				"text": "剧情项目的名称，当全部使用路径合法字符时，则同时也是项目文件夹的名称。"
+			},
+			"path":{
+				"title": "项目路径",
+				"text": "一个新的项目文件夹会被创建在此路径下"
+			},
+			"version":{
+				"title": "目标ASE版本",
+				"text": "默认只用最新的ASE版本。如果需要使用特定的旧版ASE，请在插件设置中关联相关版本。",
+				"uptodate": "最新版本"
+			}
+		}
+	},
+	"fileProvider":{
+		"window": {
+			"create": "创建文件",
+			"where": "新文件将被创建为\"%1\"。",
+			"exists": "\"%1\"已存在！无法创建新文件。"
+		},
+		"failed": {
+			"title": "创建文件失败",
+			"text": "无法创建文件，请检查目标文件夹是否为空文件夹，或者是否有权限在此文件夹创建新文件。"
+		},
+		"astory": {
+			"name": "ASE剧情文件",
+			"description": "使用AStory编写的ASE剧情，支持所有ASE原生功能。",
+			"tags": {
+				"ase": "ASE-Remake",
+				"astory": "AStoryX",
+				"engine-native": "引擎原生",
+				"script": "脚本",
+				"arknights": "明日方舟"
+			},
+			"title": "AStoryX文件初始化"
+		},
+		"file": {
+			"title": "ASE-Remake 剧情文件初始化助手",
+			"name": {
+				"title": "文件名称",
+				"text": "剧情文件的名称，当全部使用路径合法字符时，则同时也是文件的名称。"
+			},
+			"path": {
+				"title": "文件路径",
+				"text": "一个新的剧情文件会被创建在此路径下"
+			},
+			"version": {
+				"title": "目标ASE版本",
+				"text": "默认只用最新的ASE版本。如果需要使用特定的旧版ASE，请在插件设置中关联相关版本。",
+				"uptodate": "最新版本"
+			}
+		}
+	}
+}

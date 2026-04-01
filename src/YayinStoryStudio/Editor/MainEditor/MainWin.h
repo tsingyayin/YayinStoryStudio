@@ -22,8 +22,10 @@ namespace YSS::Editor {
 		QHBoxLayout* Layout = nullptr;
 		Visindigo::Widgets::QuickMenu* Menu = nullptr;
 		bool asked = false;
+		static MainWin* Instance;
 	public:
 		MainWin();
+		static MainWin* getInstance();
 		ResourceBrowser* getResourceBrowser();
 		FileEditorArea* getFileEditorArea();
 		void backToProjectWin();

@@ -214,7 +214,7 @@ namespace Visindigo::Widgets {
 		例如
 		\code
 			Label->setStyleSheet(ThemeManager::getInstance()->getTemplate("General::Default", Label));
-		\badcode
+		\endcode
 		当然，这太长了，因此我们提供了宏VISTMGT来简化这个过程，使用方法如下：
 		\code
 			Label->setStyleSheet(VISTMGT("General::Default", Label));
@@ -245,9 +245,10 @@ namespace Visindigo::Widgets {
 		\list
 		\li 1. 在程序主插件启用前，ThemeManager会被初始化，并加载配置文件中的配色方案和样式模板优先级列表。
 		同时将文件系统中的配色方案和样式模板加载到内存中。
-		\li 2. 主程序插件应在启用时，向ThemeManager注册默认的配色方案和样式模板。
+		\li 2. 主程序插件应在启用时（onPluginEnable），向ThemeManager注册默认的配色方案和样式模板。
 		\li 3. 各插件应在构造函数中，向ThemeManager注册自己的配色方案和样式模板。
-		请务必注意主程序插件和插件的注册差别，如果插件的注册时间延后，会错过合并和应用主题的时机，从而导致主题不完整。
+		\warning 请务必注意主程序插件和插件的注册在时机上的差别，如果插件的注册时间延后到onPluginEnable，
+		会错过合并和应用主题的时机，从而导致主题不完整。
 		\li 4. 在所有插件启用前，ThemeManager会调用mergeAndApply方法，合并所有注册的配色方案和样式模板，并应用到应用程序中。
 
 		ThemeManager在主题变更时的工作顺序如下：

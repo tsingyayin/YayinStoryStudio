@@ -35,7 +35,7 @@ namespace Visindigo::General {
 		QString temp = "QList[";
 		for (int i = 0; i < list.size(); i++) {
 			void* ptr = &list[i];
-			temp += " [Object at " % QString::number(ptr, 16) % "],";
+			temp += " [Object at " % QString::number((quint64)ptr, 16) % "],";
 		}
 		temp.removeLast();
 		temp += "}";

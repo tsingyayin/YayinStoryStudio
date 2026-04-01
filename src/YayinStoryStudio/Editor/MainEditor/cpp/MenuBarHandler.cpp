@@ -27,7 +27,7 @@
 namespace YSS::Editor {
 	void Menu_File_FileOptions::newfile() {
 		yDebugF << "new File";
-		YSS::GlobalValue::getMainWindow()->getResourceBrowser()->openNewFileWindow();
+		YSS::Editor::MainWin::getInstance()->getResourceBrowser()->openNewFileWindow();
 	}
 
 	void Menu_File_FileOptions::open() {
@@ -50,8 +50,8 @@ namespace YSS::Editor {
 	}
 	
 	void Menu_File_FileOptions::save() {
-		yDebugF << "Save File" << YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->getFilePath();
-		YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->saveFile();
+		yDebugF << "Save File" << YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->getFilePath();
+		YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->saveFile();
 	}
 
 	void Menu_File_FileOptions::saveAs() {
@@ -60,12 +60,12 @@ namespace YSS::Editor {
 
 	void Menu_File_FileOptions::saveAll() {
 		yDebugF << "Save All Files";
-		YSS::GlobalValue::getMainWindow()->getFileEditorArea()->saveAllFiles();
+		YSS::Editor::MainWin::getInstance()->getFileEditorArea()->saveAllFiles();
 	}
 
 	void Menu_File_ProgramOptions::backToHome() {
 		yDebugF << "Back to Home";
-		YSS::GlobalValue::getMainWindow()->backToProjectWin();
+		YSS::Editor::MainWin::getInstance()->backToProjectWin();
 	}
 
 	void Menu_File_ProgramOptions::terminal() {
@@ -94,43 +94,43 @@ namespace YSS::Editor {
 
 	void Menu_File_ProgramOptions::exit() {
 		yDebugF << "Exit Program";
-		YSS::GlobalValue::getMainWindow()->close();
+		YSS::Editor::MainWin::getInstance()->close();
 	}
 
 	void Menu_Edit_EditOptions::undo() {
 		yDebugF << "Undo";
-		if (YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
-			YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->undo();
+		if (YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
+			YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->undo();
 		}
 	}
 	void Menu_Edit_EditOptions::redo() {
 		yDebugF << "Redo";
-		if (YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
-			YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->redo();
+		if (YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
+			YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->redo();
 		}
 	}
 	void Menu_Edit_EditOptions::cut() {
 		yDebugF << "Cut";
-		if (YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
-			YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->cut();
+		if (YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
+			YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->cut();
 		}
 	}
 	void Menu_Edit_EditOptions::copy() {
 		yDebugF << "Copy";
-		if (YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
-			YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->copy();
+		if (YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
+			YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->copy();
 		}
 	}
 	void Menu_Edit_EditOptions::paste() {
 		yDebugF << "Paste";
-		if (YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
-			YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->paste();
+		if (YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
+			YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->paste();
 		}
 	}
 	void Menu_Edit_EditOptions::selectAll() {
 		yDebugF << "Select All";
-		if (YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
-			YSS::GlobalValue::getMainWindow()->getFileEditorArea()->getCurrentFileEditWidget()->selectAll();
+		if (YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget() != nullptr) {
+			YSS::Editor::MainWin::getInstance()->getFileEditorArea()->getCurrentFileEditWidget()->selectAll();
 		}
 	}
 

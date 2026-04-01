@@ -50,6 +50,15 @@
 		"warning": "警告",
 		"yes": "是"
 	},
+	"plugin": {
+		"author": "作者",
+		"description": "描述",
+		"version": "版本",
+		"loaded": "插件 %1 已加载",
+		"unloaded": "插件 %1 已卸载",
+		"enabled": "插件 %1 已启用",
+		"disabled": "插件 %1 已禁用"
+	},
 	"widgets":{
 		"pluginManager":{
 			"title": "程序和插件管理器",

@@ -24,6 +24,7 @@ namespace YSS::Editor {
 		void focusOn(const QString& filePath);
 		YSSCore::Editor::FileEditWidget* getCurrentFileEditWidget();
 		void saveAllFiles();
+		void closeAllFiles();
 	public:
 		virtual void showEvent(QShowEvent* event) override;
 	private:

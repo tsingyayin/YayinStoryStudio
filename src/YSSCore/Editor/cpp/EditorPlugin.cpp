@@ -96,7 +96,7 @@ namespace YSSCore::Editor {
 		\warning 请注意，abiVersion并不是插件的版本号，也不是YSS的程序版本。它是YSS的二进制兼容版本。
 	*/
 	EditorPlugin::EditorPlugin(Visindigo::General::Version apiVersion, Visindigo::General::Version abiVersion, QObject* parent) :
-		Visindigo::General::Plugin(apiVersion, abiVersion, "YayinStoryStudio", parent) {
+		Visindigo::General::Plugin(apiVersion, abiVersion, YSSPluginTypeID, parent) {
 		d = new YSSCore::__Private__::EditorPluginPrivate();
 	}
 	/*!

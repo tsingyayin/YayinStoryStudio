@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resource/cn.yxgeneral.aserstudio/astoryxMeta/default.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/zh_CN.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/configWidget/FTP.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/configWidget/PTP.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/classic.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/tianyu.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/icon.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/icon/ASEA_Dark.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/icon/VisindigoV_Dark.png</file>
+    </qresource>
+</RCC>

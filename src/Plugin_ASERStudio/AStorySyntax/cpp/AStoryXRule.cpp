@@ -1,0 +1,278 @@
+#include "AStorySyntax/AStoryXRule.h"
+#include "AStorySyntax/AStoryXValue.h"
+#include "AStorySyntax/AStoryXPreprocessor.h"
+#include "AStorySyntax/AStoryXController.h"
+#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
+#include <Utility/JsonConfig.h>
+#include <Utility/FileUtility.h>
+#include <QtCore/qjsondocument.h>
+
+namespace ASERStudio::AStorySyntax {
+	class AStoryXRulePrivate {
+		friend class AStoryXRule;
+	public:
+		QString Version;
+		QString Name;
+		QMap<AStoryXController::ControllerType, AStoryXController> Controllers;
+		AStoryXPreprocessor Preprocessor;
+		Visindigo::Utility::JsonConfig MetaConfig;
+	public:
+		void loadMetaJson() {
+			QString jsonStr = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/astoryxMeta/" + Version.replace(".", "_") + ".json");
+			if (jsonStr.isEmpty()) {
+				jsonStr = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/astoryxMeta/default.json");
+				return;
+			}
+			MetaConfig.parse(jsonStr);
+		}
+	};
+
+	/*!
+		\class ASERStudio::AStorySyntax::AStoryXRule
+		\brief AStoryXRule是对整个AStoryX语法规则的封装，包含了对不同版本的AStoryX语法规则的解析和存储。
+		\since ASERStudio 2.0
+		\inmodule ASERStudio
+	*/
+
+	/*!
+		\since ASERStudio 2.0
+		构造函数。
+		\a version AStoryX语法规则的版本号，例如"1.0"、"2.0"等。
+		这影响对AStoryX语法规则元数据的读取，如果ASERStudio不支持对应版本的规则，将会使用默认规则。
+		默认规则永远是最新规则，不保证向下兼容。
+	*/
+	AStoryXRule::AStoryXRule(const QString& version) {
+		d = new AStoryXRulePrivate;
+		d->Version = version;
+		d->loadMetaJson();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		析构函数。
+	*/
+	AStoryXRule::~AStoryXRule() {
+		delete d;
+		d = nullptr;
+	}
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXRule::operator=(AStoryXRule&& other) noexcept
+		\since ASERStudio 2.0
+		移动赋值运算符
+	*/
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXRule::operator=(const AStoryXRule& other)
+		\since ASERStudio 2.0
+		复制赋值运算符
+	*/
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXRule::AStoryXRule(const AStoryXRule& other)
+		\since ASERStudio 2.0
+		复制构造函数
+	*/
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXRule::AStoryXRule(AStoryXRule&& other) noexcept
+		\since ASERStudio 2.0
+		移动构造函数
+	*/
+	VIMoveable_Impl(AStoryXRule);
+	VICopyable_Impl(AStoryXRule);
+	
+	/*!
+		\since ASERStudio 2.0
+		返回AStoryX语法规则的版本号。
+	*/
+	QString AStoryXRule::getVersion() const {
+		return d->Version;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		设置AStoryX语法规则的名称。
+		\a name AStoryX语法规则的名称。按ASE-Remake的要求，它必须
+		为这个规则文件的主文件名，否则将引起AStoryX的解析错误。
+		例如，如果规则文件名为"astoryx_v1_0.json"，则名称必须设置为"astoryx_v1_0"。
+	*/
+	void AStoryXRule::setName(const QString& name) {
+		d->Name = name;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回AStoryX语法规则的名称。
+	*/
+	QString AStoryXRule::getName() const {
+		return d->Name;
+	}
+	/*!
+		\since ASERStudio 2.0
+		解析JSON字符串以设置AStoryX语法规则。
+		\a str 要解析的JSON字符串，必须符合ASERStudio的AStoryX语法规则JSON格式。
+	*/
+	bool AStoryXRule::parseJson(const QString& str) {
+		Visindigo::Utility::JsonConfig config;
+		QJsonParseError error = config.parse(str);
+		if (error.error != QJsonParseError::NoError) {
+			return false;
+		}
+		for(auto item: config.getArray("rules")) {
+			AStoryXController controller;
+			controller.parseRule(item, d->MetaConfig);
+		}
+		return true;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的头部字符串。与getStartSign等价。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	QString AStoryXRule::getHeader(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getHeader();
+		}
+		return "";
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的起始标志字符串。与getHeader等价。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	QString AStoryXRule::getStartSign(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getStartSign();
+		}
+		return "";
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的必需参数名称。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	QString AStoryXRule::getRequiredParameterName(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getRequiredParameterName();
+		}
+		return "";
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的必需参数分隔符。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	QString AStoryXRule::getRequiredParameterSeparater(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getRequiredParameterSeparater();
+		}
+		return "";
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的可选参数名称列表。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	QStringList AStoryXRule::getOptionalParameterNames(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getOptionalParameterNames();
+		}
+		return QStringList();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的可选参数前缀列表。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	QStringList AStoryXRule::getOptionalParameterPrefixes(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getOptionalParameterPrefixes();
+		}
+		return QStringList();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的可选参数值对象Map。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	QMap<QString, AStoryXValue> AStoryXRule::getOptionalParameterValues(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getOptionalParameterValues();
+		}
+		return QMap<QString, AStoryXValue>();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型的必需参数值对象。
+	*/
+	AStoryXValue AStoryXRule::getRequiredParameterValue(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].getRequiredParameterValue();
+		}
+		return AStoryXValue();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型是否具有单调性。与isAdvanced等价。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	bool AStoryXRule::isMonotonicity(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].isMonotonicity();
+		}
+		return false;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回指定控制器类型是否为高级控制器。与isMonotonicity等价。
+		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
+	*/
+	bool AStoryXRule::isAdvanced(AStoryXController::ControllerType type) const {
+		if (d->Controllers.contains(type)) {
+			return d->Controllers[type].isAdvanced();
+		}
+		return false;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		解析AStoryX字符串以获取控制器解析数据。
+		\a str 要解析的AStoryX字符串，必须符合ASERStudio的AStoryX语法规则。
+		\a cursorPosition 可选参数，表示光标位置，用于诊断和错误提示，默认为-1表示不使用光标位置。
+	*/
+	AStoryXControllerParseData AStoryXRule::parseAStoryX(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
+		if (str.isEmpty()) {
+			return AStoryXControllerParseData();
+		}
+		if (d->Preprocessor.isPreprocessor(str)) {
+			return d->Preprocessor.parse(str, cursorPosition, diagnostic, lineIndex);
+		}
+		bool isNotDialog = true;
+		for (auto cType : d->Controllers.keys()) {
+			if (str.startsWith(d->Controllers[cType].getHeader()) && cType != AStoryXController::ControllerType::Dialog) {
+				return d->Controllers[cType].parseAStoryX(str, cursorPosition, diagnostic, lineIndex);
+			}
+		}
+		return d->Controllers[AStoryXController::ControllerType::Dialog].parseAStoryX(str, cursorPosition, diagnostic, lineIndex);
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回AStoryX控制器的元数据，以JSON格式表示。
+	*/
+	Visindigo::Utility::JsonConfig AStoryXRule::getAStoryXControllerMetaData() const {
+		return d->MetaConfig;
+	}
+}

@@ -1,0 +1,39 @@
+{
+  "name": "tianyu",
+  "variations": {
+    "0": {
+      "bodyTexturePath": "Resources/Char_Picture/tianyu/tianyu_0.png",
+      "faceTexturePath": null,
+      "facePos": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "faceSize": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    },
+    "1": {
+      "bodyTexturePath": "Resources/Char_Picture/tianyu/tianyu_1.png",
+      "faceTexturePath": null,
+      "facePos": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "faceSize": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    }
+  },
+  "positionOffset": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+  },
+  "avatarOffset": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 0.0
+  }
+}

@@ -115,9 +115,6 @@
     <ClInclude Include="DebugServer\ASELaunchArgu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjectTemplateProvider\ASEAStory2PTP.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LangServer\AStoryHighlighter.h">

@@ -1,0 +1,448 @@
+{
+    "__ControllerName__":{
+        "__ParameterName__":{
+            "type": "__ParameterType__",
+            "defaultValue": "__ParameterDefaultValue__"
+        }
+    },
+    "__GeneralMetaData__":{
+        "MoveCurveEnums":[
+            "Linear",
+            "EaseIn",
+            "EaseOut",
+            "EaseInOut"
+        ],
+        "TextAlignmentEnums":[
+            "left",
+            "center",
+            "right"
+        ]
+    },
+    "Background":{
+        "ImageName":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "FadeInTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "StartPosition":{
+            "type": "Vector",
+            "defaultValue": "0,0,10"
+        },
+        "EndPosition":{
+            "type": "Vector",
+            "defaultValue": "0,0,10"
+        },
+        "MoveTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "MoveCurve":{
+            "type": "Enum",
+            "defaultValue": "Linear",
+            "enums": "MoveCurveEnums"
+        },
+        "IsBlocker":{
+            "type": "Bool",
+            "defaultValue": "true"
+        },
+        "StitchVertical":{
+            "type": "Bool",
+            "defaultValue": "true"
+        }
+    },
+    "Music":{
+        "AudioName":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Volume":{
+            "type": "Float",
+            "defaultValue": "1"
+        },
+        "FadeInTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "SlotIndex":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "Position":{
+            "type": "Vector",
+            "defaultValue": "0,0,0"
+        }
+    },
+    "SoundEffect":{
+        "AudioName":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Volume":{
+            "type": "Float",
+            "defaultValue": "1"
+        },
+        "Steps":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "Position":{
+            "type": "Float",
+            "defaultValue": "0"
+        }
+    },
+    "Mask":{
+        "IsOn":{
+            "type": "Bool",
+            "defaultValue": ""
+        }
+    },
+    "Character":{
+        "Character&Variant":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "SlotIndex":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "IsBlocker":{
+            "type": "Bool",
+            "defaultValue": "true"
+        },
+        "FadeInTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "FadeOutTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "Effects":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Alpha":{
+            "type": "Float",
+            "defaultValue": "1"
+        },
+        "RenderOrder":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "StartPosition":{
+            "type": "Vector",
+            "defaultValue": "0,0,10,0"
+        },
+        "EndPosition":{
+            "type": "Vector",
+            "defaultValue": "0,0,10,0"
+        },
+        "MoveTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "MoveCurve":{
+            "type": "Enum",
+            "defaultValue": "Linear",
+            "enums": "MoveCurveEnums"
+        }
+    },
+    "Choice":{
+        "ChoiceContent":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "OutputVariable":{
+            "type": "String",
+            "defaultValue": "choice"
+        }
+    },
+    "Delay":{
+        "DelayTime":{
+            "type": "Float",
+            "defaultValue": ""
+        }
+    },
+    "VisualEffect":{
+        "VisualEffectName":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Steps":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "Position":{
+            "type": "Vector",
+            "defaultValue": "0,0,10"
+        },
+        "RenderOrder":{
+            "type": "Integer",
+            "defaultValue": "0"
+        }
+    },
+    "Interlude":{
+        "Character&Variant": {
+            "type": "String",
+            "defaultValue": ""
+        },
+        "SlotIndex": {
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "IsOn": {
+            "type": "Bool",
+            "defaultValue": "false"
+        },
+        "Type":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "IsBlocker": {
+            "type": "Bool",
+            "defaultValue": "true"
+        },
+        "Effects": {
+            "type": "String",
+            "defaultValue": "0"
+        },
+        "RenderOrder": {
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "Position": {
+            "type": "Vector",
+            "defaultValue": "0,0,10,0"
+        }
+    },
+    "ColorMask":{
+        "Color":{
+            "type": "Vector",
+            "defaultValue": ""
+        },
+        "FadeInTime":{
+            "type": "Float",
+            "defaultValue": "0.125"
+        },
+        "StayTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "FadeOutTime":{
+            "type": "Float",
+            "defaultValue": "0.375"
+        },
+        "IsBlocker":{
+            "type": "Bool",
+            "defaultValue": "true"
+        }
+    },
+    "Shake":{
+        "Intensity":{
+            "type": "String",
+            "defaultValue": "0.5"
+        },
+        "FadeInTime":{
+            "type": "Float",
+            "defaultValue": "0.125"
+        },
+        "StayTime":{
+            "type": "Float",
+            "defaultValue": "0.25"
+        },
+        "FadeOutTime":{
+            "type": "Float",
+            "defaultValue": "0.375"
+        },
+        "IsBlocker":{
+            "type": "Bool",
+            "defaultValue": "true"
+        }
+    },
+    "FreeText":{
+        "Content":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "IsAddition":{
+            "type": "Bool",
+            "defaultValue": "false"
+        },
+        "Immediate":{
+            "type": "Bool",
+            "defaultValue": "false"
+        },
+        "Alignment":{
+            "type": "Enum",
+            "defaultValue": "Left",
+            "enums": "TextAlignmentEnums"
+        },
+        "IsBlocker":{
+            "type": "Bool",
+            "defaultValue": "true"
+        },
+        "FadeInTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "StayTime":{
+            "type": "Float",
+            "defaultValue": "1.75"
+        },
+        "FadeOutTime":{
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "SlotIndex":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "AsSeceneObject":{
+            "type": "Bool",
+            "defaultValue": "false"
+        },
+        "Position":{
+            "type": "Vector",
+            "defaultValue": "0,0,10"
+        },
+        "RenderOrder":{
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "Interval":{
+            "type": "Float",
+            "defaultValue": "0.04"
+        },
+        "ExtraStayTime":{
+            "type": "Float",
+            "defaultValue": "0.05"
+        }
+    },
+    "Cut":{
+        "Intensity": {
+            "type": "Float",
+            "defaultValue": ""
+        },
+        "Angle": {
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "SlotIndex": {
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "IsBlocker": {
+            "type": "Bool",
+            "defaultValue": "true"
+        },
+        "FadeInTime": {
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "StayTime": {
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "FadeOutTime": {
+            "type": "Float",
+            "defaultValue": "0"
+        },
+        "RenderOrder": {
+            "type": "Integer",
+            "defaultValue": "700"
+        }
+    },
+    "Filter":{
+        "Type&Intensity":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "FadeInTime":{
+            "type": "Float",
+            "defaultValue": "1"
+        },
+        "IsBlocker":{
+            "type": "Bool",
+            "defaultValue": "true"
+        }
+    },
+    "AnimatedText":{
+        "Content": {
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Type": {
+            "type": "Integer",
+            "defaultValue": "0"
+        },
+        "IsBlocker": {
+            "type": "Bool",
+            "defaultValue": "true"
+        }
+    },
+    "Sign":{
+        "Name":{
+            "type": "String",
+            "defaultValue": ""
+        }
+    },
+    "Variable":{
+        "Name":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Expression":{
+            "type": "String",
+            "defaultValue": ""
+        }
+    },
+    "Judge":{
+        "Name":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Expression":{
+            "type": "String",
+            "defaultValue": ""
+        }
+    },
+    "Branch":{
+        "Name":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "Branches":{
+            "type": "String",
+            "defaultValue": ""
+        }
+    },
+    "Dialog":{
+        "Speaker&Content":{
+            "type": "String",
+            "defaultValue": ""
+        },
+        "IsAddition":{
+            "type": "Bool",
+            "defaultValue": "false"
+        },
+        "ModifyCharacters":{
+            "type": "Bool",
+            "defaultValue": "true"
+        },
+        "BasicStayTime":{
+            "type": "Float",
+            "defaultValue": "1.75"
+        },
+        "Interval":{
+            "type": "Float",
+            "defaultValue": "0.04"
+        },
+        "ExtraStayTime":{
+            "type": "Float",
+            "defaultValue": "0.05"
+        }
+    }
+}
