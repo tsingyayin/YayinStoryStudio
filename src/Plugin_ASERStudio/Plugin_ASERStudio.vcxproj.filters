@@ -50,6 +50,12 @@
     <QtMoc Include="YSS\ASERProjectTemplate.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="YSS\ASERFileTemplate.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="YSS\LS_AStoryXSyntaxHighlighter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -91,6 +97,15 @@
     <ClCompile Include="YSS\cpp\ASERProjectTemplate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="YSS\cpp\ASERFileTemplate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\LS_AStoryXSyntaxHighlighter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\LangServer_AStoryX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASERStudioCompileMacro.h">
@@ -109,6 +124,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AStorySyntax\AStoryXPreprocessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YSS\LangServer_AStoryX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

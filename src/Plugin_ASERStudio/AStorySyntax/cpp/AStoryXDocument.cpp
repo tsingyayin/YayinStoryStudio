@@ -5,6 +5,7 @@
 
 #include <QtGui/qtextdocument.h>
 #include <General/TranslationHost.h>
+#include <General/Log.h>
 namespace ASERStudio::AStorySyntax {
 	AStoryXDocumentNotifier::AStoryXDocumentNotifier(QObject* parent) :QSyntaxHighlighter(parent) {
 
@@ -24,8 +25,7 @@ namespace ASERStudio::AStorySyntax {
 	protected:
 		QTextDocument* TextDocument = nullptr;
 		QString FilePath;
-		QMap<QString, AStoryXRule*> RuleMap;
-		AStoryXRule* CurrentRule = nullptr;
+		AStoryXRule CurrentRule;
 		bool EnableDiagnostic = false;
 		QMap<qint32, AStoryXControllerParseData> ParseDataCache;
 		QList<AStoryXDiagnosticData> GlobalDiagnostics;
@@ -45,14 +45,18 @@ namespace ASERStudio::AStorySyntax {
 		);
 		connect(d->Notifier, &AStoryXDocumentNotifier::blockChanged, this, [this](const QString& text) {
 			qint32 lineNumber = d->Notifier->getCurrentBlock().blockNumber();
+			vgDebug << "Parsing line" << lineNumber << ":" << text;
 			if (text.startsWith("#useRule:")) {
 				QString ruleName = text.mid(QString("#useRule:").length()).trimmed();
-				if (d->RuleMap.contains(ruleName)) {
-					d->CurrentRule = d->RuleMap[ruleName];
+				if (AStoryXRule::hasRule(ruleName)) {
+					auto rule = AStoryXRule::getRule(ruleName);
+					if (rule) {
+						d->CurrentRule = *rule;
+					}
 					d->GlobalDiagnostics.removeAll(d->RuleNotSelectedDiagnostic);
 				}
 				else {
-					d->CurrentRule = nullptr;
+					d->CurrentRule = AStoryXRule();
 					AStoryXControllerParseData& data = d->ParseDataCache[lineNumber];
 					if (data.isValid()) {
 						data.d->ControllerType = AStoryXController::ControllerType::Preprocessor;
@@ -69,8 +73,8 @@ namespace ASERStudio::AStorySyntax {
 					}
 				}
 			}
-			if (d->CurrentRule) {
-				AStoryXControllerParseData data = d->CurrentRule->parseAStoryX(text, -1, true, lineNumber);
+			if (d->CurrentRule.isValid()) {
+				AStoryXControllerParseData data = d->CurrentRule.parseAStoryX(text, -1, true, lineNumber);
 				d->onParsed(data, lineNumber);
 				emit parseDataUpdated(lineNumber);
 			}
@@ -149,10 +153,6 @@ namespace ASERStudio::AStorySyntax {
 
 	QTextDocument* AStoryXDocument::getTextDocument() const {
 		return d->TextDocument;
-	}
-
-	void AStoryXDocument::addRule(AStoryXRule* rule) {
-		d->RuleMap[rule->getName()] = rule;
 	}
 
 	void AStoryXDocument::setEnableDiagnostic(bool enable) {

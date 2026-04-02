@@ -34,6 +34,7 @@ namespace ASERStudio::AStorySyntax {
 			Branch,
 			Dialog,
 			Preprocessor,
+			Comment
 		};
 		Q_ENUM(ControllerType);
 	public:
@@ -42,8 +43,9 @@ namespace ASERStudio::AStorySyntax {
 		VICopyable(AStoryXController);
 		~AStoryXController();
 	public:
-		void parseRule(const Visindigo::Utility::JsonConfig& ruleConfig, const Visindigo::Utility::JsonConfig& metaConfig);
+		bool parseRule(const Visindigo::Utility::JsonConfig& ruleConfig, const Visindigo::Utility::JsonConfig& metaConfig);
 		AStoryXControllerParseData parseAStoryX(const QString& str, qint32 cursorPosition = -1, bool diagnostic = false, qint32 lineIndex = -1);
+		ControllerType getControllerType();
 		QString getStartSign();
 		QString getHeader();
 		QString getRequiredParameterName();
@@ -54,6 +56,8 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXValue getRequiredParameterValue();
 		bool isMonotonicity();
 		bool isAdvanced();
+		bool isValid();
+		QString toString();
 	private:
 		AStoryXControllerPrivate* d;
 	};

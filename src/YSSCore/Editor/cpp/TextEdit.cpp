@@ -22,7 +22,8 @@
 #include "General/YSSLogger.h"
 #include <QtCore/qtimer.h>
 #include "Editor/SyntaxHighlighter.h"
-
+#include <General/TranslationHost.h>
+#include <QtWidgets/qmessagebox.h>
 namespace YSSCore::__Private__ {
 	TextEditPrivate::~TextEditPrivate() {
 		if (FontMetrics != nullptr) {
@@ -692,14 +693,24 @@ namespace YSSCore::Editor {
 
 	bool TextEdit::onSave(const QString& path) {
 		QFile file(path);
-		if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-			vgErrorF << "Failed to save file:" << path;
+		QFileInfo fileInfo(path);
+		if (not fileInfo.isWritable()) {
+			QMessageBox::warning(this, 
+				VITR("YSS::editor.textEdit.readOnly.title"), VITR("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
+				QMessageBox::Ok);
+			vgWarning << "File is read-only:" << path << ",";
 			return false;
 		}
-		file.write(d->Text->toPlainText().toUtf8());
-		file.close();
-		emit fileSaved(path);
-		return true;
+		else {
+			if (not file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+				vgErrorF << "Failed to save file:" << path;
+				return false;
+			}
+			file.write(d->Text->toPlainText().toUtf8());
+			file.close();
+			emit fileSaved(path);
+			return true;
+		}
 	}
 
 	bool TextEdit::onReload() {

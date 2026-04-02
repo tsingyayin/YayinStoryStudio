@@ -125,13 +125,13 @@ namespace ASERStudio::YSS {
 		for (const QString& folder : folders) {
 			Visindigo::Utility::FileUtility::createDir(projectFolder + folder);
 		}
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json", projectFolder + "/Rules/BaseRule.json");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json", projectFolder + "/Rules/AdvanceRule.json");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx", projectFolder + "/Stories/main.astoryx");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_0.png");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_1.png");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png");
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json", projectFolder + "/Rules/BaseRule.json", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json", projectFolder + "/Rules/AdvanceRule.json", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx", projectFolder + "/Stories/main.astoryx", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_0.png", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_1.png", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png", true);
 		project->addEditorOpenedFile(projectFolder + "/Stories/main.astoryx");
 		project->setFocusedFile(projectFolder + "/Stories/main.astoryx");
 		project->saveProject();

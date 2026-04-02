@@ -34,6 +34,7 @@ namespace ASERStudio::AStorySyntax {
 		qint32 getOptionalParameterCount() const;
 		bool isDiagnosticAvailable() const;
 		QList<AStoryXDiagnosticData> getDiagnostics() const;
+		QString toString() const;
 		bool isValid() const;
 	protected:
 		AStoryXControllerParseDataPrivate* d;

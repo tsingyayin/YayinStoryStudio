@@ -36,7 +36,7 @@ namespace YSSCore::Editor {
 		Q_OBJECT
 	public:
 		SyntaxHighlighter(TextEdit* parent = nullptr);
-		~SyntaxHighlighter();
+		virtual ~SyntaxHighlighter();
 	private:
 		void highlightBlock(const QString& text) override;
 	public:

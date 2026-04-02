@@ -304,22 +304,44 @@ namespace Visindigo::Utility {
 		QDesktopServices::openUrl(QUrl(url));
 	}
 
+	/*!
+		\a name 文件名
+		\a replace 替换字符
+		\since Yayin Story Studio 0.13.0
+		将文件名中的非法字符替换为指定字符，并返回合法的文件名。
+		这个函数不验证用于替换的字符是否合法，请务必保证它合法，否则可能会得到一个仍然非法的文件名。
+	*/
 	QString FileUtility::toLegelFileName(const QString& name, const QString& replace) {
 		QString legalName = name;
 		legalName.replace(QRegularExpression("[\\\\/:*?\"<>|\\s!@$]"), replace);
 		return legalName;
 	}
 
+	/*!
+		\a filePath 文件路径
+		\since Yayin Story Studio 0.13.0
+		判断指定文件是否存在，返回一个bool。
+	*/
 	bool FileUtility::isFileExist(const QString& filePath) {
 		QFile file(filePath);
 		return file.exists();
 	}
 
+	/*!
+		\a dirPath 目录路径
+		\since Yayin Story Studio 0.13.0
+		判断指定目录是否存在，返回一个bool。
+	*/
 	bool FileUtility::isDirExist(const QString& dirPath) {
 		QDir dir(dirPath);
 		return dir.exists();
 	}
 
+	/*!
+		\a dirPath 目录路径
+		\since Yayin Story Studio 0.13.0
+		判断指定目录是否为空，返回一个bool。
+	*/
 	bool FileUtility::isDirEmpty(const QString& dirPath) {
 		QDir dir(dirPath);
 		if (!dir.exists()) {
@@ -328,6 +350,11 @@ namespace Visindigo::Utility {
 		return dir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty();
 	}
 
+	/*!
+		\a dirPath 目录路径
+		\since Yayin Story Studio 0.13.0
+		创建指定目录，返回一个bool，表示是否创建成功。
+	*/
 	bool FileUtility::createDir(const QString& dirPath) {
 		QDir dir(dirPath);
 		if (dir.exists()) {
@@ -336,6 +363,12 @@ namespace Visindigo::Utility {
 		return dir.mkpath(".");
 	}
 
+	/*!
+		\a startWith 起始路径
+		\a path 绝对路径
+		\since Yayin Story Studio 0.13.0
+		如果path以startWith开头，则返回相对于startWith的路径，否则返回path。
+	*/
 	QString FileUtility::getRelativeIfStartWith(const QString& startWith, const QString& path) {
 		if (path.startsWith(startWith)) {
 			QDir dir(startWith);
@@ -346,6 +379,11 @@ namespace Visindigo::Utility {
 		}
 	}
 
+	/*!
+		\a argv 程序参数
+		\since Yayin Story Studio 0.13.0
+		获取程序所在目录的绝对路径，返回一个QString。
+	*/
 	QString FileUtility::getProgramPath(char** argv){
 		if (argv==nullptr) {
 			QFileInfo fileInfo(QCoreApplication::applicationFilePath());
@@ -357,6 +395,11 @@ namespace Visindigo::Utility {
 		}
 	}
 
+	/*!
+		\a filePath 文件路径
+		\since Yayin Story Studio 0.13.0
+		获取指定文件的创建时间，返回一个QDateTime。
+	*/
 	QDateTime FileUtility::getFileCreateTime(const QString& filePath) {
 		QFileInfo fileInfo(filePath);
 		if (!fileInfo.exists()) {
@@ -365,6 +408,11 @@ namespace Visindigo::Utility {
 		return fileInfo.birthTime();
 	}
 
+	/*!
+		\a filePath 文件路径
+		\since Yayin Story Studio 0.13.0
+		获取指定文件的修改时间，返回一个QDateTime。
+	*/
 	QDateTime FileUtility::getFileModifyTime(const QString& filePath) {
 		QFileInfo fileInfo(filePath);
 		if (!fileInfo.exists()) {
@@ -373,6 +421,11 @@ namespace Visindigo::Utility {
 		return fileInfo.lastModified();
 	}
 
+	/*!
+		\a filePath 文件路径
+		\since Yayin Story Studio 0.13.0
+		获取指定文件的访问时间，返回一个QDateTime。
+	*/
 	QDateTime FileUtility::getFileAccessTime(const QString& filePath) {
 		QFileInfo fileInfo(filePath);
 		if (!fileInfo.exists()) {
@@ -381,6 +434,12 @@ namespace Visindigo::Utility {
 		return fileInfo.lastRead();
 	}
 
+	/*!
+		\a filePath 文件路径
+		\a moveToTrash 是否移动到回收站
+		\since Yayin Story Studio 0.13.0
+		删除指定文件，如果moveToTrash为true，则移动到回收站，否则直接删除。
+	*/
 	void FileUtility::deleteFile(const QString& filePath, bool moveToTrash) {
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -394,7 +453,22 @@ namespace Visindigo::Utility {
 		}
 	}
 
-	void FileUtility::copyFile(const QString& srcPath, const QString& dstPath, bool overwrite) {
+	/*!
+		\a srcPath 源文件路径
+		\a dstPath 目标文件路径
+		\a rinse 是否使用漂洗的方式复制文件
+		\a overwrite 是否覆盖已存在的目标文件
+		\since Yayin Story Studio 0.13.0
+		复制文件，如果rinse为true，则使用漂洗的方式复制文件，否则使用QFile::copy()，如果overwrite为true，则覆盖已存在的目标文件，否则不进行复制。
+
+		漂洗模式只忠实传递文件本体的二进制数据，不从源文件读取任何元数据，也不写入任何元数据到目标文件，
+		因此在某些特殊情况下可能会得到一个与源文件不同的目标文件，例如当源文件具有特殊权限时，目标文件可能会得到默认权限；
+		当源文件具有特殊属性时，目标文件可能不会继承这些属性；当源文件具有特殊时间戳时，目标文件可能会得到当前时间戳。
+
+		这对于从qrc编译到二进制文件内的资源文件向外部复制时很有用，因为qrc资源文件会自动设为只读，
+		并且具有特殊的权限和属性，使用漂洗模式复制可以得到一个正常的可读写文件。
+	*/
+	void FileUtility::copyFile(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
 		QFile srcFile(srcPath);
 		if (!srcFile.exists()) {
 			return;
@@ -408,6 +482,16 @@ namespace Visindigo::Utility {
 				return;
 			}
 		}
-		srcFile.copy(dstPath);
+		if (not rinse) {	
+			srcFile.copy(dstPath);
+		}
+		else {
+			srcFile.open(QIODevice::ReadOnly);
+			QByteArray data = srcFile.readAll();
+			srcFile.close();
+			dstFile.open(QIODevice::WriteOnly);
+			dstFile.write(data);
+			dstFile.close();
+		}
 	}
 }

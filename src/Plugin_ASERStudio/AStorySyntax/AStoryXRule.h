@@ -5,14 +5,12 @@
 #include "AStorySyntax/AStoryXController.h"
 #include <QtCore/qstringlist.h>
 #include <VIMacro.h>
-
-class QString;
 namespace ASERStudio::AStorySyntax{
 	class AStoryXValue;
 	class AStoryXRulePrivate;
 	class ASERAPI AStoryXRule {
 	public:
-		AStoryXRule(const QString& version);
+		AStoryXRule(const QString& version = "");
 		~AStoryXRule();
 		VIMoveable(AStoryXRule);
 		VICopyable(AStoryXRule);
@@ -33,6 +31,11 @@ namespace ASERStudio::AStorySyntax{
 		bool isAdvanced(AStoryXController::ControllerType type) const;
 		AStoryXControllerParseData parseAStoryX(const QString& str, qint32 cursorPosition = -1, bool diagnostic = false, qint32 lineIndex = -1);
 		Visindigo::Utility::JsonConfig getAStoryXControllerMetaData() const;
+		bool isValid() const;
+	public:
+		static void registerRule(const AStoryXRule& rule);
+		static AStoryXRule* getRule(const QString& name);
+		static bool hasRule(const QString& name);
 	private:
 		AStoryXRulePrivate* d;
 	};

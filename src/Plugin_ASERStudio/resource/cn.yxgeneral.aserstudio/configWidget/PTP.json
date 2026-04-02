@@ -41,14 +41,6 @@
 							{
 								"data": "uptodate",
 								"key": "i18n:ASERStudio::provider.project.version.uptodate"
-							},
-							{
-								"data": "2.08.10.0",
-								"key": "2.08.10.0"
-							},
-							{
-								"data": "2.05.22.1A",
-								"key": "2.05.22.1A"
 							}
 						],
 						"default": "uptodate"

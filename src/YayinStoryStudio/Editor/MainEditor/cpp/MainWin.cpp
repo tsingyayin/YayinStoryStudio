@@ -125,6 +125,7 @@ namespace YSS::Editor {
 				return;
 			}
 			for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
+				
 				if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 					YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
 					if (editorPlugin) {

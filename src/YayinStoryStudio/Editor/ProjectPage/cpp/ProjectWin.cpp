@@ -28,10 +28,11 @@ namespace YSS::ProjectPage {
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(VITR("YSS::project.projectManager"));
+		this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
 		TitleLabel = new QLabel(this);
 		TitleLabel->setText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("ProgramTitleLabel");
-		TitleLabel->setFixedHeight(80);
+		TitleLabel->setFixedHeight(100);
 
 		HistoryProjectArea = new QScrollArea(this);
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);
@@ -109,10 +110,12 @@ namespace YSS::ProjectPage {
 			delete project;
 			project = nullptr;
 		}
-		if (YSS::Editor::MainWin::getInstance() == nullptr) {
-			new YSS::Editor::MainWin();
+		if (GlobalValue::getCurrentProject()) {
+			if (YSS::Editor::MainWin::getInstance() == nullptr) {
+				new YSS::Editor::MainWin();
+			}
+			YSS::Editor::MainWin::getInstance()->show();
 		}
-		YSS::Editor::MainWin::getInstance()->show();
 		this->deleteLater();
 	}
 

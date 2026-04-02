@@ -44,6 +44,6 @@ namespace Visindigo::Utility {
 		static QDateTime getFileModifyTime(const QString& filePath);
 		static QDateTime getFileAccessTime(const QString& filePath);
 		static void deleteFile(const QString& filePath, bool moveToTrash = true);
-		static void copyFile(const QString& srcPath, const QString& dstPath, bool overwrite = false);
+		static void copyFile(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 	};
 }

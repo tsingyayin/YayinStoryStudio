@@ -15,6 +15,8 @@ namespace ASERStudio {
 		virtual void onPluginEnable() override;
 		virtual void onApplicationInit() override;
 		virtual void onPluginDisable() override;
+		virtual void onProjectOpen(YSSCore::General::YSSProject* project) override;
+		virtual void onProjectClose(YSSCore::General::YSSProject* project) override;
 		virtual void onTest() override;
 	};
 }

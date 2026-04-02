@@ -6,18 +6,20 @@
 #include "../../General/Log.h"
 
 namespace Visindigo::__Private__ {
-	Visindigo::General::VisindigoTranslator* TranslatorPrivate::Instance = nullptr;
 
 	bool TranslatorPrivate::loadDefault() {
 		return loadTranslationFile(DefaultID, true);
 	}
 	bool TranslatorPrivate::loadTranslationFile(Visindigo::General::Translator::LangID id, bool asDefault) {
+		vgDebug << FilePath.size();
 		QString filePath = FilePath[id];
 		QFile file(filePath);
 		if (!file.exists()) {
 			return false;
 		}
-		file.open(QIODevice::ReadOnly | QIODevice::Text);
+		if (not file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+			return false;
+		}
 		QTextStream ts(&file);
 		ts.setEncoding(QStringConverter::Utf8);
 		QString jsonConfig = ts.readAll();
@@ -142,9 +144,12 @@ namespace Visindigo::General
 
 		语言文件不会在设置后立即加载，只有当Translator被挂载到TranslationHost后，才会按需加载对应的语言文件。
 
+		\warning 不推荐使用这个函数。由于未知原因，此函数在某些情况下会创建
+		病态的QMap对象，从而导致程序崩溃。建议使用addLangFilePath()函数逐个添加语言文件路径。
+
 		\sa TranslationHost
 	*/
-	void Translator::setLangFilePath(QMap<LangID, QString> langFilePath) {
+	void Translator::setLangFilePath(const QMap<LangID, QString>& langFilePath) {
 		d->FilePath = langFilePath;
 	}
 

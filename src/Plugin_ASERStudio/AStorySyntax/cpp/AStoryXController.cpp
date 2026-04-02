@@ -5,28 +5,36 @@
 #include "AStorySyntax/AStoryXDiagnosticData.h"
 #include <General/TranslationHost.h>
 #include "AStorySyntax/AStoryXValue.h"
+#include <General/Log.h>
 namespace ASERStudio::AStorySyntax {
 	class AStoryXControllerPrivate {
 		friend class AStoryXController;
 	public:
+		bool IsValid = false;
 		AStoryXController::ControllerType Type;
 		QString Header; //StartSign
 		QString RequiredParameterName;
 		AStoryXValue RequiredParameterValue;
 		QString RequiredParameterSeparater;
 	private:
+		QStringList OptionalParameterNames;
 		QMap<QString, QString> OptionalParameterPrefix;
 		QMap<QString, AStoryXValue> OptionalParameterValue;
 		bool prefixChanged = false;
 		bool Monotonicity = false;
 	public:
 		QStringList getOptionalParameterPrefixes() {
-			return OptionalParameterPrefix.values();
+			QStringList prefixes;
+			for (auto key : OptionalParameterNames) {
+				prefixes.append(OptionalParameterPrefix[key]);
+			}
+			return prefixes;
 		}
 		QStringList getOptionalParameterNames() {
-			return OptionalParameterPrefix.keys();
+			return OptionalParameterNames;
 		}
 		void setOptionalParameter(const QString& name, const QString& prefix, AStoryXValue value) {
+			OptionalParameterNames.append(name);
 			OptionalParameterPrefix[name] = prefix;
 			OptionalParameterValue[name] = value;
 			prefixChanged = true;
@@ -67,7 +75,11 @@ namespace ASERStudio::AStorySyntax {
 					prefixIndexes.append(-1);
 				}
 			}
-			if (diagnostic && prefixIndexes.first() == 0) { // Required parameter is missing
+			vgDebug << prefixes;
+			for(auto prefix : prefixIndexes) {
+				vgDebug << prefix;
+			}
+			if (diagnostic && prefixIndexes.size() > 0 && prefixIndexes.first() == 0) { // Required parameter is missing
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.missingRequiredParameter.message"),
 					lineIndex, outputIndexOffset, AStoryXDiagnosticData::DiagnosticType::MissingRequiredParameter,
@@ -75,7 +87,19 @@ namespace ASERStudio::AStorySyntax {
 				);
 				data->d->Diagnostics.append(diagnosticData);
 			}
-			data->d->RequiredParameter = str.left(0 == prefixIndexes.first() ? 0 : prefixIndexes.first()).trimmed();
+			if (prefixIndexes.size() > 0 && prefixIndexes.first() != -1) {
+				int firstNotNegativeIndex = -1;
+				for (int i = 0; i < prefixIndexes.size(); i++) {
+					if (prefixIndexes[i] != -1) {
+						firstNotNegativeIndex = prefixIndexes[i];
+						break;
+					}
+				}
+				data->d->RequiredParameter = str.left(firstNotNegativeIndex).trimmed();
+			}
+			else {
+				data->d->RequiredParameter = str.trimmed();
+			}
 			data->d->RequiredParameterStringIndex = outputIndexOffset;
 			QList<qint32> fixedPrefixIndexes = prefixIndexes;
 			for (int i = 0; i < prefixIndexes.size(); i++) {
@@ -280,28 +304,44 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		解析JSON配置以设置控制器属性。
 	*/
-	void AStoryXController::parseRule(const Visindigo::Utility::JsonConfig& config, const Visindigo::Utility::JsonConfig& meta) {
+	bool AStoryXController::parseRule(const Visindigo::Utility::JsonConfig& config, const Visindigo::Utility::JsonConfig& meta) {
 		if (config.isEmpty()) {
-			return;
+			return false;
 		}
 		QString key = config.getString("Key");
+		if (key.isEmpty()) {
+			return false;
+		}
 		d->Type = (AStoryXController::ControllerType)QMetaEnum::fromType<AStoryXController::ControllerType>().keyToValue(key.toStdString().c_str());
 		if (d->Type == AStoryXController::ControllerType::Dialog) { // Dialog controller does not have header.
 			d->Header = "";
 		}
 		else {
 			d->Header = config.getString("Value.header");
+			if (d->Header.isEmpty()) {
+				return false;
+			}
 		}
-		d->RequiredParameterName = config.getString("Value.requiredParameterName");
+		d->RequiredParameterName = config.getString("Value.requiredParametersName");
 		d->RequiredParameterValue.setMetaData(key + "." + d->RequiredParameterName, meta);
-		d->RequiredParameterSeparater = config.getString("Value.requiredParameterSeparater");
+		d->RequiredParameterSeparater = config.getString("Value.requiredParametersSeparater");
+		bool ok = true;
 		for(auto item: config.getArray("Value.optionalParameters")) {
 			QString name = item.getString("parameterName");
+			if (name.isEmpty()) {
+				ok = false;
+			}
 			QString prefix = item.getString("prefix");
+			if (prefix.isEmpty()) {
+				ok = false;
+			}
 			AStoryXValue parameterValue;
+			vgDebug << "Parsing optional parameter:" << name << " with prefix:" << prefix;
 			parameterValue.setMetaData(key + "." + name, meta);
 			d->setOptionalParameter(name, prefix, parameterValue);
 		}
+		d->IsValid = ok;
+		return ok;
 	}
 	
 	/*!
@@ -318,6 +358,9 @@ namespace ASERStudio::AStorySyntax {
 		但显然前者会比较重，因此建议根据实际需要传递参数，并非总进行诊断。
 	*/
 	AStoryXControllerParseData AStoryXController::parseAStoryX(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
+		if (not d->IsValid) {
+			return AStoryXControllerParseData();
+		}
 		AStoryXControllerParseData result;
 		static QRegularExpression protectTMP("&\\{[\\d\\D]*?\\}");
 		QRegularExpressionMatchIterator protectTMPIt = protectTMP.globalMatch(str);
@@ -331,7 +374,7 @@ namespace ASERStudio::AStorySyntax {
 			protectedStrs[protectedStrTemplate.arg(i)] = content;
 			i++;
 		}
-		static QRegularExpression protectRef("&\\([\\d\\D)*?\\}");
+		static QRegularExpression protectRef("&\\([\\d\\D]*?\\)");
 		QRegularExpressionMatchIterator protectRefIt = protectRef.globalMatch(ptStr);
 		i = 0;
 		QMap<QString, QString> protectedRefStrs;
@@ -346,6 +389,7 @@ namespace ASERStudio::AStorySyntax {
 		ptStr = ptStr.mid(d->Header.length());
 		result.d->ControllerType = d->Type;
 		result.d->DiagnosticAvailable = diagnostic;
+		vgDebug << d->isMonotonicity();
 		if (d->isMonotonicity()) {
 			d->parseMonotonicity(protectedStrs, protectedRefStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
 		}
@@ -356,6 +400,13 @@ namespace ASERStudio::AStorySyntax {
 		return result;
 	}
 
+	/*!
+		\since ASERStudio 2.0
+		return 控制器的类型。
+	*/
+	AStoryXController::ControllerType AStoryXController::getControllerType() {
+		return d->Type;
+	}
 	/*!
 		\since ASERStudio 2.0
 		return 控制器行首标识符（即ASE-Ramake中的Header）。ASERStudio中也称其为StartSign。
@@ -434,5 +485,29 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	bool AStoryXController::isAdvanced() {
 		return d->isMonotonicity();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		 return 控制器定义的有效性。一个有效的控制器定义应该至少包含一个非空的行首标识符（Header/StartSign）和一个必需参数名称。
+	*/
+	bool AStoryXController::isValid() {
+		return d->IsValid;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		return 控制器定义的字符串表示形式，主要用于调试和日志记录等目的。通常会包含控制器的类型、行首标识符、必需参数名称和可选参数信息等内容。
+	*/
+	QString AStoryXController::toString() {
+		QStringList optionalParams;
+		for (auto name : getOptionalParameterNames()) {
+			optionalParams.append(name + "(prefix: " + d->OptionalParameterPrefix[name] + ", type: " + QString::number(d->OptionalParameterValue[name].getType()) + ")");
+		}
+		return QString("Type: %1, Header: %2, RequiredParameterName: %3, OptionalParameters: [%4]")
+			.arg(QMetaEnum::fromType<AStoryXController::ControllerType>().valueToKey(d->Type))
+			.arg(d->Header)
+			.arg(d->RequiredParameterName)
+			.arg(optionalParams.join(", "));
 	}
 }

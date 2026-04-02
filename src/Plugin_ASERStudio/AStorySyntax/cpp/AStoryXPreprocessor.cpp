@@ -70,6 +70,7 @@ namespace ASERStudio::AStorySyntax {
 		data->d->RequiredParameterStringIndex = 0;
 		QString blockName = context.mid(0, leftParenIndex).trimmed();
 		data->d->OptionalParameterNames.append("blockName");
+		data->d->OptionalParameters.append(blockName);
 		QString params = context.mid(leftParenIndex + 1, rightParenIndex - leftParenIndex - 1).trimmed();
 		QStringList paramsList = params.split(',');
 		int index = 0;

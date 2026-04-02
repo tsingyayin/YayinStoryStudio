@@ -7,16 +7,18 @@
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
 #include <QtCore/qjsondocument.h>
-
+#include <General/Log.h>
 namespace ASERStudio::AStorySyntax {
 	class AStoryXRulePrivate {
 		friend class AStoryXRule;
 	public:
+		bool isValid = false;
 		QString Version;
 		QString Name;
 		QMap<AStoryXController::ControllerType, AStoryXController> Controllers;
 		AStoryXPreprocessor Preprocessor;
 		Visindigo::Utility::JsonConfig MetaConfig;
+		static QMap<QString, AStoryXRule*> RegisteredRules;
 	public:
 		void loadMetaJson() {
 			QString jsonStr = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/astoryxMeta/" + Version.replace(".", "_") + ".json");
@@ -27,6 +29,8 @@ namespace ASERStudio::AStorySyntax {
 			MetaConfig.parse(jsonStr);
 		}
 	};
+
+	QMap<QString, AStoryXRule*> AStoryXRulePrivate::RegisteredRules;
 
 	/*!
 		\class ASERStudio::AStorySyntax::AStoryXRule
@@ -120,11 +124,17 @@ namespace ASERStudio::AStorySyntax {
 		if (error.error != QJsonParseError::NoError) {
 			return false;
 		}
+		bool ok = true;
 		for(auto item: config.getArray("rules")) {
 			AStoryXController controller;
-			controller.parseRule(item, d->MetaConfig);
+			if (not controller.parseRule(item, d->MetaConfig)) {
+				ok = false;
+			}
+			d->Controllers.insert(controller.getControllerType(), controller);
+			vgDebug << controller;
 		}
-		return true;
+		d->isValid = ok;
+		return ok;
 	}
 
 	/*!
@@ -256,6 +266,11 @@ namespace ASERStudio::AStorySyntax {
 		if (str.isEmpty()) {
 			return AStoryXControllerParseData();
 		}
+		if (str.startsWith("//")) {
+			auto rtn = AStoryXControllerParseData();
+			rtn.d->ControllerType = AStoryXController::ControllerType::Comment;
+			return rtn;
+		}
 		if (d->Preprocessor.isPreprocessor(str)) {
 			return d->Preprocessor.parse(str, cursorPosition, diagnostic, lineIndex);
 		}
@@ -274,5 +289,45 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	Visindigo::Utility::JsonConfig AStoryXRule::getAStoryXControllerMetaData() const {
 		return d->MetaConfig;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回AStoryX语法规则是否有效。
+	*/
+	bool AStoryXRule::isValid() const {
+		return d->isValid;
+	}
+	/*!
+		\since ASERStudio 2.0
+		注册AStoryX语法规则。
+		\a rule 要注册的AStoryXRule对象。注册后可以通过getRule函数获取该规则。
+	*/
+	void AStoryXRule::registerRule(const AStoryXRule& rule) {
+		AStoryXRule* newRule = new AStoryXRule(rule);
+		AStoryXRulePrivate::RegisteredRules.insert(newRule->getName(), newRule);
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		获取已注册的AStoryX语法规则。
+		\a name 要获取的AStoryXRule对象的名称。必须与注册时设置的名称一致。
+		返回值：如果找到对应名称的规则，则返回指向该规则的指针；否则返回nullptr。
+	*/
+	AStoryXRule* AStoryXRule::getRule(const QString& name) {
+		if (AStoryXRulePrivate::RegisteredRules.contains(name)) {
+			return AStoryXRulePrivate::RegisteredRules[name];
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		检查是否存在已注册的AStoryX语法规则。
+		\a name 要检查的AStoryXRule对象的名称。必须与注册时设置的名称一致。
+		返回值：如果存在对应名称的规则，则返回true；否则返回false。
+	*/
+	bool AStoryXRule::hasRule(const QString& name) {
+		return AStoryXRulePrivate::RegisteredRules.contains(name);
 	}
 }

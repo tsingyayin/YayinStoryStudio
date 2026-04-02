@@ -39,7 +39,7 @@ namespace Visindigo::General {
 		void setNamespace(const QString& nameSpace);
 		QString getNamespace();
 		void setDefaultLang(LangID lang);
-		void setLangFilePath(QMap<LangID, QString> langFilePath);
+		void setLangFilePath(const QMap<LangID, QString>& langFilePath);
 		void addLangFilePath(LangID id, QString filePath);
 		QString tr(const QString& key);
 	protected:

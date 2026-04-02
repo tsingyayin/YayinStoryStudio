@@ -251,6 +251,21 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		返回这个解析结果的字符串表示。这个字符串表示不具有任何特定格式，仅供调试使用。
+	*/
+	QString AStoryXControllerParseData::toString() const {
+		QString result = QString("ControllerType: %1\n").arg(d->ControllerType);
+		result += QString("IsValid: %1\n").arg(isValid());
+		result += QString("RequiredParameter: %1\n").arg(d->RequiredParameter);
+		result += QString("OptionalParameters: [%1]\n").arg(d->OptionalParameters.join(", "));
+		result += QString("OptionalParameterNames: [%1]\n").arg(d->OptionalParameterNames.join(", "));
+		result += QString("ReferenceVariables: [%1]\n").arg(d->referenceVariables.join(", "));
+		result += QString("RequiredParameterStringIndex: %1\n").arg(d->RequiredParameterStringIndex);
+		result += QString("DiagnosticAvailable: %1\n").arg(d->DiagnosticAvailable);
+		return result;
+	}
+	/*!
+		\since ASERStudio 2.0
 		返回这个解析结果是否有效。无效的解析结果代表它是创建即返回的，没有包含任何有效数据。
 	*/
 	bool AStoryXControllerParseData::isValid() const {

@@ -25,7 +25,6 @@ namespace ASERStudio::AStorySyntax {
 		QList<AStoryXControllerParseData> getAllParseData() const;
 		void setTextDocument(QTextDocument* doc);
 		QTextDocument* getTextDocument() const;
-		void addRule(AStoryXRule* rule);
 		void setEnableDiagnostic(bool enable);
 		bool isDiagnosticEnabled() const;
 	private:
