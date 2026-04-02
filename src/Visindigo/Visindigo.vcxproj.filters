@@ -98,12 +98,6 @@
     <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="General\cpp\ProjectMessageData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="General\cpp\ProjectMessageCollector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\cpp\StringUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -268,9 +262,6 @@
     <ClInclude Include="Widgets\WidgetDisplayStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\ProjectMessageData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\StringMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -346,9 +337,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\ConfigWidget_p.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="General\ProjectMessageCollector.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\MultiButtonGroup.h">

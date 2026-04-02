@@ -130,8 +130,7 @@ namespace ASERStudio::YSS {
 		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx", projectFolder + "/Stories/main.astoryx");
 		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_0.png");
 		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_1.png");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu.json", projectFolder + "/Resources/Char_Picture/tianyu/tianyu.json");
-		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/BGP/Background.png");
+		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png");
 		QFile::copy(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png");
 		project->addEditorOpenedFile(projectFolder + "/Stories/main.astoryx");
 		project->setFocusedFile(projectFolder + "/Stories/main.astoryx");

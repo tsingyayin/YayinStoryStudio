@@ -4,12 +4,13 @@
 // Forward declarations
 class QString;
 class QTextDocument;
-class QSyntaxHighlighter;
 namespace YSSCore::Editor {
 	class EditorPlugin;
 	class TabCompleterProvider;
 	class HoverInfoProvider;
 	class LangServerPrivate;
+	class SyntaxHighlighter;
+	class TextEdit;
 }
 // Main
 namespace YSSCore::Editor {
@@ -19,7 +20,7 @@ namespace YSSCore::Editor {
 	public:
 		LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext);
 		virtual ~LangServer();
-		virtual QSyntaxHighlighter* createHighlighter(QTextDocument* doc) = 0;
+		virtual SyntaxHighlighter* createHighlighter(TextEdit* doc) = 0;
 		virtual TabCompleterProvider* createTabCompleter(QTextDocument* doc) = 0;
 		virtual HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) = 0;
 		QString getLangID();

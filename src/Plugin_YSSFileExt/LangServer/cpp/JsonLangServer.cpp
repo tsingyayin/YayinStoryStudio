@@ -8,20 +8,20 @@ namespace YSSFileExt {
 		
 	}
 
-	QSyntaxHighlighter* JsonLangServer::createHighlighter(QTextDocument* doc) {
-		return new JsonLangHighlighter(doc);
+	YSSCore::Editor::SyntaxHighlighter* JsonLangServer::createHighlighter(YSSCore::Editor::TextEdit* parent) {
+		return new JsonLangHighlighter(parent);
 	}
 
 	YSSCore::Editor::TabCompleterProvider* JsonLangServer::createTabCompleter(QTextDocument* doc) {
 		return nullptr; // TODO
 	}
 
-	JsonLangHighlighter::JsonLangHighlighter(QTextDocument* parent) :
-		QSyntaxHighlighter(parent)
+	JsonLangHighlighter::JsonLangHighlighter(YSSCore::Editor::TextEdit* parent) :
+		YSSCore::Editor::SyntaxHighlighter(parent)
 	{
 	}
 
-	void JsonLangHighlighter::highlightBlock(const QString& text) {
+	void JsonLangHighlighter::onBlockChanged(const QString& text, int blockNumber) {
 		// Simple JSON syntax highlighting
 		QRegularExpression keyRegex("\".+\": ");
 

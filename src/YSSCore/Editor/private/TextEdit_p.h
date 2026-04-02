@@ -9,6 +9,7 @@ namespace YSSCore::Editor {
 	class TextEdit;
 	class TabCompleterProvider;
 	class HoverInfoProvider;
+	class SyntaxHighlighter;
 }
 class QTextEdit;
 class QHBoxLayout;
@@ -36,7 +37,7 @@ namespace YSSCore::__Private__ {
 		QTextCursor LastCursor;
 		QFont Font;
 		QFontMetricsF* FontMetrics;
-		QSyntaxHighlighter* Highlighter = nullptr;
+		YSSCore::Editor::SyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::TabCompleterProvider* TabCompleter = nullptr;
 		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
 		YSSCore::Editor::HoverInfoProvider* HoverInfoProvider = nullptr;

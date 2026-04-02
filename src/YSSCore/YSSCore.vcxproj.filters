@@ -92,6 +92,12 @@
     <ClCompile Include="Editor\cpp\DebugStepData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\DocumentMessageHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\SyntaxHighlighter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\private\EditorPlugin_p.h">
@@ -136,6 +142,9 @@
     <ClInclude Include="Editor\DebugStepData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\private\DocumentMessageManager_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\private\TabCompleterProvider_p.h">
@@ -178,6 +187,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\private\HoverInfoProvider_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\SyntaxHighlighter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\DocumentMessageManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

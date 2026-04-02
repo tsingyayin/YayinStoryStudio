@@ -10,7 +10,7 @@ namespace Visindigo::Widgets {
 	class QuickMenu;
 }
 namespace YSS::Editor {
-	class FileEditorArea;
+	class StackWidgetArea;
 	class ResourceBrowser;
 
 	class MainWin : public QMainWindow, Visindigo::Widgets::ColorfulWidget {
@@ -18,7 +18,7 @@ namespace YSS::Editor {
 	private:
 		QWidget* CentralWidget = nullptr;
 		ResourceBrowser* Browser = nullptr;
-		FileEditorArea* Editor = nullptr;
+		StackWidgetArea* Editor = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		Visindigo::Widgets::QuickMenu* Menu = nullptr;
 		bool asked = false;
@@ -27,7 +27,8 @@ namespace YSS::Editor {
 		MainWin();
 		static MainWin* getInstance();
 		ResourceBrowser* getResourceBrowser();
-		FileEditorArea* getFileEditorArea();
+		StackWidgetArea* getStackWidgetArea();
+		void saveAll();
 		void backToProjectWin();
 		virtual void onThemeChanged() override;
 	public:

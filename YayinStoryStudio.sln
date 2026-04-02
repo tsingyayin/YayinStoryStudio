@@ -13,12 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryStudio", "src\Yay
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visindigo", "src\Visindigo\Visindigo.vcxproj", "{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ASEDevTool", "src\Plugin_ASEDevTool\Plugin_ASEDevTool.vcxproj", "{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F08AE0A-238A-459C-9F7C-3CE15B4F7F20} = {8F08AE0A-238A-459C-9F7C-3CE15B4F7F20}
-		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41} = {A7BAE61B-D84E-410D-A68F-805E7E0BAF41}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ImageViewer", "src\Plugin_ImageViewer\Plugin_ImageViewer.vcxproj", "{DD27AF3D-1781-47E5-9531-E932AF190F28}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSSInstaller", "src\YSSInstaller\YSSInstaller.vcxproj", "{16A1F8C1-A0F9-4872-A661-EC8C6EE8B2C4}"
@@ -39,6 +33,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VKCompute", "src\VKCompute\VKCompute.vcxproj", "{5E30872D-417E-4876-ACC2-0E703D92B5F8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin_ASERStudio", "src\Plugin_ASERStudio\Plugin_ASERStudio.vcxproj", "{4F8329D6-5B4F-4B3D-8314-34A31018FC02}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8F08AE0A-238A-459C-9F7C-3CE15B4F7F20} = {8F08AE0A-238A-459C-9F7C-3CE15B4F7F20}
+		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41} = {A7BAE61B-D84E-410D-A68F-805E7E0BAF41}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,14 +62,6 @@ Global
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}.ExportRelease|x64.Build.0 = DllRelease|x64
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}.Release|x64.ActiveCfg = Release|x64
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}.Release|x64.Build.0 = Release|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.Debug|x64.ActiveCfg = Debug|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.Debug|x64.Build.0 = Debug|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.ExportDebug|x64.ActiveCfg = DllDebug|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.ExportDebug|x64.Build.0 = DllDebug|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.ExportRelease|x64.ActiveCfg = DllRelease|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.ExportRelease|x64.Build.0 = DllRelease|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.Release|x64.ActiveCfg = Release|x64
-		{83ECBBAB-AEE4-4A3F-91E8-75A6637CD646}.Release|x64.Build.0 = Release|x64
 		{DD27AF3D-1781-47E5-9531-E932AF190F28}.Debug|x64.ActiveCfg = Debug|x64
 		{DD27AF3D-1781-47E5-9531-E932AF190F28}.Debug|x64.Build.0 = Debug|x64
 		{DD27AF3D-1781-47E5-9531-E932AF190F28}.ExportDebug|x64.ActiveCfg = Release|x64

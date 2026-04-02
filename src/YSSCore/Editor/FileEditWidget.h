@@ -33,6 +33,7 @@ namespace YSSCore::Editor {
 		bool undo();
 		bool redo();
 		bool selectAll();
+		bool cursorToPosition(qint32 lineNumber, qint32 column);
 	protected:
 		virtual bool onOpen(const QString& path) = 0;
 		virtual bool onClose() = 0;
@@ -44,6 +45,7 @@ namespace YSSCore::Editor {
 		virtual bool onUndo() = 0;
 		virtual bool onRedo() = 0;
 		virtual bool onSelectAll() = 0;
+		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column);
 	protected:
 		virtual void closeEvent(QCloseEvent* event) override;
 	};

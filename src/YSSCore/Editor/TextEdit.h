@@ -32,11 +32,11 @@ namespace YSSCore::Editor {
 		qint32 getHoverTimeout() const;
 		void setTabReload(bool reload);
 		bool isTabReload() const;
+		QTextDocument* getDocument() const;
 	private:
 		virtual bool eventFilter(QObject* obj, QEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void closeEvent(QCloseEvent* event) override;
-		virtual void mouseMoveEvent(QMouseEvent* event) override;
 	protected:
 		virtual bool onOpen(const QString& path) override;
 		virtual bool onClose() override;

@@ -112,10 +112,9 @@
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MenuBarHandler.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\StackBar.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea_p.cpp" />
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp" />
@@ -132,9 +131,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h" />
-    <QtMoc Include="Editor\MainEditor\StackBarLabel.h" />
-    <QtMoc Include="Editor\MainEditor\StackBar.h" />
-    <QtMoc Include="Editor\MainEditor\FileEditorArea.h" />
     <QtMoc Include="Editor\MainEditor\MainWin.h" />
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />
     <QtMoc Include="Editor\GlobalValue.h" />
@@ -150,6 +146,8 @@
     <QtMoc Include="Editor\ProjectPage\NewsArea.h" />
     <QtMoc Include="Editor\MainEditor\MenuBarHandler.h" />
     <QtMoc Include="Editor\ProjectMetaPage\ProjectMetaWin.h" />
+    <QtMoc Include="Editor\MainEditor\StackWidgetArea.h" />
+    <QtMoc Include="Editor\MainEditor\private\StackWidgetArea_p.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

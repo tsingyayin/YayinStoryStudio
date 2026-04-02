@@ -11,7 +11,6 @@
 #include "../../ProjectPage/ProjectWin.h"
 #include "../../GlobalValue.h"
 #include "../MainWin.h"
-#include "../FileEditorArea.h"
 #include "../ResourceBrowser.h"
 #include "../MenuBarHandler.h"
 #include <General/YSSLogger.h>
@@ -20,6 +19,7 @@
 #include <General/PluginManager.h>
 #include <General/Plugin.h>
 #include <Editor/EditorPlugin.h>
+#include "Editor/MainEditor/StackWidgetArea.h"
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
 
@@ -39,7 +39,7 @@ namespace YSS::Editor {
 
 		Layout = new QHBoxLayout(CentralWidget);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
-		Editor = new FileEditorArea(CentralWidget);
+		Editor = new StackWidgetArea(CentralWidget);
 		Browser = new ResourceBrowser(CentralWidget);
 		Browser->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 		Editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -48,8 +48,9 @@ namespace YSS::Editor {
 		splitter->addWidget(Editor);
 
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::builtinEditorCreated,
-			Editor, &FileEditorArea::addFileEditWidget);
-
+			Editor, &StackWidgetArea::addWidget);
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::switchLineEdit, Editor,
+			qOverload<const QString&, qint32, qint32>(&StackWidgetArea::setCurrentWidget));
 		
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -59,8 +60,14 @@ namespace YSS::Editor {
 		return Browser;
 	}
 
-	FileEditorArea* MainWin::getFileEditorArea() {
+	StackWidgetArea* MainWin::getStackWidgetArea() {
 		return Editor;
+	}
+
+	void MainWin::saveAll() {
+		for (YSSCore::Editor::FileEditWidget* widget : Editor->getAllWidgets()) {
+			widget->saveFile();
+		}
 	}
 
 	void MainWin::backToProjectWin() {
@@ -104,7 +111,7 @@ namespace YSS::Editor {
 			YSSFSM->openFile(filePath);
 		}
 		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
-		Editor->focusOn(focusedFile);
+		Editor->setCurrentWidget(focusedFile);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 		yDebugF << CentralWidget->width() << CentralWidget->height();
 		yDebugF << this->width() << this->height();
@@ -157,12 +164,13 @@ namespace YSS::Editor {
 			return false;
 		}
 		else if (result == QMessageBox::Yes) {
-			// sth to do , but not saveProject()
+			saveAll();
 		}
 		return true;
 	}
 
 	void MainWin::saveProject() {
+		GlobalValue::getCurrentProject()->setFocusedFile(Editor->getCurrentWidget() ? Editor->getCurrentWidget()->getFilePath() : "");
 		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
 		if (this->isMaximized()) {
 			config->setBool("Window.Editor.Maximized", true);

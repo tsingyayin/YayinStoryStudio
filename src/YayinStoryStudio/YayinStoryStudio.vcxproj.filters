@@ -32,15 +32,6 @@
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\StackBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\StackBarLabel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\FileEditorArea.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -80,21 +71,18 @@
     <ClCompile Include="Editor\cpp\YSSCommandHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea_p.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\MainEditor\StackBar.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\MainEditor\FileEditorArea.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\MainEditor\StackBarLabel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h">
@@ -134,6 +122,15 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="YayinStoryStudio.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ProjectMetaPage\ProjectMetaWin.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\StackWidgetArea.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\private\StackWidgetArea_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

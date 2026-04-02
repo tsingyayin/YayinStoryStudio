@@ -221,8 +221,6 @@
     <ClCompile Include="General\cpp\PluginBinaryHelper.cpp" />
     <ClCompile Include="General\cpp\PluginManager.cpp" />
     <ClCompile Include="General\cpp\PluginModule.cpp" />
-    <ClCompile Include="General\cpp\ProjectMessageCollector.cpp" />
-    <ClCompile Include="General\cpp\ProjectMessageData.cpp" />
     <ClCompile Include="General\cpp\StacktraceHelper.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
     <ClCompile Include="General\cpp\VIGeneral_p.cpp" />
@@ -280,7 +278,6 @@
     <ClCompile Include="Widgets\cpp\WidgetResizeTool.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="General\ProjectMessageCollector.h" />
     <QtMoc Include="General\CommandHost.h" />
     <QtMoc Include="General\Plugin.h" />
     <QtMoc Include="General\CommandHandler.h" />
@@ -297,7 +294,6 @@
     <ClInclude Include="General\private\Plugin_p.h" />
     <ClInclude Include="General\private\VIApplication_p.h" />
     <QtMoc Include="General\private\VIGeneral_p.h" />
-    <ClInclude Include="General\ProjectMessageData.h" />
     <QtMoc Include="Utility\private\qnamespace_key.h" />
     <QtMoc Include="General\VIApplication.h" />
     <ClInclude Include="General\StacktraceHelper.h" />

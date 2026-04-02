@@ -1,0 +1,378 @@
+#include "Editor/MainEditor/private/StackWidgetArea_p.h"
+#include <QtCore/qfileinfo.h>
+#include <Editor/DocumentMessageManager.h>
+#include <General/TranslationHost.h>
+#include <Editor/SyntaxHighlighter.h>
+namespace YSS::Editor {
+	StackWidgetTagLabel::StackWidgetTagLabel(QWidget* parent) :QFrame(parent) {
+		TitleLabel = new QLabel(this);
+		PinLabel = new QPushButton(this);
+		CloseLabel = new QPushButton(this);
+		Separator = new QFrame(this);
+		Layout = new QHBoxLayout(this);
+		Layout->setContentsMargins(5, 0, 5, 0);
+		Layout->addWidget(TitleLabel);
+		Layout->addWidget(PinLabel);
+		Layout->addWidget(CloseLabel);
+		Layout->addWidget(Separator);
+
+		PinLabel->setFixedWidth(PinLabel->height());
+		CloseLabel->setFixedWidth(CloseLabel->height());
+		Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
+		Separator->setFrameShape(QFrame::VLine);
+		PinLabel->hide();
+		CloseLabel->hide();
+
+		connect(PinLabel, &QPushButton::clicked, this, [this]() {
+			setPinned(!isPinned());
+			emit pinClicked(FilePath);
+			});
+
+		connect(CloseLabel, &QPushButton::clicked, this, [this]() {
+			emit closeClicked(FilePath);
+			});
+	}
+
+	void StackWidgetTagLabel::setText(const QString& text) {
+		TitleLabel->setText(text);
+	}
+
+	void StackWidgetTagLabel::setFilePath(const QString& filePath) {
+		FilePath = filePath;
+	}
+
+	QString StackWidgetTagLabel::getFilePath() const {
+		return FilePath;
+	}
+
+	void StackWidgetTagLabel::setFocusOn(bool focus) {
+		Focused = focus;
+		if (Focused) {
+			QFrame::setStyleSheet(PressedStyle);
+		}
+		else {
+			QFrame::setStyleSheet(NormalStyle);
+		}
+	}
+
+	bool StackWidgetTagLabel::isFocusOn() const {
+		return Focused;
+	}
+
+	void StackWidgetTagLabel::setPinned(bool pinned) {
+		if (Pinned == pinned) {
+			return;
+		}
+		Pinned = pinned;
+		if (Pinned) {
+			PinLabel->show();
+			Separator->setFixedWidth(CloseLabel->width());
+		}
+		else {
+			PinLabel->hide();
+			Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
+		}
+	}
+
+	bool StackWidgetTagLabel::isPinned() const {
+		return Pinned;
+	}
+
+	void StackWidgetTagLabel::setStyleSheet(const QString& normal, const QString& hover, const QString& pressed) {
+		NormalStyle = normal;
+		HoverStyle = hover;
+		PressedStyle = pressed;
+		QFrame::setStyleSheet(NormalStyle);
+	}
+
+	void StackWidgetTagLabel::mousePressEvent(QMouseEvent* event) {
+		QFrame::mousePressEvent(event);
+		if (event->button() == Qt::LeftButton) {
+			Pressed = true;
+			QFrame::setStyleSheet(PressedStyle);
+		}
+	}
+
+	void StackWidgetTagLabel::mouseReleaseEvent(QMouseEvent* event) {
+		QFrame::mouseReleaseEvent(event);
+		if (Pressed && event->button() == Qt::LeftButton) {
+			Pressed = false;
+			if (Focused) {
+				QFrame::setStyleSheet(PressedStyle);
+			}
+			else {
+				QFrame::setStyleSheet(HoverStyle);
+			}
+			emit clicked(FilePath);
+		}
+	}
+
+	void StackWidgetTagLabel::resizeEvent(QResizeEvent* event) {
+		QFrame::resizeEvent(event);
+		PinLabel->setFixedWidth(PinLabel->height());
+		CloseLabel->setFixedWidth(CloseLabel->height());
+		if (Pinned) {
+			Separator->setFixedWidth(CloseLabel->width());
+		}
+		else {
+			Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
+		}
+	}
+
+	void StackWidgetTagLabel::enterEvent(QEnterEvent* event) {
+		QFrame::enterEvent(event);
+		if (not Focused) {
+			QFrame::setStyleSheet(HoverStyle);
+		}
+		Separator->hide();
+		PinLabel->show();
+		CloseLabel->show();
+	}
+
+	void StackWidgetTagLabel::leaveEvent(QEvent* event) {
+		QFrame::leaveEvent(event);
+		if (not Focused) {
+			QFrame::setStyleSheet(NormalStyle);
+		}
+		if (not Pinned) {
+			Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
+			PinLabel->hide();
+		}
+		CloseLabel->hide();
+		Separator->show();
+	}
+
+	StackWidgetTagArea::StackWidgetTagArea(QWidget* parent) :QFrame(parent) {
+		ContentLayout = new QHBoxLayout();
+		ContentLayout->setContentsMargins(0, 0, 0, 0);
+		ScrollContent = new QFrame();
+		ScrollContent->setLayout(ContentLayout);
+		ScrollArea = new QScrollArea(this);
+		ScrollArea->setWidget(ScrollContent);
+		ScrollArea->setWidgetResizable(true);
+		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		WidgetSelector = new QComboBox(this);
+		WidgetSelector->setMinimumWidth(200);
+		Layout = new QHBoxLayout(this);
+		Layout->setContentsMargins(0, 0, 0, 0);
+		Layout->addWidget(ScrollArea);
+		Layout->addWidget(WidgetSelector);
+		connect(WidgetSelector, &QComboBox::currentIndexChanged, this, [this](int index) {
+			QString filePath = WidgetSelector->itemData(index).toString();
+			setCurrentStackLabel(filePath);
+			emit switchToFile(filePath);
+			});
+	}
+
+	void StackWidgetTagArea::addStackLabel(const QString& filePath) {
+		QFileInfo fileInfo(filePath);
+		StackWidgetTagLabel* tagLabel = new StackWidgetTagLabel();
+		tagLabel->setFilePath(filePath);
+		tagLabel->setText(fileInfo.fileName());
+		ContentLayout->addWidget(tagLabel);
+		Labels.append(tagLabel);
+		WidgetSelector->addItem(fileInfo.fileName(), filePath);
+		connect(tagLabel, &StackWidgetTagLabel::pinClicked, this, [this](const QString& filePath) {
+			pinStackLabel(filePath);
+			});
+		connect(tagLabel, &StackWidgetTagLabel::closeClicked, this, [this](const QString& filePath) {
+			emit closeFile(filePath); // NOTICE: close should be handled by some dialog, cannot directly do any other operation here.
+			});
+		connect(tagLabel, &StackWidgetTagLabel::clicked, this, [this](const QString& filePath) {
+			emit switchToFile(filePath);
+			});
+
+	}
+
+	void StackWidgetTagArea::pinStackLabel(const QString& filePath) {
+		StackWidgetTagLabel* targetLabel = nullptr;
+		for (StackWidgetTagLabel* label : Labels) {
+			if (label->getFilePath() == filePath) {
+				targetLabel = label;
+			}
+		}
+		if (targetLabel) {
+			Labels.removeAll(targetLabel);
+			ContentLayout->removeWidget(targetLabel);
+			for (int i = 0; i < Labels.size(); ++i) {
+				if (not Labels[i]->isPinned()) {
+					Labels.insert(i, targetLabel);
+					ContentLayout->insertWidget(i, targetLabel);
+					break;
+				}
+			}
+		}
+	}
+
+	void StackWidgetTagArea::removeStackLabel(const QString& filePath) {
+		StackWidgetTagLabel* targetLabel = nullptr;
+		int index = 0;
+		for (int i = 0; i < Labels.size(); ++i) {
+			if (Labels[i]->getFilePath() == filePath) {
+				targetLabel = Labels[i];
+				index = i;
+				break;
+			}
+		}
+		if (targetLabel) {
+			Labels.removeAll(targetLabel);
+			ContentLayout->removeWidget(targetLabel);
+			targetLabel->deleteLater();
+			for (int i = 0; i < WidgetSelector->count(); ++i) {
+				if (WidgetSelector->itemData(i).toString() == filePath) {
+					WidgetSelector->removeItem(i);
+					break;
+				}
+			}
+		}
+		if (index >1){
+			if (index - 1 < Labels.size()) {
+				auto label = Labels[index];
+				if (label) {
+					setCurrentStackLabel(label->getFilePath());
+					emit switchToFile(label->getFilePath());
+				}
+			}
+			else {
+				CurrentSelected = "";
+				emit switchToFile("");	
+			}
+		}
+		else {
+			if (Labels.size() > 0) {
+				auto label = Labels[0];
+				if (label) {
+					setCurrentStackLabel(label->getFilePath());
+					emit switchToFile(label->getFilePath());
+				}
+			}
+			else {
+				CurrentSelected = "";
+				emit switchToFile("");
+			}
+		}
+	}
+
+	void StackWidgetTagArea::setCurrentStackLabel(const QString& filePath) {
+		if (filePath == CurrentSelected) {
+			return;
+		}
+		bool finded = false;
+		for (StackWidgetTagLabel* label : Labels) {
+			if (label->getFilePath() == filePath) {
+				label->setFocusOn(true);
+				finded = true;
+				CurrentSelected = filePath;
+			}
+			else {
+				label->setFocusOn(false);
+			}
+		}
+		if (finded) {
+			for (int i = 0; i < WidgetSelector->count(); ++i) {
+				if (WidgetSelector->itemData(i).toString() == filePath) {
+					WidgetSelector->setCurrentIndex(i);
+					break;
+				}
+			}
+		}
+	}
+
+	QString StackWidgetTagArea::getCurrentSelected() const {
+		return CurrentSelected;
+	}
+
+	MessageViewer::MessageViewer(QWidget* parent) :QFrame(parent) {
+		MessageTable = new QTableWidget(this);
+		MessageTable->setColumnCount(5); // code, message, file, line, column
+		MessageTable->setHorizontalHeaderLabels({
+				VITR("YSS::editor.messageViewer.code"),
+				VITR("YSS::editor.messageViewer.message"),
+				VITR("YSS::editor.messageViewer.file"),
+				VITR("YSS::editor.messageViewer.line"),
+				VITR("YSS::editor.messageViewer.column")
+			});
+		Layout = new QVBoxLayout(this);
+		Layout->setContentsMargins(0, 0, 0, 0);
+		Layout->addWidget(MessageTable);
+
+		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), 
+			&YSSCore::Editor::DocumentMessageManager::messageChanged, this, &MessageViewer::onMessageChanged);
+		connect(MessageTable, &QTableWidget::cellClicked, this, &MessageViewer::onCellClicked);
+	}
+
+	void MessageViewer::changeCurrentFile(const QString& filePath) {
+		if (CurrentFilePath == filePath) {
+			return;
+		}
+		CurrentFilePath = filePath;
+		MessageTable->clearContents();
+		MessageTable->setRowCount(0);
+	}
+
+	void MessageViewer::onCellClicked(int row, int column) {
+		if (column == 2) {
+			QString filePath = MessageTable->item(row, column)->text();
+			qint32 lineNumber = MessageTable->item(row, 3)->text().toInt();
+			qint32 columnNumber = MessageTable->item(row, 4)->text().toInt();
+			emit redirectionRequired(filePath, lineNumber, columnNumber);
+		}
+	}
+
+	void MessageViewer::onMessageChanged(const QString& filePath) {
+		if (filePath == CurrentFilePath) {
+			MessageTable->clearContents();
+			MessageTable->setRowCount(0);
+			auto messages = YSSCore::Editor::DocumentMessageManager::getInstance()->getAllMessages(filePath);
+			qint32 totalLines = 0;
+			for (auto msgList : messages.values()) {
+				totalLines += msgList.size();
+			}
+			MessageTable->setRowCount(totalLines);
+			qint32 row = 0;
+			for (auto msgList : messages.values()) {
+				for (auto msg : msgList) {
+					MessageTable->setItem(row, 0, new QTableWidgetItem(msg.getCode()));
+					MessageTable->setItem(row, 1, new QTableWidgetItem(msg.getMessage()));
+					MessageTable->setItem(row, 2, new QTableWidgetItem(filePath));
+					MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber())));
+					MessageTable->setItem(row, 4, new QTableWidgetItem(QString::number(msg.getColumnNumber())));
+					row++;
+				}
+			}
+		}
+	}
+
+	void MessageViewer::onMessageChangedForLine(const QString& filePath, qint32 lineNumber) {
+		// search all line == lineNumber, remove it
+		if (filePath != CurrentFilePath) {
+			return;
+		}
+		for (int i = 0; i < MessageTable->rowCount(); ++i) {
+			if (MessageTable->item(i, 2)->text() == filePath && MessageTable->item(i, 3)->text().toInt() == lineNumber) {
+				MessageTable->removeRow(i);
+				--i;
+			}
+		}
+		auto msgList = YSSCore::Editor::DocumentMessageManager::getInstance()->getMessages(filePath, lineNumber);
+		for (auto msg : msgList) {
+			int row = MessageTable->rowCount();
+			MessageTable->insertRow(row);
+			MessageTable->setItem(row, 0, new QTableWidgetItem(msg.getCode()));
+			MessageTable->setItem(row, 1, new QTableWidgetItem(msg.getMessage()));
+			MessageTable->setItem(row, 2, new QTableWidgetItem(filePath));
+			MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber())));
+			MessageTable->setItem(row, 4, new QTableWidgetItem(QString::number(msg.getColumnNumber())));
+		}
+		if (msgList.size() != 0) {
+			MessageTable->sortByColumn(3, Qt::AscendingOrder);
+		}
+	}
+
+	DefaultStackWidgetCentralArea::DefaultStackWidgetCentralArea(QWidget* parent) :QFrame(parent) {
+		ContentLabel = new QLabel(this);
+		Layout = new QGridLayout(this);
+		this->setLayout(Layout);
+		ContentLabel->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
+	}
+}

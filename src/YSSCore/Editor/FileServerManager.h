@@ -17,7 +17,7 @@ namespace YSSCore::Editor {
 	signals:
 		void builtinEditorCreated(FileEditWidget* editor);
 		void windowEditorCreated(QWidget* editor);
-		void switchLineEdit(const QString& filePath, quint32 lineNumber);
+		void switchLineEdit(const QString& filePath, quint32 lineNumber, qint32 column);
 	private:
 		FileServerManager();
 	public:

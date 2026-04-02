@@ -209,6 +209,26 @@ protected:
 	}
 
 	/*!
+		\since YSSCore 0.13.0
+		\a lineNumber 行号，从1开始。
+		\a column 列号，从1开始。
+		将光标移动到指定的行号和列号位置。
+	*/
+	bool FileEditWidget::cursorToPosition(qint32 lineNumber, qint32 column) {
+		return onCursorToPosition(lineNumber, column);
+	}
+
+	/*!
+		\since YSSCore 0.13.0
+		\a lineNumber 行号，从1开始。
+		\a column 列号，从1开始。
+		由派生类实现的函数，用于将光标移动到指定的行号和列号位置。
+		考虑到FileEditWidget并不总一定是代码编辑器，因此可按需实现它。
+	*/
+	bool FileEditWidget::onCursorToPosition(qint32 lineNumber, qint32 column) {
+		return false;
+	}
+	/*!
 		处理文件编辑器关闭事件。
 		\a event 关闭事件对象。
 		此函数在文件编辑器尝试关闭时被调用，调用派生类实现的onClose()函数以决定是否允许关闭。

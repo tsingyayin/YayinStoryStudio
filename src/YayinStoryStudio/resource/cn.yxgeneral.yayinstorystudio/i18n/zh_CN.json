@@ -99,5 +99,20 @@
 			"pause": "暂停",
 			"continue_": "继续"
 		}
+	},
+	"editor":{
+		"messageViewer": {
+			"error": "错误",
+			"warning": "警告",
+			"info": "信息",
+			"code": "代码",
+			"message": "说明",
+			"file": "文件",
+			"line": "行",
+			"column": "列"
+		},
+		"stackWidgetArea": {
+			"noFileOpended": "没有打开的文件"
+		}
 	}
 }

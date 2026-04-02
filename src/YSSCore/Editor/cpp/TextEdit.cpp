@@ -21,6 +21,7 @@
 #include "Editor/HoverInfoProvider.h"
 #include "General/YSSLogger.h"
 #include <QtCore/qtimer.h>
+#include "Editor/SyntaxHighlighter.h"
 
 namespace YSSCore::__Private__ {
 	TextEditPrivate::~TextEditPrivate() {
@@ -545,6 +546,18 @@ namespace YSSCore::Editor {
 		return d->HoverTimeout;
 	}
 
+	void TextEdit::setTabReload(bool reload) {
+		d->ReloadTab = reload;
+	}
+
+	bool TextEdit::isTabReload() const {
+		return d->ReloadTab;
+	}
+
+	QTextDocument* TextEdit::getDocument() const {
+		return d->Text->document();
+	}
+
 	bool TextEdit::eventFilter(QObject* obj, QEvent* event) {
 		if (obj == d->Text) {
 			if (event->type() == QEvent::KeyPress) {
@@ -600,9 +613,6 @@ namespace YSSCore::Editor {
 		}
 	}
 
-	void TextEdit::mouseMoveEvent(QMouseEvent* event) {
-	}
-
 	/*!
 		\since Visindigo 0.13.0
 		打开一个文件。只有文件完全打开成功才会返回true，其他任何失败情况均返回false。
@@ -615,7 +625,7 @@ namespace YSSCore::Editor {
 			if (d->Highlighter != nullptr) {
 				delete d->Highlighter;
 			}
-			d->Highlighter = server->createHighlighter(d->Text->document());
+			d->Highlighter = server->createHighlighter(this);
 			if (d->TabCompleter != nullptr) {
 				delete d->TabCompleter;
 			}
