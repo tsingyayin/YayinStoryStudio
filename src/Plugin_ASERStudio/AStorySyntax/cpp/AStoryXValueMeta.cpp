@@ -1,24 +1,22 @@
-#include "AStorySyntax/AStoryXValue.h"
+#include "AStorySyntax/AStoryXValueMeta.h"
 #include "AStorySyntax/AStoryXDiagnosticData.h"
 #include <QtCore/qregularexpression.h>
 namespace ASERStudio::AStorySyntax {
-	class AStoryXValuePrivate {
-		friend class AStoryXValue;
+	class AStoryXValueMetaPrivate {
+		friend class AStoryXValueMeta;
 	protected:
-		AStoryXValue::Type Type = AStoryXValue::Type::Undefined;
+		AStoryXValueMeta::Type Type = AStoryXValueMeta::Type::Undefined;
 		QString ParameterName;
 		QString StringCheckRegex;
 		QPair<qint64, qint64> IntegerCheckRange;
 		QPair<double, double> FloatCheckRange;
 		QList<QPair<double, double>> VectorCheckRange;
+		QStringList StringListCheck;
 		qint32 VectorCheckDimension;
 		QStringList EnumCheckList;
 		QString DefaultValue;
 
 		AStoryXDiagnosticData::DiagnosticType isString(const QString& value) const {
-			if (value.isEmpty()) {
-				return AStoryXDiagnosticData::DiagnosticType::ParameterFormatError;
-			}
 			if (StringCheckRegex.isEmpty()) {
 				return AStoryXDiagnosticData::DiagnosticType::Undefined;
 			}
@@ -32,7 +30,7 @@ namespace ASERStudio::AStorySyntax {
 			bool ok;
 			qint64 intValue = value.toLongLong(&ok);
 			if (!ok) {
-				return AStoryXDiagnosticData::DiagnosticType::ParameterFormatError;
+				return AStoryXDiagnosticData::DiagnosticType::ParameterTypeMismatch;
 			}
 			if (intValue < IntegerCheckRange.first || intValue > IntegerCheckRange.second) {
 				return AStoryXDiagnosticData::DiagnosticType::ParameterOutOfRange;
@@ -43,7 +41,7 @@ namespace ASERStudio::AStorySyntax {
 			bool ok;
 			double floatValue = value.toDouble(&ok);
 			if (!ok) {
-				return AStoryXDiagnosticData::DiagnosticType::ParameterFormatError;
+				return AStoryXDiagnosticData::DiagnosticType::ParameterTypeMismatch;
 			}
 			if (floatValue < FloatCheckRange.first || floatValue > FloatCheckRange.second) {
 				return AStoryXDiagnosticData::DiagnosticType::ParameterOutOfRange;
@@ -85,7 +83,7 @@ namespace ASERStudio::AStorySyntax {
 	};
 
 	/*!
-		\class ASERStudio::AStorySyntax::AStoryXValue
+		\class ASERStudio::AStorySyntax::AStoryXValueMeta
 		\brief AStoryXValue用于对AStoryX中的参数进行类型定义和检查。
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
@@ -100,7 +98,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		\enum ASERStudio::AStorySyntax::AStoryXValue::Type
+		\enum ASERStudio::AStorySyntax::AStoryXValueMeta::Type
 		\value Undefined 未定义类型，表示尚未设置具体类型。
 		\value String 字符串类型，参数值应为文本。
 		\value Number 数字类型，参数值应为数值（整数或浮点数）。
@@ -116,74 +114,80 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		构造函数
 	*/
-	AStoryXValue::AStoryXValue() : d(new AStoryXValuePrivate) {
+	AStoryXValueMeta::AStoryXValueMeta() : d(new AStoryXValueMetaPrivate) {
+	}
+
+	AStoryXValueMeta::AStoryXValueMeta(const QString& paramName, Type type, const QString& defaultValue) : d(new AStoryXValueMetaPrivate) {
+		d->ParameterName = paramName;
+		d->Type = type;
+		d->DefaultValue = defaultValue;
 	}
 
 	/*!
 		\since ASERStudio 2.0
 		析构函数
 	*/
-	AStoryXValue::~AStoryXValue() {
+	AStoryXValueMeta::~AStoryXValueMeta() {
 		delete d;
 	}
 
 	/*!
-		\fn ASERStudio::AStorySyntax::AStoryXValue::AStoryXValue(AStoryXValue&& other) noexcept
+		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::AStoryXValueMeta(AStoryXValueMeta&& other) noexcept
 		\since ASERStudio 2.0
 		移动构造函数
 	*/
 
 	/*!
-		\fn ASERStudio::AStorySyntax::AStoryXValue::AStoryXValue(const AStoryXValue& other)
+		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::AStoryXValueMeta(const AStoryXValueMeta& other)
 		\since ASERStudio 2.0
 		复制构造函数
 	*/
 
 	/*!
-		\fn ASERStudio::AStorySyntax::AStoryXValue::operator=(const AStoryXValue& other)
+		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::operator=(const AStoryXValueMeta& other)
 		\since ASERStudio 2.0
 		复制赋值运算符
 	*/
 
 	/*!
-		\fn ASERStudio::AStorySyntax::AStoryXValue::operator=(AStoryXValue&& other) noexcept
+		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::operator=(AStoryXValueMeta&& other) noexcept
 		\since ASERStudio 2.0
 		移动赋值运算符
 	*/
-	VIMoveable_Impl(AStoryXValue);
-	VICopyable_Impl(AStoryXValue);
+	VIMoveable_Impl(AStoryXValueMeta);
+	VICopyable_Impl(AStoryXValueMeta);
 
 	/*!
 		\since ASERStudio 2.0
 		设置元数据。
 		\a metaData 元数据。
 	*/
-	void AStoryXValue::setMetaData(const QString& paramName, const Visindigo::Utility::JsonConfig& metaData) {
+	void AStoryXValueMeta::setMetaData(const QString& paramName, const Visindigo::Utility::JsonConfig& metaData) {
 		d->ParameterName = paramName;
 		if (metaData.isEmpty()) {
 			return;
 		}
 		Visindigo::Utility::JsonConfig paramMeta = metaData.getObject(paramName);
 		QString type = paramMeta.getString("type");
-		d->Type = (AStoryXValue::Type)QMetaEnum::fromType<AStoryXValue::Type>().keyToValue(type.toStdString().c_str());
+		d->Type = (AStoryXValueMeta::Type)QMetaEnum::fromType<AStoryXValueMeta::Type>().keyToValue(type.toStdString().c_str());
 		d->DefaultValue = paramMeta.getString("defaultValue");
 		switch (d->Type) {
-			case AStoryXValue::Type::String:
+			case AStoryXValueMeta::Type::String:
 				d->StringCheckRegex = paramMeta.getString("regex");
 				break;
-			case AStoryXValue::Type::Integer: {
+			case AStoryXValueMeta::Type::Integer: {
 				qint64 min = paramMeta.getInt("range.0");
 				qint64 max = paramMeta.getInt("range.1");
 				d->IntegerCheckRange = qMakePair(min, max);
 				break;
 			}
-			case AStoryXValue::Type::Float: {
+			case AStoryXValueMeta::Type::Float: {
 				double min = paramMeta.getDouble("range.0");
 				double max = paramMeta.getDouble("range.1");
 				d->FloatCheckRange = qMakePair(min, max);
 				break;
 			}
-			case AStoryXValue::Type::Vector: {
+			case AStoryXValueMeta::Type::Vector: {
 				qint32 dimension = paramMeta.getInt("dimension");
 				QList<QPair<double, double>> range;
 				for (qint32 i = 0; i < dimension; i++) {
@@ -195,19 +199,37 @@ namespace ASERStudio::AStorySyntax {
 				d->VectorCheckDimension = dimension;
 				break;
 			}
-			case AStoryXValue::Type::Enum: {
+			case AStoryXValueMeta::Type::Enum: {
 				QString enumListName = paramMeta.getString("enums");
 				d->EnumCheckList = metaData.getStringList("__GeneralMetaData__." + enumListName);
 				break;
 			}
 		}
 	}
+
+	/*!
+		\since ASERStudio 2.0
+		设置参数名称。
+		\a paramName 参数名称，必须是一个有效的QString对象。
+	*/
+	void AStoryXValueMeta::setParameterName(const QString& paramName) {
+		d->ParameterName = paramName;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		获取参数名称。
+		\return 参数名称，返回一个QString对象。如果未设置参数名称，则返回空字符串。
+	*/
+	QString AStoryXValueMeta::getParameterName() const {
+		return d->ParameterName;
+	}
 	/*!
 		\since ASERStudio 2.0
 		设置参数类型。
 		\a type 参数类型，必须是AStoryXValue::Type枚举中的一个值。
 	*/
-	void AStoryXValue::setType(Type type) {
+	void AStoryXValueMeta::setType(Type type) {
 		d->Type = type;
 	}
 
@@ -216,7 +238,7 @@ namespace ASERStudio::AStorySyntax {
 		获取参数类型。
 		\return 参数类型，返回值为AStoryXValue::Type枚举中的一个值。
 	*/
-	AStoryXValue::Type AStoryXValue::getType() const {
+	AStoryXValueMeta::Type AStoryXValueMeta::getType() const {
 		return d->Type;
 	}
 
@@ -225,7 +247,7 @@ namespace ASERStudio::AStorySyntax {
 		设置默认值。
 		\a defaultValue 默认值，必须是一个QString对象。默认值的格式应与参数类型相匹配。
 	*/
-	void AStoryXValue::setDefaultValue(const QString& defaultValue) {
+	void AStoryXValueMeta::setDefaultValue(const QString& defaultValue) {
 		d->DefaultValue = defaultValue;
 	}
 
@@ -234,7 +256,7 @@ namespace ASERStudio::AStorySyntax {
 		获取默认值。
 		\return 默认值，返回一个QString对象。如果未设置默认值，则返回空字符串。
 	*/
-	QString AStoryXValue::getDefaultValue() const {
+	QString AStoryXValueMeta::getDefaultValue() const {
 		return d->DefaultValue;
 	}
 
@@ -243,7 +265,7 @@ namespace ASERStudio::AStorySyntax {
 		设置字符串检查的正则表达式。
 		\a regex 正则表达式，必须是一个有效的QString对象。该正则表达式将用于验证字符串类型参数的格式。
 	*/
-	void AStoryXValue::setStringCheckRegex(const QString& regex) {
+	void AStoryXValueMeta::setStringCheckRegex(const QString& regex) {
 		d->StringCheckRegex = regex;
 	}
 
@@ -252,7 +274,7 @@ namespace ASERStudio::AStorySyntax {
 		获取字符串检查的正则表达式。
 		\return 正则表达式，返回一个QString对象。如果未设置正则表达式，则返回空字符串。
 	*/
-	QString AStoryXValue::getStringCheckRegex() const {
+	QString AStoryXValueMeta::getStringCheckRegex() const {
 		return d->StringCheckRegex;
 	}
 
@@ -262,7 +284,7 @@ namespace ASERStudio::AStorySyntax {
 		\a min 最小值，必须是一个qint64类型的整数。
 		\a max 最大值，必须是一个qint64类型的整数。max必须大于或等于min。
 	*/
-	void AStoryXValue::setIntegerCheckRange(qint64 min, qint64 max) {
+	void AStoryXValueMeta::setIntegerCheckRange(qint64 min, qint64 max) {
 		d->IntegerCheckRange = qMakePair(min, max);
 	}
 
@@ -272,7 +294,7 @@ namespace ASERStudio::AStorySyntax {
 		\return 整数检查范围，返回一个QPair<qint64, qint64>对象，其中first表示最小值，second表示最大值。
 		如果未设置范围，则返回默认的QPair对象，其first和second均为0。
 	*/
-	QPair<qint64, qint64> AStoryXValue::getIntegerCheckRange() const {
+	QPair<qint64, qint64> AStoryXValueMeta::getIntegerCheckRange() const {
 		return d->IntegerCheckRange;
 	}
 
@@ -282,7 +304,7 @@ namespace ASERStudio::AStorySyntax {
 		\a min 最小值，必须是一个double类型的数值。
 		\a max 最大值，必须是一个double类型的数值。max必须大于或等于min。
 	*/
-	void AStoryXValue::setFloatCheckRange(double min, double max) {
+	void AStoryXValueMeta::setFloatCheckRange(double min, double max) {
 		d->FloatCheckRange = qMakePair(min, max);
 	}
 
@@ -292,7 +314,7 @@ namespace ASERStudio::AStorySyntax {
 		\return 浮点数检查范围，返回一个QPair<double, double>对象，其中first表示最小值，second表示最大值。
 		如果未设置范围，则返回默认的QPair对象，其first和second均为0.0。
 	*/
-	QPair<double, double> AStoryXValue::getFloatCheckRange() const {
+	QPair<double, double> AStoryXValueMeta::getFloatCheckRange() const {
 		return d->FloatCheckRange;
 	}
 
@@ -303,7 +325,7 @@ namespace ASERStudio::AStorySyntax {
 		range的大小必须与dimension参数一致。
 		\a dimension 向量维度，必须是一个qint32类型的整数，表示向量的维度。dimension必须大于0。
 	*/
-	void AStoryXValue::setVectorCheckRange(const QList<QPair<double, double>>& range, qint32 dimension) {
+	void AStoryXValueMeta::setVectorCheckRange(const QList<QPair<double, double>>& range, qint32 dimension) {
 		d->VectorCheckRange = range;
 		d->VectorCheckDimension = dimension;
 	}
@@ -314,7 +336,7 @@ namespace ASERStudio::AStorySyntax {
 		\return 向量检查范围，返回一个QList<QPair<double, double>>对象，其中每个QPair表示一个维度的最小值和最大值。
 		如果未设置范围，则返回一个空的QList对象。
 	*/
-	QList<QPair<double, double>> AStoryXValue::getVectorCheckRange() const {
+	QList<QPair<double, double>> AStoryXValueMeta::getVectorCheckRange() const {
 		return d->VectorCheckRange;
 	}
 
@@ -324,7 +346,7 @@ namespace ASERStudio::AStorySyntax {
 		\return 向量检查维度，返回一个qint32类型的整数，表示向量的维度。
 		如果未设置维度，则返回0。
 	*/
-	qint32 AStoryXValue::getVectorCheckDimension() const {
+	qint32 AStoryXValueMeta::getVectorCheckDimension() const {
 		return d->VectorCheckDimension;
 	}
 
@@ -333,7 +355,7 @@ namespace ASERStudio::AStorySyntax {
 		设置枚举检查的列表。
 		\a enumList 枚举检查列表，必须是一个QStringList对象，包含所有有效的枚举值。
 	*/
-	void AStoryXValue::setEnumCheckList(const QStringList& enumList) {
+	void AStoryXValueMeta::setEnumCheckList(const QStringList& enumList) {
 		d->EnumCheckList = enumList;
 	}
 
@@ -343,7 +365,7 @@ namespace ASERStudio::AStorySyntax {
 		\return 枚举检查列表，返回一个QStringList对象，包含所有有效的枚举值。
 		如果未设置枚举检查列表，则返回一个空的QStringList对象。
 	*/
-	QStringList AStoryXValue::getEnumCheckList() const {
+	QStringList AStoryXValueMeta::getEnumCheckList() const {
 		return d->EnumCheckList;
 	}
 
@@ -356,8 +378,16 @@ namespace ASERStudio::AStorySyntax {
 		如果参数值不符合预设的类型或规则，则返回相应的错误类型，如ParameterFormatError或ParameterOutOfRange等。
 		对于数字类型的超出范围以及枚举类型的无效值，返回ParameterOutOfRange；对于格式错误的值，
 		例如未满足维度要求的向量，返回ParameterFormatError；
+
+		注意，这函数只检查Type在__META__之前的类型。__META__之后的类型是作为token使用的，不进行类型检查。
+		如果你检查它们，则永远得到Undefined的结果。
+
+		此外，它对空参数永远返回Undefined。
 	*/
-	AStoryXDiagnosticData::DiagnosticType AStoryXValue::isTypeMatching(const QString& value) const {
+	AStoryXDiagnosticData::DiagnosticType AStoryXValueMeta::isTypeMatching(const QString& value) const {
+		if (value.isEmpty()) {
+			return AStoryXDiagnosticData::DiagnosticType::Undefined;
+		}
 		switch (d->Type) {
 		case Type::Number:
 			return d->isFloat(value);
@@ -393,7 +423,7 @@ namespace ASERStudio::AStorySyntax {
 
 		这函数不做任何检查。
 	*/
-	qint64 AStoryXValue::toInteger(const QString& value) const {
+	qint64 AStoryXValueMeta::toInteger(const QString& value) const {
 		return value.toLongLong();
 	}
 
@@ -405,7 +435,7 @@ namespace ASERStudio::AStorySyntax {
 
 		这函数不做任何检查。
 	*/
-	double AStoryXValue::toFloat(const QString& value) const {
+	double AStoryXValueMeta::toFloat(const QString& value) const {
 		return value.toDouble();
 	}
 
@@ -418,12 +448,24 @@ namespace ASERStudio::AStorySyntax {
 
 		这函数不做任何检查。
 	*/
-	QList<double> AStoryXValue::toVector(const QString& value) const {
+	QList<double> AStoryXValueMeta::toVector(const QString& value) const {
 		QStringList components = value.split(',');
 		QList<double> result;
 		for (const QString& component : components) {
 			result.append(component.trimmed().toDouble());
 		}
 		return result;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		将参数值转换为布尔值。
+		\a value 参数值，必须是一个符合布尔类型要求的QString对象，例如"true"、"false"、"1"、"0"、"yes"或"no"等。
+		return 转换结果，返回一个bool类型的值。如果转换失败（例如参数值不符合布尔格式），则返回false。
+		这函数不做任何检查。
+	*/
+	bool AStoryXValueMeta::toBool(const QString& value) const {
+		QString lowerValue = value.toLower();
+		return (lowerValue == "true" || lowerValue == "1" || lowerValue == "yes");
 	}
 }

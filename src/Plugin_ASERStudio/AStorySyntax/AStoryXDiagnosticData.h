@@ -48,6 +48,7 @@ namespace ASERStudio::AStorySyntax {
 		qint32 getColumn() const;
 		QString getFixAdvice() const;
 		AStoryXDiagnosticData::DiagnosticType getType() const;
+		QString toString();
 	private:
 		AStoryXDiagnosticDataPrivate* d;
 	};

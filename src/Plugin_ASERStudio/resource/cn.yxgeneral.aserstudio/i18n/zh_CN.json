@@ -27,23 +27,23 @@
         },
         "missingRequiredParameter": {
             "name": "缺少必需参数",
-            "message": "控制器%1缺少必需的参数%2。",
-            "fixAdvice": "%1控制器缺少必须参数%2。"
+            "message": "控制器\"%1控制器\"缺少必需的参数%2。",
+            "fixAdvice": "请移除指示可选参数的符号，从行首标识符开始重填数值。"
         },
         "parameterTypeMismatch": {
             "name": "参数类型不匹配",
-            "message": "控制器%1的参数%2类型不匹配，期望类型是%3，但实际类型是%4。",
-            "fixAdvice": "检查控制器%1的参数%2，确保它的类型与预期的%3一致。"
+            "message": "参数%1的类型不匹配，期望类型是%2",
+            "fixAdvice": "将类型修正为%1"
         },
         "parameterOutOfRange": {
             "name": "参数超出范围",
-            "message": "控制器%1的参数%2值%3超出允许的范围%4。",
-            "fixAdvice": "检查控制器%1的参数%2，确保它的值在允许的范围%4内。"
+            "message": "参数%1的值超出允许的范围",
+            "fixAdvice": "检查控制器参数，确保它的值在允许的范围内。"
         },
         "parameterFormatError": {
             "name": "参数格式错误",
-            "message": "控制器%1的参数%2格式错误，期望格式是%3。",
-            "fixAdvice": "检查控制器%1的参数%2，确保它的格式符合预期的%3。"
+            "message": "参数%1格式错误",
+            "fixAdvice": "检查控制器参数，确保它的格式符合预期。"
         },
         "unexceptedParameter": {
             "name": "意外的参数",
@@ -118,6 +118,29 @@
         "bool": "布尔值",
         "enum": "枚举值",
         "vector": "向量"
+    },
+    "controller":{
+        "Background": "背景",
+        "Music": "音乐",
+        "SoundEffect": "音效",
+        "Character": "角色",
+        "Choice": "选项",
+        "Delay": "延迟",
+        "VisualEffect": "视效",
+        "Interlude": "插播",
+        "ColorMask": "色层",
+        "Shake": "震屏",
+        "FreeText": "自由文本",
+        "Cut": "切屏",
+        "Filter": "滤镜",
+        "AnimatedText": "动态文本",
+        "Sign": "标签",
+        "Variable": "变量",
+        "Judge": "判断",
+        "Branch": "分支",
+        "Dialog": "对话",
+        "Preprocessor": "预处理器",
+        "Comment": "注释"
     },
     "aseinfo":{
 		"projectName": "项目名称",

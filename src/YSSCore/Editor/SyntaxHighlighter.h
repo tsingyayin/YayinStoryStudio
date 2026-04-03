@@ -15,7 +15,8 @@ namespace YSSCore::Editor {
 		};
 	public:
 		DocumentMessage(MessageType type, const QString& message, qint32 lineNumber = -1,
-			qint32 columnNumber = -1, qint32 length = -1, const QString& code = "", const QUrl& helpUrl = QUrl());
+			qint32 columnNumber = -1, qint32 length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(),
+			const QString& fixAdvice = "");
 		VIMoveable(DocumentMessage);
 		VICopyable(DocumentMessage);
 		~DocumentMessage();
@@ -27,6 +28,8 @@ namespace YSSCore::Editor {
 		int getLength() const;
 		QString getCode() const;
 		QUrl getHelpUrl() const;
+		QString getFixAdvice() const;
+		QString toString() const;
 	private:
 		DocumentMessagePrivate* d;
 	};
@@ -41,9 +44,10 @@ namespace YSSCore::Editor {
 		void highlightBlock(const QString& text) override;
 	public:
 		virtual void onBlockChanged(const QString& text, int blockNumber) = 0;
-		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl());
-		void createWarningMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl());
-		void createInfoMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl());
+		void autoRenderMessageWaveLine(bool autoRender);
+		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
+		void createWarningMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
+		void createInfoMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
 	private:
 		SyntaxHighlighterPrivate* d;
 	};

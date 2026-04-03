@@ -101,8 +101,8 @@ protected:
 			yWarningF << "File path is empty.";
 			return false;
 		}
+		d->filePath = path;
 		if (onOpen(path)) {
-			d->filePath = path;
 			return true;
 		}
 		return false;

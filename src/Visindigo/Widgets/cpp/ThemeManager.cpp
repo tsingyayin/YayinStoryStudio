@@ -13,7 +13,7 @@
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
 #include <QtGui/qpalette.h>
-
+#include <QtCore/qfileinfo.h>
 namespace Visindigo::Widgets {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
@@ -586,9 +586,9 @@ namespace Visindigo::Widgets {
 				vgWarningF << "Failed to parse style template at path:" << name;
 			}
 		}
-
+		QFileInfo info(d->ConfigPath + "/config.json");
 		for (auto name : schemes) {
-			if (name == d->ConfigPath + "/config.json") {
+			if (name == info.absoluteFilePath()) {
 				continue; // skip config file
 			}
 			QString all = Visindigo::Utility::FileUtility::readAll(name);
@@ -758,6 +758,7 @@ namespace Visindigo::Widgets {
 			Visindigo::Utility::JsonConfig* scheme = d->ColorSchemes[schemeID];
 			if (!scheme) {
 				vgErrorF << "Color scheme" << schemeID << "is null. Skipping.\nBut this should not happen!";
+				continue;
 			}
 			QStringList themes = scheme->keys("Themes");
 			for (auto themeID : themes) {

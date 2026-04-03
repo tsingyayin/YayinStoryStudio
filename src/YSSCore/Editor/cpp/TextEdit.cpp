@@ -512,17 +512,37 @@ namespace YSSCore::Editor {
 		TextEdit的析构函数。
 	*/
 	TextEdit::~TextEdit() {
+		// d->Text must be delete first.
+		// If we do nothing with this object, d->Text will be automaticly deleted by
+		// Qt's parent-child system. However, due to our YSSCore::Editor::SyntaxHighlighter
+		// object is initialized with this object, but ownership belongs to QTextDocument in d->Text.
+		// IF SyntaxHighlighter wants to access some of this object's members in its destructor, 
+		// it will cause a crash as our d pointer is already deleted.
+		// So, Delete d->Text first to make sure SyntaxHighlighter is deleted before we delete d.
+		delete d->Text;
 		delete d;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		设置TextEdit中的文本内容。此函数会替换掉TextEdit中原有的全部文本内容。
+	*/
 	void TextEdit::setPlainText(const QString& text) {
 		d->Text->setPlainText(text);
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		获取TextEdit中的文本内容。此函数会返回TextEdit中全部的文本内容。
+	*/
 	QString TextEdit::getPlainText() const {
 		return d->Text->toPlainText();
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		将光标移动到指定行。行号从1开始。
+	*/
 	void TextEdit::moveCursorToLine(int lineNumber) {
 		if (lineNumber < 1 || lineNumber > d->Text->document()->blockCount()) {
 			return;
@@ -533,28 +553,52 @@ namespace YSSCore::Editor {
 		d->Text->setTextCursor(cursor);
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		获取当前光标所在的行号。行号从1开始。
+	*/
 	int TextEdit::getCurrentLineNumber() const {
 		QTextCursor cursor = d->Text->textCursor();
 		return cursor.block().blockNumber() + 1;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		设置鼠标悬停提示的超时时间。单位为毫秒。
+	*/
 	void TextEdit::setHoverTimeout(qint32 ms) {
 		d->HoverTimeout = ms;
 		d->HoverTimer->setInterval(ms);
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		获取鼠标悬停提示的超时时间。单位为毫秒。
+	*/
 	qint32 TextEdit::getHoverTimeout() const {
 		return d->HoverTimeout;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		设置Tab键是否使用空格进行缩进。默认为false，即使用制表符进行缩进。
+	*/
 	void TextEdit::setTabReload(bool reload) {
 		d->ReloadTab = reload;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		获取Tab键是否使用空格进行缩进。
+	*/
 	bool TextEdit::isTabReload() const {
 		return d->ReloadTab;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		设置Tab键的缩进宽度。单位为字符数。默认为4。
+	*/
 	QTextDocument* TextEdit::getDocument() const {
 		return d->Text->document();
 	}
@@ -663,6 +707,10 @@ namespace YSSCore::Editor {
 		return true;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		关闭当前文件。只有当文件成功关闭时才会返回true，其他任何失败情况均返回false。
+	*/
 	bool TextEdit::onClose() {
 		if (isFileChanged()) {
 			QMessageBox msgBox;
@@ -691,6 +739,11 @@ namespace YSSCore::Editor {
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		保存当前文件。只有当文件成功保存时才会返回true，其他任何失败情况均返回false。
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用saveFile()函数。
+	*/
 	bool TextEdit::onSave(const QString& path) {
 		QFile file(path);
 		QFileInfo fileInfo(path);
@@ -713,6 +766,11 @@ namespace YSSCore::Editor {
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		重新加载当前文件。只有当文件成功重新加载时才会返回true，其他任何失败情况均返回false。
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用reloadFile()函数。
+	*/
 	bool TextEdit::onReload() {
 		if (isFileChanged()) {
 			QMessageBox msgBox;
@@ -735,6 +793,7 @@ namespace YSSCore::Editor {
 		openFile(getFilePath());
 		return true;
 	}
+
 
 	bool TextEdit::onCopy() {
 		d->Text->copy();

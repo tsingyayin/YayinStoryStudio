@@ -10,9 +10,9 @@ namespace ASERStudio::YSS {
 		virtual YSSCore::Editor::SyntaxHighlighter* createHighlighter(YSSCore::Editor::TextEdit* textEdit) override;
 		virtual YSSCore::Editor::TabCompleterProvider* createTabCompleter(QTextDocument* doc) override;
 		virtual YSSCore::Editor::HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) override;
-		static void setAStoryXDocument(QTextDocument* who, ASERStudio::AStorySyntax::AStoryXDocument* doc);
-		static void deleteAStoryXDocument(QTextDocument* who);
-		static ASERStudio::AStorySyntax::AStoryXDocument* getAStoryXDocument(QTextDocument* who);
+		static void setAStoryXDocument(const QString& filePath, ASERStudio::AStorySyntax::AStoryXDocument* doc);
+		static void deleteAStoryXDocument(const QString& filePath);
+		static ASERStudio::AStorySyntax::AStoryXDocument* getAStoryXDocument(const QString& filePath);
 	};
 }
 

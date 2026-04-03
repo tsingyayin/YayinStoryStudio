@@ -12,6 +12,7 @@
 #include "Editor/YSSCommandHandler.h"
 #include "Editor/YSSTranslator.h"
 #include <General/Log.h>
+#include <Utility/FileUtility.h>
 namespace YSS {
 	Main* Main::Instance = nullptr;
 
@@ -21,11 +22,12 @@ namespace YSS {
 		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
+		registerColorScheme(":/resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json");
+		VISTM->setStyleTemplatePriority({ "YSS" });
+		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future use
 	}
 
 	void Main::onPluginEnable() {
-		VISTM->setStyleTemplatePriority({"YSS"});
-		VISTM->setColorSchemePriority({ "YSS", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future use
 		VISTM->setAnimationDuration(500);
 		YSSCore::Editor::FileServerManager::getInstance();
 		YSSCore::Editor::ProjectTemplateManager::getInstance();

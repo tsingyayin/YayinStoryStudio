@@ -6,6 +6,7 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qobject.h>
 #include "AStorySyntax/AStoryXRule.h"
+#include <QtGui/qtextobject.h>
 
 class QTextDocument;
 namespace ASERStudio::AStorySyntax {
@@ -13,6 +14,7 @@ namespace ASERStudio::AStorySyntax {
 	class ASERAPI AStoryXDocument :public QObject{
 		Q_OBJECT;
 	signals:
+		void parseDataAllUpdated();
 		void parseDataUpdated(qint32 lineNumber);
 	public:
 		AStoryXDocument();
@@ -26,6 +28,9 @@ namespace ASERStudio::AStorySyntax {
 		void setTextDocument(QTextDocument* doc);
 		QTextDocument* getTextDocument() const;
 		void setEnableDiagnostic(bool enable);
+		void setSyntaxHighlighter(QSyntaxHighlighter* highlighter);
+		void onSyntaxHighlighter(QTextBlock currentBlock, const QString& text);
+		void refreshParseData();
 		bool isDiagnosticEnabled() const;
 	private:
 		AStoryXDocumentPrivate* d;

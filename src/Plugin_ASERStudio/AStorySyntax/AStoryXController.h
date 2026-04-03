@@ -6,7 +6,7 @@
 class QString;
 namespace ASERStudio::AStorySyntax {
 	class AStoryXControllerParseData;
-	class AStoryXValue;
+	class AStoryXValueMeta;
 	class AStoryXControllerPrivate;
 	class ASERAPI AStoryXController{
 		Q_GADGET
@@ -52,8 +52,8 @@ namespace ASERStudio::AStorySyntax {
 		QString getRequiredParameterSeparater();
 		QStringList getOptionalParameterNames();
 		QStringList getOptionalParameterPrefixes();
-		QMap<QString, AStoryXValue> getOptionalParameterValues();
-		AStoryXValue getRequiredParameterValue();
+		QMap<QString, AStoryXValueMeta> getOptionalParameterValues();
+		AStoryXValueMeta getRequiredParameterValue();
 		bool isMonotonicity();
 		bool isAdvanced();
 		bool isValid();

@@ -41,7 +41,7 @@
     <QtMoc Include="AStorySyntax\private\AStoryXDocument_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="AStorySyntax\AStoryXValue.h">
+    <QtMoc Include="AStorySyntax\AStoryXValueMeta.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="YSS\ASERFIleServer.h">
@@ -88,7 +88,7 @@
     <ClCompile Include="AStorySyntax\cpp\AStoryXDocument.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AStorySyntax\cpp\AStoryXValue.cpp">
+    <ClCompile Include="AStorySyntax\cpp\AStoryXValueMeta.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\ASERFileServer.cpp">

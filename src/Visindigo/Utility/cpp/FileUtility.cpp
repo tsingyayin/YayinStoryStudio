@@ -60,6 +60,11 @@ namespace Visindigo::Utility {
 		\brief 此类为Yayin Story Studio 提供文件操作的相关函数
 		\since Yayin Story Studio 0.13.0
 		\inmodule Visindigo
+
+		这类所有函数都是静态函数，所以你不需要创建它的实例。
+
+		总的来说，这里都是一些仅通过QDir、QFile、QFileInfo等文件系统相关类
+		实现的函数。
 	*/
 
 	/*!

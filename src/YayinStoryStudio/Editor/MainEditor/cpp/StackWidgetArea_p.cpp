@@ -3,6 +3,8 @@
 #include <Editor/DocumentMessageManager.h>
 #include <General/TranslationHost.h>
 #include <Editor/SyntaxHighlighter.h>
+#include <General/Log.h>
+#include <QtWidgets/qheaderview.h>
 namespace YSS::Editor {
 	StackWidgetTagLabel::StackWidgetTagLabel(QWidget* parent) :QFrame(parent) {
 		TitleLabel = new QLabel(this);
@@ -22,7 +24,7 @@ namespace YSS::Editor {
 		Separator->setFrameShape(QFrame::VLine);
 		PinLabel->hide();
 		CloseLabel->hide();
-
+		this->setMaximumWidth(200);
 		connect(PinLabel, &QPushButton::clicked, this, [this]() {
 			setPinned(!isPinned());
 			emit pinClicked(FilePath);
@@ -191,6 +193,13 @@ namespace YSS::Editor {
 				targetLabel = label;
 			}
 		}
+		// NOTICE:
+		// This move-afterward operation working in two situations:
+		// 1. When pinning, it will move the label to the leftmost of all unpinned labels, 
+		// which is the most intuitive way to do it.
+		// 2. When unpinning, it will move the label to the rightmost of all pinned labels,
+		// Fortunately, these two situations are actually the same operation, 
+		// which is to move the label to the boundary of pinned and unpinned labels.
 		if (targetLabel) {
 			Labels.removeAll(targetLabel);
 			ContentLayout->removeWidget(targetLabel);
@@ -295,9 +304,16 @@ namespace YSS::Editor {
 		Layout = new QVBoxLayout(this);
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->addWidget(MessageTable);
-
+		MessageTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+		MessageTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+		MessageTable->setColumnWidth(0, 100);
+		MessageTable->setColumnWidth(3, 100);
+		MessageTable->setColumnWidth(4, 100);
+		MessageTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), 
 			&YSSCore::Editor::DocumentMessageManager::messageChanged, this, &MessageViewer::onMessageChanged);
+		connect(YSSCore::Editor::DocumentMessageManager::getInstance(),
+			&YSSCore::Editor::DocumentMessageManager::messageChangedForLine, this, &MessageViewer::onMessageChangedForLine);
 		connect(MessageTable, &QTableWidget::cellClicked, this, &MessageViewer::onCellClicked);
 	}
 
@@ -320,6 +336,7 @@ namespace YSS::Editor {
 	}
 
 	void MessageViewer::onMessageChanged(const QString& filePath) {
+		vgDebug << "Message changed for file: " << filePath;
 		if (filePath == CurrentFilePath) {
 			MessageTable->clearContents();
 			MessageTable->setRowCount(0);
@@ -332,10 +349,17 @@ namespace YSS::Editor {
 			qint32 row = 0;
 			for (auto msgList : messages.values()) {
 				for (auto msg : msgList) {
-					MessageTable->setItem(row, 0, new QTableWidgetItem(msg.getCode()));
-					MessageTable->setItem(row, 1, new QTableWidgetItem(msg.getMessage()));
-					MessageTable->setItem(row, 2, new QTableWidgetItem(filePath));
-					MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber())));
+					auto msgCode = new QLabel();
+					msgCode->setText(QString("<a href=\"%1\">%2</a>").arg(msg.getHelpUrl().toString()).arg(msg.getCode()));
+					msgCode->setOpenExternalLinks(true);
+					MessageTable->setCellWidget(row, 0, msgCode);
+					auto messageItem = new QTableWidgetItem(msg.getMessage());
+					messageItem->setToolTip(msg.getFixAdvice());
+					MessageTable->setItem(row, 1, messageItem);
+					auto filePathItem = new QTableWidgetItem(QFileInfo(filePath).fileName());
+					filePathItem->setToolTip(filePath);
+					MessageTable->setItem(row, 2, filePathItem);
+					MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber()+1)));
 					MessageTable->setItem(row, 4, new QTableWidgetItem(QString::number(msg.getColumnNumber())));
 					row++;
 				}
@@ -345,12 +369,14 @@ namespace YSS::Editor {
 
 	void MessageViewer::onMessageChangedForLine(const QString& filePath, qint32 lineNumber) {
 		// search all line == lineNumber, remove it
+		//vgDebug << filePath << CurrentFilePath;
 		if (filePath != CurrentFilePath) {
 			return;
 		}
 		for (int i = 0; i < MessageTable->rowCount(); ++i) {
-			if (MessageTable->item(i, 2)->text() == filePath && MessageTable->item(i, 3)->text().toInt() == lineNumber) {
+			if (MessageTable->item(i, 2)->toolTip() == filePath && MessageTable->item(i, 3)->text().toInt() == lineNumber+1) {
 				MessageTable->removeRow(i);
+				//vgDebug << "Removed message for line " << lineNumber << " at row " << i;
 				--i;
 			}
 		}
@@ -358,10 +384,17 @@ namespace YSS::Editor {
 		for (auto msg : msgList) {
 			int row = MessageTable->rowCount();
 			MessageTable->insertRow(row);
-			MessageTable->setItem(row, 0, new QTableWidgetItem(msg.getCode()));
-			MessageTable->setItem(row, 1, new QTableWidgetItem(msg.getMessage()));
-			MessageTable->setItem(row, 2, new QTableWidgetItem(filePath));
-			MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber())));
+			auto msgCode = new QLabel();
+			msgCode->setText(QString("<a href=\"%1\">%2</a>").arg(msg.getHelpUrl().toString()).arg(msg.getCode()));
+			msgCode->setOpenExternalLinks(true);
+			MessageTable->setCellWidget(row, 0, msgCode);
+			auto messageItem = new QTableWidgetItem(msg.getMessage());
+			messageItem->setToolTip(msg.getFixAdvice());
+			MessageTable->setItem(row, 1, messageItem);
+			auto filePathItem = new QTableWidgetItem(QFileInfo(filePath).fileName());
+			filePathItem->setToolTip(filePath);
+			MessageTable->setItem(row, 2, filePathItem);
+			MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber()+1)));
 			MessageTable->setItem(row, 4, new QTableWidgetItem(QString::number(msg.getColumnNumber())));
 		}
 		if (msgList.size() != 0) {

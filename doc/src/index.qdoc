@@ -12,12 +12,10 @@
     Yayin Story Studio 由多个模块（子项目）构成
     \list
     \li Visindigo 模块：核心中的核心，提供最最基础的Qt封装和扩展功能。根命名空间即为 \l {Visindigo} {Visindigo} 。
-    \li YSSCore 模块：Yayin Story Studio 的核心模块，提供了Yayin Story Studio本体的基础功能。根命名空间为 YSSCore 。
-    \li YayinStoryStudio 模块：Yayin Story Studio 本体模块，YSS的GUI实现大多在此，根命名空间为YSS 。
+    \li Yayin Story Studio Core 模块：Yayin Story Studio 的核心模块，提供了Yayin Story Studio本体的基础功能。根命名空间为 YSSCore 。
+    \li Yayin Story Studio 模块：Yayin Story Studio 本体模块，YSS的GUI实现大多在此，根命名空间为YSS 。
     Yayin Story Studio 没有太多文档，因为它基本上不作为开放API供外部使用。
-    \li YayinStoryPlayer 模块：一个WIP模块，暂时没有具体开发计划，原计划用于实现一个轻量级的故事播放器。
-    但由于开发者已经在参与ASE深度重构，因此该模块的开发计划被无限期搁置。
-    \li YSSInstaller 模块：一个WIP模块，暂时没有具体开发计划，用于实现YSS的更新与安装程序。
+    \li Plugin_ASERStudio 模块：ASE Studio 插件模块，提供了 ASE Studio 插件的实现。根命名空间为 ASERStudio 。
     \endlist
 
     \section1 附带实用工具

@@ -41,7 +41,7 @@ namespace ASERStudio::YSS {
 		d->WhereLabel = new QLabel(this);
 		d->WhereLabel->setWordWrap(true);
 		d->ButtonLayout->addWidget(d->WhereLabel);
-		d->CreateButton = new QPushButton(VITR("ASERStudio::provider.window.create"), this);
+		d->CreateButton = new QPushButton(VITR("ASERStudio::fileProvider.window.create"), this);
 		d->CreateButton->setObjectName("CreateButton");
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setMaximumWidth(160);
@@ -74,7 +74,7 @@ namespace ASERStudio::YSS {
 	void FileTemplateInitWidget_AStoryX::onCreateButtonClicked() {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
 		QString completePath = config->getString("File.Path") + "/" +
-			Visindigo::Utility::FileUtility::toLegelFileName(config->getString("File.Name")) + ".astory";
+			Visindigo::Utility::FileUtility::toLegelFileName(config->getString("File.Name")) + ".astoryx";
 		QFile file(completePath);
 		bool ok = !file.exists();
 		if (ok) {
@@ -115,7 +115,7 @@ namespace ASERStudio::YSS {
 
 	void FileTemplateInitWidget_AStoryX::refreshWhereLabel() {
 		QString completePath = d->FilePath + "/" +
-			Visindigo::Utility::FileUtility::toLegelFileName(d->FileName) + ".astory";
+			Visindigo::Utility::FileUtility::toLegelFileName(d->FileName) + ".astoryx";
 		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
 			d->WhereLabel->setText(VITR("ASERStudio::fileProvider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);

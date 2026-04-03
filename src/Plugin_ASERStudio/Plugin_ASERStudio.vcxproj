@@ -129,7 +129,7 @@
     <ClCompile Include="AStorySyntax\cpp\AStoryXDocument.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXPreprocessor.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXRule.cpp" />
-    <ClCompile Include="AStorySyntax\cpp\AStoryXValue.cpp" />
+    <ClCompile Include="AStorySyntax\cpp\AStoryXValueMeta.cpp" />
     <ClCompile Include="cpp\Plugin_ASERStudio.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="YSS\cpp\ASERFileServer.cpp" />
@@ -145,7 +145,7 @@
     <QtMoc Include="YSS\ASERFileTemplate.h" />
     <QtMoc Include="YSS\ASERProjectTemplate.h" />
     <QtMoc Include="YSS\ASERFIleServer.h" />
-    <QtMoc Include="AStorySyntax\AStoryXValue.h" />
+    <QtMoc Include="AStorySyntax\AStoryXValueMeta.h" />
     <ClInclude Include="AStorySyntax\private\AStoryXControllerParseData_p.h" />
     <QtMoc Include="AStorySyntax\private\AStoryXDocument_p.h" />
     <QtMoc Include="ASEREnv\ASEDevIO.h" />

@@ -72,10 +72,11 @@ namespace Visindigo::General {
 		template<typename T> LoggerMsgHandler& operator<<(QMap<QString, T> any_map);
 
 		LoggerMsgHandler& operator<<(QMap<QString, QObject*> pointer_map);
-		LoggerMsgHandler& operator<<(QMap<QString, QString> string_map);
+		LoggerMsgHandler& operator<<(const QMap<QString, QString>& string_map);
 		template<Printable T>LoggerMsgHandler& operator<<(QMap<QString, T> printable_map); // for any map with printable values
 
 		template<typename T>LoggerMsgHandler& operator<<(QList<T> any_list);
+		LoggerMsgHandler& operator<<(QList<qint64> num_list);
 		LoggerMsgHandler& operator<<(QList<QObject*> qobject_list);
 		template<Printable T>LoggerMsgHandler& operator<<(QList<T> qobject_list); // for any list with printable values
 

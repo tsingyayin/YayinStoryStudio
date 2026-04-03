@@ -7,5 +7,6 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/test_bg.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json</file>
     </qresource>
 </RCC>

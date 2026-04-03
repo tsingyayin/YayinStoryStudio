@@ -1,6 +1,6 @@
 #include "Editor/DocumentMessageManager.h"
 #include "Editor/private/DocumentMessageManager_p.h"
-
+#include <General/Log.h>
 namespace YSSCore::__Private__ {
 	YSSCore::Editor::DocumentMessageManager* DocumentMessageManagerPrivate::Instance = nullptr;
 
@@ -55,7 +55,6 @@ namespace YSSCore::__Private__ {
 namespace YSSCore::Editor {
 	DocumentMessageManager::DocumentMessageManager() {
 		d = new YSSCore::__Private__::DocumentMessageManagerPrivate();
-		YSSCore::__Private__::DocumentMessageManagerPrivate::Instance = this;
 	}
 	DocumentMessageManager::~DocumentMessageManager() {
 		delete d;

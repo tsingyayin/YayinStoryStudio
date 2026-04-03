@@ -6,6 +6,7 @@
 #include <Utility/FileUtility.h>
 #include <General/Log.h>
 #include <QtCore/qfileinfo.h>
+#include <Widgets/ThemeManager.h>
 
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
@@ -25,6 +26,8 @@ namespace ASERStudio {
 	Main::~Main() {
 	}
 	void Main::onPluginEnable() {
+		Visindigo::Utility::JsonConfig config = VISTM->getMergedColorScheme();
+		vgDebug << "Merged Color Scheme:" << config;
 		registerPluginModule(new ASERStudioTranslator(this));
 		registerProjectTemplateProvider(new YSS::ProjectTemplate_AStoryX(this));
 		registerFileTemplateProvider(new YSS::FileTemplate_AStoryX(this));

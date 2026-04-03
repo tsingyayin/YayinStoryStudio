@@ -54,6 +54,30 @@ namespace YSS::Editor {
 		
 		setColorfulEnable(true);
 		onThemeChanged();
+		for (Visindigo::General::Plugin* plugin: VIPLM->getLoadedPlugins()) {
+			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
+				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
+				if (editorPlugin) {
+					editorPlugin->onProjectOpen(GlobalValue::getCurrentProject());
+				}
+			}
+		}
+		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
+		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
+
+		this->resize(width, height);
+		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
+			this->showMaximized();
+		}
+		GlobalValue::getCurrentProject()->refreshLastModifyTime();
+		GlobalValue::getCurrentProject()->saveProject();
+		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
+		for (const QString& filePath : openedFiles) {
+			YSSFSM->openFile(filePath);
+		}
+		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
+		Editor->setCurrentWidget(focusedFile);
+		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 	}
 
 	ResourceBrowser* MainWin::getResourceBrowser() {
@@ -87,32 +111,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::showEvent(QShowEvent* event) {
-		for (Visindigo::General::Plugin* plugin: VIPLM->getLoadedPlugins()) {
-			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
-				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
-				if (editorPlugin) {
-					editorPlugin->onProjectOpen(GlobalValue::getCurrentProject());
-				}
-			}
-		}
-		QWidget::showEvent(event);
-		yDebugF << "Called";
-		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
-		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
-
-		this->resize(width, height);
-		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
-			this->showMaximized();
-		}
-		GlobalValue::getCurrentProject()->refreshLastModifyTime();
-		GlobalValue::getCurrentProject()->saveProject();
-		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
-		for (const QString& filePath : openedFiles) {
-			YSSFSM->openFile(filePath);
-		}
-		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
-		Editor->setCurrentWidget(focusedFile);
-		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
+		
 		yDebugF << CentralWidget->width() << CentralWidget->height();
 		yDebugF << this->width() << this->height();
 	}

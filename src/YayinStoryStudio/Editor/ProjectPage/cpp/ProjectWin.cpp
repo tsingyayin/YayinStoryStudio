@@ -28,11 +28,11 @@ namespace YSS::ProjectPage {
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(VITR("YSS::project.projectManager"));
-		this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
+		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
 		TitleLabel = new QLabel(this);
 		TitleLabel->setText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("ProgramTitleLabel");
-		TitleLabel->setFixedHeight(100);
+		TitleLabel->setFixedHeight(80);
 
 		HistoryProjectArea = new QScrollArea(this);
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);

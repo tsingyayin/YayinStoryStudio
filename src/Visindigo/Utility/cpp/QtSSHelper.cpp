@@ -118,4 +118,32 @@ namespace Visindigo::Utility {
 		}
 		QObject::connect(emiter, VI_VAR_SIGNAL(finalSignalName), reciver, VI_VAR_SLOT(finalSlotName), type);
 	}
+
+	/*!
+		\a child 是要检查的子对象。
+		\a parent 是要检查的父对象。
+		\since Visindigo 0.13.0
+		此函数检查child是否是parent的后代（即child的父对象链中是否包含parent）。如果是，则返回true；否则返回false。
+		它对于在QWidget等深度场景下查看某个小玩意是否是某个大区域内的一个组件非常有用。
+	*/
+	bool QtSSHelper::isDescendantsOf(QObject* child, QObject* parent) {
+		if (!child) {
+			vgErrorF << "child is null";
+			return false;
+		}
+		if (!parent) {
+			vgErrorF << "parent is null";
+			return false;
+		}
+		QObject* c_child = child;
+		while (c_child->parent() != nullptr) {
+			if (c_child->parent() == parent) {
+				return true;
+			}
+			else {
+				c_child = c_child->parent();
+			}
+		}
+		return false;
+	}
 }

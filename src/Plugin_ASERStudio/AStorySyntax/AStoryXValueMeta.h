@@ -7,8 +7,8 @@
 #include <QtCore/qobject.h>
 #include <Utility/JsonConfig.h>
 namespace ASERStudio::AStorySyntax {
-	class AStoryXValuePrivate;
-	class ASERAPI AStoryXValue {
+	class AStoryXValueMetaPrivate;
+	class ASERAPI AStoryXValueMeta {
 		Q_GADGET;
 	public:
 		enum Type {
@@ -20,14 +20,21 @@ namespace ASERStudio::AStorySyntax {
 			Enum,
 			Vector,
 			Bool,
-			None
+			None,
+			__META__,
+			Comment,
+			Function,
+			Parameter,
+			Keyword,
+			Macro
 		};
 		Q_ENUM(Type);
 	public:
-		AStoryXValue();
-		VIMoveable(AStoryXValue);
-		VICopyable(AStoryXValue);
-		~AStoryXValue();
+		AStoryXValueMeta();
+		AStoryXValueMeta(const QString& paramName, Type type = Type::Undefined, const QString& defaultValue = "");
+		VIMoveable(AStoryXValueMeta);
+		VICopyable(AStoryXValueMeta);
+		~AStoryXValueMeta();
 	public:
 		void setMetaData(const QString& paramName, const Visindigo::Utility::JsonConfig& metaData);
 		void setParameterName(const QString& paramName);
@@ -51,8 +58,9 @@ namespace ASERStudio::AStorySyntax {
 		qint64 toInteger(const QString& value) const;
 		double toFloat(const QString& value) const;
 		QList<double> toVector(const QString& value) const;
+		bool toBool(const QString& value) const;
 	private:
-		AStoryXValuePrivate* d;
+		AStoryXValueMetaPrivate* d;
 	};
 }
 #endif // ASERStudio_AStorySyntax_AStoryXValue_h

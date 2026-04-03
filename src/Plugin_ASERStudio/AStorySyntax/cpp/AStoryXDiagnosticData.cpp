@@ -159,4 +159,17 @@ namespace ASERStudio::AStorySyntax {
 	AStoryXDiagnosticData::DiagnosticType AStoryXDiagnosticData::getType() const {
 		return d->Type;
 	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回诊断信息的字符串表示形式，主要用于调试和日志记录等目的。通常会包含诊断类型、位置和消息等内容。
+	*/
+	QString AStoryXDiagnosticData::toString() {
+		return QString("Type: %1, Line: %2, Column: %3, Message: %4, FixAdvice: %5")
+			.arg(QString::number((qint32)d->Type, 16).toUpper())
+			.arg(d->Line)
+			.arg(d->Column)
+			.arg(d->Message)
+			.arg(d->FixAdvice);
+	}
 }

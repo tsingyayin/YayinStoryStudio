@@ -2,6 +2,134 @@
 #include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 namespace ASERStudio::AStorySyntax {
 	/*!
+		\class ASERStudio::AStorySyntax::AStoryXParameter
+		\brief AStoryXParameter记录AStoryXController解析AStoryX时得到的参数信息。
+		\since ASERStudio 2.0
+		\inmodule ASERStudio
+
+		这个类是由AStoryXController解析AStoryX时得到的参数信息的载体。它包含了参数名称、前缀、分隔符、内容、值等信息。
+
+		这个类是只读的，一旦AStoryXController创建它，就不能再更改。
+	*/
+
+	/*!
+		\since ASERStudio 2.0
+		构造函数
+	*/
+	AStoryXParameter::AStoryXParameter() {
+		d = new AStoryXParameterPrivate();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		析构函数
+	*/
+	AStoryXParameter::~AStoryXParameter() {
+		delete d;
+	}
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXParameter::AStoryXParameter(const AStoryXParameter& other)
+		\since ASERStudio 2.0
+		复制构造函数
+	*/
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXParameter::AStoryXParameter(AStoryXParameter&& other) noexcept
+		\since ASERStudio 2.0
+		移动构造函数
+	*/
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXParameter::operator=(const AStoryXParameter& other)
+		\since ASERStudio 2.0
+		复制赋值运算符
+	*/
+
+	/*!
+		\fn ASERStudio::AStorySyntax::AStoryXParameter::operator=(AStoryXParameter&& other) noexcept
+		\since ASERStudio 2.0
+		移动赋值运算符
+	*/
+
+	VIMoveable_Impl(AStoryXParameter);
+	VICopyable_Impl(AStoryXParameter);
+
+	/*
+		\since ASERStudio 2.0
+		获取参数名称。
+	*/
+	QString AStoryXParameter::getName() const {
+		return d->Name;
+	}
+
+	/*
+		\since ASERStudio 2.0
+		获取参数前缀。
+	*/
+	QString AStoryXParameter::getPrefix() const {
+		return d->Prefix;
+	}
+
+	/*
+		\since ASERStudio 2.0
+		获取参数分隔符。
+	*/
+	QString AStoryXParameter::getSeparater() const {
+		return d->Separater;
+	}
+
+	/*
+		\since ASERStudio 2.0
+		获取参数内容。
+	*/
+	QString AStoryXParameter::getContent() const {
+		return d->Content;
+	}
+
+	/*
+		\since ASERStudio 2.0
+		获取参数值元。
+	*/
+	AStoryXValueMeta AStoryXParameter::getValue() const {
+		return d->Value;
+	}
+
+	/*
+		\since ASERStudio 2.0
+		获取参数在原文中的位置索引。
+	*/
+	qint32 AStoryXParameter::getIndex() const {
+		return d->Index;
+	}
+
+	/*
+		\since ASERStudio 2.0
+		判断参数是否有效。这个有效指的是它是否包含有效信息。
+		如果不包含有效信息，访问这个对象没有意义。
+	*/
+	bool AStoryXParameter::isValid() const {
+		return d->Valid;
+	}
+
+	/*
+		\since ASERStudio 2.0
+		将参数信息转换为字符串形式，主要用于调试和诊断输出。
+	*/
+	QString AStoryXParameter::toString() const {
+		if (!isValid()) {
+			return "Invalid Parameter";
+		}
+		return QString("Parameter(Name: %1, Prefix: %2, Separater: %3, Content: %4, ValueType: %5, Index: %6)")
+			.arg(getName())
+			.arg(getPrefix())
+			.arg(getSeparater())
+			.arg(getContent())
+			.arg(getValue().getType())
+			.arg(getIndex());
+	}
+
+	/*!
 		\class ASERStudio::AStorySyntax::AStoryXControllerParseData
 		\brief AStoryXControllerParseData记录由AStoryXController解析AStoryX时得到的数据。
 		\since ASERStudio 2.0
@@ -145,90 +273,53 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回必选参数在AStoryX字符串中的位置（以字符串为单位）。
+		返回行首标识符。对于预处理器来说，这个行首标识符永远是#。
 	*/
-	qint32 AStoryXControllerParseData::getRequiredParameterStringIndex() const {
-		return d->RequiredParameterStringIndex;
+	QString AStoryXControllerParseData::getStartSign() const {
+		return d->StartSign;
 	}
 
 	/*!
 		\since ASERStudio 2.0
-		返回可选参数在AStoryX字符串中的位置（以字符串为单位）。如果没有可选参数，则返回空列表。
+		返回必选参数的解析结果
 	*/
-	QList<qint32> AStoryXControllerParseData::getOptionalParameterStringIndexes() const {
-		return d->OptionalParameterStringIndex;
-	}
-
-	/*!
-		\since ASERStudio 2.0
-		返回光标所在的参数。如果光标不在任何参数中，则返回空字符串。
-		注意，这个返回混合了必选参数和可选参数，用户需要根据OptionalParameterNames来判断它是哪个参数。
-	*/
-	QString AStoryXControllerParseData::getCursorInWhichParameter(qint32 cursorPosition) const {
-		if (cursorPosition >= 0) {
-			qint32 firstNotEmpty = 0;
-			for (qint32 index : d->OptionalParameterStringIndex) {
-				if (index >= 0) {
-					firstNotEmpty = index;
-					break;
-				}
-			}
-			if (cursorPosition<firstNotEmpty) {
-				if (cursorPosition >= d->RequiredParameterStringIndex) {
-					d->cursorInWhichParameter = d->RequiredParameter;
-				}
-			}
-			else {
-				for (qint32 index : d->OptionalParameterStringIndex) {
-					if (cursorPosition >= index) {
-						d->cursorInWhichParameter = d->OptionalParameterNames[d->OptionalParameterStringIndex.indexOf(index)];
-					}
-				}
-			}
-		}
-		else {
-			return d->cursorInWhichParameter;
-		}
-	}
-
-	/*!
-		\since ASERStudio 2.0
-		返回必选参数的值。如果没有必选参数，则返回空字符串。
-	*/
-	QString AStoryXControllerParseData::getRequiredParameter() const {
+	AStoryXParameter AStoryXControllerParseData::getRequiredParameter() const {
 		return d->RequiredParameter;
 	}
 
-	/*!
+	/*
 		\since ASERStudio 2.0
-		返回可选参数的值列表。如果没有可选参数，则返回空列表。
+		返回可选参数的解析结果列表。这个列表不包括那些没有被捕捉到的可选参数，
+		因此它的长度可能小于可选参数的实际定义数量。
 	*/
-	QStringList AStoryXControllerParseData::getOptionalParameters() const {
+	QList<AStoryXParameter> AStoryXControllerParseData::getOptionalParameters() const {
 		return d->OptionalParameters;
 	}
 
 	/*!
 		\since ASERStudio 2.0
-		返回可选参数的名称列表。如果没有可选参数，则返回空列表。
+		返回给定光标位置所在的参数名称。如果光标位置不在任何参数内，则返回空字符串。
 	*/
-	QStringList AStoryXControllerParseData::getOptionalParameterNames() const {
-		return d->OptionalParameterNames;
+	QString AStoryXControllerParseData::getCursorInWhichParameter(qint32 cursorPosition) const {
+		if (cursorPosition < 0) {
+			return d->cursorInWhichParameter;
+		}
+		for (const auto& param : d->OptionalParameters) {
+			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length()) {
+				return param.getName();
+			}
+		}
+		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
+			return d->RequiredParameter.getName();
+		}
+		return "";
 	}
-
 	/*!
 		\since ASERStudio 2.0
 		返回文本中引用的变量列表。	
 	*/
 	QStringList AStoryXControllerParseData::referenceVariables() const {
 		return d->referenceVariables;
-	}
-
-	/*!
-		\since ASERStudio 2.0
-		返回可选参数的数量。
-	*/
-	qint32 AStoryXControllerParseData::getOptionalParameterCount() const {
-		return d->OptionalParameters.size();
 	}
 
 	/*!
@@ -255,13 +346,11 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	QString AStoryXControllerParseData::toString() const {
 		QString result = QString("ControllerType: %1\n").arg(d->ControllerType);
-		result += QString("IsValid: %1\n").arg(isValid());
-		result += QString("RequiredParameter: %1\n").arg(d->RequiredParameter);
-		result += QString("OptionalParameters: [%1]\n").arg(d->OptionalParameters.join(", "));
-		result += QString("OptionalParameterNames: [%1]\n").arg(d->OptionalParameterNames.join(", "));
-		result += QString("ReferenceVariables: [%1]\n").arg(d->referenceVariables.join(", "));
-		result += QString("RequiredParameterStringIndex: %1\n").arg(d->RequiredParameterStringIndex);
-		result += QString("DiagnosticAvailable: %1\n").arg(d->DiagnosticAvailable);
+		result += QString("StartSign: %1\n").arg(d->StartSign);
+		result += QString("RequiredParameter: %1\n").arg(d->RequiredParameter.isValid() ? d->RequiredParameter.toString() : "Invalid");
+		for (const auto& param : d->OptionalParameters) {
+			result += QString("OptionalParameter: %1\n").arg(param.isValid() ? param.toString() : "Invalid");
+		}
 		return result;
 	}
 	/*!

@@ -22,126 +22,133 @@ namespace ASERStudio::AStorySyntax {
 
 	void AStoryXPreprocessorPrivate::onUseRule(const QString& str, qint32 cursorPosition, 
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
-		QString content = str.mid(QString("#useRule:").length()).trimmed();
-		data->d->RequiredParameter = "useRule";
-		data->d->OptionalParameterNames.append("ruleName");
-		data->d->OptionalParameters.append(content);
-		data->d->RequiredParameterStringIndex = 0;
-		if (cursorPosition>QString("#useRule:").length() && cursorPosition <= str.length()) {
+		QString content = str.mid(QString("#useRule:").length());
+		AStoryXParameter requiredParameter;
+		requiredParameter.d->setParameter("type", "", "useRule", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
+		data->d->RequiredParameter = requiredParameter;
+		if (content.size() > 0) {
+			AStoryXParameter optionalParameter;
+			optionalParameter.d->setParameter("ruleName", "", content, AStoryXValueMeta("useRule.ruleName", AStoryXValueMeta::Type::String), 
+				QString("#useRule:").length());
+			data->d->OptionalParameters.append(optionalParameter);
+		}
+		if (cursorPosition > QString("#useRule:").length()) {
 			data->d->cursorInWhichParameter = "ruleName";
-			data->d->OptionalParameterStringIndex.append(QString("#useRule:").length());
 		}
 		else {
-			data->d->cursorInWhichParameter = "useRule";
+			data->d->cursorInWhichParameter = "type";
 		}
 	}
 
 	void AStoryXPreprocessorPrivate::onAliases(const QString& str, qint32 cursorPosition, 
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
-		data->d->RequiredParameter = "aliases";
-		data->d->RequiredParameterStringIndex = 0;
-		if (cursorPosition >= 0 && cursorPosition <= str.length()) {
-			data->d->cursorInWhichParameter = "aliases";
-		}
-		else {
-			data->d->cursorInWhichParameter = "aliases";
-		}
+		AStoryXParameter requiredParameter;
+		requiredParameter.d->setParameter("type", "", "aliases", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
+		data->d->RequiredParameter = requiredParameter;
+		data->d->cursorInWhichParameter = "type";
 	}
 
 	void AStoryXPreprocessorPrivate::onEndAliases(const QString& str, qint32 cursorPosition, 
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
-		data->d->RequiredParameter = "endaliases";
-		data->d->RequiredParameterStringIndex = 0;
-		if (cursorPosition >= 0 && cursorPosition <= str.length()) {
-			data->d->cursorInWhichParameter = "endaliases";
-		}
-		else {
-			data->d->cursorInWhichParameter = "endaliases";
-		}
+		AStoryXParameter requiredParameter;
+		requiredParameter.d->setParameter("type", "", "endaliases", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
+		data->d->RequiredParameter = requiredParameter;
+		data->d->cursorInWhichParameter = "type";
 	}
 
 	void AStoryXPreprocessorPrivate::onBlock(const QString& str, qint32 cursorPosition, 
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
-		QString context = str.mid(QString("#block ").length()).trimmed();
+		QString context = str.mid(QString("#block ").length());
 		//#block blockName(param1, param2, ...)
 		qint32 leftParenIndex = context.indexOf('(');
 		qint32 rightParenIndex = context.lastIndexOf(')');
-		data->d->RequiredParameter = "block";
-		data->d->RequiredParameterStringIndex = 0;
-		QString blockName = context.mid(0, leftParenIndex).trimmed();
-		data->d->OptionalParameterNames.append("blockName");
-		data->d->OptionalParameters.append(blockName);
-		QString params = context.mid(leftParenIndex + 1, rightParenIndex - leftParenIndex - 1).trimmed();
+		QString blockName = context.mid(0, leftParenIndex);
+		AStoryXParameter requiredParameter;
+		requiredParameter.d->setParameter("type", "", "block ", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
+		data->d->RequiredParameter = requiredParameter;
+		AStoryXParameter blockNameParameter;
+		blockNameParameter.d->setParameter("blockName", "", blockName, AStoryXValueMeta("block.blockName", AStoryXValueMeta::Type::Function), 
+			QString("#block ").length());
+		data->d->OptionalParameters.append(blockNameParameter);
+		QString params = context.mid(leftParenIndex + 1, rightParenIndex - leftParenIndex - 1);
 		QStringList paramsList = params.split(',');
 		int index = 0;
-		int paramStartIndex = leftParenIndex + 1;
+		int paramStartIndex = leftParenIndex + 1 + QString("#block ").length();
 		for (const QString& param : paramsList) {
-			data->d->OptionalParameterNames.append(QString("param%1").arg(index));
-			data->d->OptionalParameters.append(param.trimmed());
-			data->d->OptionalParameterStringIndex.append(paramStartIndex);
+			AStoryXParameter paramParameter;
+			paramParameter.d->setParameter(QString("param%1").arg(index), "", param, 
+				AStoryXValueMeta(QString("block.param"), AStoryXValueMeta::Type::Parameter), 
+				paramStartIndex);
+			data->d->OptionalParameters.append(paramParameter);
 			paramStartIndex += param.length() + 1; // +1 for the comma
 			index++;
 		}
 		if (cursorPosition >= 0) {
 			if (cursorPosition <= QString("#block ").length()) {
-				data->d->cursorInWhichParameter = "block";
+				data->d->cursorInWhichParameter = "type";
 				return;
 			}
-			else {
-				for (int i = 0; i < data->d->OptionalParameterStringIndex.size(); i++) {
-					if (cursorPosition > data->d->OptionalParameterStringIndex[i]) {
-						data->d->cursorInWhichParameter = data->d->OptionalParameterNames[i + 1]; // +1 because OptionalParameterNames[0] is blockName
-						break;
-					}
+			for (int i = 0; i < data->d->OptionalParameters.size(); i++) {
+				if (cursorPosition > data->d->OptionalParameters[i].getIndex()) {
+					data->d->cursorInWhichParameter = data->d->OptionalParameters[i].getName();
+					return;
 				}
+			}
+			if (cursorPosition > QString("#block ").length()) {
+				data->d->cursorInWhichParameter = "blockName";
+				return;
 			}
 		}
 	}
 
 	void AStoryXPreprocessorPrivate::onEndBlock(const QString& str, qint32 cursorPosition, 
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
-		data->d->RequiredParameter = "endblock";
-		data->d->RequiredParameterStringIndex = 0;
-		if (cursorPosition >= 0 && cursorPosition <= str.length()) {
-			data->d->cursorInWhichParameter = "endblock";
-		}
-		else {
-			data->d->cursorInWhichParameter = "endblock";
-		}
+		AStoryXParameter requiredParameter;
+		requiredParameter.d->setParameter("type", "", "endblock", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
+		data->d->RequiredParameter = requiredParameter;
+		data->d->cursorInWhichParameter = "type";
 	}
 
 	void AStoryXPreprocessorPrivate::onUse(const QString& str, qint32 cursorPosition, AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
 		//#use blockName(param1, param2, ...)
-		QString context = str.mid(QString("#use ").length()).trimmed();
+		QString context = str.mid(QString("#use ").length());
 		qint32 leftParenIndex = context.indexOf('(');
 		qint32 rightParenIndex = context.lastIndexOf(')');
-		data->d->RequiredParameter = "use";
-		data->d->RequiredParameterStringIndex = 0;
-		QString blockName = context.mid(0, leftParenIndex).trimmed();
-		data->d->OptionalParameterNames.append("blockName");
-		QString params = context.mid(leftParenIndex + 1, rightParenIndex - leftParenIndex - 1).trimmed();
+		QString blockName = context.mid(0, leftParenIndex);
+		AStoryXParameter requiredParameter;
+		requiredParameter.d->setParameter("type", "", "use ", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
+		data->d->RequiredParameter = requiredParameter;
+		AStoryXParameter blockNameParameter;
+		blockNameParameter.d->setParameter("blockName", "", blockName, AStoryXValueMeta("use.blockName", AStoryXValueMeta::Type::Function), 
+			QString("#use ").length());
+		data->d->OptionalParameters.append(blockNameParameter);
+		QString params = context.mid(leftParenIndex + 1, rightParenIndex - leftParenIndex - 1);
 		QStringList paramsList = params.split(',');
 		int index = 0;
-		int paramStartIndex = leftParenIndex + 1;
+		int paramStartIndex = leftParenIndex + 1 + QString("#use ").length();
 		for (const QString& param : paramsList) {
-			data->d->OptionalParameterNames.append(QString("param%1").arg(index));
-			data->d->OptionalParameters.append(param.trimmed());
-			data->d->OptionalParameterStringIndex.append(paramStartIndex);
+			AStoryXParameter paramParameter;
+			paramParameter.d->setParameter(QString("param%1").arg(index), "", param, 
+				AStoryXValueMeta(QString("use.param"), AStoryXValueMeta::Type::Parameter), 
+				paramStartIndex);
+			data->d->OptionalParameters.append(paramParameter);
 			paramStartIndex += param.length() + 1; // +1 for the comma
 			index++;
 		}
 		if (cursorPosition >= 0) {
 			if (cursorPosition <= QString("#use ").length()) {
-				data->d->cursorInWhichParameter = "use";
+				data->d->cursorInWhichParameter = "type";
 				return;
 			}
-			else {
-				for (int i = 0; i < data->d->OptionalParameterStringIndex.size(); i++) {
-					if (cursorPosition > data->d->OptionalParameterStringIndex[i]) {
-						data->d->cursorInWhichParameter = data->d->OptionalParameterNames[i + 1]; // +1 because OptionalParameterNames[0] is blockName
-						break;
-					}
+			for (int i = 0; i < data->d->OptionalParameters.size(); i++) {
+				if (cursorPosition > data->d->OptionalParameters[i].getIndex()) {
+					data->d->cursorInWhichParameter = data->d->OptionalParameters[i].getName();
+					return;
 				}
+			}
+			if (cursorPosition > QString("#use ").length()) {
+				data->d->cursorInWhichParameter = "blockName";
+				return;
 			}
 		}
 	}
@@ -228,6 +235,12 @@ namespace ASERStudio::AStorySyntax {
 	   \a cursorPosition 光标位置，用于确定光标位于哪个参数中
 	   \a diagnostic 是否启用诊断信息
 	   \a lineIndex 行索引，仅在启用诊断信息时有效
+
+	   返回一个AStoryXControllerParseData对象，包含解析结果。
+
+	   你一般不需要直接调用这个函数，除非你有特殊需求（比如你在确定场景下只解析预处理指令）。
+	   针对任意文本的解析，应该使用ASERStudio::AStorySyntax::AStoryXRule::parseAStoryX函数，
+	   该函数会根据所有控制器的规则来解析文本，并返回最合适的解析结果。
 	*/
 	AStoryXControllerParseData AStoryXPreprocessor::parse(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
 		if (!isPreprocessor(str)) {
@@ -235,6 +248,7 @@ namespace ASERStudio::AStorySyntax {
 		}
 		AStoryXControllerParseData data;
 		data.d->ControllerType = AStoryXController::Preprocessor;
+		data.d->StartSign = "#";
 		data.d->DiagnosticAvailable = diagnostic;
 		if (str.startsWith("#useRule")) {
 			d->onUseRule(str, cursorPosition, &data, diagnostic, lineIndex);

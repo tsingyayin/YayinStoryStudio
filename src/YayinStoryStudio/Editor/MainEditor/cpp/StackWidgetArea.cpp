@@ -71,8 +71,9 @@ namespace YSS::Editor {
 		if (okToClose) {
 			d->WidgetMap.remove(filePath);
 			d->TagArea->removeStackLabel(filePath); // this function handle re-choice if the closed widget is current one
+			widget->deleteLater();
 		}
-		widget->deleteLater();
+		
 	}
 
 	void StackWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -150,5 +151,6 @@ namespace YSS::Editor {
 		if (d->ContentArea) {
 			d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 		}
+		d->CentralArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 	}
 }

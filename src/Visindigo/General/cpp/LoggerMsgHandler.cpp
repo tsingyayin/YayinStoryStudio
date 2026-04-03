@@ -214,6 +214,18 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		重载<<运算符以承接各种类型的日志消息。这是QList<qint64>类型的实现。
+	*/
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(QList<qint64> num_list) {
+		QStringList list;
+		for (qint64 num : num_list) {
+			list.append(QString::number(num));
+		}
+		fromString("[" % list.join(", ") % "]");
+		return *this;
+	}
+	/*!
+		\since Visindigo 0.13.0
 		重载<<运算符以承接各种类型的日志消息。这是QObject*类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QObject* pointer) {
@@ -267,7 +279,7 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		重载<<运算符以承接各种类型的日志消息。这是QMap的key为QString，value为QString类型的实现。
 	*/
-	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, QString> string_map) {
+	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QMap<QString, QString>& string_map) {
 		QStringList list;
 		for (auto it = string_map.begin(); it != string_map.end(); ++it) {
 			list.append(it.key() % ": \"" % it.value() % "\"");

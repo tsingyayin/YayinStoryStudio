@@ -1,0 +1,187 @@
+/*!
+    \page aserstudio-astoryx-diagnostic.html ASERStudio 诊断信息
+    \title AStoryX诊断信息
+    \brief 这页面提供AStoryX的诊断信息
+
+    \section1 诊断信息
+    ASERStudio会在解析AStoryX的过程中为一些可以识别到的语法错误或其他基本错误提供
+    诊断信息，以帮助用户更快地发现和修正错误。诊断信息会在编辑器中以波浪线的形式标记，并且在鼠标悬停时显示详细信息。
+
+    \section1 错误类别（0x1000 ~ 0x1FFF）
+    以下均为可能造成AStoryX根本无法运行的致命错误。
+
+    \section2 1000
+    \b{UnknownError} 内部错误
+
+    这个错误本身也作为错误类别的开始记号，它一般没有理由直接出现在诊断信息里。
+
+    如果你真的遇到了它，请务必联系开发者，并提供尽可能多的相关信息
+    （比如你正在编辑的AStoryX文件内容，或者至少是出错行附近的内容），以帮助开发者定位和修复这个错误。
+
+    \section2 1001
+    \b{RuleNotSelected} 没有选择规则
+
+    AStoryX通过预处理器指令useRule指定当前AStoryX文件选择的语法规则，如果你从
+    ASERStudio或ASE-Remake官方Sample里创建项目，则你至少有BaseRule和AdvanceRule
+    可供选择，即你需要在AStoryX文档里尽量靠前（第一行除外）的位置添加如下预处理器指令：
+    \badcode
+    #useRule:BaseRule
+    或
+    #useRule:AdvanceRule
+    \endcode
+
+    \section2 1002
+    \b{NoSuchRule} 没有这个规则
+
+    你选择的规则不存在。请注意，你选择的规则必须是你项目目录内Rules文件夹下
+    规则文件的主名称。
+
+    例如，如果你的Rules文件夹里有rule1.json、rule2.json和rule3.json三个规则文件，
+    那么你只能选择rule1、rule2或rule3这三个规则。
+
+    \section2 1003
+    \b{NoSuchController} 没有这个控制器
+
+    你在AStoryX里使用了一个不存在的控制器。请检查你的AStoryX文件，确认你使用的控制器名称是否正确。
+    你的控制器必须使用来自你选定的规则里规定的控制器行首标识符（术语上称其为Header或
+    StartSign）。
+
+    请注意，由于ASE-Remake的设计，强制规定对话控制器不以任何行首标识符开头，
+    因此一般来说任何书写错误导致无法匹配行首标识符的控制器最后都会变成对话控制器，
+    这个错误理应根本不会发生。
+
+    如果你遇到了这个错误，请联系ASERStudio开发者。
+
+    \section2 1004
+    \b{MissingRequiredParameter} 缺少必需参数
+
+    你的控制器缺少必须的参数。即在识别到的第一个可选参数之前，没有找到任何
+    可以作为必须参数的内容。
+
+    例如，对于BaseRule规则的背景控制器而言，你至少需要提供背景名称：
+    \badcode
+    背景：bg1
+    \endcode
+    如果你漏掉了背景名称，直接尝试填写后面的参数，或者直接结束这一行，那么就会出现这个错误：
+    \badcode
+    背景：\1
+    \endcode
+
+    \section2 1005
+    \b{ParameterTypeMismatch} 参数类型不匹配
+
+    你书写的参数的类型与这参数要求的类型不匹配。
+
+    在AStoryX中，共有六种基本参数类型，即整数（整型，Integer）、小数（浮点数，Float）、
+    布尔量（Boolean）、字符串（String）、向量（Vector）。其中由于部分字符串只能填写
+    某些固定值，于是特化为枚举量（Enum）。部分向量允许填写字符串，于是特化为字符串列表（StringList）。
+
+    以下是常见类型的写法示范：
+    \list
+    \li Integer：123、-456
+    \li Float：3.14、-0.001
+    \li Boolean：true、false、1、0
+    \li String：abc
+    \li Vector：3,4,5   6,8,9,10  (具体参数要求的维度可能不一样，大部分是三维，但也有二维和四维的)
+    \li Enum：InOut InOut2 (这个例子是运动曲线的类型名称，不同枚举可能有不同的允许值)
+    \endlist
+
+    \section2 1006
+    \b{ParameterOutOfRange} 参数值超出范围
+
+    你书写的参数超出了这个参数的容许范围。
+
+    对于数字（整型和浮点型），意味着你书写的数值超出了这个参数要求的最小值和最大值之间的范围。
+
+    对于枚举，意味着你书写的文本不在这个枚举允许的值列表里。AStoryX最常见的枚举类型是运动曲线名称枚举
+    和滤镜名称枚举，它们的值可以在ASE-Remake的文档中找到。
+
+    \section2 1007
+    \b{ParameterFormatError} 参数格式错误
+
+    你书写参数的格式不正确，它一般用于以下情况：
+    
+    对于字符串，它指示字符串类型不符合要求（例如检查大小写、特殊符号之类）。
+
+    对于向量，它指示你的向量维度不符合要求的维度（譬如要求四维向量但你只写到了三维）
+
+    \section2 1008
+    \b{UnexpectedParameter} 出现了意外参数
+
+    你书写了一个参数，但这个参数在这个控制器里是没有定义的。
+
+    由于ASE-Remake的设计，它自动将未匹配到前缀的参数当作最后一个参数的值来解析，因此
+    出现这个错误大多情况下不影响AStoryX的正常运行，但它确实表明你书写了一个没有定义的参数，这可能是一个错误。
+
+    \section2 1009
+    \b{UnclosedSymbol} 存在未闭合的符号
+
+    你书写了一个符号（例如引号、括号等），但没有正确闭合它。
+
+    这也包括对XML标签的告警。例如如果你有一个<color>标签，但你没有写对应的</color>闭合标签，那么就会出现这个错误。
+
+    \section2 100A
+    \b{VariableNotDefined} 变量未定义
+
+    你尝试使用一个在上下文中从未定义过的变量
+
+    在使用该变量之前，请先使用变量控制器正确定义它。
+
+    \section2 100B
+    \b{UseTabInsteadSpace} 使用制表符替代空格
+
+    你在一个应该使用制表符（Tab）的地方使用了空格。请替换它们。
+
+    \section2 100C
+    \b{UseSpaceInsteadTab} 使用空格替代制表符
+
+    你在一个应该使用空格的地方使用了制表符（Tab）。请替换它们。
+
+    \section2 100D
+    \b{UseEnglishPunctuation} 使用英文标点
+
+    你在一个应该使用英文标点的地方使用了非英文标点。请替换它们。
+
+    \section2 100E
+    \b{UseChinesePunctuation} 使用中文标点
+
+    你在一个应该使用中文标点的地方使用了非中文标点。请替换它们。
+
+    \section2 100F
+    \b{NoSuchBlock} 没有这个块
+
+    你在尝试调用一个从未定义过的块。请检查你的AStoryX文件，确认你是否正确地定义了这个块，并且在调用时使用了正确的名称。
+
+    \section2 1010
+    \b{BlockNameConflict} 块名冲突
+
+    你定义了一个块，但这个块的名称与另一个已经定义过的块的名称冲突了。请检查你的AStoryX文件，确认你是否正确地命名了你的块，并且没有使用已经被占用的名称。
+
+    \section2 1011
+    \b{InstrumentRedundant} 使用了冗余指令
+
+    你多次使用了一个只应该被使用一次的指令。请检查你的AStoryX文件，确认你是否正确地使用了这个指令，并且没有重复使用它。
+
+    \section2 1012
+    \b{NoSuchPreprocessor} 没有这个预处理器指令
+
+    你的预处理器指令（#开头的指令）使用了一个不存在的指令名称。请检查你的AStoryX文件，确认你是否正确地书写了预处理器指令，并且使用了正确的指令名称。
+
+    \section1 警告类别（0x2000 ~ 0x2FFF）
+    以下均为不影响AStoryX运行但可能导致AStoryX行为不符合预期的警告。
+
+    \section2 2000
+    \b{UnknownWarning} 内部警告
+
+    这个警告本身也作为警告类别的开始记号，它一般没有理由直接出现在诊断信息里。
+
+    如果你真的遇到了它，请务必联系开发者，并提供尽可能多的相关信息
+    （比如你正在编辑的AStoryX文件内容，或者至少是出错行附近的内容），以帮助开发者定位和修复这个警告。
+
+    \section2 2001
+    \b{NoSuchResource} 没有这个资源
+
+    你在控制器参数里填写的某个资源名称在当前项目里不存在。请检查你的AStoryX文件，确认你是否正确地书写了资源名称，并且这个资源确实存在于你的项目里。
+
+
+*/

@@ -17,7 +17,6 @@ namespace Visindigo::Utility {
 			rgbaInt // integer 0 - 4294967295
 		};
 	public:
-		// warning: this function is only for 8-bit color channel, if you pass value out of range, the result is undefined.
 		static constexpr bool isLightColor(const quint8& r, const quint8& g, const quint8& b) noexcept {
 			return (((5 *g) + (2 * r) + b) > 1024);
 		};

@@ -1,0 +1,44 @@
+{
+	"SchemeID": "YSSEditor",
+	"SchemeName": "Yayin Story Studio Editor Color Scheme",
+	"Themes": {
+		"Dark":{
+			"PlainText": "#DCDCDC",
+            "SelectedTextBackground": "#3399FF",
+            "LineNumber": "#8A8A8A",
+            "Function": "#FF00FF",
+            "String": "#D69D85",
+            "SpecialString": "#D9AC5E",
+            "Number": "#B5CEA8",
+            "Parameter": "#FFFF37",
+            "Keyword": "#569CD6",
+            "Class": "#4EC9B0",
+            "Comment": "#57A64A",
+            "Namespace": "#71CB0E",
+            "Enum": "#B8D7A3",
+            "Macro": "#C586C0",
+            "ErrorLine": "#95DB7D",
+            "WarningLine": "#FFA500",
+            "InfoLine": "#55AAFF"
+		},
+		"Light":{
+			"PlainText": "#DCDCDC",
+            "SelectedTextBackground": "#3399FF",
+            "LineNumber": "#8A8A8A",
+            "Function": "#FF00FF",
+            "String": "#D69D85",
+            "SpecialString": "#D9AC5E",
+            "Number": "#B5CEA8",
+            "Parameter": "#FFFF37",
+            "Keyword": "#569CD6",
+            "Class": "#4EC9B0",
+            "Comment": "#57A64A",
+            "Namespace": "#71CB0E",
+            "Enum": "#B8D7A3",
+            "Macro": "#C586C0",
+            "ErrorLine": "#95DB7D",
+            "WarningLine": "#FFA500",
+            "InfoLine": "#55AAFF"
+		}
+	}
+}

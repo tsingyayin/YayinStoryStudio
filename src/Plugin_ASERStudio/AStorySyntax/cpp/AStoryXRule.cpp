@@ -1,5 +1,5 @@
 #include "AStorySyntax/AStoryXRule.h"
-#include "AStorySyntax/AStoryXValue.h"
+#include "AStorySyntax/AStoryXValueMeta.h"
 #include "AStorySyntax/AStoryXPreprocessor.h"
 #include "AStorySyntax/AStoryXController.h"
 #include "AStorySyntax/AStoryXControllerParseData.h"
@@ -131,7 +131,7 @@ namespace ASERStudio::AStorySyntax {
 				ok = false;
 			}
 			d->Controllers.insert(controller.getControllerType(), controller);
-			vgDebug << controller;
+			//vgDebug << controller;
 		}
 		d->isValid = ok;
 		return ok;
@@ -214,22 +214,22 @@ namespace ASERStudio::AStorySyntax {
 		返回指定控制器类型的可选参数值对象Map。
 		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
-	QMap<QString, AStoryXValue> AStoryXRule::getOptionalParameterValues(AStoryXController::ControllerType type) const {
+	QMap<QString, AStoryXValueMeta> AStoryXRule::getOptionalParameterValues(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
 			return d->Controllers[type].getOptionalParameterValues();
 		}
-		return QMap<QString, AStoryXValue>();
+		return QMap<QString, AStoryXValueMeta>();
 	}
 
 	/*!
 		\since ASERStudio 2.0
 		返回指定控制器类型的必需参数值对象。
 	*/
-	AStoryXValue AStoryXRule::getRequiredParameterValue(AStoryXController::ControllerType type) const {
+	AStoryXValueMeta AStoryXRule::getRequiredParameterValue(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
 			return d->Controllers[type].getRequiredParameterValue();
 		}
-		return AStoryXValue();
+		return AStoryXValueMeta();
 	}
 
 	/*!
@@ -258,9 +258,16 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		解析AStoryX字符串以获取控制器解析数据。
 		\a str 要解析的AStoryX字符串，必须符合ASERStudio的AStoryX语法规则。
 		\a cursorPosition 可选参数，表示光标位置，用于诊断和错误提示，默认为-1表示不使用光标位置。
+
+		解析AStoryX字符串以获取控制器解析数据。
+
+		这是不包含上下文处理的最完整的parseAStoryX解析函数，AStoryXController和AStoryXPreprocessor的解析函数都只能
+		各自处理自己类型的AStoryX字符串，而这个函数会根据字符串内容自动判断应该使用哪个控制器或预处理器来解析，并返回解析结果。
+
+		此外，这个函数能处理注释行（以"//"开头的行），并将其解析为AStoryXControllerParseData对象，ControllerType为Comment。
+		RequiredParameter为注释的内容。
 	*/
 	AStoryXControllerParseData AStoryXRule::parseAStoryX(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
 		if (str.isEmpty()) {
@@ -269,6 +276,9 @@ namespace ASERStudio::AStorySyntax {
 		if (str.startsWith("//")) {
 			auto rtn = AStoryXControllerParseData();
 			rtn.d->ControllerType = AStoryXController::ControllerType::Comment;
+			AStoryXParameter param;
+			param.d->setParameter("comment", "", str.mid(2), AStoryXValueMeta("comment", AStoryXValueMeta::Type::Comment), 2);
+			rtn.d->RequiredParameter = param;
 			return rtn;
 		}
 		if (d->Preprocessor.isPreprocessor(str)) {

@@ -409,6 +409,11 @@ namespace Visindigo::Utility {
 		print(binaryToString(data));
 	}
 	
+	/*!
+		\since Visindigo 0.13.0
+		\a data 为要进行二进制显示的数据。
+		返回一个字符串，包含了数据的二进制显示。其格式与binary()函数的输出相同。
+	*/
 	QString Console::binaryToString(const QByteArray& data) {
 		if (data.isEmpty()) { return QString(); }
 		QString result;
