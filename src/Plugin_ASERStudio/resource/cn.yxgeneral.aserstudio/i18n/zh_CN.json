@@ -32,18 +32,24 @@
         },
         "parameterTypeMismatch": {
             "name": "参数类型不匹配",
-            "message": "参数%1的类型不匹配，期望类型是%2",
+            "message": "参数%1的类型不匹配，您输入的类型可能是%2，但期望类型是%3",
             "fixAdvice": "将类型修正为%1"
         },
         "parameterOutOfRange": {
-            "name": "参数超出范围",
-            "message": "参数%1的值超出允许的范围",
-            "fixAdvice": "检查控制器参数，确保它的值在允许的范围内。"
+            "name": "参数超出范围。",
+            "message": "参数%1的值超出允许的范围。",
+            "fixAdvice": "检查控制器参数，确保它的值在允许的范围内。",
+            "allowedMin": "允许的最小值是%1。",
+            "allowedMax": "允许的最大值是%1。",
+            "allowedRange": "允许的范围是%1到%2。",
+            "allowedEnums": "允许的枚举值是%1。"
         },
         "parameterFormatError": {
-            "name": "参数格式错误",
-            "message": "参数%1格式错误",
-            "fixAdvice": "检查控制器参数，确保它的格式符合预期。"
+            "name": "参数格式错误。",
+            "message": "参数%1格式错误。",
+            "fixAdvice": "检查控制器参数，确保它的格式符合预期。",
+            "allowedDimension": "允许的维度是%1。",
+            "allowedFormat": "允许的格式是%1。"
         },
         "unexceptedParameter": {
             "name": "意外的参数",
@@ -141,6 +147,183 @@
         "Dialog": "对话",
         "Preprocessor": "预处理器",
         "Comment": "注释"
+    },
+    "document":{
+        "Preprocessor": {
+            "__description": "预处理器指令，用于在播放前准备阶段对文档进行处理。",
+            "type": "预处理指令类型",
+            "blockName": "块名称，在#block指令中用于定义块名称，在#use指令中用于指定要调用的块名称",
+            "param0": "引用块的第1个参数",
+            "param1": "引用块的第2个参数",
+            "param2": "引用块的第3个参数",
+            "param3": "引用块的第4个参数",
+            "param4": "引用块的第5个参数",
+            "param5": "引用块的第6个参数",
+            "param6": "引用块的第7个参数",
+            "param7": "引用块的第8个参数",
+            "param8": "引用块的第9个参数",
+            "param9": "引用块的第10个参数"
+        },
+        "Background": {
+            "__description": "控制背景的显示。",
+            "ImageName": "指定背景所使用的图片名称",
+            "FadeInTime": "指定背景淡入的时间，单位为秒",
+            "StartPosition": "背景图片显示的起始坐标位置",
+            "EndPosition": "背景图片显示的结束坐标位置",
+            "MoveTime": "背景图片从起始位置移动到结束位置的时间，单位为秒",
+            "MoveCurve": "背景图片移动的曲线类型",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行",
+            "StitchVertical": "是否将多个图片进行垂直拼贴。这个布尔量true为垂直拼贴，false为水平拼贴。"
+        },
+        "Music": {
+            "__description": "控制音乐的播放。",
+            "AudioName": "指定音乐所使用的音频名称",
+            "Volume": "指定音乐的音量，范围从0到1",
+            "FadeInTime": "指定音乐淡入的时间，单位为秒",
+            "SlotIndex": "指定音乐的插槽索引，默认为0（即音轨序号）。如果需要同时播放多段音乐，可以使用不同的插槽索引来区分它们。",
+            "Position": "音乐的空间位置，-1为左，1为右，可在这个范围内自由调整"
+        },
+        "SoundEffect": {
+            "__description": "控制音效的播放。",
+            "AudioName": "指定音效所使用的音频名称",
+            "Volume": "指定音效的音量，范围从0到1",
+            "Position": "音效的空间位置，-1为左，1为右，可在这个范围内自由调整",
+            "Steps": "指定音效播放的步数，即持续多少个控制器后终止"
+        },
+        "Mask": {
+            "__description": "控制遮罩的显示。",
+            "IsOn": "是否显示遮罩"
+        },
+        "Character": {
+            "__description": "控制角色的显示。",
+            "Character&Variant": "指定角色的名称和变体，如果没有变体则直接使用角色名称",
+            "SlotIndex": "指定角色的插槽索引，默认为0。如果需要同时显示多位角色，可以使用不同的插槽索引来区分它们。",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行",
+            "FadeInTime": "指定角色淡入的时间，单位为秒",
+            "FadeOutTime": "指定角色淡出的时间，单位为秒",
+            "Effects": "指定角色的特效",
+            "Alpha": "角色的透明度，范围从0到1",
+            "RenderOrder": "角色的渲染顺序，数值较大的角色会覆盖在数值较小的角色上",
+            "StartPosition": "角色显示的起始坐标位置",
+            "EndPosition": "角色显示的结束坐标位置",
+            "MoveTime": "角色从起始位置移动到结束位置的时间，单位为秒",
+            "MoveCurve": "角色移动的曲线类型"
+        },
+        "Choice": {
+            "__description": "控制选项的显示。",
+            "ChoiceContent": "选项的文本内容",
+            "OutputVariable": "选项的输出变量名称，玩家选择的结果会被存储在这个变量中"
+        },
+        "Delay": {
+            "__description": "控制延迟。",
+            "DelayTime": "延迟的持续时间，单位为秒"
+        },
+        "VisualEffect": {
+            "__description": "控制视效的显示。",
+            "VisualEffectName": "指定视效所使用的特效名称",
+            "Steps": "指定视效持续的步数，即持续多少个控制器后终止",
+            "Position": "视效的坐标位置",
+            "RenderOrder": "视效的渲染顺序，数值较大的视效会覆盖在数值较小的视效上"
+        },
+        "Interlude": {
+            "__description": "控制插播的显示。",
+            "Character&Variant": "指定插播中角色的名称和变体，如果没有变体则直接使用角色名称",
+            "SlotIndex": "指定插播中角色的插槽索引，默认为0。如果需要同时显示多位角色，可以使用不同的插槽索引来区分它们。",
+            "IsOn": "是否显示插播",
+            "Type": "插播的类型。0为灰色纵向类型，1为头像类型",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行",
+            "Effects": "指定插播的特效",
+            "RenderOrder": "插播的渲染顺序，数值较大的插播会覆盖在数值较小的插播上",
+            "Position": "插播的坐标位置"
+        },
+        "ColorMask": {
+            "__description": "控制色层的显示。",
+            "Color": "色层的颜色，使用四维向量",
+            "FadeInTime": "指定色层淡入的时间，单位为秒",
+            "StayTime": "指定色层持续的时间，单位为秒",
+            "FadeOutTime": "指定色层淡出的时间，单位为秒",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行"
+        },
+        "Shake": {
+            "__description": "控制震屏。",
+            "Intensity": "震屏的强度",
+            "FadeInTime": "指定震屏淡入的时间，单位为秒",
+            "StayTime": "指定震屏持续的时间，单位为秒",
+            "FadeOutTime": "指定震屏淡出的时间，单位为秒",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行"
+        },
+        "FreeText": {
+            "__description": "控制自由文本的显示。",
+            "Content": "文本的内容",
+            "IsAddition": "是否为附加文本。附加文本会在原有文本的基础上增加，而不是替换原有文本",
+            "Immediate": "是否立即显示文本，而不是逐字显示",
+            "Alignment": "文本的对齐方式",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行",
+            "FadeInTime": "指定文本淡入的时间，单位为秒",
+            "StayTime": "指定文本持续的时间，单位为秒",
+            "FadeOutTime": "指定文本淡出的时间，单位为秒",
+            "SlotIndex": "指定文本的插槽索引，默认为0。如果需要同时显示多段文本，可以使用不同的插槽索引来区分它们。",
+            "AsSeceneObject": "是否将文本作为场景对象来处理，这会使它受到场景中其他控制器的影响，例如震屏和色层等",
+            "Position": "文本的坐标位置",
+            "RenderOrder": "文本的渲染顺序，数值较大的文本会覆盖在数值较小的文本上",
+            "Interval": "逐字显示时每个字出现的时间间隔，单位为秒",
+            "ExtraStayTime": "逐字显示时文本完全显示后额外持续的时间，单位为秒"
+        },
+        "Cut": {
+            "__description": "控制屏幕裁切。",
+            "Intensity": "裁切的强度",
+            "Angle": "裁切的角度，单位为度",
+            "SlotIndex": "指定裁切的插槽索引，默认为0。如果需要同时使用多段裁切，可以使用不同的插槽索引来区分它们。",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行",
+            "FadeInTime": "指定裁切淡入的时间，单位为秒",
+            "StayTime": "指定裁切持续的时间，单位为秒",
+            "FadeOutTime": "指定裁切淡出的时间，单位为秒",
+            "RenderOrder": "裁切的渲染顺序，数值较大的裁切会覆盖在数值较小的裁切上"
+        },
+        "Filter": {
+            "__description": "控制滤镜的显示。",
+            "Type&Intensity": "指定滤镜的类型和强度，不同类型的滤镜会有不同的强度范围",
+            "FadeInTime": "指定滤镜淡入的时间，单位为秒",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行"
+        },
+        "AnimatedText": {
+            "__description": "控制动态文本的显示。",
+            "Content": "文本的内容",
+            "Type": "动态文本的类型，不同类型的动态文本会有不同的动画效果",
+            "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行"
+        },
+        "Sign": {
+            "__description": "声明一个标签",
+            "Name": "标签的名称"
+        },
+        "Variable": {
+            "__description": "声明一个变量",
+            "Name": "变量的名称",
+            "Expression": "变量的表达式，变量的值会被计算为这个表达式的结果"
+        },
+        "Judge": {
+            "__description": "进行一个判断",
+            "Name": "需要保存的判断结果的变量名称",
+            "Expression": "判断的表达式，如果计算结果大于0，就存储到变量中"
+        },
+        "Branch": {
+            "__description": "根据条件进行分支",
+            "Name": "分支的名称",
+            "Branches": "将要跳转到的标记的名称"
+        },
+        "Dialog": {
+            "__description": "控制对话的显示。",
+            "Speaker&Content": "说话者的名称和对话的文本内容",
+            "IsAddition": "是否为附加对话。附加对话会在原有对话的基础上增加，而不是替换原有对话",
+            "ModifyCharacters": "是否同步控制已有角色立绘的显示以匹配对话中说话者的变化，这会使角色立绘随着对话的进行而自动明暗切换",
+            "BasicStayTime": "对话持续的基本时间，单位为秒。对话会在这个基本时间的基础上根据文本长度增加额外的持续时间",
+            "Interval": "逐字显示时每个字出现的时间间隔，单位为秒",
+            "ExtraStayTime": "逐字显示时文本完全显示后额外持续的时间，单位为秒"
+        },
+        "Comment": {
+            "__description": "注释行，不会被播放引擎执行。",
+            "Content": "注释的文本内容"
+        }
     },
     "aseinfo":{
 		"projectName": "项目名称",

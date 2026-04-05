@@ -38,6 +38,7 @@ namespace YSSCore::Editor {
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void closeEvent(QCloseEvent* event) override;
 	protected:
+		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;
 		virtual bool onClose() override;
 		virtual bool onSave(const QString& path = "") override;

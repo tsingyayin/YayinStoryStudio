@@ -112,9 +112,6 @@
     <QtMoc Include="Editor\NewFilePage\NewFileWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\MainEditor\ProjectMessageViewer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\ProjectPage\NewsArea.h">
       <Filter>Header Files</Filter>
     </QtMoc>

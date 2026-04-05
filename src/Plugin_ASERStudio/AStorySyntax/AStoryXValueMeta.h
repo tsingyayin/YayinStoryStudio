@@ -41,6 +41,7 @@ namespace ASERStudio::AStorySyntax {
 		QString getParameterName() const;
 		void setType(Type type);
 		Type getType() const;
+		QString getTypeString() const;
 		void setDefaultValue(const QString& defaultValue);
 		QString getDefaultValue() const;
 		void setStringCheckRegex(const QString& regex);
@@ -55,10 +56,12 @@ namespace ASERStudio::AStorySyntax {
 		void setEnumCheckList(const QStringList& enumList);
 		QStringList getEnumCheckList() const;
 		AStoryXDiagnosticData::DiagnosticType isTypeMatching(const QString& value) const;
-		qint64 toInteger(const QString& value) const;
-		double toFloat(const QString& value) const;
-		QList<double> toVector(const QString& value) const;
-		bool toBool(const QString& value) const;
+		static Type guessType(const QString& value);
+		static QString typeToString(Type type);
+		static qint64 toInteger(const QString& value);
+		static double toFloat(const QString& value);
+		static QList<double> toVector(const QString& value);
+		static bool toBool(const QString& value);
 	private:
 		AStoryXValueMetaPrivate* d;
 	};

@@ -61,6 +61,9 @@ namespace ASERStudio::AStorySyntax {
 			}
 			int index = 0;
 			for (const QString& component : components) {
+				if (index >= VectorCheckRange.size()) {
+					return AStoryXDiagnosticData::DiagnosticType::Undefined;
+				}
 				bool ok;
 				double floatValue = component.trimmed().toDouble(&ok);
 				if (!ok) {
@@ -88,12 +91,103 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
-		AStoryXValue提供了对AStoryX参数类型的定义和检查功能。用户可以为参数设置类型、
+		AStoryXValueMeta提供了对AStoryX参数类型的定义和检查功能。用户可以为参数设置类型、
 		默认值以及各种检查规则（如正则表达式、数值范围等）。在解析AStoryX时，可以使用isTypeMatching方法来检查参数值是否符合预设的类型和规则，
 		并获取相应的诊断信息。
 
-		值得反复强调的是，AStoryXValue是用于语法检查和数据转换的工具类，
-		而非类似于std::variant或QVariant的通用数据容器。它的设计目的是为了在AStoryX语法解析过程中提供类型定义和验证功能。
+		值得反复强调的是，AStoryXValueMeta是用于语法检查和数据转换的工具类，
+		而非类似于std::variant或QVariant的通用数据容器。虽然它提供了从字符串解析获得
+		其他数据类型的能力，但主要是为了方便在AStoryX语法解析过程中进行类型验证和错误诊断，
+		而不是作为一个通用的值存储类。
+	
+		\section1 ValueMetaJSON
+		AStoryXValueMeta的元数据可以通过JSON配置进行设置，JSON的基础结构如下：
+		\badcode
+		{
+			"__ControllerName__":{
+				"__ParameterName__":{
+					"type": "__ParameterType__",
+					"defaultValue": "__ParameterDefaultValue__"
+				}
+			}
+		}
+		\endcode
+		即，对于每一个控制器，分别设置每个参数的元信息。其中ControllerName就是AStoryXController中给定的
+		枚举量的名称。ParameterName则为ASE-Remake文档中定义的参数名称。
+
+		值得指出的是，由于AStoryX的预处理部分不允许用户通过Rule.json自由定义，因此在本
+		ASERStudio和ASE-Remake本体中均为硬编码的，并非数据驱动配置。因此，
+		ASERStudio::AStoryXSyntax::AStoryXController::ControllerType中的Preprocessor在本类中无效。
+
+		\section1 值的限制
+		\section2 整型和浮点型的范围限制
+		对于整型和浮点型量，如果同时存在上下限，则可以在参数中通过range字段，提供一个二元数组进行钳制，例如
+		\badcode
+		"__ParameterName__":{
+			"type": "Float",
+			"defaultValue": "__ParameterDefaultValue__"
+			"range": [0.0, 1.0]
+		}
+		\endcode
+		如果只有上限或只有下限，则只对需设限的上限（max）或下限（min）进行单独设置即可。
+		\note 值得指出的是，虽然整型和浮点型在设置默认值时需要用字符串表示，但在设置钳制范围时则应使用数字类型。
+
+		如果range和min、max同时存在，则range优先级更高，min和max将被忽略。
+		注意，即使没有设置对应的上限/下限，程序内部也会自动初始化为该类型的理论容限。
+		如整型上下限为int64的最小值和最大值，浮点型上下限为double的最小值和最大值。
+		因此，可以通过检查上下限的钳制设置是否为默认值来判断是否对该参数进行了钳制。
+
+		\section2 向量形的限制
+		对于向量类型，使用dimension字段指定向量的维度。不指定时默认为三维。
+
+		对于向量中的每一个分量，通过定义limit数组进行钳制，其中每一个数组内容都和设置单一浮点型/整型的钳制类似。
+		不需要设限的分量留空（但不能置为null）即可，例如：
+		\badcode
+		"__ParameterName__":{
+			"type": "Vector",
+			"defaultValue": "0.0,0.0,0.0",
+			"dimension": 3,
+			"limit": [
+				{
+					"min": 0.0
+				},
+				{ },
+				{
+					"range": [-1.0, 1.0]
+				}
+			]
+		}
+		\endcode
+		每个分量的钳制规则、优先级策略和默认值都和单一的整型/浮点型参数相同。
+
+		\section2 枚举型的限制
+		对于枚举型，则需要通过”enums"字段声明该枚举量的枚举列表名称，然后直接在MetaJson的根节点上
+		定义__GeneralMetaData__，并在其中用该名称定义具有全部枚举值的枚举列表，例如
+		\badcode
+		{
+			"__ControllerName__":{
+				"__ParameterName__":{
+					"type": "Enum",
+					"defaultValue": "Value1",
+					"enums": "MyEnum1"
+				}
+			},
+			"__GeneralMetaData__":{
+				"MyEnum1": ["Value1", "Value2", "Value3"]
+			}
+		}
+		\endcode
+
+		\section2 字符串的限制
+		对于字符串类型，可以通过regex字段提供一个正则表达式来限制字符串的格式，例如
+		\badcode
+		"__ParameterName__":{
+			"type": "String",
+			"defaultValue": "__ParameterDefaultValue__",
+			"regex": "^[a-zA-Z0-9_]+$"
+		}
+		\endcode
+		不提供regex时，不进行任何限制。
 	*/
 
 	/*!
@@ -176,24 +270,48 @@ namespace ASERStudio::AStorySyntax {
 				d->StringCheckRegex = paramMeta.getString("regex");
 				break;
 			case AStoryXValueMeta::Type::Integer: {
-				qint64 min = paramMeta.getInt("range.0");
-				qint64 max = paramMeta.getInt("range.1");
+				qint64 min = std::numeric_limits<qint64>::min();
+				qint64 max = std::numeric_limits<qint64>::max();
+				if (paramMeta.contains("range")) {
+					min = paramMeta.contains("range.0") ? paramMeta.getInt("range.0") : std::numeric_limits<qint64>::min();
+					max = paramMeta.contains("range.1") ? paramMeta.getInt("range.1") : std::numeric_limits<qint64>::max();
+				}
+				else {
+					min = paramMeta.contains("min") ? paramMeta.getInt("min") : std::numeric_limits<qint64>::min();
+					max = paramMeta.contains("max") ? paramMeta.getInt("max") : std::numeric_limits<qint64>::max();
+				}
 				d->IntegerCheckRange = qMakePair(min, max);
 				break;
 			}
 			case AStoryXValueMeta::Type::Float: {
-				double min = paramMeta.getDouble("range.0");
-				double max = paramMeta.getDouble("range.1");
+				double min = -std::numeric_limits<double>::infinity();
+				double max = std::numeric_limits<double>::infinity();
+				if (paramMeta.contains("range")) {
+					min = paramMeta.contains("range.0") ? paramMeta.getDouble("range.0") : -std::numeric_limits<double>::infinity();
+					max = paramMeta.contains("range.1") ? paramMeta.getDouble("range.1") : std::numeric_limits<double>::infinity();
+				}
+				else {
+					min = paramMeta.contains("min") ? paramMeta.getDouble("min") : -std::numeric_limits<double>::infinity();
+					max = paramMeta.contains("max") ? paramMeta.getDouble("max") : std::numeric_limits<double>::infinity();
+				}
 				d->FloatCheckRange = qMakePair(min, max);
 				break;
 			}
 			case AStoryXValueMeta::Type::Vector: {
-				qint32 dimension = paramMeta.getInt("dimension");
+				qint32 dimension = paramMeta.contains("dimension") ? paramMeta.getInt("dimension") : 3;
 				QList<QPair<double, double>> range;
 				for (qint32 i = 0; i < dimension; i++) {
-					double min = paramMeta.getDouble(QString("range.%1").arg(i*2));
-					double max = paramMeta.getDouble(QString("range.%1").arg(i*2+1));
-					range.append(qMakePair(min, max));
+					auto dimConfig = paramMeta.getObject(QString("limit.%1").arg(i));
+					double min =  -std::numeric_limits<double>::infinity();
+					double max = std::numeric_limits<double>::infinity();
+					if (dimConfig.contains("range")) {
+						min = dimConfig.contains("range.0") ? dimConfig.getDouble("range.0") : -std::numeric_limits<double>::infinity();
+						max = dimConfig.contains("range.1") ? dimConfig.getDouble("range.1") : std::numeric_limits<double>::infinity();
+					}
+					else {
+						min = dimConfig.contains("min") ? dimConfig.getDouble("min") : -std::numeric_limits<double>::infinity();
+						max = dimConfig.contains("max") ? dimConfig.getDouble("max") : std::numeric_limits<double>::infinity();
+					}
 				}
 				d->VectorCheckRange = range;
 				d->VectorCheckDimension = dimension;
@@ -241,6 +359,15 @@ namespace ASERStudio::AStorySyntax {
 	AStoryXValueMeta::Type AStoryXValueMeta::getType() const {
 		return d->Type;
 	}
+
+	/*!
+		\since ASERStudio 2.0
+		获取参数类型的字符串表示。
+	*/
+	QString AStoryXValueMeta::getTypeString() const {
+		return typeToString(d->Type);
+	}
+
 
 	/*!
 		\since ASERStudio 2.0
@@ -417,13 +544,61 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		根据参数值的格式猜测参数类型。
+
+		注意，这个函数只会在如下类型中按顺序猜测：Integer、Float、Vector、Bool和String。
+		该函数最差（即前四种假设均失败时）也会返回String类型，而不会返回Undefined。
+	*/
+	AStoryXValueMeta::Type AStoryXValueMeta::guessType(const QString& value) {
+		if (value.isEmpty()) {
+			return Type::String;
+		}
+		bool okInt;
+		value.toLongLong(&okInt);
+		if (okInt) {
+			return Type::Integer;
+		}
+		bool okFloat;
+		value.toDouble(&okFloat);
+		if (okFloat) {
+			return Type::Float;
+		}
+		QStringList components = value.split(',');
+		if (components.size() > 1) {
+			bool allFloat = true;
+			for (const QString& component : components) {
+				if (!component.trimmed().toDouble(&okFloat)) {
+					allFloat = false;
+					break;
+				}
+			}
+			if (allFloat) {
+				return Type::Vector;
+			}
+		}
+		QString lowerValue = value.toLower();
+		if (lowerValue == "true" || lowerValue == "false" || lowerValue == "1" || lowerValue == "0" || lowerValue == "yes" || lowerValue == "no") {
+			return Type::Bool;
+		}
+		return Type::String;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		将参数类型枚举值转换为字符串表示。
+	*/
+	QString AStoryXValueMeta::typeToString(Type type) {
+		return QMetaEnum::fromType<AStoryXValueMeta::Type>().valueToKey(type);
+	}
+	/*!
+		\since ASERStudio 2.0
 		将参数值转换为整数。
 		\a value 参数值，必须是一个符合整数类型要求的QString对象。
 		return 转换结果，返回一个qint64类型的整数。如果转换失败（例如参数值不符合整数格式），则返回0。
 
 		这函数不做任何检查。
 	*/
-	qint64 AStoryXValueMeta::toInteger(const QString& value) const {
+	qint64 AStoryXValueMeta::toInteger(const QString& value) {
 		return value.toLongLong();
 	}
 
@@ -435,7 +610,7 @@ namespace ASERStudio::AStorySyntax {
 
 		这函数不做任何检查。
 	*/
-	double AStoryXValueMeta::toFloat(const QString& value) const {
+	double AStoryXValueMeta::toFloat(const QString& value) {
 		return value.toDouble();
 	}
 
@@ -448,7 +623,7 @@ namespace ASERStudio::AStorySyntax {
 
 		这函数不做任何检查。
 	*/
-	QList<double> AStoryXValueMeta::toVector(const QString& value) const {
+	QList<double> AStoryXValueMeta::toVector(const QString& value) {
 		QStringList components = value.split(',');
 		QList<double> result;
 		for (const QString& component : components) {
@@ -464,7 +639,7 @@ namespace ASERStudio::AStorySyntax {
 		return 转换结果，返回一个bool类型的值。如果转换失败（例如参数值不符合布尔格式），则返回false。
 		这函数不做任何检查。
 	*/
-	bool AStoryXValueMeta::toBool(const QString& value) const {
+	bool AStoryXValueMeta::toBool(const QString& value) {
 		QString lowerValue = value.toLower();
 		return (lowerValue == "true" || lowerValue == "1" || lowerValue == "yes");
 	}

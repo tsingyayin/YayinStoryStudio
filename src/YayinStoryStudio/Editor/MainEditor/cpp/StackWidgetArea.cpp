@@ -1,6 +1,8 @@
 #include "Editor/MainEditor/StackWidgetArea.h"
 #include "Editor/MainEditor/private/StackWidgetArea_p.h"
 #include <QtWidgets/qsplitter.h>
+#include "Editor/GlobalValue.h"
+#include <General/YSSProject.h>
 namespace YSS::Editor {
 	class StackWidgetAreaPrivate {
 		friend class StackWidgetArea;
@@ -46,11 +48,13 @@ namespace YSS::Editor {
 		QString filePath = widget->getFilePath();
 		if (d->WidgetMap.contains(filePath)) {
 			setCurrentWidget(filePath);
+			widget->deleteLater();
 			return;
 		}
 		widget->setParent(this);
 		d->WidgetMap[filePath] = widget;
 		d->TagArea->addStackLabel(filePath);
+		GlobalValue::getCurrentProject()->addEditorOpenedFile(filePath);
 		setCurrentWidget(filePath);
 	}
 
@@ -71,6 +75,7 @@ namespace YSS::Editor {
 		if (okToClose) {
 			d->WidgetMap.remove(filePath);
 			d->TagArea->removeStackLabel(filePath); // this function handle re-choice if the closed widget is current one
+			GlobalValue::getCurrentProject()->removeEditorOpenedFile(filePath);
 			widget->deleteLater();
 		}
 		
@@ -101,6 +106,7 @@ namespace YSS::Editor {
 			d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
+		GlobalValue::getCurrentProject()->setFocusedFile(filePath);
 		d->MsgViewer->changeCurrentFile(filePath);
 		d->TagArea->setCurrentStackLabel(filePath);
 	}

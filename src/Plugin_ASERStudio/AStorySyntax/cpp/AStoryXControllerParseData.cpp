@@ -304,16 +304,13 @@ namespace ASERStudio::AStorySyntax {
 		if (cursorPosition < 0) {
 			return d->cursorInWhichParameter;
 		}
-		if (d->OptionalParameters.size() != 0){
-			auto param = d->OptionalParameters.last();
-			if (cursorPosition > param.getIndex() + param.getContent().length()) {
-				return param.getName();
-			}
-		}
 		for (const auto& param : d->OptionalParameters) {
 			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length()) {
 				return param.getName();
 			}
+		}
+		if (d->OptionalParameters.size()!=0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
+			return d->OptionalParameters.last().getName();
 		}
 		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
 			return d->RequiredParameter.getName();
@@ -337,16 +334,13 @@ namespace ASERStudio::AStorySyntax {
 			}
 			return AStoryXParameter();
 		}
-		if (d->OptionalParameters.size() != 0){
-			auto param = d->OptionalParameters.last();
-			if (cursorPosition > param.getIndex() + param.getContent().length()) {
-				return param;
-			}
-		}
 		for (const auto& param : d->OptionalParameters) {
 			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length()) {
 				return param;
 			}
+		}
+		if (d->OptionalParameters.size()!=0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
+			return d->OptionalParameters.last();
 		}
 		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
 			return d->RequiredParameter;

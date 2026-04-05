@@ -324,15 +324,15 @@ namespace YSS::Editor {
 		CurrentFilePath = filePath;
 		MessageTable->clearContents();
 		MessageTable->setRowCount(0);
+		onMessageChanged(filePath);
 	}
 
 	void MessageViewer::onCellClicked(int row, int column) {
-		if (column == 2) {
-			QString filePath = MessageTable->item(row, column)->text();
-			qint32 lineNumber = MessageTable->item(row, 3)->text().toInt();
-			qint32 columnNumber = MessageTable->item(row, 4)->text().toInt();
-			emit redirectionRequired(filePath, lineNumber, columnNumber);
-		}
+		QString filePath = MessageTable->item(row, 2)->toolTip();
+		qint32 lineNumber = MessageTable->item(row, 3)->text().toInt() - 1;
+		qint32 columnNumber = MessageTable->item(row, 4)->text().toInt();
+		vgDebug << "Redirection requested to " << filePath << ":" << lineNumber << ":" << columnNumber;
+		emit redirectionRequired(filePath, lineNumber, columnNumber);
 	}
 
 	void MessageViewer::onMessageChanged(const QString& filePath) {

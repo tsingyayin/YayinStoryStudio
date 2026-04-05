@@ -142,7 +142,6 @@
   <ItemGroup>
     <QtMoc Include="YayinStoryStudio.h" />
     <QtMoc Include="Editor\NewProjectPage\NewProjectWin.h" />
-    <QtMoc Include="Editor\MainEditor\ProjectMessageViewer.h" />
     <QtMoc Include="Editor\ProjectPage\NewsArea.h" />
     <QtMoc Include="Editor\MainEditor\MenuBarHandler.h" />
     <QtMoc Include="Editor\ProjectMetaPage\ProjectMetaWin.h" />

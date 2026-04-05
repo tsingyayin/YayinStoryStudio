@@ -79,6 +79,11 @@ namespace ASERStudio::AStorySyntax {
 			-1, 0, AStoryXDiagnosticData::DiagnosticType::RuleNotSelected,
 			VITR("ASERStudio::diagnostic.ruleNotSelected.fixAdvice")
 		);
+		connect(this, &AStoryXDocument::currentRuleChanged, this, [this]() {
+			QTimer::singleShot(0, this, [this]() {
+				refreshParseData();
+				});
+			}, Qt::QueuedConnection);
 	}
 
 	/*
@@ -99,9 +104,6 @@ namespace ASERStudio::AStorySyntax {
 						d->CurrentRule = *rule;
 						d->GlobalDiagnostics.removeAll(d->RuleNotSelectedDiagnostic);
 						emit currentRuleChanged();
-						QTimer::singleShot(1, this, [this](){
-							this->refreshParseData();
-							});
 					}
 				}
 			}
@@ -143,6 +145,7 @@ namespace ASERStudio::AStorySyntax {
 					currentBlock.setUserState(0x4241);
 					// here can do sth to parse alias context.
 					// sth like data = d->CurrentRule.parseAliasContext(text, lineNumber);
+					data = AStoryXControllerParseData(); // just for test now.
 					data.d->ControllerType = AStoryXController::ControllerType::Comment;
 					// just for test now.
 					d->onParsed(data, lineNumber);

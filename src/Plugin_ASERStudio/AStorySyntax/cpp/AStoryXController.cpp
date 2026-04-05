@@ -66,6 +66,10 @@ namespace ASERStudio::AStorySyntax {
 			// scan all prefix indexes, if not found, index is -1.
 			int index = 0;
 			for (auto prefix : prefixes) {
+				if (index >= str.length()) {
+					prefixIndexes.append(-1);
+					continue;
+				}
 				index = str.indexOf(prefix, index);
 				if (index != -1) {
 					prefixIndexes.append(index);
@@ -448,75 +452,181 @@ namespace ASERStudio::AStorySyntax {
 		auto reqResult = requiredParameter.getValue().isTypeMatching(requiredParameter.getContent());
 		switch (reqResult) {
 		case AStoryXDiagnosticData::Undefined:
-				break;
-		case AStoryXDiagnosticData::ParameterTypeMismatch:
+			break;
+		case AStoryXDiagnosticData::ParameterTypeMismatch: {
 			if (diagnostic) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-					VITR("ASERStudio::diagnostic.parameterTypeMismatch.message").arg(requiredParameter.getContent()).arg(QMetaEnum::fromType<AStoryXValueMeta::Type>().valueToKey(d->RequiredParameterValue.getType())),
+					VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
+					.arg(d->RequiredParameterName)
+					.arg(AStoryXValueMeta::typeToString(AStoryXValueMeta::guessType(requiredParameter.getContent())))
+					.arg(d->RequiredParameterValue.getTypeString()),
 					lineIndex, requiredParameter.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterTypeMismatch,
-					VITR("ASERStudio::diagnostic.parameterTypeMismatch.fixAdvice").arg(QMetaEnum::fromType<AStoryXValueMeta::Type>().valueToKey(d->RequiredParameterValue.getType()))
+					VITR("ASERStudio::diagnostic.parameterTypeMismatch.fixAdvice").arg(d->RequiredParameterValue.getTypeString())
 				);
 				result.d->Diagnostics.append(diagnosticData);
 			}
 			break;
-		case AStoryXDiagnosticData::ParameterFormatError:
+		}
+		case AStoryXDiagnosticData::ParameterFormatError: {
 			if (diagnostic) {
+				QString msg = VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(requiredParameter.getName());
+				if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::Vector) {
+					msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedDimension").
+						arg(requiredParameter.getValue().getVectorCheckDimension());
+				}
+				else if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::String) {
+					QString check = requiredParameter.getValue().getStringCheckRegex();
+					if (not check.isEmpty()) {
+						msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedFormat").arg(check);
+					}
+				}
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-					VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(requiredParameter.getContent()),
+					msg,
 					lineIndex, requiredParameter.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterFormatError,
 					VITR("ASERStudio::diagnostic.parameterFormatError.fixAdvice")
 				);
-				// Due to meta file does not have range information, this error must happen.
-				//result.d->Diagnostics.append(diagnosticData);
+				result.d->Diagnostics.append(diagnosticData);
 			}
 			break;
-		case AStoryXDiagnosticData::ParameterOutOfRange:
+		}
+		case AStoryXDiagnosticData::ParameterOutOfRange: {
+			QString msg = VITR("ASERStudio::diagnostic.parameterOutOfRange.message").arg(requiredParameter.getName());
+			if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::Integer) {
+				QPair<qint64, qint64> range = requiredParameter.getValue().getIntegerCheckRange();
+				if (range.first != std::numeric_limits<qint64>::min() && range.second != std::numeric_limits<qint64>::max()) {
+					msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedRange").
+						arg(range.first).arg(range.second);
+				}
+				else if (range.first == std::numeric_limits<qint64>::min() && range.second != std::numeric_limits<qint64>::max()) {
+					msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMax").
+						arg(range.second);
+				}
+				else if (range.first != std::numeric_limits<qint64>::min() && range.second == std::numeric_limits<qint64>::max()) {
+					msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMin").
+						arg(range.first);
+				}
+			}
+			else if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::Float) {
+				QPair<double, double> range = requiredParameter.getValue().getFloatCheckRange();
+				if (range.first != -std::numeric_limits<double>::infinity() && range.second != std::numeric_limits<double>::infinity()) {
+					msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedRange").
+						arg(range.first).arg(range.second);
+				}
+				else if (range.first == -std::numeric_limits<double>::infinity() && range.second != std::numeric_limits<double>::infinity()) {
+					msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMax").
+						arg(range.second);
+				}
+				else if (range.first != -std::numeric_limits<double>::infinity() && range.second == std::numeric_limits<double>::infinity()) {
+					msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMin").
+						arg(range.first);
+				}
+			}
+			else if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::Enum) {
+				QStringList allowedValues = requiredParameter.getValue().getEnumCheckList();
+				if (!allowedValues.isEmpty()) {
+					msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedEnums").arg(allowedValues.join(", "));
+				}
+			}
 			if (diagnostic) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-					VITR("ASERStudio::diagnostic.parameterOutOfRange.message").arg(requiredParameter.getContent()),
+					msg,
 					lineIndex, requiredParameter.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterOutOfRange,
 					VITR("ASERStudio::diagnostic.parameterOutOfRange.fixAdvice")
 				);
-				//result.d->Diagnostics.append(diagnosticData);
+				result.d->Diagnostics.append(diagnosticData);
 			}
 			break;
+		}
 		}
 		for (auto optional : result.getOptionalParameters()) {
 			auto optResult = optional.getValue().isTypeMatching(optional.getContent());
 			switch (optResult) {
 			case AStoryXDiagnosticData::Undefined:
 				break;
-			case AStoryXDiagnosticData::ParameterTypeMismatch:
+			case AStoryXDiagnosticData::ParameterTypeMismatch: {
 				if (diagnostic) {
 					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-						VITR("ASERStudio::diagnostic.parameterTypeMismatch.message").arg(optional.getContent()).arg(QMetaEnum::fromType<AStoryXValueMeta::Type>().valueToKey(optional.getValue().getType())),
+						VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
+						.arg(optional.getName())
+						.arg(AStoryXValueMeta::typeToString(AStoryXValueMeta::guessType(optional.getContent())))
+						.arg(optional.getValue().getTypeString()),
 						lineIndex, optional.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterTypeMismatch,
-						VITR("ASERStudio::diagnostic.parameterTypeMismatch.fixAdvice").arg(QMetaEnum::fromType<AStoryXValueMeta::Type>().valueToKey(optional.getValue().getType()))
+						VITR("ASERStudio::diagnostic.parameterTypeMismatch.fixAdvice").arg(optional.getValue().getTypeString())
 					);
 					result.d->Diagnostics.append(diagnosticData);
 				}
 				break;
-			case AStoryXDiagnosticData::ParameterFormatError:
+			}
+			case AStoryXDiagnosticData::ParameterFormatError: {
+				QString msg = VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(optional.getName());
+				if (optional.getValue().getType() == AStoryXValueMeta::Type::Vector) {
+					msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedDimension").
+						arg(optional.getValue().getVectorCheckDimension());
+				}
+				else if (optional.getValue().getType() == AStoryXValueMeta::Type::String) {
+					QString check = optional.getValue().getStringCheckRegex();
+					if (not check.isEmpty()) {
+						msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedFormat").arg(check);
+					}
+				}
 				if (diagnostic) {
 					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-						VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(optional.getContent()),
+						msg,
 						lineIndex, optional.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterFormatError,
 						VITR("ASERStudio::diagnostic.parameterFormatError.fixAdvice")
 					);
-					// Due to meta file does not have range information, this error must happen.
-					//result.d->Diagnostics.append(diagnosticData);
+					result.d->Diagnostics.append(diagnosticData);
 				}
 				break;
-			case AStoryXDiagnosticData::ParameterOutOfRange:
+			}
+			case AStoryXDiagnosticData::ParameterOutOfRange: {
+				QString msg = VITR("ASERStudio::diagnostic.parameterOutOfRange.message").arg(optional.getName());
+				if (optional.getValue().getType() == AStoryXValueMeta::Type::Integer) {
+					QPair<qint64, qint64> range = optional.getValue().getIntegerCheckRange();
+					if (range.first != std::numeric_limits<qint64>::min() && range.second != std::numeric_limits<qint64>::max()) {
+						msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedRange").
+							arg(range.first).arg(range.second);
+					}
+					else if (range.first == std::numeric_limits<qint64>::min() && range.second != std::numeric_limits<qint64>::max()) {
+						msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMax").
+							arg(range.second);
+					}
+					else if (range.first != std::numeric_limits<qint64>::min() && range.second == std::numeric_limits<qint64>::max()) {
+						msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMin").
+							arg(range.first);
+					}
+				}
+				else if (optional.getValue().getType() == AStoryXValueMeta::Type::Float) {
+					QPair<double, double> range = optional.getValue().getFloatCheckRange();
+					if (range.first != -std::numeric_limits<double>::infinity() && range.second != std::numeric_limits<double>::infinity()) {
+						msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedRange").
+							arg(range.first).arg(range.second);
+					}
+					else if (range.first == -std::numeric_limits<double>::infinity() && range.second != std::numeric_limits<double>::infinity()) {
+						msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMax").
+							arg(range.second);
+					}
+					else if (range.first != -std::numeric_limits<double>::infinity() && range.second == std::numeric_limits<double>::infinity()) {
+						msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedMin").
+							arg(range.first);
+					}
+				}
+				else if (optional.getValue().getType() == AStoryXValueMeta::Type::Enum) {
+					QStringList allowedValues = optional.getValue().getEnumCheckList();
+					if (!allowedValues.isEmpty()) {
+						msg += VITR("ASERStudio::diagnostic.parameterOutOfRange.allowedEnums").arg(allowedValues.join(", "));
+					}
+				}
 				if (diagnostic) {
 					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-						VITR("ASERStudio::diagnostic.parameterOutOfRange.message").arg(optional.getContent()),
+						msg,
 						lineIndex, optional.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterOutOfRange,
 						VITR("ASERStudio::diagnostic.parameterOutOfRange.fixAdvice")
 					);
-					//result.d->Diagnostics.append(diagnosticData);
+					result.d->Diagnostics.append(diagnosticData);
 				}
 				break;
+			}
 			}
 		}
 		return result;
@@ -535,7 +645,7 @@ namespace ASERStudio::AStorySyntax {
 		return 用字符串表示的控制器类型。
 	*/
 	QString AStoryXController::getControllerTypeString() {
-		return QMetaEnum::fromType<AStoryXController::ControllerType>().valueToKey(d->Type);
+		return controllerTypeToString(d->Type);
 	}
 
 	/*!
@@ -641,4 +751,13 @@ namespace ASERStudio::AStorySyntax {
 			.arg(d->RequiredParameterName)
 			.arg(optionalParams.join(", "));
 	}
+
+	/*!
+		\since ASERStudio 2.0
+		将ControllerType枚举值转换为字符串。
+	*/
+	QString AStoryXController::controllerTypeToString(ControllerType type) {
+		return QMetaEnum::fromType<AStoryXController::ControllerType>().valueToKey(type);
+	}
+
 }

@@ -59,6 +59,8 @@ namespace ASERStudio::AStorySyntax {
 		bool isAdvanced();
 		bool isValid();
 		QString toString();
+	public:
+		static QString controllerTypeToString(ControllerType type);
 	private:
 		AStoryXControllerPrivate* d;
 	};

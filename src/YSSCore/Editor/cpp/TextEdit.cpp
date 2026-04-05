@@ -29,10 +29,13 @@ namespace YSSCore::__Private__ {
 		if (FontMetrics != nullptr) {
 			delete FontMetrics;
 		}
-		if (TabCompleterWidget != nullptr) {
-			delete TabCompleterWidget;
-		}
-		// do not delete Highlighter, it will be automaticly deleted by QTextDocument.
+		/*!
+			NOTICE: about some pointers in TextEditPrivate:
+			SyntaxHighlighter、TabCompleter、HoverInfoProvider are all
+			deleted by TextEdit's QTextDocument.
+			TabCompleterWidget and HoverInfoWidget are children of 
+			TextEdit's, so they will also be automatically deleted.
+		*/
 	}
 
 	void TextEditPrivate::onBlockCountChanged(qint32 count) {
@@ -679,6 +682,25 @@ namespace YSSCore::Editor {
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		按给定行号和列重定位光标。行号和列号均从0开始。
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用cursorToPosition()函数。
+	*/
+	bool TextEdit::onCursorToPosition(int line, int column) {
+		vgDebug << "Cursor to position: line" << line << "column" << column;
+		if (line < 0 || line >= d->Text->document()->blockCount()) {
+			return false;
+		}
+		QTextBlock block = d->Text->document()->findBlockByNumber(line);
+		if (column < 0 || column > block.length()) {
+			return false;
+		}
+		QTextCursor cursor(block);
+		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, column);
+		d->Text->setTextCursor(cursor);
+		return true;
+	}
 	/*!
 		\since Visindigo 0.13.0
 		打开一个文件。只有文件完全打开成功才会返回true，其他任何失败情况均返回false。

@@ -34,10 +34,18 @@ namespace ASERStudio::YSS {
 		if (parameter.isValid()) {
 			auto valueMeta = parameter.getValue();
 			switch (valueMeta.getType()) {
-			case ASERStudio::AStorySyntax::AStoryXValueMeta::Bool: // just bool now.
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Bool: {// just bool now.
 				items.append(YSSCore::Editor::TabCompleterItem("true", "true", "Boolean True", YSSCore::Editor::TabCompleterItem::ItemType::Value));
 				items.append(YSSCore::Editor::TabCompleterItem("false", "false", "Boolean False", YSSCore::Editor::TabCompleterItem::ItemType::Value));
 				break;
+			}
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Enum: {
+				QStringList enumValues = valueMeta.getEnumCheckList();
+				for (auto enumValue : enumValues) {
+					items.append(YSSCore::Editor::TabCompleterItem(enumValue, enumValue, "Enum Value", YSSCore::Editor::TabCompleterItem::ItemType::Enum));
+				}
+				break;
+			}
 			}
 		}
 		
@@ -47,9 +55,12 @@ namespace ASERStudio::YSS {
 				items.append(YSSCore::Editor::TabCompleterItem(controller.getControllerTypeString(), controller.getStartSign(), controller.getHeader(), YSSCore::Editor::TabCompleterItem::ItemType::Function));
 			}
 		}
-		QStringList preprocessors = rule->getSupportedPreprocessors();
-		for (auto preprocessor : preprocessors) {
-			items.append(YSSCore::Editor::TabCompleterItem(preprocessor, preprocessor, "Preprocessor", YSSCore::Editor::TabCompleterItem::ItemType::Operator));
+		
+		if (content.isEmpty() || content.startsWith("#") && content.size() <= 1) {
+			QStringList preprocessors = rule->getSupportedPreprocessors();
+			for (auto preprocessor : preprocessors) {
+				items.append(YSSCore::Editor::TabCompleterItem(preprocessor, preprocessor, "Preprocessor", YSSCore::Editor::TabCompleterItem::ItemType::Operator));
+			}
 		}
 		return items;
 	}

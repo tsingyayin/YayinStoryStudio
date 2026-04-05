@@ -7,10 +7,17 @@
     },
     "__GeneralMetaData__":{
         "MoveCurveEnums":[
-            "Linear",
-            "EaseIn",
-            "EaseOut",
-            "EaseInOut"
+            "Unset", "Linear",
+            "InSine", "OutSine", "InOutSine",
+            "InQuad", "OutQuad", "InOutQuad",
+            "InCubic", "OutCubic", "InOutCubic",
+            "InQuart", "OutQuart", "InOutQuart",
+            "InQuint", "OutQuint", "InOutQuint",
+            "InExpo", "OutExpo", "InOutExpo",
+            "InCirc", "OutCirc", "InOutCirc",
+            "InElastic", "OutElastic", "InOutElastic",
+            "InBack", "OutBack", "InOutBack",
+            "InBounce", "OutBounce", "InOutBounce"
         ],
         "TextAlignmentEnums":[
             "left",
@@ -25,7 +32,8 @@
         },
         "FadeInTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "StartPosition":{
             "type": "Vector",
@@ -37,7 +45,8 @@
         },
         "MoveTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "MoveCurve":{
             "type": "Enum",
@@ -60,19 +69,23 @@
         },
         "Volume":{
             "type": "Float",
-            "defaultValue": "1"
+            "defaultValue": "1",
+            "range": [0, 1]
         },
         "FadeInTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "SlotIndex":{
             "type": "Integer",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "Position":{
-            "type": "Vector",
-            "defaultValue": "0,0,0"
+            "type": "Float",
+            "defaultValue": "0",
+            "range": [-1, 1]
         }
     },
     "SoundEffect":{
@@ -82,16 +95,20 @@
         },
         "Volume":{
             "type": "Float",
-            "defaultValue": "1"
-        },
-        "Steps":{
-            "type": "Integer",
-            "defaultValue": "0"
+            "defaultValue": "1",
+            "range": [0, 1]
         },
         "Position":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "range": [-1, 1]
+        },
+        "Steps":{
+            "type": "Integer",
+            "defaultValue": "0",
+            "min": 0
         }
+        
     },
     "Mask":{
         "IsOn":{
@@ -114,11 +131,13 @@
         },
         "FadeInTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "FadeOutTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "Effects":{
             "type": "String",
@@ -126,7 +145,8 @@
         },
         "Alpha":{
             "type": "Float",
-            "defaultValue": "1"
+            "defaultValue": "1",
+            "range": [0, 1]
         },
         "RenderOrder":{
             "type": "Integer",
@@ -134,15 +154,18 @@
         },
         "StartPosition":{
             "type": "Vector",
-            "defaultValue": "0,0,10,0"
+            "defaultValue": "0,0,10,0",
+            "dimension": 4
         },
         "EndPosition":{
             "type": "Vector",
-            "defaultValue": "0,0,10,0"
+            "defaultValue": "0,0,10,0",
+            "dimension": 4
         },
         "MoveTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "MoveCurve":{
             "type": "Enum",
@@ -163,7 +186,8 @@
     "Delay":{
         "DelayTime":{
             "type": "Float",
-            "defaultValue": ""
+            "defaultValue": "",
+            "min": 0
         }
     },
     "VisualEffect":{
@@ -173,7 +197,8 @@
         },
         "Steps":{
             "type": "Integer",
-            "defaultValue": "0"
+            "defaultValue": "1",
+            "min": 1
         },
         "Position":{
             "type": "Vector",
@@ -215,25 +240,30 @@
         },
         "Position": {
             "type": "Vector",
-            "defaultValue": "0,0,10,0"
+            "defaultValue": "0,0,10,0",
+            "dimension": 4
         }
     },
     "ColorMask":{
         "Color":{
             "type": "Vector",
-            "defaultValue": ""
+            "defaultValue": "0,0,0,1",
+            "dimension": 4
         },
         "FadeInTime":{
             "type": "Float",
-            "defaultValue": "0.125"
+            "defaultValue": "0.125",
+            "min": 0
         },
         "StayTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "FadeOutTime":{
             "type": "Float",
-            "defaultValue": "0.375"
+            "defaultValue": "0.375",
+            "min": 0
         },
         "IsBlocker":{
             "type": "Bool",
@@ -247,15 +277,18 @@
         },
         "FadeInTime":{
             "type": "Float",
-            "defaultValue": "0.125"
+            "defaultValue": "0.125",
+            "min": 0
         },
         "StayTime":{
             "type": "Float",
-            "defaultValue": "0.25"
+            "defaultValue": "0.25",
+            "min": 0
         },
         "FadeOutTime":{
             "type": "Float",
-            "defaultValue": "0.375"
+            "defaultValue": "0.375",
+            "min": 0
         },
         "IsBlocker":{
             "type": "Bool",
@@ -286,15 +319,18 @@
         },
         "FadeInTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "StayTime":{
             "type": "Float",
-            "defaultValue": "1.75"
+            "defaultValue": "1.75",
+            "min": 0
         },
         "FadeOutTime":{
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "SlotIndex":{
             "type": "Integer",
@@ -314,17 +350,20 @@
         },
         "Interval":{
             "type": "Float",
-            "defaultValue": "0.04"
+            "defaultValue": "0.04",
+            "min": 0
         },
         "ExtraStayTime":{
             "type": "Float",
-            "defaultValue": "0.05"
+            "defaultValue": "0.05",
+            "min": 0
         }
     },
     "Cut":{
         "Intensity": {
             "type": "Float",
-            "defaultValue": ""
+            "defaultValue": "",
+            "range": [0, 1]
         },
         "Angle": {
             "type": "Float",
@@ -340,15 +379,18 @@
         },
         "FadeInTime": {
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "StayTime": {
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "FadeOutTime": {
             "type": "Float",
-            "defaultValue": "0"
+            "defaultValue": "0",
+            "min": 0
         },
         "RenderOrder": {
             "type": "Integer",
@@ -362,7 +404,8 @@
         },
         "FadeInTime":{
             "type": "Float",
-            "defaultValue": "1"
+            "defaultValue": "1",
+            "min": 0
         },
         "IsBlocker":{
             "type": "Bool",
@@ -434,15 +477,18 @@
         },
         "BasicStayTime":{
             "type": "Float",
-            "defaultValue": "1.75"
+            "defaultValue": "1.75",
+            "min": 0
         },
         "Interval":{
             "type": "Float",
-            "defaultValue": "0.04"
+            "defaultValue": "0.04",
+            "min": 0
         },
         "ExtraStayTime":{
             "type": "Float",
-            "defaultValue": "0.05"
+            "defaultValue": "0.05",
+            "min": 0
         }
     }
 }
