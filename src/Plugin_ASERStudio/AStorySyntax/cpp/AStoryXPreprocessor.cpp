@@ -14,10 +14,11 @@ namespace ASERStudio::AStorySyntax {
 		void onBlock(const QString& str, qint32 cursorPosition, AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex);
 		void onEndBlock(const QString& str, qint32 cursorPosition, AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex);
 		void onUse(const QString& str, qint32 cursorPosition, AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex);
+		void onVersion(const QString& str, qint32 cursorPosition, AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex);
 	};
 
 	const QStringList AStoryXPreprocessorPrivate::PreprocessorHeaders = {
-		"#useRule", "#aliases", "#endaliases", "#block", "#endblock", "#use"
+		"#useRule", "#aliases", "#endaliases", "#block", "#endblock", "#use", "#version"
 	};
 
 	void AStoryXPreprocessorPrivate::onUseRule(const QString& str, qint32 cursorPosition, 
@@ -153,7 +154,23 @@ namespace ASERStudio::AStorySyntax {
 		}
 	}
 
-
+	void AStoryXPreprocessorPrivate::onVersion(const QString& str, qint32 cursorPosition, AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
+		//#version:versionNumber
+		QString versionNumber = str.mid(QString("#version:").length());
+		AStoryXParameter requiredParameter;
+		requiredParameter.d->setParameter("type", "", "version ", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
+		data->d->RequiredParameter = requiredParameter;
+		AStoryXParameter versionParameter;
+		versionParameter.d->setParameter("versionNumber", "", versionNumber, AStoryXValueMeta("version.versionNumber", AStoryXValueMeta::Type::String), 
+			QString("#version ").length());
+		data->d->OptionalParameters.append(versionParameter);
+		if (cursorPosition > QString("#version:").length()) {
+			data->d->cursorInWhichParameter = "versionNumber";
+		}
+		else {
+			data->d->cursorInWhichParameter = "type";
+		}
+	}
 
 	/*!
 	   \class ASERStudio::AStorySyntax::AStoryXPreprocessor
@@ -214,6 +231,15 @@ namespace ASERStudio::AStorySyntax {
 
 	VIMoveable_Impl(AStoryXPreprocessor);
 	VICopyable_Impl(AStoryXPreprocessor);
+
+	/*!
+	   \since ASERStudio 2.0
+	   获取支持的预处理指令列表。
+	*/
+	QStringList AStoryXPreprocessor::getSupportedPreprocessors() const {
+		return AStoryXPreprocessorPrivate::PreprocessorHeaders;
+	}
+
 	/*!
 	   \since ASERStudio 2.0
 	   判断给定的字符串是否是一个预处理指令。
@@ -267,6 +293,9 @@ namespace ASERStudio::AStorySyntax {
 		}
 		else if (str.startsWith("#use")) {
 			d->onUse(str, cursorPosition, &data, diagnostic, lineIndex);
+		}
+		else if (str.startsWith("#version")) {
+			d->onVersion(str, cursorPosition, &data, diagnostic, lineIndex);
 		}
 		return data;
 	}

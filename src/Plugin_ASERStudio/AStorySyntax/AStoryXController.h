@@ -46,6 +46,7 @@ namespace ASERStudio::AStorySyntax {
 		bool parseRule(const Visindigo::Utility::JsonConfig& ruleConfig, const Visindigo::Utility::JsonConfig& metaConfig);
 		AStoryXControllerParseData parseAStoryX(const QString& str, qint32 cursorPosition = -1, bool diagnostic = false, qint32 lineIndex = -1);
 		ControllerType getControllerType();
+		QString getControllerTypeString();
 		QString getStartSign();
 		QString getHeader();
 		QString getRequiredParameterName();

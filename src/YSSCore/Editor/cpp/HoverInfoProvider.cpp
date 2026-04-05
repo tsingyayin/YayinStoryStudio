@@ -11,10 +11,10 @@ namespace YSSCore::Editor {
 		TextEdit* Parent;
 	};
 
-	HoverInfoProvider::HoverInfoProvider(QTextDocument* doc)
-		: QObject(doc), d(new YSSCore::__Private__::HoverInfoProviderPrivate)
+	HoverInfoProvider::HoverInfoProvider(TextEdit* textEdit)
+		: QObject(textEdit->getDocument()), d(new YSSCore::__Private__::HoverInfoProviderPrivate)
 	{
-		d->Document = doc;
+		d->Document = textEdit->getDocument();
 	}
 
 	bool HoverInfoProvider::triggerFromHover() {

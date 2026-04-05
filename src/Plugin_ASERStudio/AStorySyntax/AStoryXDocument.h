@@ -14,6 +14,7 @@ namespace ASERStudio::AStorySyntax {
 	class ASERAPI AStoryXDocument :public QObject{
 		Q_OBJECT;
 	signals:
+		void currentRuleChanged();
 		void parseDataAllUpdated();
 		void parseDataUpdated(qint32 lineNumber);
 	public:
@@ -30,6 +31,7 @@ namespace ASERStudio::AStorySyntax {
 		void setEnableDiagnostic(bool enable);
 		void setSyntaxHighlighter(QSyntaxHighlighter* highlighter);
 		void onSyntaxHighlighter(QTextBlock currentBlock, const QString& text);
+		AStoryXRule* getCurrentRule() const;
 		void refreshParseData();
 		bool isDiagnosticEnabled() const;
 	private:

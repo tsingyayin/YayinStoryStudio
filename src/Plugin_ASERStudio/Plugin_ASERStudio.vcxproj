@@ -137,10 +137,12 @@
     <ClCompile Include="YSS\cpp\ASERProjectTemplate.cpp" />
     <ClCompile Include="YSS\cpp\LangServer_AStoryX.cpp" />
     <ClCompile Include="YSS\cpp\LS_AStoryXSyntaxHighlighter.cpp" />
+    <ClCompile Include="YSS\cpp\LS_AStoryXTabCompleter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AStorySyntax\AStoryXPreprocessor.h" />
     <ClInclude Include="YSS\LangServer_AStoryX.h" />
+    <QtMoc Include="YSS\LS_AStoryXTabCompleter.h" />
     <QtMoc Include="YSS\LS_AStoryXSyntaxHighlighter.h" />
     <QtMoc Include="YSS\ASERFileTemplate.h" />
     <QtMoc Include="YSS\ASERProjectTemplate.h" />

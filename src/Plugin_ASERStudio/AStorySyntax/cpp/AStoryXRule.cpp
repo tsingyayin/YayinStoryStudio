@@ -223,6 +223,22 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		返回全部可用的控制器列表。
+	*/
+	QList<AStoryXController> AStoryXRule::getAvailableControllers() const {
+		return d->Controllers.values();
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回全部支持的预处理器名称列表。
+	*/
+	QStringList AStoryXRule::getSupportedPreprocessors() const {
+		return d->Preprocessor.getSupportedPreprocessors();
+	}
+
+	/*!
+		\since ASERStudio 2.0
 		返回指定控制器类型的必需参数值对象。
 	*/
 	AStoryXValueMeta AStoryXRule::getRequiredParameterValue(AStoryXController::ControllerType type) const {
@@ -339,5 +355,14 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	bool AStoryXRule::hasRule(const QString& name) {
 		return AStoryXRulePrivate::RegisteredRules.contains(name);
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		获取所有已注册的AStoryX语法规则的名称列表。
+		返回值：一个QStringList，包含所有已注册的AStoryXRule对象的名称。
+	*/
+	QStringList AStoryXRule::getAvailableRuleNames() {
+		return AStoryXRulePrivate::RegisteredRules.keys();
 	}
 }

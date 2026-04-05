@@ -8,8 +8,8 @@ namespace ASERStudio::YSS {
 	public:
 		AStoryXLanguageServer(YSSCore::Editor::EditorPlugin* plugin);
 		virtual YSSCore::Editor::SyntaxHighlighter* createHighlighter(YSSCore::Editor::TextEdit* textEdit) override;
-		virtual YSSCore::Editor::TabCompleterProvider* createTabCompleter(QTextDocument* doc) override;
-		virtual YSSCore::Editor::HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) override;
+		virtual YSSCore::Editor::TabCompleterProvider* createTabCompleter(YSSCore::Editor::TextEdit* doc) override;
+		virtual YSSCore::Editor::HoverInfoProvider* createHoverInfoProvider(YSSCore::Editor::TextEdit* doc) override;
 		static void setAStoryXDocument(const QString& filePath, ASERStudio::AStorySyntax::AStoryXDocument* doc);
 		static void deleteAStoryXDocument(const QString& filePath);
 		static ASERStudio::AStorySyntax::AStoryXDocument* getAStoryXDocument(const QString& filePath);

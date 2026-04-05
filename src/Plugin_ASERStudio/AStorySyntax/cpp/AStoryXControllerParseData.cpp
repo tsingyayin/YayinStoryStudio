@@ -304,6 +304,12 @@ namespace ASERStudio::AStorySyntax {
 		if (cursorPosition < 0) {
 			return d->cursorInWhichParameter;
 		}
+		if (d->OptionalParameters.size() != 0){
+			auto param = d->OptionalParameters.last();
+			if (cursorPosition > param.getIndex() + param.getContent().length()) {
+				return param.getName();
+			}
+		}
 		for (const auto& param : d->OptionalParameters) {
 			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length()) {
 				return param.getName();
@@ -313,6 +319,39 @@ namespace ASERStudio::AStorySyntax {
 			return d->RequiredParameter.getName();
 		}
 		return "";
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		返回给定光标位置所在的参数解析结果。如果光标位置不在任何参数内，则返回一个无效的AStoryXParameter对象。
+	*/
+	AStoryXParameter AStoryXControllerParseData::getCursorParameter(qint32 cursorPosition) const {
+		if (cursorPosition < 0) {
+			for (const auto& param : d->OptionalParameters) {
+				if (param.getName() == d->cursorInWhichParameter) {
+					return param;
+				}
+			}
+			if (d->RequiredParameter.isValid() && d->RequiredParameter.getName() == d->cursorInWhichParameter) {
+				return d->RequiredParameter;
+			}
+			return AStoryXParameter();
+		}
+		if (d->OptionalParameters.size() != 0){
+			auto param = d->OptionalParameters.last();
+			if (cursorPosition > param.getIndex() + param.getContent().length()) {
+				return param;
+			}
+		}
+		for (const auto& param : d->OptionalParameters) {
+			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length()) {
+				return param;
+			}
+		}
+		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
+			return d->RequiredParameter;
+		}
+		return AStoryXParameter();
 	}
 	/*!
 		\since ASERStudio 2.0

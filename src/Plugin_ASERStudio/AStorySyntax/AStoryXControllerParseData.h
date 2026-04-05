@@ -56,6 +56,7 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXParameter getRequiredParameter() const;
 		QList<AStoryXParameter> getOptionalParameters() const;
 		QString getCursorInWhichParameter(qint32 cursorPosition = -1) const;
+		AStoryXParameter getCursorParameter(qint32 cursorPosition = -1) const;
 		QStringList referenceVariables() const;
 		bool isDiagnosticAvailable() const;
 		QList<AStoryXDiagnosticData> getDiagnostics() const;

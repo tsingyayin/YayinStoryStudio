@@ -529,6 +529,15 @@ namespace ASERStudio::AStorySyntax {
 	AStoryXController::ControllerType AStoryXController::getControllerType() {
 		return d->Type;
 	}
+
+	/*!
+		\since ASERStudio 2.0
+		return 用字符串表示的控制器类型。
+	*/
+	QString AStoryXController::getControllerTypeString() {
+		return QMetaEnum::fromType<AStoryXController::ControllerType>().valueToKey(d->Type);
+	}
+
 	/*!
 		\since ASERStudio 2.0
 		return 控制器行首标识符（即ASE-Ramake中的Header）。ASERStudio中也称其为StartSign。

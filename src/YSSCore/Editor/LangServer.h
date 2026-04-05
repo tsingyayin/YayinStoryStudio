@@ -21,8 +21,8 @@ namespace YSSCore::Editor {
 		LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext);
 		virtual ~LangServer();
 		virtual SyntaxHighlighter* createHighlighter(TextEdit* doc) = 0;
-		virtual TabCompleterProvider* createTabCompleter(QTextDocument* doc) = 0;
-		virtual HoverInfoProvider* createHoverInfoProvider(QTextDocument* doc) = 0;
+		virtual TabCompleterProvider* createTabCompleter(TextEdit* doc);
+		virtual HoverInfoProvider* createHoverInfoProvider(TextEdit* doc);
 		QString getLangID();
 		QStringList getLangExts();
 	protected:

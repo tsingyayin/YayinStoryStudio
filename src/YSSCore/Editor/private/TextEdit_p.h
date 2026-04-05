@@ -46,6 +46,7 @@ namespace YSSCore::__Private__ {
 		qint32 HoverTimeout = 400;
 		QTimer* HoverTimer = nullptr;
 		QPoint LastMousePos;
+		bool useKeyboardToMoveCursor = false;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	protected:
@@ -57,6 +58,7 @@ namespace YSSCore::__Private__ {
 		void onDirectionClicked(QKeyEvent* event);
 		void onMouseMove(QMouseEvent* event);
 		bool onMouseScroll(QWheelEvent* event);
+		void onEscapeClicked(QKeyEvent* event);
 		void onHoverTimeout();
 		void onHoverInfo(bool triggeFromHover);
 		void onCursorPositionChanged();

@@ -1,6 +1,6 @@
 #include "YSS/LangServer_AStoryX.h"
 #include "YSS/LS_AStoryXSyntaxHighlighter.h"
-
+#include "YSS/LS_AStoryXTabCompleter.h"
 namespace ASERStudio::YSS {
 	class AStoryXLanguageServerPrivate {
 		friend class AStoryXLanguageServer;
@@ -16,10 +16,10 @@ namespace ASERStudio::YSS {
 		
 		return new LS_AStoryXSyntaxHighlighter(textEdit);
 	}
-	YSSCore::Editor::TabCompleterProvider* AStoryXLanguageServer::createTabCompleter(QTextDocument* doc) {
-		return nullptr;
+	YSSCore::Editor::TabCompleterProvider* AStoryXLanguageServer::createTabCompleter(YSSCore::Editor::TextEdit* textEdit) {
+		return new LS_AStoryXTabCompleter(textEdit);
 	}
-	YSSCore::Editor::HoverInfoProvider* AStoryXLanguageServer::createHoverInfoProvider(QTextDocument* doc) {
+	YSSCore::Editor::HoverInfoProvider* AStoryXLanguageServer::createHoverInfoProvider(YSSCore::Editor::TextEdit* textEdit) {
 		return nullptr;
 	}
 	void AStoryXLanguageServer::setAStoryXDocument(const QString& who, ASERStudio::AStorySyntax::AStoryXDocument* doc) {

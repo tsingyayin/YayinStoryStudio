@@ -18,7 +18,10 @@ int main(int argc, char* argv[])
 	VISetEnv(Visindigo::General::VIApplication::UseVirtualTerminal, true);
 	VISetEnv(Visindigo::General::VIApplication::SaveCommandHistory, true);
 	Visindigo::General::VIApplication app(argc, argv, Visindigo::General::VIApplication::WidgetApp);
-	
+	vgDebug<<QSysInfo::productVersion();
+	vgDebug << QSysInfo::prettyProductName();
+	vgDebug << QSysInfo::kernelType();
+	vgDebug << QSysInfo::kernelVersion();
 
 	QStringList prts = Visindigo::Utility::FileUtility::readLines(":/resource/cn.yxgeneral.visindigo/IWillFindU.txt");
 	for (auto p : prts) {

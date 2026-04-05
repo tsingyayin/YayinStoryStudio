@@ -53,10 +53,10 @@ namespace YSSCore::Editor {
 		friend class YSSCore::__Private__::TextEditPrivate;
 		Q_OBJECT;
 	public:
-		TabCompleterProvider(QTextDocument* doc);
+		TabCompleterProvider(TextEdit* textEdit);
 		virtual ~TabCompleterProvider();
 		QTextDocument* getDocument() const;
-		virtual QList<TabCompleterItem> onTabComplete(int position, QString lineContent, QString wordContent) = 0;
+		virtual QList<TabCompleterItem> onTabComplete(qint32 lineNumber, qint32 column, const QString& content) = 0;
 	protected:
 		YSSCore::__Private__::TabCompleterProviderPrivate* d;
 	};

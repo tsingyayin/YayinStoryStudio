@@ -21,9 +21,9 @@ namespace YSSCore::Editor {
 			Html
 		};
 	public:
-		HoverInfoProvider(QTextDocument* doc);
+		HoverInfoProvider(TextEdit* textEdit);
 		bool triggerFromHover();
-		virtual void onMouseHover(const QString& text, int position) = 0;
+		virtual void onMouseHover(qint32 lineNumber, qint32 column, const QString& content) = 0;
 		void setContent(const QString& content, Format format);
 		void setPlainText(const QString& text);
 		void setMarkdown(const QString& md);

@@ -1,7 +1,7 @@
 #include <QtGui/qtextdocument.h>
-#include "../private/TabCompleterProvider_p.h"
-#include "../TabCompleterProvider.h"
-
+#include "Editor/private/TabCompleterProvider_p.h"
+#include "Editor/TabCompleterProvider.h"
+#include "Editor/TextEdit.h"
 namespace YSSCore::Editor {
 	class TabCompleterItemPrivate {
 		friend class TabCompleterItem;
@@ -111,10 +111,10 @@ namespace YSSCore::Editor {
 		return d->Alignment;
 	}
 
-	TabCompleterProvider::TabCompleterProvider(QTextDocument* doc)
-		: QObject(doc), d(new YSSCore::__Private__::TabCompleterProviderPrivate) {
+	TabCompleterProvider::TabCompleterProvider(TextEdit* textEdit)
+		: QObject(textEdit->getDocument()), d(new YSSCore::__Private__::TabCompleterProviderPrivate) {
 		d->Q = this;
-		d->Document = doc;
+		d->Document = textEdit->getDocument();
 	}
 
 	TabCompleterProvider::~TabCompleterProvider() {

@@ -12,10 +12,6 @@ namespace YSSFileExt {
 		return new JsonLangHighlighter(parent);
 	}
 
-	YSSCore::Editor::TabCompleterProvider* JsonLangServer::createTabCompleter(QTextDocument* doc) {
-		return nullptr; // TODO
-	}
-
 	JsonLangHighlighter::JsonLangHighlighter(YSSCore::Editor::TextEdit* parent) :
 		YSSCore::Editor::SyntaxHighlighter(parent)
 	{

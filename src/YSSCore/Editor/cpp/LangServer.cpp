@@ -14,23 +14,29 @@ namespace YSSCore::Editor {
 	};
 
 	LangServer::LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext) :
-		Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_LangServer, name)
-	{
+		Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_LangServer, name){
 		d = new LangServerPrivate();
 		d->LanguageID = lang_id;
 		d->LanguageExt = ext;
 	}
-	LangServer::~LangServer()
-	{
+
+	LangServer::~LangServer(){
 		delete d;
 	}
-	QString LangServer::getLangID()
-	{
+
+	TabCompleterProvider* LangServer::createTabCompleter(TextEdit* doc) {
+		return nullptr;
+	}
+
+	HoverInfoProvider* LangServer::createHoverInfoProvider(TextEdit* doc) {
+		return nullptr;
+	}
+
+	QString LangServer::getLangID(){
 		return d->LanguageID;
 	}
 
-	QStringList LangServer::getLangExts()
-	{
+	QStringList LangServer::getLangExts(){
 		return d->LanguageExt;
 	}
 }

@@ -26,6 +26,8 @@ namespace ASERStudio::AStorySyntax{
 		QStringList getOptionalParameterNames(AStoryXController::ControllerType type) const;
 		QStringList getOptionalParameterPrefixes(AStoryXController::ControllerType type) const;
 		QMap<QString, AStoryXValueMeta> getOptionalParameterValues(AStoryXController::ControllerType type) const;
+		QList<AStoryXController> getAvailableControllers() const;
+		QStringList getSupportedPreprocessors() const;
 		AStoryXValueMeta getRequiredParameterValue(AStoryXController::ControllerType type) const;
 		bool isMonotonicity(AStoryXController::ControllerType type) const;
 		bool isAdvanced(AStoryXController::ControllerType type) const;
@@ -37,6 +39,7 @@ namespace ASERStudio::AStorySyntax{
 		static void registerRule(const AStoryXRule& rule);
 		static AStoryXRule* getRule(const QString& name);
 		static bool hasRule(const QString& name);
+		static QStringList getAvailableRuleNames();
 	private:
 		AStoryXRulePrivate* d;
 	};

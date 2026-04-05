@@ -3,7 +3,8 @@
 #include "ASERStudioCompileMacro.h"
 #include <VIMacro.h>
 #include <QtCore/qtypes.h>
-class QString;
+#include <QtCore/qstringlist.h>
+
 namespace ASERStudio::AStorySyntax {
 	class AStoryXControllerParseData;
 	class AStoryXPreprocessorPrivate;
@@ -14,6 +15,7 @@ namespace ASERStudio::AStorySyntax {
 		VIMoveable(AStoryXPreprocessor);
 		VICopyable(AStoryXPreprocessor);
 	public:
+		QStringList getSupportedPreprocessors() const;
 		bool isPreprocessor(const QString& str);
 		AStoryXControllerParseData parse(const QString& str, qint32 cursorPosition = -1, bool diagnostic = false, qint32 lineIndex = -1);
 	private:

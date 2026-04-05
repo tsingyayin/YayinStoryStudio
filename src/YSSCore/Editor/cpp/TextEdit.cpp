@@ -80,6 +80,10 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onCursorPositionChanged() {
+		if (useKeyboardToMoveCursor) {
+			useKeyboardToMoveCursor = false;
+			return;
+		}
 		onCompleter();
 		onHoverInfo(false);
 		QTextCursor cursor = Text->textCursor();
@@ -133,25 +137,21 @@ namespace YSSCore::__Private__ {
 					break;
 				}
 			}
-			yDebugF << "LIndex:" << LIndex << "RIndex:" << RIndex << "Position:" << position;
+			//yDebugF << "LIndex:" << LIndex << "RIndex:" << RIndex << "Position:" << position;
 			if (RIndex != position) { // cursor in the middle of a word
 				if (TabCompleterWidget->isVisible()) {
 					TabCompleterWidget->hide();
 				}
 				return;
 			}
-			QString wordContent = content.mid(LIndex, RIndex - LIndex);
-			yDebugF << "WordContent:" << wordContent;
-			/*if (wordContent.isEmpty()) {
-				TabCompleterWidget->hide();
-				return;
-			}*/
-			list = TabCompleter->onTabComplete(position, content, wordContent);
+			qint32 line = cursor.block().blockNumber();
+			qint32 column = cursor.positionInBlock();
+			list = TabCompleter->onTabComplete(line, column, content);
 			if (list.isEmpty()) {
 				TabCompleterWidget->hide();
 				return;
 			}
-			yDebugF << "TabCompleterWidget is shown";
+			///yDebugF << "TabCompleterWidget is shown";
 			TabCompleterWidget->setCompleterItems(list);
 			QRect pos = Text->cursorRect();
 			TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
@@ -324,6 +324,15 @@ namespace YSSCore::__Private__ {
 		cursor.insertText("\n" + newSpace);
 	}
 
+	void TextEditPrivate::onEscapeClicked(QKeyEvent* event) {
+		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+			TabCompleterWidget->hide();
+		}
+		if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+			HoverInfoWidget->hide();
+		}
+	}
+
 	void TextEditPrivate::onDirectionClicked(QKeyEvent* event) {
 		if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
 			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
@@ -362,6 +371,7 @@ namespace YSSCore::__Private__ {
 			return false;
 		}
 	}
+	
 	void TextEditPrivate::onHoverTimeout() {
 		onHoverInfo(true);
 	}
@@ -386,8 +396,9 @@ namespace YSSCore::__Private__ {
 				cursor = Text->textCursor();
 			}
 			QString content = cursor.block().text();
-			int position = cursor.positionInBlock();
-			HoverInfoProvider->onMouseHover(content, position);
+			qint32 line = cursor.block().blockNumber();
+			qint32 column = cursor.positionInBlock();
+			HoverInfoProvider->onMouseHover(line, column, content);
 			if (!HoverInfoProvider->d->HoverSetSth) {
 				HoverInfoWidget->hide();
 			}
@@ -618,14 +629,20 @@ namespace YSSCore::Editor {
 					d->onEnterClicked(keyEvent);
 					return true;
 				}
-				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down) {
+				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down ||
+					keyEvent->key() == Qt::Key_Left || keyEvent->key() == Qt::Key_Right) {
 					if (d->TabCompleterWidget != nullptr && d->TabCompleterWidget->isVisible()) {
 						if (keyEvent->modifiers() == Qt::NoModifier) {
 							d->onDirectionClicked(keyEvent);
 							return true;
 						}
+					}else{
+						d->useKeyboardToMoveCursor = true;
 					}
 					return false;
+				}
+				else if (keyEvent->key() == Qt::Key_Escape) {
+					d->onEscapeClicked(keyEvent);
 				}
 			}
 		}
@@ -637,6 +654,10 @@ namespace YSSCore::Editor {
 			}else if (event->type() == QEvent::Wheel) {
 				QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
 				return d->onMouseScroll(wheelEvent);
+			}
+			else if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
+				d->useKeyboardToMoveCursor = false;
+				return false;
 			}
 		}
 		return false;
@@ -674,14 +695,14 @@ namespace YSSCore::Editor {
 			if (d->TabCompleter != nullptr) {
 				delete d->TabCompleter;
 			}
-			d->TabCompleter = server->createTabCompleter(d->Text->document());
+			d->TabCompleter = server->createTabCompleter(this);
 			if (d->TabCompleterWidget != nullptr) {
 				delete d->TabCompleterWidget;
 			}
 			if (d->TabCompleter != nullptr) {
 				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text);
 			}
-			d->HoverInfoProvider = server->createHoverInfoProvider(d->Text->document());
+			d->HoverInfoProvider = server->createHoverInfoProvider(this);
 			if (d->HoverInfoWidget != nullptr) {
 				delete d->HoverInfoWidget;
 			}
