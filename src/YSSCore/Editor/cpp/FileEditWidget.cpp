@@ -243,7 +243,7 @@ protected:
 			event->ignore();
 		}
 	}
-}
+
 
 /*!
 	\fn YSSCore::Editor::FileEditWidget::onOpen(const QString& path) = 0
@@ -266,44 +266,58 @@ protected:
 	return 如果文件成功保存，返回true；否则返回false。
 */
 
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onReload() = 0
-	派生类必须实现此纯虚函数以处理文件重新加载逻辑。
-	return 如果文件成功重新加载，返回true；否则返回false。
-*/
+	/*!
+		派生类实现此纯虚函数以处理文件重新加载逻辑。
+		return 如果文件成功重新加载，返回true；否则返回false。
+	*/
+	bool FileEditWidget::onReload() {
+		return false;
+	}
 
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onCopy() = 0
-	派生类必须实现此纯虚函数以处理复制逻辑。
-	return 如果复制操作成功，返回true；否则返回false。
-*/
+	/*!
+		派生类实现此纯虚函数以处理复制逻辑。
+		return 如果复制操作成功，返回true；否则返回false。
+	*/
+	bool FileEditWidget::onCopy() {
+		return false;
+	}
+	/*!
+		派生类实现此纯虚函数以处理剪切逻辑。
+		return 如果剪切操作成功，返回true；否则返回false。
+	*/
+	bool FileEditWidget::onCut() {
+		return false;
+	}
 
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onCut() = 0
-	派生类必须实现此纯虚函数以处理剪切逻辑。
-	return 如果剪切操作成功，返回true；否则返回false。
-*/
+	/*!
+		派生类实现此纯虚函数以处理粘贴逻辑。
+		return 如果粘贴操作成功，返回true；否则返回false。
+	*/
+	bool FileEditWidget::onPaste() {
+		return false;
+	}
 
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onPaste() = 0
-	派生类必须实现此纯虚函数以处理粘贴逻辑。
-	return 如果粘贴操作成功，返回true；否则返回false。
-*/
+	/*!
+		派生类实现此纯虚函数以处理撤销逻辑。
+		return 如果撤销操作成功，返回true；否则返回false。
+	*/
+	bool FileEditWidget::onUndo() {
+		return false;
+	}
 
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onUndo() = 0
-	派生类必须实现此纯虚函数以处理撤销逻辑。
-	return 如果撤销操作成功，返回true；否则返回false。
-*/
+	/*!
+		派生类实现此纯虚函数以处理重做逻辑。
+		return 如果重做操作成功，返回true；否则返回false。
+	*/
+	bool FileEditWidget::onRedo() {
+		return false;
+	}
 
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onRedo() = 0
-	派生类必须实现此纯虚函数以处理重做逻辑。
-	return 如果重做操作成功，返回true；否则返回false。
-*/
-
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onSelectAll() = 0
-	派生类必须实现此纯虚函数以处理全选逻辑。
-	return 如果全选操作成功，返回true；否则返回false。
-*/
+	/*!
+		派生类实现此纯虚函数以处理全选逻辑。
+		return 如果全选操作成功，返回true；否则返回false。
+	*/
+	bool FileEditWidget::onSelectAll() {
+		return false;
+	}
+}

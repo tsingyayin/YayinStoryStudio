@@ -184,6 +184,12 @@ namespace YSSCore::General {
 		QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
 		d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), relativePath);
 	}
+	void YSSProject::setEditorOpenedFiles(const QStringList& filePaths) {
+		removeAllEditorOpenedFiles();
+		for (const QString& filePath : filePaths) {
+			addEditorOpenedFile(filePath);
+		}
+	}
 	void YSSProject::removeEditorOpenedFile(const QString& filePath) {
 		QStringList files = getEditorOpenedFiles();
 		QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);

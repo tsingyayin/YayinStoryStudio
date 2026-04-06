@@ -47,6 +47,7 @@ namespace YSSCore::General {
 		void saveProjectConfigForPlugin(const QString& pluginID, const Visindigo::Utility::JsonConfig& config);
 		QStringList getEditorOpenedFiles(); // return all in absolute path
 		void addEditorOpenedFile(const QString& abs_filePath);
+		void setEditorOpenedFiles(const QStringList& abs_filePaths);
 		void removeEditorOpenedFile(const QString& abs_filePath);
 		void removeAllEditorOpenedFiles();
 		void setFocusedFile(const QString& abs_filePath);

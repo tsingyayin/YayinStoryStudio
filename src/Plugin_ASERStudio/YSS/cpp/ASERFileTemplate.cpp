@@ -104,12 +104,7 @@ namespace ASERStudio::YSS {
 	}
 
 	QStringList FileTemplateInitWidget_AStoryX::initFileV3() {
-		QStringList fileContent = {
-			"New AStory File",
-			"------",
-			"讲述人\t讲述内容",
-			"// 此文件由ASE Dev Tool 创建，请注意不要误删除文件头信息。"
-		};
+		QStringList fileContent = Visindigo::Utility::FileUtility::readLines(":/resource/cn.yxgeneral.aserstudio/template/3.0/newFile.astoryx");
 		return fileContent;
 	}
 

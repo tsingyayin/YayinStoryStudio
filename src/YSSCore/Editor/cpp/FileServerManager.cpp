@@ -5,6 +5,8 @@
 #include "../FileServer.h"
 #include "../TextEdit.h"
 #include "General/YSSLogger.h"
+#include <QtWidgets/qmessagebox.h>
+#include <General/TranslationHost.h>
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
@@ -234,11 +236,18 @@ namespace YSSCore::Editor {
 			}
 		}
 		if (useFallback) { // use builtin editor
-			FileEditWidget* feWidget = new TextEdit();
-			bool ok = feWidget->openFile(filePath);
-			if (ok) {
-				emit builtinEditorCreated(feWidget);
-				return true;
+			// create a warning dialog
+			int ret = QMessageBox::warning(
+				nullptr, VITR("YSS::editor.textEdit.notSuitable.title"),
+				 VITR("YSS::editor.textEdit.notSuitable.message").arg(ext),
+				QMessageBox::Yes | QMessageBox::No);
+			if (ret == QMessageBox::Yes) {
+				FileEditWidget* feWidget = new TextEdit();
+				bool ok = feWidget->openFile(filePath);
+				if (ok) {
+					emit builtinEditorCreated(feWidget);
+					return true;
+				}
 			}
 		}
 		return false;

@@ -5,6 +5,7 @@
 #include <Editor/SyntaxHighlighter.h>
 #include <General/Log.h>
 #include <QtWidgets/qheaderview.h>
+#include <QtWidgets/qscrollbar.h>
 namespace YSS::Editor {
 	StackWidgetTagLabel::StackWidgetTagLabel(QWidget* parent) :QFrame(parent) {
 		TitleLabel = new QLabel(this);
@@ -183,7 +184,8 @@ namespace YSS::Editor {
 		connect(tagLabel, &StackWidgetTagLabel::clicked, this, [this](const QString& filePath) {
 			emit switchToFile(filePath);
 			});
-
+		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
+		adjustScrollArea();
 	}
 
 	void StackWidgetTagArea::pinStackLabel(const QString& filePath) {
@@ -260,6 +262,7 @@ namespace YSS::Editor {
 				emit switchToFile("");
 			}
 		}
+		adjustScrollArea();
 	}
 
 	void StackWidgetTagArea::setCurrentStackLabel(const QString& filePath) {
@@ -267,15 +270,19 @@ namespace YSS::Editor {
 			return;
 		}
 		bool finded = false;
+		int i = 0;
+		int cache = i;
 		for (StackWidgetTagLabel* label : Labels) {
 			if (label->getFilePath() == filePath) {
 				label->setFocusOn(true);
 				finded = true;
 				CurrentSelected = filePath;
+				cache = i;
 			}
 			else {
 				label->setFocusOn(false);
 			}
+			i++;
 		}
 		if (finded) {
 			for (int i = 0; i < WidgetSelector->count(); ++i) {
@@ -284,11 +291,25 @@ namespace YSS::Editor {
 					break;
 				}
 			}
+			ScrollArea->horizontalScrollBar()->setValue(cache * Labels.last()->width());
 		}
 	}
 
 	QString StackWidgetTagArea::getCurrentSelected() const {
 		return CurrentSelected;
+	}
+
+	void StackWidgetTagArea::adjustScrollArea() {
+		int totalWidth = 0;
+		for (StackWidgetTagLabel* label : Labels) {
+			totalWidth += label->width() + ContentLayout->spacing();
+		}
+		ScrollContent->setFixedWidth(totalWidth + 2 * ScrollContent->frameWidth());
+	}
+	
+	void StackWidgetTagArea::resizeEvent(QResizeEvent* event) {
+		QFrame::resizeEvent(event);
+		adjustScrollArea();
 	}
 
 	MessageViewer::MessageViewer(QWidget* parent) :QFrame(parent) {

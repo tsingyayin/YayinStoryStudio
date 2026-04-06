@@ -72,9 +72,14 @@ namespace YSS::Editor {
 		GlobalValue::getCurrentProject()->refreshLastModifyTime();
 		GlobalValue::getCurrentProject()->saveProject();
 		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
+		QStringList stillOKFiles;
 		for (const QString& filePath : openedFiles) {
-			YSSFSM->openFile(filePath);
+			bool ok  = YSSFSM->openFile(filePath);
+			if (ok) {
+				stillOKFiles.append(filePath);
+			}
 		}
+		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
 		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
 		Editor->setCurrentWidget(focusedFile);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());

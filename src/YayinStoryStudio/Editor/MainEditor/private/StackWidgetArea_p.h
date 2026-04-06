@@ -66,6 +66,9 @@ namespace YSS::Editor {
 		void removeStackLabel(const QString& filePath);
 		void setCurrentStackLabel(const QString& filePath);
 		QString getCurrentSelected() const;
+		void adjustScrollArea();
+	public:
+		virtual void resizeEvent(QResizeEvent* event) override;
 	};
 
 	class MessageViewer :public QFrame {

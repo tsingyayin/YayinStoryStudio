@@ -38,13 +38,13 @@ namespace YSSCore::Editor {
 		virtual bool onOpen(const QString& path) = 0;
 		virtual bool onClose() = 0;
 		virtual bool onSave(const QString& path = "") = 0;
-		virtual bool onReload() = 0;
-		virtual bool onCopy() = 0;
-		virtual bool onCut() = 0;
-		virtual bool onPaste() = 0;
-		virtual bool onUndo() = 0;
-		virtual bool onRedo() = 0;
-		virtual bool onSelectAll() = 0;
+		virtual bool onReload();
+		virtual bool onCopy();
+		virtual bool onCut();
+		virtual bool onPaste();
+		virtual bool onUndo();
+		virtual bool onRedo();
+		virtual bool onSelectAll();
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column);
 	protected:
 		virtual void closeEvent(QCloseEvent* event) override;
