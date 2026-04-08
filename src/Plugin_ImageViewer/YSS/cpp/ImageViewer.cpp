@@ -9,22 +9,16 @@ namespace YSS::ImageViewer {
 		friend class ImageViewer;
 	protected:
 		QLabel* ImageLabel;
-		QScrollArea* ScrollArea;
-		QHBoxLayout* Layout;
 		bool CtrlPressed = false;
-		bool AltPressed = false;
 		QPoint LastMousePos;
+		QPixmap Content;
 	};
 
 	ImageViewer::ImageViewer(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		d = new ImageViewerPrivate();
 		d->ImageLabel = new QLabel(this);
 		d->ImageLabel->setAlignment(Qt::AlignCenter);
-		d->ScrollArea = new QScrollArea(this);
-		d->ScrollArea->setWidget(d->ImageLabel);
-		d->Layout = new QHBoxLayout(this);
-		d->Layout->setContentsMargins(0, 0, 0, 0);
-		d->Layout->addWidget(d->ScrollArea);
+		d->ImageLabel->resize(this->size());
 	}
 
 	ImageViewer::~ImageViewer() {
@@ -32,13 +26,14 @@ namespace YSS::ImageViewer {
 	}
 
 	bool ImageViewer::onOpen(const QString& filePath) {
-		QPixmap pixmap(filePath);
-		if (pixmap.isNull()) {
+		d->Content = QPixmap(filePath);
+		if (d->Content.isNull()) {
 			return false;
 		}
-		d->ImageLabel->setPixmap(pixmap);
-		d->ImageLabel->resize(pixmap.size());
-		emit imageSizeObtained(pixmap.size());
+		d->ImageLabel->setPixmap(d->Content);
+		d->ImageLabel->resize(d->Content.size());
+		d->ImageLabel->move((this->width() - d->Content.width()) / 2, (this->height() - d->Content.height()) / 2);
+		emit imageSizeObtained(d->Content.size());
 		return true;
 	}
 
@@ -51,33 +46,32 @@ namespace YSS::ImageViewer {
 		return true;
 	}
 
+	void ImageViewer::showEvent(QShowEvent* event) {
+		this->setFocus();
+	}
 	void ImageViewer::wheelEvent(QWheelEvent* event) {
+		qDebug() << "Wheel Event: " << event->angleDelta();
 		if (d->CtrlPressed) {
-			d->ScrollArea->horizontalScrollBar()->setValue(d->ScrollArea->horizontalScrollBar()->value() - event->angleDelta().y());
-		}
-		else if (d->AltPressed) {
 			d->ImageLabel->resize(d->ImageLabel->size() + QSize(event->angleDelta().y(), event->angleDelta().y()));
+			d->ImageLabel->move((this->width() - d->ImageLabel->width()) / 2, (this->height() - d->ImageLabel->height()) / 2);
+			d->ImageLabel->setPixmap(d->Content.scaled(d->ImageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		}
 		else {
-			d->ScrollArea->verticalScrollBar()->setValue(d->ScrollArea->verticalScrollBar()->value() - event->angleDelta().y());
+			d->ImageLabel->move(d->ImageLabel->pos() + QPoint(event->angleDelta().x(), event->angleDelta().y()));
 		}
 	}
 
 	void ImageViewer::keyPressEvent(QKeyEvent* event) {
-		if (event->key() == Qt::Key_Control) {
+		qDebug() << "Key Pressed: " << event->key();
+		if (event->modifiers() & Qt::ControlModifier) {
 			d->CtrlPressed = true;
 		}
-		else if (event->key() == Qt::Key_Alt) {
-			d->AltPressed = true;
-		}
+		
 	}
 
 	void ImageViewer::keyReleaseEvent(QKeyEvent* event) {
-		if (event->key() == Qt::Key_Control) {
+		if (event->modifiers() & Qt::ControlModifier) {
 			d->CtrlPressed = false;
-		}
-		else if (event->key() == Qt::Key_Alt) {
-			d->AltPressed = false;
 		}
 	}
 
@@ -88,8 +82,7 @@ namespace YSS::ImageViewer {
 	void ImageViewer::mouseMoveEvent(QMouseEvent* event) {
 		if (event->buttons() & Qt::LeftButton) {
 			QPoint delta = event->pos() - d->LastMousePos;
-			d->ScrollArea->horizontalScrollBar()->setValue(d->ScrollArea->horizontalScrollBar()->value() - delta.x());
-			d->ScrollArea->verticalScrollBar()->setValue(d->ScrollArea->verticalScrollBar()->value() - delta.y());
+			d->ImageLabel->move(d->ImageLabel->pos() + delta);
 			d->LastMousePos = event->pos();
 		}
 	}

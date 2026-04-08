@@ -7,7 +7,8 @@
 #include <General/Log.h>
 #include <QtCore/qfileinfo.h>
 #include <Widgets/ThemeManager.h>
-
+#include <Widgets/ConfigWidget.h>
+#include <QtCore/qdir.h>
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "ASERStudio")
@@ -16,8 +17,14 @@ namespace ASERStudio {
 		addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.aserstudio/i18n/zh_CN.json");
 		addLangFilePath(en_US, ":/resource/cn.yxgeneral.aserstudio/i18n/en_US.json");
 	}
-
+	
+	class MainPrivate {
+		friend class Main;
+	protected:
+		Visindigo::Widgets::ConfigWidget* ConfigWidget = nullptr;
+	};
 	Main::Main() : YSSCore::Editor::EditorPlugin() {
+		d = new MainPrivate;
 		setPluginVersion(Visindigo::General::Version(2, 0, 0));
 		setPluginID("cn.yxgeneral.aserstudio");
 		setPluginName("ASER Studio");
@@ -34,7 +41,11 @@ namespace ASERStudio {
 		registerLangServer(new YSS::AStoryXLanguageServer(this));
 		registerFileServer(new YSS::FileServer_AStoryX(this));
 		registerFileServer(new YSS::FileServer_ASRuleJson(this));
-
+		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
+		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json"));
+		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
+		vgDebug << getPluginFolder().filePath("config.json");
+		d->ConfigWidget->setIndependentMode(true);
 	}
 	void Main::onApplicationInit() {
 	}
@@ -64,5 +75,9 @@ namespace ASERStudio {
 	}
 
 	void Main::onProjectClose(YSSCore::General::YSSProject* project) {
+	}
+
+	QWidget* Main::getConfigWidget() {
+		return d->ConfigWidget;
 	}
 }

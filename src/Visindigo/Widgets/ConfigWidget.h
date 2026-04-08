@@ -31,6 +31,8 @@ namespace Visindigo::Widgets {
 		void setLineEditText(const QString& node, const QString& text);
 		void setComboBoxIndex(const QString& node, int index);
 		void setRadioButtonChecked(const QString& node, bool checked);
+		void setIndependentMode(bool independent);
+		bool isIndependentMode() const;
 		Visindigo::Utility::JsonConfig* getConfig();
 	private:
 		Visindigo::__Private__::ConfigWidgetPrivate* d;

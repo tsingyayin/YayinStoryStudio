@@ -4,10 +4,9 @@
 #include <QtWidgets/qlabel.h>
 #include <Widgets/DragWidget.h>
 namespace YSS {
+	class MainPrivate;
 	class Main :public Visindigo::General::Package {
 		Q_OBJECT;
-	private:
-		static Main* Instance;
 	public:
 		Main();
 		virtual ~Main();
@@ -15,7 +14,10 @@ namespace YSS {
 		virtual void onApplicationInit() override;
 		virtual void onPluginDisable() override;
 		virtual void onTest() override;
+		virtual QWidget* getConfigWidget() override;
 		static Main* getInstance();
+	private:
+		MainPrivate* d;
 	};
 
 	class TestDragWidget :public QWidget{

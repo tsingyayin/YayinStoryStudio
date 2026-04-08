@@ -1,24 +1,30 @@
 {
 	"config":{
-		"preference":{
-			"title":"首选项",
-			"text":"定义应用程序默认行为"
-		},
-		"language":{
-			"title":"语言",
-			"text":"选择应用程序语言",
-			"zh_CN":"简体中文",
-			"en_US":"English"
-		},
-		"reloadtab":{
-			"title":"重载TAB行为",
-			"text":"控制编辑器是否应该在行首出现TAB时将其替换为空格"
-		},
-		"theme":{
-			"title":"主题",
-			"text":"选择应用程序主题",
-			"dark":"深色",
-			"light":"浅色"
+		"title": "Yayin Story Studio 程序设置",
+		"general":{
+			"title":"常规",
+			"text":"一些常规的程序设置",
+			"language":{
+				"title":"语言",
+				"text":"选择应用程序语言",
+				"zh_CN":"简体中文",
+				"en_US":"English"
+			},
+			"theme":{
+				"title": "颜色主题",
+				"text":"选择应用程序颜色主题",
+				"dark":"深色",
+				"light":"浅色",
+				"auto": "自动（跟随系统）"
+			}
+		 },
+		 "editor":{
+			"title":"编辑器",
+			"text":"编辑器相关设置",
+			"reloadtab":{
+				"title":"重载TAB行为",
+				"text":"控制编辑器是否应该在行首出现TAB时将其替换为空格"
+			}
 		}
 	},
 	"tooltips": {
@@ -122,6 +128,16 @@
 			"notSuitable": {
 				"title": "没有找到支持此文件的服务",
 				"message": "没有为文件扩展名%1找到适合它的打开服务。YSS仍然可以尝试使用默认的内置文本编辑器打开文件，但这会损坏一些二进制数据，你确定要使用内置文本编辑器继续尝试打开吗？（强烈不建议）"
+			}
+		},
+		"debug": {
+			"notFound": {
+				"title": "哎呀！没有找到调试器",
+				"message": "这个项目指定的调试器%1没有找到。您是否禁用或删除了提供该调试器的插件？请重新启用或添加它们，然后重启程序再试。"
+			},
+			"notSelect": {
+				"title": "调试器未配置！",
+				"message": "这个项目没有配置调试器选项，请打开项目设置，在调试器选项中选择一个调试器，然后重试。"
 			}
 		}
 	}

@@ -53,8 +53,6 @@ namespace YSSCore::Editor {
 		virtual void onRun() {};
 		virtual void nextStep() {};
 		virtual void nextProcess() {};
-		virtual QWidget* getDebugSettingsWidget(QWidget* parent = nullptr) { return nullptr; };
-		Visindigo::Utility::JsonConfig* getDebugServerConfig();
 	private:
 		DebugServerPrivate* d;
 	};

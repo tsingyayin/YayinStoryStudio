@@ -5,10 +5,152 @@
 #include <QtGui/qwindow.h>
 #include <QtCore/qstandardpaths.h>
 #include <QtCore/qfileinfo.h>
+#include <Utility/JsonConfig.h>
 #ifdef Q_OS_WIN
 #include <Windows.h>
 #endif
 namespace ASERStudio::ASEREnv {
+	
+	class ASERProgramLaunchParameterPrivate {
+		friend class ASERProgramLaunchParameter;
+	protected:
+		ASERProgramLaunchParameter::SizeMode Mode;
+		QString FileName;
+		QString Path;
+	};
+	/*!
+		\class ASERStudio::ASEREnv::ASERProgramLaunchParameter
+		\brief 提供ASE-Remake程序启动参数的封装
+		\since ASERStudio 2.0
+		\inmodule ASERStudio
+
+		ASERProgramLaunchParameter类封装了启动ASE-Remake程序所需的参数，包括可执行文件名称、
+		项目目录和窗口大小模式。它提供了一系列方法来设置和获取这些参数，以便在启动程序时使用。
+
+		需要指出的是，ASE-Remake启动参数中的Path参数指的是需要播放的ASE-Remake项目所在的目录，
+		并非工作目录。要改动工作目录，请使用ASERProgram::setWorkingDirectory函数。
+
+		此外，FileName只要求提供自项目目录Stories文件夹开始的相对路径，且不需要文件扩展名。
+
+		目前，有关窗口大小枚举量的标准，采用的是2026年4月8日ASE-Remake官方文档中提供的分辨率列表。
+		未来如果官方文档有更新，可能会增加新的枚举值或改动现有枚举值。因此这个类虽然设计为
+		ABI兼容的，但不一定保持一致的行为。
+	*/
+
+	/*!
+		\enum ASERStudio::ASEREnv::ASERProgramLaunchParameter::SizeMode
+		\since ASERStudio 2.0
+		\value FullScreen 全屏模式
+		\value W3840_H2160 3840x2160分辨率
+		\value W2560_H1440 2560x1440分辨率
+		\value W1920_H1080 1920x1080分辨率
+		\value W1600_H900 1600x900分辨率
+		\value W1280_H720 1280x720分辨率
+		\value W1024_H576 1024x576分辨率
+		\value W640_H360 640x360分辨率
+
+		提供ASE-Remake程序窗口大小的枚举选项，允许用户在启动程序时指定窗口的分辨率或全屏模式。
+	*/
+
+	/*!
+		\since ASERStudio 2.0
+		构造函数
+		\a FileName 可执行文件名称
+		\a Path 项目目录
+		\a mode 窗口大小模式
+	*/
+	ASERProgramLaunchParameter::ASERProgramLaunchParameter(const QString& FileName, const QString& Path, SizeMode mode) {
+		d = new ASERProgramLaunchParameterPrivate;
+		d->FileName = FileName;
+		d->Path = Path;
+		d->Mode = mode;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		析构函数
+	*/
+	ASERProgramLaunchParameter::~ASERProgramLaunchParameter() {
+		delete d;
+	}
+
+	/*!
+		\fn ASERStudio::ASEREnv::ASERProgramLaunchParameter::ASERProgramLaunchParameter(const ASERProgramLaunchParameter& other)
+		\since ASERStudio 2.0
+		复制构造函数。
+	*/
+
+	/*!
+		\fn ASERStudio::ASEREnv::ASERProgramLaunchParameter::ASERProgramLaunchParameter(ASERProgramLaunchParameter&& other) noexcept
+		\since ASERStudio 2.0
+		移动构造函数。
+	*/
+
+	/*!
+		\fn ASERStudio::ASEREnv::ASERProgramLaunchParameter& ASERStudio::ASEREnv::ASERProgramLaunchParameter::operator=(const ASERProgramLaunchParameter& other) noexcept
+		\since ASERStudio 2.0
+		复制赋值运算符。
+	*/
+
+	/*!
+		\fn ASERStudio::ASEREnv::ASERProgramLaunchParameter& ASERStudio::ASEREnv::ASERProgramLaunchParameter::operator=(ASERProgramLaunchParameter&& other) noexcept
+		\since ASERStudio 2.0
+		移动赋值运算符。
+	*/
+	VICopyable_Impl(ASERProgramLaunchParameter);
+	VIMoveable_Impl(ASERProgramLaunchParameter);
+
+	/*!
+		\since ASERStudio 2.0
+		\a FileName 可执行文件名称
+		设置ASER程序的可执行文件名称
+	*/
+	void ASERProgramLaunchParameter::setFileName(const QString& FileName) {
+		d->FileName = FileName;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		\a Path 项目目录
+		设置ASER程序的项目目录
+	*/
+	void ASERProgramLaunchParameter::setPath(const QString& Path) {
+		d->Path = Path;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		\a mode 窗口大小模式
+		设置ASER程序的窗口大小模式
+	*/
+	void ASERProgramLaunchParameter::setSizeMode(SizeMode mode) {
+		d->Mode = mode;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		获取ASER程序的可执行文件名称
+	*/
+	QString ASERProgramLaunchParameter::getFileName() const {
+		return d->FileName;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		获取ASER程序的项目目录
+	*/
+	QString ASERProgramLaunchParameter::getPath() const {
+		return d->Path;
+	}
+
+	/*!
+		\since ASERStudio 2.0
+		获取ASER程序的窗口大小模式
+	*/
+	ASERProgramLaunchParameter::SizeMode ASERProgramLaunchParameter::getSizeMode() const {
+		return d->Mode;
+	}
+
 	class ASERProgramPrivate {
 		friend class ASERProgram;
 	protected:
@@ -35,6 +177,9 @@ namespace ASERStudio::ASEREnv {
 		
 		ASERProgram的具名管道只提供基本的读写功能，可供任意接入其他内容的解析。
 		如果要使用标准的ASEDevIO协议，请将此类的指针提供给ASERStudio::ASEREnv::ASEDevIO。
+
+		\note 为了正确捕获管道状态，你应该在第一次调用start函数启动ASE-Remake之前就将
+		其设置给ASEDevIO。
 	*/
 
 	/*!
@@ -101,7 +246,11 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		设置ASER程序的工作目录
+		设置ASER程序的工作目录。请注意，这只干涉ASE-Remake
+		扫描默认资源目录的起始位置，不变更ASE-Remake由Unity
+		决定的默认配置目录位置，也不代表实际执行AStoryX剧情脚本时的
+		项目目录。要调整后者，请从ASERDevIO::changeDirectory()函数调整
+		ASE-Remake的执行项目目录，或者在启动时通过Path参数指定项目目录。
 	*/
 	void ASERProgram::setWorkingDirectory(const QString& path) {
 		d->WorkingDirectory = path;
@@ -127,8 +276,7 @@ namespace ASERStudio::ASEREnv {
 	/*!
 		\since ASERStudio 2.0
 		启动ASER程序，接受可选的参数列表。如果程序已经启动，这函数
-		不产生任何效果，也不会记录参数。在调用这函数前，应首先使用
-		isRunning()检查程序是否已经在运行，以避免重复启动同一程序。
+		不产生任何效果，也不会记录参数。
 	*/
 	void ASERProgram::start(const QStringList& arguments) {
 		if (d->ASERProcess->state() == QProcess::Running) {
@@ -151,6 +299,28 @@ namespace ASERStudio::ASEREnv {
 			});
 	}
 
+	/*!
+		\since ASERStudio 2.0
+		通过ASERProgramLaunchParameter结构体启动ASER程序。这个函数会根据
+		参数中的文件路径和大小模式来构建适当的命令行参数。
+		值得指出的是，当前ASE-Remake程序的有效启动参数均通过一个JSON结构体传递，
+		因此\a parameter中的有效参数会被格式化为一个Json字符串并作为首个参数
+		传递给ASE-Remake程序。除此之外其他Unity通用参数可以通过\a arguments参数传递。
+	*/
+	void ASERProgram::start(const ASERProgramLaunchParameter& parameter, const QStringList& arguments) {
+		if (d->ASERProcess->state() == QProcess::Running) {
+			return;
+		}
+		Visindigo::Utility::JsonConfig jsonParam;
+		jsonParam.setString("FileName", parameter.getFileName());
+		jsonParam.setString("Path", parameter.getPath());
+		jsonParam.setInt("SizeMode", static_cast<int>(parameter.getSizeMode()));
+		QString jsonString = jsonParam.toString();
+		QStringList paramArgs;
+		paramArgs += jsonString;
+		paramArgs += arguments;
+		start(paramArgs);
+	}
 	/*!
 		\since ASERStudio 2.0
 		停止ASER程序，如果程序正在运行。这函数只发送终止信号给程序，

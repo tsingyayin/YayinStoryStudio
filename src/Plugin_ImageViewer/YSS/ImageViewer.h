@@ -13,6 +13,7 @@ namespace YSS::ImageViewer {
 		virtual bool onClose() override;
 		virtual bool onSave(const QString& filePath = "") override;
 	public:
+		virtual void showEvent(QShowEvent* event) override;
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void keyPressEvent(QKeyEvent* event) override;
 		virtual void keyReleaseEvent(QKeyEvent* event) override;

@@ -1,0 +1,42 @@
+{
+    "windowTitle": "i18n:ASERStudio::config.title",
+    "windowIcon": "icon.png",
+    "widget":[
+        {
+            "node": "ASERExeSettings",
+            "type": "Frame",
+            "icon": "",
+            "title": "i18n:ASERStudio::config.aserExeSettings.title",
+            "text": "",
+            "children": [
+                {
+                    "node": "ExePath",
+                    "type": "LineEdit",
+                    "icon": "",
+                    "title": "i18n:ASERStudio::config.aserExeSettings.exePath.title",
+                    "text": "i18n:ASERStudio::config.aserExeSettings.exePath.text",
+                    "data": {
+                        "default": "$(visindigo::programPath)/user_data/third_party/ArknightsStoryEditor-Remake/ArknightsStoryEditor-Remake.exe",
+                        "isFile": true
+                    }
+                },
+                {
+                    "node": "Version",
+                    "type": "ComboBox",
+                    "icon": "",
+                    "title": "i18n:ASERStudio::config.aserExeSettings.version.title",
+                    "text": "i18n:ASERStudio::config.aserExeSettings.version.text",
+                    "data": {
+                        "comboBox": [
+                            {
+                                "data": "uptodate",
+                                "key": "i18n:ASERStudio::config.aserExeSettings.version.uptodate"
+                            }
+                        ],
+                        "default": "uptodate"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -410,5 +410,20 @@
 				"uptodate": "最新版本"
 			}
 		}
-	}
+	},
+    "config": {
+        "title": "ASER Studio 设置",
+        "aserExeSettings": {
+            "title": "ASE-Remake 可执行文件设置",
+            "exePath": {
+                "title": "可执行文件路径",
+                "text": "ASE-Remake的可执行文件路径。"
+            },
+            "version": {
+                "title": "ASE版本",
+                "text": "你选定的ASE程序的版本。如果你不确定你的ASE程序的版本，或者你的ASE程序是最新版本，选择\"最新版本\"即可。正确的版本设置可以让ASER Studio更好地兼容你的ASE程序，避免一些潜在的问题。",
+                "uptodate": "最新版本"
+            }
+        }
+    }
 }

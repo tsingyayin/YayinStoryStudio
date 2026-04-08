@@ -47,8 +47,12 @@ namespace Visindigo::__Private__ {
 		ActiveCheckBox = new QCheckBox(this);
 		CheckBoxLabel = new QLabel(this);
 		OpenFolderButton = new QPushButton(this);
-		OpenFolderButton->setMinimumWidth(100);
+		OpenFolderButton->setFixedWidth(140);
 		OpenFolderButton->setText(VITR("Visindigo::general.openFolder"));
+		OpenConfigButton = new QPushButton(this);
+		OpenConfigButton->setFixedWidth(140);
+		OpenConfigButton->setText(VITR("Visindigo::general.openConfig"));
+
 		Layout = new QGridLayout(this);
 		Layout->addWidget(IconLabel, 0, 0, 3, 1);
 		Layout->addWidget(NameLabel, 0, 1);
@@ -57,8 +61,11 @@ namespace Visindigo::__Private__ {
 		Layout->addWidget(AuthorLabel, 2, 1, 1, 2);
 		Layout->addWidget(DescriptionLabel, 0, 3, 3, 1);
 		Layout->addWidget(OpenFolderButton, 0, 4);
-		Layout->addWidget(CheckBoxLabel, 1, 4);
-		Layout->addWidget(ActiveCheckBox, 2, 4);
+		Layout->addWidget(OpenConfigButton, 1, 4);
+		auto checkLayout = new QHBoxLayout();
+		checkLayout->addWidget(CheckBoxLabel);
+		checkLayout->addWidget(ActiveCheckBox);
+		Layout->addLayout(checkLayout, 2, 4);
 		AsDependency = asdependency;
 		if (AsDependency) {
 			ActiveCheckBox->setVisible(false);
@@ -67,6 +74,7 @@ namespace Visindigo::__Private__ {
 
 		connect(ActiveCheckBox, &QCheckBox::toggled, this, &PluginInfoPanel::onActiveStateChanged);
 		connect(OpenFolderButton, &QPushButton::clicked, this, &PluginInfoPanel::onOpenFolderButtonClicked);
+		connect(OpenConfigButton, &QPushButton::clicked, this, &PluginInfoPanel::onOpenConfigButtonClicked);
 	}
 	void PluginInfoPanel::setPlugin(Visindigo::General::Plugin* plugin) {
 		if (not plugin) { return; }
@@ -85,6 +93,13 @@ namespace Visindigo::__Private__ {
 		}
 		else {
 			IconLabel->setPixmap(icon.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+		}
+		QWidget* configWidget = plugin->getConfigWidget();
+		if (not configWidget) {
+			OpenConfigButton->setEnabled(false);
+		}
+		else {
+			OpenConfigButton->setEnabled(true);
 		}
 	}
 
@@ -105,6 +120,14 @@ namespace Visindigo::__Private__ {
 	void PluginInfoPanel::onOpenFolderButtonClicked() {
 		if (not Plugin) { return; }
 		Visindigo::Utility::FileUtility::openExplorer(Plugin->getPluginFolder().absolutePath());
+	}
+
+	void PluginInfoPanel::onOpenConfigButtonClicked() {
+		if (not Plugin) { return; }
+		QWidget* configWidget = Plugin->getConfigWidget();
+		if (not configWidget) { return; }
+		configWidget->setWindowModality(Qt::ApplicationModal);
+		configWidget->show();
 	}
 
 	DeactivatePluginInfoPanel::DeactivatePluginInfoPanel(QWidget* parent) : QFrame(parent)

@@ -13,13 +13,23 @@
 #include <General/VIApplication.h>
 #include <Widgets/Terminal.h>
 #include "Editor/MainEditor/StackWidgetArea.h"
+#include <QtWidgets/qmessagebox.h>
+#include <General/TranslationHost.h>
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID(); \
+	if (debugServerID.isEmpty()) { \
+		QMessageBox::warning(YSS::Editor::MainWin::getInstance(),\
+			VITR("YSS::editor.debug.notSelected.title"), VITR("YSS::editor.debug.notSelected.message")); \
+		vgErrorF << "No debug server set for current project!"; \
+		return; \
+	} \
 	YSSCore::Editor::DebugServer* ds = YSSDSM->getDebugServer(debugServerID); \
 	if (ds != nullptr) { \
 		ds->functionName(__VA_ARGS__); \
 	} \
 	else { \
+		QMessageBox::warning(YSS::Editor::MainWin::getInstance(),\
+			VITR("YSS::editor.debug.notFound.title"), VITR("YSS::editor.debug.notFound.message").arg(debugServerID)); \
 		vgErrorF << "Debug server" << debugServerID << "not found!"; \
 	}
 
@@ -78,6 +88,7 @@ namespace YSS::Editor {
 		auto widget = new Visindigo::Widgets::PluginManageWidget();
 		widget->setAttribute(Qt::WA_DeleteOnClose);
 		widget->setWindowModality(Qt::ApplicationModal);
+		widget->setWindowFlags(widget->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
 		widget->show();
 	}
 

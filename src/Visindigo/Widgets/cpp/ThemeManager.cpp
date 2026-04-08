@@ -881,10 +881,27 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		更改当前的配色主题为指定的ThemeID枚举值。
+		如果指定的ThemeID枚举值不存在于合并后的配色方案中，则返回false。
+	*/
+	bool ThemeManager::changeColorTheme(ThemeID id) {
+		QString sid = themeIDToString(id);
+		return changeColorTheme(sid);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
 		设置是否自动根据系统主题调整应用程序主题。
 	*/
 	void ThemeManager::autoAdjustThemeToSystem(bool autoAdjust) {
 		d->AutoAdjustToSystem = autoAdjust;
+		auto systemScheme = qApp->styleHints()->colorScheme();
+		if (autoAdjust) {
+			QString targetThemeID = themeIDToString((ThemeID)(systemScheme));
+			if (targetThemeID != d->CurrentThemeID) {
+				changeColorTheme(targetThemeID);
+			}
+		}
 	}
 
 	/*!

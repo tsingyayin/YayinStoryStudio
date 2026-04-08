@@ -121,7 +121,7 @@
     <QtMoc Include="Plugin_ASERStudio.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ASEREnv\cpp\ASEDevIO.cpp" />
+    <ClCompile Include="ASEREnv\cpp\ASERDebugIO.cpp" />
     <ClCompile Include="ASEREnv\cpp\ASERProgram.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXController.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXControllerParseData.cpp" />
@@ -141,6 +141,7 @@
     <ClCompile Include="YSS\cpp\LS_AStoryXTabCompleter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="ASEREnv\private\ASERDebugIO_p.h" />
     <ClInclude Include="AStorySyntax\AStoryXPreprocessor.h" />
     <ClInclude Include="YSS\LangServer_AStoryX.h" />
     <ClInclude Include="YSS\LS_AStoryXHoverInfoProvider.h" />
@@ -152,7 +153,7 @@
     <QtMoc Include="AStorySyntax\AStoryXValueMeta.h" />
     <ClInclude Include="AStorySyntax\private\AStoryXControllerParseData_p.h" />
     <QtMoc Include="AStorySyntax\private\AStoryXDocument_p.h" />
-    <QtMoc Include="ASEREnv\ASEDevIO.h" />
+    <QtMoc Include="ASEREnv\ASERDebugIO.h" />
     <QtMoc Include="ASEREnv\ASERProgram.h" />
     <ClInclude Include="ASERStudioCompileMacro.h" />
     <ClInclude Include="AStorySyntax\AStoryXDiagnosticData.h" />

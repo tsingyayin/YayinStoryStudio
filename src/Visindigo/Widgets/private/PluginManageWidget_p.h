@@ -37,6 +37,7 @@ namespace Visindigo::__Private__ {
 		QLabel* CheckBoxLabel;
 		QCheckBox* ActiveCheckBox;
 		QPushButton* OpenFolderButton;
+		QPushButton* OpenConfigButton;
 		QGridLayout* Layout;
 		Visindigo::General::Plugin* Plugin = nullptr;
 		bool AsDependency = false;
@@ -48,6 +49,7 @@ namespace Visindigo::__Private__ {
 	public slots:
 		void onActiveStateChanged(bool checked);
 		void onOpenFolderButtonClicked();
+		void onOpenConfigButtonClicked();
 	};
 
 	class DeactivatePluginInfoPanel :public QFrame {

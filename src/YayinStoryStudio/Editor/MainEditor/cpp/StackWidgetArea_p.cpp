@@ -22,7 +22,7 @@ namespace YSS::Editor {
 		PinLabel->setFixedWidth(PinLabel->height());
 		CloseLabel->setFixedWidth(CloseLabel->height());
 		Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
-		Separator->setFrameShape(QFrame::VLine);
+		Separator->setFixedHeight(0);
 		PinLabel->hide();
 		CloseLabel->hide();
 		this->setMaximumWidth(200);

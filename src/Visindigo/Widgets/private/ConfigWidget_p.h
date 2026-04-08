@@ -12,7 +12,7 @@ class QComboBox;
 class QLineEdit;
 class QTextEdit;
 class QLabel;
-
+class QPushButton;
 namespace Visindigo::Widgets {
 	class ConfigWidget;
 }
@@ -32,7 +32,10 @@ namespace Visindigo::__Private__ {
 		QMap<QTextEdit*, QString> TextEditDefault;
 		QMap<QLabel*, QString> ColorDialogDefault;
 		QList<QWidget*> SettingsWidget;
+		QPushButton* ResetButton = nullptr;
+		QPushButton* SaveButton = nullptr;
 		Visindigo::Widgets::ConfigWidget* self;
+		bool IndependentMode = false;
 		ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self);
 		~ConfigWidgetPrivate();
 		void loadCWJson(const QString& json);

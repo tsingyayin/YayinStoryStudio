@@ -133,7 +133,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectInfoWidget::onThemeChanged() {
-		vgDebugF << "ProjectInfo";
+		//vgDebugF << "ProjectInfo";
 		this->applyVIStyleTemplate("YSS::ProjectInfo");
 	}
 }

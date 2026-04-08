@@ -5,29 +5,31 @@
 
 namespace ASERStudio::ASEREnv {
 	class ASERProgram;
-	class ASEDevIOPrivate;
-	class ASERAPI ASEDevIO :public QObject{
+	class ASERDebugIOPrivate;
+	class ASERAPI ASERDebugIO :public QObject{
 		Q_OBJECT
 	signals:
 		void displayStarted();
 		void displayEnded();
-		void autoDisplayToggled(bool autoDisplay);
+		void currentDirectoryChanged(const QString& directoryPath);
 		void currentFileChanged(const QString& filePath);
-		void lineIndexChanged(qint32 lineIndex, qint32 IRLineIndex = -1);
+		void lineIndexChanged(qint32 lineIndex);
+		void errorOccurred(const QString& error);
+		void branchRequested(const QStringList& branchNames);
 	public:
-		ASEDevIO();
-		virtual ~ASEDevIO();
+		ASERDebugIO();
+		virtual ~ASERDebugIO();
 	public:
 		void setProgram(ASERProgram* program);
+		ASERProgram* getProgram() const;
 		void jumpToLine(qint32 lineIndex);
+		void changeDirectory(const QString& directoryPath);
+		void selectBranch(qint32 branchIndex);
 		void displayFile(const QString& filePath);
-		void pause();
-		void resume();
-		void stop();
+		void changeSpeed();
 		void toggleAuto();
-		void step();
 	private:
-		ASEDevIOPrivate* d;
+		ASERDebugIOPrivate* d;
 	};
 }
 #endif // ASERStudio_ASEREnv_ASEDevIO_h

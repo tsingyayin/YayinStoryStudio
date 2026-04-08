@@ -7,6 +7,7 @@ namespace ASERStudio {
 		ASERStudioTranslator(Visindigo::General::Plugin* parent);
 	};
 
+	class MainPrivate;
 	class Main : public YSSCore::Editor::EditorPlugin {
 		Q_OBJECT;
 	public:
@@ -18,5 +19,8 @@ namespace ASERStudio {
 		virtual void onProjectOpen(YSSCore::General::YSSProject* project) override;
 		virtual void onProjectClose(YSSCore::General::YSSProject* project) override;
 		virtual void onTest() override;
+		QWidget* getConfigWidget() override;
+	private:
+		MainPrivate* d;
 	};
 }

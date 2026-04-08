@@ -1,0 +1,78 @@
+{
+    "windowTitle": "i18n:YSS::config.title",
+    "windowIcon": "icon.png",
+    "widget":[
+        {
+            "node": "General",
+            "type": "Frame",
+            "icon": "",
+            "title": "i18n:YSS::config.general.title",
+            "text": "i18n:YSS::config.general.text",
+            "children": [
+                {
+                    "node": "Language",
+                    "type": "ComboBox",
+                    "icon": "",
+                    "title": "i18n:YSS::config.general.language.title",
+                    "text": "i18n:YSS::config.general.language.text",
+                    "data": {
+                        "comboBox": [
+                            {
+                                "data": "zh_CN",
+                                "key": "i18n:YSS::config.general.language.zh_CN"
+                            },
+                            {
+                                "data": "en_US",
+                                "key": "i18n:YSS::config.general.language.en_US"
+                            }
+                        ],
+                        "default": "zh_CN"
+                    }
+                },
+                {
+                    "node": "Theme",
+                    "type": "ComboBox",
+                    "icon": "",
+                    "title": "i18n:YSS::config.general.theme.title",
+                    "text": "i18n:YSS::config.general.theme.text",
+                    "data": {
+                        "comboBox": [
+                            {
+                                "data": "Dark",
+                                "key": "i18n:YSS::config.general.theme.dark"
+                            },
+                            {
+                                "data": "Light",
+                                "key": "i18n:YSS::config.general.theme.light"
+                            },
+                            {
+                                "data": "Auto",
+                                "key": "i18n:YSS::config.general.theme.auto"
+                            }
+                        ],
+                        "default": "Dark"
+                    }
+                }
+            ]
+        },
+        {
+            "node": "Editor",
+            "type": "Frame",
+            "icon": "",
+            "title": "i18n:YSS::config.editor.title",
+            "text": "i18n:YSS::config.editor.text",
+            "children": [
+                {
+                    "node": "ReloadTab",
+                    "type": "RadioButton",
+                    "icon": "",
+                    "title": "i18n:YSS::config.editor.reloadtab.title",
+                    "text": "i18n:YSS::config.editor.reloadtab.text",
+                    "data": {
+                        "default": true
+                    }
+                }
+            ]
+        }
+    ]
+}

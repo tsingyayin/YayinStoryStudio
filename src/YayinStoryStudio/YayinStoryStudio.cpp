@@ -13,11 +13,20 @@
 #include "Editor/YSSTranslator.h"
 #include <General/Log.h>
 #include <Utility/FileUtility.h>
+#include <Widgets/ConfigWidget.h>
+#include <QtCore/qdir.h>
 namespace YSS {
-	Main* Main::Instance = nullptr;
+	class MainPrivate {
+		friend class Main;
+	protected:
+		Visindigo::Widgets::ConfigWidget* ConfigWidget = nullptr;
+		static Main* Instance;
+	};
+	Main* MainPrivate::Instance = nullptr;
 
 	Main::Main() {
-		Instance = this;
+		d = new MainPrivate;
+		MainPrivate::Instance = this;
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
 		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
@@ -43,6 +52,11 @@ namespace YSS {
 		VIApp->setGlobalFont(":/resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf");
 		registerPluginModule(new YSS::Editor::YSSCommandHandler(this));
 		registerPluginModule(new YSS::Editor::YSSTranslator(this));
+		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
+		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json"));
+		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
+		vgDebug << getPluginFolder().filePath("config.json");
+		d->ConfigWidget->setIndependentMode(true);
 	}
 
 	void Main::onApplicationInit() {
@@ -61,12 +75,17 @@ namespace YSS {
 
 		
 	}
+
+	QWidget* Main::getConfigWidget() {
+		return d->ConfigWidget;
+	}
+
 	Main::~Main() {
 
 	}
 
 	Main* Main::getInstance() {
-		return Instance;
+		return MainPrivate::Instance;
 	}
 
 	TestDragWidget::TestDragWidget(QWidget* parent):QWidget(parent) {

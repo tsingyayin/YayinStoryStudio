@@ -22,9 +22,13 @@ namespace YSS::Editor {
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
 		d->ContentArea = d->CentralArea;
 		d->Layout = new QVBoxLayout(this);
-		d->Layout->setContentsMargins(0, 0, 0, 0);
+		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->TagArea);
 		d->Layout->addWidget(d->ContentArea);
+		QFrame* line = new QFrame(this);
+		line->setFrameShape(QFrame::HLine);
+		line->setFrameShadow(QFrame::Sunken);
+		d->Layout->addWidget(line);
 		d->MsgViewer = new MessageViewer(this);
 		d->MsgViewer->setFixedHeight(260);
 		d->Layout->addWidget(d->MsgViewer);
@@ -37,11 +41,6 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackWidgetTagArea::closeFile, this, [this](const QString& filePath) {
 			closeWidget(filePath);
 			});
-		this->setStyleSheet(R"(
-	QWidget{
-		border: 1px solid white;
-	}
-)");
 	}
 
 	void StackWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -91,7 +90,7 @@ namespace YSS::Editor {
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(1, d->ContentArea);
-			d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
+			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
 		if (!d->WidgetMap.contains(filePath)) {
@@ -103,7 +102,7 @@ namespace YSS::Editor {
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = widget;
 			d->Layout->insertWidget(1, d->ContentArea);
-			d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
+			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
 		GlobalValue::getCurrentProject()->setFocusedFile(filePath);
@@ -121,7 +120,7 @@ namespace YSS::Editor {
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(1, d->ContentArea);
-			d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
+			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
 		if (!d->WidgetMap.contains(filePath)) {
@@ -155,8 +154,8 @@ namespace YSS::Editor {
 	void StackWidgetArea::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		if (d->ContentArea) {
-			d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
+			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 		}
-		d->CentralArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
+		//d->CentralArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 	}
 }

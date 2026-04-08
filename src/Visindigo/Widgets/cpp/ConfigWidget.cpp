@@ -3,6 +3,7 @@
 #include "../../Utility/JsonConfig.h"
 #include "../../Utility/FileUtility.h"
 #include "../../General/TranslationHost.h"
+#include <QtWidgets/qlabel.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qradiobutton.h>
@@ -32,7 +33,10 @@ namespace Visindigo::__Private__ {
 
 	void ConfigWidgetPrivate::loadCWJson(const QString& json) {
 		Visindigo::Utility::JsonConfig cwJson;
-		cwJson.parse(json);
+		QJsonParseError error = cwJson.parse(json);
+		if (error.error != QJsonParseError::NoError) {
+			return;
+		}
 		TargetConfigPath = VIPlaceholder(cwJson.getString("target"));
 		TargetConfigNode = cwJson.getString("targetNode");
 		if (!SettingsWidget.isEmpty()) {
@@ -45,10 +49,34 @@ namespace Visindigo::__Private__ {
 		SettingsWidget = spawnWidget(widget);
 		for (QWidget* w : SettingsWidget) {
 			w->setParent(self);
-			//w->setStyleSheet("QWidget{border:1px solid black}"); // for debug
+			
 			Layout->addWidget(w);
 		}
+		ResetButton = new QPushButton(VITR("Visindigo::general.reset"), self);
+		SaveButton = new QPushButton(VITR("Visindigo::general.save"), self);
+		connect(ResetButton, &QPushButton::clicked, self, [this]() {
+			this->resetConfig();
+			});
+		connect(SaveButton, &QPushButton::clicked, self, [this]() {
+			this->saveConfig();
+			});
+		auto buttonLayout = new QHBoxLayout();
+		buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		buttonLayout->addWidget(ResetButton);
+		buttonLayout->addWidget(SaveButton);
+		Layout->addLayout(buttonLayout);
+		IndependentMode = cwJson.getBool("independent");
+		if (not IndependentMode) {
+			ResetButton->setVisible(false);
+			SaveButton->setVisible(false);
+		}
+		else {
+			ResetButton->setVisible(true);
+			SaveButton->setVisible(true);
+		}
 		self->setStyleSheet(VISTMGT("YSS::ConfigWidget", self));
+		self->setWindowTitle(VI18N(cwJson.getString("windowTitle")));
+		self->setWindowIcon(QIcon(cwJson.getString("windowIcon")));
 		this->initConfig();
 	}
 
@@ -58,21 +86,18 @@ namespace Visindigo::__Private__ {
 		if (!config.isEmpty()) {
 			Config.parse(config);
 		}
-		if (TargetConfigPath.isEmpty() || config.isEmpty()) {
-			spawnConfig();
+		if (TargetConfigNode != "") {
+			Config = Visindigo::Utility::JsonConfig(Config.getObject(TargetConfigNode));
 		}
-		else {
-			if (TargetConfigNode != "") {
-				Config = Visindigo::Utility::JsonConfig(Config.getObject(TargetConfigNode));
-			}
-			syncConfig();
-		}
-		self->setWindowTitle(VI18N(Config.getString("windowTitle")));
-		self->setWindowIcon(QIcon(Config.getString("windowIcon")));
+		spawnConfig();
+		syncConfig();
 	}
 
 	void ConfigWidgetPrivate::syncConfig() {
 		for (QComboBox* obj : ComboBoxDefault.keys()) {
+			if (not Config.contains(obj->objectName())) {
+				continue;
+			}
 			QString data = Config.getString(obj->objectName());
 			for (int i = 0; i < obj->count(); i++) {
 				if (obj->itemData(i) == data) {
@@ -82,6 +107,9 @@ namespace Visindigo::__Private__ {
 			}
 		}
 		for (QRadioButton* obj : RadioButtonDefault.keys()) {
+			if (not Config.contains(obj->objectName())) {
+				continue;
+			}
 			bool selected = Config.getBool(obj->objectName());
 			if (obj->isChecked() == selected) {
 				continue;
@@ -91,6 +119,16 @@ namespace Visindigo::__Private__ {
 			}
 		}
 		for (QLineEdit* obj : LineEditDefault.keys()) {
+			if (not Config.contains(obj->objectName())) {
+				continue;
+			}
+			QString data = Config.getString(obj->objectName());
+			obj->setText(data);
+		}
+		for (QTextEdit* obj : TextEditDefault.keys()) {
+			if (not Config.contains(obj->objectName())) {
+				continue;
+			}
 			QString data = Config.getString(obj->objectName());
 			obj->setText(data);
 		}
@@ -110,7 +148,9 @@ namespace Visindigo::__Private__ {
 					break;
 				}
 			}
-			Config.setString(obj->objectName(), data);
+			if (not Config.contains(obj->objectName())) {
+				Config.setString(obj->objectName(), data);
+			}
 		}
 		for (QRadioButton* obj : RadioButtonDefault.keys()) {
 			bool selected = RadioButtonDefault[obj];
@@ -120,12 +160,23 @@ namespace Visindigo::__Private__ {
 			else {
 				obj->toggle();
 			}
-			Config.setBool(obj->objectName(), RadioButtonDefault[obj]);
+			if (not Config.contains(obj->objectName())) {
+				Config.setBool(obj->objectName(), RadioButtonDefault[obj]);
+			}
 		}
 		for (QLineEdit* obj : LineEditDefault.keys()) {
 			QString data = LineEditDefault[obj];
 			obj->setText(data);
-			Config.setString(obj->objectName(), LineEditDefault[obj]);
+			if (not Config.contains(obj->objectName())) {
+				Config.setString(obj->objectName(), LineEditDefault[obj]);
+			}
+		}
+		for (QTextEdit* obj : TextEditDefault.keys()) {
+			QString data = TextEditDefault[obj];
+			obj->setText(data);
+			if (not Config.contains(obj->objectName())) {
+				Config.setString(obj->objectName(), TextEditDefault[obj]);
+			}
 		}
 	}
 
@@ -170,6 +221,7 @@ namespace Visindigo::__Private__ {
 			node = parentPath + "." + node;
 		}
 		QFrame* self = new QFrame();
+		
 		QVBoxLayout* Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
 		QFrame* SettingFrame = new QFrame(self);
@@ -193,8 +245,8 @@ namespace Visindigo::__Private__ {
 		if (config.contains("data")) {
 			Visindigo::Utility::JsonConfig selfConfig = config.getObject("data");
 			QWidget* target = widgetRouter(type, node, selfConfig, config.getBool("readOnly"));
-			target->setMinimumWidth(200);
 			if (target != nullptr) {
+				target->setMinimumWidth(200);
 				target->setParent(SettingFrame);
 				SettingLayout->addWidget(target);
 			}
@@ -203,6 +255,11 @@ namespace Visindigo::__Private__ {
 				return nullptr;
 			}
 		}
+		QFrame* childLine = new QFrame(self);
+		childLine->setFrameShape(QFrame::HLine);
+		childLine->setFrameShadow(QFrame::Sunken);
+		Layout->addWidget(childLine);
+
 		if (config.contains("children")) {
 			QStringList keys = config.keys("children");
 			QList<Visindigo::Utility::JsonConfig> childrenConfig = config.getArray("children");
@@ -234,7 +291,8 @@ namespace Visindigo::__Private__ {
 			rtn = widget_TextEdit(node, config, readOnly);
 		}
 		else if (type == "ColorDialog") {
-			rtn = widget_ColorDialog(node, config, readOnly);
+			// Design of colordialog is not acceptable yet, so disabled for now
+			//rtn = widget_ColorDialog(node, config, readOnly);
 		}
 		return rtn;
 	}
@@ -335,6 +393,7 @@ namespace Visindigo::__Private__ {
 		QColor defaultColor(defaultValue);
 		ColorButton->setStyleSheet(QString("QPushButton#%1{background-color: %1}").
 			arg(ColorButton->objectName()).arg(defaultColor.name(QColor::HexArgb)));
+		ColorButton->setText(defaultValue);
 		connect(ColorButton, &QPushButton::clicked, [=]() {
 			QColor clr = QColorDialog::getColor(defaultColor, self);
 			if (clr.isValid()) {
@@ -594,4 +653,21 @@ namespace Visindigo::Widgets {
 			}
 		}
 	}
+
+	/*!
+		\since Visindigo 0.13.0
+		设置独立模式。独立模式下将显示重置和保存按钮，非独立模式下隐藏重置和保存按钮。
+	*/
+	void ConfigWidget::setIndependentMode(bool independent) {
+		d->IndependentMode = independent;
+		if (d->ResetButton != nullptr && d->SaveButton != nullptr) {
+			d->ResetButton->setVisible(independent);
+			d->SaveButton->setVisible(independent);
+		}
+	}
+
+	bool ConfigWidget::isIndependentMode() const {
+		return d->IndependentMode;
+	}
+
 }

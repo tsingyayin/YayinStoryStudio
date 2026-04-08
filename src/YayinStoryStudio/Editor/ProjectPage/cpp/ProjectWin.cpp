@@ -276,7 +276,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::onThemeChanged() {
-		yDebugF << VISTMGT("YSS::General.MultiButton.Normal",this);
+		//yDebugF << VISTMGT("YSS::General.MultiButton.Normal",this);
 		this->applyVIStyleTemplate("YSS::ProjectWin");
 		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
 			label->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
