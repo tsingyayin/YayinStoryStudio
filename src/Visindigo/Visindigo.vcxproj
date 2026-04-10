@@ -270,11 +270,9 @@
     <ClCompile Include="Utility\cpp\VirtualFile.cpp" />
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
-    <ClCompile Include="Widgets\cpp\TextTags.cpp" />
     <ClCompile Include="Widgets\cpp\Terminal.cpp" />
     <ClCompile Include="Widgets\cpp\TitleWidget.cpp" />
     <ClCompile Include="Widgets\cpp\VIWidgets_p.cpp" />
-    <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp" />
     <ClCompile Include="Widgets\cpp\WidgetResizeTool.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -345,10 +343,8 @@
     <ClInclude Include="Utility\FileUtility.h" />
     <ClInclude Include="Utility\VirtualFile.h" />
     <ClInclude Include="Widgets\MultiLabel.h" />
-    <QtMoc Include="Widgets\TextTags.h" />
     <QtMoc Include="Widgets\Terminal.h" />
     <QtMoc Include="Widgets\TitleWidget.h" />
-    <ClInclude Include="Widgets\WidgetDisplayStack.h" />
     <QtMoc Include="Widgets\ThemeManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />
     <ClInclude Include="General\Version.h" />

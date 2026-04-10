@@ -92,12 +92,6 @@
     <ClCompile Include="General\cpp\LoggerManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Widgets\cpp\TextTags.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Widgets\cpp\WidgetDisplayStack.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\cpp\StringUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -259,9 +253,6 @@
     <ClInclude Include="Utility\GeneralConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Widgets\WidgetDisplayStack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\StringMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -331,9 +322,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\MultiButton.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Widgets\TextTags.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\ConfigWidget_p.h">

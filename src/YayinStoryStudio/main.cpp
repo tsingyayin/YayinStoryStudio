@@ -29,18 +29,8 @@ int main(int argc, char* argv[])
 	}
 	yInfo << "Yayin Story Studio " << Visindigo::General::Version::getAPIVersion();
 
-	yDebug << QImage::Format_ARGB32;
-	Visindigo::General::testTemplate(23);
-	Visindigo::General::testTemplate(QImage::Format_ARGB32);
-	qDebug() << QImage::Format_ARGB32;
-
-	yWarning << "YSS Console is showed for debug use. Will be (May be) removed in release version. Do NOT close console directly incase of DATA LOSE !";
-	yWarning << "YSS控制台是为了调试目的而显示出来的。将会（可能会）在未来的发行版本中被移除。请勿直接关闭控制台，以避免造成数据丢失。";
-
-	//qRegisterMetaType<YSSCore::Editor::DebugFailedData>("YSSCore::Editor::DebugFailedData");
-
 	QMessageBox::information(nullptr, "SEA版本警告", "SEA版本（超级早期体验版） 技术预览阶段警告\n\
-当前Yayin Story Studio并不完善，功能仍然严重缺失，无法正常作为开发环境使用。\n\
+当前Yayin Story Studio并不完善，功能仍然有所缺失，部分交互体验仍然不佳。\n\
 此技术预览版本仅为您展示Yayin Story Studio非常早期的设计思路，以及基本希望拥有的功能的愿景。\n\
 敬请期待Yayin Story Studio后续的开发。", QMessageBox::Ok);
 

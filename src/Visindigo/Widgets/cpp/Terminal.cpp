@@ -91,7 +91,27 @@ namespace Visindigo::__Private__ {
 	}
 }
 namespace Visindigo::Widgets {
+	/*!
+		\class Visindigo::Widgets::Terminal
+		\brief 一个内置终端窗口，可以显示日志输出并接受用户输入的命令。
+		\since Visindigo 0.13.0
+		\inmodule Visindigo
 
+		Terminal类提供了一个内置的终端窗口，可以显示日志输出并接受用户输入的命令。
+		用户可以通过按下回车键或点击发送按钮来执行输入的命令。
+		
+		理论上，Terminal类还支持命令历史记录，用户可以通过上下箭头键来浏览之前输入的命令。
+
+		\warning 这个类有已知缺陷：它并未完整实现。例如，命令历史记录功能可能存在问题，输入行的事件过滤器也可能不够完善。
+		但它不会被移除，这个类的功能会逐步完善，直到它能够满足基本的终端需求为止。
+
+		因此目前不为此类提供详细文档，也建议用户暂时不要使用。
+	*/
+
+	/*!
+		\since Visindigo 0.13.0
+		构造函数
+	*/
 	Terminal::Terminal(QWidget* parent)
 		: QFrame(parent), d(new Visindigo::__Private__::TerminalPrivate) {
 		this->setWindowTitle("Visindigo Terminal");
@@ -135,6 +155,10 @@ namespace Visindigo::Widgets {
 		vgDebug << "Terminal initialized.";
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		析构函数
+	*/
 	Terminal::~Terminal() {
 		delete d;
 	}

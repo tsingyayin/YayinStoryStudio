@@ -169,6 +169,23 @@ namespace Visindigo::Widgets {
 		QVBoxLayout* ScrollAreaLayout;
 	};
 
+	/*!
+		\class Visindigo::Widgets::PluginManageWidget
+		\brief 显示已加载插件、依赖插件和已停用插件的界面，并提供相关操作。
+		\since Visindigo 0.13.0
+		\inmodule Visindigo
+
+		这类基本上等同于对Visindigo::General::PluginManager的一个UI封装，
+		提供了一个界面来显示和管理插件。它会显示主程序插件、依赖插件、已加载插件和已停用插件，
+		并提供一些操作，如启用/停用插件、打开插件文件夹和配置界面等。
+
+		目前这类不支持显示Visindigo内部插件。将来可能会考虑添加他们。
+	*/
+
+	/*!
+		\since Visindigo 0.13.0
+		构造函数。
+	*/
 	PluginManageWidget::PluginManageWidget(QWidget* parent) : QFrame(parent), d(new PluginManageWidgetPrivate)
 	{
 		d->ScrollArea = new QScrollArea(this);
@@ -182,6 +199,10 @@ namespace Visindigo::Widgets {
 		refreshPluginList();
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		刷新插件列表。当插件状态发生变化时，调用此函数以更新界面。
+	*/
 	void PluginManageWidget::refreshPluginList() {
 		for (int i = 0; i < d->Dividers.size(); i++) {
 			d->ScrollAreaLayout->removeWidget(d->Dividers[i]);
@@ -295,11 +316,19 @@ namespace Visindigo::Widgets {
 		
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		析构函数
+	*/
 	PluginManageWidget::~PluginManageWidget()
 	{
 		delete d;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		重置大小事件。当窗口大小发生变化时，调整滚动区域的大小以适应新的窗口大小。
+	*/
 	void PluginManageWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		d->ScrollArea->setGeometry(0, 0, this->width(), this->height());

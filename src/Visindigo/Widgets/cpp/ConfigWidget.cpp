@@ -360,16 +360,29 @@ namespace Visindigo::__Private__ {
 			QPushButton* selectButton = new QPushButton(container);
 			selectButton->setText(VITR("Visindigo::general.preview"));
 			layout->addWidget(selectButton);
-			connect(selectButton, &QPushButton::clicked, [=]() {
-				QString folder = QFileDialog::getExistingDirectory(container,
-					VITR("Visindigo::general.selectFolder"),
-					VIPlaceholder(defaultValue),
-					QFileDialog::ShowDirsOnly
-					);
-				if (!folder.isEmpty()) {
-					LineEdit->setText(folder);
-				}
-				});
+			if (config.contains("isFolder")) {
+				connect(selectButton, &QPushButton::clicked, [=]() {
+					QString folder = QFileDialog::getExistingDirectory(container,
+						VITR("Visindigo::general.selectFolder"),
+						VIPlaceholder(defaultValue),
+						QFileDialog::ShowDirsOnly
+						);
+					if (!folder.isEmpty()) {
+						LineEdit->setText(folder);
+					}
+					});
+			}
+			else {
+				connect(selectButton, &QPushButton::clicked, [=]() {
+					QString file = QFileDialog::getOpenFileName(container,
+						VITR("Visindigo::general.selectFile"),
+						VIPlaceholder(defaultValue)
+						);
+					if (!file.isEmpty()) {
+						LineEdit->setText(file);
+					}
+					});
+			}
 			if (readOnly) {
 				selectButton->setEnabled(false);
 				LineEdit->setEnabled(false);

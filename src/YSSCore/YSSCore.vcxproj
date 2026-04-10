@@ -119,7 +119,7 @@
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
     <ClCompile Include="Editor\cpp\DebugServerManager.cpp" />
     <ClCompile Include="Editor\cpp\DebugStepData.cpp" />
-    <ClCompile Include="Editor\cpp\DocumentMessageHandler.cpp" />
+    <ClCompile Include="Editor\cpp\DocumentMessageManager.cpp" />
     <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
     <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
     <ClCompile Include="Editor\cpp\FileServer.cpp" />

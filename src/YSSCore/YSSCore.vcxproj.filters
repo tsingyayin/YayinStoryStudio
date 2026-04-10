@@ -92,7 +92,7 @@
     <ClCompile Include="Editor\cpp\DebugStepData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\DocumentMessageHandler.cpp">
+    <ClCompile Include="Editor\cpp\DocumentMessageManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\cpp\SyntaxHighlighter.cpp">

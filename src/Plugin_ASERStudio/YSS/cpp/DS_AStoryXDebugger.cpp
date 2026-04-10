@@ -5,6 +5,9 @@
 #include "ASEREnv/ASERProgram.h"
 #include <General/YSSProject.h>
 #include <Utility/JsonConfig.h>
+#include <Utility/FileUtility.h>
+#include <QtWidgets/qmessagebox.h>
+#include <General/TranslationHost.h>
 
 namespace ASERStudio::YSS {
 	DS_AStoryXDebugger::DS_AStoryXDebugger(YSSCore::Editor::EditorPlugin* plugin) : 
@@ -21,12 +24,20 @@ namespace ASERStudio::YSS {
 		auto param = ASERStudio::ASEREnv::ASERProgramLaunchParameter();
 		auto path = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder();
 		auto fileName = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName().replace(".astoryx", "");
-		param.setPath(path);
-		param.setFileName(fileName);
-		auto sizeMode = ASERStudio::Main::getInstance()->getPluginConfig()->getString("ASERExeSettings.WindowSize");
-		param.setSizeMode((ASERStudio::ASEREnv::ASERProgramLaunchParameter::SizeMode)sizeMode.toInt());
-		vgDebug << program->getExecutablePath();
-		program->start(param);
+		bool exists =Visindigo::Utility::FileUtility::isFileExist(program->getExecutablePath());
+		if (not exists) {
+			QMessageBox::critical(nullptr, VITR("ASERStudio::debugger.executableNotFound.title"),
+				VITR("ASERStudio::debugger.executableNotFound.message").arg(program->getExecutablePath()));
+		}else{
+			QMessageBox::information(nullptr, VITR("ASERStudio::debugger.starting.title"),
+				VITR("ASERStudio::debugger.starting.message"));
+			param.setPath(path);
+			param.setFileName(fileName);
+			auto sizeMode = ASERStudio::Main::getInstance()->getPluginConfig()->getString("ASERExeSettings.WindowSize");
+			param.setSizeMode((ASERStudio::ASEREnv::ASERProgramLaunchParameter::SizeMode)sizeMode.toInt());
+			vgDebug << program->getExecutablePath();
+			program->start(param);
+		}
 	}
 	void DS_AStoryXDebugger::onRun() {
 		onDebugStart(); // currently no difference.

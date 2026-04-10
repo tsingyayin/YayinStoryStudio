@@ -26,6 +26,47 @@ namespace Visindigo::Widgets {
 		}
 	};
 
+	/*!
+		\class Visindigo::Widgets::WidgetResizeTool
+		\brief WidgetResizeTool提供了一个为任意QWidget通过拖动边框调整大小的工具。
+		\since Visindigo 0.13.0
+		\inmodule Visindigo
+
+		WidgetResizeTool可以安装在任何QWidget上，使其能够通过拖动边框来调整大小。
+		用户可以指定哪些边框可以调整大小，以及边框的宽度。该工具会自动检测鼠标位置，
+		并在鼠标悬停在可调整大小的边框区域时显示相应的调整大小光标。当用户按下鼠标左键并拖动时，
+		工具会根据鼠标移动的距离调整窗口的大小。
+
+		\warning 由于Qt的事件传播机制，这个类有已知缺陷，不能正确处理鼠标图标
+		以及部分情况下的调整行为。建议不要用这个类，它可能在未来的版本中被移除。
+	*/
+
+	/*!
+		\enum Visindigo::Widgets::WidgetResizeTool::Border
+		\value Left 可调整左边框
+		\value Top 可调整上边框
+		\value Right 可调整右边框
+		\value Bottom 可调整下边框
+		\value LeftTop 可调整左上角
+		\value RightTop 可调整右上角
+		\value LeftBottom 可调整左下角
+		\value RightBottom 可调整右下角
+		\value AllBorder 可调整所有边框
+		\value AllCorner 可调整所有角落
+		\value All 可调整所有边框和角落
+		\value RB 可调整右边框、下边框和右下角
+	*/
+	/*!
+		\since Visindigo 0.13.0
+		\a parent 安装该工具的父级QWidget。
+		\a borders 指定哪些边框可以调整大小，默认是全部边框。
+		\a borderWidth 指定边框的宽度，默认是5像素。
+		\a topParent 指定事件过滤器安装的顶级父级QWidget，默认为parent。
+
+		构造函数
+		正确设置topParent有助于扩大鼠标跟踪范围，避免在调整窗口大小时鼠标离开边框区域导致调整中断。
+		建议将topParent设置为窗口的顶级父级QWidget。如果不设置，则与parent相同。
+	*/
 	WidgetResizeTool::WidgetResizeTool(QWidget* parent, Borders borders, int borderWidth, QWidget* topParent) :QObject((QObject*)parent) {
 		d = new WidgetResizeToolPrivate();
 		d->EnabledBorders = borders;
@@ -53,14 +94,29 @@ namespace Visindigo::Widgets {
 			});
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		析构函数
+	*/
 	WidgetResizeTool::~WidgetResizeTool() {
 		delete d;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		设置哪些边框可以调整大小。
+		\a borders 指定哪些边框可以调整大小，可以是Left、Right、Top、Bottom以及它们的组合。
+	*/
 	void WidgetResizeTool::setEnableBorder(Borders borders) {
 		d->EnabledBorders = borders;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		事件过滤器
+		该函数会过滤安装了该工具的顶级父级QWidget的鼠标移动事件，以检测鼠标是否悬停在可调整大小的边框区域，并显示相应的调整大小光标。
+		当用户按下鼠标左键并拖动时，该函数会根据鼠标移动的距离调整窗口的大小。
+	*/
 	bool WidgetResizeTool::eventFilter(QObject* target, QEvent* event) {
 		if (target != d->topParent) {
 			return QObject::eventFilter(target, event);

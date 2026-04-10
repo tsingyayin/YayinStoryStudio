@@ -441,5 +441,15 @@
                 "FullScreen": "全屏"
             }
         }
+    },
+    "debugger": {
+        "executableNotFound": {
+            "title": "无法找到可执行文件",
+            "message": "配置的路径%1无效，无法启动ASE-Remake应用。请在文件->插件和首选项->ASER Studio设置中检查你的配置，确保你已经正确地设置了ASE-Remake可执行文件的路径。"
+        },
+        "starting": {
+            "title": "ASE-Remake测试版缺陷通知",
+            "message": "由于ASE-Remake测试版中一个已知缺陷，YSS目前只能简单启动ASE-Remake，无法正确设置项目目录和播放文件，需要您手动启动播放。当前启动调试只能作为快捷打开ASE-Remake程序的方式使用。请关注ASE-Remake测试版的更新日志，等待这个问题被修复。"
+        }
     }
 }
