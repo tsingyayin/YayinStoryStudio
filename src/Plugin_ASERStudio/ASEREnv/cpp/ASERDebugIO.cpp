@@ -43,6 +43,7 @@ namespace ASERStudio::ASEREnv {
 
 		值得指出的是，ASERDebugIO并不单独维护具名管道，因此你需要
 		创建一个ASERProgram实例，并将其设置给ASERDebugIO，以便正确接收调试信息。
+		所以，这类也未设置任何与具名管道相关的控制或响应API，它只是依附于ASERProgram来工作的。
 
 		如果没有有效的ASERProgram设置，这类的任何设置函数均无效，也不会有信号发出。
 	*/

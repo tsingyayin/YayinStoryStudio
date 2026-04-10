@@ -7,7 +7,7 @@
 #include "AStorySyntax/AStoryXControllerParseData.h"
 #include <General/Log.h>
 #include <Editor/TextEdit.h>
-
+#include <General/TranslationHost.h>
 namespace ASERStudio::YSS {
 	class LS_AStoryXTabCompleterPrivate {
 		friend class LS_AStoryXTabCompleter;
@@ -30,7 +30,7 @@ namespace ASERStudio::YSS {
 		QList<YSSCore::Editor::TabCompleterItem> items;
 		ASERStudio::AStorySyntax::AStoryXControllerParseData parseData = d->document->getParseData(line);
 		auto parameter = parseData.getCursorParameter(column);
-		vgDebug << parameter;
+		//vgDebug << parameter;
 		if (parameter.isValid()) {
 			auto valueMeta = parameter.getValue();
 			switch (valueMeta.getType()) {
@@ -52,7 +52,9 @@ namespace ASERStudio::YSS {
 		if (content.isEmpty() && not content.startsWith("#")) {
 			QList<ASERStudio::AStorySyntax::AStoryXController> controllers = rule->getAvailableControllers();
 			for (auto controller : controllers) {
-				items.append(YSSCore::Editor::TabCompleterItem(controller.getControllerTypeString(), controller.getStartSign(), controller.getHeader(), YSSCore::Editor::TabCompleterItem::ItemType::Function));
+				items.append(YSSCore::Editor::TabCompleterItem(
+					VITR(QString("ASERStudio::controller.%1").arg(controller.getControllerTypeString())),
+					controller.getStartSign(), controller.getHeader(), YSSCore::Editor::TabCompleterItem::ItemType::Function));
 			}
 		}
 		

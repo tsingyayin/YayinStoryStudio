@@ -8,7 +8,7 @@ tianyu->天雨
 
 背景：bg
 +2
-遮罩：1
+遮罩：true
 --tianyu:0/0
 天雨	看上去你成功创建了一个新的ASE-Remake剧情文件。
 --tianyu:1/0

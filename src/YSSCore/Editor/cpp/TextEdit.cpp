@@ -483,7 +483,7 @@ namespace YSSCore::Editor {
 		d = new YSSCore::__Private__::TextEditPrivate;
 		this->setMinimumSize(800, 600);
 		this->setMouseTracking(true);
-		d->Font = QFont("Microsoft YaHei");
+		d->Font = qApp->font();
 		d->FontMetrics = new QFontMetricsF(d->Font);
 
 		d->Line = new QTextBrowser(this);
@@ -496,7 +496,10 @@ namespace YSSCore::Editor {
 
 		d->Text = new QTextEdit(this);
 		d->Text->document()->setDefaultFont(QFont("Microsoft YaHei"));
-		d->Text->setTabStopDistance(qMax(20.0, d->TabWidth * d->FontMetrics->size(Qt::TextSingleLine, " ").width()));
+		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
+		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
+		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
+		vgDebug << "TabStopDistance:" << d->Text->tabStopDistance() << d->TabWidth * d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
 		d->Text->installEventFilter(this);
 		d->Text->viewport()->setMouseTracking(true);

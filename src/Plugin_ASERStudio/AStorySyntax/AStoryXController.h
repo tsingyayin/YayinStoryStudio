@@ -32,6 +32,7 @@ namespace ASERStudio::AStorySyntax {
 			Variable,
 			Judge,
 			Branch,
+			Narration,
 			Dialog,
 			Preprocessor,
 			Comment

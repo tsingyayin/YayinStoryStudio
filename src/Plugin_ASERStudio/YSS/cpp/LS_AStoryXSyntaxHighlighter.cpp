@@ -161,21 +161,21 @@ namespace ASERStudio::YSS {
 		if (diagnostic.getType() >= ASERStudio::AStorySyntax::AStoryXDiagnosticData::UnknownWarning) {
 			createWarningMessage(diagnostic.getMessage(), column, length, 
 				QString::number((qint32)diagnostic.getType(), 16).toUpper(),
-				QUrl("http://prts.site/aserstudio-astoryx-diagnostic.html#" + QString::number((qint32)diagnostic.getType(), 16).toUpper()),
+				QUrl("http://prts.site/aserstudio-astoryx-diagnostic.html#" + QString::number((qint32)diagnostic.getType(), 16).toLower()),
 				diagnostic.getFixAdvice()
 				);
 		}
 		else if (diagnostic.getType() >= ASERStudio::AStorySyntax::AStoryXDiagnosticData::UnknownError) {
 			createErrorMessage(diagnostic.getMessage(), column, length, 
 				QString::number((qint32)diagnostic.getType(), 16).toUpper(),
-				QUrl("http://prts.site/aserstudio-astoryx-diagnostic.html#" + QString::number((qint32)diagnostic.getType(), 16).toUpper()),
+				QUrl("http://prts.site/aserstudio-astoryx-diagnostic.html#" + QString::number((qint32)diagnostic.getType(), 16).toLower()),
 				diagnostic.getFixAdvice()
 				);
 		}
 		else {
 			createInfoMessage(diagnostic.getMessage(), column, length, 
 				QString::number((qint32)diagnostic.getType(), 16).toUpper(),
-				QUrl("http://prts.site/aserstudio-astoryx-diagnostic.html#" + QString::number((qint32)diagnostic.getType(), 16).toUpper()),
+				QUrl("http://prts.site/aserstudio-astoryx-diagnostic.html#" + QString::number((qint32)diagnostic.getType(), 16).toLower()),
 				diagnostic.getFixAdvice()
 				);
 		}

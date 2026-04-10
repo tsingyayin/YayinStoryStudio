@@ -12,7 +12,8 @@ class QPushButton;
 class QGridLayout;
 class QVBoxLayout;
 class QRadioButton;
-
+class QTextBrowser;
+class QNetworkAccessManager;
 namespace YSSCore::General {
 	class YSSProject;
 }
@@ -33,7 +34,7 @@ namespace YSS::ProjectPage {
 		QScrollArea* HistoryProjectArea;
 		QWidget* HistoryProjectWidget;
 		QVBoxLayout* HistoryProjectLayout;
-		QWidget* NewsWidget;
+		QTextBrowser* NewsWidget;
 		QWidget* OptionWidget;
 		QPushButton* CreateProjectButton;
 		QPushButton* OpenFolderButton;
@@ -46,6 +47,7 @@ namespace YSS::ProjectPage {
 		QList<Visindigo::Widgets::MultiButton*> HistoryProjectLabelList;
 		QMap<Visindigo::Widgets::MultiButton*, YSSCore::General::YSSProject*> HistoryProjectMap;
 		QList<QLabel*> HistoryProjectTimeLabelList;
+		QNetworkAccessManager* NetworkManager;
 	public:
 		ProjectWin();
 		virtual void closeEvent(QCloseEvent* event) override;
@@ -58,6 +60,7 @@ namespace YSS::ProjectPage {
 		void onOpenProject(QString projectPath = "");
 		void onCreateProject();
 		virtual void onThemeChanged() override;
+		void onNewsMetaGot(const Visindigo::Utility::JsonConfig& jsonConfig);
 	private:
 		void loadProject();
 	};

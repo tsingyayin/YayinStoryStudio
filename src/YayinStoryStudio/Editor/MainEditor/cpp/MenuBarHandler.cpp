@@ -15,6 +15,9 @@
 #include "Editor/MainEditor/StackWidgetArea.h"
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
+#include <General/Plugin.h>
+#include <Utility/FileUtility.h>
+
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID(); \
 	if (debugServerID.isEmpty()) { \
@@ -94,12 +97,14 @@ namespace YSS::Editor {
 
 	void Menu_File_ProgramOptions::about() {
 		yDebugF << "About";
-		
+		QMessageBox::about(YSS::Editor::MainWin::getInstance(),
+			VITR("YSS::editor.about.title"),
+			VITR("YSS::editor.about.message").arg(VIApp->getMainPlugin()->getPluginVersion().toString()));
 	}
 
 	void Menu_File_ProgramOptions::documentation() {
 		yDebugF << "Documentation";
-		
+		Visindigo::Utility::FileUtility::openBrowser("http://prts.site");
 	}
 
 	void Menu_File_ProgramOptions::exit() {

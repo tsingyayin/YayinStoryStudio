@@ -15,6 +15,8 @@ namespace Visindigo::Widgets {
 		friend class Visindigo::__Private__::ConfigWidgetPrivate;
 		Q_OBJECT;
 	signals:
+		void reseted();
+		void saved();
 		void radioButtonChanged(const QString& node, bool checked);
 		void comboBoxIndexChanged(const QString& node, int index, QString data);
 		void lineEditTextChanged(const QString& node, const QString& text);

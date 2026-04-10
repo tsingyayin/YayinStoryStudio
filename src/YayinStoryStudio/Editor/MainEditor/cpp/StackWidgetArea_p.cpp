@@ -352,12 +352,12 @@ namespace YSS::Editor {
 		QString filePath = MessageTable->item(row, 2)->toolTip();
 		qint32 lineNumber = MessageTable->item(row, 3)->text().toInt() - 1;
 		qint32 columnNumber = MessageTable->item(row, 4)->text().toInt();
-		vgDebug << "Redirection requested to " << filePath << ":" << lineNumber << ":" << columnNumber;
+		//vgDebug << "Redirection requested to " << filePath << ":" << lineNumber << ":" << columnNumber;
 		emit redirectionRequired(filePath, lineNumber, columnNumber);
 	}
 
 	void MessageViewer::onMessageChanged(const QString& filePath) {
-		vgDebug << "Message changed for file: " << filePath;
+		//vgDebug << "Message changed for file: " << filePath;
 		if (filePath == CurrentFilePath) {
 			MessageTable->clearContents();
 			MessageTable->setRowCount(0);
@@ -373,6 +373,7 @@ namespace YSS::Editor {
 					auto msgCode = new QLabel();
 					msgCode->setText(QString("<a href=\"%1\">%2</a>").arg(msg.getHelpUrl().toString()).arg(msg.getCode()));
 					msgCode->setOpenExternalLinks(true);
+					msgCode->setAlignment(Qt::AlignCenter);
 					MessageTable->setCellWidget(row, 0, msgCode);
 					auto messageItem = new QTableWidgetItem(msg.getMessage());
 					messageItem->setToolTip(msg.getFixAdvice());
@@ -380,8 +381,12 @@ namespace YSS::Editor {
 					auto filePathItem = new QTableWidgetItem(QFileInfo(filePath).fileName());
 					filePathItem->setToolTip(filePath);
 					MessageTable->setItem(row, 2, filePathItem);
-					MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber()+1)));
-					MessageTable->setItem(row, 4, new QTableWidgetItem(QString::number(msg.getColumnNumber())));
+					auto lineItem = new QTableWidgetItem(QString::number(msg.getLineNumber() + 1));
+					lineItem->setTextAlignment(Qt::AlignCenter);
+					MessageTable->setItem(row, 3, lineItem);
+					auto columnItem = new QTableWidgetItem(QString::number(msg.getColumnNumber()));
+					columnItem->setTextAlignment(Qt::AlignCenter);
+					MessageTable->setItem(row, 4, columnItem);
 					row++;
 				}
 			}
@@ -408,6 +413,7 @@ namespace YSS::Editor {
 			auto msgCode = new QLabel();
 			msgCode->setText(QString("<a href=\"%1\">%2</a>").arg(msg.getHelpUrl().toString()).arg(msg.getCode()));
 			msgCode->setOpenExternalLinks(true);
+			msgCode->setAlignment(Qt::AlignCenter);
 			MessageTable->setCellWidget(row, 0, msgCode);
 			auto messageItem = new QTableWidgetItem(msg.getMessage());
 			messageItem->setToolTip(msg.getFixAdvice());
@@ -415,8 +421,12 @@ namespace YSS::Editor {
 			auto filePathItem = new QTableWidgetItem(QFileInfo(filePath).fileName());
 			filePathItem->setToolTip(filePath);
 			MessageTable->setItem(row, 2, filePathItem);
-			MessageTable->setItem(row, 3, new QTableWidgetItem(QString::number(msg.getLineNumber()+1)));
-			MessageTable->setItem(row, 4, new QTableWidgetItem(QString::number(msg.getColumnNumber())));
+			auto lineItem = new QTableWidgetItem(QString::number(msg.getLineNumber() + 1));
+			lineItem->setTextAlignment(Qt::AlignCenter);
+			MessageTable->setItem(row, 3, lineItem);
+			auto columnItem = new QTableWidgetItem(QString::number(msg.getColumnNumber()));
+			columnItem->setTextAlignment(Qt::AlignCenter);
+			MessageTable->setItem(row, 4, columnItem);
 		}
 		if (msgList.size() != 0) {
 			MessageTable->sortByColumn(3, Qt::AscendingOrder);

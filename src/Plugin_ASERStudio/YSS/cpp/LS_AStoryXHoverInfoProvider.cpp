@@ -60,7 +60,7 @@ namespace ASERStudio::YSS {
 		}
 		md += "\n\n" + VITR(QString("ASERStudio::document.%1.%2").arg(controllerName).arg(currentParameterName)) + "\n";
 
-		vgDebug << md;
+		//vgDebug << md;
 		setMarkdown(md);
 	}
 }

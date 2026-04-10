@@ -21,6 +21,7 @@ namespace ASERStudio::ASEREnv {
 			W640_H360 = 7
 		};
 	public:
+		ASERProgramLaunchParameter();
 		ASERProgramLaunchParameter(const QString& FileName, const QString& Path, SizeMode mode);
 		~ASERProgramLaunchParameter();
 		VICopyable(ASERProgramLaunchParameter);

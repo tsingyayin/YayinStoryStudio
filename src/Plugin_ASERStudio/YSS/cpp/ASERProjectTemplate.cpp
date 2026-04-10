@@ -10,7 +10,7 @@
 #include <QtWidgets/qmessagebox.h>
 #include <Editor/EditorPlugin.h>
 #include <QtCore/qfile.h>
-
+#include "YSS/DS_AStoryXDebugger.h"
 namespace ASERStudio::YSS {
 	class ProjectTemplateInitWidget_AStoryXPrivate {
 		friend class ProjectTemplateInitWidget_AStoryX;
@@ -78,7 +78,7 @@ namespace ASERStudio::YSS {
 		bool ok = project.initProject(completePath, config->getString("Project.Name"));
 		if (ok) {
 			project.setProjectIconPath("cover.png");
-			project.setProjectDebugServerID("cn.yxgeneral.aserstudio.astory");
+			project.setProjectDebugServerID(ASERStudio_AStoryXDebuggerID);
 			project.saveProject();
 			QString projectFolder = project.getProjectFolder();
 			QStringList CompGroup_2_05_22_1A = {
@@ -128,8 +128,8 @@ namespace ASERStudio::YSS {
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json", projectFolder + "/Rules/BaseRule.json", true);
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json", projectFolder + "/Rules/AdvanceRule.json", true);
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx", projectFolder + "/Stories/main.astoryx", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_0.png", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/tianyu_1.png", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/0.png", true);
+		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/1.png", true);
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png", true);
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png", true);
 		project->addEditorOpenedFile(projectFolder + "/Stories/main.astoryx");

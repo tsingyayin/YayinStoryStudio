@@ -323,7 +323,11 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		从磁盘重新加载插件的设置
+		从磁盘重新加载插件的设置。
+
+		如果你的插件实现了getConfigWidget，允许用UI配置可视化文件，那么就强烈建议你的
+		配置页面在保存之后调用此函数以确保加载到内存中的设置与磁盘上的一致，
+		避免出现配置页面显示的设置与实际设置不一致的情况。
 	*/
 	void Plugin::reloadPluginConfig() {
 		d->loadConfig();

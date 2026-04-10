@@ -449,6 +449,18 @@ namespace ASERStudio::AStorySyntax {
 			d->parseNonmonotonicity(protectedStrs, protectedRefStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
 		}
 		AStoryXParameter requiredParameter = result.getRequiredParameter();
+		if (d->Type == AStoryXController::ControllerType::Dialog) {
+			QString content = requiredParameter.getContent();
+			if (content.contains(" ") && diagnostic) {
+				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
+					VITR("ASERStudio::diagnostic.useTabInsteadSpace_dialog.message"),
+					lineIndex, requiredParameter.getIndex() + content.indexOf(" ")
+					, AStoryXDiagnosticData::DiagnosticType::UseTabInsteadSpace,
+					VITR("ASERStudio::diagnostic.useTabInsteadSpace_dialog.fixAdvice")
+				);
+				result.d->Diagnostics.append(diagnosticData);
+			}
+		}
 		auto reqResult = requiredParameter.getValue().isTypeMatching(requiredParameter.getContent());
 		switch (reqResult) {
 		case AStoryXDiagnosticData::Undefined:
@@ -538,6 +550,7 @@ namespace ASERStudio::AStorySyntax {
 			break;
 		}
 		}
+		
 		for (auto optional : result.getOptionalParameters()) {
 			auto optResult = optional.getValue().isTypeMatching(optional.getContent());
 			switch (optResult) {

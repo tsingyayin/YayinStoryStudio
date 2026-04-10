@@ -12,8 +12,8 @@
         <file>resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png</file>
         <file>resource/cn.yxgeneral.aserstudio/icon.png</file>
         <file>resource/cn.yxgeneral.aserstudio/icon/ASEA_Dark.png</file>
-        <file>resource/cn.yxgeneral.aserstudio/icon/VisindigoV_Dark.png</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.0/newFile.astoryx</file>
         <file>resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/config.json</file>
     </qresource>
 </RCC>

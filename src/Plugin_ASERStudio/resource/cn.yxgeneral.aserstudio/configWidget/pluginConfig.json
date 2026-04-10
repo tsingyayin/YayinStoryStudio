@@ -16,8 +16,52 @@
                     "title": "i18n:ASERStudio::config.aserExeSettings.exePath.title",
                     "text": "i18n:ASERStudio::config.aserExeSettings.exePath.text",
                     "data": {
-                        "default": "$(visindigo::programPath)/user_data/third_party/ArknightsStoryEditor-Remake/ArknightsStoryEditor-Remake.exe",
+                        "default": "$(visindigo::programPath)/user_data/third_party/ASE-Remake/ASE-Remake.exe",
                         "isFile": true
+                    }
+                },
+                {
+                    "node": "WindowSize",
+                    "type": "ComboBox",
+                    "icon": "",
+                    "title": "i18n:ASERStudio::config.aserExeSettings.windowSize.title",
+                    "text": "i18n:ASERStudio::config.aserExeSettings.windowSize.text",
+                    "data": {
+                        "comboBox": [
+                            {
+                                "data": "0",
+                                "key": "i18n:ASERStudio::config.aserExeSettings.windowSize.FullScreen"
+                            },
+                            {
+                                "data": "1",
+                                "key": "3840x2160"
+                            },
+                            {
+                                "data": "2",
+                                "key": "2560x1440"
+                            },
+                            {
+                                "data": "3",
+                                "key": "1920x1080"
+                            },
+                            {
+                                "data": "4",
+                                "key": "1600x900"
+                            },
+                            {
+                                "data": "5",
+                                "key": "1280x720"
+                            },
+                            {
+                                "data": "6",
+                                "key": "1024x576"
+                            },
+                            {
+                                "data": "7",
+                                "key": "640x360"
+                            }
+                        ],
+                        "default": "default"
                     }
                 },
                 {

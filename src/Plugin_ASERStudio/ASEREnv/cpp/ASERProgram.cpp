@@ -6,6 +6,7 @@
 #include <QtCore/qstandardpaths.h>
 #include <QtCore/qfileinfo.h>
 #include <Utility/JsonConfig.h>
+#include <General/Log.h>
 #ifdef Q_OS_WIN
 #include <Windows.h>
 #endif
@@ -51,6 +52,18 @@ namespace ASERStudio::ASEREnv {
 
 		提供ASE-Remake程序窗口大小的枚举选项，允许用户在启动程序时指定窗口的分辨率或全屏模式。
 	*/
+
+	/*!
+		\since ASERStudio 2.0
+		默认构造函数，初始化ASERProgramLaunchParameter对象
+	*/
+
+	ASERProgramLaunchParameter::ASERProgramLaunchParameter() {
+		d = new ASERProgramLaunchParameterPrivate;
+		d->FileName = "";
+		d->Path = "";
+		d->Mode = FullScreen;
+	}
 
 	/*!
 		\since ASERStudio 2.0
@@ -180,6 +193,8 @@ namespace ASERStudio::ASEREnv {
 
 		\note 为了正确捕获管道状态，你应该在第一次调用start函数启动ASE-Remake之前就将
 		其设置给ASEDevIO。
+
+		这类是可反复使用的，你不必每次启动ASE-Remake都创建一个新的实例。
 	*/
 
 	/*!
@@ -221,9 +236,15 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		析构函数，清理ASERProgram对象
+		析构函数，清理ASERProgram对象。
+
+		如果ASE-Remake还在运行，这会尝试发送一个停止信号给它，但不会
+		等待它完全退出。因此在一些极端情况下可能导致ASE-Remake跑飞。
 	*/
 	ASERProgram::~ASERProgram() {
+		if (d->ASERProcess->state() == QProcess::Running) {
+			d->ASERProcess->terminate();
+		}
 		delete d;
 	}
 
@@ -283,7 +304,8 @@ namespace ASERStudio::ASEREnv {
 			return;
 		}
 		d->LastArguments = arguments;
-		d->ASERProcess->start(arguments.join(' '));
+		d->ASERProcess->setArguments(arguments);
+		d->ASERProcess->start();
 		QTimer* timer = new QTimer(this);
 		timer->setInterval(2000);
 		connect(timer, &QTimer::timeout, this, [this, timer]() {
@@ -313,8 +335,9 @@ namespace ASERStudio::ASEREnv {
 		}
 		Visindigo::Utility::JsonConfig jsonParam;
 		jsonParam.setString("FileName", parameter.getFileName());
-		jsonParam.setString("Path", parameter.getPath());
+		jsonParam.setString("storySetPath", parameter.getPath());
 		jsonParam.setInt("SizeMode", static_cast<int>(parameter.getSizeMode()));
+		vgDebug << "ASERProgram::start - Launching ASER with parameters:" << jsonParam;
 		QString jsonString = jsonParam.toString();
 		QStringList paramArgs;
 		paramArgs += jsonString;

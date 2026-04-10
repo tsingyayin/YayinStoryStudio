@@ -115,6 +115,11 @@
             "name": "资源不存在",
             "message": "没有这样的资源%1。",
             "fixAdvice": "请检查%1的拼写，或者在你的项目中添加一个名为%1的资源。"
+        },
+        "useTabInsteadSpace_dialog": {
+            "name": "在对话控制器中使用制表符代替空格",
+            "message": "在对话控制器中，使用制表符（Tab键）来分隔说话者和对话内容，而不是使用空格。如果你确定你的空格是人名的一部分，请忽略此警告。",
+            "fixAdvice": "将空格替换为制表符(Tab)。"
         }
     },
     "value":{
@@ -129,6 +134,7 @@
         "Background": "背景",
         "Music": "音乐",
         "SoundEffect": "音效",
+        "Mask": "遮罩",
         "Character": "角色",
         "Choice": "选项",
         "Delay": "延迟",
@@ -144,6 +150,7 @@
         "Variable": "变量",
         "Judge": "判断",
         "Branch": "分支",
+        "Narration": "旁白",
         "Dialog": "对话",
         "Preprocessor": "预处理器",
         "Comment": "注释"
@@ -311,10 +318,14 @@
             "Name": "分支的名称",
             "Branches": "将要跳转到的标记的名称"
         },
+        "Narration": {
+            "__description": "控制旁白的显示。",
+            "Content": "旁白的文本内容"
+        },
         "Dialog": {
             "__description": "控制对话的显示。",
             "Speaker&Content": "说话者的名称和对话的文本内容",
-            "IsAddition": "是否为附加对话。附加对话会在原有对话的基础上增加，而不是替换原有对话",
+            "IsAdditional": "是否为附加对话。附加对话会在原有对话的基础上增加，而不是替换原有对话",
             "ModifyCharacters": "是否同步控制已有角色立绘的显示以匹配对话中说话者的变化，这会使角色立绘随着对话的进行而自动明暗切换",
             "BasicStayTime": "对话持续的基本时间，单位为秒。对话会在这个基本时间的基础上根据文本长度增加额外的持续时间",
             "Interval": "逐字显示时每个字出现的时间间隔，单位为秒",
@@ -423,6 +434,11 @@
                 "title": "ASE版本",
                 "text": "你选定的ASE程序的版本。如果你不确定你的ASE程序的版本，或者你的ASE程序是最新版本，选择\"最新版本\"即可。正确的版本设置可以让ASER Studio更好地兼容你的ASE程序，避免一些潜在的问题。",
                 "uptodate": "最新版本"
+            },
+            "windowSize": {
+                "title": "窗口大小",
+                "text": "ASER Studio在启动ASE-Remake时可以指定窗口大小选项，这些选项会直接传递给ASE-Remake程序。",
+                "FullScreen": "全屏"
             }
         }
     }

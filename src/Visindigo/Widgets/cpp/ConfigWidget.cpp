@@ -49,22 +49,35 @@ namespace Visindigo::__Private__ {
 		SettingsWidget = spawnWidget(widget);
 		for (QWidget* w : SettingsWidget) {
 			w->setParent(self);
-			
 			Layout->addWidget(w);
+		}
+		if (ResetButton) {
+			ResetButton->deleteLater();
+			ResetButton = nullptr;
+		}
+		if (SaveButton) {
+			SaveButton->deleteLater();
+			SaveButton = nullptr;
+		}
+		if (ButtonLayout) {
+			ButtonLayout->deleteLater();
+			ButtonLayout = nullptr;
 		}
 		ResetButton = new QPushButton(VITR("Visindigo::general.reset"), self);
 		SaveButton = new QPushButton(VITR("Visindigo::general.save"), self);
 		connect(ResetButton, &QPushButton::clicked, self, [this]() {
 			this->resetConfig();
+			emit self->reseted();
 			});
 		connect(SaveButton, &QPushButton::clicked, self, [this]() {
 			this->saveConfig();
+			emit self->saved();
 			});
-		auto buttonLayout = new QHBoxLayout();
-		buttonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-		buttonLayout->addWidget(ResetButton);
-		buttonLayout->addWidget(SaveButton);
-		Layout->addLayout(buttonLayout);
+		ButtonLayout = new QHBoxLayout(self);
+		ButtonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		ButtonLayout->addWidget(ResetButton);
+		ButtonLayout->addWidget(SaveButton);
+		Layout->addLayout(ButtonLayout);
 		IndependentMode = cwJson.getBool("independent");
 		if (not IndependentMode) {
 			ResetButton->setVisible(false);

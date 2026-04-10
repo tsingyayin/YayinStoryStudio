@@ -118,6 +118,9 @@
     <ClCompile Include="YSS\cpp\LS_AStoryXHoverInfoProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="YSS\cpp\DS_AStoryXDebugger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASERStudioCompileMacro.h">
@@ -142,6 +145,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="YSS\LS_AStoryXHoverInfoProvider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YSS\DS_AStoryXDebugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

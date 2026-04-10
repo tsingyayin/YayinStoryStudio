@@ -13,6 +13,7 @@ class QLineEdit;
 class QTextEdit;
 class QLabel;
 class QPushButton;
+class QHBoxLayout;
 namespace Visindigo::Widgets {
 	class ConfigWidget;
 }
@@ -34,6 +35,7 @@ namespace Visindigo::__Private__ {
 		QList<QWidget*> SettingsWidget;
 		QPushButton* ResetButton = nullptr;
 		QPushButton* SaveButton = nullptr;
+		QHBoxLayout* ButtonLayout = nullptr;
 		Visindigo::Widgets::ConfigWidget* self;
 		bool IndependentMode = false;
 		ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self);

@@ -135,6 +135,7 @@
     <ClCompile Include="YSS\cpp\ASERFileServer.cpp" />
     <ClCompile Include="YSS\cpp\ASERFileTemplate.cpp" />
     <ClCompile Include="YSS\cpp\ASERProjectTemplate.cpp" />
+    <ClCompile Include="YSS\cpp\DS_AStoryXDebugger.cpp" />
     <ClCompile Include="YSS\cpp\LangServer_AStoryX.cpp" />
     <ClCompile Include="YSS\cpp\LS_AStoryXHoverInfoProvider.cpp" />
     <ClCompile Include="YSS\cpp\LS_AStoryXSyntaxHighlighter.cpp" />
@@ -143,6 +144,7 @@
   <ItemGroup>
     <QtMoc Include="ASEREnv\private\ASERDebugIO_p.h" />
     <ClInclude Include="AStorySyntax\AStoryXPreprocessor.h" />
+    <ClInclude Include="YSS\DS_AStoryXDebugger.h" />
     <ClInclude Include="YSS\LangServer_AStoryX.h" />
     <ClInclude Include="YSS\LS_AStoryXHoverInfoProvider.h" />
     <QtMoc Include="YSS\LS_AStoryXTabCompleter.h" />
