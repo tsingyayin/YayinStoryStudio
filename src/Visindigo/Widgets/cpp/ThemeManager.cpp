@@ -859,6 +859,14 @@ namespace Visindigo::Widgets {
 			return false;
 		}
 		d->CurrentThemeID = themeID;
+		if (themeID == "Dark") {
+			auto styleHints = qApp->styleHints();
+			styleHints->setColorScheme(Qt::ColorScheme::Dark);
+
+		}else if (themeID == "Light") {
+			auto styleHints = qApp->styleHints();
+			styleHints->setColorScheme(Qt::ColorScheme::Light);
+		}
 		d->PreviousColorMap = d->ActiveColorMap;
 		d->ActiveColorMap = QMap<QString, QColor>();
 		QStringList colorNames = d->MergedColorScheme->keys("Themes." + themeID);
