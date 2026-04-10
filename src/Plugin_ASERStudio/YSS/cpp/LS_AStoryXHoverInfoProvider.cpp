@@ -51,7 +51,7 @@ namespace ASERStudio::YSS {
 		QStringList optionalParaNames = rule->getOptionalParameterNames(parseData.getControllerType());
 		optionalParaNames.prepend(requiredParaName);
 		for (auto s : optionalParaNames) {
-			if (s != currentParameterName) [[likly]] {
+			if (s != currentParameterName) [[likely]] {
 				md += " " + s + " ";
 			}
 			else {

@@ -26,6 +26,7 @@ namespace YSSCore::General {
 		YSSProject();
 		virtual ~YSSProject();
 		LoadProjectResult loadProject(const QString& configPath);
+		QString getProjectConfigPath();
 		bool saveProject(const QString& configPath = "");
 		bool initProject(const QString& folder, const QString& name);
 		QString getProjectName();
@@ -33,9 +34,11 @@ namespace YSSCore::General {
 		QString getProjectFolder();
 		QString getProjectPath();
 		QString getProjectIconPath();
+		QString getProjectAuthor();
 		void setProjectName(const QString& name);
 		void setProjectDescription(const QString& description);
 		void setProjectIconPath(const QString& iconPath);
+		void setProjectAuthor(const QString& author);
 		QDateTime getProjectCreateTime();
 		QDateTime getProjectLastModifyTime();
 		QString getProjectDebugServerID();

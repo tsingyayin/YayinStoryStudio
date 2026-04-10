@@ -34,6 +34,10 @@ namespace YSSCore::Editor {
 		return DebugServerManagerPrivate::Instance;
 	}
 
+	QStringList DebugServerManager::getDebugServerIDs() {
+		return d->DebugServers.keys();
+	}
+
 	DebugServer* DebugServerManager::getDebugServer(const QString& serverID) {
 		if (d->DebugServers.contains(serverID)) {
 			return d->DebugServers[serverID];

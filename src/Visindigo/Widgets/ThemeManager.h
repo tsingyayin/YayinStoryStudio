@@ -69,7 +69,8 @@ namespace Visindigo::Widgets {
 		QStringList getStyleNamespaces();
 		bool changeColorTheme(const QString& themeID);
 		bool changeColorTheme(ThemeID themeID);
-		void autoAdjustThemeToSystem(bool autoAdjust);
+		void setAutoAdjustThemeToSystem(bool autoAdjust);
+		bool isAutoAdjustThemeToSystem();
 		QString getCurrentColorTheme();
 		QColor getColor(const QString& key);
 		QString getRawTemplate(const QString& key);

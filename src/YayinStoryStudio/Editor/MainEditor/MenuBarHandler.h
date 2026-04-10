@@ -15,6 +15,7 @@ namespace YSS::Editor {
 		void save();
 		void saveAll();
 		void saveAs();
+		void projectConfig();
 	};
 	class Menu_File_ProgramOptions :public QObject {
 		Q_OBJECT;

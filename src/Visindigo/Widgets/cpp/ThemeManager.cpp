@@ -14,6 +14,7 @@
 #include <QtCore/qtimer.h>
 #include <QtGui/qpalette.h>
 #include <QtCore/qfileinfo.h>
+
 namespace Visindigo::Widgets {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
@@ -431,7 +432,7 @@ namespace Visindigo::Widgets {
 			d->CurrentThemeID = d->Config->getString("Theme");
 		}
 		else {
-			d->CurrentThemeID = "Dark";
+			d->CurrentThemeID = VIApp->getEnvConfig(Visindigo::General::VIApplication::EnvKey::DefaultColorTheme).toString();
 		}
 		loadAndRefresh(false); // not merge for constructor
 		connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this](Qt::ColorScheme newScheme) {
@@ -844,8 +845,15 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		更改当前的配色主题为指定的主题ID。
 		如果指定的主题ID不存在于合并后的配色方案中，则返回false。
+
+		请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
+		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
 	*/
 	bool ThemeManager::changeColorTheme(const QString& themeID) {
+		if (not d->MergedColorScheme) {
+			vgErrorF << "Merged color scheme is null. Cannot change theme at this time. Please call it atleast in onApplicationInit() or later.";
+			return false;
+		}
 		if (!d->MergedColorScheme->keys("Themes").contains(themeID)) {
 			vgErrorF << "ThemeID" << themeID << "not found in merged color scheme. Change failed.";
 			return false;
@@ -893,7 +901,7 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		设置是否自动根据系统主题调整应用程序主题。
 	*/
-	void ThemeManager::autoAdjustThemeToSystem(bool autoAdjust) {
+	void ThemeManager::setAutoAdjustThemeToSystem(bool autoAdjust) {
 		d->AutoAdjustToSystem = autoAdjust;
 		auto systemScheme = qApp->styleHints()->colorScheme();
 		if (autoAdjust) {
@@ -902,6 +910,14 @@ namespace Visindigo::Widgets {
 				changeColorTheme(targetThemeID);
 			}
 		}
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		获取当前是否设置为自动根据系统主题调整应用程序主题。
+	*/
+	bool ThemeManager::isAutoAdjustThemeToSystem() {
+		return d->AutoAdjustToSystem;
 	}
 
 	/*!
@@ -927,7 +943,7 @@ namespace Visindigo::Widgets {
 				return d->AnimatingColorMap[key];
 			}
 			else {
-				vgErrorF << "No such key" << key << "in animating color map.";
+				//vgWarningF << "No such key" << key << "in animating color map.";
 				return QColor("#ED1C24");
 			}
 		}

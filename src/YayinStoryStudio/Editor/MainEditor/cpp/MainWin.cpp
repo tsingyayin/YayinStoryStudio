@@ -116,9 +116,8 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::showEvent(QShowEvent* event) {
-		
-		yDebugF << CentralWidget->width() << CentralWidget->height();
-		yDebugF << this->width() << this->height();
+		//yDebugF << CentralWidget->width() << CentralWidget->height();
+		//yDebugF << this->width() << this->height();
 	}
 
 	void MainWin::closeEvent(QCloseEvent* event) {

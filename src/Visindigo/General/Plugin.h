@@ -46,6 +46,7 @@ namespace Visindigo::General {
 		QString getPluginID() const;
 		QString getPluginName() const;
 		QStringList getPluginAuthor() const;
+		QString getPluginDescription() const;
 		QDir getPluginFolder() const;
 		Visindigo::Utility::JsonConfig* getPluginConfig();
 		void savePluginConfig();
@@ -65,6 +66,7 @@ namespace Visindigo::General {
 		void setPluginID(const QString& id);
 		void setPluginName(const QString& name);
 		void setPluginAuthor(const QStringList& author);
+		void setPluginDescription(const QString& description);
 		void registerPluginModule(PluginModule* module);
 		void unregisterPluginModule(PluginModule* module);
 		void registerColorScheme(const QString& schemeFilePath);

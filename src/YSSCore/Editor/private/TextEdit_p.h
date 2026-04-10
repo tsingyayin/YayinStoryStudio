@@ -47,6 +47,7 @@ namespace YSSCore::__Private__ {
 		QTimer* HoverTimer = nullptr;
 		QPoint LastMousePos;
 		bool useKeyboardToMoveCursor = false;
+		QWidget* HoverArea = nullptr;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	protected:

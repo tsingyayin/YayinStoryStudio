@@ -32,8 +32,7 @@ namespace YSS {
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
 		registerColorScheme(":/resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json");
-		VISTM->setStyleTemplatePriority({ "YSS" });
-		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future use
+		
 	}
 
 	void Main::onPluginEnable() {
@@ -57,9 +56,14 @@ namespace YSS {
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
 		vgDebug << getPluginFolder().filePath("config.json");
 		d->ConfigWidget->setIndependentMode(true);
+		VISTM->setStyleTemplatePriority({ "YSS" });
+		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future use
+		VISTM->setAutoAdjustThemeToSystem(false);
+		
 	}
 
 	void Main::onApplicationInit() {
+		VISTM->changeColorTheme("Dark");
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 		//YSS::TestDragWidget* tw = new YSS::TestDragWidget();

@@ -110,11 +110,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cpp\Plugin_YSSFileExt.cpp" />
+    <ClCompile Include="FileServer\cpp\YSSPEditor.cpp" />
     <ClCompile Include="LangServer\cpp\JsonLangServer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LangServer\JsonLangServer.h" />
+    <QtMoc Include="FileServer\YSSPEditor.h" />
     <ClInclude Include="Macro.h" />
     <QtMoc Include="Plugin_YSSFileExt.h" />
   </ItemGroup>

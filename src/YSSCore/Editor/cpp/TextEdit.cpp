@@ -1,7 +1,3 @@
-/*
-*	Yayin Story Studio - Core Library
-*
-*/
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtCore/qfileinfo.h>
@@ -157,12 +153,17 @@ namespace YSSCore::__Private__ {
 			///yDebugF << "TabCompleterWidget is shown";
 			TabCompleterWidget->setCompleterItems(list);
 			QRect pos = Text->cursorRect();
-			TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
+			if (not HoverArea) {
+				TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
+			}
+			else {
+				TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
+			}
 			TabCompleterWidget->show();
 			Text->setFocus();
 		}
 	}
-
+	
 	void TextEditPrivate::onTabClicked(QKeyEvent* event) {
 		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
 			onTabClicked_TabCompleter(event);
@@ -427,7 +428,12 @@ namespace YSSCore::__Private__ {
 				}
 				else {
 					QRect lpos = Text->cursorRect(cursor);
-					HoverInfoWidget->move(QPoint(lpos.x() + 10, lpos.y() + 20));
+					if (!HoverArea) {
+						HoverInfoWidget->move(QPoint(lpos.x() + 10, lpos.y() + 20));
+					}
+					else {
+						HoverInfoWidget->move(Text->mapTo(HoverArea, QPoint(lpos.x() + 10, lpos.y() + 20)));
+					}
 				}
 			}
 			HoverTimer->stop();
@@ -454,7 +460,7 @@ namespace YSSCore::Editor {
 		\class YSSCore::Editor::TextEdit
 		\brief 这是YSS最关键的功能：代码编辑器.
 		\since Visindigo 0.13.0
-		\inmodule Visindigo
+		\inmodule YSSCore
 
 		TextEdit是Yayin Story Studio中最关键、最核心的功能，即代码编辑器。
 
@@ -481,7 +487,7 @@ namespace YSSCore::Editor {
 	*/
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		d = new YSSCore::__Private__::TextEditPrivate;
-		this->setMinimumSize(800, 600);
+		//this->setMinimumSize(800, 600);
 		this->setMouseTracking(true);
 		d->Font = qApp->font();
 		d->FontMetrics = new QFontMetricsF(d->Font);
@@ -499,7 +505,7 @@ namespace YSSCore::Editor {
 		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
 		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
-		vgDebug << "TabStopDistance:" << d->Text->tabStopDistance() << d->TabWidth * d->FontMetrics->size(Qt::TextSingleLine, " ").width();
+		//vgDebug << "TabStopDistance:" << d->Text->tabStopDistance() << d->TabWidth * d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
 		d->Text->installEventFilter(this);
 		d->Text->viewport()->setMouseTracking(true);
@@ -536,10 +542,40 @@ namespace YSSCore::Editor {
 		// IF SyntaxHighlighter wants to access some of this object's members in its destructor, 
 		// it will cause a crash as our d pointer is already deleted.
 		// So, Delete d->Text first to make sure SyntaxHighlighter is deleted before we delete d.
+		if (d->HoverInfoWidget) {
+			d->HoverInfoWidget->setParent(d->Text);
+		}
+		if (d->TabCompleterWidget) {
+			d->TabCompleterWidget->setParent(d->Text);
+		}
 		delete d->Text;
 		delete d;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		设置鼠标悬停提示的显示区域。如果不设置或设置为nullptr，那么悬停区域
+		永远不会超出TextEdit的范围。这可能在很多情况下会导致内容被遮挡，
+		因此我们建议您将悬停区域设置为一个更大的区域，如您的组件的主窗口等。
+	*/
+	void TextEdit::setHoverArea(QWidget* area) {
+		if (not area) {
+			d->HoverArea = nullptr;
+			if (d->HoverInfoWidget){
+				d->HoverInfoWidget->setParent(d->Text);
+			}
+			if (d->TabCompleterWidget){
+				d->TabCompleterWidget->setParent(d->Text);
+			}
+		}
+		d->HoverArea = area;
+		if (d->HoverInfoWidget){
+			d->HoverInfoWidget->setParent(area);
+		}
+		if (d->TabCompleterWidget){
+			d->TabCompleterWidget->setParent(area);
+		}
+	}
 	/*!
 		\since Visindigo 0.13.0
 		设置TextEdit中的文本内容。此函数会替换掉TextEdit中原有的全部文本内容。

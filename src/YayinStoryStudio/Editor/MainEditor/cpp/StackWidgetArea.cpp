@@ -3,6 +3,7 @@
 #include <QtWidgets/qsplitter.h>
 #include "Editor/GlobalValue.h"
 #include <General/YSSProject.h>
+#include <Editor/TextEdit.h>
 namespace YSS::Editor {
 	class StackWidgetAreaPrivate {
 		friend class StackWidgetArea;
@@ -53,6 +54,10 @@ namespace YSS::Editor {
 		widget->setParent(this);
 		d->WidgetMap[filePath] = widget;
 		d->TagArea->addStackLabel(filePath);
+		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
+		if (textEdit) {
+			textEdit->setHoverArea(this);
+		}
 		GlobalValue::getCurrentProject()->addEditorOpenedFile(filePath);
 		setCurrentWidget(filePath);
 	}

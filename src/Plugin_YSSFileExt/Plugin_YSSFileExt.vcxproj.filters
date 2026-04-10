@@ -32,6 +32,9 @@
     <ClCompile Include="LangServer\cpp\JsonLangServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FileServer\cpp\YSSPEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -43,6 +46,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="LangServer\JsonLangServer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="FileServer\YSSPEditor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

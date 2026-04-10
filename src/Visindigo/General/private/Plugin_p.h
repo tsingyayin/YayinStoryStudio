@@ -30,6 +30,7 @@ namespace Visindigo::__Private__ {
 		QStringList PluginAuthor;
 		QDir PluginFolder;
 		QString PluginExtensionID;
+		QString PluginDescription;
 		Visindigo::Utility::JsonConfig Config;
 		QList<Visindigo::General::PluginModule*> Modules;
 		Visindigo::General::Logger* Logger = nullptr;

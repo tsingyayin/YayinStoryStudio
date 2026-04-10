@@ -28,7 +28,7 @@
                             "Name": "i18n:YSS::menu.file.saveAs"
                         },
                         {
-                            "ID": "ProjectConfig",
+                            "ID": "projectConfig",
                             "Name": "i18n:YSS::menu.file.projectConfig"
                         }
                     ]

@@ -38,6 +38,9 @@
 		}
 	},
 	"project":{
+		"author":"作者",
+		"description":"描述",
+		"debugServer":"调试服务器",
 		"projectManager":"项目管理器",
 		"selectToShow": "选择项目以查看详情...",
 		"noCover":"无封面",
@@ -143,7 +146,7 @@
 		},
 		"about": {
 			"title": "关于 Yayin Story Studio",
-			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清计划）的一部分，是从Yayin Story Player发展而来的一个全新的项目，旨在为视觉小说开发者提供一个强大且易用的开发环境。"
+			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清计划）的一部分，是从Yayin Story Player发展而来的一个全新的项目，旨在为ASE用户提供一个易用的开发环境。"
 		}
 	}
 }

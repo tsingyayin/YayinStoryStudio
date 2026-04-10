@@ -24,6 +24,7 @@ namespace YSSCore::Editor {
 	public:
 		TextEdit(QWidget* parent = nullptr);
 		virtual ~TextEdit();
+		void setHoverArea(QWidget* area);
 		void setPlainText(const QString& text);
 		QString getPlainText() const;
 		void moveCursorToLine(int lineNumber);

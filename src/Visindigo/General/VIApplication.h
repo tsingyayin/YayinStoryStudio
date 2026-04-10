@@ -53,6 +53,7 @@ namespace Visindigo::General {
 			TerminalAutoShow,
 			ThemeFolderPath,
 			SaveCommandHistory,
+			DefaultColorTheme,
 		};
 		Q_ENUM(EnvKey);
 	public:

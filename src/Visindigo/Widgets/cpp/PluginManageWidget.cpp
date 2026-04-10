@@ -82,7 +82,7 @@ namespace Visindigo::__Private__ {
 		NameLabel->setText(plugin->getPluginName());
 		AuthorLabel->setText(plugin->getPluginAuthor().join(", "));
 		VersionLabel->setText(plugin->getPluginVersion().toString());
-		DescriptionLabel->setText(QString()); // plugin does not have description yet.
+		DescriptionLabel->setText(plugin->getPluginDescription());
 		bool deactivate = Visindigo::General::PluginManager::getInstance()->isPluginDeactivate(plugin->getPluginID());
 		CheckBoxLabel->setText(deactivate ? VITR("Visindigo::general.deactive") : VITR("Visindigo::general.active"));
 		ActiveCheckBox->setChecked(not deactivate);

@@ -4,7 +4,7 @@
 
 namespace YSSCore::__Private__ {
 	HoverInfoWidget::HoverInfoWidget(QWidget* parent) :QFrame(parent) {
-		this->setMinimumSize(500, 100);
+		this->setMinimumSize(500, 200);
 		ContentArea = new QTextBrowser(this);
 		Layout = new QVBoxLayout(this);
 		this->setLayout(Layout);

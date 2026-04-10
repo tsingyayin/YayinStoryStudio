@@ -75,6 +75,11 @@ namespace YSS::Editor {
 		YSS::Editor::MainWin::getInstance()->saveAll();
 	}
 
+	void Menu_File_FileOptions::projectConfig() {
+		QString ysspFilePath = YSS::GlobalValue::getCurrentProject()->getProjectConfigPath();
+		YSSFSM->openFile(ysspFilePath);
+	}
+
 	void Menu_File_ProgramOptions::backToHome() {
 		yDebugF << "Back to Home";
 		YSS::Editor::MainWin::getInstance()->backToProjectWin();

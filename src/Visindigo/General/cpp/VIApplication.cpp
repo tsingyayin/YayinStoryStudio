@@ -196,6 +196,7 @@ namespace Visindigo::General {
 			如果为true，则在应用程序启动时会自动显示虚拟终端窗口；如果为false，则需要用户手动调用VIApplication::getVirtualTerminal()->show()来显示虚拟终端窗口。
 		\value ThemeFolderPath 主题文件夹路径，类型为QString，默认值为"./user_data/themes"。
 		\value SaveCommandHistory 是否保存命令历史，类型为bool，默认值为false。
+		\value DefaultColorTheme 默认颜色主题，类型为QString，默认值为”Dark"。当颜色配置不存在于磁盘时，默认使用此颜色主题。
 	*/
 	QMap<VIApplication::EnvKey, QVariant> VIApplicationPrivate::EnvConfig = {
 			{VIApplication::LogFolderPath, "./user_data/logs"},
@@ -208,6 +209,7 @@ namespace Visindigo::General {
 			{VIApplication::TerminalAutoShow, false},
 			{VIApplication::ThemeFolderPath, "./user_data/themes"},
 			{VIApplication::SaveCommandHistory, false},
+			{VIApplication::DefaultColorTheme, "Dark"},
 	};
 
 	/*!

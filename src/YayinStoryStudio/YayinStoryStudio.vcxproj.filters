@@ -121,9 +121,6 @@
     <QtMoc Include="YayinStoryStudio.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\ProjectMetaPage\ProjectMetaWin.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\MainEditor\StackWidgetArea.h">
       <Filter>Header Files</Filter>
     </QtMoc>

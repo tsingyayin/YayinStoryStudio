@@ -61,6 +61,9 @@ namespace YSSCore::General {
 		}
 		return LoadProjectResult::Success;
 	}
+	QString YSSProject::getProjectConfigPath() {
+		return d->ConfigPath;
+	}
 	bool YSSProject::saveProject(const QString& configPath) {
 		d->updateLastModifyTime();
 		if (configPath.isEmpty()) {
@@ -91,6 +94,7 @@ namespace YSSCore::General {
 		d->ProjectConfig->setString("Project.Description", "");
 		d->ProjectConfig->setString("Project.IconPath", "");
 		d->ProjectConfig->setString("Project.Version", "0.1");
+		d->ProjectConfig->setString("Project.Author", "");
 		d->ProjectConfig->setString("Project.DebugServerID", "");
 		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
@@ -114,6 +118,9 @@ namespace YSSCore::General {
 	QString YSSProject::getProjectIconPath() {
 		return d->ProjectConfig->getString("Project.IconPath");
 	}
+	QString YSSProject::getProjectAuthor() {
+		return d->ProjectConfig->getString("Project.Author");
+	}
 	void YSSProject::setProjectName(const QString& name) {
 		d->ProjectConfig->setString("Project.Name", name);
 	}
@@ -122,6 +129,9 @@ namespace YSSCore::General {
 	}
 	void YSSProject::setProjectIconPath(const QString& iconPath) {
 		d->ProjectConfig->setString("Project.IconPath", iconPath);
+	}
+	void YSSProject::setProjectAuthor(const QString& author) {
+		d->ProjectConfig->setString("Project.Author", author);
 	}
 	QDateTime YSSProject::getProjectCreateTime() {
 		return QDateTime::fromString(d->ProjectConfig->getString("Project.CreateTime"), "yyyy-MM-dd hh:mm:ss");

@@ -300,6 +300,13 @@ namespace Visindigo::General {
 	}
 	/*!
 		\since Visindigo 0.13.0
+		return 插件的描述信息
+	*/
+	QString Plugin::getPluginDescription() const {
+		return d->PluginDescription;
+	}
+	/*!
+		\since Visindigo 0.13.0
 		return 插件的根目录
 	*/
 	QDir Plugin::getPluginFolder() const {
@@ -481,6 +488,15 @@ namespace Visindigo::General {
 	void Plugin::setPluginAuthor(const QStringList& author) {
 		d->PluginAuthor = author;
 	}
+	/*!
+		\since Visindigo 0.13.0
+		\a description 插件的描述信息
+		设置插件的描述信息
+	*/
+	void Plugin::setPluginDescription(const QString& description) {
+		d->PluginDescription = description;
+	}
+
 	/*!
 		\since Visindigo 0.13.0
 		\a version 插件的版本号

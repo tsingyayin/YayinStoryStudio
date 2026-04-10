@@ -130,7 +130,7 @@ namespace ASERStudio::YSS {
 
 		QList<ASERStudio::AStorySyntax::AStoryXDiagnosticData> diagnostics = d->Document->getDiagnostics(blockNumber);
 		for (auto diagnostic : diagnostics) {
-			vgDebug << diagnostic;
+			//vgDebug << diagnostic;
 			DiagnosticTransform(diagnostic);
 		}
 	}

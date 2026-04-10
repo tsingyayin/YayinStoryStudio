@@ -11,6 +11,7 @@ namespace YSSCore::Editor {
 	public:
 		~DebugServerManager();
 		static DebugServerManager* getInstance();
+		QStringList getDebugServerIDs();
 		DebugServer* getDebugServer(const QString& serverID);
 		void addDebugServer(DebugServer* server);
 	private:
