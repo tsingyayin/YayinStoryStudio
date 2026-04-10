@@ -144,6 +144,10 @@
 				"message": "这个项目没有配置调试器选项，请打开项目设置，在调试器选项中选择一个调试器，然后重试。"
 			}
 		},
+		"saveWarning": {
+			"title": "文件已修改",
+			"message": "文件 %1 已经被修改了，是否要保存更改？"
+		},
 		"about": {
 			"title": "关于 Yayin Story Studio",
 			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清计划）的一部分，是从Yayin Story Player发展而来的一个全新的项目，旨在为ASE用户提供一个易用的开发环境。"

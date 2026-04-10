@@ -22,7 +22,7 @@ namespace YSS::NewFilePage {
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle(VITR("YSS::project.createNewFile"));
 		TitleLabel = new QLabel(this);
-		TitleLabel->setObjectName("TitleLabel");
+		TitleLabel->setObjectName("ProgramTitleLabel");
 		TitleLabel->setFixedHeight(80);
 		RecentTemplateTitle = new QLabel(this);
 		SearchLineEdit = new QLineEdit(this);
@@ -60,7 +60,8 @@ namespace YSS::NewFilePage {
 		SearchLineEdit->setFixedHeight(30);
 		RecentTemplateTitle->setText(VITR("YSS::project.recentUsed"));
 
-		this->setStyleSheet(VISTMGT("YSS::ProjectWin", this));
+		setColorfulEnable(true);
+		onThemeChanged();
 
 		this->loadFileTemplate();
 	}
@@ -81,9 +82,9 @@ namespace YSS::NewFilePage {
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
-			ProviderButton->setNormalStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Normal"));
-			ProviderButton->setHoverStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Hover"));
-			ProviderButton->setPressedStyleSheet(VISTMGT("YSS::ProjectWin.HistoryProject.Pressed"));
+			ProviderButton->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
+			ProviderButton->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
+			ProviderButton->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->addCustomWidget(tags);
@@ -114,6 +115,14 @@ namespace YSS::NewFilePage {
 				this, &NewFileWin::onFilePrepared);
 			initWidget->setWindowModality(Qt::ApplicationModal);
 			initWidget->show();
+		}
+	}
+	void NewFileWin::onThemeChanged() {
+		this->applyVIStyleTemplate("YSS::ProjectWin");
+		for (Visindigo::Widgets::MultiButton* button : FileList) {
+			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
+			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
+			button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 		}
 	}
 	void NewFileWin::closeEvent(QCloseEvent* event) {

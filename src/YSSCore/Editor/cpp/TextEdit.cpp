@@ -795,12 +795,10 @@ namespace YSSCore::Editor {
 	*/
 	bool TextEdit::onClose() {
 		if (isFileChanged()) {
-			QMessageBox msgBox;
-			QFileInfo fileInfo(getFilePath());
-			msgBox.setText("Editor.SaveWarning.Message");
-			msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-			msgBox.setDefaultButton(QMessageBox::Save);
-			int ret = msgBox.exec();
+			int ret = QMessageBox::warning(this, VITR("YSS::editor.saveWarning.title"), 
+				VITR("YSS::editor.saveWarning.message").arg(getFileName()),
+				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+				QMessageBox::Save);
 			switch (ret) {
 			case QMessageBox::Save:
 				saveFile();

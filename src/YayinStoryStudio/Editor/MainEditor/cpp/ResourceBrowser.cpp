@@ -5,21 +5,22 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QLineEdit>
-#include "../../GlobalValue.h"
+#include "Editor/GlobalValue.h"
 #include <General/YSSProject.h>
-#include "../../NewFilePage/NewFileWin.h"
-
+#include "Editor/NewFilePage/NewFileWin.h"
+#include <General/TranslationHost.h>
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :QWidget(parent) {
 		ButtonWidget = new QWidget(this);
 
 		ButtonLayout = new QHBoxLayout(ButtonWidget);
-		RefreshButton = new QPushButton("Refresh", ButtonWidget);
-		NewButton = new QPushButton("New", ButtonWidget);
-		BackButton = new QPushButton("Back", ButtonWidget);
+		RefreshButton = new QPushButton(VITR("Visindigo::general.refresh"), ButtonWidget);
+		NewButton = new QPushButton(VITR("Visindigo::general.new"), ButtonWidget);
+		BackButton = new QPushButton(VITR("Visindigo::general.back"), ButtonWidget);
 		ButtonLayout->addWidget(RefreshButton);
 		ButtonLayout->addWidget(NewButton);
 		ButtonLayout->addWidget(BackButton);
+		ButtonLayout->setContentsMargins(0, 0, 0, 0);
 		ButtonWidget->setLayout(ButtonLayout);
 
 		Layout = new QVBoxLayout(this);

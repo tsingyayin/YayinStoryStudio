@@ -15,6 +15,7 @@ namespace YSSFileExt {
 	class YSSPEditorPrivate {
 		friend class YSSPEditor;
 	protected:
+		QWidget* Content;
 		QLabel* CoverLabel;
 		QLabel* ProjectNameLabel;
 		QLabel* AuthorLabel;
@@ -24,32 +25,37 @@ namespace YSSFileExt {
 		QTextEdit* DescriptionEdit;
 		QLabel* DebugServerLabel;
 		QComboBox* DebugServerComboBox;
+		QHBoxLayout* ContentLayout;
 	};
 
 	YSSPEditor::YSSPEditor(QWidget* parent) : YSSCore::Editor::FileEditWidget(parent) {
 		d = new YSSPEditorPrivate;
-		d->Layout = new QGridLayout(this);
-		d->CoverLabel = new QLabel(this);
-		d->CoverLabel->setFixedSize(320, 180);
-		d->ProjectNameLabel = new QLabel(this);
-		d->AuthorLabel = new QLabel(this);
+		d->Content = new QWidget(this);
+		d->Layout = new QGridLayout(d->Content);
+		d->CoverLabel = new QLabel(d->Content);
+		d->CoverLabel->setFixedSize(160, 90);
+		d->ProjectNameLabel = new QLabel(d->Content);
+		d->AuthorLabel = new QLabel(d->Content);
 		d->AuthorLabel->setText(VITR("YSS::project.author"));
-		d->AuthorLineEdit = new QLineEdit(this);
-		d->DescriptionLabel = new QLabel(this);
+		d->AuthorLineEdit = new QLineEdit(d->Content);
+		d->DescriptionLabel = new QLabel(d->Content);
 		d->DescriptionLabel->setText(VITR("YSS::project.description"));
-		d->DescriptionEdit = new QTextEdit(this);
-		d->DebugServerLabel = new QLabel(this);
+		d->DescriptionEdit = new QTextEdit(d->Content);
+		d->DebugServerLabel = new QLabel(d->Content);
 		d->DebugServerLabel->setText(VITR("YSS::project.debugServer"));
-		d->DebugServerComboBox = new QComboBox(this);
+		d->DebugServerComboBox = new QComboBox(d->Content);
 		d->Layout->addWidget(d->CoverLabel, 0, 0, 3, 1);
-		d->Layout->addWidget(d->ProjectNameLabel, 0, 1, 2, 1);
+		d->Layout->addWidget(d->ProjectNameLabel, 0, 1, 2, 2);
 		d->Layout->addWidget(d->AuthorLabel, 2, 1);
 		d->Layout->addWidget(d->AuthorLineEdit, 2, 2);
-		d->Layout->addWidget(d->DescriptionLabel, 3, 0);
-		d->Layout->addWidget(d->DescriptionEdit, 4, 0);
-		d->Layout->addWidget(d->DebugServerLabel, 5, 0);
-		d->Layout->addWidget(d->DebugServerComboBox, 6, 0);
-
+		d->Layout->addWidget(d->DescriptionLabel, 3, 0, 1, 3);
+		d->Layout->addWidget(d->DescriptionEdit, 4, 0, 1, 3);
+		d->Layout->addWidget(d->DebugServerLabel, 5, 0, 1, 3);
+		d->Layout->addWidget(d->DebugServerComboBox, 6, 0, 1, 3);
+		d->ContentLayout = new QHBoxLayout(this);
+		d->ContentLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		d->ContentLayout->addWidget(d->Content);
+		d->ContentLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		QStringList debuggerList = YSSDSM->getDebugServerIDs();
 		d->DebugServerComboBox->addItems(debuggerList);
 		connect(d->AuthorLineEdit, &QLineEdit::textChanged, this, &YSSPEditor::setFileChanged);

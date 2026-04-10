@@ -77,7 +77,8 @@ namespace YSS::Editor {
 
 	void Menu_File_FileOptions::projectConfig() {
 		QString ysspFilePath = YSS::GlobalValue::getCurrentProject()->getProjectConfigPath();
-		YSSFSM->openFile(ysspFilePath);
+		QDir projectDir(ysspFilePath);
+		YSSFSM->openFile(projectDir.absoluteFilePath(""));
 	}
 
 	void Menu_File_ProgramOptions::backToHome() {

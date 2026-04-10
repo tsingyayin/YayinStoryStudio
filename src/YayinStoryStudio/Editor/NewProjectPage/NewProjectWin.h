@@ -2,6 +2,7 @@
 #include <QtWidgets/qwidget.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
+#include <Widgets/ThemeManager.h>
 
 class QLabel;
 class QLineEdit;
@@ -16,7 +17,7 @@ namespace YSSCore::Editor {
 	class ProjectTemplateProvider;
 }
 namespace YSS::NewProjectPage {
-	class NewProjectWin :public QWidget {
+	class NewProjectWin :public QWidget, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
 		void projectPrepared(QString projectPath);
@@ -39,6 +40,7 @@ namespace YSS::NewProjectPage {
 		~NewProjectWin() {};
 		void loadRecentTemplate() {};
 		void loadProjectTemplate();
+		virtual void onThemeChanged() override;
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:

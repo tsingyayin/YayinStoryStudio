@@ -10,7 +10,9 @@ namespace YSS::Editor {
 	StackWidgetTagLabel::StackWidgetTagLabel(QWidget* parent) :QFrame(parent) {
 		TitleLabel = new QLabel(this);
 		PinLabel = new QPushButton(this);
+		PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
 		CloseLabel = new QPushButton(this);
+		CloseLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/close.png"));
 		Separator = new QFrame(this);
 		Layout = new QHBoxLayout(this);
 		Layout->setContentsMargins(5, 0, 5, 0);
@@ -154,6 +156,7 @@ namespace YSS::Editor {
 		ScrollArea->setWidget(ScrollContent);
 		ScrollArea->setWidgetResizable(true);
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		ScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		WidgetSelector = new QComboBox(this);
 		WidgetSelector->setMinimumWidth(200);
 		Layout = new QHBoxLayout(this);
@@ -165,6 +168,11 @@ namespace YSS::Editor {
 			setCurrentStackLabel(filePath);
 			emit switchToFile(filePath);
 			});
+		setColorfulEnable(true);
+		onThemeChanged();
+	}
+
+	StackWidgetTagArea::~StackWidgetTagArea() {
 	}
 
 	void StackWidgetTagArea::addStackLabel(const QString& filePath) {
@@ -185,6 +193,9 @@ namespace YSS::Editor {
 			emit switchToFile(filePath);
 			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
+		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),
+			VISTMGT("YSS::Editor.StackWidgetTag.Hover"),
+			VISTMGT("YSS::Editor.StackWidgetTag.Pressed"));
 		adjustScrollArea();
 	}
 
@@ -307,6 +318,21 @@ namespace YSS::Editor {
 		ScrollContent->setFixedWidth(totalWidth + 2 * ScrollContent->frameWidth());
 	}
 	
+	void StackWidgetTagArea::wheelEvent(QWheelEvent* event) {
+		QFrame::wheelEvent(event);
+		int numDegrees = event->angleDelta().y() / 8;
+		int numSteps = numDegrees / 15;
+		int stepSize = Labels.size() > 0 ? Labels[0]->width() + ContentLayout->spacing() : 100;
+		ScrollArea->horizontalScrollBar()->setValue(ScrollArea->horizontalScrollBar()->value() - numSteps * stepSize);
+	}
+
+	void StackWidgetTagArea::onThemeChanged() {
+		for (StackWidgetTagLabel* label : Labels) {
+			label->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),
+				VISTMGT("YSS::Editor.StackWidgetTag.Hover"),
+				VISTMGT("YSS::Editor.StackWidgetTag.Pressed"));
+		}
+	}
 	void StackWidgetTagArea::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		adjustScrollArea();

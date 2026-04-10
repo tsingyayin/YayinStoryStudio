@@ -7,7 +7,7 @@
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qtablewidget.h>
-
+#include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
 	class StackWidgetTagLabel :public QFrame {
 		Q_OBJECT;
@@ -46,7 +46,7 @@ namespace YSS::Editor {
 		virtual void leaveEvent(QEvent* event) override;
 	};
 
-	class StackWidgetTagArea :public QFrame {
+	class StackWidgetTagArea :public QFrame ,public Visindigo::Widgets::ColorfulWidget{
 		Q_OBJECT;
 	signals:
 		void switchToFile(const QString& filePath);
@@ -61,6 +61,7 @@ namespace YSS::Editor {
 		QString CurrentSelected;
 	public:
 		StackWidgetTagArea(QWidget* parent = nullptr);
+		virtual ~StackWidgetTagArea();
 		void addStackLabel(const QString& filePath);
 		void pinStackLabel(const QString& filePath);
 		void removeStackLabel(const QString& filePath);
@@ -68,6 +69,8 @@ namespace YSS::Editor {
 		QString getCurrentSelected() const;
 		void adjustScrollArea();
 	public:
+		virtual void wheelEvent(QWheelEvent* event) override;
+		virtual void onThemeChanged() override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 	};
 

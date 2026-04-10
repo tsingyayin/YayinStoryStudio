@@ -4,6 +4,8 @@
 #include "Editor/GlobalValue.h"
 #include <General/YSSProject.h>
 #include <Editor/TextEdit.h>
+#include <General/Log.h>
+
 namespace YSS::Editor {
 	class StackWidgetAreaPrivate {
 		friend class StackWidgetArea;
@@ -18,20 +20,16 @@ namespace YSS::Editor {
 
 	StackWidgetArea::StackWidgetArea(QWidget* parent) :QFrame(parent) {
 		d = new StackWidgetAreaPrivate;
+		d->Layout = new QVBoxLayout(this);
 		d->TagArea = new StackWidgetTagArea(this);
-		d->TagArea->setFixedHeight(50);
+		d->TagArea->setFixedHeight(40);
+		d->Layout->addWidget(d->TagArea);
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
 		d->ContentArea = d->CentralArea;
-		d->Layout = new QVBoxLayout(this);
 		//d->Layout->setContentsMargins(0, 0, 0, 0);
-		d->Layout->addWidget(d->TagArea);
 		d->Layout->addWidget(d->ContentArea);
-		QFrame* line = new QFrame(this);
-		line->setFrameShape(QFrame::HLine);
-		line->setFrameShadow(QFrame::Sunken);
-		d->Layout->addWidget(line);
 		d->MsgViewer = new MessageViewer(this);
-		d->MsgViewer->setFixedHeight(260);
+		d->MsgViewer->setFixedHeight(220);
 		d->Layout->addWidget(d->MsgViewer);
 		connect(d->TagArea, &StackWidgetTagArea::switchToFile, this, [this](const QString& filePath) {
 			setCurrentWidget(filePath);
@@ -46,6 +44,7 @@ namespace YSS::Editor {
 
 	void StackWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
 		QString filePath = widget->getFilePath();
+		vgDebug << filePath;
 		if (d->WidgetMap.contains(filePath)) {
 			setCurrentWidget(filePath);
 			widget->deleteLater();

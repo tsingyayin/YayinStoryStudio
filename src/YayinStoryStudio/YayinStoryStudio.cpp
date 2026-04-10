@@ -41,11 +41,11 @@ namespace YSS {
 		YSSCore::Editor::ProjectTemplateManager::getInstance();
 		YSSCore::Editor::FileTemplateManager::getInstance();
 		YSSCore::Editor::LangServerManager::getInstance();
-		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("yst", "YSS StyleSheet Template",
+		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("vst", "Visindigo StyleSheet Template",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,0");
-		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("ysp", "YSS Plugin Library",
+		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("vpl", "Visindigo Plugin Library",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,1");
-		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("yssp", "YSS Project",
+		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("yssp", "YayinStoryStudio Project",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::GlobalValue::getInstance();
 		VIApp->setGlobalFont(":/resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf");

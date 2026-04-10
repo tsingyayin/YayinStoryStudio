@@ -29,6 +29,7 @@
 #include <General/VIApplication.h>
 #include <General/Plugin.h>
 namespace YSS::ProjectPage {
+	bool ProjectWin::firstOpen = true;
 	ProjectWin::ProjectWin() :QFrame() {
 		NetworkManager = new QNetworkAccessManager(this);
 		// access http://yxgeneral.cn/DirectFiles/YSS/meta.json to get news info
@@ -127,6 +128,20 @@ namespace YSS::ProjectPage {
 		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProjectClicked);
 		setColorfulEnable(true);
 		onThemeChanged();
+
+		if (firstOpen) {
+			firstOpen = false;
+			QStringList launchArgs = qApp->arguments();
+			if (launchArgs.size() > 1) {
+				QString ysspFilePath = launchArgs[1];
+				if (ysspFilePath.endsWith(".yssp") || ysspFilePath.endsWith("yssproj.json")) {
+					onOpenProject(ysspFilePath);
+				}
+				else {
+					yMessageF << "Invalid project file path:" << ysspFilePath;
+				}
+			}
+		}
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event) {

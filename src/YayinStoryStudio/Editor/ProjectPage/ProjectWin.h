@@ -48,6 +48,7 @@ namespace YSS::ProjectPage {
 		QMap<Visindigo::Widgets::MultiButton*, YSSCore::General::YSSProject*> HistoryProjectMap;
 		QList<QLabel*> HistoryProjectTimeLabelList;
 		QNetworkAccessManager* NetworkManager;
+		static bool firstOpen;
 	public:
 		ProjectWin();
 		virtual void closeEvent(QCloseEvent* event) override;

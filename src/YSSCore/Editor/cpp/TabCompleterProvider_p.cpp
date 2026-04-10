@@ -64,9 +64,9 @@ namespace YSSCore::__Private__ {
 			button->setFixedHeight(36);
 			button->setSpacing(2);
 			button->setContentsMargins(2, 2, 2, 2);
-			button->setNormalStyleSheet(VISTMGT("YSS::TextEdit.TabCompleter.Normal", button));
-			button->setHoverStyleSheet(VISTMGT("YSS::TextEdit.TabCompleter.Hover", button));
-			button->setPressedStyleSheet(VISTMGT("YSS::TextEdit.TabCompleter.Pressed", button));
+			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed", button));
+			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Normal", button));
+			button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Hover", button));
 			Items.append(button);
 			ItemMap.insert(button, item);
 			ButtonGroup->addButton(button);

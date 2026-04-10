@@ -191,9 +191,14 @@ namespace YSSCore::Editor {
 		如果存在优先使用的FileServerID且该FileServer成功打开文件，则会优先使用该FileServer。
 		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
 		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
+
+		\warning 值得指出的是，为了统一下游的使用体验，FileServerManager在尝试使用FileServer打开文件时会将文件路径转换为绝对路径，
+		并且不区分路径的大小写（如果操作系统不区分大小写）。如果FileServer有必要对文件路径进行处理，请严格使用QFile、QFileInfo、
+		QDir等文件系统相关类对输入的路径字符串进行处理，而不是直接对字符串进行操作，以避免字面值发生变化导致逻辑错误。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		QString ext = QFileInfo(filePath).suffix();
+		QString absPath = QFileInfo(filePath).absoluteFilePath();
 		if (d->FileServerMap.contains(ext)) { // means supported
 			QList<FileServer*> servers = d->FileServerMap[ext];
 			if (d->FileServerPriorityMap.contains(ext)) {
@@ -208,7 +213,7 @@ namespace YSSCore::Editor {
 					}
 				}
 				if (server) {
-					if (d->openFile(filePath, server)) {
+					if (d->openFile(absPath, server)) {
 						return true;
 					}
 				}
@@ -217,20 +222,20 @@ namespace YSSCore::Editor {
 				qint64 especiallyFocus = -1;
 				FileServer* especiallyFocusServer = nullptr;
 				for (auto server : servers) {
-					int currentFocus = server->especiallyFocusFile(filePath);
+					int currentFocus = server->especiallyFocusFile(absPath);
 					if (currentFocus > 0 && currentFocus > especiallyFocus) {
 						especiallyFocus = currentFocus;
 						especiallyFocusServer = server;
 					}
 				}
 				if (especiallyFocusServer) {
-					if (d->openFile(filePath, especiallyFocusServer)) {
+					if (d->openFile(absPath, especiallyFocusServer)) {
 						return true;
 					}
 				}
 			}
 			for (auto server : servers) {
-				if (d->openFile(filePath, server)) {
+				if (d->openFile(absPath, server)) {
 					return true;
 				}
 			}
@@ -243,7 +248,7 @@ namespace YSSCore::Editor {
 				QMessageBox::Yes | QMessageBox::No);
 			if (ret == QMessageBox::Yes) {
 				FileEditWidget* feWidget = new TextEdit();
-				bool ok = feWidget->openFile(filePath);
+				bool ok = feWidget->openFile(absPath);
 				if (ok) {
 					emit builtinEditorCreated(feWidget);
 					return true;

@@ -2,7 +2,7 @@
 #include <QtWidgets/qwidget.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
-
+#include <Widgets/ThemeManager.h>
 class QLabel;
 class QLineEdit;
 class QScrollArea;
@@ -16,7 +16,7 @@ namespace YSSCore::Editor {
 	class FileTemplateProvider;
 }
 namespace YSS::NewFilePage {
-	class NewFileWin :public QWidget {
+	class NewFileWin :public QWidget, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
 		void filePrepared(QString projectPath);
@@ -40,6 +40,7 @@ namespace YSS::NewFilePage {
 		~NewFileWin() {};
 		void loadRecentTemplate() {};
 		void loadFileTemplate();
+		virtual void onThemeChanged() override;
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:
