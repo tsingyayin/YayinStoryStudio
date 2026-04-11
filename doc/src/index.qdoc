@@ -4,8 +4,9 @@
     \brief Yayin Story Studio 的官方文档首页
 
     欢迎使用 Yayin Story Studio 的官方文档！本页面提供了 Yayin Story Studio 的各个模块和功能的详细介绍，
-    这份官方文档更多的是面向开发者的，如果您是普通用户，建议参考 Yayin Story Studio 的用户手册。
+    这份官方文档更多的是面向开发者的，如果您是普通用户，建议参考 \l {https://www.yuque.com/tsingyayin/yss/}{Yayin Story Studio 用户文档 - 语雀} 。
 
+    
     如果您需要ASE教程，请另行参阅 \l {https://www.yuque.com/tsingyayin/ase/welcome}{ASE 官方文档 - 语雀} 。
 
     \section1 模块介绍
