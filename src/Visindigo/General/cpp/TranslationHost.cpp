@@ -1,16 +1,43 @@
 #include "../TranslationHost.h"
 #include "../private/Translator_p.h"
 #include "../Log.h"
+#include "QtCore/qtranslator.h"
+#include "QtCore/qcoreapplication.h"
 namespace Visindigo::General {
 	class TranslationHostPrivate {
 		friend class TranslationHost;
 		static TranslationHost* Instance;
 		QMap<QString, Translator*> Translators;
 		Translator::LangID GlobalID = Translator::LangID::zh_CN;
+		QTranslator* currentQTranslator = nullptr;
 		void refreshLang(Translator::LangID langID) {
+			if (langID == GlobalID) {
+				return;
+			}
 			for (QString id : Translators.keys()) {
 				Translator* trans = Translators[id];
 				trans->d->loadTranslationFile(langID);
+			}
+			QString langId = QMetaEnum::fromType<Translator::LangID>().valueToKey(langID);
+			vgNoticeF << "Language changed to" << langId;
+			refreshQtLang(langID);
+		}
+
+		void refreshQtLang(Translator::LangID langID) {
+			QString langId = QMetaEnum::fromType<Translator::LangID>().valueToKey(langID);
+			if (currentQTranslator) {
+				QCoreApplication::removeTranslator(currentQTranslator);
+				delete currentQTranslator;
+				currentQTranslator = nullptr;
+			}
+			currentQTranslator = new QTranslator;
+			QString qmFilePath = QString("./translations/qt_%1.qm").arg(langId);
+			if (currentQTranslator->load(qmFilePath)) {
+				QCoreApplication::installTranslator(currentQTranslator);
+				vgNoticeF << "Qt translation file" << qmFilePath << "loaded.";
+			}
+			else {
+				vgWarningF << "Failed to load Qt translation file" << qmFilePath;
 			}
 		}
 	};
@@ -43,6 +70,7 @@ namespace Visindigo::General {
 	*/
 	TranslationHost::TranslationHost():QObject() {
 		d = new TranslationHostPrivate;
+		d->refreshQtLang(d->GlobalID);
 		vgSuccessF << "Success!";
 	}
 

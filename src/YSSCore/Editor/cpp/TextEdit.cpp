@@ -34,6 +34,87 @@ namespace YSSCore::__Private__ {
 		*/
 	}
 
+	bool TextEditPrivate::eventFilter(QObject* obj, QEvent* event) {
+		if (obj == Text) {
+			if (event->type() == QEvent::KeyPress) {
+				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+				if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab) {
+					onTabClicked(keyEvent);
+					return true;
+				}
+				else if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+					if (Text->textCursor().hasSelection()) { // 不改动选择时回车
+						return false;
+					}
+					onEnterClicked(keyEvent);
+					return true;
+				}
+				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down ||
+					keyEvent->key() == Qt::Key_Left || keyEvent->key() == Qt::Key_Right) {
+					if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+						if (keyEvent->modifiers() == Qt::NoModifier) {
+							onDirectionClicked(keyEvent);
+							return true;
+						}
+					}
+					else {
+						useKeyboardToMoveCursor = true;
+					}
+					return false;
+				}
+				else if (keyEvent->key() == Qt::Key_Escape) {
+					onEscapeClicked(keyEvent);
+				}
+			}
+		}
+		else if (obj == Text->viewport()) {
+			if (event->type() == QEvent::MouseMove) {
+				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+				onMouseMove(mouseEvent);
+				return false;
+			}
+			else if (event->type() == QEvent::Wheel) {
+				QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
+				return onMouseScroll(wheelEvent);
+			}
+			else if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
+				useKeyboardToMoveCursor = false;
+				return false;
+			}
+		}
+		else if (obj == q) {
+			if (event->type() == QEvent::Close) {
+				if (q->onClose()) {
+					event->accept();
+					return true;
+				}
+				else {
+					event->ignore();
+					return false;
+				}
+			}
+			else if (event->type() == QEvent::Hide || event->type() == QEvent::HideToParent) {
+				if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+					HoverInfoWidget->hide();
+				}
+				if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+					TabCompleterWidget->hide();
+				}
+				return false;
+			}
+			else if (event->type() == QEvent::Show || event->type() == QEvent::ShowToParent) {
+				if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+					HoverInfoWidget->hide();
+				}
+				if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+					TabCompleterWidget->hide();
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+
 	void TextEditPrivate::onBlockCountChanged(qint32 count) {
 		qint32 delta = count - LineCount;
 		if (delta > 0) {
@@ -487,6 +568,7 @@ namespace YSSCore::Editor {
 	*/
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		d = new YSSCore::__Private__::TextEditPrivate;
+		d->q = this;
 		//this->setMinimumSize(800, 600);
 		this->setMouseTracking(true);
 		d->Font = qApp->font();
@@ -507,10 +589,11 @@ namespace YSSCore::Editor {
 		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
 		//vgDebug << "TabStopDistance:" << d->Text->tabStopDistance() << d->TabWidth * d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
-		d->Text->installEventFilter(this);
+		d->Text->installEventFilter(d);
 		d->Text->viewport()->setMouseTracking(true);
-		d->Text->viewport()->installEventFilter(this);
+		d->Text->viewport()->installEventFilter(d);
 		d->Text->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
+		this->installEventFilter(d);
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->addWidget(d->Line);
 		d->Layout->addWidget(d->Text);
@@ -657,68 +740,15 @@ namespace YSSCore::Editor {
 	}
 
 	bool TextEdit::eventFilter(QObject* obj, QEvent* event) {
-		if (obj == d->Text) {
-			if (event->type() == QEvent::KeyPress) {
-				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-				if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab) {
-					d->onTabClicked(keyEvent);
-					return true;
-				}
-				else if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
-					if (d->Text->textCursor().hasSelection()) { // 不改动选择时回车
-						return false;
-					}
-					d->onEnterClicked(keyEvent);
-					return true;
-				}
-				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down ||
-					keyEvent->key() == Qt::Key_Left || keyEvent->key() == Qt::Key_Right) {
-					if (d->TabCompleterWidget != nullptr && d->TabCompleterWidget->isVisible()) {
-						if (keyEvent->modifiers() == Qt::NoModifier) {
-							d->onDirectionClicked(keyEvent);
-							return true;
-						}
-					}else{
-						d->useKeyboardToMoveCursor = true;
-					}
-					return false;
-				}
-				else if (keyEvent->key() == Qt::Key_Escape) {
-					d->onEscapeClicked(keyEvent);
-				}
-			}
-		}
-		else if (obj == d->Text->viewport()) {
-			if (event->type() == QEvent::MouseMove) {
-				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-				d->onMouseMove(mouseEvent);
-				return false;
-			}else if (event->type() == QEvent::Wheel) {
-				QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
-				return d->onMouseScroll(wheelEvent);
-			}
-			else if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
-				d->useKeyboardToMoveCursor = false;
-				return false;
-			}
-		}
 		return false;
 	}
 
 	void TextEdit::showEvent(QShowEvent* event) {
-		QFrame::showEvent(event);
-		if (d->TabCompleterWidget) {
-			d->TabCompleterWidget->hide();
-		}
+
 	}
 
 	void TextEdit::closeEvent(QCloseEvent* event) {
-		if (onClose()) {
-			event->accept();
-		}
-		else {
-			event->ignore();
-		}
+
 	}
 
 	/*!

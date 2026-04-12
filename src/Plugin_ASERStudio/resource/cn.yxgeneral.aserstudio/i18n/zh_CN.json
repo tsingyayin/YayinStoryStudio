@@ -159,7 +159,9 @@
         "Preprocessor": {
             "__description": "预处理器指令，用于在播放前准备阶段对文档进行处理。",
             "type": "预处理指令类型",
+            "ruleName": "语法规则名称，在#useRule指令中用于定义语法规则名称",
             "blockName": "块名称，在#block指令中用于定义块名称，在#use指令中用于指定要调用的块名称",
+            "versionNumber": "版本名称，在#version指令中用于指定控制器或语法规则的版本",
             "param0": "引用块的第1个参数",
             "param1": "引用块的第2个参数",
             "param2": "引用块的第3个参数",
@@ -180,7 +182,7 @@
             "MoveTime": "背景图片从起始位置移动到结束位置的时间，单位为秒",
             "MoveCurve": "背景图片移动的曲线类型",
             "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行",
-            "StitchVertical": "是否将多个图片进行垂直拼贴。这个布尔量true为垂直拼贴，false为水平拼贴。"
+            "StitchVertically": "是否将多个图片进行垂直拼贴。这个布尔量true为垂直拼贴，false为水平拼贴。"
         },
         "Music": {
             "__description": "控制音乐的播放。",

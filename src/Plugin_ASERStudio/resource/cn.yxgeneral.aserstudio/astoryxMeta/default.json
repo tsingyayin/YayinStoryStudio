@@ -57,7 +57,7 @@
             "type": "Bool",
             "defaultValue": "true"
         },
-        "StitchVertical":{
+        "StitchVertically":{
             "type": "Bool",
             "defaultValue": "true"
         }

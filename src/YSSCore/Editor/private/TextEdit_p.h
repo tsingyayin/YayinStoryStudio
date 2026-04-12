@@ -28,6 +28,7 @@ namespace YSSCore::__Private__ {
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::Editor::HoverInfoProvider;
 	protected:
+		YSSCore::Editor::TextEdit* q = nullptr;
 		QTextEdit* Line = nullptr;
 		QTextEdit* Text = nullptr;
 		QHBoxLayout* Layout = nullptr;
@@ -50,6 +51,8 @@ namespace YSSCore::__Private__ {
 		QWidget* HoverArea = nullptr;
 		TextEditPrivate() {};
 		~TextEditPrivate();
+	public:
+		bool eventFilter(QObject* watched, QEvent* event) override;
 	protected:
 		void onBlockCountChanged(qint32 count);
 		void onTabClicked(QKeyEvent* event);

@@ -11,6 +11,7 @@
 #include <Utility/FileUtility.h>
 #include <General/YSSProject.h>
 #include <General/TranslationHost.h>
+#include <QtWidgets/qmessagebox.h>
 namespace YSSFileExt {
 	class YSSPEditorPrivate {
 		friend class YSSPEditor;
@@ -26,6 +27,7 @@ namespace YSSFileExt {
 		QLabel* DebugServerLabel;
 		QComboBox* DebugServerComboBox;
 		QHBoxLayout* ContentLayout;
+		QPushButton* SaveButton;
 	};
 
 	YSSPEditor::YSSPEditor(QWidget* parent) : YSSCore::Editor::FileEditWidget(parent) {
@@ -44,6 +46,8 @@ namespace YSSFileExt {
 		d->DebugServerLabel = new QLabel(d->Content);
 		d->DebugServerLabel->setText(VITR("YSS::project.debugServer"));
 		d->DebugServerComboBox = new QComboBox(d->Content);
+		d->SaveButton = new QPushButton(d->Content);
+		d->SaveButton->setText(VITR("Visindigo::general.save"));
 		d->Layout->addWidget(d->CoverLabel, 0, 0, 3, 1);
 		d->Layout->addWidget(d->ProjectNameLabel, 0, 1, 2, 2);
 		d->Layout->addWidget(d->AuthorLabel, 2, 1);
@@ -52,6 +56,7 @@ namespace YSSFileExt {
 		d->Layout->addWidget(d->DescriptionEdit, 4, 0, 1, 3);
 		d->Layout->addWidget(d->DebugServerLabel, 5, 0, 1, 3);
 		d->Layout->addWidget(d->DebugServerComboBox, 6, 0, 1, 3);
+		d->Layout->addWidget(d->SaveButton, 7, 0, 1, 3);
 		d->ContentLayout = new QHBoxLayout(this);
 		d->ContentLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		d->ContentLayout->addWidget(d->Content);
@@ -61,6 +66,9 @@ namespace YSSFileExt {
 		connect(d->AuthorLineEdit, &QLineEdit::textChanged, this, &YSSPEditor::setFileChanged);
 		connect(d->DescriptionEdit, &QTextEdit::textChanged, this, &YSSPEditor::setFileChanged);
 		connect(d->DebugServerComboBox, &QComboBox::currentTextChanged, this, &YSSPEditor::setFileChanged);
+		connect(d->SaveButton, &QPushButton::clicked, [this]() {
+			saveFile();
+			});
 	}
 	YSSPEditor::~YSSPEditor() {
 		delete d;
@@ -87,7 +95,29 @@ namespace YSSFileExt {
 		return true;
 	}
 	bool YSSPEditor::onClose() {
-		return true;
+		if (isFileChanged()) {
+			int ret = QMessageBox::warning(this, VITR("YSS::editor.saveWarning.title"),
+				VITR("YSS::editor.saveWarning.message").arg(getFileName()),
+				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+				QMessageBox::Save);
+			switch (ret) {
+			case QMessageBox::Save:
+				saveFile();
+				return true;
+			case QMessageBox::Discard:
+				// Don't save was clicked
+				return true;
+			case QMessageBox::Cancel:
+				// Cancel was clicked
+				return false;
+			default:
+				// should never be reached
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
 	}
 	bool YSSPEditor::onSave(const QString& path) {
 		auto project = YSSCore::General::YSSProject::getCurrentProject();
