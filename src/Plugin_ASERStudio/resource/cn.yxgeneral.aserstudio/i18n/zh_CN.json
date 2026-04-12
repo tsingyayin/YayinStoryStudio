@@ -387,6 +387,7 @@
 	},
 	"fileProvider":{
 		"window": {
+            "title": "AStoryX文件 初始化助手",
 			"create": "创建文件",
 			"where": "新文件将被创建为\"%1\"。",
 			"exists": "\"%1\"已存在！无法创建新文件。"
