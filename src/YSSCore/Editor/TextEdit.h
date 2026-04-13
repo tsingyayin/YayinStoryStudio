@@ -34,10 +34,6 @@ namespace YSSCore::Editor {
 		void setTabReload(bool reload);
 		bool isTabReload() const;
 		QTextDocument* getDocument() const;
-	private:
-		virtual bool eventFilter(QObject* obj, QEvent* event) override;
-		virtual void showEvent(QShowEvent* event) override;
-		virtual void closeEvent(QCloseEvent* event) override;
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;

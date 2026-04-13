@@ -2,6 +2,7 @@
 #define YSS_Editor_MainWin_StackWidgetArea_h
 #include <QtWidgets/qframe.h>
 #include <Editor/FileEditWidget.h>
+
 namespace YSS::Editor {
 	class StackWidgetAreaPrivate;
 	class StackWidgetArea :public QFrame {

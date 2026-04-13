@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QMainWindow>
 #include <Widgets/ThemeManager.h>
+#include <Editor/FileServerManager.h>
 class QMenuBar;
 class QMenu;
 class QAction;
@@ -13,7 +14,7 @@ namespace YSS::Editor {
 	class StackWidgetArea;
 	class ResourceBrowser;
 
-	class MainWin : public QMainWindow, Visindigo::Widgets::ColorfulWidget {
+	class MainWin : public QMainWindow, Visindigo::Widgets::ColorfulWidget, YSSCore::Editor::FileWidgetHandler {
 		Q_OBJECT;
 	private:
 		QWidget* CentralWidget = nullptr;
@@ -36,6 +37,8 @@ namespace YSS::Editor {
 		virtual void hideEvent(QHideEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
+		virtual bool handleBuiltinEditor(YSSCore::Editor::FileEditWidget* editor) override;
+		virtual bool handleWindowEditor(QWidget* editor) override;
 	private:
 		void initMenu();
 		bool checkProjectNeedToSave();

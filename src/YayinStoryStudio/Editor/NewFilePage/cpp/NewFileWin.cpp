@@ -109,8 +109,6 @@ namespace YSS::NewFilePage {
 		YSSCore::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(InitPath);
 		if (initWidget != nullptr) {
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
-			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::closed,
-				this, &NewFileWin::onTemplateInitWidgetClosed);
 			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::filePrepared,
 				this, &NewFileWin::onFilePrepared);
 			initWidget->setWindowModality(Qt::ApplicationModal);
@@ -130,8 +128,6 @@ namespace YSS::NewFilePage {
 	}
 	void NewFileWin::resizeEvent(QResizeEvent* event) {
 		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() - FileTemplateArea->verticalScrollBar()->width());
-	}
-	void NewFileWin::onTemplateInitWidgetClosed() {
 	}
 	void NewFileWin::onFilePrepared(QString projectPath) {
 		emit filePrepared(projectPath);

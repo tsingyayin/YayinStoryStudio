@@ -17,6 +17,7 @@ namespace YSSCore::Editor {
 		QList<ProjectTemplateProvider*> getProviders();
 		ProjectTemplateProvider* getProvider(const QString templateID);
 		void addProvider(ProjectTemplateProvider* provider);
+		void removeProvider(ProjectTemplateProvider* provider);
 	private:
 		ProjectTemplateManagerPrivate* d;
 	};

@@ -107,8 +107,6 @@ namespace YSS::NewProjectPage {
 		YSSCore::Editor::ProjectTemplateInitWidget* initWidget = provider->projectInitWidget();
 		if (initWidget != nullptr) {
 			initWidget->setAttribute(Qt::WA_DeleteOnClose);
-			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::closed,
-				this, &NewProjectWin::onTemplateInitWidgetClosed);
 			connect(initWidget, &YSSCore::Editor::ProjectTemplateInitWidget::projectPrepared,
 				this, &NewProjectWin::onProjectPrepared);
 			initWidget->setWindowModality(Qt::ApplicationModal);
@@ -128,8 +126,6 @@ namespace YSS::NewProjectPage {
 	}
 	void NewProjectWin::resizeEvent(QResizeEvent* event) {
 		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() - ProjectTemplateArea->verticalScrollBar()->width());
-	}
-	void NewProjectWin::onTemplateInitWidgetClosed() {
 	}
 	void NewProjectWin::onProjectPrepared(QString projectPath) {
 		emit projectPrepared(projectPath);

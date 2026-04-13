@@ -15,29 +15,44 @@ namespace YSSCore::Editor {
 		\inmodule YSSCore
 		\brief 此类提供文件打开服务。
 		\since YSSCore 0.13.0
+		\ingroup FileService
 
-		由于YSSCore::Editor被设计为一个通用的编辑器框架，因此对于“打开文件”这样的需求只能提供通用框架，
+		由于YSSCore::Editor被设计为一个通用的编辑器框架，因此对于“打开文件”这样的需求提供了通用框架，
 		即用户通过派生此类，并将其注册到YSSCore::Editor::FileServerManager中来实现对某类文件的打开支持。
 
 		这里的打开，指的就是通过YSSCore::Editor::FileServer::EditorType枚举中定义的几种方式的任意一种方式打开文件。
 		用户应该将自己实现的FileServer通过YSSCore::Editor::EditorPlugin::registerFileServer函数注册到YSSCore::Editor::FileServerManager中。
-		稍后，在调用YSSCore::Editor::FileServerManager::openFile函数时，Visindigo会根据文件扩展名选择合适的FileServer来打开文件。
+		稍后，在调用YSSCore::Editor::FileServerManager::openFile函数时，Yayin Story Studio会根据文件扩展名选择合适的FileServer来打开文件。
+
+		主要指出的是，FileServer本质上只是提供打开文件的路由，它不负责处理具体文件的保存、编辑等操作。虽然
+		CodeEditor和BuiltInEditor类型确实通过标准文件编辑框架（FileEditWidget）来打开文件，其中提供标准化的
+		存储行为语义，但其余类型的编辑器类型需要完全由用户自己实现打开、保存等相关功能。
+		
+		FileServer的职责仅限于根据文件扩展名和编辑器类型来路由文件打开请求。
+
+		\section1 编辑器类型
+		\list
+		\li CodeEditor 使用内置代码编辑器打开文件。
+		\li BuiltInEditor 使用内置编辑器打开文件，但不是代码编辑器。这个编辑器必须是派生自YSSCore::Editor::FileEditWidget的类。
+				需要同时实现onCreateFileEditWidget函数。
+		\li WindowEditor 使用新窗口打开文件，但仍然在本程序内。这个编辑器必须是派生自QWidget的类。
+		需要同时实现onCreateWindowEditor函数。
+		\li ExternalProgram 使用第三方程序打开文件。需要同时实现onCreateExternalEditor函数。
+		\li OtherEditor 其他方式打开文件。需要同时实现onOtherOpenFile函数。
 	*/
 
 	/*!
 		\enum YSSCore::Editor::FileServer::EditorType
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		\value CodeEditor 使用内置代码编辑器打开文件。
-		\value BuiltInEditor 使用内置编辑器打开文件，但不是代码编辑器。这个编辑器必须是派生自YSSCore::Editor::FileEditWidget的类。
-				需要同时实现YSSCore::Editor::FileServer::onCreateFileEditWidget函数。
-		\value WindowEditor 使用新窗口打开文件，但仍然在本程序内。这个编辑器必须是派生自QWidget的类。
-			需要同时实现YSSCore::Editor::FileServer::onCreateWindowEditor函数。
-		\value ExternalProgram 使用第三方程序打开文件。需要同时实现YSSCore::Editor::FileServer::onCreateExternalEditor函数。
-		\value OtherEditor 其他方式打开文件。需要同时实现YSSCore::Editor::FileServer::onOtherOpenFile函数。
+		\value BuiltInEditor 使用内置编辑器打开文件，但不是代码编辑器。
+		\value WindowEditor 使用新窗口打开文件，但仍然在本程序内。
+		\value ExternalProgram 使用第三方程序打开文件。
+		\value OtherEditor 其他方式打开文件。
 	*/
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		\a name 为文件服务的名称。
 		\a id 为文件服务的唯一标识符。
 		\a plugin 为此文件服务所属的插件。
@@ -49,7 +64,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		析构FileServer对象。一般来说，没有任何情况需要手动析构此对象。FileServer应该与使用它的插件有一致的生命周期。
 	*/
 	FileServer::~FileServer() {
@@ -57,7 +72,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		返回此文件服务的编辑器类型。
 	*/
 	FileServer::EditorType FileServer::getEditorType() {
@@ -65,7 +80,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		返回此文件服务支持的文件扩展名列表。
 	*/
 	QStringList FileServer::getSupportedFileExts() {
@@ -73,7 +88,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		这是个有意思的函数，允许你在一定程度上影响文件打开时使用的文件服务的优先级。
 
 		如果你有一个文件服务A和一个文件服务B，它们都支持打开.txt文件。
@@ -99,32 +114,37 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		当需要创建内置编辑器时调用。默认实现返回nullptr。
 		此函数没有参数。因为设计上要求派生直接返回一个新创建的YSSCore::Editor::FileEditWidget派生类对象即可。
 		
 		FileServerManager::openFile函数内部会自动对这个新的派生类对象调用openFile函数打开指定文件。
 
 		一旦成功，FileServerManager会发出FileServerManager::builtinEditorCreated信号，传递这个新的编辑器对象的指针。
+
+		新创建的FileEditWidget派生类的所有权沿着信号被转移。由于使用了unique_ptr，如果没有任何人
+		监听此信号，指针被自动销毁。
 	*/
 	FileEditWidget* FileServer::onCreateFileEditWidget() {
 		return nullptr;
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		当需要创建新窗口编辑器时调用。默认实现返回nullptr。
 		\a filePath 为需要打开的文件路径。
 		此函数要求派生类根据\a filePath参数创建一个新的QWidget派生类对象，并返回这个对象的指针。
 
 		只要返回的指针不为nullptr，FileServerManager会发出FileServerManager::windowEditorCreated信号，传递这个新的窗口对象的指针。
+
+		新创建的QWidget派生类的所有权沿着信号被转移。由于使用了unique_ptr，如果没有任何人监听此信号，指针被自动销毁。
 	*/
 	QWidget* FileServer::onCreateWindowEditor(const QString& filePath) {
 		return nullptr;
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		当需要使用第三方程序打开文件时调用。默认实现返回false。
 		\a filePath 为需要打开的文件路径。
 		此函数要求派生类根据\a filePath参数使用第三方程序打开这个文件，并返回是否成功的布尔值。
@@ -140,7 +160,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		当需要使用其他方式打开文件时调用。默认实现返回false。
 		\a filePath 为需要打开的文件路径。
 		此函数要求派生类根据\a filePath参数使用其他方式打开这个文件，并返回是否成功的布尔值。
@@ -154,7 +174,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		设置此文件服务的编辑器类型。
 		\a type 为新的编辑器类型。
 	*/
@@ -163,7 +183,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		设置此文件服务支持的文件扩展名列表。
 		\a exts 为新的文件扩展名列表。
 	*/

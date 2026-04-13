@@ -1,7 +1,7 @@
 #pragma once
 #include "../VICompileMacro.h"
-#include <QObject>
-#include <Qt>
+#include <QtCore/qmetaobject.h>
+#include <QtCore/qobject.h>
 class QString;
 
 namespace Visindigo::Utility {

@@ -15,11 +15,10 @@ namespace YSSCore::Editor {
 		Q_OBJECT;
 	signals:
 		void filePrepared(QString filePath);
-		void closed();
 	public:
 		FileTemplateInitWidget(const QString& initFolder, QWidget* parent);
 		virtual ~FileTemplateInitWidget();
-		QString getInitFolder();
+		QString getInitFolder() const;
 	private:
 		FileTemplateInitWidgetPrivate* d;
 	};
@@ -30,15 +29,15 @@ namespace YSSCore::Editor {
 	public:
 		FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~FileTemplateProvider();
-		QString getTemplateIconPath();
+		QString getTemplateIconPath() const;
 		void setTemplateIconPath(const QString& iconPath);
-		QString getTemplateID();
+		QString getTemplateID() const;
 		void setTemplateID(const QString& id);
-		QString getTemplateName();
+		QString getTemplateName() const;
 		void setTemplateName(const QString& name);
-		QString getTemplateDescription();
+		QString getTemplateDescription() const;
 		void setTemplateDescription(const QString& description);
-		QStringList getTemplateTags();
+		QStringList getTemplateTags() const;
 		void setTemplateTags(const QStringList& tags);
 		virtual FileTemplateInitWidget* fileInitWidget(const QString& initPath) = 0;
 	private:
