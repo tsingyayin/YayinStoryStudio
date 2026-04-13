@@ -464,5 +464,7 @@ namespace YSS::Editor {
 		Layout = new QGridLayout(this);
 		this->setLayout(Layout);
 		ContentLabel->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
+		Layout->addWidget(ContentLabel, 0, 0, Qt::AlignCenter);
+		ContentLabel->setAlignment(Qt::AlignCenter);
 	}
 }

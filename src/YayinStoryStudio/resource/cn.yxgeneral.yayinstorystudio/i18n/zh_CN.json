@@ -123,7 +123,7 @@
 			"column": "列"
 		},
 		"stackWidgetArea": {
-			"noFileOpended": "没有打开的文件"
+			"noFileOpened": "没有打开的文件"
 		},
 		"textEdit":{
 			"readOnly": {

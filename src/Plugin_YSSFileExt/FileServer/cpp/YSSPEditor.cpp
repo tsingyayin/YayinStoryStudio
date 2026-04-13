@@ -63,12 +63,7 @@ namespace YSSFileExt {
 		d->ContentLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		QStringList debuggerList = YSSDSM->getDebugServerIDs();
 		d->DebugServerComboBox->addItems(debuggerList);
-		connect(d->AuthorLineEdit, &QLineEdit::textChanged, this, &YSSPEditor::setFileChanged);
-		connect(d->DescriptionEdit, &QTextEdit::textChanged, this, &YSSPEditor::setFileChanged);
-		connect(d->DebugServerComboBox, &QComboBox::currentTextChanged, this, &YSSPEditor::setFileChanged);
-		connect(d->SaveButton, &QPushButton::clicked, [this]() {
-			saveFile();
-			});
+		
 	}
 	YSSPEditor::~YSSPEditor() {
 		delete d;
@@ -92,6 +87,12 @@ namespace YSSFileExt {
 		if (index != -1) {
 			d->DebugServerComboBox->setCurrentIndex(index);
 		}
+		connect(d->AuthorLineEdit, &QLineEdit::textChanged, this, &YSSPEditor::setFileChanged);
+		connect(d->DescriptionEdit, &QTextEdit::textChanged, this, &YSSPEditor::setFileChanged);
+		connect(d->DebugServerComboBox, &QComboBox::currentTextChanged, this, &YSSPEditor::setFileChanged);
+		connect(d->SaveButton, &QPushButton::clicked, [this]() {
+			saveFile();
+			});
 		return true;
 	}
 	bool YSSPEditor::onClose() {

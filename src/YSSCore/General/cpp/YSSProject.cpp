@@ -182,8 +182,6 @@ namespace YSSCore::General {
 			}
 			files.append(filePath);
 		}
-		//yDebugF << keys;
-		//yDebugF << files;
 		return files;
 	}
 	void YSSProject::addEditorOpenedFile(const QString& filePath) {
@@ -202,11 +200,11 @@ namespace YSSCore::General {
 	}
 	void YSSProject::removeEditorOpenedFile(const QString& filePath) {
 		QStringList files = getEditorOpenedFiles();
-		QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
-		if (!files.contains(relativePath)) {
+		QString absPath = QFileInfo(filePath).absoluteFilePath();
+		if (!files.contains(absPath)) {
 			return;
 		}
-		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(relativePath)));
+		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(absPath)));
 	}
 	void YSSProject::setFocusedFile(const QString& abs_filePath) {
 		if (!Visindigo::Utility::FileUtility::isFileExist(abs_filePath)) {

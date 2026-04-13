@@ -610,7 +610,6 @@ namespace YSSCore::Editor {
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
-		connect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
 	}
 	/*!
@@ -665,6 +664,7 @@ namespace YSSCore::Editor {
 	*/
 	void TextEdit::setPlainText(const QString& text) {
 		d->Text->setPlainText(text);
+		this->setFileChanged();
 	}
 
 	/*!
@@ -776,6 +776,7 @@ namespace YSSCore::Editor {
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。
 	*/
 	bool TextEdit::onOpen(const QString& path) {
+		disconnect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
 		QString ext = QFileInfo(path).suffix();
 		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
 		if (server != nullptr) {
@@ -813,9 +814,10 @@ namespace YSSCore::Editor {
 		QTextStream in(&file);
 		in.setEncoding(QStringConverter::Utf8);
 		d->Text->setPlainText(in.readAll());
-		cancelFileChanged();
 		d->LastCursor.movePosition(QTextCursor::Start);
 		file.close();
+		cancelFileChanged();
+		connect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
 		return true;
 	}
 
