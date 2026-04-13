@@ -3,7 +3,7 @@ namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::AsyncFunction
 		\brief 异步函数类模板
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
 		此类提供一种便捷的函数异步方式。

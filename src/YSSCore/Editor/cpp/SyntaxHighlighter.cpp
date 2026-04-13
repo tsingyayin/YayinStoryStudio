@@ -183,6 +183,7 @@ namespace YSSCore::Editor {
 		\brief SyntaxHighlighter是一个基于QSyntaxHighlighter的抽象类，用于实现文本编辑器中的语法高亮和错误提示功能。
 		\since YSS 0.13.0
 		\inmodule YSSCore
+		\ingroup LangService
 
 		SyntaxHighlighter是在YSS语言服务架构理念下强化的QSyntaxHighlighter，提供了与编辑器文本块关联的错误、
 		警告和信息消息的创建和管理功能。它通过DocumentMessageManager将这些消息与文档和文本块关联起来，供编辑器界面显示和用户交互使用。

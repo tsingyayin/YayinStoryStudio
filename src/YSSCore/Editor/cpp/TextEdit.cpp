@@ -51,16 +51,24 @@ namespace YSSCore::__Private__ {
 				}
 				else if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down ||
 					keyEvent->key() == Qt::Key_Left || keyEvent->key() == Qt::Key_Right) {
-					if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
-						if (keyEvent->modifiers() == Qt::NoModifier) {
-							onDirectionClicked(keyEvent);
-							return true;
-						}
+					if (keyEvent->modifiers() & Qt::AltModifier && keyEvent->modifiers() & Qt::ControlModifier) {
+						vgDebug << "Alt + Ctrl + Direction Key Pressed";
+						onAltMultiSelection(keyEvent);
+						return true;
 					}
 					else {
-						useKeyboardToMoveCursor = true;
+						clearAltMultiSelection();
+						if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+							if (keyEvent->modifiers() == Qt::NoModifier) {
+								onDirectionClicked(keyEvent);
+								return true;
+							}
+						}
+						else {
+							useKeyboardToMoveCursor = true;
+						}
+						return false;
 					}
-					return false;
 				}
 				else if (keyEvent->key() == Qt::Key_Escape) {
 					onEscapeClicked(keyEvent);
@@ -265,6 +273,7 @@ namespace YSSCore::__Private__ {
 				//判断cursor的行数量
 				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
 				bool reverse = cursor.position() == cursor.selectionEnd();
+				cursor.beginEditBlock();
 				if (lineCount > 1) {
 					for (int i = 0; i < lineCount; i++) {
 						cursor.movePosition(QTextCursor::EndOfBlock);
@@ -296,10 +305,12 @@ namespace YSSCore::__Private__ {
 						}
 					}
 				}
+				cursor.endEditBlock();
 			}
 			else {
 				//从行首拉到光标位置
 				QTextCursor cursor = Text->textCursor();
+				cursor.beginEditBlock();
 				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
 				QString text = cursor.selectedText();
 				//判断是否都为空白字符（空格、制表符）
@@ -331,6 +342,7 @@ namespace YSSCore::__Private__ {
 						}
 					}
 				}
+				cursor.endEditBlock();
 			}
 		}
 		else {
@@ -339,6 +351,7 @@ namespace YSSCore::__Private__ {
 				//判断cursor的行数量
 				int lineCount = cursor.selectedText().count(QChar(0x2029)) + 1;
 				bool reverse = cursor.position() == cursor.selectionEnd();
+				cursor.beginEditBlock();
 				if (lineCount > 1) {
 					for (int i = 0; i < lineCount; i++) {
 						cursor.movePosition(QTextCursor::StartOfBlock);
@@ -358,9 +371,11 @@ namespace YSSCore::__Private__ {
 						}
 					}
 				}
+				cursor.endEditBlock();
 			}
 			else {
 				QTextCursor cursor = Text->textCursor();
+				cursor.beginEditBlock();
 				cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
 				QString text = cursor.selectedText();
 				//判断是否都为空白字符（空格、制表符）
@@ -385,6 +400,7 @@ namespace YSSCore::__Private__ {
 				else {
 					cursor.insertText("\t");
 				}
+				cursor.endEditBlock();
 			}
 		}
 	}
@@ -535,33 +551,91 @@ namespace YSSCore::__Private__ {
 			TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
 		}
 	}
+
+	void TextEditPrivate::onAltMultiSelection(QKeyEvent* event) {
+		if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
+			if (AltMultiSelections.isEmpty()) {
+				QTextCursor cursor = Text->textCursor();
+				QTextEdit::ExtraSelection selection;
+				selection.cursor = cursor;
+				selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+				AltMultiSelections.append(selection);
+			}
+			if (event->key() == Qt::Key_Up) {
+				QTextCursor cursor = AltMultiSelections.first().cursor;
+				cursor.movePosition(QTextCursor::Up);
+				QTextEdit::ExtraSelection selection;
+				selection.cursor = cursor;
+				selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+				AltMultiSelections.prepend(selection);
+			}
+			else {
+				QTextCursor cursor = AltMultiSelections.last().cursor;
+				cursor.movePosition(QTextCursor::Down);
+				QTextEdit::ExtraSelection selection;
+				selection.cursor = cursor;
+				selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+				AltMultiSelections.append(selection);
+			}
+			Text->setExtraSelections(AltMultiSelections);
+		}
+		else if (event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
+			if (AltMultiSelections.isEmpty()) {
+				return;
+			}
+			for (int i = 0; i < AltMultiSelections.size(); i++) {
+				QTextCursor cursor = AltMultiSelections[i].cursor;
+				cursor.movePosition(event->key() == Qt::Key_Left ? QTextCursor::Left : QTextCursor::Right, QTextCursor::KeepAnchor);
+				AltMultiSelections[i].cursor = cursor;
+			}
+			Text->setExtraSelections(AltMultiSelections);
+		}
+	}
+
+	void TextEditPrivate::clearAltMultiSelection() {
+		if (!AltMultiSelections.isEmpty()) {
+			AltMultiSelections.clear();
+			Text->setExtraSelections(AltMultiSelections);
+		}
+	}
 }
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::TextEdit
 		\brief 这是YSS最关键的功能：代码编辑器.
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		\inmodule YSSCore
-
+		\ingroup LangService FileService
 		TextEdit是Yayin Story Studio中最关键、最核心的功能，即代码编辑器。
 
 		此类相比于Qt提供的QTextEdit，额外提供了其所缺失的现代代码编辑必备的几项基本功能：
-		\list 1
+		\list
 			\li 自动缩进
 			\li 多行Tab的缩进和反缩进
 			\li 行号
+			\li 鼠标悬停提示、Tab补全
 		\endlist
-		此外，TextEdit同样像QTextEdit一样，支持Qt的所有文本编辑功能，如撤销、重做、查找替换等。
-		并且支持使用QSyntaxHighlighter高亮语法。考虑到代码文件间可能存在符号关联关系，YSS扩展了
-		语法高亮的概念，除了最基本的着色操作仍需要使用QSyntaxHighlighter外，YSS提供了LangServer
-		类来处理更复杂的语法高亮需求，如代码补全、错误提示等。
 
-		要在YSS中使用最基本的语法着色，请实现自己的LangServer类，并将其中的createHighlighter()
-		方法返回一个QSyntaxHighlighter实例。之后再将您的LangServer类注册到LangServerManager中。
+		基本上讲，以上这些额外补充的功能就已经满足了一个现代代码编辑器的基本需求。
 
-		\note 一般来说，TextEdit不会单独使用。若需要使用此类，我们强烈建议将其作为您的组件的一部分，
-		而不是继承并扩展此类。
+		\section1 语言服务
+		由于TextEdit是设计为Yayin Story Studio的内置代码编辑器，因此这个类的耦合性要稍微高一些。如果要
+		提供语言语法支持，就不能单独使用这个类，它会通过访问YSSCore::Editor::LangServerManager
+		来获取语言服务器的支持，并且在编辑器中提供语法高亮、鼠标悬停提示、Tab补全等功能。
+
+		因此，如果要为TextEdit提供语言支持，您需要首先实现一个继承自YSSCore::Editor::LangServer的类，
+		并且在其中实现语法高亮、鼠标悬停提示、Tab补全等功能。然后，您需要将这个语言服务器注册到YSSCore::Editor::LangServerManager中，
+		TextEdit会自动按扩展名选择合适的语言服务器来提供支持。
+
+		\section1 标准文件编辑框架
+		为了统一Yayin Story Studio中全部的打开文件->路由合适的打开方式->编辑->保存的留存，该类
+		继承自YSSCore::Editor::FileEditWidget。并在YSSCore::Editor::FileServerManager中作为默认的通用文件打开方式使用。
+
+		\note 一般来说，TextEdit单独使用或组合使用，不应该继承此类，但考虑到潜在需求，因此也未设置final。
+
+		\warning 这类在0.14.0版本调整过虚函数，ABI完全不兼容。
 	*/
+
 	/*!
 		\since Visindigo 0.13.0
 		TextEdit的构造函数。
@@ -737,18 +811,6 @@ namespace YSSCore::Editor {
 	*/
 	QTextDocument* TextEdit::getDocument() const {
 		return d->Text->document();
-	}
-
-	bool TextEdit::eventFilter(QObject* obj, QEvent* event) {
-		return false;
-	}
-
-	void TextEdit::showEvent(QShowEvent* event) {
-
-	}
-
-	void TextEdit::closeEvent(QCloseEvent* event) {
-
 	}
 
 	/*!

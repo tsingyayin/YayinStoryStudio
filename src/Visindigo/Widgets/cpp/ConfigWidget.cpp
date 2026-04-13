@@ -566,6 +566,50 @@ namespace Visindigo::Widgets {
 	*/
 
 	/*!
+		\fn Visindigo::Widgets::ConfigWidget::reseted()
+		\since Visindigo 0.13.0
+		已重置的信号，这个信号只有在独立模式下，单击重置按钮并
+		完成重置操作后才会发出。直接调用resetConfig()函数不会发出此信号。
+	*/
+
+	/*!
+		\fn Visindigo::Widgets::ConfigWidget::saved()
+		\since Visindigo 0.13.0
+		已保存的信号，这个信号只有在独立模式下，单击保存按钮并
+		完成保存操作后才会发出。直接调用saveConfig()函数不会发出此信号。
+	*/
+
+	/*!
+		\fn Visindigo::Widgets::ConfigWidget::radioButtonChanged(const QString& node, bool checked)
+		\since Visindigo 0.13.0
+		当某个RadioButton的选中状态发生改变时发出此信号，node参数为该RadioButton绑定的配置项节点，checked参数为当前的选中状态。
+	*/
+
+	/*!
+		\fn Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged(const QString& node, int index, QString data)
+		\since Visindigo 0.13.0
+		当某个ComboBox的选中项发生改变时发出此信号，node参数为该ComboBox绑定的配置项节点，index参数为当前选中项的索引，data参数为当前选中项的数据。
+	*/
+
+	/*!
+		\fn Visindigo::Widgets::ConfigWidget::lineEditTextChanged(const QString& node, const QString& text)
+		\since Visindigo 0.13.0
+		当某个LineEdit的文本内容发生改变时发出此信号，node参数为该LineEdit绑定的配置项节点，text参数为当前的文本内容。
+	*/
+
+	/*!
+		\fn Visindigo::Widgets::ConfigWidget::textEditTextChanged(const QString& node, const QString& text)
+		\since Visindigo 0.13.0
+		当某个TextEdit的文本内容发生改变时发出此信号，node参数为该TextEdit绑定的配置项节点，text参数为当前的文本内容。
+	*/
+
+	/*!
+		\fn Visindigo::Widgets::ConfigWidget::colorChanged(const QString& node, const QColor& clr)
+		\since Visindigo 0.13.0
+		当某个ColorDialog的颜色发生改变时发出此信号，node参数为该ColorDialog绑定的配置项节点，clr参数为当前的颜色。
+	*/
+
+	/*!
 		\a parent 父窗口
 		\since Visindigo 0.13.0
 		类的构造函数
@@ -692,6 +736,10 @@ namespace Visindigo::Widgets {
 		}
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		获取独立模式状态。
+	*/
 	bool ConfigWidget::isIndependentMode() const {
 		return d->IndependentMode;
 	}

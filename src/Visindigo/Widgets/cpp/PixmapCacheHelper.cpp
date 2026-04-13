@@ -230,10 +230,40 @@ namespace Visindigo::Widgets {
 
 	PixmapCacheHelper* PixmapCacheHelperPrivate::Instance = nullptr;
 
+	/*!
+		\class Visindigo::Widgets::PixmapCacheHelper
+		\brief PixmapCacheHelper提供了一个在读取时自动创建QPixmap缓存的工具类。
+		\since VIsindigo 0.13.0
+		\inmodule Visindigo
+
+		PixmapCacheHelper提供了一个在读取时自动创建QPixmap缓存的工具类。当你需要读取一个
+		QPixmap并对其进行缩放时，这个类就很有用，它会将缩放结果缓存起来，以便下次读取时直接使用缓存结果，
+		从而提高性能。对于同一张图片的不同缩放结果，PixmapCacheHelper会分别缓存它们，以便在需要时快速获取。
+
+		显然，如果你需要频繁以固定缩放比读取同一张图片（譬如文件浏览器中的缩略图），PixmapCacheHelper会非常有用。
+
+		你可以通过setCachePath方法设置缓存路径，如果不设置，则默认在内存中缓存，不会保存到磁盘。
+
+		为了提高IO性能，PixmapCacheHelper并不松散存储每个缩放位图，而是将多个位图拼合为一个大位图进行存储。每个
+		大位图的宽高都是2的幂次方，且不小于所需存储的最大缩放位图的宽高。每个大位图被划分为多个固定大小的瓦片，
+		每个瓦片可以存储一个缩放位图。当需要存储一个缩放位图时，PixmapCacheHelper会在现有的大位图中寻找一个空闲的瓦片来存储它，
+		如果没有合适的空闲瓦片，则会创建一个新的大位图来存储它。
+
+		\warning 这类暂时不建议使用，目前仍然处于技术预览状态。
+	*/
+
+	/*!
+		\since VIsindigo 0.13.0
+		构造函数
+	*/
 	PixmapCacheHelper::PixmapCacheHelper() {
 		this->d = new PixmapCacheHelperPrivate();
 	}
 
+	/*!
+		\since VIsindigo 0.13.0
+		获取PixmapCacheHelper实例
+	*/
 	PixmapCacheHelper* PixmapCacheHelper::getInstance() {
 		if (PixmapCacheHelperPrivate::Instance == nullptr) {
 			PixmapCacheHelperPrivate::Instance = new PixmapCacheHelper();
@@ -241,27 +271,54 @@ namespace Visindigo::Widgets {
 		return PixmapCacheHelperPrivate::Instance;
 	}
 
+	/*!
+		\since VIsindigo 0.13.0
+		析构函数
+	*/
 	PixmapCacheHelper::~PixmapCacheHelper() {
 		delete d;
 	}
 
+	/*!
+		\since VIsindigo 0.13.0
+		\a path是图片路径，\a size是缩放后的大小，如果为默认值则不进行缩放，\a keepAspectRatio表示是否保持宽高比，默认为true。
+		如果图片不进行缩放，就不创建缓存。等同于直接调用QPixmap构造函数读取图片。
+		获取Pixmap
+	*/
 	QPixmap PixmapCacheHelper::getPixmap(const QString& path, const QSize& size, bool keepAspectRatio) {
 		return d->getPixmap(path, size, keepAspectRatio);
 	}
 
+	/*!
+		\since VIsindigo 0.13.0
+		设置缓存路径，如果不设置则默认在内存中缓存，不会保存到磁盘。
+		设置了缓存路径后，会尝试从该路径加载缓存，如果加载失败则会清空缓存并重新创建。
+	*/
 	void PixmapCacheHelper::setCachePath(const QString& path) {
 		d->CachePath = path;
 		d->loadCache();
 	}
 
+	/*!
+		\since VIsindigo 0.13.0
+		获取缓存路径，如果不设置则默认在内存中缓存，不会保存到磁盘。
+	*/
 	QString PixmapCacheHelper::getCachePath() const {
 		return d->CachePath;
 	}
 
+	/*!
+		\since VIsindigo 0.13.0
+		保存缓存到磁盘，如果没有设置缓存路径则不进行保存。
+	*/
 	void PixmapCacheHelper::save() {
 		d->saveConfig();
 	}
 
+	/*!
+		\since VIsindigo 0.13.0
+		清空缓存，删除所有缓存文件，如果没有设置缓存路径则只清空内存中的缓存。
+	*/
 	void PixmapCacheHelper::clearCache() {
 		d->clearCache();
 	}

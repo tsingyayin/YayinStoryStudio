@@ -23,6 +23,7 @@ namespace Visindigo::Widgets {
 		void selectIndexChanged(quint32 index);
 	public:
 		MultiButtonGroup(QObject* parent = nullptr);
+		virtual ~MultiButtonGroup();
 		void addButton(MultiButton* button);
 		void removeAll();
 		qint32 selectPrevious();
@@ -30,6 +31,7 @@ namespace Visindigo::Widgets {
 		qint32 selectButton(MultiButton* button);
 		void selectButton(qint32 index);
 		MultiButton* getSelectedButton() const;
+		QList<MultiButton*> getMultiButtons() const;
 	private:
 		Visindigo::__Private__::MultiButtonGroupPrivate* d;
 	};

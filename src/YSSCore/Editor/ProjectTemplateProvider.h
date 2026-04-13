@@ -14,10 +14,8 @@ namespace YSSCore::Editor {
 		Q_OBJECT;
 	signals:
 		void projectPrepared(QString projectPath);
-		void closed();
 	public:
 		ProjectTemplateInitWidget(QWidget* parent = nullptr);
-		virtual void closeEvent(QCloseEvent* event) override;
 	};
 
 	class YSSCoreAPI ProjectTemplateProvider :public Visindigo::General::PluginModule {
@@ -26,15 +24,15 @@ namespace YSSCore::Editor {
 	public:
 		ProjectTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~ProjectTemplateProvider();
-		QString getTemplateIconPath();
+		QString getTemplateIconPath() const;
 		void setTemplateIconPath(const QString& iconPath);
-		QString getTemplateID();
+		QString getTemplateID() const;
 		void setTemplateID(const QString& id);
-		QString getTemplateName();
+		QString getTemplateName() const;
 		void setTemplateName(const QString& name);
-		QString getTemplateDescription();
+		QString getTemplateDescription() const;
 		void setTemplateDescription(const QString& description);
-		QStringList getTemplateTags();
+		QStringList getTemplateTags() const;
 		void setTemplateTags(const QStringList& tags);
 		virtual ProjectTemplateInitWidget* projectInitWidget() = 0;
 	private:

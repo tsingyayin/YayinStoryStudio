@@ -29,6 +29,7 @@ namespace YSS::Editor {
 
 	MainWin::MainWin() :QMainWindow() {
 		Instance = this;
+		YSSFSM->setFileWidgetHandler(this);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle("Yayin Story Studio");
 
@@ -47,8 +48,6 @@ namespace YSS::Editor {
 		splitter->addWidget(Browser);
 		splitter->addWidget(Editor);
 
-		connect(YSSFSM, &YSSCore::Editor::FileServerManager::builtinEditorCreated,
-			Editor, &StackWidgetArea::addWidget);
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::switchLineEdit, Editor,
 			qOverload<const QString&, qint32, qint32>(&StackWidgetArea::setCurrentWidget));
 		
@@ -151,6 +150,18 @@ namespace YSS::Editor {
 		QMainWindow::resizeEvent(event);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 	}
+
+	bool MainWin::handleBuiltinEditor(YSSCore::Editor::FileEditWidget* editor) {
+		Editor->addWidget(editor);
+		return true;
+	}
+
+	bool MainWin::handleWindowEditor(QWidget* editor) {
+		editor->setAttribute(Qt::WA_DeleteOnClose);
+		editor->show();
+		return true;
+	}
+	
 	void MainWin::initMenu() {
 		Menu = new Visindigo::Widgets::QuickMenu(this);
 		Menu->setActionHandler(new YSS::Editor::MenuActionHandler(this));

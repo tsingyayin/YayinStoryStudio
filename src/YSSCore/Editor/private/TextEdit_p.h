@@ -4,6 +4,7 @@
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qpoint.h>
 #include <QtGui/qevent.h>
+#include <QtWidgets/qtextedit.h>
 // Forward declarations
 namespace YSSCore::Editor {
 	class TextEdit;
@@ -49,6 +50,7 @@ namespace YSSCore::__Private__ {
 		QPoint LastMousePos;
 		bool useKeyboardToMoveCursor = false;
 		QWidget* HoverArea = nullptr;
+		QList<QTextEdit::ExtraSelection> AltMultiSelections;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	public:
@@ -68,5 +70,7 @@ namespace YSSCore::__Private__ {
 		void onCursorPositionChanged();
 		void onCompleter();
 		void onScrollBarChanged(int value);
+		void onAltMultiSelection(QKeyEvent* event);
+		void clearAltMultiSelection();
 	};
 }

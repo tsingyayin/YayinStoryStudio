@@ -8,6 +8,30 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
 namespace YSSCore::Editor {
+	/*!
+		\class YSSCore::Editor::FileWidgetHandler
+		\brief 接口类，代表处理来自FileServerManager的文件编辑窗口的对象。
+		\since Visindigo 0.14.0
+		\inmodule YSSCore
+
+		用户可以通过实现FileWidgetHandler接口来处理FileServerManager创建的文件编辑窗口。
+		当返回false时，FileServerManager会决定销毁该窗口。
+	*/
+
+	/*!
+		\fn virtual bool YSSCore::Editor::FileWidgetHandler::handleBuiltinEditor(FileEditWidget* editor) = 0;
+		\since Visindigo 0.14.0
+		处理内置编辑器窗口的函数。只要返回true，FileServerManager就会认为这个窗口已经被成功处理，不会再进行任何操作；
+		如果返回false，FileServerManager会销毁这个窗口。
+	*/
+
+	/*!
+		\fn virtual bool YSSCore::Editor::FileWidgetHandler::handleWindowEditor(QWidget* editor) = 0;
+		\since Visindigo 0.14.0
+		处理窗口编辑器的函数。只要返回true，FileServerManager就会认为这个窗口已经被成功处理，不会再进行任何操作；
+		如果返回false，FileServerManager会销毁这个窗口。
+	*/
+
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
 	protected:
@@ -15,6 +39,7 @@ namespace YSSCore::Editor {
 		QMap<QString, QList<FileServer*>> FileServerMap;
 		QMap<QString, QList<FileServer*>> FileServerPriorityMap;
 		QMap<QString, bool> EspeciallyFocusEnableMap;
+		FileWidgetHandler* WidgetHandler = nullptr;
 		static FileServerManager* Instance;
 
 		bool openFile(const QString& filePath, FileServer* server) {
@@ -26,8 +51,7 @@ namespace YSSCore::Editor {
 				case FileServer::CodeEditor:
 					feWidget = new TextEdit();
 					ok = feWidget->openFile(filePath);
-					if (ok) {
-						emit Instance->builtinEditorCreated(feWidget);
+					if (ok && WidgetHandler && WidgetHandler->handleBuiltinEditor(feWidget)) {
 						return true;
 					}
 					else {
@@ -37,29 +61,27 @@ namespace YSSCore::Editor {
 					break;
 				case FileServer::BuiltInEditor:
 					feWidget = server->onCreateFileEditWidget();
-					if (feWidget != nullptr) {
-						ok = feWidget->openFile(filePath);
-						if (ok) {
-							emit Instance->builtinEditorCreated(feWidget);
-							return true;
-						}
-						else {
-							delete widget;
-							return false;
-						}
+					if (not feWidget) {
+						return false;
+					}
+					ok = feWidget->openFile(filePath);
+					if (ok && WidgetHandler && WidgetHandler->handleBuiltinEditor(feWidget)) {
+						return true;
 					}
 					else {
-						delete widget;
+						delete feWidget;
 						return false;
 					}
 					break;
 				case FileServer::WindowEditor:
 					widget = server->onCreateWindowEditor(filePath);
-					if (feWidget != nullptr) {
-						emit Instance->windowEditorCreated(widget);
+					if (widget && WidgetHandler && WidgetHandler->handleWindowEditor(widget)) {
 						return true;
 					}
 					else {
+						if (widget) {
+							widget->deleteLater();
+						}
 						return false;
 					}
 					break;
@@ -93,19 +115,6 @@ namespace YSSCore::Editor {
 
 		除此之外，当用户在openFile中指定了preferredServerId参数后，FileServerManager会优先尝试该FileServer。
 	*/
-	
-	/*!
-		\fn YSSCore::Editor::FileServerManager::builtinEditorCreated(YSSCore::Editor::FileEditWidget* editor)
-		当内置编辑器被创建时发出该信号。
-
-		这包括YSSCore::Editor::FileServer::EditorType为CodeEditor和BuiltInEditor的情况。
-	*/
-
-	/*!
-		\fn YSSCore::Editor::FileServerManager::windowEditorCreated(QWidget* editor)
-		当窗口编辑器被创建时发出该信号。
-		这只对应YSSCore::Editor::FileServer::EditorType为WindowEditor的情况。
-	*/
 
 	/*!
 		\since Visindigo 0.13.0
@@ -126,6 +135,14 @@ namespace YSSCore::Editor {
 		}
 		d->FileServers.clear();
 		delete d;
+	}
+
+	/*!
+		\since Visindigo 0.14.0
+		设置文件窗口处理器
+	*/
+	void FileServerManager::setFileWidgetHandler(FileWidgetHandler* handler) {
+		d->WidgetHandler = handler;
 	}
 
 	/*!
@@ -249,9 +266,12 @@ namespace YSSCore::Editor {
 			if (ret == QMessageBox::Yes) {
 				FileEditWidget* feWidget = new TextEdit();
 				bool ok = feWidget->openFile(absPath);
-				if (ok) {
-					emit builtinEditorCreated(feWidget);
+				if (ok && d->WidgetHandler && d->WidgetHandler->handleBuiltinEditor(feWidget)) {
 					return true;
+				}
+				else {
+					delete feWidget;
+					return false;
 				}
 			}
 		}

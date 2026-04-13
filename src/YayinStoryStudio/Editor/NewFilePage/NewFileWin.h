@@ -45,7 +45,6 @@ namespace YSS::NewFilePage {
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:
 		void onTemplateButtonClicked();
-		void onTemplateInitWidgetClosed();
 		void onFilePrepared(QString projectPath);
 		void refreshTemplate() {};
 	};

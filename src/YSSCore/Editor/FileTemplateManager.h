@@ -17,6 +17,7 @@ namespace YSSCore::Editor {
 		QList<FileTemplateProvider*> getProviders();
 		FileTemplateProvider* getProvider(const QString templateID);
 		void addProvider(FileTemplateProvider* provider);
+		void removeProvider(FileTemplateProvider* provider);
 	private:
 		FileTemplateManagerPrivate* d;
 	};

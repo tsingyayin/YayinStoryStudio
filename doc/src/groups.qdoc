@@ -42,3 +42,36 @@
     VICommand模块包含了Visindigo命令系统的核心实现类，包括CommandHost、CommandHandler等。
     这些类为应用程序提供了一个命令解析与执行的框架，允许开发者通过命令与用户进行交互，从而实现更灵活的功能控制。
 */
+
+/*!
+    \group FileService
+    \title 文件服务框架
+    \since YSS 0.13.0
+    \inmodule YSSCore
+    \brief FileService是对YSSCore::Editor中有关文件服务实现类的总称。
+
+    FileService模块包含了YSS文件服务框架的核心实现类，这些类共同构成了满足
+    不同文件打开需求的文件服务框架，允许开发者根据需要为不同文件类型提供不同的打开方式。
+*/
+
+/*!
+    \group LangService
+    \title 语言服务框架
+    \since YSS 0.13.0
+    \inmodule YSSCore
+    \brief LangService是对YSSCore::Editor中有关语言服务实现类的总称。
+
+    LangService模块包含了YSS语言服务框架的核心实现类，这些类使得开发者可以
+    自行根据需要为YSSCore::Editor::TextEdit提供不同的语言服务，从而实现对不同编程语言的支持。
+*/
+
+/*!
+    \group CreateService
+    \title 创建服务框架
+    \since YSS 0.13.0
+    \inmodule YSSCore
+    \brief CreateService是对YSSCore::Editor中有关创建服务实现类的总称。
+
+    CreateService模块包含了YSS创建服务框架的核心实现类，这些类使得开发者可以
+    自行根据需要注册不同的创建（创建项目、文件等）服务，从而实现对不同创建需求的支持。
+*/
