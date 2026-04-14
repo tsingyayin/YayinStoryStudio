@@ -71,6 +71,8 @@ namespace YSSCore::__Private__ {
 		void onCompleter();
 		void onScrollBarChanged(int value);
 		void onAltMultiSelection(QKeyEvent* event);
+		void onAltSwapLine(QKeyEvent* event);
+		void onDoubleLine(QKeyEvent* event);
 		void clearAltMultiSelection();
 	};
 }

@@ -73,12 +73,12 @@ protected:
 	}
 
 	/*!
-		将当前文件内容标记为已修改状态，并触发fileChanged信号。
+		将当前文件内容标记为已修改状态。
 		此函数通常在派生类中被调用，当用户修改了文件内容时，应调用此函数以更新文件状态。
 	*/
 	void FileEditWidget::setFileChanged() {
+		yErrorF << "File content changed";
 		d->fileChanged = true;
-		emit fileChanged(d->filePath);
 	}
 
 	/*!
@@ -127,7 +127,6 @@ protected:
 		if (ok) {
 			d->filePath = pathCopy;
 			d->fileChanged = false;
-			emit fileSaved(d->filePath);
 		}
 		return ok;
 	}

@@ -56,6 +56,11 @@ namespace YSSCore::__Private__ {
 						onAltMultiSelection(keyEvent);
 						return true;
 					}
+					else if (keyEvent->modifiers() & Qt::AltModifier) {
+						vgDebug << "Alt + Direction Key Pressed";
+						onAltSwapLine(keyEvent);
+						return true;
+					}
 					else {
 						clearAltMultiSelection();
 						if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
@@ -69,6 +74,10 @@ namespace YSSCore::__Private__ {
 						}
 						return false;
 					}
+				}
+				else if (keyEvent->key() == Qt::Key_D && keyEvent->modifiers() & Qt::ControlModifier) {
+					onDoubleLine(keyEvent);
+					return true;
 				}
 				else if (keyEvent->key() == Qt::Key_Escape) {
 					onEscapeClicked(keyEvent);
@@ -169,6 +178,12 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onCursorPositionChanged() {
 		if (useKeyboardToMoveCursor) {
+			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+				TabCompleterWidget->hide();
+			}
+			if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+				HoverInfoWidget->hide();
+			}
 			useKeyboardToMoveCursor = false;
 			return;
 		}
@@ -550,6 +565,45 @@ namespace YSSCore::__Private__ {
 			QRect pos = Text->cursorRect();
 			TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
 		}
+	}
+
+	void TextEditPrivate::onAltSwapLine(QKeyEvent* event) {
+		if (event->key() == Qt::Key_Up && Text->textCursor().block().blockNumber() == 0) {
+			return; // already the first line, can't move up
+		}
+		else if (event->key() == Qt::Key_Down && Text->textCursor().block().blockNumber() == Text->document()->blockCount() - 1) {
+			return; // already the last line, can't move down
+		}
+		if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
+			QTextCursor cursor = Text->textCursor();
+			qint32 currentColumn = cursor.positionInBlock();
+			QString currentLine = cursor.block().text();
+			QTextBlock swapBlock = event->key() == Qt::Key_Up ? cursor.block().previous() : cursor.block().next();
+			QString swapLine = swapBlock.text();
+			
+			cursor.setPosition(cursor.block().position());
+			cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+			cursor.insertText(swapLine);
+
+			cursor.setPosition(swapBlock.position());
+			cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+			cursor.insertText(currentLine);
+
+			cursor.setPosition(swapBlock.position() + currentColumn);
+			Text->setTextCursor(cursor);
+			useKeyboardToMoveCursor = true;
+		}
+	}
+
+	void TextEditPrivate::onDoubleLine(QKeyEvent* event) {
+		QTextCursor cursor = Text->textCursor();
+		qint32 currentColumn = cursor.positionInBlock();
+		QString currentLine = cursor.block().text();
+		cursor.movePosition(QTextCursor::EndOfBlock);
+		cursor.insertText("\n" + currentLine);
+		cursor.setPosition(cursor.block().position() + currentColumn);
+		Text->setTextCursor(cursor);
+		useKeyboardToMoveCursor = true;
 	}
 
 	void TextEditPrivate::onAltMultiSelection(QKeyEvent* event) {
@@ -935,7 +989,6 @@ namespace YSSCore::Editor {
 			}
 			file.write(d->Text->toPlainText().toUtf8());
 			file.close();
-			emit fileSaved(path);
 			return true;
 		}
 	}

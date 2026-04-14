@@ -104,16 +104,17 @@ namespace YSSCore::Editor {
 
 		在用户将自己的FileServer注册到FileServerManager后，FileServerManager可以根据已经注册的支持类型选择合适的FileServer来打开文件。
 
-		打开文件默认按照以下步骤尝试：
+		\section1 打开文件时的基本工作流程
+		FileServerManager的工作过程遵循以下步骤：
 		\list
-		\li 1. 查找支持该文件类型的FileServer列表。
-		\li 2. 依次使用这些FileServer尝试打开文件，直到成功为止。
-		\li 3. 如果没有任何FileServer成功打开文件，则使用内置的文本编辑器打开文件（如果启用该选项）。
-		\endlist
-		请注意，如果有多个FileServer支持同一种文件类型，则FileServerManager会按照注册顺序依次尝试这些FileServer。
-		用户可以通过setPriorityForFileExt函数来设置某种文件类型的FileServer优先级，从而改变尝试顺序。
+		\li 1. 根据打开时的文件扩展名选定全部有效的FileServer对象。
+		\li 2. 首先尝试使用preferredServerId参数指定的FileServer对象（如果存在且有效）来打开文件。
+		\li 3. 若2失败，则尝试使用特别关注强度决定的优先级列表（如果该功能没有被禁用）来打开文件。
+		\li 4. 如果无人特别关注，就回退到手动设置的优先级列表（如果存在）来打开文件。
+		\li 5. 如果优先级列表未设置，则按照注册顺序尝试打开文件。
+		\li 6. 如果以上步骤全部失败，或者根本不存在支持该文件类型的FileServer，则根据useFallback参数决定是否使用内置文本编辑器打开文件。
 
-		除此之外，当用户在openFile中指定了preferredServerId参数后，FileServerManager会优先尝试该FileServer。
+		有关特别关注、首选ID、优先级列表等概念的详细信息，请参见相关函数的文档说明。
 	*/
 
 	/*!
@@ -219,7 +220,7 @@ namespace YSSCore::Editor {
 		if (d->FileServerMap.contains(ext)) { // means supported
 			QList<FileServer*> servers = d->FileServerMap[ext];
 			if (d->FileServerPriorityMap.contains(ext)) {
-				servers = d->FileServerMap[ext];
+				servers = d->FileServerPriorityMap[ext];
 			}
 			if (!preferredServerId.isEmpty()) {
 				FileServer* server = nullptr;

@@ -207,6 +207,9 @@ namespace YSSCore::General {
 		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(absPath)));
 	}
 	void YSSProject::setFocusedFile(const QString& abs_filePath) {
+		if (abs_filePath.isEmpty()) {
+			return;
+		}
 		if (!Visindigo::Utility::FileUtility::isFileExist(abs_filePath)) {
 			yErrorF << "File not exist:" << abs_filePath;
 			return;
