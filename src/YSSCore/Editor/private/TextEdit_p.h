@@ -28,6 +28,7 @@ namespace YSSCore::__Private__ {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::Editor::HoverInfoProvider;
+		friend class YSSCore::Editor::SyntaxHighlighter;
 	protected:
 		YSSCore::Editor::TextEdit* q = nullptr;
 		QTextEdit* Line = nullptr;
@@ -51,6 +52,7 @@ namespace YSSCore::__Private__ {
 		bool useKeyboardToMoveCursor = false;
 		QWidget* HoverArea = nullptr;
 		QList<QTextEdit::ExtraSelection> AltMultiSelections;
+		bool Rehighlighting = false;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	public:

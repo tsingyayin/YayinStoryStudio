@@ -79,11 +79,6 @@ namespace ASERStudio::AStorySyntax {
 			-1, 0, AStoryXDiagnosticData::DiagnosticType::RuleNotSelected,
 			VITR("ASERStudio::diagnostic.ruleNotSelected.fixAdvice")
 		);
-		connect(this, &AStoryXDocument::currentRuleChanged, this, [this]() {
-			QTimer::singleShot(0, this, [this]() {
-				refreshParseData();
-				});
-			}, Qt::QueuedConnection);
 	}
 
 	/*
@@ -316,21 +311,6 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	AStoryXRule* AStoryXDocument::getCurrentRule() const {
 		return d->CurrentRule.isValid() ? &d->CurrentRule : nullptr;
-	}
-
-	/*!
-		\since ASERStudio 2.0
-		刷新解析数据，触发所有相关的更新信号，例如parseDataAllUpdated等。
-		这个方法通常在选定的规则发生变化时调用，以确保所有解析数据都能及时更新。
-	
-		\warning 这个函数直接调用设置的d->Highlighter的rehighlight方法来刷新全文档信息，
-		请\b{一定}不要在QSyntaxHighlighter::rehighlight方法中调用这个函数，否则会递归调用导致栈溢出。
-	*/
-	void AStoryXDocument::refreshParseData() {
-		if (d->Highlighter) {
-			d->Highlighter->rehighlight();
-		}
-		emit parseDataAllUpdated();
 	}
 
 	/*!

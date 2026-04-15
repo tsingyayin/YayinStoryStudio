@@ -44,6 +44,7 @@ namespace YSSCore::Editor {
 		void highlightBlock(const QString& text) override;
 	public:
 		virtual void onBlockChanged(const QString& text, int blockNumber) = 0;
+		void rehighlight_s();
 		void autoRenderMessageWaveLine(bool autoRender);
 		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
 		void createWarningMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");

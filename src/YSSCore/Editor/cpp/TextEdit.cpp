@@ -933,7 +933,11 @@ namespace YSSCore::Editor {
 		d->LastCursor.movePosition(QTextCursor::Start);
 		file.close();
 		cancelFileChanged();
-		connect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
+		connect(d->Text, &QTextEdit::textChanged, [this]() {
+			if (not d->Rehighlighting) {
+				this->setFileChanged();
+			}
+			});
 		return true;
 	}
 

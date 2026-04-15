@@ -77,7 +77,6 @@ protected:
 		此函数通常在派生类中被调用，当用户修改了文件内容时，应调用此函数以更新文件状态。
 	*/
 	void FileEditWidget::setFileChanged() {
-		yErrorF << "File content changed";
 		d->fileChanged = true;
 	}
 

@@ -122,6 +122,15 @@ namespace YSS::Editor {
 		else {
 			Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
 		}
+		QFontMetrics fm(TitleLabel->font());
+		int textWidth = fm.horizontalAdvance(TitleLabel->text());
+		vgDebug << "Text width:" << textWidth << "Label width:" << this->TitleLabel->width();
+		if (textWidth > this->TitleLabel->width()) {
+			this->setToolTip(TitleLabel->text());
+		}
+		else {
+			this->setToolTip(QString());
+		}
 	}
 
 	void StackWidgetTagLabel::enterEvent(QEnterEvent* event) {

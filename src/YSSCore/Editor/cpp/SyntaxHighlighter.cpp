@@ -4,6 +4,8 @@
 #include "Editor/private/DocumentMessageManager_p.h"
 #include <Widgets/ThemeManager.h>
 #include <General/Log.h>
+#include "Editor/private/TextEdit_p.h"
+#include <QtCore/qtimer.h>
 namespace YSSCore::Editor {
 	class DocumentMessagePrivate {
 		friend class DocumentMessage;
@@ -212,6 +214,12 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
+		\fn virtual void YSSCore::Editor::Syntaxhighlighter::onBlockChanged(const QString& text, int blockNumber) = 0
+		\since YSS 0.13.0
+
+		需要实现的纯虚函数，用户在其中实现具体的着色功能。语义上等价于QSyntaxHighlighter::highlightBlock
+	*/
+	/*!
 		\since YSS 0.13.0
 		重写自QSyntaxHighlighter的函数，在文本块内容改变时被调用。
 		\a text 当前文本块的内容。
@@ -224,6 +232,34 @@ namespace YSSCore::Editor {
 		DocumentMessageManager::getInstance()->d->flushMessages(d->FilePath, blockNumber);
 	}
 
+	/*!
+		\since YSS 0.14.0
+		安全的重新高亮整个文档。
+
+		引入这个函数是为了修复QSyntaxHighlighter::rehighlight的至少两个缺陷：
+		\list
+		\li 1. rehighlight不能在着色触发时立即重新调用，必须在着色结束后
+		从外部触发，否则会递归爆栈。而这个安全版函数内置了一个定时器，使得你
+		可以在着色触发时根据需要直接调用全部重新着色函数，而它会自动延迟到
+		下一个事件循环再触发（而当前这轮着色必然会在本轮事件循环完成）。
+		\li 2. 由于rehighlight内部的实现方式，其在QTextCursor上的操作会
+		触发QTextEdit::textChanged信号，而YSSCore::Editor::TextEdit通过监听
+		此信号来感知文件是否已改变，这会导致直接调用rehighlight会使TextEdit错误
+		的判断文件的改变情况。而此安全版函数会与其对应的TextEdit进行实现协商，
+		使其自动屏蔽从rehighlight触发的textChanged信号。
+		\endlist
+	*/
+	void SyntaxHighlighter::rehighlight_s() {
+		if (d->Parent) {
+			d->Parent->d->Rehighlighting = true;
+		}
+		QTimer::singleShot(0, this, [this]() {
+			this->rehighlight();
+			if (d->Parent) {
+				d->Parent->d->Rehighlighting = false;
+			}
+			});
+	}
 	/*!
 		\since YSS 0.13.0
 		设置是否自动为消息创建波浪线下划线。默认为true。

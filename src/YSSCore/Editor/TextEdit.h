@@ -21,6 +21,7 @@ namespace YSSCore::Editor {
 		Q_OBJECT;
 		friend class YSSCore::__Private__::TextEditPrivate;
 		friend class HoverInfoProvider;
+		friend class SyntaxHighlighter;
 	public:
 		TextEdit(QWidget* parent = nullptr);
 		virtual ~TextEdit();
@@ -46,7 +47,7 @@ namespace YSSCore::Editor {
 		virtual bool onUndo() override;
 		virtual bool onRedo() override;
 		virtual bool onSelectAll() override;
-	private:
+	protected:
 		YSSCore::__Private__::TextEditPrivate* d;
 	};
 }
