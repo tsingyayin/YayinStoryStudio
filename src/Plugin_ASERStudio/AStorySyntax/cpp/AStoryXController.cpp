@@ -464,7 +464,7 @@ namespace ASERStudio::AStorySyntax {
 		case AStoryXDiagnosticData::Undefined:
 			break;
 		case AStoryXDiagnosticData::ParameterTypeMismatch: {
-			if (diagnostic) {
+			if (diagnostic && result.d->referenceVariables.isEmpty()) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
 					.arg(d->RequiredParameterName)
@@ -481,8 +481,13 @@ namespace ASERStudio::AStorySyntax {
 			if (diagnostic) {
 				QString msg = VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(requiredParameter.getName());
 				if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::Vector) {
+					QList<qint64> dimensions = requiredParameter.getValue().getVectorCheckDimensions();
+					QStringList dimStrList;
+					for (auto dim : dimensions) {
+						dimStrList.append(QString::number(dim));
+					}
 					msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedDimension").
-						arg(requiredParameter.getValue().getVectorCheckDimension());
+						arg(dimStrList.join(", "));
 				}
 				else if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::String) {
 					QString check = requiredParameter.getValue().getStringCheckRegex();
@@ -555,7 +560,7 @@ namespace ASERStudio::AStorySyntax {
 			case AStoryXDiagnosticData::Undefined:
 				break;
 			case AStoryXDiagnosticData::ParameterTypeMismatch: {
-				if (diagnostic) {
+				if (diagnostic && result.d->referenceVariables.isEmpty()) {
 					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 						VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
 						.arg(optional.getName())
@@ -571,8 +576,13 @@ namespace ASERStudio::AStorySyntax {
 			case AStoryXDiagnosticData::ParameterFormatError: {
 				QString msg = VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(optional.getName());
 				if (optional.getValue().getType() == AStoryXValueMeta::Type::Vector) {
+					QList<qint64> dimensions = optional.getValue().getVectorCheckDimensions();
+					QStringList dimStrList;
+					for (auto dim : dimensions) {
+						dimStrList.append(QString::number(dim));
+					}
 					msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedDimension").
-						arg(optional.getValue().getVectorCheckDimension());
+						arg(dimStrList.join(", "));
 				}
 				else if (optional.getValue().getType() == AStoryXValueMeta::Type::String) {
 					QString check = optional.getValue().getStringCheckRegex();

@@ -50,9 +50,9 @@ namespace ASERStudio::AStorySyntax {
 		QPair<qint64, qint64> getIntegerCheckRange() const;
 		void setFloatCheckRange(double min, double max);
 		QPair<double, double> getFloatCheckRange() const;
-		void setVectorCheckRange(const QList<QPair<double, double>>& range, qint32 dimension);
+		void setVectorCheckRange(const QList<QPair<double, double>>& range, const QList<qint64>& dimensions);
 		QList<QPair<double, double>> getVectorCheckRange() const;
-		qint32 getVectorCheckDimension() const;
+		QList<qint64> getVectorCheckDimensions() const;
 		void setEnumCheckList(const QStringList& enumList);
 		QStringList getEnumCheckList() const;
 		AStoryXDiagnosticData::DiagnosticType isTypeMatching(const QString& value) const;

@@ -155,12 +155,12 @@
         "StartPosition":{
             "type": "Vector",
             "defaultValue": "0,0,10,0",
-            "dimension": 4
+            "dimensions": [3, 4]
         },
         "EndPosition":{
             "type": "Vector",
             "defaultValue": "0,0,10,0",
-            "dimension": 4
+            "dimensions": [3, 4]
         },
         "MoveTime":{
             "type": "Float",
@@ -241,14 +241,14 @@
         "Position": {
             "type": "Vector",
             "defaultValue": "0,0,10,0",
-            "dimension": 4
+            "dimensions": [3, 4]
         }
     },
     "ColorMask":{
         "Color":{
             "type": "Vector",
             "defaultValue": "0,0,0,1",
-            "dimension": 4
+            "dimensions": [3, 4]
         },
         "FadeInTime":{
             "type": "Float",

@@ -12,7 +12,7 @@ namespace ASERStudio::AStorySyntax {
 		QPair<double, double> FloatCheckRange;
 		QList<QPair<double, double>> VectorCheckRange;
 		QStringList StringListCheck;
-		qint32 VectorCheckDimension;
+		QList<qint64> VectorCheckDimensions;
 		QStringList EnumCheckList;
 		QString DefaultValue;
 
@@ -56,7 +56,7 @@ namespace ASERStudio::AStorySyntax {
 		};
 		AStoryXDiagnosticData::DiagnosticType isVector(const QString& value) const {
 			QStringList components = value.split(',');
-			if (components.size() != VectorCheckDimension) {
+			if (not VectorCheckDimensions.contains(components.size())) {
 				return AStoryXDiagnosticData::DiagnosticType::ParameterFormatError;
 			}
 			int index = 0;
@@ -298,9 +298,15 @@ namespace ASERStudio::AStorySyntax {
 				break;
 			}
 			case AStoryXValueMeta::Type::Vector: {
-				qint32 dimension = paramMeta.contains("dimension") ? paramMeta.getInt("dimension") : 3;
+				QList<qint64> dimensions = paramMeta.contains("dimensions") ? paramMeta.getIntArray("dimensions") : QList<qint64>{ 3 };
+				qint64 maxDim = 0;
+				for (qint64 dim : dimensions) {
+					if (dim > maxDim) {
+						maxDim = dim;
+					}
+				}
 				QList<QPair<double, double>> range;
-				for (qint32 i = 0; i < dimension; i++) {
+				for (qint32 i = 0; i < maxDim; i++) {
 					auto dimConfig = paramMeta.getObject(QString("limit.%1").arg(i));
 					double min =  -std::numeric_limits<double>::infinity();
 					double max = std::numeric_limits<double>::infinity();
@@ -314,7 +320,7 @@ namespace ASERStudio::AStorySyntax {
 					}
 				}
 				d->VectorCheckRange = range;
-				d->VectorCheckDimension = dimension;
+				d->VectorCheckDimensions = dimensions;
 				break;
 			}
 			case AStoryXValueMeta::Type::Enum: {
@@ -446,15 +452,15 @@ namespace ASERStudio::AStorySyntax {
 	}
 
 	/*!
-		\since ASERStudio 2.0
+		\since ASERStudio 2.1
 		设置向量检查的范围和维度。
 		\a range 向量检查范围，必须是一个QList<QPair<double, double>>对象，其中每个QPair表示一个维度的最小值和最大值。
-		range的大小必须与dimension参数一致。
-		\a dimension 向量维度，必须是一个qint32类型的整数，表示向量的维度。dimension必须大于0。
+		range的大小必须等于dimensions中的最大值。
+		\a dimensions 向量维度，必须是一个QList<qint64>对象，表示允许的维度值列表。dimensions中的每个值必须大于0。
 	*/
-	void AStoryXValueMeta::setVectorCheckRange(const QList<QPair<double, double>>& range, qint32 dimension) {
+	void AStoryXValueMeta::setVectorCheckRange(const QList<QPair<double, double>>& range, const QList<qint64>& dimensions) {
 		d->VectorCheckRange = range;
-		d->VectorCheckDimension = dimension;
+		d->VectorCheckDimensions = dimensions;
 	}
 
 	/*!
@@ -468,13 +474,13 @@ namespace ASERStudio::AStorySyntax {
 	}
 
 	/*!
-		\since ASERStudio 2.0
+		\since ASERStudio 2.1
 		获取向量检查的维度。
-		\return 向量检查维度，返回一个qint32类型的整数，表示向量的维度。
+		\return 向量检查维度，返回一个qint64的列表，代表允许的维度值列表。
 		如果未设置维度，则返回0。
 	*/
-	qint32 AStoryXValueMeta::getVectorCheckDimension() const {
-		return d->VectorCheckDimension;
+	QList<qint64> AStoryXValueMeta::getVectorCheckDimensions() const {
+		return d->VectorCheckDimensions;
 	}
 
 	/*!

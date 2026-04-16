@@ -13,18 +13,15 @@ namespace YSS::Editor {
 		PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
 		CloseLabel = new QPushButton(this);
 		CloseLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/close.png"));
-		Separator = new QFrame(this);
 		Layout = new QHBoxLayout(this);
 		Layout->setContentsMargins(5, 0, 5, 0);
 		Layout->addWidget(TitleLabel);
 		Layout->addWidget(PinLabel);
 		Layout->addWidget(CloseLabel);
-		Layout->addWidget(Separator);
+		//Layout->addWidget(Separator);
 
 		PinLabel->setFixedWidth(PinLabel->height());
 		CloseLabel->setFixedWidth(CloseLabel->height());
-		Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
-		Separator->setFixedHeight(0);
 		PinLabel->hide();
 		CloseLabel->hide();
 		this->setMaximumWidth(200);
@@ -75,11 +72,9 @@ namespace YSS::Editor {
 		Pinned = pinned;
 		if (Pinned) {
 			PinLabel->show();
-			Separator->setFixedWidth(CloseLabel->width());
 		}
 		else {
 			PinLabel->hide();
-			Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
 		}
 	}
 
@@ -120,15 +115,8 @@ namespace YSS::Editor {
 		QFrame::resizeEvent(event);
 		PinLabel->setFixedWidth(PinLabel->height());
 		CloseLabel->setFixedWidth(CloseLabel->height());
-		if (Pinned) {
-			Separator->setFixedWidth(CloseLabel->width());
-		}
-		else {
-			Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
-		}
 		QFontMetrics fm(TitleLabel->font());
 		int textWidth = fm.horizontalAdvance(TitleLabel->text());
-		vgDebug << "Text width:" << textWidth << "Label width:" << this->TitleLabel->width();
 		if (textWidth > this->TitleLabel->width()) {
 			this->setToolTip(TitleLabel->text());
 		}
@@ -142,9 +130,16 @@ namespace YSS::Editor {
 		if (not Focused) {
 			QFrame::setStyleSheet(HoverStyle);
 		}
-		Separator->hide();
 		PinLabel->show();
 		CloseLabel->show();
+		QFontMetrics fm(TitleLabel->font());
+		int textWidth = fm.horizontalAdvance(TitleLabel->text());
+		if (textWidth > this->TitleLabel->width()) {
+			this->setToolTip(TitleLabel->text());
+		}
+		else {
+			this->setToolTip(QString());
+		}
 	}
 
 	void StackWidgetTagLabel::leaveEvent(QEvent* event) {
@@ -153,11 +148,17 @@ namespace YSS::Editor {
 			QFrame::setStyleSheet(NormalStyle);
 		}
 		if (not Pinned) {
-			Separator->setFixedWidth(PinLabel->width() + CloseLabel->width() + Layout->spacing());
 			PinLabel->hide();
 		}
 		CloseLabel->hide();
-		Separator->show();
+		QFontMetrics fm(TitleLabel->font());
+		int textWidth = fm.horizontalAdvance(TitleLabel->text());
+		if (textWidth > this->TitleLabel->width()) {
+			this->setToolTip(TitleLabel->text());
+		}
+		else {
+			this->setToolTip(QString());
+		}
 	}
 
 	StackWidgetTagArea::StackWidgetTagArea(QWidget* parent) :QFrame(parent) {
@@ -233,9 +234,12 @@ namespace YSS::Editor {
 				if (not Labels[i]->isPinned()) {
 					Labels.insert(i, targetLabel);
 					ContentLayout->insertWidget(i, targetLabel);
-					break;
+					return;
 				}
 			}
+			// All pinned.
+			Labels.append(targetLabel);
+			ContentLayout->addWidget(targetLabel);
 		}
 	}
 

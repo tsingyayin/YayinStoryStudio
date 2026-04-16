@@ -54,6 +54,8 @@ namespace Visindigo::Utility {
 		JsonConfig getObject(const QString& key = "", bool* ok = nullptr) const;
 		QList<JsonConfig> getArray(const QString& key = "", bool* ok = nullptr) const;
 		QStringList getStringList(const QString& key = "", bool* ok = nullptr) const;
+		QList<qint64> getIntArray(const QString& key = "", bool* ok = nullptr) const;
+		QList<double> getDoubleArray(const QString& key = "", bool* ok = nullptr) const;
 		bool contains(const QString& key) const;
 		void clear();
 		void setValue(const QString& key, const QJsonValue& value);
@@ -65,6 +67,8 @@ namespace Visindigo::Utility {
 		void setArray(const QString& key, const QList<JsonConfig>& value);
 		void setArray(const QString& key, const QStringList& value);
 		void setStringList(const QString& key, const QStringList& value);
+		void setIntArray(const QString& key, const QList<qint64>& value);
+		void setDoubleArray(const QString& key, const QList<double>& value);
 		bool isEmpty(const QString& key = "") const;
 		bool isNull(const QString& key = "") const;
 		bool isObject(const QString& key = "") const;

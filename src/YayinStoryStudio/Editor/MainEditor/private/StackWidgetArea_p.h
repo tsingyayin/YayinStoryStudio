@@ -15,7 +15,6 @@ namespace YSS::Editor {
 		QLabel* TitleLabel;
 		QPushButton* PinLabel;
 		QPushButton* CloseLabel;
-		QFrame* Separator;
 		QHBoxLayout* Layout;
 		QString FilePath;
 		QString NormalStyle;
