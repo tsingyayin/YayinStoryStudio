@@ -464,7 +464,7 @@ namespace ASERStudio::AStorySyntax {
 		case AStoryXDiagnosticData::Undefined:
 			break;
 		case AStoryXDiagnosticData::ParameterTypeMismatch: {
-			if (diagnostic) {
+			if (diagnostic && result.d->referenceVariables.size() == 0) { // if contains ref var, type must be guessed as string, ignore it.
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
 					.arg(d->RequiredParameterName)
@@ -555,7 +555,7 @@ namespace ASERStudio::AStorySyntax {
 			case AStoryXDiagnosticData::Undefined:
 				break;
 			case AStoryXDiagnosticData::ParameterTypeMismatch: {
-				if (diagnostic) {
+				if (diagnostic && result.d->referenceVariables.size() == 0) { // if contains ref var, type must be guessed as string, ignore it.
 					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 						VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
 						.arg(optional.getName())

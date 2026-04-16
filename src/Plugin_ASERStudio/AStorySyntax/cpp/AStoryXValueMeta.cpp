@@ -56,7 +56,7 @@ namespace ASERStudio::AStorySyntax {
 		};
 		AStoryXDiagnosticData::DiagnosticType isVector(const QString& value) const {
 			QStringList components = value.split(',');
-			if (components.size() != VectorCheckDimension) {
+			if (components.size() > VectorCheckDimension) {
 				return AStoryXDiagnosticData::DiagnosticType::ParameterFormatError;
 			}
 			int index = 0;
