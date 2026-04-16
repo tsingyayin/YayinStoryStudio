@@ -40,6 +40,9 @@ namespace ASERStudio::YSS {
 		if (not parseData.isValid()) {
 			return;
 		}
+		if (parseData.getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Comment) {
+			return;
+		}
 		ASERStudio::AStorySyntax::AStoryXParameter parameter = parseData.getCursorParameter(column);
 		QString controllerName = ASERStudio::AStorySyntax::AStoryXController::controllerTypeToString(parseData.getControllerType());
 		QString controllerNameI18N = VITR(QString("ASERStudio::controller.%1").

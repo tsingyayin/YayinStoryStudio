@@ -23,12 +23,20 @@ protected:
 
 	/*!
 		\fn YSSCore::Editor::FileEditWidget::fileChanged(const QString& filePath)
-		当文件内容被修改时，此信号会被触发。
+		\since YSS 0.13.0
+		当文件内容被修改时，应触发此信号。
+	*/
+
+	/*!
+		\fn YSSCore::Editor::FileEditWidget::fileChangeCanceled(const QString& filePath)
+		\since YSS 0.14.0
+		当文件内容修改被取消时，应触发此信号。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::FileEditWidget::fileSaved(const QString& filePath)
-		当文件被成功保存时，此信号会被触发。
+		\since YSS 0.13.0
+		当文件被成功保存时，应触发此信号。
 	*/
 
 	/*!
@@ -78,6 +86,7 @@ protected:
 	*/
 	void FileEditWidget::setFileChanged() {
 		d->fileChanged = true;
+		emit fileChanged(d->filePath);
 	}
 
 	/*!
@@ -86,6 +95,7 @@ protected:
 	*/
 	void FileEditWidget::cancelFileChanged() {
 		d->fileChanged = false;
+		emit fileChangeCanceled(d->filePath);
 	}
 
 	/*!
@@ -126,6 +136,7 @@ protected:
 		if (ok) {
 			d->filePath = pathCopy;
 			d->fileChanged = false;
+			emit fileSaved(d->filePath);
 		}
 		return ok;
 	}

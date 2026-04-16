@@ -12,6 +12,10 @@ namespace YSSCore::Editor {
 	class YSSCoreAPI FileEditWidget :public QFrame {
 		Q_OBJECT;
 		VImpl(FileEditWidget);
+	signals:
+		void fileChanged(const QString& filePath);
+		void fileChangeCanceled(const QString& filePath);
+		void fileSaved(const QString& filePath);
 	public:
 		FileEditWidget(QWidget* parent = nullptr);
 		virtual ~FileEditWidget();

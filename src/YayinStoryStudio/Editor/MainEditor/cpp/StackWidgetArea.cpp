@@ -53,6 +53,9 @@ namespace YSS::Editor {
 		widget->setParent(this);
 		d->WidgetMap[filePath] = widget;
 		d->TagArea->addStackLabel(filePath);
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackWidgetTagArea::setFileChanged);
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea, &StackWidgetTagArea::cancelFileChanged);
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea, &StackWidgetTagArea::cancelFileChanged);
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {
 			textEdit->setHoverArea(this);

@@ -50,6 +50,10 @@ namespace YSS::Editor {
 		return FilePath;
 	}
 
+	QString StackWidgetTagLabel::getText() const { 
+		return TitleLabel->text();
+	}
+
 	void StackWidgetTagLabel::setFocusOn(bool focus) {
 		Focused = focus;
 		if (Focused) {
@@ -326,7 +330,31 @@ namespace YSS::Editor {
 		}
 		ScrollContent->setFixedWidth(totalWidth + 2 * ScrollContent->frameWidth());
 	}
+
+	void StackWidgetTagArea::setFileChanged(const QString& path) {
+		for (auto label : Labels) {
+			if (label->getFilePath() == path) {
+				QString fileName = label->getText();
+				if (not fileName.startsWith("* ")) {
+					label->setText("* " + fileName);
+				}
+				break;
+			}
+		}
+	}
 	
+	void StackWidgetTagArea::cancelFileChanged(const QString& path) {
+		for (auto label : Labels) {
+			if (label->getFilePath() == path) {
+				QString fileName = label->getText();
+				if (fileName.startsWith("* ")) {
+					label->setText(fileName.mid(2));
+				}
+				break;
+			}
+		}
+	}
+
 	void StackWidgetTagArea::wheelEvent(QWheelEvent* event) {
 		QFrame::wheelEvent(event);
 		int numDegrees = event->angleDelta().y() / 8;

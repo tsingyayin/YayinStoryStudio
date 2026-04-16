@@ -33,6 +33,7 @@ namespace YSS::Editor {
 		void setText(const QString& text);
 		void setFilePath(const QString& filePath);
 		QString getFilePath() const;
+		QString getText() const;
 		void setFocusOn(bool focus);
 		bool isFocusOn() const;
 		void setPinned(bool pinned);
@@ -68,6 +69,8 @@ namespace YSS::Editor {
 		void setCurrentStackLabel(const QString& filePath);
 		QString getCurrentSelected() const;
 		void adjustScrollArea();
+		void setFileChanged(const QString& filePath);
+		void cancelFileChanged(const QString& filePath);
 	public:
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;

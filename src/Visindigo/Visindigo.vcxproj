@@ -239,6 +239,7 @@
     <ClCompile Include="Widgets\cpp\PixmapCacheHelper.cpp" />
     <ClCompile Include="Widgets\cpp\PluginManageWidget.cpp" />
     <ClCompile Include="Widgets\cpp\QuickMenu.cpp" />
+    <ClCompile Include="Widgets\cpp\ShortcutSet.cpp" />
     <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Widgets\cpp\ThemeManager.cpp" />
     <ClCompile Include="General\cpp\Logger.cpp" />
@@ -320,6 +321,7 @@
     <QtMoc Include="Widgets\private\TitleWidget_p.h" />
     <QtMoc Include="Widgets\private\VIWidgets_p.h" />
     <QtMoc Include="Widgets\private\PluginManageWidget_p.h" />
+    <QtMoc Include="Widgets\ShortcutSet.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
     <ClInclude Include="General\Log.h" />
