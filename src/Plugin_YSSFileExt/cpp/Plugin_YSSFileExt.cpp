@@ -2,7 +2,7 @@
 #include "LangServer/JsonLangServer.h"
 #include "FileServer/YSSPEditor.h"
 Plugin_YSSFileExt::Plugin_YSSFileExt() {
-	setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSSFileExt uses the same version as Visindigo API version
+	setPluginVersion(Compiled_VIAPI_Version); // YSSFileExt uses the same version as Visindigo API version
 	setPluginID("cn.yxgeneral.weavestudio.yssfileext");
 	setPluginName("YSS File Extensions");
 	setPluginAuthor({ "Tsing Yayin" });
