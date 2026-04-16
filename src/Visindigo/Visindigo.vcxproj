@@ -96,7 +96,7 @@
     <LibraryPath>$(SolutionDir)library\bin;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">
-    <OutDir>$(SolutionDir)$(Platform)\Debug\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\0.13\Debug\</OutDir>
     <IncludePath>$(SolutionDir)library\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)library\bin</LibraryPath>
   </PropertyGroup>
@@ -106,7 +106,7 @@
     <LibraryPath>$(SolutionDir)library;$(LibraryPath);$(SolutionDir)library\bin;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'">
-    <OutDir>$(SolutionDir)$(Platform)\Release\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\0.13\Release\</OutDir>
     <IncludePath>$(SolutionDir)library\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)library\bin;</LibraryPath>
   </PropertyGroup>

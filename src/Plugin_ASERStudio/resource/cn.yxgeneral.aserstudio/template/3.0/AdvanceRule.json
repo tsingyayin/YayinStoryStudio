@@ -163,7 +163,7 @@
       "Value": {
         "header": "选项：",
         "requiredParametersName": "ChoiceContent",
-        "requiredParametersSeparator": ":",
+        "requiredParametersSeparator": "`",
         "optionalParameters": [
           {
             "parameterName": "OutputVariable",
@@ -187,7 +187,7 @@
       "Key": "VisualEffect",
       "Value": {
         "header": "特效：",
-        "requiredParametersName": "VisualEffectId",
+        "requiredParametersName": "VisualEffectName",
         "requiredParametersSeparator": ":",
         "optionalParameters": [
           {
@@ -530,6 +530,10 @@
           {
             "parameterName": "ExtraStayTime",
             "prefix": ",@ExtraStayTime="
+          },
+          {
+            "parameterName": "IsBlocker",
+            "prefix": ",@IsBlocker="
           }
         ],
         "isAdvanced": true

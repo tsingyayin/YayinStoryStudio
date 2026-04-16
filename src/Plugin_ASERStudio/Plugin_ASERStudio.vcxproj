@@ -60,15 +60,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Platform)\Debug;</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Platform)\0.13\Debug;</LibraryPath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\Debug\user_data\plugins\ASERStudio\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\0.13\Debug\user_data\plugins\ASERStudio\</OutDir>
     <TargetExt>.vpl</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Platform)\Release;</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Platform)\0.13\Release;</LibraryPath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\Release\user_data\plugins\ASERStudio\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\0.13\Release\user_data\plugins\ASERStudio\</OutDir>
     <TargetExt>.vpl</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
