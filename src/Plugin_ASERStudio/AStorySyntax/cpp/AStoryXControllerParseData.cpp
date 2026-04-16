@@ -305,7 +305,7 @@ namespace ASERStudio::AStorySyntax {
 			return d->cursorInWhichParameter;
 		}
 		for (const auto& param : d->OptionalParameters) {
-			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length()) {
+			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length() + param.getPrefix().length()){
 				return param.getName();
 			}
 		}
@@ -335,7 +335,7 @@ namespace ASERStudio::AStorySyntax {
 			return AStoryXParameter();
 		}
 		for (const auto& param : d->OptionalParameters) {
-			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length()) {
+			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length() + param.getPrefix().length()) {
 				return param;
 			}
 		}
