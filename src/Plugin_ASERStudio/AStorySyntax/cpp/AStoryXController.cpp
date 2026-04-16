@@ -20,7 +20,7 @@ namespace ASERStudio::AStorySyntax {
 		QStringList OptionalParameterNames;
 		QMap<QString, QString> OptionalParameterPrefix;
 		QMap<QString, AStoryXValueMeta> OptionalParameterValue;
-		bool prefixChanged = false;
+		bool prefixChanged = true;
 		bool Monotonicity = false;
 	public:
 		QStringList getOptionalParameterPrefixes() {
@@ -40,12 +40,11 @@ namespace ASERStudio::AStorySyntax {
 			prefixChanged = true;
 		}
 		bool isMonotonicity(){
-			if (!prefixChanged) {
+			if (not prefixChanged) {
 				return Monotonicity;
 			}
 			QStringList usedPrefix;
-			for (auto key : OptionalParameterPrefix) {
-				QString prefix = OptionalParameterPrefix[key];
+			for (auto prefix : OptionalParameterPrefix.values()) {
 				if (usedPrefix.contains(prefix)) {
 					Monotonicity = false;
 					return false;
@@ -135,19 +134,19 @@ namespace ASERStudio::AStorySyntax {
 				qint32 right = i == usedPrefixIndexes.size() - 1 ? str.length() : usedPrefixIndexes[i + 1];
 				QString content = str.mid(left, right - left);
 				qint32 rawContentLength = content.length();
-				for (auto key : protectTMP) {
+				for (auto key : protectTMP.keys()) {
 					content =	 content.replace(key, protectTMP[key]);
 				}
-				for (auto key : protectedVAR) {
+				for (auto key : protectedVAR.keys()) {
 					content = content.replace(key, protectedVAR[key]);
 				}
-				deltaLength += content.length() - rawContentLength;
 				auto optionalParameter = AStoryXParameter();
 				optionalParameter.d->setParameter(
 					usedNames[i], usedPrefix[i], content, 
 					OptionalParameterValue[usedNames[i]], 
 					outputIndexOffset + usedPrefixIndexes[i] + deltaLength);
 				fixedPrefixIndexes.append(usedPrefixIndexes[i] + deltaLength + outputIndexOffset);
+				deltaLength += content.length() - rawContentLength;
 				data->d->OptionalParameters.append(optionalParameter);
 			}
 			if (cursorPosition > 0) {
@@ -194,7 +193,6 @@ namespace ASERStudio::AStorySyntax {
 				prefixes.append(std::get<1>(pair));
 				prefixNames.append(std::get<2>(pair));
 			}
-			vgDebug << QMetaEnum::fromType<AStoryXController::ControllerType>().valueToKey(Type);
 			if (diagnostic && prefixIndexes.size() > 0 && prefixIndexes.first() == 0) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.missingRequiredParameter.message").arg(
@@ -240,13 +238,12 @@ namespace ASERStudio::AStorySyntax {
 				qint32 right = i == prefixIndexes.size() - 1 ? str.length() : prefixIndexes[i + 1];
 				QString content = str.mid(left, right - left);
 				qint32 rawContentLength = content.length();
-				for (auto key : protectTMP) {
-					content.replace(key, protectTMP[key]);
+				for (auto key : protectTMP.keys()) {
+					content = content.replace(key, protectTMP[key]);
 				}
-				for (auto key : protectedVAR) {
-					content.replace(key, protectedVAR[key]);
+				for (auto key : protectedVAR.keys()) {
+					content = content.replace(key, protectedVAR[key]);
 				}
-				deltaLength += content.length() - rawContentLength;
 				auto optionalParameter = AStoryXParameter();
 				optionalParameter.d->setParameter(
 					prefixNames[i], prefixes[i], content,
@@ -254,6 +251,7 @@ namespace ASERStudio::AStorySyntax {
 					outputIndexOffset + prefixIndexes[i] + deltaLength
 				);
 				fixedPrefixIndexes.append(prefixIndexes[i] + deltaLength + outputIndexOffset);
+				deltaLength += content.length() - rawContentLength;
 				data->d->OptionalParameters.append(optionalParameter);
 			};
 			if (cursorPosition > 0) {

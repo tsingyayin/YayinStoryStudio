@@ -36,7 +36,7 @@ namespace ASERStudio {
 	Main::Main() : YSSCore::Editor::EditorPlugin() {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
-		setPluginVersion(Visindigo::General::Version(2, 0, 0));
+		setPluginVersion(Visindigo::General::Version(2, 0, 2));
 		setPluginID("cn.yxgeneral.aserstudio");
 		setPluginName("ASER Studio");
 		setPluginAuthor({ "Gra_dus", "Tsing Yayin" });

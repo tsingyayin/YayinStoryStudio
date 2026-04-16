@@ -10,7 +10,7 @@ namespace YSS::ImageViewer {
 	}
 
 	Main::Main() : YSSCore::Editor::EditorPlugin() {
-		setPluginVersion(Visindigo::General::Version(1, 0, 0));
+		setPluginVersion(Compiled_VIAPI_Version);
 		setPluginID("cn.yxgeneral.imageviewer");
 		setPluginName("Image Viewer");
 		setPluginAuthor({ "Tsing Yayin" });
