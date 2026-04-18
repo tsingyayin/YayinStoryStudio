@@ -1,7 +1,7 @@
 #include "../MultiLabel.h"
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qgridlayout.h>
-
+#include <QtWidgets/qapplication.h>
 namespace Visindigo::Widgets {
 	class MultiLabelPrivate {
 		friend class MultiLabel;
@@ -29,7 +29,7 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		构造函数
 	*/
-	MultiLabel::MultiLabel(QWidget* parent) :QFrame(parent) {
+	MultiLabel::MultiLabel(QWidget* parent) : BorderFrame(parent) {
 		d = new MultiLabelPrivate;
 		d->Title = new QLabel(this);
 		d->Title->setObjectName("TitleLabel");
@@ -78,6 +78,9 @@ namespace Visindigo::Widgets {
 			d->Layout->setRowStretch(1, 1);
 			d->Description->show();
 		}
+		QFont font = qApp->font();
+		font.setPointSizeF(font.pointSizeF() * 0.8);
+		d->Description->setFont(font);
 	}
 
 	/*!
@@ -167,7 +170,7 @@ namespace Visindigo::Widgets {
 		}
 		d->CustomWidget = widget;
 		widget->setParent(this);
-		d->Layout->addWidget(widget, 2, 1, 1, 1);
+		d->Layout->addWidget(widget, 0, 2, 2, 1);
 		d->CustomWidget->show();
 	}
 

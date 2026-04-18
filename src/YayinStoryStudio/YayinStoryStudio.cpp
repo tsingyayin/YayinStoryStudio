@@ -58,8 +58,6 @@ namespace YSS {
 		d->ConfigWidget->setIndependentMode(true);
 		VISTM->setStyleTemplatePriority({ "YSS" });
 		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future use
-		VISTM->setAutoAdjustThemeToSystem(false);
-		
 	}
 
 	void Main::onApplicationInit() {

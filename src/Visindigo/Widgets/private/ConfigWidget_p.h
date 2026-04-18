@@ -33,6 +33,7 @@ namespace Visindigo::__Private__ {
 		QMap<QTextEdit*, QString> TextEditDefault;
 		QMap<QLabel*, QString> ColorDialogDefault;
 		QList<QWidget*> SettingsWidget;
+		QWidget* ButtonWidget = nullptr;
 		QPushButton* ResetButton = nullptr;
 		QPushButton* SaveButton = nullptr;
 		QHBoxLayout* ButtonLayout = nullptr;

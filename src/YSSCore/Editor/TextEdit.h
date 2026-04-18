@@ -35,6 +35,8 @@ namespace YSSCore::Editor {
 		void setTabReload(bool reload);
 		bool isTabReload() const;
 		QTextDocument* getDocument() const;
+		qint32 getFontSize() const;
+		void setFontSize(qint32 size);
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;

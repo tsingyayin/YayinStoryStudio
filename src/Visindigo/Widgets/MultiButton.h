@@ -29,14 +29,16 @@ namespace Visindigo::Widgets {
 		void setNormalStyleSheet(const QString& styleSheet);
 		void setInactiveStyleSheet(const QString& styleSheet);
 		void setActive(bool active);
+		bool inButtonGroup();
 		bool isActive();
 		bool isHovered();
 	protected:
-		void mousePressEvent(QMouseEvent* event) override;
-		void mouseReleaseEvent(QMouseEvent* event) override;
-		void mouseDoubleClickEvent(QMouseEvent* event) override;
-		void enterEvent(QEnterEvent* event) override;
-		void leaveEvent(QEvent* event) override;
+		virtual void paintEvent(QPaintEvent* event) override;
+		virtual void mousePressEvent(QMouseEvent* event) override;
+		virtual void mouseReleaseEvent(QMouseEvent* event) override;
+		virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+		virtual void enterEvent(QEnterEvent* event) override;
+		virtual void leaveEvent(QEvent* event) override;
 	protected:
 		Visindigo::__Private__::MultiButtonPrivate* d;
 	};

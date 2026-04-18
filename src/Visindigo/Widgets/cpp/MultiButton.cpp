@@ -1,5 +1,9 @@
 #include "../MultiButton.h"
 #include "../private/MultiButton_p.h"
+#include <QtWidgets/qstyleoption.h>
+#include <QtWidgets/qstyle.h>
+#include <QtGui/qpainter.h>
+#include "General/Log.h"
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::MultiButton
@@ -132,6 +136,48 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
+		\since Visindigo 0.14.0
+		绘制事件处理函数。此函数会在按钮需要重绘时被调用。
+	*/
+	void MultiButton::paintEvent(QPaintEvent* event) {
+		if (not d->inButtonGroup) {
+			QStyleOptionButton option;
+			option.initFrom(this);
+			if (d->Active) {
+				if (d->Pressed) {
+					option.state |= QStyle::State_Sunken;
+				}
+				if (d->Hovered) {
+					option.state |= QStyle::State_MouseOver;
+				}
+			}
+			QPainter painter(this);
+			QStyle* style = this->style();
+			style->drawControl(QStyle::CE_PushButton, &option, &painter, this);
+		}
+		else {
+			QStyleOptionViewItem option;
+			option.initFrom(this);
+			if (d->Active) {
+				if (d->Pressed) {
+					option.state |= QStyle::State_Sunken;
+				}
+				if (d->Hovered) {
+					option.state |= QStyle::State_MouseOver;
+				}
+				if (d->buttonGroupChecked) {
+					option.state |= QStyle::State_On;
+				}
+				else {
+					option.state |= QStyle::State_Off;
+				}
+			}
+			QPainter painter(this);
+			QStyle* style = this->style();
+			style->drawControl(QStyle::CE_ItemViewItem, &option, &painter, this);
+		}
+	}
+	/*!
 		\since Visindigo 0.13.0
 		鼠标按下事件处理函数。此函数会在鼠标按下时被调用。
 	*/
@@ -141,7 +187,12 @@ namespace Visindigo::Widgets {
 			return;
 		}
 		d->Pressed = true;
-		setStyleSheet(d->PressedStyleSheet);
+		if(d->PressedStyleSheet.isEmpty()) {
+			repaint();
+		}
+		else {
+			setStyleSheet(d->PressedStyleSheet);
+		}
 		emit pressed();
 	}
 
@@ -154,7 +205,12 @@ namespace Visindigo::Widgets {
 		if (!d->Active) {
 			return;
 		}
-		setStyleSheet(d->NormalStyleSheet);
+		if (d->NormalStyleSheet.isEmpty()) {
+			repaint();
+		}
+		else {
+			setStyleSheet(d->NormalStyleSheet);
+		}
 		emit released();
 		if (d->Pressed) {
 			d->Pressed = false;
@@ -181,7 +237,12 @@ namespace Visindigo::Widgets {
 	void MultiButton::enterEvent(QEnterEvent* event) {
 		MultiLabel::enterEvent(event);
 		d->Hovered = true;
-		setStyleSheet(d->HoveredStyleSheet);
+		if (d->HoveredStyleSheet.isEmpty()) {
+			repaint();
+		}
+		else {
+			setStyleSheet(d->HoveredStyleSheet);
+		}
 		emit hover();
 	}
 
@@ -192,7 +253,12 @@ namespace Visindigo::Widgets {
 	void MultiButton::leaveEvent(QEvent* event) {
 		MultiLabel::leaveEvent(event);
 		d->Hovered = false;
-		setStyleSheet(d->NormalStyleSheet);
+		if (d->NormalStyleSheet.isEmpty()) {
+			repaint();
+		}
+		else {
+			setStyleSheet(d->NormalStyleSheet);
+		}
 		emit leave();
 	}
 }

@@ -23,8 +23,21 @@ namespace Visindigo::__Private__ {
 	ConfigWidgetPrivate::ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self) {
 		this->self = self;
 		this->Layout = new QVBoxLayout(self);
-		self->setLayout(Layout);
-		self->setStyleSheet(VISTMGT("YSS::ConfigWidget", self));
+		ButtonWidget = new QWidget(self);
+		ResetButton = new QPushButton(VITR("Visindigo::general.reset"), ButtonWidget);
+		SaveButton = new QPushButton(VITR("Visindigo::general.save"), ButtonWidget);
+		connect(ResetButton, &QPushButton::clicked, self, [this]() {
+			this->resetConfig();
+			emit this->self->reseted();
+			});
+		connect(SaveButton, &QPushButton::clicked, self, [this]() {
+			this->saveConfig();
+			emit this->self->saved();
+			});
+		ButtonLayout = new QHBoxLayout(ButtonWidget);
+		ButtonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		ButtonLayout->addWidget(ResetButton);
+		ButtonLayout->addWidget(SaveButton);
 	}
 
 	ConfigWidgetPrivate::~ConfigWidgetPrivate() {
@@ -39,8 +52,10 @@ namespace Visindigo::__Private__ {
 		}
 		TargetConfigPath = VIPlaceholder(cwJson.getString("target"));
 		TargetConfigNode = cwJson.getString("targetNode");
+		Layout->removeWidget(ButtonWidget);
 		if (!SettingsWidget.isEmpty()) {
 			for (QWidget* w : SettingsWidget) {
+				Layout->removeWidget(w);
 				w->deleteLater();
 			}
 		}
@@ -51,43 +66,15 @@ namespace Visindigo::__Private__ {
 			w->setParent(self);
 			Layout->addWidget(w);
 		}
-		if (ResetButton) {
-			ResetButton->deleteLater();
-			ResetButton = nullptr;
-		}
-		if (SaveButton) {
-			SaveButton->deleteLater();
-			SaveButton = nullptr;
-		}
-		if (ButtonLayout) {
-			ButtonLayout->deleteLater();
-			ButtonLayout = nullptr;
-		}
-		ResetButton = new QPushButton(VITR("Visindigo::general.reset"), self);
-		SaveButton = new QPushButton(VITR("Visindigo::general.save"), self);
-		connect(ResetButton, &QPushButton::clicked, self, [this]() {
-			this->resetConfig();
-			emit self->reseted();
-			});
-		connect(SaveButton, &QPushButton::clicked, self, [this]() {
-			this->saveConfig();
-			emit self->saved();
-			});
-		ButtonLayout = new QHBoxLayout(self);
-		ButtonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-		ButtonLayout->addWidget(ResetButton);
-		ButtonLayout->addWidget(SaveButton);
-		Layout->addLayout(ButtonLayout);
+		
+		Layout->addWidget(ButtonWidget);
 		IndependentMode = cwJson.getBool("independent");
 		if (not IndependentMode) {
-			ResetButton->setVisible(false);
-			SaveButton->setVisible(false);
+			ButtonWidget->setVisible(false);
 		}
 		else {
-			ResetButton->setVisible(true);
-			SaveButton->setVisible(true);
+			ButtonWidget->setVisible(true);
 		}
-		self->setStyleSheet(VISTMGT("YSS::ConfigWidget", self));
 		self->setWindowTitle(VI18N(cwJson.getString("windowTitle")));
 		self->setWindowIcon(QIcon(cwJson.getString("windowIcon")));
 		this->initConfig();
@@ -237,41 +224,43 @@ namespace Visindigo::__Private__ {
 		
 		QVBoxLayout* Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
-		QFrame* SettingFrame = new QFrame(self);
-		Layout->addWidget(SettingFrame);
 		Layout->setContentsMargins(0, 0, 0, 0);
-		QHBoxLayout* SettingLayout = new QHBoxLayout(SettingFrame);
-		SettingFrame->setLayout(SettingLayout);
-		SettingLayout->setContentsMargins(0, 0, 0, 0);
 
-		Visindigo::Widgets::MultiLabel* MultiLabel = new Visindigo::Widgets::MultiLabel(SettingFrame);
-		MultiLabel->setTitle(VI18N(config.getString("title")));
-		MultiLabel->setDescription(VI18N(config.getString("text")));
-		QString iconPath = config.getString("icon");
-		if (!iconPath.isEmpty()) {
-			MultiLabel->setPixmapPath(iconPath);
-		}
-		MultiLabel->setAlignment(Qt::AlignLeft);
-		//MultiLabel->setFixedHeight(80);
-		SettingLayout->addWidget(MultiLabel);
-		SettingLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum));
-		if (config.contains("data")) {
-			Visindigo::Utility::JsonConfig selfConfig = config.getObject("data");
-			QWidget* target = widgetRouter(type, node, selfConfig, config.getBool("readOnly"));
-			if (target != nullptr) {
-				target->setMinimumWidth(200);
-				target->setParent(SettingFrame);
-				SettingLayout->addWidget(target);
+		if (type != "Frame") {
+			Visindigo::Widgets::MultiLabel* MultiLabel = new Visindigo::Widgets::MultiLabel(self);
+			Layout->addWidget(MultiLabel);
+			MultiLabel->setTitle(VI18N(config.getString("title")));
+			MultiLabel->setDescription(VI18N(config.getString("text")));
+			QString iconPath = config.getString("icon");
+			if (!iconPath.isEmpty()) {
+				MultiLabel->setPixmapPath(iconPath);
 			}
-			else {
-				self->deleteLater();
-				return nullptr;
+			MultiLabel->setAlignment(Qt::AlignLeft);
+			//MultiLabel->setFixedHeight(80);
+			if (config.contains("data")) {
+				Visindigo::Utility::JsonConfig selfConfig = config.getObject("data");
+				QWidget* target = widgetRouter(type, node, selfConfig, config.getBool("readOnly"));
+				if (target != nullptr) {
+					target->setMinimumWidth(200);
+					target->setParent(MultiLabel);
+					MultiLabel->addCustomWidget(target);
+				}
+				else {
+					self->deleteLater();
+					return nullptr;
+				}
 			}
 		}
-		QFrame* childLine = new QFrame(self);
-		childLine->setFrameShape(QFrame::HLine);
-		childLine->setFrameShadow(QFrame::Sunken);
-		Layout->addWidget(childLine);
+		else {
+			QLabel* Label = new QLabel(self);
+			Label->setText(VI18N(config.getString("title")));
+			QString iconPath = config.getString("icon");
+			if (!iconPath.isEmpty()) {
+				Label->setPixmap(QPixmap(iconPath).scaled(32, 32, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+			}
+			Layout->addWidget(Label);
+		}
+		
 
 		if (config.contains("children")) {
 			QStringList keys = config.keys("children");

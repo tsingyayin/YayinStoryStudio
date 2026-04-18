@@ -102,12 +102,18 @@ namespace Visindigo::Widgets {
 		复杂的主题管理功能，允许用户动态使用配色方案（Color Scheme）和样式模板（Style Template）。
 		且允许通过配置加载顺序来组合多个配色方案和样式模板，从而实现更复杂的主题效果。
 
+		值得指出的是，这类通过操纵QStyleHints控制那些不属于VITheme的默认Qt组件外观，因此如果你要使用
+		这个功能，就不能独自调用QStyleHints::setColorScheme方法和QStyleHints::unsetColorScheme方法。
+		请使用ThemeManager::changeColorTheme方法变更主题。
+
 		\section1 基本概念 - 配色方案 (Color Scheme)
 		ThemeManager的主题管理功能主要基于两个概念：配色方案（Color Scheme）和样式模板（Style Template）。
 
 		\warning 请注意，ThemeManager里面的Color Scheme和Color Theme是两个拼读相近（中文含义也相近）的概念，但它们是不同的东西。
 		Color Scheme是配色方案，一个方案里面可以包括多个Color Theme（色彩主题）。配色方案提供的若干个色彩主题（Color Theme）
-		中只有一个会处于激活状态，ThemeManager会根据当前激活的色彩主题来获取颜色值。
+		中只有一个会处于激活状态，ThemeManager会根据当前激活的色彩主题来获取颜色值。此外，Qt的配色方案（Color Scheme）和
+		ThemeManager的Color Theme（色彩主题）是同级概念，而非与ThemeManager的Color Scheme是同级概念。ThemeManager的Color
+		Scheme大于Qt的Color Scheme。
 
 		配色方案是一组预定义的颜色集合，定义了应用程序中各种UI元素的颜色属性，如背景色、前景色、按钮色等。
 		配色方案以JSON格式存储，结构如下：
@@ -209,8 +215,19 @@ namespace Visindigo::Widgets {
 		如果插件需要在程序运行时动态更改颜色方案或样式模板，则重新调用对应的注册函数即可，
 		但之后还需要手动调用mergeAndApply方法重新合并和应用主题。
 
-		但如果只是需要更改配色方案，则使用函数changeColorTheme即可。
+		\section1 更改颜色主题以及系统颜色感知
+		如果只是需要更改配色方案，则使用函数changeColorTheme即可。使用changeColorTheme时，
+		如果传入参数是Auto，则自动启用系统主题感知功能。请注意，Auto这个值比较特殊，不在ColorSheme的枚举里，
+		因此你不能通过ThemeID版本的重载函数来使用这个值，必须使用字符串版本的函数，并传入"Auto"。
 
+
+		如果你不信任字面量，也可以通过setAutoAdjustThemeToSystem(true)来启用系统主题感知功能。
+
+		此外，由于系统颜色感知依赖QStyleHints的特性，这里有个功能缺陷：systemThemeChanged信号在
+		autoAdjustThemeToSystem为false时不会触发，因此不可能既手动指定主题，又感知系统变化。除非Qt更改，
+		这问题无法解决。
+		
+		\section1 使用样式模板
 		要将ThemeManager的结果应用到应用程序中，可以在setStyleSheet时使用ThemeManager::getTemplate方法获取样式表字符串，
 		例如
 		\code
@@ -304,6 +321,9 @@ namespace Visindigo::Widgets {
 
 		如果ThemeManager设置为自动适应系统主题（通过autoAdjustThemeToSystem方法），
 		则稍后programThemeChanged信号也会被触发，表示程序主题也发生了变化。
+
+		由于QStyleHints的设计缺陷，这信号触发时，autoAdjustThemeToSystem必然为true，
+		因此programThemeChanged总是在此之后触发。
 	*/
 
 	/*!
@@ -437,11 +457,9 @@ namespace Visindigo::Widgets {
 		loadAndRefresh(false); // not merge for constructor
 		connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this](Qt::ColorScheme newScheme) {
 			emit systemThemeChanged(newScheme);
+			vgDebug << "System theme changed";
 			if (d->AutoAdjustToSystem) {
-				QString targetThemeID = themeIDToString((ThemeID)(newScheme));
-				if (targetThemeID != d->CurrentThemeID) {
-					changeColorTheme(targetThemeID);
-				}
+				changeColorTheme("Auto");
 			}
 			});
 		vgSuccessF << "Success!";
@@ -788,6 +806,9 @@ namespace Visindigo::Widgets {
 		d->StyleTemplatePriority = finalTemplates;
 		d->Config->setStringList("Schemes", d->ColorSchemePriority);
 		d->Config->setStringList("Templates", d->StyleTemplatePriority);
+		if (d->AutoAdjustToSystem){
+			d->CurrentThemeID = "Auto";
+		}
 		d->Config->setString("Theme", d->CurrentThemeID);
 		Visindigo::Utility::FileUtility::saveAll(d->ConfigPath + "/config.json", d->Config->toString());
 		this->changeColorTheme(d->CurrentThemeID);
@@ -846,32 +867,43 @@ namespace Visindigo::Widgets {
 		更改当前的配色主题为指定的主题ID。
 		如果指定的主题ID不存在于合并后的配色方案中，则返回false。
 
+		如果themeID为"Auto"，则会根据当前系统主题自动选择合适的主题ID进行切换，并启用自动适应系统主题的功能。
+
 		请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
 		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
 	*/
 	bool ThemeManager::changeColorTheme(const QString& themeID) {
+		QString autoID = themeID;
+		if (themeID == "Auto") {
+			qApp->styleHints()->unsetColorScheme();
+			Qt::ColorScheme systemScheme = qApp->styleHints()->colorScheme();
+			autoID = themeIDToString((ThemeID)(systemScheme));
+			d->AutoAdjustToSystem = true;
+		}
+		else {
+			d->AutoAdjustToSystem = false;
+			if (themeID == "Dark") {
+				qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+			}
+			else if (themeID == "Light") {
+				qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
+			}
+		}
 		if (not d->MergedColorScheme) {
 			vgErrorF << "Merged color scheme is null. Cannot change theme at this time. Please call it atleast in onApplicationInit() or later.";
 			return false;
 		}
-		if (!d->MergedColorScheme->keys("Themes").contains(themeID)) {
+		if (!d->MergedColorScheme->keys("Themes").contains(autoID)) {
 			vgErrorF << "ThemeID" << themeID << "not found in merged color scheme. Change failed.";
+			d->CurrentThemeID = "Unknown";
 			return false;
 		}
-		d->CurrentThemeID = themeID;
-		if (themeID == "Dark") {
-			auto styleHints = qApp->styleHints();
-			styleHints->setColorScheme(Qt::ColorScheme::Dark);
-
-		}else if (themeID == "Light") {
-			auto styleHints = qApp->styleHints();
-			styleHints->setColorScheme(Qt::ColorScheme::Light);
-		}
+		d->CurrentThemeID = autoID;
 		d->PreviousColorMap = d->ActiveColorMap;
 		d->ActiveColorMap = QMap<QString, QColor>();
-		QStringList colorNames = d->MergedColorScheme->keys("Themes." + themeID);
+		QStringList colorNames = d->MergedColorScheme->keys("Themes." + autoID);
 		for (auto colorName : colorNames) {
-			QString colorStr = d->MergedColorScheme->getString("Themes." + themeID + "." + colorName);
+			QString colorStr = d->MergedColorScheme->getString("Themes." + autoID + "." + colorName);
 			d->ActiveColorMap[colorName] = QColor(colorStr);
 		}
 		if (d->PreviousColorMap.isEmpty()) {
@@ -879,7 +911,7 @@ namespace Visindigo::Widgets {
 			for (auto widget : d->RegisteredWidgets) {
 				widget->onThemeChanged();
 			}
-			emit programThemeChanged(themeID);
+			emit programThemeChanged(autoID);
 			return true;
 		}
 		if (d->AnimationDurationMS > 0) {
@@ -890,7 +922,7 @@ namespace Visindigo::Widgets {
 			for (auto widget : d->RegisteredWidgets) {
 				widget->onThemeChanged();
 			}
-			emit programThemeChanged(themeID);
+			emit programThemeChanged(autoID);
 		}
 		return true;
 	}
@@ -899,6 +931,9 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		更改当前的配色主题为指定的ThemeID枚举值。
 		如果指定的ThemeID枚举值不存在于合并后的配色方案中，则返回false。
+
+		请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
+		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
 	*/
 	bool ThemeManager::changeColorTheme(ThemeID id) {
 		QString sid = themeIDToString(id);
@@ -908,15 +943,16 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		设置是否自动根据系统主题调整应用程序主题。
+		
+		这会触发一次程序主题的变更。因此请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
+		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
 	*/
 	void ThemeManager::setAutoAdjustThemeToSystem(bool autoAdjust) {
-		d->AutoAdjustToSystem = autoAdjust;
-		auto systemScheme = qApp->styleHints()->colorScheme();
 		if (autoAdjust) {
-			QString targetThemeID = themeIDToString((ThemeID)(systemScheme));
-			if (targetThemeID != d->CurrentThemeID) {
-				changeColorTheme(targetThemeID);
-			}
+			changeColorTheme("Auto");
+		}
+		else {
+			changeColorTheme(d->CurrentThemeID); // reset to current theme to unset auto adjust
 		}
 	}
 

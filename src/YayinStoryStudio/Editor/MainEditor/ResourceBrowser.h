@@ -8,20 +8,19 @@ class QLineEdit;
 class QPushButton;
 class QHBoxLayout;
 class QVBoxLayout;
-
+class QTreeView;
+class QFileSystemModel;
 namespace YSS::Editor {
 	class ResourceBrowser :public QWidget {
 		Q_OBJECT;
 	private:
-		QListWidget* FileList;
-		QLineEdit* CurrentPath;
+		QTreeView* FileTree;
+		QFileSystemModel* FileModel;
 		QPushButton* RefreshButton;
 		QPushButton* NewButton;
-		QPushButton* BackButton;
 		QWidget* ButtonWidget;
 		QHBoxLayout* ButtonLayout;
 		QVBoxLayout* Layout;
-
 		QDir CurrentDir;
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
@@ -30,8 +29,7 @@ namespace YSS::Editor {
 		virtual void showEvent(QShowEvent* event) override;
 	private:
 		void onNewButtonClicked();
-		void onBackButtonClicked();
 		void refreshFileList();
-		void onItemDoubleClicked(QListWidgetItem* item);
+		void onItemDoubleClicked(const QModelIndex& index);
 	};
 }

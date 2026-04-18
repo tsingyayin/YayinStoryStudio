@@ -17,6 +17,8 @@ namespace Visindigo::__Private__ {
 		QString HoveredStyleSheet;
 		QString NormalStyleSheet;
 		QString InactiveStyleSheet;
+		bool inButtonGroup = false;
+		bool buttonGroupChecked = false;
 		bool Pressed = false;
 		bool Hovered = false;
 		bool Active = true;

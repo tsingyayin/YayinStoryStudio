@@ -188,6 +188,9 @@
     <ClCompile Include="Widgets\cpp\ShortcutSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\BorderFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -424,6 +427,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\ShortcutSet.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\BorderFrame.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

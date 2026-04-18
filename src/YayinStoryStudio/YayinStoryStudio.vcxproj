@@ -117,7 +117,6 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea_p.cpp" />
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
-    <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />
     <ClCompile Include="Editor\SimpleWidget\cpp\EAWarningWidget.cpp" />
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp" />
@@ -153,7 +152,6 @@
     <ClInclude Include="Editor\YSSCommandHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Editor\YSSTranslator.h" />
-    <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

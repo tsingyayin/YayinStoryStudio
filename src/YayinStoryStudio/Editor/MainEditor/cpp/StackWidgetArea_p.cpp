@@ -332,6 +332,7 @@ namespace YSS::Editor {
 		for (StackWidgetTagLabel* label : Labels) {
 			totalWidth += label->width() + ContentLayout->spacing();
 		}
+		totalWidth -= ContentLayout->spacing();
 		ScrollContent->setFixedWidth(totalWidth + 2 * ScrollContent->frameWidth());
 	}
 

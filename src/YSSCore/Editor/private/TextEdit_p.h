@@ -5,6 +5,7 @@
 #include <QtCore/qpoint.h>
 #include <QtGui/qevent.h>
 #include <QtWidgets/qtextedit.h>
+#include <Widgets/BorderFrame.h>
 // Forward declarations
 namespace YSSCore::Editor {
 	class TextEdit;
@@ -18,6 +19,7 @@ class QFontMetricsF;
 class QSyntaxHighlighter;
 class QKeyEvent;
 class QMouseEvent;
+class QGridLayout;
 namespace YSSCore::__Private__ {
 	class TabCompleterWidget;
 	class HoverInfoWidget;
@@ -33,7 +35,7 @@ namespace YSSCore::__Private__ {
 		YSSCore::Editor::TextEdit* q = nullptr;
 		QTextEdit* Line = nullptr;
 		QTextEdit* Text = nullptr;
-		QHBoxLayout* Layout = nullptr;
+		QGridLayout* Layout = nullptr;
 		qint32 LineCount = 0;
 		qint8 TabWidth = 4;
 		qint32 LastCursorLine = 0;

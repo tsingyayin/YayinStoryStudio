@@ -34,7 +34,7 @@ namespace Visindigo::__Private__ {
 	Divider::~Divider() {
 	}
 
-	PluginInfoPanel::PluginInfoPanel(bool asdependency, QWidget* parent) : QFrame(parent)
+	PluginInfoPanel::PluginInfoPanel(bool asdependency, QWidget* parent) : Visindigo::Widgets::BorderFrame(parent)
 	{
 		this->setFixedHeight(100);
 		NameLabel = new QLabel(this);

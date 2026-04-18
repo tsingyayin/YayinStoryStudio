@@ -41,9 +41,6 @@
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\ProjectPage\cpp\ProjectTemplateLabel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,9 +92,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\ProjectPage\ProjectTemplateLabel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h">

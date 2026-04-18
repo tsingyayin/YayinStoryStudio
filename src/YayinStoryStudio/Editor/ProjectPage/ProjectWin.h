@@ -22,6 +22,7 @@ namespace Visindigo::Utility {
 }
 namespace Visindigo::Widgets {
 	class MultiButton;
+	class MultiButtonGroup;
 	class TitleWidget;
 	class WidgetResizeTool;
 }

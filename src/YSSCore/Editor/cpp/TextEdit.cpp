@@ -761,11 +761,17 @@ namespace YSSCore::Editor {
 		d->Text->viewport()->installEventFilter(d);
 		d->Text->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 		this->installEventFilter(d);
-		d->Layout = new QHBoxLayout(this);
-		d->Layout->addWidget(d->Line);
-		d->Layout->addWidget(d->Text);
+		d->Layout = new QGridLayout(this);
+		d->Layout->addWidget(d->Line, 0, 0);
+		d->Layout->addWidget(d->Text, 0, 1);
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
+		Visindigo::Widgets::BorderFrame* testBottom = new Visindigo::Widgets::BorderFrame(this);
+		testBottom->setFixedHeight(30);
+		testBottom->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+		QLabel* testLabel = new QLabel(" ", testBottom);
+		//testLabel->setFrameStyle(QFrame::Box | QFrame::Plain);
+		d->Layout->addWidget(testBottom, 1, 0, 1, 2);
 
 		d->LastCursor = d->Line->textCursor();
 		d->LastCursor.movePosition(QTextCursor::Start);
@@ -904,6 +910,28 @@ namespace YSSCore::Editor {
 	*/
 	QTextDocument* TextEdit::getDocument() const {
 		return d->Text->document();
+	}
+
+	/*!
+		\since Visindigo 0.14.0
+		获取字体的字号。
+	*/
+	qint32 TextEdit::getFontSize() const {
+		return d->Text->font().pointSize();
+	}
+
+	/*!
+		\since Visindigo 0.14.0
+		设置字体的字号。
+	*/
+	void TextEdit::setFontSize(qint32 size) {
+		QFont font = d->Text->font();
+		font.setPointSize(size);
+		d->Text->setFont(font);
+		d->Line->setFont(font);
+		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
+		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
+		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
 	}
 
 	/*!

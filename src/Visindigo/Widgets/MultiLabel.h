@@ -1,6 +1,7 @@
 #pragma once
 #include <QtWidgets/qframe.h>
 #include "../VICompileMacro.h"
+#include "Widgets/BorderFrame.h"
 //// Forward declarations
 class QLabel;
 class QString;
@@ -11,7 +12,7 @@ namespace Visindigo::Widgets {
 }
 // Main
 namespace Visindigo::Widgets {
-	class VisindigoAPI MultiLabel :public QFrame {
+	class VisindigoAPI MultiLabel :public BorderFrame {
 	public:
 		MultiLabel(QWidget* parent = nullptr);
 		virtual ~MultiLabel();

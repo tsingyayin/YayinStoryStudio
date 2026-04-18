@@ -26,6 +26,7 @@ namespace Visindigo::Widgets {
 		virtual ~MultiButtonGroup();
 		void addButton(MultiButton* button);
 		void removeAll();
+		void removeButton(MultiButton* button);
 		qint32 selectPrevious();
 		qint32 selectNext();
 		qint32 selectButton(MultiButton* button);

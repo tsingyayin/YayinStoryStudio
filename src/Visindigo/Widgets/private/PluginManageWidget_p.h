@@ -2,7 +2,7 @@
 #define Visindigo_Widgets_PluginManageWidget_p_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
-
+#include "Widgets/BorderFrame.h"
 class QLabel;
 class QCheckBox;
 class QPushButton;
@@ -25,7 +25,7 @@ namespace Visindigo::__Private__ {
 		~Divider();
 	};
 
-	class PluginInfoPanel :public QFrame{
+	class PluginInfoPanel :public Visindigo::Widgets::BorderFrame{
 		Q_OBJECT;
 	private:
 		QLabel* NameLabel;

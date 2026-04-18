@@ -28,6 +28,7 @@
 #include <General/Version.h>
 #include <General/VIApplication.h>
 #include <General/Plugin.h>
+#include <Widgets/MultiButtonGroup.h>
 namespace YSS::ProjectPage {
 	bool ProjectWin::firstOpen = true;
 	ProjectWin::ProjectWin() :QFrame() {
@@ -81,6 +82,7 @@ namespace YSS::ProjectPage {
 		HistoryProjectArea->setWidget(HistoryProjectWidget);
 		HistoryProjectArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		HistoryProjectArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
 		NewsWidget = new QTextBrowser(this);
 		NewsWidget->setMaximumWidth(300);
 
@@ -192,6 +194,7 @@ namespace YSS::ProjectPage {
 		delete project;
 		project = nullptr;
 	}
+
 	void ProjectWin::onProjectSelected() {
 		Visindigo::Widgets::MultiButton* label = qobject_cast<Visindigo::Widgets::MultiButton*>(sender());
 		if (label) {
@@ -308,7 +311,7 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->addWidget(label);
 			label->setSpacing(5);
 			label->setContentsMargins(10, 10, 10, 10);
-			label->setToolTip(VITR("YSS::tooltips.projectWin.project"));
+			label->setToolTip(VITR("YSS::tooltips.projectWin.project")); 
 			label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 			//label->setFixedHeight(50);
 			label->show();
@@ -321,11 +324,11 @@ namespace YSS::ProjectPage {
 
 	void ProjectWin::onThemeChanged() {
 		//yDebugF << VISTMGT("YSS::General.MultiButton.Normal",this);
-		this->applyVIStyleTemplate("YSS::ProjectWin");
+		//this->applyVIStyleTemplate("YSS::ProjectWin");
 		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
-			label->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			label->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			label->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
+			//label->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
+			//label->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
+			//label->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 		}
 	}
 

@@ -5,6 +5,8 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QLineEdit>
+#include <QtWidgets/qtreewidget.h>
+#include <QtWidgets/qfilesystemmodel.h>
 #include "Editor/GlobalValue.h"
 #include <General/YSSProject.h>
 #include "Editor/NewFilePage/NewFileWin.h"
@@ -16,24 +18,22 @@ namespace YSS::Editor {
 		ButtonLayout = new QHBoxLayout(ButtonWidget);
 		RefreshButton = new QPushButton(VITR("Visindigo::general.refresh"), ButtonWidget);
 		NewButton = new QPushButton(VITR("Visindigo::general.new"), ButtonWidget);
-		BackButton = new QPushButton(VITR("Visindigo::general.back"), ButtonWidget);
 		ButtonLayout->addWidget(RefreshButton);
 		ButtonLayout->addWidget(NewButton);
-		ButtonLayout->addWidget(BackButton);
 		ButtonLayout->setContentsMargins(0, 0, 0, 0);
 		ButtonWidget->setLayout(ButtonLayout);
 
 		Layout = new QVBoxLayout(this);
-		CurrentPath = new QLineEdit(this);
-		FileList = new QListWidget(this);
+		FileTree = new QTreeView(this);
+		FileModel = new QFileSystemModel(this);
+		FileTree->setModel(FileModel);
+		FileTree->setHeaderHidden(true);
 		Layout->addWidget(ButtonWidget);
-		Layout->addWidget(CurrentPath);
-		Layout->addWidget(FileList);
+		Layout->addWidget(FileTree);
 
-		connect(BackButton, &QPushButton::clicked, this, &ResourceBrowser::onBackButtonClicked);
 		connect(RefreshButton, &QPushButton::clicked, this, &ResourceBrowser::refreshFileList);
-		connect(FileList, &QListWidget::itemDoubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
 		connect(NewButton, &QPushButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
+		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
 	}
 
 	void ResourceBrowser::openNewFileWindow() {
@@ -44,16 +44,31 @@ namespace YSS::Editor {
 		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
 		if (project != nullptr) {
 			CurrentDir.setPath(project->getProjectFolder());
+			FileTree->setRootIndex(FileModel->setRootPath(project->getProjectFolder()));
+			for (int i = 1; i < FileModel->columnCount(); i++) {
+				FileTree->setColumnHidden(i, true);
+			}
 		}
 		else {
 			CurrentDir.setPath(QDir::currentPath());
+			FileTree->setRootIndex(FileModel->setRootPath(QDir::currentPath()));
+			for (int i = 1; i < FileModel->columnCount(); i++) {
+				FileTree->setColumnHidden(i, true);
+			}
 		}
-		CurrentPath->setText(CurrentDir.path());
 		refreshFileList();
 	}
 
 	void ResourceBrowser::onNewButtonClicked() {
-		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(CurrentPath->text());
+		QString currentSelectedPath;
+		QModelIndex currentIndex = FileTree->currentIndex();
+		if (currentIndex.isValid()) {
+			currentSelectedPath = FileModel->filePath(currentIndex);
+		}
+		else {
+			currentSelectedPath = CurrentDir.path();
+		}
+		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(currentSelectedPath);
 		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
 		newFileWin->setWindowModality(Qt::ApplicationModal);
 		connect(newFileWin, &YSS::NewFilePage::NewFileWin::filePrepared, this, [this](const QString& filePath) {
@@ -63,47 +78,20 @@ namespace YSS::Editor {
 			});
 		newFileWin->show();
 	}
-	void ResourceBrowser::onBackButtonClicked() {
-		if (CurrentDir.cdUp()) {
-			CurrentPath->setText(CurrentDir.path());
-			refreshFileList();
-		}
-	}
 
 	void ResourceBrowser::refreshFileList() {
-		FileList->clear();
-		QDir dir(CurrentDir.path());
-		//先筛文件夹
-		QStringList folders = dir.entryList(QDir::NoDotAndDotDot | QDir::AllDirs);
-		for (const QString& folder : folders) {
-			QListWidgetItem* item = new QListWidgetItem(folder);
-			item->setIcon(QIcon(":/icons/folder.png"));
-			FileList->addItem(item);
-		}
-		//再筛文件
-		QStringList files = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
-		for (const QString& file : files) {
-			QListWidgetItem* item = new QListWidgetItem(file);
-			//if image load it as icon
-			if (file.endsWith(".png") || file.endsWith(".jpg") || file.endsWith(".jpeg")) {
-				item->setIcon(QIcon(dir.absoluteFilePath(file)));
-			}
-			else {
-				item->setIcon(QIcon(":/icons/file.png"));
-			}
-			FileList->addItem(item);
-		}
+		FileModel->setRootPath(CurrentDir.path());
+		FileTree->setRootIndex(FileModel->index(CurrentDir.path()));
 	}
 
-	void ResourceBrowser::onItemDoubleClicked(QListWidgetItem* item) {
-		QString filePath = CurrentDir.absoluteFilePath(item->text());
-		if (QFileInfo(filePath).isDir()) {
-			CurrentDir.cd(item->text());
-			CurrentPath->setText(CurrentDir.path());
-			refreshFileList();
-		}
-		else {
-			YSSFSM->openFile(filePath);
+	void ResourceBrowser::onItemDoubleClicked(const QModelIndex& index) {
+		QModelIndex currentIndex = FileTree->currentIndex();
+		if (currentIndex.isValid()) {
+			QString filePath = FileModel->filePath(currentIndex);
+			QFileInfo fileInfo(filePath);
+			if (fileInfo.isFile()) {
+				YSSFSM->openFile(filePath);
+			}
 		}
 	}
 }

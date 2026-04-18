@@ -80,9 +80,9 @@ namespace YSS::NewProjectPage {
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
-			ProviderButton->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			ProviderButton->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			ProviderButton->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
+			//ProviderButton->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
+			//ProviderButton->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
+			//ProviderButton->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->addCustomWidget(tags);
@@ -114,11 +114,11 @@ namespace YSS::NewProjectPage {
 		}
 	}
 	void NewProjectWin::onThemeChanged() {
-		this->applyVIStyleTemplate("YSS::ProjectWin");
+		//this->applyVIStyleTemplate("YSS::ProjectWin");
 		for (Visindigo::Widgets::MultiButton* button : ProjectList) {
-			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
+			//button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
+			//button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
+			//button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 		}
 	}
 	void NewProjectWin::closeEvent(QCloseEvent* event) {

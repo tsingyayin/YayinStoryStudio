@@ -5,6 +5,6 @@
 namespace Visindigo::Utility {
 	class VisindigoAPI StringUtility {
 	public:
-		QStringList escapeSplit(const QString& raw, const QString& sep, QChar escapeChar = '\\', Qt::SplitBehaviorFlags behavior = Qt::KeepEmptyParts) const;
+		static qint32 getLevensteinDistance(const QString& s1, const QString& s2);
 	};
 }

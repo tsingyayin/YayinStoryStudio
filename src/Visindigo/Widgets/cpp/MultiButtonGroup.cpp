@@ -11,12 +11,24 @@ namespace Visindigo::__Private__ {
 		//vgDebugF; // <- WHY THIS F**KING FUNCTION CALLED WITHOUT ANY CONTENT?
 		if (CurrentPressedButton) {
 			if (CurrentPressedButton != button) {
-				CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->NormalStyleSheet);
+				CurrentPressedButton->d->buttonGroupChecked = false;
+				if (CurrentPressedButton->d->NormalStyleSheet.isEmpty()) {
+					CurrentPressedButton->repaint();
+				}
+				else {
+					CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->NormalStyleSheet);
+				}
 			}
 		}
 		CurrentPressedButton = button;
 		if (CurrentPressedButton) {
-			CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->PressedStyleSheet);
+			CurrentPressedButton->d->buttonGroupChecked = true;
+			if (CurrentPressedButton->d->PressedStyleSheet.isEmpty()) {
+				CurrentPressedButton->repaint();
+			}
+			else {
+				CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->PressedStyleSheet);
+			}
 		}
 		CurrentPressedIndex = Buttons.indexOf(button);
 	}
@@ -25,12 +37,12 @@ namespace Visindigo::__Private__ {
 	}
 	void MultiButtonGroupPrivate::onButtonHovered(Visindigo::Widgets::MultiButton* button) {
 		if (button == CurrentPressedButton) {
-			button->setStyleSheet(button->d->PressedStyleSheet);
+			//button->setStyleSheet(button->d->PressedStyleSheet);
 		}
 	}
 	void MultiButtonGroupPrivate::onButtonLeft(Visindigo::Widgets::MultiButton* button) {
 		if (button == CurrentPressedButton) {
-			button->setStyleSheet(button->d->PressedStyleSheet);
+			//button->setStyleSheet(button->d->PressedStyleSheet);
 		}
 	}
 }
@@ -124,6 +136,7 @@ namespace Visindigo::Widgets {
 	void MultiButtonGroup::addButton(MultiButton* button) {
 		if (!button) return;
 		if (d->Buttons.contains(button)) { return; }
+		button->d->inButtonGroup = true;
 		d->Buttons.append(button);
 		connect(button, &MultiButton::clicked, this,
 			[this, button]() {
@@ -145,9 +158,30 @@ namespace Visindigo::Widgets {
 		如果你已经在外部丢失了这些按钮的指针，请用getMultiButtons()函数先获得它们，否则会造成内存泄漏。
 	*/
 	void MultiButtonGroup::removeAll() {
+		for (MultiButton* button : d->Buttons) {
+			if (button) {
+				button->d->inButtonGroup = false;
+			}
+		}
 		d->Buttons.clear();
 		d->CurrentPressedButton = nullptr;
 		d->CurrentPressedIndex = -1;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		从组内移除一个按钮，并重置选中状态。这个函数不会删除按钮对象本身，只是将它从组内移除。
+		如果参数button为nullptr或者不在组内，则此函数不会执行任何操作。
+	*/
+	void MultiButtonGroup::removeButton(MultiButton* button) {
+		if (!button) return;
+		if (!d->Buttons.contains(button)) return;
+		button->d->inButtonGroup = false;
+		d->Buttons.removeAll(button);
+		if (d->CurrentPressedButton == button) {
+			d->CurrentPressedButton = nullptr;
+			d->CurrentPressedIndex = -1;
+		}
 	}
 
 	/*!
