@@ -11,10 +11,10 @@ namespace Visindigo::Widgets {
 		\inmodule Visindigo
 
 		这是个神奇的类：它本质是QFrame，未提供任何其他功能，它只做一件事，
-		用QPushButton的绘制方式来绘制自己。
+		默认画一个现代边框（在Windows11上看起来像WinUI3中的边框）。
 
 		这在Windows（尤其是Windows11）上特别有用，因为在Qt中缺少一种能够模仿
-		WinUI3中现代边框的组件，而Qt在Windows11上代理绘制的QPushButton实际上
+		WinUI3中现代边框的组件，而Qt在Windows11上代理绘制的某些窗口实际上
 		正好与这种边框类似，因此这个类就被设计出来了，以满足在Windows11上实现现代边框的需求。
 
 		你可以如同使用QFrame一样使用它，但如果你也需要重载paintEvent，记得先
@@ -42,8 +42,10 @@ namespace Visindigo::Widgets {
 	*/
 	void BorderFrame::paintEvent(QPaintEvent* event) {
 		QPainter painter(this);
-		QStyleOptionButton option;
-		option.initFrom(this);
-		this->style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
+		QStyleOptionFrame opFrame;
+		opFrame.initFrom(this);
+		opFrame.features = QStyleOptionFrame::Rounded;
+		opFrame.frameShape = QFrame::Box;
+		this->style()->drawPrimitive(QStyle::PE_Frame, &opFrame, &painter, this);
 	}
 }

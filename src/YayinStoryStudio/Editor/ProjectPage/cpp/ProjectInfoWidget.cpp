@@ -12,7 +12,7 @@
 #include <General/YSSLogger.h>
 
 namespace YSS::ProjectPage {
-	ProjectInfoWidget::ProjectInfoWidget(QWidget* parent) :QFrame(parent) {
+	ProjectInfoWidget::ProjectInfoWidget(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		this->setObjectName("ProjectInfoWidget");
 		CoverLabel = new QLabel(this);
 		CoverLabel->setAlignment(Qt::AlignCenter);
@@ -134,6 +134,6 @@ namespace YSS::ProjectPage {
 
 	void ProjectInfoWidget::onThemeChanged() {
 		//vgDebugF << "ProjectInfo";
-		this->applyVIStyleTemplate("YSS::ProjectInfo");
+		//this->applyVIStyleTemplate("YSS::ProjectInfo");
 	}
 }

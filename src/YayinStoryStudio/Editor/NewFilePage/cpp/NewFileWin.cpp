@@ -116,7 +116,7 @@ namespace YSS::NewFilePage {
 		}
 	}
 	void NewFileWin::onThemeChanged() {
-		this->applyVIStyleTemplate("YSS::ProjectWin");
+		//this->applyVIStyleTemplate("YSS::ProjectWin");
 		for (Visindigo::Widgets::MultiButton* button : FileList) {
 			//button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
 			//button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
@@ -127,7 +127,7 @@ namespace YSS::NewFilePage {
 		this->deleteLater();
 	}
 	void NewFileWin::resizeEvent(QResizeEvent* event) {
-		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() - FileTemplateArea->verticalScrollBar()->width());
+		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() -12 * this->devicePixelRatioF());
 	}
 	void NewFileWin::onFilePrepared(QString projectPath) {
 		emit filePrepared(projectPath);

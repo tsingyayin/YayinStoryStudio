@@ -1,7 +1,7 @@
 #pragma once
 #include <QtWidgets/qframe.h>
 #include <Widgets/ThemeManager.h>
-
+#include <Widgets/BorderFrame.h>
 class QLabel;
 class QGridLayout;
 class QPushButton;
@@ -10,7 +10,7 @@ namespace YSSCore::General {
 	class YSSProject;
 }
 namespace YSS::ProjectPage {
-	class ProjectInfoWidget :public QFrame, Visindigo::Widgets::ColorfulWidget {
+	class ProjectInfoWidget :public Visindigo::Widgets::BorderFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
 		void removeConfirmed(YSSCore::General::YSSProject* who);

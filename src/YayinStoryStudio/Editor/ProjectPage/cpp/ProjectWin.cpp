@@ -76,8 +76,8 @@ namespace YSS::ProjectPage {
 		HistoryProjectArea = new QScrollArea(this);
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);
 		HistoryProjectLayout = new QVBoxLayout(HistoryProjectWidget);
-		HistoryProjectLayout->setContentsMargins(6, 6, 6, 6);
-		HistoryProjectLayout->setSpacing(6);
+		HistoryProjectLayout->setContentsMargins(0, 0, 0, 0);
+		HistoryProjectLayout->setSpacing(0);
 		HistoryProjectWidget->setLayout(HistoryProjectLayout);
 		HistoryProjectArea->setWidget(HistoryProjectWidget);
 		HistoryProjectArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -86,7 +86,7 @@ namespace YSS::ProjectPage {
 		NewsWidget = new QTextBrowser(this);
 		NewsWidget->setMaximumWidth(300);
 
-		OptionWidget = new QWidget(this);
+		OptionWidget = new Visindigo::Widgets::BorderFrame(this);
 		CreateProjectButton = new QPushButton(OptionWidget);
 		CreateProjectButton->setText(VITR("YSS::project.createNewProject"));
 		CreateProjectButton->setToolTip(VITR("YSS::tooltips.projectWin.createNewProject"));
@@ -130,7 +130,6 @@ namespace YSS::ProjectPage {
 		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProjectClicked);
 		setColorfulEnable(true);
 		onThemeChanged();
-
 		if (firstOpen) {
 			firstOpen = false;
 			QStringList launchArgs = qApp->arguments();
@@ -166,7 +165,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::resizeEvent(QResizeEvent* event) {
-		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - HistoryProjectArea->verticalScrollBar()->width());
+		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - 12* this->devicePixelRatioF());
 	}
 
 	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {
@@ -265,6 +264,7 @@ namespace YSS::ProjectPage {
 		win->setAttribute(Qt::WA_DeleteOnClose);
 		connect(win, &NewProjectPage::NewProjectWin::projectPrepared, this, &ProjectWin::onOpenProject);
 	}
+
 	void ProjectWin::loadProject() {
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
@@ -309,8 +309,8 @@ namespace YSS::ProjectPage {
 			label->setDescription(lastModifyTime + "\t" + project->getProjectFolder());
 			HistoryProjectLabelList.append(label);
 			HistoryProjectLayout->addWidget(label);
-			label->setSpacing(5);
-			label->setContentsMargins(10, 10, 10, 10);
+			//label->setSpacing(5);
+			//label->setContentsMargins(10, 10, 10, 10);
 			label->setToolTip(VITR("YSS::tooltips.projectWin.project")); 
 			label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 			//label->setFixedHeight(50);
@@ -319,7 +319,7 @@ namespace YSS::ProjectPage {
 			connect(label, &Visindigo::Widgets::MultiButton::clicked, this, &ProjectWin::onProjectSelected);
 			connect(label, &Visindigo::Widgets::MultiButton::doubleClicked, this, &ProjectWin::onProjectDoubleClicked);
 		}
-		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 100);
+		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 80);
 	}
 
 	void ProjectWin::onThemeChanged() {

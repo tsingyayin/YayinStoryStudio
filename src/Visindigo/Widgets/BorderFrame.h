@@ -1,4 +1,4 @@
-#ifndef Visinidgo_Widgets_BorderFrame_h
+#ifndef Visindigo_Widgets_BorderFrame_h
 #define Visindigo_Widgets_BorderFrame_h
 #include <QtWidgets/qframe.h>
 #include <VICompileMacro.h>

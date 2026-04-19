@@ -125,7 +125,7 @@ namespace YSS::NewProjectPage {
 		this->deleteLater();
 	}
 	void NewProjectWin::resizeEvent(QResizeEvent* event) {
-		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() - ProjectTemplateArea->verticalScrollBar()->width());
+		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() -12 * this->devicePixelRatioF());
 	}
 	void NewProjectWin::onProjectPrepared(QString projectPath) {
 		emit projectPrepared(projectPath);
