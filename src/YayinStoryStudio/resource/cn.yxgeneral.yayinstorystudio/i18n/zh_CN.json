@@ -122,6 +122,21 @@
 			"line": "行",
 			"column": "列"
 		},
+		"far":{
+			"title": "查找和替换",
+			"find": "查找",
+			"findNext": "查找下个",
+			"replace": "替换",
+			"replaceNext": "替换下个",
+			"replaceAll": "全部替换",
+			"matchCase": "区分大小写",
+			"wholeWord": "全字匹配",
+			"useRegExp": "正则模式",
+			"notFound": "没有找到下一项",
+			"notFoundDesc": "目标文本“%1”没有找到",
+			"replaced": "替换完成",
+			"replacedDesc": "已替换 %1 项"
+		},
 		"stackWidgetArea": {
 			"noFileOpened": "没有打开的文件"
 		},

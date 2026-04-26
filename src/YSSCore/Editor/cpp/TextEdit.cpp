@@ -20,6 +20,7 @@
 #include "Editor/SyntaxHighlighter.h"
 #include <General/TranslationHost.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtCore/qregularexpression.h>
 namespace YSSCore::__Private__ {
 	TextEditPrivate::~TextEditPrivate() {
 		if (FontMetrics != nullptr) {
@@ -79,6 +80,15 @@ namespace YSSCore::__Private__ {
 					onDoubleLine(keyEvent);
 					return true;
 				}
+				else if (keyEvent->key() == Qt::Key_F && keyEvent->modifiers() & Qt::ControlModifier) {
+					if (Text->textCursor().hasSelection()) {
+						QString selectedText = Text->textCursor().selectedText();
+						selectedText.replace(QChar::ParagraphSeparator, "\n");
+						FindAndReplaceWidget->setFindText(selectedText);
+					}
+					FindAndReplaceWidget->show();
+					return true;
+				}
 				else if (keyEvent->key() == Qt::Key_Escape) {
 					onEscapeClicked(keyEvent);
 				}
@@ -127,6 +137,9 @@ namespace YSSCore::__Private__ {
 					TabCompleterWidget->hide();
 				}
 				return false;
+			}
+			else if (event->type() == QEvent::Resize) {
+				FindAndReplaceWidget->move(q->width() - 412, 0); // 400 for width, 12 for vertical scrollbar width
 			}
 		}
 		return false;
@@ -646,6 +659,14 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onAltMultiSelection(QKeyEvent* event) {
+		/*
+			This function is disabled for now, as it has multi issues and not completely implemented.
+			currenty, the ExtraSelection function is  used by FindAll, and it will cause conflict if we 
+			enable AltMultiSelection. A middle layer should be designed to manage multiple ExtraSelection sources, 
+			and merge them together before applying to the TextEdit.
+		*/
+		return; 
+
 		if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
 			if (AltMultiSelections.isEmpty()) {
 				QTextCursor cursor = Text->textCursor();
@@ -691,7 +712,26 @@ namespace YSSCore::__Private__ {
 			Text->setExtraSelections(AltMultiSelections);
 		}
 	}
+
+	void TextEditPrivate::createFindAllMultiSelection(QList<QTextCursor> findResults) {
+		FindAllMultiSelections.clear();
+		for (int i = 0; i < findResults.size(); i++) {
+			QTextEdit::ExtraSelection selection;
+			selection.cursor = findResults[i];
+			selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+			FindAllMultiSelections.append(selection);
+		}
+		Text->setExtraSelections(FindAllMultiSelections);
+	}
+
+	void TextEditPrivate::clearFindAllMultiSelection() {
+		if (!FindAllMultiSelections.isEmpty()) {
+			FindAllMultiSelections.clear();
+			Text->setExtraSelections(FindAllMultiSelections);
+		}
+	}
 }
+
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::TextEdit
@@ -730,7 +770,7 @@ namespace YSSCore::Editor {
 	*/
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		TextEdit的构造函数。
 	*/
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
@@ -779,6 +819,11 @@ namespace YSSCore::Editor {
 
 		d->HoverTimer = new QTimer(this);
 		d->HoverTimer->setInterval(d->HoverTimeout);
+
+		d->FindAndReplaceWidget = new YSSCore::__Private__::TextEditFindAndReplace(this);
+		d->FindAndReplaceWidget->resize(400, 200);
+		d->FindAndReplaceWidget->move(this->width() - 412, 0);
+		d->FindAndReplaceWidget->hide();
 		connect(d->Text->document(), &QTextDocument::blockCountChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onBlockCountChanged);
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
@@ -786,11 +831,11 @@ namespace YSSCore::Editor {
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
 	}
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		TextEdit的析构函数。
 	*/
 	TextEdit::~TextEdit() {
-		// d->Text must be delete first.
+		// d->Text must be delete before d :
 		// If we do nothing with this object, d->Text will be automaticly deleted by
 		// Qt's parent-child system. However, due to our YSSCore::Editor::SyntaxHighlighter
 		// object is initialized with this object, but ownership belongs to QTextDocument in d->Text.
@@ -808,7 +853,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		设置鼠标悬停提示的显示区域。如果不设置或设置为nullptr，那么悬停区域
 		永远不会超出TextEdit的范围。这可能在很多情况下会导致内容被遮挡，
 		因此我们建议您将悬停区域设置为一个更大的区域，如您的组件的主窗口等。
@@ -832,7 +877,7 @@ namespace YSSCore::Editor {
 		}
 	}
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		设置TextEdit中的文本内容。此函数会替换掉TextEdit中原有的全部文本内容。
 	*/
 	void TextEdit::setPlainText(const QString& text) {
@@ -841,7 +886,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取TextEdit中的文本内容。此函数会返回TextEdit中全部的文本内容。
 	*/
 	QString TextEdit::getPlainText() const {
@@ -849,7 +894,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		将光标移动到指定行。行号从1开始。
 	*/
 	void TextEdit::moveCursorToLine(int lineNumber) {
@@ -863,7 +908,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取当前光标所在的行号。行号从1开始。
 	*/
 	int TextEdit::getCurrentLineNumber() const {
@@ -872,7 +917,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		设置鼠标悬停提示的超时时间。单位为毫秒。
 	*/
 	void TextEdit::setHoverTimeout(qint32 ms) {
@@ -881,7 +926,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取鼠标悬停提示的超时时间。单位为毫秒。
 	*/
 	qint32 TextEdit::getHoverTimeout() const {
@@ -889,7 +934,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		设置Tab键是否使用空格进行缩进。默认为false，即使用制表符进行缩进。
 	*/
 	void TextEdit::setTabReload(bool reload) {
@@ -897,7 +942,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取Tab键是否使用空格进行缩进。
 	*/
 	bool TextEdit::isTabReload() const {
@@ -905,7 +950,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		设置Tab键的缩进宽度。单位为字符数。默认为4。
 	*/
 	QTextDocument* TextEdit::getDocument() const {
@@ -935,11 +980,126 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.14.0
+		在整个文档中查找\a source。当\a sourceAsRe为真时，将\a source视作正则表达式进行查找。
+		返回一个包含所有匹配结果的QTextCursor构成的列表。这些QTextCursor的特性完全由
+		QTextDocument::find()函数返回的QTextCursor决定。
+
+		\a options参数与QTextDocument::find()函数的flags参数完全相同。
+
+		当\a multiSelection为真时，TextEdit会为每个匹配项创建选区以将它们临时高亮。请注意，
+		这个临时选区只是视觉效果，不改变当前光标位置。如果需要清除这些临时选区，请调用clearFindAllSelection()函数。
+	*/
+	QList<QTextCursor> TextEdit::findAll(const QString& source, bool sourceAsRe, QTextDocument::FindFlags options, bool multiSelection) const {
+		QList<QTextCursor> results;
+		if (sourceAsRe) {
+			QRegularExpression re(source);
+			QTextCursor cursor(d->Text->document());
+			cursor.setPosition(0);
+			while (!cursor.isNull() && !cursor.atEnd()) {
+				QTextCursor found = d->Text->document()->find(re, cursor, options);
+				if (found.isNull() || found.position() == cursor.position()) {
+					break;
+				}
+				results.append(found);
+				cursor = found;
+			}
+		}
+		else {
+			QTextCursor cursor(d->Text->document());
+			cursor.setPosition(0);
+			while (!cursor.isNull() && !cursor.atEnd()) {
+				QTextCursor found = d->Text->document()->find(source, cursor, options);
+				if (found.isNull() || found.position() == cursor.position()) {
+					break;
+				}
+				results.append(found);
+				cursor = found;
+			}
+		}
+		if (multiSelection) {
+			d->createFindAllMultiSelection(results);
+		}
+		return results;
+	}
+	
+	/*!
+		\since YSS 0.14.0
+		清除findAll函数创建的临时选区。临时选区只是视觉效果，不改变当前光标位置。
+	*/
+	void TextEdit::clearFindAllSelection() {
+		d->clearFindAllMultiSelection();
+	}
+	/*!
+		\since YSS 0.14.0
+		在整个文档中从\a from 开始，尝试查找下一个\a source。当\a sourceAsRe为真时，将\a source视作正则表达式进行查找。
+		返回匹配的QTextCursor。如果没有找到匹配项，则返回一个isNull()为真的QTextCursor。这个QTextCursor的特性完全由
+		QTextDocument::find()函数返回的QTextCursor决定。
+		如果\a from是-1，则从当前光标位置开始查找。如果\a from 是0，就从文档开头开始查找。
+		\a options参数与QTextDocument::find()函数的flags参数完全相同。
+
+		\a relocate 如果为true，就在找到匹配项后将光标移动到该位置；如果为false，就不改变当前光标位置。默认为false
+	*/
+	QTextCursor TextEdit::findNext(const QString& source, bool sourceAsRe, qint32 from, QTextDocument::FindFlags options, bool relocate) const {
+		if (from == -1) {
+			from = d->Text->textCursor().position();
+		}
+		QTextCursor result;
+		if (sourceAsRe) {
+			QRegularExpression re(source);
+			result = d->Text->document()->find(re, from, options);
+		}
+		else {
+			result = d->Text->document()->find(source, from, options);
+		}
+		if (relocate && !result.isNull()) {
+			d->Text->setTextCursor(result);
+		}
+		return result;
+	}
+
+	/*!
+		\since YSS 0.14.0
+		这函数使用 findAll 找到所有匹配项之后，将它们全部替换为 \a newText。返回替换掉的匹配项数量。
+		\a text \a textAsRe \a options参数与findAll函数的对应参数完全相同。
+	*/
+	qint32 TextEdit::replaceAll(const QString& source, const QString& newText, bool sourceAsRe, QTextDocument::FindFlags options) {
+		QList<QTextCursor> matches = findAll(source, sourceAsRe, options);
+		QTextCursor opeCusor = d->Text->textCursor();
+		opeCusor.beginEditBlock();
+		for (QTextCursor& cursor : matches) {
+			opeCusor.setPosition(cursor.selectionStart());
+			opeCusor.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
+			opeCusor.insertText(newText);
+		}
+		opeCusor.endEditBlock();
+		return matches.size();
+	}
+
+	/*!
+		\since YSS 0.14.0
+		这函数使用 findNext 找到下一个匹配项之后，将它替换为 \a newText。返回是否成功替换。
+		\a text 、\a textAsRe 、\a from、\a options、\a relocate 参数与findNext函数的对应参数完全相同。
+	*/
+	bool TextEdit::replaceNext(const QString& source, const QString& newText, bool sourceAsRe, qint32 from, QTextDocument::FindFlags options, bool relocate) {
+		QTextCursor match = findNext(source, sourceAsRe, from, options);
+		if (match.isNull()) {
+			return false;
+		}
+		else {
+			match.insertText(newText);
+			if (relocate) {
+				d->Text->setTextCursor(match);
+			}
+			return true;
+		}
+	}
+	/*!
+		\since YSS 0.13.0
 		按给定行号和列重定位光标。行号和列号均从0开始。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用cursorToPosition()函数。
 	*/
-	bool TextEdit::onCursorToPosition(int line, int column) {
+	bool TextEdit::onCursorToPosition(qint32 line, qint32 column) {
 		vgDebug << "Cursor to position: line" << line << "column" << column;
 		if (line < 0 || line >= d->Text->document()->blockCount()) {
 			return false;
@@ -953,8 +1113,9 @@ namespace YSSCore::Editor {
 		d->Text->setTextCursor(cursor);
 		return true;
 	}
+
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		打开一个文件。只有文件完全打开成功才会返回true，其他任何失败情况均返回false。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。
 	*/
@@ -1009,7 +1170,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		关闭当前文件。只有当文件成功关闭时才会返回true，其他任何失败情况均返回false。
 	*/
 	bool TextEdit::onClose() {
@@ -1039,7 +1200,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		保存当前文件。只有当文件成功保存时才会返回true，其他任何失败情况均返回false。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用saveFile()函数。
 	*/
@@ -1065,7 +1226,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		重新加载当前文件。只有当文件成功重新加载时才会返回true，其他任何失败情况均返回false。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用reloadFile()函数。
 	*/

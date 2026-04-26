@@ -98,6 +98,9 @@
     <ClCompile Include="Editor\cpp\SyntaxHighlighter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\TextEdit_p.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\private\EditorPlugin_p.h">

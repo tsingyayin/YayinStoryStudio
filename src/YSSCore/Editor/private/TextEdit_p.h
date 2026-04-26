@@ -20,12 +20,41 @@ class QSyntaxHighlighter;
 class QKeyEvent;
 class QMouseEvent;
 class QGridLayout;
+class QLineEdit;
+class QLabel;
+class QPushButton;
+class QCheckBox;
 namespace YSSCore::__Private__ {
 	class TabCompleterWidget;
 	class HoverInfoWidget;
 }
 // Main Implementation
 namespace YSSCore::__Private__ {
+	class TextEditFindAndReplace :public Visindigo::Widgets::BorderFrame {
+		Q_OBJECT;
+		friend class YSSCore::Editor::TextEdit;
+		friend class TextEditPrivate;
+	protected:
+		TextEditFindAndReplace(YSSCore::Editor::TextEdit* parent = nullptr);
+		~TextEditFindAndReplace();
+		void setFindText(const QString& text);
+	protected:
+		YSSCore::Editor::TextEdit* parent;
+		
+		QGridLayout* layout;
+		QLabel* titleLabel;
+		QPushButton* closeButton;
+		QCheckBox* sourceAsReCheckBox;
+		QCheckBox* caseSensitiveCheckBox;
+		QCheckBox* wholeWordCheckBox;
+		QLabel* rawInputLabel;
+		QLineEdit* rawInput;
+		QLabel* replaceInputLabel;
+		QLineEdit* replaceInput;
+		QPushButton* findNextButton;
+		QPushButton* replaceNextButton;
+		QPushButton* replaceAllButton;
+	};
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TextEdit;
@@ -54,6 +83,8 @@ namespace YSSCore::__Private__ {
 		bool useKeyboardToMoveCursor = false;
 		QWidget* HoverArea = nullptr;
 		QList<QTextEdit::ExtraSelection> AltMultiSelections;
+		QList<QTextEdit::ExtraSelection> FindAllMultiSelections;
+		TextEditFindAndReplace* FindAndReplaceWidget = nullptr;
 		bool Rehighlighting = false;
 		TextEditPrivate() {};
 		~TextEditPrivate();
@@ -78,5 +109,7 @@ namespace YSSCore::__Private__ {
 		void onAltSwapLine(QKeyEvent* event);
 		void onDoubleLine(QKeyEvent* event);
 		void clearAltMultiSelection();
+		void createFindAllMultiSelection(QList<QTextCursor> findResults);
+		void clearFindAllMultiSelection();
 	};
 }

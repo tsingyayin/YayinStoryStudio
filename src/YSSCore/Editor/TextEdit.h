@@ -1,12 +1,12 @@
 #pragma once
 #include "../Macro.h"
 #include "./FileEditWidget.h"
+#include <QtGui/qtextdocument.h>
 
 // Forward declarations
 class QTextEdit;
 class QHBoxLayout;
 class QSyntaxHighlighter;
-class QTextDocument;
 
 namespace YSSCore::__Private__ {
 	class TextEditPrivate;
@@ -37,6 +37,11 @@ namespace YSSCore::Editor {
 		QTextDocument* getDocument() const;
 		qint32 getFontSize() const;
 		void setFontSize(qint32 size);
+		QList<QTextCursor> findAll(const QString& source, bool sourceAsRe = false, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool multiSelection = false) const;
+		void clearFindAllSelection();
+		QTextCursor findNext(const QString& text, bool sourceAsRe = false, qint32 from = -1, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool relocate = false) const;
+		qint32 replaceAll(const QString& text, const QString& newText, bool textAsRe = false, QTextDocument::FindFlags options = QTextDocument::FindFlags());
+		bool replaceNext(const QString& text, const QString& newText, bool textAsRe = false, qint32 from = -1, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool relocate = false);
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;
