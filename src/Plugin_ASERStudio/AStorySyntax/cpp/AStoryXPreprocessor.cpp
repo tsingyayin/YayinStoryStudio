@@ -78,7 +78,7 @@ namespace ASERStudio::AStorySyntax {
 		for (const QString& param : paramsList) {
 			AStoryXParameter paramParameter;
 			paramParameter.d->setParameter(QString("param%1").arg(index), "", param, 
-				AStoryXValueMeta(QString("block.param"), AStoryXValueMeta::Type::Parameter), 
+				AStoryXValueMeta(QString("block.param"), AStoryXValueMeta::Type::MacroParameter), 
 				paramStartIndex);
 			data->d->OptionalParameters.append(paramParameter);
 			paramStartIndex += param.length() + 1; // +1 for the comma
@@ -130,7 +130,7 @@ namespace ASERStudio::AStorySyntax {
 		for (const QString& param : paramsList) {
 			AStoryXParameter paramParameter;
 			paramParameter.d->setParameter(QString("param%1").arg(index), "", param, 
-				AStoryXValueMeta(QString("use.param"), AStoryXValueMeta::Type::Parameter), 
+				AStoryXValueMeta(QString("use.param"), AStoryXValueMeta::Type::MacroParameter), 
 				paramStartIndex);
 			data->d->OptionalParameters.append(paramParameter);
 			paramStartIndex += param.length() + 1; // +1 for the comma

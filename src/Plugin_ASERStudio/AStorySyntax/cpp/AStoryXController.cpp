@@ -56,7 +56,7 @@ namespace ASERStudio::AStorySyntax {
 			Monotonicity = true;
 			return true;
 		}
-		void parseNonmonotonicity(QMap<QString, QString> protectTMP, QMap<QString, QString> protectedVAR,
+		void parseNonmonotonicity(QMap<QString, QString> protectTMP, QMap<QString, QString> protectedVAR, QMap<QString, QString> protectBPara,
 			QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex, AStoryXControllerParseData* data) {
 			int outputIndexOffset = Header.length();
 			QList<qint32> prefixIndexes;
@@ -117,6 +117,9 @@ namespace ASERStudio::AStorySyntax {
 			for (auto key : protectedVAR.keys()) {
 				content = content.replace(key, protectedVAR[key]);
 			}
+			for (auto key : protectBPara.keys()) {
+				content = content.replace(key, protectBPara[key]);
+			}
 			qint32 deltaLength = content.length() - rawRequiredLength;
 			requiredParameter.d->setParameter(RequiredParameterName, "", content, RequiredParameterValue, outputIndexOffset, RequiredParameterSeparater);
 			data->d->RequiredParameter = requiredParameter;
@@ -139,6 +142,9 @@ namespace ASERStudio::AStorySyntax {
 				}
 				for (auto key : protectedVAR.keys()) {
 					content = content.replace(key, protectedVAR[key]);
+				}
+				for (auto key : protectBPara.keys()) {
+					content = content.replace(key, protectBPara[key]);
 				}
 				auto optionalParameter = AStoryXParameter();
 				optionalParameter.d->setParameter(
@@ -167,7 +173,7 @@ namespace ASERStudio::AStorySyntax {
 				}
 			}
 		}
-		void parseMonotonicity(QMap<QString, QString> protectTMP, QMap<QString, QString> protectedVAR,
+		void parseMonotonicity(QMap<QString, QString> protectTMP, QMap<QString, QString> protectedVAR, QMap<QString, QString> protectBPara,
 			QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex, AStoryXControllerParseData* data) {
 			int outputIndexOffset = Header.length();
 			QList<qint32> prefixIndexes;
@@ -218,6 +224,9 @@ namespace ASERStudio::AStorySyntax {
 			for (auto key : protectedVAR.keys()) {
 				content = content.replace(key, protectedVAR[key]);
 			}
+			for (auto key : protectBPara.keys()) {
+				content = content.replace(key, protectBPara[key]);
+			}
 			qint32 deltaLength = content.length() - rawRequiredLength;
 			requiredParameter.d->setParameter(
 				RequiredParameterName, "", content,
@@ -243,6 +252,9 @@ namespace ASERStudio::AStorySyntax {
 				}
 				for (auto key : protectedVAR.keys()) {
 					content = content.replace(key, protectedVAR[key]);
+				}
+				for (auto key : protectBPara.keys()) {
+					content = content.replace(key, protectBPara[key]);
 				}
 				auto optionalParameter = AStoryXParameter();
 				optionalParameter.d->setParameter(
@@ -422,7 +434,7 @@ namespace ASERStudio::AStorySyntax {
 			protectedStrs[protectedStrTemplate.arg(i)] = content;
 			i++;
 		}
-		static QRegularExpression protectRef("\\$\\([\\d\\D]*?\\)");
+		static QRegularExpression protectRef("\\$\\[[\\d\\D]*?\\]");
 		QRegularExpressionMatchIterator protectRefIt = protectRef.globalMatch(ptStr);
 		i = 0;
 		QMap<QString, QString> protectedRefStrs;
@@ -434,17 +446,31 @@ namespace ASERStudio::AStorySyntax {
 			result.d->referenceVariables.append(content.mid(2, content.length() - 3));
 			i++;
 		}
+
+		static QRegularExpression protectBlockPara("\\$\\([\\d\\D]*?\\)");
+		QRegularExpressionMatchIterator protectBlockParaIt = protectBlockPara.globalMatch(ptStr);
+		i = 0;
+		QMap<QString, QString> protectedBlockParaStrs;
+		static QString protectedBlockParaTemplate = "▲★▲BLK%1▲★▲";
+		for (auto match : protectBlockParaIt) {
+			QString content = match.captured();
+			ptStr.replace(content, protectedBlockParaTemplate.arg(i));
+			protectedBlockParaStrs[protectedBlockParaTemplate.arg(i)] = content;
+			result.d->blockParameters.append(content.mid(2, content.length() - 3));
+			i++;
+		}
+
 		ptStr = ptStr.mid(d->Header.length());
 		result.d->StartSign = d->Header;
 		result.d->ControllerType = d->Type;
 		result.d->DiagnosticAvailable = diagnostic;
 		//vgDebug << d->isMonotonicity();
 		if (d->isMonotonicity()) {
-			d->parseMonotonicity(protectedStrs, protectedRefStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
+			d->parseMonotonicity(protectedStrs, protectedRefStrs, protectedBlockParaStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
 		}
 		else {
 			//非单调性解析
-			d->parseNonmonotonicity(protectedStrs, protectedRefStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
+			d->parseNonmonotonicity(protectedStrs, protectedRefStrs, protectedBlockParaStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
 		}
 		AStoryXParameter requiredParameter = result.getRequiredParameter();
 		if (d->Type == AStoryXController::ControllerType::Dialog) {
@@ -464,7 +490,7 @@ namespace ASERStudio::AStorySyntax {
 		case AStoryXDiagnosticData::Undefined:
 			break;
 		case AStoryXDiagnosticData::ParameterTypeMismatch: {
-			if (diagnostic && result.d->referenceVariables.isEmpty()) {
+			if (diagnostic && result.d->referenceVariables.isEmpty() && result.d->blockParameters.isEmpty()) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
 					.arg(d->RequiredParameterName)
@@ -482,6 +508,15 @@ namespace ASERStudio::AStorySyntax {
 				QString msg = VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(requiredParameter.getName());
 				if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::Vector) {
 					QList<qint64> dimensions = requiredParameter.getValue().getVectorCheckDimensions();
+					QStringList dimStrList;
+					for (auto dim : dimensions) {
+						dimStrList.append(QString::number(dim));
+					}
+					msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedDimension").
+						arg(dimStrList.join(", "));
+				}
+				else if (requiredParameter.getValue().getType() == AStoryXValueMeta::Type::Enum) {
+					QList<qint64> dimensions = requiredParameter.getValue().getEnumCheckDimensions();
 					QStringList dimStrList;
 					for (auto dim : dimensions) {
 						dimStrList.append(QString::number(dim));
@@ -560,7 +595,7 @@ namespace ASERStudio::AStorySyntax {
 			case AStoryXDiagnosticData::Undefined:
 				break;
 			case AStoryXDiagnosticData::ParameterTypeMismatch: {
-				if (diagnostic && result.d->referenceVariables.isEmpty()) {
+				if (diagnostic && result.d->referenceVariables.isEmpty() && result.d->blockParameters.isEmpty()) {
 					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 						VITR("ASERStudio::diagnostic.parameterTypeMismatch.message")
 						.arg(optional.getName())
@@ -577,6 +612,15 @@ namespace ASERStudio::AStorySyntax {
 				QString msg = VITR("ASERStudio::diagnostic.parameterFormatError.message").arg(optional.getName());
 				if (optional.getValue().getType() == AStoryXValueMeta::Type::Vector) {
 					QList<qint64> dimensions = optional.getValue().getVectorCheckDimensions();
+					QStringList dimStrList;
+					for (auto dim : dimensions) {
+						dimStrList.append(QString::number(dim));
+					}
+					msg += VITR("ASERStudio::diagnostic.parameterFormatError.allowedDimension").
+						arg(dimStrList.join(", "));
+				}
+				else if (optional.getValue().getType() == AStoryXValueMeta::Type::Enum) {
+					QList<qint64> dimensions = optional.getValue().getEnumCheckDimensions();
 					QStringList dimStrList;
 					for (auto dim : dimensions) {
 						dimStrList.append(QString::number(dim));

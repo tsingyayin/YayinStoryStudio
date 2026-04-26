@@ -51,7 +51,8 @@
         "MoveCurve":{
             "type": "Enum",
             "defaultValue": "Linear",
-            "enums": "MoveCurveEnums"
+            "enums": "MoveCurveEnums",
+            "dimensions": [1, 3]
         },
         "IsBlocker":{
             "type": "Bool",
@@ -170,7 +171,8 @@
         "MoveCurve":{
             "type": "Enum",
             "defaultValue": "Linear",
-            "enums": "MoveCurveEnums"
+            "enums": "MoveCurveEnums",
+            "dimensions": [1, 3]
         }
     },
     "Choice":{

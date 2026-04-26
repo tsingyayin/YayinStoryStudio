@@ -49,8 +49,21 @@ namespace ASERStudio::AStorySyntax {
 			return AStoryXDiagnosticData::DiagnosticType::Undefined;
 		}
 		AStoryXDiagnosticData::DiagnosticType isEnum(const QString& value) const {
-			if (!EnumCheckList.contains(value)) {
-				return AStoryXDiagnosticData::DiagnosticType::ParameterOutOfRange;
+			if (VectorCheckDimensions.size() == 1 && VectorCheckDimensions.first() == 1) {
+				if (!EnumCheckList.contains(value)) {
+					return AStoryXDiagnosticData::DiagnosticType::ParameterOutOfRange;
+				}
+			}
+			else {
+				QStringList components = value.split(',');
+				if (not VectorCheckDimensions.contains(components.size())) {
+					return AStoryXDiagnosticData::DiagnosticType::ParameterFormatError;
+				}
+				for (const QString& component : components) {
+					if (!EnumCheckList.contains(component.trimmed())) {
+						return AStoryXDiagnosticData::DiagnosticType::ParameterOutOfRange;
+					}
+				}
 			}
 			return AStoryXDiagnosticData::DiagnosticType::Undefined;
 		};
@@ -138,7 +151,7 @@ namespace ASERStudio::AStorySyntax {
 		因此，可以通过检查上下限的钳制设置是否为默认值来判断是否对该参数进行了钳制。
 
 		\section2 向量形的限制
-		对于向量类型，使用dimension字段指定向量的维度。不指定时默认为三维。
+		对于向量类型，使用dimensions字段指定向量的许用维度。不指定时默认只有三维许用。
 
 		对于向量中的每一个分量，通过定义limit数组进行钳制，其中每一个数组内容都和设置单一浮点型/整型的钳制类似。
 		不需要设限的分量留空（但不能置为null）即可，例如：
@@ -146,7 +159,7 @@ namespace ASERStudio::AStorySyntax {
 		"__ParameterName__":{
 			"type": "Vector",
 			"defaultValue": "0.0,0.0,0.0",
-			"dimension": 3,
+			"dimensions":  [3],
 			"limit": [
 				{
 					"min": 0.0
@@ -169,7 +182,8 @@ namespace ASERStudio::AStorySyntax {
 				"__ParameterName__":{
 					"type": "Enum",
 					"defaultValue": "Value1",
-					"enums": "MyEnum1"
+					"enums": "MyEnum1",
+					"dimensions": [1]
 				}
 			},
 			"__GeneralMetaData__":{
@@ -177,6 +191,8 @@ namespace ASERStudio::AStorySyntax {
 			}
 		}
 		\endcode
+		此外，枚举型也可以使用dimensions字段来指定许用维度，以支持向量形枚举量（枚举组）的定义。
+		由于多数情况下枚举是单一值的，因此如果不指定dimensions字段，则默认为单值枚举。
 
 		\section2 字符串的限制
 		对于字符串类型，可以通过regex字段提供一个正则表达式来限制字符串的格式，例如
@@ -202,6 +218,14 @@ namespace ASERStudio::AStorySyntax {
 		\value Vector 向量类型，参数值应为逗号分隔的数值列表。
 		\value Bool 布尔类型，参数值应为true/false、1/0、yes/no等表示布尔值的字符串。
 		\value None 无类型，参数值应为空字符串。
+		\value __META__ 元类型起始，表示以下类型为元类型。
+		\value Comment 注释类型，表示该参数为注释。
+		\value Function 函数类型，表示该参数为函数名或符号。
+		\value Parameter 参数类型，表示该参数为函数参数
+		\value Keyword 关键字类型，表示该参数为关键字。
+		\value Macro 宏类型，表示该参数为宏名或符号。
+		\value MacroParameter 宏参数类型，表示该参数为宏参数。(自ASERStudio 2.1起添加)
+
 	*/
 
 	/*!
@@ -324,6 +348,8 @@ namespace ASERStudio::AStorySyntax {
 				break;
 			}
 			case AStoryXValueMeta::Type::Enum: {
+				QList<qint64> dimensions = paramMeta.contains("dimensions") ? paramMeta.getIntArray("dimensions") : QList<qint64>{ 1 };
+				d->VectorCheckDimensions = dimensions;
 				QString enumListName = paramMeta.getString("enums");
 				d->EnumCheckList = metaData.getStringList("__GeneralMetaData__." + enumListName);
 				break;
@@ -503,19 +529,45 @@ namespace ASERStudio::AStorySyntax {
 	}
 
 	/*!
+		\since ASERStudio 2.1
+		设置枚举检查的维度。请注意，它和向量检查维度共用一个内部对象
+		保存数据，因此如果你中途切换该类的元数据，那么先前设置的维度可能会被覆盖或丢失。请确保在设置元数据时正确配置维度以避免潜在的问题。
+	*/
+	void AStoryXValueMeta::setEnumCheckDimensions(const QList<qint64>& dimensions) {
+		d->VectorCheckDimensions = dimensions;
+	}
+
+	/*!
+		\since ASERStudio 2.1
+		获取枚举检查的维度。请注意，它和向量检查维度共用一个内部对象
+		保存数据，因此如果你中途切换该类的元数据，那么先前设置的维度可能会被覆盖或丢失。请确保在设置元数据时正确配置维度以避免潜在的问题。
+	*/
+	QList<qint64> AStoryXValueMeta::getEnumCheckDimensions() const {
+		return d->VectorCheckDimensions;
+	}
+
+	/*!
 		\since ASERStudio 2.0
 		检查给定的参数值是否符合预设的类型和规则。
 		\a value 参数值，必须是一个QString对象。该值将根据当前设置的类型和检查规则进行验证。
-		\return 诊断结果，返回一个AStoryXDiagnosticData::DiagnosticType枚举值，表示参数值的验证结果。
+
+		return 诊断结果，返回一个AStoryXDiagnosticData::DiagnosticType枚举值，表示参数值的验证结果。
+
 		如果参数值符合预设的类型和规则，则返回AStoryXDiagnosticData::DiagnosticType::Undefined。
+
 		如果参数值不符合预设的类型或规则，则返回相应的错误类型，如ParameterFormatError或ParameterOutOfRange等。
-		对于数字类型的超出范围以及枚举类型的无效值，返回ParameterOutOfRange；对于格式错误的值，
-		例如未满足维度要求的向量，返回ParameterFormatError；
+
+		对于数字类型的超出范围以及枚举类型的无效值、或者向量某分量超出范围、枚举组某单值超出范围，返回ParameterOutOfRange；
+
+		对于格式错误的值，例如未满足维度要求的向量或枚举组，返回ParameterFormatError；
 
 		注意，这函数只检查Type在__META__之前的类型。__META__之后的类型是作为token使用的，不进行类型检查。
 		如果你检查它们，则永远得到Undefined的结果。
 
 		此外，它对空参数永远返回Undefined。
+
+		\note 如果输入的参数值有块参数引用或变量引用，它会永远识别其为String类型从而导致ParameterFormatError结果。
+		因此，除了使用本函数检查外，你还应该单独确认参数值是否包含块参数引用或变量引用，并在诊断结果中适当处理这些情况。
 	*/
 	AStoryXDiagnosticData::DiagnosticType AStoryXValueMeta::isTypeMatching(const QString& value) const {
 		if (value.isEmpty()) {

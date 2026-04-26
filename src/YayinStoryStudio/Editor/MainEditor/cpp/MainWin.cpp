@@ -20,6 +20,8 @@
 #include <General/Plugin.h>
 #include <Editor/EditorPlugin.h>
 #include "Editor/MainEditor/StackWidgetArea.h"
+#include <Widgets/DesktopHacker.h>
+
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
 
@@ -82,6 +84,10 @@ namespace YSS::Editor {
 		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
 		Editor->setCurrentWidget(focusedFile);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
+
+		
+		//this->showFullScreen();
+		//this->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
 	}
 
 	ResourceBrowser* MainWin::getResourceBrowser() {
@@ -117,6 +123,7 @@ namespace YSS::Editor {
 	void MainWin::showEvent(QShowEvent* event) {
 		//yDebugF << CentralWidget->width() << CentralWidget->height();
 		//yDebugF << this->width() << this->height();
+		//Visindigo::Widgets::DesktopHacker::getInstance()->suspendQWidget(this);
 	}
 
 	void MainWin::closeEvent(QCloseEvent* event) {
@@ -140,6 +147,7 @@ namespace YSS::Editor {
 		asked = false;
 		Instance = nullptr;
 		this->deleteLater();
+		//delete Visindigo::Widgets::DesktopHacker::getInstance();
 	}
 
 	void MainWin::hideEvent(QHideEvent* event) {

@@ -349,10 +349,21 @@ namespace ASERStudio::AStorySyntax {
 	}
 	/*!
 		\since ASERStudio 2.0
-		返回文本中引用的变量列表。	
+		返回文本中引用的变量列表。	请注意和blockParameter进行区分。
+
+		refVar只包括那些可以用于判定的变量，而blockPara指的是block中用于替换的占位参数。
 	*/
 	QStringList AStoryXControllerParseData::referenceVariables() const {
 		return d->referenceVariables;
+	}
+
+	/*!
+		\since ASERStudio 2.1
+		返回文本块参数列表。请注意和referenceVariable进行区分。
+		blockPara指的是block中用于替换的占位参数，而refVar只包括那些可以用于判定的变量。
+	*/
+	QStringList AStoryXControllerParseData::blockParameters() const {
+		return d->blockParameters;
 	}
 
 	/*!

@@ -17,6 +17,7 @@
             "Namespace": "#71CB0E",
             "Enum": "#B8D7A3",
             "Macro": "#C586C0",
+            "MacroParameter": "#EEEEEE",
             "ErrorLine": "#95DB7D",
             "WarningLine": "#FFA500",
             "InfoLine": "#55AAFF"
@@ -36,6 +37,7 @@
             "Namespace": "#71CB0E",
             "Enum": "#B8D7A3",
             "Macro": "#C586C0",
+            "MacroParameter": "#EEEEEE",
             "ErrorLine": "#95DB7D",
             "WarningLine": "#FFA500",
             "InfoLine": "#55AAFF"

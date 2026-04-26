@@ -75,6 +75,9 @@ namespace ASERStudio::YSS {
 		case ASERStudio::AStorySyntax::AStoryXValueMeta::Macro:
 			requiredType = "Macro";
 			break;
+		case ASERStudio::AStorySyntax::AStoryXValueMeta::MacroParameter:
+			requiredType = "MacroParameter";
+			break;
 		}
 		setFormatWithColorKey(required.getIndex(), required.getContent().size(), requiredType);
 
@@ -113,6 +116,9 @@ namespace ASERStudio::YSS {
 			case ASERStudio::AStorySyntax::AStoryXValueMeta::Macro:
 				type = "Macro";
 				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::MacroParameter:
+				type = "MacroParameter";
+				break;
 			}
 			setFormatWithColorKey(optional.getIndex() + optional.getPrefix().size(), optional.getContent().size(), type);
 		}
@@ -124,11 +130,18 @@ namespace ASERStudio::YSS {
 			setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "SpecialString");
 		}
 
-		static QRegularExpression variableTMP("\\$\\([\\d\\D]*?\\)");
+		static QRegularExpression variableTMP("\\$\\[[\\d\\D]*?\\]");
 		QRegularExpressionMatchIterator variableTMPIt = variableTMP.globalMatch(text);
 		while (variableTMPIt.hasNext()) {
 			QRegularExpressionMatch match = variableTMPIt.next();
 			setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "Parameter");
+		}
+
+		static QRegularExpression blockParaTMP("\\$\\([\\d\\D]*?\\)");
+		QRegularExpressionMatchIterator blockParaTMPIt = blockParaTMP.globalMatch(text);
+		while (blockParaTMPIt.hasNext()) {
+			QRegularExpressionMatch match = blockParaTMPIt.next();
+			setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "MacroParameter");
 		}
 
 		QList<ASERStudio::AStorySyntax::AStoryXDiagnosticData> diagnostics = d->Document->getDiagnostics(blockNumber);

@@ -7,6 +7,9 @@
 #include <QtCore/qfileinfo.h>
 #include <Utility/JsonConfig.h>
 #include <General/Log.h>
+#include <Widgets/DesktopHacker.h>
+#include <QtGui/qwindow.h>
+
 #ifdef Q_OS_WIN
 #include <Windows.h>
 #endif
@@ -307,18 +310,19 @@ namespace ASERStudio::ASEREnv {
 		d->ASERProcess->setArguments(arguments);
 		d->ASERProcess->start();
 		QTimer* timer = new QTimer(this);
-		timer->setInterval(2000);
+		timer->setInterval(5000);
 		connect(timer, &QTimer::timeout, this, [this, timer]() {
 			if (d->ASERProcess->state() == QProcess::Running) {
 				if (d->ASERPipe->state() == QLocalSocket::UnconnectedState) {
 					d->ASERPipe->connectToServer();
 				}
 			}
-			else {
+			else { // connected.
 				timer->stop();
 				timer->deleteLater();
 			}
 			});
+		timer->start();
 	}
 
 	/*!

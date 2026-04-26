@@ -26,7 +26,8 @@ namespace ASERStudio::AStorySyntax {
 			Function,
 			Parameter,
 			Keyword,
-			Macro
+			Macro,
+			MacroParameter
 		};
 		Q_ENUM(Type);
 	public:
@@ -55,6 +56,8 @@ namespace ASERStudio::AStorySyntax {
 		QList<qint64> getVectorCheckDimensions() const;
 		void setEnumCheckList(const QStringList& enumList);
 		QStringList getEnumCheckList() const;
+		void setEnumCheckDimensions(const QList<qint64>& dimensions);
+		QList<qint64> getEnumCheckDimensions() const;
 		AStoryXDiagnosticData::DiagnosticType isTypeMatching(const QString& value) const;
 		static Type guessType(const QString& value);
 		static QString typeToString(Type type);

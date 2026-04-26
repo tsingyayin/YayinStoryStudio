@@ -58,6 +58,7 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXController::ControllerType ControllerType = AStoryXController::ControllerType::Unknown;
 		QString cursorInWhichParameter;
 		QStringList referenceVariables;
+		QStringList blockParameters;
 		bool DiagnosticAvailable;
 		QList<AStoryXDiagnosticData> Diagnostics;
 	};
