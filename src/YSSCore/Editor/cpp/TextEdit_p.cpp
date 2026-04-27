@@ -22,6 +22,7 @@ namespace YSSCore::__Private__ {
 		replaceInputLabel = new QLabel(VITR("YSS::editor.far.replace"), this);
 		replaceInput = new QLineEdit(this);
 
+		matchCountLabel = new QLabel(this);
 		findNextButton = new QPushButton(VITR("YSS::editor.far.findNext"), this);
 		replaceNextButton = new QPushButton(VITR("YSS::editor.far.replaceNext"), this);
 		replaceAllButton = new QPushButton(VITR("YSS::editor.far.replaceAll"), this);
@@ -35,6 +36,7 @@ namespace YSSCore::__Private__ {
 		layout->addWidget(rawInput, 2, 1, 1, 3);
 		layout->addWidget(replaceInputLabel, 3, 0);
 		layout->addWidget(replaceInput, 3, 1, 1, 3);
+		layout->addWidget(matchCountLabel, 4, 0);
 		layout->addWidget(findNextButton, 4, 1);
 		layout->addWidget(replaceNextButton, 4, 2);
 		layout->addWidget(replaceAllButton, 4, 3);
@@ -44,6 +46,21 @@ namespace YSSCore::__Private__ {
 			this->hide();
 			});
 
+		connect(caseSensitiveCheckBox, &QCheckBox::checkStateChanged, this, [this]() {
+			this->findAll();
+			});
+
+		connect(wholeWordCheckBox, &QCheckBox::checkStateChanged, this, [this]() {
+			this->findAll();
+			});
+
+		connect(sourceAsReCheckBox, &QCheckBox::checkStateChanged, this, [this]() {
+			this->findAll();
+			});
+		
+		connect(rawInput, &QLineEdit::returnPressed, this, [this]() {
+			this->findAll();
+			});
 		connect(findNextButton, &QPushButton::clicked, this, [this]() {
 			auto rtn = this->parent->findNext(rawInput->text(), sourceAsReCheckBox->isChecked(), -1, 
 				(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) | 
@@ -73,8 +90,16 @@ namespace YSSCore::__Private__ {
 	TextEditFindAndReplace::~TextEditFindAndReplace() {
 	}
 
+	void TextEditFindAndReplace::findAll() {
+		auto cursors = this->parent->findAll(rawInput->text(), sourceAsReCheckBox->isChecked(),
+			(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) |
+			(wholeWordCheckBox->isChecked() ? QTextDocument::FindWholeWords : QTextDocument::FindFlags()), true);
+		matchCountLabel->setText(VITR("YSS::editor.far.matchCount").arg(cursors.size()));
+	}
+
 	void TextEditFindAndReplace::setFindText(const QString& text) {
 		rawInput->setText(text);
+		findAll();
 	}
 
 	TextEditCursorInfo::TextEditCursorInfo(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {

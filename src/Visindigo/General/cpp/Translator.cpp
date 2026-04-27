@@ -96,6 +96,48 @@ namespace Visindigo::General
 	*/
 
 	/*!
+		\enum Visindigo::General::Translator::LangID
+		\since Visindigo 0.13.0
+		\value Unknown 未知语言
+		\value zh_CN 简体中文
+		\value zh_SC 简体中文（同zh_CN）
+		\value zh_TC 繁体中文
+		\value en 英文
+		\value ja 日文
+		\value ko 韩文
+		\value ru 俄文
+		\value de 德文
+		\value fr 法文
+		请注意，这里并没有使用ISO 639-1或ISO 639-2等国际标准的语言代码，而是使用了一套自定义的语言ID。
+		这是因为目前Visindigo的翻译功能还需要同步驱动Qt Linguist的翻译功能（比如自动加载对应的qm文件），
+		而Qt的qm文件未遵守ISO的要求，因此目前该枚举只能暂时与Qt的qm文件名保持一致。
+
+		这预计会在未来的某个版本中进行调整，调整之后LangID直接遵循ISO要求，然后再提供ISO
+		到qm文件名的转换函数，以保持与Qt的兼容性。
+	*/
+	/*!
+		\since Visindigo 0.14.0
+		将语言ID转换为字符串。返回值为语言ID对应的字符串，例如zh_CN、en等。
+	*/
+	QString Translator::langIDToString(LangID id) {
+		return QMetaEnum::fromType<LangID>().valueToKey(static_cast<int>(id));
+	}
+
+	/*!
+		\since Visindigo 0.14.0
+		将字符串转换为语言ID。参数str为要转换的字符串，例如zh_CN、en等。返回值为对应的语言ID，如果转换失败，则返回LangID::Unknown。
+	*/
+	Translator::LangID Translator::stringToLangID(const QString& str) {
+		bool ok;
+		int value = QMetaEnum::fromType<LangID>().keyToValue(str.toStdString().c_str(), &ok);
+		if (ok) {
+			return static_cast<LangID>(value);
+		}
+		else {
+			return LangID::Unknown;
+		}
+	}
+	/*!
 		\since Visindigo 0.13.0
 		构造Translator对象，并设置命名空间。
 	*/

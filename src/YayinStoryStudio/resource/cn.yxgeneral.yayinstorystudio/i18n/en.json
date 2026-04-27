@@ -1,0 +1,177 @@
+{
+	"config":{
+		"title": "Yayin Story Studio Settings",
+		"general":{
+			"title":"General",
+			"text":"General application settings",
+			"language":{
+				"title":"Language",
+				"text":"Select application language",
+				"zh_CN":"Simplified Chinese",
+				"en":"English"
+			},
+			"theme":{
+				"title": "Color Theme",
+				"text":"Select application color theme",
+				"dark":"Dark",
+				"light":"Light",
+				"auto": "Auto (Follow System)"
+			}
+		 },
+		 "editor":{
+			"title":"Editor",
+			"text":"Editor related settings",
+			"reloadtab":{
+				"title":"Reload Tab Behavior",
+				"text":"Controls whether the editor should replace Tab with spaces when at the beginning of a line"
+			}
+		}
+	},
+	"tooltips": {
+		"projectWin":{
+			"project": "Click to view details, double-click to open the project",
+			"showInBrowser": "Open project folder in system file explorer",
+			"delete": "Remove project from list",
+			"createNewProject": "Create a new project from a template",
+			"openFolder": "Open an existing Yayin Story Studio project",
+			"cloneFromGit": "Clone a project from a given Git repository URL"
+		}
+	},
+	"project":{
+		"author":"Author",
+		"description":"Description",
+		"debugServer":"Debug Server",
+		"projectManager":"Project Manager",
+		"selectToShow": "Select a project to view details...",
+		"noCover":"No Cover",
+		"lastModifiedTime":"Last Modified Time",
+		"createTime":"Creation Time",
+		"size":"Size",
+		"calculating":"Calculating...",
+		"showInBrowser":"Show in File Explorer",
+		"delete":"Delete Project",
+		"deleteConfirm": "Yayin Story Studio currently does not support safely deleting projects to the Recycle Bin.\nFor safety reasons, pressing Confirm will only remove the project from the list.\nYou can manually delete the project folder later in the file explorer.\n\nDo you want to continue?",
+		"removeFromList":"Remove from List",
+		"createNewProject":"Create New Project",
+		"createNewFile":"Create New File",
+		"openFolder":"Open Project",
+		"openYSSProject": "Open YSS Project",
+		"cloneFromGit":"Clone from Git",
+		"createFromTemplate":"Create from Template",
+		"searchWithTags": "Search templates by tags",
+		"recentUsed":"Recently Used",
+		"openProjectFailed":{
+			"message":"Failed to open project",
+			"ParseError":"Failed to parse project file. The file may contain syntax errors or be corrupted.",
+			"InvaildConfig":"Invalid project configuration. Required fields are missing or have incorrect types.",
+			"UnknownError":"An unknown error occurred and the project could not be opened."
+		},
+		"newsLoadFailed": "Failed to sync news from server. Please check your network connection and try again later.",
+		"saveQuestion": {
+			"title": "Close the program?",
+			"text": "Your project %1 has been modified and not saved. Do you want to save it?"
+		}
+	},
+	"menu": {
+		"file": {
+			"title": "File",
+			"newfile": "New File",
+			"open": "Open",
+			"save": "Save",
+			"saveAll": "Save All",
+			"saveAs": "Save As",
+			"backToHome": "Back to Home",
+			"terminal": "Terminal",
+			"pluginAndPreferences": "Plugins & Preferences",
+			"exit": "Exit",
+			"documentation": "Documentation",
+			"about": "About Yayin Story Studio",
+			"projectConfig": "Project Settings"
+		},
+		"edit": {
+			"title": "Edit",
+			"undo": "Undo",
+			"redo": "Redo",
+			"cut": "Cut",
+			"copy": "Copy",
+			"paste": "Paste",
+			"selectAll": "Select All",
+			"findAndReplace": "Find and Replace"
+		},
+		"run": {
+			"title": "Run",
+			"run": "Start (No Debug)",
+			"debug": "Start (Debug)",
+			"stop": "Stop",
+			"restart": "Restart",
+			"buildProject": "Build Project",
+			"cleanProject": "Clean Build",
+			"nextStep": "Step Into",
+			"nextProcess": "Step Over",
+			"pause": "Pause",
+			"continue_": "Continue"
+		}
+	},
+	"editor":{
+		"messageViewer": {
+			"error": "Error",
+			"warning": "Warning",
+			"info": "Info",
+			"code": "Code",
+			"message": "Message",
+			"file": "File",
+			"line": "Line",
+			"column": "Column"
+		},
+		"far":{
+			"title": "Find and Replace",
+			"find": "Find",
+			"findNext": "Find Next",
+			"replace": "Replace",
+			"replaceNext": "Replace Next",
+			"replaceAll": "Replace All",
+			"matchCase": "Match Case",
+			"wholeWord": "Whole Word",
+			"useRegExp": "Regular Expression",
+			"notFound": "Not Found",
+			"notFoundDesc": "The text \"%1\" was not found",
+			"replaced": "Replacement Complete",
+			"replacedDesc": "%1 occurrence(s) replaced",
+			"matchCount": "Total %1"
+		},
+		"stackWidgetArea": {
+			"noFileOpened": "No file opened"
+		},
+		"textEdit":{
+			"readOnly": {
+				"title": "This file is read-only",
+				"message": "The file %1 you are trying to save is read-only. You cannot save to this file. Please check file permissions or use 'Save As' to save to a different location."
+			},
+			"notSuitable": {
+				"title": "No suitable service found for this file",
+				"message": "No opening service found for file extension %1. YSS can still try to open the file with the default built-in text editor, but this may corrupt binary data. Are you sure you want to proceed? (Strongly not recommended)"
+			},
+			"cursorInfo_s": "Line %1, Column %2 (%3 selected)",
+			"cursorInfo": "Line %1, Column %2",
+			"totalLines": "Total lines: %1"
+		},
+		"debug": {
+			"notFound": {
+				"title": "Oops! Debugger not found",
+				"message": "The debugger %1 specified for this project was not found. Have you disabled or removed the plugin that provides it? Please re-enable or re-add it and restart the program."
+			},
+			"notSelect": {
+				"title": "Debugger not configured!",
+				"message": "This project does not have a debugger configured. Please open Project Settings, select a debugger, and try again."
+			}
+		},
+		"saveWarning": {
+			"title": "File Modified",
+			"message": "The file %1 has been modified. Do you want to save the changes?"
+		},
+		"about": {
+			"title": "About Yayin Story Studio",
+			"message": "Version %1, a Tsing Yayin production. Yayin Story Studio is part of Project Visindigo, a brand-new development evolved from Yayin Story Player, aimed at providing ASE users with an easy-to-use development environment."
+		}
+	}
+}

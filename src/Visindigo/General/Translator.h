@@ -24,15 +24,17 @@ namespace Visindigo::General {
 			zh_CN,
 			zh_SC = zh_CN,
 			zh_TC,
-			en_US,
-			en_GB,
-			ja_JP,
-			ko_KR,
-			ru_RU,
-			de_DE,
-			fr_FR,
+			en,
+			ja,
+			ko,
+			ru,
+			de,
+			fr,
 		};
 		Q_ENUM(LangID);
+	public:
+		static QString langIDToString(LangID id);
+		static LangID stringToLangID(const QString& str);
 	public:
 		Translator(Plugin* parent, const QString& nameSpace);
 		virtual ~Translator();

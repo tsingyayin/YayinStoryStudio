@@ -8,7 +8,7 @@
 				"title":"语言",
 				"text":"选择应用程序语言",
 				"zh_CN":"简体中文",
-				"en_US":"English"
+				"en":"English"
 			},
 			"theme":{
 				"title": "颜色主题",
@@ -136,7 +136,8 @@
 			"notFound": "没有找到下一项",
 			"notFoundDesc": "目标文本“%1”没有找到",
 			"replaced": "替换完成",
-			"replacedDesc": "已替换 %1 项"
+			"replacedDesc": "已替换 %1 项",
+			"matchCount": "共 %1"
 		},
 		"stackWidgetArea": {
 			"noFileOpened": "没有打开的文件"

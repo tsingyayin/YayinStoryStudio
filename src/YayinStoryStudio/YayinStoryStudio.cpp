@@ -15,6 +15,7 @@
 #include <Utility/FileUtility.h>
 #include <Widgets/ConfigWidget.h>
 #include <QtCore/qdir.h>
+#include <General/TranslationHost.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -36,6 +37,8 @@ namespace YSS {
 	}
 
 	void Main::onPluginEnable() {
+		auto LangID = Visindigo::General::Translator::stringToLangID(getPluginConfig()->getString("General.Language"));
+		VITRH->setLangID(LangID);
 		VISTM->setAnimationDuration(500);
 		YSSCore::Editor::FileServerManager::getInstance();
 		YSSCore::Editor::ProjectTemplateManager::getInstance();
@@ -54,14 +57,19 @@ namespace YSS {
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json"));
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
+		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged, this, [](const QString& node, int index, QString data) {
+			if (node == "General.Theme") {
+					VISTM->changeColorTheme(data);
+			}
+			});
+		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, this, &Visindigo::General::Plugin::reloadPluginConfig);
 		vgDebug << getPluginFolder().filePath("config.json");
-		d->ConfigWidget->setIndependentMode(true);
 		VISTM->setStyleTemplatePriority({ "YSS" });
 		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future use
 	}
 
 	void Main::onApplicationInit() {
-		VISTM->changeColorTheme("Dark");
+		VISTM->changeColorTheme(getPluginConfig()->getString("General.Theme"));
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 		//YSS::TestDragWidget* tw = new YSS::TestDragWidget();

@@ -99,6 +99,10 @@ namespace Visindigo::General {
 		如果当前语言ID与 \a id 不同，则会重新加载所有已注册的Translator的翻译文件，并发出langChanged 信号。
 	*/
 	void TranslationHost::setLangID(Translator::LangID id) {
+		if (id == Translator::LangID::Unknown) {
+			vgErrorF << "Invalid language ID: Unknown.";
+			return;
+		}
 		if (id != d->GlobalID) {
 			d->refreshLang(id);
 		}

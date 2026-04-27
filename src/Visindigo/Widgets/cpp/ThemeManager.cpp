@@ -333,6 +333,8 @@ namespace Visindigo::Widgets {
 
 		如果ThemeManager设置为自动适应系统主题（通过autoAdjustThemeToSystem方法），
 		则此信号可能会在systemThemeChanged信号之后被触发，表示程序主题也发生了变化。
+
+		这个信号不会在主题变化的过渡过程中触发，如果你需要处理动画过度，请使用ColorfulWidget接口。
 	*/
 
 	/*!
@@ -873,6 +875,10 @@ namespace Visindigo::Widgets {
 		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
 	*/
 	bool ThemeManager::changeColorTheme(const QString& themeID) {
+		if (themeID.isEmpty()) {
+			vgWarningF << "Cannot change to empty theme ID.";
+			return false;
+		}
 		QString autoID = themeID;
 		if (themeID == "Auto") {
 			qApp->styleHints()->unsetColorScheme();

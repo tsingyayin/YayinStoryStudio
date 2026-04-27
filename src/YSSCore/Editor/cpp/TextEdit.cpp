@@ -230,6 +230,9 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onCompleter() {
 		QTextCursor cursor = Text->textCursor();
+		if (cursor.hasSelection()) {
+			return;
+		}
 		if (TabCompleter) {
 			QList<YSSCore::Editor::TabCompleterItem> list;
 			QString content = cursor.block().text();
@@ -475,6 +478,12 @@ namespace YSSCore::__Private__ {
 		if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
 			HoverInfoWidget->hide();
 		}
+		if (FindAndReplaceWidget != nullptr && FindAndReplaceWidget->isVisible()) {
+			// I think this function should be moved to farWidget.hideEvent().
+			// Currently, different hide operations do not share same code, which is not good.
+			clearFindAllMultiSelection(); 
+			FindAndReplaceWidget->hide();
+		}
 	}
 
 	void TextEditPrivate::onDirectionClicked(QKeyEvent* event) {
@@ -520,20 +529,23 @@ namespace YSSCore::__Private__ {
 		onHoverInfo(true);
 	}
 
-	void TextEditPrivate::onHoverInfo(bool triggeFromHover) {
+	void TextEditPrivate::onHoverInfo(bool triggerFromHover) {
+		if (not triggerFromHover && Text->textCursor().hasSelection()) {
+			return;
+		}
 		if (HoverInfoProvider != nullptr) {
 			QPoint pos = QCursor::pos();
 			HoverInfoProvider->d->HoverSetSth = false;
-			if (triggeFromHover) {
+			if (triggerFromHover) {
 				if (!Text->viewport()->rect().contains(Text->mapFromGlobal(pos))) {
 					HoverTimer->stop();
 					HoverInfoWidget->hide();
 					return;
 				}
 			}
-			HoverInfoProvider->d->TriggerFromHover = triggeFromHover;
+			HoverInfoProvider->d->TriggerFromHover = triggerFromHover;
 			QTextCursor cursor;
-			if (triggeFromHover) {
+			if (triggerFromHover) {
 				cursor = Text->cursorForPosition(Text->mapFromGlobal(pos));
 			}
 			else {
@@ -672,7 +684,7 @@ namespace YSSCore::__Private__ {
 				QTextCursor cursor = Text->textCursor();
 				QTextEdit::ExtraSelection selection;
 				selection.cursor = cursor;
-				selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+				selection.format.setBackground(VISTM->getColor("SelectedTextBackground").lighter(150));
 				AltMultiSelections.append(selection);
 			}
 			if (event->key() == Qt::Key_Up) {
@@ -680,7 +692,7 @@ namespace YSSCore::__Private__ {
 				cursor.movePosition(QTextCursor::Up);
 				QTextEdit::ExtraSelection selection;
 				selection.cursor = cursor;
-				selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+				selection.format.setBackground(VISTM->getColor("SelectedTextBackground").lighter(150));
 				AltMultiSelections.prepend(selection);
 			}
 			else {
@@ -688,7 +700,7 @@ namespace YSSCore::__Private__ {
 				cursor.movePosition(QTextCursor::Down);
 				QTextEdit::ExtraSelection selection;
 				selection.cursor = cursor;
-				selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+				selection.format.setBackground(VISTM->getColor("SelectedTextBackground").lighter(150));
 				AltMultiSelections.append(selection);
 			}
 			Text->setExtraSelections(AltMultiSelections);
@@ -718,7 +730,7 @@ namespace YSSCore::__Private__ {
 		for (int i = 0; i < findResults.size(); i++) {
 			QTextEdit::ExtraSelection selection;
 			selection.cursor = findResults[i];
-			selection.format.setBackground(VISTM->getColor("Editor.Selection").lighter(150));
+			selection.format.setBackground(VISTM->getColor("SelectedTextBackground").lighter(150));
 			FindAllMultiSelections.append(selection);
 		}
 		Text->setExtraSelections(FindAllMultiSelections);

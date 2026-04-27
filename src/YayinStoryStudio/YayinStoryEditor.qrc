@@ -15,5 +15,6 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/new.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/refresh.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/en.json</file>
     </qresource>
 </RCC>

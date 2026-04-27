@@ -19,6 +19,7 @@
 #include <QtGui/qcolor.h>
 #include <QtWidgets/qcolordialog.h>
 #include "General/Placeholder.h"
+#include <QtWidgets/qmessagebox.h>
 namespace Visindigo::__Private__ {
 	ConfigWidgetPrivate::ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self) {
 		this->self = self;
@@ -33,6 +34,10 @@ namespace Visindigo::__Private__ {
 		connect(SaveButton, &QPushButton::clicked, self, [this]() {
 			this->saveConfig();
 			emit this->self->saved();
+			if (this->saveNeedRestart) {
+				QMessageBox::information(this->self, VITR("Visindigo::widgets.configWidget.restartRequired"), 
+					VITR("Visindigo::widgets.configWidget.restartRequiredDesc"));
+			}
 			});
 		ButtonLayout = new QHBoxLayout(ButtonWidget);
 		ButtonLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -69,6 +74,7 @@ namespace Visindigo::__Private__ {
 		
 		Layout->addWidget(ButtonWidget);
 		IndependentMode = cwJson.getBool("independent");
+		saveNeedRestart = cwJson.getBool("saveNeedRestart");
 		if (not IndependentMode) {
 			ButtonWidget->setVisible(false);
 		}
@@ -714,15 +720,18 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
-		设置独立模式。独立模式下将显示重置和保存按钮，非独立模式下隐藏重置和保存按钮。
+		\since Visindigo 0.14.0
+		\a independent 设置独立模式。独立模式下将显示重置和保存按钮，非独立模式下隐藏重置和保存按钮。
+		\a saveNeedRestart 设置保存后是否需要重启生效的提示，目前仅在独立模式下生效。
+		请注意，需要重启的提示也仅作提示，不会强制要求用户重启。
+
+		如果ConfigWidget不是独立模式，从外部接管配置文件的读取和保存，那么独立模式和保存后需要
+		重启的提示都无效。
 	*/
-	void ConfigWidget::setIndependentMode(bool independent) {
+	void ConfigWidget::setIndependentMode(bool independent, bool saveNeedRestart) {
 		d->IndependentMode = independent;
-		if (d->ResetButton != nullptr && d->SaveButton != nullptr) {
-			d->ResetButton->setVisible(independent);
-			d->SaveButton->setVisible(independent);
-		}
+		d->saveNeedRestart = saveNeedRestart;
+		d->ButtonWidget->setVisible(independent);
 	}
 
 	/*!
@@ -733,4 +742,12 @@ namespace Visindigo::Widgets {
 		return d->IndependentMode;
 	}
 
+
+	/*!
+		\since Visindigo 0.14.0
+		获取保存后是否需要重启的提示状态。
+	*/
+	bool ConfigWidget::isSaveNeedRestart() const {
+		return d->saveNeedRestart;
+	}
 }

@@ -1,6 +1,8 @@
 {
     "windowTitle": "i18n:ASERStudio::config.title",
     "windowIcon": "icon.png",
+    "independent": true,
+    "saveNeedRestart": true,
     "widget":[
         {
             "node": "ASERExeSettings",

@@ -32,5 +32,6 @@ namespace Visindigo::General {
 	};
 }
 // Helper macros
+#define VITRH Visindigo::General::TranslationHost::getInstance()
 #define VITR Visindigo::General::TranslationHost::getInstance()->tra
 #define VI18N Visindigo::General::TranslationHost::getInstance()->i18n

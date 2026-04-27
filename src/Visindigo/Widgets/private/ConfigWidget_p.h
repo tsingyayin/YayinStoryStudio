@@ -39,6 +39,7 @@ namespace Visindigo::__Private__ {
 		QHBoxLayout* ButtonLayout = nullptr;
 		Visindigo::Widgets::ConfigWidget* self;
 		bool IndependentMode = false;
+		bool saveNeedRestart = false;
 		ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self);
 		~ConfigWidgetPrivate();
 		void loadCWJson(const QString& json);

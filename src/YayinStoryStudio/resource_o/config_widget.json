@@ -23,8 +23,8 @@
 								"key": "i18n:YSS::config.language.zh_CN"
 							},
 							{
-								"data": "en_US",
-								"key": "i18n:YSS::config.language.en_US"
+								"data": "en",
+								"key": "i18n:YSS::config.language.en"
 							}
 						],
 						"default": "zh_CN"

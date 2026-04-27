@@ -11,5 +11,6 @@
         <file>resource/cn.yxgeneral.visindigo/icon/value.png</file>
         <file>resource/cn.yxgeneral.visindigo/default/defaultTheme.json</file>
         <file>resource/cn.yxgeneral.visindigo/icon.png</file>
+        <file>resource/cn.yxgeneral.visindigo/i18n/en.json</file>
     </qresource>
 </RCC>

@@ -6,7 +6,7 @@
 #include <Widgets/ThemeManager.h>
 #include <Utility/ColorTool.h>
 #include "AStorySyntax/AStoryXValueMeta.h"
-
+#include <Widgets/ThemeManager.h>
 namespace ASERStudio::YSS {
 	class LS_AStoryXSyntaxHighlighterPrivate {
 		friend class LS_AStoryXSyntaxHighlighter;
@@ -25,6 +25,10 @@ namespace ASERStudio::YSS {
 		d->Document = AStoryXLanguageServer::getAStoryXDocument(d->FilePath);
 		connect(d->Document, &AStorySyntax::AStoryXDocument::currentRuleChanged, this,
 			&LS_AStoryXSyntaxHighlighter::rehighlight_s);
+		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged, this, [this]() {
+			rehighlight_s();
+			});
+
 	}
 	LS_AStoryXSyntaxHighlighter::~LS_AStoryXSyntaxHighlighter() {
 		AStoryXLanguageServer::deleteAStoryXDocument(d->FilePath);

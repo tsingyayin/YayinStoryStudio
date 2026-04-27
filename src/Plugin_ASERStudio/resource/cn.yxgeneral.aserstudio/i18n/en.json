@@ -1,0 +1,458 @@
+{
+    "diagnostic": {
+        "undefined": {
+            "name": "Undefined",
+            "message": "Undefined in diagnostic information usually means there is no issue here.",
+            "fixAdvice": "You generally don't need to consider this diagnostic message unless you encounter other abnormal behavior."
+        },
+        "unknownError": {
+            "name": "Unknown Error",
+            "message": "An unknown error has occurred, possibly due to an internal error or unhandled exception.",
+            "fixAdvice": "Please try restarting ASER Studio. If the problem persists, contact technical support and provide the relevant logs."
+        },
+        "ruleNotSelected": {
+            "name": "No Grammar Rule Selected",
+            "message": "Document %1 does not specify any grammar rule via the #useRule directive.",
+            "fixAdvice": "Try adding #useRule:%1 on the second line of the document to specify the grammar rule defined in %1."
+        },
+        "noSuchRule": {
+            "name": "Grammar Rule Does Not Exist",
+            "message": "The grammar rule %2 specified by the #useRule directive in document %1 is invalid.",
+            "fixAdvice": "Check the parameter of the #useRule directive in document %1 to ensure it correctly specifies an existing grammar rule. Currently valid rules are: %2"
+        },
+        "noSuchController": {
+            "name": "Controller Does Not Exist",
+            "message": "No such controller %1.",
+            "fixAdvice": "Check whether your code correctly references the controller prefix specified by rule %1, ensuring it has been defined and the name is spelled correctly."
+        },
+        "missingRequiredParameter": {
+            "name": "Missing Required Parameter",
+            "message": "Controller \"%1 Controller\" is missing the required parameter %2.",
+            "fixAdvice": "Remove the symbol indicating optional parameters and refill the value starting from the line identifier."
+        },
+        "parameterTypeMismatch": {
+            "name": "Parameter Type Mismatch",
+            "message": "Parameter %1 has a type mismatch. You may have provided type %2, but the expected type is %3.",
+            "fixAdvice": "Correct the type to %1."
+        },
+        "parameterOutOfRange": {
+            "name": "Parameter Out of Range",
+            "message": "The value of parameter %1 is outside the allowed range.",
+            "fixAdvice": "Check the controller parameter to ensure its value is within the allowed range.",
+            "allowedMin": "The minimum allowed value is %1.",
+            "allowedMax": "The maximum allowed value is %1.",
+            "allowedRange": "The allowed range is %1 to %2.",
+            "allowedEnums": "The allowed enum values are %1."
+        },
+        "parameterFormatError": {
+            "name": "Parameter Format Error",
+            "message": "Parameter %1 has a format error.",
+            "fixAdvice": "Check the controller parameter to ensure its format meets expectations.",
+            "allowedDimension": "The allowed dimension is %1.",
+            "allowedFormat": "The allowed format is %1."
+        },
+        "unexceptedParameter": {
+            "name": "Unexpected Parameter",
+            "message": "Controller %1 received an unexpected parameter %2.",
+            "fixAdvice": "Check the definition of controller %1 to ensure it only accepts expected parameters and no extra parameters are passed."
+        },
+        "unclosedSymbol": {
+            "name": "Unclosed Symbol",
+            "message": "In document %1, symbol %2 is not properly closed.",
+            "fixAdvice": "Check the symbols %2 in document %1 to ensure they are properly closed. (Add %3 symbols in appropriate places to close them.)"
+        },
+        "variableNotDefined": {
+            "name": "Variable Not Defined",
+            "message": "Variable %2 is not defined.",
+            "fixAdvice": "Please check the spelling of %1, or ensure you have previously defined this variable via the statement %1."
+        },
+        "useTabInsteadSpace": {
+            "name": "Use Tab Instead of Space",
+            "message": "Spaces were used where tabs should be used.",
+            "fixAdvice": "Replace spaces with tabs."
+        },
+        "useSpaceInsteadTab": {
+            "name": "Use Space Instead of Tab",
+            "message": "Tabs were used where spaces should be used.",
+            "fixAdvice": "Replace tabs with the appropriate number of spaces."
+        },
+        "useEnglishPunctuation": {
+            "name": "Use English Punctuation",
+            "message": "Chinese punctuation was used where English punctuation should be used.",
+            "fixAdvice": "Replace Chinese punctuation with the corresponding English punctuation."
+        },
+        "useChinesePunctuation": {
+            "name": "Use Chinese Punctuation",
+            "message": "English punctuation was used where Chinese punctuation should be used.",
+            "fixAdvice": "Replace English punctuation with the corresponding Chinese punctuation."
+        },
+        "noSuchBlock": {
+            "name": "Block Does Not Exist",
+            "message": "No such block %1.",
+            "fixAdvice": "Please check the spelling of %1, or ensure you have previously defined this block via the statement %1."
+        },
+        "blockNameConflict": {
+            "name": "Block Name Conflict",
+            "message": "Block %1 has already been defined at line %2.",
+            "fixAdvice": "Choose a different name for this block or the block already defined at line %1."
+        },
+        "instrumentRedundant": {
+            "name": "Redundant Directive",
+            "message": "Directive %1 is redundant here; it duplicates the directive at line %1.",
+            "fixAdvice": "Remove this redundant %1 directive."
+        },
+        "noSuchPreprocessor": {
+            "name": "Preprocessor Does Not Exist",
+            "message": "No such preprocessor %1.",
+            "fixAdvice": "Please check the spelling of %1."
+        },
+        "unknownWarning": {
+            "name": "Unknown Warning",
+            "message": "An unknown warning has occurred, possibly due to an internal error or unhandled exception.",
+            "fixAdvice": "Please try restarting ASER Studio. If the problem persists, contact technical support and provide the relevant logs."
+        },
+        "nosuchResource": {
+            "name": "Resource Does Not Exist",
+            "message": "No such resource %1.",
+            "fixAdvice": "Please check the spelling of %1, or add a resource named %1 to your project."
+        },
+        "useTabInsteadSpace_dialog": {
+            "name": "Use Tab Instead of Space in Dialog Controller",
+            "message": "In dialog controllers, use tabs to separate the speaker from the dialog content instead of spaces. If you are certain that the spaces are part of the character's name, please ignore this warning.",
+            "fixAdvice": "Replace spaces with tabs."
+        }
+    },
+    "value":{
+        "integer": "Integer",
+        "float": "Float",
+        "string": "String",
+        "bool": "Boolean",
+        "enum": "Enum",
+        "vector": "Vector"
+    },
+    "controller":{
+        "Background": "Background",
+        "Music": "Music",
+        "SoundEffect": "Sound Effect",
+        "Mask": "Mask",
+        "Character": "Character",
+        "Choice": "Choice",
+        "Delay": "Delay",
+        "VisualEffect": "Visual Effect",
+        "Interlude": "Interlude",
+        "ColorMask": "Color Mask",
+        "Shake": "Shake",
+        "FreeText": "Free Text",
+        "Cut": "Cut",
+        "Filter": "Filter",
+        "AnimatedText": "Animated Text",
+        "Sign": "Sign",
+        "Variable": "Variable",
+        "Judge": "Judge",
+        "Branch": "Branch",
+        "Narration": "Narration",
+        "Dialog": "Dialog",
+        "Preprocessor": "Preprocessor",
+        "Comment": "Comment"
+    },
+    "document":{
+        "Preprocessor": {
+            "__description": "Preprocessor directives for processing documents during the preparation stage before playback.",
+            "type": "Preprocessor directive type",
+            "ruleName": "Grammar rule name, used in the #useRule directive to define the grammar rule name",
+            "blockName": "Block name, used in the #block directive to define a block name, and in the #use directive to specify the block to call",
+            "versionNumber": "Version name, used in the #version directive to specify the version of a controller or grammar rule",
+            "param0": "1st parameter of the referenced block",
+            "param1": "2nd parameter of the referenced block",
+            "param2": "3rd parameter of the referenced block",
+            "param3": "4th parameter of the referenced block",
+            "param4": "5th parameter of the referenced block",
+            "param5": "6th parameter of the referenced block",
+            "param6": "7th parameter of the referenced block",
+            "param7": "8th parameter of the referenced block",
+            "param8": "9th parameter of the referenced block",
+            "param9": "10th parameter of the referenced block"
+        },
+        "Background": {
+            "__description": "Controls background display.",
+            "ImageName": "Specifies the image name used for the background",
+            "FadeInTime": "Specifies the fade-in time for the background, in seconds",
+            "StartPosition": "Starting coordinate position for the background image",
+            "EndPosition": "Ending coordinate position for the background image",
+            "MoveTime": "Time for the background image to move from the start position to the end position, in seconds",
+            "MoveCurve": "Curve type for the background image movement",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line",
+            "StitchVertically": "Whether to stitch multiple images vertically. True for vertical stitching, false for horizontal stitching."
+        },
+        "Music": {
+            "__description": "Controls music playback.",
+            "AudioName": "Specifies the audio name used for the music",
+            "Volume": "Specifies the volume of the music, ranging from 0 to 1",
+            "FadeInTime": "Specifies the fade-in time for the music, in seconds",
+            "SlotIndex": "Specifies the slot index for the music, default is 0 (i.e., track number). To play multiple pieces of music simultaneously, use different slot indices to distinguish them.",
+            "Position": "Spatial position of the music, -1 for left, 1 for right, freely adjustable within this range"
+        },
+        "SoundEffect": {
+            "__description": "Controls sound effect playback.",
+            "AudioName": "Specifies the audio name used for the sound effect",
+            "Volume": "Specifies the volume of the sound effect, ranging from 0 to 1",
+            "Position": "Spatial position of the sound effect, -1 for left, 1 for right, freely adjustable within this range",
+            "Steps": "Specifies the duration of the sound effect in steps, i.e., how many controllers it lasts before terminating"
+        },
+        "Mask": {
+            "__description": "Controls mask display.",
+            "IsOn": "Whether to show the mask"
+        },
+        "Character": {
+            "__description": "Controls character display.",
+            "Character&Variant": "Specifies the character name and variant. If there is no variant, use only the character name",
+            "SlotIndex": "Specifies the slot index for the character, default is 0. To display multiple characters simultaneously, use different slot indices to distinguish them.",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line",
+            "FadeInTime": "Specifies the fade-in time for the character, in seconds",
+            "FadeOutTime": "Specifies the fade-out time for the character, in seconds",
+            "Effects": "Specifies the effects for the character",
+            "Alpha": "Transparency of the character, ranging from 0 to 1",
+            "RenderOrder": "Render order of the character. Characters with larger values overlay those with smaller values",
+            "StartPosition": "Starting coordinate position for the character",
+            "EndPosition": "Ending coordinate position for the character",
+            "MoveTime": "Time for the character to move from the start position to the end position, in seconds",
+            "MoveCurve": "Curve type for the character movement"
+        },
+        "Choice": {
+            "__description": "Controls choice display.",
+            "ChoiceContent": "Text content of the choice",
+            "OutputVariable": "Output variable name for the choice. The player's selection result will be stored in this variable"
+        },
+        "Delay": {
+            "__description": "Controls delay.",
+            "DelayTime": "Duration of the delay, in seconds"
+        },
+        "VisualEffect": {
+            "__description": "Controls visual effect display.",
+            "VisualEffectName": "Specifies the effect name for the visual effect",
+            "Steps": "Specifies the duration of the visual effect in steps, i.e., how many controllers it lasts before terminating",
+            "Position": "Coordinate position of the visual effect",
+            "RenderOrder": "Render order of the visual effect. Effects with larger values overlay those with smaller values"
+        },
+        "Interlude": {
+            "__description": "Controls interlude display.",
+            "Character&Variant": "Specifies the character name and variant for the interlude. If there is no variant, use only the character name",
+            "SlotIndex": "Specifies the slot index for the character in the interlude, default is 0. To display multiple characters simultaneously, use different slot indices to distinguish them.",
+            "IsOn": "Whether to show the interlude",
+            "Type": "Type of interlude. 0 for gray vertical type, 1 for avatar type",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line",
+            "Effects": "Specifies the effects for the interlude",
+            "RenderOrder": "Render order of the interlude. Interludes with larger values overlay those with smaller values",
+            "Position": "Coordinate position of the interlude"
+        },
+        "ColorMask": {
+            "__description": "Controls color mask display.",
+            "Color": "Color of the color mask, using a 4-dimensional vector",
+            "FadeInTime": "Specifies the fade-in time for the color mask, in seconds",
+            "StayTime": "Specifies the duration of the color mask, in seconds",
+            "FadeOutTime": "Specifies the fade-out time for the color mask, in seconds",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line"
+        },
+        "Shake": {
+            "__description": "Controls screen shake.",
+            "Intensity": "Intensity of the screen shake",
+            "FadeInTime": "Specifies the fade-in time for the screen shake, in seconds",
+            "StayTime": "Specifies the duration of the screen shake, in seconds",
+            "FadeOutTime": "Specifies the fade-out time for the screen shake, in seconds",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line"
+        },
+        "FreeText": {
+            "__description": "Controls free text display.",
+            "Content": "Text content",
+            "IsAddition": "Whether this is additional text. Additional text appends to existing text rather than replacing it",
+            "Immediate": "Whether to display text immediately instead of character by character",
+            "Alignment": "Text alignment",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line",
+            "FadeInTime": "Specifies the fade-in time for the text, in seconds",
+            "StayTime": "Specifies the duration of the text, in seconds",
+            "FadeOutTime": "Specifies the fade-out time for the text, in seconds",
+            "SlotIndex": "Specifies the slot index for the text, default is 0. To display multiple texts simultaneously, use different slot indices to distinguish them.",
+            "AsSeceneObject": "Whether to treat the text as a scene object, making it affected by other scene controllers such as screen shake and color mask",
+            "Position": "Coordinate position of the text",
+            "RenderOrder": "Render order of the text. Texts with larger values overlay those with smaller values",
+            "Interval": "Time interval between the appearance of each character when displaying character by character, in seconds",
+            "ExtraStayTime": "Extra duration after the full text is displayed when displaying character by character, in seconds"
+        },
+        "Cut": {
+            "__description": "Controls screen cut.",
+            "Intensity": "Intensity of the cut",
+            "Angle": "Angle of the cut, in degrees",
+            "SlotIndex": "Specifies the slot index for the cut, default is 0. To use multiple cuts simultaneously, use different slot indices to distinguish them.",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line",
+            "FadeInTime": "Specifies the fade-in time for the cut, in seconds",
+            "StayTime": "Specifies the duration of the cut, in seconds",
+            "FadeOutTime": "Specifies the fade-out time for the cut, in seconds",
+            "RenderOrder": "Render order of the cut. Cuts with larger values overlay those with smaller values"
+        },
+        "Filter": {
+            "__description": "Controls filter display.",
+            "Type&Intensity": "Specifies the filter type and intensity. Different filter types have different intensity ranges",
+            "FadeInTime": "Specifies the fade-in time for the filter, in seconds",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line"
+        },
+        "AnimatedText": {
+            "__description": "Controls animated text display.",
+            "Content": "Text content",
+            "Type": "Type of animated text. Different types have different animation effects",
+            "IsBlocker": "Whether to block. Blocking controllers wait for all animations to finish before executing the next line"
+        },
+        "Sign": {
+            "__description": "Declares a label",
+            "Name": "Label name"
+        },
+        "Variable": {
+            "__description": "Declares a variable",
+            "Name": "Variable name",
+            "Expression": "Variable expression. The variable's value will evaluate to the result of this expression"
+        },
+        "Judge": {
+            "__description": "Performs a judgment",
+            "Name": "Variable name where the judgment result will be stored",
+            "Expression": "Judgment expression. If the evaluation result is greater than 0, it will be stored in the variable"
+        },
+        "Branch": {
+            "__description": "Branches based on condition",
+            "Name": "Branch name",
+            "Branches": "Names of the labels to jump to"
+        },
+        "Narration": {
+            "__description": "Controls narration display.",
+            "Content": "Narration text content"
+        },
+        "Dialog": {
+            "__description": "Controls dialog display.",
+            "Speaker&Content": "Speaker name and dialog text content",
+            "IsAdditional": "Whether this is additional dialog. Additional dialog appends to existing dialog rather than replacing it",
+            "ModifyCharacters": "Whether to synchronize existing character sprite displays to match speaker changes in the dialog, causing character sprites to automatically brighten/dim as the dialog progresses",
+            "BasicStayTime": "Base duration of the dialog, in seconds. The dialog will have additional time added based on text length on top of this base duration",
+            "Interval": "Time interval between the appearance of each character when displaying character by character, in seconds",
+            "ExtraStayTime": "Extra duration after the full text is displayed when displaying character by character, in seconds"
+        },
+        "Comment": {
+            "__description": "Comment line, not executed by the playback engine.",
+            "Content": "Comment text content"
+        }
+    },
+    "aseinfo":{
+        "projectName": "Project Name",
+        "projectPath": "Project Path",
+        "path": "ASE Application Path",
+        "version": "ASE Compatibility Version",
+        "mainFileName": "Main File Name"
+    },
+    "provider":{
+        "window":{
+            "title": "ASE-Remake Story Project Initialization Assistant",
+            "create": "Create Project",
+            "where": "The new project will be created in \"%1\".",
+            "exists": "\"%1\" already exists or is not empty! Cannot create a new project here."
+        },
+        "failed": {
+            "title": "Failed to Create Project",
+            "text": "Unable to create project. Please check whether the target folder is empty or whether you have permission to create new files in this folder."
+        },
+        "astory":{
+            "name": "ASE-Remake Story Project",
+            "description": "ASE-Remake story written with AStoryX",
+            "tags": {
+                "ase": "ASE-Remake",
+                "astory": "AStoryX",
+                "engine-native": "Engine Native",
+                "script": "Script",
+                "arknights": "Arknights"
+            },
+            "title": "ASE Project Initialization"
+        },
+        "project":{
+            "title": "ASE-Remake Story Project Initialization Assistant",
+            "name":{
+                "title": "Project Name",
+                "text": "The name of the story project. When using only path-legal characters, this will also be the name of the project folder."
+            },
+            "path":{
+                "title": "Project Path",
+                "text": "A new project folder will be created under this path"
+            },
+            "version":{
+                "title": "Target ASE Version",
+                "text": "The latest ASE version is used by default. If you need to use a specific older version of ASE, please associate the relevant version in the plugin settings.",
+                "uptodate": "Latest Version"
+            }
+        }
+    },
+    "fileProvider":{
+        "window": {
+            "title": "AStoryX File Initialization Assistant",
+            "create": "Create File",
+            "where": "The new file will be created as \"%1\".",
+            "exists": "\"%1\" already exists! Cannot create a new file."
+        },
+        "failed": {
+            "title": "Failed to Create File",
+            "text": "Unable to create file. Please check whether the target folder is empty or whether you have permission to create new files in this folder."
+        },
+        "astory": {
+            "name": "ASE Story File",
+            "description": "ASE story written with AStoryX, supporting all ASE native features.",
+            "tags": {
+                "ase": "ASE-Remake",
+                "astory": "AStoryX",
+                "engine-native": "Engine Native",
+                "script": "Script",
+                "arknights": "Arknights"
+            },
+            "title": "AStoryX File Initialization"
+        },
+        "file": {
+            "title": "ASE-Remake Story File Initialization Assistant",
+            "name": {
+                "title": "File Name",
+                "text": "The name of the story file. When using only path-legal characters, this will also be the name of the file."
+            },
+            "path": {
+                "title": "File Path",
+                "text": "A new story file will be created under this path"
+            },
+            "version": {
+                "title": "Target ASE Version",
+                "text": "The latest ASE version is used by default. If you need to use a specific older version of ASE, please associate the relevant version in the plugin settings.",
+                "uptodate": "Latest Version"
+            }
+        }
+    },
+    "config": {
+        "title": "ASER Studio Settings",
+        "aserExeSettings": {
+            "title": "ASE-Remake Executable Settings",
+            "exePath": {
+                "title": "Executable Path",
+                "text": "The path to the ASE-Remake executable file."
+            },
+            "version": {
+                "title": "ASE Version",
+                "text": "The version of the ASE program you have selected. If you are unsure of your ASE program's version, or if your ASE program is the latest version, select \"Latest Version\". Correct version settings allow ASER Studio to better interface with your ASE program and avoid potential issues.",
+                "uptodate": "Latest Version"
+            },
+            "windowSize": {
+                "title": "Window Size",
+                "text": "ASER Studio can specify window size options when launching ASE-Remake. These options will be passed directly to the ASE-Remake program.",
+                "FullScreen": "Full Screen"
+            }
+        }
+    },
+    "debugger": {
+        "executableNotFound": {
+            "title": "Executable Not Found",
+            "message": "The configured path %1 is invalid and cannot launch the ASE-Remake application. Please check your configuration in File -> Plugins & Preferences -> ASER Studio Settings to ensure you have correctly set the path to the ASE-Remake executable."
+        },
+        "starting": {
+            "title": "ASE-Remake Beta Defect Notice",
+            "message": "Due to a known defect in the ASE-Remake beta version, YSS can currently only launch ASE-Remake in a simple manner, unable to correctly set the project directory and playback file. You will need to manually start playback. Starting the debugger now can only be used as a quick way to open the ASE-Remake program. Please monitor the ASE-Remake beta changelog for updates on when this issue is fixed."
+        }
+    }
+}

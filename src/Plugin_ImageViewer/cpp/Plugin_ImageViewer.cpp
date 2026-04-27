@@ -6,7 +6,7 @@ namespace YSS::ImageViewer {
 	{
 		setDefaultLang(zh_CN);
 		addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.imageviewer/i18n/zh_CN.json");
-		addLangFilePath(en_US, ":/resource/cn.yxgeneral.imageviewer/i18n/en_US.json");
+		addLangFilePath(en, ":/resource/cn.yxgeneral.imageviewer/i18n/en.json");
 	}
 
 	Main::Main() : YSSCore::Editor::EditorPlugin() {

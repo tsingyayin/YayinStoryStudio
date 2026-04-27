@@ -19,7 +19,7 @@ namespace ASERStudio {
 	{
 		setDefaultLang(zh_CN);
 		addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.aserstudio/i18n/zh_CN.json");
-		addLangFilePath(en_US, ":/resource/cn.yxgeneral.aserstudio/i18n/en_US.json");
+		addLangFilePath(en, ":/resource/cn.yxgeneral.aserstudio/i18n/en.json");
 	}
 	
 	class MainPrivate {
@@ -65,7 +65,6 @@ namespace ASERStudio {
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json"));
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
 		vgDebug << getPluginFolder().filePath("config.json");
-		d->ConfigWidget->setIndependentMode(true);
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, [this]() {
 			this->reloadPluginConfig();
 			this->onConfigLoaded();

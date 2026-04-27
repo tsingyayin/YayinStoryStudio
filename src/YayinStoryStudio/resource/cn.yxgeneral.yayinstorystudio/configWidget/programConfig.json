@@ -1,6 +1,8 @@
 {
     "windowTitle": "i18n:YSS::config.title",
     "windowIcon": "icon.png",
+    "independent": true,
+    "saveNeedRestart": true,
     "widget":[
         {
             "node": "General",
@@ -22,8 +24,8 @@
                                 "key": "i18n:YSS::config.general.language.zh_CN"
                             },
                             {
-                                "data": "en_US",
-                                "key": "i18n:YSS::config.general.language.en_US"
+                                "data": "en",
+                                "key": "i18n:YSS::config.general.language.en"
                             }
                         ],
                         "default": "zh_CN"
