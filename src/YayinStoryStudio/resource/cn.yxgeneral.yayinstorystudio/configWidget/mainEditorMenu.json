@@ -112,6 +112,13 @@
                             "Shortcut": [
                                 "Ctrl", "A"
                             ]
+                        },
+                        {
+                            "ID": "findAndReplace",
+                            "Name": "i18n:YSS::menu.edit.findAndReplace",
+                            "Shortcut": [
+                                "Ctrl", "F"
+                            ]
                         }
                     ]
                 }

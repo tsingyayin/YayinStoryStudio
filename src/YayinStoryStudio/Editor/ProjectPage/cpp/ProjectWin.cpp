@@ -259,9 +259,10 @@ namespace YSS::ProjectPage {
 
 	void ProjectWin::onCreateProject() {
 		NewProjectPage::NewProjectWin* win = new NewProjectPage::NewProjectWin();
-		win->setWindowModality(Qt::ApplicationModal);
-		win->show();
 		win->setAttribute(Qt::WA_DeleteOnClose);
+		win->setWindowModality(Qt::ApplicationModal);
+		win->setWindowFlags(win->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
+		win->show();
 		connect(win, &NewProjectPage::NewProjectWin::projectPrepared, this, &ProjectWin::onOpenProject);
 	}
 

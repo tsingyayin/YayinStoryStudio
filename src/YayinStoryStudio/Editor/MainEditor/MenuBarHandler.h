@@ -49,6 +49,7 @@ namespace YSS::Editor {
 		void copy();
 		void paste();
 		void selectAll();
+		void findAndReplace();
 	};
 	class Menu_Edit :public QObject {
 		Q_OBJECT;

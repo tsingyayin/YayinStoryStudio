@@ -111,5 +111,6 @@ namespace YSSCore::__Private__ {
 		void clearAltMultiSelection();
 		void createFindAllMultiSelection(QList<QTextCursor> findResults);
 		void clearFindAllMultiSelection();
+		void showFindAndReplace();
 	};
 }

@@ -17,7 +17,7 @@
 #include <General/TranslationHost.h>
 #include <General/Plugin.h>
 #include <Utility/FileUtility.h>
-
+#include <Editor/TextEdit.h>
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID(); \
 	if (debugServerID.isEmpty()) { \
@@ -152,6 +152,18 @@ namespace YSS::Editor {
 		yDebugF << "Select All";
 		if (YSS::Editor::MainWin::getInstance()->getStackWidgetArea()->getCurrentWidget() != nullptr) {
 			YSS::Editor::MainWin::getInstance()->getStackWidgetArea()->getCurrentWidget()->selectAll();
+		}
+	}
+
+	void Menu_Edit_EditOptions::findAndReplace() {
+		yDebugF << "Find and Replace";
+		auto currentWidget = YSS::Editor::MainWin::getInstance()->getStackWidgetArea()->getCurrentWidget();
+		YSSCore::Editor::TextEdit* fileEditWidget = dynamic_cast<YSSCore::Editor::TextEdit*>(currentWidget);
+		if (fileEditWidget) {
+			fileEditWidget->showFindAndReplace();
+		}
+		else {
+			yWarningF << "Current widget is not a TextEdit, cannot open find and replace dialog.";
 		}
 	}
 

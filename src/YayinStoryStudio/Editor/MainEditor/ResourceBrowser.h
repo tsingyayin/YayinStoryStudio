@@ -17,6 +17,8 @@ namespace YSS::Editor {
 		QTreeView* FileTree;
 		QFileSystemModel* FileModel;
 		QPushButton* RefreshButton;
+		QPushButton* ShrinkButton;
+		QPushButton* ExpandButton;
 		QPushButton* NewButton;
 		QWidget* ButtonWidget;
 		QHBoxLayout* ButtonLayout;

@@ -11,5 +11,9 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/close.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/pin.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/expand.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/new.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/refresh.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png</file>
     </qresource>
 </RCC>

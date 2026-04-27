@@ -42,6 +42,7 @@ namespace YSSCore::Editor {
 		QTextCursor findNext(const QString& text, bool sourceAsRe = false, qint32 from = -1, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool relocate = false) const;
 		qint32 replaceAll(const QString& text, const QString& newText, bool textAsRe = false, QTextDocument::FindFlags options = QTextDocument::FindFlags());
 		bool replaceNext(const QString& text, const QString& newText, bool textAsRe = false, qint32 from = -1, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool relocate = false);
+		void showFindAndReplace();
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;

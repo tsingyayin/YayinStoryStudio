@@ -16,12 +16,34 @@ namespace YSS::Editor {
 		ButtonWidget = new QWidget(this);
 
 		ButtonLayout = new QHBoxLayout(ButtonWidget);
-		RefreshButton = new QPushButton(VITR("Visindigo::general.refresh"), ButtonWidget);
-		NewButton = new QPushButton(VITR("Visindigo::general.new"), ButtonWidget);
+		RefreshButton = new QPushButton(ButtonWidget);
+		RefreshButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/refresh.png"));
+		RefreshButton->setToolTip(VITR("Visindigo::general.refresh"));
+		RefreshButton->setIconSize(QSize(32, 32));
+		RefreshButton->setFixedSize(40, 40);
+	
+		ShrinkButton = new QPushButton(ButtonWidget);
+		ShrinkButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png"));
+		ShrinkButton->setToolTip(VITR("Visindigo::general.shrink"));
+		ShrinkButton->setIconSize(QSize(30, 30));
+		ShrinkButton->setFixedSize(40, 40);
+		ExpandButton = new QPushButton(ButtonWidget);
+		ExpandButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/expand.png"));
+		ExpandButton->setToolTip(VITR("Visindigo::general.expand"));
+		ExpandButton->setIconSize(QSize(30, 30));
+		ExpandButton->setFixedSize(40, 40);
+		NewButton = new QPushButton(ButtonWidget);
+		NewButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/new.png"));
+		NewButton->setToolTip(VITR("Visindigo::general.new"));
+		NewButton->setIconSize(QSize(30, 30));
+		NewButton->setFixedSize(40, 40);
 		ButtonLayout->addWidget(RefreshButton);
+		ButtonLayout->addWidget(ShrinkButton);
+		ButtonLayout->addWidget(ExpandButton);
 		ButtonLayout->addWidget(NewButton);
 		ButtonLayout->setContentsMargins(0, 0, 0, 0);
 		ButtonWidget->setLayout(ButtonLayout);
+		ButtonWidget->setMinimumHeight(40);
 
 		Layout = new QVBoxLayout(this);
 		FileTree = new QTreeView(this);
@@ -34,6 +56,12 @@ namespace YSS::Editor {
 		connect(RefreshButton, &QPushButton::clicked, this, &ResourceBrowser::refreshFileList);
 		connect(NewButton, &QPushButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
 		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
+		connect(ShrinkButton, &QPushButton::clicked, this, [this]() {
+			FileTree->collapseAll();
+			});
+		connect(ExpandButton, &QPushButton::clicked, this, [this]() {
+			FileTree->expandAll();
+			});
 	}
 
 	void ResourceBrowser::openNewFileWindow() {
@@ -71,6 +99,7 @@ namespace YSS::Editor {
 		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(currentSelectedPath);
 		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
 		newFileWin->setWindowModality(Qt::ApplicationModal);
+		newFileWin->setWindowFlags(newFileWin->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
 		connect(newFileWin, &YSS::NewFilePage::NewFileWin::filePrepared, this, [this](const QString& filePath) {
 			if (QFileInfo(filePath).isFile()) {
 				YSSFSM->openFile(filePath);

@@ -30,7 +30,7 @@ namespace YSSCore::__Private__ {
 			NOTICE: about some pointers in TextEditPrivate:
 			SyntaxHighlighter、TabCompleter、HoverInfoProvider are all
 			deleted by TextEdit's QTextDocument.
-			TabCompleterWidget and HoverInfoWidget are children of 
+			TabCompleterWidget and HoverInfoWidget are children of
 			TextEdit's, so they will also be automatically deleted.
 		*/
 	}
@@ -81,12 +81,7 @@ namespace YSSCore::__Private__ {
 					return true;
 				}
 				else if (keyEvent->key() == Qt::Key_F && keyEvent->modifiers() & Qt::ControlModifier) {
-					if (Text->textCursor().hasSelection()) {
-						QString selectedText = Text->textCursor().selectedText();
-						selectedText.replace(QChar::ParagraphSeparator, "\n");
-						FindAndReplaceWidget->setFindText(selectedText);
-					}
-					FindAndReplaceWidget->show();
+					showFindAndReplace();
 					return true;
 				}
 				else if (keyEvent->key() == Qt::Key_Escape) {
@@ -275,7 +270,8 @@ namespace YSSCore::__Private__ {
 				if (rightOut) {
 					//right align
 					TabCompleterWidget->move(QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20));
-				}else{
+				}
+				else {
 					// left align
 					TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
 				}
@@ -295,7 +291,7 @@ namespace YSSCore::__Private__ {
 			Text->setFocus();
 		}
 	}
-	
+
 	void TextEditPrivate::onTabClicked(QKeyEvent* event) {
 		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
 			onTabClicked_TabCompleter(event);
@@ -492,7 +488,7 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
 		float dist = std::sqrt(std::pow(LastMousePos.x() - event->pos().x(), 2) + std::pow(LastMousePos.y() - event->pos().y(), 2));
-		if (dist >  10.0f) { // only reset timer when mouse moved enough distance
+		if (dist > 10.0f) { // only reset timer when mouse moved enough distance
 			HoverTimer->start(HoverTimeout);
 			LastMousePos = event->pos();
 		}
@@ -500,7 +496,7 @@ namespace YSSCore::__Private__ {
 			return;
 		}
 		HoverTimer->start(HoverTimeout);
-		if (HoverInfoWidget!= nullptr && HoverInfoWidget->isVisible()) {
+		if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
 			HoverInfoWidget->hide();
 		}
 	}
@@ -515,7 +511,7 @@ namespace YSSCore::__Private__ {
 			return false;
 		}
 	}
-	
+
 	void TextEditPrivate::onHoverTimeout() {
 		onHoverInfo(true);
 	}
@@ -548,18 +544,18 @@ namespace YSSCore::__Private__ {
 			}
 			else {
 				switch (HoverInfoProvider->d->CurrentFormat) {
-					case YSSCore::Editor::HoverInfoProvider::PlainText:
-						HoverInfoWidget->setPlainText(HoverInfoProvider->d->Content);
-						break;
-					case YSSCore::Editor::HoverInfoProvider::Markdown:
-						HoverInfoWidget->setMarkdown(HoverInfoProvider->d->Content);
-						break;
-					case YSSCore::Editor::HoverInfoProvider::Html:
-						HoverInfoWidget->setHtml(HoverInfoProvider->d->Content);
-						break;
-					default:
-						HoverInfoWidget->setPlainText(HoverInfoProvider->d->Content);
-						break;
+				case YSSCore::Editor::HoverInfoProvider::PlainText:
+					HoverInfoWidget->setPlainText(HoverInfoProvider->d->Content);
+					break;
+				case YSSCore::Editor::HoverInfoProvider::Markdown:
+					HoverInfoWidget->setMarkdown(HoverInfoProvider->d->Content);
+					break;
+				case YSSCore::Editor::HoverInfoProvider::Html:
+					HoverInfoWidget->setHtml(HoverInfoProvider->d->Content);
+					break;
+				default:
+					HoverInfoWidget->setPlainText(HoverInfoProvider->d->Content);
+					break;
 				}
 				HoverInfoWidget->show();
 				if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
@@ -567,7 +563,7 @@ namespace YSSCore::__Private__ {
 					bool rightOut = tpos.x() + tpos.width() + HoverInfoWidget->width() > Text->viewport()->width();
 					if (rightOut) {
 						// right align
-						HoverInfoWidget->move(tpos.x()  - HoverInfoWidget->width(), tpos.y());
+						HoverInfoWidget->move(tpos.x() - HoverInfoWidget->width(), tpos.y());
 					}
 					else {
 						// left align
@@ -632,7 +628,7 @@ namespace YSSCore::__Private__ {
 			QString currentLine = cursor.block().text();
 			QTextBlock swapBlock = event->key() == Qt::Key_Up ? cursor.block().previous() : cursor.block().next();
 			QString swapLine = swapBlock.text();
-			
+
 			cursor.setPosition(cursor.block().position());
 			cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 			cursor.insertText(swapLine);
@@ -661,11 +657,11 @@ namespace YSSCore::__Private__ {
 	void TextEditPrivate::onAltMultiSelection(QKeyEvent* event) {
 		/*
 			This function is disabled for now, as it has multi issues and not completely implemented.
-			currenty, the ExtraSelection function is  used by FindAll, and it will cause conflict if we 
-			enable AltMultiSelection. A middle layer should be designed to manage multiple ExtraSelection sources, 
+			currenty, the ExtraSelection function is  used by FindAll, and it will cause conflict if we
+			enable AltMultiSelection. A middle layer should be designed to manage multiple ExtraSelection sources,
 			and merge them together before applying to the TextEdit.
 		*/
-		return; 
+		return;
 
 		if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
 			if (AltMultiSelections.isEmpty()) {
@@ -729,6 +725,15 @@ namespace YSSCore::__Private__ {
 			FindAllMultiSelections.clear();
 			Text->setExtraSelections(FindAllMultiSelections);
 		}
+	}
+
+	void TextEditPrivate::showFindAndReplace() {
+		if (Text->textCursor().hasSelection()) {
+			QString selectedText = Text->textCursor().selectedText();
+			selectedText.replace(QChar::ParagraphSeparator, "\n");
+			FindAndReplaceWidget->setFindText(selectedText);
+		}
+		FindAndReplaceWidget->show();
 	}
 }
 
@@ -1094,6 +1099,17 @@ namespace YSSCore::Editor {
 			return true;
 		}
 	}
+
+	/*!
+		\since YSS 0.14.0
+		显示查找和替换页面。这个页面会在TextEdit的右上角显示，您也可以通过拖动来调整它的位置。
+		如果当前有选中的文本，那么这个选中的文本会被自动填充到查找输入框中。
+		请注意，它默认可用快捷键Ctrl+F来打开，您也可以通过调用这个函数来打开它。
+	*/
+	void TextEdit::showFindAndReplace() {
+		d->showFindAndReplace();
+	}
+
 	/*!
 		\since YSS 0.13.0
 		按给定行号和列重定位光标。行号和列号均从0开始。
