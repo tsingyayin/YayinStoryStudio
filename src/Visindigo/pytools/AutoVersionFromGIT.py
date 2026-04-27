@@ -3,7 +3,7 @@ import os
 import datetime
 
 AutoVersionFilePath = "\\Visindigo\\General\\private\\AUTO_VERSION.h"
-VersionNickName = "SEA TP1"
+VersionNickName = "SEA Beta1"
 
 def getCommitCount():
     gitCommitsCount = os.popen("git log --oneline | find /v /c \"\"").read()

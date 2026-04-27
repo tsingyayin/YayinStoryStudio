@@ -89,6 +89,15 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	void AStoryXDocument::onSyntaxHighlighter(QTextBlock currentBlock, const QString& text) {
 		qint32 lineNumber = currentBlock.blockNumber();
+		if (lineNumber == 0) {
+			auto firstLine = AStoryXControllerParseData();
+			firstLine.d->ControllerType = AStoryXController::ControllerType::Comment;
+			AStoryXParameter param;
+			param.d->setParameter("comment", "", text, AStoryXValueMeta("comment", AStoryXValueMeta::Type::Comment), 2);
+			firstLine.d->RequiredParameter = param;
+			d->onParsed(firstLine, lineNumber);
+			return;
+		}
 		if (text.startsWith("#useRule:")) {
 			QString ruleName = text.mid(QString("#useRule:").length()).trimmed();
 			if (AStoryXRule::hasRule(ruleName)) {

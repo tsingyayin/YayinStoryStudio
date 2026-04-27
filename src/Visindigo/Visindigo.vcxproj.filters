@@ -194,6 +194,9 @@
     <ClCompile Include="Widgets\cpp\DesktopHacker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\BorderLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -436,6 +439,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\BorderFrame.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\BorderLabel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

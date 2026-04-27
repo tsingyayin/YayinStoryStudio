@@ -233,6 +233,7 @@
     <ClCompile Include="Utility\cpp\ShortCutHelper.cpp" />
     <ClCompile Include="Utility\cpp\StringUtility.cpp" />
     <ClCompile Include="Widgets\cpp\BorderFrame.cpp" />
+    <ClCompile Include="Widgets\cpp\BorderLabel.cpp" />
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Widgets\cpp\DesktopHacker.cpp" />
     <ClCompile Include="Widgets\cpp\DragWidget.cpp" />
@@ -315,6 +316,7 @@
     <QtMoc Include="Widgets\WidgetResizeTool.h" />
     <QtMoc Include="Widgets\LiquidGlassEffect.h" />
     <QtMoc Include="Widgets\BorderFrame.h" />
+    <QtMoc Include="Widgets\BorderLabel.h" />
     <ClInclude Include="Widgets\DesktopHacker.h" />
     <ClInclude Include="Widgets\PixmapCacheHelper.h" />
     <QtMoc Include="Widgets\PluginManageWidget.h" />

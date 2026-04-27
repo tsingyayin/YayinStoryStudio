@@ -13,6 +13,8 @@ namespace YSSCore::Editor {
 	class HoverInfoProvider;
 	class SyntaxHighlighter;
 }
+class QVBoxLayout;
+class QComboBox;
 class QTextEdit;
 class QHBoxLayout;
 class QFontMetricsF;
@@ -55,6 +57,22 @@ namespace YSSCore::__Private__ {
 		QPushButton* replaceNextButton;
 		QPushButton* replaceAllButton;
 	};
+
+	class TextEditCursorInfo :public Visindigo::Widgets::BorderFrame {
+		Q_OBJECT;
+		friend class YSSCore::Editor::TextEdit;
+		friend class TextEditPrivate;
+	protected:
+		TextEditCursorInfo(YSSCore::Editor::TextEdit* parent = nullptr);
+		~TextEditCursorInfo();
+		void setCursorInfo(qint32 line, qint32 column, qint32 selection = 0);
+		void setTotalLines(qint32 total);
+	protected:
+		QLabel* InfoLabel;
+		QLabel* TotalLinesLabel;
+		QHBoxLayout* Layout;
+	};
+
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TextEdit;
@@ -64,6 +82,7 @@ namespace YSSCore::__Private__ {
 		YSSCore::Editor::TextEdit* q = nullptr;
 		QTextEdit* Line = nullptr;
 		QTextEdit* Text = nullptr;
+		TextEditCursorInfo* CursorInfo = nullptr;
 		QGridLayout* Layout = nullptr;
 		qint32 LineCount = 0;
 		qint8 TabWidth = 4;

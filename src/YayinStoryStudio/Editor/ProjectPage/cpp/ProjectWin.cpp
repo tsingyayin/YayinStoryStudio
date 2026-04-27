@@ -68,10 +68,14 @@ namespace YSS::ProjectPage {
 		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(VITR("YSS::project.projectManager"));
 		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
-		TitleLabel = new QLabel(this);
+		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
+		TitleLabel->setContentsMargins(10, 0, 10, 0);
 		TitleLabel->setText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("ProgramTitleLabel");
 		TitleLabel->setFixedHeight(80);
+		auto font = TitleLabel->font();
+		font.setPointSizeF(font.pointSizeF() * 2);
+		TitleLabel->setFont(font);
 
 		HistoryProjectArea = new QScrollArea(this);
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);

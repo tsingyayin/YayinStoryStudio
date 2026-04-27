@@ -1,12 +1,13 @@
 #pragma once
 #include <QObject>
-#include <QMainWindow>
+#include <QtWidgets/qframe.h>
 #include <Widgets/ThemeManager.h>
 #include <Editor/FileServerManager.h>
 class QMenuBar;
 class QMenu;
 class QAction;
 class QHBoxLayout;
+class QVBoxLayout;
 namespace Visindigo::Widgets {
 	class QuickMenu;
 }
@@ -14,12 +15,13 @@ namespace YSS::Editor {
 	class StackWidgetArea;
 	class ResourceBrowser;
 
-	class MainWin : public QMainWindow, Visindigo::Widgets::ColorfulWidget, YSSCore::Editor::FileWidgetHandler {
+	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget, YSSCore::Editor::FileWidgetHandler {
 		Q_OBJECT;
 	private:
 		QWidget* CentralWidget = nullptr;
 		ResourceBrowser* Browser = nullptr;
 		StackWidgetArea* Editor = nullptr;
+		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		Visindigo::Widgets::QuickMenu* Menu = nullptr;
 		bool asked = false;

@@ -332,7 +332,7 @@ namespace Visindigo::Widgets {
 	void PluginManageWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		d->ScrollArea->setGeometry(0, 0, this->width(), this->height());
-		d->ScrollAreaWidget->setFixedWidth(this->width());
+		d->ScrollAreaWidget->setFixedWidth(this->width()-12);
 	}
 	
 }

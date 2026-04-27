@@ -141,6 +141,7 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onBlockCountChanged(qint32 count) {
+		CursorInfo->setTotalLines(count);
 		qint32 delta = count - LineCount;
 		if (delta > 0) {
 			QTextCursor cursor = Line->textCursor();
@@ -199,6 +200,9 @@ namespace YSSCore::__Private__ {
 		onHoverInfo(false);
 		QTextCursor cursor = Text->textCursor();
 		int index = cursor.block().blockNumber();
+		int column = cursor.positionInBlock();
+		int selection = cursor.selectedText().length();
+		CursorInfo->setCursorInfo(index + 1, column + 1, selection);
 		if (index == LastCursorLine) {
 			return;
 		}
@@ -805,18 +809,18 @@ namespace YSSCore::Editor {
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
 		d->Text->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
+		d->Text->setAcceptRichText(false);
 		this->installEventFilter(d);
 		d->Layout = new QGridLayout(this);
 		d->Layout->addWidget(d->Line, 0, 0);
 		d->Layout->addWidget(d->Text, 0, 1);
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
-		Visindigo::Widgets::BorderFrame* testBottom = new Visindigo::Widgets::BorderFrame(this);
-		testBottom->setFixedHeight(30);
-		testBottom->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-		QLabel* testLabel = new QLabel(" ", testBottom);
+		d->CursorInfo = new YSSCore::__Private__::TextEditCursorInfo(this);
+		d->CursorInfo->setFixedHeight(30);
+		d->CursorInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 		//testLabel->setFrameStyle(QFrame::Box | QFrame::Plain);
-		d->Layout->addWidget(testBottom, 1, 0, 1, 2);
+		d->Layout->addWidget(d->CursorInfo, 1, 0, 1, 2);
 
 		d->LastCursor = d->Line->textCursor();
 		d->LastCursor.movePosition(QTextCursor::Start);
@@ -881,6 +885,7 @@ namespace YSSCore::Editor {
 			d->TabCompleterWidget->setParent(area);
 		}
 	}
+
 	/*!
 		\since YSS 0.13.0
 		设置TextEdit中的文本内容。此函数会替换掉TextEdit中原有的全部文本内容。
@@ -1035,6 +1040,7 @@ namespace YSSCore::Editor {
 	void TextEdit::clearFindAllSelection() {
 		d->clearFindAllMultiSelection();
 	}
+	
 	/*!
 		\since YSS 0.14.0
 		在整个文档中从\a from 开始，尝试查找下一个\a source。当\a sourceAsRe为真时，将\a source视作正则表达式进行查找。

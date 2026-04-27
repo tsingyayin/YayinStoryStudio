@@ -29,19 +29,23 @@ namespace YSS::Editor {
 		return Instance;
 	}
 
-	MainWin::MainWin() :QMainWindow() {
+	MainWin::MainWin() :QFrame() {
 		Instance = this;
 		YSSFSM->setFileWidgetHandler(this);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle("Yayin Story Studio");
-
-		CentralWidget = new QWidget(this);
-		this->setCentralWidget(CentralWidget);
+		MainLayout = new QVBoxLayout(this);
+		MainLayout->setContentsMargins(0, 0, 0, 0);
+		MainLayout->setSpacing(0);
 		this->initMenu();
 		this->setMinimumSize(800, 600);
-
+		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
+		CentralWidget = new QWidget(this);
+		MainLayout->addWidget(CentralWidget);
 		Layout = new QHBoxLayout(CentralWidget);
+		Layout->setContentsMargins(0, 0, 0, 0);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
+		splitter->setContentsMargins(0, 0, 0, 0);
 		Editor = new StackWidgetArea(CentralWidget);
 		Browser = new ResourceBrowser(CentralWidget);
 		Browser->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
@@ -155,7 +159,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::resizeEvent(QResizeEvent* event) {
-		QMainWindow::resizeEvent(event);
+		QFrame::resizeEvent(event);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 	}
 
@@ -171,10 +175,21 @@ namespace YSS::Editor {
 	}
 	
 	void MainWin::initMenu() {
+		QHBoxLayout* topLayout = new QHBoxLayout();
+		topLayout->setContentsMargins(10, 0, 10, 0);
+		topLayout->setSpacing(0);
 		Menu = new Visindigo::Widgets::QuickMenu(this);
 		Menu->setActionHandler(new YSS::Editor::MenuActionHandler(this));
 		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json"));
-		this->setMenuBar(Menu);
+		Menu->setMaximumHeight(40);
+		topLayout->addWidget(Menu);
+		Visindigo::Widgets::BorderLabel* projectNameLabel = new Visindigo::Widgets::BorderLabel(this);
+		projectNameLabel->setContentsMargins(10, 0, 10, 0);
+		projectNameLabel->setText(GlobalValue::getCurrentProject()->getProjectName());
+		projectNameLabel->setMaximumHeight(32);
+		topLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		topLayout->addWidget(projectNameLabel);
+		MainLayout->addLayout(topLayout);
 	}
 
 	bool MainWin::checkProjectNeedToSave() {

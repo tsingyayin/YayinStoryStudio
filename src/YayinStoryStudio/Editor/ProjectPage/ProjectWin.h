@@ -4,7 +4,7 @@
 #include <QtCore/qstring.h>
 #include <Widgets/ThemeManager.h>
 #include <QtWidgets/qgraphicseffect.h>
-
+#include <Widgets/BorderLabel.h>
 class QLabel;
 class QScrollArea;
 class QWidget;
@@ -31,7 +31,7 @@ namespace YSS::ProjectPage {
 	class ProjectWin :public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	private:
-		QLabel* TitleLabel;
+		Visindigo::Widgets::BorderLabel* TitleLabel;
 		QScrollArea* HistoryProjectArea;
 		QWidget* HistoryProjectWidget;
 		QVBoxLayout* HistoryProjectLayout;

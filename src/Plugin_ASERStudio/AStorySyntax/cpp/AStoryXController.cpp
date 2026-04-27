@@ -475,7 +475,7 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXParameter requiredParameter = result.getRequiredParameter();
 		if (d->Type == AStoryXController::ControllerType::Dialog) {
 			QString content = requiredParameter.getContent();
-			if (content.contains(" ") && diagnostic) {
+			if (content.contains(" ") && not content.contains("\t") && diagnostic) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.useTabInsteadSpace_dialog.message"),
 					lineIndex, requiredParameter.getIndex() + content.indexOf(" ")

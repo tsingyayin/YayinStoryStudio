@@ -76,4 +76,33 @@ namespace YSSCore::__Private__ {
 	void TextEditFindAndReplace::setFindText(const QString& text) {
 		rawInput->setText(text);
 	}
+
+	TextEditCursorInfo::TextEditCursorInfo(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {
+		InfoLabel = new QLabel(this);
+		TotalLinesLabel = new QLabel(this);
+		Layout = new QHBoxLayout(this);
+		Layout->setContentsMargins(10, 0, 10, 0);
+		Layout->setSpacing(10);
+		this->setLayout(Layout);
+		Layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
+		Layout->addWidget(InfoLabel);
+		Layout->addWidget(TotalLinesLabel);
+	}
+
+	TextEditCursorInfo::~TextEditCursorInfo() {
+	}
+
+	void TextEditCursorInfo::setCursorInfo(qint32 line, qint32 column, qint32 selection) {
+		if (selection > 0) {
+			InfoLabel->setText(VITR("YSS::editor.textEdit.cursorInfo_s").arg(line).arg(column).arg(selection));
+		}
+		else {
+			InfoLabel->setText(VITR("YSS::editor.textEdit.cursorInfo").arg(line).arg(column));
+		}
+	}
+
+	void TextEditCursorInfo::setTotalLines(qint32 total) {
+		TotalLinesLabel->setText(VITR("YSS::editor.textEdit.totalLines").arg(total));
+	}
+
 }
