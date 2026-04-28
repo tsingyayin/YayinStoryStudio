@@ -115,4 +115,8 @@ namespace YSSCore::__Private__ {
 		}
 		yDebugF << "Do Complete";
 	}
+
+	void TabCompleterWidget::scrollBy(qint32 y) {
+		ScrollArea->verticalScrollBar()->setValue(ScrollArea->verticalScrollBar()->value() + y);
+	}
 }

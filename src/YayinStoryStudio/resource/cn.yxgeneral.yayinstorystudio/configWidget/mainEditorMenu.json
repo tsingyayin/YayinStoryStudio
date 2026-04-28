@@ -26,6 +26,10 @@
                         {
                             "ID": "projectConfig",
                             "Name": "i18n:YSS::menu.file.projectConfig"
+                        },
+                        {
+                            "ID": "showInExplorer",
+                            "Name": "i18n:YSS::menu.file.showInExplorer"
                         }
                     ]
                 },

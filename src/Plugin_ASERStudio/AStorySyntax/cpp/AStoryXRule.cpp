@@ -178,9 +178,9 @@ namespace ASERStudio::AStorySyntax {
 		返回指定控制器类型的必需参数分隔符。
 		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
-	QString AStoryXRule::getRequiredParameterSeparater(AStoryXController::ControllerType type) const {
+	QString AStoryXRule::getRequiredParameterSeparator(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
-			return d->Controllers[type].getRequiredParameterSeparater();
+			return d->Controllers[type].getRequiredParameterSeparator();
 		}
 		return "";
 	}
@@ -323,6 +323,17 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	bool AStoryXRule::isValid() const {
 		return d->isValid;
+	}
+
+	/*!
+		\since ASERStudio 2.1
+		清除所有已注册的AStoryX语法规则。调用此函数后，之前通过registerRule注册的规则将不再可用。
+	*/
+	void AStoryXRule::clearRules() {
+		for (auto rule : AStoryXRulePrivate::RegisteredRules) {
+			delete rule;
+		}
+		AStoryXRulePrivate::RegisteredRules.clear();
 	}
 	/*!
 		\since ASERStudio 2.0

@@ -15,7 +15,7 @@ namespace ASERStudio::AStorySyntax {
 		QString Header; //StartSign
 		QString RequiredParameterName;
 		AStoryXValueMeta RequiredParameterValue;
-		QString RequiredParameterSeparater;
+		QString RequiredParameterSeparator;
 	private:
 		QStringList OptionalParameterNames;
 		QMap<QString, QString> OptionalParameterPrefix;
@@ -121,7 +121,7 @@ namespace ASERStudio::AStorySyntax {
 				content = content.replace(key, protectBPara[key]);
 			}
 			qint32 deltaLength = content.length() - rawRequiredLength;
-			requiredParameter.d->setParameter(RequiredParameterName, "", content, RequiredParameterValue, outputIndexOffset, RequiredParameterSeparater);
+			requiredParameter.d->setParameter(RequiredParameterName, "", content, RequiredParameterValue, outputIndexOffset, RequiredParameterSeparator);
 			data->d->RequiredParameter = requiredParameter;
 			if (usedPrefixIndexes.size() == 0) {
 				if (cursorPosition > outputIndexOffset) {
@@ -230,7 +230,7 @@ namespace ASERStudio::AStorySyntax {
 			qint32 deltaLength = content.length() - rawRequiredLength;
 			requiredParameter.d->setParameter(
 				RequiredParameterName, "", content,
-				RequiredParameterValue, outputIndexOffset, RequiredParameterSeparater
+				RequiredParameterValue, outputIndexOffset, RequiredParameterSeparator
 			);
 			data->d->RequiredParameter = requiredParameter;
 			if (prefixIndexes.size() == 0) {
@@ -380,7 +380,7 @@ namespace ASERStudio::AStorySyntax {
 		}
 		d->RequiredParameterName = config.getString("Value.requiredParametersName");
 		d->RequiredParameterValue.setMetaData(key + "." + d->RequiredParameterName, meta);
-		d->RequiredParameterSeparater = config.getString("Value.requiredParametersSeparater");
+		d->RequiredParameterSeparator = config.getString("Value.requiredParametersSeparator");
 		bool ok = true;
 		for (auto item : config.getArray("Value.optionalParameters")) {
 			QString name = item.getString("parameterName");
@@ -741,8 +741,8 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		return 必需参数的内部分隔符。
 	*/
-	QString AStoryXController::getRequiredParameterSeparater() {
-		return d->RequiredParameterSeparater;
+	QString AStoryXController::getRequiredParameterSeparator() {
+		return d->RequiredParameterSeparator;
 	}
 
 	/*!

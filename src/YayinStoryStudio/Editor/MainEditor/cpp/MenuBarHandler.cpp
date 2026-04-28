@@ -81,6 +81,11 @@ namespace YSS::Editor {
 		YSSFSM->openFile(projectDir.absoluteFilePath(""));
 	}
 
+	void Menu_File_FileOptions::showInExplorer() {
+		QString projectFolder = YSS::GlobalValue::getCurrentProject()->getProjectFolder();
+		Visindigo::Utility::FileUtility::openExplorer(projectFolder);
+	}
+
 	void Menu_File_ProgramOptions::backToHome() {
 		yDebugF << "Back to Home";
 		YSS::Editor::MainWin::getInstance()->backToProjectWin();

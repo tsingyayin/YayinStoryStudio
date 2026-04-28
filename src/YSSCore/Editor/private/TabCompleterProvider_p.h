@@ -47,5 +47,6 @@ namespace YSSCore::__Private__ {
 		void selectPrevious();
 		void selectNext();
 		void doComplete(Visindigo::Widgets::MultiButton* pressed = nullptr);
+		void scrollBy(qint32 y);
 	};
 }

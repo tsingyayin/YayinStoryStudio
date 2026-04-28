@@ -520,7 +520,9 @@ namespace YSSCore::__Private__ {
 			HoverInfoWidget->scrollBy(-event->angleDelta().y());
 			return true;
 		}
-		else {
+		else if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
+			TabCompleterWidget->scrollBy(-event->angleDelta().y());
+		}else{
 			return false;
 		}
 	}

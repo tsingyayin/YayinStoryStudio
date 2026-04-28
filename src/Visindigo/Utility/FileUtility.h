@@ -29,6 +29,7 @@ namespace Visindigo::Utility {
 		static void saveAll(const QString& filePath, const QString& data);
 		static void saveByteArray(const QString& filePath, const QByteArray& data);
 		static QStringList fileFilter(const QString& root, const QStringList& exts, bool considerSubFolder = true);
+		static QStringList folderFilter(const QString& root, bool considerSubFolder = false);
 		static qint64 sizeBytes(const QString& root);
 		static QString readableSize(qint64 bytes, BinarySizeUnit u = Byte, BinarySizeFormat f = IEC);
 		static void openExplorer(const QString& path);

@@ -86,7 +86,8 @@
 			"exit": "Exit",
 			"documentation": "Documentation",
 			"about": "About Yayin Story Studio",
-			"projectConfig": "Project Settings"
+			"projectConfig": "Project Settings",
+			"showInExplorer": "Show in File Explorer"
 		},
 		"edit": {
 			"title": "Edit",

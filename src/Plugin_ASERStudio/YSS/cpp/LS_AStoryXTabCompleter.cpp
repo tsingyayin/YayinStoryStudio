@@ -4,7 +4,7 @@
 #include "AStorySyntax/AStoryXController.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
 #include "YSS/LangServer_AStoryX.h"
-#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "YSS/ResourceMoniter.h"
 #include <General/Log.h>
 #include <Editor/TextEdit.h>
 #include <General/TranslationHost.h>
@@ -30,6 +30,7 @@ namespace ASERStudio::YSS {
 		QList<YSSCore::Editor::TabCompleterItem> items;
 		ASERStudio::AStorySyntax::AStoryXControllerParseData parseData = d->document->getParseData(line);
 		auto parameter = parseData.getCursorParameter(column);
+		onSpecificParameters(&items, &parseData, column);
 		//vgDebug << parameter;
 		if (parameter.isValid()) {
 			auto valueMeta = parameter.getValue();
@@ -65,5 +66,54 @@ namespace ASERStudio::YSS {
 			}
 		}
 		return items;
+	}
+
+	void LS_AStoryXTabCompleter::onSpecificParameters(QList<YSSCore::Editor::TabCompleterItem>* items, ASERStudio::AStorySyntax::AStoryXControllerParseData* data, qint32 column) {
+		if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Character) {
+			vgDebug << data->getCursorInWhichParameter(column) << data->getRequiredParameter().getName();
+			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()){
+				QString paramContent = data->getRequiredParameter().getContent();
+				vgDebug << paramContent << data->getRequiredParameter().getSeparator();
+				if (not paramContent.contains(data->getRequiredParameter().getSeparator())) {
+					auto charas = ASERRM->getCharacters();
+					vgDebug << charas;
+					for (auto chara : charas) {
+						items->append(YSSCore::Editor::TabCompleterItem(chara, chara, "Character", YSSCore::Editor::TabCompleterItem::ItemType::Object));
+					}
+				}
+				else {
+					auto chara = paramContent.split(data->getRequiredParameter().getSeparator()).first();
+					auto diffs = ASERRM->getCharaDiff(chara);
+					for (auto diff : diffs) {
+						items->append(YSSCore::Editor::TabCompleterItem(chara+data->getRequiredParameter().getSeparator()+diff, diff, "Character Diff", YSSCore::Editor::TabCompleterItem::ItemType::Object));
+					}
+				}
+			}
+		}
+		else if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Background) {
+			
+			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()) {
+				auto bgs = ASERRM->getBackground();
+				for (auto bg : bgs) {
+					items->append(YSSCore::Editor::TabCompleterItem(bg, bg, "Background", YSSCore::Editor::TabCompleterItem::ItemType::Object));
+				}
+			}
+		}
+		else if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Music) {
+			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()) {
+				auto musics = ASERRM->getMusic();
+				for (auto music : musics) {
+					items->append(YSSCore::Editor::TabCompleterItem(music, music, "Music", YSSCore::Editor::TabCompleterItem::ItemType::Object));
+				}
+			}
+		}
+		else if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::SoundEffect) {
+			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()) {
+				auto sfxs = ASERRM->getSoundEffect();
+				for (auto sfx : sfxs) {
+					items->append(YSSCore::Editor::TabCompleterItem(sfx, sfx, "Sound Effect", YSSCore::Editor::TabCompleterItem::ItemType::Object));
+				}
+			}
+		}
 	}
 }

@@ -12,6 +12,7 @@
 #include <QtCore/qdir.h>
 #include "ASEREnv/ASERProgram.h"
 #include "ASEREnv/ASERDebugIO.h"
+#include "YSS/ResourceMoniter.h"
 
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
@@ -111,6 +112,7 @@ namespace ASERStudio {
 			rule.setName(name);
 			ASERStudio::AStorySyntax::AStoryXRule::registerRule(rule);
 		}
+		ASERRM->changeProjectPath(projectFolder);
 	}
 
 	void Main::onConfigLoaded() { 
@@ -118,6 +120,7 @@ namespace ASERStudio {
 	}
 
 	void Main::onProjectClose(YSSCore::General::YSSProject* project) {
+		ASERStudio::AStorySyntax::AStoryXRule::clearRules();
 	}
 
 	QWidget* Main::getConfigWidget() {

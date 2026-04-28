@@ -51,7 +51,7 @@ namespace ASERStudio::AStorySyntax {
 		QString getStartSign();
 		QString getHeader();
 		QString getRequiredParameterName();
-		QString getRequiredParameterSeparater();
+		QString getRequiredParameterSeparator();
 		QStringList getOptionalParameterNames();
 		QStringList getOptionalParameterPrefixes();
 		QMap<QString, AStoryXValueMeta> getOptionalParameterValues();

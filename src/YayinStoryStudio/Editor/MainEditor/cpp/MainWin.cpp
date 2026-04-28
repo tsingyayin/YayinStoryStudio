@@ -181,7 +181,7 @@ namespace YSS::Editor {
 		Menu = new Visindigo::Widgets::QuickMenu(this);
 		Menu->setActionHandler(new YSS::Editor::MenuActionHandler(this));
 		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json"));
-		Menu->setMaximumHeight(40);
+		Menu->setMaximumHeight(32);
 		topLayout->addWidget(Menu);
 		Visindigo::Widgets::BorderLabel* projectNameLabel = new Visindigo::Widgets::BorderLabel(this);
 		projectNameLabel->setContentsMargins(10, 0, 10, 0);

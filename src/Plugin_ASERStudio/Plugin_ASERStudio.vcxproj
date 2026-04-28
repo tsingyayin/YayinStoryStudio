@@ -140,8 +140,10 @@
     <ClCompile Include="YSS\cpp\LS_AStoryXHoverInfoProvider.cpp" />
     <ClCompile Include="YSS\cpp\LS_AStoryXSyntaxHighlighter.cpp" />
     <ClCompile Include="YSS\cpp\LS_AStoryXTabCompleter.cpp" />
+    <ClCompile Include="YSS\cpp\ResourceMoniter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="YSS\ResourceMoniter.h" />
     <QtMoc Include="ASEREnv\private\ASERDebugIO_p.h" />
     <ClInclude Include="AStorySyntax\AStoryXPreprocessor.h" />
     <ClInclude Include="YSS\DS_AStoryXDebugger.h" />

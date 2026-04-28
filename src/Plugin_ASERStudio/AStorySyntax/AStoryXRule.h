@@ -22,7 +22,7 @@ namespace ASERStudio::AStorySyntax{
 		QString getHeader(AStoryXController::ControllerType type) const;
 		QString getStartSign(AStoryXController::ControllerType type) const;
 		QString getRequiredParameterName(AStoryXController::ControllerType type) const;
-		QString getRequiredParameterSeparater(AStoryXController::ControllerType type) const;
+		QString getRequiredParameterSeparator(AStoryXController::ControllerType type) const;
 		QStringList getOptionalParameterNames(AStoryXController::ControllerType type) const;
 		QStringList getOptionalParameterPrefixes(AStoryXController::ControllerType type) const;
 		QMap<QString, AStoryXValueMeta> getOptionalParameterValues(AStoryXController::ControllerType type) const;
@@ -36,6 +36,7 @@ namespace ASERStudio::AStorySyntax{
 		bool isValid() const;
 
 	public:
+		static void clearRules();
 		static void registerRule(const AStoryXRule& rule);
 		static AStoryXRule* getRule(const QString& name);
 		static bool hasRule(const QString& name);

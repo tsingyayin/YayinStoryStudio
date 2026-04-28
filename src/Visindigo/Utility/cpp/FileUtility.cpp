@@ -58,7 +58,7 @@ namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::FileUtility
 		\brief 此类为Yayin Story Studio 提供文件操作的相关函数
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
 		这类所有函数都是静态函数，所以你不需要创建它的实例。
@@ -70,7 +70,7 @@ namespace Visindigo::Utility {
 	/*!
 		\enum Visindigo::Utility::FileUtility::BinarySizeFormat
 		\brief 此枚举用于表示文件大小的单位
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		\value IEC 二进制单位
 		\value SI 十进制单位
 	*/
@@ -78,7 +78,7 @@ namespace Visindigo::Utility {
 	/*!
 		\enum Visindigo::Utility::FileUtility::BinarySizeUnit
 		\brief 此枚举用于表示文件大小的单位
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		\value bit 位
 		\value Byte 字节
 		\value Char 字符，与Byte相同
@@ -87,7 +87,7 @@ namespace Visindigo::Utility {
 	/*!
 		\enum Visindigo::Utility::FileUtility::CountingUnit
 		\brief 此枚举用于表示文件大小的单位
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		\value _0 （无单位）
 		\value K 千
 		\value M 兆
@@ -101,7 +101,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a filePath 文件路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		读取文件的每一行，并返回一个QStringList
 	*/
 	QStringList FileUtility::readLines(const QString& filePath) {
@@ -123,7 +123,7 @@ namespace Visindigo::Utility {
 	}
 	/*!
 		\a filePath 文件路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		读取文件的所有内容，并返回一个QString
 	*/
 	QString FileUtility::readAll(const QString& filePath) {
@@ -142,7 +142,7 @@ namespace Visindigo::Utility {
 	}
 	/*!
 		\a filePath 文件路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		读取文件的所有内容，并返回一个QByteArray
 	*/
 	QByteArray FileUtility::readByteArray(const QString& filePath) {
@@ -161,7 +161,7 @@ namespace Visindigo::Utility {
 		\a filePath 文件路径
 		\a data 需要保存的数据
 		\a joinLine 行连接符
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		将QStringList保存到文件中
 	*/
 	void FileUtility::saveLines(const QString& filePath, const QStringList& lines, const QString& joinLine) {
@@ -191,7 +191,7 @@ namespace Visindigo::Utility {
 	/*!
 		\a filePath 文件路径
 		\a data 需要保存的数据
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		将QString保存到文件中
 	*/
 	void FileUtility::saveAll(const QString& filePath, const QString& data) {
@@ -220,7 +220,7 @@ namespace Visindigo::Utility {
 	/*!
 		\a filePath 文件路径
 		\a data 需要保存的数据
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		将QByteArray保存到文件中
 	*/
 	void FileUtility::saveByteArray(const QString& filePath, const QByteArray& data) {
@@ -249,7 +249,7 @@ namespace Visindigo::Utility {
 		\a root 根目录
 		\a exts 文件扩展名
 		\a considerSubFolder 是否考虑子目录
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		过滤指定目录下的文件，返回一个QStringList。它总是返回绝对路径。
 
 		这exts应形如 "*.ext1"、"*.ext2"、"*.ext3"，请务必注意星号。
@@ -264,8 +264,25 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
+		\since Visindigo 0.14.0
 		\a root 根目录
-		\since Yayin Story Studio 0.13.0
+		\a considerSubFolder 是否考虑子目录
+		获取指定目录下的文件夹，返回一个QStringList。它总是返回绝对路径。
+
+		请注意，这个函数的considerSubFolder默认为false，与fileFilter不同。
+	*/
+	QStringList FileUtility::folderFilter(const QString& root, bool considerSubFolder) {
+		QDirListing list(root, QStringList(), (considerSubFolder ? QDirListing::IteratorFlag::Recursive : QDirListing::IteratorFlag::Default) | QDirListing::IteratorFlag::DirsOnly);
+		QStringList folders;
+		for(auto li: list){
+			folders.append(li.absoluteFilePath());
+		}
+		return folders;
+	}
+
+	/*!
+		\a root 根目录
+		\since Visindigo 0.13.0
 		获取指定目录下的文件大小，返回一个qint64，单位为字节。
 	*/
 	qint64 FileUtility::sizeBytes(const QString& root) {
@@ -284,7 +301,7 @@ namespace Visindigo::Utility {
 		\a bytes 字节数
 		\a u 单位
 		\a f 格式
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		获取指定字节数的可读大小，返回一个QString。
 	*/
 	QString FileUtility::readableSize(qint64 bytes, BinarySizeUnit u, BinarySizeFormat f) {
@@ -293,7 +310,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a path 路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		打开指定路径的资源管理器。
 	*/
 	void FileUtility::openExplorer(const QString& path) {
@@ -302,7 +319,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a url 链接
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		打开指定链接的浏览器。
 	*/
 	void FileUtility::openBrowser(const QString& url) {
@@ -312,7 +329,7 @@ namespace Visindigo::Utility {
 	/*!
 		\a name 文件名
 		\a replace 替换字符
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		将文件名中的非法字符替换为指定字符，并返回合法的文件名。
 		这个函数不验证用于替换的字符是否合法，请务必保证它合法，否则可能会得到一个仍然非法的文件名。
 	*/
@@ -324,7 +341,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a filePath 文件路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		判断指定文件是否存在，返回一个bool。
 	*/
 	bool FileUtility::isFileExist(const QString& filePath) {
@@ -334,7 +351,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a dirPath 目录路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		判断指定目录是否存在，返回一个bool。
 	*/
 	bool FileUtility::isDirExist(const QString& dirPath) {
@@ -344,7 +361,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a dirPath 目录路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		判断指定目录是否为空，返回一个bool。
 	*/
 	bool FileUtility::isDirEmpty(const QString& dirPath) {
@@ -357,7 +374,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a dirPath 目录路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		创建指定目录，返回一个bool，表示是否创建成功。
 	*/
 	bool FileUtility::createDir(const QString& dirPath) {
@@ -371,7 +388,7 @@ namespace Visindigo::Utility {
 	/*!
 		\a startWith 起始路径
 		\a path 绝对路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		如果path以startWith开头，则返回相对于startWith的路径，否则返回path。
 	*/
 	QString FileUtility::getRelativeIfStartWith(const QString& startWith, const QString& path) {
@@ -386,7 +403,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a argv 程序参数
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		获取程序所在目录的绝对路径，返回一个QString。
 	*/
 	QString FileUtility::getProgramPath(char** argv){
@@ -402,7 +419,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a filePath 文件路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		获取指定文件的创建时间，返回一个QDateTime。
 	*/
 	QDateTime FileUtility::getFileCreateTime(const QString& filePath) {
@@ -415,7 +432,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a filePath 文件路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		获取指定文件的修改时间，返回一个QDateTime。
 	*/
 	QDateTime FileUtility::getFileModifyTime(const QString& filePath) {
@@ -428,7 +445,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\a filePath 文件路径
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		获取指定文件的访问时间，返回一个QDateTime。
 	*/
 	QDateTime FileUtility::getFileAccessTime(const QString& filePath) {
@@ -442,7 +459,7 @@ namespace Visindigo::Utility {
 	/*!
 		\a filePath 文件路径
 		\a moveToTrash 是否移动到回收站
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		删除指定文件，如果moveToTrash为true，则移动到回收站，否则直接删除。
 	*/
 	void FileUtility::deleteFile(const QString& filePath, bool moveToTrash) {
@@ -463,7 +480,7 @@ namespace Visindigo::Utility {
 		\a dstPath 目标文件路径
 		\a rinse 是否使用漂洗的方式复制文件
 		\a overwrite 是否覆盖已存在的目标文件
-		\since Yayin Story Studio 0.13.0
+		\since Visindigo 0.13.0
 		复制文件，如果rinse为true，则使用漂洗的方式复制文件，否则使用QFile::copy()，如果overwrite为true，则覆盖已存在的目标文件，否则不进行复制。
 
 		漂洗模式只忠实传递文件本体的二进制数据，不从源文件读取任何元数据，也不写入任何元数据到目标文件，

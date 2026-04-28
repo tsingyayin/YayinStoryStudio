@@ -86,7 +86,8 @@
 			"exit": "退出",
 			"documentation": "文档",
 			"about": "关于 Yayin Story Studio",
-			"projectConfig": "项目设置"
+			"projectConfig": "项目设置",
+			"showInExplorer": "在资源管理器中显示"
 		},
 		"edit": {
 			"title": "编辑",

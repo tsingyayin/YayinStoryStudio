@@ -19,7 +19,7 @@ namespace ASERStudio::AStorySyntax {
 	protected:
 		QString Name;
 		QString Prefix;
-		QString Separater;
+		QString Separator;
 		QString Content;
 		AStoryXValueMeta Value;
 		qint32 Index;
@@ -33,7 +33,7 @@ namespace ASERStudio::AStorySyntax {
 		) {
 			Name = name;
 			Prefix = prefix;
-			Separater = separater;
+			Separator = separater;
 			Content = content;
 			Value = value;
 			Index = index;

@@ -75,8 +75,8 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		获取参数分隔符。
 	*/
-	QString AStoryXParameter::getSeparater() const {
-		return d->Separater;
+	QString AStoryXParameter::getSeparator() const {
+		return d->Separator;
 	}
 
 	/*
@@ -120,10 +120,10 @@ namespace ASERStudio::AStorySyntax {
 		if (!isValid()) {
 			return "Invalid Parameter";
 		}
-		return QString("Parameter(Name: %1, Prefix: %2, Separater: %3, Content: %4, ValueType: %5, Index: %6)")
+		return QString("Parameter(Name: %1, Prefix: %2, Separator: %3, Content: %4, ValueType: %5, Index: %6)")
 			.arg(getName())
 			.arg(getPrefix())
-			.arg(getSeparater())
+			.arg(getSeparator())
 			.arg(getContent())
 			.arg(getValue().getType())
 			.arg(getIndex());
@@ -302,7 +302,10 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	QString AStoryXControllerParseData::getCursorInWhichParameter(qint32 cursorPosition) const {
 		if (cursorPosition < 0) {
-			return d->cursorInWhichParameter;
+			return "";
+		}
+		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
+			return d->RequiredParameter.getName();
 		}
 		for (const auto& param : d->OptionalParameters) {
 			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length() + param.getPrefix().length()) {
@@ -312,9 +315,7 @@ namespace ASERStudio::AStorySyntax {
 		if (d->OptionalParameters.size()!=0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
 			return d->OptionalParameters.last().getName();
 		}
-		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
-			return d->RequiredParameter.getName();
-		}
+		
 		return "";
 	}
 
@@ -324,15 +325,10 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	AStoryXParameter AStoryXControllerParseData::getCursorParameter(qint32 cursorPosition) const {
 		if (cursorPosition < 0) {
-			for (const auto& param : d->OptionalParameters) {
-				if (param.getName() == d->cursorInWhichParameter) {
-					return param;
-				}
-			}
-			if (d->RequiredParameter.isValid() && d->RequiredParameter.getName() == d->cursorInWhichParameter) {
-				return d->RequiredParameter;
-			}
 			return AStoryXParameter();
+		}
+		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
+			return d->RequiredParameter;
 		}
 		for (const auto& param : d->OptionalParameters) {
 			if (param.getIndex() <= cursorPosition && cursorPosition <= param.getIndex() + param.getContent().length() + param.getPrefix().length()) {
@@ -342,9 +338,7 @@ namespace ASERStudio::AStorySyntax {
 		if (d->OptionalParameters.size()!=0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
 			return d->OptionalParameters.last();
 		}
-		if (d->RequiredParameter.isValid() && d->RequiredParameter.getIndex() <= cursorPosition && cursorPosition <= d->RequiredParameter.getIndex() + d->RequiredParameter.getContent().length()) {
-			return d->RequiredParameter;
-		}
+		
 		return AStoryXParameter();
 	}
 	/*!

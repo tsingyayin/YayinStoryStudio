@@ -25,7 +25,7 @@ namespace ASERStudio::AStorySyntax {
 	public:
 		QString getName() const;
 		QString getPrefix() const;
-		QString getSeparater() const;
+		QString getSeparator() const;
 		QString getContent() const;
 		AStoryXValueMeta getValue() const;
 		qint32 getIndex() const;
@@ -55,8 +55,8 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXController::ControllerType getControllerType() const;
 		AStoryXParameter getRequiredParameter() const;
 		QList<AStoryXParameter> getOptionalParameters() const;
-		QString getCursorInWhichParameter(qint32 cursorPosition = -1) const;
-		AStoryXParameter getCursorParameter(qint32 cursorPosition = -1) const;
+		QString getCursorInWhichParameter(qint32 cursorPosition) const;
+		AStoryXParameter getCursorParameter(qint32 cursorPosition) const;
 		QStringList referenceVariables() const;
 		QStringList blockParameters() const;
 		bool isDiagnosticAvailable() const;
