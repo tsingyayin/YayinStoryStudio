@@ -1,0 +1,24 @@
+{
+    "General": {
+        "Language": "zh_CN",
+        "Theme": "Dark"
+    },
+    "Plugins": {
+        "Deactivated": [
+        ]
+    },
+    "RecentProjects": [
+    ],
+    "Window": {
+        "Editor": {
+            "Height": 600,
+            "Maximized": false,
+            "Width": 800
+        },
+        "Project": {
+            "Height": 600,
+            "Maximized": false,
+            "Width": 800
+        }
+    }
+}
