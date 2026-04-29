@@ -8,6 +8,7 @@
 #include <General/Log.h>
 #include <Editor/TextEdit.h>
 #include <General/TranslationHost.h>
+#include <Utility/StringUtility.h>
 namespace ASERStudio::YSS {
 	class LS_AStoryXTabCompleterPrivate {
 		friend class LS_AStoryXTabCompleter;
@@ -76,6 +77,7 @@ namespace ASERStudio::YSS {
 				vgDebug << paramContent << data->getRequiredParameter().getSeparator();
 				if (not paramContent.contains(data->getRequiredParameter().getSeparator())) {
 					auto charas = ASERRM->getCharacters();
+					charas = Visindigo::Utility::StringUtility::getStartWith(paramContent, charas);
 					vgDebug << charas;
 					for (auto chara : charas) {
 						items->append(YSSCore::Editor::TabCompleterItem(chara, chara, "Character", YSSCore::Editor::TabCompleterItem::ItemType::Object));
@@ -84,6 +86,8 @@ namespace ASERStudio::YSS {
 				else {
 					auto chara = paramContent.split(data->getRequiredParameter().getSeparator()).first();
 					auto diffs = ASERRM->getCharaDiff(chara);
+					diffs = Visindigo::Utility::StringUtility::getStartWith(paramContent.split(data->getRequiredParameter().getSeparator()).last(), diffs);
+					vgDebug << diffs;
 					for (auto diff : diffs) {
 						items->append(YSSCore::Editor::TabCompleterItem(chara+data->getRequiredParameter().getSeparator()+diff, diff, "Character Diff", YSSCore::Editor::TabCompleterItem::ItemType::Object));
 					}
@@ -91,9 +95,9 @@ namespace ASERStudio::YSS {
 			}
 		}
 		else if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Background) {
-			
 			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()) {
 				auto bgs = ASERRM->getBackground();
+				bgs = Visindigo::Utility::StringUtility::getStartWith(data->getRequiredParameter().getContent(), bgs);
 				for (auto bg : bgs) {
 					items->append(YSSCore::Editor::TabCompleterItem(bg, bg, "Background", YSSCore::Editor::TabCompleterItem::ItemType::Object));
 				}
@@ -102,6 +106,7 @@ namespace ASERStudio::YSS {
 		else if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Music) {
 			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()) {
 				auto musics = ASERRM->getMusic();
+				musics = Visindigo::Utility::StringUtility::getStartWith(data->getRequiredParameter().getContent(), musics);
 				for (auto music : musics) {
 					items->append(YSSCore::Editor::TabCompleterItem(music, music, "Music", YSSCore::Editor::TabCompleterItem::ItemType::Object));
 				}
@@ -110,6 +115,7 @@ namespace ASERStudio::YSS {
 		else if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::SoundEffect) {
 			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()) {
 				auto sfxs = ASERRM->getSoundEffect();
+				sfxs = Visindigo::Utility::StringUtility::getStartWith(data->getRequiredParameter().getContent(), sfxs);
 				for (auto sfx : sfxs) {
 					items->append(YSSCore::Editor::TabCompleterItem(sfx, sfx, "Sound Effect", YSSCore::Editor::TabCompleterItem::ItemType::Object));
 				}

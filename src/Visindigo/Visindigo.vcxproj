@@ -306,7 +306,6 @@
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
     <ClInclude Include="Utility\ShortCutHelper.h" />
-    <ClInclude Include="Utility\StringMacro.h" />
     <ClInclude Include="Utility\StringUtility.h" />
     <ClInclude Include="VICompileMacro.h" />
     <ClInclude Include="VIMacro.h" />

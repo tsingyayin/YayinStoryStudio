@@ -17,6 +17,8 @@ namespace ASERStudio::YSS {
 		};
 		Q_DECLARE_FLAGS(ResourceTypes, ResourceType)
 	public:
+		static QString getASERStandardConfigPath();
+	public:
 		static ResourceMoniter* getInstance();
 		~ResourceMoniter();
 		QStringList getBackground();

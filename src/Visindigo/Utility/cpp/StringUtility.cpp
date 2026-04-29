@@ -40,4 +40,32 @@ namespace Visindigo::Utility {
 		}
 		return dp[len1][len2];
 	}
+
+	/*!
+		\since Visindigo 0.14.0
+		返回一个字符串列表，包含所有与目标字符串的编辑距离不大于maxDistance的候选字符串。
+	*/
+	QStringList StringUtility::getSimilarStrings(const QString& target, const QStringList& candidates, int maxDistance) {
+		QStringList result;
+		for (const QString& candidate : candidates) {
+			if (getLevensteinDistance(target, candidate) <= maxDistance) {
+				result.append(candidate);
+			}
+		}
+		return result;
+	}
+
+	/*!
+		\since Visindigo 0.14.0
+		返回一个字符串列表，包含所有以指定字符串开头的候选字符串。可以选择是否区分大小写。
+	*/
+	QStringList StringUtility::getStartWith(const QString& str, const QStringList& candidates, bool caseSensitive) {
+		QStringList result;
+		for (const QString& candidate : candidates) {
+			if (candidate.startsWith(str, caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive)) {
+				result.append(candidate);
+			}
+		}
+		return result;
+	}
 }
