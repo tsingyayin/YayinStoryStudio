@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/icon.png</file>
+    </qresource>
+</RCC>

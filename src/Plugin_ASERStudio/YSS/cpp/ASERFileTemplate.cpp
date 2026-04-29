@@ -33,7 +33,7 @@ namespace ASERStudio::YSS {
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/FTP.json"));
 		d->ConfigWidget->setLineEditText("File.Path", getInitFolder());
 		d->Layout = new QVBoxLayout(this);
-		d->Layout->setContentsMargins(0, 0, 0, 0);
+		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ConfigWidget);
 		d->ButtonLayout = new QHBoxLayout();
 		d->ButtonLayout->setContentsMargins(10, 0, 10, 0);

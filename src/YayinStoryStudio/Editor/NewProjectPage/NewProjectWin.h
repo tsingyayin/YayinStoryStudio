@@ -12,6 +12,7 @@ class QVBoxLayout;
 
 namespace Visindigo::Widgets {
 	class MultiButton;
+	class BorderLabel;
 }
 namespace YSSCore::Editor {
 	class ProjectTemplateProvider;
@@ -22,8 +23,8 @@ namespace YSS::NewProjectPage {
 	signals:
 		void projectPrepared(QString projectPath);
 	private:
-		QLabel* TitleLabel;
-		QLabel* RecentTemplateTitle;
+		Visindigo::Widgets::BorderLabel* TitleLabel;
+		Visindigo::Widgets::BorderLabel* RecentTemplateTitle;
 		QLineEdit* SearchLineEdit;
 		QList<Visindigo::Widgets::MultiButton*> ProjectList;
 		QList<Visindigo::Widgets::MultiButton*> RecentList;

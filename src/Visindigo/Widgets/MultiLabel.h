@@ -27,6 +27,7 @@ namespace Visindigo::Widgets {
 		void setAlignment(Qt::Alignment alignment);
 		void setPixmapFixedWidth(int width);
 		void addCustomWidget(QWidget* widget);
+		void setCustomWidgetOrientation(Qt::Orientation orientation);
 		virtual void resizeEvent(QResizeEvent* event) override;
 		QWidget* getCustomWidget();
 	private:

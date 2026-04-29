@@ -12,6 +12,18 @@ namespace Visindigo::Widgets {
 		QString PixmapPath;
 		QGridLayout* Layout;
 		QWidget* CustomWidget = nullptr;
+		Qt::Orientation CustomWidgetOrientation = Qt::Horizontal;
+
+		void adjustLayout() {
+			if (CustomWidget) {
+				if (CustomWidgetOrientation == Qt::Horizontal) {
+					Layout->addWidget(CustomWidget, 0, 2, 2, 1);
+				}
+				else {
+					Layout->addWidget(CustomWidget, 2, 1, 1, 1);
+				}
+			}
+		}
 	};
 
 	/*!
@@ -170,8 +182,17 @@ namespace Visindigo::Widgets {
 		}
 		d->CustomWidget = widget;
 		widget->setParent(this);
-		d->Layout->addWidget(widget, 0, 2, 2, 1);
 		d->CustomWidget->show();
+		d->adjustLayout();
+	}
+
+	/*!
+		\since Visindigo 0.14.0
+		设置自定义子组件的布局方向，默认为水平布局。
+	*/
+	void MultiLabel::setCustomWidgetOrientation(Qt::Orientation orientation) {
+		d->CustomWidgetOrientation = orientation;
+		d->adjustLayout();
 	}
 
 	/*!

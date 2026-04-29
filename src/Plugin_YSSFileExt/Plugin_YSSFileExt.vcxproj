@@ -120,6 +120,9 @@
     <ClInclude Include="Macro.h" />
     <QtMoc Include="Plugin_YSSFileExt.h" />
   </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Plugin_YSSFileExt.qrc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />

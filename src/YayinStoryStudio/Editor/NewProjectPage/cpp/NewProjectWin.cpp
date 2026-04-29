@@ -6,6 +6,7 @@
 #include <QtWidgets/qscrollbar.h>
 
 #include <Widgets/ThemeManager.h>
+#include <Widgets/BorderLabel.h>
 #include <General/TranslationHost.h>
 #include <Editor/ProjectTemplateManager.h>
 #include <Editor/ProjectTemplateProvider.h>
@@ -20,10 +21,13 @@ namespace YSS::NewProjectPage {
 		this->setMinimumSize(900, 600);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle(VITR("YSS::project.createNewProject"));
-		TitleLabel = new QLabel(this);
+		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
 		TitleLabel->setObjectName("ProgramTitleLabel");
 		TitleLabel->setFixedHeight(80);
-		RecentTemplateTitle = new QLabel(this);
+		auto font = TitleLabel->font();
+		font.setPointSizeF(font.pointSizeF() * 2);
+		TitleLabel->setFont(font);
+		RecentTemplateTitle = new Visindigo::Widgets::BorderLabel(this);
 		SearchLineEdit = new QLineEdit(this);
 
 		ProjectTemplateArea = new QScrollArea(this);
@@ -85,6 +89,7 @@ namespace YSS::NewProjectPage {
 			//ProviderButton->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
+			ProviderButton->setCustomWidgetOrientation(Qt::Vertical);
 			ProviderButton->addCustomWidget(tags);
 			ProjectList.append(ProviderButton);
 			ProjectTemplateLayout->addWidget(ProviderButton);

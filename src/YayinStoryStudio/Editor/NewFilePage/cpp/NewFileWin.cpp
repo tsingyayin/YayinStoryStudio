@@ -6,6 +6,7 @@
 #include <QtWidgets/qscrollbar.h>
 
 #include <Widgets/ThemeManager.h>
+#include <Widgets/BorderLabel.h>
 #include <General/TranslationHost.h>
 #include <Editor/FileTemplateManager.h>
 #include <Editor/FileTemplateProvider.h>
@@ -21,10 +22,13 @@ namespace YSS::NewFilePage {
 		this->setMinimumSize(900, 600);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle(VITR("YSS::project.createNewFile"));
-		TitleLabel = new QLabel(this);
+		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
 		TitleLabel->setObjectName("ProgramTitleLabel");
 		TitleLabel->setFixedHeight(80);
-		RecentTemplateTitle = new QLabel(this);
+		auto font = TitleLabel->font();
+		font.setPointSizeF(font.pointSizeF() * 2);
+		TitleLabel->setFont(font);
+		RecentTemplateTitle = new Visindigo::Widgets::BorderLabel(this);
 		SearchLineEdit = new QLineEdit(this);
 
 		FileTemplateArea = new QScrollArea(this);
@@ -87,6 +91,7 @@ namespace YSS::NewFilePage {
 			//ProviderButton->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
+			ProviderButton->setCustomWidgetOrientation(Qt::Vertical);
 			ProviderButton->addCustomWidget(tags);
 			FileList.append(ProviderButton);
 			FileTemplateLayout->addWidget(ProviderButton);

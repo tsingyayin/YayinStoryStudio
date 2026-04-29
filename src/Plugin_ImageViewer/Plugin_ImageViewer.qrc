@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resource/cn.yxgeneral.imageviewer/icon.png</file>
+    </qresource>
+</RCC>

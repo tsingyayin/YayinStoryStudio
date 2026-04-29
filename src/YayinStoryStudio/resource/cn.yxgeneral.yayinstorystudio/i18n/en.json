@@ -23,7 +23,7 @@
 			"text":"Editor related settings",
 			"reloadtab":{
 				"title":"Reload Tab Behavior",
-				"text":"Controls whether the editor should replace Tab with spaces when at the beginning of a line"
+				"text":"Controls whether the editor should replace Tab with spaces when at the beginning of a line(this option is currently ineffective)"
 			}
 		}
 	},

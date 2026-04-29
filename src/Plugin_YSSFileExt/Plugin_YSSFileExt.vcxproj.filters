@@ -52,4 +52,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Plugin_YSSFileExt.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
 </Project>
