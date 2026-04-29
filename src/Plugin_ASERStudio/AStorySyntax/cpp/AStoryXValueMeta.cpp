@@ -369,7 +369,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取参数名称。
-		\return 参数名称，返回一个QString对象。如果未设置参数名称，则返回空字符串。
+		return 参数名称，返回一个QString对象。如果未设置参数名称，则返回空字符串。
 	*/
 	QString AStoryXValueMeta::getParameterName() const {
 		return d->ParameterName;
@@ -386,7 +386,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取参数类型。
-		\return 参数类型，返回值为AStoryXValue::Type枚举中的一个值。
+		return 参数类型，返回值为AStoryXValue::Type枚举中的一个值。
 	*/
 	AStoryXValueMeta::Type AStoryXValueMeta::getType() const {
 		return d->Type;
@@ -413,7 +413,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取默认值。
-		\return 默认值，返回一个QString对象。如果未设置默认值，则返回空字符串。
+		return 默认值，返回一个QString对象。如果未设置默认值，则返回空字符串。
 	*/
 	QString AStoryXValueMeta::getDefaultValue() const {
 		return d->DefaultValue;
@@ -431,7 +431,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取字符串检查的正则表达式。
-		\return 正则表达式，返回一个QString对象。如果未设置正则表达式，则返回空字符串。
+		return 正则表达式，返回一个QString对象。如果未设置正则表达式，则返回空字符串。
 	*/
 	QString AStoryXValueMeta::getStringCheckRegex() const {
 		return d->StringCheckRegex;
@@ -450,7 +450,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取整数检查的范围。
-		\return 整数检查范围，返回一个QPair<qint64, qint64>对象，其中first表示最小值，second表示最大值。
+		return 整数检查范围，返回一个QPair<qint64, qint64>对象，其中first表示最小值，second表示最大值。
 		如果未设置范围，则返回默认的QPair对象，其first和second均为0。
 	*/
 	QPair<qint64, qint64> AStoryXValueMeta::getIntegerCheckRange() const {
@@ -470,7 +470,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取浮点数检查的范围。
-		\return 浮点数检查范围，返回一个QPair<double, double>对象，其中first表示最小值，second表示最大值。
+		return 浮点数检查范围，返回一个QPair<double, double>对象，其中first表示最小值，second表示最大值。
 		如果未设置范围，则返回默认的QPair对象，其first和second均为0.0。
 	*/
 	QPair<double, double> AStoryXValueMeta::getFloatCheckRange() const {
@@ -492,7 +492,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取向量检查的范围。
-		\return 向量检查范围，返回一个QList<QPair<double, double>>对象，其中每个QPair表示一个维度的最小值和最大值。
+		return 向量检查范围，返回一个QList<QPair<double, double>>对象，其中每个QPair表示一个维度的最小值和最大值。
 		如果未设置范围，则返回一个空的QList对象。
 	*/
 	QList<QPair<double, double>> AStoryXValueMeta::getVectorCheckRange() const {
@@ -502,7 +502,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.1
 		获取向量检查的维度。
-		\return 向量检查维度，返回一个qint64的列表，代表允许的维度值列表。
+		return 向量检查维度，返回一个qint64的列表，代表允许的维度值列表。
 		如果未设置维度，则返回0。
 	*/
 	QList<qint64> AStoryXValueMeta::getVectorCheckDimensions() const {
@@ -521,7 +521,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取枚举检查的列表。
-		\return 枚举检查列表，返回一个QStringList对象，包含所有有效的枚举值。
+		return 枚举检查列表，返回一个QStringList对象，包含所有有效的枚举值。
 		如果未设置枚举检查列表，则返回一个空的QStringList对象。
 	*/
 	QStringList AStoryXValueMeta::getEnumCheckList() const {

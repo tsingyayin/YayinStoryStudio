@@ -5,7 +5,7 @@
 #include <QtWidgets/qstyleoption.h>
 namespace Visindigo::Widgets {
 	/*!
-		\class BorderLabel
+		\class Visindigo::Widgets::BorderLabel
 		\brief 这是个神奇的类，在Windows上的某些情况下特别有用
 		\since Visindigo 0.14.0
 		\inmodule Visindigo
@@ -18,7 +18,7 @@ namespace Visindigo::Widgets {
 		正好与这种边框类似，因此这个类就被设计出来了，以满足在Windows11上实现现代边框的需求。
 
 		你可以如同使用QLabel一样使用它，但如果你也需要重载paintEvent，记得先
-		调用BorderLabel::paintEvent来绘制边框，否则你就只能得到一个普通的QLabel了。
+		调用Visindigo::Widgets::BorderLabel::paintEvent来绘制边框，否则你就只能得到一个普通的QLabel了。
 	*/
 
 	/*!

@@ -82,7 +82,7 @@ namespace ASERStudio::ASEREnv {
 	/*!
 		\since ASERStudio 2.0
 		获取当前设置的ASERProgram实例。
-		\return 当前设置的ASERProgram实例的指针，如果没有设置则返回nullptr
+		return 当前设置的ASERProgram实例的指针，如果没有设置则返回nullptr
 	*/
 	ASERProgram* ASERDebugIO::getProgram() const {
 		return d->Program;
