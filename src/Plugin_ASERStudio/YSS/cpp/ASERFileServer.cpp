@@ -4,6 +4,7 @@
 #include <QtWidgets/qlayout.h>
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
+#include <General/Log.h>
 namespace ASERStudio::YSS {
 	FileServer_AStoryX::FileServer_AStoryX(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::FileServer("AStory Script File Server", "ASERStudio.FileServer.AStoryX", plugin) {
@@ -24,9 +25,11 @@ namespace ASERStudio::YSS {
 		QString projectFolder = project->getProjectFolder();
 		QString ruleFolder = projectFolder + "/Rules";
 		if (filePath.startsWith(ruleFolder) && filePath.endsWith(".json")) {
+			vgDebug << "ASRule JSON file focused: " << filePath;
 			return std::numeric_limits<qint64>::max();
 		}
 		else {
+			vgDebug << "Normal JSON file:" << filePath;
 			return -1;
 		}
 	}

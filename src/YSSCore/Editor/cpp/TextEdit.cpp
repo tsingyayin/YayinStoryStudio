@@ -105,17 +105,7 @@ namespace YSSCore::__Private__ {
 			}
 		}
 		else if (obj == q) {
-			if (event->type() == QEvent::Close) {
-				if (q->onClose()) {
-					event->accept();
-					return true;
-				}
-				else {
-					event->ignore();
-					return false;
-				}
-			}
-			else if (event->type() == QEvent::Hide || event->type() == QEvent::HideToParent) {
+			if (event->type() == QEvent::Hide || event->type() == QEvent::HideToParent) {
 				if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
 					HoverInfoWidget->hide();
 				}
@@ -629,7 +619,28 @@ namespace YSSCore::__Private__ {
 		}
 		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
 			QRect pos = Text->cursorRect();
-			TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
+			if (not HoverArea) {
+				bool rightOut = pos.x() + TabCompleterWidget->width() > Text->viewport()->width();
+				if (rightOut) {
+					//right align
+					TabCompleterWidget->move(QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20));
+				}
+				else {
+					// left align
+					TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
+				}
+			}
+			else {
+				bool rightOut = pos.x() + TabCompleterWidget->width() > HoverArea->width();
+				if (rightOut) {
+					//right align
+					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20)));
+				}
+				else {
+					// left align
+					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
+				}
+			}
 		}
 	}
 

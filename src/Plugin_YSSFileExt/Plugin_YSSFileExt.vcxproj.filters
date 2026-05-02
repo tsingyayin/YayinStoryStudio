@@ -35,9 +35,15 @@
     <ClCompile Include="FileServer\cpp\YSSPEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FileServer\cpp\DefaultTextEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileServer\DefaultTextEdit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,10 +4,10 @@
 #include "General/private/AUTO_VERSION.h"
 // Visindigo version macro
 #define Visindigo_VERSION_MAJOR 0
-#define Visindigo_VERSION_MINOR 14
+#define Visindigo_VERSION_MINOR 15
 #define Visindigo_VERSION_PATCH 0
 
-#define Visindigo_ABI_VERSION_MAJOR 14
+#define Visindigo_ABI_VERSION_MAJOR 15
 #define Visindigo_ABI_VERSION_MINOR 0
 #define Compiled_VIABI_Version Visindigo::General::Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0)
 #define Compiled_VIAPI_Version Visindigo::General::Version(Visindigo_VERSION_MAJOR, Visindigo_VERSION_MINOR, Visindigo_VERSION_PATCH, true, Visindigo_VERSION_BUILD, QString(Visindigo_VERSION_NICKNAME))

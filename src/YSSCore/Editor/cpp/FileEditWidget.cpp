@@ -36,7 +36,20 @@ protected:
 	/*!
 		\fn YSSCore::Editor::FileEditWidget::fileSaved(const QString& filePath)
 		\since YSS 0.13.0
-		当文件被成功保存时，应触发此信号。
+		当文件被成功保存时，自动触发此信号。
+	*/
+
+	/*!
+		\fn YSSCore::Editor::FileEditWidget::filePathChanged(const QString& rawPath, const QString& changedPath)
+		\since YSS 0.15.0
+		当文件路径被修改时，自动触发此信号。
+	*/
+
+	/*!
+		\fn YSSCore::Editor::FileEditWidget::closed(const QString& filePath)
+		\since YSS 0.15.0
+		当文件最终被关闭时，自动触发此信号。
+		此信号在onClose返回true后，即允许关闭的情况下才会触发
 	*/
 
 	/*!
@@ -134,6 +147,9 @@ protected:
 		}
 		bool ok = onSave(pathCopy);
 		if (ok) {
+			if (!path.isEmpty() && path != d->filePath) {
+				emit filePathChanged(d->filePath, pathCopy);
+			}
 			d->filePath = pathCopy;
 			d->fileChanged = false;
 			emit fileSaved(d->filePath);
@@ -152,15 +168,6 @@ protected:
 			return false;
 		}
 		return onReload();
-	}
-
-	/*!
-		关闭当前文件编辑器。
-		return 如果文件编辑器可以关闭，返回true；否则返回false。
-		此类调用派生类实现的onClose()函数以实际处理关闭逻辑。
-	*/
-	bool FileEditWidget::closeFile() {
-		return onClose();
 	}
 
 	/*!
@@ -247,43 +254,64 @@ protected:
 	void FileEditWidget::closeEvent(QCloseEvent* event) {
 		if (onClose()) {
 			event->accept();
+			emit fileClosed(d->filePath);
 		}
 		else {
 			event->ignore();
 		}
 	}
 
+	/*!
+		\fn YSSCore::Editor::FileEditWidget::onOpen(const QString& path) = 0
+		\since YSS 0.13.0
+		派生类必须实现此纯虚函数以处理文件打开逻辑。
+		\a path 要打开的文件路径。
 
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onOpen(const QString& path) = 0
-	派生类必须实现此纯虚函数以处理文件打开逻辑。
-	\a path 要打开的文件路径。
+		return 如果文件成功打开并加载，返回true；否则返回false。
 
-	return 如果文件成功打开并加载，返回true；否则返回false。
-*/
-
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onClose() = 0
-	派生类必须实现此纯虚函数以处理文件关闭逻辑。
-	return 如果文件编辑器可以关闭，返回true；否则返回false。
-*/
-
-/*!
-	\fn YSSCore::Editor::FileEditWidget::onSave(const QString& path = "") = 0
-	派生类必须实现此纯虚函数以处理文件保存逻辑。
-	\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
-	return 如果文件成功保存，返回true；否则返回false。
-*/
+		\warning 从0.15开始，这个函数可能因为onReload而重复调用，不保证
+		在整个生命周期内只调用一次。因此如果你在这个函数内尝试懒加载你的
+		FileEditWidget，应当首先检查资源是否已经初始化，避免出现内存泄漏。
+	*/
 
 	/*!
+		\fn YSSCore::Editor::FileEditWidget::onClose() = 0
+		\since YSS 0.13.0
+
+		派生类必须实现此纯虚函数以处理文件关闭逻辑。
+		return 如果文件编辑器可以关闭，返回true；否则返回false。
+
+		\warning 不要在这个函数里调用close或deleteLater等任何实质上真的
+		会关闭这个Widget的函数，会造成递归爆栈。这个函数的唯一作用是通过
+		返回值告知YSS是否真的应该关闭它。因此你可以在里面做一些保存、警告等操作
+	*/
+
+	/*!
+		\fn YSSCore::Editor::FileEditWidget::onSave(const QString& path = "") = 0
+		\since YSS 0.13.0
+
+		派生类必须实现此纯虚函数以处理文件保存逻辑。
+		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
+		return 如果文件成功保存，返回true；否则返回false。
+	*/
+
+	/*!
+		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理文件重新加载逻辑。
 		return 如果文件成功重新加载，返回true；否则返回false。
+
+		在0.15之前的版本，这个函数默认返回false
+		从0.15开始，这个函数默认使用现在的文件路径重新调用onOpen()
 	*/
 	bool FileEditWidget::onReload() {
-		return false;
+		if (d->filePath.isEmpty()) {
+			return false;
+		}
+		return onOpen(d->filePath);
 	}
 
 	/*!
+		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理复制逻辑。
 		return 如果复制操作成功，返回true；否则返回false。
 	*/
@@ -291,6 +319,7 @@ protected:
 		return false;
 	}
 	/*!
+		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理剪切逻辑。
 		return 如果剪切操作成功，返回true；否则返回false。
 	*/
@@ -299,6 +328,7 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理粘贴逻辑。
 		return 如果粘贴操作成功，返回true；否则返回false。
 	*/
@@ -307,6 +337,7 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理撤销逻辑。
 		return 如果撤销操作成功，返回true；否则返回false。
 	*/
@@ -315,6 +346,7 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理重做逻辑。
 		return 如果重做操作成功，返回true；否则返回false。
 	*/
@@ -323,6 +355,7 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理全选逻辑。
 		return 如果全选操作成功，返回true；否则返回false。
 	*/

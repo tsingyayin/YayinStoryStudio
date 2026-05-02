@@ -5,14 +5,14 @@
 #include <General/YSSProject.h>
 #include <Editor/TextEdit.h>
 #include <General/Log.h>
-
+#include <Editor/FileServerManager.h>
+#include <QtCore/qfileinfo.h>
 namespace YSS::Editor {
 	class StackWidgetAreaPrivate {
 		friend class StackWidgetArea;
 	protected:
 		StackWidgetTagArea* TagArea;
 		QFrame* ContentArea = nullptr;
-		QMap<QString, YSSCore::Editor::FileEditWidget*> WidgetMap;
 		QVBoxLayout* Layout;
 		MessageViewer* MsgViewer;
 		DefaultStackWidgetCentralArea* CentralArea;
@@ -45,17 +45,19 @@ namespace YSS::Editor {
 	void StackWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
 		QString filePath = widget->getFilePath();
 		vgDebug << filePath;
-		if (d->WidgetMap.contains(filePath)) {
+		if (d->TagArea->containsStackLabel(filePath)) {
 			setCurrentWidget(filePath);
-			widget->deleteLater();
 			return;
 		}
 		widget->setParent(this);
-		d->WidgetMap[filePath] = widget;
 		d->TagArea->addStackLabel(filePath);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackWidgetTagArea::setFileChanged);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea, &StackWidgetTagArea::cancelFileChanged);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea, &StackWidgetTagArea::cancelFileChanged);
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileClosed, this, [this, widget]() {
+			d->TagArea->removeStackLabel(widget->getFilePath()); // this function handle re-choice if the closed widget is current one
+			GlobalValue::getCurrentProject()->removeEditorOpenedFile(widget->getFilePath());
+			});
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {
 			textEdit->setHoverArea(this);
@@ -65,26 +67,34 @@ namespace YSS::Editor {
 	}
 
 	StackWidgetArea::~StackWidgetArea() {
+		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
+			widget->setParent(nullptr);
+			widget->close();
+		}
 		delete d;
 	}
 
+	void StackWidgetArea::closeAll() {
+		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
+			vgDebug << "close " << widget->getFilePath();
+			widget->close();
+		}
+	}
 	void StackWidgetArea::closeWidget(YSSCore::Editor::FileEditWidget* widget) {
 		closeWidget(widget->getFilePath());
 	}
 
 	void StackWidgetArea::closeWidget(const QString& filePath) {
-		if (!d->WidgetMap.contains(filePath)) {
+		QFileInfo fileInfo(filePath);
+		QString absPath = fileInfo.absoluteFilePath();
+		if (not YSSFSM->getAllOpenedFilePaths().contains(absPath)) {
 			return;
 		}
-		YSSCore::Editor::FileEditWidget* widget = d->WidgetMap[filePath];
-		bool okToClose = widget->closeFile();
-		if (okToClose) {
-			d->WidgetMap.remove(filePath);
-			d->TagArea->removeStackLabel(filePath); // this function handle re-choice if the closed widget is current one
-			GlobalValue::getCurrentProject()->removeEditorOpenedFile(filePath);
-			widget->deleteLater();
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
+		if (not widget) {
+			return;
 		}
-		
+		widget->close();
 	}
 
 	void StackWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -100,10 +110,15 @@ namespace YSS::Editor {
 			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
-		if (!d->WidgetMap.contains(filePath)) {
+		QFileInfo fileInfo(filePath);
+		QString absPath = fileInfo.absoluteFilePath();
+		if (not YSSFSM->getAllOpenedFilePaths().contains(absPath)) {
 			return;
 		}
-		YSSCore::Editor::FileEditWidget* widget = d->WidgetMap[filePath];
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
+		if (not widget) {
+			return;
+		}
 		if (d->ContentArea != widget) {
 			d->ContentArea->hide();
 			d->Layout->removeWidget(d->ContentArea);
@@ -130,10 +145,15 @@ namespace YSS::Editor {
 			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
-		if (!d->WidgetMap.contains(filePath)) {
+		QFileInfo fileInfo(filePath);
+		QString absPath = fileInfo.absoluteFilePath();
+		if (not YSSFSM->getAllOpenedFilePaths().contains(absPath)) {
 			return;
 		}
-		YSSCore::Editor::FileEditWidget* widget = d->WidgetMap[filePath];
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
+		if (not widget) {
+			return;
+		}
 		setCurrentWidget(widget);
 		widget->cursorToPosition(lineNumber, column);
 	}
@@ -143,10 +163,6 @@ namespace YSS::Editor {
 			return nullptr;
 		}
 		return (YSSCore::Editor::FileEditWidget*)d->ContentArea;
-	}
-
-	QList<YSSCore::Editor::FileEditWidget*> StackWidgetArea::getAllWidgets() const {
-		return d->WidgetMap.values();
 	}
 
 	void StackWidgetArea::setMessageViewerEnable(bool enable) {

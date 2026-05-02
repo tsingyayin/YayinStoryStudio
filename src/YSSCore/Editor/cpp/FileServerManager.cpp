@@ -8,30 +8,6 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
 namespace YSSCore::Editor {
-	/*!
-		\class YSSCore::Editor::FileWidgetHandler
-		\brief 接口类，代表处理来自FileServerManager的文件编辑窗口的对象。
-		\since Visindigo 0.14.0
-		\inmodule YSSCore
-
-		用户可以通过实现FileWidgetHandler接口来处理FileServerManager创建的文件编辑窗口。
-		当返回false时，FileServerManager会决定销毁该窗口。
-	*/
-
-	/*!
-		\fn virtual bool YSSCore::Editor::FileWidgetHandler::handleBuiltinEditor(FileEditWidget* editor) = 0;
-		\since Visindigo 0.14.0
-		处理内置编辑器窗口的函数。只要返回true，FileServerManager就会认为这个窗口已经被成功处理，不会再进行任何操作；
-		如果返回false，FileServerManager会销毁这个窗口。
-	*/
-
-	/*!
-		\fn virtual bool YSSCore::Editor::FileWidgetHandler::handleWindowEditor(QWidget* editor) = 0;
-		\since Visindigo 0.14.0
-		处理窗口编辑器的函数。只要返回true，FileServerManager就会认为这个窗口已经被成功处理，不会再进行任何操作；
-		如果返回false，FileServerManager会销毁这个窗口。
-	*/
-
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
 	protected:
@@ -39,19 +15,19 @@ namespace YSSCore::Editor {
 		QMap<QString, QList<FileServer*>> FileServerMap;
 		QMap<QString, QList<FileServer*>> FileServerPriorityMap;
 		QMap<QString, bool> EspeciallyFocusEnableMap;
-		FileWidgetHandler* WidgetHandler = nullptr;
+		QMap<QString, FileEditWidget*> OpenedFileEditWidgets;
 		static FileServerManager* Instance;
 
 		bool openFile(const QString& filePath, FileServer* server) {
 			bool ok = false;
 			if (server != nullptr) {
 				FileEditWidget* feWidget = nullptr;
-				QWidget* widget = nullptr;
 				switch (server->getEditorType()) {
 				case FileServer::CodeEditor:
 					feWidget = new TextEdit();
 					ok = feWidget->openFile(filePath);
-					if (ok && WidgetHandler && WidgetHandler->handleBuiltinEditor(feWidget)) {
+					if (ok) {
+						onFileEditWidgetCreated(feWidget);
 						return true;
 					}
 					else {
@@ -65,7 +41,8 @@ namespace YSSCore::Editor {
 						return false;
 					}
 					ok = feWidget->openFile(filePath);
-					if (ok && WidgetHandler && WidgetHandler->handleBuiltinEditor(feWidget)) {
+					if (ok) {
+						onFileEditWidgetCreated(feWidget);
 						return true;
 					}
 					else {
@@ -73,25 +50,34 @@ namespace YSSCore::Editor {
 						return false;
 					}
 					break;
-				case FileServer::WindowEditor:
-					widget = server->onCreateWindowEditor(filePath);
-					if (widget && WidgetHandler && WidgetHandler->handleWindowEditor(widget)) {
-						return true;
-					}
-					else {
-						if (widget) {
-							widget->deleteLater();
-						}
-						return false;
-					}
-					break;
-				case FileServer::ExternalProgram:
-					return server->onCreateExternalEditor(filePath);
-				case FileServer::OtherEditor:
-					return server->onOtherOpenFile(filePath);
 				}
 			}
 			return ok;
+		}
+
+		void onFileEditWidgetCreated(FileEditWidget* we) {
+			if (not we) { return; }
+			QString path = we->getFilePath();
+			OpenedFileEditWidgets.insert(path, we);
+			QObject::connect(we, &FileEditWidget::fileClosed, [this, we](const QString& path) {
+				OpenedFileEditWidgets.remove(path);
+				emit Instance->fileClosed(path);
+				we->deleteLater();
+				yDebug << "File closed:" << path;
+			});
+			QObject::connect(we, &FileEditWidget::filePathChanged, [this, we](const QString& rawPath, const QString& changedPath) {
+				if (OpenedFileEditWidgets.contains(rawPath)) {
+					OpenedFileEditWidgets.remove(rawPath);
+					OpenedFileEditWidgets.insert(changedPath, we);
+					emit Instance->fileClosed(rawPath);
+					emit Instance->fileOpened(changedPath);
+				}
+				});
+			emit Instance->fileOpened(path);
+		}
+
+		bool isFileAlreadyOpen(const QString& filePath) {
+			return OpenedFileEditWidgets.contains(filePath);
 		}
 	};
 	FileServerManager* FileServerManagerPrivate::Instance = nullptr;
@@ -99,7 +85,7 @@ namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::FileServerManager
 		\inmodule YSSCore
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		\brief 管理FileServer的对象。
 
 		在用户将自己的FileServer注册到FileServerManager后，FileServerManager可以根据已经注册的支持类型选择合适的FileServer来打开文件。
@@ -118,7 +104,20 @@ namespace YSSCore::Editor {
 	*/
 
 	/*!
-		\since Visindigo 0.13.0
+		\fn FileServerManager::fileOpened(const QString& filePath)
+		\since YSS 0.15.0
+		当一个文件被成功打开时发出的信号。参数\a filePath是被打开的文件的绝对路径。
+	*/
+
+	/*!
+		\fn FileServerManager::fileClosed(const QString& filePath)
+		\since YSS 0.15.0
+		当一个文件被关闭时发出的信号。参数\a filePath是被关闭的文件的绝对路径。
+	*/
+
+
+	/*!
+		\since YSS 0.13.0
 		构造FileServerManager对象。
 	*/
 	FileServerManager::FileServerManager() {
@@ -127,7 +126,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		析构FileServerManager对象。一般来说，没有任何情况需要手动析构此对象。FileServerManager应该与使用它的应用程序有一致的生命周期。
 	*/
 	FileServerManager::~FileServerManager() {
@@ -139,15 +138,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.14.0
-		设置文件窗口处理器
-	*/
-	void FileServerManager::setFileWidgetHandler(FileWidgetHandler* handler) {
-		d->WidgetHandler = handler;
-	}
-
-	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取FileServerManager的单例对象。
 	*/
 	FileServerManager* FileServerManager::getInstance() {
@@ -179,7 +170,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		注销一个已经注册的FileServer对象。
 		\a server 要注销的FileServer对象指针。
 		如果传入的FileServer对象没有被注册，则不会有任何效果。
@@ -217,15 +208,21 @@ namespace YSSCore::Editor {
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		QString ext = QFileInfo(filePath).suffix();
 		QString absPath = QFileInfo(filePath).absoluteFilePath();
+		if (d->isFileAlreadyOpen(absPath)) {
+			yDebug << "File already open:" << absPath;
+			emit fileOpened(absPath);
+			return true;
+		}
 		if (d->FileServerMap.contains(ext)) { // means supported
 			QList<FileServer*> servers = d->FileServerMap[ext];
 			if (d->FileServerPriorityMap.contains(ext)) {
 				servers = d->FileServerPriorityMap[ext];
 			}
-			if (!preferredServerId.isEmpty()) {
+			if (not preferredServerId.isEmpty()) {
 				FileServer* server = nullptr;
 				for (auto s : servers) {
 					if (s->getModuleID() == preferredServerId) {
+						yDebug << "Preferred Server founded:" << preferredServerId;
 						server = s;
 						break;
 					}
@@ -236,23 +233,26 @@ namespace YSSCore::Editor {
 					}
 				}
 			}
+			yDebug << "Especially focus:" << isEspeciallyFocusEnable(ext);
 			if (isEspeciallyFocusEnable(ext)) {
 				qint64 especiallyFocus = -1;
 				FileServer* especiallyFocusServer = nullptr;
 				for (auto server : servers) {
-					int currentFocus = server->especiallyFocusFile(absPath);
+					qint64 currentFocus = server->especiallyFocusFile(absPath);
 					if (currentFocus > 0 && currentFocus > especiallyFocus) {
 						especiallyFocus = currentFocus;
 						especiallyFocusServer = server;
 					}
 				}
 				if (especiallyFocusServer) {
+					yDebug << "Especially focus server:" << especiallyFocusServer->getModuleID();
 					if (d->openFile(absPath, especiallyFocusServer)) {
 						return true;
 					}
 				}
 			}
 			for (auto server : servers) {
+				yDebug << "FileServer " << server->getModuleID() << "is trying to open the file.";
 				if (d->openFile(absPath, server)) {
 					return true;
 				}
@@ -267,7 +267,8 @@ namespace YSSCore::Editor {
 			if (ret == QMessageBox::Yes) {
 				FileEditWidget* feWidget = new TextEdit();
 				bool ok = feWidget->openFile(absPath);
-				if (ok && d->WidgetHandler && d->WidgetHandler->handleBuiltinEditor(feWidget)) {
+				if (ok) {
+					d->onFileEditWidgetCreated(feWidget);
 					return true;
 				}
 				else {
@@ -280,7 +281,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取所有已注册的FileServer支持的文件类型列表。
 	*/
 	QStringList FileServerManager::getSupportedFileExts() {
@@ -288,7 +289,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取某种文件类型对应的可用FileServer列表。
 		\a fileExt 文件类型后缀名（不含点号）。
 		\a 返回某种文件类型对应的可用FileServer ID列表。
@@ -305,7 +306,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		为某种文件类型设置FileServer优先级。
 		\a fileExt 文件类型后缀名（不含点号）。
 		\a serverIds 按优先级顺序排列的FileServer ID列表。
@@ -328,7 +329,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		启用或禁用某种文件类型的特别关注强度功能。
 		\a fileExt 文件类型后缀名（不含点号）。
 		\a enable 是否启用特别关注强度功能。默认为true。
@@ -338,15 +339,54 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		检查某种文件类型的特别关注强度功能是否启用。
 		\a fileExt 文件类型后缀名（不含点号）。
-		\a 返回某种文件类型的特别关注强度功能是否启用。
+
+		返回某种文件类型的特别关注强度功能是否启用。
 	*/
 	bool FileServerManager::isEspeciallyFocusEnable(const QString& fileExt) {
 		if (d->EspeciallyFocusEnableMap.contains(fileExt)) {
 			return d->EspeciallyFocusEnableMap[fileExt];
 		}
 		return true; // default enable
+	}
+
+	/*!
+		\since YSS 0.15.0
+		获取所有打开的文件编辑窗口。
+
+		返回所有打开的文件编辑窗口列表。
+
+		该返回值应即用即弃，不应被缓存或长期持有，因为FileServerManager会负责在窗口关闭时删除窗口对象。
+	*/
+	QList<FileEditWidget*> FileServerManager::getAllFileEditWidgets() {
+		return d->OpenedFileEditWidgets.values();
+	}
+
+	/*!
+		\since YSS 0.15.0
+		获取所有打开的文件路径列表。
+
+		该返回值应即用即弃，不应被缓存或长期持有，因为实际打开的文件列表可能会发生变化，缓存的列表可能会过时并导致逻辑错误。
+	*/
+	QStringList FileServerManager::getAllOpenedFilePaths() {
+		return d->OpenedFileEditWidgets.keys();
+	}
+
+	/*!
+		\since YSS 0.15.0
+		获取指定文件路径对应的文件编辑窗口。
+		\a filePath 文件路径。
+		返回指定文件路径对应的文件编辑窗口指针，如果没有找到则返回nullptr。
+		该返回值应即用即弃，不应被缓存或长期持有，因为FileServerManager会负责在窗口关闭时删除窗口对象。
+	*/
+	FileEditWidget* FileServerManager::getFileEditWidget(const QString& filePath) {
+		QFileInfo fileInfo(filePath);
+		QString absPath = fileInfo.absoluteFilePath();
+		if (d->OpenedFileEditWidgets.contains(absPath)) {
+			return d->OpenedFileEditWidgets[absPath];
+		}
+		return nullptr;
 	}
 }

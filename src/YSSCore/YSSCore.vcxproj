@@ -127,6 +127,7 @@
     <ClCompile Include="Editor\cpp\FileServerManager.cpp" />
     <ClCompile Include="Editor\cpp\FileTemplateManager.cpp" />
     <ClCompile Include="Editor\cpp\FileTemplateProvider.cpp" />
+    <ClCompile Include="Editor\cpp\FormatNormalizer.cpp" />
     <ClCompile Include="Editor\cpp\HoverInfoProvider.cpp" />
     <ClCompile Include="Editor\cpp\HoverInfoProvider_p.cpp" />
     <ClCompile Include="Editor\cpp\LangServer.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Editor\EditorProjectHelper.h" />
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
+    <ClInclude Include="Editor\FormatNormalizer.h" />
     <ClInclude Include="Editor\LangServer.h" />
     <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Editor\private\HoverInfoProvider_p.h" />

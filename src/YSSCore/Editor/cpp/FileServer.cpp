@@ -9,7 +9,6 @@ namespace YSSCore::Editor {
 		FileServer::EditorType Type = FileServer::EditorType::BuiltInEditor;
 		QStringList SupportedFileExts;
 	};
-
 	/*!
 		\class YSSCore::Editor::FileServer
 		\inmodule YSSCore
@@ -46,9 +45,13 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		\value CodeEditor 使用内置代码编辑器打开文件。
 		\value BuiltInEditor 使用内置编辑器打开文件，但不是代码编辑器。
-		\value WindowEditor 使用新窗口打开文件，但仍然在本程序内。
-		\value ExternalProgram 使用第三方程序打开文件。
-		\value OtherEditor 其他方式打开文件。
+		\value WindowEditor 使用新窗口打开文件，但仍然在本程序内。这个枚举计划从0.17开始废弃。
+		\value ExternalProgram 使用第三方程序打开文件。这个枚举计划从0.17开始废弃。
+		\value OtherEditor 其他方式打开文件。这个枚举计划从0.17开始废弃。
+
+		请注意，为了实现一些更深入的编辑器功能（如重命名），YSS必须有办法将资源管理器的重命名
+		操作通知到正在打开的文件，因此我们决定废弃除了CodeEditor和BuiltInEditor以外的编辑器类型，
+		以确保所有的编辑器都必须使用内置的编辑器框架来打开文件。
 	*/
 
 	/*!
@@ -120,57 +123,17 @@ namespace YSSCore::Editor {
 		
 		FileServerManager::openFile函数内部会自动对这个新的派生类对象调用openFile函数打开指定文件。
 
-		一旦成功，FileServerManager会发出FileServerManager::builtinEditorCreated信号，传递这个新的编辑器对象的指针。
+		一旦成功，FileServerManager会调用FileWidgetHandler::handleBuiltinEditor函数将这个新的编辑器对象的指针传递给外部，
+		以便外部可以将它添加到UI中。
+		
+		/warning 该函数返回指针的所有权问题在0.15之前和0.15及之后有不同的处理方式。请务必注意。
 
-		新创建的FileEditWidget派生类的所有权沿着信号被转移。由于使用了unique_ptr，如果没有任何人
-		监听此信号，指针被自动销毁。
+		在0.15之前，如果Handler返回true，该指针所有权会被转移到该FileWidgetHandler。
+		在0.15及之后，如果Handler返回true，该指针所有权会被转移到FileServerManager，并且FileServerManager会负责在
+		closed()信号发出时删除这个对象。
 	*/
 	FileEditWidget* FileServer::onCreateFileEditWidget() {
 		return nullptr;
-	}
-
-	/*!
-		\since YSS 0.13.0
-		当需要创建新窗口编辑器时调用。默认实现返回nullptr。
-		\a filePath 为需要打开的文件路径。
-		此函数要求派生类根据\a filePath参数创建一个新的QWidget派生类对象，并返回这个对象的指针。
-
-		只要返回的指针不为nullptr，FileServerManager会发出FileServerManager::windowEditorCreated信号，传递这个新的窗口对象的指针。
-
-		新创建的QWidget派生类的所有权沿着信号被转移。由于使用了unique_ptr，如果没有任何人监听此信号，指针被自动销毁。
-	*/
-	QWidget* FileServer::onCreateWindowEditor(const QString& filePath) {
-		return nullptr;
-	}
-
-	/*!
-		\since YSS 0.13.0
-		当需要使用第三方程序打开文件时调用。默认实现返回false。
-		\a filePath 为需要打开的文件路径。
-		此函数要求派生类根据\a filePath参数使用第三方程序打开这个文件，并返回是否成功的布尔值。
-		
-		FileServerManager不会对这个函数的返回值做任何处理。它会直接返回这个值给调用者。
-
-		Visindigo对第三方程序的调用没有任何要求和限制。派生类可以使用任何方式调用第三方程序。
-		因此Visindigo也不打算提供生命周期辅助函数。如果插件需要对第三方程序的生命周期进行管理，请自行实现。
-		建议使用EditorPlugin::onPluginDisable函数在插件被禁用时关闭第三方程序。
-	*/
-	bool FileServer::onCreateExternalEditor(const QString& filePath) {
-		return false;
-	}
-
-	/*!
-		\since YSS 0.13.0
-		当需要使用其他方式打开文件时调用。默认实现返回false。
-		\a filePath 为需要打开的文件路径。
-		此函数要求派生类根据\a filePath参数使用其他方式打开这个文件，并返回是否成功的布尔值。
-		FileServerManager不会对这个函数的返回值做任何处理。它会直接返回这个值给调用者。
-
-		很难想象“其他方式”具体指什么，因此Visindigo对这个函数没有任何要求和限制。派生类可以使用任何方式打开文件。
-		同样的，Visindigo没有为这种方式提供任何生命周期辅助函数。如果插件需要对这种方式的生命周期进行管理，请自行实现。
-	*/
-	bool FileServer::onOtherOpenFile(const QString& filePath) {
-		return false;
 	}
 
 	/*!

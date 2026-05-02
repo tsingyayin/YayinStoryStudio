@@ -16,6 +16,8 @@ namespace YSSCore::Editor {
 		void fileChanged(const QString& filePath);
 		void fileChangeCanceled(const QString& filePath);
 		void fileSaved(const QString& filePath);
+		void filePathChanged(const QString& rawPath, const QString& changedPath);
+		void fileClosed(const QString& filePath);
 	public:
 		FileEditWidget(QWidget* parent = nullptr);
 		virtual ~FileEditWidget();
@@ -27,7 +29,6 @@ namespace YSSCore::Editor {
 		bool openFile(const QString& path);
 		bool saveFile(const QString& path = "");
 		bool reloadFile();
-		bool closeFile();
 		bool copy();
 		bool cut();
 		bool paste();
@@ -47,7 +48,7 @@ namespace YSSCore::Editor {
 		virtual bool onRedo();
 		virtual bool onSelectAll();
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column);
-	protected:
+	public:
 		virtual void closeEvent(QCloseEvent* event) override;
 	};
 }

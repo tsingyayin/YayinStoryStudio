@@ -15,7 +15,7 @@ namespace YSS::Editor {
 	class StackWidgetArea;
 	class ResourceBrowser;
 
-	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget, YSSCore::Editor::FileWidgetHandler {
+	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	private:
 		QWidget* CentralWidget = nullptr;
@@ -24,7 +24,7 @@ namespace YSS::Editor {
 		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		Visindigo::Widgets::QuickMenu* Menu = nullptr;
-		bool asked = false;
+		bool closeForBack = false;
 		static MainWin* Instance;
 	public:
 		MainWin();
@@ -34,13 +34,12 @@ namespace YSS::Editor {
 		void saveAll();
 		void backToProjectWin();
 		virtual void onThemeChanged() override;
+		void onFileEditOpened(const QString& filePath);
 	public:
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void hideEvent(QHideEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
-		virtual bool handleBuiltinEditor(YSSCore::Editor::FileEditWidget* editor) override;
-		virtual bool handleWindowEditor(QWidget* editor) override;
 	private:
 		void initMenu();
 		bool checkProjectNeedToSave();

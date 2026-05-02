@@ -31,7 +31,6 @@ namespace YSS::Editor {
 
 	MainWin::MainWin() :QFrame() {
 		Instance = this;
-		YSSFSM->setFileWidgetHandler(this);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
 		this->setWindowTitle("Yayin Story Studio");
 		MainLayout = new QVBoxLayout(this);
@@ -54,9 +53,6 @@ namespace YSS::Editor {
 		splitter->addWidget(Browser);
 		splitter->addWidget(Editor);
 
-		connect(YSSFSM, &YSSCore::Editor::FileServerManager::switchLineEdit, Editor,
-			qOverload<const QString&, qint32, qint32>(&StackWidgetArea::setCurrentWidget));
-		
 		setColorfulEnable(true);
 		onThemeChanged();
 		for (Visindigo::General::Plugin* plugin: VIPLM->getLoadedPlugins()) {
@@ -74,6 +70,7 @@ namespace YSS::Editor {
 		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
 			this->showMaximized();
 		}
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 		GlobalValue::getCurrentProject()->refreshLastModifyTime();
 		GlobalValue::getCurrentProject()->saveProject();
 		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
@@ -88,10 +85,11 @@ namespace YSS::Editor {
 		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
 		Editor->setCurrentWidget(focusedFile);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
+	}
 
-		
-		//this->showFullScreen();
-		//this->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+	void MainWin::onFileEditOpened(const QString& filePath) {
+		auto widget = YSSFSM->getFileEditWidget(filePath);
+		Editor->addWidget(widget);
 	}
 
 	ResourceBrowser* MainWin::getResourceBrowser() {
@@ -103,21 +101,15 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::saveAll() {
-		for (YSSCore::Editor::FileEditWidget* widget : Editor->getAllWidgets()) {
+		for (auto* widget : YSSFSM->getAllFileEditWidgets()) {
 			widget->saveFile();
 		}
 	}
 
 	void MainWin::backToProjectWin() {
-		if (!checkProjectNeedToSave()) {
-			return;
-		}
-		asked = true;
+		closeForBack = true;
 		this->close();
-		saveProject();
-		GlobalValue::setCurrentProject(nullptr);
-		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
-		win->show();
+		
 	}
 
 	void MainWin::onThemeChanged() {
@@ -132,26 +124,28 @@ namespace YSS::Editor {
 
 	void MainWin::closeEvent(QCloseEvent* event) {
 		yDebugF << "MainWin Close Event";
-		if (!asked) {
-			if (!checkProjectNeedToSave()) {
-				event->ignore();
-				return;
-			}
-			for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
-				
-				if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
-					YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
-					if (editorPlugin) {
-						editorPlugin->onProjectClose(GlobalValue::getCurrentProject());
-					}
+		if (not checkProjectNeedToSave()) {
+			event->ignore();
+			closeForBack = false;
+			return;
+		}
+		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
+			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
+				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
+				if (editorPlugin) {
+					editorPlugin->onProjectClose(GlobalValue::getCurrentProject());
 				}
 			}
-			saveProject();
 		}
-		asked = false;
+		saveProject();
+		Editor->closeAll(); // close all should be later than saveProject.
 		Instance = nullptr;
+		delete GlobalValue::getCurrentProject();
 		this->deleteLater();
-		//delete Visindigo::Widgets::DesktopHacker::getInstance();
+		if (closeForBack) {
+			YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
+			win->show();
+		}
 	}
 
 	void MainWin::hideEvent(QHideEvent* event) {
@@ -161,17 +155,6 @@ namespace YSS::Editor {
 	void MainWin::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
-	}
-
-	bool MainWin::handleBuiltinEditor(YSSCore::Editor::FileEditWidget* editor) {
-		Editor->addWidget(editor);
-		return true;
-	}
-
-	bool MainWin::handleWindowEditor(QWidget* editor) {
-		editor->setAttribute(Qt::WA_DeleteOnClose);
-		editor->show();
-		return true;
 	}
 	
 	void MainWin::initMenu() {

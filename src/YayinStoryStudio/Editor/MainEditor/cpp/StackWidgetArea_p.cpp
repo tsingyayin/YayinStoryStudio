@@ -33,6 +33,8 @@ namespace YSS::Editor {
 		connect(CloseLabel, &QPushButton::clicked, this, [this]() {
 			emit closeClicked(FilePath);
 			});
+
+		setContextMenuPolicy(Qt::CustomContextMenu);
 	}
 
 	void StackWidgetTagLabel::setText(const QString& text) {
@@ -213,6 +215,24 @@ namespace YSS::Editor {
 		adjustScrollArea();
 	}
 
+	void StackWidgetTagArea::changeStackLabel(const QString& oldFilePath, const QString& newFilePath) {
+		for (StackWidgetTagLabel* label : Labels) {
+			if (label->getFilePath() == oldFilePath) {
+				QFileInfo fileInfo(newFilePath);
+				label->setText(fileInfo.fileName());
+				label->setFilePath(newFilePath);
+				for (int i = 0; i < WidgetSelector->count(); ++i) {
+					if (WidgetSelector->itemData(i).toString() == oldFilePath) {
+						WidgetSelector->setItemText(i, fileInfo.fileName());
+						WidgetSelector->setItemData(i, newFilePath);
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+
 	void StackWidgetTagArea::pinStackLabel(const QString& filePath) {
 		StackWidgetTagLabel* targetLabel = nullptr;
 		for (StackWidgetTagLabel* label : Labels) {
@@ -358,6 +378,15 @@ namespace YSS::Editor {
 				break;
 			}
 		}
+	}
+
+	bool StackWidgetTagArea::containsStackLabel(const QString& filePath) const {
+		for (auto label : Labels) {
+			if (label->getFilePath() == filePath) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void StackWidgetTagArea::wheelEvent(QWheelEvent* event) {

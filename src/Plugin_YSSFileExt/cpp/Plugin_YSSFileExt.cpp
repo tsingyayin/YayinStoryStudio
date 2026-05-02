@@ -1,5 +1,6 @@
 #include "Plugin_YSSFileExt.h"
 #include "LangServer/JsonLangServer.h"
+#include "FileServer/DefaultTextEdit.h"
 #include "FileServer/YSSPEditor.h"
 Plugin_YSSFileExt::Plugin_YSSFileExt() {
 	setPluginVersion(Compiled_VIAPI_Version); // YSSFileExt uses the same version as Visindigo API version
@@ -11,6 +12,7 @@ Plugin_YSSFileExt::Plugin_YSSFileExt() {
 void Plugin_YSSFileExt::onPluginEnable() {
 	registerLangServer(new YSSFileExt::JsonLangServer(this));
 	registerFileServer(new YSSFileExt::YSSPFileServer(this));
+	registerFileServer(new YSSFileExt::DefaultTextEdit(this));
 }
 
 void Plugin_YSSFileExt::onPluginDisable() {

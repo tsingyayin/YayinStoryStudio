@@ -2,7 +2,6 @@
 #define YSSFileExt_LangServer_YSSPEditor_H
 #include <Editor/FileServer.h>
 #include <Editor/EditorPlugin.h>
-#include <Editor/SyntaxHighlighter.h>
 #include <Editor/FileEditWidget.h>
 namespace YSSFileExt {
 	class YSSPEditorPrivate;

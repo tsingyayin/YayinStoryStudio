@@ -17,9 +17,6 @@ namespace YSSCore::Editor {
 		enum EditorType {
 			CodeEditor,  //builtin code editor
 			BuiltInEditor, //builtin, but not code editor
-			WindowEditor, //new window, but still in local program
-			ExternalProgram, //3rd party program
-			OtherEditor, //other editor
 		};
 		FileServer(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~FileServer();
@@ -27,9 +24,6 @@ namespace YSSCore::Editor {
 		QStringList getSupportedFileExts();
 		virtual qint64 especiallyFocusFile(const QString& filePath);
 		virtual FileEditWidget* onCreateFileEditWidget();
-		virtual QWidget* onCreateWindowEditor(const QString& filePath);
-		virtual bool onCreateExternalEditor(const QString& filePath);
-		virtual bool onOtherOpenFile(const QString& filePath);
 	protected:
 		void setEditorType(EditorType type);
 		void setSupportedFileExts(const QStringList& exts);

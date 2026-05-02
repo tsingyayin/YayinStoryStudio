@@ -10,6 +10,7 @@ namespace YSSCore::Editor {
 	class HoverInfoProvider;
 	class LangServerPrivate;
 	class SyntaxHighlighter;
+	class FormatNormalizer;
 	class TextEdit;
 }
 // Main
@@ -23,6 +24,7 @@ namespace YSSCore::Editor {
 		virtual SyntaxHighlighter* createHighlighter(TextEdit* doc) = 0;
 		virtual TabCompleterProvider* createTabCompleter(TextEdit* doc);
 		virtual HoverInfoProvider* createHoverInfoProvider(TextEdit* doc);
+		virtual FormatNormalizer* createFormatNormalizer(TextEdit* doc);
 		QString getLangID();
 		QStringList getLangExts();
 	protected:

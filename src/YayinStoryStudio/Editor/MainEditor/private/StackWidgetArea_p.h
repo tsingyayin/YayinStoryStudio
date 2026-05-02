@@ -7,6 +7,7 @@
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qtablewidget.h>
+#include <QtWidgets/qmenu.h>
 #include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
 	class StackWidgetTagLabel :public QFrame {
@@ -59,10 +60,16 @@ namespace YSS::Editor {
 		QHBoxLayout* Layout;
 		QList<StackWidgetTagLabel*> Labels;
 		QString CurrentSelected;
+		QMenu* ContextMenu;
+		QAction* ActionClose;
+		QAction* ActionPin;
+		QAction* ActionReload;	
+		QAction* ActionRename;
 	public:
 		StackWidgetTagArea(QWidget* parent = nullptr);
 		virtual ~StackWidgetTagArea();
 		void addStackLabel(const QString& filePath);
+		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath);
 		void pinStackLabel(const QString& filePath);
 		void removeStackLabel(const QString& filePath);
 		void setCurrentStackLabel(const QString& filePath);
@@ -70,6 +77,7 @@ namespace YSS::Editor {
 		void adjustScrollArea();
 		void setFileChanged(const QString& filePath);
 		void cancelFileChanged(const QString& filePath);
+		bool containsStackLabel(const QString& filePath) const;
 	public:
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;

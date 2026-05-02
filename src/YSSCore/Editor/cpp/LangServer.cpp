@@ -85,6 +85,17 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		创建一个格式化规范提供者实例。默认实现返回nullptr，表示不提供格式化规范功能。
+		传入该函数的TextEdit将会接管FormatNormalizer的所有权，且独占使用。
+		因此，你应该为每一次调用都创建新的FormatNormalizer实例，而不是复用同一个实例。
+		如果你需要在不同的文档之间共享某些数据（如变量名称、函数定义等），请另外创建一个数据管理类，并在FormatNormalizer中引用它。
+	*/
+	FormatNormalizer* LangServer::createFormatNormalizer(TextEdit* doc) {
+		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.13.0
 		获取语言ID
 	*/
 	QString LangServer::getLangID(){

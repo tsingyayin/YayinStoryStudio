@@ -11,6 +11,7 @@ namespace YSS::Editor {
 		StackWidgetArea(QWidget* parent = nullptr);
 		virtual ~StackWidgetArea();
 		void addWidget(YSSCore::Editor::FileEditWidget* widget);
+		void closeAll();
 		void closeWidget(YSSCore::Editor::FileEditWidget* widget);
 		void closeWidget(const QString& filePath);
 		void setCurrentWidget(YSSCore::Editor::FileEditWidget* widget);
@@ -18,7 +19,6 @@ namespace YSS::Editor {
 		void setCurrentWidget(YSSCore::Editor::FileEditWidget* widget, qint32 lineNumber, qint32 column = 0);
 		void setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column);
 		YSSCore::Editor::FileEditWidget* getCurrentWidget() const;
-		QList<YSSCore::Editor::FileEditWidget*> getAllWidgets() const;
 		void setMessageViewerEnable(bool enable);
 	public:
 		virtual void resizeEvent(QResizeEvent* event) override;
