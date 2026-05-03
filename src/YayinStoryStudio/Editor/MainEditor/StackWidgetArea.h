@@ -7,6 +7,8 @@ namespace YSS::Editor {
 	class StackWidgetAreaPrivate;
 	class StackWidgetArea :public QFrame {
 		Q_OBJECT;
+	signals:
+		void renameRequested(const QString& absOldPath);
 	public:
 		StackWidgetArea(QWidget* parent = nullptr);
 		virtual ~StackWidgetArea();

@@ -170,6 +170,20 @@
 			"title": "文件已修改",
 			"message": "文件 %1 已经被修改了，是否要保存更改？"
 		},
+		"reloadWarning": {
+			"title": "文件已修改",
+			"message": "文件 %1 已经被修改过了，如果直接重新加载，你对这个文件的修改将会丢失。是否要重新加载？"
+		},
+		"renameDialog": {
+			"title": "重命名",
+			"rename": "正在重命名文件 %1，请输入新名称",
+			"warning": {
+				"empty": "名称不能为空，请输入一个名称",
+				"same": "新名称与旧名称相同，请输入一个不同的名称",
+				"exists": "同级目录下已经存在拥有这个名称的文件了，请换一个名称",
+				"invalid": "文件名无效，不能包含以下字符：\\ / : * ? \" < > |"
+			}
+		},
 		"about": {
 			"title": "关于 Yayin Story Studio",
 			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清计划）的一部分，是从Yayin Story Player发展而来的一个全新的项目，旨在为ASE用户提供一个易用的开发环境。"

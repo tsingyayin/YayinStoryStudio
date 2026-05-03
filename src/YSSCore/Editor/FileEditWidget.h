@@ -16,7 +16,7 @@ namespace YSSCore::Editor {
 		void fileChanged(const QString& filePath);
 		void fileChangeCanceled(const QString& filePath);
 		void fileSaved(const QString& filePath);
-		void filePathChanged(const QString& rawPath, const QString& changedPath);
+		void fileRenamed(const QString& rawPath, const QString& changedPath);
 		void fileClosed(const QString& filePath);
 	public:
 		FileEditWidget(QWidget* parent = nullptr);
@@ -27,7 +27,7 @@ namespace YSSCore::Editor {
 		void setFileChanged();
 		void cancelFileChanged();
 		bool openFile(const QString& path);
-		bool saveFile(const QString& path = "");
+		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false);
 		bool reloadFile();
 		bool copy();
 		bool cut();
@@ -39,7 +39,7 @@ namespace YSSCore::Editor {
 	protected:
 		virtual bool onOpen(const QString& path) = 0;
 		virtual bool onClose() = 0;
-		virtual bool onSave(const QString& path = "") = 0;
+		virtual bool onSave(const QString& path) = 0;
 		virtual bool onReload();
 		virtual bool onCopy();
 		virtual bool onCut();

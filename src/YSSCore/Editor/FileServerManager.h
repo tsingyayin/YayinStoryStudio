@@ -17,6 +17,10 @@ namespace YSSCore::Editor {
 	signals:
 		void fileOpened(const QString& filePath);
 		void fileClosed(const QString& filePath);
+		void fileRenamed(const QString& raw, const QString& changed);
+		void fileChanged(const QString& filePath);
+		void fileChangeCanceled(const QString& filePath);
+		void fileSaved(const QString& filePath);
 		void focusFile(const QString& filePath);
 	private:
 		FileServerManager();

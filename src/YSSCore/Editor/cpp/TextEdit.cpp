@@ -512,6 +512,7 @@ namespace YSSCore::__Private__ {
 		}
 		else if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
 			TabCompleterWidget->scrollBy(-event->angleDelta().y());
+			return true;
 		}else{
 			return false;
 		}
@@ -1172,22 +1173,28 @@ namespace YSSCore::Editor {
 		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
 		if (server != nullptr) {
 			if (d->Highlighter != nullptr) {
-				delete d->Highlighter;
+				d->Highlighter->setParent(nullptr);
+				d->Highlighter->deleteLater();
 			}
 			d->Highlighter = server->createHighlighter(this);
+
 			if (d->TabCompleter != nullptr) {
-				delete d->TabCompleter;
+				d->TabCompleter->setParent(nullptr);
+				d->TabCompleter->deleteLater();
 			}
 			d->TabCompleter = server->createTabCompleter(this);
+
 			if (d->TabCompleterWidget != nullptr) {
-				delete d->TabCompleterWidget;
+				d->TabCompleterWidget->setParent(nullptr);
+				d->TabCompleterWidget->deleteLater();
 			}
 			if (d->TabCompleter != nullptr) {
 				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text);
 			}
 			d->HoverInfoProvider = server->createHoverInfoProvider(this);
 			if (d->HoverInfoWidget != nullptr) {
-				delete d->HoverInfoWidget;
+				d->HoverInfoWidget->setParent(nullptr);
+				d->HoverInfoWidget->deleteLater();
 			}
 			if (d->HoverInfoProvider != nullptr) {
 				d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
@@ -1254,14 +1261,14 @@ namespace YSSCore::Editor {
 	bool TextEdit::onSave(const QString& path) {
 		QFile file(path);
 		QFileInfo fileInfo(path);
-		if (not fileInfo.isWritable()) {
+		if (fileInfo.exists() && not fileInfo.isWritable()) {
 			QMessageBox::warning(this, 
 				VITR("YSS::editor.textEdit.readOnly.title"), VITR("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
 				QMessageBox::Ok);
 			vgWarning << "File is read-only:" << path << ",";
 			return false;
 		}
-		else {
+		else if (fileInfo.exists() && fileInfo.isWritable()) {
 			if (not file.open(QIODevice::WriteOnly | QIODevice::Text)) {
 				vgErrorF << "Failed to save file:" << path;
 				return false;
@@ -1269,6 +1276,19 @@ namespace YSSCore::Editor {
 			file.write(d->Text->toPlainText().toUtf8());
 			file.close();
 			return true;
+		}
+		else if (not fileInfo.exists()) {
+			if (not file.open(QIODevice::NewOnly | QIODevice::Text)) {
+				vgErrorF << "Failed to save file:" << path;
+				return false;
+			}
+			file.write(d->Text->toPlainText().toUtf8());
+			file.close();
+			return true;
+		}
+		else {
+			vgErrorF << "Unknown error when saving file:" << path;
+			return false;
 		}
 	}
 
@@ -1280,24 +1300,22 @@ namespace YSSCore::Editor {
 	bool TextEdit::onReload() {
 		if (isFileChanged()) {
 			QMessageBox msgBox;
-			msgBox.setText("Editor.SaveWarning.Message");
-			msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-			msgBox.setDefaultButton(QMessageBox::Save);
+			msgBox.setText("YSS::editor.reloadWarning.message");
+			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Yes);
 			int ret = msgBox.exec();
 			switch (ret) {
-			case QMessageBox::Save:
-				saveFile();
-				break;
-			case QMessageBox::Discard:
+			case QMessageBox::Yes:
+				openFile(getFilePath());
+				return true;
 				break;
 			case QMessageBox::Cancel:
-				return false;
+				break;
 			default:
 				break;
 			}
 		}
-		openFile(getFilePath());
-		return true;
+		return false;
 	}
 
 

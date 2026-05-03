@@ -74,6 +74,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\RenameDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">
@@ -121,6 +124,9 @@
     <QtMoc Include="Editor\MainEditor\private\StackWidgetArea_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\MainEditor\RenameDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">
@@ -138,9 +144,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\YSSCommandHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\MainEditor\RenameDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

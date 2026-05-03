@@ -68,6 +68,10 @@ namespace YSS::Editor {
 		onNewButtonClicked();
 	}
 
+	void ResourceBrowser::refresh() {
+		refreshFileList();
+	}
+
 	void ResourceBrowser::showEvent(QShowEvent* event) {
 		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
 		if (project != nullptr) {

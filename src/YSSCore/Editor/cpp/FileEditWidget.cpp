@@ -40,7 +40,7 @@ protected:
 	*/
 
 	/*!
-		\fn YSSCore::Editor::FileEditWidget::filePathChanged(const QString& rawPath, const QString& changedPath)
+		\fn YSSCore::Editor::FileEditWidget::fileRenamed(const QString& rawPath, const QString& changedPath)
 		\since YSS 0.15.0
 		当文件路径被修改时，自动触发此信号。
 	*/
@@ -131,13 +131,16 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.15.0
 		保存当前文件编辑器的内容到指定路径。
 		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
+		\a deleteWhenSaveAs 当执行另存为操作时，是否删除原文件。默认为false，即不删除原文件。如果设置为true，
+		可以视作重命名文件，保存成功后原文件将被删除。请谨慎使用此选项，以免误删重要文件。
 		return 如果文件成功保存，返回true；否则返回false。
 		此类在判定文件路径是否为空后，调用派生类实现的onSave()函数以实际保存文件。
 		一旦文件成功保存，fileChanged状态会被重置为false，并触发fileSaved信号。
 	*/
-	bool FileEditWidget::saveFile(const QString& path) {
+	bool FileEditWidget::saveFile(const QString& path, bool deleteWhenSaveAs) {
 		QString pathCopy = path;
 		if (path.isEmpty()) {
 			if (d->filePath.isEmpty()) {
@@ -147,12 +150,21 @@ protected:
 		}
 		bool ok = onSave(pathCopy);
 		if (ok) {
-			if (!path.isEmpty() && path != d->filePath) {
-				emit filePathChanged(d->filePath, pathCopy);
+			if (not path.isEmpty() && path != d->filePath) {
+				if (deleteWhenSaveAs) {
+					QFile::remove(d->filePath);
+				}
+				QString oldPath = d->filePath;
+				d->filePath = pathCopy;
+				d->fileChanged = false;
+				emit fileSaved(d->filePath);
+				emit fileRenamed(oldPath, pathCopy);
 			}
-			d->filePath = pathCopy;
-			d->fileChanged = false;
-			emit fileSaved(d->filePath);
+			else {
+				d->filePath = pathCopy;
+				d->fileChanged = false;
+				emit fileSaved(d->filePath);
+			}
 		}
 		return ok;
 	}

@@ -21,6 +21,7 @@
 #include <Editor/EditorPlugin.h>
 #include "Editor/MainEditor/StackWidgetArea.h"
 #include <Widgets/DesktopHacker.h>
+#include "Editor/MainEditor/RenameDialog.h"
 
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
@@ -85,6 +86,24 @@ namespace YSS::Editor {
 		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
 		Editor->setCurrentWidget(focusedFile);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
+
+		RenameDlg = new RenameDialog();
+		RenameDlg->hide();
+		connect(Editor, &StackWidgetArea::renameRequested, this, [this](const QString& absOldPath) {
+			RenameDlg->setContext(absOldPath);
+			RenameDlg->show();
+			});
+		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
+			auto editor = YSSFSM->getFileEditWidget(oldName);
+			if (editor) {
+				editor->saveFile(newName, true);
+			}
+			Browser->refresh();
+			});
+	}
+
+	MainWin::~MainWin() {
+		RenameDlg->deleteLater();
 	}
 
 	void MainWin::onFileEditOpened(const QString& filePath) {

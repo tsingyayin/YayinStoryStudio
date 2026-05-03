@@ -40,6 +40,9 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackWidgetTagArea::closeFile, this, [this](const QString& filePath) {
 			closeWidget(filePath);
 			});
+		connect(d->TagArea, &StackWidgetTagArea::renameRequested, this, [this](const QString& oldPath) {
+			emit renameRequested(oldPath);
+			});
 	}
 
 	void StackWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -57,6 +60,11 @@ namespace YSS::Editor {
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileClosed, this, [this, widget]() {
 			d->TagArea->removeStackLabel(widget->getFilePath()); // this function handle re-choice if the closed widget is current one
 			GlobalValue::getCurrentProject()->removeEditorOpenedFile(widget->getFilePath());
+			});
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileRenamed, this, [this](const QString& oldPath, const QString& newPath) {
+			d->TagArea->changeStackLabel(oldPath, newPath);
+			GlobalValue::getCurrentProject()->removeEditorOpenedFile(oldPath);
+			GlobalValue::getCurrentProject()->addEditorOpenedFile(newPath);
 			});
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {

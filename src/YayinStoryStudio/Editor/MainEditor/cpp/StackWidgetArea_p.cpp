@@ -6,6 +6,9 @@
 #include <General/Log.h>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qscrollbar.h>
+#include <Utility/FileUtility.h>
+#include <Editor/FileEditWidget.h>
+#include <Editor/FileServerManager.h>
 namespace YSS::Editor {
 	StackWidgetTagLabel::StackWidgetTagLabel(QWidget* parent) :QFrame(parent) {
 		TitleLabel = new QLabel(this);
@@ -24,6 +27,7 @@ namespace YSS::Editor {
 		CloseLabel->setFixedWidth(CloseLabel->height());
 		PinLabel->hide();
 		CloseLabel->hide();
+
 		this->setMaximumWidth(200);
 		connect(PinLabel, &QPushButton::clicked, this, [this]() {
 			setPinned(!isPinned());
@@ -34,7 +38,32 @@ namespace YSS::Editor {
 			emit closeClicked(FilePath);
 			});
 
-		setContextMenuPolicy(Qt::CustomContextMenu);
+		setContextMenuPolicy(Qt::ActionsContextMenu);
+		ActionClose = new QAction(VITR("Visindigo::general.close"), this);
+		ActionPin = new QAction(VITR("Visindigo::general.pin"), this);
+		ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
+		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
+		ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
+		connect(ActionClose, &QAction::triggered, this, [this]() {
+			emit closeClicked(FilePath);
+			});
+		connect(ActionPin, &QAction::triggered, this, [this]() {
+			setPinned(!isPinned());
+			emit pinClicked(FilePath);
+			});
+		connect(ActionReload, &QAction::triggered, this, [this]() {
+			YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(FilePath);
+			if (editor) { 
+				editor->reloadFile();
+			}
+			});
+		connect(ActionRename, &QAction::triggered, this, [this]() {
+			emit renameRequested(FilePath);
+			});
+		connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
+			Visindigo::Utility::FileUtility::openExplorer(FilePath);
+			});
+		this->addActions({ ActionClose, ActionPin, ActionReload, ActionRename, ActionShowInExplorer });
 	}
 
 	void StackWidgetTagLabel::setText(const QString& text) {
@@ -207,6 +236,9 @@ namespace YSS::Editor {
 			});
 		connect(tagLabel, &StackWidgetTagLabel::clicked, this, [this](const QString& filePath) {
 			emit switchToFile(filePath);
+			});
+		connect(tagLabel, &StackWidgetTagLabel::renameRequested, this, [this](const QString& filePath) {
+			emit renameRequested(filePath);
 			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
 		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),

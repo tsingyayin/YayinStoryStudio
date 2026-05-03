@@ -112,6 +112,7 @@
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MenuBarHandler.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\RenameDialog.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackWidgetArea_p.cpp" />
@@ -145,7 +146,7 @@
     <QtMoc Include="Editor\MainEditor\MenuBarHandler.h" />
     <QtMoc Include="Editor\MainEditor\StackWidgetArea.h" />
     <QtMoc Include="Editor\MainEditor\private\StackWidgetArea_p.h" />
-    <ClInclude Include="Editor\MainEditor\RenameDialog.h" />
+    <QtMoc Include="Editor\MainEditor\RenameDialog.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

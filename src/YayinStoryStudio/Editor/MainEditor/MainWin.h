@@ -14,6 +14,7 @@ namespace Visindigo::Widgets {
 namespace YSS::Editor {
 	class StackWidgetArea;
 	class ResourceBrowser;
+	class RenameDialog;
 
 	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
@@ -23,11 +24,13 @@ namespace YSS::Editor {
 		StackWidgetArea* Editor = nullptr;
 		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
+		RenameDialog* RenameDlg = nullptr;
 		Visindigo::Widgets::QuickMenu* Menu = nullptr;
 		bool closeForBack = false;
 		static MainWin* Instance;
 	public:
 		MainWin();
+		virtual ~MainWin();
 		static MainWin* getInstance();
 		ResourceBrowser* getResourceBrowser();
 		StackWidgetArea* getStackWidgetArea();

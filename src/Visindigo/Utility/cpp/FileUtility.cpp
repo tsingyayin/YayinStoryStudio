@@ -312,9 +312,24 @@ namespace Visindigo::Utility {
 		\a path 路径
 		\since Visindigo 0.13.0
 		打开指定路径的资源管理器。
+
+		从0.15.0开始，这个函数在Windows上进行优化：如果路径是一个文件，则会额外选中该文件。
 	*/
 	void FileUtility::openExplorer(const QString& path) {
+#ifndef Q_OS_WIN
 		QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+#else
+		QFileInfo fileInfo(path);
+		if (fileInfo.isDir()) {
+			QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+		}
+		else if (fileInfo.isFile()) {
+			QString absPath = fileInfo.absoluteFilePath().replace("/","\\");
+			QString cmd = "explorer /select,\"" + absPath + "\"";
+			vgDebug << cmd;
+			system(("explorer /select,\"" + absPath +"\"").toStdString().c_str());
+		}
+#endif
 	}
 
 	/*!

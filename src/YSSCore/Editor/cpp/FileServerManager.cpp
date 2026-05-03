@@ -65,13 +65,21 @@ namespace YSSCore::Editor {
 				we->deleteLater();
 				yDebug << "File closed:" << path;
 			});
-			QObject::connect(we, &FileEditWidget::filePathChanged, [this, we](const QString& rawPath, const QString& changedPath) {
+			QObject::connect(we, &FileEditWidget::fileRenamed, [this, we](const QString& rawPath, const QString& changedPath) {
 				if (OpenedFileEditWidgets.contains(rawPath)) {
 					OpenedFileEditWidgets.remove(rawPath);
 					OpenedFileEditWidgets.insert(changedPath, we);
-					emit Instance->fileClosed(rawPath);
-					emit Instance->fileOpened(changedPath);
+					emit Instance->fileRenamed(rawPath, changedPath);
 				}
+				});
+			QObject::connect(we, &FileEditWidget::fileChanged, [this](const QString& path) {
+				emit Instance->fileChanged(path);
+				});
+			QObject::connect(we, &FileEditWidget::fileChangeCanceled, [this](const QString& path) {
+				emit Instance->fileChangeCanceled(path);
+				});
+			QObject::connect(we, &FileEditWidget::fileSaved, [this](const QString& path) {
+				emit Instance->fileSaved(path);
 				});
 			emit Instance->fileOpened(path);
 		}
