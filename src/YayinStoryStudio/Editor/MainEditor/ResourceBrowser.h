@@ -24,6 +24,11 @@ namespace YSS::Editor {
 		QHBoxLayout* ButtonLayout;
 		QVBoxLayout* Layout;
 		QDir CurrentDir;
+		QMenu* Menu;
+		QAction* ActionExpand;
+		QAction* ActionShrink;
+		QAction* ActionRename;
+		QAction* ActionShowInExplorer;
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
 		void openNewFileWindow();

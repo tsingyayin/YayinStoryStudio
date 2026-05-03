@@ -28,12 +28,14 @@ namespace YSS::Editor {
 		QAction* ActionPin;
 		QAction* ActionReload;
 		QAction* ActionRename;
+		QAction* ActionSaveAs;
 		QAction* ActionShowInExplorer;
 	signals:
 		void clicked(const QString& filePath);
 		void pinClicked(const QString& filePath);
 		void closeClicked(const QString& filePath);
 		void renameRequested(const QString& filePath);
+		void saveAsRequested(const QString& filePath);
 	public:
 		StackWidgetTagLabel(QWidget* parent = nullptr);
 		void setText(const QString& text);
@@ -59,6 +61,7 @@ namespace YSS::Editor {
 		void switchToFile(const QString& filePath);
 		void closeFile(const QString& filePath);
 		void renameRequested(const QString& filePath);
+		void saveAsRequested(const QString& filePath);
 	private:
 		QHBoxLayout* ContentLayout;
 		QFrame* ScrollContent;

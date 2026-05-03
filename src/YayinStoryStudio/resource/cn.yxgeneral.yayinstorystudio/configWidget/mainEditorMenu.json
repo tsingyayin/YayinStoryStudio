@@ -13,15 +13,31 @@
                         },
                         {
                             "ID": "open",
-                            "Name": "i18n:YSS::menu.file.open"
+                            "Name": "i18n:YSS::menu.file.open",
+                            "Shortcut": [
+                                "Ctrl", "O"
+                            ]
                         },
                         {
                             "ID": "save",
-                            "Name": "i18n:YSS::menu.file.save"
+                            "Name": "i18n:YSS::menu.file.save",
+                            "Shortcut": [
+                                "Ctrl", "S"
+                            ]
+                        },
+                        {
+                            "ID": "saveAs",
+                            "Name": "i18n:YSS::menu.file.saveAs",
+                            "Shortcut": [
+                                "Ctrl", "Alt", "S"
+                            ]
                         },
                         {
                             "ID": "saveAll",
-                            "Name": "i18n:YSS::menu.file.saveAll"
+                            "Name": "i18n:YSS::menu.file.saveAll",
+                            "Shortcut": [
+                                "Ctrl", "Shift", "S"
+                            ]
                         },
                         {
                             "ID": "projectConfig",
@@ -54,11 +70,17 @@
                         },
                         {
                             "ID": "documentation",
-                            "Name": "i18n:YSS::menu.file.documentation"
+                            "Name": "i18n:YSS::menu.file.documentation",
+                            "Shortcut": [
+                                "F1"
+                            ]
                         },
                         {
                             "ID": "exit",
-                            "Name": "i18n:YSS::menu.file.exit"
+                            "Name": "i18n:YSS::menu.file.exit",
+                            "Shortcut": [
+                                "Alt", "F4"
+                            ]
                         }
                     ]
                 }

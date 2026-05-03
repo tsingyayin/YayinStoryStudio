@@ -43,6 +43,7 @@ namespace YSS::Editor {
 		ActionPin = new QAction(VITR("Visindigo::general.pin"), this);
 		ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
 		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
+		ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
 		ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
 		connect(ActionClose, &QAction::triggered, this, [this]() {
 			emit closeClicked(FilePath);
@@ -60,10 +61,14 @@ namespace YSS::Editor {
 		connect(ActionRename, &QAction::triggered, this, [this]() {
 			emit renameRequested(FilePath);
 			});
+		connect(ActionSaveAs, &QAction::triggered, this, [this]() {
+			emit saveAsRequested(FilePath);
+			});
 		connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
 			Visindigo::Utility::FileUtility::openExplorer(FilePath);
 			});
-		this->addActions({ ActionClose, ActionPin, ActionReload, ActionRename, ActionShowInExplorer });
+		this->addActions({ ActionClose, ActionPin, ActionReload, 
+			ActionRename, ActionSaveAs, ActionShowInExplorer });
 	}
 
 	void StackWidgetTagLabel::setText(const QString& text) {
@@ -195,6 +200,7 @@ namespace YSS::Editor {
 	StackWidgetTagArea::StackWidgetTagArea(QWidget* parent) :QFrame(parent) {
 		ContentLayout = new QHBoxLayout();
 		ContentLayout->setContentsMargins(0, 0, 0, 0);
+		ContentLayout->setSpacing(2);
 		ScrollContent = new QFrame();
 		ScrollContent->setLayout(ContentLayout);
 		ScrollArea = new QScrollArea(this);
@@ -239,6 +245,9 @@ namespace YSS::Editor {
 			});
 		connect(tagLabel, &StackWidgetTagLabel::renameRequested, this, [this](const QString& filePath) {
 			emit renameRequested(filePath);
+			});
+		connect(tagLabel, &StackWidgetTagLabel::saveAsRequested, this, [this](const QString& filePath) {
+			emit saveAsRequested(filePath);
 			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
 		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),

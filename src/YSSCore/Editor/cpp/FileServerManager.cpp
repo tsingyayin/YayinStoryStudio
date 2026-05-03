@@ -7,6 +7,7 @@
 #include "General/YSSLogger.h"
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
+#include <Utility/FileUtility.h>
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
@@ -214,6 +215,14 @@ namespace YSSCore::Editor {
 		QDir等文件系统相关类对输入的路径字符串进行处理，而不是直接对字符串进行操作，以避免字面值发生变化导致逻辑错误。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
+		if (filePath.isEmpty()) {
+			vgErrorF << "File path is empty!";
+			return false;
+		}
+		if (not Visindigo::Utility::FileUtility::isFileExist(filePath)) {
+			vgErrorF << "File does not exist:" << filePath;
+			return false;
+		}
 		QString ext = QFileInfo(filePath).suffix();
 		QString absPath = QFileInfo(filePath).absoluteFilePath();
 		if (d->isFileAlreadyOpen(absPath)) {

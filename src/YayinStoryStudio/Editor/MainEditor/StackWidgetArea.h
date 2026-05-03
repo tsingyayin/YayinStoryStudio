@@ -9,6 +9,7 @@ namespace YSS::Editor {
 		Q_OBJECT;
 	signals:
 		void renameRequested(const QString& absOldPath);
+		void saveAsRequested(const QString& rawFilePath);
 	public:
 		StackWidgetArea(QWidget* parent = nullptr);
 		virtual ~StackWidgetArea();

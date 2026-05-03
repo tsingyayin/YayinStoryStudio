@@ -1168,35 +1168,36 @@ namespace YSSCore::Editor {
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。
 	*/
 	bool TextEdit::onOpen(const QString& path) {
-		disconnect(d->Text, &QTextEdit::textChanged, this, &TextEdit::setFileChanged);
 		QString ext = QFileInfo(path).suffix();
 		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
-		if (server != nullptr) {
-			if (d->Highlighter != nullptr) {
-				d->Highlighter->setParent(nullptr);
-				d->Highlighter->deleteLater();
-			}
+		if (d->Highlighter) {
+			d->Highlighter->setParent(nullptr);
+			d->Highlighter->deleteLater();
+			d->Highlighter = nullptr;
+		}
+		if (d->TabCompleter) {
+			d->TabCompleter->setParent(nullptr);
+			d->TabCompleter->deleteLater();
+			d->TabCompleter = nullptr;
+		}
+		if (d->TabCompleterWidget) {
+			d->TabCompleterWidget->setParent(nullptr);
+			d->TabCompleterWidget->deleteLater();
+			d->TabCompleterWidget = nullptr;
+		}
+		if (d->HoverInfoWidget) {
+			d->HoverInfoWidget->setParent(nullptr);
+			d->HoverInfoWidget->deleteLater();
+			d->HoverInfoWidget = nullptr;
+		}
+		if (server) {
 			d->Highlighter = server->createHighlighter(this);
-
-			if (d->TabCompleter != nullptr) {
-				d->TabCompleter->setParent(nullptr);
-				d->TabCompleter->deleteLater();
-			}
 			d->TabCompleter = server->createTabCompleter(this);
-
-			if (d->TabCompleterWidget != nullptr) {
-				d->TabCompleterWidget->setParent(nullptr);
-				d->TabCompleterWidget->deleteLater();
-			}
-			if (d->TabCompleter != nullptr) {
+			if (d->TabCompleter) {
 				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text);
 			}
 			d->HoverInfoProvider = server->createHoverInfoProvider(this);
-			if (d->HoverInfoWidget != nullptr) {
-				d->HoverInfoWidget->setParent(nullptr);
-				d->HoverInfoWidget->deleteLater();
-			}
-			if (d->HoverInfoProvider != nullptr) {
+			if (d->HoverInfoProvider) {
 				d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
 			}
 		}
@@ -1300,7 +1301,8 @@ namespace YSSCore::Editor {
 	bool TextEdit::onReload() {
 		if (isFileChanged()) {
 			QMessageBox msgBox;
-			msgBox.setText("YSS::editor.reloadWarning.message");
+			msgBox.setWindowTitle(VITR("YSS::editor.reloadWarning.title"));
+			msgBox.setText(VITR("YSS::editor.reloadWarning.message").arg(getFileName()));
 			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
 			msgBox.setDefaultButton(QMessageBox::Yes);
 			int ret = msgBox.exec();

@@ -22,6 +22,7 @@
 #include "Editor/MainEditor/StackWidgetArea.h"
 #include <Widgets/DesktopHacker.h>
 #include "Editor/MainEditor/RenameDialog.h"
+#include <QtWidgets/qfiledialog.h>
 
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
@@ -56,7 +57,8 @@ namespace YSS::Editor {
 
 		setColorfulEnable(true);
 		onThemeChanged();
-		for (Visindigo::General::Plugin* plugin: VIPLM->getLoadedPlugins()) {
+		
+		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
 				if (editorPlugin) {
@@ -64,6 +66,7 @@ namespace YSS::Editor {
 				}
 			}
 		}
+
 		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
 		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
 
@@ -93,6 +96,9 @@ namespace YSS::Editor {
 			RenameDlg->setContext(absOldPath);
 			RenameDlg->show();
 			});
+		connect(Editor, &StackWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
+			saveAs(rawFilePath);
+			});
 		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
 			auto editor = YSSFSM->getFileEditWidget(oldName);
 			if (editor) {
@@ -111,6 +117,50 @@ namespace YSS::Editor {
 		Editor->addWidget(widget);
 	}
 
+	void MainWin::saveAs(QString rawFilePath) {
+		if (rawFilePath.isEmpty()) {
+			rawFilePath = Editor->getCurrentWidget() ? Editor->getCurrentWidget()->getFilePath() : "";
+		}
+		if (rawFilePath.isEmpty()) {
+			yDebugF << "No file to save as";
+			return;
+		}
+		QString ext = QFileInfo(rawFilePath).suffix();
+		QString newfilePath = QFileDialog::getSaveFileName(this,
+			VITR("YSS::menu.file.saveAs"), rawFilePath, "(*."+ext+")");
+		if (newfilePath.isEmpty()) {
+			return;
+		}
+		auto editor = YSSFSM->getFileEditWidget(rawFilePath);
+		if (editor) {
+			editor->saveFile(newfilePath);
+			Browser->refresh();
+		}
+	}
+
+	void MainWin::openFile() {
+		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		QDir CurrentDir;
+		if (project != nullptr) {
+			CurrentDir.setPath(project->getProjectFolder());
+		}
+		else {
+			CurrentDir.setPath(QDir::currentPath());
+		}
+		QString filePath = QFileDialog::getOpenFileName(
+			nullptr,
+			"Open File",
+			CurrentDir.absolutePath(),
+			"All Files (*)");
+		if (!filePath.isEmpty()) {
+			YSSFSM->openFile(filePath);
+		}
+	}
+
+	void MainWin::help() {
+		Visindigo::Utility::FileUtility::openBrowser("http://prts.site");
+	}
+
 	ResourceBrowser* MainWin::getResourceBrowser() {
 		return Browser;
 	}
@@ -119,7 +169,7 @@ namespace YSS::Editor {
 		return Editor;
 	}
 
-	void MainWin::saveAll() {
+	void MainWin::saveAllFiles() {
 		for (auto* widget : YSSFSM->getAllFileEditWidgets()) {
 			widget->saveFile();
 		}
@@ -128,7 +178,6 @@ namespace YSS::Editor {
 	void MainWin::backToProjectWin() {
 		closeForBack = true;
 		this->close();
-		
 	}
 
 	void MainWin::onThemeChanged() {
@@ -143,11 +192,20 @@ namespace YSS::Editor {
 
 	void MainWin::closeEvent(QCloseEvent* event) {
 		yDebugF << "MainWin Close Event";
-		if (not checkProjectNeedToSave()) {
+		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		QMessageBox::StandardButton result = QMessageBox::question(this, VITR("YSS::project.saveQuestion.title"),
+			VITR("YSS::project.saveQuestion.text").arg(project->getProjectName()),
+			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+			QMessageBox::Yes);
+		if (result == QMessageBox::Cancel) {
 			event->ignore();
 			closeForBack = false;
 			return;
 		}
+		else if (result == QMessageBox::Yes) {
+			saveProject();
+		}
+
 		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
@@ -156,7 +214,6 @@ namespace YSS::Editor {
 				}
 			}
 		}
-		saveProject();
 		Editor->closeAll(); // close all should be later than saveProject.
 		Instance = nullptr;
 		delete GlobalValue::getCurrentProject();
@@ -176,6 +233,34 @@ namespace YSS::Editor {
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 	}
 	
+	void MainWin::keyPressEvent(QKeyEvent* event) {
+		QFrame::keyPressEvent(event);
+		if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+			if (event->key() == Qt::Key_S) {
+				saveProject();
+			}
+		}
+		else if (event->modifiers() == Qt::ControlModifier) {
+			if (event->key() == Qt::Key_S) {
+				auto editor = Editor->getCurrentWidget();
+				if (editor) {
+					editor->saveFile();
+				}
+			}
+			else if (event->key() == Qt::Key_O) {
+				this->openFile();
+			}
+		}
+		else if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
+			if (event->key() == Qt::Key_S) {
+				saveAs();
+			}
+		}
+		else if(event->key() == Qt::Key_F1) {
+			help();
+		}
+	}
+
 	void MainWin::initMenu() {
 		QHBoxLayout* topLayout = new QHBoxLayout();
 		topLayout->setContentsMargins(10, 0, 10, 0);
@@ -194,22 +279,8 @@ namespace YSS::Editor {
 		MainLayout->addLayout(topLayout);
 	}
 
-	bool MainWin::checkProjectNeedToSave() {
-		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
-		QMessageBox::StandardButton result = QMessageBox::question(this, VITR("YSS::project.saveQuestion.title"),
-			VITR("YSS::project.saveQuestion.text").arg(project->getProjectName()),
-			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-			QMessageBox::Yes);
-		if (result == QMessageBox::Cancel) {
-			return false;
-		}
-		else if (result == QMessageBox::Yes) {
-			saveAll();
-		}
-		return true;
-	}
-
 	void MainWin::saveProject() {
+		saveAllFiles();
 		GlobalValue::getCurrentProject()->setFocusedFile(Editor->getCurrentWidget() ? Editor->getCurrentWidget()->getFilePath() : "");
 		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
 		if (this->isMaximized()) {

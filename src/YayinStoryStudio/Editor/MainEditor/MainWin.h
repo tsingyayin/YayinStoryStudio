@@ -26,6 +26,7 @@ namespace YSS::Editor {
 		QHBoxLayout* Layout = nullptr;
 		RenameDialog* RenameDlg = nullptr;
 		Visindigo::Widgets::QuickMenu* Menu = nullptr;
+		
 		bool closeForBack = false;
 		static MainWin* Instance;
 	public:
@@ -34,18 +35,22 @@ namespace YSS::Editor {
 		static MainWin* getInstance();
 		ResourceBrowser* getResourceBrowser();
 		StackWidgetArea* getStackWidgetArea();
-		void saveAll();
+		void saveAllFiles();
+		void saveProject();
 		void backToProjectWin();
 		virtual void onThemeChanged() override;
 		void onFileEditOpened(const QString& filePath);
+		void saveAs(QString rawFilePath = "");
+		void openFile();
+		void help();
 	public:
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void hideEvent(QHideEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
+		virtual void keyPressEvent(QKeyEvent* event) override;
 	private:
 		void initMenu();
-		bool checkProjectNeedToSave();
-		void saveProject();
+		
 	};
 }

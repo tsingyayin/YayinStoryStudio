@@ -440,7 +440,7 @@ namespace YSSCore::General {
 		if (abs_filePath.isEmpty()) {
 			return;
 		}
-		if (!Visindigo::Utility::FileUtility::isFileExist(abs_filePath)) {
+		if (not Visindigo::Utility::FileUtility::isFileExist(abs_filePath)) {
 			yErrorF << "File not exist:" << abs_filePath;
 			return;
 		}

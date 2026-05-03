@@ -43,22 +43,7 @@ namespace YSS::Editor {
 	}
 
 	void Menu_File_FileOptions::open() {
-		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
-		QDir CurrentDir;
-		if (project != nullptr) {
-			CurrentDir.setPath(project->getProjectFolder());
-		}
-		else {
-			CurrentDir.setPath(QDir::currentPath());
-		}
-		QString filePath = QFileDialog::getOpenFileName(
-			nullptr,
-			"Open File",
-			CurrentDir.absolutePath(),
-			"All Files (*)");
-		if (!filePath.isEmpty()) {
-			YSSFSM->openFile(filePath);
-		}
+		YSS::Editor::MainWin::getInstance()->openFile();
 	}
 	
 	void Menu_File_FileOptions::save() {
@@ -67,12 +52,12 @@ namespace YSS::Editor {
 	}
 
 	void Menu_File_FileOptions::saveAs() {
-		yWarningF << "Save File As not implemented yet";
+		YSS::Editor::MainWin::getInstance()->saveAs();
 	}
 
 	void Menu_File_FileOptions::saveAll() {
 		yDebugF << "Save All Files";
-		YSS::Editor::MainWin::getInstance()->saveAll();
+		YSS::Editor::MainWin::getInstance()->saveAllFiles();
 	}
 
 	void Menu_File_FileOptions::projectConfig() {
@@ -115,7 +100,7 @@ namespace YSS::Editor {
 
 	void Menu_File_ProgramOptions::documentation() {
 		yDebugF << "Documentation";
-		Visindigo::Utility::FileUtility::openBrowser("http://prts.site");
+		YSS::Editor::MainWin::getInstance()->help();
 	}
 
 	void Menu_File_ProgramOptions::exit() {

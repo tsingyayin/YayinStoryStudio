@@ -26,6 +26,7 @@ namespace YSS::Editor {
 		QPushButton* CancelButton;
 		QVBoxLayout* Layout;
 		bool validNewName = false;
+		bool dirMode = false;
 	};
 }
 #endif // YSSCore_Editor_RenameDialog_h

@@ -68,4 +68,17 @@ namespace Visindigo::Utility {
 		}
 		return result;
 	}
+
+	/*!
+		\since Visindigo 0.15.0
+		判断一个字符串是否全部由空白字符组成。空白字符包括空格、制表符、换行符等。
+	*/
+	bool StringUtility::isAllBlank(const QString& str) {
+		for (QChar c : str) {
+			if (!c.isSpace()) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

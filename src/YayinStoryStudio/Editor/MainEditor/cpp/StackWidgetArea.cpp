@@ -43,6 +43,9 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackWidgetTagArea::renameRequested, this, [this](const QString& oldPath) {
 			emit renameRequested(oldPath);
 			});
+		connect(d->TagArea, &StackWidgetTagArea::saveAsRequested, this, [this](const QString& filePath) {
+			emit saveAsRequested(filePath);
+			});
 	}
 
 	void StackWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {

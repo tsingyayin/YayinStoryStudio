@@ -4,6 +4,7 @@
 #include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 #include "AStorySyntax/AStoryXDiagnosticData.h"
 #include <General/TranslationHost.h>
+#include <Utility/StringUtility.h>
 #include "AStorySyntax/AStoryXValueMeta.h"
 #include <General/Log.h>
 namespace ASERStudio::AStorySyntax {
@@ -475,7 +476,8 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXParameter requiredParameter = result.getRequiredParameter();
 		if (d->Type == AStoryXController::ControllerType::Dialog) {
 			QString content = requiredParameter.getContent();
-			if (content.contains(" ") && not content.contains("\t") && diagnostic) {
+			if (not Visindigo::Utility::StringUtility::isAllBlank(content) && 
+				content.contains(" ") && not content.contains("\t") && diagnostic) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.useTabInsteadSpace_dialog.message"),
 					lineIndex, requiredParameter.getIndex() + content.indexOf(" ")

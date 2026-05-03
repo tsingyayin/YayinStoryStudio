@@ -3,6 +3,7 @@
 #include "../FileEditWidget.h"
 #include <General/Log.h>
 #include "General/YSSLogger.h"
+#include <Utility/FileUtility.h>
 namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
@@ -70,6 +71,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		获取当前文件编辑器的文件路径。
 		return 返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
 	*/
@@ -78,6 +80,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		获取当前文件编辑器的文件名。
 		return 返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
 	*/
@@ -86,6 +89,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		判断当前文件内容是否被修改。
 		return 如果文件内容被修改，返回true；否则返回false。
 	*/
@@ -94,8 +98,10 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		将当前文件内容标记为已修改状态。
 		此函数通常在派生类中被调用，当用户修改了文件内容时，应调用此函数以更新文件状态。
+		之后，它会自动触发fileChanged信号，通知外部文件内容已被修改，并传递当前文件路径作为参数。
 	*/
 	void FileEditWidget::setFileChanged() {
 		d->fileChanged = true;
@@ -103,8 +109,10 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		将当前文件内容标记为未修改状态。
 		此函数通常在派生类中被调用，当文件内容被保存或重新加载后，应调用此函数以更新文件状态。
+		之后，它会自动触发fileChangeCanceled信号，通知外部文件内容修改已被取消，并传递当前文件路径作为参数。
 	*/
 	void FileEditWidget::cancelFileChanged() {
 		d->fileChanged = false;
@@ -112,6 +120,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		打开指定路径的文件，并加载其内容。
 		\a path 要打开的文件路径。
 		return 如果文件成功打开并加载，返回true；否则返回false。
@@ -139,6 +148,10 @@ protected:
 		return 如果文件成功保存，返回true；否则返回false。
 		此类在判定文件路径是否为空后，调用派生类实现的onSave()函数以实际保存文件。
 		一旦文件成功保存，fileChanged状态会被重置为false，并触发fileSaved信号。
+
+		\note 这个函数最初从0.13.0引入，在0.15.0中增加了deleteWhenSaveAs参数以支持在另存为操作时删除原文件的功能。
+		此外，从0.15.0开始，这个函数会在调用虚函数onSave之后，额外检查文件是否确实存在，以确保保存操作的成功性。
+		这是因为某些派生类的onSave实现可能会在保存失败时没有正确返回false，因此增加了文件存在性的检查以提高函数的可靠性。
 	*/
 	bool FileEditWidget::saveFile(const QString& path, bool deleteWhenSaveAs) {
 		QString pathCopy = path;
@@ -149,20 +162,22 @@ protected:
 			pathCopy = d->filePath;
 		}
 		bool ok = onSave(pathCopy);
+		if (not Visindigo::Utility::FileUtility::isFileExist(pathCopy)) {
+			return false;
+		}
 		if (ok) {
+			cancelFileChanged();
 			if (not path.isEmpty() && path != d->filePath) {
 				if (deleteWhenSaveAs) {
 					QFile::remove(d->filePath);
 				}
 				QString oldPath = d->filePath;
 				d->filePath = pathCopy;
-				d->fileChanged = false;
 				emit fileSaved(d->filePath);
 				emit fileRenamed(oldPath, pathCopy);
 			}
 			else {
 				d->filePath = pathCopy;
-				d->fileChanged = false;
 				emit fileSaved(d->filePath);
 			}
 		}
@@ -170,6 +185,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		重新加载当前文件编辑器的内容。
 		return 如果文件成功重新加载，返回true；否则返回false。
 		此类在判定当前文件路径是否为空后，调用派生类实现的onReload()函数以实际重新加载文件。
@@ -183,6 +199,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		复制当前选中的内容到剪贴板。
 		return 如果复制操作成功，返回true；否则返回false。
 		此类调用派生类实现的onCopy()函数以实际处理复制逻辑。
@@ -192,6 +209,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		剪切当前选中的内容到剪贴板。
 		return 如果剪切操作成功，返回true；否则返回false。
 		此类调用派生类实现的onCut()函数以实际处理剪切逻辑。
@@ -201,6 +219,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		从剪贴板粘贴内容到当前光标位置。
 		return 如果粘贴操作成功，返回true；否则返回false。
 		此类调用派生类实现的onPaste()函数以实际处理粘贴逻辑。
@@ -210,6 +229,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		撤销上一次编辑操作。
 		return 如果撤销操作成功，返回true；否则返回false。
 		此类调用派生类实现的onUndo()函数以实际处理撤销逻辑。
@@ -219,6 +239,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		重做上一次被撤销的编辑操作。
 		return 如果重做操作成功，返回true；否则返回false。
 		此类调用派生类实现的onRedo()函数以实际处理重做逻辑。
@@ -228,6 +249,7 @@ protected:
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		选中当前文件编辑器中的所有内容。
 		return 如果全选操作成功，返回true；否则返回false。
 		此类调用派生类实现的onSelectAll()函数以实际处理全选逻辑。
@@ -257,6 +279,7 @@ protected:
 		return false;
 	}
 	/*!
+		
 		处理文件编辑器关闭事件。
 		\a event 关闭事件对象。
 		此函数在文件编辑器尝试关闭时被调用，调用派生类实现的onClose()函数以决定是否允许关闭。

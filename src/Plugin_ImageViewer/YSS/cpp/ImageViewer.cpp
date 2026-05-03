@@ -4,6 +4,7 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtGui/qevent.h>
 #include <QtWidgets/qscrollbar.h>
+#include <Utility/FileUtility.h>
 namespace YSS::ImageViewer {
 	class ImageViewerPrivate {
 		friend class ImageViewer;
@@ -12,6 +13,7 @@ namespace YSS::ImageViewer {
 		bool CtrlPressed = false;
 		QPoint LastMousePos;
 		QPixmap Content;
+		QByteArray RawContent;
 	};
 
 	ImageViewer::ImageViewer(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
@@ -26,7 +28,9 @@ namespace YSS::ImageViewer {
 	}
 
 	bool ImageViewer::onOpen(const QString& filePath) {
-		d->Content = QPixmap(filePath);
+		d->RawContent = Visindigo::Utility::FileUtility::readByteArray(filePath);
+		d->Content = QPixmap();
+		d->Content.loadFromData(d->RawContent);
 		if (d->Content.isNull()) {
 			return false;
 		}
@@ -43,6 +47,7 @@ namespace YSS::ImageViewer {
 	}
 
 	bool ImageViewer::onSave(const QString& filePath) {
+		Visindigo::Utility::FileUtility::saveByteArray(filePath, d->RawContent);
 		return true;
 	}
 

@@ -43,6 +43,7 @@ namespace ASERStudio::YSS {
 	protected:
 		QList<QLabel*> labels;
 		QVBoxLayout* layout;
+		QString rawContent;
 	};
 
 	EditorWidget_ASRuleJson::EditorWidget_ASRuleJson(QWidget* parent) : YSSCore::Editor::FileEditWidget(parent) {
@@ -55,8 +56,9 @@ namespace ASERStudio::YSS {
 	}
 
 	bool EditorWidget_ASRuleJson::onOpen(const QString& path) {
+		d->rawContent = Visindigo::Utility::FileUtility::readAll(path);
 		Visindigo::Utility::JsonConfig config;
-		config.parse(Visindigo::Utility::FileUtility::readAll(path));
+		config.parse(d->rawContent);
 		auto controllers = config.getArray("rules");
 		for (auto controller : controllers) {
 			QLabel* label = new QLabel(this);
@@ -75,6 +77,7 @@ namespace ASERStudio::YSS {
 	}
 
 	bool EditorWidget_ASRuleJson::onSave(const QString& path) {
+		Visindigo::Utility::FileUtility::saveAll(path, d->rawContent);
 		return true;
 	}
 
