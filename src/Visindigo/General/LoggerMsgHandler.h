@@ -91,21 +91,6 @@ namespace Visindigo::General {
 	protected:
 		Visindigo::__Private__::LoggerMsgHandlerPrivate* d;
 	};
-	template<typename T>
-	void testTemplate(T t) {
-		// do nothing, just for testing concepts
-	}
-
-	template<EnumHasQEnum T>
-	void testTemplate(T t) {
-		static_assert(false, "qenum detected");
-	}
-
-	template<EnumHasQFlag T>
-	void testTemplate(T t) {
-		static_assert(false, "qflag detected");
-	}
-
 }
 
 #include "private/LoggerMsgHandler_impl.hpp"

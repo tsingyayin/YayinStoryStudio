@@ -23,6 +23,7 @@ namespace Visindigo::General {
 		virtual ~PluginModule();
 		Plugin* getPlugin() const;
 		QString getModuleName() const;
+		QString getModuleNameI18N() const;
 		QString getModuleID() const;
 		QString getModuleTypeID() const;
 	public:

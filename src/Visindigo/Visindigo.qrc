@@ -2,13 +2,6 @@
     <qresource prefix="/">
         <file>resource/cn.yxgeneral.visindigo/i18n/zh_CN.json</file>
         <file>resource/cn.yxgeneral.visindigo/IWillFindU.txt</file>
-        <file>resource/cn.yxgeneral.visindigo/icon/const.png</file>
-        <file>resource/cn.yxgeneral.visindigo/icon/default.png</file>
-        <file>resource/cn.yxgeneral.visindigo/icon/enum.png</file>
-        <file>resource/cn.yxgeneral.visindigo/icon/function.png</file>
-        <file>resource/cn.yxgeneral.visindigo/icon/object.png</file>
-        <file>resource/cn.yxgeneral.visindigo/icon/operator.png</file>
-        <file>resource/cn.yxgeneral.visindigo/icon/value.png</file>
         <file>resource/cn.yxgeneral.visindigo/default/defaultTheme.json</file>
         <file>resource/cn.yxgeneral.visindigo/icon.png</file>
         <file>resource/cn.yxgeneral.visindigo/i18n/en.json</file>

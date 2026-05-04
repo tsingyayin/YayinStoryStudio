@@ -10,6 +10,7 @@
 #include "General/Placeholder.h"
 #include "General/CommandHost.h"
 #include "General/CommandHandler.h"
+#include "General/TranslationHost.h"
 #include "General/Log.h"
 
 namespace Visindigo::__Private__ {
@@ -284,6 +285,7 @@ namespace Visindigo::General {
 	QString Plugin::getPluginID() const {
 		return d->PluginID;
 	}
+
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的名称
@@ -291,6 +293,15 @@ namespace Visindigo::General {
 	QString Plugin::getPluginName() const {
 		return d->PluginName;
 	}
+
+	/*!
+		\since Visindigo 0.15.0
+		return 插件的国际化名称
+	*/
+	QString Plugin::getPluginNameI18N() const {
+		return VI18N(d->PluginName);
+	}
+
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的作者，这是一个列表。
@@ -298,6 +309,7 @@ namespace Visindigo::General {
 	QStringList Plugin::getPluginAuthor() const {
 		return d->PluginAuthor;
 	}
+
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的描述信息
@@ -305,6 +317,15 @@ namespace Visindigo::General {
 	QString Plugin::getPluginDescription() const {
 		return d->PluginDescription;
 	}
+
+	/*!
+		\since Visindigo 0.15.0
+		return 插件的国际化描述信息
+	*/
+	QString Plugin::getPluginDescriptionI18N() const {
+		return VI18N(d->PluginDescription);
+	}
+
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的根目录
@@ -312,6 +333,7 @@ namespace Visindigo::General {
 	QDir Plugin::getPluginFolder() const {
 		return d->PluginFolder;
 	}
+
 	/*!
 		\since Visindigo 0.13.0
 		return 插件的设置
@@ -474,11 +496,14 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		\a name 插件的名称
-		设置插件的名称
+		设置插件的名称。你可以按VI18N的格式给定名称的引用名称，
+		这样在调用getPluginNameI18N()函数时就会返回国际化后的名称。
+
+		有关VI18N格式的详细信息，请参阅Visindigo::General::Translatior类的文档说明。
 	*/
 	void Plugin::setPluginName(const QString& name) {
 		d->PluginName = name;
-		d->Logger->setNamespace(name);
+		d->Logger->setNamespace(VI18N(name));
 	}
 	/*!
 		\since Visindigo 0.13.0
@@ -491,7 +516,10 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		\a description 插件的描述信息
-		设置插件的描述信息
+		设置插件的描述信息。你可以按VI18N的格式给定描述信息的引用名称，
+		这样在调用getPluginDescriptionI18N()函数时就会返回国际化后的描述信息。
+
+		有关VI18N格式的详细信息，请参阅Visindigo::General::Translatior类的文档说明。
 	*/
 	void Plugin::setPluginDescription(const QString& description) {
 		d->PluginDescription = description;

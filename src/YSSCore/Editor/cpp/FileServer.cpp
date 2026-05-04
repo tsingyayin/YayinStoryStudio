@@ -8,6 +8,7 @@ namespace YSSCore::Editor {
 	protected:
 		FileServer::EditorType Type = FileServer::EditorType::BuiltInEditor;
 		QStringList SupportedFileExts;
+		bool asVirtualFileServer = false;
 	};
 	/*!
 		\class YSSCore::Editor::FileServer
@@ -38,6 +39,25 @@ namespace YSSCore::Editor {
 		需要同时实现onCreateWindowEditor函数。
 		\li ExternalProgram 使用第三方程序打开文件。需要同时实现onCreateExternalEditor函数。
 		\li OtherEditor 其他方式打开文件。需要同时实现onOtherOpenFile函数。
+
+		\section1 虚拟文件
+		从0.15.0开始，引入虚拟文件概念，以便在文件编辑区域打开一些并非真实存在的文件进行编辑，譬如程序设置、
+		插件设置等页面。
+
+		在虚拟文件模式下，文件路径被固定为以下写法：
+		\badcode
+			@file_ext!file_name?param
+		\endcode
+		譬如，对于setSupportedFileExts为YSS.SettingsWidget的虚拟文件服务器，
+		当打开的文件路径为
+		\badcode
+			@YSS.SettingsWidget!ProgramSettings?from=menubar
+		\endcode
+		则会对应调用该服务器，且file_name会在FileEditWidget中解析为SettingsWidget。
+		
+		有关虚拟文件模式下，FileEditWidget的其他特殊行为，请参考相关文档。
+
+		至于参数部分，目前推荐按url参数格式书写，但不强制规定。
 	*/
 
 	/*!
@@ -111,6 +131,8 @@ namespace YSSCore::Editor {
 		通过返回更小的值来降低优先级是没有任何效果的。
 
 		虽然不提倡，但如果你需要对某个文件拥有绝对优先权，请直接返回int64的最大值。
+
+		\note 从0.15.0开始引入虚拟文件概念。在虚拟文件服务器模式时，该功能无效
 	*/
 	qint64 FileServer::especiallyFocusFile(const QString& filePath) {
 		return -1;
@@ -152,5 +174,14 @@ namespace YSSCore::Editor {
 	*/
 	void FileServer::setSupportedFileExts(const QStringList& exts) {
 		d->SupportedFileExts = exts;
+	}
+
+	/*!
+		\since YSS 0.15.0
+		设置此文件服务器作为虚拟文件服务器。
+		在虚拟文件模式时，特别关注功能不可用。
+	*/
+	void FileServer::setAsVitrualFileServer(bool isVirtual) {
+		d->asVirtualFileServer = isVirtual;
 	}
 }

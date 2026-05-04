@@ -151,28 +151,28 @@ namespace YSSCore::Editor {
 		if (redirectIcon) {
 			switch (type) {
 			case ItemType::Default:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/default.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/default.png";
 				break;
 			case ItemType::Value:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/value.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/value.png";
 				break;
 			case ItemType::Const:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/const.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/const.png";
 				break;
 			case ItemType::Enum:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/enum.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/enum.png";
 				break;
 			case ItemType::Function:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/function.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/function.png";
 				break;
 			case ItemType::Object:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/object.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/object.png";
 				break;
 			case ItemType::Operator:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/operator.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/operator.png";
 				break;
 			default:
-				d->IconPath = ":/resource/cn.yxgeneral.visindigo/icon/default.png";
+				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/default.png";
 			}
 		}
 		d->Type = type;

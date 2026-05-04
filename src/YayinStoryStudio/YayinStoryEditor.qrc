@@ -17,5 +17,12 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/en.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/config.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/const.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/default.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/enum.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/function.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/object.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/operator.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/value.png</file>
     </qresource>
 </RCC>

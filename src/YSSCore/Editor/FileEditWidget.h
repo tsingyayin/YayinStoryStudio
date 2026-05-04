@@ -24,11 +24,17 @@ namespace YSSCore::Editor {
 		QString getFilePath() const;
 		QString getFileName() const;
 		bool isFileChanged() const;
+		bool isVirtualFile() const;
+		QString getFileExt() const;
+		QString getVirtualFileParam() const;
 		void setFileChanged();
 		void cancelFileChanged();
+	public:
 		bool openFile(const QString& path);
 		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false);
 		bool reloadFile();
+		void closeFile();
+	public:
 		bool copy();
 		bool cut();
 		bool paste();
@@ -37,10 +43,11 @@ namespace YSSCore::Editor {
 		bool selectAll();
 		bool cursorToPosition(qint32 lineNumber, qint32 column);
 	protected:
-		virtual bool onOpen(const QString& path) = 0;
-		virtual bool onClose() = 0;
-		virtual bool onSave(const QString& path) = 0;
+		virtual bool onOpen(const QString& path);
+		virtual bool onClose();
+		virtual bool onSave(const QString& path);
 		virtual bool onReload();
+	protected:
 		virtual bool onCopy();
 		virtual bool onCut();
 		virtual bool onPaste();
@@ -48,6 +55,11 @@ namespace YSSCore::Editor {
 		virtual bool onRedo();
 		virtual bool onSelectAll();
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column);
+	protected:
+		virtual bool onVirtualOpen(const QString& ext, const QString& fileName, const QString& param);
+		virtual bool onVirtualClose();
+		virtual bool onVirtualSave();
+		virtual bool onVirtualReload();
 	public:
 		virtual void closeEvent(QCloseEvent* event) override;
 	};

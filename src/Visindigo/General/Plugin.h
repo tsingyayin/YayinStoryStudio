@@ -45,8 +45,10 @@ namespace Visindigo::General {
 		virtual void onPluginDisable() {};
 		QString getPluginID() const;
 		QString getPluginName() const;
+		QString getPluginNameI18N() const;
 		QStringList getPluginAuthor() const;
 		QString getPluginDescription() const;
+		QString getPluginDescriptionI18N() const;
 		QDir getPluginFolder() const;
 		Visindigo::Utility::JsonConfig* getPluginConfig();
 		void savePluginConfig();

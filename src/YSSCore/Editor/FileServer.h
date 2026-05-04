@@ -27,6 +27,7 @@ namespace YSSCore::Editor {
 	protected:
 		void setEditorType(EditorType type);
 		void setSupportedFileExts(const QStringList& exts);
+		void setAsVitrualFileServer(bool isVirtual);
 	private:
 		FileServerPrivate* d;
 	};

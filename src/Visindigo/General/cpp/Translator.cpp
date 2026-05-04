@@ -11,7 +11,7 @@ namespace Visindigo::__Private__ {
 		return loadTranslationFile(DefaultID, true);
 	}
 	bool TranslatorPrivate::loadTranslationFile(Visindigo::General::Translator::LangID id, bool asDefault) {
-		vgDebug << FilePath.size();
+		//vgDebug << FilePath.size();
 		QString filePath = FilePath[id];
 		QFile file(filePath);
 		if (!file.exists()) {
@@ -59,12 +59,15 @@ namespace Visindigo::General
 		\inmodule Visindigo
 		\brief Visindigo的翻译功能类，用于替代Qt自带的翻译功能。
 
-		Translator是Visindigo利用JSON文件实现的翻译功能类，它不一定比Qt自带的翻译功能具有更好的性能，但它的易用性更好。
+		Translator是Visindigo利用JSON文件实现的翻译功能类，
+		它不一定比Qt自带的翻译功能具有更好的性能，但它的易用性更好。
 
-		与Qt自带的翻译功能相比，Translator的最大特点在于其使用键名而非初始语言的原文本作为翻译的索引，这意味着
-		在代码中，可以极大程度地避免对文本的修改对翻译功能的影响，从而减少了代码的维护成本。
+		与Qt自带的翻译功能相比，Translator的最大特点在于其使用键名，
+		而非初始语言的原文本作为翻译的索引，这意味着在代码中，
+		可以极大程度地避免对文本的修改对翻译功能的影响，从而减少了代码的维护成本。
 
-		除此之外，由于Visindigo的模块化设计，为了了避免不同模块间的翻译键名冲突，Translator使用命名空间来区分不同模块的翻译内容。
+		除此之外，由于Visindigo的模块化设计，为避免不同模块间的翻译键名冲突，
+		Translator使用命名空间来区分不同模块的翻译内容。
 
 		Visindigo的键名格式如下：
 		\code
@@ -87,12 +90,15 @@ namespace Visindigo::General
 			<namespace>::Part2
 		\endcode
 
-		此外，在Visindigo提供的部分从配置文件生成窗口的功能中，（例如Visindigo::Widgets::ConfigWidget、Visindigo::Widgets::QuickMenu等）
-		对于要支持国际化的文本，其内容应该以"i18n:"开头，后接键名，例如：
+		此外，在Visindigo提供的部分从配置文件生成窗口的功能中
+		（例如Visindigo::Widgets::ConfigWidget、Visindigo::Widgets::QuickMenu等）
+		以及明确了支持VI18N格式的参数中，如果其文本内容应该以"i18n:"开头，
+		且后接键名，例如：
 		\code
 			i18n:<namespace>::Part1.SubPart1
 		\endcode
-		这样，Visindigo的翻译功能就可以自动识别并进行翻译。若不加"i18n:"前缀，则Visindigo会将其视为普通文本，不进行翻译。
+		那么该文本就可以被自动识别并进行翻译。若不加"i18n:"前缀，则Visindigo
+		会将其视为普通文本，不进行翻译。
 	*/
 
 	/*!
@@ -125,7 +131,8 @@ namespace Visindigo::General
 
 	/*!
 		\since Visindigo 0.14.0
-		将字符串转换为语言ID。参数str为要转换的字符串，例如zh_CN、en等。返回值为对应的语言ID，如果转换失败，则返回LangID::Unknown。
+		将字符串转换为语言ID。参数str为要转换的字符串，例如zh_CN、en等。
+		返回值为对应的语言ID，如果转换失败，则返回LangID::Unknown。
 	*/
 	Translator::LangID Translator::stringToLangID(const QString& str) {
 		bool ok;

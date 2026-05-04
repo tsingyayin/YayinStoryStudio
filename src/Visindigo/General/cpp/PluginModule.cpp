@@ -2,6 +2,7 @@
 #include "../Plugin.h"
 #include "General/Exception.h"
 #include "General/Plugin.h"
+#include "General/TranslationHost.h"
 namespace Visindigo::General {
 	class PluginModulePrivate {
 		friend class PluginModule;
@@ -34,6 +35,7 @@ namespace Visindigo::General {
 	*/
 
 	/*!
+		\since Visindigo 0.13.0
 		\a plugin 所属插件对象指针
 		\a moduleID 模块唯一标识符
 		\a typeID 模块类型标识符
@@ -59,6 +61,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		析构函数。
 	*/
 	PluginModule::~PluginModule() {
@@ -66,6 +69,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		返回所属插件对象指针。
 	*/
 	Plugin* PluginModule::getPlugin() const {
@@ -73,6 +77,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		返回模块名称。
 	*/
 	QString PluginModule::getModuleName() const {
@@ -80,6 +85,14 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.15.0
+		尝试实用VI18N宏处理模块名称的国际化版本，如果处理失败，则返回原始模块名称。
+	*/
+	QString PluginModule::getModuleNameI18N() const {
+		return VI18N(d->ModuleName);
+	}
+	/*!
+		\since Visindigo 0.13.0
 		返回模块唯一标识符。
 	*/
 	QString PluginModule::getModuleID() const {
@@ -87,6 +100,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		返回模块类型标识符。
 	*/
 	QString PluginModule::getModuleTypeID() const {
@@ -94,6 +108,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		模块被启用时调用的函数。
 
 		默认实现为空函数，子类可重载此函数以实现自定义行为。
@@ -103,6 +118,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		模块被禁用时调用的函数。
 
 		默认实现为空函数，子类可重载此函数以实现自定义行为。
