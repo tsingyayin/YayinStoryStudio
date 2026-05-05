@@ -154,6 +154,9 @@
     <ClInclude Include="Editor\FormatNormalizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\VirtualFilePath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\private\TabCompleterProvider_p.h">

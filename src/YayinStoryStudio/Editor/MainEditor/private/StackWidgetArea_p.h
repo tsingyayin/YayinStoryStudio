@@ -30,12 +30,16 @@ namespace YSS::Editor {
 		QAction* ActionRename;
 		QAction* ActionSaveAs;
 		QAction* ActionShowInExplorer;
+		QAction* ActionCloseAll;
+		QAction* ActionCloseSaved;
 	signals:
 		void clicked(const QString& filePath);
 		void pinClicked(const QString& filePath);
 		void closeClicked(const QString& filePath);
 		void renameRequested(const QString& filePath);
 		void saveAsRequested(const QString& filePath);
+		void closeAllRequested();
+		void closeSavedRequested();
 	public:
 		StackWidgetTagLabel(QWidget* parent = nullptr);
 		void setText(const QString& text);
@@ -62,6 +66,8 @@ namespace YSS::Editor {
 		void closeFile(const QString& filePath);
 		void renameRequested(const QString& filePath);
 		void saveAsRequested(const QString& filePath);
+		void closeAllRequested();
+		void closeSavedRequested();
 	private:
 		QHBoxLayout* ContentLayout;
 		QFrame* ScrollContent;
@@ -83,6 +89,7 @@ namespace YSS::Editor {
 		void setFileChanged(const QString& filePath);
 		void cancelFileChanged(const QString& filePath);
 		bool containsStackLabel(const QString& filePath) const;
+		bool isStackLabelPinned(const QString& filePath) const;
 	public:
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;

@@ -46,6 +46,12 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackWidgetTagArea::saveAsRequested, this, [this](const QString& filePath) {
 			emit saveAsRequested(filePath);
 			});
+		connect(d->TagArea, &StackWidgetTagArea::closeAllRequested, this, [this]() {
+			closeAll();
+			});
+		connect(d->TagArea, &StackWidgetTagArea::closeSavedRequested, this, [this]() {
+			closeSaved();
+			});
 	}
 
 	void StackWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -89,6 +95,16 @@ namespace YSS::Editor {
 		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
 			vgDebug << "close " << widget->getFilePath();
 			widget->close();
+		}
+	}
+
+	void StackWidgetArea::closeSaved() {
+		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
+			QString filePath = widget->getFilePath();
+			if (not widget->isFileChanged() and not d->TagArea->isStackLabelPinned(filePath)) {
+				vgDebug << "close " << filePath;
+				widget->close();
+			}
 		}
 	}
 	void StackWidgetArea::closeWidget(YSSCore::Editor::FileEditWidget* widget) {

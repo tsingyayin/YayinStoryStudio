@@ -45,6 +45,8 @@ namespace YSS::Editor {
 		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
 		ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
 		ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
+		ActionCloseAll = new QAction(VITR("YSS::menu.file.closeAll"), this);
+		ActionCloseSaved = new QAction(VITR("YSS::menu.file.closeSaved"), this);
 		connect(ActionClose, &QAction::triggered, this, [this]() {
 			emit closeClicked(FilePath);
 			});
@@ -67,8 +69,15 @@ namespace YSS::Editor {
 		connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
 			Visindigo::Utility::FileUtility::openExplorer(FilePath);
 			});
+		connect(ActionCloseAll, &QAction::triggered, this, [this]() {
+			emit closeAllRequested();
+			});
+		connect(ActionCloseSaved, &QAction::triggered, this, [this]() {
+			emit closeSavedRequested();
+			});
 		this->addActions({ ActionClose, ActionPin, ActionReload, 
-			ActionRename, ActionSaveAs, ActionShowInExplorer });
+			ActionRename, ActionSaveAs, ActionShowInExplorer,
+			ActionCloseAll, ActionCloseSaved });
 	}
 
 	void StackWidgetTagLabel::setText(const QString& text) {
@@ -249,6 +258,12 @@ namespace YSS::Editor {
 		connect(tagLabel, &StackWidgetTagLabel::saveAsRequested, this, [this](const QString& filePath) {
 			emit saveAsRequested(filePath);
 			});
+		connect(tagLabel, &StackWidgetTagLabel::closeAllRequested, this, [this]() {
+			emit closeAllRequested();
+			});
+		connect(tagLabel, &StackWidgetTagLabel::closeSavedRequested, this, [this]() {
+			emit closeSavedRequested();
+			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
 		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),
 			VISTMGT("YSS::Editor.StackWidgetTag.Hover"),
@@ -425,6 +440,15 @@ namespace YSS::Editor {
 		for (auto label : Labels) {
 			if (label->getFilePath() == filePath) {
 				return true;
+			}
+		}
+		return false;
+	}
+
+	bool StackWidgetTagArea::isStackLabelPinned(const QString& filePath) const {
+		for (auto label : Labels) {
+			if (label->getFilePath() == filePath) {
+				return label->isPinned();
 			}
 		}
 		return false;

@@ -58,6 +58,22 @@ namespace YSSCore::Editor {
 		有关虚拟文件模式下，FileEditWidget的其他特殊行为，请参考相关文档。
 
 		至于参数部分，目前推荐按url参数格式书写，但不强制规定。
+
+		既然提到了参数格式，我们也需要对file_ext和file_name做一些推荐标准：
+		
+		由于file_name被约定为显示出来的文件名，而虚拟文件的编辑器可能通常
+		是一些配置界面，需要本地化，因此不推荐使用file_name进行功能区分，
+		而推荐只将file_ext作为功能区分的ID进行使用，且使用域命名法来书写。
+		
+		事实上，在YSS内部，file_ext确实也是作为ID使用的，即不能有多个FileServer
+		同时注册一个file_ext，否则后来者无效。
+
+		譬如，对于上面那个YSS程序设置的例子，其实我们更推荐写为：
+		\badcode
+			@YSS.SettingsWidget.ProgramSettings!程序设置?from=menubar
+		\endcode
+		这样file_ext就可以直接用来区分不同的功能，而file_name则
+		可以直接用来显示给用户看。
 	*/
 
 	/*!
@@ -156,6 +172,14 @@ namespace YSSCore::Editor {
 	*/
 	FileEditWidget* FileServer::onCreateFileEditWidget() {
 		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.15.0
+		返回此文件服务是否为虚拟文件服务器。
+	*/
+	bool FileServer::isVirtualFileServer() {
+		return d->asVirtualFileServer;
 	}
 
 	/*!

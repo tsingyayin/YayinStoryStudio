@@ -87,7 +87,9 @@
 			"documentation": "文档",
 			"about": "关于 Yayin Story Studio",
 			"projectConfig": "项目设置",
-			"showInExplorer": "在资源管理器中显示"
+			"showInExplorer": "在资源管理器中显示",
+			"closeAll": "关闭所有文件",
+			"closeSaved": "关闭已保存的文件"
 		},
 		"edit": {
 			"title": "编辑",

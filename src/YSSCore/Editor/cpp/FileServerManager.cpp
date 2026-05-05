@@ -8,11 +8,14 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
 #include <Utility/FileUtility.h>
+#include <QtCore/qregularexpression.h>
+
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
 	protected:
 		QList<FileServer*> FileServers;
+		QMap<QString, FileServer*> VirtualFileServerMap;
 		QMap<QString, QList<FileServer*>> FileServerMap;
 		QMap<QString, QList<FileServer*>> FileServerPriorityMap;
 		QMap<QString, bool> EspeciallyFocusEnableMap;
@@ -162,6 +165,14 @@ namespace YSSCore::Editor {
 		注册一个FileServer对象。
 		\a server 要注册的FileServer对象指针。
 		如果同一个FileServer对象被重复注册，则不会有任何效果。
+
+		对于普通的FileServer对象，由于同一个文件扩展名可能有多个FileServer支持，
+		因此文件扩展名可以在多个FileServer之间重复。
+
+		而对于作为虚拟文件服务器的FileServer，由于虚拟文件里的扩展名语义是作为ID
+		使用的，因此对于一个虚拟文件扩展名，只能有一个FileServer支持，
+		如果有多个FileServer支持同一个虚拟文件扩展名，则只有第一个被注册的FileServer会生效，
+		后续的注册会被忽略，并且会在日志中输出警告信息。
 	*/
 	void FileServerManager::registerFileServer(FileServer* server) {
 		if (d->FileServers.contains(server)) {
@@ -169,12 +180,20 @@ namespace YSSCore::Editor {
 		}
 		d->FileServers.append(server);
 		QStringList fileTypes = server->getSupportedFileExts();
-		for (int i = 0; i < fileTypes.size(); i++) {
-			QString type = fileTypes[i];
-			if (!d->FileServerMap.contains(type)) {
-				d->FileServerMap.insert(type, QList<FileServer*>());
+		for (auto type : fileTypes) {
+			if (not server->isVirtualFileServer()) {
+				if (not d->FileServerMap.contains(type)) {
+					d->FileServerMap.insert(type, QList<FileServer*>());
+				}
+				d->FileServerMap[type].append(server);
 			}
-			d->FileServerMap[type].append(server);
+			else {
+				if (d->VirtualFileServerMap.contains(type)) {
+					vgErrorF << "Virtual FileServer for type" << type << "already exists! Ignoring the new one.";
+					continue;
+				}
+				d->VirtualFileServerMap.insert(type, server);
+			}
 		}
 	}
 
@@ -190,10 +209,14 @@ namespace YSSCore::Editor {
 		}
 		d->FileServers.removeOne(server);
 		QStringList fileTypes = server->getSupportedFileExts();
-		for (int i = 0; i < fileTypes.size(); i++) {
-			QString type = fileTypes[i];
-			if (d->FileServerMap.contains(type)) {
-				d->FileServerMap[type].removeOne(server);
+		for (auto type : fileTypes) {
+			if (not server->isVirtualFileServer()) {
+				if (d->FileServerMap.contains(type)) {
+					d->FileServerMap[type].removeOne(server);
+				}
+			}
+			else {
+				d->VirtualFileServerMap.remove(type);
 			}
 		}
 	}
@@ -213,6 +236,8 @@ namespace YSSCore::Editor {
 		\warning 值得指出的是，为了统一下游的使用体验，FileServerManager在尝试使用FileServer打开文件时会将文件路径转换为绝对路径，
 		并且不区分路径的大小写（如果操作系统不区分大小写）。如果FileServer有必要对文件路径进行处理，请严格使用QFile、QFileInfo、
 		QDir等文件系统相关类对输入的路径字符串进行处理，而不是直接对字符串进行操作，以避免字面值发生变化导致逻辑错误。
+
+		如果filePath为虚拟文件路径，则只匹配支持该虚拟文件的FileServer，不考虑\a preferredServerId、特别关注强度、优先级列表、\a useFallback等因素。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		if (filePath.isEmpty()) {
@@ -222,6 +247,23 @@ namespace YSSCore::Editor {
 		if (not Visindigo::Utility::FileUtility::isFileExist(filePath)) {
 			vgErrorF << "File does not exist:" << filePath;
 			return false;
+		}
+		static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
+		auto match = re.match(filePath);
+		if (match.hasMatch()) {
+			QString ext = match.captured(1);
+			FileServer* server = nullptr;
+			if (d->VirtualFileServerMap.contains(ext)) {
+				server = d->VirtualFileServerMap[ext];
+			}
+			if (server) {
+				yDebug << "Virtual FileServer is trying to open the file.";
+				return d->openFile(filePath, server);
+			}
+			else {
+				vgErrorF << "No Virtual FileServer found for type" << ext;
+				return false;
+			}
 		}
 		QString ext = QFileInfo(filePath).suffix();
 		QString absPath = QFileInfo(filePath).absoluteFilePath();
@@ -309,7 +351,9 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		获取某种文件类型对应的可用FileServer列表。
 		\a fileExt 文件类型后缀名（不含点号）。
-		\a 返回某种文件类型对应的可用FileServer ID列表。
+		return 返回某种文件类型对应的可用FileServer ID列表。
+
+		这个API不返回任何有关虚拟文件服务器的信息。
 	*/
 	QStringList FileServerManager::getAvailableFileServerForFileExt(const QString& fileExt) {
 		QStringList serverIds;
@@ -322,6 +366,20 @@ namespace YSSCore::Editor {
 		return serverIds;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		获取某个FileServer的名称。
+		\a serverId FileServer的ID。
+		return 返回某个FileServer的名称，如果没有找到对应ID的FileServer，则返回一个空字符串。
+	*/
+	QString FileServerManager::getNameOfFileServer(const QString& serverId) {
+		for (int i = 0; i < d->FileServers.size(); i++) {
+			if (d->FileServers[i]->getModuleID() == serverId) {
+				return d->FileServers[i]->getModuleName();
+			}
+		}
+		return QString();
+	}
 	/*!
 		\since YSS 0.13.0
 		为某种文件类型设置FileServer优先级。

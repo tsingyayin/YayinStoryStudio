@@ -160,6 +160,7 @@
     <ClInclude Include="Editor\private\DocumentMessageManager_p.h" />
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <QtMoc Include="Editor\SyntaxHighlighter.h" />
+    <ClInclude Include="Editor\VirtualFilePath.h" />
     <ClInclude Include="General\YSSLogger.h" />
     <ClInclude Include="General\YSSProject.h" />
     <ClInclude Include="Macro.h" />

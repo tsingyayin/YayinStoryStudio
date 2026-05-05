@@ -32,6 +32,7 @@ namespace YSSCore::Editor {
 		bool openFile(const QString& filePath, const QString& preferredServerId = QString(), bool useFallback = true);
 		QStringList getSupportedFileExts();
 		QStringList getAvailableFileServerForFileExt(const QString& fileExt);
+		QString getNameOfFileServer(const QString& serverId);
 		void setPriorityForFileExt(const QString& fileExt, const QStringList& serverIds);
 		void setEspeciallyFocusEnable(const QString& fileExt, bool enable);
 		bool isEspeciallyFocusEnable(const QString& fileExt);
