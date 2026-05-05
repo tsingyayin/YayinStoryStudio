@@ -1,14 +1,15 @@
-#pragma once
+#ifndef Visindigo_General_LoggerMsgHandler_h
+#define Visindigo_General_LoggerMsgHandler_h
 #include <QtCore/qstring.h>
 #include <QtCore/qtypes.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
-#include "../VICompileMacro.h"
-#include "Logger.h"
-#include "private/LoggerMsgHandler_p.h"
-#include "LogMetaData.h"
-#include "StacktraceHelper.h"
+#include "VICompileMacro.h"
+#include "General/Logger.h"
+#include "General/private/LoggerMsgHandler_p.h"
+#include "General/LogMetaData.h"
+#include "General/StacktraceHelper.h"
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/qdebug.h>
@@ -94,3 +95,5 @@ namespace Visindigo::General {
 }
 
 #include "private/LoggerMsgHandler_impl.hpp"
+
+#endif // Visindigo_General_LoggerMsgHandler_h

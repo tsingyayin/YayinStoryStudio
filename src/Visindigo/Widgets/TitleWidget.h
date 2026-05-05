@@ -1,6 +1,6 @@
 #ifndef Visindigo_Widgets_TitleWidget_h
 #define Visindigo_Widgets_TitleWidget_h
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtWidgets/qframe.h>
 namespace Visindigo::__Private__ {
 	class TitleWidgetPrivate;

@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_Permission_h
 #define Visindigo_General_Permission_h
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qdatetime.h>
 namespace Visindigo::General {

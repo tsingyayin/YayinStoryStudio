@@ -1,6 +1,7 @@
-#pragma once
-#include "../Macro.h"
-#include "./FileEditWidget.h"
+#ifndef YSSCore_Editor_TextEdit_h
+#define YSSCore_Editor_TextEdit_h
+#include "YSSCoreCompileMacro.h"
+#include "Editor/FileEditWidget.h"
 #include <QtGui/qtextdocument.h>
 
 // Forward declarations
@@ -59,3 +60,4 @@ namespace YSSCore::Editor {
 		YSSCore::__Private__::TextEditPrivate* d;
 	};
 }
+#endif // YSSCore_Editor_TextEdit_h

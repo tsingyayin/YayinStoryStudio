@@ -1,6 +1,7 @@
-#pragma once
+#ifndef YSSCore_Editor_DebugFailedData_h
+#define YSSCore_Editor_DebugFailedData_h
 #include <QtCore/qtypes.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 
 class QString;
 
@@ -29,3 +30,4 @@ namespace YSSCore::Editor
 		DebugFailedDataPrivate* d;
 	};
 }
+#endif //YSSCore_Editor_DebugFailedData_h

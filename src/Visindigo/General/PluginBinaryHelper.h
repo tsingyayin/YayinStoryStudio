@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_PluginBinaryHelper_h
 #define Visindigo_General_PluginBinaryHelper_h
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtCore/qobject.h>
 namespace Visindigo::General {
 	class PluginBinaryHelperPrivate;

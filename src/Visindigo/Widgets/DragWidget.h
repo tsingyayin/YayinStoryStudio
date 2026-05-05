@@ -1,6 +1,6 @@
 #ifndef Visindigo_Widgets_DragWidget_h
 #define Visindigo_Widgets_DragWidget_h
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtWidgets/qframe.h>
 class QBoxLayout;
 namespace Visindigo::__Private__ {

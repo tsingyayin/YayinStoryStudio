@@ -1,6 +1,6 @@
 #ifndef YSSCore_Scripts_ES6Executer_h
 #define YSSCore_Scripts_ES6Executer_h
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 #include <QtCore/qobject.h>
 
 namespace YSSCore::Scripts {

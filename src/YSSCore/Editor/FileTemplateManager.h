@@ -1,6 +1,7 @@
-#pragma once
+#ifndef YSSCore_Editor_FileTemplateManager_h
+#define YSSCore_Editor_FileTemplateManager_h
 #include <QtCore/qlist.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 // Forward declarations
 namespace YSSCore::Editor {
 	class FileTemplateProvider;
@@ -24,3 +25,4 @@ namespace YSSCore::Editor {
 };
 // Helper macro
 #define YSSFTM YSSCore::Editor::FileTemplateManager::getInstance()
+#endif // YSSCore_Editor_FileTemplateManager_h

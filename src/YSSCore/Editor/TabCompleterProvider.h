@@ -1,7 +1,8 @@
-#pragma once
+#ifndef YSSCore_Editor_TabCompleterProvider_h
+#define YSSCore_Editor_TabCompleterProvider_h
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 // Forward declarations
 class QTextDocument;
 namespace YSSCore::__Private__ {
@@ -61,3 +62,4 @@ namespace YSSCore::Editor {
 		YSSCore::__Private__::TabCompleterProviderPrivate* d;
 	};
 }
+#endif // YSSCore_Editor_TabCompleterProvider_h

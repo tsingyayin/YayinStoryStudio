@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_LogMetaData_H
 #define Visindigo_General_LogMetaData_H
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtCore/qtypes.h>
 class QString;
 namespace Visindigo::General {

@@ -1,6 +1,7 @@
-#pragma once
+#ifndef Visindigo_Widgets_LiquidGlassEffect_h
+#define Visindigo_Widgets_LiquidGlassEffect_h
 #include <QtWidgets/qgraphicseffect.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 namespace Visindigo::Widgets {
 	class LiquidGlassEffectPrivate;
 	class VisindigoAPI LiquidGlassEffect : public QGraphicsEffect {
@@ -41,3 +42,5 @@ namespace Visindigo::Widgets {
 	};
 	Q_DECLARE_OPERATORS_FOR_FLAGS(LiquidGlassEffect::EffectTypes)
 }
+
+#endif // Visindigo_Widgets_LiquidGlassEffect_h

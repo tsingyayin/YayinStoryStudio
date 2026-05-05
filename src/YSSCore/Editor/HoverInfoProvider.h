@@ -1,5 +1,6 @@
-#pragma once
-#include "../Macro.h"
+#ifndef YSSCore_Editor_HoverInfoProvider_h
+#define YSSCore_Editor_HoverInfoProvider_h
+#include "YSSCoreCompileMacro.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
 #include <QtGui/qtextdocument.h>
@@ -32,3 +33,4 @@ namespace YSSCore::Editor {
 		YSSCore::__Private__::HoverInfoProviderPrivate* d;
 	};
 }
+#endif // YSSCore_Editor_HoverInfoProvider_h

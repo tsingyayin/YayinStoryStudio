@@ -1,6 +1,7 @@
-#pragma once
+#ifndef Visindigo_Widgets_MultiLabel_h
+#define Visindigo_Widgets_MultiLabel_h
 #include <QtWidgets/qframe.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include "Widgets/BorderFrame.h"
 //// Forward declarations
 class QLabel;
@@ -34,3 +35,5 @@ namespace Visindigo::Widgets {
 		MultiLabelPrivate* d;
 	};
 }
+
+#endif // Visindigo_Widgets_MultiLabel_h

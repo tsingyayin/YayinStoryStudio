@@ -1,6 +1,7 @@
-#pragma once
+#ifndef Visindigo_Editor_FileEditWidget_h
+#define Visindigo_Editor_FileEditWidget_h
 #include <QtWidgets/qframe.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 // Forward declarations
 class QWidget;
 class QString;
@@ -64,3 +65,5 @@ namespace YSSCore::Editor {
 		virtual void closeEvent(QCloseEvent* event) override;
 	};
 }
+
+#endif // Visindigo_Editor_FileEditWidget_h

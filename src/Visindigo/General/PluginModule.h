@@ -1,6 +1,6 @@
 #ifndef Visindigo_General_PluginModule_H
 #define Visindigo_General_PluginModule_H
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtCore/qobject.h>
 
 #define VIModuleType_PlaceholderProvider "cn.yxgeneral.visindigo.placeholder_provider"

@@ -1,6 +1,7 @@
-#pragma once
+#ifndef Visindigo_General_Logger_h
+#define Visindigo_General_Logger_h
 #include <QtCore/qstring.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 
 namespace Visindigo::General {
@@ -111,3 +112,4 @@ namespace Visindigo::General {
 #define vgNoticeST vNoticeST(VILoggerGlobal)
 #define vgSuccessST vSuccessST(VILoggerGlobal)
 
+#endif // Visindigo_General_Logger_h

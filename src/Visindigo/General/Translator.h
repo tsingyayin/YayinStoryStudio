@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_General_Translator_h
+#define Visindigo_General_Translator_h
 #include <QtCore/qmap.h>
 #include "General/PluginModule.h"
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 class QString;
 namespace Visindigo::__Private__ {
@@ -48,3 +49,5 @@ namespace Visindigo::General {
 		Visindigo::__Private__::TranslatorPrivate* d;
 	};
 }
+
+#endif // Visindigo_General_Translator_h

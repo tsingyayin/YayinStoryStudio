@@ -1,5 +1,6 @@
-#pragma once
-#include "../VICompileMacro.h"
+#ifndef Visindigo_Utility_FileUtility_h
+#define Visindigo_Utility_FileUtility_h
+#include "VICompileMacro.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 // Forward declarations
@@ -48,3 +49,5 @@ namespace Visindigo::Utility {
 		static void copyFile(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 	};
 }
+
+#endif // Visindigo_Utility_FileUtility_h

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Widgets_ShortcutSet_h
+#define Visindigo_Widgets_ShortcutSet_h
 #include <QtGui/qshortcut.h>
 #include "VICompileMacro.h"
 #include <QtCore/qmap.h>
@@ -23,3 +24,5 @@ namespace Visindigo::Widgets {
 		ShortcutSetPrivate* d;
 	};
 }
+
+#endif // Visindigo_Widgets_ShortcutSet_h

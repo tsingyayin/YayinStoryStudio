@@ -1,5 +1,6 @@
-#pragma once
-#include "DiffSequence.h"
+#ifndef Visindigo_Utility_CodeDiff_h
+#define Visindigo_Utility_CodeDiff_h
+#include "Utility/DiffSequence.h"
 #include <QtCore/qstring.h>
 // Forward declarations
 namespace Visindigo::Utility {
@@ -32,3 +33,4 @@ namespace Visindigo::Utility {
 		CodeDiffPrivate* d;
 	};
 }
+#endif // Visindigo_Utility_CodeDiff_h

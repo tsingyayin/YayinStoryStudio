@@ -1,6 +1,6 @@
 #ifndef Visindigo_Utility_GeneralConfig_h
 #define Visindigo_Utility_GeneralConfig_h
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtCore/qmap.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qlist.h>

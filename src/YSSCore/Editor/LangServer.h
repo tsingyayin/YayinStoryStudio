@@ -1,5 +1,6 @@
-#pragma once
-#include "../Macro.h"
+#ifndef YSSCore_Editor_LangServer_h
+#define YSSCore_Editor_LangServer_h
+#include "YSSCoreCompileMacro.h"
 #include <General/PluginModule.h>
 // Forward declarations
 class QString;
@@ -31,3 +32,4 @@ namespace YSSCore::Editor {
 		LangServerPrivate* d;
 	};
 }
+#endif // YSSCore_Editor_LangServer_h

@@ -65,9 +65,6 @@
     <ClCompile Include="General\cpp\TranslationHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\VirtualFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\cpp\FileUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,9 +99,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utility\cpp\QtSSHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility\cpp\ShortCutHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="General\cpp\Plugin.cpp">
@@ -229,9 +223,6 @@
     <ClInclude Include="General\private\Translator_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\VirtualFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\FileUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -242,9 +233,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\StyleSheetTemplate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Widgets\TempFloatWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\Logger.h">
@@ -277,9 +265,6 @@
     <ClInclude Include="Utility\QtSSHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\ShortCutHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\private\Plugin_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -305,9 +290,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\ColorTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\Optional.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\Permission.h">
@@ -418,9 +400,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\PluginManageWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="General\GlobalMessageHost.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\PluginManageWidget_p.h">

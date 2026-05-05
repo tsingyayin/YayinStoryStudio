@@ -1,6 +1,6 @@
 #ifndef YSSCore_Editor_DocumentMessageManager_h
 #define YSSCore_Editor_DocumentMessageManager_h
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 #include "Editor/SyntaxHighlighter.h"
 namespace YSSCore::__Private__ {
 	class DocumentMessageManagerPrivate;

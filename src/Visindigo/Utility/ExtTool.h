@@ -1,5 +1,6 @@
-#pragma once
-#include "../VICompileMacro.h"
+#ifndef Visindigo_Utility_ExtTool_h
+#define Visindigo_Utility_ExtTool_h
+#include "VICompileMacro.h"
 #include <QtCore/qstring.h>
 // Main
 namespace Visindigo::Utility {
@@ -9,3 +10,4 @@ namespace Visindigo::Utility {
 		static void registerFileExtLaunchInfo(const QString& ext, const QString& command) {};
 	};
 }
+#endif // Visindigo_Utility_ExtTool_h

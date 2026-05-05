@@ -133,7 +133,7 @@
     <ClInclude Include="Editor\ProjectTemplateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Macro.h">
+    <ClInclude Include="YSSCoreCompileMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\YSSProject.h">

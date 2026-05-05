@@ -1,7 +1,7 @@
 #ifndef YSSCore_Editor_FormatNormalizer_H
 #define YSSCore_Editor_FormatNormalizer_H
 #include <QtCore/qobject.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 
 class QTextDocument;
 namespace YSSCore::Editor {

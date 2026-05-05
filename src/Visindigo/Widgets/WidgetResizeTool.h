@@ -1,6 +1,6 @@
 #ifndef Visindigo_Widgets_WidgetResizeTool_h
 #define Visindigo_Widgets_WidgetResizeTool_h
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include <QtCore/qobject.h>
 #include <QtWidgets/qwidget.h>
 namespace Visindigo::Widgets {

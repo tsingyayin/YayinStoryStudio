@@ -1,8 +1,9 @@
-#pragma once
+#ifndef Visindigo_Utility_JsonConfig_h
+#define Visindigo_Utility_JsonConfig_h
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qmetaobject.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 class QJsonValue;
 namespace Visindigo::Utility {
@@ -158,3 +159,5 @@ namespace Visindigo::Utility {
 		writeMetable(object, config, ok);
 	}
 }
+
+#endif // Visindigo_Utility_JsonConfig_h

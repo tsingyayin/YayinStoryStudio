@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_Utility_JsonValueRef_h
+#define Visindigo_Utility_JsonValueRef_h
 #include <QtCore/qlist.h>
 #include <QtCore/qjsonvalue.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 class QString;
 namespace Visindigo::Utility {
@@ -46,3 +47,4 @@ namespace Visindigo::Utility {
 		VIJsonValueRefPrivate* d;
 	};
 }
+#endif // Visindigo_Utility_JsonValueRef_h

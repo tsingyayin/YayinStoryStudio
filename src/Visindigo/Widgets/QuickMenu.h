@@ -1,5 +1,6 @@
-#pragma once
-#include "../VICompileMacro.h"
+#ifndef Visindigo_Widgets_QuickMenu_h
+#define Visindigo_Widgets_QuickMenu_h
+#include "VICompileMacro.h"
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qmenubar.h>
 // Forward declarations
@@ -39,3 +40,5 @@ public: \
 	void JOINSTR(nodeName, _VisibleChanged)(bool visible);
 
 #define setActionVisible(nodeName, visble) JOINSTR(nodeName, _VisibleChanged)(visble)
+
+#endif // Visindigo_Widgets_QuickMenu_h

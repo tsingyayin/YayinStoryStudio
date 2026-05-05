@@ -1,9 +1,10 @@
-#pragma once
+#ifndef Visindigo_General_CommandHost_h
+#define Visindigo_General_CommandHost_h
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 namespace Visindigo::General {
 	class CommandHandler;
@@ -54,3 +55,5 @@ namespace Visindigo::General {
 }
 
 #define VISCH Visindigo::General::CommandHost::getInstance()
+
+#endif // Visindigo_General_CommandHost_h

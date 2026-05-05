@@ -1,6 +1,7 @@
-#pragma once
+#ifndef Visindigo_General_Version_h
+#define Visindigo_General_Version_h
 #include <QtCore/qstring.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 #include "General/private/AUTO_VERSION.h"
 // Visindigo version macro
 #define Visindigo_VERSION_MAJOR 0
@@ -53,3 +54,5 @@ namespace Visindigo::General {
 		VersionPrivate* d;
 	};
 }
+
+#endif // Visindigo_General_Version_h

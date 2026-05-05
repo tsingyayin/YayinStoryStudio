@@ -1,8 +1,9 @@
-#pragma once
+#ifndef YSSCore_Editor_FileServerManager_h
+#define YSSCore_Editor_FileServerManager_h
 #include <QtCore/qobject.h>
 #include <QtWidgets/qwidget.h>
 #include "Editor/FileEditWidget.h"
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 // Forward declarations
 class QString;
 namespace YSSCore::Editor {
@@ -45,3 +46,5 @@ namespace YSSCore::Editor {
 }
 
 #define YSSFSM YSSCore::Editor::FileServerManager::getInstance()
+
+#endif // YSSCore_Editor_FileServerManager_h

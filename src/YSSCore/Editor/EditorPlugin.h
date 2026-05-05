@@ -1,7 +1,8 @@
-#pragma once
+#ifndef YSSCore_Editor_EditorPlugin_h
+#define YSSCore_Editor_EditorPlugin_h
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 #include <General/Version.h>
 #include <General/Plugin.h>
 #define YSSPluginModule_LangServer "cn.yxgeneral.yss.langserver"
@@ -59,3 +60,5 @@ namespace YSSCore::Editor {
 }
 
 typedef YSSCore::Editor::EditorPlugin* (*__YSSPluginDllMain)(void);
+
+#endif // EditorPlugin_h

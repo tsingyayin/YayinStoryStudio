@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_General_UpdateChain_h
+#define Visindigo_General_UpdateChain_h
 #include <functional>
 #include <QtCore/qobject.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 namespace Visindigo::General {
 	class UpdateChain;
@@ -42,3 +43,5 @@ namespace Visindigo::General {
 }
 // Helper Macro
 #define UNode(VERSION_FROM, VERSION_TO) createNode()<<#VERSION_FROM<<[this]()
+
+#endif // Visindigo_General_UpdateChain_h

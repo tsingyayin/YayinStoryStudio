@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_Utility_JsonDocument_h
+#define Visindigo_Utility_JsonDocument_h
 #include <QtCore/qlist.h>
-#include "../VICompileMacro.h"
-#include "JsonConfig.h"
+#include "VICompileMacro.h"
+#include "Utility/JsonConfig.h"
 // Forward declarations
 class QString;
 namespace Visindigo::Utility {
@@ -51,3 +52,5 @@ namespace Visindigo::Utility {
 		JsonDocumentPrivate* d;
 	};
 }
+
+#endif // Visindigo_Utility_JsonDocument_h

@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_Utility_StringUtility_h
+#define Visindigo_Utility_StringUtility_h
 #include <QtCore/qstring.h>
 #include <QtCore/qnamespace.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 namespace Visindigo::Utility {
 	class VisindigoAPI StringUtility {
 	public:
@@ -11,3 +12,4 @@ namespace Visindigo::Utility {
 		static bool isAllBlank(const QString& str);
 	};
 }
+#endif // Visindigo_Utility_StringUtility_h	

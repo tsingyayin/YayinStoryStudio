@@ -1,6 +1,6 @@
 #pragma once
-#include "../VICompileMacro.h"
-#include "Logger.h"
+#include "VICompileMacro.h"
+#include "General/Logger.h"
 #include <QtCore/qobject.h>
 #include "LoggerMsgHandler.h"
 // Forward declarations

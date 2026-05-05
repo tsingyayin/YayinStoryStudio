@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_Widgets_ThemeManager_h
+#define Visindigo_Widgets_ThemeManager_h
 #include <QtCore/qobject.h>
 #include <QtGui/qstylehints.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 class QWidget;
 class QColor;
@@ -97,3 +98,5 @@ namespace Visindigo::Widgets {
 #define VISTMGRT VISTM->getRawTemplate
 #define VISTMGT VISTM->getTemplate
 #define applyVIStyleTemplate(key) setStyleSheet(VISTMGT(key, this))
+
+#endif // Visindigo_Widgets_ThemeManager_h

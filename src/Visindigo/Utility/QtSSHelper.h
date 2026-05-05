@@ -1,5 +1,6 @@
-#pragma once
-#include "../VICompileMacro.h"
+#ifndef Visindigo_Utility_QtSSHelper_h
+#define Visindigo_Utility_QtSSHelper_h
+#include "VICompileMacro.h"
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qobject.h>
 class QString;
@@ -12,3 +13,4 @@ namespace Visindigo::Utility {
 		static bool isDescendantsOf(QObject* child, QObject* parent);
 	};
 }
+#endif // Visindigo_Utility_QtSSHelper_h

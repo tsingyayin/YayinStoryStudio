@@ -1,5 +1,6 @@
-#pragma once
-#include "../Macro.h"
+#ifndef YSSCore_Editor_ProjectTemplateProvider_h
+#define YSSCore_Editor_ProjectTemplateProvider_h
+#include "YSSCoreCompileMacro.h"
 #include <QtWidgets/qframe.h>
 #include <General/PluginModule.h>
 // Forward declarations
@@ -39,3 +40,4 @@ namespace YSSCore::Editor {
 		ProjectTemplateProviderPrivate* d;
 	};
 }
+#endif

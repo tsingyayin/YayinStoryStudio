@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_Widgets_ConfigWidget_h
+#define Visindigo_Widgets_ConfigWidget_h
 #include <QtGui/qcolor.h>
 #include <QtWidgets/qframe.h>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 namespace Visindigo::__Private__ {
 	class ConfigWidgetPrivate;
@@ -41,3 +42,4 @@ namespace Visindigo::Widgets {
 		Visindigo::__Private__::ConfigWidgetPrivate* d;
 	};
 }
+#endif // Visindigo_Widgets_ConfigWidget_h

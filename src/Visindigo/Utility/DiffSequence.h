@@ -1,5 +1,6 @@
-#pragma once
-#include "../VICompileMacro.h"
+#ifndef Visindigo_Utility_DiffSequence_h
+#define Visindigo_Utility_DiffSequence_h
+#include "VICompileMacro.h"
 // Forward declarations
 namespace Visindigo::Utility {
 	class DiffUnitPrivate;
@@ -54,3 +55,4 @@ namespace Visindigo::Utility {
 		DiffSequencePrivate* d;
 	};
 }
+#endif // Visindigo_Utility_DiffSequence_h

@@ -1,6 +1,6 @@
 #ifndef YSSCore_Editor_DebugStepData_h
 #define YSSCore_Editor_DebugStepData_h
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 class QString;
 namespace YSSCore::Editor {
 	class DebugStepDataPrivate;

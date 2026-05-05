@@ -1,8 +1,9 @@
-#pragma once
+#ifndef Visindigo_Utility_Console_h
+#define Visindigo_Utility_Console_h
 #include <QString>
 #include <QList>
 #include <QByteArray>
-#include "../VICompileMacro.h"
+#include "VICompileMacro.h"
 // Forward declarations
 class QString;
 class QColor;
@@ -42,3 +43,4 @@ namespace Visindigo::Utility {
 		static unsigned int exec(const QString& cmd);
 	};
 }
+#endif // Visindigo_Utility_Console_h

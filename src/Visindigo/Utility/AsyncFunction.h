@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Utility_AsyncFunction_h
+#define Visindigo_Utility_AsyncFunction_h
 #include <QThread>
 #include <functional>
 #include <tuple>
@@ -32,3 +33,4 @@ namespace Visindigo::Utility {
 	};
 }
 #define YSSAsync new Visindigo::Utility::AsyncFunction
+#endif // Visindigo_Utility_AsyncFunction_h

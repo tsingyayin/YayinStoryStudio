@@ -1,5 +1,6 @@
-#pragma once
-#include "../Macro.h"
+#ifndef YSSCore_Editor_LangServerManager_h
+#define YSSCore_Editor_LangServerManager_h
+#include "YSSCoreCompileMacro.h"
 
 class QString;
 namespace YSSCore::Editor {
@@ -21,3 +22,4 @@ namespace YSSCore::Editor {
 }
 
 #define YSSLSM YSSCore::Editor::LangServerManager::getInstance()
+#endif // YSSCore_Editor_LangServerManager_h

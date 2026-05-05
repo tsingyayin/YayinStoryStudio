@@ -1,6 +1,7 @@
-#pragma once
+#ifndef YSSCore_Editor_DebugData_h
+#define YSSCore_Editor_DebugData_h
 #include <QtCore/qtypes.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 
 class QString;
 namespace YSSCore::Editor {
@@ -25,3 +26,4 @@ namespace YSSCore::Editor {
 		DebugDataPrivate* d;
 	};
 }
+#endif

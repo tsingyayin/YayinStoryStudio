@@ -1,5 +1,6 @@
-#pragma once
-#include "MultiLabel.h"
+#ifndef Visindigo_Widgets_MultiButton_h
+#define Visindigo_Widgets_MultiButton_h
+#include "Widgets/MultiLabel.h"
 // Forward declarations
 namespace Visindigo::__Private__ {
 	class MultiButtonPrivate;
@@ -43,3 +44,5 @@ namespace Visindigo::Widgets {
 		Visindigo::__Private__::MultiButtonPrivate* d;
 	};
 }
+
+#endif // Visindigo_Widgets_MultiButton_h

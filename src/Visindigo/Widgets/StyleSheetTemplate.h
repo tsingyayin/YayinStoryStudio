@@ -1,5 +1,6 @@
-#pragma once
-#include "../VICompileMacro.h"
+#ifndef Visindigo_Widgets_StyleSheetTemplate_h
+#define Visindigo_Widgets_StyleSheetTemplate_h
+#include "VICompileMacro.h"
 #include <QtCore/qstringlist.h>
 #include <QtGui/qcolor.h>
 
@@ -37,3 +38,4 @@ namespace Visindigo::Widgets {
 		StyleSheetTemplatePrivate* d;
 	};
 }
+#endif // Visindigo_Widgets_StyleSheetTemplate_h

@@ -1,6 +1,6 @@
 #ifndef YSSCore_Editor_SyntaxHighlighter_h
 #define YSSCore_Editor_SyntaxHighlighter_h
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 #include <QtGui/qsyntaxhighlighter.h>
 
 namespace YSSCore::Editor {

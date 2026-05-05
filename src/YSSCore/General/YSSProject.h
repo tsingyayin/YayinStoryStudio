@@ -1,5 +1,5 @@
 #pragma once
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 #include <QtCore/qstring.h>
 // Forward declarations
 class QDateTime;

@@ -1,5 +1,6 @@
-#pragma once
-#include "../Macro.h"
+#ifndef YSSCore_Editor_FileTemplateProvider_h
+#define YSSCore_Editor_FileTemplateProvider_h
+#include "YSSCoreCompileMacro.h"
 #include <QtWidgets/qframe.h>
 #include <QtCore/qstringlist.h>
 #include <General/PluginModule.h>
@@ -44,3 +45,5 @@ namespace YSSCore::Editor {
 		FileTemplateProviderPrivate* d;
 	};
 }
+
+#endif // YSSCore_Editor_FileTemplateProvider_h

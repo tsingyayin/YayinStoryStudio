@@ -1,5 +1,6 @@
-#pragma once
-#include "../Macro.h"
+#ifndef YSSCore_Editor_DebugServer_h
+#define YSSCore_Editor_DebugServer_h
+#include "YSSCoreCompileMacro.h"
 #include <QtCore/qflags.h>
 #include <General/PluginModule.h>
 // Forward declarations
@@ -59,3 +60,5 @@ namespace YSSCore::Editor {
 
 	Q_DECLARE_OPERATORS_FOR_FLAGS(DebugServer::SupportedDebugFeature);
 }
+
+#endif // YSSCore_Editor_DebugServer_h

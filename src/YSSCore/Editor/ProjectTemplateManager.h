@@ -1,6 +1,7 @@
-#pragma once
+#ifndef YSSCore_Editor_ProjectTemplateManager_h
+#define YSSCore_Editor_ProjectTemplateManager_h
 #include <QtCore/qlist.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 // Forward declarations
 namespace YSSCore::Editor {
 	class ProjectTemplateProvider;
@@ -24,3 +25,4 @@ namespace YSSCore::Editor {
 };
 // Helper macro
 #define YSSPTM YSSCore::Editor::ProjectTemplateManager::getInstance()
+#endif // YSSCore_Editor_ProjectTemplateManager_h

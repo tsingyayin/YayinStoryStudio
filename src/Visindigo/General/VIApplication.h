@@ -1,16 +1,10 @@
-#pragma once
+#ifndef Visindigo_General_VIApplication_h
+#define Visindigo_General_VIApplication_h
 #include <QtCore/qcoreapplication.h>
 #include <QtGui/qguiapplication.h>
 #include <QtWidgets/qapplication.h>
-#include "Exception.h"
-#include "../VIMacro.h"
-// Provide custom Applications to override notify for logging unhandled exceptions
-// Notice : This so-called 'handle' only writes exception information to the log, 
-//   does not perform any recovery operations, and the program will not continue to run.
-// Because C++ uses memory too freely, unless all developers strictly follow RAII or 
-//   use smart pointers, but this is impossible in practice, so it is impossible to ensure 
-//   that the program can continue to run safely after an exception occurs.
-
+#include "General/Exception.h"
+#include "VICompileMacro.h"
 namespace Visindigo::Widgets { 
 	class Terminal;
 }
@@ -79,3 +73,5 @@ namespace Visindigo::General {
 }
 #define VISetEnv(key, value) Visindigo::General::VIApplication::setEnvConfig(key, value)
 #define VIApp Visindigo::General::VIApplication::getInstance()
+
+#endif // Visindigo_General_VIApplication_h

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Widgets_DesktopHacker_h
+#define Visindigo_Widgets_DesktopHacker_h
 #include "VICompileMacro.h"
 #include <QtWidgets/qwidget.h>
 
@@ -17,3 +18,5 @@ namespace Visindigo::Widgets {
 		DesktopHackerPrivate* d;
 	};
 }
+
+#endif // Visindigo_Widgets_DesktopHacker_h

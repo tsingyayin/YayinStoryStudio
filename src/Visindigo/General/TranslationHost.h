@@ -1,7 +1,8 @@
-#pragma once
+#ifndef Visindigo_General_TranslationHost_h
+#define Visindigo_General_TranslationHost_h
 #include <QtCore/qobject.h>
-#include "../VICompileMacro.h"
-#include "Translator.h"
+#include "VICompileMacro.h"
+#include "General/Translator.h"
 // Forward declarations
 class QString;
 namespace Visindigo::General {
@@ -35,3 +36,5 @@ namespace Visindigo::General {
 #define VITRH Visindigo::General::TranslationHost::getInstance()
 #define VITR Visindigo::General::TranslationHost::getInstance()->tra
 #define VI18N Visindigo::General::TranslationHost::getInstance()->i18n
+
+#endif // Visindigo_General_TranslationHost_h

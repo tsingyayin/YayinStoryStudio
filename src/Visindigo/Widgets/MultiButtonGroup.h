@@ -1,5 +1,6 @@
-#pragma once
-#include "../VICompileMacro.h"
+#ifndef Visindigo_Widgets_MultiButtonGroup_h
+#define Visindigo_Widgets_MultiButtonGroup_h
+#include "VICompileMacro.h"
 #include <QtCore/qobject.h>
 // Forward declarations
 namespace Visindigo::__Private__ {
@@ -37,3 +38,4 @@ namespace Visindigo::Widgets {
 		Visindigo::__Private__::MultiButtonGroupPrivate* d;
 	};
 }
+#endif // Visindigo_Widgets_MultiButtonGroup_h

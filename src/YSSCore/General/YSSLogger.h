@@ -1,7 +1,7 @@
 #ifndef YSS_General_YSSLoger_H
 #define YSS_General_YSSLoger_H
 #include <General/Log.h>
-#include "../Macro.h"
+#include "YSSCoreCompileMacro.h"
 namespace YSSCore::General {
 	class YSSCoreAPI YSSLogger : public Visindigo::General::Logger {
 	private:
