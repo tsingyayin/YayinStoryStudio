@@ -420,6 +420,9 @@
     <QtMoc Include="Widgets\BorderLabel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Widgets\MessageCenter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Visindigo.qrc">

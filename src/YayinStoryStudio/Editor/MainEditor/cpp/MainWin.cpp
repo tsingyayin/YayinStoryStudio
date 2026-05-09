@@ -57,15 +57,6 @@ namespace YSS::Editor {
 
 		setColorfulEnable(true);
 		onThemeChanged();
-		
-		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
-			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
-				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
-				if (editorPlugin) {
-					editorPlugin->onProjectOpen(GlobalValue::getCurrentProject());
-				}
-			}
-		}
 
 		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
 		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
@@ -75,19 +66,6 @@ namespace YSS::Editor {
 			this->showMaximized();
 		}
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
-		GlobalValue::getCurrentProject()->refreshLastModifyTime();
-		GlobalValue::getCurrentProject()->saveProject();
-		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
-		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
-		QStringList stillOKFiles;
-		for (const QString& filePath : openedFiles) {
-			bool ok  = YSSFSM->openFile(filePath);
-			if (ok) {
-				stillOKFiles.append(filePath);
-			}
-		}
-		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
-		Editor->setCurrentWidget(focusedFile);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 
 		RenameDlg = new RenameDialog();
@@ -106,6 +84,29 @@ namespace YSS::Editor {
 			}
 			Browser->refresh();
 			});
+
+		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
+			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
+				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
+				if (editorPlugin) {
+					editorPlugin->onProjectOpen(GlobalValue::getCurrentProject());
+				}
+			}
+		}
+
+		GlobalValue::getCurrentProject()->refreshLastModifyTime();
+		GlobalValue::getCurrentProject()->saveProject();
+		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
+		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
+		QStringList stillOKFiles;
+		for (const QString& filePath : openedFiles) {
+			bool ok  = YSSFSM->openFile(filePath);
+			if (ok) {
+				stillOKFiles.append(filePath);
+			}
+		}
+		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
+		Editor->setCurrentWidget(focusedFile);
 	}
 
 	MainWin::~MainWin() {

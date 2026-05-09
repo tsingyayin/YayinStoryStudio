@@ -128,6 +128,7 @@
     <ClCompile Include="AStorySyntax\cpp\AStoryXDiagnosticData.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXDocument.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXPreprocessor.cpp" />
+    <ClCompile Include="AStorySyntax\cpp\AStoryXRebuilder.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXRule.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXValueMeta.cpp" />
     <ClCompile Include="cpp\Plugin_ASERStudio.cpp" />
@@ -143,6 +144,7 @@
     <ClCompile Include="YSS\cpp\ResourceMoniter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AStorySyntax\AStoryXRebuilder.h" />
     <ClInclude Include="YSS\ResourceMoniter.h" />
     <QtMoc Include="ASEREnv\private\ASERDebugIO_p.h" />
     <ClInclude Include="AStorySyntax\AStoryXPreprocessor.h" />

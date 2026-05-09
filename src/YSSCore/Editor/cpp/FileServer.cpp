@@ -35,10 +35,7 @@ namespace YSSCore::Editor {
 		\li CodeEditor 使用内置代码编辑器打开文件。
 		\li BuiltInEditor 使用内置编辑器打开文件，但不是代码编辑器。这个编辑器必须是派生自YSSCore::Editor::FileEditWidget的类。
 				需要同时实现onCreateFileEditWidget函数。
-		\li WindowEditor 使用新窗口打开文件，但仍然在本程序内。这个编辑器必须是派生自QWidget的类。
-		需要同时实现onCreateWindowEditor函数。
-		\li ExternalProgram 使用第三方程序打开文件。需要同时实现onCreateExternalEditor函数。
-		\li OtherEditor 其他方式打开文件。需要同时实现onOtherOpenFile函数。
+		\endlist
 
 		\section1 虚拟文件
 		从0.15.0开始，引入虚拟文件概念，以便在文件编辑区域打开一些并非真实存在的文件进行编辑，譬如程序设置、
@@ -48,12 +45,12 @@ namespace YSSCore::Editor {
 		\badcode
 			@file_ext!file_name?param
 		\endcode
-		譬如，对于setSupportedFileExts为YSS.SettingsWidget的虚拟文件服务器，
-		当打开的文件路径为
+		譬如，对于通过setSupportedFileExts将扩展名设置为YSS.SettingsWidget的虚拟文件服务器，
+		当出现虚拟文件路径为
 		\badcode
 			@YSS.SettingsWidget!ProgramSettings?from=menubar
 		\endcode
-		则会对应调用该服务器，且file_name会在FileEditWidget中解析为SettingsWidget。
+		的时候，则会对应调用该服务器，且file_name会在FileEditWidget中解析为ProgramSettings。
 		
 		有关虚拟文件模式下，FileEditWidget的其他特殊行为，请参考相关文档。
 
@@ -81,12 +78,9 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		\value CodeEditor 使用内置代码编辑器打开文件。
 		\value BuiltInEditor 使用内置编辑器打开文件，但不是代码编辑器。
-		\value WindowEditor 使用新窗口打开文件，但仍然在本程序内。这个枚举计划从0.17开始废弃。
-		\value ExternalProgram 使用第三方程序打开文件。这个枚举计划从0.17开始废弃。
-		\value OtherEditor 其他方式打开文件。这个枚举计划从0.17开始废弃。
 
 		请注意，为了实现一些更深入的编辑器功能（如重命名），YSS必须有办法将资源管理器的重命名
-		操作通知到正在打开的文件，因此我们决定废弃除了CodeEditor和BuiltInEditor以外的编辑器类型，
+		操作通知到正在打开的文件，因此我们决定从0.15开始，只保留CodeEditor和BuiltInEditor两种编辑器类型，
 		以确保所有的编辑器都必须使用内置的编辑器框架来打开文件。
 	*/
 
@@ -134,20 +128,22 @@ namespace YSSCore::Editor {
 		默认情况下，Visindigo会根据它们被注册的先后顺序来决定使用哪个服务打开.txt文件
 		（如果通过调用YSSCore::FileServerManager::setPriorityForFileExt函数设置了优先级，则会根据优先级来决定）。
 
-		但如果从来没有通过YSSCore::FileServerManager::setEspeciallyFocusEnable函数的带false调用以禁用
-		特别关注功能，那么当YSS尝试打开文件时，它会调用所有支持该文件扩展名的文件服务的especiallyFocusFile函数，
+		不过在根据先后顺序决定使用哪个服务之前，Visindigo会调用每个支持该文件扩展名的服务的especiallyFocusFile函数，
 		看看是否有哪个服务特别关注这个文件。并在所有关注度中选取最高的那个服务来打开这个文件。
+		如果所有服务的关注度都小于或等于0，则再根据注册的先后顺序（或特别设置的优先级）来决定使用哪个服务。
 
 		这对那些复用现有文件后缀名但用于特殊用途的文件特别有用。譬如，你有一个json文件是作为
-		某种配置，你希望为其实现可视化的操作功能，那么你就可以在注册json后缀的文件服务里
-		通过这个函数特别关注打开json文件时是否为你的这一配置文件，通过返回一个较高的关注度
-		来让YSS优先使用你的文件服务来打开这个文件。
+		某种配置使用，且你希望为这个配置文件实现可视化的操作功能，那么你就可以在注册json后缀的文件服务里
+		通过这个函数感知当前打开的json文件是否为你的这一种特殊用途的文件，
+		并通过返回一个较高的关注度来让YSS优先使用你的文件服务来打开这个文件。
 
-		它默认返回-1。任何小于或等于0的值都会被直接忽略，而且这个函数不用于降低某个文件服务的优先级。
-		通过返回更小的值来降低优先级是没有任何效果的。
+		需要指出的是，特别关注功能只关注最大值，不在乎最大值之下的其他数值的情况，
+		因此特别关注功能不能用于在多个文件服务之间进行优先级排序。
 
-		虽然不提倡，但如果你需要对某个文件拥有绝对优先权，请直接返回int64的最大值。
+		这个函数默认返回-1。虽然不提倡，但如果你需要对某个文件拥有绝对优先权，请直接返回int64的最大值。
 
+		此外，如果需要为某个文件扩展名关闭特别关注功能，可以在FileServerManager::setEspeciallyFocusEnable函数里设置。
+		
 		\note 从0.15.0开始引入虚拟文件概念。在虚拟文件服务器模式时，该功能无效
 	*/
 	qint64 FileServer::especiallyFocusFile(const QString& filePath) {

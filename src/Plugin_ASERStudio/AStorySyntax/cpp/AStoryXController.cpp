@@ -189,7 +189,8 @@ namespace ASERStudio::AStorySyntax {
 					avaliablePrefixIndexes.append(std::tuple<qint32, QString, QString>(prefixIndexes[i], prefixes[i], prefixNames[i]));
 				}
 			}
-			std::sort(avaliablePrefixIndexes.begin(), avaliablePrefixIndexes.end(), [](const std::tuple<qint32, QString, QString>& a, const std::tuple<qint32, QString, QString>& b) {
+			std::sort(avaliablePrefixIndexes.begin(), avaliablePrefixIndexes.end(), [](const std::tuple<qint32, QString, QString>& a, 
+				const std::tuple<qint32, QString, QString>& b) {
 				return std::get<0>(a) < std::get<0>(b);
 				});
 			prefixIndexes.clear();

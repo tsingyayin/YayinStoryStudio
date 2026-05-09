@@ -124,6 +124,9 @@
     <ClCompile Include="YSS\cpp\ResourceMoniter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AStorySyntax\cpp\AStoryXRebuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ASERStudioCompileMacro.h">
@@ -154,6 +157,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="YSS\ResourceMoniter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AStorySyntax\AStoryXRebuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

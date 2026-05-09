@@ -312,6 +312,7 @@
     <QtMoc Include="Widgets\BorderFrame.h" />
     <QtMoc Include="Widgets\BorderLabel.h" />
     <ClInclude Include="Widgets\DesktopHacker.h" />
+    <QtMoc Include="Widgets\MessageCenter.h" />
     <ClInclude Include="Widgets\PixmapCacheHelper.h" />
     <QtMoc Include="Widgets\PluginManageWidget.h" />
     <QtMoc Include="Widgets\private\DragWidget_p.h" />

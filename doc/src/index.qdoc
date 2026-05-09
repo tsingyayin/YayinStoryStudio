@@ -4,9 +4,9 @@
     \brief Yayin Story Studio 的官方文档首页
 
     欢迎使用 Yayin Story Studio 的官方文档！本页面提供了 Yayin Story Studio 的各个模块和功能的详细介绍，
+
     这份官方文档更多的是面向开发者的，如果您是普通用户，建议参考 \l {https://www.yuque.com/tsingyayin/yss/}{Yayin Story Studio 用户文档 - 语雀} 。
 
-    
     如果您需要ASE-Remake教程，请另行参阅 \l {https://www.yuque.com/tsingyayin/aser}{ASER 官方文档 - 语雀} 。
 
     \section1 模块介绍
@@ -18,6 +18,14 @@
     Yayin Story Studio 没有太多文档，因为它基本上不作为开放API供外部使用。
     \li Plugin_ASERStudio 模块：ASE Studio 插件模块，提供了 ASE Studio 插件的实现。根命名空间为 ASERStudio 。
     \endlist
+
+    \section1 开发Visindigo/YSS插件
+
+    要开发Visindigo插件，可以参见类Visindigo::General::Plugin的文档。这部分包含该类使用与使插件生效的基本教程
+
+    至于开发YSS插件，则请参考页面\l {YSSPluginDev.html}{YSSPluginDev} 和类YSSCore::Editor::EditorPlugin的文档。
+
+    由于开发YSS插件目前主要是涉及对YSS的语言支持进行扩展，而语言支持又相当复杂，因此详细文档是单列的，并未合并在类的说明文档中。
 
     \section1 附带实用工具
     Yayin Story Studio 项目附带了一些用于辅助开发和测试的Python工具，参见 \l {pytools.html}{项目附带的Python工具} 文档。

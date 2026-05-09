@@ -37,6 +37,15 @@ namespace ASERStudio::AStorySyntax {
 		\brief AStoryXRule是对整个AStoryX语法规则的封装，包含了对不同版本的AStoryX语法规则的解析和存储。
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
+
+		AStoryXRule类提供了对AStoryX语法规则的管理和访问功能。它可以解析符合ASERStudio要求的AStoryX语法规则JSON格式，
+		并提供接口获取不同控制器类型的相关信息，如头部字符串、起始标志、必需参数名称等。
+
+		值得指出的是，ASER Studio作为YSS插件使用时，会在项目加载和卸载时自动将
+		项目内有效规则文件解析为AStoryXRule对象，并注册到AStoryXRule的静态成员中，供插件内其他模块使用。
+
+		但如果按第三方库的方式使用ASER Studio，则需要手动创建AStoryXRule对象，
+		并调用AStoryXRule::registerRule()注册到静态成员中，才能被插件内其他模块使用。
 	*/
 
 	/*!
@@ -350,6 +359,9 @@ namespace ASERStudio::AStorySyntax {
 		获取已注册的AStoryX语法规则。
 		\a name 要获取的AStoryXRule对象的名称。必须与注册时设置的名称一致。
 		返回值：如果找到对应名称的规则，则返回指向该规则的指针；否则返回nullptr。
+
+		\note 注意，该指针所有权归AStoryXRule类管理，且随时可能因为调用clearRules函数而失效，
+		因此调用者不应删除或长期持有该指针。
 	*/
 	AStoryXRule* AStoryXRule::getRule(const QString& name) {
 		if (AStoryXRulePrivate::RegisteredRules.contains(name)) {

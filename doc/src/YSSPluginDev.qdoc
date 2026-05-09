@@ -2,6 +2,53 @@
 	\page YSSPluginDev.html
 	\title YSSPluginDev
 	\brief Yayin Story Studio 插件开发文档
-	\since Yayin Story Studio 0.10.0
-	\ingroup Visindigo
+	\ingroup YSSCore
+
+	\section1 YSS插件开发
+	要编写一个能成功运行的YSS插件，需要参考类Visindigo::General::Plugin和YSSCore::Editor::EditorPlugin的文档。
+
+	这些文档是使插件可以运行的最基本内容。
+
+	\section1 YSS中的语言支持
+	在YSS中，将对某种语言的支持抽象为以下几个组成部分：
+	\list
+	\li 1. 语法高亮和错误检查，由类YSSCore::Editor::SyntaxHighlighter支持
+	\li 2. Tab补全，由类YSSCore::Editor::TabCompleterProvider支持
+	\li 3. 悬浮提示，由类YSSCore::Editor::HoverInfoProvider支持
+	\li 4. 格式规范器，由类YSSCore::Editor::FormatNormalizer支持
+	\endlist
+	以上主要是关于编辑时的支持，要正确激活他们，需要实现类
+	YSSCore::Editor::LangServer的扩展，并在其中正确返回这些支持类的实例。
+
+	如果需要运行时的支持的话，则需要实现类YSSCore::Editor::DebugServer的扩展。
+
+	至于打开文件，则需要实现类YSSCore::Editor::FileServer。如果不能使用
+	内置的代码编辑器，而需要自己重新实现一个编辑区域的话，就需要
+	额外实现类YSSCore::Editor::FileEditWidget。
+
+	要提供文件模板，则需要实现类YSSCore::Editor::FileTemplateProvider。
+
+	要提供项目模板，则需要实现类YSSCore::Editor::ProjectTemplateProvider。
+
+	\section1 语言支持的实现建议
+	当前，YSS要求LangServer必须至少提供有效的SyntaxHighlighter实例。实际上这并不是
+	在要求用户只要实现YSS语言支持就必须实现语法高亮，而是YSS希望用户通过SyntaxHighlighter
+	来高性能的感知并处理文档变化。SyntaxHighlighter是基于QSyntaxHighlighter实现的，通过
+	处理QTextEdit背后的QTextDocument发出的documentChanged信号，以“行”为单位精确捕捉
+	最少的文档变化。因此，用户完全可以通过SyntaxHighlighter来实现对文档的感知，并在其中缓存
+	相关数据，以供其他类使用。
+
+	有关此内容的良好实践，可以参见ASER Studio的实现。在ASER Studio中，
+	ASERStudio::YSS::LS_AStoryXSyntaxHighlighter中就负责操作一个
+	ASERStudio::AStorySyntax::AStoryXDocument实例，在唤起着色时更新该的相关数据，
+	随后该实例又被ASERStudio::YSS::LS_AStoryXHoverInfoProvider和
+	ASERStudio::YSS::LS_AStoryXTabCompleter使用，以提供悬浮提示和Tab补全功能。
+
+	由此，ASER Studio就不必每次都重新解析整个文段，只按需更新相关数据，从而实现了高性能的语言支持。
+
+	不过，ASER Studio的这种记录数据的方法倒是不怎么符合Qt的理念。
+	如果按Qt的理念来实现的话，理应是实现QTextBlockUserData的扩展，
+	然后将其记录到QTextBlock中，这样就可以直接通过QSyntaxHighlight
+	提供的接口访问这些数据，且拥有更明确的所有权语义。YSS当前还未拥有采用这种方式的实践，
+	没有可供开发者参考的实例。不过它确实听上去不错，开发者可以自行考虑一下是否采用这种方式来记录解析数据。
 */
