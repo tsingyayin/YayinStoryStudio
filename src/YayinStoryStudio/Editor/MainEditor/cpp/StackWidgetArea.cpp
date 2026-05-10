@@ -86,15 +86,15 @@ namespace YSS::Editor {
 	StackWidgetArea::~StackWidgetArea() {
 		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
 			widget->setParent(nullptr);
-			widget->close();
+			widget->closeFile();
 		}
 		delete d;
 	}
 
-	void StackWidgetArea::closeAll() {
+	void StackWidgetArea::closeAll(bool autoGiveup) {
 		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
 			vgDebug << "close " << widget->getFilePath();
-			widget->close();
+			widget->closeFile(autoGiveup);
 		}
 	}
 
@@ -103,7 +103,7 @@ namespace YSS::Editor {
 			QString filePath = widget->getFilePath();
 			if (not widget->isFileChanged() and not d->TagArea->isStackLabelPinned(filePath)) {
 				vgDebug << "close " << filePath;
-				widget->close();
+				widget->closeFile();
 			}
 		}
 	}
@@ -121,7 +121,7 @@ namespace YSS::Editor {
 		if (not widget) {
 			return;
 		}
-		widget->close();
+		widget->closeFile();
 	}
 
 	void StackWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget) {

@@ -404,6 +404,10 @@ namespace YSS::Editor {
 	}
 
 	void StackWidgetTagArea::adjustScrollArea() {
+		if (Labels.size() == 0) {
+			ScrollContent->setFixedWidth(0);
+			return;
+		}
 		int totalWidth = 0;
 		for (StackWidgetTagLabel* label : Labels) {
 			totalWidth += label->width() + ContentLayout->spacing();

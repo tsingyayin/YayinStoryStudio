@@ -176,7 +176,7 @@ namespace ASERStudio::YSS {
 					QFileInfo info(file);
 					diffList.append(info.baseName());
 				}
-				vgDebug << diffList;
+				//vgDebug << diffList;
 				charaDiffs.insert(charaName, diffList);
 			}
 			d->CharaDiffs = charaDiffs;

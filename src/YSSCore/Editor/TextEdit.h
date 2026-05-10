@@ -47,7 +47,6 @@ namespace YSSCore::Editor {
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;
-		virtual bool onClose() override;
 		virtual bool onSave(const QString& path = "") override;
 		virtual bool onReload() override;
 		virtual bool onCopy() override;

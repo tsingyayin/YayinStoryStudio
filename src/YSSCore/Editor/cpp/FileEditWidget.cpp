@@ -5,12 +5,15 @@
 #include "General/YSSLogger.h"
 #include <Utility/FileUtility.h>
 #include <QtCore/qregularexpression.h>
+#include <QtWidgets/qmessagebox.h>
+#include <General/TranslationHost.h>
 namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
 	protected:
 		bool fileChanged = false;
 		bool isVirtualFile = false;
+		bool autoAbandon = false;
 		QString filePath;
 	};
 	/*!
@@ -225,6 +228,24 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
+		\since Visindigo 0.15.0
+		获取当前文件编辑器的自动放弃状态。
+		return 如果在关闭文件时会自动放弃未保存的修改，返回true；否则返回false。
+	*/
+	bool FileEditWidget::isAutoAbandon() const {
+		return d->autoAbandon;
+	}
+
+	/*!
+		\since Visindigo 0.15.0
+		设置当前文件编辑器的自动放弃状态。
+		\a autoAbandon 是否在关闭文件时自动放弃未保存的修改。默认为false，即不自动放弃。
+	*/
+	void FileEditWidget::setAutoAbandon(bool autoAbandon) {
+		d->autoAbandon = autoAbandon;
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		打开指定路径的文件，并加载其内容。
 		\a path 要打开的文件路径。
@@ -323,13 +344,14 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since Visindigo 0.13.0
-		关闭当前文件编辑器。
+		关闭当前文件编辑器。\a autoAbandon 是否自动放弃未保存的修改。默认为false，即不自动放弃。
 		
 		这个函数直接调用QWidget的close()函数，触发关闭事件。
 		
 		关闭事件会调用派生类实现的onClose()函数以决定是否允许关闭。
 	*/
-	void FileEditWidget::closeFile() {
+	void FileEditWidget::closeFile(bool autoAbandon) {
+		d->autoAbandon = autoAbandon;
 		close();
 	}
 
@@ -421,16 +443,43 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-
-		派生类必须实现此纯虚函数以处理文件关闭逻辑。
+		派生类可以实现此虚函数以处理文件关闭逻辑。
 		return 如果文件编辑器可以关闭，返回true；否则返回false。
+
+		这个函数默认会根据isFileChanged()的返回值来判断文件是否被修改过，
+		如果被修改过则弹出一个警告对话框询问用户是否保存修改。这应该可以
+		满足绝大部分情况下的关闭需求，因此如果没有特殊需求，派生类无需重载此函数。
+
+		如果isAutoAbandon()返回true，则无论文件是否被修改过，都会直接放弃修改并允许关闭。
 
 		\warning 不要在这个函数里调用close或deleteLater等任何实质上真的
 		会关闭这个Widget的函数，会造成递归爆栈。这个函数的唯一作用是通过
 		返回值告知YSS是否真的应该关闭它。因此你可以在里面做一些保存、警告等操作
 	*/
 	bool FileEditWidget::onClose() {
-		return true;
+		if (isFileChanged() && not isAutoAbandon()) {
+			int ret = QMessageBox::warning(this, VITR("YSS::editor.saveWarning.title"),
+				VITR("YSS::editor.saveWarning.message").arg(getFileName()),
+				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+				QMessageBox::Save);
+			switch (ret) {
+			case QMessageBox::Save:
+				saveFile();
+				return true;
+			case QMessageBox::Discard:
+				// Don't save was clicked
+				return true;
+			case QMessageBox::Cancel:
+				// Cancel was clicked
+				return false;
+			default:
+				// should never be reached
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
 	}
 
 	/*!

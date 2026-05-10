@@ -58,8 +58,8 @@ namespace YSS::Editor {
 		setColorfulEnable(true);
 		onThemeChanged();
 
-		int width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
-		int height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
+		qint64 width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
+		qint64 height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
 
 		this->resize(width, height);
 		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
@@ -105,8 +105,10 @@ namespace YSS::Editor {
 				stillOKFiles.append(filePath);
 			}
 		}
+		vgDebug << "Opened files" << stillOKFiles;
 		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
 		Editor->setCurrentWidget(focusedFile);
+		GlobalValue::getCurrentProject()->saveProject();
 	}
 
 	MainWin::~MainWin() {
@@ -215,7 +217,7 @@ namespace YSS::Editor {
 				}
 			}
 		}
-		Editor->closeAll(); // close all should be later than saveProject.
+		Editor->closeAll(true); // close all should be later than saveProject.
 		Instance = nullptr;
 		delete GlobalValue::getCurrentProject();
 		this->deleteLater();

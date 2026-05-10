@@ -14,7 +14,7 @@ namespace YSS::Editor {
 		StackWidgetArea(QWidget* parent = nullptr);
 		virtual ~StackWidgetArea();
 		void addWidget(YSSCore::Editor::FileEditWidget* widget);
-		void closeAll();
+		void closeAll(bool autoGiveup = false);
 		void closeSaved();
 		void closeWidget(YSSCore::Editor::FileEditWidget* widget);
 		void closeWidget(const QString& filePath);

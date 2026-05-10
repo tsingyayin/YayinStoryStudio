@@ -1226,36 +1226,6 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		关闭当前文件。只有当文件成功关闭时才会返回true，其他任何失败情况均返回false。
-	*/
-	bool TextEdit::onClose() {
-		if (isFileChanged()) {
-			int ret = QMessageBox::warning(this, VITR("YSS::editor.saveWarning.title"), 
-				VITR("YSS::editor.saveWarning.message").arg(getFileName()),
-				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-				QMessageBox::Save);
-			switch (ret) {
-			case QMessageBox::Save:
-				saveFile();
-				return true;
-			case QMessageBox::Discard:
-				// Don't save was clicked
-				return true;
-			case QMessageBox::Cancel:
-				// Cancel was clicked
-				return false;
-			default:
-				// should never be reached
-				return false;
-			}
-		}
-		else {
-			return true;
-		}
-	}
-
-	/*!
-		\since YSS 0.13.0
 		保存当前文件。只有当文件成功保存时才会返回true，其他任何失败情况均返回false。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用saveFile()函数。
 	*/

@@ -30,11 +30,13 @@ namespace YSSCore::Editor {
 		QString getVirtualFileParam() const;
 		void setFileChanged();
 		void cancelFileChanged();
+		bool isAutoAbandon() const;
+		void setAutoAbandon(bool autoAbandon);
 	public:
 		bool openFile(const QString& path);
 		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false);
 		bool reloadFile();
-		void closeFile();
+		void closeFile(bool autoAbandon = false);
 	public:
 		bool copy();
 		bool cut();
