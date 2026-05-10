@@ -152,7 +152,11 @@ namespace ASERStudio::AStorySyntax {
 		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QString AStoryXRule::getHeader(AStoryXController::ControllerType type) const {
-		if (d->Controllers.contains(type)) {
+		if (type == AStoryXController::ControllerType::Preprocessor) {
+			return "#";
+		}else if (type == AStoryXController::ControllerType::Comment) {
+			return "//";
+		}else if (d->Controllers.contains(type)) {
 			return d->Controllers[type].getHeader();
 		}
 		return "";
@@ -291,10 +295,21 @@ namespace ASERStudio::AStorySyntax {
 		这是不包含上下文处理的最完整的parseAStoryX解析函数，AStoryXController和AStoryXPreprocessor的解析函数都只能
 		各自处理自己类型的AStoryX字符串，而这个函数会根据字符串内容自动判断应该使用哪个控制器或预处理器来解析，并返回解析结果。
 
+		目前，只有#block和#aliases依赖上下文，如果你不解析这两种预处理器，使用此函数即可，否则你应该
+		直接使用AStoryXDocument类，向其提供完整的AStoryX文档。
+
 		此外，这个函数能处理注释行（以"//"开头的行），并将其解析为AStoryXControllerParseData对象，ControllerType为Comment。
 		RequiredParameter为注释的内容。
 	*/
 	AStoryXControllerParseData AStoryXRule::parseAStoryX(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
+		if (lineIndex == 0) {
+			auto firstLine = AStoryXControllerParseData();
+			firstLine.d->ControllerType = AStoryXController::ControllerType::Comment;
+			AStoryXParameter param;
+			param.d->setParameter("comment", "", str, AStoryXValueMeta("comment", AStoryXValueMeta::Type::Comment), 2);
+			firstLine.d->RequiredParameter = param;
+			return firstLine;
+		}
 		if (str.isEmpty()) {
 			return AStoryXControllerParseData();
 		}

@@ -1,5 +1,4 @@
 #include "AStorySyntax/AStoryXDocument.h"
-#include "AStorySyntax/private/AStoryXDocument_p.h"
 #include "AStorySyntax/AStoryXControllerParseData.h"
 #include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 #include <QtCore/qtimer.h>
@@ -8,33 +7,155 @@
 #include <General/Log.h>
 
 namespace ASERStudio::AStorySyntax {
-	AStoryXDocumentNotifier::AStoryXDocumentNotifier(QObject* parent) :QSyntaxHighlighter(parent) {
-
-	}
-	AStoryXDocumentNotifier::~AStoryXDocumentNotifier() {
-
-	}
-	void AStoryXDocumentNotifier::highlightBlock(const QString& text) {
-		emit blockChanged(text);
-	}
-	QTextBlock AStoryXDocumentNotifier::getCurrentBlock() const {
-		return currentBlock();
-	}
-
 	class AStoryXDocumentPrivate {
 		friend class AStoryXDocument;
 	protected:
-		QTextDocument* TextDocument = nullptr;
-		QSyntaxHighlighter* Highlighter = nullptr;
+		AStoryXDocument* q;
 		QString FilePath;
+		QStringList Lines; // only used in manual mode.
+		QList<qint32> LineUserStates;  // only used in manual mode.
+		AStoryXDocument::WorkMode Mode = AStoryXDocument::WorkMode::SyntaxHighlighter;
 		AStoryXRule CurrentRule;
 		bool EnableDiagnostic = false;
-		QMap<qint32, AStoryXControllerParseData> ParseDataCache;
+		QList<AStoryXControllerParseData> ParseDataCache;
 		QList<AStoryXDiagnosticData> GlobalDiagnostics;
 		AStoryXDiagnosticData RuleNotSelectedDiagnostic;
 		void onParsed(const AStoryXControllerParseData& data, qint32 lineNumber) {
+			if (lineNumber >= ParseDataCache.size()) {
+				for (qint32 i = ParseDataCache.size(); i <= lineNumber; ++i) {
+					ParseDataCache.append(AStoryXControllerParseData());
+				}
+			}
 			ParseDataCache[lineNumber] = data;
 			//vgDebug << "Parsed line " << lineNumber << ": " << data;
+		}
+
+		void setUserState(qint32 lineNumber, qint32 state, QTextBlock* block = nullptr) {
+			if (block && Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
+				block->setUserState(state);
+			}
+			else if (Mode == AStoryXDocument::WorkMode::Manual) {
+				if (lineNumber >= 0 && lineNumber < LineUserStates.size()) {
+					LineUserStates[lineNumber] = state;
+				}
+				else {
+					for (qint32 i = LineUserStates.size(); i <= lineNumber; ++i) {
+						LineUserStates.append(0);
+					}
+					LineUserStates[lineNumber] = state;
+				}
+			}
+		}
+
+		qint32 getUserState(qint32 targetLine, qint32 currentLine, QTextBlock* block = nullptr) {
+			if (block && Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
+				qint32 delta = currentLine - targetLine;
+				if (delta == 0) {
+					return block->userState();
+				}
+				else if (delta > 0) {
+					QTextBlock previousBlock = block->previous();
+					while (previousBlock.isValid() && delta > 0) {
+						if (previousBlock.userState() != 0) {
+							return previousBlock.userState();
+						}
+						previousBlock = previousBlock.previous();
+						--delta;
+					}
+				}
+				else {
+					QTextBlock nextBlock = block->next();
+					while (nextBlock.isValid() && delta < 0) {
+						if (nextBlock.userState() != 0) {
+							return nextBlock.userState();
+						}
+						nextBlock = nextBlock.next();
+						++delta;
+					}
+				}
+			}
+			else if (Mode == AStoryXDocument::WorkMode::Manual) {
+				if (targetLine >= 0 && targetLine < LineUserStates.size()) {
+					return LineUserStates[targetLine];
+				}
+				else {
+					return 0;
+				}
+			}
+			return 0;
+		}
+
+		void onGeneralParse(qint32 lineNumber, const QString& text, QTextBlock* block = nullptr) {
+			if (text.startsWith("#useRule:")) {
+				QString ruleName = text.mid(QString("#useRule:").length()).trimmed();
+				if (AStoryXRule::hasRule(ruleName)) {
+					auto rule = AStoryXRule::getRule(ruleName);
+					if (rule) {
+						//vgDebugF << rule->getName() << d->CurrentRule.getName();
+						if (rule->getName() != CurrentRule.getName()) {
+							CurrentRule = *rule;
+							GlobalDiagnostics.removeAll(RuleNotSelectedDiagnostic);
+							emit q->currentRuleChanged();
+						}
+					}
+				}
+				else {
+					CurrentRule = AStoryXRule();
+					AStoryXControllerParseData& data = ParseDataCache[lineNumber];
+					if (data.isValid()) {
+						data.d->ControllerType = AStoryXController::ControllerType::Preprocessor;
+						AStoryXParameter parameter;
+						parameter.d->setParameter("type", "", "useRule", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::String),
+							1);
+						data.d->RequiredParameter = parameter;
+						AStoryXParameter optionalParameter;
+						parameter.d->setParameter("ruleName", "", ruleName, AStoryXValueMeta("useRule.ruleName", AStoryXValueMeta::String),
+							QString("#useRule:").length());
+						data.d->OptionalParameters.append(optionalParameter);
+						AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
+							VITR("ASERStudio::diagnostic.noSuchRule.message"),
+							lineNumber, QString("#useRule:").length(), AStoryXDiagnosticData::DiagnosticType::NoSuchRule,
+							VITR("ASERStudio::diagnostic.noSuchRule.fixAdvice")
+						);
+					}
+				}
+			}
+			if (CurrentRule.isValid()) {
+				AStoryXControllerParseData data = CurrentRule.parseAStoryX(text, -1, true, lineNumber);
+				if (data.getControllerType() == AStoryXController::ControllerType::Preprocessor) {
+					if (data.getRequiredParameter().getContent() == "aliases") {
+						setUserState(lineNumber, 0x4241, block);
+					}
+					else if (data.getRequiredParameter().getContent() == "endaliases") {
+						setUserState(lineNumber, 0x4242, block);
+					}
+					onParsed(data, lineNumber);
+					//emit q->parseDataUpdated(lineNumber);
+				}
+				else {
+					if (getUserState(lineNumber, lineNumber - 1, block) == 0x4241) {
+						setUserState(lineNumber, 0x4241, block);
+						// here can do sth to parse alias context.
+						// sth like data = d->CurrentRule.parseAliasContext(text, lineNumber);
+						data = AStoryXControllerParseData(); // just for test now.
+						data.d->ControllerType = AStoryXController::ControllerType::Aliases;
+						// just for test now.
+						onParsed(data, lineNumber);
+						//emit q->parseDataUpdated(lineNumber);
+					}
+					else {
+						setUserState(lineNumber, 0, block);
+						onParsed(data, lineNumber);
+						//emit q->parseDataUpdated(lineNumber);
+					}
+				}
+			}
+			else {
+				if (not GlobalDiagnostics.contains(RuleNotSelectedDiagnostic)) {
+					GlobalDiagnostics.append(RuleNotSelectedDiagnostic);
+					//emit q->parseDataUpdated(-1);
+				}
+			}
 		}
 	};
 
@@ -74,101 +195,12 @@ namespace ASERStudio::AStorySyntax {
 		构造函数。
 	*/
 	AStoryXDocument::AStoryXDocument() :d(new AStoryXDocumentPrivate()) {
+		d->q = this;
 		d->RuleNotSelectedDiagnostic = AStoryXDiagnosticData(
 			VITR("ASERStudio::diagnostic.ruleNotSelected.message"),
 			-1, 0, AStoryXDiagnosticData::DiagnosticType::RuleNotSelected,
 			VITR("ASERStudio::diagnostic.ruleNotSelected.fixAdvice")
 		);
-	}
-
-	/*
-		\since ASERStudio 2.0
-		在SyntaxHighlighter中调用此方法来解析每一行的内容，并获取相应的诊断信息。
-		对于\a currentBlock，可以用QSyntaxHighlighter::currentBlock()获取。
-		\a text则为QSyntaxHighlighter::highlightBlock方法的参数，直接传递即可。
-	*/
-	void AStoryXDocument::onSyntaxHighlighter(QTextBlock currentBlock, const QString& text) {
-		qint32 lineNumber = currentBlock.blockNumber();
-		if (lineNumber == 0) {
-			auto firstLine = AStoryXControllerParseData();
-			firstLine.d->ControllerType = AStoryXController::ControllerType::Comment;
-			AStoryXParameter param;
-			param.d->setParameter("comment", "", text, AStoryXValueMeta("comment", AStoryXValueMeta::Type::Comment), 2);
-			firstLine.d->RequiredParameter = param;
-			d->onParsed(firstLine, lineNumber);
-			return;
-		}
-		if (text.startsWith("#useRule:")) {
-			QString ruleName = text.mid(QString("#useRule:").length()).trimmed();
-			if (AStoryXRule::hasRule(ruleName)) {
-				auto rule = AStoryXRule::getRule(ruleName);
-				if (rule) {
-					//vgDebugF << rule->getName() << d->CurrentRule.getName();
-					if (rule->getName() != d->CurrentRule.getName()) {
-						d->CurrentRule = *rule;
-						d->GlobalDiagnostics.removeAll(d->RuleNotSelectedDiagnostic);
-						emit currentRuleChanged();
-					}
-				}
-			}
-			else {
-				d->CurrentRule = AStoryXRule();
-				AStoryXControllerParseData& data = d->ParseDataCache[lineNumber];
-				if (data.isValid()) {
-					data.d->ControllerType = AStoryXController::ControllerType::Preprocessor;
-					AStoryXParameter parameter;
-					parameter.d->setParameter("type", "", "useRule", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::String),
-						1);
-					data.d->RequiredParameter = parameter;
-					AStoryXParameter optionalParameter;
-					parameter.d->setParameter("ruleName", "", ruleName, AStoryXValueMeta("useRule.ruleName", AStoryXValueMeta::String),
-						QString("#useRule:").length());
-					data.d->OptionalParameters.append(optionalParameter);
-					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-						VITR("ASERStudio::diagnostic.noSuchRule.message"),
-						lineNumber, QString("#useRule:").length(), AStoryXDiagnosticData::DiagnosticType::NoSuchRule,
-						VITR("ASERStudio::diagnostic.noSuchRule.fixAdvice")
-					);
-				}
-			}
-		}
-		if (d->CurrentRule.isValid()) {
-			AStoryXControllerParseData data = d->CurrentRule.parseAStoryX(text, -1, true, lineNumber);
-			if (data.getControllerType() == AStoryXController::ControllerType::Preprocessor) {
-				if (data.getRequiredParameter().getContent() == "aliases") {
-					currentBlock.setUserState(0x4241);
-				}
-				else if (data.getRequiredParameter().getContent() == "endaliases") {
-					currentBlock.setUserState(0x4242);
-				}
-				d->onParsed(data, lineNumber);
-				emit parseDataUpdated(lineNumber);
-			}
-			else {
-				if (currentBlock.previous().isValid() && currentBlock.previous().userState() == 0x4241) {
-					currentBlock.setUserState(0x4241);
-					// here can do sth to parse alias context.
-					// sth like data = d->CurrentRule.parseAliasContext(text, lineNumber);
-					data = AStoryXControllerParseData(); // just for test now.
-					data.d->ControllerType = AStoryXController::ControllerType::Comment;
-					// just for test now.
-					d->onParsed(data, lineNumber);
-					emit parseDataUpdated(lineNumber);
-				}
-				else {
-					currentBlock.setUserState(0);
-					d->onParsed(data, lineNumber);
-					emit parseDataUpdated(lineNumber);
-				}
-			}
-		}
-		else {
-			if (not d->GlobalDiagnostics.contains(d->RuleNotSelectedDiagnostic)) {
-				d->GlobalDiagnostics.append(d->RuleNotSelectedDiagnostic);
-				emit parseDataUpdated(-1);
-			}
-		}
-
 	}
 
 	/*!
@@ -179,18 +211,109 @@ namespace ASERStudio::AStorySyntax {
 		delete d;
 	}
 
-	/*!
+	/*
 		\since ASERStudio 2.0
-		获取文档的所有行内容，返回一个QStringList，每个元素对应一行文本。
-		如果没有设置TextDocument，则返回一个空的QStringList。
+		在SyntaxHighlighter中调用此方法来解析每一行的内容，并获取相应的诊断信息。
+		对于\a currentBlock，可以用QSyntaxHighlighter::currentBlock()获取。
+		\a text则为QSyntaxHighlighter::highlightBlock方法的参数，直接传递即可。
+
+		调用这个函数时，会自动将模式切换到SyntaxHighlighter模式，并清除之前在Manual模式下存储的行内容和用户状态。
+	*/
+	void AStoryXDocument::onSyntaxHighlighter(QTextBlock currentBlock, const QString& text) {
+		if (d->Mode != AStoryXDocument::WorkMode::SyntaxHighlighter) {
+			d->Mode = AStoryXDocument::WorkMode::SyntaxHighlighter;
+			d->Lines.clear();
+			d->LineUserStates.clear();
+			d->GlobalDiagnostics.clear();
+			d->ParseDataCache.clear();
+		}
+		d->onGeneralParse(currentBlock.blockNumber(), text, &currentBlock);
+	}
+
+	/*
+		\since ASERStudio 2.2
+		在Manual模式下调用此方法来解析每一行的内容，并获取相应的诊断信息。
+		\a lineIndex为行号，从0开始；\a text为该行的文本内容；\a cursorPosition为光标在该行中的位置，如果不需要可以传递-1。
+
+		调用这个函数时，会自动将模式切换到Manual模式。
+	*/
+	void AStoryXDocument::onManualParse(qint32 lineIndex, const QString& text, qint32 cursorPosition) {
+		if (d->Mode != AStoryXDocument::WorkMode::Manual) {
+			d->Mode = AStoryXDocument::WorkMode::Manual;
+			d->LineUserStates.clear();
+			d->GlobalDiagnostics.clear();
+			d->ParseDataCache.clear();
+		}
+		if (lineIndex >= d->Lines.size()) {
+			for (int i = d->Lines.size(); i <= lineIndex; ++i) {
+				d->Lines.append("");
+			}
+			d->Lines[lineIndex] = text;
+		}
+		else {
+			d->Lines[lineIndex] = text;
+		}
+		d->onGeneralParse(lineIndex, text);
+	}
+
+	/*!
+		\since ASERStudio 2.2
+		当行被添加时调用此方法，\a startLine为添加的起始行号，\a count为添加的行数。
+
+		这个方法在两种模式下都需要调用，用于为新添加的行初始化内容和用户状态，以及更新诊断信息等。
+	*/
+	void AStoryXDocument::onLinesAdded(qint32 startLine, qint32 count) {
+		if (startLine >= d->ParseDataCache.size()) {
+			return;
+		}
+		if (d->Mode == AStoryXDocument::WorkMode::Manual) {
+			for (int i = 0; i < count; ++i) {
+				d->Lines.insert(startLine, "");
+				d->LineUserStates.insert(startLine, 0);
+			}
+		}
+		for (qint32 i = 0 ; i < count ; ++i) {
+			d->ParseDataCache.insert(startLine, AStoryXControllerParseData());
+		}
+	}
+	/*!
+		\since ASERStudio 2.2
+		当行被删除时调用此方法，\a startLine为删除的起始行号，\a count为删除的行数。
+
+		这个方法在两种模式下都需要调用，用于清除多余的行内容和用户状态，以及更新诊断信息等。
+	*/
+	void AStoryXDocument::onLinesRemoved(qint32 startLine, qint32 count) {
+		if (d->Mode == AStoryXDocument::WorkMode::Manual) {
+			for (int i = 0; i < count; ++i) {
+				if (startLine < d->Lines.size()) {
+					d->Lines.removeAt(startLine);
+				}
+				if (startLine < d->LineUserStates.size()) {
+					d->LineUserStates.removeAt(startLine);
+				}
+			}
+		}
+
+		for (qint32 i = 0 ; i < count ; ++i) {
+			if (startLine >= d->ParseDataCache.size()) {
+				break;
+			}
+			d->ParseDataCache.remove(startLine);
+		}
+	}
+
+	/*!
+		\since ASERStudio 2.2
+		获取文档的所有行，返回一个QStringList，每个元素对应一行的文本内容。
+
+		这个函数只在手动模式下有效。如果是SyntaxHighlighter模式，则返回一个空的QStringList，
+		因为在这种模式下，行内容是通过QTextDocument动态获取的，而不是预先存储在AStoryXDocument中的。
+
+		要在SyntaxHighlighter下访问相关信息，你应该直接使用驱动了该AStoryXDocument的QTextDocument来获取行内容。
 	*/
 	QStringList AStoryXDocument::getLines() const {
-		if (d->TextDocument) {
-			QStringList lines;
-			for (int i = 0; i < d->TextDocument->blockCount(); i++) {
-				lines.append(d->TextDocument->findBlockByNumber(i).text());
-			}
-			return lines;
+		if (d->Mode == AStoryXDocument::WorkMode::Manual) {
+			return d->Lines;
 		}
 		else {
 			return QStringList();
@@ -215,7 +338,7 @@ namespace ASERStudio::AStorySyntax {
 			diagnostics.append(d->GlobalDiagnostics);
 		}
 		else {
-			if (d->ParseDataCache.contains(lineNumber)) {
+			if (lineNumber >= 0 && lineNumber < d->ParseDataCache.size()) {
 				diagnostics.append(d->ParseDataCache[lineNumber].d->Diagnostics);
 			}
 		}
@@ -255,7 +378,7 @@ namespace ASERStudio::AStorySyntax {
 		如果\a lineNumber对应的行没有解析数据，则返回一个无效的AStoryXControllerParseData对象。
 	*/
 	AStoryXControllerParseData AStoryXDocument::getParseData(qint32 lineNumber) const {
-		if (d->ParseDataCache.contains(lineNumber)) {
+		if (lineNumber >= 0 && lineNumber < d->ParseDataCache.size()) {
 			return d->ParseDataCache[lineNumber];
 		}
 		else {
@@ -269,26 +392,7 @@ namespace ASERStudio::AStorySyntax {
 		如果某行没有解析数据，则对应的元素将是一个无效的AStoryXControllerParseData对象。
 	*/
 	QList<AStoryXControllerParseData> AStoryXDocument::getAllParseData() const {
-		return d->ParseDataCache.values();
-	}
-	
-	/*!
-		\since ASERStudio 2.0
-		设置文档的文本内容，\a doc为一个QTextDocument对象。
-	*/
-	void AStoryXDocument::setTextDocument(QTextDocument* doc) {
-		if (doc) {
-			d->TextDocument = doc;
-		}
-	}
-
-	/*!
-		\since ASERStudio 2.0
-		获取文档的文本内容，返回一个QTextDocument对象。
-		如果没有设置TextDocument，则返回nullptr。
-	*/
-	QTextDocument* AStoryXDocument::getTextDocument() const {
-		return d->TextDocument;
+		return d->ParseDataCache;
 	}
 	
 	/*!
@@ -300,15 +404,6 @@ namespace ASERStudio::AStorySyntax {
 	*/
 	void AStoryXDocument::setEnableDiagnostic(bool enable) {
 		d->EnableDiagnostic = enable;
-	}
-
-	/*!
-		\since ASERStudio 2.0
-		设置用于解析文档的语法高亮器，\a highlighter为一个QSyntaxHighlighter对象。
-		这个高亮器将被用来在解析过程中感知文档的动态变化，并触发相应的解析更新。
-	*/
-	void AStoryXDocument::setSyntaxHighlighter(QSyntaxHighlighter* highlighter) {
-		d->Highlighter = highlighter;
 	}
 
 	/*!

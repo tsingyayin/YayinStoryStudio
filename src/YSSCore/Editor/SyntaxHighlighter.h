@@ -2,11 +2,18 @@
 #define YSSCore_Editor_SyntaxHighlighter_h
 #include "YSSCoreCompileMacro.h"
 #include <QtGui/qsyntaxhighlighter.h>
+namespace YSSCore::__Private__ {
+	class DocumentMessageManagerPrivate;
+}
 
 namespace YSSCore::Editor {
 	class TextEdit;
+	class DocumentMessageManager;
 	class DocumentMessagePrivate;
+
 	class YSSCoreAPI DocumentMessage {
+		friend class DocumentMessageManager;
+		friend class YSSCore::__Private__::DocumentMessageManagerPrivate;
 	public:
 		enum MessageType {
 			Error = 0,
@@ -30,7 +37,7 @@ namespace YSSCore::Editor {
 		QUrl getHelpUrl() const;
 		QString getFixAdvice() const;
 		QString toString() const;
-	private:
+	protected:
 		DocumentMessagePrivate* d;
 	};
 
@@ -44,6 +51,8 @@ namespace YSSCore::Editor {
 		void highlightBlock(const QString& text) override;
 	public:
 		virtual void onBlockChanged(const QString& text, int blockNumber) = 0;
+		virtual void onBlockRemoved(qint32 startBlockNumber, qint32 count);
+		virtual void onBlockAdded(qint32 startBlockNumber, qint32 count);
 		void rehighlight_s();
 		void autoRenderMessageWaveLine(bool autoRender);
 		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");

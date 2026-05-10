@@ -13,12 +13,15 @@
 	在YSS中，将对某种语言的支持抽象为以下几个组成部分：
 	\list
 	\li 1. 语法高亮和错误检查，由类YSSCore::Editor::SyntaxHighlighter支持
-	\li 2. Tab补全，由类YSSCore::Editor::TabCompleterProvider支持
-	\li 3. 悬浮提示，由类YSSCore::Editor::HoverInfoProvider支持
-	\li 4. 格式规范器，由类YSSCore::Editor::FormatNormalizer支持
+	\li 2. Tab补全，由类YSSCore::Editor::TabCompleterProvider支持，提供在按下Tab键时的补全选项
+	\li 3. 悬浮提示，由类YSSCore::Editor::HoverInfoProvider支持，提供在鼠标悬浮时以及键入过程中的额外信息提示
+	\li 4. 格式规范器，由类YSSCore::Editor::FormatNormalizer支持，用于在一行编辑完毕之后触发自动格式化。
+	\li 5. 符号解析器，由类YSSCore::Editor::SymbolParser支持，用于提供查找引用、转到定义、重命名符号等功能。
 	\endlist
 	以上主要是关于编辑时的支持，要正确激活他们，需要实现类
 	YSSCore::Editor::LangServer的扩展，并在其中正确返回这些支持类的实例。
+
+	不过目前，FormatNormalizer和SymbolParser暂时还没有实现，这两个功能暂不可用。
 
 	如果需要运行时的支持的话，则需要实现类YSSCore::Editor::DebugServer的扩展。
 

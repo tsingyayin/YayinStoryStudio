@@ -38,9 +38,6 @@
     <QtMoc Include="AStorySyntax\AStoryXController.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="AStorySyntax\private\AStoryXDocument_p.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="AStorySyntax\AStoryXValueMeta.h">
       <Filter>Header Files</Filter>
     </QtMoc>

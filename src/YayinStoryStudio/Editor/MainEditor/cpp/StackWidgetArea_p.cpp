@@ -569,6 +569,7 @@ namespace YSS::Editor {
 			}
 		}
 		auto msgList = YSSCore::Editor::DocumentMessageManager::getInstance()->getMessages(filePath, lineNumber);
+		//vgDebug << "Line " << lineNumber << " has " << msgList.size() << " messages.";
 		for (auto msg : msgList) {
 			int row = MessageTable->rowCount();
 			MessageTable->insertRow(row);

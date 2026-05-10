@@ -158,6 +158,7 @@
     <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Editor\private\HoverInfoProvider_p.h" />
     <ClInclude Include="Editor\private\DocumentMessageManager_p.h" />
+    <ClInclude Include="Editor\private\DocumentMessage_p.h" />
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <QtMoc Include="Editor\SyntaxHighlighter.h" />
     <ClInclude Include="Editor\VirtualFilePath.h" />

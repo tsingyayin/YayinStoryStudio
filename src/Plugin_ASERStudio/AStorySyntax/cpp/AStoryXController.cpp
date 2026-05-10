@@ -317,6 +317,37 @@ namespace ASERStudio::AStorySyntax {
 	*/
 
 	/*!
+		\enum ASERStudio::AStorySyntax::AStoryXController::ControllerType
+		\since ASERStudio 2.0
+		控制器类型枚举，定义了各种AStoryX控制器的类型。
+		\value Unknown 未知类型，表示未识别的控制器类型。
+		\value Background 背景控制器，用于设置场景背景。
+		\value Music 音乐控制器，用于播放背景音乐。
+		\value SoundEffect 音效控制器，用于播放音效。
+		\value Mask 遮罩控制器，用于设置场景遮罩，这是个和明日方舟强相关的控制器。
+		\value Character 角色控制器，用于设置角色相关属性。
+		\value Choice 选项控制器，向玩家提供选项。
+		\value Delay 延迟控制器，用于设置延迟时间。
+		\value VisualEffect 视觉效果控制器，用于设置视觉效果。
+		\value Interlude 插播控制器，这是个和明日方舟强相关的控制器，目前用于显示通讯效果和立绘插入效果。
+		\value ColorMask 色彩遮罩控制器，用于设置色彩遮罩效果。
+		\value Shake 震动控制器，用于抖动相机。
+		\value FreeText 自由文本控制器，用于显示自由文本。
+		\value Cut 裁切控制器，用于对指定渲染顺序之后的场景进行显示裁切。
+		\value Filter 滤镜控制器，用于设置滤镜效果。
+		\value AnimatedText 动态文本控制器，用于显示动态文本。目前只用于显示明日方舟的时间坐标效果。
+		\value Sign 标识控制器，用于设置标识。
+		\value Variable 变量控制器，用于设置和修改变量。
+		\value Judge 判断控制器，用于进行条件判断并根据结果写入变量。
+		\value Branch 分支控制器，用于根据变量值进行分支跳转。
+		\value Narration 旁白控制器，用于向阅读模式增加提示文本，普通播放时不可见。
+		\value Dialog 对话控制器，用于人物对话。对话控制器的特殊之处在于它没有Header（StartSign），因此在解析时会有特殊的处理逻辑。
+		\value Preprocessor 预处理器，用于定义预处理器指令，目前主要用于定义宏。它一定以#开头。
+		\value Comment 注释，用于添加注释。它一定以//开头。
+		\value Aliases 别名区域，用于定义控制器别名。它也没有Header，在解析时依赖上下文信息来识别。
+	*/
+
+	/*!
 		\since ASERStudio 2.0
 		构造函数
 	*/
@@ -416,8 +447,8 @@ namespace ASERStudio::AStorySyntax {
 		但显然前者会比较重，因此建议根据实际需要传递参数，并非总进行诊断。
 
 		此外，除非你有特殊需要（比如在特定场景下只尝试按这个控制器的规则解析，而不考虑其他控制器），
-		否则你通常不需要直接调用这个函数。针对任意文本的解析，
-		应该使用ASERStudio::AStorySyntax::AStoryXRule::parseAStoryX函数，该函数会根据所有控制器的规则来解析文本，并返回最合适的解析结果。
+		否则你不需要直接调用这个函数。针对任意文本的解析，应该使用ASERStudio::AStorySyntax::AStoryXRule::parseAStoryX函数，
+		该函数会根据所有控制器的规则来解析文本，并返回最合适的解析结果。
 	*/
 	AStoryXControllerParseData AStoryXController::parseAStoryX(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
 		if (not d->IsValid) {
@@ -806,7 +837,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		return 控制器定义的字符串表示形式，主要用于调试和日志记录等目的。通常会包含控制器的类型、行首标识符、必需参数名称和可选参数信息等内容。
+		return 控制器定义的字符串表示形式，主要用于调试和日志记录等目的。会包含控制器的类型、行首标识符、必需参数名称和可选参数信息等内容。
 	*/
 	QString AStoryXController::toString() {
 		QStringList optionalParams;
