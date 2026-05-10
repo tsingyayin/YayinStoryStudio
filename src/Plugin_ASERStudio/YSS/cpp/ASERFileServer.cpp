@@ -4,6 +4,7 @@
 #include <QtWidgets/qlayout.h>
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
+#include <General/Log.h>
 namespace ASERStudio::YSS {
 	FileServer_AStoryX::FileServer_AStoryX(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::FileServer("AStory Script File Server", "ASERStudio.FileServer.AStoryX", plugin) {
@@ -24,9 +25,11 @@ namespace ASERStudio::YSS {
 		QString projectFolder = project->getProjectFolder();
 		QString ruleFolder = projectFolder + "/Rules";
 		if (filePath.startsWith(ruleFolder) && filePath.endsWith(".json")) {
+			vgDebug << "ASRule JSON file focused: " << filePath;
 			return std::numeric_limits<qint64>::max();
 		}
 		else {
+			vgDebug << "Normal JSON file:" << filePath;
 			return -1;
 		}
 	}
@@ -40,6 +43,7 @@ namespace ASERStudio::YSS {
 	protected:
 		QList<QLabel*> labels;
 		QVBoxLayout* layout;
+		QString rawContent;
 	};
 
 	EditorWidget_ASRuleJson::EditorWidget_ASRuleJson(QWidget* parent) : YSSCore::Editor::FileEditWidget(parent) {
@@ -52,8 +56,9 @@ namespace ASERStudio::YSS {
 	}
 
 	bool EditorWidget_ASRuleJson::onOpen(const QString& path) {
+		d->rawContent = Visindigo::Utility::FileUtility::readAll(path);
 		Visindigo::Utility::JsonConfig config;
-		config.parse(Visindigo::Utility::FileUtility::readAll(path));
+		config.parse(d->rawContent);
 		auto controllers = config.getArray("rules");
 		for (auto controller : controllers) {
 			QLabel* label = new QLabel(this);
@@ -72,6 +77,7 @@ namespace ASERStudio::YSS {
 	}
 
 	bool EditorWidget_ASRuleJson::onSave(const QString& path) {
+		Visindigo::Utility::FileUtility::saveAll(path, d->rawContent);
 		return true;
 	}
 

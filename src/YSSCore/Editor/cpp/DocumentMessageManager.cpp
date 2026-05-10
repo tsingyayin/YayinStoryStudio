@@ -1,5 +1,6 @@
 #include "Editor/DocumentMessageManager.h"
 #include "Editor/private/DocumentMessageManager_p.h"
+#include "Editor/private/DocumentMessage_p.h"
 #include <General/Log.h>
 namespace YSSCore::__Private__ {
 	YSSCore::Editor::DocumentMessageManager* DocumentMessageManagerPrivate::Instance = nullptr;
@@ -19,6 +20,44 @@ namespace YSSCore::__Private__ {
 
 	void DocumentMessageManagerPrivate::addMessage(const QString& filePath, qint32 blockNumber, const YSSCore::Editor::DocumentMessage& message) {
 		Messages[filePath][blockNumber].append(message);
+	}
+
+	void DocumentMessageManagerPrivate::moveMessageForward(const QString& filePath, qint32 deletedBlockStartNumber, qint32 count) {
+		if (!Messages.contains(filePath)) return;
+		QMap<qint32, QList<YSSCore::Editor::DocumentMessage>> newMessages;
+		for (auto it = Messages[filePath].begin(); it != Messages[filePath].end(); ++it) {
+			qint32 blockNumber = it.key();
+			if (blockNumber < deletedBlockStartNumber) {
+				newMessages[blockNumber] = it.value();
+			} else if (blockNumber >= deletedBlockStartNumber + count) {
+				//vgDebug << "Moving messages for block " << blockNumber << " to " << (blockNumber - count);
+				newMessages[blockNumber - count] = it.value();
+				for(auto& msg : newMessages[blockNumber - count]) {
+					msg.d->LineNumber -= count;
+				}
+			}
+		}
+		Messages[filePath] = newMessages;
+		emit Instance->messageChanged(filePath);
+	}
+
+	void DocumentMessageManagerPrivate::moveMessageBackward(const QString& filePath, qint32 insertedBlockStartNumber, qint32 count) {
+		if (!Messages.contains(filePath)) return;
+		QMap<qint32, QList<YSSCore::Editor::DocumentMessage>> newMessages;
+		for (auto it = Messages[filePath].begin(); it != Messages[filePath].end(); ++it) {
+			qint32 blockNumber = it.key();
+			if (blockNumber < insertedBlockStartNumber) {
+				newMessages[blockNumber] = it.value();
+			} else if (blockNumber >= insertedBlockStartNumber) {
+				//vgDebug << "Moving messages for block " << blockNumber << " to " << (blockNumber + count);
+				newMessages[blockNumber + count] = it.value();
+				for(auto& msg : newMessages[blockNumber + count]) {
+					msg.d->LineNumber += count;
+				}
+			}
+		}
+		Messages[filePath] = newMessages;
+		emit Instance->messageChanged(filePath);
 	}
 
 	void DocumentMessageManagerPrivate::flushMessages(const QString& filePath, qint32 blockNumber) {

@@ -35,7 +35,8 @@ namespace ASERStudio::AStorySyntax {
 			Narration,
 			Dialog,
 			Preprocessor,
-			Comment
+			Comment,
+			Aliases,
 		};
 		Q_ENUM(ControllerType);
 	public:

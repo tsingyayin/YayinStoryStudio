@@ -15,7 +15,11 @@ namespace ASERStudio::AStorySyntax {
 		Q_OBJECT;
 	signals:
 		void currentRuleChanged();
-		void parseDataUpdated(qint32 lineNumber);
+	public:
+		enum WorkMode {
+			SyntaxHighlighter,
+			Manual,
+		};
 	public:
 		AStoryXDocument();
 		~AStoryXDocument();
@@ -25,13 +29,14 @@ namespace ASERStudio::AStorySyntax {
 		QList<AStoryXDiagnosticData> getGlobalDiagnostics() const;
 		AStoryXControllerParseData getParseData(qint32 lineNumber) const;
 		QList<AStoryXControllerParseData> getAllParseData() const;
-		void setTextDocument(QTextDocument* doc);
-		QTextDocument* getTextDocument() const;
 		void setEnableDiagnostic(bool enable);
-		void setSyntaxHighlighter(QSyntaxHighlighter* highlighter);
 		void onSyntaxHighlighter(QTextBlock currentBlock, const QString& text);
+		void onManualParse(qint32 lineIndex, const QString& text, qint32 cursorPosition = -1);
+		void onLinesAdded(qint32 startLine, qint32 count);
+		void onLinesRemoved(qint32 startLine, qint32 count);
 		AStoryXRule* getCurrentRule() const;
 		bool isDiagnosticEnabled() const;
+		WorkMode getWorkMode() const;
 	private:
 		AStoryXDocumentPrivate* d;
 	};

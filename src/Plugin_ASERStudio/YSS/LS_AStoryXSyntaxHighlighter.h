@@ -12,6 +12,8 @@ namespace ASERStudio::YSS {
 		LS_AStoryXSyntaxHighlighter(YSSCore::Editor::TextEdit* parent = nullptr);
 		virtual ~LS_AStoryXSyntaxHighlighter();
 		virtual void onBlockChanged(const QString& text, int blockNumber) override;
+		virtual void onBlockRemoved(qint32 startBlockNumber, qint32 count) override;
+		virtual void onBlockAdded(qint32 startBlockNumber, qint32 count) override;
 		void setFormatWithColorKey(int start, int count, const QString& colorKey_F, const QString& colorKey_B = QString(), const QString& colorKey_U = QString());
 		void DiagnosticTransform(const ASERStudio::AStorySyntax::AStoryXDiagnosticData& diagnostic);
 	private:

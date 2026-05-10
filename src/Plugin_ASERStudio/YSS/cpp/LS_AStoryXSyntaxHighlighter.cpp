@@ -19,8 +19,6 @@ namespace ASERStudio::YSS {
 		d->FilePath = parent->getFilePath();
 		ASERStudio::AStorySyntax::AStoryXDocument* doc = new ASERStudio::AStorySyntax::AStoryXDocument();
 		doc->setEnableDiagnostic(true);
-		doc->setSyntaxHighlighter(this);
-		doc->setTextDocument(parent->getDocument());
 		AStoryXLanguageServer::setAStoryXDocument(parent->getFilePath(), doc);
 		d->Document = AStoryXLanguageServer::getAStoryXDocument(d->FilePath);
 		connect(d->Document, &AStorySyntax::AStoryXDocument::currentRuleChanged, this,
@@ -153,6 +151,14 @@ namespace ASERStudio::YSS {
 			//vgDebug << diagnostic;
 			DiagnosticTransform(diagnostic);
 		}
+	}
+
+	void LS_AStoryXSyntaxHighlighter::onBlockRemoved(qint32 startBlockNumber, qint32 count) {
+		d->Document->onLinesRemoved(startBlockNumber, count);
+	}
+
+	void LS_AStoryXSyntaxHighlighter::onBlockAdded(qint32 startBlockNumber, qint32 count) {
+		d->Document->onLinesAdded(startBlockNumber, count);
 	}
 
 	void LS_AStoryXSyntaxHighlighter::setFormatWithColorKey(int start, int count, const QString& colorKey_F, const QString& colorKey_B, const QString& colorKey_U) {

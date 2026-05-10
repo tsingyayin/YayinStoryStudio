@@ -37,6 +37,15 @@ namespace ASERStudio::AStorySyntax {
 		\brief AStoryXRule是对整个AStoryX语法规则的封装，包含了对不同版本的AStoryX语法规则的解析和存储。
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
+
+		AStoryXRule类提供了对AStoryX语法规则的管理和访问功能。它可以解析符合ASERStudio要求的AStoryX语法规则JSON格式，
+		并提供接口获取不同控制器类型的相关信息，如头部字符串、起始标志、必需参数名称等。
+
+		值得指出的是，ASER Studio作为YSS插件使用时，会在项目加载和卸载时自动将
+		项目内有效规则文件解析为AStoryXRule对象，并注册到AStoryXRule的静态成员中，供插件内其他模块使用。
+
+		但如果按第三方库的方式使用ASER Studio，则需要手动创建AStoryXRule对象，
+		并调用AStoryXRule::registerRule()注册到静态成员中，才能被插件内其他模块使用。
 	*/
 
 	/*!
@@ -143,7 +152,11 @@ namespace ASERStudio::AStorySyntax {
 		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QString AStoryXRule::getHeader(AStoryXController::ControllerType type) const {
-		if (d->Controllers.contains(type)) {
+		if (type == AStoryXController::ControllerType::Preprocessor) {
+			return "#";
+		}else if (type == AStoryXController::ControllerType::Comment) {
+			return "//";
+		}else if (d->Controllers.contains(type)) {
 			return d->Controllers[type].getHeader();
 		}
 		return "";
@@ -282,10 +295,21 @@ namespace ASERStudio::AStorySyntax {
 		这是不包含上下文处理的最完整的parseAStoryX解析函数，AStoryXController和AStoryXPreprocessor的解析函数都只能
 		各自处理自己类型的AStoryX字符串，而这个函数会根据字符串内容自动判断应该使用哪个控制器或预处理器来解析，并返回解析结果。
 
+		目前，只有#block和#aliases依赖上下文，如果你不解析这两种预处理器，使用此函数即可，否则你应该
+		直接使用AStoryXDocument类，向其提供完整的AStoryX文档。
+
 		此外，这个函数能处理注释行（以"//"开头的行），并将其解析为AStoryXControllerParseData对象，ControllerType为Comment。
 		RequiredParameter为注释的内容。
 	*/
 	AStoryXControllerParseData AStoryXRule::parseAStoryX(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
+		if (lineIndex == 0) {
+			auto firstLine = AStoryXControllerParseData();
+			firstLine.d->ControllerType = AStoryXController::ControllerType::Comment;
+			AStoryXParameter param;
+			param.d->setParameter("comment", "", str, AStoryXValueMeta("comment", AStoryXValueMeta::Type::Comment), 2);
+			firstLine.d->RequiredParameter = param;
+			return firstLine;
+		}
 		if (str.isEmpty()) {
 			return AStoryXControllerParseData();
 		}
@@ -350,6 +374,9 @@ namespace ASERStudio::AStorySyntax {
 		获取已注册的AStoryX语法规则。
 		\a name 要获取的AStoryXRule对象的名称。必须与注册时设置的名称一致。
 		返回值：如果找到对应名称的规则，则返回指向该规则的指针；否则返回nullptr。
+
+		\note 注意，该指针所有权归AStoryXRule类管理，且随时可能因为调用clearRules函数而失效，
+		因此调用者不应删除或长期持有该指针。
 	*/
 	AStoryXRule* AStoryXRule::getRule(const QString& name) {
 		if (AStoryXRulePrivate::RegisteredRules.contains(name)) {

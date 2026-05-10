@@ -63,7 +63,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Platform)\Release;</LibraryPath>
-    <OutDir>$(SolutionDir)$(Platform)\Release\user_data\plugins\YSSFileExt\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\0.14\Release\user_data\plugins\YSSFileExt\</OutDir>
     <TargetExt>.vpl</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

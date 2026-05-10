@@ -13,6 +13,8 @@ namespace YSSCore::__Private__ {
 		void clearMessagesForFile(const QString& filePath);
 		void clearMessagesForBlock(const QString& filePath, qint32 blockNumber);
 		void addMessage(const QString& filePath, qint32 blockNumber, const YSSCore::Editor::DocumentMessage& message);
+		void moveMessageForward(const QString& filePath, qint32 deletedBlockStartNumber, qint32 count);
+		void moveMessageBackward(const QString& filePath, qint32 insertedBlockStartNumber, qint32 count);
 		void flushMessages(const QString& filePath, qint32 blockNumber);
 		void flushMessages(const QString& filePath);
 		bool hasMessage(const QString& filePath);
