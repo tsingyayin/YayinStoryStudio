@@ -14,7 +14,7 @@ namespace YSSCore::Editor {
 		\class YSSCore::Editor::FileServer
 		\inmodule YSSCore
 		\brief 此类提供文件打开服务。
-		\since YSSCore 0.13.0
+		\since YSS 0.13.0
 		\ingroup FileService
 
 		由于YSSCore::Editor被设计为一个通用的编辑器框架，因此对于“打开文件”这样的需求提供了通用框架，

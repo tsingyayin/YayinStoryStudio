@@ -19,7 +19,7 @@ namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::FileEditWidget
 		\brief 此类为Yayin Story Studio 提供文件编辑的基类。
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		\inmodule YSSCore
 
 		FileEditWidget是所有文件编辑器的基类，所有文件编辑器都需要继承此类。
@@ -104,7 +104,7 @@ namespace YSSCore::Editor {
 	*/
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		\a parent 为父对象。
 		构造FileEditWidget对象。
 	*/
@@ -113,7 +113,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		析构FileEditWidget对象。
 	*/
 	FileEditWidget::~FileEditWidget() {
@@ -121,7 +121,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取当前文件编辑器的文件路径。
 		return 返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
 
@@ -134,7 +134,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		获取当前文件编辑器的文件名。
 		return 返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
 	*/
@@ -150,7 +150,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		判断当前文件内容是否被修改。
 		return 如果文件内容被修改，返回true；否则返回false。
 	*/
@@ -159,7 +159,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.15.0
+		\since YSS 0.15.0
 		判断当前文件是否为虚拟文件。
 		return 如果当前文件为虚拟文件，返回true；否则返回false。
 
@@ -170,7 +170,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.15.0
+		\since YSS 0.15.0
 		获取当前文件的扩展名。
 		return 返回当前文件的扩展名（不带点）。如果当前没有打开任何文件，则返回空字符串。
 
@@ -188,7 +188,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.15.0
+		\since YSS 0.15.0
 		获取当前虚拟文件的参数部分。
 		return 返回当前虚拟文件的参数部分。如果当前文件不是虚拟文件或没有参数，则返回空字符串。
 
@@ -206,7 +206,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		将当前文件内容标记为已修改状态。
 		此函数通常在派生类中被调用，当用户修改了文件内容时，应调用此函数以更新文件状态。
 		之后，它会自动触发fileChanged信号，通知外部文件内容已被修改，并传递当前文件路径作为参数。
@@ -217,7 +217,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		将当前文件内容标记为未修改状态。
 		此函数通常在派生类中被调用，当文件内容被保存或重新加载后，应调用此函数以更新文件状态。
 		之后，它会自动触发fileChangeCanceled信号，通知外部文件内容修改已被取消，并传递当前文件路径作为参数。
@@ -228,7 +228,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.15.0
+		\since YSS 0.15.0
 		获取当前文件编辑器的自动放弃状态。
 		return 如果在关闭文件时会自动放弃未保存的修改，返回true；否则返回false。
 	*/
@@ -237,7 +237,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.15.0
+		\since YSS 0.15.0
 		设置当前文件编辑器的自动放弃状态。
 		\a autoAbandon 是否在关闭文件时自动放弃未保存的修改。默认为false，即不自动放弃。
 	*/
@@ -246,7 +246,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		打开指定路径的文件，并加载其内容。
 		\a path 要打开的文件路径。
 		return 如果文件成功打开并加载，返回true；否则返回false。
@@ -326,7 +326,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		重新加载当前文件编辑器的内容。
 		return 如果文件成功重新加载，返回true；否则返回false。
 		此类在判定当前文件路径是否为空后，调用派生类实现的onReload()函数以实际重新加载文件。
@@ -343,7 +343,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		关闭当前文件编辑器。\a autoAbandon 是否自动放弃未保存的修改。默认为false，即不自动放弃。
 		
 		这个函数直接调用QWidget的close()函数，触发关闭事件。
@@ -356,7 +356,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		复制当前选中的内容到剪贴板。
 		return 如果复制操作成功，返回true；否则返回false。
 		此类调用派生类实现的onCopy()函数以实际处理复制逻辑。
@@ -366,7 +366,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		剪切当前选中的内容到剪贴板。
 		return 如果剪切操作成功，返回true；否则返回false。
 		此类调用派生类实现的onCut()函数以实际处理剪切逻辑。
@@ -376,7 +376,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		从剪贴板粘贴内容到当前光标位置。
 		return 如果粘贴操作成功，返回true；否则返回false。
 		此类调用派生类实现的onPaste()函数以实际处理粘贴逻辑。
@@ -386,7 +386,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		撤销上一次编辑操作。
 		return 如果撤销操作成功，返回true；否则返回false。
 		此类调用派生类实现的onUndo()函数以实际处理撤销逻辑。
@@ -396,7 +396,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		重做上一次被撤销的编辑操作。
 		return 如果重做操作成功，返回true；否则返回false。
 		此类调用派生类实现的onRedo()函数以实际处理重做逻辑。
@@ -406,7 +406,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
+		\since YSS 0.13.0
 		选中当前文件编辑器中的所有内容。
 		return 如果全选操作成功，返回true；否则返回false。
 		此类调用派生类实现的onSelectAll()函数以实际处理全选逻辑。
@@ -416,7 +416,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since YSSCore 0.13.0
+		\since YSS 0.13.0
 		\a lineNumber 行号，从1开始。
 		\a column 列号，从1开始。
 		将光标移动到指定的行号和列号位置。
@@ -562,7 +562,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since YSSCore 0.13.0
+		\since YSS 0.13.0
 		\a lineNumber 行号，从1开始。
 		\a column 列号，从1开始。
 		由派生类实现的函数，用于将光标移动到指定的行号和列号位置。
@@ -573,7 +573,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since YSSCore 0.15.0
+		\since YSS 0.15.0
 		\a ext 虚拟文件的扩展名。
 		\a fileName 虚拟文件的文件名。
 		\a param 其他参数字符串，可以包含任意内容，由调用者和实现者自行约定格式和含义。
@@ -587,7 +587,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since YSSCore 0.15.0
+		\since YSS 0.15.0
 		处理虚拟文件的关闭逻辑。
 		return 如果虚拟文件编辑器可以关闭，返回true；否则返回false。
 
@@ -598,7 +598,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since YSSCore 0.15.0
+		\since YSS 0.15.0
 		处理虚拟文件的保存逻辑。
 		return 如果虚拟文件成功保存，返回true；否则返回false。
 
@@ -609,7 +609,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since YSSCore 0.15.0
+		\since YSS 0.15.0
 		处理虚拟文件的重新加载逻辑。
 		return 如果虚拟文件成功重新加载，返回true；否则返回false。
 
@@ -622,7 +622,7 @@ namespace YSSCore::Editor {
 	
 
 	/*!
-		\since YSSCore 0.13.0
+		\since YSS 0.13.0
 		处理文件编辑器关闭事件。
 		\a event 关闭事件对象。
 		此函数在文件编辑器尝试关闭时被调用，调用派生类实现的onClose()函数以决定是否允许关闭。

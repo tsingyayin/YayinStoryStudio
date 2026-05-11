@@ -403,4 +403,37 @@ namespace ASERStudio::AStorySyntax {
 	QStringList AStoryXRule::getAvailableRuleNames() {
 		return AStoryXRulePrivate::RegisteredRules.keys();
 	}
+
+	/*!
+		\since ASERStudio 2.2
+		\a str 要解析的AStoryX字符串，必须符合ASERStudio的AStoryX语法规则。
+		\a cursorPosition 可选参数，表示光标位置，用于诊断和错误提示，默认为-1表示不使用光标位置。
+		这个函数假定\a str 一定是别名预处理区域的一行，然后按照别名预处理器的语法规则解析它，并返回解析结果。
+
+		值得指出的是，由于别名语法不受ASRule影响，因此这个函数是静态的。
+	*/
+	AStoryXControllerParseData AStoryXRule::parseAliases(const QString& str, qint32 cursorPosition, bool diagnostic, qint32 lineIndex) {
+		QStringList raw_aliases = str.split("->");
+		AStorySyntax::AStoryXControllerParseData rtn;
+		if (raw_aliases.size() >= 1) {
+			rtn.d->ControllerType = AStoryXController::ControllerType::Aliases;
+			auto aliasName = AStoryXParameter();
+			aliasName.d->Content = raw_aliases[0];
+			aliasName.d->Name = "Name";
+			aliasName.d->Index = 0;
+			aliasName.d->Value = AStoryXValueMeta("Name", AStoryXValueMeta::Type::String);
+			aliasName.d->Valid = true;
+			rtn.d->RequiredParameter = aliasName;
+		}
+		if (raw_aliases.size() >= 2) {
+			auto aliasTarget = AStoryXParameter();
+			aliasTarget.d->Content = raw_aliases[1];
+			aliasTarget.d->Name = "Target";
+			aliasTarget.d->Index = raw_aliases[0].size() + 2;
+			aliasTarget.d->Value = AStoryXValueMeta("Target", AStoryXValueMeta::Type::String);
+			aliasTarget.d->Valid = true;
+			rtn.d->OptionalParameters.append(aliasTarget);
+		}
+		return rtn;
+	}
 }

@@ -153,7 +153,8 @@
         "Narration": "旁白",
         "Dialog": "对话",
         "Preprocessor": "预处理器",
-        "Comment": "注释"
+        "Comment": "注释",
+        "Aliases": "别名"
     },
     "document":{
         "Preprocessor": {
@@ -336,6 +337,11 @@
         "Comment": {
             "__description": "注释行，不会被播放引擎执行。",
             "Content": "注释的文本内容"
+        },
+        "Aliases": {
+            "__description": "定义一个或多个别名，使得对话控制器可以根据别名自动高亮对应的立绘。",
+            "Name": "立绘素材的原始名称",
+            "Target": "该素材的别名"
         }
     },
     "aseinfo":{

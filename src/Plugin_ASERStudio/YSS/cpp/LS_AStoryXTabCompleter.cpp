@@ -51,6 +51,12 @@ namespace ASERStudio::YSS {
 			}
 		}
 		
+		QStringList optPrefixes = rule->getOptionalParameterPrefixes(parseData.getControllerType());
+		optPrefixes = Visindigo::Utility::StringUtility::deduplicate(optPrefixes);
+		for (auto s : optPrefixes) {
+			items.append(YSSCore::Editor::TabCompleterItem(s, s, "Optional Parameter Prefix", YSSCore::Editor::TabCompleterItem::ItemType::Operator, false));
+		}
+
 		if (content.isEmpty() && not content.startsWith("#")) {
 			QList<ASERStudio::AStorySyntax::AStoryXController> controllers = rule->getAvailableControllers();
 			for (auto controller : controllers) {

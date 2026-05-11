@@ -34,13 +34,13 @@ namespace ASERStudio::AStorySyntax{
 		AStoryXControllerParseData parseAStoryX(const QString& str, qint32 cursorPosition = -1, bool diagnostic = false, qint32 lineIndex = -1);
 		Visindigo::Utility::JsonConfig getAStoryXControllerMetaData() const;
 		bool isValid() const;
-
 	public:
 		static void clearRules();
 		static void registerRule(const AStoryXRule& rule);
 		static AStoryXRule* getRule(const QString& name);
 		static bool hasRule(const QString& name);
 		static QStringList getAvailableRuleNames();
+		static AStoryXControllerParseData parseAliases(const QString& str, qint32 cursorPosition = -1, bool diagnostic = false, qint32 lineIndex = -1);
 	private:
 		AStoryXRulePrivate* d;
 	};

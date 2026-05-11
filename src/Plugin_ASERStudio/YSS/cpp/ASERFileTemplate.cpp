@@ -111,7 +111,7 @@ namespace ASERStudio::YSS {
 	void FileTemplateInitWidget_AStoryX::refreshWhereLabel() {
 		QString completePath = d->FilePath + "/" +
 			Visindigo::Utility::FileUtility::toLegelFileName(d->FileName) + ".astoryx";
-		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
+		if (!Visindigo::Utility::FileUtility::isFileExist(completePath)) {
 			d->WhereLabel->setText(VITR("ASERStudio::fileProvider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);
 		}

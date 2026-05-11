@@ -184,6 +184,9 @@ namespace ASERStudio::AStorySyntax {
 	   且#指令的语法与C语言预处理器指令类似，所以就沿用这个名字了。
 
 	   与AStoryXController不同，AStoryXPreprocessor在每个AStoryXRule中只有一个实例，用于处理全部情况。
+
+	   你一般不需要独立使用它，除非你有特殊需求（比如你在确定场景下只解析预处理指令）。
+	   针对任意文本的解析，应该使用ASERStudio::AStorySyntax::AStoryXRule::parseAStoryX函数。
 	   
 	   有关AStoryXPreprocessor如何通过AStoryXControllerParseData存储解析结果的说明，请参见AStoryXControllerParseData的文档。
 	*/

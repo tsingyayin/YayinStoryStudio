@@ -96,6 +96,10 @@ namespace YSS::Editor {
 		QModelIndex currentIndex = FileTree->currentIndex();
 		if (currentIndex.isValid()) {
 			currentSelectedPath = FileModel->filePath(currentIndex);
+			QFileInfo fileInfo(currentSelectedPath);
+			if (fileInfo.isFile()) {
+				currentSelectedPath = fileInfo.absoluteDir().absolutePath();
+			}
 		}
 		else {
 			currentSelectedPath = CurrentDir.path();

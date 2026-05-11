@@ -47,6 +47,7 @@ namespace YSSCore::Editor {
 	public:
 		virtual void onProjectOpen(YSSCore::General::YSSProject* project) {};
 		virtual void onProjectClose(YSSCore::General::YSSProject* project) {};
+		virtual QWidget* onToolWidgetRequested(const QString& widgetID);
 	protected:
 		void registerLangServer(LangServer* server);
 		void registerDebugServer(DebugServer* server);
@@ -54,6 +55,7 @@ namespace YSSCore::Editor {
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 		void registerFileTemplateProvider(FileTemplateProvider* provider);
 		YSSCore::General::YSSProject* getCurrentProject();
+		void registerToolWidget(const QStringList& widgetID, const QString& widgetName);
 	protected:
 		YSSCore::__Private__::EditorPluginPrivate* d;
 	};

@@ -1,5 +1,6 @@
 #include "../StringUtility.h"
 #include <QtCore/qlist.h>
+#include <QtCore/qset>
 namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::StringUtility
@@ -64,6 +65,25 @@ namespace Visindigo::Utility {
 		for (const QString& candidate : candidates) {
 			if (candidate.startsWith(str, caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive)) {
 				result.append(candidate);
+			}
+		}
+		return result;
+	}
+	
+	/*!
+		\since Visindigo 0.14.0
+		返回一个字符串列表，包含输入列表中所有不重复的字符串。重复的字符串只保留第一次出现的。
+	*/
+	QStringList StringUtility::deduplicate(const QStringList& list) {
+		if (list.isEmpty()) {
+			return list;
+		}
+		QStringList result;
+		QSet<QString> seen;
+		for (const QString& str : list) {
+			if (!seen.contains(str)) {
+				result.append(str);
+				seen.insert(str);
 			}
 		}
 		return result;

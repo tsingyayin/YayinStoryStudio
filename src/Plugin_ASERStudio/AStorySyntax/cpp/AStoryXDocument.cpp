@@ -47,7 +47,7 @@ namespace ASERStudio::AStorySyntax {
 			}
 		}
 
-		qint32 getUserState(qint32 targetLine, qint32 currentLine, QTextBlock* block = nullptr) {
+		qint32 getUserState(qint32 currentLine, qint32 targetLine,  QTextBlock* block = nullptr) {
 			if (block && Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
 				qint32 delta = currentLine - targetLine;
 				if (delta == 0) {
@@ -137,9 +137,7 @@ namespace ASERStudio::AStorySyntax {
 						setUserState(lineNumber, 0x4241, block);
 						// here can do sth to parse alias context.
 						// sth like data = d->CurrentRule.parseAliasContext(text, lineNumber);
-						data = AStoryXControllerParseData(); // just for test now.
-						data.d->ControllerType = AStoryXController::ControllerType::Aliases;
-						// just for test now.
+						data = AStoryXRule::parseAliases(text, -1, true, lineNumber);
 						onParsed(data, lineNumber);
 						//emit q->parseDataUpdated(lineNumber);
 					}

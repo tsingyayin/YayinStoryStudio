@@ -994,7 +994,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.14.0
+		\since YSS 0.14.0
 		获取字体的字号。
 	*/
 	qint32 TextEdit::getFontSize() const {
@@ -1002,7 +1002,7 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindigo 0.14.0
+		\since YSS 0.14.0
 		设置字体的字号。
 	*/
 	void TextEdit::setFontSize(qint32 size) {
