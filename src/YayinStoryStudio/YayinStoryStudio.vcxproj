@@ -124,6 +124,7 @@
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Widgets\cpp\UpToWin11.cpp" />
     <ClCompile Include="YayinStoryStudio.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +141,7 @@
     <QtRcc Include="YayinStoryEditor.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="Widgets\UpToWin11.h" />
     <QtMoc Include="YayinStoryStudio.h" />
     <QtMoc Include="Editor\NewProjectPage\NewProjectWin.h" />
     <QtMoc Include="Editor\ProjectPage\NewsArea.h" />

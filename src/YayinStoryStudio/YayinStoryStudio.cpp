@@ -16,6 +16,7 @@
 #include <Widgets/ConfigWidget.h>
 #include <QtCore/qdir.h>
 #include <General/TranslationHost.h>
+#include <Widgets/UpToWin11.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -72,6 +73,23 @@ namespace YSS {
 		VISTM->changeColorTheme(getPluginConfig()->getString("General.Theme"));
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
+
+		if (Visindigo::General::VIApplication::isWindows() && not Visindigo::General::VIApplication::isWindows11()) {
+			if (not getPluginConfig()->getBool("General.ShowUpToWin11")) {
+				getPluginConfig()->setBool("General.ShowUpToWin11", true);
+				getPluginConfig()->setInt("General.ShowUpToWin11Count", 1);
+				YSS::Widgets::UpToWin11* upToWin11 = new YSS::Widgets::UpToWin11();
+				upToWin11->show();
+			}
+			else {
+				qint32 count = getPluginConfig()->getInt("General.ShowUpToWin11Count");
+				count++;
+				if (count > 20) {
+					getPluginConfig()->setBool("General.ShowUpToWin11", false);
+				}
+				getPluginConfig()->setInt("General.ShowUpToWin11Count", count);
+			}
+		}
 		//YSS::TestDragWidget* tw = new YSS::TestDragWidget();
 		//tw->show();
 	}

@@ -26,7 +26,6 @@ namespace YSSCore::__Private__ {
 			this->currentSelectedIndex = globalIndex;
 			});
 		ScrollBar = new QScrollBar(Qt::Vertical, this);
-		// 让ScrollBar一直显示
 		ScrollBar->setVisible(true);
 		ScrollBar->setSingleStep(120);
 		connect(ScrollBar, &QScrollBar::valueChanged, this, &TabCompleterWidget::onScrollValueChanged);
@@ -121,7 +120,7 @@ namespace YSSCore::__Private__ {
 	void TabCompleterWidget::onScrollValueChanged(qint32 value) {
 		qint32 firstIndex = value / (36 * ButtonCycleIndexes.size());
 		qint32 deltaY = value % (36 * ButtonCycleIndexes.size());
-		vgDebug << "Scroll Value Changed:" << value << "First Index:" << firstIndex << "DeltaY:" << deltaY;
+		//vgDebug << "Scroll Value Changed:" << value << "First Index:" << firstIndex << "DeltaY:" << deltaY;
 		for (int i = 0; i < Buttons.size(); i++) {
 			Buttons[i]->move(0, i * 36 - deltaY);
 			qint32 indexDelta = 0;

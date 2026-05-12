@@ -25,6 +25,7 @@ namespace Visindigo::Widgets {
 	public:
 		static QImage blurImage(const QImage& image, int radius);
 		static QImage distortImage(const QImage& image, int radius);
+		static QImage colorMaskImage(const QImage& image, const QColor& color, qreal percent);
 	public:
 		explicit LiquidGlassEffect(QWidget* parent = nullptr);
 		~LiquidGlassEffect() override;
@@ -32,6 +33,7 @@ namespace Visindigo::Widgets {
 		void setBackgroundImage(const QImage& image);
 		void setLiquidDistortRadius(int radius);
 		void setBorderRadius(int radius);
+		void setColorMask(const QColor& color, qreal percent);
 		void setPositionPolicy(PositionPolicy policy);
 		void setCustomGeometry(const QRect& geometry);
 		void setBackgroundPolicy(BackgroundPolicy policy);

@@ -24,5 +24,6 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/object.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/operator.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/value.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/icon/up_to_win11.jpg</file>
     </qresource>
 </RCC>

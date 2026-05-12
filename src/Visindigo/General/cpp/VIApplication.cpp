@@ -724,6 +724,22 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.15.0
+		判断系统是否为Windows11。
+	*/
+	bool VIApplication::isWindows11() {
+		return QSysInfo::kernelType() == "winnt" && QSysInfo::productVersion() == "11";
+	}
+
+	/*!
+		\since Visindigo 0.15.0
+		判断系统是否为Windows。
+	*/
+	bool VIApplication::isWindows() {
+		return QSysInfo::kernelType() == "winnt";
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		检查应用程序是否已经启动。
 		返回值为true表示应用程序已经启动，false表示尚未启动。

@@ -14,7 +14,7 @@
 #include <QtCore/qtimer.h>
 #include <QtGui/qpalette.h>
 #include <QtCore/qfileinfo.h>
-
+#include <QtGui/qfont.h>
 namespace Visindigo::Widgets {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
@@ -45,6 +45,8 @@ namespace Visindigo::Widgets {
 		QTimer* animationTimer = nullptr;
 		void startThemeChangeAnimation();
 	};
+
+	QMap<QString, ThemeManager::ThemeID> ThemeManagerPrivate::UserThemeIDEnumMap = QMap<QString, ThemeManager::ThemeID>();
 
 	void ThemeManagerPrivate::startThemeChangeAnimation() {
 		if (!animationTimer) {
@@ -82,8 +84,7 @@ namespace Visindigo::Widgets {
 		currentAnimationStep = 0;
 		animationTimer->start(1000.0 / AnimationFrameRate);
 	}
-	QMap<QString, ThemeManager::ThemeID> ThemeManagerPrivate::UserThemeIDEnumMap = QMap<QString, ThemeManager::ThemeID>();
-	
+
 	ThemeManager* ThemeManagerPrivate::Instance = nullptr;
 
 	/*!
@@ -889,10 +890,36 @@ namespace Visindigo::Widgets {
 		else {
 			d->AutoAdjustToSystem = false;
 			if (themeID == "Dark") {
-				qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+				if (Visindigo::General::VIApplication::isWindows()){
+					if (Visindigo::General::VIApplication::isWindows11()) {
+						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+					}else{
+						auto currentFont = qApp->font();
+						QApplication::setStyle("Fusion");
+						QApplication::setFont(currentFont);
+						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+					}
+				}
+				else {
+					qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+				}
+				
 			}
 			else if (themeID == "Light") {
-				qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
+				if (Visindigo::General::VIApplication::isWindows()) {
+					if (Visindigo::General::VIApplication::isWindows11()) {
+						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
+					}
+					else {
+						auto currentFont = qApp->font();
+						QApplication::setStyle("Fusion");
+						QApplication::setFont(currentFont);
+						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
+					}
+				}
+				else {
+					qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
+				}
 			}
 		}
 		if (not d->MergedColorScheme) {

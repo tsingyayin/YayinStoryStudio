@@ -4,6 +4,7 @@
 #include <QtGui/qimage.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpainterpath.h>
+#include "General/Log.h"
 namespace Visindigo::Widgets {
 	class LiquidGlassEffectPrivate {
 		friend class LiquidGlassEffect;
@@ -14,6 +15,8 @@ namespace Visindigo::Widgets {
 		QWidget* parentWidget = nullptr;
 		QRect customGeometry;
 		int blurRadius = 13;
+		qreal percent = 0;
+		QColor colorMask;
 		LiquidGlassEffect::EffectTypes effectTypes = LiquidGlassEffect::EffectType::All;
 		LiquidGlassEffect::PositionPolicy positionPolicy = LiquidGlassEffect::PositionPolicy::ParentLocalGeometry;
 		LiquidGlassEffect::BackgroundPolicy backgroundPolicy = LiquidGlassEffect::BackgroundPolicy::Render;
@@ -151,6 +154,18 @@ namespace Visindigo::Widgets {
 		update();
 	}
 
+	/*!
+		\since Visindigo 0.15.0
+		设置颜色遮罩。
+		\a color 遮罩的颜色，决定了模糊效果的色调。
+		\a alpha 遮罩的透明度，值越大遮罩越不透明，默认为127。
+		颜色遮罩会在模糊效果之后应用，可以用来调整模糊效果的整体色调和透明度，从而更好地模仿液态玻璃的外观。
+	*/
+	void LiquidGlassEffect::setColorMask(const QColor& color, qreal percent){
+		d->colorMask = color;
+		d->percent = percent;
+		update();
+	}
 	/*!
 		\since Visindigo 0.13.0
 		设置模糊效果的位置策略，仅在BackgroundPolicy为CustomImage时有效。
@@ -383,6 +398,20 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
+		\since Visindigo 0.15.0
+		对图像进行颜色遮罩处理。
+		\a image 要处理的图像。\a color 遮罩的颜色。\a alpha 遮罩的透明度，范围从0到255，默认值为127。
+	*/
+	QImage LiquidGlassEffect::colorMaskImage(const QImage& image, const QColor& color, qreal percent) {
+		QImage result(image.size(), QImage::Format_ARGB32);
+		QPainter painter(&result);
+		painter.setOpacity(percent);
+		painter.fillRect(result.rect(), color);
+		painter.end();
+		return result;
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		重写了QGraphicsEffect的draw()方法，在其中实现了液态玻璃效果的绘制逻辑。
 	*/
@@ -392,7 +421,7 @@ namespace Visindigo::Widgets {
 			return;
 		}
 		QImage coverdArea(d->parentWidget->size(), QImage::Format_ARGB32);
-		qDebug() << QImage::Format_ARGB32;
+		//qDebug() << QImage::Format_ARGB32;
 		if (d->backgroundPolicy == BackgroundPolicy::Render) {
 			QWidget* parent_parent = d->parentWidget->parentWidget();
 			if (!parent_parent) {
@@ -405,8 +434,10 @@ namespace Visindigo::Widgets {
 				coverdArea = d->backgroundImage.copy(d->parentWidget->geometry());
 				break;
 			case PositionPolicy::ParentGlobalGeometry: {
-				QPoint globalPos = d->parentWidget->mapToGlobal(QPoint(0, 0));
+				QWidget* topLevelWidget = d->parentWidget->window();
+				QPoint globalPos = d->parentWidget->mapTo(topLevelWidget, d->parentWidget->pos());
 				QRect globalRect(globalPos, d->parentWidget->size());
+				//vgDebug << globalRect;
 				coverdArea = d->backgroundImage.copy(globalRect);
 				break;
 			}
@@ -432,6 +463,13 @@ namespace Visindigo::Widgets {
 		finalPainter.setClipPath(roundPath);
 		finalPainter.drawImage(0, 0, coverdArea);
 		finalPainter.drawPixmap(0, 0, sourcePixmap);
+		if (d->percent != 0) {
+			QPixmap colorMaskPixmap = finalPixmap;
+			colorMaskPixmap.fill(d->colorMask);
+			finalPainter.setOpacity(d->percent);
+			finalPainter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+			finalPainter.drawPixmap(0, 0, colorMaskPixmap);
+		}
 		finalPainter.end();
 		painter->drawPixmap(0, 0, finalPixmap);
 	}
