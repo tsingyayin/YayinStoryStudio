@@ -3,6 +3,7 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qtextedit.h>
+#include <QtGui/qevent.h>
 #include <General/Log.h>
 #include <Widgets/MultiButton.h>
 #include <Widgets/MultiButtonGroup.h>
@@ -12,78 +13,73 @@
 #include "General/YSSLogger.h"
 namespace YSSCore::__Private__ {
 	TabCompleterWidget::TabCompleterWidget(QTextEdit* textEdit)
-		: QFrame(textEdit) {
-		this->TextEdit = textEdit;
+		: Visindigo::Widgets::BorderFrame(textEdit) {
+		Target = textEdit;
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
 		this->setFocusPolicy(Qt::NoFocus);
+		this->setFixedWidth(300);
 		this->ButtonGroup = new Visindigo::Widgets::MultiButtonGroup(this);
 		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::doubleClicked, this, &TabCompleterWidget::doComplete);
-		CentralWidget = new QWidget(this);
-		ScrollArea = new QScrollArea(this);
-		ScrollArea->setWidgetResizable(true);
-		ScrollArea->setFocusPolicy(Qt::NoFocus);
-		ScrollArea->setWidget(CentralWidget);
-		ScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-		ScrollArea->verticalScrollBar()->setFixedWidth(16);
-		ScrollArea->verticalScrollBar()->setMinimum(0);
-		Layout = new QVBoxLayout(CentralWidget);
-		Layout->setContentsMargins(0, 0, 0, 0);
-		Layout->setSpacing(0);
-		this->setFixedWidth(300);
-		CentralWidget->setFixedWidth(300 - 16);
-		ScrollArea->setFixedWidth(300);
-		this->setStyleSheet(VISTMGT("YSS::Default"));
-		this->ScrollArea->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
-	}
-
-	void TabCompleterWidget::setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items) {
-		CompleterItems = items;
-		for (QWidget* item : Items) {
-			Layout->removeWidget(item);
-			item->deleteLater();
-		}
-		Items.clear();
-		ButtonGroup->removeAll();
-		ItemMap.clear();
-		CentralWidget->setFixedHeight(items.size() * 36);
-		ScrollArea->setFixedHeight(qMin(items.size() * 36, 600));
-		ScrollArea->verticalScrollBar()->setValue(0);
-		ScrollArea->verticalScrollBar()->setMaximum(items.size() * 36);
-		quint32 scrollWidth = ScrollArea->verticalScrollBar()->isVisible() ? 16 : 0;
-		this->setFixedHeight(qMin(items.size() * 36, 600));
-		//yDebugF << items.size();
-		for (YSSCore::Editor::TabCompleterItem item : items) {
-			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(CentralWidget);
-			button->setTitle(item.getText());
-			button->setPixmapPath(item.getIconPath());
+		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::selectIndexChanged, [this](qint32 index) {
+			if (index == -1) return;
+			qint32 globalIndex = ButtonCycleIndexes[index] * ButtonCycleIndexes.size() + index;
+			this->currentSelectedIndex = globalIndex;
+			});
+		ScrollBar = new QScrollBar(Qt::Vertical, this);
+		// 让ScrollBar一直显示
+		ScrollBar->setVisible(true);
+		ScrollBar->setSingleStep(120);
+		connect(ScrollBar, &QScrollBar::valueChanged, this, &TabCompleterWidget::onScrollValueChanged);
+		qint32 buttonCacheSize = 18;
+		this->setFixedHeight((buttonCacheSize - 4) * 36);
+		ScrollBar->setGeometry(300 - 16, 0, 16, this->height());
+		ScrollBar->setRange(0, 0);
+		for(int i = 0; i < buttonCacheSize; i++) {
+			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(this);
+			button->setTitle("");
+			button->setPixmapPath("");
 			button->setPixmapFixedWidth(32);
-			//yDebugF << item.getText() << item.getDescription();
-			Layout->addWidget(button);
-			button->show();
 			button->setFixedHeight(36);
+			button->setFixedWidth(300 - 16);
 			button->setSpacing(2);
 			button->setContentsMargins(2, 2, 2, 2);
 			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed", button));
 			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Normal", button));
 			button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Hover", button));
-			Items.append(button);
-			ItemMap.insert(button, item);
+			Buttons.append(button);
 			ButtonGroup->addButton(button);
+			ButtonCycleIndexes.append(-1);
 		}
-		if (Items.size() > 0) {
-			ButtonGroup->selectButton(0);
+	}
+
+	void TabCompleterWidget::setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items) {
+		Items = items;
+		for (int i = 0; i < ButtonCycleIndexes.size(); i++) {
+			ButtonCycleIndexes[i] = -1;
 		}
+		this->ScrollBar->setRange(0, items.size() * 36);
+		this->ScrollBar->setValue(0);
+		this->currentSelectedIndex = 0;
+		this->ButtonGroup->selectButton(0);
+		this->onScrollValueChanged(0);
 	}
 
 	void TabCompleterWidget::selectPrevious() {
-		qint32 index = ButtonGroup->selectPrevious();
-		ScrollArea->verticalScrollBar()->setValue(index * 36);
+		qint32 oldY = ScrollBar->value();
+		ScrollBar->setValue(oldY - 36);
+		if (currentSelectedIndex != 0) { 
+			ButtonGroup->selectPrevious();
+			currentSelectedIndex--;
+		}
 	}
 
 	void TabCompleterWidget::selectNext() {
-		qint32 index = ButtonGroup->selectNext();
-		ScrollArea->verticalScrollBar()->setValue(index * 36);
+		qint32 oldY = ScrollBar->value();
+		ScrollBar->setValue(oldY + 36);
+		if (currentSelectedIndex != Items.size() - 1) {
+			ButtonGroup->selectNext();
+			currentSelectedIndex++;
+		}
 	}
 
 	void TabCompleterWidget::doComplete(Visindigo::Widgets::MultiButton* pressed) {
@@ -91,9 +87,11 @@ namespace YSSCore::__Private__ {
 			pressed = ButtonGroup->getSelectedButton();
 		}
 		if (!pressed) return;
-		YSSCore::Editor::TabCompleterItem item = ItemMap.value(pressed);
+		qint32 localindex = Buttons.indexOf(pressed);
+		qint32 globalIndex = ButtonCycleIndexes[localindex] * ButtonCycleIndexes.size() + localindex;
+		auto item = Items[globalIndex];
 		if (item.getContent().isEmpty()) return;
-		QTextCursor cursor = TextEdit->textCursor();
+		QTextCursor cursor = Target->textCursor();
 		yDebugF << "Complete Content:" << item.isAlignment();
 		if (item.isAlignment()) {
 			QString selected;
@@ -117,6 +115,49 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TabCompleterWidget::scrollBy(qint32 y) {
-		ScrollArea->verticalScrollBar()->setValue(ScrollArea->verticalScrollBar()->value() + y);
+		ScrollBar->setValue(ScrollBar->value() + y);
+	}
+
+	void TabCompleterWidget::onScrollValueChanged(qint32 value) {
+		qint32 firstIndex = value / (36 * ButtonCycleIndexes.size());
+		qint32 deltaY = value % (36 * ButtonCycleIndexes.size());
+		vgDebug << "Scroll Value Changed:" << value << "First Index:" << firstIndex << "DeltaY:" << deltaY;
+		for (int i = 0; i < Buttons.size(); i++) {
+			Buttons[i]->move(0, i * 36 - deltaY);
+			qint32 indexDelta = 0;
+			if (Buttons[i]->y() < -36) {
+				indexDelta++;
+				Buttons[i]->move(0, i * 36 - deltaY + ButtonCycleIndexes.size() * 36);
+			}
+			qint32 correctIndex = (firstIndex + indexDelta) * ButtonCycleIndexes.size() + i;
+			if (correctIndex >= Items.size()) {
+				Buttons[i]->setTitle("");
+				Buttons[i]->setPixmapPath("");
+				Buttons[i]->hide();
+				if (ButtonGroup->getSelectedButton() == Buttons[i]) {
+					ButtonGroup->selectButton(-1);
+				}
+				ButtonCycleIndexes[i] = -1;
+				continue;
+			}
+			if (ButtonCycleIndexes[i] != firstIndex + indexDelta) {
+				auto item = Items[correctIndex];
+				Buttons[i]->setTitle(item.getText());
+				Buttons[i]->setPixmapPath(item.getIconPath());
+				Buttons[i]->show();
+				if (ButtonGroup->getSelectedButton() == Buttons[i]) {
+					ButtonGroup->selectButton(-1);
+				}
+				qint32 globalIndex = (firstIndex + indexDelta) * ButtonCycleIndexes.size() + i;
+				if (globalIndex == this->currentSelectedIndex) {
+					ButtonGroup->selectButton(Buttons[i]);
+				}
+			}
+			ButtonCycleIndexes[i] = firstIndex + indexDelta;
+		}
+	}
+
+	void TabCompleterWidget::wheelEvent(QWheelEvent* event) {
+		this->scrollBy(-event->angleDelta().y());
 	}
 }

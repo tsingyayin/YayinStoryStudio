@@ -4,9 +4,11 @@
 #include <QtCore/qmap.h>
 #include <QtWidgets/qframe.h>
 #include "../TabCompleterProvider.h"
+#include <Widgets/BorderFrame.h>
 // Forward declarations
 class QTextDocument;
 class QTextCursor;
+class QScrollBar;
 class QWidget;
 class QTextEdit;
 class QScrollArea;
@@ -27,26 +29,27 @@ namespace YSSCore::__Private__ {
 		QTextDocument* Document = nullptr;
 	};
 
-	class TabCompleterWidget :public QFrame {
+	class TabCompleterWidget :public Visindigo::Widgets::BorderFrame {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TabCompleterItem;
 		friend class YSSCore::Editor::TabCompleterProvider;
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::__Private__::TextEditPrivate;
 	protected:
-		QWidget* CentralWidget;
-		QScrollArea* ScrollArea;
-		QVBoxLayout* Layout;
-		QList<QWidget*> Items;
-		QMap<Visindigo::Widgets::MultiButton*, YSSCore::Editor::TabCompleterItem> ItemMap;
-		QList<YSSCore::Editor::TabCompleterItem> CompleterItems;
-		QTextEdit* TextEdit = nullptr;
+		QTextEdit* Target;
+		QScrollBar* ScrollBar;
+		QList<YSSCore::Editor::TabCompleterItem> Items;
+		QList<Visindigo::Widgets::MultiButton*> Buttons;
+		QList<qint32> ButtonCycleIndexes;
 		Visindigo::Widgets::MultiButtonGroup* ButtonGroup = nullptr;
+		qint32 currentSelectedIndex = -1;
 		TabCompleterWidget(QTextEdit* textEdit);
 		void setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items);
 		void selectPrevious();
 		void selectNext();
 		void doComplete(Visindigo::Widgets::MultiButton* pressed = nullptr);
 		void scrollBy(qint32 y);
+		void onScrollValueChanged(qint32 value);
+		virtual void wheelEvent(QWheelEvent* event) override;
 	};
 }

@@ -29,8 +29,14 @@ namespace Visindigo::__Private__ {
 			else {
 				CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->PressedStyleSheet);
 			}
+
 		}
-		CurrentPressedIndex = Buttons.indexOf(button);
+		if (CurrentPressedButton) {
+			CurrentPressedIndex = Buttons.indexOf(CurrentPressedButton);
+		}
+		else {
+			CurrentPressedIndex = -1;
+		}
 	}
 	void MultiButtonGroupPrivate::onButtonReleased(Visindigo::Widgets::MultiButton* button) {
 		// PASS
@@ -188,6 +194,8 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		选择上一个按钮。这个函数会将当前选中的按钮切换到组内的上一个按钮，并发出相关信号。
 		如果当前没有按钮被选中，则会选择最后一个按钮。返回值是当前被选中的按钮在组内的索引，如果没有按钮被选中则为-1。
+
+		如果当前选中的按钮是第一个按钮，则调用此函数会将选中状态切换到最后一个按钮，实现循环选择的效果。
 	*/
 	qint32 MultiButtonGroup::selectPrevious() {
 		if (d->Buttons.isEmpty()) return -1;
@@ -205,6 +213,8 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		选择下一个按钮。这个函数会将当前选中的按钮切换到组内的下一个按钮，并发出相关信号。
 		如果当前没有按钮被选中，则会选择第一个按钮。返回值是当前被选中的按钮在组内的索引，如果没有按钮被选中则为-1。
+
+		如果当前选中的按钮是最后一个按钮，则调用此函数会将选中状态切换到第一个按钮，实现循环选择的效果。
 	*/
 	qint32 MultiButtonGroup::selectNext() {
 		if (d->Buttons.isEmpty()) return -1;
@@ -235,9 +245,16 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		选择指定索引的按钮。这个函数会将当前选中的按钮切换到组内索引为index的按钮，并发出相关信号。
 		如果参数index超出组内按钮的范围，则此函数不会执行任何操作。
+
+		从0.15.0开始，如果index为-1，则表示取消选中所有按钮，即没有按钮被选中。
 	*/
 	void MultiButtonGroup::selectButton(qint32 index) {
 		if (d->Buttons.isEmpty()) return;
+		if (index == -1) {
+			d->onButtonClicked(nullptr);
+			emit selectIndexChanged(-1);
+			return;
+		}
 		if (index >= d->Buttons.size()) return;
 		d->CurrentPressedIndex = index;
 		d->onButtonClicked(d->Buttons[index]);
