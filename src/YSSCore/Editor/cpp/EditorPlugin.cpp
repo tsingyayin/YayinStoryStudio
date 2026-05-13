@@ -1,18 +1,19 @@
 #include <QtCore/qstring.h>
 #include <General/TranslationHost.h.>
-#include "../DebugServerManager.h"
-#include "../private/EditorPlugin_p.h"
-#include "../EditorPlugin.h"
-#include "../LangServerManager.h"
-#include "../FileServerManager.h"
-#include "../ProjectTemplateManager.h"
-#include "../FileTemplateManager.h"
-#include "../LangServer.h"
-#include "../DebugServer.h"
-#include "../FileServer.h"
-#include "../ProjectTemplateProvider.h"
-#include "../FileTemplateProvider.h"
-
+#include "Editor/DebugServerManager.h"
+#include "Editor/private/EditorPlugin_p.h"
+#include "Editor/EditorPlugin.h"
+#include "Editor/LangServerManager.h"
+#include "Editor/FileServerManager.h"
+#include "Editor/ProjectTemplateManager.h"
+#include "Editor/FileTemplateManager.h"
+#include "Editor/LangServer.h"
+#include "Editor/DebugServer.h"
+#include "Editor/FileServer.h"
+#include "Editor/ProjectTemplateProvider.h"
+#include "Editor/FileTemplateProvider.h"
+#include "General/YSSProject.h"
+#include "Editor/ToolWidgetManager.h"
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::EditorPlugin
@@ -66,9 +67,13 @@ namespace YSSCore::Editor {
 		如果插件提供了对应ID的工具窗口内容，则返回一个QWidget指针；否则返回nullptr。
 		
 		这个窗口一旦创建，所有权归YSS前台所有，插件不需要也不应该管理它的生命周期。
-		YSS会确保每次请求同一个工具窗口ID时，上一次请求的已经被正确销毁了，因此插件不需要担心重复创建工具窗口的问题。
+		YSS会确保每次请求同一个工具窗口ID时，如果窗口仍然存活，则直接返回现有的实例；
+		如果窗口已经被关闭销毁，则再次调用此函数请求新的实例。因此，这个函数每次被调用时，
+		上一次请求所返回的指针已经被正确销毁了，因此插件不需要担心重复创建工具窗口的问题。
 
-		这个窗口不应该中途移除Qt::WA_DeleteOnClose属性，YSS使用此属性来管理工具窗口的生命周期。
+		此外，这个窗口不应该中途移除Qt::WA_DeleteOnClose属性，YSS使用此属性来辅助管理工具窗口的生命周期。
+
+		另请参见YSSCore::Editor::ToolWidgetManager。
 	*/
 	QWidget* EditorPlugin::onToolWidgetRequested(const QString& widgetID) {
 		return nullptr;
@@ -120,14 +125,26 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
+		获取当前打开的项目。
+
+		实际上，这个函数就是YSSProject::getCurrentProject的本类便捷写法。
+	*/
+	YSSCore::General::YSSProject* EditorPlugin::getCurrentProject() {
+		return YSSCore::General::YSSProject::getCurrentProject();
+	}
+
+	/*!
+		\since YSS 0.15.0
 		\a widgetID 工具窗口ID
 		\a widgetName 工具窗口名称
 		注册工具窗口。工具窗口是YSS编辑器中可以停靠的窗口，插件可以通过onToolWidgetRequested()提供工具窗口的内容。
 
 		工具窗口的ID必须全程序唯一，一般建议使用反向域命名法。\a widgetName是支持VI18N的字符串，用于直接显示在界面上。
+
+		另请参见YSSCore::Editor::ToolWidgetManager。
 	*/
-	void EditorPlugin::registerToolWidget(const QStringList& widgetID, const QString& widgetName) {
-		// TODO.
+	void EditorPlugin::registerToolWidget(const QString& widgetID, const QString& widgetName) {
+		YSSCore::Editor::ToolWidgetManager::getInstance()->registerToolWidget(widgetID, widgetName, this);	
 	}
 
 }

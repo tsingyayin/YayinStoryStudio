@@ -10,7 +10,7 @@
 #include <QtWidgets/qmenu.h>
 #include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
-	class StackWidgetTagLabel :public QFrame {
+	class StackTag :public QFrame {
 		Q_OBJECT;
 	private:
 		QLabel* TitleLabel;
@@ -41,7 +41,7 @@ namespace YSS::Editor {
 		void closeAllRequested();
 		void closeSavedRequested();
 	public:
-		StackWidgetTagLabel(QWidget* parent = nullptr);
+		StackTag(QWidget* parent = nullptr);
 		void setText(const QString& text);
 		void setFilePath(const QString& filePath);
 		QString getFilePath() const;
@@ -59,7 +59,7 @@ namespace YSS::Editor {
 		virtual void leaveEvent(QEvent* event) override;
 	};
 
-	class StackWidgetTagArea :public QFrame ,public Visindigo::Widgets::ColorfulWidget{
+	class StackTagWidget :public QFrame ,public Visindigo::Widgets::ColorfulWidget{
 		Q_OBJECT;
 	signals:
 		void switchToFile(const QString& filePath);
@@ -74,13 +74,13 @@ namespace YSS::Editor {
 		QScrollArea* ScrollArea;
 		QComboBox* WidgetSelector;
 		QHBoxLayout* Layout;
-		QList<StackWidgetTagLabel*> Labels;
+		QList<StackTag*> Labels;
 		QString CurrentSelected;
 	public:
-		StackWidgetTagArea(QWidget* parent = nullptr);
-		virtual ~StackWidgetTagArea();
-		void addStackLabel(const QString& filePath);
-		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath);
+		StackTagWidget(QWidget* parent = nullptr);
+		virtual ~StackTagWidget();
+		void addStackLabel(const QString& filePath, const QString& displayName = QString());
+		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName = QString());
 		void pinStackLabel(const QString& filePath);
 		void removeStackLabel(const QString& filePath);
 		void setCurrentStackLabel(const QString& filePath);
@@ -98,8 +98,6 @@ namespace YSS::Editor {
 
 	class MessageViewer :public QFrame {
 		Q_OBJECT;
-	signals:
-		void redirectionRequired(const QString& filePath, qint32 lineNumber, qint32 column);
 	private:
 		QVBoxLayout* Layout;
 		QTableWidget* MessageTable;
@@ -120,6 +118,7 @@ namespace YSS::Editor {
 		QGridLayout* Layout;
 	public:
 		DefaultStackWidgetCentralArea(QWidget* parent = nullptr);
+		void setText(const QString& text);
 	};
 }
 #endif // YSS_Editor_MainWin_StackWidgetArea_p_H

@@ -127,6 +127,41 @@ namespace YSSCore::Editor {
 		当一个文件被关闭时发出的信号。参数\a filePath是被关闭的文件的绝对路径。
 	*/
 
+	/*!
+		\fn FileServerManager::fileRenamed(const QString& raw, const QString& changed)
+		\since YSS 0.15.0
+		当一个文件被重命名时发出的信号。参数\a raw是文件重命名前的绝对路径，参数\a changed是文件重命名后的绝对路径。
+	*/
+
+	/*!
+		\fn FileServerManager::fileChanged(const QString& filePath)
+		\since YSS 0.15.0
+		当一个文件被修改时发出的信号。参数\a filePath是被修改的文件的绝对路径。
+	*/
+
+	/*!
+		\fn FileServerManager::fileChangeCanceled(const QString& filePath)
+		\since YSS 0.15.0
+		当一个文件的修改被撤销时发出的信号。参数\a filePath是被撤销修改的文件的绝对路径。
+	*/
+
+	/*!
+		\fn FileServerManager::fileSaved(const QString& filePath)
+		\since YSS 0.15.0
+		当一个文件被保存时发出的信号。参数\a filePath是被保存的文件的绝对路径。
+	*/
+
+	/*!
+		\fn FileServerManager::focusFile(const QString& filePath, qint32 lineNumber, qint32 column)
+		\since YSS 0.15.0
+		请求聚焦一个文件时应该尝试发出此信号。
+
+		具体如何聚焦文件，由连接了该信号的前台决定。不过，YSSCore要求
+		连接了此信号的前台在聚焦时，应使用\a lineNumber 和\a column 调用响应的
+		FileEditWidget::cursorToPosition函数来聚焦文件的特定位置。
+
+		参数\a filePath 被聚焦的文件的绝对路径，\a lineNumber 聚焦的行号，\a column 聚焦的列号。
+	*/
 
 	/*!
 		\since YSS 0.13.0

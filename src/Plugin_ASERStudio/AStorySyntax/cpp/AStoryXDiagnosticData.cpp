@@ -40,6 +40,7 @@ namespace ASERStudio::AStorySyntax {
 		\value BlockNameConflict 代码块名称冲突
 		\value InstrumentRedundant 冗余的指令（重定义）
 		\value NoSuchPreprocessor 没有这样的处理器
+		\value ParameterRepeated 参数重定义
 		\value UnknownWarning 未知警告
 		\value NoSuchResource 没有这样的资源
 		

@@ -1,0 +1,26 @@
+#ifndef YSSCore_Editor_ToolWidgetManager_h
+#define YSSCore_Editor_ToolWidgetManager_h
+#include "YSSCoreCompileMacro.h"
+#include <QtCore/qstringlist.h>
+#include <QtCore/qobject.h>
+class QWidget;
+
+namespace YSSCore::Editor {
+	class EditorPlugin;
+	class ToolWidgetManagerPrivate;
+	class YSSCoreAPI ToolWidgetManager :public QObject{
+		Q_OBJECT;
+	signals:
+		void focusRequested(const QString& widgetID);
+	private:
+		ToolWidgetManager();
+	public:
+		static ToolWidgetManager* getInstance();
+		~ToolWidgetManager();
+		void registerToolWidget(const QString& widgetID, const QString& widgetName, EditorPlugin* provider);
+		QWidget* requestToolWidget(const QString& widgetID);
+	private:
+		ToolWidgetManagerPrivate* d;
+	};
+}
+#endif // YSSCore_Editor_ToolWidgetManager_h

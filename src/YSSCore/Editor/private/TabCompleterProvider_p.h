@@ -43,6 +43,9 @@ namespace YSSCore::__Private__ {
 		QList<qint32> ButtonCycleIndexes;
 		Visindigo::Widgets::MultiButtonGroup* ButtonGroup = nullptr;
 		qint32 currentSelectedIndex = -1;
+		qint32 buttonCacheSize = 18;
+		qint32 buttonHeight = 30;
+		qint32 maxAllowedHeight = 0;
 		TabCompleterWidget(QTextEdit* textEdit);
 		void setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items);
 		void selectPrevious();
@@ -50,6 +53,8 @@ namespace YSSCore::__Private__ {
 		void doComplete(Visindigo::Widgets::MultiButton* pressed = nullptr);
 		void scrollBy(qint32 y);
 		void onScrollValueChanged(qint32 value);
+		void adjustHeight(qint32 height);
+		qint32 getMaxAllowedHeight() const;
 		virtual void wheelEvent(QWheelEvent* event) override;
 	};
 }

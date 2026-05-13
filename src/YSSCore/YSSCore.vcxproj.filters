@@ -104,6 +104,9 @@
     <ClCompile Include="Editor\cpp\FormatNormalizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\ToolWidgetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\private\EditorPlugin_p.h">
@@ -208,6 +211,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\DocumentMessageManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ToolWidgetManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

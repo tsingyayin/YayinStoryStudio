@@ -266,12 +266,22 @@ namespace YSSCore::__Private__ {
 				bool rightOut = pos.x() + TabCompleterWidget->width() > Text->viewport()->width();
 				if (rightOut) {
 					//right align
-					TabCompleterWidget->move(QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20));
+					TabCompleterWidget->move(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20);
 				}
 				else {
 					// left align
-					TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
+					TabCompleterWidget->move(pos.x() + 10, pos.y() + 20);
 				}
+				bool bottomOut = pos.y() + 20 + TabCompleterWidget->height() > Text->viewport()->height();
+				if (bottomOut) {
+					// up align
+					TabCompleterWidget->move(TabCompleterWidget->x(), pos.y() - 10 - TabCompleterWidget->height());
+				}
+				else {
+					// down align
+					TabCompleterWidget->move(pos.x()+10, pos.y() + 20);
+				}
+
 			}
 			else {
 				bool rightOut = pos.x() + TabCompleterWidget->width() > HoverArea->width();
@@ -281,6 +291,16 @@ namespace YSSCore::__Private__ {
 				}
 				else {
 					// left align
+					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
+				}
+				bool bottomOut = pos.y() + 20 + TabCompleterWidget->height() > HoverArea->height();
+				if (bottomOut) {
+					// up align
+					TabCompleterWidget->move(TabCompleterWidget->x(), 
+						Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() - 10 - TabCompleterWidget->height())).y());
+				}
+				else {
+					// down align
 					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
 				}
 			}
@@ -1148,7 +1168,7 @@ namespace YSSCore::Editor {
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用cursorToPosition()函数。
 	*/
 	bool TextEdit::onCursorToPosition(qint32 line, qint32 column) {
-		vgDebug << "Cursor to position: line" << line << "column" << column;
+		//vgDebug << "Cursor to position: line" << line << "column" << column;
 		if (line < 0 || line >= d->Text->document()->blockCount()) {
 			return false;
 		}

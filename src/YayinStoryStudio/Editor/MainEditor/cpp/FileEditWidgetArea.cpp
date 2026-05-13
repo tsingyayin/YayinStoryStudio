@@ -1,5 +1,5 @@
-#include "Editor/MainEditor/StackWidgetArea.h"
-#include "Editor/MainEditor/private/StackWidgetArea_p.h"
+#include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/private/StackComponents_p.h"
 #include <QtWidgets/qsplitter.h>
 #include "Editor/GlobalValue.h"
 #include <General/YSSProject.h>
@@ -7,54 +7,54 @@
 #include <General/Log.h>
 #include <Editor/FileServerManager.h>
 #include <QtCore/qfileinfo.h>
+#include <General/TranslationHost.h>
 namespace YSS::Editor {
-	class StackWidgetAreaPrivate {
-		friend class StackWidgetArea;
+	class FileEditWidgetAreaPrivate {
+		friend class FileEditWidgetArea;
 	protected:
-		StackWidgetTagArea* TagArea;
+		StackTagWidget* TagArea;
 		QFrame* ContentArea = nullptr;
 		QVBoxLayout* Layout;
 		MessageViewer* MsgViewer;
 		DefaultStackWidgetCentralArea* CentralArea;
 	};
 
-	StackWidgetArea::StackWidgetArea(QWidget* parent) :QFrame(parent) {
-		d = new StackWidgetAreaPrivate;
+	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent) :QFrame(parent) {
+		d = new FileEditWidgetAreaPrivate;
 		d->Layout = new QVBoxLayout(this);
-		d->TagArea = new StackWidgetTagArea(this);
-		d->TagArea->setFixedHeight(40);
+		d->TagArea = new StackTagWidget(this);
+		d->TagArea->setFixedHeight(32);
 		d->Layout->addWidget(d->TagArea);
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
+		d->CentralArea->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
 		d->ContentArea = d->CentralArea;
+		d->Layout->setSpacing(1);
 		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ContentArea);
 		d->MsgViewer = new MessageViewer(this);
-		d->MsgViewer->setFixedHeight(220);
+		d->MsgViewer->setFixedHeight(260);
 		d->Layout->addWidget(d->MsgViewer);
-		connect(d->TagArea, &StackWidgetTagArea::switchToFile, this, [this](const QString& filePath) {
+		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const QString& filePath) {
 			setCurrentWidget(filePath);
 			});
-		connect(d->MsgViewer, &MessageViewer::redirectionRequired, this, [this](const QString& filePath, qint32 lineNumber, qint32 column) {
-			setCurrentWidget(filePath, lineNumber, column);
-			});
-		connect(d->TagArea, &StackWidgetTagArea::closeFile, this, [this](const QString& filePath) {
+		connect(d->TagArea, &StackTagWidget::closeFile, this, [this](const QString& filePath) {
 			closeWidget(filePath);
 			});
-		connect(d->TagArea, &StackWidgetTagArea::renameRequested, this, [this](const QString& oldPath) {
+		connect(d->TagArea, &StackTagWidget::renameRequested, this, [this](const QString& oldPath) {
 			emit renameRequested(oldPath);
 			});
-		connect(d->TagArea, &StackWidgetTagArea::saveAsRequested, this, [this](const QString& filePath) {
+		connect(d->TagArea, &StackTagWidget::saveAsRequested, this, [this](const QString& filePath) {
 			emit saveAsRequested(filePath);
 			});
-		connect(d->TagArea, &StackWidgetTagArea::closeAllRequested, this, [this]() {
+		connect(d->TagArea, &StackTagWidget::closeAllRequested, this, [this]() {
 			closeAll();
 			});
-		connect(d->TagArea, &StackWidgetTagArea::closeSavedRequested, this, [this]() {
+		connect(d->TagArea, &StackTagWidget::closeSavedRequested, this, [this]() {
 			closeSaved();
 			});
 	}
 
-	void StackWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
+	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
 		QString filePath = widget->getFilePath();
 		vgDebug << filePath;
 		if (d->TagArea->containsStackLabel(filePath)) {
@@ -63,9 +63,9 @@ namespace YSS::Editor {
 		}
 		widget->setParent(this);
 		d->TagArea->addStackLabel(filePath);
-		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackWidgetTagArea::setFileChanged);
-		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea, &StackWidgetTagArea::cancelFileChanged);
-		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea, &StackWidgetTagArea::cancelFileChanged);
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackTagWidget::setFileChanged);
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea, &StackTagWidget::cancelFileChanged);
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea, &StackTagWidget::cancelFileChanged);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileClosed, this, [this, widget]() {
 			d->TagArea->removeStackLabel(widget->getFilePath()); // this function handle re-choice if the closed widget is current one
 			GlobalValue::getCurrentProject()->removeEditorOpenedFile(widget->getFilePath());
@@ -83,7 +83,7 @@ namespace YSS::Editor {
 		setCurrentWidget(filePath);
 	}
 
-	StackWidgetArea::~StackWidgetArea() {
+	FileEditWidgetArea::~FileEditWidgetArea() {
 		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
 			widget->setParent(nullptr);
 			widget->closeFile();
@@ -91,14 +91,14 @@ namespace YSS::Editor {
 		delete d;
 	}
 
-	void StackWidgetArea::closeAll(bool autoGiveup) {
+	void FileEditWidgetArea::closeAll(bool autoGiveup) {
 		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
 			vgDebug << "close " << widget->getFilePath();
 			widget->closeFile(autoGiveup);
 		}
 	}
 
-	void StackWidgetArea::closeSaved() {
+	void FileEditWidgetArea::closeSaved() {
 		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
 			QString filePath = widget->getFilePath();
 			if (not widget->isFileChanged() and not d->TagArea->isStackLabelPinned(filePath)) {
@@ -107,11 +107,11 @@ namespace YSS::Editor {
 			}
 		}
 	}
-	void StackWidgetArea::closeWidget(YSSCore::Editor::FileEditWidget* widget) {
+	void FileEditWidgetArea::closeWidget(YSSCore::Editor::FileEditWidget* widget) {
 		closeWidget(widget->getFilePath());
 	}
 
-	void StackWidgetArea::closeWidget(const QString& filePath) {
+	void FileEditWidgetArea::closeWidget(const QString& filePath) {
 		QFileInfo fileInfo(filePath);
 		QString absPath = fileInfo.absoluteFilePath();
 		if (not YSSFSM->getAllOpenedFilePaths().contains(absPath)) {
@@ -124,11 +124,11 @@ namespace YSS::Editor {
 		widget->closeFile();
 	}
 
-	void StackWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget) {
+	void FileEditWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget) {
 		setCurrentWidget(widget->getFilePath());
 	}
 
-	void StackWidgetArea::setCurrentWidget(const QString& filePath) {
+	void FileEditWidgetArea::setCurrentWidget(const QString& filePath) {
 		if (filePath.isEmpty()) {
 			d->ContentArea->hide();
 			d->Layout->removeWidget(d->ContentArea);
@@ -159,11 +159,11 @@ namespace YSS::Editor {
 		d->TagArea->setCurrentStackLabel(filePath);
 	}
 
-	void StackWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget, qint32 lineNumber, qint32 column) {
+	void FileEditWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget, qint32 lineNumber, qint32 column) {
 		setCurrentWidget(widget->getFilePath(), lineNumber, column);
 	}
 
-	void StackWidgetArea::setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column) {
+	void FileEditWidgetArea::setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column) {
 		if (filePath.isEmpty()) {
 			d->ContentArea->hide();
 			d->Layout->removeWidget(d->ContentArea);
@@ -185,14 +185,14 @@ namespace YSS::Editor {
 		widget->cursorToPosition(lineNumber, column);
 	}
 
-	YSSCore::Editor::FileEditWidget* StackWidgetArea::getCurrentWidget() const {
+	YSSCore::Editor::FileEditWidget* FileEditWidgetArea::getCurrentWidget() const {
 		if (d->ContentArea == d->CentralArea) {
 			return nullptr;
 		}
 		return (YSSCore::Editor::FileEditWidget*)d->ContentArea;
 	}
 
-	void StackWidgetArea::setMessageViewerEnable(bool enable) {
+	void FileEditWidgetArea::setMessageViewerEnable(bool enable) {
 		if (enable) {
 			d->MsgViewer->show();
 		}
@@ -201,7 +201,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackWidgetArea::resizeEvent(QResizeEvent* event) {
+	void FileEditWidgetArea::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		if (d->ContentArea) {
 			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));

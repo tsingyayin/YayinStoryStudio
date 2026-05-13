@@ -12,7 +12,7 @@
 #include <Widgets/PluginManageWidget.h>
 #include <General/VIApplication.h>
 #include <Widgets/Terminal.h>
-#include "Editor/MainEditor/StackWidgetArea.h"
+#include "Editor/MainEditor/FileEditWidgetArea.h"
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
 #include <General/Plugin.h>

@@ -1,4 +1,4 @@
-#include "Editor/MainEditor/private/StackWidgetArea_p.h"
+#include "Editor/MainEditor/private/StackComponents_p.h"
 #include <QtCore/qfileinfo.h>
 #include <Editor/DocumentMessageManager.h>
 #include <General/TranslationHost.h>
@@ -10,7 +10,7 @@
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
 namespace YSS::Editor {
-	StackWidgetTagLabel::StackWidgetTagLabel(QWidget* parent) :QFrame(parent) {
+	StackTag::StackTag(QWidget* parent) :QFrame(parent) {
 		TitleLabel = new QLabel(this);
 		PinLabel = new QPushButton(this);
 		PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
@@ -80,23 +80,23 @@ namespace YSS::Editor {
 			ActionCloseAll, ActionCloseSaved });
 	}
 
-	void StackWidgetTagLabel::setText(const QString& text) {
+	void StackTag::setText(const QString& text) {
 		TitleLabel->setText(text);
 	}
 
-	void StackWidgetTagLabel::setFilePath(const QString& filePath) {
+	void StackTag::setFilePath(const QString& filePath) {
 		FilePath = filePath;
 	}
 
-	QString StackWidgetTagLabel::getFilePath() const {
+	QString StackTag::getFilePath() const {
 		return FilePath;
 	}
 
-	QString StackWidgetTagLabel::getText() const { 
+	QString StackTag::getText() const { 
 		return TitleLabel->text();
 	}
 
-	void StackWidgetTagLabel::setFocusOn(bool focus) {
+	void StackTag::setFocusOn(bool focus) {
 		Focused = focus;
 		if (Focused) {
 			QFrame::setStyleSheet(PressedStyle);
@@ -106,11 +106,11 @@ namespace YSS::Editor {
 		}
 	}
 
-	bool StackWidgetTagLabel::isFocusOn() const {
+	bool StackTag::isFocusOn() const {
 		return Focused;
 	}
 
-	void StackWidgetTagLabel::setPinned(bool pinned) {
+	void StackTag::setPinned(bool pinned) {
 		if (Pinned == pinned) {
 			return;
 		}
@@ -123,18 +123,18 @@ namespace YSS::Editor {
 		}
 	}
 
-	bool StackWidgetTagLabel::isPinned() const {
+	bool StackTag::isPinned() const {
 		return Pinned;
 	}
 
-	void StackWidgetTagLabel::setStyleSheet(const QString& normal, const QString& hover, const QString& pressed) {
+	void StackTag::setStyleSheet(const QString& normal, const QString& hover, const QString& pressed) {
 		NormalStyle = normal;
 		HoverStyle = hover;
 		PressedStyle = pressed;
 		QFrame::setStyleSheet(NormalStyle);
 	}
 
-	void StackWidgetTagLabel::mousePressEvent(QMouseEvent* event) {
+	void StackTag::mousePressEvent(QMouseEvent* event) {
 		QFrame::mousePressEvent(event);
 		if (event->button() == Qt::LeftButton) {
 			Pressed = true;
@@ -142,7 +142,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackWidgetTagLabel::mouseReleaseEvent(QMouseEvent* event) {
+	void StackTag::mouseReleaseEvent(QMouseEvent* event) {
 		QFrame::mouseReleaseEvent(event);
 		if (Pressed && event->button() == Qt::LeftButton) {
 			Pressed = false;
@@ -156,7 +156,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackWidgetTagLabel::resizeEvent(QResizeEvent* event) {
+	void StackTag::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		PinLabel->setFixedWidth(PinLabel->height());
 		CloseLabel->setFixedWidth(CloseLabel->height());
@@ -170,7 +170,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackWidgetTagLabel::enterEvent(QEnterEvent* event) {
+	void StackTag::enterEvent(QEnterEvent* event) {
 		QFrame::enterEvent(event);
 		if (not Focused) {
 			QFrame::setStyleSheet(HoverStyle);
@@ -187,7 +187,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackWidgetTagLabel::leaveEvent(QEvent* event) {
+	void StackTag::leaveEvent(QEvent* event) {
 		QFrame::leaveEvent(event);
 		if (not Focused) {
 			QFrame::setStyleSheet(NormalStyle);
@@ -206,7 +206,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	StackWidgetTagArea::StackWidgetTagArea(QWidget* parent) :QFrame(parent) {
+	StackTagWidget::StackTagWidget(QWidget* parent) :QFrame(parent) {
 		ContentLayout = new QHBoxLayout();
 		ContentLayout->setContentsMargins(0, 0, 0, 0);
 		ContentLayout->setSpacing(2);
@@ -232,54 +232,71 @@ namespace YSS::Editor {
 		onThemeChanged();
 	}
 
-	StackWidgetTagArea::~StackWidgetTagArea() {
+	StackTagWidget::~StackTagWidget() {
 	}
 
-	void StackWidgetTagArea::addStackLabel(const QString& filePath) {
+	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
 		QFileInfo fileInfo(filePath);
-		StackWidgetTagLabel* tagLabel = new StackWidgetTagLabel();
+		StackTag* tagLabel = new StackTag();
 		tagLabel->setFilePath(filePath);
-		tagLabel->setText(fileInfo.fileName());
+		if (displayName.isEmpty()) {
+			tagLabel->setText(fileInfo.fileName());
+			WidgetSelector->addItem(fileInfo.fileName(), filePath);
+		}
+		else {
+			tagLabel->setText(displayName);
+			WidgetSelector->addItem(displayName, filePath);
+		}
 		ContentLayout->addWidget(tagLabel);
 		Labels.append(tagLabel);
-		WidgetSelector->addItem(fileInfo.fileName(), filePath);
-		connect(tagLabel, &StackWidgetTagLabel::pinClicked, this, [this](const QString& filePath) {
+		
+		connect(tagLabel, &StackTag::pinClicked, this, [this](const QString& filePath) {
 			pinStackLabel(filePath);
 			});
-		connect(tagLabel, &StackWidgetTagLabel::closeClicked, this, [this](const QString& filePath) {
+		connect(tagLabel, &StackTag::closeClicked, this, [this](const QString& filePath) {
 			emit closeFile(filePath); // NOTICE: close should be handled by some dialog, cannot directly do any other operation here.
 			});
-		connect(tagLabel, &StackWidgetTagLabel::clicked, this, [this](const QString& filePath) {
+		connect(tagLabel, &StackTag::clicked, this, [this](const QString& filePath) {
 			emit switchToFile(filePath);
 			});
-		connect(tagLabel, &StackWidgetTagLabel::renameRequested, this, [this](const QString& filePath) {
+		connect(tagLabel, &StackTag::renameRequested, this, [this](const QString& filePath) {
 			emit renameRequested(filePath);
 			});
-		connect(tagLabel, &StackWidgetTagLabel::saveAsRequested, this, [this](const QString& filePath) {
+		connect(tagLabel, &StackTag::saveAsRequested, this, [this](const QString& filePath) {
 			emit saveAsRequested(filePath);
 			});
-		connect(tagLabel, &StackWidgetTagLabel::closeAllRequested, this, [this]() {
+		connect(tagLabel, &StackTag::closeAllRequested, this, [this]() {
 			emit closeAllRequested();
 			});
-		connect(tagLabel, &StackWidgetTagLabel::closeSavedRequested, this, [this]() {
+		connect(tagLabel, &StackTag::closeSavedRequested, this, [this]() {
 			emit closeSavedRequested();
 			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
-		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),
-			VISTMGT("YSS::Editor.StackWidgetTag.Hover"),
-			VISTMGT("YSS::Editor.StackWidgetTag.Pressed"));
+		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
+			VISTMGT("YSS::Editor.StactTag.Hover"),
+			VISTMGT("YSS::Editor.StackTag.Pressed"));
 		adjustScrollArea();
 	}
 
-	void StackWidgetTagArea::changeStackLabel(const QString& oldFilePath, const QString& newFilePath) {
-		for (StackWidgetTagLabel* label : Labels) {
+	void StackTagWidget::changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName) {
+		for (StackTag* label : Labels) {
 			if (label->getFilePath() == oldFilePath) {
 				QFileInfo fileInfo(newFilePath);
-				label->setText(fileInfo.fileName());
+				if (newDisplayName.isEmpty()) {
+					label->setText(fileInfo.fileName());
+				}
+				else {
+					label->setText(newDisplayName);
+				}
 				label->setFilePath(newFilePath);
 				for (int i = 0; i < WidgetSelector->count(); ++i) {
 					if (WidgetSelector->itemData(i).toString() == oldFilePath) {
-						WidgetSelector->setItemText(i, fileInfo.fileName());
+						if (newDisplayName.isEmpty()) {
+							WidgetSelector->setItemText(i, fileInfo.fileName());
+						}
+						else {
+							WidgetSelector->setItemText(i, newDisplayName);
+						}
 						WidgetSelector->setItemData(i, newFilePath);
 						break;
 					}
@@ -289,9 +306,9 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackWidgetTagArea::pinStackLabel(const QString& filePath) {
-		StackWidgetTagLabel* targetLabel = nullptr;
-		for (StackWidgetTagLabel* label : Labels) {
+	void StackTagWidget::pinStackLabel(const QString& filePath) {
+		StackTag* targetLabel = nullptr;
+		for (StackTag* label : Labels) {
 			if (label->getFilePath() == filePath) {
 				targetLabel = label;
 			}
@@ -319,8 +336,8 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackWidgetTagArea::removeStackLabel(const QString& filePath) {
-		StackWidgetTagLabel* targetLabel = nullptr;
+	void StackTagWidget::removeStackLabel(const QString& filePath) {
+		StackTag* targetLabel = nullptr;
 		int index = 0;
 		for (int i = 0; i < Labels.size(); ++i) {
 			if (Labels[i]->getFilePath() == filePath) {
@@ -369,14 +386,14 @@ namespace YSS::Editor {
 		adjustScrollArea();
 	}
 
-	void StackWidgetTagArea::setCurrentStackLabel(const QString& filePath) {
+	void StackTagWidget::setCurrentStackLabel(const QString& filePath) {
 		if (filePath == CurrentSelected) {
 			return;
 		}
 		bool finded = false;
 		int i = 0;
 		int cache = i;
-		for (StackWidgetTagLabel* label : Labels) {
+		for (StackTag* label : Labels) {
 			if (label->getFilePath() == filePath) {
 				label->setFocusOn(true);
 				finded = true;
@@ -399,24 +416,24 @@ namespace YSS::Editor {
 		}
 	}
 
-	QString StackWidgetTagArea::getCurrentSelected() const {
+	QString StackTagWidget::getCurrentSelected() const {
 		return CurrentSelected;
 	}
 
-	void StackWidgetTagArea::adjustScrollArea() {
+	void StackTagWidget::adjustScrollArea() {
 		if (Labels.size() == 0) {
 			ScrollContent->setFixedWidth(0);
 			return;
 		}
 		int totalWidth = 0;
-		for (StackWidgetTagLabel* label : Labels) {
+		for (StackTag* label : Labels) {
 			totalWidth += label->width() + ContentLayout->spacing();
 		}
 		totalWidth -= ContentLayout->spacing();
 		ScrollContent->setFixedWidth(totalWidth + 2 * ScrollContent->frameWidth());
 	}
 
-	void StackWidgetTagArea::setFileChanged(const QString& path) {
+	void StackTagWidget::setFileChanged(const QString& path) {
 		for (auto label : Labels) {
 			if (label->getFilePath() == path) {
 				QString fileName = label->getText();
@@ -428,7 +445,7 @@ namespace YSS::Editor {
 		}
 	}
 	
-	void StackWidgetTagArea::cancelFileChanged(const QString& path) {
+	void StackTagWidget::cancelFileChanged(const QString& path) {
 		for (auto label : Labels) {
 			if (label->getFilePath() == path) {
 				QString fileName = label->getText();
@@ -440,7 +457,7 @@ namespace YSS::Editor {
 		}
 	}
 
-	bool StackWidgetTagArea::containsStackLabel(const QString& filePath) const {
+	bool StackTagWidget::containsStackLabel(const QString& filePath) const {
 		for (auto label : Labels) {
 			if (label->getFilePath() == filePath) {
 				return true;
@@ -449,7 +466,7 @@ namespace YSS::Editor {
 		return false;
 	}
 
-	bool StackWidgetTagArea::isStackLabelPinned(const QString& filePath) const {
+	bool StackTagWidget::isStackLabelPinned(const QString& filePath) const {
 		for (auto label : Labels) {
 			if (label->getFilePath() == filePath) {
 				return label->isPinned();
@@ -458,7 +475,7 @@ namespace YSS::Editor {
 		return false;
 	}
 
-	void StackWidgetTagArea::wheelEvent(QWheelEvent* event) {
+	void StackTagWidget::wheelEvent(QWheelEvent* event) {
 		QFrame::wheelEvent(event);
 		int numDegrees = event->angleDelta().y() / 8;
 		int numSteps = numDegrees / 15;
@@ -466,14 +483,14 @@ namespace YSS::Editor {
 		ScrollArea->horizontalScrollBar()->setValue(ScrollArea->horizontalScrollBar()->value() - numSteps * stepSize);
 	}
 
-	void StackWidgetTagArea::onThemeChanged() {
-		for (StackWidgetTagLabel* label : Labels) {
+	void StackTagWidget::onThemeChanged() {
+		for (StackTag* label : Labels) {
 			label->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),
 				VISTMGT("YSS::Editor.StackWidgetTag.Hover"),
 				VISTMGT("YSS::Editor.StackWidgetTag.Pressed"));
 		}
 	}
-	void StackWidgetTagArea::resizeEvent(QResizeEvent* event) {
+	void StackTagWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		adjustScrollArea();
 	}
@@ -519,7 +536,7 @@ namespace YSS::Editor {
 		qint32 lineNumber = MessageTable->item(row, 3)->text().toInt() - 1;
 		qint32 columnNumber = MessageTable->item(row, 4)->text().toInt();
 		//vgDebug << "Redirection requested to " << filePath << ":" << lineNumber << ":" << columnNumber;
-		emit redirectionRequired(filePath, lineNumber, columnNumber);
+		emit YSSCore::Editor::FileServerManager::getInstance()->focusOnFile(filePath, lineNumber, columnNumber);
 	}
 
 	void MessageViewer::onMessageChanged(const QString& filePath) {
@@ -604,8 +621,11 @@ namespace YSS::Editor {
 		ContentLabel = new QLabel(this);
 		Layout = new QGridLayout(this);
 		this->setLayout(Layout);
-		ContentLabel->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
 		Layout->addWidget(ContentLabel, 0, 0, Qt::AlignCenter);
 		ContentLabel->setAlignment(Qt::AlignCenter);
+	}
+
+	void DefaultStackWidgetCentralArea::setText(const QString& text) {
+		ContentLabel->setText(text);
 	}
 }

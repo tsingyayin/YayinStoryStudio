@@ -566,7 +566,10 @@ namespace YSSCore::Editor {
 		\a lineNumber 行号，从1开始。
 		\a column 列号，从1开始。
 		由派生类实现的函数，用于将光标移动到指定的行号和列号位置。
-		考虑到FileEditWidget并不总一定是代码编辑器，因此可按需实现它。
+
+		由于FileEditWidget最早是面向文本文件设计，因此\a lineNumber 和
+		\a column 的语义是基于文本文件的行列号的。但如有需要，
+		也可以将其按照其他方式进行解释和使用，例如对于图片，可用理解为像素坐标等。
 	*/
 	bool FileEditWidget::onCursorToPosition(qint32 lineNumber, qint32 column) {
 		return false;

@@ -19,7 +19,8 @@
 #include <General/PluginManager.h>
 #include <General/Plugin.h>
 #include <Editor/EditorPlugin.h>
-#include "Editor/MainEditor/StackWidgetArea.h"
+#include "Editor/MainEditor/private/StackComponents_p.h"
+#include "Editor/MainEditor/FileEditWidgetArea.h"
 #include <Widgets/DesktopHacker.h>
 #include "Editor/MainEditor/RenameDialog.h"
 #include <QtWidgets/qfiledialog.h>
@@ -47,14 +48,14 @@ namespace YSS::Editor {
 		Layout->setContentsMargins(0, 0, 0, 0);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
 		splitter->setContentsMargins(0, 0, 0, 0);
-		Editor = new StackWidgetArea(CentralWidget);
+		Editor = new FileEditWidgetArea(CentralWidget);
 		Browser = new ResourceBrowser(CentralWidget);
 		Browser->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 		Editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		Layout->addWidget(splitter);
 		splitter->addWidget(Browser);
 		splitter->addWidget(Editor);
-
+		splitter->setHandleWidth(1);
 		setColorfulEnable(true);
 		onThemeChanged();
 
@@ -70,11 +71,13 @@ namespace YSS::Editor {
 
 		RenameDlg = new RenameDialog();
 		RenameDlg->hide();
-		connect(Editor, &StackWidgetArea::renameRequested, this, [this](const QString& absOldPath) {
+		connect(YSSCore::Editor::FileServerManager::getInstance(), &YSSCore::Editor::FileServerManager::focusOnFile,
+			Editor, qOverload<const QString&, qint32, qint32>(&YSS::Editor::FileEditWidgetArea::setCurrentWidget));
+		connect(Editor, &FileEditWidgetArea::renameRequested, this, [this](const QString& absOldPath) {
 			RenameDlg->setContext(absOldPath);
 			RenameDlg->show();
 			});
-		connect(Editor, &StackWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
+		connect(Editor, &FileEditWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
 			saveAs(rawFilePath);
 			});
 		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
@@ -168,7 +171,7 @@ namespace YSS::Editor {
 		return Browser;
 	}
 
-	StackWidgetArea* MainWin::getStackWidgetArea() {
+	FileEditWidgetArea* MainWin::getStackWidgetArea() {
 		return Editor;
 	}
 

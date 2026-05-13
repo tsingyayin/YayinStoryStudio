@@ -12,7 +12,7 @@ namespace Visindigo::Widgets {
 	class QuickMenu;
 }
 namespace YSS::Editor {
-	class StackWidgetArea;
+	class FileEditWidgetArea;
 	class ResourceBrowser;
 	class RenameDialog;
 
@@ -21,7 +21,7 @@ namespace YSS::Editor {
 	private:
 		QWidget* CentralWidget = nullptr;
 		ResourceBrowser* Browser = nullptr;
-		StackWidgetArea* Editor = nullptr;
+		FileEditWidgetArea* Editor = nullptr;
 		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		RenameDialog* RenameDlg = nullptr;
@@ -34,7 +34,7 @@ namespace YSS::Editor {
 		virtual ~MainWin();
 		static MainWin* getInstance();
 		ResourceBrowser* getResourceBrowser();
-		StackWidgetArea* getStackWidgetArea();
+		FileEditWidgetArea* getStackWidgetArea();
 		void saveAllFiles();
 		void saveProject();
 		void backToProjectWin();

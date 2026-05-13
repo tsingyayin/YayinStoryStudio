@@ -180,8 +180,25 @@ namespace ASERStudio::AStorySyntax {
 			QList<qint32> prefixIndexes;
 			QStringList prefixes = getOptionalParameterPrefixes();
 			QStringList prefixNames = getOptionalParameterNames();
-			for (auto prefix : prefixes) {
+			QStringList repeatedPrefixes;
+			QList<qint32> repeatedPrefixIndexes;
+			for (int i = 0; i < prefixes.size(); i++){
+				QString prefix = prefixes[i];
 				prefixIndexes.append(str.indexOf(prefix));
+				if (str.count(prefix) > 1) {
+					repeatedPrefixes.append(prefixNames[i]);
+					repeatedPrefixIndexes.append(str.lastIndexOf(prefix));
+				}
+			}
+			if (diagnostic && repeatedPrefixes.size() > 0) {
+				for (int i = 0; i < repeatedPrefixes.size(); i++) {
+					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
+						VITR("ASERStudio::diagnostic.parameterRepeated.message").arg(repeatedPrefixes[i]).arg(repeatedPrefixIndexes[i]),
+						lineIndex, repeatedPrefixIndexes[i], AStoryXDiagnosticData::DiagnosticType::ParameterRepeated,
+						VITR("ASERStudio::diagnostic.parameterRepeated.fixAdvice")
+					);
+					data->d->Diagnostics.append(diagnosticData);
+				}
 			}
 			QList<std::tuple<qint32, QString, QString>> avaliablePrefixIndexes; // index, prefix, name
 			for (int i = 0; i < prefixes.size(); i++) {

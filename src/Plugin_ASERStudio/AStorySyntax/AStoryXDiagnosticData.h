@@ -30,6 +30,7 @@ namespace ASERStudio::AStorySyntax {
 			BlockNameConflict,
 			InstrumentRedundant,
 			NoSuchPreprocessor,
+			ParameterRepeated,
 
 			UnknownWarning = 0x2000,
 			NoSuchResource,

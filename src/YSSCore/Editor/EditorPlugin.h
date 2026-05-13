@@ -55,7 +55,7 @@ namespace YSSCore::Editor {
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 		void registerFileTemplateProvider(FileTemplateProvider* provider);
 		YSSCore::General::YSSProject* getCurrentProject();
-		void registerToolWidget(const QStringList& widgetID, const QString& widgetName);
+		void registerToolWidget(const QString& widgetID, const QString& widgetName);
 	protected:
 		YSSCore::__Private__::EditorPluginPrivate* d;
 	};

@@ -29,16 +29,16 @@ namespace YSSCore::__Private__ {
 		ScrollBar->setVisible(true);
 		ScrollBar->setSingleStep(120);
 		connect(ScrollBar, &QScrollBar::valueChanged, this, &TabCompleterWidget::onScrollValueChanged);
-		qint32 buttonCacheSize = 18;
-		this->setFixedHeight((buttonCacheSize - 4) * 36);
+		maxAllowedHeight = (buttonCacheSize - 4) * buttonHeight;
+		this->setFixedHeight(maxAllowedHeight);
 		ScrollBar->setGeometry(300 - 16, 0, 16, this->height());
 		ScrollBar->setRange(0, 0);
 		for(int i = 0; i < buttonCacheSize; i++) {
 			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(this);
 			button->setTitle("");
 			button->setPixmapPath("");
-			button->setPixmapFixedWidth(32);
-			button->setFixedHeight(36);
+			button->setPixmapFixedWidth(buttonHeight - 4);
+			button->setFixedHeight(buttonHeight);
 			button->setFixedWidth(300 - 16);
 			button->setSpacing(2);
 			button->setContentsMargins(2, 2, 2, 2);
@@ -56,7 +56,7 @@ namespace YSSCore::__Private__ {
 		for (int i = 0; i < ButtonCycleIndexes.size(); i++) {
 			ButtonCycleIndexes[i] = -1;
 		}
-		this->ScrollBar->setRange(0, items.size() * 36);
+		this->ScrollBar->setRange(0, items.size() * buttonHeight);
 		this->ScrollBar->setValue(0);
 		this->currentSelectedIndex = 0;
 		this->ButtonGroup->selectButton(0);
@@ -65,7 +65,7 @@ namespace YSSCore::__Private__ {
 
 	void TabCompleterWidget::selectPrevious() {
 		qint32 oldY = ScrollBar->value();
-		ScrollBar->setValue(oldY - 36);
+		ScrollBar->setValue(oldY - buttonHeight);
 		if (currentSelectedIndex != 0) { 
 			ButtonGroup->selectPrevious();
 			currentSelectedIndex--;
@@ -74,7 +74,7 @@ namespace YSSCore::__Private__ {
 
 	void TabCompleterWidget::selectNext() {
 		qint32 oldY = ScrollBar->value();
-		ScrollBar->setValue(oldY + 36);
+		ScrollBar->setValue(oldY + buttonHeight);
 		if (currentSelectedIndex != Items.size() - 1) {
 			ButtonGroup->selectNext();
 			currentSelectedIndex++;
@@ -118,15 +118,15 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TabCompleterWidget::onScrollValueChanged(qint32 value) {
-		qint32 firstIndex = value / (36 * ButtonCycleIndexes.size());
-		qint32 deltaY = value % (36 * ButtonCycleIndexes.size());
+		qint32 firstIndex = value / (buttonHeight * ButtonCycleIndexes.size());
+		qint32 deltaY = value % (buttonHeight * ButtonCycleIndexes.size());
 		//vgDebug << "Scroll Value Changed:" << value << "First Index:" << firstIndex << "DeltaY:" << deltaY;
 		for (int i = 0; i < Buttons.size(); i++) {
-			Buttons[i]->move(0, i * 36 - deltaY);
+			Buttons[i]->move(0, i * buttonHeight - deltaY);
 			qint32 indexDelta = 0;
-			if (Buttons[i]->y() < -36) {
+			if (Buttons[i]->y() < -buttonHeight) {
 				indexDelta++;
-				Buttons[i]->move(0, i * 36 - deltaY + ButtonCycleIndexes.size() * 36);
+				Buttons[i]->move(0, i * buttonHeight - deltaY + ButtonCycleIndexes.size() * buttonHeight);
 			}
 			qint32 correctIndex = (firstIndex + indexDelta) * ButtonCycleIndexes.size() + i;
 			if (correctIndex >= Items.size()) {
@@ -154,6 +154,15 @@ namespace YSSCore::__Private__ {
 			}
 			ButtonCycleIndexes[i] = firstIndex + indexDelta;
 		}
+	}
+
+	void TabCompleterWidget::adjustHeight(qint32 height) {
+		this->setFixedHeight(height);
+		ScrollBar->setGeometry(300 - 16, 0, 16, height);
+	}
+
+	qint32 TabCompleterWidget::getMaxAllowedHeight() const {
+		return maxAllowedHeight;
 	}
 
 	void TabCompleterWidget::wheelEvent(QWheelEvent* event) {

@@ -4,15 +4,15 @@
 #include <Editor/FileEditWidget.h>
 
 namespace YSS::Editor {
-	class StackWidgetAreaPrivate;
-	class StackWidgetArea :public QFrame {
+	class FileEditWidgetAreaPrivate;
+	class FileEditWidgetArea :public QFrame {
 		Q_OBJECT;
 	signals:
 		void renameRequested(const QString& absOldPath);
 		void saveAsRequested(const QString& rawFilePath);
 	public:
-		StackWidgetArea(QWidget* parent = nullptr);
-		virtual ~StackWidgetArea();
+		FileEditWidgetArea(QWidget* parent = nullptr);
+		virtual ~FileEditWidgetArea();
 		void addWidget(YSSCore::Editor::FileEditWidget* widget);
 		void closeAll(bool autoGiveup = false);
 		void closeSaved();
@@ -27,7 +27,7 @@ namespace YSS::Editor {
 	public:
 		virtual void resizeEvent(QResizeEvent* event) override;
 	private:
-		StackWidgetAreaPrivate* d;
+		FileEditWidgetAreaPrivate* d;
 	};
 }
 #endif // YSS_Editor_MainWin_StackWidgetArea_h
