@@ -4,10 +4,10 @@
 #include <Editor/FileServerManager.h>
 #include <Editor/DebugServer.h>
 #include <Editor/DebugServerManager.h>
-#include "../MenuBarHandler.h"
-#include "../../GlobalValue.h"
-#include "../MainWin.h"
-#include "../ResourceBrowser.h"
+#include "Editor/MainEditor/MenuBarHandler.h"
+#include "Editor/GlobalValue.h"
+#include "Editor/MainEditor/MainWin.h"
+#include "Editor/MainEditor/ResourceBrowser.h"
 #include <General/YSSLogger.h>
 #include <Widgets/PluginManageWidget.h>
 #include <General/VIApplication.h>
@@ -18,6 +18,8 @@
 #include <General/Plugin.h>
 #include <Utility/FileUtility.h>
 #include <Editor/TextEdit.h>
+#include "Editor/MainEditor/DebugServerRouter.h"
+
 #define CallYSSDebugServerFunction(functionName, ...) \
 	QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID(); \
 	if (debugServerID.isEmpty()) { \
@@ -158,46 +160,47 @@ namespace YSS::Editor {
 	}
 
 	void Menu_Run_RunOptions::run() {
-		CallYSSDebugServerFunction(onRun);
+		YSSDSR->run(false);
 	}
 
 	void Menu_Run_RunOptions::debug() {
-		CallYSSDebugServerFunction(onDebugStart);
+		YSSDSR->run(true);
 	}
 
 	void Menu_Run_RunOptions::stop() {
-		CallYSSDebugServerFunction(onStop);
+		YSSDSR->stop();
 	}
 
 	void Menu_Run_RunOptions::restart() {
-		CallYSSDebugServerFunction(onStop, true);
+		YSSDSR->stop();
+		YSSDSR->run(false);
 	}
 
 	void Menu_Run_RunOptions::aboutToShow() {
 		
 	}
 	void Menu_Run_BuildActions::buildProject() {
-		CallYSSDebugServerFunction(onBuild);
+		YSSDSR->build();
 	}
 
 	void Menu_Run_BuildActions::cleanProject() {
-		CallYSSDebugServerFunction(onClear);
+		YSSDSR->clean();
 	}
 
 	void Menu_Run_DebugActions::nextStep() {
-		CallYSSDebugServerFunction(nextStep);
+		YSSDSR->stepInto();
 	}
 
 	void Menu_Run_DebugActions::nextProcess() {
-		CallYSSDebugServerFunction(nextProcess);
+		YSSDSR->stepOver();
 	}
 
 	void Menu_Run_DebugActions::pause() {
-		CallYSSDebugServerFunction(onPause);
+		YSSDSR->suspend();
 	}
 
 	void Menu_Run_DebugActions::continue_() {
-		CallYSSDebugServerFunction(onContinue);
+		YSSDSR->contiune();
 	}
 	
 }

@@ -8,9 +8,8 @@ namespace ASERStudio::YSS {
 	public:
 		DS_AStoryXDebugger(YSSCore::Editor::EditorPlugin* plugin);
 		~DS_AStoryXDebugger();
-		virtual void onDebugStart() override;
-		virtual void onRun() override;
-		virtual void onStop(bool resume = false) override;
+		virtual void onRun(bool debug) override;
+		virtual void onStop() override;
 	};
 }
 #endif // ASERStudio_YSS_DS_AStoryXDebugger_h

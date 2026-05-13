@@ -131,7 +131,12 @@ namespace YSS::Editor {
 		NormalStyle = normal;
 		HoverStyle = hover;
 		PressedStyle = pressed;
-		QFrame::setStyleSheet(NormalStyle);
+		if (Focused) {
+			QFrame::setStyleSheet(PressedStyle);
+		}
+		else {
+			QFrame::setStyleSheet(NormalStyle);
+		}
 	}
 
 	void StackTag::mousePressEvent(QMouseEvent* event) {
@@ -273,7 +278,7 @@ namespace YSS::Editor {
 			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
 		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
-			VISTMGT("YSS::Editor.StactTag.Hover"),
+			VISTMGT("YSS::Editor.StackTag.Hover"),
 			VISTMGT("YSS::Editor.StackTag.Pressed"));
 		adjustScrollArea();
 	}
@@ -485,9 +490,9 @@ namespace YSS::Editor {
 
 	void StackTagWidget::onThemeChanged() {
 		for (StackTag* label : Labels) {
-			label->setStyleSheet(VISTMGT("YSS::Editor.StackWidgetTag.Normal"),
-				VISTMGT("YSS::Editor.StackWidgetTag.Hover"),
-				VISTMGT("YSS::Editor.StackWidgetTag.Pressed"));
+			label->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
+				VISTMGT("YSS::Editor.StackTag.Hover"),
+				VISTMGT("YSS::Editor.StackTag.Pressed"));
 		}
 	}
 	void StackTagWidget::resizeEvent(QResizeEvent* event) {

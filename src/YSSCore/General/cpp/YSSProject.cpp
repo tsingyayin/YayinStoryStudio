@@ -8,6 +8,7 @@
 #include <Utility/FileUtility.h>
 #include "General/YSSLogger.h"
 #include <General/Plugin.h>
+#include "Editor/DebugServerManager.h"
 namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
@@ -308,6 +309,7 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::setProjectDebugServerID(const QString& id) {
 		d->ProjectConfig->setString("Project.DebugServerID", id);
+		emit YSSCore::Editor::DebugServerManager::getInstance()->projectDebugServerChanged(id);
 	}
 
 	/*!

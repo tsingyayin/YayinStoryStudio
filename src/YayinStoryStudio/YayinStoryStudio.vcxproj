@@ -110,6 +110,7 @@
     <ClCompile Include="Editor\cpp\GlobalValue.cpp" />
     <ClCompile Include="Editor\cpp\YSSCommandHandler.cpp" />
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MenuBarHandler.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\RenameDialog.cpp" />
@@ -151,6 +152,8 @@
     <QtMoc Include="Editor\MainEditor\private\StackComponents_p.h" />
     <QtMoc Include="Editor\MainEditor\RenameDialog.h" />
     <QtMoc Include="Editor\MainEditor\ToolWidgetArea.h" />
+    <QtMoc Include="Editor\MainEditor\MainWinMenu.h" />
+    <QtMoc Include="Editor\MainEditor\DebugServerRouter.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

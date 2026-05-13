@@ -99,8 +99,17 @@ namespace YSSCore::__Private__ {
 				QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
 				return onMouseScroll(wheelEvent);
 			}
-			else if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
+			else if (event->type() == QEvent::MouseButtonPress) {
+				auto mouseEvent = static_cast<QMouseEvent*>(event);
 				useKeyboardToMoveCursor = false;
+				if (mouseEvent->button() == Qt::LeftButton) {
+					if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+						TabCompleterWidget->hide();
+					}
+					if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+						HoverInfoWidget->hide();
+					}
+				}
 				return false;
 			}
 		}

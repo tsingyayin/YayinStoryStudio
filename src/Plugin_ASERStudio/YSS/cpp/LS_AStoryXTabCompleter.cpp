@@ -50,7 +50,12 @@ namespace ASERStudio::YSS {
 			}
 			}
 		}
-		
+		if (parseData.getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Dialog) {
+			QString reqParaSeperator = rule->getRequiredParameterSeparator(ASERStudio::AStorySyntax::AStoryXController::ControllerType::Dialog);
+			if (reqParaSeperator == "\t" && not content.contains("\t")) {
+				items.append(YSSCore::Editor::TabCompleterItem("[ TAB ]", "\t", "Tab Character", YSSCore::Editor::TabCompleterItem::ItemType::Operator));
+			}
+		}
 		QStringList optPrefixes = rule->getOptionalParameterPrefixes(parseData.getControllerType());
 		optPrefixes = Visindigo::Utility::StringUtility::deduplicate(optPrefixes);
 		for (auto s : optPrefixes) {

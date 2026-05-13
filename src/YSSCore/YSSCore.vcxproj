@@ -116,8 +116,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\cpp\DebugData.cpp" />
-    <ClCompile Include="Editor\cpp\DebugFailedData.cpp" />
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
     <ClCompile Include="Editor\cpp\DebugServerManager.cpp" />
     <ClCompile Include="Editor\cpp\DebugStepData.cpp" />
@@ -146,9 +144,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Editor\DebugData.h" />
-    <ClInclude Include="Editor\DebugFailedData.h" />
-    <ClInclude Include="Editor\DebugServerManager.h" />
+    <QtMoc Include="Editor\DebugServerManager.h" />
     <ClInclude Include="Editor\DebugStepData.h" />
     <QtMoc Include="Editor\DocumentMessageManager.h" />
     <ClInclude Include="Editor\EditorProjectHelper.h" />

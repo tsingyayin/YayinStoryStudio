@@ -12,12 +12,13 @@
 namespace ASERStudio::YSS {
 	DS_AStoryXDebugger::DS_AStoryXDebugger(YSSCore::Editor::EditorPlugin* plugin) : 
 		YSSCore::Editor::DebugServer("AStoryXDebugger", ASERStudio_AStoryXDebuggerID, plugin) {
-		this->setSupportedFeatures(DebugServer::SupportedDebugFeatureFlag::Debug |
-			DebugServer::SupportedDebugFeatureFlag::Run | DebugServer::SupportedDebugFeatureFlag::Stop);
+		this->setSupportedFeatures(
+			DebugRun | Run | Stop | Suspend | Continue
+		);
 	}
 	DS_AStoryXDebugger::~DS_AStoryXDebugger() {
 	}
-	void DS_AStoryXDebugger::onDebugStart() {
+	void DS_AStoryXDebugger::onRun(bool debug) {
 		vgDebug << "Debug Start";
 		auto program = ASERStudio::Main::getInstance()->getASERProgram();
 		auto debugIO = ASERStudio::Main::getInstance()->getASERDebugIO();
@@ -39,10 +40,8 @@ namespace ASERStudio::YSS {
 			program->start(param);
 		}
 	}
-	void DS_AStoryXDebugger::onRun() {
-		onDebugStart(); // currently no difference.
-	}
-	void DS_AStoryXDebugger::onStop(bool resume) {
+
+	void DS_AStoryXDebugger::onStop() {
 		vgDebug << "Stop";
 		auto program = ASERStudio::Main::getInstance()->getASERProgram();
 		if (program->isRunning()) {

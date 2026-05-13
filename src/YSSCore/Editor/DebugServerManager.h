@@ -2,12 +2,16 @@
 #define YSSCore_Editor_DebugServerManager_h
 #include "YSSCoreCompileMacro.h"
 #include "DebugServer.h"
+#include <QtCore/qobject.h>
 namespace YSSCore::Editor {
 	class DebugServerManagerPrivate;
 
-	class YSSCoreAPI DebugServerManager {
+	class YSSCoreAPI DebugServerManager :public QObject{
+		Q_OBJECT;
 	private:
 		DebugServerManager();
+	signals:
+		void projectDebugServerChanged(const QString& serverID);
 	public:
 		~DebugServerManager();
 		static DebugServerManager* getInstance();
