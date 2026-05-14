@@ -20,7 +20,9 @@ namespace YSSCore::Editor {
 		static ToolWidgetManager* getInstance();
 		~ToolWidgetManager();
 		void registerToolWidget(const QString& widgetID, const QString& widgetName, EditorPlugin* provider);
-		QWidget* requestToolWidget(const QString& widgetID);
+		void openToolWidget(const QString& widgetID);
+		QWidget* getToolWidget(const QString& widgetID);
+		QList<QWidget*> getAllOpenToolWidgets() const;
 		bool isToolWidgetOpen(const QString& widgetID) const;
 		QMap<QString, QString> getRegisteredToolWidgets() const;
 	private:

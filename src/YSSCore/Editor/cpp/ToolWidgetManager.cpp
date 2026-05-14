@@ -88,9 +88,9 @@ namespace YSSCore::Editor {
 		如果插件返回了一个有效的QWidget指针，则ToolWidgetManager会将其保存并返回；
 		如果没有插件提供或者插件返回了nullptr，则返回nullptr。
 	*/
-	QWidget* ToolWidgetManager::requestToolWidget(const QString& widgetID) {
+	void ToolWidgetManager::openToolWidget(const QString& widgetID) {
 		if (d->WidgetInstanceMap.contains(widgetID)) {
-			return d->WidgetInstanceMap[widgetID];
+			emit widgetOpened(widgetID);
 		}
 		if (d->WidgetProviderMap.contains(widgetID)) {
 			auto widget = d->WidgetProviderMap[widgetID]->onToolWidgetRequested(widgetID);
@@ -104,13 +104,28 @@ namespace YSSCore::Editor {
 					});
 				emit widgetOpened(widgetID);
 			}
-			return widget;
-		}
-		else {
-			return nullptr;
 		}
 	}
 
+	/*!
+		\since 0.15.0
+		获取工具窗口部件实例的函数。\a widgetID 是被获取的工具窗口ID。
+		如果对应ID的工具窗口实例存在则返回该实例；否则返回nullptr。
+	*/
+	QWidget* ToolWidgetManager::getToolWidget(const QString& widgetID) {
+		if (d->WidgetInstanceMap.contains(widgetID)) {
+			return d->WidgetInstanceMap[widgetID];
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since 0.15.0
+		获取所有打开的工具窗口部件实例的函数。返回一个QList，包含所有当前打开的工具窗口部件实例。
+	*/
+	QList<QWidget*> ToolWidgetManager::getAllOpenToolWidgets() const {
+		return d->WidgetInstanceMap.values();
+	}
 	/*!
 		\since 0.15.0
 		检查工具窗口是否打开的函数。\a widgetID 是被检查的工具窗口ID。

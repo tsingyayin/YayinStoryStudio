@@ -16,13 +16,15 @@ namespace YSS::Editor {
 	class ResourceBrowser;
 	class RenameDialog;
 	class MainWinMenu;
+	class ToolWidgetArea;
 
 	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	private:
 		QWidget* CentralWidget = nullptr;
 		ResourceBrowser* Browser = nullptr;
-		FileEditWidgetArea* Editor = nullptr;
+		FileEditWidgetArea* Editors = nullptr;
+		ToolWidgetArea* Tools = nullptr;
 		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		RenameDialog* RenameDlg = nullptr;
@@ -34,7 +36,7 @@ namespace YSS::Editor {
 		virtual ~MainWin();
 		static MainWin* getInstance();
 		ResourceBrowser* getResourceBrowser();
-		FileEditWidgetArea* getStackWidgetArea();
+		FileEditWidgetArea* getFileEditWidgetArea();
 		void saveAllFiles();
 		void saveProject();
 		void backToHome();

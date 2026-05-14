@@ -119,11 +119,13 @@
 			"title": "视图",
 			"resourceBrowser": "资源浏览器",
 			"messageViewer": "消息查看器",
-			"pluginTools": "插件工具"
+			"pluginTools": "插件工具",
+			"noTools": "没有工具可显示"
 		}
 	},
 	"editor":{
 		"messageViewer": {
+			"title": "消息查看器",
 			"error": "错误",
 			"warning": "警告",
 			"info": "信息",
@@ -151,6 +153,9 @@
 		},
 		"stackWidgetArea": {
 			"noFileOpened": "没有打开的文件"
+		},
+		"toolWidgetArea": {
+			"noToolWidget": "没有工具可显示"
 		},
 		"textEdit":{
 			"readOnly": {

@@ -1,81 +1,81 @@
 {
-	"config":{
-		"title": "Yayin Story Studio Settings",
-		"general":{
-			"title":"General",
-			"text":"General application settings",
-			"language":{
-				"title":"Language",
-				"text":"Select application language",
-				"zh_CN":"Simplified Chinese",
-				"en":"English"
+	"config": {
+		"title": "Yayin Story Studio Preferences",
+		"general": {
+			"title": "General",
+			"text": "General application settings",
+			"language": {
+				"title": "Language",
+				"text": "Select application language",
+				"zh_CN": "Simplified Chinese",
+				"en": "English"
 			},
-			"theme":{
+			"theme": {
 				"title": "Color Theme",
-				"text":"Select application color theme",
-				"dark":"Dark",
-				"light":"Light",
+				"text": "Select application color theme",
+				"dark": "Dark",
+				"light": "Light",
 				"auto": "Auto (Follow System)"
 			}
-		 },
-		 "editor":{
-			"title":"Editor",
-			"text":"Editor related settings",
-			"reloadtab":{
-				"title":"Reload Tab Behavior",
-				"text":"Controls whether the editor should replace Tab with spaces when at the beginning of a line(this option is currently ineffective)"
+		},
+		"editor": {
+			"title": "Editor",
+			"text": "Editor related settings",
+			"reloadtab": {
+				"title": "Reload TAB Behavior",
+				"text": "Controls whether the editor should replace TAB with spaces when it appears at the beginning of a line (this option is temporarily ineffective)"
 			}
 		}
 	},
 	"tooltips": {
-		"projectWin":{
+		"projectWin": {
 			"project": "Click to view details, double-click to open the project",
-			"showInBrowser": "Open project folder in system file explorer",
+			"showInBrowser": "Open the project folder in system file explorer",
 			"delete": "Remove project from list",
-			"createNewProject": "Create a new project from a template",
-			"openFolder": "Open an existing Yayin Story Studio project",
+			"createNewProject": "Create a new project from template",
+			"openFolder": "Open a Yayin Story Studio project",
 			"cloneFromGit": "Clone a project from a given Git repository URL"
 		}
 	},
-	"project":{
-		"author":"Author",
-		"description":"Description",
-		"debugServer":"Debug Server",
-		"projectManager":"Project Manager",
+	"project": {
+		"author": "Author",
+		"description": "Description",
+		"debugServer": "Debug Server",
+		"projectManager": "Project Manager",
 		"selectToShow": "Select a project to view details...",
-		"noCover":"No Cover",
-		"lastModifiedTime":"Last Modified Time",
-		"createTime":"Creation Time",
-		"size":"Size",
-		"calculating":"Calculating...",
-		"showInBrowser":"Show in File Explorer",
-		"delete":"Delete Project",
-		"deleteConfirm": "Yayin Story Studio currently does not support safely deleting projects to the Recycle Bin.\nFor safety reasons, pressing Confirm will only remove the project from the list.\nYou can manually delete the project folder later in the file explorer.\n\nDo you want to continue?",
-		"removeFromList":"Remove from List",
-		"createNewProject":"Create New Project",
-		"createNewFile":"Create New File",
-		"openFolder":"Open Project",
+		"noCover": "No Cover",
+		"lastModifiedTime": "Last Modified",
+		"createTime": "Created",
+		"size": "Size",
+		"calculating": "Calculating...",
+		"showInBrowser": "Show in File Explorer",
+		"delete": "Delete Project",
+		"deleteConfirm": "Yayin Story Studio currently does not support safe deletion of projects to the Recycle Bin.\nTherefore, for safety, pressing OK will only remove the project from the list.\nYou may later delete the project manually in the file explorer.\n\nContinue?",
+		"removeFromList": "Remove from List",
+		"createNewProject": "Create New Project",
+		"createNewFile": "Create New File",
+		"openFolder": "Open Project",
 		"openYSSProject": "Open YSS Project",
-		"cloneFromGit":"Clone from Git",
-		"createFromTemplate":"Create from Template",
-		"searchWithTags": "Search templates by tags",
-		"recentUsed":"Recently Used",
-		"openProjectFailed":{
-			"message":"Failed to open project",
-			"ParseError":"Failed to parse project file. The file may contain syntax errors or be corrupted.",
-			"InvaildConfig":"Invalid project configuration. Required fields are missing or have incorrect types.",
-			"UnknownError":"An unknown error occurred and the project could not be opened."
+		"cloneFromGit": "Clone from Git",
+		"createFromTemplate": "Create from Template",
+		"searchWithTags": "Search Templates by Tags",
+		"recentUsed": "Recently Used",
+		"openProjectFailed": {
+			"message": "Failed to Open Project",
+			"ParseError": "Failed to parse project file, possibly due to syntax errors or corruption.",
+			"InvaildConfig": "Invalid project configuration, missing required fields or incorrect field types.",
+			"UnknownError": "An unknown error occurred and the project could not be opened."
 		},
 		"newsLoadFailed": "Failed to sync news from server. Please check your network connection and try again later.",
 		"saveQuestion": {
-			"title": "Close the program?",
-			"text": "Your project %1 has been modified and not saved. Do you want to save it?"
+			"title": "Close application?",
+			"text": "Your project %1 has unsaved changes. Do you want to save the project?"
 		}
 	},
 	"menu": {
 		"file": {
 			"title": "File",
-			"newfile": "New File",
+			"new": "New File",
 			"open": "Open",
 			"save": "Save",
 			"saveAll": "Save All",
@@ -87,7 +87,9 @@
 			"documentation": "Documentation",
 			"about": "About Yayin Story Studio",
 			"projectConfig": "Project Settings",
-			"showInExplorer": "Show in File Explorer"
+			"showInExplorer": "Show in File Explorer",
+			"closeAll": "Close All Files",
+			"closeSaved": "Close Saved Files"
 		},
 		"edit": {
 			"title": "Edit",
@@ -105,26 +107,35 @@
 			"debug": "Start (Debug)",
 			"stop": "Stop",
 			"restart": "Restart",
-			"buildProject": "Build Project",
-			"cleanProject": "Clean Build",
-			"nextStep": "Step Into",
-			"nextProcess": "Step Over",
-			"pause": "Pause",
-			"continue_": "Continue"
+			"build": "Build Project",
+			"rebuild": "Force Rebuild",
+			"clean": "Clean Build",
+			"stepInto": "Step Into",
+			"stepOver": "Step Over",
+			"suspend": "Suspend",
+			"resume": "Resume"
+		},
+		"view": {
+			"title": "View",
+			"resourceBrowser": "Resource Browser",
+			"messageViewer": "Message Viewer",
+			"pluginTools": "Plugin Tools",
+			"noTools": "No tools to display"
 		}
 	},
-	"editor":{
+	"editor": {
 		"messageViewer": {
+			"title": "Message Viewer",
 			"error": "Error",
 			"warning": "Warning",
 			"info": "Info",
 			"code": "Code",
-			"message": "Message",
+			"message": "Description",
 			"file": "File",
 			"line": "Line",
 			"column": "Column"
 		},
-		"far":{
+		"far": {
 			"title": "Find and Replace",
 			"find": "Find",
 			"findNext": "Find Next",
@@ -132,47 +143,70 @@
 			"replaceNext": "Replace Next",
 			"replaceAll": "Replace All",
 			"matchCase": "Match Case",
-			"wholeWord": "Whole Word",
+			"wholeWord": "Match Whole Word",
 			"useRegExp": "Regular Expression",
-			"notFound": "Not Found",
-			"notFoundDesc": "The text \"%1\" was not found",
-			"replaced": "Replacement Complete",
-			"replacedDesc": "%1 occurrence(s) replaced",
+			"notFound": "No more items found",
+			"notFoundDesc": "Target text \"%1\" not found",
+			"replaced": "Replacement complete",
+			"replacedDesc": "Replaced %1 occurrence(s)",
 			"matchCount": "Total %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "No file opened"
+			"noFileOpened": "No files open"
 		},
-		"textEdit":{
+		"toolWidgetArea": {
+			"noToolWidget": "No tools to display"
+		},
+		"textEdit": {
 			"readOnly": {
-				"title": "This file is read-only",
-				"message": "The file %1 you are trying to save is read-only. You cannot save to this file. Please check file permissions or use 'Save As' to save to a different location."
+				"title": "File is read-only",
+				"message": "The file %1 you wish to save is read-only. You cannot save to this file. Please check file permissions or use Save As to save to a different location."
 			},
 			"notSuitable": {
-				"title": "No suitable service found for this file",
-				"message": "No opening service found for file extension %1. YSS can still try to open the file with the default built-in text editor, but this may corrupt binary data. Are you sure you want to proceed? (Strongly not recommended)"
+				"title": "No service found to support this file",
+				"message": "No suitable opening service found for file extension %1. YSS can still attempt to open the file using the default built-in text editor, but this may corrupt binary data. Are you sure you want to continue with the built-in text editor? (Strongly not recommended)"
 			},
-			"cursorInfo_s": "Line %1, Column %2 (%3 selected)",
+			"cursorInfo_s": "Line %1, Column %2 (Selected %3)",
 			"cursorInfo": "Line %1, Column %2",
 			"totalLines": "Total lines: %1"
 		},
 		"debug": {
 			"notFound": {
 				"title": "Oops! Debugger not found",
-				"message": "The debugger %1 specified for this project was not found. Have you disabled or removed the plugin that provides it? Please re-enable or re-add it and restart the program."
+				"message": "The debugger %1 specified for this project was not found. Have you disabled or removed the plugin that provides this debugger? Please re-enable or add them, then restart the application and try again."
 			},
 			"notSelect": {
 				"title": "Debugger not configured!",
-				"message": "This project does not have a debugger configured. Please open Project Settings, select a debugger, and try again."
+				"message": "This project does not have a debugger configured. Please open project settings, select a debugger, and try again."
 			}
 		},
 		"saveWarning": {
 			"title": "File Modified",
 			"message": "The file %1 has been modified. Do you want to save the changes?"
 		},
+		"reloadWarning": {
+			"title": "Reload now?",
+			"message": "The file %1 has been modified. If you reload now, any changes you made to this file will be lost. Do you want to reload?"
+		},
+		"renameDialog": {
+			"title": "Rename",
+			"rename": "Renaming file %1",
+			"request": "Please enter a new name",
+			"warning": {
+				"empty": "Name cannot be empty. Please enter a name.",
+				"same": "New name is the same as the old name. Please enter a different name.",
+				"exists": "A file with this name already exists in the same directory. Please choose a different name.",
+				"invalid": "Invalid file name. It cannot contain the following characters: \\ / : * ? \" < > |",
+				"extNotSame": {
+					"normal": "The extension of the new name differs from the original, which may cause issues.",
+					"title": "Are you sure you want to change the extension?",
+					"message": "The extension %1 given in the new name differs from the original extension %2. This may cause problems, such as the file not being recognized or opened correctly. Are you sure you want to continue with the rename?"
+				}
+			}
+		},
 		"about": {
 			"title": "About Yayin Story Studio",
-			"message": "Version %1, a Tsing Yayin production. Yayin Story Studio is part of Project Visindigo, a brand-new development evolved from Yayin Story Player, aimed at providing ASE users with an easy-to-use development environment."
+			"message": "Version %1, a Tsing Yayin work. Yayin Story Studio is part of Project Visindigo, a brand new project evolved from Yayin Story Player, aiming to provide an easy-to-use development environment for ASE users."
 		}
 	}
 }

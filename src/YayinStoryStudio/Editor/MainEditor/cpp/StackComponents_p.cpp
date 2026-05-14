@@ -10,7 +10,7 @@
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
 namespace YSS::Editor {
-	StackTag::StackTag(QWidget* parent) :QFrame(parent) {
+	StackTag::StackTag(QWidget* parent, bool toolWidgetMode) :QFrame(parent) {
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
 		PinLabel = new QToolButton(this);
@@ -40,12 +40,8 @@ namespace YSS::Editor {
 		setContextMenuPolicy(Qt::ActionsContextMenu);
 		ActionClose = new QAction(VITR("Visindigo::general.close"), this);
 		ActionPin = new QAction(VITR("Visindigo::general.pin"), this);
-		ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
-		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
-		ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
-		ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
 		ActionCloseAll = new QAction(VITR("YSS::menu.file.closeAll"), this);
-		ActionCloseSaved = new QAction(VITR("YSS::menu.file.closeSaved"), this);
+		
 		connect(ActionClose, &QAction::triggered, this, [this]() {
 			emit closeClicked(FilePath);
 			});
@@ -53,30 +49,42 @@ namespace YSS::Editor {
 			setPinned(!isPinned());
 			emit pinClicked(FilePath);
 			});
-		connect(ActionReload, &QAction::triggered, this, [this]() {
-			YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(FilePath);
-			if (editor) { 
-				editor->reloadFile();
-			}
-			});
-		connect(ActionRename, &QAction::triggered, this, [this]() {
-			emit renameRequested(FilePath);
-			});
-		connect(ActionSaveAs, &QAction::triggered, this, [this]() {
-			emit saveAsRequested(FilePath);
-			});
-		connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
-			Visindigo::Utility::FileUtility::openExplorer(FilePath);
-			});
 		connect(ActionCloseAll, &QAction::triggered, this, [this]() {
 			emit closeAllRequested();
 			});
-		connect(ActionCloseSaved, &QAction::triggered, this, [this]() {
-			emit closeSavedRequested();
-			});
-		this->addActions({ ActionClose, ActionPin, ActionReload, 
-			ActionRename, ActionSaveAs, ActionShowInExplorer,
-			ActionCloseAll, ActionCloseSaved });
+		if (not toolWidgetMode) {
+			ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
+			ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
+			ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
+			ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
+			ActionCloseSaved = new QAction(VITR("YSS::menu.file.closeSaved"), this);
+			connect(ActionReload, &QAction::triggered, this, [this]() {
+				YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(FilePath);
+				if (editor) {
+					editor->reloadFile();
+				}
+				});
+			connect(ActionRename, &QAction::triggered, this, [this]() {
+				emit renameRequested(FilePath);
+				});
+			connect(ActionSaveAs, &QAction::triggered, this, [this]() {
+				emit saveAsRequested(FilePath);
+				});
+			connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
+				Visindigo::Utility::FileUtility::openExplorer(FilePath);
+				});
+			connect(ActionCloseSaved, &QAction::triggered, this, [this]() {
+				emit closeSavedRequested();
+				});
+		}
+		if (not toolWidgetMode) {
+			this->addActions({ ActionClose, ActionPin, ActionReload,
+				ActionRename, ActionSaveAs, ActionShowInExplorer,
+				ActionCloseAll, ActionCloseSaved });
+		}
+		else {
+			this->addActions({ ActionClose, ActionPin, ActionCloseAll });
+		}
 	}
 
 	void StackTag::setText(const QString& text) {
@@ -244,7 +252,7 @@ namespace YSS::Editor {
 
 	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
 		QFileInfo fileInfo(filePath);
-		StackTag* tagLabel = new StackTag(ScrollContent);
+		StackTag* tagLabel = new StackTag(ScrollContent, ToolWidgetMode);
 		tagLabel->setFilePath(filePath);
 		if (displayName.isEmpty()) {
 			tagLabel->setText(fileInfo.fileName());
@@ -483,6 +491,20 @@ namespace YSS::Editor {
 		return false;
 	}
 
+	void StackTagWidget::setToolWidgetMode(bool toolWidgetMode) {
+		ToolWidgetMode = toolWidgetMode;
+		if (ToolWidgetMode) {
+			WidgetSelector->hide();
+		}
+		else {
+			WidgetSelector->show();
+		}
+	}
+
+	bool StackTagWidget::isToolWidgetMode() const {
+		return ToolWidgetMode;
+	}
+
 	void StackTagWidget::wheelEvent(QWheelEvent* event) {
 		QFrame::wheelEvent(event);
 		int numDegrees = event->angleDelta().y() / 8;
@@ -501,128 +523,6 @@ namespace YSS::Editor {
 	void StackTagWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		adjustScrollArea();
-	}
-
-	MessageViewer::MessageViewer(QWidget* parent) :QFrame(parent) {
-		MessageTable = new QTableWidget(this);
-		MessageTable->setColumnCount(5); // code, message, file, line, column
-		MessageTable->setHorizontalHeaderLabels({
-				VITR("YSS::editor.messageViewer.code"),
-				VITR("YSS::editor.messageViewer.message"),
-				VITR("YSS::editor.messageViewer.file"),
-				VITR("YSS::editor.messageViewer.line"),
-				VITR("YSS::editor.messageViewer.column")
-			});
-		Layout = new QVBoxLayout(this);
-		Layout->setContentsMargins(0, 0, 0, 0);
-		Layout->addWidget(MessageTable);
-		MessageTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
-		MessageTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-		MessageTable->setColumnWidth(0, 100);
-		MessageTable->setColumnWidth(3, 100);
-		MessageTable->setColumnWidth(4, 100);
-		MessageTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), 
-			&YSSCore::Editor::DocumentMessageManager::messageChanged, this, &MessageViewer::onMessageChanged);
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(),
-			&YSSCore::Editor::DocumentMessageManager::messageChangedForLine, this, &MessageViewer::onMessageChangedForLine);
-		connect(MessageTable, &QTableWidget::cellClicked, this, &MessageViewer::onCellClicked);
-	}
-
-	void MessageViewer::changeCurrentFile(const QString& filePath) {
-		if (CurrentFilePath == filePath) {
-			return;
-		}
-		CurrentFilePath = filePath;
-		MessageTable->clearContents();
-		MessageTable->setRowCount(0);
-		onMessageChanged(filePath);
-	}
-
-	void MessageViewer::onCellClicked(int row, int column) {
-		QString filePath = MessageTable->item(row, 2)->toolTip();
-		qint32 lineNumber = MessageTable->item(row, 3)->text().toInt() - 1;
-		qint32 columnNumber = MessageTable->item(row, 4)->text().toInt();
-		//vgDebug << "Redirection requested to " << filePath << ":" << lineNumber << ":" << columnNumber;
-		emit YSSCore::Editor::FileServerManager::getInstance()->focusOnFile(filePath, lineNumber, columnNumber);
-	}
-
-	void MessageViewer::onMessageChanged(const QString& filePath) {
-		//vgDebug << "Message changed for file: " << filePath;
-		if (filePath == CurrentFilePath) {
-			MessageTable->clearContents();
-			MessageTable->setRowCount(0);
-			auto messages = YSSCore::Editor::DocumentMessageManager::getInstance()->getAllMessages(filePath);
-			qint32 totalLines = 0;
-			for (auto msgList : messages.values()) {
-				totalLines += msgList.size();
-			}
-			MessageTable->setRowCount(totalLines);
-			qint32 row = 0;
-			for (auto msgList : messages.values()) {
-				for (auto msg : msgList) {
-					auto msgCode = new QLabel();
-					msgCode->setText(QString("<a href=\"%1\">%2</a>").arg(msg.getHelpUrl().toString()).arg(msg.getCode()));
-					msgCode->setOpenExternalLinks(true);
-					msgCode->setAlignment(Qt::AlignCenter);
-					MessageTable->setCellWidget(row, 0, msgCode);
-					auto messageItem = new QTableWidgetItem(msg.getMessage());
-					messageItem->setToolTip(msg.getFixAdvice());
-					MessageTable->setItem(row, 1, messageItem);
-					auto filePathItem = new QTableWidgetItem(QFileInfo(filePath).fileName());
-					filePathItem->setToolTip(filePath);
-					MessageTable->setItem(row, 2, filePathItem);
-					auto lineItem = new QTableWidgetItem(QString::number(msg.getLineNumber() + 1));
-					lineItem->setTextAlignment(Qt::AlignCenter);
-					MessageTable->setItem(row, 3, lineItem);
-					auto columnItem = new QTableWidgetItem(QString::number(msg.getColumnNumber()));
-					columnItem->setTextAlignment(Qt::AlignCenter);
-					MessageTable->setItem(row, 4, columnItem);
-					row++;
-				}
-			}
-		}
-	}
-
-	void MessageViewer::onMessageChangedForLine(const QString& filePath, qint32 lineNumber) {
-		// search all line == lineNumber, remove it
-		//vgDebug << filePath << CurrentFilePath;
-		if (filePath != CurrentFilePath) {
-			return;
-		}
-		for (int i = 0; i < MessageTable->rowCount(); ++i) {
-			if (MessageTable->item(i, 2)->toolTip() == filePath && MessageTable->item(i, 3)->text().toInt() == lineNumber+1) {
-				MessageTable->removeRow(i);
-				//vgDebug << "Removed message for line " << lineNumber << " at row " << i;
-				--i;
-			}
-		}
-		auto msgList = YSSCore::Editor::DocumentMessageManager::getInstance()->getMessages(filePath, lineNumber);
-		//vgDebug << "Line " << lineNumber << " has " << msgList.size() << " messages.";
-		for (auto msg : msgList) {
-			int row = MessageTable->rowCount();
-			MessageTable->insertRow(row);
-			auto msgCode = new QLabel();
-			msgCode->setText(QString("<a href=\"%1\">%2</a>").arg(msg.getHelpUrl().toString()).arg(msg.getCode()));
-			msgCode->setOpenExternalLinks(true);
-			msgCode->setAlignment(Qt::AlignCenter);
-			MessageTable->setCellWidget(row, 0, msgCode);
-			auto messageItem = new QTableWidgetItem(msg.getMessage());
-			messageItem->setToolTip(msg.getFixAdvice());
-			MessageTable->setItem(row, 1, messageItem);
-			auto filePathItem = new QTableWidgetItem(QFileInfo(filePath).fileName());
-			filePathItem->setToolTip(filePath);
-			MessageTable->setItem(row, 2, filePathItem);
-			auto lineItem = new QTableWidgetItem(QString::number(msg.getLineNumber() + 1));
-			lineItem->setTextAlignment(Qt::AlignCenter);
-			MessageTable->setItem(row, 3, lineItem);
-			auto columnItem = new QTableWidgetItem(QString::number(msg.getColumnNumber()));
-			columnItem->setTextAlignment(Qt::AlignCenter);
-			MessageTable->setItem(row, 4, columnItem);
-		}
-		if (msgList.size() != 0) {
-			MessageTable->sortByColumn(3, Qt::AscendingOrder);
-		}
 	}
 
 	DefaultStackWidgetCentralArea::DefaultStackWidgetCentralArea(QWidget* parent) :QFrame(parent) {

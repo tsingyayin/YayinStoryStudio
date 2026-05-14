@@ -10,6 +10,7 @@ namespace YSS::Editor {
 	signals:
 		void renameRequested(const QString& absOldPath);
 		void saveAsRequested(const QString& rawFilePath);
+		void currentFileChanged(const QString& filePath);
 	public:
 		FileEditWidgetArea(QWidget* parent = nullptr);
 		virtual ~FileEditWidgetArea();
@@ -23,6 +24,7 @@ namespace YSS::Editor {
 		void setCurrentWidget(YSSCore::Editor::FileEditWidget* widget, qint32 lineNumber, qint32 column = 0);
 		void setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column);
 		YSSCore::Editor::FileEditWidget* getCurrentWidget() const;
+		QString getCurrentWidgetFilePath() const;
 		void setMessageViewerEnable(bool enable);
 	public:
 		virtual void resizeEvent(QResizeEvent* event) override;

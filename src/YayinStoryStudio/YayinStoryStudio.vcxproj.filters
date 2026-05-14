@@ -86,6 +86,12 @@
     <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\MessageViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\MainEditorBuiltinPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\HoverTip.h">
@@ -143,6 +149,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\DebugServerRouter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\MainEditorBuiltinPlugin.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\MessageViewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

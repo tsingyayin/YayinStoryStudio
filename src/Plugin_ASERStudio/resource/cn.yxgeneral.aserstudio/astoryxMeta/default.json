@@ -61,6 +61,11 @@
         "StitchVertically":{
             "type": "Bool",
             "defaultValue": "true"
+        },
+        "StitchColumnCount":{
+            "type": "Integer",
+            "defaultValue": "1",
+            "min": 0
         }
     },
     "Music":{

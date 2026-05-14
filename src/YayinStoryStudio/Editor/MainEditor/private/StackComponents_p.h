@@ -42,7 +42,7 @@ namespace YSS::Editor {
 		void closeAllRequested();
 		void closeSavedRequested();
 	public:
-		StackTag(QWidget* parent = nullptr);
+		StackTag(QWidget* parent = nullptr, bool toolWidgetMode = false);
 		void setText(const QString& text);
 		void setFilePath(const QString& filePath);
 		QString getFilePath() const;
@@ -77,6 +77,7 @@ namespace YSS::Editor {
 		QHBoxLayout* Layout;
 		QList<StackTag*> Labels;
 		QString CurrentSelected;
+		bool ToolWidgetMode = false;
 	public:
 		StackTagWidget(QWidget* parent = nullptr);
 		virtual ~StackTagWidget();
@@ -91,25 +92,12 @@ namespace YSS::Editor {
 		void cancelFileChanged(const QString& filePath);
 		bool containsStackLabel(const QString& filePath) const;
 		bool isStackLabelPinned(const QString& filePath) const;
+		void setToolWidgetMode(bool toolWidgetMode);
+		bool isToolWidgetMode() const;
 	public:
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;
 		virtual void resizeEvent(QResizeEvent* event) override;
-	};
-
-	class MessageViewer :public QFrame {
-		Q_OBJECT;
-	private:
-		QVBoxLayout* Layout;
-		QTableWidget* MessageTable;
-		QString CurrentFilePath;
-	public:
-		MessageViewer(QWidget* parent = nullptr);
-		void changeCurrentFile(const QString& filePath);
-	public slots:
-		void onCellClicked(int row, int column);
-		void onMessageChanged(const QString& filePath);
-		void onMessageChangedForLine(const QString& filePath, qint32 lineNumber);
 	};
 
 	class DefaultStackWidgetCentralArea :public QFrame {

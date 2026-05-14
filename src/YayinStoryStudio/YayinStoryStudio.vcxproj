@@ -111,8 +111,10 @@
     <ClCompile Include="Editor\cpp\YSSCommandHandler.cpp" />
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\MainEditorBuiltinPlugin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\MessageViewer.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\RenameDialog.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditWidgetArea.cpp" />
@@ -153,6 +155,8 @@
     <QtMoc Include="Editor\MainEditor\ToolWidgetArea.h" />
     <QtMoc Include="Editor\MainEditor\MainWinMenu.h" />
     <QtMoc Include="Editor\MainEditor\DebugServerRouter.h" />
+    <QtMoc Include="Editor\MainEditor\MainEditorBuiltinPlugin.h" />
+    <QtMoc Include="Editor\MainEditor\MessageViewer.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

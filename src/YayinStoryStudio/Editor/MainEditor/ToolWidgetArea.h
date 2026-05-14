@@ -10,13 +10,16 @@ namespace YSS::Editor {
 		Q_OBJECT;
 	signals:
 		void closed(const QString& widgetID);
+		void currentWidgetChanged(const QString& widgetID);
 	public:
-		ToolWidgetArea(QWidget* parent = nullptr) {};
+		ToolWidgetArea(QWidget* parent = nullptr);
 		virtual ~ToolWidgetArea() {};
-		void addToolWidget(const QString& widgetID);
-		void closeToolWidget(const QString& widgetID);
-		bool containsToolWidget(const QString& widgetID) const;
-		void setCurrentToolWidget(const QString& widgetID);
+		void addWidget(const QString& widgetID);
+		void closeAll();
+		void closeWidget(const QString& widgetID);
+		bool containsWidget(const QString& widgetID) const;
+		void setCurrentWidget(const QString& widgetID);
+		QWidget* getCurrentWidget() const;
 	private:
 		ToolWidgetAreaPrivate* d;
 	};

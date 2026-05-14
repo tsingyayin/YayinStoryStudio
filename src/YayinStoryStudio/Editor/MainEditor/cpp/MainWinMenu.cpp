@@ -338,49 +338,49 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::edit_undo() {
-		auto currentWidget = d->Parent->getStackWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->undo();
 		}
 	}
 
 	void MainWinMenu::edit_redo() {
-		auto currentWidget = d->Parent->getStackWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->redo();
 		}
 	}
 
 	void MainWinMenu::edit_cut() {
-		auto currentWidget = d->Parent->getStackWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->cut();
 		}
 	}
 
 	void MainWinMenu::edit_copy() {
-		auto currentWidget = d->Parent->getStackWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->copy();
 		}
 	}
 
 	void MainWinMenu::edit_paste() {
-		auto currentWidget = d->Parent->getStackWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->paste();
 		}
 	}
 
 	void MainWinMenu::edit_selectAll() {
-		auto currentWidget = d->Parent->getStackWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->selectAll();
 		}
 	}
 
 	void MainWinMenu::edit_findAndReplace() {
-		auto currentWidget = d->Parent->getStackWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
 		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentWidget);
 		if (textEdit) {
 			textEdit->showFindAndReplace();
@@ -442,6 +442,13 @@ namespace YSS::Editor {
 
 	void MainWinMenu::onPluginToolMenuAboutToShow() {
 		QMap<QString, QString> pluginTools = YSSTWM->getRegisteredToolWidgets();
+		if (pluginTools.isEmpty()) {
+			auto action = d->View_PluginTools->addAction(VITR("YSS::menu.view.noTools"));
+			action->setEnabled(false);
+			d->PluginToolsMap = pluginTools;
+			d->PluginToolsActionIDMap.clear();
+			return;
+		}
 		if (pluginTools != d->PluginToolsMap){
 			for (auto action : d->PluginToolsActionIDMap.keys()) {
 				d->View_PluginTools->removeAction(action);
@@ -462,9 +469,11 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::view_pluginTools(const QString& toolID, bool checked) {
-		auto widget = YSSTWM->requestToolWidget(toolID);
-		if (not checked && widget) {
+		auto widget = YSSTWM->getToolWidget(toolID);
+		if (widget && not checked) {
 			widget->close();
+			return;
 		}
+		YSSTWM->openToolWidget(toolID);
 	}
 }

@@ -21,6 +21,7 @@
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/ToolWidgetArea.h"
 #include "Editor/MainEditor/RenameDialog.h"
 #include <Widgets/DesktopHacker.h>
 
@@ -47,16 +48,30 @@ namespace YSS::Editor {
 		MainLayout->addWidget(CentralWidget);
 		Layout = new QHBoxLayout(CentralWidget);
 		Layout->setContentsMargins(0, 0, 0, 0);
+		
+		Browser = new ResourceBrowser(CentralWidget);
+		Editors = new FileEditWidgetArea(CentralWidget);
+		Tools = new ToolWidgetArea(CentralWidget);
+		
+		Browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		Editors->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		Tools->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+		QSplitter* hSplitter = new QSplitter(Qt::Vertical, CentralWidget);
+		hSplitter->setContentsMargins(0, 0, 0, 0);
+		hSplitter->addWidget(Editors);
+		hSplitter->addWidget(Tools);
+		hSplitter->setHandleWidth(4);
+		hSplitter->setStretchFactor(0, 3);
+		hSplitter->setStretchFactor(1, 1);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
 		splitter->setContentsMargins(0, 0, 0, 0);
-		Editor = new FileEditWidgetArea(CentralWidget);
-		Browser = new ResourceBrowser(CentralWidget);
-		Browser->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-		Editor->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		Layout->addWidget(splitter);
 		splitter->addWidget(Browser);
-		splitter->addWidget(Editor);
-		splitter->setHandleWidth(1);
+		splitter->addWidget(hSplitter);
+		splitter->setHandleWidth(4);
+		splitter->setStretchFactor(0, 1);
+		splitter->setStretchFactor(1, 4);
+		Layout->addWidget(splitter);
 		setColorfulEnable(true);
 		onThemeChanged();
 
@@ -68,17 +83,18 @@ namespace YSS::Editor {
 			this->showMaximized();
 		}
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
+		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened, this, &MainWin::onToolWidgetOpened);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 
 		RenameDlg = new RenameDialog();
 		RenameDlg->hide();
 		connect(YSSCore::Editor::FileServerManager::getInstance(), &YSSCore::Editor::FileServerManager::focusOnFile,
-			Editor, qOverload<const QString&, qint32, qint32>(&YSS::Editor::FileEditWidgetArea::setCurrentWidget));
-		connect(Editor, &FileEditWidgetArea::renameRequested, this, [this](const QString& absOldPath) {
+			Editors, qOverload<const QString&, qint32, qint32>(&YSS::Editor::FileEditWidgetArea::setCurrentWidget));
+		connect(Editors, &FileEditWidgetArea::renameRequested, this, [this](const QString& absOldPath) {
 			RenameDlg->setContext(absOldPath);
 			RenameDlg->show();
 			});
-		connect(Editor, &FileEditWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
+		connect(Editors, &FileEditWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
 			saveCurrentFocusedFileAs(rawFilePath);
 			});
 		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
@@ -111,26 +127,33 @@ namespace YSS::Editor {
 		}
 		vgDebug << "Opened files" << stillOKFiles;
 		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
-		Editor->setCurrentWidget(focusedFile);
+		Editors->setCurrentWidget(focusedFile);
 		GlobalValue::getCurrentProject()->saveProject();
+
+		YSSTWM->openToolWidget("cn.yxgeneral.yss.messageViewer");
 	}
 
 	MainWin::~MainWin() {
 		RenameDlg->deleteLater();
+		Instance = nullptr;
 	}
 
 	void MainWin::onFileEditOpened(const QString& filePath) {
 		auto widget = YSSFSM->getFileEditWidget(filePath);
-		Editor->addWidget(widget);
+		Editors->addWidget(widget);
+	}
+
+	void MainWin::onToolWidgetOpened(const QString& widgetID) {
+		Tools->addWidget(widgetID);
 	}
 
 	void MainWin::saveCurrentFocusedFile() {
-		getStackWidgetArea()->getCurrentWidget()->saveFile();
+		getFileEditWidgetArea()->getCurrentWidget()->saveFile();
 	}
 
 	void MainWin::saveCurrentFocusedFileAs(QString rawFilePath) {
 		if (rawFilePath.isEmpty()) {
-			rawFilePath = Editor->getCurrentWidget() ? Editor->getCurrentWidget()->getFilePath() : "";
+			rawFilePath = Editors->getCurrentWidget() ? Editors->getCurrentWidget()->getFilePath() : "";
 		}
 		if (rawFilePath.isEmpty()) {
 			yDebugF << "No file to save as";
@@ -181,8 +204,8 @@ namespace YSS::Editor {
 		return Browser;
 	}
 
-	FileEditWidgetArea* MainWin::getStackWidgetArea() {
-		return Editor;
+	FileEditWidgetArea* MainWin::getFileEditWidgetArea() {
+		return Editors;
 	}
 
 	void MainWin::saveAllFiles() {
@@ -248,7 +271,7 @@ namespace YSS::Editor {
 				}
 			}
 		}
-		Editor->closeAll(true); // close all should be later than saveProject.
+		Editors->closeAll(true); // close all should be later than saveProject.
 		Instance = nullptr;
 		delete GlobalValue::getCurrentProject();
 		this->deleteLater();
@@ -276,7 +299,7 @@ namespace YSS::Editor {
 		}
 		else if (event->modifiers() == Qt::ControlModifier) {
 			if (event->key() == Qt::Key_S) {
-				auto editor = Editor->getCurrentWidget();
+				auto editor = Editors->getCurrentWidget();
 				if (editor) {
 					editor->saveFile();
 				}
@@ -297,7 +320,7 @@ namespace YSS::Editor {
 
 	void MainWin::saveProject() {
 		saveAllFiles();
-		GlobalValue::getCurrentProject()->setFocusedFile(Editor->getCurrentWidget() ? Editor->getCurrentWidget()->getFilePath() : "");
+		GlobalValue::getCurrentProject()->setFocusedFile(Editors->getCurrentWidget() ? Editors->getCurrentWidget()->getFilePath() : "");
 		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
 		if (this->isMaximized()) {
 			config->setBool("Window.Editor.Maximized", true);

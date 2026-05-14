@@ -188,7 +188,8 @@
             "MoveTime": "背景图片从起始位置移动到结束位置的时间，单位为秒",
             "MoveCurve": "背景图片移动的曲线类型",
             "IsBlocker": "是否阻塞。阻塞的控制器会等待全部动画结束才开始执行下一行",
-            "StitchVertically": "是否将多个图片进行垂直拼贴。这个布尔量true为垂直拼贴，false为水平拼贴。"
+            "StitchVertically": "是否将多个图片进行垂直拼贴。这个布尔量true为垂直拼贴，false为水平拼贴。",
+            "StitchColumnCount": "在当前拼贴方向上的最大拼贴个数，超出这个数目后会自动转到下一列或下一行，以进行网格状的拼贴"
         },
         "Music": {
             "__description": "控制音乐的播放。",

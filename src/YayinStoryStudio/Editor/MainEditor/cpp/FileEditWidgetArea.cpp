@@ -1,7 +1,7 @@
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
-#include <QtWidgets/qsplitter.h>
 #include "Editor/GlobalValue.h"
+#include "Editor/MainEditor/MainWin.h"
 #include <General/YSSProject.h>
 #include <Editor/TextEdit.h>
 #include <General/Log.h>
@@ -15,25 +15,27 @@ namespace YSS::Editor {
 		StackTagWidget* TagArea;
 		QFrame* ContentArea = nullptr;
 		QVBoxLayout* Layout;
-		MessageViewer* MsgViewer;
+		//MessageViewer* MsgViewer;
 		DefaultStackWidgetCentralArea* CentralArea;
 	};
 
 	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent) :QFrame(parent) {
 		d = new FileEditWidgetAreaPrivate;
 		d->Layout = new QVBoxLayout(this);
+		d->Layout->setSpacing(0);
 		d->TagArea = new StackTagWidget(this);
 		d->TagArea->setFixedHeight(40);
-		d->Layout->addWidget(d->TagArea);
+		
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
 		d->CentralArea->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
 		d->ContentArea = d->CentralArea;
-		d->Layout->setSpacing(0);
+
+		d->Layout->addWidget(d->TagArea);
 		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ContentArea);
-		d->MsgViewer = new MessageViewer(this);
-		d->MsgViewer->setFixedHeight(260);
-		d->Layout->addWidget(d->MsgViewer);
+		//d->MsgViewer = new MessageViewer(this);
+		//d->MsgViewer->setFixedHeight(260);
+		//d->Layout->addWidget(d->MsgViewer);
 		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const QString& filePath) {
 			setCurrentWidget(filePath);
 			});
@@ -52,6 +54,14 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackTagWidget::closeSavedRequested, this, [this]() {
 			closeSaved();
 			});
+	}
+
+	FileEditWidgetArea::~FileEditWidgetArea() {
+		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
+			widget->setParent(nullptr);
+			widget->closeFile();
+		}
+		delete d;
 	}
 
 	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -77,18 +87,10 @@ namespace YSS::Editor {
 			});
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {
-			textEdit->setHoverArea(this);
+			textEdit->setHoverArea(YSS::Editor::MainWin::getInstance());
 		}
 		GlobalValue::getCurrentProject()->addEditorOpenedFile(filePath);
 		setCurrentWidget(filePath);
-	}
-
-	FileEditWidgetArea::~FileEditWidgetArea() {
-		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
-			widget->setParent(nullptr);
-			widget->closeFile();
-		}
-		delete d;
 	}
 
 	void FileEditWidgetArea::closeAll(bool autoGiveup) {
@@ -155,7 +157,7 @@ namespace YSS::Editor {
 			d->ContentArea->show();
 		}
 		GlobalValue::getCurrentProject()->setFocusedFile(filePath);
-		d->MsgViewer->changeCurrentFile(filePath);
+		emit currentFileChanged(filePath);
 		d->TagArea->setCurrentStackLabel(filePath);
 	}
 
@@ -189,15 +191,22 @@ namespace YSS::Editor {
 		if (d->ContentArea == d->CentralArea) {
 			return nullptr;
 		}
-		return (YSSCore::Editor::FileEditWidget*)d->ContentArea;
+		return qobject_cast<YSSCore::Editor::FileEditWidget*>(d->ContentArea);
+	}
+
+	QString FileEditWidgetArea::getCurrentWidgetFilePath() const {
+		auto widget = getCurrentWidget();
+		if (widget) {
+			return widget->getFilePath();
+		}
 	}
 
 	void FileEditWidgetArea::setMessageViewerEnable(bool enable) {
 		if (enable) {
-			d->MsgViewer->show();
+			//d->MsgViewer->show();
 		}
 		else {
-			d->MsgViewer->hide();
+			//d->MsgViewer->hide();
 		}
 	}
 
