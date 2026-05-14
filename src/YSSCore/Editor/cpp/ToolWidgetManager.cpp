@@ -100,12 +100,33 @@ namespace YSSCore::Editor {
 				d->WidgetInstanceMap[widgetID] = widget;
 				QObject::connect((QObject*)widget, &QObject::destroyed, [this, widgetID]() {
 					d->WidgetInstanceMap.remove(widgetID);
+					emit widgetClosed(widgetID);
 					});
+				emit widgetOpened(widgetID);
 			}
 			return widget;
 		}
 		else {
 			return nullptr;
 		}
+	}
+
+	/*!
+		\since 0.15.0
+		检查工具窗口是否打开的函数。\a widgetID 是被检查的工具窗口ID。
+		如果对应ID的工具窗口实例存在则返回true；否则返回false。
+	*/
+	bool ToolWidgetManager::isToolWidgetOpen(const QString& widgetID) const {
+		return d->WidgetInstanceMap.contains(widgetID);
+	}
+
+	/*!
+		\since 0.15.0
+		获取已注册工具窗口信息的函数。返回一个QMap，键是工具窗口ID，值是工具窗口显示名称。
+		注意，返回的显示名称是设置时的原始字符串，未经过翻译处理。如有需要，
+		调用者可以使用VI18N函数进行翻译。
+	*/
+	QMap<QString, QString> ToolWidgetManager::getRegisteredToolWidgets() const {
+		return d->WidgetNameMap;
 	}
 }

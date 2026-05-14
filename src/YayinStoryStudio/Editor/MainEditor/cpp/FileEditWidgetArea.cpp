@@ -23,12 +23,12 @@ namespace YSS::Editor {
 		d = new FileEditWidgetAreaPrivate;
 		d->Layout = new QVBoxLayout(this);
 		d->TagArea = new StackTagWidget(this);
-		d->TagArea->setFixedHeight(32);
+		d->TagArea->setFixedHeight(40);
 		d->Layout->addWidget(d->TagArea);
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
 		d->CentralArea->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
 		d->ContentArea = d->CentralArea;
-		d->Layout->setSpacing(1);
+		d->Layout->setSpacing(0);
 		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ContentArea);
 		d->MsgViewer = new MessageViewer(this);

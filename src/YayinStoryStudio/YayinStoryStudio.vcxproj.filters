@@ -59,9 +59,6 @@
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\MenuBarHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="YayinStoryStudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,9 +119,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ProjectPage\NewsArea.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\MainEditor\MenuBarHandler.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="YayinStoryStudio.h">

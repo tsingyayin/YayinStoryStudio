@@ -12,6 +12,8 @@ namespace YSSCore::Editor {
 		Q_OBJECT;
 	signals:
 		void focusRequested(const QString& widgetID);
+		void widgetOpened(const QString& widgetID);
+		void widgetClosed(const QString& widgetID);
 	private:
 		ToolWidgetManager();
 	public:
@@ -19,8 +21,12 @@ namespace YSSCore::Editor {
 		~ToolWidgetManager();
 		void registerToolWidget(const QString& widgetID, const QString& widgetName, EditorPlugin* provider);
 		QWidget* requestToolWidget(const QString& widgetID);
+		bool isToolWidgetOpen(const QString& widgetID) const;
+		QMap<QString, QString> getRegisteredToolWidgets() const;
 	private:
 		ToolWidgetManagerPrivate* d;
 	};
 }
+
+#define YSSTWM YSSCore::Editor::ToolWidgetManager::getInstance()
 #endif // YSSCore_Editor_ToolWidgetManager_h

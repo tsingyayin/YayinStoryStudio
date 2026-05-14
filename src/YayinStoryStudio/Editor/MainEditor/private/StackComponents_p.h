@@ -3,6 +3,7 @@
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qcombobox.h>
@@ -14,8 +15,8 @@ namespace YSS::Editor {
 		Q_OBJECT;
 	private:
 		QLabel* TitleLabel;
-		QPushButton* PinLabel;
-		QPushButton* CloseLabel;
+		QToolButton* PinLabel;
+		QToolButton* CloseLabel;
 		QHBoxLayout* Layout;
 		QString FilePath;
 		QString NormalStyle;

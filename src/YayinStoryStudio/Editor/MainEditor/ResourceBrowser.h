@@ -6,6 +6,7 @@ class QListWidget;
 class QListWidgetItem;
 class QLineEdit;
 class QPushButton;
+class QToolButton;
 class QHBoxLayout;
 class QVBoxLayout;
 class QTreeView;
@@ -16,10 +17,10 @@ namespace YSS::Editor {
 	private:
 		QTreeView* FileTree;
 		QFileSystemModel* FileModel;
-		QPushButton* RefreshButton;
-		QPushButton* ShrinkButton;
-		QPushButton* ExpandButton;
-		QPushButton* NewButton;
+		QToolButton* RefreshButton;
+		QToolButton* ShrinkButton;
+		QToolButton* ExpandButton;
+		QToolButton* NewButton;
 		QWidget* ButtonWidget;
 		QHBoxLayout* ButtonLayout;
 		QVBoxLayout* Layout;

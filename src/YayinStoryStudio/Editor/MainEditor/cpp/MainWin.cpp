@@ -2,28 +2,27 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qsplitter.h>
 #include <QtWidgets/qmessagebox.h>
-#include <Utility/JsonConfig.h>
-#include <Widgets/ThemeManager.h>
-#include <Widgets/QuickMenu.h>
-#include <Utility/FileUtility.h>
-#include <Editor/FileServerManager.h>
+#include <QtWidgets/qfiledialog.h>
 #include <General/YSSProject.h>
-#include "../../ProjectPage/ProjectWin.h"
-#include "../../GlobalValue.h"
-#include "../MainWin.h"
-#include "../ResourceBrowser.h"
-#include "../MenuBarHandler.h"
 #include <General/YSSLogger.h>
-#include <Utility/ColorTool.h>
 #include <General/TranslationHost.h>
 #include <General/PluginManager.h>
 #include <General/Plugin.h>
 #include <Editor/EditorPlugin.h>
+#include <Editor/FileServerManager.h>
+#include <Utility/JsonConfig.h>
+#include <Utility/FileUtility.h>
+#include <Utility/ColorTool.h>
+#include <Widgets/ThemeManager.h>
+#include "Editor/ProjectPage/ProjectWin.h"
+#include "Editor/GlobalValue.h"
+#include "Editor/MainEditor/MainWin.h"
+#include "Editor/MainEditor/MainWinMenu.h"
+#include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
-#include <Widgets/DesktopHacker.h>
 #include "Editor/MainEditor/RenameDialog.h"
-#include <QtWidgets/qfiledialog.h>
+#include <Widgets/DesktopHacker.h>
 
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
@@ -39,7 +38,9 @@ namespace YSS::Editor {
 		MainLayout = new QVBoxLayout(this);
 		MainLayout->setContentsMargins(0, 0, 0, 0);
 		MainLayout->setSpacing(0);
-		this->initMenu();
+		Menu = new MainWinMenu(this);
+		this->setMenuShortcutTips();
+		MainLayout->addWidget(Menu);
 		this->setMinimumSize(800, 600);
 		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
 		CentralWidget = new QWidget(this);
@@ -78,7 +79,7 @@ namespace YSS::Editor {
 			RenameDlg->show();
 			});
 		connect(Editor, &FileEditWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
-			saveAs(rawFilePath);
+			saveCurrentFocusedFileAs(rawFilePath);
 			});
 		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
 			auto editor = YSSFSM->getFileEditWidget(oldName);
@@ -123,7 +124,11 @@ namespace YSS::Editor {
 		Editor->addWidget(widget);
 	}
 
-	void MainWin::saveAs(QString rawFilePath) {
+	void MainWin::saveCurrentFocusedFile() {
+		getStackWidgetArea()->getCurrentWidget()->saveFile();
+	}
+
+	void MainWin::saveCurrentFocusedFileAs(QString rawFilePath) {
 		if (rawFilePath.isEmpty()) {
 			rawFilePath = Editor->getCurrentWidget() ? Editor->getCurrentWidget()->getFilePath() : "";
 		}
@@ -144,23 +149,28 @@ namespace YSS::Editor {
 		}
 	}
 
-	void MainWin::openFile() {
+	void MainWin::openFile(const QString& path) {
 		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
 		QDir CurrentDir;
-		if (project != nullptr) {
+		if (not path.isEmpty()) {
+			CurrentDir.setPath(path);
+		}else if (project) {
 			CurrentDir.setPath(project->getProjectFolder());
-		}
-		else {
+		}else {
 			CurrentDir.setPath(QDir::currentPath());
 		}
 		QString filePath = QFileDialog::getOpenFileName(
 			nullptr,
-			"Open File",
+			VITR("YSS::menu.file.open"),
 			CurrentDir.absolutePath(),
 			"All Files (*)");
-		if (!filePath.isEmpty()) {
+		if (not filePath.isEmpty()) {
 			YSSFSM->openFile(filePath);
 		}
+	}
+
+	void MainWin::openNewFileWindow() {
+		Browser->openNewFileWindow();
 	}
 
 	void MainWin::help() {
@@ -181,11 +191,29 @@ namespace YSS::Editor {
 		}
 	}
 
-	void MainWin::backToProjectWin() {
+	void MainWin::backToHome() {
 		closeForBack = true;
 		this->close();
 	}
 
+	void MainWin::setMenuShortcutTips() {
+		static QMap<QString, QString> currentTips = {
+			{"file::open", "Ctrl+O"},
+			{"file::save", "Ctrl+S"},
+			{"file::saveAs", "Ctrl+Alt+S"},
+			{"file::saveAll", "Ctrl+Shift+S"},
+			{"file::documentation", "F1"},
+			{"file::exit", "Alt+F4"},
+			{"edit::undo", "Ctrl+Z"},
+			{"edit::redo", "Ctrl+Y"},
+			{"edit::cut", "Ctrl+X"},
+			{"edit::copy", "Ctrl+C"},
+			{"edit::paste", "Ctrl+V"},
+			{"edit::selectAll", "Ctrl+A"},
+			{"edit::findAndReplace", "Ctrl+F"}
+		};
+		Menu->setShortcutTips(currentTips);
+	}
 	void MainWin::onThemeChanged() {
 		this->applyVIStyleTemplate("YSS::MainWin");
 	}
@@ -259,30 +287,12 @@ namespace YSS::Editor {
 		}
 		else if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
 			if (event->key() == Qt::Key_S) {
-				saveAs();
+				saveCurrentFocusedFileAs();
 			}
 		}
 		else if(event->key() == Qt::Key_F1) {
 			help();
 		}
-	}
-
-	void MainWin::initMenu() {
-		QHBoxLayout* topLayout = new QHBoxLayout();
-		topLayout->setContentsMargins(10, 0, 10, 0);
-		topLayout->setSpacing(0);
-		Menu = new Visindigo::Widgets::QuickMenu(this);
-		Menu->setActionHandler(new YSS::Editor::MenuActionHandler(this));
-		Menu->loadFromJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json"));
-		Menu->setMaximumHeight(32);
-		topLayout->addWidget(Menu);
-		Visindigo::Widgets::BorderLabel* projectNameLabel = new Visindigo::Widgets::BorderLabel(this);
-		projectNameLabel->setContentsMargins(10, 0, 10, 0);
-		projectNameLabel->setText(GlobalValue::getCurrentProject()->getProjectName());
-		projectNameLabel->setMaximumHeight(32);
-		topLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-		topLayout->addWidget(projectNameLabel);
-		MainLayout->addLayout(topLayout);
 	}
 
 	void MainWin::saveProject() {

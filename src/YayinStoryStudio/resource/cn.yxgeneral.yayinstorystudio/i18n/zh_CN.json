@@ -75,7 +75,7 @@
 	"menu": {
 		"file": {
 			"title": "文件",
-			"newfile": "新建文件",
+			"new": "新建文件",
 			"open": "打开",
 			"save": "保存",
 			"saveAll": "全部保存",
@@ -107,12 +107,19 @@
 			"debug": "开始执行（调试）",
 			"stop": "停止",
 			"restart": "重启",
-			"buildProject": "构建项目",
-			"cleanProject": "清理构建",
-			"nextStep": "逐步",
-			"nextProcess": "逐过程",
-			"pause": "暂停",
-			"continue_": "继续"
+			"build": "构建项目",
+			"rebuild": "强制重新构建",
+			"clean": "清理构建",
+			"stepInto": "逐步",
+			"stepOver": "逐过程",
+			"suspend": "暂停",
+			"resume": "恢复"
+		},
+		"view": {
+			"title": "视图",
+			"resourceBrowser": "资源浏览器",
+			"messageViewer": "消息查看器",
+			"pluginTools": "插件工具"
 		}
 	},
 	"editor":{

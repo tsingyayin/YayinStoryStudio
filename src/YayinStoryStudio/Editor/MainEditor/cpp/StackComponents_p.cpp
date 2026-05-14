@@ -11,30 +11,29 @@
 #include <Editor/FileServerManager.h>
 namespace YSS::Editor {
 	StackTag::StackTag(QWidget* parent) :QFrame(parent) {
+		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
-		PinLabel = new QPushButton(this);
+		PinLabel = new QToolButton(this);
 		PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
-		CloseLabel = new QPushButton(this);
+		CloseLabel = new QToolButton(this);
 		CloseLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/close.png"));
+		this->setContentsMargins(0, 0, 0, 0);
 		Layout = new QHBoxLayout(this);
-		Layout->setContentsMargins(5, 0, 5, 0);
+		Layout->setContentsMargins(5, 0, 2, 0);
+		Layout->setSpacing(0);
 		Layout->addWidget(TitleLabel);
 		Layout->addWidget(PinLabel);
 		Layout->addWidget(CloseLabel);
-		//Layout->addWidget(Separator);
-
-		PinLabel->setFixedWidth(PinLabel->height());
-		CloseLabel->setFixedWidth(CloseLabel->height());
 		PinLabel->hide();
 		CloseLabel->hide();
 
-		this->setMaximumWidth(200);
-		connect(PinLabel, &QPushButton::clicked, this, [this]() {
+		
+		connect(PinLabel, &QToolButton::clicked, this, [this]() {
 			setPinned(!isPinned());
 			emit pinClicked(FilePath);
 			});
 
-		connect(CloseLabel, &QPushButton::clicked, this, [this]() {
+		connect(CloseLabel, &QToolButton::clicked, this, [this]() {
 			emit closeClicked(FilePath);
 			});
 
@@ -163,6 +162,8 @@ namespace YSS::Editor {
 
 	void StackTag::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
+		PinLabel->setFixedHeight(this->height() - 2);
+		CloseLabel->setFixedHeight(this->height() - 2);
 		PinLabel->setFixedWidth(PinLabel->height());
 		CloseLabel->setFixedWidth(CloseLabel->height());
 		QFontMetrics fm(TitleLabel->font());
@@ -222,6 +223,7 @@ namespace YSS::Editor {
 		ScrollArea->setWidgetResizable(true);
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		ScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		adjustScrollArea();
 		WidgetSelector = new QComboBox(this);
 		WidgetSelector->setMinimumWidth(200);
 		Layout = new QHBoxLayout(this);
@@ -242,7 +244,7 @@ namespace YSS::Editor {
 
 	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
 		QFileInfo fileInfo(filePath);
-		StackTag* tagLabel = new StackTag();
+		StackTag* tagLabel = new StackTag(ScrollContent);
 		tagLabel->setFilePath(filePath);
 		if (displayName.isEmpty()) {
 			tagLabel->setText(fileInfo.fileName());
@@ -426,6 +428,7 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::adjustScrollArea() {
+		//ScrollContent->setFixedHeight(this->height());
 		if (Labels.size() == 0) {
 			ScrollContent->setFixedWidth(0);
 			return;

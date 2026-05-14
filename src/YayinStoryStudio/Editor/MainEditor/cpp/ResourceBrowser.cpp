@@ -3,6 +3,7 @@
 #include <Editor/FileTemplateManager.h>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QtWidgets/qtoolbutton.h>
 #include <QListWidget>
 #include <QLineEdit>
 #include <QtWidgets/qtreewidget.h>
@@ -16,23 +17,23 @@ namespace YSS::Editor {
 		ButtonWidget = new QWidget(this);
 
 		ButtonLayout = new QHBoxLayout(ButtonWidget);
-		RefreshButton = new QPushButton(ButtonWidget);
+		RefreshButton = new QToolButton(ButtonWidget);
 		RefreshButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/refresh.png"));
 		RefreshButton->setToolTip(VITR("Visindigo::general.refresh"));
 		RefreshButton->setIconSize(QSize(32, 32));
 		RefreshButton->setFixedSize(40, 40);
 	
-		ShrinkButton = new QPushButton(ButtonWidget);
+		ShrinkButton = new QToolButton(ButtonWidget);
 		ShrinkButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png"));
 		ShrinkButton->setToolTip(VITR("Visindigo::general.shrink"));
 		ShrinkButton->setIconSize(QSize(30, 30));
 		ShrinkButton->setFixedSize(40, 40);
-		ExpandButton = new QPushButton(ButtonWidget);
+		ExpandButton = new QToolButton(ButtonWidget);
 		ExpandButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/expand.png"));
 		ExpandButton->setToolTip(VITR("Visindigo::general.expand"));
 		ExpandButton->setIconSize(QSize(30, 30));
 		ExpandButton->setFixedSize(40, 40);
-		NewButton = new QPushButton(ButtonWidget);
+		NewButton = new QToolButton(ButtonWidget);
 		NewButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/new.png"));
 		NewButton->setToolTip(VITR("Visindigo::general.new"));
 		NewButton->setIconSize(QSize(30, 30));
@@ -53,13 +54,13 @@ namespace YSS::Editor {
 		Layout->addWidget(ButtonWidget);
 		Layout->addWidget(FileTree);
 
-		connect(RefreshButton, &QPushButton::clicked, this, &ResourceBrowser::refreshFileList);
-		connect(NewButton, &QPushButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
+		connect(RefreshButton, &QToolButton::clicked, this, &ResourceBrowser::refreshFileList);
+		connect(NewButton, &QToolButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
 		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
-		connect(ShrinkButton, &QPushButton::clicked, this, [this]() {
+		connect(ShrinkButton, &QToolButton::clicked, this, [this]() {
 			FileTree->collapseAll();
 			});
-		connect(ExpandButton, &QPushButton::clicked, this, [this]() {
+		connect(ExpandButton, &QToolButton::clicked, this, [this]() {
 			FileTree->expandAll();
 			});
 	}

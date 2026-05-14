@@ -15,6 +15,7 @@ namespace YSS::Editor {
 	class FileEditWidgetArea;
 	class ResourceBrowser;
 	class RenameDialog;
+	class MainWinMenu;
 
 	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
@@ -25,8 +26,7 @@ namespace YSS::Editor {
 		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		RenameDialog* RenameDlg = nullptr;
-		Visindigo::Widgets::QuickMenu* Menu = nullptr;
-		
+		MainWinMenu* Menu = nullptr;
 		bool closeForBack = false;
 		static MainWin* Instance;
 	public:
@@ -37,20 +37,21 @@ namespace YSS::Editor {
 		FileEditWidgetArea* getStackWidgetArea();
 		void saveAllFiles();
 		void saveProject();
-		void backToProjectWin();
-		virtual void onThemeChanged() override;
+		void backToHome();
 		void onFileEditOpened(const QString& filePath);
-		void saveAs(QString rawFilePath = "");
-		void openFile();
+		void onToolWidgetOpened(const QString& toolWidgetID);
+		void saveCurrentFocusedFile();
+		void saveCurrentFocusedFileAs(QString rawFilePath = "");
+		void openFile(const QString& path = "");
+		void openNewFileWindow();
 		void help();
+		void setMenuShortcutTips();
 	public:
+		virtual void onThemeChanged() override;
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void hideEvent(QHideEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 		virtual void keyPressEvent(QKeyEvent* event) override;
-	private:
-		void initMenu();
-		
 	};
 }
