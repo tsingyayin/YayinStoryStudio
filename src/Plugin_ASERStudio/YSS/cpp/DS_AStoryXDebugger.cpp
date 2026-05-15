@@ -29,6 +29,13 @@ namespace ASERStudio::YSS {
 	DS_AStoryXDebugger::~DS_AStoryXDebugger() {
 	}
 	void DS_AStoryXDebugger::onRun(bool debug) {
+		auto launchFileName = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName();
+		if (not launchFileName.endsWith(".astoryx", Qt::CaseInsensitive)) {
+			QMessageBox::critical(nullptr, VITR("ASERStudio::debugger.notLegalFile.title"),
+				VITR("ASERStudio::debugger.notLegalFile.message").arg(launchFileName));
+			return;
+		}
+		d->launchFileName = launchFileName.left(launchFileName.length() - 8);
 		this->onStop();
 		if (not d->signalConnected) {
 			connect(ASERStudio::Main::getInstance()->getASERProgram(), &ASERStudio::ASEREnv::ASERProgram::programStopped, this, [this](qint64 exitCode) {
@@ -92,11 +99,8 @@ namespace ASERStudio::YSS {
 		param.setProjectPath(path);
 		auto sizeMode = ASERStudio::Main::getInstance()->getPluginConfig()->getString("ASERExeSettings.WindowSize");
 		param.setSizeMode((ASERStudio::ASEREnv::ASERProgramLaunchParameter::SizeMode)sizeMode.toInt());
-		d->launchFileName = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName().replace(".astoryx", "");
 		emit actionMessage(debug ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForLaunch"));
 		program->start(param);
-		
-		
 	}
 
 	void DS_AStoryXDebugger::onStop() {

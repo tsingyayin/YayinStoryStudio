@@ -51,7 +51,7 @@ namespace Visindigo::Utility {
 
 	BandizipBinder::BandizipBinder()
 		:QObject(nullptr), d(new BandizipBinderPrivate) {
-		connect(d->BandizipProcess, &QProcess::readyReadStandardOutput, [this](){
+		connect(d->BandizipProcess, &QProcess::readyReadStandardOutput, this, [this](){
 			QString output = d->BandizipProcess->readAllStandardOutput();
 			if (output.startsWith("Compressing:")) {
 				QString fileName = output.mid(QString("Compressing:").length()).trimmed();
@@ -62,7 +62,7 @@ namespace Visindigo::Utility {
 				emit compressedFile(fileName);
 			}
 			});
-		connect(d->BandizipProcess, &QProcess::stateChanged, [this](QProcess::ProcessState newState){
+		connect(d->BandizipProcess, &QProcess::stateChanged, this, [this](QProcess::ProcessState newState){
 			if (newState == QProcess::NotRunning) {
 				if (d->isCompressing) {
 					emit compressedFile(d->targetName);

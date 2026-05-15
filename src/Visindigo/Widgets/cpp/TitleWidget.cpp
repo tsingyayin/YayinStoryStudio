@@ -331,12 +331,12 @@ namespace Visindigo::Widgets {
 		this->setMinimumSize(100, 30);
 		d->adjustElements();
 		this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-		connect(d->MinButton, &QPushButton::clicked, [this]() {
+		connect(d->MinButton, &QPushButton::clicked, this, [this]() {
 			if (d->TopWidget) {
 				d->TopWidget->showMinimized();
 			}
 			});
-		connect(d->MaxButton, &QPushButton::clicked, [this]() {
+		connect(d->MaxButton, &QPushButton::clicked, this, [this]() {
 			if (d->TopWidget) {
 				qDebug() << "bt1"<<d->TopWidget->windowState();
 				if (d->TopWidget->isMaximized()) {
@@ -361,7 +361,7 @@ namespace Visindigo::Widgets {
 				d->MaxButton->update();
 			}
 			});
-		connect(d->CloseButton, &QPushButton::clicked, [this]() {
+		connect(d->CloseButton, &QPushButton::clicked, this, [this]() {
 			if (d->TopWidget) {
 				d->TopWidget->close();
 			}

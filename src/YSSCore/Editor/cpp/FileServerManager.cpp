@@ -63,26 +63,26 @@ namespace YSSCore::Editor {
 			if (not we) { return; }
 			QString path = we->getFilePath();
 			OpenedFileEditWidgets.insert(path, we);
-			QObject::connect(we, &FileEditWidget::fileClosed, [this, we](const QString& path) {
+			QObject::connect(we, &FileEditWidget::fileClosed, Instance, [this, we](const QString& path) {
 				OpenedFileEditWidgets.remove(path);
 				emit Instance->fileClosed(path);
 				we->deleteLater();
 				yDebug << "File closed:" << path;
 			});
-			QObject::connect(we, &FileEditWidget::fileRenamed, [this, we](const QString& rawPath, const QString& changedPath) {
+			QObject::connect(we, &FileEditWidget::fileRenamed, Instance, [this, we](const QString& rawPath, const QString& changedPath) {
 				if (OpenedFileEditWidgets.contains(rawPath)) {
 					OpenedFileEditWidgets.remove(rawPath);
 					OpenedFileEditWidgets.insert(changedPath, we);
 					emit Instance->fileRenamed(rawPath, changedPath);
 				}
 				});
-			QObject::connect(we, &FileEditWidget::fileChanged, [this](const QString& path) {
+			QObject::connect(we, &FileEditWidget::fileChanged, Instance, [this](const QString& path) {
 				emit Instance->fileChanged(path);
 				});
-			QObject::connect(we, &FileEditWidget::fileChangeCanceled, [this](const QString& path) {
+			QObject::connect(we, &FileEditWidget::fileChangeCanceled, Instance, [this](const QString& path) {
 				emit Instance->fileChangeCanceled(path);
 				});
-			QObject::connect(we, &FileEditWidget::fileSaved, [this](const QString& path) {
+			QObject::connect(we, &FileEditWidget::fileSaved, Instance, [this](const QString& path) {
 				emit Instance->fileSaved(path);
 				});
 			emit Instance->fileOpened(path);

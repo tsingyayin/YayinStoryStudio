@@ -120,7 +120,7 @@ namespace Visindigo::Widgets {
 		d->consoleView = new QTextBrowser(this); 
 		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
 		connect(Visindigo::General::LoggerManager::getInstance(), &Visindigo::General::LoggerManager::logReceived, 
-			[this](
+			this, [this](
 				const QString& handlerName, Visindigo::General::Logger::Level level, 
 				const QString& message, const QString& consoleStr, const Visindigo::General::LogMetaData& metaData
 			) {
@@ -136,14 +136,14 @@ namespace Visindigo::Widgets {
 		d->layout->addWidget(d->inputLine, 1, 0);
 		d->layout->addWidget(d->sendButton, 1, 1);
 		setLayout(d->layout);
-		connect(d->sendButton, &QPushButton::clicked, [this]() {
+		connect(d->sendButton, &QPushButton::clicked, this, [this]() {
 			if (d->useInput) {
 				QString line = d->inputLine->text();
 				VISCH->executeCommand(line);
 				d->inputLine->clear();
 			}
 		});
-		connect(d->inputLine, &QLineEdit::returnPressed, [this]() {
+		connect(d->inputLine, &QLineEdit::returnPressed, this, [this]() {
 			if (d->useInput && d->sendOnEnter) {
 				QString line = d->inputLine->text();
 				VISCH->executeCommand(line);

@@ -73,12 +73,13 @@ namespace Visindigo::Utility {
 		\list
 		\li 1. 双字符写法的QObject::connect（emiter, SIGNAL(...), reciver, SLOT(...)）
 		\li 2. 双函数指针写法的QObject::connect (emiter, &EmitterType::signal, reciver, &ReciverType::slot）
-		\li 3. Lambda写法的QObject::connect (emiter, &EmitterType::signal, [...](...) { ... }）
+		\li 3. Lambda写法的QObject::connect (emiter, &EmitterType::signal, context, [...](...) { ... }）
 		\endlist
 
-		还有一种写法是前函数指针，后Lambda（我们称为函子写法），即(emiter, &EmitterType::signal, context, [...](...) { ... }），
-		Visindigo规范上拒绝该写法，因为不利于代码可读性。
-		与此同时，也只将Lambda写法限定为只操作本类本实例内部的对象，以避免代码可读性问题。
+		还有一种写法是前函数指针，后没有上下文的Lamdba（我们称之为全匿名写法），即(emiter, &EmitterType::signal, [...](...) { ... }），
+		Visindigo规范上拒绝该写法，当这种写法出现，且捕获参数又包括了指针时，常常导致运行时的悬空指针问题，难以排查，因此不予支持。
+		不过与此同时，也只将Lambda写法限定为只操作本类本实例内部的对象，（即context只能为this），
+		以避免出现资源管理上的混乱。
 	*/
 	void QtSSHelper::deepConnect(QObject* emiter, const QString& signalName, QObject* reciver, const QString& slotName, Qt::ConnectionType type) {
 		if (!emiter) {

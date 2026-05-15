@@ -20,7 +20,7 @@ namespace YSSCore::__Private__ {
 		this->setFixedWidth(300);
 		this->ButtonGroup = new Visindigo::Widgets::MultiButtonGroup(this);
 		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::doubleClicked, this, &TabCompleterWidget::doComplete);
-		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::selectIndexChanged, [this](qint32 index) {
+		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::selectIndexChanged, this, [this](qint32 index) {
 			if (index == -1) return;
 			qint32 globalIndex = ButtonCycleIndexes[index] * ButtonCycleIndexes.size() + index;
 			this->currentSelectedIndex = globalIndex;

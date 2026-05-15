@@ -359,14 +359,14 @@ namespace Visindigo::General {
 
 		d->LoadingMessageHandler = new __Private__::ApplicationLoadingMessageHandlerDefaultConsoleImpl();
 
-		connect(PluginManager::getInstance(), &PluginManager::pluginLoaded, [this](Plugin* plugin) {
+		connect(PluginManager::getInstance(), &PluginManager::pluginLoaded, this, [this](Plugin* plugin) {
 				if (d->LoadingMessageHandler) {
 					d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.loaded").arg(plugin->getPluginName()));
 					qApp->processEvents();
 				}
 			});
 
-		connect(PluginManager::getInstance(), &PluginManager::pluginEnabled, [this](Plugin* plugin) {
+		connect(PluginManager::getInstance(), &PluginManager::pluginEnabled, this, [this](Plugin* plugin) {
 				if (d->LoadingMessageHandler) {
 					d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.enabled").arg(plugin->getPluginName()));
 					qApp->processEvents();

@@ -66,20 +66,6 @@ namespace YSS::ImageViewer {
 		}
 	}
 
-	void ImageViewer::keyPressEvent(QKeyEvent* event) {
-		qDebug() << "Key Pressed: " << event->key();
-		if (event->modifiers() & Qt::ControlModifier) {
-			d->CtrlPressed = true;
-		}
-		
-	}
-
-	void ImageViewer::keyReleaseEvent(QKeyEvent* event) {
-		if (event->modifiers() & Qt::ControlModifier) {
-			d->CtrlPressed = false;
-		}
-	}
-
 	void ImageViewer::mousePressEvent(QMouseEvent* event) {
 		d->LastMousePos = event->pos();
 	}

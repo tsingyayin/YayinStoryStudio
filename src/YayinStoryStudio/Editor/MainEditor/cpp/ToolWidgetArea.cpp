@@ -41,7 +41,7 @@ namespace YSS::Editor {
 			closeAll();
 			});
 
-		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, [this] (const QString& widgetID){
+		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, this, [this] (const QString& widgetID){
 			d->TagArea->removeStackLabel(widgetID);
 			});
 	}
