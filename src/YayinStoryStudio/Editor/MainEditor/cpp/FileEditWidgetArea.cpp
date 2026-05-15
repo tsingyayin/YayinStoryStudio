@@ -57,6 +57,10 @@ namespace YSS::Editor {
 	}
 
 	FileEditWidgetArea::~FileEditWidgetArea() {
+		/*
+			IMPORTANT MEMORY TRAP HERE:
+			See the comment in ToolWidgetArea destructor.
+		*/
 		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
 			widget->setParent(nullptr);
 			widget->closeFile();
@@ -199,6 +203,7 @@ namespace YSS::Editor {
 		if (widget) {
 			return widget->getFilePath();
 		}
+		return QString();
 	}
 
 	void FileEditWidgetArea::setMessageViewerEnable(bool enable) {

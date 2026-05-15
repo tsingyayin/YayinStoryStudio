@@ -11,6 +11,7 @@ namespace YSS::Editor {
 	public:
 		MainWinMenu(MainWin* parent);
 		virtual ~MainWinMenu();
+		void refreshToolMenu();
 		void setShortcutTip(const QString& actionObjectName, const QString& tip);
 		void setShortcutTips(const QMap<QString, QString>& tips);
 	public:
@@ -49,9 +50,11 @@ namespace YSS::Editor {
 		void run_action_resume();
 	public:
 		void view_resourceBrowser(bool checked);
-		void view_messageViewer(bool checked);
 		void view_pluginTools(const QString& toolID, bool checked);
 	public:
+		void onToolWidgetShow(const QString& toolWidgetID);
+		void onToolWidgetHide(const QString& toolWidgetID);
+		void onToolWidgetToggled(const QString& toolWidgetID, bool checked);
 		void onPluginToolsTriggered(QAction* action);
 		void onPluginToolMenuAboutToShow();
 	private:

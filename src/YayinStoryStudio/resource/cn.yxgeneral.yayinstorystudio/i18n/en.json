@@ -88,8 +88,8 @@
 			"about": "About Yayin Story Studio",
 			"projectConfig": "Project Settings",
 			"showInExplorer": "Show in File Explorer",
-			"closeAll": "Close All Files",
-			"closeSaved": "Close Saved Files"
+			"closeAll": "Close All",
+			"closeSaved": "Close Saved"
 		},
 		"edit": {
 			"title": "Edit",

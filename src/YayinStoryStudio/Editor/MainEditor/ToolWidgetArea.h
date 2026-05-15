@@ -13,7 +13,7 @@ namespace YSS::Editor {
 		void currentWidgetChanged(const QString& widgetID);
 	public:
 		ToolWidgetArea(QWidget* parent = nullptr);
-		virtual ~ToolWidgetArea() {};
+		virtual ~ToolWidgetArea();
 		void addWidget(const QString& widgetID);
 		void closeAll();
 		void closeWidget(const QString& widgetID);

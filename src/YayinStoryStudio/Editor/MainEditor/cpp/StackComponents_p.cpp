@@ -52,6 +52,8 @@ namespace YSS::Editor {
 		connect(ActionCloseAll, &QAction::triggered, this, [this]() {
 			emit closeAllRequested();
 			});
+
+		this->toolWidgetMode = toolWidgetMode;
 		if (not toolWidgetMode) {
 			ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
 			ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
@@ -89,6 +91,10 @@ namespace YSS::Editor {
 
 	void StackTag::setText(const QString& text) {
 		TitleLabel->setText(text);
+		if (toolWidgetMode){
+			qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(text) + 40;
+			this->setFixedWidth(fixedWidth);
+		}
 	}
 
 	void StackTag::setFilePath(const QString& filePath) {
@@ -354,6 +360,7 @@ namespace YSS::Editor {
 	void StackTagWidget::removeStackLabel(const QString& filePath) {
 		StackTag* targetLabel = nullptr;
 		int index = 0;
+		vgDebug << "Attempting to remove stack label with file path: " << filePath;
 		for (int i = 0; i < Labels.size(); ++i) {
 			if (Labels[i]->getFilePath() == filePath) {
 				targetLabel = Labels[i];
@@ -361,6 +368,7 @@ namespace YSS::Editor {
 				break;
 			}
 		}
+		vgDebug << targetLabel;
 		if (targetLabel) {
 			Labels.removeAll(targetLabel);
 			ContentLayout->removeWidget(targetLabel);

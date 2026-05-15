@@ -272,6 +272,7 @@ namespace YSS::Editor {
 			}
 		}
 		Editors->closeAll(true); // close all should be later than saveProject.
+		Tools->closeAll(); // this two lines indicates a potential memory trap. see comments in its destructor.
 		Instance = nullptr;
 		delete GlobalValue::getCurrentProject();
 		this->deleteLater();

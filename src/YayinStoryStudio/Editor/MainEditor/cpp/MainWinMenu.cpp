@@ -68,8 +68,6 @@ namespace YSS::Editor {
 
 		QMenu* ViewMenu;
 		QAction* View_ResourceBrowser;
-		QAction* View_MessageViewer;
-		QMenu* View_PluginTools;
 		QMap<QString, QString> PluginToolsMap;
 		QMap<QAction*, QString> PluginToolsActionIDMap;
 
@@ -197,15 +195,10 @@ namespace YSS::Editor {
 			View_ResourceBrowser = ViewMenu->addAction(VITR("YSS::menu.view.resourceBrowser"));
 			View_ResourceBrowser->setObjectName("resourceBrowser");
 			View_ResourceBrowser->setCheckable(true);
-			View_MessageViewer = ViewMenu->addAction(VITR("YSS::menu.view.messageViewer"));
-			View_MessageViewer->setObjectName("messageViewer");
-			View_MessageViewer->setCheckable(true);
-			View_PluginTools = ViewMenu->addMenu(VITR("YSS::menu.view.pluginTools"));
-			View_PluginTools->setObjectName("pluginTools");
+			ViewMenu->addSeparator();
 
 			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
-			QObject::connect(View_MessageViewer, &QAction::triggered, q, &MainWinMenu::view_messageViewer);
-			QObject::connect(View_PluginTools, &QMenu::aboutToShow, q, &MainWinMenu::onPluginToolMenuAboutToShow);
+			QObject::connect(ViewMenu, &QMenu::aboutToShow, q, &MainWinMenu::onPluginToolMenuAboutToShow);
 		}
 	};
 
@@ -228,10 +221,21 @@ namespace YSS::Editor {
 		d->initEditMenu();
 		d->initRunMenu();
 		d->initViewMenu();
+		
+		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened,
+			this, &MainWinMenu::onToolWidgetShow);
+		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, 
+			this, &MainWinMenu::onToolWidgetHide);
+
+		refreshToolMenu();
 	}
 
 	MainWinMenu::~MainWinMenu() {
 		delete d;
+	}
+
+	void MainWinMenu::refreshToolMenu() {
+		onPluginToolMenuAboutToShow();
 	}
 
 	void MainWinMenu::setShortcutTip(const QString& actionObjectName, const QString& tip) {
@@ -436,14 +440,19 @@ namespace YSS::Editor {
 		d->Parent->getResourceBrowser()->setVisible(checked);
 	}
 
-	void MainWinMenu::view_messageViewer(bool checked) {
-		//d->Parent->getMessageViewer()->setVisible(checked);
+	void MainWinMenu::view_pluginTools(const QString& toolID, bool checked) {
+		auto widget = YSSTWM->getToolWidget(toolID);
+		if (widget && not checked) {
+			widget->close();
+			return;
+		}
+		YSSTWM->openToolWidget(toolID);
 	}
 
 	void MainWinMenu::onPluginToolMenuAboutToShow() {
 		QMap<QString, QString> pluginTools = YSSTWM->getRegisteredToolWidgets();
 		if (pluginTools.isEmpty()) {
-			auto action = d->View_PluginTools->addAction(VITR("YSS::menu.view.noTools"));
+			auto action = d->ViewMenu->addAction(VITR("YSS::menu.view.noTools"));
 			action->setEnabled(false);
 			d->PluginToolsMap = pluginTools;
 			d->PluginToolsActionIDMap.clear();
@@ -451,12 +460,12 @@ namespace YSS::Editor {
 		}
 		if (pluginTools != d->PluginToolsMap){
 			for (auto action : d->PluginToolsActionIDMap.keys()) {
-				d->View_PluginTools->removeAction(action);
+				d->ViewMenu->removeAction(action);
 			}
 			d->PluginToolsMap = pluginTools;
 			d->PluginToolsActionIDMap.clear();
 			for (auto key : pluginTools.keys()) {
-				auto action = d->View_PluginTools->addAction(VI18N(pluginTools[key]));
+				auto action = d->ViewMenu->addAction(VI18N(pluginTools[key]));
 				action->setCheckable(true);
 				d->PluginToolsActionIDMap[action] = key;
 				QObject::connect(action, &QAction::triggered, this, [this, action]() {
@@ -468,12 +477,20 @@ namespace YSS::Editor {
 		}
 	}
 
-	void MainWinMenu::view_pluginTools(const QString& toolID, bool checked) {
-		auto widget = YSSTWM->getToolWidget(toolID);
-		if (widget && not checked) {
-			widget->close();
-			return;
+	void MainWinMenu::onToolWidgetShow(const QString& toolWidgetID) {
+		onToolWidgetToggled(toolWidgetID, true);
+	}
+
+	void MainWinMenu::onToolWidgetHide(const QString& toolWidgetID) {
+		onToolWidgetToggled(toolWidgetID, false);
+	}
+
+	void MainWinMenu::onToolWidgetToggled(const QString& toolWidgetID, bool checked) {
+		for (auto action : d->PluginToolsActionIDMap.keys()) {
+			if (d->PluginToolsActionIDMap[action] == toolWidgetID) {
+				action->setChecked(checked);
+				break;
+			}
 		}
-		YSSTWM->openToolWidget(toolID);
 	}
 }

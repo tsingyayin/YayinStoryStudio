@@ -22,6 +22,7 @@ namespace YSS::Editor {
 		QString NormalStyle;
 		QString HoverStyle;
 		QString PressedStyle;
+		bool toolWidgetMode = false;
 		bool Focused = false;
 		bool Pinned = false;
 		bool Pressed = false;

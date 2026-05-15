@@ -43,6 +43,12 @@ namespace YSS::Editor {
 	}
 
 	void MessageViewer::changeCurrentFile(const QString& filePath) {
+		if (filePath.isEmpty()) {
+			MessageTable->clearContents();
+			MessageTable->setRowCount(0);
+			CurrentFilePath = "";
+			return;
+		}
 		if (CurrentFilePath == filePath) {
 			return;
 		}

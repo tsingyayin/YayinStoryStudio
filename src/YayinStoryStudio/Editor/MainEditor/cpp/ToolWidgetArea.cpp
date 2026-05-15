@@ -40,8 +40,35 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackTagWidget::closeAllRequested, this, [this]() {
 			closeAll();
 			});
+
+		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, [this] (const QString& widgetID){
+			d->TagArea->removeStackLabel(widgetID);
+			});
 	}
 
+	ToolWidgetArea::~ToolWidgetArea() {
+		/*
+			IMPORTANT MEMORY TRAP HERE:
+			Notice: Qt Object Tree will automatically delete child widgets in
+			d->TagArea first, so when the destructor of ToolWidgetArea is called, 
+			the closed signal will be emitted from YSSTWM, and then the removeStackLabel
+			will be called, and the TagArea will try to access the already deleted StackLabels.
+
+			So, actually, the For-loop below is not necessary, and will must cause a crash.
+			Currently, we solve the problem by calling closeAll in MainWin manually, 
+			so the For-loop below will not be executed.
+
+			We will consider a better way to solve this problem in the future.
+
+			This trap is also appeared in FileEditWidgetArea, these two classes are 
+			almost designed as same structure, so we need to solve this problem in both of them.
+		*/
+		for (auto widget : YSSTWM->getAllOpenToolWidgets()) {
+			widget->setParent(nullptr);
+			widget->close();
+		}
+		delete d;
+	}
 	void ToolWidgetArea::addWidget(const QString& widgetID) {
 		if (containsWidget(widgetID)) {
 			setCurrentWidget(widgetID);
@@ -52,12 +79,8 @@ namespace YSS::Editor {
 			vgError << "Failed to create tool widget with ID " << widgetID;
 			return;
 		}
-		connect(widget, &QWidget::destroyed, this, [this, widgetID]() {
-			d->TagArea->removeStackLabel(widgetID);
-			emit closed(widgetID);
-			});
-		d->TagArea->addStackLabel(widgetID, widget->windowTitle());
 		widget->setParent(this);
+		d->TagArea->addStackLabel(widgetID, widget->windowTitle());
 		setCurrentWidget(widgetID);
 	}
 
@@ -85,8 +108,6 @@ namespace YSS::Editor {
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(0, d->ContentArea);
 			d->ContentArea->show();
-		}
-		if (widgetID.isEmpty()) {
 			return;
 		}
 		QWidget* widget = YSSTWM->getToolWidget(widgetID);
