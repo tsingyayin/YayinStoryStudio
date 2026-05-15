@@ -24,6 +24,7 @@ namespace ASERStudio {
 		virtual void onProjectOpen(YSSCore::General::YSSProject* project) override;
 		virtual void onProjectClose(YSSCore::General::YSSProject* project) override;
 		virtual void onTest() override;
+		virtual QWidget* onToolWidgetRequested(const QString& widgetID) override;
 		void onConfigLoaded();
 		QWidget* getConfigWidget() override;
 		ASEREnv::ASERDebugIO* getASERDebugIO() const;

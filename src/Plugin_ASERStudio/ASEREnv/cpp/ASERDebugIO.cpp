@@ -1,33 +1,49 @@
 #include "ASEREnv/ASERDebugIO.h"
 #include "ASEREnv/private/ASERDebugIO_p.h"
 #include "ASEREnv/ASERProgram.h"
+#include <QtCore/qmetaobject.h>
 namespace ASERStudio::ASEREnv {
 	void  ASERDebugIOPrivate::handleNamedPipeReadable(const QString& context) {
-		if (context == QString("started")) {
-			emit q->displayStarted();
+		if (context.startsWith("OfficialBundleManagerInitialization:")) {
+			QString state = context.mid(QString("OfficialBundleManagerInitialization:").length());
+			emit q->officialBundleManagerInitializeChanged(state == "Done" ? ASERDebugIO::Done : ASERDebugIO::Skipped);
 		}
-		else if (context == QString("ended")) {
-			emit q->displayEnded();
+		else if (context.startsWith("StorySetOpened:")) {
+			QString storySetPath = context.mid(QString("StorySetOpened:").length());
+			CurrentPage = ASERDebugIO::Page::storyset;
+			lastStorySetPath = storySetPath;
+			if (requestingPlay) {
+				requestingPlay = false;
+				q->play(requestingStoryName);
+			}
+			emit q->storySetOpened(storySetPath);
 		}
-		else if (context.startsWith("path ")) {
-			QString directoryPath = context.mid(QString("path ").length());
-			emit q->currentDirectoryChanged(directoryPath);
+		else if (context.startsWith("StoryLoading:")) {
+			QString storyName = context.mid(QString("StoryLoading:").length());
+			lastStoryName = storyName;
+			emit q->storyLoading(storyName);
 		}
-		else if (context.startsWith("fileName ")) {
-			QString filePath = context.mid(QString("fileName ").length());
-			emit q->currentFileChanged(filePath);
+		else if (context.startsWith("StoryStarted:")) {
+			QString storyName = context.mid(QString("StoryStarted:").length());
+			CurrentPage = ASERDebugIO::Page::player;
+			emit q->storyStarted(storyName);
 		}
-		else if (context.startsWith("rawIndex ")) {
-			qint32 lineIndex = context.mid(QString("rawIndex ").length()).toInt();
-			emit q->lineIndexChanged(lineIndex);
+		else if (context.startsWith("StoryExited:")) {
+			QString storyName = context.mid(QString("StoryExited:").length());
+			CurrentPage = ASERDebugIO::Page::storyset;
+			emit q->storyExited(storyName);
 		}
-		else if (context.startsWith("options ")) {
-			QStringList branchNames = context.mid(QString("options ").length()).split('/');
-			emit q->branchRequested(branchNames);
+		else if (context.startsWith("OptionsActivated:")) {
+			QString optionCountStr = context.mid(QString("OptionsActivated:").length());
+			bool ok = false;
+			qint32 optionCount = optionCountStr.toInt(&ok);
+			if (ok) {
+				emit q->optionsActivated(optionCount);
+			}
 		}
-		else if (context.startsWith("error ")) {
-			QString error = context.mid(QString("error ").length());
-			emit q->errorOccurred(error);
+		else if (context.startsWith("ErrorMessageShown:")) {
+			QString message = context.mid(QString("ErrorMessageShown:").length());
+			emit q->errorMessageShown(message);
 		}
 	}
 
@@ -73,8 +89,15 @@ namespace ASERStudio::ASEREnv {
 	void ASERDebugIO::setProgram(ASERProgram* program) {
 		if (program) {
 			d->Program = program;
-			connect(this->d, &ASERDebugIOPrivate::handleNamedPipeReadable, this, [this](const QString& context) {
+			connect(program, &ASERProgram::namedPipeReadable, this, [this](const QString& context) {
 					d->handleNamedPipeReadable(context);
+				});
+			connect(program, &ASERProgram::programStopped, this, [this](qint64) {
+				d->CurrentPage = Page::home;
+				d->requestingPlay = false;
+				d->requestingStoryName = "";
+				d->lastStorySetPath = "";
+				d->lastStoryName = "";
 				});
 		}
 	}
@@ -89,13 +112,65 @@ namespace ASERStudio::ASEREnv {
 	}
 
 	/*!
-		\since ASERStudio 2.0
-		通过具名管道向ASER程序发送跳转到指定行的命令。这里封装了jump命令
-		\a lineIndex 要跳转到的行索引
+		\since ASERStudio 2.2
+		通过具名管道向ASER程序发送切换当前页面的命令。这里封装了switch命令
 	*/
-	void ASERDebugIO::jumpToLine(qint32 lineIndex) {
+	void ASERDebugIO::switchPage(Page page) {
+		QString pageStr = QMetaEnum::fromType<Page>().valueToKey(static_cast<int>(page));
 		if (d->Program) {
-			d->Program->writeNamedPipe(QString("jump %1").arg(lineIndex));
+			d->Program->writeNamedPipe(QString("switch %1").arg(pageStr));
+			d->CurrentPage = page;
+		}
+	}
+
+	/*!
+		\since ASERStudio 2.2
+		获取当前页面的状态。这个状态是通过switchPage函数设置的。
+		目前ASE-Remake <-> ASER Studio属于开环控制，因此状态可能不准确
+	*/
+	ASERDebugIO::Page ASERDebugIO::getCurrentPage() const {
+		return d->CurrentPage;
+	}
+
+	/*!
+		\since ASERStudio 2.2
+		通过具名管道向ASER程序发送打开项目的命令。这里封装了open命令
+		这个命令不会自动切换页面，只是向ASER推送一个置顶项目的请求，
+		随后在切换到storyset页面时该项目会被打开
+	*/
+	void ASERDebugIO::open(const QString& projectPath) {
+		if (d->Program) {
+			d->Program->writeNamedPipe(QString("open %1").arg(projectPath));
+		}
+	}
+
+	/*!
+		\since ASERStudio 2.2
+		通过具名管道向ASER程序发送播放故事的命令。这里封装了play命令
+		play命令只能在storyset页面执行，如果当前不是，这个函数
+		会自动发送相关命令切换到storyset页面。
+		\a fileName 要播放的故事文件名
+	*/
+	void ASERDebugIO::play(const QString& fileName) {
+		if (d->Program) {
+			if (d->CurrentPage != Page::storyset) {
+				d->requestingPlay = true;
+				d->requestingStoryName = fileName;
+				switchPage(Page::storyset);
+			}
+			else {
+				d->Program->writeNamedPipe(QString("play %1").arg(fileName));
+			}
+		}
+	}
+
+	/*!
+		\since ASERStudio 2.2
+		通过具名管道向ASER程序发送停止播放的命令。这里封装了stop命令
+	*/
+	void ASERDebugIO::stop() {
+		if (d->Program) {
+			d->Program->writeNamedPipe("stop");
 		}
 	}
 
@@ -118,17 +193,6 @@ namespace ASERStudio::ASEREnv {
 	void ASERDebugIO::selectBranch(qint32 branchIndex) {
 		if (d->Program) {
 			d->Program->writeNamedPipe(QString("select %1").arg(branchIndex));
-		}
-	}
-
-	/*!
-		\since ASERStudio 2.0
-		通过具名管道向ASER程序发送显示指定文件的命令。这里封装了play命令
-		\a filePath 要显示的文件路径
-	*/
-	void ASERDebugIO::displayFile(const QString& filePath) {
-		if (d->Program) {
-			d->Program->writeNamedPipe(QString("play %1").arg(filePath));
 		}
 	}
 

@@ -213,6 +213,7 @@ namespace YSS::Editor {
 		d->MenuBar = new QMenuBar(this);
 		d->Layout->addWidget(d->MenuBar);
 		d->ProjectNameLabel = new Visindigo::Widgets::BorderLabel(this);
+		d->ProjectNameLabel->setContentsMargins(10, 0, 10, 0);
 		d->ProjectNameLabel->setText(GlobalValue::getCurrentProject()->getProjectName());
 		d->Layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		d->Layout->addWidget(d->ProjectNameLabel);

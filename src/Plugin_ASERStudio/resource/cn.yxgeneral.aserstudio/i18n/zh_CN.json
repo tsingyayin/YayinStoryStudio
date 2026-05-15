@@ -462,9 +462,27 @@
             "title": "无法找到可执行文件",
             "message": "配置的路径%1无效，无法启动ASE-Remake应用。请在文件->插件和首选项->ASER Studio设置中检查你的配置，确保你已经正确地设置了ASE-Remake可执行文件的路径。"
         },
+        "isRunning": {
+            "title": "已有外部ASE-Remake程序在运行",
+            "message": "检测到有其他ASE-Remake程序已经在运行了。目前调试器不支持同时连接多个ASE-Remake程序，请先关闭其他正在运行的ASE-Remake程序后再尝试启动调试。"
+        },
         "starting": {
             "title": "ASE-Remake测试版缺陷通知",
             "message": "由于ASE-Remake测试版中一个已知缺陷，YSS目前只能简单启动ASE-Remake，无法正确设置项目目录和播放文件，需要您手动启动播放。当前启动调试只能作为快捷打开ASE-Remake程序的方式使用。请关注ASE-Remake测试版的更新日志，等待这个问题被修复。"
+        },
+        "executing":{
+            "waitingForLaunch": "正在等待ASE-Remake启动...",
+            "waitingForPipe": "正在等待与ASE-Remake的通信管道建立...",
+            "waitingForOBMI": "正在等待ASE-Remake确认资源初始化状态...",
+            "waitingForPlay": "正在等待ASE-Remake启动播放...",
+            "loading": "正在加载剧本 %1...",
+            "started": "已经启动剧本 %1 的播放",
+            "exited": "剧本 %1 已经退出"
+        }
+    },
+    "toolWidget": {
+        "aserWarpper":{
+            "title": "ASER包装器"
         }
     }
 }

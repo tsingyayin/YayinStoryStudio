@@ -1,5 +1,6 @@
 #include "../DebugServer.h"
 #include "Editor/EditorPlugin.h"
+#include <QtCore//qmetaobject.h>
 namespace YSSCore::Editor {
 	class DebugServerPrivate {
 		friend class DebugServer;
@@ -136,6 +137,10 @@ namespace YSSCore::Editor {
 		此外，YSS约定，行号从0开始计数。
 	*/
 
+
+	QString DebugServer::getActionString(YSSCore::Editor::DebugServer::DebugAction action) {
+		return QMetaEnum::fromType<YSSCore::Editor::DebugServer::DebugAction>().valueToKey(action);
+	}
 	/*!
 		\since YSS 0.13.0
 		构造函数

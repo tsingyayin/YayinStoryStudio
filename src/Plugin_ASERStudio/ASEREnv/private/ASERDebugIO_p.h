@@ -1,7 +1,7 @@
 #ifndef ASERStudio_ASEREnv_ASEDebugIO_p_h
 #define ASERStudio_ASEREnv_ASEDebugIO_p_h
 #include <QtCore/qobject.h>
-
+#include "ASEREnv/ASERDebugIO.h"
 namespace ASERStudio::ASEREnv {
 	class ASERProgram;
 	class ASERDebugIO;
@@ -11,6 +11,11 @@ namespace ASERStudio::ASEREnv {
 	protected:
 		ASERDebugIO* q;
 		ASERProgram* Program = nullptr;
+		ASERDebugIO::Page CurrentPage = ASERDebugIO::Page::home;
+		bool requestingPlay = false;
+		QString requestingStoryName;
+		QString lastStorySetPath;
+		QString lastStoryName;
 	public:
 		void handleNamedPipeReadable(const QString& context);  
 	};

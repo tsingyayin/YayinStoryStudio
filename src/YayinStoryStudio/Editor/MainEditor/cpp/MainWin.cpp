@@ -221,6 +221,7 @@ namespace YSS::Editor {
 
 	void MainWin::setMenuShortcutTips() {
 		static QMap<QString, QString> currentTips = {
+			{"file::new", "Ctrl+N" },
 			{"file::open", "Ctrl+O"},
 			{"file::save", "Ctrl+S"},
 			{"file::saveAs", "Ctrl+Alt+S"},
@@ -233,7 +234,10 @@ namespace YSS::Editor {
 			{"edit::copy", "Ctrl+C"},
 			{"edit::paste", "Ctrl+V"},
 			{"edit::selectAll", "Ctrl+A"},
-			{"edit::findAndReplace", "Ctrl+F"}
+			{"edit::findAndReplace", "Ctrl+F"},
+			{"run::run", "F5"},
+			{"run::debug", "Ctrl+F5"},
+			{"run::stop", "Shift+F5"}
 		};
 		Menu->setShortcutTips(currentTips);
 	}
@@ -308,6 +312,17 @@ namespace YSS::Editor {
 			else if (event->key() == Qt::Key_O) {
 				this->openFile();
 			}
+			else if (event->key() == Qt::Key_N) {
+				this->openNewFileWindow();
+			}
+			else if (event->key() == Qt::Key_F5) {
+				Menu->run_run_run();
+			}
+		}
+		else if (event->modifiers() == Qt::ShiftModifier) {
+			if (event->key() == Qt::Key_F5) {
+				Menu->run_run_stop();
+			}
 		}
 		else if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
 			if (event->key() == Qt::Key_S) {
@@ -316,6 +331,9 @@ namespace YSS::Editor {
 		}
 		else if(event->key() == Qt::Key_F1) {
 			help();
+		}
+		else if (event->key() == Qt::Key_F5) {
+			Menu->run_run_debug();
 		}
 	}
 

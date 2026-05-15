@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="ASEREnv\cpp\ASERDebugIO.cpp" />
     <ClCompile Include="ASEREnv\cpp\ASERProgram.cpp" />
+    <ClCompile Include="ASEREnv\cpp\ASERWarpper.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXController.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXControllerParseData.cpp" />
     <ClCompile Include="AStorySyntax\cpp\AStoryXDiagnosticData.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="YSS\cpp\ResourceMoniter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="ASEREnv\ASERWarpper.h" />
     <ClInclude Include="AStorySyntax\AStoryXRebuilder.h" />
     <ClInclude Include="YSS\ResourceMoniter.h" />
     <QtMoc Include="ASEREnv\private\ASERDebugIO_p.h" />

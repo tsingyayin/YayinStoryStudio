@@ -62,6 +62,27 @@ namespace YSS::Editor {
 			}
 			d->CurrentServer = nullptr; // auto re-get in d->getCurrentServer()
 			});
+		connect(this, &DebugServerRouter::actionStarted, this, [this](YSSCore::Editor::DebugServer::DebugAction action) {
+			vgInfoF << "Debug action started:" << getActionString(action);
+			});
+		connect(this, &DebugServerRouter::actionFinished, this, [this](YSSCore::Editor::DebugServer::DebugAction action, bool success) {
+			vgInfoF << "Debug action finished:" << getActionString(action) << "Success:" << success;
+		});
+		connect(this, &DebugServerRouter::actionMessage, this, [this](YSSCore::Editor::DebugServer::DebugAction action, const QString& message) {
+			vgInfoF << "Debug action message:" << getActionString(action) << message;
+			});
+		connect(this, &DebugServerRouter::actionPercent, this, [this](YSSCore::Editor::DebugServer::DebugAction action, qint32 finished, qint32 total) {
+			vgInfoF << "Debug action percent:" << getActionString(action) << "Finished:" << finished << "Total:" 
+				<< total << "Percent:" << (total > 0 ? QString::number((double)finished / total * 100, 'f', 2) + "%" : "N/A");
+			});
+
+		connect(this, &DebugServerRouter::targetStdOutput, this, [this](const QString& message) {
+			vgInfoF << "Debug target std output:" << message;
+			});
+		connect(this, &DebugServerRouter::targetStdError, this, [this](const QString& message) {
+			vgErrorF << "Debug target std error:" << message;
+			});
+
 	}
 
 	DebugServerRouter* DebugServerRouter::getInstance() {
@@ -73,6 +94,10 @@ namespace YSS::Editor {
 
 	DebugServerRouter::~DebugServerRouter() {
 		delete d;
+	}
+
+	QString DebugServerRouter::getActionString(YSSCore::Editor::DebugServer::DebugAction action) {
+		return YSSCore::Editor::DebugServer::getActionString(action);
 	}
 
 	bool DebugServerRouter::testDebugFeature(YSSCore::Editor::DebugServer::SupportedDebugFeature feature) {

@@ -18,6 +18,7 @@ namespace YSS::Editor {
 	private:
 		DebugServerRouter();
 	public:
+		static QString getActionString(YSSCore::Editor::DebugServer::DebugAction action);
 		static DebugServerRouter* getInstance();
 		~DebugServerRouter();
 	public:

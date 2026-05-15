@@ -22,20 +22,19 @@ namespace ASERStudio::ASEREnv {
 		};
 	public:
 		ASERProgramLaunchParameter();
-		ASERProgramLaunchParameter(const QString& FileName, const QString& Path, SizeMode mode);
+		ASERProgramLaunchParameter(const QString& Path, SizeMode mode);
 		~ASERProgramLaunchParameter();
 		VICopyable(ASERProgramLaunchParameter);
 		VIMoveable(ASERProgramLaunchParameter);
 	public:
-		void setFileName(const QString& FileName);
-		void setPath(const QString& Path);
+		void setProjectPath(const QString& Path);
 		void setSizeMode(SizeMode mode);
-		QString getFileName() const;
-		QString getPath() const;
+		QString getProjectPath() const;
 		SizeMode getSizeMode() const;
 	private:
 		ASERProgramLaunchParameterPrivate* d;
 	};
+
 	class ASERProgramPrivate;
 	class ASERAPI ASERProgram :public QObject{
 		Q_OBJECT;

@@ -9,9 +9,11 @@
 #include <General/Log.h>
 #include <Widgets/DesktopHacker.h>
 #include <QtGui/qwindow.h>
-
+#include <QtWidgets/qmessagebox.h>
+#include <General/TranslationHost.h>
 #ifdef Q_OS_WIN
 #include <Windows.h>
+#include <tlhelp32.h>
 #endif
 namespace ASERStudio::ASEREnv {
 	
@@ -19,7 +21,6 @@ namespace ASERStudio::ASEREnv {
 		friend class ASERProgramLaunchParameter;
 	protected:
 		ASERProgramLaunchParameter::SizeMode Mode;
-		QString FileName;
 		QString Path;
 	};
 	/*!
@@ -33,8 +34,6 @@ namespace ASERStudio::ASEREnv {
 
 		需要指出的是，ASE-Remake启动参数中的Path参数指的是需要播放的ASE-Remake项目所在的目录，
 		并非工作目录。要改动工作目录，请使用ASERProgram::setWorkingDirectory函数。
-
-		此外，FileName只要求提供自项目目录Stories文件夹开始的相对路径，且不需要文件扩展名。
 
 		目前，有关窗口大小枚举量的标准，采用的是2026年4月8日ASE-Remake官方文档中提供的分辨率列表。
 		未来如果官方文档有更新，可能会增加新的枚举值或改动现有枚举值。因此这个类虽然设计为
@@ -63,7 +62,6 @@ namespace ASERStudio::ASEREnv {
 
 	ASERProgramLaunchParameter::ASERProgramLaunchParameter() {
 		d = new ASERProgramLaunchParameterPrivate;
-		d->FileName = "";
 		d->Path = "";
 		d->Mode = FullScreen;
 	}
@@ -71,13 +69,11 @@ namespace ASERStudio::ASEREnv {
 	/*!
 		\since ASERStudio 2.0
 		构造函数
-		\a FileName 可执行文件名称
 		\a Path 项目目录
 		\a mode 窗口大小模式
 	*/
-	ASERProgramLaunchParameter::ASERProgramLaunchParameter(const QString& FileName, const QString& Path, SizeMode mode) {
+	ASERProgramLaunchParameter::ASERProgramLaunchParameter(const QString& Path, SizeMode mode) {
 		d = new ASERProgramLaunchParameterPrivate;
-		d->FileName = FileName;
 		d->Path = Path;
 		d->Mode = mode;
 	}
@@ -118,19 +114,10 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		\a FileName 可执行文件名称
-		设置ASER程序的可执行文件名称
-	*/
-	void ASERProgramLaunchParameter::setFileName(const QString& FileName) {
-		d->FileName = FileName;
-	}
-
-	/*!
-		\since ASERStudio 2.0
 		\a Path 项目目录
 		设置ASER程序的项目目录
 	*/
-	void ASERProgramLaunchParameter::setPath(const QString& Path) {
+	void ASERProgramLaunchParameter::setProjectPath(const QString& Path) {
 		d->Path = Path;
 	}
 
@@ -145,17 +132,9 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		获取ASER程序的可执行文件名称
-	*/
-	QString ASERProgramLaunchParameter::getFileName() const {
-		return d->FileName;
-	}
-
-	/*!
-		\since ASERStudio 2.0
 		获取ASER程序的项目目录
 	*/
-	QString ASERProgramLaunchParameter::getPath() const {
+	QString ASERProgramLaunchParameter::getProjectPath() const {
 		return d->Path;
 	}
 
@@ -208,7 +187,7 @@ namespace ASERStudio::ASEREnv {
 		d = new ASERProgramPrivate;
 		d->ASERProcess = new QProcess(this);
 		d->ASERPipe = new QLocalSocket(this);
-		d->ASERPipe->setServerName("ASEDebugPipe");
+		d->ASERPipe->setServerName("ASERDebugPipe");
 		connect(d->ASERProcess, &QProcess::started, this, [this]() {
 			d->Running = true;
 			d->ProcessID = d->ASERProcess->processId();
@@ -217,12 +196,18 @@ namespace ASERStudio::ASEREnv {
 		connect(d->ASERProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus) {
 			d->Running = false;
 			d->ExitCode = exitCode;
+			d->ASERPipe->disconnectFromServer();
 			emit programStopped(exitCode);
 			});
 		connect(d->ASERPipe, &QLocalSocket::readyRead, this, [this]() {
 			while (d->ASERPipe->bytesAvailable() > 0) {
 				QByteArray data = d->ASERPipe->readAll();
-				emit namedPipeReadable(QString::fromUtf8(data));
+				QString context = QString::fromUtf8(data);
+				QStringList lines = context.split("\r\n", Qt::SkipEmptyParts);
+				for (auto line : lines) {
+					vgDebug << "Received from named pipe:" << line;
+					emit namedPipeReadable(line);
+				}
 			}
 			});
 		connect(d->ASERPipe, &QLocalSocket::connected, this, [this]() {
@@ -231,7 +216,7 @@ namespace ASERStudio::ASEREnv {
 		connect(d->ASERPipe, &QLocalSocket::disconnected, this, [this]() {
 			emit namedPipeDisconnected();
 			});
-		connect(d->ASERPipe, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::errorOccurred), 
+		connect(d->ASERPipe, qOverload<QLocalSocket::LocalSocketError>(&QLocalSocket::errorOccurred), 
 			this, [this](QLocalSocket::LocalSocketError error) {
 			emit namedPipeError(d->ASERPipe->errorString());
 			});
@@ -310,11 +295,17 @@ namespace ASERStudio::ASEREnv {
 		d->ASERProcess->setArguments(arguments);
 		d->ASERProcess->start();
 		QTimer* timer = new QTimer(this);
-		timer->setInterval(5000);
+		timer->setInterval(200);
 		connect(timer, &QTimer::timeout, this, [this, timer]() {
 			if (d->ASERProcess->state() == QProcess::Running) {
-				if (d->ASERPipe->state() == QLocalSocket::UnconnectedState) {
-					d->ASERPipe->connectToServer();
+				vgDebug << "Waiting for server to connect...";
+				if (d->ASERPipe->state() != QLocalSocket::ConnectedState) {
+					d->ASERPipe->connectToServer("ASERDebugPipe");
+				}
+				else {
+					vgDebug << "Server connected successfully.";
+					timer->stop();
+					timer->deleteLater();
 				}
 			}
 			else { // connected.
@@ -325,6 +316,41 @@ namespace ASERStudio::ASEREnv {
 		timer->start();
 	}
 
+#ifdef Q_OS_WIN
+	bool IsProcessRunning(const wchar_t* processName)
+	{
+		bool found = false;
+		HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if (hSnapshot == INVALID_HANDLE_VALUE)
+			return false;
+		PROCESSENTRY32W pe32;
+		pe32.dwSize = sizeof(PROCESSENTRY32W);
+		if (Process32FirstW(hSnapshot, &pe32))
+		{
+			do
+			{
+				if (_wcsicmp(pe32.szExeFile, processName) == 0)
+				{
+					found = true;
+					break;
+				}
+			} while (Process32NextW(hSnapshot, &pe32));
+		}
+		CloseHandle(hSnapshot);
+		return found;
+	}
+#endif 
+
+	bool anotherInstanceRunning() {
+#ifdef Q_OS_WIN
+		// 注意，由于某种缺陷，ASE-Remake可能会丢失窗口句柄，成为后台进程，因此只通过进程名判断
+		if (IsProcessRunning(L"ASE-Remake.exe")) {
+			QMessageBox::warning(nullptr, VITR("ASERStudio::debugger.isRunning.title"), VITR("ASERStudio::debugger.isRunning.message"), QMessageBox::Ok);
+			return true;
+		}
+		return false;
+#endif 
+	}
 	/*!
 		\since ASERStudio 2.0
 		通过ASERProgramLaunchParameter结构体启动ASER程序。这个函数会根据
@@ -334,12 +360,14 @@ namespace ASERStudio::ASEREnv {
 		传递给ASE-Remake程序。除此之外其他Unity通用参数可以通过\a arguments参数传递。
 	*/
 	void ASERProgram::start(const ASERProgramLaunchParameter& parameter, const QStringList& arguments) {
+		if (anotherInstanceRunning()) {
+			return;
+		}
 		if (d->ASERProcess->state() == QProcess::Running) {
 			return;
 		}
 		Visindigo::Utility::JsonConfig jsonParam;
-		jsonParam.setString("FileName", parameter.getFileName());
-		jsonParam.setString("storySetPath", parameter.getPath());
+		jsonParam.setString("storySetPath", parameter.getProjectPath());
 		jsonParam.setInt("SizeMode", static_cast<int>(parameter.getSizeMode()));
 		vgDebug << "ASERProgram::start - Launching ASER with parameters:" << jsonParam;
 		QString jsonString = jsonParam.toString();
@@ -369,6 +397,7 @@ namespace ASERStudio::ASEREnv {
 	*/
 	bool ASERProgram::waitStop(qint32 waitMS) {
 		if (d->ASERProcess->state() == QProcess::Running) {
+			d->ASERProcess->terminate();
 			return d->ASERProcess->waitForFinished(waitMS);
 		}
 		else {
@@ -419,15 +448,11 @@ namespace ASERStudio::ASEREnv {
 #ifdef Q_OS_WIN
 	QWindow* ASERProgram::getProcessWindow() const {
 		if (d->ASERProcess->state() == QProcess::Running) {
-			HWND hwnd = FindWindowExW(nullptr, nullptr, nullptr, nullptr);
-			while (hwnd) {
-				DWORD pid;
-				GetWindowThreadProcessId(hwnd, &pid);
-				if (pid == d->ASERProcess->processId()) {
-					return QWindow::fromWinId((WId)hwnd);
-				}
-				hwnd = FindWindowExW(nullptr, hwnd, nullptr, nullptr);
+			HWND hwnd = FindWindow(nullptr, L"ASE-Remake");
+			if (not hwnd) {
+				return nullptr;
 			}
+			return QWindow::fromWinId((WId)hwnd);
 		}
 		return nullptr;
 	}
@@ -467,7 +492,9 @@ namespace ASERStudio::ASEREnv {
 	*/
 	void ASERProgram::writeNamedPipe(const QString& context) {
 		if (d->ASERPipe->state() == QLocalSocket::ConnectedState) {
-			d->ASERPipe->write(context.toUtf8());
+			vgDebug << "Writing to named pipe:" << context;
+			QString dataToSend = context + "\r\n";
+			d->ASERPipe->write(dataToSend.toUtf8());
 			d->ASERPipe->flush();
 		}
 	}

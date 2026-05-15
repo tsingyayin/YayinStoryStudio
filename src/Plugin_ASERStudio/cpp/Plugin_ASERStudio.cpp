@@ -13,7 +13,7 @@
 #include "ASEREnv/ASERProgram.h"
 #include "ASEREnv/ASERDebugIO.h"
 #include "YSS/ResourceMoniter.h"
-
+#include "ASEREnv/ASERWarpper.h"
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "ASERStudio")
@@ -55,6 +55,8 @@ namespace ASERStudio {
 	void Main::onPluginEnable() {
 		Visindigo::Utility::JsonConfig config = VISTM->getMergedColorScheme();
 		vgDebug << "Merged Color Scheme:" << config;
+		// not prepared.
+		//registerToolWidget("cn.yxgeneral.aserstudio.aser_warpper", "i18n:ASERStudio::toolWidget.aserWarpper.title");
 		registerPluginModule(new ASERStudioTranslator(this));
 		registerProjectTemplateProvider(new YSS::ProjectTemplate_AStoryX(this));
 		registerFileTemplateProvider(new YSS::FileTemplate_AStoryX(this));
@@ -121,6 +123,14 @@ namespace ASERStudio {
 
 	void Main::onProjectClose(YSSCore::General::YSSProject* project) {
 		ASERStudio::AStorySyntax::AStoryXRule::clearRules();
+	}
+
+	QWidget* Main::onToolWidgetRequested(const QString& widgetID) {
+		if (widgetID == "cn.yxgeneral.aserstudio.aser_warpper") {
+			ASEREnv::ASERWarpper* warpper = new ASEREnv::ASERWarpper();
+			return warpper;
+		}
+		return nullptr;
 	}
 
 	QWidget* Main::getConfigWidget() {

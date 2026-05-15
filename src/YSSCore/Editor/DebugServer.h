@@ -35,6 +35,7 @@ namespace YSSCore::Editor {
 			TargetError = 0x1000,
 			TargetStdInput = 0x2000,
 		};
+		Q_ENUM(SupportedDebugFeatureFlag);
 		using DebugAction = SupportedDebugFeatureFlag;
 		Q_DECLARE_FLAGS(SupportedDebugFeature, SupportedDebugFeatureFlag);
 	signals:
@@ -46,6 +47,8 @@ namespace YSSCore::Editor {
 		void targetStdError(const QString& message);
 		void breakpointChanged(const QString& filePath, qint32 lineNumber, bool enabled);
 		void breakpointHited(const QString& filePath, qint32 lineNumber);
+	public:
+		static QString getActionString(DebugAction action);
 	public:
 		DebugServer(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~DebugServer();

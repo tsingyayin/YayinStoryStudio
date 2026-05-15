@@ -7,25 +7,45 @@ namespace ASERStudio::ASEREnv {
 	class ASERProgram;
 	class ASERDebugIOPrivate;
 	class ASERAPI ASERDebugIO :public QObject{
-		Q_OBJECT
+		Q_OBJECT;
+	public:
+		enum OfficialBundleManagerInitializeState {
+			Done,
+			Skipped
+		};
+		Q_ENUM(OfficialBundleManagerInitializeState);
+		enum Page {
+			unknown = 0,
+			home,
+			player,
+			storyset,
+			assets,
+			connection,
+			setting,
+		};
+		Q_ENUM(Page);
 	signals:
-		void displayStarted();
-		void displayEnded();
-		void currentDirectoryChanged(const QString& directoryPath);
-		void currentFileChanged(const QString& filePath);
-		void lineIndexChanged(qint32 lineIndex);
-		void errorOccurred(const QString& error);
-		void branchRequested(const QStringList& branchNames);
+		void officialBundleManagerInitializeChanged(OfficialBundleManagerInitializeState state);
+		void storySetOpened(const QString& storySetPath);
+		void storyLoading(const QString& storyName);
+		void storyStarted(const QString& storyName);
+		void storyExited(const QString& storyName);
+		void optionsActivated(qint32 optionCount);
+		void errorMessageShown(const QString& message);
 	public:
 		ASERDebugIO();
 		virtual ~ASERDebugIO();
 	public:
 		void setProgram(ASERProgram* program);
 		ASERProgram* getProgram() const;
-		void jumpToLine(qint32 lineIndex);
+		void switchPage(Page page);
+		Page getCurrentPage() const;
+		void open(const QString& projectPath);
+		void play(const QString& fileName);
+		void stop();
+		void select(qint32 branchIndex);
 		void changeDirectory(const QString& directoryPath);
 		void selectBranch(qint32 branchIndex);
-		void displayFile(const QString& filePath);
 		void changeSpeed();
 		void toggleAuto();
 	private:
