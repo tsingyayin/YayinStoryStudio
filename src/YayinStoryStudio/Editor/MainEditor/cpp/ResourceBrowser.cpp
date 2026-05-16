@@ -12,6 +12,8 @@
 #include <General/YSSProject.h>
 #include "Editor/NewFilePage/NewFileWin.h"
 #include <General/TranslationHost.h>
+#include <General/Log.h>
+#include <QtGui/qevent.h>
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :QWidget(parent) {
 		ButtonWidget = new QWidget(this);
@@ -90,8 +92,22 @@ namespace YSS::Editor {
 			}
 		}
 		refreshFileList();
+		emit visibilityChanged(true);
 	}
 
+	void ResourceBrowser::hideEvent(QHideEvent* event) {
+		emit visibilityChanged(false);
+	}
+
+	void ResourceBrowser::resizeEvent(QResizeEvent* event) {
+		if (event->size().width() == 0 || event->size().height() == 0) {
+			emit visibilityChanged(false);
+		}
+		else {
+			emit visibilityChanged(true);
+		}
+
+	}
 	void ResourceBrowser::onNewButtonClicked() {
 		QString currentSelectedPath;
 		QModelIndex currentIndex = FileTree->currentIndex();

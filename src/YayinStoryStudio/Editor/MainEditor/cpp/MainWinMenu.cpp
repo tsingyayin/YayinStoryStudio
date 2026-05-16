@@ -195,10 +195,13 @@ namespace YSS::Editor {
 			View_ResourceBrowser = ViewMenu->addAction(VITR("YSS::menu.view.resourceBrowser"));
 			View_ResourceBrowser->setObjectName("resourceBrowser");
 			View_ResourceBrowser->setCheckable(true);
+			View_ResourceBrowser->setChecked(true);
 			ViewMenu->addSeparator();
 
 			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
 			QObject::connect(ViewMenu, &QMenu::aboutToShow, q, &MainWinMenu::onPluginToolMenuAboutToShow);
+			QObject::connect(MainWin::getInstance()->getResourceBrowser(), &ResourceBrowser::visibilityChanged, 
+				q, &MainWinMenu::onResourceBrowserVisibilityChanged);
 		}
 	};
 
@@ -493,5 +496,9 @@ namespace YSS::Editor {
 				break;
 			}
 		}
+	}
+
+	void MainWinMenu::onResourceBrowserVisibilityChanged(bool visible) {
+		d->View_ResourceBrowser->setChecked(visible);
 	}
 }

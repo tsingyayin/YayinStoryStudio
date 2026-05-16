@@ -55,6 +55,7 @@ namespace YSS::Editor {
 		void onToolWidgetShow(const QString& toolWidgetID);
 		void onToolWidgetHide(const QString& toolWidgetID);
 		void onToolWidgetToggled(const QString& toolWidgetID, bool checked);
+		void onResourceBrowserVisibilityChanged(bool visible);
 		void onPluginToolsTriggered(QAction* action);
 		void onPluginToolMenuAboutToShow();
 	private:

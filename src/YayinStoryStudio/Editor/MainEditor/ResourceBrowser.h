@@ -30,12 +30,16 @@ namespace YSS::Editor {
 		QAction* ActionShrink;
 		QAction* ActionRename;
 		QAction* ActionShowInExplorer;
+	signals:
+		void visibilityChanged(bool visible);
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
 		void openNewFileWindow();
 		void refresh();
 	public:
 		virtual void showEvent(QShowEvent* event) override;
+		virtual void hideEvent(QHideEvent* event) override;
+		virtual void resizeEvent(QResizeEvent* event) override;
 	private:
 		void onNewButtonClicked();
 		void refreshFileList();

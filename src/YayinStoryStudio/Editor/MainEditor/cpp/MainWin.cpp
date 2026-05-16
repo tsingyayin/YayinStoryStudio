@@ -39,6 +39,11 @@ namespace YSS::Editor {
 		MainLayout = new QVBoxLayout(this);
 		MainLayout->setContentsMargins(0, 0, 0, 0);
 		MainLayout->setSpacing(0);
+
+		Browser = new ResourceBrowser(CentralWidget);
+		Editors = new FileEditWidgetArea(CentralWidget);
+		Tools = new ToolWidgetArea(CentralWidget);
+
 		Menu = new MainWinMenu(this);
 		this->setMenuShortcutTips();
 		MainLayout->addWidget(Menu);
@@ -48,10 +53,6 @@ namespace YSS::Editor {
 		MainLayout->addWidget(CentralWidget);
 		Layout = new QHBoxLayout(CentralWidget);
 		Layout->setContentsMargins(0, 0, 0, 0);
-		
-		Browser = new ResourceBrowser(CentralWidget);
-		Editors = new FileEditWidgetArea(CentralWidget);
-		Tools = new ToolWidgetArea(CentralWidget);
 		
 		Browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		Editors->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
