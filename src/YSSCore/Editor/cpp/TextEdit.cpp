@@ -134,6 +134,8 @@ namespace YSSCore::__Private__ {
 			}
 			else if (event->type() == QEvent::Resize) {
 				FindAndReplaceWidget->move(q->width() - 412, 0); // 400 for width, 12 for vertical scrollbar width
+				adjustTabCompleterPosition();
+				adjustHoverInfoPosition(Text->textCursor());
 			}
 		}
 		return false;
@@ -270,49 +272,7 @@ namespace YSSCore::__Private__ {
 			}
 			///yDebugF << "TabCompleterWidget is shown";
 			TabCompleterWidget->setCompleterItems(list);
-			QRect pos = Text->cursorRect();
-			if (not HoverArea) {
-				bool rightOut = pos.x() + TabCompleterWidget->width() > Text->viewport()->width();
-				if (rightOut) {
-					//right align
-					TabCompleterWidget->move(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20);
-				}
-				else {
-					// left align
-					TabCompleterWidget->move(pos.x() + 10, pos.y() + 20);
-				}
-				bool bottomOut = pos.y() + 20 + TabCompleterWidget->height() > Text->viewport()->height();
-				if (bottomOut) {
-					// up align
-					TabCompleterWidget->move(TabCompleterWidget->x(), pos.y() - 10 - TabCompleterWidget->height());
-				}
-				else {
-					// down align
-					TabCompleterWidget->move(pos.x()+10, pos.y() + 20);
-				}
-
-			}
-			else {
-				bool rightOut = pos.x() + TabCompleterWidget->width() > HoverArea->width();
-				if (rightOut) {
-					//right align
-					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20)));
-				}
-				else {
-					// left align
-					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
-				}
-				bool bottomOut = pos.y() + 20 + TabCompleterWidget->height() > HoverArea->height();
-				if (bottomOut) {
-					// up align
-					TabCompleterWidget->move(TabCompleterWidget->x(), 
-						Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() - 10 - TabCompleterWidget->height())).y());
-				}
-				else {
-					// down align
-					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
-				}
-			}
+			adjustTabCompleterPosition();
 			TabCompleterWidget->show();
 			Text->setFocus();
 		}
@@ -595,47 +555,10 @@ namespace YSSCore::__Private__ {
 					HoverInfoWidget->setPlainText(HoverInfoProvider->d->Content);
 					break;
 				}
+				adjustHoverInfoPosition(cursor);
 				HoverInfoWidget->show();
-				if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
-					QRect tpos = TabCompleterWidget->geometry();
-					bool rightOut = tpos.x() + tpos.width() + HoverInfoWidget->width() > Text->viewport()->width();
-					if (rightOut) {
-						// right align
-						HoverInfoWidget->move(tpos.x() - HoverInfoWidget->width(), tpos.y());
-					}
-					else {
-						// left align
-						HoverInfoWidget->move(tpos.x() + tpos.width(), tpos.y());
-					}
-				}
-				else {
-					QRect lpos = Text->cursorRect(cursor);
-					if (!HoverArea) {
-						bool rightOut = lpos.x() + HoverInfoWidget->width() > Text->viewport()->width();
-						if (rightOut) {
-							// right align
-							HoverInfoWidget->move(QPoint(lpos.x() + 10 - HoverInfoWidget->width(), lpos.y() + 20));
-						}
-						else {
-							// left align
-							HoverInfoWidget->move(QPoint(lpos.x() + 10, lpos.y() + 20));
-						}
-					}
-					else {
-						bool rightOut = lpos.x() + HoverInfoWidget->width() > HoverArea->width();
-						if (rightOut) {
-							// right align
-							HoverInfoWidget->move(Text->mapTo(HoverArea, QPoint(lpos.x() + 10 - HoverInfoWidget->width(), lpos.y() + 20)));
-						}
-						else {
-							// left align
-							HoverInfoWidget->move(Text->mapTo(HoverArea, QPoint(lpos.x() + 10, lpos.y() + 20)));
-						}
-					}
-				}
 			}
 			HoverTimer->stop();
-
 		}
 	}
 
@@ -647,31 +570,8 @@ namespace YSSCore::__Private__ {
 		else {
 			Text->verticalScrollBar()->setValue(value);
 		}
-		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
-			QRect pos = Text->cursorRect();
-			if (not HoverArea) {
-				bool rightOut = pos.x() + TabCompleterWidget->width() > Text->viewport()->width();
-				if (rightOut) {
-					//right align
-					TabCompleterWidget->move(QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20));
-				}
-				else {
-					// left align
-					TabCompleterWidget->move(QPoint(pos.x() + 10, pos.y() + 20));
-				}
-			}
-			else {
-				bool rightOut = pos.x() + TabCompleterWidget->width() > HoverArea->width();
-				if (rightOut) {
-					//right align
-					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20)));
-				}
-				else {
-					// left align
-					TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
-				}
-			}
-		}
+		adjustTabCompleterPosition();
+		adjustHoverInfoPosition(Text->textCursor());
 	}
 
 	void TextEditPrivate::onAltSwapLine(QKeyEvent* event) {
@@ -794,6 +694,112 @@ namespace YSSCore::__Private__ {
 		}
 		FindAndReplaceWidget->show();
 	}
+	
+	void TextEditPrivate::adjustTabCompleterPosition() {
+		if (not TabCompleterWidget) {
+			return;
+		}
+		QRect pos = Text->cursorRect();
+		if (not HoverArea) {
+			bool rightOut = pos.x() + TabCompleterWidget->width() > Text->viewport()->width();
+			if (rightOut) {
+				//right align
+				TabCompleterWidget->move(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20);
+			}
+			else {
+				// left align
+				TabCompleterWidget->move(pos.x() + 10, pos.y() + 20);
+			}
+			bool bottomOut = pos.y() + 20 + TabCompleterWidget->height() > Text->viewport()->height();
+			if (bottomOut) {
+				// up align
+				TabCompleterWidget->move(TabCompleterWidget->x(), pos.y() - 10 - TabCompleterWidget->height());
+			}
+			else {
+				// down align
+				TabCompleterWidget->move(pos.x() + 10, pos.y() + 20);
+			}
+
+		}
+		else {
+			auto hpos = Text->mapTo(HoverArea, pos.topLeft());
+			bool rightOut = hpos.x() + TabCompleterWidget->width() > HoverArea->width();
+			if (rightOut) {
+				//right align
+				TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10 - TabCompleterWidget->width(), pos.y() + 20)));
+			}
+			else {
+				// left align
+				TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
+			}
+			bool bottomOut = hpos.y() + 20 + TabCompleterWidget->height() > HoverArea->height();
+			if (bottomOut) {
+				// up align
+				TabCompleterWidget->move(TabCompleterWidget->x(),
+					Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() - 10 - TabCompleterWidget->height())).y());
+			}
+			else {
+				// down align
+				TabCompleterWidget->move(TabCompleterWidget->x(), Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)).y());
+			}
+		}
+	}
+		
+	void TextEditPrivate::adjustHoverInfoPosition(const QTextCursor& cursor) {
+		if (not HoverInfoProvider) {
+			return;
+		}
+		if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
+			QRect tpos = TabCompleterWidget->geometry();
+			if (not HoverArea) {
+				bool rightOut = tpos.x() + tpos.width() + HoverInfoWidget->width() > Text->viewport()->width();
+				if (rightOut) {
+					// right align
+					HoverInfoWidget->move(tpos.x() - HoverInfoWidget->width(), tpos.y());
+				}
+				else {
+					// left align
+					HoverInfoWidget->move(tpos.x() + tpos.width(), tpos.y());
+				}
+			}
+			else {
+				bool rightOut = tpos.x() + tpos.width() + HoverInfoWidget->width() > HoverArea->width();
+				if (rightOut) {
+					// right align
+					HoverInfoWidget->move(tpos.x() - HoverInfoWidget->width(), tpos.y());
+				}
+				else {
+					// left align
+					HoverInfoWidget->move(tpos.x() + tpos.width(), tpos.y());
+				}
+			}
+		}
+		else {
+			QRect lpos = Text->cursorRect(cursor);
+			if (!HoverArea) {
+				bool rightOut = lpos.x() + HoverInfoWidget->width() > Text->viewport()->width();
+				if (rightOut) {
+					// right align
+					HoverInfoWidget->move(QPoint(lpos.x() + 10 - HoverInfoWidget->width(), lpos.y() + 20));
+				}
+				else {
+					// left align
+					HoverInfoWidget->move(QPoint(lpos.x() + 10, lpos.y() + 20));
+				}
+			}
+			else {
+				bool rightOut = lpos.x() + HoverInfoWidget->width() > HoverArea->width();
+				if (rightOut) {
+					// right align
+					HoverInfoWidget->move(Text->mapTo(HoverArea, QPoint(lpos.x() + 10 - HoverInfoWidget->width(), lpos.y() + 20)));
+				}
+				else {
+					// left align
+					HoverInfoWidget->move(Text->mapTo(HoverArea, QPoint(lpos.x() + 10, lpos.y() + 20)));
+				}
+			}
+		}
+	}
 }
 
 namespace YSSCore::Editor {
@@ -863,7 +869,7 @@ namespace YSSCore::Editor {
 		d->Text->installEventFilter(d);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
-		d->Text->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
+		//d->Text->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 		d->Text->setAcceptRichText(false);
 		this->installEventFilter(d);
 		d->Layout = new QGridLayout(this);
@@ -1224,10 +1230,12 @@ namespace YSSCore::Editor {
 			d->TabCompleter = server->createTabCompleter(this);
 			if (d->TabCompleter) {
 				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text);
+				d->TabCompleterWidget->hide();
 			}
 			d->HoverInfoProvider = server->createHoverInfoProvider(this);
 			if (d->HoverInfoProvider) {
 				d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
+				d->HoverInfoWidget->hide();
 			}
 		}
 		else {

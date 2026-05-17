@@ -380,30 +380,32 @@ namespace YSS::Editor {
 				}
 			}
 		}
-		if (index >1){
-			if (index - 1 < Labels.size()) {
-				auto label = Labels[index];
-				if (label) {
-					setCurrentStackLabel(label->getFilePath());
-					emit switchToFile(label->getFilePath());
+		if (CurrentSelected == filePath) {
+			if (index > 1) {
+				if (index - 1 < Labels.size()) {
+					auto label = Labels[index];
+					if (label) {
+						setCurrentStackLabel(label->getFilePath());
+						emit switchToFile(label->getFilePath());
+					}
+				}
+				else {
+					CurrentSelected = "";
+					emit switchToFile("");
 				}
 			}
 			else {
-				CurrentSelected = "";
-				emit switchToFile("");	
-			}
-		}
-		else {
-			if (Labels.size() > 0) {
-				auto label = Labels[0];
-				if (label) {
-					setCurrentStackLabel(label->getFilePath());
-					emit switchToFile(label->getFilePath());
+				if (Labels.size() > 0) {
+					auto label = Labels[0];
+					if (label) {
+						setCurrentStackLabel(label->getFilePath());
+						emit switchToFile(label->getFilePath());
+					}
 				}
-			}
-			else {
-				CurrentSelected = "";
-				emit switchToFile("");
+				else {
+					CurrentSelected = "";
+					emit switchToFile("");
+				}
 			}
 		}
 		adjustScrollArea();

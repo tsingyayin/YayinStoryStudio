@@ -42,13 +42,12 @@ namespace YSSCore::__Private__ {
 			button->setFixedWidth(300 - 16);
 			button->setSpacing(2);
 			button->setContentsMargins(2, 2, 2, 2);
-			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed", button));
-			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Normal", button));
-			button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Hover", button));
 			Buttons.append(button);
 			ButtonGroup->addButton(button);
 			ButtonCycleIndexes.append(-1);
 		}
+		setColorfulEnable(true);
+		onThemeChanged();
 	}
 
 	void TabCompleterWidget::setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items) {
@@ -167,5 +166,14 @@ namespace YSSCore::__Private__ {
 
 	void TabCompleterWidget::wheelEvent(QWheelEvent* event) {
 		this->scrollBy(-event->angleDelta().y());
+	}
+
+	void TabCompleterWidget::onThemeChanged(){
+		for (auto button : Buttons) {
+			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed", button));
+			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Normal", button));
+			button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Hover", button));
+		}
+		this->update();
 	}
 }

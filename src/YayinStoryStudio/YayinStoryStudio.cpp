@@ -73,7 +73,7 @@ namespace YSS {
 		VISTM->changeColorTheme(getPluginConfig()->getString("General.Theme"));
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
-
+		
 		if (Visindigo::General::VIApplication::isWindows() && not Visindigo::General::VIApplication::isWindows11()) {
 			if (not getPluginConfig()->getBool("General.ShowUpToWin11")) {
 				getPluginConfig()->setBool("General.ShowUpToWin11", true);

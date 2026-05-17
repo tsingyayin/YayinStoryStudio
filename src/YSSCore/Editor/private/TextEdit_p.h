@@ -91,7 +91,7 @@ namespace YSSCore::__Private__ {
 		qint32 LastCursorLine = 0;
 		QTextCursor LastCursor;
 		QFont Font;
-		QFontMetricsF* FontMetrics;
+		QFontMetricsF* FontMetrics = nullptr;
 		YSSCore::Editor::SyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::TabCompleterProvider* TabCompleter = nullptr;
 		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
@@ -133,5 +133,7 @@ namespace YSSCore::__Private__ {
 		void createFindAllMultiSelection(QList<QTextCursor> findResults);
 		void clearFindAllMultiSelection();
 		void showFindAndReplace();
+		void adjustTabCompleterPosition();
+		void adjustHoverInfoPosition(const QTextCursor& cursor);
 	};
 }

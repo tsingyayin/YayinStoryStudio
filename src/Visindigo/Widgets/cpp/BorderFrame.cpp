@@ -3,6 +3,7 @@
 #include <QtWidgets/qstyle.h>
 #include <QtGui/qevent.h>
 #include <QtWidgets/qstyleoption.h>
+#include <General/Log.h>
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::BorderFrame
@@ -46,6 +47,13 @@ namespace Visindigo::Widgets {
 		opFrame.initFrom(this);
 		opFrame.features = QStyleOptionFrame::Rounded;
 		opFrame.frameShape = QFrame::Box;
+		
 		this->style()->drawPrimitive(QStyle::PE_Frame, &opFrame, &painter, this);
+		if (this->style()->name() == "fusion") {
+			// fusion style does not have background, so we need to fill it manually
+			QColor bgColor = this->palette().color(QPalette::Window);
+			painter.fillRect(this->rect(), bgColor);
+
+		}
 	}
 }

@@ -5,6 +5,7 @@
 #include <QtWidgets/qframe.h>
 #include "../TabCompleterProvider.h"
 #include <Widgets/BorderFrame.h>
+#include <Widgets/ThemeManager.h>
 // Forward declarations
 class QTextDocument;
 class QTextCursor;
@@ -29,7 +30,7 @@ namespace YSSCore::__Private__ {
 		QTextDocument* Document = nullptr;
 	};
 
-	class TabCompleterWidget :public Visindigo::Widgets::BorderFrame {
+	class TabCompleterWidget :public Visindigo::Widgets::BorderFrame, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TabCompleterItem;
 		friend class YSSCore::Editor::TabCompleterProvider;
@@ -56,5 +57,6 @@ namespace YSSCore::__Private__ {
 		void adjustHeight(qint32 height);
 		qint32 getMaxAllowedHeight() const;
 		virtual void wheelEvent(QWheelEvent* event) override;
+		virtual void onThemeChanged() override;
 	};
 }
