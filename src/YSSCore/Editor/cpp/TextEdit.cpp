@@ -65,9 +65,20 @@ namespace YSSCore::__Private__ {
 					else {
 						clearAltMultiSelection();
 						if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
-							if (keyEvent->modifiers() == Qt::NoModifier) {
+							if (keyEvent->modifiers() == Qt::NoModifier && (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down)) {
 								onDirectionClicked(keyEvent);
 								return true;
+							}
+							else if (keyEvent->modifiers() == Qt::ControlModifier && (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down)){
+								useKeyboardToMoveCursor = true;
+								auto cursor = Text->textCursor();
+								if (keyEvent->key() == Qt::Key_Up) {
+									cursor.movePosition(QTextCursor::Up);
+								}
+								else {
+									cursor.movePosition(QTextCursor::Down);
+								}
+								Text->setTextCursor(cursor);
 							}
 						}
 						else {

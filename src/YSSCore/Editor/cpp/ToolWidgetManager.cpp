@@ -98,7 +98,7 @@ namespace YSSCore::Editor {
 				widget->setAttribute(Qt::WA_DeleteOnClose);
 				widget->setWindowTitle(VI18N(d->WidgetNameMap[widgetID]));
 				d->WidgetInstanceMap[widgetID] = widget;
-				QObject::connect((QObject*)widget, &QObject::destroyed, [this, widgetID]() {
+				QObject::connect((QObject*)widget, &QObject::destroyed, this, [this, widgetID]() {
 					d->WidgetInstanceMap.remove(widgetID);
 					emit widgetClosed(widgetID);
 					});

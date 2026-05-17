@@ -895,7 +895,7 @@ namespace Visindigo::Widgets {
 						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
 					}else{
 						auto currentFont = qApp->font();
-						QApplication::setStyle("windows11");
+						QApplication::setStyle("fusion");
 						QApplication::setFont(currentFont);
 						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
 					}
@@ -912,7 +912,7 @@ namespace Visindigo::Widgets {
 					}
 					else {
 						auto currentFont = qApp->font();
-						QApplication::setStyle("windows11");
+						QApplication::setStyle("fusion");
 						QApplication::setFont(currentFont);
 						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
 					}
