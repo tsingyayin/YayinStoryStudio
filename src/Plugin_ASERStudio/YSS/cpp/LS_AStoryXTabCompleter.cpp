@@ -106,7 +106,8 @@ namespace ASERStudio::YSS {
 				}
 			}
 		}
-		if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Character) {
+		if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Character ||
+			data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Interlude){
 			//.vgDebug << data->getCursorInWhichParameter(column) << data->getRequiredParameter().getName();
 			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()){
 				QString paramContent = data->getRequiredParameter().getContent();

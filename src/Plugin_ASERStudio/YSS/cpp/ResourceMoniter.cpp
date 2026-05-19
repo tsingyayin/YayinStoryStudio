@@ -6,6 +6,7 @@
 #include <QtCore/qdir.h>
 #include <General/Log.h>
 #include <Utility/JsonConfig.h>
+#include <QtCore/qset.h>
 namespace ASERStudio::YSS {
 	class ResourceMoniterPrivate {
 		friend class ResourceMoniter;
@@ -19,6 +20,10 @@ namespace ASERStudio::YSS {
 		QMap<QString, QStringList> OfficialCharaDiffs;
 		QStringList OfficialMusics;
 		QStringList OfficialSoundEffects;
+		QStringList totalBackgrounds;
+		QMap<QString, QStringList> totalCharaDiffs;
+		QStringList totalMusics;
+		QStringList totalSoundEffects;
 		QFileSystemWatcher* Watcher = nullptr;
 		QFileSystemWatcher* OfficialWatcher = nullptr;
 		static ResourceMoniter* Instance;
@@ -58,42 +63,76 @@ namespace ASERStudio::YSS {
 
 			QStringList backgroundRawKeys = collections.keys("backgrounds");
 			QStringList officialBackgrounds;
+			QStringList officialBackgroundAliases;
 			for (auto key : backgroundRawKeys) {
 				QString alias = aliases.getString("backgrounds." + key);
-				if (alias.isEmpty()) {
+				QString collection = collections.getString("backgrounds." + key);
+				if (alias == collection) {
 					officialBackgrounds.append(key);
 				}
 				else {
-					officialBackgrounds.append(alias);
+					if (not alias.isEmpty()) {
+						officialBackgroundAliases.append(alias);
+					}
+					else {
+						officialBackgrounds.append(key);
+					}
 				}
 			}
-			OfficialBackgrounds = officialBackgrounds;
+			OfficialBackgrounds = officialBackgroundAliases + officialBackgrounds;
 
 			QStringList musicRawKeys = collections.keys("musics");
 			QStringList officialMusics;
+			QStringList officialMusicAliases;
 			for (auto key : musicRawKeys) {
 				QString alias = aliases.getString("musics." + key);
-				if (alias.isEmpty()) {
+				QString collection = collections.getString("musics." + key);
+				if (alias == collection) {
 					officialMusics.append(key);
 				}
 				else {
-					officialMusics.append(alias);
+					if (not alias.isEmpty()) {
+						officialMusicAliases.append(alias);
+					}
+					else {
+						officialMusics.append(key);
+					}
 				}
 			}
-			OfficialMusics = officialMusics;
+			OfficialMusics = officialMusicAliases + officialMusics;
 
 			QStringList soundEffectRawKeys = collections.keys("soundEffects");
 			QStringList officialSoundEffects;
+			QStringList officialSoundEffectAliases;
 			for (auto key : soundEffectRawKeys) {
 				QString alias = aliases.getString("soundEffects." + key);
-				if (alias.isEmpty()) {
+				QString collection = collections.getString("soundEffects." + key);
+				if (alias == collection) {
 					officialSoundEffects.append(key);
 				}
 				else {
-					officialSoundEffects.append(alias);
+					if (not alias.isEmpty()) {
+						officialSoundEffectAliases.append(alias);
+					}
+					else {
+						officialSoundEffects.append(key);
+					}
 				}
 			}
-			OfficialSoundEffects = officialSoundEffects;
+			OfficialSoundEffects = officialSoundEffectAliases + officialSoundEffects;
+		}
+
+		void refreshTotalBackgrounds() {
+			totalBackgrounds = Backgrounds;
+			QSet<QString> backgroundSet;
+			for (const QString& background : Backgrounds) {
+				backgroundSet.insert(background);
+			}
+			for (const QString& background : OfficialBackgrounds) {
+				if (not backgroundSet.contains(background)) {
+					totalBackgrounds.append(background);
+				}
+			}
 		}
 	};
 

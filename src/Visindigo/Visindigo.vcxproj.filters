@@ -304,6 +304,9 @@
     <ClInclude Include="Widgets\DesktopHacker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\ProgressMonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">

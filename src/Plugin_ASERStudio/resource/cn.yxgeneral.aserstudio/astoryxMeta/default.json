@@ -496,6 +496,10 @@
             "type": "Float",
             "defaultValue": "0.05",
             "min": 0
+        },
+        "IsBlocker":{
+            "type": "Bool",
+            "defaultValue": "true"
         }
     }
 }

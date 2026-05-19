@@ -169,7 +169,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::resizeEvent(QResizeEvent* event) {
-		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - 12* this->devicePixelRatioF());
+		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - 16);
 	}
 
 	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {
