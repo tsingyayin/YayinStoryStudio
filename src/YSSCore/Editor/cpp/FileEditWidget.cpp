@@ -122,7 +122,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取当前文件编辑器的文件路径。
+		return 当前文件编辑器的文件路径。
 		return 返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
 
 		注意，这可能是个虚拟文件路径，如果当前文件是通过FileServer打开的虚拟文件，
@@ -135,7 +135,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取当前文件编辑器的文件名。
+		return 当前文件编辑器的文件名。
 		return 返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
 	*/
 	QString FileEditWidget::getFileName() const {
@@ -151,7 +151,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		判断当前文件内容是否被修改。
+		return 当前文件内容是否被修改。
 		return 如果文件内容被修改，返回true；否则返回false。
 	*/
 	bool FileEditWidget::isFileChanged() const {
@@ -160,7 +160,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		判断当前文件是否为虚拟文件。
+		return 当前文件是否为虚拟文件。
 		return 如果当前文件为虚拟文件，返回true；否则返回false。
 
 		虚拟文件是指不对应实际磁盘文件的文件，通常由程序动态生成或从其他来源加载。对于虚拟文件，某些操作可能会有所不同，例如保存时可能需要特殊处理。
@@ -171,7 +171,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取当前文件的扩展名。
+		return 当前文件的扩展名。
 		return 返回当前文件的扩展名（不带点）。如果当前没有打开任何文件，则返回空字符串。
 
 		对于虚拟文件路径，扩展名是路径中@和!之间的部分。
@@ -189,7 +189,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取当前虚拟文件的参数部分。
+		return 当前虚拟文件的参数部分。
 		return 返回当前虚拟文件的参数部分。如果当前文件不是虚拟文件或没有参数，则返回空字符串。
 
 		对于虚拟文件路径，参数部分是路径中?之后的部分。
@@ -229,7 +229,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取当前文件编辑器的自动放弃状态。
+		return 当前文件编辑器的自动放弃状态。
 		return 如果在关闭文件时会自动放弃未保存的修改，返回true；否则返回false。
 	*/
 	bool FileEditWidget::isAutoAbandon() const {
@@ -454,7 +454,7 @@ namespace YSSCore::Editor {
 
 		\warning 不要在这个函数里调用close或deleteLater等任何实质上真的
 		会关闭这个Widget的函数，会造成递归爆栈。这个函数的唯一作用是通过
-		返回值告知YSS是否真的应该关闭它。因此你可以在里面做一些保存、警告等操作
+		return 告知YSS是否真的应该关闭它。因此你可以在里面做一些保存、警告等操作
 	*/
 	bool FileEditWidget::onClose() {
 		if (isFileChanged() && not isAutoAbandon()) {

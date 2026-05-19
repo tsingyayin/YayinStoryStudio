@@ -94,7 +94,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a index 为索引。
-		获取DiffSequence中指定索引的DiffUnit实例。
+		return DiffSequence中指定索引的DiffUnit实例。
 	*/
 	DiffUnit* DiffSequence::getDiffUnit(int index) const {
 		if (index < 0 || index >= d->DiffUnitList.size()) {
@@ -106,7 +106,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a index 为索引。
-		获取DiffSequence中指定索引的DiffUnit实例。getDiffUnit的语法糖。
+		return DiffSequence中指定索引的DiffUnit实例。getDiffUnit的语法糖。
 	*/
 	DiffUnit* DiffSequence::operator[](int index) const {
 		return getDiffUnit(index);
@@ -147,7 +147,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取DiffSequence中DiffUnit实例的数量。
+		return DiffSequence中DiffUnit实例的数量。
 	*/
 	int DiffSequence::size() const {
 		return d->DiffUnitList.size();
@@ -155,7 +155,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		判断DiffSequence是否为空。
+		return DiffSequence是否为空。
 	*/
 	bool DiffSequence::isEmpty() const {
 		return d->DiffUnitList.isEmpty();

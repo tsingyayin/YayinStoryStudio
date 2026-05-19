@@ -1,7 +1,7 @@
 /*!
 	\module Visindigo
 	\title Visindigo 模块
-	\brief Project Visindigo 的核心项目 “Visindigo”模块
+	\brief Project Visindigo 的核心项目 “Visindigo”模块.
 	\since Visindigo 0.13.0
 
 	Visindigo 是 Project Visindigo 的核心项目，旨在基于Qt框架提供更多通用的组件和功能，
@@ -40,7 +40,7 @@
 /*!
 	\module YSSCore
 	\title Yayin Story Studio Core模块
-	\brief Yayin Story Studio 核心模块，提供Yayin Story Studio本体的基础功能
+	\brief Yayin Story Studio 核心模块，提供Yayin Story Studio本体的基础功能.
 	\since Yayin Story Studio 0.13.0
 
 	YSSCore 模块是 Yayin Story Studio 本体的核心模块，提供了 Yayin Story Studio 本体的基础功能。
@@ -50,7 +50,7 @@
 /*!
 	\module YayinStoryStudio
 	\title Yayin Story Studio 本体模块
-	\brief Yayin Story Studio 本体模块，提供Yayin Story Studio的主要功能
+	\brief Yayin Story Studio 本体模块，提供Yayin Story Studio的主要功能.
 	\since Yayin Story Studio 0.13.0
 
 	Yayin Story Studio 模块是 Yayin Story Studio 本体的主要模块，提供了 Yayin Story Studio 的主要功能。
@@ -59,7 +59,7 @@
 /*!
 	\module ASERStudio
 	\title ASE-Remake Studio 模块
-	\brief YSS重要插件，提供了ASE-Remake开发环境
+	\brief YSS重要插件，提供了ASE-Remake开发环境.
 	\since Yayin Story Studio 0.13.0
 
 	ASE-Remake Studio模块是重要的Yayin Story Studio插件，提供了ASE-Remake开发环境，

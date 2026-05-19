@@ -60,7 +60,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前代码行的字符串。
+		return 当前代码行的字符串。
 	*/
 	QString CodeLine::getLine() {
 		return d->line;
@@ -124,7 +124,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取旧代码行列表。
+		return 旧代码行列表。
 	*/
 	DiffSequence* CodeDiff::getOldCode() {
 		return d->oldCode;
@@ -132,7 +132,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取新代码行列表。
+		return 新代码行列表。
 	*/
 	DiffSequence* CodeDiff::getNewCode() {
 		return d->newCode;

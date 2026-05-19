@@ -171,7 +171,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\class Visindigo::Widgets::PluginManageWidget
-		\brief 显示已加载插件、依赖插件和已停用插件的界面，并提供相关操作。
+		\brief 显示已加载插件、依赖插件和已停用插件的界面，并提供相关操作.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -184,6 +184,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a parent 父窗口
+
 		构造函数。
 	*/
 	PluginManageWidget::PluginManageWidget(QWidget* parent) : QFrame(parent), d(new PluginManageWidgetPrivate)
@@ -327,7 +329,12 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		重置大小事件。当窗口大小发生变化时，调整滚动区域的大小以适应新的窗口大小。
+		\a event 调整大小事件
+		
+		由于插件信息面板的宽度需要根据窗口大小进行调整，因此重写了resizeEvent函数。
+		当窗口大小发生变化时，调整滚动区域和滚动区域内组件的宽度以适应新的窗口大小。
+
+		继承此类且重写此函数时，请确保调用基类的resizeEvent函数以保持正常的事件处理流程。
 	*/
 	void PluginManageWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);

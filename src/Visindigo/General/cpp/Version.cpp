@@ -338,7 +338,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		返回主版本号。
+		return 主版本号。
 	*/
 	quint32 Version::getMajor() const
 	{
@@ -346,35 +346,35 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		返回次版本号。
+		return 次版本号。
 	*/
 	quint32 Version::getMinor() const
 	{
 		return d->minor;
 	}
 	/*!
-		返回修订号。
+		return 修订号。
 	*/
 	quint32 Version::getPatch() const
 	{
 		return d->patch;
 	}
 	/*!
-		返回是否使用构建号。
+		return 是否使用构建号。
 	*/
 	bool Version::getUseBuild() const
 	{
 		return d->useBuild;
 	}
 	/*!
-		返回构建号。
+		return 构建号。
 	*/
 	quint32 Version::getBuild() const
 	{
 		return d->build;
 	}
 	/*!
-		返回昵称。
+		return 昵称。
 	*/
 	QString Version::getNickName() const
 	{
@@ -382,7 +382,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		返回Visindigo在编译时的API版本号。这个版本号存储在动态链接库里，
+		return Visindigo在编译时的API版本号。这个版本号存储在动态链接库里，
 		表达Visindigo本身的版本号。需要查询插件（包）的版本号，请参见
 		Visindigo::General::Plugin自己的相关函数。
 	*/
@@ -391,7 +391,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		返回Visindigo在编译时的ABI版本号。这个版本号存储在动态链接库里，
+		return Visindigo在编译时的ABI版本号。这个版本号存储在动态链接库里，
 		表达Visindigo本身的版本号。需要查询插件（包）的版本号，请参见
 		Visindigo::General::Plugin自己的相关函数。
 	*/

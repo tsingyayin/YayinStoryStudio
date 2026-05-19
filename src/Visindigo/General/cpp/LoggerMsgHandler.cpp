@@ -326,7 +326,7 @@ namespace Visindigo::General {
 	}
 	/*!
 		\since Visindigo 0.13.0
-		获取日志消息内容。
+		return 日志消息内容。
 		return 返回日志消息内容的QString表示。
 
 		此函数用于获取当前LoggerMsgHandler对象承接的日志消息内容。
@@ -337,7 +337,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取创建此LoggerMsgHandler对象的Logger对象的指针。
+		return 创建此LoggerMsgHandler对象的Logger对象的指针。
 		return 返回指向Logger对象的指针。
 
 		此函数用于获取创建此LoggerMsgHandler对象的Logger对象的指针。
@@ -348,7 +348,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取日志级别。
+		return 日志级别。
 		return 返回日志级别枚举值。
 
 		此函数用于获取当前LoggerMsgHandler对象的日志级别。
@@ -359,7 +359,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取日志元信息。
+		return 日志元信息。
 		return 返回LogMetaData对象。
 		此函数用于获取当前LoggerMsgHandler对象的日志元信息。
 	*/
@@ -369,7 +369,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取日志堆栈跟踪信息。
+		return 日志堆栈跟踪信息。
 		return 返回包含StacktraceFrame对象的QList。
 		此函数用于获取当前LoggerMsgHandler对象的日志堆栈跟踪信息。
 	*/

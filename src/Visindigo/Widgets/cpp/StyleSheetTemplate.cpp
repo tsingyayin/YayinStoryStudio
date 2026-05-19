@@ -19,7 +19,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::StyleSheetTemplate
 		\inheaderfile Widgets/StyleSheetTemplate.h
-		\brief 提供对vst（Visindigo Stylesheet Template）样式表模板的解析与管理功能。
+		\brief 提供对vst（Visindigo Stylesheet Template）样式表模板的解析与管理功能.
 		\ingroup VITheme
 		\inmoudle Visindigo
 		\since Visindigo 0.13.0
@@ -54,24 +54,32 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::StyleSheetTemplate::StyleSheetTemplate(StyleSheetTemplate&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 被移动的StyleSheetTemplate实例
+
 		移动构造函数
 	*/
 
 	/*!
 		\fn Visindigo::Widgets::StyleSheetTemplate::StyleSheetTemplate(const StyleSheetTemplate& other)
 		\since Visindigo 0.13.0
+		\a other 被拷贝的StyleSheetTemplate实例
+
 		拷贝构造函数
 	*/
 
 	/*!
 		\fn Visindigo::Widgets::StyleSheetTemplate::operator=(StyleSheetTemplate&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 被移动的StyleSheetTemplate实例
+
 		移动赋值运算符
 	*/
 
 	/*!
 		\fn Visindigo::Widgets::StyleSheetTemplate::operator=(const StyleSheetTemplate& other)
 		\since Visindigo 0.13.0
+		\a other 被拷贝的StyleSheetTemplate实例
+
 		拷贝赋值运算符
 	*/
 	VIMoveable_Impl(StyleSheetTemplate);
@@ -79,6 +87,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a templateStr 样式表模板字符串
+
 		解析样式表模板字符串。
 	*/
 	bool StyleSheetTemplate::parse(QString& templateStr) {
@@ -187,6 +197,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a keyWithNamespace 键，可能包含命名空间前缀，格式为"namespace::key"或直接为"key"
+
 		根据键（可能包含命名空间前缀）获取原始样式表字符串。
 	*/
 	QString StyleSheetTemplate::getRawStyleSheet(const QString& keyWithNamespace) {
@@ -201,6 +213,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a namespaceStr 命名空间字符串
+		\a key 键字符串
+
 		根据命名空间和键获取原始样式表字符串。
 	*/
 	QString StyleSheetTemplate::getRawStyleSheet(const QString& namespaceStr, const QString& key) {
@@ -209,8 +224,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		根据键（可能包含命名空间前缀）和可选的QWidget获取最终样式表字符串。
+		\a keyWithNamespace 键，可能包含命名空间前缀，格式为"namespace::key"或直接为"key"
+		\a getter 可选的QWidget指针，用于从组件属性中获取参数值进行替换
 
+		根据键（可能包含命名空间前缀）和可选的QWidget获取最终样式表字符串。
 		值得注意的是，此方法自动从ThemeManager获取颜色参数，不能手动介入。
 	*/
 	QString StyleSheetTemplate::getStyleSheet(const QString& keyWithNamespace, QWidget* getter) {
@@ -240,7 +257,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取所有命名空间的列表。
+		return 所有命名空间的列表。
 	*/
 	QStringList StyleSheetTemplate::getNamespaces() const {
 		return d->NamespacedTemplates.keys();
@@ -248,6 +265,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a namespaceStr 命名空间字符串
+		\a key 键字符串
+		\a style 样式表字符串
+
 		设置指定命名空间和键的样式表模板字符串。
 	*/
 	void StyleSheetTemplate::setStyleSheetTemplate(const QString& namespaceStr, const QString& key, const QString& style) {
@@ -256,6 +277,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a keyWithNamespace 键，可能包含命名空间前缀，格式为"namespace::key"或直接为"key"
+		\a style 样式表字符串
+
 		设置指定键（可能包含命名空间前缀）的样式表模板字符串。
 	*/
 	void StyleSheetTemplate::setStyleSheetTemplate(const QString& keyWithNamespace, const QString& style) {
@@ -270,7 +294,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取样式表模板的ID。
+		return 样式表模板的ID。
 	*/
 	QString StyleSheetTemplate::getTemplateID() const {
 		return d->TemplateID;
@@ -278,7 +302,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取样式表模板的名称。
+		return 样式表模板的名称。
 	*/
 	QString StyleSheetTemplate::getTemplateName() const {
 		return d->TemplateName;
@@ -286,6 +310,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a id 样式表模板的ID
+
 		设置样式表模板的ID。
 	*/
 	void StyleSheetTemplate::setTemplateID(const QString& id) {
@@ -294,6 +320,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a name 样式表模板的名称
+
 		设置样式表模板的名称。
 	*/
 	void StyleSheetTemplate::setTemplateName(const QString& name) {
@@ -302,8 +330,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a other 另一个StyleSheetTemplate实例
+
 		将另一个样式表模板的内容合并到当前模板中。
-		
 		它会逐一检查所有的键并进行覆盖。
 	*/
 	void StyleSheetTemplate::merge(const StyleSheetTemplate& other) {

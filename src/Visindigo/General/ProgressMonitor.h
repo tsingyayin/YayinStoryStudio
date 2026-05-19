@@ -30,8 +30,9 @@ namespace Visindigo::General {
 	private:
 		ProgressMonitor() {};
 	public:
-		ProgressMonitor* getInstance();
+		static ProgressMonitor* getInstance();
 		void setMonitorType(MonitorType type);
+		void setExternalMonitorID(const QString& id);
 		MonitorType getMonitorType() const;
 		ProgressHandler startProgress(const QString& progressName, qint32 waitingTime = 5000, qint32 stepWaitingTime = 100);
 	private:

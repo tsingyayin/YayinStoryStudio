@@ -114,7 +114,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取LangServerManager的实例。
+		return LangServerManager的实例。
 	*/
 	LangServerManager* LangServerManager::getInstance() {
 		if (LangServerManagerPrivate::Instance == nullptr) {

@@ -396,7 +396,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回 TitleWidget 所管理的顶层窗口。
+		return  TitleWidget 所管理的顶层窗口。
 	*/
 	QWidget* TitleWidget::getTopWidget() const {
 		return d->TopWidget;
@@ -412,7 +412,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回当前的标题文本。
+		return 当前的标题文本。
 	*/
 	QString TitleWidget::getTitleText() const {
 		return d->TextLabel->text();
@@ -432,7 +432,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回当前标题图标的文件路径。
+		return 当前标题图标的文件路径。
 	*/
 	QString TitleWidget::getPixmapPath() const {
 		return d->PixmapPath;
@@ -448,7 +448,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回当前标题栏按钮的功能。
+		return 当前标题栏按钮的功能。
 	*/
 	TitleWidget::TitleButtonFeature TitleWidget::getTitleButtonFeature() const {
 		return d->ButtonFeature;
@@ -476,7 +476,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回当前标题栏按钮的样式。
+		return 当前标题栏按钮的样式。
 	*/
 	TitleWidget::ButtonStyleFeature TitleWidget::getButtonStyle() const {
 		return d->ButtonStyle;
@@ -509,7 +509,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回当前的插入控件。
+		return 当前的插入控件。
 	*/
 	QWidget* TitleWidget::getInsertWidget() const {
 		return d->InsertWidget;
@@ -525,7 +525,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回当前标题文本的对齐方式。
+		return 当前标题文本的对齐方式。
 	*/
 	Qt::Alignment TitleWidget::getTitleAlignment() const {
 		return d->TextLabel->alignment();
@@ -533,7 +533,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回是否启用通过拖动标题栏移动窗口的功能。
+		return 是否启用通过拖动标题栏移动窗口的功能。
 	*/
 	bool TitleWidget::isDragMoveEnable() const {
 		return d->DragMoveEnable;

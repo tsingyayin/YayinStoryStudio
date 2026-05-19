@@ -31,24 +31,32 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXParameter::AStoryXParameter(const AStoryXParameter& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXParameter对象。
+	
 		复制构造函数
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXParameter::AStoryXParameter(AStoryXParameter&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXParameter对象。
+
 		移动构造函数
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXParameter::operator=(const AStoryXParameter& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXParameter对象。
+
 		复制赋值运算符
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXParameter::operator=(AStoryXParameter&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXParameter对象。
+
 		移动赋值运算符
 	*/
 
@@ -58,6 +66,8 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		获取参数名称。
+
+		return 参数名称字符串。
 	*/
 	QString AStoryXParameter::getName() const {
 		return d->Name;
@@ -66,6 +76,8 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		获取参数前缀。
+
+		return 参数前缀字符串。
 	*/
 	QString AStoryXParameter::getPrefix() const {
 		return d->Prefix;
@@ -74,6 +86,8 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		获取参数分隔符。
+
+		return 参数分隔符字符串。
 	*/
 	QString AStoryXParameter::getSeparator() const {
 		return d->Separator;
@@ -82,6 +96,8 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		获取参数内容。
+
+		return 参数内容字符串。
 	*/
 	QString AStoryXParameter::getContent() const {
 		return d->Content;
@@ -90,6 +106,8 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		获取参数值元。
+
+		return 参数值元对象。
 	*/
 	AStoryXValueMeta AStoryXParameter::getValue() const {
 		return d->Value;
@@ -98,6 +116,8 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		获取参数在原文中的位置索引。
+
+		return 参数位置索引，类型为qint32。
 	*/
 	qint32 AStoryXParameter::getIndex() const {
 		return d->Index;
@@ -107,6 +127,8 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		判断参数是否有效。这个有效指的是它是否包含有效信息。
 		如果不包含有效信息，访问这个对象没有意义。
+
+		return true如果参数有效，false如果参数无效。
 	*/
 	bool AStoryXParameter::isValid() const {
 		return d->Valid;
@@ -115,6 +137,8 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		将参数信息转换为字符串形式，主要用于调试和诊断输出。
+
+		return 参数信息的字符串表示形式。
 	*/
 	QString AStoryXParameter::toString() const {
 		if (!isValid()) {
@@ -232,24 +256,32 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\fn AStoryXControllerParseData::AStoryXControllerParseData(AStoryXControllerParseData&& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXControllerParseData对象。
+
 		移动构造函数。
 	*/
 
 	/*!
 		\fn AStoryXControllerParseData::AStoryXControllerParseData(const AStoryXControllerParseData& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXControllerParseData对象。
+
 		复制构造函数。
 	*/
 
 	/*!
 		\fn AStoryXControllerParseData& AStoryXControllerParseData::operator=(AStoryXControllerParseData&& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXControllerParseData对象。
+
 		移动赋值运算符。
 	*/
 
 	/*!
 		\fn AStoryXControllerParseData& AStoryXControllerParseData::operator=(const AStoryXControllerParseData& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXControllerParseData对象。
+
 		复制赋值运算符。
 	*/
 	VIMoveable_Impl(AStoryXControllerParseData);
@@ -265,7 +297,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回控制器类型。
+		return 控制器类型。
 	*/
 	AStoryXController::ControllerType AStoryXControllerParseData::getControllerType() const {
 		return d->ControllerType;
@@ -273,7 +305,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回行首标识符。对于预处理器来说，这个行首标识符永远是#。
+		return 行首标识符。
+		
+		对于预处理器来说，这个行首标识符永远是#。
 	*/
 	QString AStoryXControllerParseData::getStartSign() const {
 		return d->StartSign;
@@ -281,7 +315,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回必选参数的解析结果
+		return 必选参数的解析结果
 	*/
 	AStoryXParameter AStoryXControllerParseData::getRequiredParameter() const {
 		return d->RequiredParameter;
@@ -289,7 +323,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*
 		\since ASERStudio 2.0
-		返回可选参数的解析结果列表。这个列表不包括那些没有被捕捉到的可选参数，
+		return 可选参数的解析结果列表。
+		
+		这个列表不包括那些没有被捕捉到的可选参数，
 		因此它的长度可能小于可选参数的实际定义数量。
 	*/
 	QList<AStoryXParameter> AStoryXControllerParseData::getOptionalParameters() const {
@@ -298,7 +334,10 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回给定光标位置所在的参数名称。如果光标位置不在任何参数内，则返回空字符串。
+		\a cursorPosition 光标位置。
+		return 给定光标位置所在的参数名称。
+		
+		如果光标位置不在任何参数内，则返回空字符串。
 	*/
 	QString AStoryXControllerParseData::getCursorInWhichParameter(qint32 cursorPosition) const {
 		if (cursorPosition < 0) {
@@ -321,7 +360,10 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回给定光标位置所在的参数解析结果。如果光标位置不在任何参数内，则返回一个无效的AStoryXParameter对象。
+		\a cursorPosition 光标位置。
+		return 给定光标位置所在的参数解析结果。
+		
+		如果光标位置不在任何参数内，则返回一个无效的AStoryXParameter对象。
 	*/
 	AStoryXParameter AStoryXControllerParseData::getCursorParameter(qint32 cursorPosition) const {
 		if (cursorPosition < 0) {
@@ -343,8 +385,9 @@ namespace ASERStudio::AStorySyntax {
 	}
 	/*!
 		\since ASERStudio 2.0
-		返回文本中引用的变量列表。	请注意和blockParameter进行区分。
-
+		return文本中引用的变量列表。
+		
+		请注意和blockParameter进行区分。
 		refVar只包括那些可以用于判定的变量，而blockPara指的是block中用于替换的占位参数。
 	*/
 	QStringList AStoryXControllerParseData::referenceVariables() const {
@@ -353,7 +396,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.1
-		返回文本块参数列表。请注意和referenceVariable进行区分。
+		return 文本块参数列表。
+		
+		请注意和referenceVariable进行区分。
 		blockPara指的是block中用于替换的占位参数，而refVar只包括那些可以用于判定的变量。
 	*/
 	QStringList AStoryXControllerParseData::blockParameters() const {
@@ -362,7 +407,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		解析是否启用了诊断。为false时，getDiagnostics的返回值不具有任何意义；
+		return 解析是否启用了诊断。
+		
+		为false时，getDiagnostics的返回值不具有任何意义；
 		为true时，getDiagnostics的返回值可能包含诊断信息，也可能不包含诊断信息（如果没有语法错误的话）。
 	*/
 	bool AStoryXControllerParseData::isDiagnosticAvailable() const {
@@ -371,7 +418,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回诊断信息列表。如果isDiagnosticAvailable返回false，则这个返回值不具有任何意义。
+		return 诊断信息列表。
+		
+		如果isDiagnosticAvailable返回false，则这个返回值不具有任何意义。
 		如果isDiagnosticAvailable返回true，且这个返回值为空列表，则保证没有语法错误。
 	*/
 	QList<AStoryXDiagnosticData> AStoryXControllerParseData::getDiagnostics() const {
@@ -380,7 +429,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回这个解析结果的字符串表示。这个字符串表示不具有任何特定格式，仅供调试使用。
+		return 这个解析结果的字符串表示。
+		
+		这个字符串表示不具有任何特定格式，仅供调试使用。
 	*/
 	QString AStoryXControllerParseData::toString() const {
 		QString result = QString("ControllerType: %1\n").arg(d->ControllerType);
@@ -393,7 +444,9 @@ namespace ASERStudio::AStorySyntax {
 	}
 	/*!
 		\since ASERStudio 2.0
-		返回这个解析结果是否有效。无效的解析结果代表它是创建即返回的，没有包含任何有效数据。
+		return 这个解析结果是否有效。
+		
+		无效的解析结果代表它是创建即返回的，没有包含任何有效数据。
 	*/
 	bool AStoryXControllerParseData::isValid() const {
 		return d->ControllerType != AStoryXController::ControllerType::Unknown;

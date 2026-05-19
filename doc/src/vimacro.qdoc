@@ -92,6 +92,8 @@
     \relates <VIMacro.h>
     \brief 定义接口类
 
+    \a name 接口类的名称
+
     C++关键字class的别名，用于标明这是一个用作接口的纯虚类。
 */ 
 
@@ -99,6 +101,8 @@
     \macro VIAPIClass(name)
     \relates <VIMacro.h>
     \brief PIMPL设计模式下的API类定义宏
+
+    \a name API类的名称
 
     用于在PIMPL设计模式下定义API类的宏，简化代码编写。
 
@@ -111,6 +115,8 @@
     \macro VImpl(name)
     \relates <VIMacro.h>
     \brief PIMPL设计模式下的私有实现类定义宏
+
+    \a name 私有实现类的名称
      
     用于在PIMPL设计模式下定义私有实现类的宏，简化代码编写。
 
@@ -126,6 +132,8 @@
     \relates <VIMacro.h>
     \brief PIMPL设计模式下的私有实现类定义宏
 
+    \a name 私有实现类的名称
+
     扩展到声明一个类name##Private。带有关键字class，可以直接编写类本体。
 */
 
@@ -133,6 +141,8 @@
     \macro VIAPI(name)
     \relates <VIMacro.h>
     \brief 在Private类内定义API类为其友元和q指针。
+
+    \a name API类的名称
 
     用于在Private类内定义API类为其友元和q指针的宏，简化代码编写。
 
@@ -145,6 +155,8 @@
     \relates <VIMacro.h>
     \brief 在一个Private类内指定复制构造函数为编译器默认函数
 
+    \a name API类的名称
+
     用于在Private类内指定复制构造函数为编译器默认函数的宏，简化代码编写。
 
     此宏不常用到。因为纯成员变量的类的复制构造通常不需要单独声明，而带有
@@ -156,6 +168,8 @@
     \relates <VIMacro.h>
     \brief 在一个API类声明这个类是可复制的
 
+    \a name API类的名称
+
     用于在一个API类声明这个类是可复制的宏，简化代码编写。
     它会同时声明复制构造函数和复制赋值运算符函数。
 */
@@ -164,6 +178,8 @@
     \macro VICopyable_Impl(name)
     \relates <VIMacro.h>
     \brief 用于为API类提供”可复制“的相关实现
+    
+    \a name API类的名称
 
     用于为API类提供”可复制“的相关实现的宏，简化代码编写。
     它会同时实现复制构造函数和复制赋值运算符函数
@@ -180,6 +196,8 @@
     \relates <VIMacro.h>
     \brief 在一个API类声明这个类是可移动的
 
+    \a name API类的名称
+
     用于在一个API类声明这个类是可移动的宏，简化代码编写。
     它会同时声明移动构造函数和移动赋值运算符函数。
 */
@@ -188,6 +206,8 @@
     \macro VIMoveable_Impl(name)
     \relates <VIMacro.h>
     \brief 用于为API类提供”可移动“的相关实现
+
+    \a name API类的名称
 
     用于为API类提供”可移动“的相关实现的宏，简化代码编写。
 
@@ -205,6 +225,8 @@
     \relates <VIMacro.h>
     \brief 用于声明一个单例类
 
+    \a name 单例类的名称
+
     用于声明一个单例类的宏，简化代码编写。
 
     它为这个单例类声明getInstance()静态函数。
@@ -214,6 +236,8 @@
     \macro VI_Singleton_Impl(name)
     \relates <VIMacro.h>
     \brief 用于实现一个单例类
+
+    \a name 单例类的名称
 
     用于实现一个单例类的宏，简化代码编写。
 
@@ -225,6 +249,8 @@
     \relates <VIMacro.h>
     \brief 用于在Private类中定义API类的静态指针
 
+    \a name API类的名称
+
     用于在Private类中定义API类的静态指针的宏，简化代码编写。
 */
 
@@ -232,6 +258,8 @@
     \macro VI_Singleton_Init(name)
     \relates <VIMacro.h>
     \brief 用于初始化单例类的静态指针
+
+    \a name 单例类的名称
 
     用于初始化单例类的静态指针的宏，简化代码编写。
 */

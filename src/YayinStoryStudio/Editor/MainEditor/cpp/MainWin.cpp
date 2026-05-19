@@ -211,7 +211,9 @@ namespace YSS::Editor {
 
 	void MainWin::saveAllFiles() {
 		for (auto* widget : YSSFSM->getAllFileEditWidgets()) {
-			widget->saveFile();
+			if (widget->isFileChanged()) {
+				widget->saveFile();
+			}
 		}
 	}
 
@@ -236,9 +238,10 @@ namespace YSS::Editor {
 			{"edit::paste", "Ctrl+V"},
 			{"edit::selectAll", "Ctrl+A"},
 			{"edit::findAndReplace", "Ctrl+F"},
-			{"run::run", "F5"},
-			{"run::debug", "Ctrl+F5"},
-			{"run::stop", "Shift+F5"}
+			{"run::debug", "F5"},
+			{"run::run", "Ctrl+F5"},
+			{"run::stop", "Shift+F5"},
+			{"run::restart", "Ctrl+Shift+F5"},
 		};
 		Menu->setShortcutTips(currentTips);
 	}
@@ -302,6 +305,10 @@ namespace YSS::Editor {
 			if (event->key() == Qt::Key_S) {
 				saveProject();
 			}
+			else if (event->key() == Qt::Key_F5) {
+				saveProject();
+				Menu->run_run_restart();
+			}
 		}
 		else if (event->modifiers() == Qt::ControlModifier) {
 			if (event->key() == Qt::Key_S) {
@@ -322,6 +329,7 @@ namespace YSS::Editor {
 		}
 		else if (event->modifiers() == Qt::ShiftModifier) {
 			if (event->key() == Qt::Key_F5) {
+				saveAllFiles();
 				Menu->run_run_stop();
 			}
 		}
@@ -334,6 +342,7 @@ namespace YSS::Editor {
 			help();
 		}
 		else if (event->key() == Qt::Key_F5) {
+			saveAllFiles();
 			Menu->run_run_debug();
 		}
 	}

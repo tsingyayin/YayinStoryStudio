@@ -10,7 +10,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::DebugServer
-		\brief 这个类提供对外部程序调试的接口。插件可以通过继承这个类来实现对特定类型程序的调试支持。
+		\brief 这个类提供对外部程序调试的接口。插件可以通过继承这个类来实现对特定类型程序的调试支持.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 
@@ -62,6 +62,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\typedef YSSCore::Editor::DebugServer::SupportedDebugFeatureFlag YSSCore::Editor::DebugServer::DebugAction
+		\relates YSSCore::Editor::DebugServer
 		\since YSS 0.15.0
 		将SupportedDebugFeatureFlag赋予别名为DebugAction，以更好地表达它在信号中的含义。
 
@@ -74,18 +75,20 @@ namespace YSSCore::Editor {
 
 	/*!
 		\fn YSSCore::Editor::DebugServer::actionStarted(DebugAction action)
-		\since YSS 0.15.0
-		当一个调试操作开始时发出此信号。理应只有on开始的函数才应该发出对应的信号。
-
 		\a action 正在执行的调试操作，例如构建、运行、单步调试等。
+		\since YSS 0.15.0
+
+		当一个调试操作开始时发出此信号。理应只有on开始的函数才应该发出对应的信号。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::DebugServer::actionPercent(DebugAction action, qint32 finished, qint32 total)
+		\a action 正在执行的调试操作，
+		\a finished 已经完成的部分，
+		\a total 总的部分。
 		\since YSS 0.15.0
-		当一个调试操作有进度更新时发出此信号。理应只有on开始的函数才应该发出对应的信号。
 
-		\a action 正在执行的调试操作，\a finished 已经完成的部分，\a total 总的部分。
+		当一个调试操作有进度更新时发出此信号。理应只有on开始的函数才应该发出对应的信号。
 
 		finished和total的具体含义取决于正在执行的调试操作，由实现自行决定，YSS
 		使用这个数据绘制进度条。
@@ -93,10 +96,12 @@ namespace YSSCore::Editor {
 
 	/*!
 		\fn YSSCore::Editor::DebugServer::actionMessage(DebugAction action, const QString& message)
+		\a action 正在执行的调试操作，
+		\a message 消息内容。
 		\since YSS 0.15.0
-		当一个调试操作有消息更新时发出此信号。理应只有on开始的函数才应该发出对应的信号。
-		\a action 正在执行的调试操作，\a message 消息内容。
 
+		当一个调试操作有消息更新时发出此信号。理应只有on开始的函数才应该发出对应的信号。
+		
 		message的具体含义取决于正在执行的调试操作，由实现自行决定，YSS
 		使用这个数据在输出窗口中输出。
 	*/
@@ -104,9 +109,11 @@ namespace YSSCore::Editor {
 	/*!
 		\fn YSSCore::Editor::DebugServer::actionFinished(DebugAction action, bool success)
 		\since YSS 0.15.0
-		当一个调试操作完成时发出此信号。理应只有on开始的函数才应该发出对应的信号。
-		\a action 正在执行的调试操作，\a success 调试操作是否成功完成。
+		\a action 正在执行的调试操作，
+		\a success 调试操作是否成功完成。
 
+		当一个调试操作完成时发出此信号。理应只有on开始的函数才应该发出对应的信号。
+		
 		如果一个步骤最终未能顺利执行完毕，则应该在适当的时候发出这个信号，
 		并将\a success设置为false，以通知编辑器这个步骤未能成功完成。
 
@@ -117,10 +124,13 @@ namespace YSSCore::Editor {
 
 	/*!
 		\fn YSSCore::Editor::DebugServer::breakpointChanged(const QString& filePath, qint32 lineNumber, bool enabled)
+		\a filePath 断点所在的文件路径，
+		\a lineNumber 断点所在的行号，
+		\a enabled 断点是否启用。
 		\since YSS 0.15.0
-		当一个断点被添加、删除时发出此信号。有关何时应该发出此信号，请参见setBreakpoint和setBreakpoints函数的文档说明。
-		\a filePath 断点所在的文件路径，\a lineNumber 断点所在的行号，\a enabled 断点是否启用。
 
+		当一个断点被添加、删除时发出此信号。有关何时应该发出此信号，请参见setBreakpoint和setBreakpoints函数的文档说明。
+		
 		由于写入此类的文件路径理应都是绝对路径，因此期望这个函数的\a filePath也是绝对路径。
 
 		此外，YSS约定，行号从0开始计数。
@@ -128,16 +138,23 @@ namespace YSSCore::Editor {
 
 	/*!
 		\fn YSSCore::Editor::DebugServer::breakpointHited(const QString& filePath, qint32 lineNumber)
+		\a filePath 断点所在的文件路径，
+		\a lineNumber 断点所在的行号。
 		\since YSS 0.15.0
+
 		当程序执行过程中命中了一个断点时发出此信号。
-		\a filePath 断点所在的文件路径，\a lineNumber 断点所在的行号。
 
 		由于写入此类的文件路径理应都是绝对路径，因此期望这个函数的\a filePath也是绝对路径。
 
 		此外，YSS约定，行号从0开始计数。
 	*/
 
+	/*!
+		\since YSS 0.15.0
+		\a action 调试操作名称
 
+		return 调试操作名称的字符串表示形式。
+	*/
 	QString DebugServer::getActionString(YSSCore::Editor::DebugServer::DebugAction action) {
 		return QMetaEnum::fromType<YSSCore::Editor::DebugServer::DebugAction>().valueToKey(action);
 	}
@@ -169,7 +186,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取这个DebugServer支持的调试功能。
+		return 这个DebugServer支持的调试功能。
 	*/
 	DebugServer::SupportedDebugFeature DebugServer::getSupportedFeatures() {
 		return d->Feature;
@@ -311,7 +328,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		设置断点。插件可以重写此函数来实现具体的设置断点功能。
-		\a filePath 断点所在的文件路径，\a lineNumber 断点所在的行号，\a enabled 断点是否启用。
+		\a filePath 断点所在的文件路径，
+		\a lineNumber 断点所在的行号，
+		\a enabled 断点是否启用。
 		YSS约定，行号从0开始计数。
 		当一个断点被添加、删除时，应该发出breakpointChanged信号，以通知编辑器断点信息的变化。
 
@@ -323,8 +342,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取断点信息。插件可以重写此函数来实现具体的获取断点信息功能。
-		返回一个QMap，键是文件路径，值是该文件中所有断点所在的行号列表。
+		return 断点信息。插件可以重写此函数来实现具体的获取断点信息功能。
+		
+		返回值是一个QMap，键是文件路径，值是该文件中所有断点所在的行号列表。
 		YSS约定，行号从0开始计数。
 
 		由于setBreakpoint时使用的理应是绝对路径，因此期望这里返回的也是绝对路径。

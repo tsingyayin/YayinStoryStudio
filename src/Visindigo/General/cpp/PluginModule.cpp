@@ -70,7 +70,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回所属插件对象指针。
+		return 所属插件对象指针。
 	*/
 	Plugin* PluginModule::getPlugin() const {
 		return d->ParentPlugin;
@@ -78,7 +78,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回模块名称。
+		return 模块名称。
 	*/
 	QString PluginModule::getModuleName() const {
 		return d->ModuleName;
@@ -93,7 +93,7 @@ namespace Visindigo::General {
 	}
 	/*!
 		\since Visindigo 0.13.0
-		返回模块唯一标识符。
+		return 模块唯一标识符。
 	*/
 	QString PluginModule::getModuleID() const {
 		return d->ModuleID;
@@ -101,7 +101,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回模块类型标识符。
+		return 模块类型标识符。
 	*/
 	QString PluginModule::getModuleTypeID() const {
 		return d->ModuleTypeID;

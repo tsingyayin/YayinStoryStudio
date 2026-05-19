@@ -7,52 +7,53 @@
 
 namespace Visindigo::Utility {
 	/*!
-	\class Visindigo::Utility::Console
-	\inmodule Visindigo
-	\brief 此类为YayinStoryStudio提供初级的控制台快捷功能。
-	\since Visindigo 0.10.0
+		\class Visindigo::Utility::Console
+		\inmodule Visindigo
+		\brief 此类为YayinStoryStudio提供初级的控制台快捷功能.
+		\since Visindigo 0.10.0
 
-	VIConsole提供输出到控制台时可能需要的颜色控制、格式控制等功能，并提供了一个用于快速打印二进制数据的函数QString::printBinary()。
+		VIConsole提供输出到控制台时可能需要的颜色控制、格式控制等功能，并提供了一个用于快速打印二进制数据的函数QString::printBinary()。
+	*/
+	/*!
+		\enum Visindigo::Utility::Console::Color
+		\since Visindigo 0.10.0
+		\value None 无颜色
+		\value Black 黑色
+		\value Gray 灰色
+		\value Red 红色
+		\value LightRed 亮红色
+		\value Green 绿色
+		\value LightGreen 亮绿色
+		\value Yellow 黄色
+		\value LightYellow 亮黄色
+		\value Blue 蓝色
+		\value LightBlue 亮蓝色
+		\value Purple 紫色
+		\value LightPurple 亮紫色
+		\value Cyan 青色
+		\value LightCyan 亮青色
+		\value LightGray 亮灰色
+		\value White 白色
+	*/
+	/*!
+		\enum Visindigo::Utility::Console::Style
+		\since Visindigo 0.10.0
+		\value Normal 正常
+		\value Bold 粗体
+		\value Italic 斜体
+		\value Underline 下划线
+		\value Splash 闪烁
+		\value Inverse 反色
+		\value Strikethrough 删除线
+	*/
+	/*!
+		\since Visindigo 0.10.0
+		\a rawText 为要设置颜色的文本。
+		\a color 为颜色。
+		\a styleList 为样式列表。
 
-*/
-/*!
-	\enum Visindigo::Utility::Console::Color
-	\since Visindigo 0.10.0
-	\value None 无颜色
-	\value Black 黑色
-	\value Gray 灰色
-	\value Red 红色
-	\value LightRed 亮红色
-	\value Green 绿色
-	\value LightGreen 亮绿色
-	\value Yellow 黄色
-	\value LightYellow 亮黄色
-	\value Blue 蓝色
-	\value LightBlue 亮蓝色
-	\value Purple 紫色
-	\value LightPurple 亮紫色
-	\value Cyan 青色
-	\value LightCyan 亮青色
-	\value LightGray 亮灰色
-	\value White 白色
-*/
-/*!
-	\enum Visindigo::Utility::Console::Style
-	\since Visindigo 0.10.0
-	\value Normal 正常
-	\value Bold 粗体
-	\value Italic 斜体
-	\value Underline 下划线
-	\value Splash 闪烁
-	\value Inverse 反色
-	\value Strikethrough 删除线
-*/
-/*!
-	\since Visindigo 0.10.0
-	\a rawText 为要设置颜色的文本。
-	\a color 为颜色。
-	\a styleList 为样式列表。
-*/
+		return 一个带有指定颜色和样式的文本。
+	*/
 	QString Console::getColorString(QString rawText, Console::Color color, QList<Console::Style> styleList) {
 		QString styleString = "";
 		switch (color) {
@@ -143,8 +144,12 @@ namespace Visindigo::Utility {
 	/*!
 		\overload
 		\since Visindigo 0.13.0
+		\a rawText 为要设置颜色的文本。
+		\a color 为颜色。
+		\a style 为样式。
 
 		允许只设置一个样式。
+		return 一个带有指定颜色和样式的文本。
 	*/
 	QString Console::getColorString(QString rawText, Console::Color color, Console::Style style) {
 		return getColorString(rawText, color, QList<Console::Style>({ style }));
@@ -153,8 +158,12 @@ namespace Visindigo::Utility {
 	/*!
 		\overload
 		\since Visindigo 0.13.0
+		\a rawText 为要设置颜色的文本。
+		\a rgb 为颜色的RGB值。
+		\a styleList 为样式列表。
 
 		允许使用RGB颜色。
+		return 一个带有指定颜色和样式的文本。
 	*/
 	QString Console::getColorString(QString rawText, QColor rgb, QList<Console::Style> styleList) {
 		QString styleString = QString::asprintf("\033[38;2;%d;%d;%d", rgb.red(), rgb.green(), rgb.blue());
@@ -190,8 +199,12 @@ namespace Visindigo::Utility {
 	/*!
 		\overload
 		\since Visindigo 0.13.0
+		\a rawText 为要设置颜色的文本。
+		\a rgb 为颜色的RGB值。
+		\a style 为样式。
 
 		允许在只设置一个样式的情况下使用RGB颜色。
+		return 一个带有指定颜色和样式的文本。
 	*/
 	QString Console::getColorString(QString rawText, QColor rgb, Console::Style style) {
 		return getColorString(rawText, rgb, QList<Console::Style>({ style }));
@@ -200,7 +213,10 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 
-		获取一行输入。
+		获取一行输入。基本上等价于使用std::getline(std::cin, sthOutput)
+		值得指出的是，这是个会导致阻塞的函数，直到用户输入一行文本并按下回车键为止。
+
+		return 输入的字符串，类型为QString。
 	*/
 	QString Console::getLine() {
 		std::string commandStd;
@@ -212,7 +228,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a rawText 为要设置样式的文本。
 
-		返回一个带有警告样式的文本，即黄色加粗。
+		return 一个带有警告样式的文本，即黄色加粗。
 	*/
 	QString Console::inWarningStyle(QString rawText) {
 		return getColorString(rawText, QColor(255, 253, 85), Style::Bold);
@@ -222,7 +238,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a rawText 为要设置样式的文本。
 
-		返回一个带有错误样式的文本，即红色加粗。
+		return 一个带有错误样式的文本，即红色加粗。
 	*/
 	QString Console::inErrorStyle(QString rawText) {
 		return getColorString(rawText, Color::Red, Style::Bold);
@@ -232,7 +248,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a rawText 为要设置样式的文本。
 
-		返回一个带有成功样式的文本，即绿色加粗。
+		return 一个带有成功样式的文本，即绿色加粗。
 	*/
 	QString Console::inSuccessStyle(QString rawText) {
 		return getColorString(rawText, Color::Green, Style::Bold);
@@ -242,7 +258,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a rawText 为要设置样式的文本。
 
-		返回一个带有通知样式的文本，即蓝色加粗。
+		return 一个带有通知样式的文本，即蓝色加粗。
 	*/
 	QString Console::inNoticeStyle(QString rawText) {
 		return getColorString(rawText, Color::Blue, Style::Bold);
@@ -252,7 +268,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a colorString 为带有颜色样式的文本。
 
-		返回一个不带颜色样式的文本。
+		return 一个不带颜色样式的文本。
 	*/
 	QString Console::getRawText(QString colorString) {
 		QString rawText = colorString;
@@ -263,7 +279,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a cmdColorString 为带有颜色样式的文本。
-		返回一个HTML格式的字符串，适用于在HTML环境中显示。
+
+		return 一个HTML格式的字符串，适用于在HTML环境中显示。
 	*/
 	QString Console::cmdColorToHtmlString(QString cmdColorString) {
 		QString htmlString = cmdColorString.toHtmlEscaped();
@@ -412,7 +429,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a data 为要进行二进制显示的数据。
-		返回一个字符串，包含了数据的二进制显示。其格式与binary()函数的输出相同。
+
+		return 一个字符串，包含了数据的二进制显示。其格式与binary()函数的输出相同。
 	*/
 	QString Console::binaryToString(const QByteArray& data) {
 		if (data.isEmpty()) { return QString(); }
@@ -470,7 +488,8 @@ namespace Visindigo::Utility {
 		return result;
 	}
 
-	/*! \fn template <typename T> static void Console::memory(const T * data)
+	/*! 
+		\fn template <typename T> static void Console::memory(const T * data)
 		\since Visindigo 0.13.0
 		\a data 为要进行二进制显示的对象
 

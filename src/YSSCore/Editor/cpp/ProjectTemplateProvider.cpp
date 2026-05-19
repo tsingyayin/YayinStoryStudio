@@ -11,7 +11,7 @@ namespace YSSCore::Editor {
 
 		ProjectTemplateInitWidget是一个QFrame，作为ProjectTemplateProvider的初始化界面。
 		当用户选择某个项目模板来创建项目时，编辑器会调用该模板的projectInitWidget函数，
-		获取一个ProjectTemplateInitWidget实例，并将其显示在界面上。用户可以在这个界面上进行一些必要的配置（如项目名称、保存路径等），
+		return 一个ProjectTemplateInitWidget实例，并将其显示在界面上。用户可以在这个界面上进行一些必要的配置（如项目名称、保存路径等），
 		然后点击“创建”按钮来完成项目的创建过程。
 
 		请注意，为了与YSS解耦，这个类设计上并未采用要求用户必须创建持续存活YSSCore::General::YSSProject实例
@@ -93,7 +93,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取模板图标路径
+		return 模板图标路径
 	*/
 	QString ProjectTemplateProvider::getTemplateIconPath() const{
 		return d->TemplateIconPath;
@@ -109,7 +109,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取模板ID
+		return 模板ID
 	*/
 	QString ProjectTemplateProvider::getTemplateID() const{
 		return d->TemplateID;
@@ -125,7 +125,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取模板名称
+		return 模板名称
 	*/
 	QString ProjectTemplateProvider::getTemplateName() const{
 		return d->TemplateName;
@@ -141,7 +141,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取模板描述
+		return 模板描述
 	*/
 	QString ProjectTemplateProvider::getTemplateDescription() const{
 		return d->TemplateDescription;
@@ -157,7 +157,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取模板标签列表
+		return 模板标签列表
 	*/
 	QStringList ProjectTemplateProvider::getTemplateTags() const{
 		return d->TemplateTags;

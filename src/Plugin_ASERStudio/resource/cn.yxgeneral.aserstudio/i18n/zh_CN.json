@@ -441,10 +441,10 @@
     "config": {
         "title": "ASER Studio 设置",
         "aserExeSettings": {
-            "title": "ASE-Remake 可执行文件设置",
+            "title": "ASE-Remake 程序启动设置",
             "exePath": {
-                "title": "可执行文件路径",
-                "text": "ASE-Remake的可执行文件路径。"
+                "title": "ASE-Remake程序路径",
+                "text": "ASE-Remake.exe文件的位置。\n正确配置该项目，才能从YSS启动ASE-Remake."
             },
             "version": {
                 "title": "ASE版本",
@@ -461,11 +461,11 @@
     "debugger": {
         "executableNotFound": {
             "title": "无法启动ASE-Remake",
-            "message": "配置的路径%1无效，无法启动ASE-Remake应用。请在文件->插件和首选项->ASER Studio设置中检查你的配置，确保你已经正确地设置了ASE-Remake可执行文件的路径。"
+            "message": "配置的ASE-Remake程序路径\"%1无效\"，无法启动ASE-Remake应用。\n请在文件->插件和首选项->ASER Studio设置中检查你的配置，确保你已经正确地设置了ASE-Remake.exe的路径。"
         },
         "isRunning": {
             "title": "似乎这里有点什么冲突...",
-            "message": "检测到有其他ASE-Remake程序已经在运行了。目前调试器不支持同时连接多个ASE-Remake程序，请先关闭其他正在运行的ASE-Remake程序后再尝试启动调试。"
+            "message": "检测到有其他ASE-Remake程序已经在运行了，因此调试器陷入了一些冲突。\n目前调试器不支持同时连接多个ASE-Remake程序，请先关闭其他正在运行的ASE-Remake程序后再尝试启动调试。"
         },
         "starting": {
             "title": "ASE-Remake测试版缺陷通知",
@@ -473,7 +473,7 @@
         },
         "notLegalFile": {
             "title": "哎呀，你按错了！",
-            "message": "你正在尝试对文件%1启动调试，然而这不是一个合法的ASER剧本文件。请切换到.astoryx文件后再尝试启动调试。"
+            "message": "你正在尝试对文件%1启动调试，然而这不是一个合法的ASER剧本文件。\n请切换到.astoryx文件后再尝试启动调试。"
         },
         "executing":{
             "waitingForLaunch": "正在等待ASE-Remake启动...",

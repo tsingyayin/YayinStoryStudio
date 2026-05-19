@@ -820,6 +820,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup LangService FileService
+		
 		TextEdit是Yayin Story Studio中最关键、最核心的功能，即代码编辑器。
 
 		此类相比于Qt提供的QTextEdit，额外提供了其所缺失的现代代码编辑必备的几项基本功能：
@@ -852,6 +853,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a parent 父级窗口部件
+
 		TextEdit的构造函数。
 	*/
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
@@ -911,6 +914,7 @@ namespace YSSCore::Editor {
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
 	}
+
 	/*!
 		\since YSS 0.13.0
 		TextEdit的析构函数。
@@ -935,8 +939,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		设置鼠标悬停提示的显示区域。如果不设置或设置为nullptr，那么悬停区域
-		永远不会超出TextEdit的范围。这可能在很多情况下会导致内容被遮挡，
+		\a area 设置鼠标悬停提示的显示区域。
+		
+		如果不设置或设置为nullptr，那么悬停区域永远不会超出TextEdit的范围。
+		这可能在很多情况下会导致内容被遮挡，
 		因此我们建议您将悬停区域设置为一个更大的区域，如您的组件的主窗口等。
 	*/
 	void TextEdit::setHoverArea(QWidget* area) {
@@ -960,7 +966,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		设置TextEdit中的文本内容。此函数会替换掉TextEdit中原有的全部文本内容。
+		\a text 设置TextEdit中的文本内容。
+		
+		此函数会替换掉TextEdit中原有的全部文本内容。
 	*/
 	void TextEdit::setPlainText(const QString& text) {
 		d->Text->setPlainText(text);
@@ -969,7 +977,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取TextEdit中的文本内容。此函数会返回TextEdit中全部的文本内容。
+		return TextEdit中的文本内容。此函数会返回TextEdit中全部的文本内容。
 	*/
 	QString TextEdit::getPlainText() const {
 		return d->Text->toPlainText();
@@ -977,7 +985,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		将光标移动到指定行。行号从1开始。
+		\a lineNumber 将光标移动到指定行
+		
+		行号从1开始。
 	*/
 	void TextEdit::moveCursorToLine(int lineNumber) {
 		if (lineNumber < 1 || lineNumber > d->Text->document()->blockCount()) {
@@ -991,7 +1001,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取当前光标所在的行号。行号从1开始。
+		return 当前光标所在的行号。行号从1开始。
 	*/
 	int TextEdit::getCurrentLineNumber() const {
 		QTextCursor cursor = d->Text->textCursor();
@@ -1000,7 +1010,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		设置鼠标悬停提示的超时时间。单位为毫秒。
+		\a ms 设置鼠标悬停提示的超时时间。单位为毫秒。
 	*/
 	void TextEdit::setHoverTimeout(qint32 ms) {
 		d->HoverTimeout = ms;
@@ -1009,7 +1019,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取鼠标悬停提示的超时时间。单位为毫秒。
+		return 鼠标悬停提示的超时时间。单位为毫秒。
 	*/
 	qint32 TextEdit::getHoverTimeout() const {
 		return d->HoverTimeout;
@@ -1017,7 +1027,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		设置Tab键是否使用空格进行缩进。默认为false，即使用制表符进行缩进。
+		\a reload 设置Tab键是否使用空格进行缩进。
+		
+		默认为false，即使用制表符进行缩进。
 	*/
 	void TextEdit::setTabReload(bool reload) {
 		d->ReloadTab = reload;
@@ -1025,7 +1037,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取Tab键是否使用空格进行缩进。
+		return Tab键是否使用空格进行缩进。
 	*/
 	bool TextEdit::isTabReload() const {
 		return d->ReloadTab;
@@ -1033,7 +1045,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		设置Tab键的缩进宽度。单位为字符数。默认为4。
+		return TextEdit中用于显示文本内容的QTextDocument对象。
+		
+		通过这个对象，您可以实现更底层的文本操作，如语法高亮、文本格式化等。
 	*/
 	QTextDocument* TextEdit::getDocument() const {
 		return d->Text->document();
@@ -1041,7 +1055,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		获取字体的字号。
+		return 字体的字号。
 	*/
 	qint32 TextEdit::getFontSize() const {
 		return d->Text->font().pointSize();
@@ -1049,7 +1063,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		设置字体的字号。
+		\a size 设置字体的字号。
 	*/
 	void TextEdit::setFontSize(qint32 size) {
 		QFont font = d->Text->font();
@@ -1063,14 +1077,12 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		在整个文档中查找\a source。当\a sourceAsRe为真时，将\a source视作正则表达式进行查找。
-		返回一个包含所有匹配结果的QTextCursor构成的列表。这些QTextCursor的特性完全由
-		QTextDocument::find()函数返回的QTextCursor决定。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
+		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
+		\a multiSelection 当为真时，TextEdit会为每个匹配项创建选区以将它们临时高亮。请注意，这个临时选区只是视觉效果，不改变当前光标位置。
 
-		\a options参数与QTextDocument::find()函数的flags参数完全相同。
-
-		当\a multiSelection为真时，TextEdit会为每个匹配项创建选区以将它们临时高亮。请注意，
-		这个临时选区只是视觉效果，不改变当前光标位置。如果需要清除这些临时选区，请调用clearFindAllSelection()函数。
+		return 一个包含所有匹配结果的QTextCursor构成的列表。这些QTextCursor的特性完全由
 	*/
 	QList<QTextCursor> TextEdit::findAll(const QString& source, bool sourceAsRe, QTextDocument::FindFlags options, bool multiSelection) const {
 		QList<QTextCursor> results;
@@ -1115,13 +1127,13 @@ namespace YSSCore::Editor {
 	
 	/*!
 		\since YSS 0.14.0
-		在整个文档中从\a from 开始，尝试查找下一个\a source。当\a sourceAsRe为真时，将\a source视作正则表达式进行查找。
-		返回匹配的QTextCursor。如果没有找到匹配项，则返回一个isNull()为真的QTextCursor。这个QTextCursor的特性完全由
-		QTextDocument::find()函数返回的QTextCursor决定。
-		如果\a from是-1，则从当前光标位置开始查找。如果\a from 是0，就从文档开头开始查找。
-		\a options参数与QTextDocument::find()函数的flags参数完全相同。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
+		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a from 查找的起始位置，默认为-1，表示从当前光标位置开始查找。
+		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
+		\a relocate 当为真时，如果找到匹配项，光标会被移动到这个匹配项的位置；当为假时，光标位置不变。
 
-		\a relocate 如果为true，就在找到匹配项后将光标移动到该位置；如果为false，就不改变当前光标位置。默认为false
+		return 一个QTextCursor，表示找到的匹配项的位置。如果没有找到匹配项，返回一个isNull()为真的QTextCursor。
 	*/
 	QTextCursor TextEdit::findNext(const QString& source, bool sourceAsRe, qint32 from, QTextDocument::FindFlags options, bool relocate) const {
 		if (from == -1) {
@@ -1143,8 +1155,12 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		这函数使用 findAll 找到所有匹配项之后，将它们全部替换为 \a newText。返回替换掉的匹配项数量。
-		\a text \a textAsRe \a options参数与findAll函数的对应参数完全相同。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
+		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a newText 要替换为的新字符串。
+		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
+
+		return 替换掉的匹配项数量。
 	*/
 	qint32 TextEdit::replaceAll(const QString& source, const QString& newText, bool sourceAsRe, QTextDocument::FindFlags options) {
 		QList<QTextCursor> matches = findAll(source, sourceAsRe, options);
@@ -1161,8 +1177,14 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		这函数使用 findNext 找到下一个匹配项之后，将它替换为 \a newText。返回是否成功替换。
-		\a text 、\a textAsRe 、\a from、\a options、\a relocate 参数与findNext函数的对应参数完全相同。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
+		\a newText 要替换为的新字符串。
+		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a from 查找的起始位置，默认为-1，表示从当前光标位置开始查找。
+		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
+		\a relocate 当为真时，如果找到匹配项，光标会被移动到这个匹配项的位置；当为假时，光标位置不变。
+
+		return 是否成功替换。
 	*/
 	bool TextEdit::replaceNext(const QString& source, const QString& newText, bool sourceAsRe, qint32 from, QTextDocument::FindFlags options, bool relocate) {
 		QTextCursor match = findNext(source, sourceAsRe, from, options);
@@ -1190,8 +1212,13 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a line 行号，从0开始。
+		\a column 列号，从0开始。
+		
 		按给定行号和列重定位光标。行号和列号均从0开始。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用cursorToPosition()函数。
+
+		return 如果成功将光标移动到指定位置，返回true；如果行号或列号无效，无法移动光标，则返回false。
 	*/
 	bool TextEdit::onCursorToPosition(qint32 line, qint32 column) {
 		//vgDebug << "Cursor to position: line" << line << "column" << column;
@@ -1210,7 +1237,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		打开一个文件。只有文件完全打开成功才会返回true，其他任何失败情况均返回false。
+		打开一个文件。
+
+		return 文件完全打开成功才会返回true，其他任何失败情况均返回false。
+
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。
 	*/
 	bool TextEdit::onOpen(const QString& path) {
@@ -1274,7 +1304,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		保存当前文件。只有当文件成功保存时才会返回true，其他任何失败情况均返回false。
+		保存当前文件。
+		
+		return 当文件成功保存时才会返回true，其他任何失败情况均返回false。
+
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用saveFile()函数。
 	*/
 	bool TextEdit::onSave(const QString& path) {
@@ -1313,7 +1346,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		重新加载当前文件。只有当文件成功重新加载时才会返回true，其他任何失败情况均返回false。
+		重新加载当前文件。
+		
+		return 当文件成功重新加载时才会返回true，其他任何失败情况均返回false。
+
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用reloadFile()函数。
 	*/
 	bool TextEdit::onReload() {
@@ -1338,32 +1374,79 @@ namespace YSSCore::Editor {
 		return false;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		复制选中的文本。
 
+		return 如果成功复制文本，返回true；否则返回false。
+
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用copy()函数。
+	*/
 	bool TextEdit::onCopy() {
 		d->Text->copy();
 		return true;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		剪切选中的文本。
+
+		return 如果成功剪切文本，返回true；否则返回false。
+
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用cut()函数。
+	*/
 	bool TextEdit::onCut() {
 		d->Text->cut();
 		return true;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		粘贴剪贴板中的文本。
+
+		return 如果成功粘贴文本，返回true；否则返回false。
+
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用paste()函数。
+	*/
 	bool TextEdit::onPaste() {
 		d->Text->paste();
 		return true;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		撤销上一步操作。
+
+		return 如果成功撤销操作，返回true；否则返回false。
+
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用undo()函数。
+	*/
 	bool TextEdit::onUndo() {
 		d->Text->undo();
 		return true;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		重做上一步被撤销的操作。
+
+		return 如果成功重做操作，返回true；否则返回false。
+
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用redo()函数。
+	*/
 	bool TextEdit::onRedo() {
 		d->Text->redo();
 		return true;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		选择全部文本。
+
+		return 如果成功选择全部文本，返回true；否则返回false。
+
+		这是对基类纯虚函数的实现，不应直接调用此函数。请使用selectAll()函数。
+	*/
 	bool TextEdit::onSelectAll() {
 		d->Text->selectAll();
 		return true;

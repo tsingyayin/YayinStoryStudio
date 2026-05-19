@@ -467,7 +467,10 @@ namespace ASERStudio::ASEREnv {
 	/*!
 		\since ASERStudio 2.0
 		获取ASER程序的配置文件路径。由于ASER是Unity编写的，因此
-		它默认在当前用户文件夹\LocalLow\Gradus\ASE-Remake（在Windows上）
+		它默认在
+		\badcode
+		当前用户文件夹\LocalLow\Gradus\ASE-Remake（在Windows上）
+		\endcode
 	*/
 	QString ASERProgram::getLocalLowPath() const {
 #ifdef Q_OS_WIN

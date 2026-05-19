@@ -106,7 +106,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		返回此文件服务的编辑器类型。
+		return 此文件服务的编辑器类型。
 	*/
 	FileServer::EditorType FileServer::getEditorType() {
 		return d->Type;
@@ -114,7 +114,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		返回此文件服务支持的文件扩展名列表。
+		return 此文件服务支持的文件扩展名列表。
 	*/
 	QStringList FileServer::getSupportedFileExts() {
 		return d->SupportedFileExts;
@@ -172,7 +172,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		返回此文件服务是否为虚拟文件服务器。
+		return 此文件服务是否为虚拟文件服务器。
 	*/
 	bool FileServer::isVirtualFileServer() {
 		return d->asVirtualFileServer;

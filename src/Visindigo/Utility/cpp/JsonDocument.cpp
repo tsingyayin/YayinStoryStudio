@@ -18,7 +18,7 @@ namespace Visindigo::Utility {
 		\class Visindigo::Utility::JsonDocument
 		\inmodule Visindigo
 		\since Visindigo 0.10.0
-		\brief 此类在VIJsonConfig的基础上增加了一种允许存在默认值的配置文件的处理方式。
+		\brief 此类在VIJsonConfig的基础上增加了一种允许存在默认值的配置文件的处理方式.
 		\sa JsonConfig
 
 		VIJsonDocument是VIJsonConfig的功能扩展，从本质上讲，VIJsonDocument内包含了两个VIJsonConfig对象，

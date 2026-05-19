@@ -116,7 +116,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回PluginManager单例对象指针。单例不存在时自动创建，是获得PluginManager对象的唯一途径。
+		return PluginManager单例对象指针。单例不存在时自动创建，是获得PluginManager对象的唯一途径。
 
 		\sa VISPM
 	*/
@@ -374,7 +374,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回已加载的插件数量。这是被正确识别且加载到内存的插件动态链接库的数量。
+		return 已加载的插件数量。这是被正确识别且加载到内存的插件动态链接库的数量。
 
 		根据插件加载的成功情况，插件在内存中的关系遵循如下规律：
 		\list
@@ -392,7 +392,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回已启用的插件数量。这是被启用并可以使用的插件对象的数量。
+		return 已启用的插件数量。这是被启用并可以使用的插件对象的数量。
 
 		\sa getLoadedPluginCount()
 	*/
@@ -475,7 +475,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		返回所有被设置为未激活状态的插件ID列表。
+		return 所有被设置为未激活状态的插件ID列表。
 		
 		请注意，这只包括被手动设置为未激活状态的插件ID，而不包括那些因为依赖关系而被自动禁用的插件ID。
 	*/

@@ -123,7 +123,7 @@ namespace ASERStudio::AStorySyntax {
 	}
 	/*!
 		\since ASERStudio 2.0
-		返回诊断消息。
+		return 诊断消息。
 	*/
 	QString AStoryXDiagnosticData::getMessage() const {
 		return d->Message;
@@ -131,7 +131,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回诊断位置的行号。
+		return 诊断位置的行号。
 	*/
 	qint32 AStoryXDiagnosticData::getLine() const {
 		return d->Line;
@@ -139,7 +139,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回诊断位置的列号。
+		return 诊断位置的列号。
 	*/
 	qint32 AStoryXDiagnosticData::getColumn() const {
 		return d->Column;
@@ -147,7 +147,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回修复建议。
+		return 修复建议。
 	*/
 	QString AStoryXDiagnosticData::getFixAdvice() const {
 		return d->FixAdvice;
@@ -155,7 +155,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回诊断类型。
+		return 诊断类型。
 	*/
 	AStoryXDiagnosticData::DiagnosticType AStoryXDiagnosticData::getType() const {
 		return d->Type;
@@ -163,7 +163,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		返回诊断信息的字符串表示形式，主要用于调试和日志记录等目的。通常会包含诊断类型、位置和消息等内容。
+		return 诊断信息的字符串表示形式，主要用于调试和日志记录等目的。通常会包含诊断类型、位置和消息等内容。
 	*/
 	QString AStoryXDiagnosticData::toString() {
 		return QString("Type: %1, Line: %2, Column: %3, Message: %4, FixAdvice: %5")

@@ -64,10 +64,14 @@ namespace Visindigo::Widgets {
 
 		注意这里说的名为均为QObject::setObjectName()，并非其在代码中的变量名。
 		此外，这要求槽函数使用public slots:显式的标记，否则将找不到该函数。
+
+		\warning 此类计划从0.17.0开始废弃，且暂无替代方案。
 	*/
 
 	/*!
 		\since Visindigo 0.13.0
+		\a parent 父窗口
+
 		构造函数
 	*/
 	QuickMenu::QuickMenu(QWidget* parent) :QMenuBar(parent) {
@@ -84,6 +88,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a handler 动作处理器
+
 		设置动作处理器。动作处理器是一个QObject对象，QuickMenu会将菜单项的triggered信号连接到动作处理器中对应ID的槽函数。
 	*/
 	void QuickMenu::setActionHandler(QObject* handler) {
@@ -92,6 +98,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a jsonStr JSON字符串
+
 		从Json字符串加载菜单结构。Json字符串必须符合QuickMenu的规范，否则可能会导致解析失败或运行时错误。
 	*/
 	void QuickMenu::loadFromJson(const QString& jsonStr) {

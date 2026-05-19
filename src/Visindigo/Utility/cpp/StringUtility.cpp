@@ -14,7 +14,10 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.14.0
-		返回两个字符串的编辑距离。编辑距离是指将一个字符串转换成另一个字符串所需要的最少编辑操作次数，
+		\a s1 目标字符串
+		\a s2 候选字符串
+
+		return 两个字符串的编辑距离。编辑距离是指将一个字符串转换成另一个字符串所需要的最少编辑操作次数，
 		编辑操作包括插入一个字符、删除一个字符和替换一个字符。
 
 		一般而言，如果编辑距离不小于最短字符串的长度，可以认为这两个字符串完全不同。
@@ -45,7 +48,11 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.14.0
-		返回一个字符串列表，包含所有与目标字符串的编辑距离不大于maxDistance的候选字符串。
+		\a target 目标字符串
+		\a candidates 候选字符串列表
+		\a maxDistance 最大编辑距离
+
+		return 一个字符串列表，包含所有与目标字符串的编辑距离不大于maxDistance的候选字符串。
 	*/
 	QStringList StringUtility::getSimilarStrings(const QString& target, const QStringList& candidates, int maxDistance) {
 		QStringList result;
@@ -59,7 +66,11 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.14.0
-		返回一个字符串列表，包含所有以指定字符串开头的候选字符串。可以选择是否区分大小写。
+		\a str 输入字符串
+		\a candidates 候选字符串列表
+		\a caseSensitive 是否区分大小写
+
+		return 一个字符串列表，包含所有以指定字符串开头的候选字符串。可以选择是否区分大小写。
 	*/
 	QStringList StringUtility::getStartWith(const QString& str, const QStringList& candidates, bool caseSensitive) {
 		QStringList result;
@@ -73,7 +84,9 @@ namespace Visindigo::Utility {
 	
 	/*!
 		\since Visindigo 0.14.0
-		返回一个字符串列表，包含输入列表中所有不重复的字符串。重复的字符串只保留第一次出现的。
+		\a list 输入字符串列表
+
+		return 一个字符串列表，包含输入列表中所有不重复的字符串。重复的字符串只保留第一次出现的。
 	*/
 	QStringList StringUtility::deduplicate(const QStringList& list) {
 		if (list.isEmpty()) {
@@ -92,7 +105,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.15.0
-		判断一个字符串是否全部由空白字符组成。空白字符包括空格、制表符、换行符等。
+		\a str 输入字符串
+		
+		return 一个字符串是否全部由空白字符组成。空白字符包括空格、制表符、换行符等。
 	*/
 	bool StringUtility::isAllBlank(const QString& str) {
 		for (QChar c : str) {

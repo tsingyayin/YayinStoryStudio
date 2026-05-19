@@ -577,30 +577,41 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::ConfigWidget::radioButtonChanged(const QString& node, bool checked)
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a checked 当前选中状态
 		当某个RadioButton的选中状态发生改变时发出此信号，node参数为该RadioButton绑定的配置项节点，checked参数为当前的选中状态。
 	*/
 
 	/*!
 		\fn Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged(const QString& node, int index, QString data)
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a index 当前选中项的索引
+		\a data 当前选中项的数据
 		当某个ComboBox的选中项发生改变时发出此信号，node参数为该ComboBox绑定的配置项节点，index参数为当前选中项的索引，data参数为当前选中项的数据。
 	*/
 
 	/*!
 		\fn Visindigo::Widgets::ConfigWidget::lineEditTextChanged(const QString& node, const QString& text)
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a text 当前文本内容
 		当某个LineEdit的文本内容发生改变时发出此信号，node参数为该LineEdit绑定的配置项节点，text参数为当前的文本内容。
 	*/
 
 	/*!
 		\fn Visindigo::Widgets::ConfigWidget::textEditTextChanged(const QString& node, const QString& text)
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a text 当前文本内容
 		当某个TextEdit的文本内容发生改变时发出此信号，node参数为该TextEdit绑定的配置项节点，text参数为当前的文本内容。
 	*/
 
 	/*!
 		\fn Visindigo::Widgets::ConfigWidget::colorChanged(const QString& node, const QColor& clr)
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a clr 当前颜色
 		当某个ColorDialog的颜色发生改变时发出此信号，node参数为该ColorDialog绑定的配置项节点，clr参数为当前的颜色。
 	*/
 
@@ -633,6 +644,9 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		手动设置目标配置文件路径和节点信息。
+		\a path 目标配置文件路径，可以使用VIPlaceholder中的占位符。
+		\a node 目标配置节点，如果不为空，则只读取和保存该节点的数据
+		\a fileType 目标配置文件类型，目前仅支持json，可以不填或填入"json"。
 
 		注意CWJson是只读的且只读一次，除非重新调用loadCWJson，否则
 		调用此函数后CWJson中关于target和targetNode的设置将不再生效，但也不会被改写。
@@ -645,8 +659,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当下的配置数据，返回一个JsonConfig对象的指针，可以直接对其进行读写操作来获取或修改配置数据。
-		返回的JsonConfig指针在此类的生命周期内始终有效，直到此类被销毁为止。
+		return 当下的配置数据，返回一个JsonConfig对象的指针，可以直接对其进行读写操作来获取或修改配置数据。
+		return 的JsonConfig指针在此类的生命周期内始终有效，直到此类被销毁为止。
 	*/
 	Visindigo::Utility::JsonConfig* ConfigWidget::getConfig() {
 		return &d->Config;
@@ -680,6 +694,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a text 要设置的文本内容
 		手动设置某个LineEdit的文本内容。
 	*/
 	void ConfigWidget::setLineEditText(const QString& node, const QString& text) {
@@ -693,6 +709,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a index 要设置的选中项索引
 		手动设置某个ComboBox的选中项。
 	*/
 	void ConfigWidget::setComboBoxIndex(const QString& node, int index) {
@@ -708,6 +726,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a node 配置项节点
+		\a checked 要设置的选中状态
 		手动设置某个RadioButton的选中状态。
 	*/
 	void ConfigWidget::setRadioButtonChecked(const QString& node, bool checked) {
@@ -736,7 +756,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取独立模式状态。
+		return 独立模式状态。
 	*/
 	bool ConfigWidget::isIndependentMode() const {
 		return d->IndependentMode;
@@ -745,7 +765,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		获取保存后是否需要重启的提示状态。
+		return 保存后是否需要重启的提示状态。
 	*/
 	bool ConfigWidget::isSaveNeedRestart() const {
 		return d->saveNeedRestart;

@@ -26,7 +26,7 @@ namespace Visindigo::Widgets {
 		\class Visindigo::Widgets::LiquidGlassEffect
 		\inheaderfile Widgets/LiquidGlassEffect.h
 		\inmodule Visindigo
-		\brief 一个提供液态玻璃效果的图形效果类。
+		\brief 一个提供液态玻璃效果的图形效果类.
 		\since Visindigo 0.13.0
 
 		LiquidGlassEffect 是一个 QGraphicsEffect 的子类，提供了一种模仿IOS26的液态玻璃的图形效果。
@@ -97,6 +97,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a parent 父窗口，且必须为将被应用效果的QWidget，否则效果可能无法正确显示。
 		构造函数。
 	*/
 	LiquidGlassEffect::LiquidGlassEffect(QWidget* parent) : QGraphicsEffect(parent), d(new LiquidGlassEffectPrivate()) {
@@ -114,7 +115,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		设置效果类型
-		\a types 要应用的效果类型，可以是EffectType的任意组合。
+		\a effects 要应用的效果类型，可以是EffectType的任意组合。
 	*/
 	void LiquidGlassEffect::setEffectTypes(EffectTypes effects) {
 		d->effectTypes = effects;
@@ -158,7 +159,7 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.15.0
 		设置颜色遮罩。
 		\a color 遮罩的颜色，决定了模糊效果的色调。
-		\a alpha 遮罩的透明度，值越大遮罩越不透明，默认为127。
+		\a percent 遮罩的透明度，值越大遮罩越透明，默认1。
 		颜色遮罩会在模糊效果之后应用，可以用来调整模糊效果的整体色调和透明度，从而更好地模仿液态玻璃的外观。
 	*/
 	void LiquidGlassEffect::setColorMask(const QColor& color, qreal percent){
@@ -400,7 +401,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.15.0
 		对图像进行颜色遮罩处理。
-		\a image 要处理的图像。\a color 遮罩的颜色。\a alpha 遮罩的透明度，范围从0到255，默认值为127。
+		\a image 要处理的图像。\a color 遮罩的颜色，决定了模糊效果的色调。\a percent 遮罩的透明度，值越大遮罩越透明，默认1。
 	*/
 	QImage LiquidGlassEffect::colorMaskImage(const QImage& image, const QColor& color, qreal percent) {
 		QImage result(image.size(), QImage::Format_ARGB32);
@@ -414,6 +415,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		重写了QGraphicsEffect的draw()方法，在其中实现了液态玻璃效果的绘制逻辑。
+		\a painter 用于绘制效果的QPainter对象。
 	*/
 	void LiquidGlassEffect::draw(QPainter* painter) {
 		QPixmap sourcePixmap = this->sourcePixmap(Qt::LogicalCoordinates);

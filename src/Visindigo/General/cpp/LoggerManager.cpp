@@ -124,7 +124,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取LoggerManager单例对象的指针。
+		return LoggerManager单例对象的指针。
 
 		这是Visindigo单例类getInstance()函数的一个特例。其他单例类的getInstance()函数均会在实例不存在时创建它们。请注意区分。
 	*/

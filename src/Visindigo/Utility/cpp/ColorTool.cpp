@@ -3,7 +3,7 @@
 namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::ColorTool
-		\brief 这类提供一些和颜色相关的工具函数。
+		\brief 这类提供一些和颜色相关的工具函数.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 	*/
@@ -11,7 +11,7 @@ namespace Visindigo::Utility {
 	/*!
 		\fn constexpr bool Visindigo::Utility::ColorTool::isLightColor(const quint8& r, const quint8& g, const quint8& b) noexcept
 		\since Visindigo 0.13.0
-		\a r、\a g和\b分别是颜色的红、绿、蓝分量，范围是0-255。
+		\a r \a g \a b 分别是颜色的红、绿、蓝分量，范围是0-255。
 		这个函数根据颜色的RGB值来判断它是浅色还是深色。
 
 		这是一个由微软推荐的全整数快速表达式，它的唯一缺陷是只适用于8位颜色通道（0-255），如果你传入的值超出这个范围，结果是未定义的。
@@ -19,6 +19,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a color 要判断的颜色。
+
 		对rgb分量版本函数的重载。
 	*/
 	bool ColorTool::isLightColor(const QColor& color) noexcept {
@@ -29,8 +31,10 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a color 要转换的颜色
+		\a format 字符串的格式，默认为rgbHex（#RRGGBB）。
+
 		将颜色转换为字符串的函数。
-		\a color是要转换的颜色，\a format是字符串的格式，默认为rgbHex（#RRGGBB）。
 		这个函数支持多种格式，包括CSS的rgb()和rgba()函数、十六进制表示法以及整数表示法。
 	*/
 	QString ColorTool::toColorString(const QColor& color, ColorStrFormat format) noexcept {

@@ -56,7 +56,7 @@ namespace Visindigo::__Private__ {
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::MultiButtonGroup
-		\brief 管理多个MultiButton的状态，使它们表现得像一个单选按钮组。
+		\brief 管理多个MultiButton的状态，使它们表现得像一个单选按钮组.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -72,6 +72,8 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::MultiButtonGroup::clicked(MultiButton* button)
 		\since Visindigo 0.13.0
+		\a button 被点击的按钮
+
 		当组内的某个按钮被"咔哒"时发出此信号。即在该按钮区域内按下且释放鼠标时发出此信号。
 		参数button表示被点击的按钮。
 	*/
@@ -79,6 +81,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::MultiButtonGroup::doubleClicked(MultiButton* button)
 		\since Visindigo 0.13.0
+		\a button 被双击的按钮
 		当组内的某个按钮被双击时发出此信号。即在该按钮区域内连续两次按下鼠标时发出此信号。
 		参数button表示被双击的按钮。
 	*/
@@ -86,6 +89,8 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::MultiButtonGroup::pressed(MultiButton* button)
 		\since Visindigo 0.13.0
+		\a button 被按下的按钮
+
 		当组内的某个按钮被按下时发出此信号。即在该按钮区域内按下鼠标时发出此信号。
 		参数button表示被按下的按钮。
 	*/
@@ -93,6 +98,8 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::MultiButtonGroup::released(MultiButton* button)
 		\since Visindigo 0.13.0
+		\a button 被释放的按钮
+
 		当组内的某个按钮被释放时发出此信号。即在该按钮区域内释放鼠标时发出此信号。
 		参数button表示被释放的按钮。
 	*/
@@ -100,6 +107,8 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::MultiButtonGroup::hover(MultiButton* button)
 		\since Visindigo 0.13.0
+		\a button 被悬停的按钮
+
 		当鼠标悬停在组内的某个按钮上时发出此信号。即当鼠标进入该按钮区域时发出此信号。
 		参数button表示被悬停的按钮。
 	*/
@@ -107,6 +116,8 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::MultiButtonGroup::leave(MultiButton* button)
 		\since Visindigo 0.13.0
+		\a button 被离开的按钮
+
 		当鼠标离开组内的某个按钮时发出此信号。即当鼠标离开该按钮区域时发出此信号。
 		参数button表示被离开的按钮。
 	*/
@@ -114,12 +125,15 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::MultiButtonGroup::selectIndexChanged(quint32 index)
 		\since Visindigo 0.13.0
+		\a index 当前被选中的按钮在组内的索引，如果没有按钮被选中则为-1。
+
 		当组内的选中按钮发生变化时发出此信号。即当用户点击某个按钮使其成为选中状态时发出此信号。
-		参数index表示当前被选中的按钮在组内的索引，如果没有按钮被选中则为-1。
 	*/
 
 	/*!
 		\since Visindigo 0.13.0
+		\a parent 父对象，可以不是QWidget。
+		
 		构造函数
 	*/
 	MultiButtonGroup::MultiButtonGroup(QObject* parent)
@@ -136,6 +150,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a button 要添加的按钮
+
 		添加一个按钮到组中。这个函数会连接按钮的相关信号到本类内置的槽函数，以便管理按钮的状态。
 		参数button表示要添加的按钮，如果button为nullptr或者已经在组内，则此函数不会执行任何操作。
 	*/
@@ -176,6 +192,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a button 要移除的按钮
+
 		从组内移除一个按钮，并重置选中状态。这个函数不会删除按钮对象本身，只是将它从组内移除。
 		如果参数button为nullptr或者不在组内，则此函数不会执行任何操作。
 	*/
@@ -230,6 +248,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a button 要选择的按钮
+
 		选择指定的按钮。这个函数会将当前选中的按钮切换到参数button所指定的按钮，并发出相关信号。
 		如果参数button为nullptr或者不在组内，则此函数不会执行任何操作。返回值是当前被选中的按钮在组内的索引，如果没有按钮被选中则为-1。
 	*/
@@ -243,6 +263,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a index 要选择的按钮在组内的索引
+		
 		选择指定索引的按钮。这个函数会将当前选中的按钮切换到组内索引为index的按钮，并发出相关信号。
 		如果参数index超出组内按钮的范围，则此函数不会执行任何操作。
 
@@ -262,7 +284,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前被选中的按钮。这个函数会返回当前被选中的按钮的指针，如果没有按钮被选中则返回nullptr。
+		return 当前被选中的按钮。这个函数会返回当前被选中的按钮的指针，如果没有按钮被选中则返回nullptr。
 	*/
 	MultiButton* MultiButtonGroup::getSelectedButton() const {
 		return d->CurrentPressedButton;
@@ -270,7 +292,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		获取组内的所有按钮。这个函数会返回一个包含组内所有按钮指针的列表。
+		return 组内的所有按钮。这个函数会返回一个包含组内所有按钮指针的列表。
 	*/
 	QList<MultiButton*> MultiButtonGroup::getMultiButtons() const {
 		return d->Buttons;

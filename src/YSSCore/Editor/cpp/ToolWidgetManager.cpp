@@ -52,7 +52,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since 0.15.0
-		获取ToolWidgetManager实例的静态函数
+		return ToolWidgetManager实例的静态函数
 	*/
 	ToolWidgetManager* ToolWidgetManager::getInstance() {
 		if (!ToolWidgetManagerPrivate::Instance) {
@@ -109,7 +109,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since 0.15.0
-		获取工具窗口部件实例的函数。\a widgetID 是被获取的工具窗口ID。
+		return 工具窗口部件实例的函数。\a widgetID 是被获取的工具窗口ID。
 		如果对应ID的工具窗口实例存在则返回该实例；否则返回nullptr。
 	*/
 	QWidget* ToolWidgetManager::getToolWidget(const QString& widgetID) {
@@ -121,7 +121,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since 0.15.0
-		获取所有打开的工具窗口部件实例的函数。返回一个QList，包含所有当前打开的工具窗口部件实例。
+		return 所有打开的工具窗口部件实例的函数。返回一个QList，包含所有当前打开的工具窗口部件实例。
 	*/
 	QList<QWidget*> ToolWidgetManager::getAllOpenToolWidgets() const {
 		return d->WidgetInstanceMap.values();
@@ -137,7 +137,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since 0.15.0
-		获取已注册工具窗口信息的函数。返回一个QMap，键是工具窗口ID，值是工具窗口显示名称。
+		return 已注册工具窗口信息的函数。返回一个QMap，键是工具窗口ID，值是工具窗口显示名称。
 		注意，返回的显示名称是设置时的原始字符串，未经过翻译处理。如有需要，
 		调用者可以使用VI18N函数进行翻译。
 	*/

@@ -7,7 +7,7 @@
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::BorderFrame
-		\brief 这是个神奇的类，在Windows上的某些情况下特别有用
+		\brief 这是个神奇的类，在Windows上的某些情况下特别有用.
 		\since Visindigo 0.14.0
 		\inmodule Visindigo
 
@@ -24,6 +24,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
+		\a parent 父窗口
+		
 		BorderFrame的构造函数。
 	*/
 	BorderFrame::BorderFrame(QWidget* parent) : QFrame(parent) {
@@ -39,7 +41,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		BorderFrame的paintEvent函数。
+		\a event paint事件
+
+		由BorderFrame重载的paintEvent函数。任何继承此类并重载paintEvent
+		的子类在重载的paintEvent中都应该调用此函数来绘制边框，否则就只能得到一个普通的QFrame了。
 	*/
 	void BorderFrame::paintEvent(QPaintEvent* event) {
 		QPainter painter(this);

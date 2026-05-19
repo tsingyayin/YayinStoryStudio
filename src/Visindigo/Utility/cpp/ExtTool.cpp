@@ -10,9 +10,11 @@ namespace Visindigo::Utility {
 	*/
 
 	/*!
+		\since Yayin Story Studio 0.13.0
 		\a ext 文件扩展名
 		\a description 文件描述
-		\since Yayin Story Studio 0.13.0
+		\a iconPath 图标路径
+		
 		注册文件扩展名。此函数仅在Windows平台下有效。
 	*/
 	void ExtTool::registerFileExtMetaInfo(const QString& ext, const QString& description, const QString& iconPath) {

@@ -59,7 +59,9 @@ namespace ASERStudio::YSS {
 				this, [this](ASERStudio::ASEREnv::ASERDebugIO::OfficialBundleManagerInitializeState state) {
 					if (d->isRunning) {
 						emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForPlay"));
-						ASERStudio::Main::getInstance()->getASERDebugIO()->play(d->launchFileName);
+						if (d->isDebugMode) {
+							ASERStudio::Main::getInstance()->getASERDebugIO()->play(d->launchFileName);
+						}
 					}
 				});
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyLoading, this, [this](const QString& name) {
@@ -75,6 +77,9 @@ namespace ASERStudio::YSS {
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyExited, this, [this](const QString& name) {
 				if (d->isRunning) {
 					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.exited").arg(name));
+					if (d->isDebugMode) {
+						ASERStudio::Main::getInstance()->getASERProgram()->waitStop(3000);
+					}
 				}
 				});
 			d->signalConnected = true;

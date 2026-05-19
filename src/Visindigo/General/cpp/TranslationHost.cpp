@@ -84,7 +84,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取TranslationHost单例对象的指针。
+		return TranslationHost单例对象的指针。
 	*/
 	TranslationHost* TranslationHost::getInstance() {
 		if (TranslationHostPrivate::Instance == nullptr) {

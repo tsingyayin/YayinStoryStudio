@@ -49,7 +49,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\class ASERStudio::ASEREnv::ASERDebugIO
-		\brief ASERDebugIO提供与ASE-Remake调试输出的交互接口
+		\brief ASERDebugIO提供与ASERDebugPipeline交互的API
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -104,7 +104,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		获取当前设置的ASERProgram实例。
+		return 当前设置的ASERProgram实例。
 		return 当前设置的ASERProgram实例的指针，如果没有设置则返回nullptr
 	*/
 	ASERProgram* ASERDebugIO::getProgram() const {
@@ -125,7 +125,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.2
-		获取当前页面的状态。这个状态是通过switchPage函数设置的。
+		return 当前页面的状态。这个状态是通过switchPage函数设置的。
 		目前ASE-Remake <-> ASER Studio属于开环控制，因此状态可能不准确
 	*/
 	ASERDebugIO::Page ASERDebugIO::getCurrentPage() const {

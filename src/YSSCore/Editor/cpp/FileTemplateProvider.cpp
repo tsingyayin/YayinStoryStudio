@@ -18,7 +18,7 @@ namespace YSSCore::Editor {
 
 		FileTemplateInitWidget是一个QFrame，作为FileTemplateProvider的初始化界面。
 		当用户选择某个文件模板来创建文件时，编辑器会调用该模板的fileInitWidget函数，
-		获取一个FileTemplateInitWidget实例，并将其显示在界面上。用户可以在这个界面上进行一些必要的配置（如文件名称、保存路径等），
+		return 一个FileTemplateInitWidget实例，并将其显示在界面上。用户可以在这个界面上进行一些必要的配置（如文件名称、保存路径等），
 		然后点击“创建”按钮来完成文件的创建过程。
 
 		请注意，为了与YSS解耦，这个类设计上并未采用要求用户必须创建持续存活YSSCore::Editor::FileEditWidget实例
@@ -64,7 +64,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取用户希望文件被创建的初始路径。你也可以选择不尊重这个参数。
+		return 用户希望文件被创建的初始路径。你也可以选择不尊重这个参数。
 	*/
 	QString FileTemplateInitWidget::getInitFolder() const {
 		return d->InitFolder;

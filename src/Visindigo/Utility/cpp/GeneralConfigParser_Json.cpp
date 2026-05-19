@@ -7,7 +7,7 @@
 
 /*!
 	\class Visindigo::Utility::GeneralConfigParser
-	\brief GeneralConfig配套的解析与序列化操作类
+	\brief GeneralConfig配套的解析与序列化操作类.
 	\ingroup GeneralConfig
 	\inmodule Visindigo
 	\since Visindigo 0.13.0

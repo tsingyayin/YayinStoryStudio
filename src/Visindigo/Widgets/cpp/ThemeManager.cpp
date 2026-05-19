@@ -90,7 +90,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::ThemeManager
 		\inheaderfile Widgets/ThemeManager.h
-		\brief ThemeManager提供了比QPalette更强大的主题管理功能。
+		\brief ThemeManager提供了比QPalette更宽泛的主题管理功能.
 		\inmodule Visindigo
 		\ingroup VITheme
 		\since Visindigo 0.13.0
@@ -317,7 +317,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::ThemeManager::systemThemeChanged(Qt::ColorScheme newScheme)
 		\since Visindigo 0.13.0
-		当系统主题发生变化时触发此信号。参数newScheme表示新的系统主题。
+		当系统主题发生变化时触发此信号。\a newScheme 表示新的系统主题。
 		这个信号等同于QApplication::styleHints()->colorSchemeChanged信号。
 
 		如果ThemeManager设置为自动适应系统主题（通过autoAdjustThemeToSystem方法），
@@ -330,7 +330,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\fn Visindigo::Widgets::ThemeManager::programThemeChanged(const QString& themeID)
 		\since Visindigo 0.13.0
-		当程序主题发生变化时触发此信号。参数themeID表示新的程序主题ID。
+		当程序主题发生变化时触发此信号。\a themeID 表示新的程序主题ID。
 
 		如果ThemeManager设置为自动适应系统主题（通过autoAdjustThemeToSystem方法），
 		则此信号可能会在systemThemeChanged信号之后被触发，表示程序主题也发生了变化。
@@ -340,7 +340,11 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		将ThemeID枚举值转换为字符串表示形式。
+		\a id ThemeID枚举值。
+
+		return ThemeID枚举值转换为字符串表示形式。
+
+		这个函数与直接用QMetaEnum进行转换的区别在于，它会额外处理用户正确注册的值。
 	*/
 	QString ThemeManager::themeIDToString(ThemeID id) {
 		switch (id) {
@@ -368,7 +372,11 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		将字符串表示形式转换为ThemeID枚举值。
+		\a str ThemeID枚举值的字符串表示形式。
+
+		return 将字符串表示形式转换为ThemeID枚举值。
+
+		这个函数与直接用QMetaEnum进行转换的区别在于，它会额外处理用户正确注册的值。
 	*/
 	ThemeManager::ThemeID ThemeManager::stringToThemeID(const QString& str) {
 		if (str == "__InAnimation__") {
@@ -401,6 +409,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a id 用户自定义主题ID的字符串表示形式，
+		\a themeID 用户自定义主题ID的枚举值。
+
 		注册用户自定义的主题ID。
 	*/
 	void ThemeManager::registerUserThemeID(const QString& id, ThemeID themeID) {
@@ -425,6 +436,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a parent 父对象指针。
+
 		ThemeManager类的构造函数。
 	*/
 	ThemeManager::ThemeManager(QObject* parent) : QObject(parent) {
@@ -494,8 +507,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		插件注册配色方案。\a plugin参数是注册此配色方案的插件实例，\a jsonStr参数是配色方案的JSON字符串。
-		任何不符合规范的配色方案注册请求都会被拒绝并返回false。
+		\a plugin 注册此配色方案的插件实例，
+		\a jsonStr 配色方案的JSON字符串。
+
+		插件注册配色方案。任何不符合规范的配色方案注册请求都会被拒绝并返回false。
 	*/
 	bool ThemeManager::pluginRegisterColorScheme(Visindigo::General::Plugin* plugin, const QString& jsonStr) {
 		Visindigo::Utility::JsonConfig* json = new Visindigo::Utility::JsonConfig();
@@ -532,8 +547,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		插件注册样式模板。\a plugin参数是注册此样式模板的插件实例，\a vstStr参数是样式模板的字符串内容。
-		任何不符合规范的样式模板注册请求都会被拒绝并返回false。
+		\a plugin 注册此样式模板的插件实例，
+		\a vstStr 样式模板的字符串内容。
+
+		插件注册样式模板。任何不符合规范的样式模板注册请求都会被拒绝并返回false。
 	*/
 	bool ThemeManager::pluginRegisterStyleTemplate(Visindigo::General::Plugin* plugin, QString vstStr) {
 		StyleSheetTemplate templateSS;
@@ -550,7 +567,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		检查指定ID的配色方案是否由插件注册。
+		\a ID 配色方案ID。
+
+		return 指定ID的配色方案是否由插件注册。
 	*/
 	bool ThemeManager::isColorSchemeFromPlugin(const QString& ID) {
 		return d->PluginMapForSchemes.contains(ID);
@@ -558,7 +577,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		检查指定ID的样式模板是否由插件注册。
+		\a ID 样式模板ID。
+
+		return 指定ID的样式模板是否由插件注册。
 	*/
 	bool ThemeManager::isStyleTemplateFromPlugin(const QString& ID) {
 		return d->PluginMapForTemplates.contains(ID);
@@ -566,6 +587,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a autoMergeAndApply 是否自动合并和应用新的配色方案和样式模板。
+
 		从文件系统重新加载配色方案和样式模板，并可选择是否自动合并和应用。
 		这不包括重新加载插件注册的配色方案和样式模板，它们需要插件自行重新注册。
 		这也不会更改当前的配色方案和样式模板优先级列表。
@@ -646,8 +669,12 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a ID 主题ID。
+
 		将指定ID的配色方案添加到优先级列表中。
 		如果指定ID的配色方案已在优先级列表中，则返回false。
+
+		return 是否成功添加到优先级列表。
 	*/
 	bool ThemeManager::addColorSchemeToPriority(const QString& ID) {
 		if (d->ColorSchemePriority.contains(ID)) {
@@ -660,8 +687,12 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a ID 主题ID。
+
 		将指定ID的样式模板添加到优先级列表中。
 		如果指定ID的样式模板已在优先级列表中，则返回false。
+
+		return 是否成功添加到优先级列表。
 	*/
 	bool ThemeManager::addStyleTemplateToPriority(const QString& ID) {
 		if (d->StyleTemplatePriority.contains(ID)) {
@@ -674,8 +705,12 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a ID 主题ID。
+
 		将指定ID的配色方案从优先级列表中移除。
 		如果指定ID的配色方案不存在或不在优先级列表中，则返回false。
+
+		return 是否成功从优先级列表中移除。
 	*/
 	bool ThemeManager::removeColorSchemeFromPriority(const QString& ID) {
 		return d->ColorSchemePriority.removeAll(ID) > 0;
@@ -683,8 +718,12 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a ID 主题ID。
+
 		将指定ID的样式模板从优先级列表中移除。
 		如果指定ID的样式模板不存在或不在优先级列表中，则返回false。
+
+		return 是否成功从优先级列表中移除。
 	*/
 	bool ThemeManager::removeStyleTemplateFromPriority(const QString& ID) {
 		return d->StyleTemplatePriority.removeAll(ID) > 0;
@@ -692,6 +731,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		清空配色方案优先级列表。
 	*/
 	void ThemeManager::clearColorSchemePriority() {
@@ -700,6 +740,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		清空样式模板优先级列表。
 	*/
 	void ThemeManager::clearStyleTemplatePriority() {
@@ -708,6 +749,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a schemeIDList 主题ID列表，列表中靠后的主题会覆盖前面的主题的同名属性。
+
 		设置配色方案优先级列表。
 	*/
 	void ThemeManager::setColorSchemePriority(const QStringList& schemeIDList) {
@@ -716,6 +759,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a templateIDList 主题ID列表，列表中靠后的模板会覆盖前面的模板的同名属性。
+
 		设置样式模板优先级列表。
 	*/
 	void ThemeManager::setStyleTemplatePriority(const QStringList& templateIDList) {
@@ -724,6 +769,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a ms 动画时间，单位为毫秒。
+
 		设置动画时间，单位为毫秒。
 	*/
 	void ThemeManager::setAnimationDuration(int ms) {
@@ -732,6 +779,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a fps 动画帧率，单位为每秒帧数。
+
 		设置动画帧率，单位为每秒帧数。
 	*/
 	void ThemeManager::setAnimationFrameRate(int fps) {
@@ -740,7 +789,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获得当前动画时间，单位为毫秒。
+
+		return 当前动画时间，单位为毫秒。
 	*/
 	int ThemeManager::getAnimationDuration() {
 		return d->AnimationDurationMS;
@@ -748,7 +798,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获得当前动画帧率，单位为每秒帧数。
+
+		return 当前动画帧率，单位为每秒帧数。
 	*/
 	int ThemeManager::getAnimationFrameRate() {
 		return d->AnimationFrameRate;
@@ -756,6 +807,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		合并并应用当前的配色方案和样式模板优先级列表。
 		请注意，如果先前设置的优先级列表中包含不存在的配色方案或样式模板ID，
 		只有在调用此方法时才会检测到并发出警告，并同时被自动丢弃。
@@ -819,7 +871,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取所有已加载的配色方案ID列表。
+
+		return 所有已加载的配色方案ID列表。
 	*/
 	QStringList ThemeManager::getAllColorSchemes() {
 		return d->ColorSchemes.keys();
@@ -827,7 +880,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前配色方案优先级列表。
+
+		return 当前配色方案优先级列表。
 	*/
 	QStringList ThemeManager::getAvailableColorSchemes() {
 		return d->ColorSchemePriority;
@@ -835,7 +889,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取所有已加载的样式模板ID列表。
+
+		return 所有已加载的样式模板ID列表。
 	*/
 	QStringList ThemeManager::getAllStyleTemplates() {
 		return d->Templates.keys();
@@ -843,7 +898,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前样式模板优先级列表。
+
+		return 当前样式模板优先级列表。
 	*/
 	QStringList ThemeManager::getAvailableStyleTemplates() {
 		return d->StyleTemplatePriority;
@@ -851,7 +907,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取合并后的配色方案中的所有色彩主题ID列表。
+		
+		return 合并后的配色方案中的所有色彩主题ID列表。
 	*/
 	QStringList ThemeManager::getColorThemes() {
 		return d->MergedColorScheme->keys();
@@ -859,7 +916,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取合并后的样式模板中的所有命名空间列表。
+
+		return 合并后的样式模板中的所有命名空间列表。
 	*/
 	QStringList ThemeManager::getStyleNamespaces() {
 		return d->MergedTemplate.getNamespaces();
@@ -867,6 +925,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a themeID 主题ID字符串。
+
 		更改当前的配色主题为指定的主题ID。
 		如果指定的主题ID不存在于合并后的配色方案中，则返回false。
 
@@ -874,6 +934,8 @@ namespace Visindigo::Widgets {
 
 		请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
 		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
+
+		return 是否成功切换到指定的主题ID。
 	*/
 	bool ThemeManager::changeColorTheme(const QString& themeID) {
 		if (themeID.isEmpty()) {
@@ -962,8 +1024,12 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a id ThemeID枚举值。
+
 		更改当前的配色主题为指定的ThemeID枚举值。
 		如果指定的ThemeID枚举值不存在于合并后的配色方案中，则返回false。
+
+		return 是否成功切换到指定的ThemeID枚举值。
 
 		请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
 		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
@@ -975,6 +1041,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a autoAdjust 是否自动根据系统主题调整应用程序主题。
+
 		设置是否自动根据系统主题调整应用程序主题。
 		
 		这会触发一次程序主题的变更。因此请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
@@ -991,7 +1059,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前是否设置为自动根据系统主题调整应用程序主题。
+		
+		return 当前是否设置为自动根据系统主题调整应用程序主题。
 	*/
 	bool ThemeManager::isAutoAdjustThemeToSystem() {
 		return d->AutoAdjustToSystem;
@@ -999,7 +1068,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前的配色主题ID。
+		
+		return 当前的配色主题ID。
 	*/
 	QString ThemeManager::getCurrentColorTheme() {
 		return d->CurrentThemeID;
@@ -1007,7 +1077,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		根据指定的颜色键获取对应的QColor对象。
+		\a key 颜色键。
+
+		return 根据指定的颜色键获取的QColor对象。
 		如果当前没有设置主题或指定的键不存在，则返回红色（#ED1C24）作为错误指示。
 	*/
 	QColor ThemeManager::getColor(const QString& key) {
@@ -1037,7 +1109,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取指定键的原始样式表字符串，不进行任何变量代换。
+		\a key 样式表键，
+
+		return 指定键的原始样式表字符串，不进行任何变量代换。
 	*/
 	QString ThemeManager::getRawTemplate(const QString& key) {
 		return d->MergedTemplate.getRawStyleSheet(key);
@@ -1045,8 +1119,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取指定键的样式表字符串，并进行变量代换。
-		如果提供了\a getter参数，ThemeManager会尝试从该QWidget的property属性中获取变量值进行代换。
+		\a key 样式表键，
+		\a getter 可选的QWidget指针，用于从该组件的property属性中获取变量值进行代换。
+		
+		return 获取指定键的样式表字符串，并进行变量代换。
 	*/
 	QString ThemeManager::getTemplate(const QString& key, QWidget* getter) {
 		//vgDebugF << "Getting template for key:" << key << "with getter:" << getter;
@@ -1055,6 +1131,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a widget 需要响应主题变化动画的ColorfulWidget组件指针。
+
 		注册一个ColorfulWidget组件，以便在主题变化动画期间接收onThemeChanged调用。
 	*/
 	void ThemeManager::registerColorfulWidget(Visindigo::Widgets::ColorfulWidget* widget) {
@@ -1065,6 +1143,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a widget 需要停止响应主题变化动画的ColorfulWidget组件指针。
+
 		注销一个ColorfulWidget组件，停止在主题变化动画期间接收onThemeChanged调用。
 	*/
 	void ThemeManager::unregisterColorfulWidget(Visindigo::Widgets::ColorfulWidget* widget) {
@@ -1073,7 +1153,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		判断一个ColorfulWidget组件是否已注册。
+		\a widget ColorfulWidget组件指针。
+
+		return 是否已注册指定的ColorfulWidget组件。
 	*/
 	bool ThemeManager::isColorfulWidgetRegistered(Visindigo::Widgets::ColorfulWidget* widget) {
 		return d->RegisteredWidgets.contains(widget);
@@ -1081,7 +1163,18 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取合并后的样式模板对象。
+		\a widget ColorfulWidget组件指针。
+
+		return 是否已注册指定的ColorfulWidget组件。
+	*/
+	bool ThemeManager::isColorfulWidgetRegistered(Visindigo::Widgets::ColorfulWidget* widget) {
+		return d->RegisteredWidgets.contains(widget);
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+
+		return 合并后的样式模板对象。
 	*/
 	StyleSheetTemplate ThemeManager::getMergedStyleSheetTemplate() {
 		return d->MergedTemplate;
@@ -1089,6 +1182,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		
 		获取合并后的配色方案对象。
 	*/
 	Visindigo::Utility::JsonConfig ThemeManager::getMergedColorScheme() {
@@ -1099,25 +1193,28 @@ namespace Visindigo::Widgets {
 	/*!
 		\macro VISTM
 		\since Visindigo 0.13.0
+		\relates Visindigo::Widgets::ThemeManager
 		简化获取ThemeManager实例的过程，等同于Visindigo::Widgets::ThemeManager::getInstance()
 	*/
 
 	/*!
 		\macro VISTMGT
 		\since Visindigo 0.13.0
+		\relates Visindigo::Widgets::ThemeManager
 		简化获取样式表字符串的过程，等同于Visindigo::Widgets::ThemeManager::getInstance()->getTemplate
 	*/
 
 	/*!
 		\macro VISTMGRT
 		\since Visindigo 0.13.0
+		\relates Visindigo::Widgets::ThemeManager
 		简化获取原始样式表字符串的过程，等同于Visindigo::Widgets::ThemeManager::getInstance()->getRawTemplate
 	*/
 
 	/*!
 		\class Visindigo::Widgets::ColorfulWidget
 		\since Visindigo 0.13.0
-		\brief ColorfulWidget是一个接口类，表示支持主题变化动画的组件。
+		\brief ColorfulWidget是一个接口类，表示支持主题变化动画的组件.
 		\inheaderfile Widgets/ThemeManager.h
 		\ingroup VITheme
 		\inmodule Visindigo
@@ -1132,6 +1229,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a enable 参数为true时启用主题变化动画支持，为false时禁用。
+
 		启用或禁用主题变化动画支持。
 	*/
 	void ColorfulWidget::setColorfulEnable(bool enable) {

@@ -125,7 +125,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取当前打开的项目。
+		return 当前打开的项目。
 
 		实际上，这个函数就是YSSProject::getCurrentProject的本类便捷写法。
 	*/

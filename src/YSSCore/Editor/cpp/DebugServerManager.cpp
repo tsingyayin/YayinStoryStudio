@@ -15,7 +15,7 @@ namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::DebugServerManager
 		\inmodule YSSCore
-		\brief 此类为Visindigo提供调试服务器管理器。
+		\brief 此类为Visindigo提供调试服务器管理器.
 		\since YSS 0.13.0
 		DebugServerManager负责管理调试服务器。
 	*/
@@ -46,10 +46,18 @@ namespace YSSCore::Editor {
 		d = new DebugServerManagerPrivate();
 	}
 
+	/*!
+		\since YSS 0.13.0
+		析构函数
+	*/
 	DebugServerManager::~DebugServerManager() {
 		delete d;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		获取DebugServerManager实例的指针。
+	*/
 	DebugServerManager* DebugServerManager::getInstance() {
 		if (DebugServerManagerPrivate::Instance == nullptr) {
 			DebugServerManagerPrivate::Instance = new DebugServerManager();
@@ -57,10 +65,19 @@ namespace YSSCore::Editor {
 		return DebugServerManagerPrivate::Instance;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		获取所有已注册的调试服务器ID列表。
+	*/
 	QStringList DebugServerManager::getDebugServerIDs() {
 		return d->DebugServers.keys();
 	}
 
+	/*!
+		\since YSS 0.13.0
+		\a serverID 调试服务器ID
+		根据ID获取调试服务器实例。
+	*/
 	DebugServer* DebugServerManager::getDebugServer(const QString& serverID) {
 		if (d->DebugServers.contains(serverID)) {
 			return d->DebugServers[serverID];
@@ -68,6 +85,11 @@ namespace YSSCore::Editor {
 		return nullptr;
 	}
 
+	/*!
+		\since YSS 0.13.0
+		\a server 调试服务器实例
+		添加一个新的调试服务器实例。
+	*/
 	void DebugServerManager::addDebugServer(DebugServer* server) {
 		if (server != nullptr) {
 			d->DebugServers.insert(server->getModuleID(), server);

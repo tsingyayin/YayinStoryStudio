@@ -181,9 +181,9 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取命令主机的单例实例。
+		return 命令主机的单例实例。
 		如果实例尚未创建，则会创建一个新的实例。
-		返回命令主机的单例实例指针。
+		return 命令主机的单例实例指针。
 	*/
 	CommandHost* CommandHost::getInstance() {
 		if (CommandHostPrivate::Instance == nullptr) {
@@ -204,7 +204,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取命令历史记录的最大大小。
+		return 命令历史记录的最大大小。
 	*/
 	qsizetype CommandHost::getMaxCommandHistorySize() const {
 		return d->MaxCommandHistorySize;
@@ -212,8 +212,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取命令历史记录的列表。
-		返回命令历史记录的字符串列表。
+		return 命令历史记录的列表。
+		return 命令历史记录的字符串列表。
 	*/
 	QStringList CommandHost::getCommandHistory(const QString& startWith) const {
 		if (startWith.isEmpty()) {
@@ -232,9 +232,9 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取最后执行的命令。
+		return 最后执行的命令。
 		如果没有命令被执行过，则返回一个空字符串。
-		返回最后执行的命令字符串。
+		return 最后执行的命令字符串。
 	*/
 	QString CommandHost::getLastCommand() const {
 		if (d->CommandHistory.isEmpty()) {
@@ -368,8 +368,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取所有已注册的命令名列表。
-		返回已注册命令名的字符串列表。
+		return 所有已注册的命令名列表。
+		return 已注册命令名的字符串列表。
 	*/
 	QStringList CommandHost::getRegisteredCommandNames() const {
 		return d->CommandMap.keys();
@@ -379,7 +379,7 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		根据部分命令行字符串获取可能的命令补全选项。
 		\a commandLine 部分命令行字符串。
-		返回可能的补全选项字符串列表。
+		return 可能的补全选项字符串列表。
 	*/
 	QStringList CommandHost::completeCommand(const QString& commandLine) {
 		QString cmdName = QString();

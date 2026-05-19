@@ -121,7 +121,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取按钮是否处于活动状态。
+		return 按钮是否处于活动状态。
 	*/
 	bool MultiButton::isActive() {
 		return d->Active;
@@ -129,7 +129,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取按钮是否处于悬停状态。
+		return 按钮是否处于悬停状态。
 	*/
 	bool MultiButton::isHovered() {
 		return d->Hovered;

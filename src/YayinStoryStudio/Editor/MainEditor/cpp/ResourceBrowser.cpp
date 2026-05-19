@@ -44,6 +44,7 @@ namespace YSS::Editor {
 		ButtonLayout->addWidget(ShrinkButton);
 		ButtonLayout->addWidget(ExpandButton);
 		ButtonLayout->addWidget(NewButton);
+		ButtonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		ButtonLayout->setContentsMargins(0, 0, 0, 0);
 		ButtonWidget->setLayout(ButtonLayout);
 		ButtonWidget->setMinimumHeight(40);

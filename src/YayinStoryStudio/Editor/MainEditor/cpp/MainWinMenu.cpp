@@ -54,8 +54,8 @@ namespace YSS::Editor {
 		QAction* Edit_FindAndReplace;
 
 		QMenu* RunMenu;
-		QAction* Run_Run_Run;
 		QAction* Run_Run_Debug;
+		QAction* Run_Run_Run;
 		QAction* Run_Run_Stop;
 		QAction* Run_Run_Restart;
 		QAction* Run_Build_Build;
@@ -151,10 +151,10 @@ namespace YSS::Editor {
 		void initRunMenu() {
 			RunMenu = MenuBar->addMenu(VITR("YSS::menu.run.title"));
 			RunMenu->setObjectName("run");
-			Run_Run_Run = RunMenu->addAction(VITR("YSS::menu.run.run"));
-			Run_Run_Run->setObjectName("run");
 			Run_Run_Debug = RunMenu->addAction(VITR("YSS::menu.run.debug"));
 			Run_Run_Debug->setObjectName("debug");
+			Run_Run_Run = RunMenu->addAction(VITR("YSS::menu.run.run"));
+			Run_Run_Run->setObjectName("run");
 			Run_Run_Stop = RunMenu->addAction(VITR("YSS::menu.run.stop"));
 			Run_Run_Stop->setObjectName("stop");
 			Run_Run_Restart = RunMenu->addAction(VITR("YSS::menu.run.restart"));
@@ -176,8 +176,8 @@ namespace YSS::Editor {
 			Run_Action_Resume = RunMenu->addAction(VITR("YSS::menu.run.resume"));
 			Run_Action_Resume->setObjectName("resume");
 
-			QObject::connect(Run_Run_Run, &QAction::triggered, q, &MainWinMenu::run_run_run);
 			QObject::connect(Run_Run_Debug, &QAction::triggered, q, &MainWinMenu::run_run_debug);
+			QObject::connect(Run_Run_Run, &QAction::triggered, q, &MainWinMenu::run_run_run);
 			QObject::connect(Run_Run_Stop, &QAction::triggered, q, &MainWinMenu::run_run_stop);
 			QObject::connect(Run_Run_Restart, &QAction::triggered, q, &MainWinMenu::run_run_restart);
 			QObject::connect(Run_Build_Build, &QAction::triggered, q, &MainWinMenu::run_build_build);
@@ -408,8 +408,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::run_run_restart() {
-		YSSDSR->stop();
-		YSSDSR->run(false);
+		YSSDSR->restart();
 	}
 
 	void MainWinMenu::run_build_build() {

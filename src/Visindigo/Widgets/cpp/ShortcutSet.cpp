@@ -28,16 +28,21 @@ namespace Visindigo::Widgets {
 
 		但如果你出于某种原因，必须先于被监听对象销毁此类，那么你就必须在销毁此类之前手动调用clearShortcuts
 		方法来销毁所有的QShortcut对象，以避免内存泄露。
+
+		\warning 目前不建议使用此类，其仍处于技术预览状态。
 	*/
 
 	/*!
 		\fn void ShortcutSet::actionTriggered(const QString& actionName)
 		\since Visindigo 0.14.0
+		\a actionName 被触发的动作名称
+
 		当快捷键被触发时发出，传递对应的动作名称
 	*/
 
 	/*!
 		\since Visindigo 0.14.0
+		\a parent 父窗口
 		构造函数。
 
 		虽然Qt要求QShortcut的父对象可以是QWidget或QWindow，但目前暂时只提供QWidget的支持。
@@ -60,7 +65,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		获取被监听的QWidget对象
+		return 被监听的QWidget对象
 	*/
 	QWidget* ShortcutSet::getWatchedWidget() const {
 		return d->WatchedWidget;
@@ -68,9 +73,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		添加一个快捷键与动作名称的关联
 		\a actionName 动作名称
 		\a shortcut 快捷键
+
+		添加一个快捷键与动作名称的关联
 	*/
 	void ShortcutSet::addShortcut(const QString& actionName, const QKeySequence& shortcut) {
 		d->ShortcutActionMap[shortcut] = actionName;
@@ -83,9 +89,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		添加一个快捷键与动作名称的关联，快捷键使用QKeySequence::StandardKey枚举值
 		\a actionName 动作名称
 		\a shortcut 快捷键枚举值
+
+		添加一个快捷键与动作名称的关联，快捷键使用QKeySequence::StandardKey枚举值
 	*/
 	void ShortcutSet::addShortcut(const QString& actionName, QKeySequence::StandardKey shortcut) {
 		addShortcut(actionName, QKeySequence(shortcut));
@@ -93,8 +100,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		获取所有的快捷键与动作名称的关联
-		返回一个QMap，键为快捷键，值为对应的动作名称
+		return 所有的快捷键与动作名称的关联
+		return 一个QMap，键为快捷键，值为对应的动作名称
 	*/
 	QMap<QKeySequence, QString> ShortcutSet::getShortcuts() const {
 		return d->ShortcutActionMap;
@@ -102,9 +109,9 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		根据快捷键获取对应的动作名称
 		\a shortcut 快捷键
-		返回对应的动作名称，如果没有找到则返回空字符串
+
+		根据快捷键获取对应的动作名称，如果没有找到则返回空字符串
 	*/
 	QString ShortcutSet::getActionNameOfShortcut(const QKeySequence& shortcut) const {
 		return d->ShortcutActionMap.value(shortcut, QString());
@@ -112,9 +119,10 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
-		根据动作名称获取对应的快捷键列表
 		\a actionName 动作名称
-		返回一个QList，包含所有与该动作名称相关联的快捷键
+
+		根据动作名称获取对应的快捷键列表
+		return 一个QList，包含所有与该动作名称相关联的快捷键
 	*/
 	QList<QKeySequence> ShortcutSet::getShortcutOfActionName(const QString& actionName) const {
 		QList<QKeySequence> result;

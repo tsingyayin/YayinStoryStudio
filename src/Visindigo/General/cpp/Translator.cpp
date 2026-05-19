@@ -132,7 +132,7 @@ namespace Visindigo::General
 	/*!
 		\since Visindigo 0.14.0
 		将字符串转换为语言ID。参数str为要转换的字符串，例如zh_CN、en等。
-		返回值为对应的语言ID，如果转换失败，则返回LangID::Unknown。
+		return 为对应的语言ID，如果转换失败，则返回LangID::Unknown。
 	*/
 	Translator::LangID Translator::stringToLangID(const QString& str) {
 		bool ok;
@@ -173,7 +173,7 @@ namespace Visindigo::General
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前命名空间。
+		return 当前命名空间。
 	*/
 	QString Translator::getNamespace() {
 		return d->ID;

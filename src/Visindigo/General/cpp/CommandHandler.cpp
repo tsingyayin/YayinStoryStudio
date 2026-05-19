@@ -109,7 +109,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取错误的类型。
+		return 错误的类型。
 		return 错误的类型枚举值。
 	*/
 	CommandErrorData::ErrorType CommandErrorData::getErrorType() const {
@@ -118,7 +118,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取错误的消息描述。
+		return 错误的消息描述。
 		return 错误的消息字符串。
 	*/
 	QString CommandErrorData::getErrorMessage() const {
@@ -127,7 +127,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取相关的命令字符串。
+		return 相关的命令字符串。
 		return 相关的命令字符串。
 	*/
 	QString CommandErrorData::getCommand() const {
@@ -136,7 +136,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取错误发生的位置索引。
+		return 错误发生的位置索引。
 		return 错误位置的索引值。
 	*/
 	qsizetype CommandErrorData::getErrorPosition() const {
@@ -204,7 +204,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取命令的名称。
+		return 命令的名称。
 		return 命令的名称字符串。
 	*/
 	QString CommandHandler::getCommandName() const {
@@ -235,7 +235,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取命令的别名列表。
+		return 命令的别名列表。
 		return 命令的别名字符串列表。
 	*/
 	QStringList CommandHandler::getAlias() const {
@@ -277,7 +277,7 @@ namespace Visindigo::General {
 		\a unnamedArgs 指定传递给命令的未命名参数列表。
 		\a namedArgs 指定传递给命令的命名参数映射。
 		此函数是一个纯虚函数，必须由派生类实现。实现此函数以定义命令的具体行为。
-		返回值为命令执行结果的错误数据对象，表示命令执行是否成功以及可能的错误信息。
+		return 为命令执行结果的错误数据对象，表示命令执行是否成功以及可能的错误信息。
 		return 命令执行结果的错误数据对象。
 	*/
 

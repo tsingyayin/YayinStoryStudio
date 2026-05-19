@@ -180,7 +180,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取补全项的图标路径。
+		return 补全项的图标路径。
 	*/
 	QString TabCompleterItem::getIconPath() const {
 		return d->IconPath;
@@ -188,7 +188,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取补全项的文本。
+		return 补全项的文本。
 	*/
 	QString TabCompleterItem::getText() const {
 		return d->Text;
@@ -196,7 +196,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取补全项的描述。
+		return 补全项的描述。
 	*/
 	QString TabCompleterItem::getDescription() const {
 		return d->Description;
@@ -204,7 +204,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取补全项的内容。
+		return 补全项的内容。
 	*/
 	QString TabCompleterItem::getContent() const {
 		return d->Content;
@@ -212,7 +212,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取补全项的类型。
+		return 补全项的类型。
 	*/
 	TabCompleterItem::ItemType TabCompleterItem::getType() const {
 		return d->Type;
@@ -220,7 +220,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		判断补全项是否对齐。
+		return 补全项是否对齐。
 	*/
 	bool TabCompleterItem::isAlignment() const {
 		return d->Alignment;
@@ -276,7 +276,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取绑定的TextEdit的文档对象。
+		return 绑定的TextEdit的文档对象。
 	*/
 	QTextDocument* TabCompleterProvider::getDocument() const {
 		return d->Document;

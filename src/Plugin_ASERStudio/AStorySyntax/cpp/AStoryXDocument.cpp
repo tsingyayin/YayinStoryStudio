@@ -159,7 +159,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\class ASERStudio::AStorySyntax::AStoryXDocument
-		\brief AStoryXDocument是对整个AStoryX文档的封装，包含了对文档内容的解析和诊断信息的存储。
+		\brief AStoryXDocument是对整个AStoryX文档的封装，包含了对文档内容的解析和诊断信息的存储.
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -209,11 +209,11 @@ namespace ASERStudio::AStorySyntax {
 		delete d;
 	}
 
-	/*
+	/*!
 		\since ASERStudio 2.0
 		在SyntaxHighlighter中调用此方法来解析每一行的内容，并获取相应的诊断信息。
-		对于\a currentBlock，可以用QSyntaxHighlighter::currentBlock()获取。
-		\a text则为QSyntaxHighlighter::highlightBlock方法的参数，直接传递即可。
+		对于\a currentBlock ，可以用QSyntaxHighlighter::currentBlock()获取。
+		\a text 则为QSyntaxHighlighter::highlightBlock方法的参数，直接传递即可。
 
 		调用这个函数时，会自动将模式切换到SyntaxHighlighter模式，并清除之前在Manual模式下存储的行内容和用户状态。
 	*/
@@ -228,10 +228,10 @@ namespace ASERStudio::AStorySyntax {
 		d->onGeneralParse(currentBlock.blockNumber(), text, &currentBlock);
 	}
 
-	/*
+	/*!
 		\since ASERStudio 2.2
 		在Manual模式下调用此方法来解析每一行的内容，并获取相应的诊断信息。
-		\a lineIndex为行号，从0开始；\a text为该行的文本内容；\a cursorPosition为光标在该行中的位置，如果不需要可以传递-1。
+		\a lineIndex 为行号，从0开始；\a text 为该行的文本内容；\a cursorPosition 为光标在该行中的位置，如果不需要可以传递-1。
 
 		调用这个函数时，会自动将模式切换到Manual模式。
 	*/
@@ -256,7 +256,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.2
-		当行被添加时调用此方法，\a startLine为添加的起始行号，\a count为添加的行数。
+		当行被添加时调用此方法，\a startLine 为添加的起始行号，\a count 为添加的行数。
 
 		这个方法在两种模式下都需要调用，用于为新添加的行初始化内容和用户状态，以及更新诊断信息等。
 	*/
@@ -276,7 +276,7 @@ namespace ASERStudio::AStorySyntax {
 	}
 	/*!
 		\since ASERStudio 2.2
-		当行被删除时调用此方法，\a startLine为删除的起始行号，\a count为删除的行数。
+		当行被删除时调用此方法，\a startLine 为删除的起始行号，\a count 为删除的行数。
 
 		这个方法在两种模式下都需要调用，用于清除多余的行内容和用户状态，以及更新诊断信息等。
 	*/
@@ -321,7 +321,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取指定行的诊断信息，返回一个AStoryXDiagnosticData的列表。
-		如果\a lineNumber为-1，则返回全局诊断信息；否则返回指定行的诊断信息。
+		如果\a lineNumber 为-1，则返回全局诊断信息；否则返回指定行的诊断信息。
 
 		要获取全局诊断信息，也可以用getGlobalDiagnostics方法。
 
@@ -373,7 +373,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		获取指定行的解析数据，返回一个AStoryXControllerParseData对象。
-		如果\a lineNumber对应的行没有解析数据，则返回一个无效的AStoryXControllerParseData对象。
+		如果\a lineNumber 对应的行没有解析数据，则返回一个无效的AStoryXControllerParseData对象。
 	*/
 	AStoryXControllerParseData AStoryXDocument::getParseData(qint32 lineNumber) const {
 		if (lineNumber >= 0 && lineNumber < d->ParseDataCache.size()) {
@@ -395,7 +395,7 @@ namespace ASERStudio::AStorySyntax {
 	
 	/*!
 		\since ASERStudio 2.0
-		设置是否启用诊断功能，\a enable为true表示启用，false表示禁用。
+		设置是否启用诊断功能，\a enable 为true表示启用，false表示禁用。
 
 		在不启用诊断时，所有解析过程都不会产生任何诊断信息，有关诊断信息的函数
 		将永远返回空的结果，例如getDiagnostics、getAllDiagnostics、getGlobalDiagnostics等。
@@ -417,7 +417,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		判断是否启用诊断功能，返回一个布尔值，true表示启用，false表示禁用。
+		return 是否启用诊断功能，返回一个布尔值，true表示启用，false表示禁用。
 	*/
 	bool AStoryXDocument::isDiagnosticEnabled() const {
 		return d->EnableDiagnostic;

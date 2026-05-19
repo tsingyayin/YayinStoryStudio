@@ -215,7 +215,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取VIApplication单例对象的指针。
+		return VIApplication单例对象的指针。
 		虽然VIApplication是一个单例类，但此函数不会在实例不存在时创建它。请确保在调用此函数前已正确初始化VIApplication。
 
 		这是Visindigo单例类getInstance()函数的一个特例。其他单例类的getInstance()函数均会在实例不存在时创建它们。请注意区分。
@@ -420,7 +420,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前设置的主插件对象的指针。
+		return 当前设置的主插件对象的指针。
 		如果尚未设置主插件，则返回nullptr。
 	*/
 	Plugin* VIApplication::getMainPlugin() const {
@@ -443,7 +443,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取当前设置的全部依赖插件对象的指针列表。
+		return 当前设置的全部依赖插件对象的指针列表。
 		如果尚未添加任何依赖插件，则返回一个空列表。
 	*/
 	QList<Plugin*> VIApplication::getDependencyPlugins() const {
@@ -564,7 +564,7 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		启动应用程序的主事件循环。
 		此函数会加载并启用所有插件，初始化应用程序，并进入主事件循环。
-		返回值为应用程序退出时的返回码。
+		return 为应用程序退出时的返回码。
 
 		在调用此函数之前，应该先设置主插件和加载消息处理器（如果有的话）。
 		如果应用程序已经启动，将会抛出异常。
@@ -713,9 +713,9 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取应用程序的环境配置参数。
+		return 应用程序的环境配置参数。
 		\a key 环境配置键，参见EnvKey枚举。
-		返回值为对应的环境配置值，类型为QVariant。如果键不存在，则返回一个默认构造的QVariant对象。
+		return 为对应的环境配置值，类型为QVariant。如果键不存在，则返回一个默认构造的QVariant对象。
 
 		此函数允许用户获取应用程序的环境配置参数，如日志文件路径、插件文件路径等。
 	*/
@@ -725,7 +725,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.15.0
-		判断系统是否为Windows11。
+		return 系统是否为Windows11。
 	*/
 	bool VIApplication::isWindows11() {
 		return QSysInfo::kernelType() == "winnt" && QSysInfo::productVersion() == "11";
@@ -733,7 +733,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.15.0
-		判断系统是否为Windows。
+		return 系统是否为Windows。
 	*/
 	bool VIApplication::isWindows() {
 		return QSysInfo::kernelType() == "winnt";
@@ -742,7 +742,7 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		检查应用程序是否已经启动。
-		返回值为true表示应用程序已经启动，false表示尚未启动。
+		return 为true表示应用程序已经启动，false表示尚未启动。
 
 		此函数允许用户检查应用程序的启动状态。
 	*/
@@ -752,8 +752,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取应用程序的虚拟终端窗口。
-		返回值为指向虚拟终端窗口对象的指针。如果未启用虚拟终端功能，则返回nullptr。
+		return 应用程序的虚拟终端窗口。
+		return 为指向虚拟终端窗口对象的指针。如果未启用虚拟终端功能，则返回nullptr。
 		此函数允许用户获取应用程序的虚拟终端窗口，以便在其中执行命令行操作。
 	*/
 	Widgets::Terminal* VIApplication::getVirtualTerminal() const {

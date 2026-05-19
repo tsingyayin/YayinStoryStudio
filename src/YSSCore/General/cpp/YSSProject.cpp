@@ -34,14 +34,13 @@ namespace YSSCore::General {
 
 	/*!
 		\class YSSCore::General::YSSProject
-		\brief 这个类代表YSS项目
+		\brief 这个类代表YSS项目数据.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 
-		YSSProject类代表YSS项目。
-		
-		值得注意的是，这个类目前是个非QObject类，它是作为project.yssp文件的API
-		操作以及读写使用，不在程序中充当一些具体功能的提供者。
+		YSSProject类代表YSS项目数据。值得注意的是，这个类目前是个非QObject类，
+		它是作为project.yssp文件的API操作以及读写使用，只负责数据操作，
+		不负责在程序中充当一个关于项目各项内容更改时的数据集散中心。
 		
 		譬如，如果调用此类的setFocusedFile函数，它只会修改对应yssp文件中记录的数据，
 		不会真的使YSS编辑器变更当前打开的文件。这个需求需要用户调用FileServerManager
@@ -114,7 +113,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取当前项目的配置文件路径。
+		return 当前项目的配置文件路径。
 		如果项目加载时是有效的，那这个返回值就等同于设置值。
 		即，它是绝对路径还是相对路径取决于设置时的原样。
 
@@ -201,7 +200,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取当前项目的文件夹路径。
+		return 当前项目的文件夹路径。
 
 		与getProjectPath有所不同的是，这个函数固定按
 		绝对路径返回。
@@ -213,7 +212,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取当前项目的配置文件路径。
+		return 当前项目的配置文件路径。
 
 		如果项目加载时是有效的，那这个返回值就等同于设置值。
 		即，它是绝对路径还是相对路径取决于设置时的原样。
@@ -224,7 +223,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取当前项目的图标路径。
+		return 当前项目的图标路径。
 
 		这个图标路径忠实返回项目文件设置的值，不管他
 		是否真的有效，以及是什么格式的路径。
@@ -235,7 +234,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目作者设置。
+		return 项目作者设置。
 	*/
 	QString YSSProject::getProjectAuthor() {
 		return d->ProjectConfig->getString("Project.Author");
@@ -275,7 +274,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目创建时间
+		return 项目创建时间
 	*/
 	QDateTime YSSProject::getProjectCreateTime() {
 		return QDateTime::fromString(d->ProjectConfig->getString("Project.CreateTime"), "yyyy-MM-dd hh:mm:ss");
@@ -283,7 +282,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目上次修改时间
+		return 项目上次修改时间
 	*/
 	QDateTime YSSProject::getProjectLastModifyTime() {
 		return QDateTime::fromString(d->ProjectConfig->getString("Project.LastModifyTime"), "yyyy-MM-dd hh:mm:ss");
@@ -291,7 +290,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目设置的调试服务器ID。
+		return 项目设置的调试服务器ID。
 
 		由于YSS项目目前假定只面向那些编码项目，而编码项目
 		或多或少需要调试功能，因此提供了这个API。
@@ -314,7 +313,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目的版本号。从initProject初始化时，默认初始化为0.1.
+		return 项目的版本号。从initProject初始化时，默认初始化为0.1.
 	*/
 	Visindigo::General::Version YSSProject::getProjectVersion() {
 		return Visindigo::General::Version(d->ProjectConfig->getString("Project.Version"));
@@ -322,7 +321,7 @@ namespace YSSCore::General {
 	
 	/*!
 		\since YSS 0.13.0
-		获取项目中为指定插件\a plugin保存的配置数据。
+		return 项目中为指定插件\a plugin保存的配置数据。
 
 		请注意，获取配置数据并修改后，需要通过saveProjectConfigForPlugin重新设置到项目里。
 	*/
@@ -333,7 +332,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目中为指定插件\a plugin 保存的配置数据。这个重载是按插件ID而非指针索引的。
+		return 项目中为指定插件\a plugin 保存的配置数据。这个重载是按插件ID而非指针索引的。
 
 		请注意，获取配置数据并修改后，需要通过saveProjectConfigForPlugin重新设置到项目里。
 	*/
@@ -387,8 +386,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
+		\a filePath 编辑器打开的文件路径，绝对路径或相对于项目文件夹的相对路径均可。
 
-		向项目中添加一个编辑器打开的文件路径\a filePath。
+		向项目中添加一个编辑器打开的文件路径。如果这个路径最终落在项目文件夹内，则
+		转换为相对路径存储，否则以绝对路径存储。
 
 		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
 		它只是单纯地修改项目文件中的数据，告诉项目这个文件被打开了，但它并不会真的使编辑器打开这个文件。
@@ -404,7 +405,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置项目中编辑器打开的文件列表为\a filePaths。
+		\a filePaths 编辑器打开的文件路径列表，绝对路径或相对于项目文件夹的相对路径均可。
+
+		有关其中每个文件路径的说明，请参见addEditorOpenedFile函数。
+
 		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
 		它只是单纯地修改项目文件中的数据，告诉项目这些文件被打开了，但它并不会真的使编辑器打开这些文件。
 	*/
@@ -417,7 +421,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		从项目中移除一个编辑器打开的文件路径\a filePath。
+		\a filePath 编辑器打开的文件路径，绝对路径或相对于项目文件夹的相对路径均可。
+
+		移除项目中一个编辑器打开的文件路径。
+
 		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
 		它只是单纯地修改项目文件中的数据，告诉项目这个文件被关闭了，但它并不会真的使编辑器关闭这个文件。
 	*/
@@ -432,7 +439,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置项目中编辑器当前聚焦的文件路径为\a filePath。
+		\a abs_filePath 编辑器聚焦的文件路径，绝对路径或相对于项目文件夹的相对路径均可。
+
+		设置项目中编辑器当前聚焦的文件路径。
+
 		这个API和YSSCore::Editor::FileServerManager::focusFile信号无关
 		它只是单纯地修改项目文件中的数据，告诉项目这个文件被聚焦了，但它并不会真的使编辑器聚焦这个文件。
 
@@ -452,7 +462,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目中编辑器当前聚焦的文件路径。
+		return 项目中编辑器当前聚焦的文件路径。
 	*/
 	QString YSSProject::getFocusedFile() {
 		QString relativePath = d->ProjectConfig->getString("Editor.FocusedFile");
@@ -467,7 +477,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获取项目中编辑器当前聚焦的文件的文件名（不带路径）。
+		return 项目中编辑器当前聚焦的文件的文件名（不带路径）。
 	*/
 	QString YSSProject::getFocusedFileName() {
 		QString abs_path = getFocusedFile();

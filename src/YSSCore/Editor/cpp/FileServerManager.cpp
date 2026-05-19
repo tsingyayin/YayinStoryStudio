@@ -186,7 +186,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取FileServerManager的单例对象。
+		return FileServerManager的单例对象。
 	*/
 	FileServerManager* FileServerManager::getInstance() {
 		if (FileServerManagerPrivate::Instance == nullptr) {
@@ -376,7 +376,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取所有已注册的FileServer支持的文件类型列表。
+		return 所有已注册的FileServer支持的文件类型列表。
 	*/
 	QStringList FileServerManager::getSupportedFileExts() {
 		return d->FileServerMap.keys();
@@ -384,7 +384,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取某种文件类型对应的可用FileServer列表。
+		return 某种文件类型对应的可用FileServer列表。
 		\a fileExt 文件类型后缀名（不含点号）。
 		return 返回某种文件类型对应的可用FileServer ID列表。
 
@@ -403,7 +403,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取某个FileServer的名称。
+		return 某个FileServer的名称。
 		\a serverId FileServer的ID。
 		return 返回某个FileServer的名称，如果没有找到对应ID的FileServer，则返回一个空字符串。
 	*/
@@ -453,7 +453,7 @@ namespace YSSCore::Editor {
 		检查某种文件类型的特别关注强度功能是否启用。
 		\a fileExt 文件类型后缀名（不含点号）。
 
-		返回某种文件类型的特别关注强度功能是否启用。
+		return 某种文件类型的特别关注强度功能是否启用。
 	*/
 	bool FileServerManager::isEspeciallyFocusEnable(const QString& fileExt) {
 		if (d->EspeciallyFocusEnableMap.contains(fileExt)) {
@@ -464,9 +464,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取所有打开的文件编辑窗口。
+		return 所有打开的文件编辑窗口。
 
-		返回所有打开的文件编辑窗口列表。
+		return 所有打开的文件编辑窗口列表。
 
 		该返回值应即用即弃，不应被缓存或长期持有，因为FileServerManager会负责在窗口关闭时删除窗口对象。
 	*/
@@ -476,7 +476,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取所有打开的文件路径列表。
+		return 所有打开的文件路径列表。
 
 		该返回值应即用即弃，不应被缓存或长期持有，因为实际打开的文件列表可能会发生变化，缓存的列表可能会过时并导致逻辑错误。
 	*/
@@ -486,9 +486,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
-		获取指定文件路径对应的文件编辑窗口。
+		return 指定文件路径对应的文件编辑窗口。
 		\a filePath 文件路径。
-		返回指定文件路径对应的文件编辑窗口指针，如果没有找到则返回nullptr。
+		return 指定文件路径对应的文件编辑窗口指针，如果没有找到则返回nullptr。
 		该返回值应即用即弃，不应被缓存或长期持有，因为FileServerManager会负责在窗口关闭时删除窗口对象。
 	*/
 	FileEditWidget* FileServerManager::getFileEditWidget(const QString& filePath) {

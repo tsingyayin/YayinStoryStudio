@@ -232,8 +232,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\class Visindigo::Widgets::PixmapCacheHelper
-		\brief PixmapCacheHelper提供了一个在读取时自动创建QPixmap缓存的工具类。
-		\since VIsindigo 0.13.0
+		\brief PixmapCacheHelper提供了一个在读取时自动创建QPixmap缓存的工具类.
+		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
 		PixmapCacheHelper提供了一个在读取时自动创建QPixmap缓存的工具类。当你需要读取一个
@@ -253,7 +253,7 @@ namespace Visindigo::Widgets {
 	*/
 
 	/*!
-		\since VIsindigo 0.13.0
+		\since Visindigo 0.13.0
 		构造函数
 	*/
 	PixmapCacheHelper::PixmapCacheHelper() {
@@ -261,8 +261,8 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since VIsindigo 0.13.0
-		获取PixmapCacheHelper实例
+		\since Visindigo 0.13.0
+		return PixmapCacheHelper实例
 	*/
 	PixmapCacheHelper* PixmapCacheHelper::getInstance() {
 		if (PixmapCacheHelperPrivate::Instance == nullptr) {
@@ -272,7 +272,7 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since VIsindigo 0.13.0
+		\since Visindigo 0.13.0
 		析构函数
 	*/
 	PixmapCacheHelper::~PixmapCacheHelper() {
@@ -280,17 +280,21 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since VIsindigo 0.13.0
-		\a path是图片路径，\a size是缩放后的大小，如果为默认值则不进行缩放，\a keepAspectRatio表示是否保持宽高比，默认为true。
+		\since Visindigo 0.13.0
+		\a path 是图片路径
+		\a size 是缩放后的大小，如果为默认值则不进行缩放
+		\a keepAspectRatio 表示是否保持宽高比，默认为true。
 		如果图片不进行缩放，就不创建缓存。等同于直接调用QPixmap构造函数读取图片。
-		获取Pixmap
+		return Pixmap
 	*/
 	QPixmap PixmapCacheHelper::getPixmap(const QString& path, const QSize& size, bool keepAspectRatio) {
 		return d->getPixmap(path, size, keepAspectRatio);
 	}
 
 	/*!
-		\since VIsindigo 0.13.0
+		\since Visindigo 0.13.0
+		\a path 缓存路径
+
 		设置缓存路径，如果不设置则默认在内存中缓存，不会保存到磁盘。
 		设置了缓存路径后，会尝试从该路径加载缓存，如果加载失败则会清空缓存并重新创建。
 	*/
@@ -300,15 +304,15 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since VIsindigo 0.13.0
-		获取缓存路径，如果不设置则默认在内存中缓存，不会保存到磁盘。
+		\since Visindigo 0.13.0
+		return 缓存路径，如果不设置则默认在内存中缓存，不会保存到磁盘。
 	*/
 	QString PixmapCacheHelper::getCachePath() const {
 		return d->CachePath;
 	}
 
 	/*!
-		\since VIsindigo 0.13.0
+		\since Visindigo 0.13.0
 		保存缓存到磁盘，如果没有设置缓存路径则不进行保存。
 	*/
 	void PixmapCacheHelper::save() {
@@ -316,7 +320,7 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
-		\since VIsindigo 0.13.0
+		\since Visindigo 0.13.0
 		清空缓存，删除所有缓存文件，如果没有设置缓存路径则只清空内存中的缓存。
 	*/
 	void PixmapCacheHelper::clearCache() {

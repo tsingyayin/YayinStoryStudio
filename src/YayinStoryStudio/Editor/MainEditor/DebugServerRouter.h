@@ -31,6 +31,7 @@ namespace YSS::Editor {
 		bool suspend();
 		bool contiune();
 		bool stop();
+		bool restart();
 		bool setBreakpoint(const QString& filePath, qint32 lineNumber, bool enabled = true);
 		QMap<QString, QList<qint32>> getBreakpoints();
 		bool setBreakpoints(const QMap<QString, QList<qint32>>& breakpoints);

@@ -96,7 +96,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取语言ID
+		return 语言ID
 	*/
 	QString LangServer::getLangID(){
 		return d->LanguageID;
@@ -104,7 +104,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获取支持的文件扩展名列表
+		return 支持的文件扩展名列表
 	*/
 	QStringList LangServer::getLangExts(){
 		return d->LanguageExt;

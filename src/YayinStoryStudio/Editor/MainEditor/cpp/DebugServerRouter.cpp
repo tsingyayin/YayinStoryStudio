@@ -12,7 +12,7 @@ namespace YSS::Editor {
 	protected:
 		static DebugServerRouter* Instance;
 		YSSCore::Editor::DebugServer* CurrentServer = nullptr;
-
+		bool lastDebugStart = false;
 		YSSCore::Editor::DebugServer* getCurrentServer() {
 			if (not CurrentServer) {
 				QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID();
@@ -136,6 +136,7 @@ namespace YSS::Editor {
 		}
 		auto server = d->getCurrentServer();
 		if (server) {
+			d->lastDebugStart = debug;
 			server->onRun(debug);
 		}
 		return true;
@@ -192,6 +193,18 @@ namespace YSS::Editor {
 		auto server = d->getCurrentServer();
 		if (server) {
 			server->onStop();
+		}
+		return true;
+	}
+
+	bool DebugServerRouter::restart() {
+		if (not testDebugFeature(d->lastDebugStart ? YSSCore::Editor::DebugServer::DebugRun : YSSCore::Editor::DebugServer::Run)) {
+			return false;
+		}
+		auto server = d->getCurrentServer();
+		if (server) {
+			server->onStop();
+			server->onRun(d->lastDebugStart);
 		}
 		return true;
 	}

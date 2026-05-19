@@ -50,7 +50,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取占位符提供者的ID
+		return 占位符提供者的ID
 	*/
 	QString PlaceholderProvider::getPlaceholderName() const {
 		return d->name;
@@ -98,7 +98,7 @@ namespace Visindigo::General {
 	/*!
 		\relates Visindigo::General::PlaceholderManager
 		\macro VIPM
-		获取PlaceholderManager的单例实例。这个宏是PlaceholderManager的一个便捷接口，直接调用PlaceholderManager::getInstance()来获取单例实例。
+		return PlaceholderManager的单例实例。这个宏是PlaceholderManager的一个便捷接口，直接调用PlaceholderManager::getInstance()来获取单例实例。
 	*/
 
 	/*!
@@ -125,7 +125,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		获取PlaceholderManager的单例实例
+		return PlaceholderManager的单例实例
 	*/
 	PlaceholderManager* PlaceholderManager::getInstance() {
 		if (PlaceholderManagerPrivate::Instance == nullptr) {

@@ -174,7 +174,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 	   \class ASERStudio::AStorySyntax::AStoryXPreprocessor
-	   \brief AStoryXPreprocessor是一个预处理器，用于在解析AStoryX之前对AStoryX进行预处理。
+	   \brief AStoryXPreprocessor是一个预处理器，用于在解析AStoryX之前对AStoryX进行预处理.
 	   \since ASERStudio 2.0
 	   \inmodule ASERStudio
 
@@ -211,24 +211,32 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXPreprocessor::AStoryXPreprocessor(AStoryXPreprocessor&& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXPreprocessor对象。
+
 		移动构造函数。
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXPreprocessor::AStoryXPreprocessor(const AStoryXPreprocessor& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXPreprocessor对象。
+
 		复制构造函数。
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXPreprocessor& AStoryXPreprocessor::operator=(AStoryXPreprocessor&& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXPreprocessor对象。
+
 		移动赋值运算符。
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXPreprocessor& AStoryXPreprocessor::operator=(const AStoryXPreprocessor& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXPreprocessor对象。
+
 		复制赋值运算符。
 	*/
 
@@ -265,7 +273,7 @@ namespace ASERStudio::AStorySyntax {
 	   \a diagnostic 是否启用诊断信息
 	   \a lineIndex 行索引，仅在启用诊断信息时有效
 
-	   返回一个AStoryXControllerParseData对象，包含解析结果。
+	   return 一个AStoryXControllerParseData对象，包含解析结果。
 
 	   你一般不需要直接调用这个函数，除非你有特殊需求（比如你在确定场景下只解析预处理指令）。
 	   针对任意文本的解析，应该使用ASERStudio::AStorySyntax::AStoryXRule::parseAStoryX函数，

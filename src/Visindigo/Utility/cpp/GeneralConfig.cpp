@@ -375,10 +375,12 @@ namespace Visindigo::__Private__ {
 namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::GeneralConfig
-		\brief 一种通用的配置数据存储结构，支持多种数据类型和嵌套结构。
+		\brief 一种通用的配置数据存储结构，支持多种数据类型和嵌套结构.
 		\ingroup GeneralConfig
 		\inmodule Visindigo
 		\since Visindigo 0.13.0
+
+		\warning GeneralConfig类的设计和实现仍在初期阶段，未来可能会有较大的改动，请谨慎使用。
 
 		GeneralConfig类用于存储和管理各种类型的配置数据。
 		
@@ -469,6 +471,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 整数值
+
 		使用整数值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(qint64 value){
@@ -479,6 +483,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 实数值
+
 		使用实数值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(qreal value) {
@@ -489,6 +495,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 布尔值
+
 		使用布尔值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(bool value){
@@ -499,6 +507,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 字符串值
+		\a isRef 是否构造一个引用节点
+
 		使用字符串值构造一个节点。如果isRef为true，则构造一个引用节点。
 	*/
 	GeneralConfig::GeneralConfig(const QString& value, bool isRef) {
@@ -509,6 +520,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 列表值
+
 		使用列表值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(const GeneralConfigList& value) {
@@ -530,6 +543,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 映射值
+
 		使用映射值构造一个节点。
 	*/
 	GeneralConfig::GeneralConfig(const GeneralConfigMap& value) {
@@ -556,6 +571,12 @@ namespace Visindigo::Utility {
 		delete d;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		\a other 另一个GeneralConfig对象
+
+		复制构造函数，递归地复制一个GeneralConfig节点及其子节点。
+	*/
 	GeneralConfig::GeneralConfig(const GeneralConfig& other) {
 		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->copyFrom(other.d);
@@ -563,6 +584,8 @@ namespace Visindigo::Utility {
 	}
 	/*!
 		\since Visindigo 0.13.0
+		\a other 另一个GeneralConfig对象
+		
 		移动构造函数，转移节点及其子节点的所有权。
 	*/
 	GeneralConfig::GeneralConfig(GeneralConfig&& other) noexcept {
@@ -577,6 +600,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a other 另一个GeneralConfig对象
+
 		移动赋值运算符，转移节点及其子节点的所有权。
 	*/
 	GeneralConfig& GeneralConfig::operator=(GeneralConfig&& other) noexcept {
@@ -595,6 +620,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a other 另一个GeneralConfig对象
+		
 		静态方法，递归地复制一个GeneralConfig节点及其子节点，返回新的节点指针。
 	*/
 	GeneralConfig* GeneralConfig::copyFrom(GeneralConfig* other) {
@@ -610,7 +637,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a def 默认值，当节点不存在或类型不匹配时返回该值。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下的整数值。如果节点不存在或类型不匹配，则返回默认值def。
+
+		return 指定键路径下的整数值。
+		
+		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	qint64 GeneralConfig::getInt(const QString& key, qint64 def, bool* ok) {
 		auto realD = d->find(key);
@@ -640,7 +670,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a def 默认值，当节点不存在或类型不匹配时返回该值。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下的实数值（双浮点数）。如果节点不存在或类型不匹配，则返回默认值def。
+
+		return 指定键路径下的实数值（双浮点数）。
+		
+		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	qreal GeneralConfig::getReal(const QString& key, qreal def, bool* ok) {
 		auto realD = d->find(key);
@@ -672,7 +705,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a def 默认值，当节点不存在或类型不匹配时返回该值。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下的布尔值。如果节点不存在或类型不匹配，则返回默认值def。
+
+		return 指定键路径下的布尔值。
+		
+		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	bool GeneralConfig::getBool(const QString& key, bool def, bool* ok) {
 		auto realD = d->find(key);
@@ -702,7 +738,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a def 默认值，当节点不存在或类型不匹配时返回该值。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下的字符串值。如果节点不存在或类型不匹配，则返回默认值def。
+
+		return 指定键路径下的字符串值。
+
+		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	QString GeneralConfig::getString(const QString& key, const QString& def, bool* ok) {
 		auto realD = d->find(key);
@@ -738,7 +777,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a def 默认值，当节点不存在或类型不匹配时返回该值。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下的引用节点的目标路径字符串值。如果节点不存在或类型不匹配，则返回默认值def。
+
+		return 指定键路径下的引用节点的目标路径字符串值。
+		
+		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	QString GeneralConfig::getRefNode(const QString& key, const QString& def, bool* ok) {
 		auto realD = d->find(key);
@@ -774,7 +816,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a def 默认值，当节点不存在或类型不匹配时返回该值。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下的列表值。如果节点不存在或类型不匹配，则返回默认值def。
+
+		return 指定键路径下的列表值。
+		
+		如果节点不存在或类型不匹配，则返回默认值def。
 
 		请注意，不要将返回的列表值长期保存，请将其视为弱指针，即用即弃。
 		如果有必要长期保存，请使用GeneralConfig::copyFrom方法复制对应的节点。
@@ -813,7 +858,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a def 默认值，当节点不存在或类型不匹配时返回该值。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下的映射值。如果节点不存在或类型不匹配，则返回默认值def。
+
+		return 指定键路径下的映射值。
+
+		如果节点不存在或类型不匹配，则返回默认值def。
 		请注意，不要将返回的映射值长期保存，请将其视为弱指针，即用即弃。
 		如果有必要长期保存，请使用GeneralConfig::copyFrom方法复制对应的节点。
 	*/
@@ -851,7 +899,10 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
 		\a isHeadComment 指示是否获取头注释（true）还是行内注释（false）。
-		获取指定键路径下节点的注释字符串。如果节点不存在，则返回空字符串。
+		
+		return 指定键路径下节点的注释字符串。
+		
+		如果节点不存在，则返回空字符串。
 	*/
 	QString GeneralConfig::getComment(const QString& key, bool* ok, bool isHeadComment) {
 		auto realD = d->find(key);
@@ -880,7 +931,10 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		获取指定键路径下的子节点指针。如果节点不存在，则返回nullptr。
+		
+		return 指定键路径下的子节点指针。
+		
+		如果节点不存在，则返回nullptr。
 
 		这也是个应该即用即弃的弱指针。如果有必要长期保存，请使用GeneralConfig::copyFrom方法复制对应的节点。
 	*/
@@ -898,7 +952,10 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		获取指定键路径下节点的所有子节点的键列表。如果节点不存在或类型不匹配，则返回空列表。
+		
+		return 指定键路径下节点的所有子节点的键列表。
+		
+		如果节点不存在或类型不匹配，则返回空列表。
 
 		如果类型为Map，则返回映射的所有键；如果类型为List，则返回索引字符串列表（"0"、"1"等）。
 	*/
@@ -941,7 +998,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的数值
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
+
 		设置指定键路径下的整数值。如果节点不存在，则创建新节点；如果节点已存在，则覆盖其值和类型。
 	*/
 	void GeneralConfig::setInt(qint64 value, const QString& key) {
@@ -956,7 +1015,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的数值
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
+
 		设置指定键路径下的实数值（双浮点数）。如果节点不存在，则创建新节点；如果节点已存在，则覆盖其值和类型。
 	*/
 	void GeneralConfig::setDouble(double value, const QString& key) {
@@ -971,7 +1032,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的布尔量
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
+
 		设置指定键路径下的布尔值。如果节点不存在，则创建新节点；如果节点已存在，则覆盖其值和类型。
 	*/
 	void GeneralConfig::setBool(bool value, const QString& key) {
@@ -986,7 +1049,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的字符串
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
+
 		设置指定键路径下的字符串值。如果节点不存在，则创建新节点；如果节点已存在，则覆盖其值和类型。
 	*/
 	void GeneralConfig::setString(const QString& value, const QString& key) {
@@ -1001,7 +1066,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的引用目标路径字符串
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
+
 		设置指定键路径下的引用节点的目标路径字符串值。如果节点不存在，则创建新节点；如果节点已存在，则覆盖其值和类型。
 	*/
 	void GeneralConfig::setRefNode(const QString& value, const QString& key) {
@@ -1016,7 +1083,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的列表
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
+
 		设置指定键路径下的列表值。如果节点不存在，则创建新节点；如果节点已存在，则覆盖其值和类型。
 
 		此操作传入的列表被视为所有权转移，即被设置到节点后，调用者不应再使用该列表。
@@ -1042,7 +1111,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的映射
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
+
 		设置指定键路径下的映射值。如果节点不存在，则创建新节点；如果节点已存在，则覆盖其值和类型。
 
 		此操作传入的映射被视为所有权转移，即被设置到节点后，调用者不应再使用该映射。
@@ -1067,8 +1138,10 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a value 要设置的注释字符串
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a isHeadComment 指示是否设置头注释（true）还是行内注释（false）。
+
 		设置指定键路径下节点的注释字符串。如果节点不存在，则创建新节点。
 	*/
 	void GeneralConfig::setComment(const QString& value, const QString& key, bool isHeadComment) {
@@ -1085,7 +1158,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否存在。
+
+		return 指定键路径下的节点是否存在。
 	*/
 	bool GeneralConfig::contains(const QString& key) {
 		return d->contains(key);
@@ -1095,7 +1169,10 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a refNodeGetFinalType 指示如果节点为引用节点，是否获取其引用目标节点的最终类型。
-		获取指定键路径下节点的类型。如果节点不存在，则返回Type::None。
+
+		return 指定键路径下节点的类型。
+		
+		如果节点不存在，则返回Type::None。
 		如果refNodeGetFinalType为true且节点为引用节点，则返回其引用目标节点的类型。
 	*/
 	GeneralConfig::Type GeneralConfig::getNodeType(const QString& key, bool refNodeGetFinalType) {
@@ -1124,7 +1201,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否为None类型。如果节点不存在，则视为None类型。
+
+		return 指定键路径下的节点是否为None类型。如果节点不存在，则视为None类型。
 	*/
 	bool GeneralConfig::isNone(const QString& key) {
 		auto realD = d->find(key);
@@ -1139,7 +1217,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否为布尔类型。
+
+		return 指定键路径下的节点是否为布尔类型。
 	*/
 	bool GeneralConfig::isInt(const QString& key) {
 		auto realD = d->find(key);
@@ -1154,7 +1233,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否为实数类型。
+
+		return 指定键路径下的节点是否为实数类型。
 	*/
 	bool GeneralConfig::isReal(const QString& key) {
 		auto realD = d->find(key);
@@ -1169,7 +1249,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否为布尔类型。
+
+		return 指定键路径下的节点是否为布尔类型。
 	*/
 	bool GeneralConfig::isString(const QString& key) {
 		auto realD = d->find(key);
@@ -1184,7 +1265,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否为列表类型。
+
+		return 指定键路径下的节点是否为列表类型。
 	*/
 	bool GeneralConfig::isList(const QString& key) {
 		auto realD = d->find(key);
@@ -1199,7 +1281,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否为映射类型。
+		
+		return 指定键路径下的节点是否为映射类型。
 	*/
 	bool GeneralConfig::isMap(const QString& key) {
 		auto realD = d->find(key);
@@ -1214,7 +1297,8 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		检查指定键路径下的节点是否为引用类型。
+
+		return 指定键路径下的节点是否为引用类型。
 	*/
 	bool GeneralConfig::isReference(const QString& key) {
 		auto realD = d->find(key);
