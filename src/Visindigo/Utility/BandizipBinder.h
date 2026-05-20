@@ -1,12 +1,12 @@
 #ifndef Visindigo_Utility_BandizipBinder_h
 #define Visindigo_Utility_BandizipBinder_h
 /*
-	NOTICE: 
-Even though the standard version of Bandizip is free and allows use in any scenario, 
-whether for profit or non-profit, we seem to have not found any distribution regulations regarding its binary content. 
-Therefore, it is absolutely impossible for Visindigo to directly provide a copy containing binaries. 
+	NOTICE:
+Even though the standard version of Bandizip is free and allows use in any scenario,
+whether for profit or non-profit, we seem to have not found any distribution regulations regarding its binary content.
+Therefore, it is absolutely impossible for Visindigo to directly provide a copy containing binaries.
 
-However, you can easily assign this Binder class to the corresponding location of the Bandizip software. 
+However, you can easily assign this Binder class to the corresponding location of the Bandizip software.
 Using it is much faster than compiling and integrating those libraries.
 
 * To enable users to use it out of the box, the Bandizip binary path is set to the current working directory by default.
@@ -20,8 +20,8 @@ namespace Visindigo::Utility {
 		Q_OBJECT;
 	public:
 		enum CompressFormat {
-				zip, zipx, exe, tar, tgz,
-				lzh, iso, sevenz, gz, xz
+			zip, zipx, exe, tar, tgz,
+			lzh, iso, sevenz, gz, xz
 		};
 	signals:
 		void compressingFile(const QString& filePath);

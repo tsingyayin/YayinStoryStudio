@@ -41,7 +41,7 @@ namespace YSS::Editor {
 			closeAll();
 			});
 
-		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, this, [this] (const QString& widgetID){
+		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, this, [this](const QString& widgetID) {
 			d->TagArea->removeStackLabel(widgetID);
 			});
 	}
@@ -50,17 +50,17 @@ namespace YSS::Editor {
 		/*
 			IMPORTANT MEMORY TRAP HERE:
 			Notice: Qt Object Tree will automatically delete child widgets in
-			d->TagArea first, so when the destructor of ToolWidgetArea is called, 
+			d->TagArea first, so when the destructor of ToolWidgetArea is called,
 			the closed signal will be emitted from YSSTWM, and then the removeStackLabel
 			will be called, and the TagArea will try to access the already deleted StackLabels.
 
 			So, actually, the For-loop below is not necessary, and will must cause a crash.
-			Currently, we solve the problem by calling closeAll in MainWin manually, 
+			Currently, we solve the problem by calling closeAll in MainWin manually,
 			so the For-loop below will not be executed.
 
 			We will consider a better way to solve this problem in the future.
 
-			This trap is also appeared in FileEditWidgetArea, these two classes are 
+			This trap is also appeared in FileEditWidgetArea, these two classes are
 			almost designed as same structure, so we need to solve this problem in both of them.
 		*/
 		for (auto widget : YSSTWM->getAllOpenToolWidgets()) {

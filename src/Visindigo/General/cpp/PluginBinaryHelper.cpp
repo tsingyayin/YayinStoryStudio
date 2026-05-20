@@ -12,8 +12,6 @@ namespace Visindigo::General {
 		bool compressed;
 	protected:
 		bool loadBinary() {
-
 		}
 	};
-
 }

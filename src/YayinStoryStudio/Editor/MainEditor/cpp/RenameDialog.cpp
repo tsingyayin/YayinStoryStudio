@@ -52,16 +52,15 @@ namespace YSS::Editor {
 				newAbsPath = QDir(newAbsPath).absolutePath();
 				emit renameConfirmed(AbsOldPath, newAbsPath);
 			}
-			
+
 			this->close();
 			});
-		
+
 		connect(CancelButton, &QPushButton::clicked, this, [this]() {
 			this->close();
 			});
-		
+
 		connect(Edit, &QLineEdit::textChanged, this, &RenameDialog::onNewNameChanged);
-	
 	}
 	void RenameDialog::setContext(const QString& absOldPath, const QString& newName) {
 		this->AbsOldPath = absOldPath;

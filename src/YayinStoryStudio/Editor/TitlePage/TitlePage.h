@@ -5,7 +5,7 @@
 #include <General/VIApplication.h>
 class QGraphicsDropShadowEffect;
 namespace YSS::TitlePage {
-	class TitlePage :public QFrame , public Visindigo::General::ApplicationLoadingMessageHandler {
+	class TitlePage :public QFrame, public Visindigo::General::ApplicationLoadingMessageHandler {
 		Q_OBJECT;
 		QLabel* Background;
 		QLabel* Title;

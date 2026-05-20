@@ -114,7 +114,7 @@ namespace Visindigo::Utility {
 					QString nextkey = *((*it) + 1);
 					bool ok = false;
 					int index = nextkey.toInt(&ok);
-					if (!val.isArray()){
+					if (!val.isArray()) {
 						QJsonObject obj = val.toObject();
 						if (ok) {
 							obj.insert(*(*it), QJsonArray());
@@ -123,7 +123,8 @@ namespace Visindigo::Utility {
 							obj.insert(*(*it), QJsonValue());
 						}
 						val = obj;
-					}else{
+					}
+					else {
 						QJsonArray arr = val.toArray();
 						if (arr.size() <= (*it)->toInt()) {
 							arr.append(QJsonValue());
@@ -215,14 +216,14 @@ namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::JsonConfig
 		\inmodule Visindigo
-		\brief JsonConfig定义了对Json配置的操作。
+		\brief JsonConfig定义了对Json配置的操作.
 		\since Visindigo 0.10.0
-		\sa Visindigo::Utility::JsonDocument QJsonObject QJsonValue
+		\sa Visindigo::Utility::JsonDocument, QJsonObject, QJsonValue
 
 		JsonConfig提供对Json配置的读写操作，可以通过此类构建基于Json的配置。
 		JsonConfig主体上提供的是一套纯动态方式的接口，允许你在运行时动态地访问和修改Json对象的内容，
 		而不需要事先定义Json对象的结构。
-		为此，我们规定通过句点 “.” 来访问Json对象的子对象，例如 "parent.child.key" 
+		为此，我们规定通过句点 “.” 来访问Json对象的子对象，例如 "parent.child.key"
 		表示访问Json对象中键为 "parent" 的子对象中的键为 "child" 的子对象中的键为 "key" 的值。
 		\warning 这种规定对键名有所限制，即键名不能包含句点。如果Json文档中的键名包含句点，
 		则行为未定义。
@@ -232,7 +233,7 @@ namespace Visindigo::Utility {
 		有关这部分内容请详见下文。
 
 		由于JsonConfig只是在QtJson设施上进行了一层封装，因此它的性能和QtJson基本相当。
-		
+
 		如果你不以明确类型操作这个类，你可能还会需要查看QJsonValue、QJsonObject、QVariant
 		等类型的文档。它们是QtJson和可变类型量的重要套件。
 
@@ -474,6 +475,8 @@ namespace Visindigo::Utility {
 	}
 	/*!
 		\since Visindigo 0.13.0
+		\a key 为键。
+
 		return 指定Json节点的所有键。（不包括子对象）
 	*/
 	QStringList JsonConfig::keys(const QString& key) const
@@ -494,7 +497,9 @@ namespace Visindigo::Utility {
 	/*!
 		\fn QJsonParseError JsonConfig::parse(const QString& jsonStr)
 		\since Visindigo 0.13.0
-		\a json 为Json对象。
+
+		\a jsonStr 为Json字符串。
+
 		解析Json字符串。如果解析成功，返回的QJsonParseError的error属性为QJsonParseError::NoError。
 		并立即覆盖全部原有内容。如果解析失败，返回的QJsonParseError的error属性为相应的错误类型。
 	*/
@@ -510,7 +515,9 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 指定Json节点的字符串。
+		\a format 为Json格式。
+
+		return 以指定格式将Json对象转换为字符串。
 	*/
 	QString JsonConfig::toString(QJsonDocument::JsonFormat format)
 	{
@@ -519,7 +526,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
 		return 指定Json节点的值。
 	*/
 	QJsonValue JsonConfig::getValue(const QString& key, bool* ok) const
@@ -532,7 +539,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的整数值。
 	*/
 	qint64 JsonConfig::getInt(const QString& key, bool* ok) const
@@ -545,7 +553,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的字符串值。
 	*/
 	QString JsonConfig::getString(const QString& key, bool* ok) const
@@ -557,7 +566,8 @@ namespace Visindigo::Utility {
 	}
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的布尔值。
 	*/
 	bool JsonConfig::getBool(const QString& key, bool* ok) const
@@ -570,7 +580,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的浮点数值。
 	*/
 	double JsonConfig::getDouble(const QString& key, bool* ok) const
@@ -583,7 +594,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的子对象。
 	*/
 	JsonConfig JsonConfig::getObject(const QString& key, bool* ok) const
@@ -598,7 +610,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的数组。
 	*/
 	QList<JsonConfig> JsonConfig::getArray(const QString& key, bool* ok) const
@@ -618,7 +631,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的字符串列表。
 	*/
 	QStringList JsonConfig::getStringList(const QString& key, bool* ok) const
@@ -636,7 +650,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.14.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的qint64列表。
 	*/
 	QList<qint64> JsonConfig::getIntArray(const QString& key, bool* ok) const
@@ -654,7 +669,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.14.0
-		\a key 为键。\a ok 为接受是否正常工作的结果指针
+		\a key 为键。 \a ok 为接受是否正常工作的结果指针
+
 		return 指定Json节点的double列表。
 	*/
 	QList<double> JsonConfig::getDoubleArray(const QString& key, bool* ok) const
@@ -673,6 +689,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否包含指定的键。
 	*/
 	bool JsonConfig::contains(const QString& key) const
@@ -682,6 +699,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		清空Json对象的内容。
 	*/
 	void JsonConfig::clear()
@@ -693,6 +711,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为值。
+
 		设置指定Json节点为值。
 	*/
 	void JsonConfig::setValue(const QString& key, const QJsonValue& value)
@@ -704,6 +723,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为整数值。
+
 		设置指定Json节点为整数值。
 	*/
 	void JsonConfig::setInt(const QString& key, qint64 value)
@@ -716,6 +736,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为字符串值。
+
 		设置指定Json节点为字符串值。
 	*/
 	void JsonConfig::setString(const QString& key, const QString& value)
@@ -728,6 +749,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为布尔值。
+
 		设置指定Json节点为布尔值。
 	*/
 	void JsonConfig::setBool(const QString& key, bool value)
@@ -740,6 +762,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为浮点数值。
+
 		设置指定Json节点为浮点数值。
 	*/
 	void JsonConfig::setDouble(const QString& key, double value)
@@ -752,6 +775,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为子对象。
+
 		设置指定Json节点为子对象。
 	*/
 	void JsonConfig::setObject(const QString& key, const JsonConfig& value)
@@ -764,6 +788,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为数组。
+
 		设置指定Json节点为数组。
 	*/
 	void JsonConfig::setArray(const QString& key, const QList<JsonConfig>& value)
@@ -780,6 +805,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为字符串列表。
+
 		设置指定Json节点为字符串列表。
 	*/
 	void JsonConfig::setArray(const QString& key, const QStringList& value)
@@ -796,6 +822,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 为键。
 		\a value 为整数列表。
+
 		设置指定Json节点为字符串列表。
 	*/
 	void JsonConfig::setStringList(const QString& key, const QStringList& value)
@@ -807,6 +834,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.14.0
 		\a key 为键。
 		\a value 为整数列表。
+
 		设置指定Json节点为整数列表。
 	*/
 	void JsonConfig::setIntArray(const QString& key, const QList<qint64>& value)
@@ -823,6 +851,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.14.0
 		\a key 为键。
 		\a value 为浮点数列表。
+
 		设置指定Json节点为浮点数列表。
 	*/
 	void JsonConfig::setDoubleArray(const QString& key, const QList<double>& value)
@@ -838,6 +867,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为空。
 	*/
 	bool JsonConfig::isEmpty(const QString& key) const
@@ -848,6 +878,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为空。
 	*/
 
@@ -859,6 +890,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为对象。
 	*/
 	bool JsonConfig::isObject(const QString& key) const
@@ -869,6 +901,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为数组。
 	*/
 	bool JsonConfig::isArray(const QString& key) const
@@ -879,6 +912,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为字符串。
 	*/
 
@@ -890,6 +924,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为布尔值。
 	*/
 	bool JsonConfig::isBool(const QString& key) const
@@ -900,6 +935,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为整数。
 	*/
 	bool JsonConfig::isInt(const QString& key) const
@@ -910,6 +946,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 为键。
+
 		return 指定Json节点是否为是否为浮点数。
 	*/
 	bool JsonConfig::isDouble(const QString& key) const

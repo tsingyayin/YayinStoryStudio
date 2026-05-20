@@ -11,7 +11,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\class Visindigo::Widgets::ShortcutSet
-		\brief ShortcutSet基于QShortcut实现了一个更快捷的集合
+		\brief ShortcutSet基于QShortcut实现了一个更快捷的集合.
 		\since Visindigo 0.14.0
 		\inmodule Visindigo
 
@@ -51,7 +51,6 @@ namespace Visindigo::Widgets {
 		d = new ShortcutSetPrivate;
 		d->WatchedWidget = parent;
 	}
-
 
 	/*!
 		\since Visindigo 0.14.0

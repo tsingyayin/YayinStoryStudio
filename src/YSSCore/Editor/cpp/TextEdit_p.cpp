@@ -26,7 +26,7 @@ namespace YSSCore::__Private__ {
 		findNextButton = new QPushButton(VITR("YSS::editor.far.findNext"), this);
 		replaceNextButton = new QPushButton(VITR("YSS::editor.far.replaceNext"), this);
 		replaceAllButton = new QPushButton(VITR("YSS::editor.far.replaceAll"), this);
-		
+
 		layout->addWidget(titleLabel, 0, 0, 1, 3);
 		layout->addWidget(closeButton, 0, 3);
 		layout->addWidget(sourceAsReCheckBox, 1, 1);
@@ -57,13 +57,13 @@ namespace YSSCore::__Private__ {
 		connect(sourceAsReCheckBox, &QCheckBox::checkStateChanged, this, [this]() {
 			this->findAll();
 			});
-		
+
 		connect(rawInput, &QLineEdit::returnPressed, this, [this]() {
 			this->findAll();
 			});
 		connect(findNextButton, &QPushButton::clicked, this, [this]() {
-			auto rtn = this->parent->findNext(rawInput->text(), sourceAsReCheckBox->isChecked(), -1, 
-				(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) | 
+			auto rtn = this->parent->findNext(rawInput->text(), sourceAsReCheckBox->isChecked(), -1,
+				(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) |
 				(wholeWordCheckBox->isChecked() ? QTextDocument::FindWholeWords : QTextDocument::FindFlags()), true);
 			if (rtn.isNull()) {
 				QMessageBox::information(this, VITR("YSS::editor.far.notFound"), VITR("YSS::editor.far.notFoundDesc").arg(rawInput->text()));
@@ -87,8 +87,7 @@ namespace YSSCore::__Private__ {
 			});
 	}
 
-	TextEditFindAndReplace::~TextEditFindAndReplace() {
-	}
+	TextEditFindAndReplace::~TextEditFindAndReplace() {}
 
 	void TextEditFindAndReplace::findAll() {
 		auto cursors = this->parent->findAll(rawInput->text(), sourceAsReCheckBox->isChecked(),
@@ -114,8 +113,7 @@ namespace YSSCore::__Private__ {
 		Layout->addWidget(TotalLinesLabel);
 	}
 
-	TextEditCursorInfo::~TextEditCursorInfo() {
-	}
+	TextEditCursorInfo::~TextEditCursorInfo() {}
 
 	void TextEditCursorInfo::setCursorInfo(qint32 line, qint32 column, qint32 selection) {
 		if (selection > 0) {
@@ -129,5 +127,4 @@ namespace YSSCore::__Private__ {
 	void TextEditCursorInfo::setTotalLines(qint32 total) {
 		TotalLinesLabel->setText(VITR("YSS::editor.textEdit.totalLines").arg(total));
 	}
-
 }

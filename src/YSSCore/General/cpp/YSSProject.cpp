@@ -41,7 +41,7 @@ namespace YSSCore::General {
 		YSSProject类代表YSS项目数据。值得注意的是，这个类目前是个非QObject类，
 		它是作为project.yssp文件的API操作以及读写使用，只负责数据操作，
 		不负责在程序中充当一个关于项目各项内容更改时的数据集散中心。
-		
+
 		譬如，如果调用此类的setFocusedFile函数，它只会修改对应yssp文件中记录的数据，
 		不会真的使YSS编辑器变更当前打开的文件。这个需求需要用户调用FileServerManager
 		的changeFocusedFile信号进行。稍后，YSS会根据是否实际变更了打开的文件来读写YSSP。
@@ -84,7 +84,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		从\a configPath 加载YSS项目
+		从 \a configPath 加载YSS项目
 	*/
 	YSSProject::LoadProjectResult YSSProject::loadProject(const QString& configPath) {
 		QString config = Visindigo::Utility::FileUtility::readAll(configPath);
@@ -147,16 +147,18 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		在\a folder指定的文件夹初始化项目，名称为\a name
+		在 \a folder 指定的文件夹初始化项目，名称为 \a name
 
-		如果\a folder不存在，那么会自动创建沿途所有不存在的文件夹。
+		如果 \a folder 不存在，那么会自动创建沿途所有不存在的文件夹。
 
-		如果\a folder不为空，会创建失败。
+		如果 \a folder 不为空，会创建失败。
 
 		只要可以创建，这函数执行之后，configPath就被自动设置为指定的位置。
 
 		如果要通过YSSProject初始化YSS项目，一般推荐首先调用此函数以建立项目文件夹，
 		稍后再进行其他初始化操作。
+
+		return 是否成功初始化项目
 	*/
 	bool YSSProject::initProject(const QString& folder, const QString& name) {
 		QDir dir(folder);
@@ -242,7 +244,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置项目名称为/a name
+		设置项目名称为 \a name
 	*/
 	void YSSProject::setProjectName(const QString& name) {
 		d->ProjectConfig->setString("Project.Name", name);
@@ -250,7 +252,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置项目描述为\a description
+		设置项目描述为 \a description
 	*/
 	void YSSProject::setProjectDescription(const QString& description) {
 		d->ProjectConfig->setString("Project.Description", description);
@@ -258,7 +260,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置项目图标路径为\a iconPath
+		设置项目图标路径为 \a iconPath
 	*/
 	void YSSProject::setProjectIconPath(const QString& iconPath) {
 		d->ProjectConfig->setString("Project.IconPath", iconPath);
@@ -266,7 +268,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置项目作者为\a author
+		设置项目作者为 \a author
 	*/
 	void YSSProject::setProjectAuthor(const QString& author) {
 		d->ProjectConfig->setString("Project.Author", author);
@@ -301,7 +303,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置项目的调试服务器ID为\a id
+		设置项目的调试服务器ID为 \a id
 
 		由于YSS项目目前假定只面向那些编码项目，而编码项目
 		或多或少需要调试功能，因此提供了这个API。
@@ -318,10 +320,10 @@ namespace YSSCore::General {
 	Visindigo::General::Version YSSProject::getProjectVersion() {
 		return Visindigo::General::Version(d->ProjectConfig->getString("Project.Version"));
 	}
-	
+
 	/*!
 		\since YSS 0.13.0
-		return 项目中为指定插件\a plugin保存的配置数据。
+		return 项目中为指定插件 \a plugin 保存的配置数据。
 
 		请注意，获取配置数据并修改后，需要通过saveProjectConfigForPlugin重新设置到项目里。
 	*/
@@ -332,7 +334,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		return 项目中为指定插件\a plugin 保存的配置数据。这个重载是按插件ID而非指针索引的。
+		return 项目中为指定插件 \a pluginID 保存的配置数据。这个重载是按插件ID而非指针索引的。
 
 		请注意，获取配置数据并修改后，需要通过saveProjectConfigForPlugin重新设置到项目里。
 	*/
@@ -343,7 +345,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		为指定插件\a plugin保存具有\a config 的数据。
+		为指定插件 \a plugin 保存具有 \a config 的数据。
 
 		它被存储在YSSP文件的MetaData节点下。
 	*/
@@ -354,7 +356,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		为指定插件\a pluginID保存具有\a config 的数据。这个重载是按插件ID而非指针索引的。
+		为指定插件 \a pluginID 保存具有 \a config 的数据。这个重载是按插件ID而非指针索引的。
 
 		它被存储在YSSP文件的MetaData节点下。
 	*/
@@ -500,7 +502,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		获得当前项目的实例指针。
+		return 当前项目的实例指针。
 	*/
 	YSSProject* YSSProject::getCurrentProject() {
 		return YSSProjectPrivate::CurrentProject;
@@ -508,7 +510,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		设置当前项目实例为\a project。
+		设置当前项目实例为 \a project 。
 	*/
 	void YSSProject::setCurrentProject(YSSProject* project) {
 		if (YSSProjectPrivate::CurrentProject != nullptr) {

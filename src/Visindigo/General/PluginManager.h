@@ -10,7 +10,7 @@ namespace Visindigo::General {
 }
 // Main
 namespace Visindigo::General {
-	class VisindigoAPI PluginManager :public QObject{
+	class VisindigoAPI PluginManager :public QObject {
 		friend class PluginManagerPrivate;
 		Q_OBJECT;
 	signals:
@@ -56,6 +56,7 @@ namespace Visindigo::General {
 		Plugin* getPluginByName(const QString& name) const;
 		LoadPluginResult getPluginLoadResultByID(const QString& id) const;
 		QList<Plugin*> getLoadedPlugins() const;
+		QList<Plugin*> getEnabledPlugins() const;
 		QMap<QString, LoadPluginResult> getAllPluginLoadResults() const;
 		void setPluginTypeDescription(const QString& typeID, const QString& typeName, const QString& description);
 		QString getPluginTypeName(const QString& typeID) const;

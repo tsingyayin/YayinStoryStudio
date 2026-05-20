@@ -57,7 +57,7 @@ namespace ASERStudio::YSS {
 		delete d;
 	}
 
-	void ProjectTemplateInitWidget_AStoryX::resizeEvent(QResizeEvent* event){
+	void ProjectTemplateInitWidget_AStoryX::resizeEvent(QResizeEvent* event) {
 		YSSCore::Editor::ProjectTemplateInitWidget::resizeEvent(event);
 	}
 
@@ -150,7 +150,7 @@ namespace ASERStudio::YSS {
 	}
 
 	ProjectTemplate_AStoryX::ProjectTemplate_AStoryX(YSSCore::Editor::EditorPlugin* plugin) :
-		ProjectTemplateProvider("ASE AStory Project Template Provider", "ProjectTemplate_AStoryX", plugin){
+		ProjectTemplateProvider("ASE AStory Project Template Provider", "ProjectTemplate_AStoryX", plugin) {
 		setTemplateIconPath(":/resource/cn.yxgeneral.aserstudio/icon/ASEA_Dark.png");
 		setTemplateID("ASEAStoryXProject");
 		setTemplateName(VITR("ASERStudio::provider.astory.name"));

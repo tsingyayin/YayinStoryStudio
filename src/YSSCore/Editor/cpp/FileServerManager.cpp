@@ -68,7 +68,7 @@ namespace YSSCore::Editor {
 				emit Instance->fileClosed(path);
 				we->deleteLater();
 				yDebug << "File closed:" << path;
-			});
+				});
 			QObject::connect(we, &FileEditWidget::fileRenamed, Instance, [this, we](const QString& rawPath, const QString& changedPath) {
 				if (OpenedFileEditWidgets.contains(rawPath)) {
 					OpenedFileEditWidgets.remove(rawPath);
@@ -98,7 +98,7 @@ namespace YSSCore::Editor {
 		\class YSSCore::Editor::FileServerManager
 		\inmodule YSSCore
 		\since YSS 0.13.0
-		\brief 管理FileServer的对象。
+		\brief 管理FileServer的对象.
 
 		在用户将自己的FileServer注册到FileServerManager后，FileServerManager可以根据已经注册的支持类型选择合适的FileServer来打开文件。
 
@@ -111,6 +111,7 @@ namespace YSSCore::Editor {
 		\li 4. 如果无人特别关注，就回退到手动设置的优先级列表（如果存在）来打开文件。
 		\li 5. 如果优先级列表未设置，则按照注册顺序尝试打开文件。
 		\li 6. 如果以上步骤全部失败，或者根本不存在支持该文件类型的FileServer，则根据useFallback参数决定是否使用内置文本编辑器打开文件。
+		\endlist
 
 		有关特别关注、首选ID、优先级列表等概念的详细信息，请参见相关函数的文档说明。
 	*/
@@ -118,49 +119,60 @@ namespace YSSCore::Editor {
 	/*!
 		\fn FileServerManager::fileOpened(const QString& filePath)
 		\since YSS 0.15.0
-		当一个文件被成功打开时发出的信号。参数\a filePath是被打开的文件的绝对路径。
+		\a filePath 是被打开的文件的绝对路径。
+
+		当一个文件被成功打开时发出的信号。
 	*/
 
 	/*!
 		\fn FileServerManager::fileClosed(const QString& filePath)
 		\since YSS 0.15.0
-		当一个文件被关闭时发出的信号。参数\a filePath是被关闭的文件的绝对路径。
+		\a filePath 是被关闭的文件的绝对路径。
+
+		当一个文件被关闭时发出的信号。
 	*/
 
 	/*!
 		\fn FileServerManager::fileRenamed(const QString& raw, const QString& changed)
 		\since YSS 0.15.0
-		当一个文件被重命名时发出的信号。参数\a raw是文件重命名前的绝对路径，参数\a changed是文件重命名后的绝对路径。
+		\a raw 是文件重命名前的绝对路径
+		\a changed 是文件重命名后的绝对路径。
+
+		当一个文件被重命名时发出的信号。参数
 	*/
 
 	/*!
 		\fn FileServerManager::fileChanged(const QString& filePath)
 		\since YSS 0.15.0
-		当一个文件被修改时发出的信号。参数\a filePath是被修改的文件的绝对路径。
+		\a filePath 是被修改的文件的绝对路径。
+
+		当一个文件被修改时发出的信号。
 	*/
 
 	/*!
 		\fn FileServerManager::fileChangeCanceled(const QString& filePath)
 		\since YSS 0.15.0
-		当一个文件的修改被撤销时发出的信号。参数\a filePath是被撤销修改的文件的绝对路径。
+		\a filePath 是被撤销修改的文件的绝对路径。
+
+		当一个文件的修改被撤销时发出的信号。
 	*/
 
 	/*!
 		\fn FileServerManager::fileSaved(const QString& filePath)
 		\since YSS 0.15.0
-		当一个文件被保存时发出的信号。参数\a filePath是被保存的文件的绝对路径。
+		当一个文件被保存时发出的信号。参数 \a filePath 是被保存的文件的绝对路径。
 	*/
 
 	/*!
-		\fn FileServerManager::focusFile(const QString& filePath, qint32 lineNumber, qint32 column)
+		\fn FileServerManager::focusOnFile(const QString& filePath, qint32 lineNumber, qint32 column)
 		\since YSS 0.15.0
+		\a filePath 被聚焦的文件的绝对路径， \a lineNumber 聚焦的行号， \a column 聚焦的列号。
+
 		请求聚焦一个文件时应该尝试发出此信号。
 
 		具体如何聚焦文件，由连接了该信号的前台决定。不过，YSSCore要求
-		连接了此信号的前台在聚焦时，应使用\a lineNumber 和\a column 调用响应的
+		连接了此信号的前台在聚焦时，应使用 \a lineNumber 和 \a column 调用响应的
 		FileEditWidget::cursorToPosition函数来聚焦文件的特定位置。
-
-		参数\a filePath 被聚焦的文件的绝对路径，\a lineNumber 聚焦的行号，\a column 聚焦的列号。
 	*/
 
 	/*!
@@ -262,7 +274,8 @@ namespace YSSCore::Editor {
 		\a filePath 要打开的文件路径。
 		\a preferredServerId 优先使用的FileServer ID。
 		\a useFallback 是否在没有任何FileServer成功打开文件时使用内置文本编辑器打开文件。默认为true。
-		如果文件成功打开则返回true，否则返回false.
+
+		return 文件成功是否成功打开
 
 		如果存在优先使用的FileServerID且该FileServer成功打开文件，则会优先使用该FileServer。
 		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
@@ -272,7 +285,7 @@ namespace YSSCore::Editor {
 		并且不区分路径的大小写（如果操作系统不区分大小写）。如果FileServer有必要对文件路径进行处理，请严格使用QFile、QFileInfo、
 		QDir等文件系统相关类对输入的路径字符串进行处理，而不是直接对字符串进行操作，以避免字面值发生变化导致逻辑错误。
 
-		如果filePath为虚拟文件路径，则只匹配支持该虚拟文件的FileServer，不考虑\a preferredServerId、特别关注强度、优先级列表、\a useFallback等因素。
+		如果filePath为虚拟文件路径，则只匹配支持该虚拟文件的FileServer，不考虑 \a preferredServerId 、特别关注强度、优先级列表、 \a useFallback 等因素。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		if (filePath.isEmpty()) {
@@ -356,7 +369,7 @@ namespace YSSCore::Editor {
 			// create a warning dialog
 			int ret = QMessageBox::warning(
 				nullptr, VITR("YSS::editor.textEdit.notSuitable.title"),
-				 VITR("YSS::editor.textEdit.notSuitable.message").arg(ext),
+				VITR("YSS::editor.textEdit.notSuitable.message").arg(ext),
 				QMessageBox::Yes | QMessageBox::No);
 			if (ret == QMessageBox::Yes) {
 				FileEditWidget* feWidget = new TextEdit();

@@ -17,6 +17,5 @@ namespace YSS::SimpleWidget {
 
 		Description->setWordWrap(true);
 	}
-	void EAWarningWidget::closeEvent(QCloseEvent* event) {
-	}
+	void EAWarningWidget::closeEvent(QCloseEvent* event) {}
 }

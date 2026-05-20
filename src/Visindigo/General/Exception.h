@@ -11,7 +11,7 @@ namespace Visindigo::General {
 	class VisindigoAPI Exception :public QObject {
 		Q_OBJECT;
 	public:
-		enum Type : qint32{
+		enum Type : qint32 {
 			Unknown = 0x0000000,
 			Other,
 
@@ -27,37 +27,37 @@ namespace Visindigo::General {
 			UnsupportedOperation,
 			InternalError,
 			OutOfMemory,
-			
+
 			// Following types are aligned with std::exception derived types
 			Std_Unknown = 0x8000000,
 			Std_Other,
 			Std_LogicError,
-				Std_InvalidArgument,
-				Std_DomainError,
-				Std_LengthError,
-				Std_OutOfRange,
-				Std_FutureError, // since C++ 11
+			Std_InvalidArgument,
+			Std_DomainError,
+			Std_LengthError,
+			Std_OutOfRange,
+			Std_FutureError, // since C++ 11
 			Std_RuntimeError,
-				Std_RangeError,
-				Std_OverflowError,
-				Std_UnderflowError,
-				Std_RegexError, // since C++ 11
-				Std_SystemError, // since C++ 11
-					Std_IOFailure, // since C++ 11, std::ios_base::failure
-					Std_FileSystemError, // since C++ 17, std::filesystem::filesystem_error
-				Std_TXException, // ISO/IEC TS 19841:2015, not in C++ standard yet
-				Std_LocalTimeNone, // since C++ 20, std::chrono::nonexistent_local_time
-				Std_LocalTimeAmbiguous, // since C++ 20, std::chrono::ambiguous_local_time
-				Std_FormatError, // since C++ 20
+			Std_RangeError,
+			Std_OverflowError,
+			Std_UnderflowError,
+			Std_RegexError, // since C++ 11
+			Std_SystemError, // since C++ 11
+			Std_IOFailure, // since C++ 11, std::ios_base::failure
+			Std_FileSystemError, // since C++ 17, std::filesystem::filesystem_error
+			Std_TXException, // ISO/IEC TS 19841:2015, not in C++ standard yet
+			Std_LocalTimeNone, // since C++ 20, std::chrono::nonexistent_local_time
+			Std_LocalTimeAmbiguous, // since C++ 20, std::chrono::ambiguous_local_time
+			Std_FormatError, // since C++ 20
 			Std_BadTypeid,
 			Std_BadCast,
-				Std_BadAnyCast, // since C++ 17
+			Std_BadAnyCast, // since C++ 17
 			Std_BadOptionalAccess, // since C++ 17
 			Std_BadExpectedAccess, // since C++ 23
 			Std_BadWeakPtr, // since C++ 11
 			Std_BadFunctionCall, // since C++ 11
 			Std_BadAlloc,
-				Std_BadArrayNewLength, // since C++ 11
+			Std_BadArrayNewLength, // since C++ 11
 			Std_BadException,
 			Std_BadVariantAccess, // since C++ 17
 		};
@@ -66,8 +66,8 @@ namespace Visindigo::General {
 		static QString typeToString(Type type);
 		static Exception fromStdException(const std::exception& e);
 	public:
-		Exception(Type type, QString message = "", 
-			bool critical = true, QString file = "", 
+		Exception(Type type, QString message = "",
+			bool critical = true, QString file = "",
 			int line = 0, QString func = "",
 			QList<StacktraceFrame> stacktrace = {});
 		VIMoveable(Exception);

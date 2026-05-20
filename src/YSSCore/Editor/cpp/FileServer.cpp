@@ -13,7 +13,7 @@ namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::FileServer
 		\inmodule YSSCore
-		\brief 此类提供文件打开服务。
+		\brief 此类提供文件打开服务.
 		\since YSS 0.13.0
 		\ingroup FileService
 
@@ -27,7 +27,7 @@ namespace YSSCore::Editor {
 		主要指出的是，FileServer本质上只是提供打开文件的路由，它不负责处理具体文件的保存、编辑等操作。虽然
 		CodeEditor和BuiltInEditor类型确实通过标准文件编辑框架（FileEditWidget）来打开文件，其中提供标准化的
 		存储行为语义，但其余类型的编辑器类型需要完全由用户自己实现打开、保存等相关功能。
-		
+
 		FileServer的职责仅限于根据文件扩展名和编辑器类型来路由文件打开请求。
 
 		\section1 编辑器类型
@@ -51,17 +51,17 @@ namespace YSSCore::Editor {
 			@YSS.SettingsWidget!ProgramSettings?from=menubar
 		\endcode
 		的时候，则会对应调用该服务器，且file_name会在FileEditWidget中解析为ProgramSettings。
-		
+
 		有关虚拟文件模式下，FileEditWidget的其他特殊行为，请参考相关文档。
 
 		至于参数部分，目前推荐按url参数格式书写，但不强制规定。
 
 		既然提到了参数格式，我们也需要对file_ext和file_name做一些推荐标准：
-		
+
 		由于file_name被约定为显示出来的文件名，而虚拟文件的编辑器可能通常
 		是一些配置界面，需要本地化，因此不推荐使用file_name进行功能区分，
 		而推荐只将file_ext作为功能区分的ID进行使用，且使用域命名法来书写。
-		
+
 		事实上，在YSS内部，file_ext确实也是作为ID使用的，即不能有多个FileServer
 		同时注册一个file_ext，否则后来者无效。
 
@@ -122,6 +122,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a filePath 要打开的文件路径。
+
 		这是个有意思的函数，允许你在一定程度上影响文件打开时使用的文件服务的优先级。
 
 		如果你有一个文件服务A和一个文件服务B，它们都支持打开.txt文件。
@@ -143,7 +145,7 @@ namespace YSSCore::Editor {
 		这个函数默认返回-1。虽然不提倡，但如果你需要对某个文件拥有绝对优先权，请直接返回int64的最大值。
 
 		此外，如果需要为某个文件扩展名关闭特别关注功能，可以在FileServerManager::setEspeciallyFocusEnable函数里设置。
-		
+
 		\note 从0.15.0开始引入虚拟文件概念。在虚拟文件服务器模式时，该功能无效
 	*/
 	qint64 FileServer::especiallyFocusFile(const QString& filePath) {
@@ -154,12 +156,12 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		当需要创建内置编辑器时调用。默认实现返回nullptr。
 		此函数没有参数。因为设计上要求派生直接返回一个新创建的YSSCore::Editor::FileEditWidget派生类对象即可。
-		
+
 		FileServerManager::openFile函数内部会自动对这个新的派生类对象调用openFile函数打开指定文件。
 
 		一旦成功，FileServerManager会调用FileWidgetHandler::handleBuiltinEditor函数将这个新的编辑器对象的指针传递给外部，
 		以便外部可以将它添加到UI中。
-		
+
 		/warning 该函数返回指针的所有权问题在0.15之前和0.15及之后有不同的处理方式。请务必注意。
 
 		在0.15之前，如果Handler返回true，该指针所有权会被转移到该FileWidgetHandler。
@@ -189,8 +191,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		设置此文件服务支持的文件扩展名列表。
 		\a exts 为新的文件扩展名列表。
+
+		设置此文件服务支持的文件扩展名列表。
 	*/
 	void FileServer::setSupportedFileExts(const QStringList& exts) {
 		d->SupportedFileExts = exts;
@@ -198,6 +201,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.15.0
+		\a isVirtual 是否设置为虚拟文件服务器。
+
 		设置此文件服务器作为虚拟文件服务器。
 		在虚拟文件模式时，特别关注功能不可用。
 	*/

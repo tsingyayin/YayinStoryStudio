@@ -18,7 +18,6 @@
 
 */
 namespace Visindigo::Utility {
-	
 	class JsonMatchingBracketCache {
 	public:
 		QStack<QChar> LeftBacketStack;
@@ -28,18 +27,18 @@ namespace Visindigo::Utility {
 			bool inString = false;
 			qint32 i = 0;
 			for (auto it = content.begin(); it != content.end(); it++) {
-				if(*it=='\"') {
+				if (*it == '\"') {
 					auto jt = it == content.begin() ? content.begin() : it - 1;
 					if (*jt != '\\') {
 						inString = !inString;
 					}
 				}
 				if (!inString) {
-					if (*it == '{' || *it == '['){
+					if (*it == '{' || *it == '[') {
 						LeftBacketStack.push(*it);
 						LeftIndex.push(i);
 					}
-					else if (LeftBacketStack.size()>0 && LeftBacketStack.top() == '{' && *it == '}' || LeftBacketStack.size() > 0 && LeftBacketStack.top() == '[' && *it == ']') {
+					else if (LeftBacketStack.size() > 0 && LeftBacketStack.top() == '{' && *it == '}' || LeftBacketStack.size() > 0 && LeftBacketStack.top() == '[' && *it == ']') {
 						qint32 leftIndex = LeftIndex.pop();
 						LeftBacketStack.pop();
 						RightIndex[leftIndex] = i;
@@ -49,7 +48,7 @@ namespace Visindigo::Utility {
 			}
 		}
 		qint32 getRightIndex(qint32 startDelta, qint32 leftIndex) {
-			if (!RightIndex.contains(startDelta + leftIndex) ){
+			if (!RightIndex.contains(startDelta + leftIndex)) {
 				vgErrorF << "JsonMatchingBracketCache: No matching right bracket found for left bracket at index" << (startDelta + leftIndex);
 				VI_Throw_ST(Visindigo::General::Exception::NotFound, "");
 			}
@@ -420,7 +419,7 @@ namespace Visindigo::Utility {
 			case JsonTokenType::Colon:
 				getKey = true;
 				colonPtr = dataPtr + 1;
-			break;
+				break;
 			case JsonTokenType::Comma:
 			{
 				if (type != JsonValueType::String && type != JsonValueType::Map && type != JsonValueType::List) {
@@ -443,28 +442,28 @@ namespace Visindigo::Utility {
 					vgDebug << "GeneralConfigParser::parseFromJson_2: Parsing value for key" << keyCache << ":" << QString::fromUtf8(front, contentLength);
 					switch (*front) {
 					case 't':
-						if (contentLength >= 4 && 
-							*(front + 1) == 'r' && 
-							*(front + 2) == 'u' && 
+						if (contentLength >= 4 &&
+							*(front + 1) == 'r' &&
+							*(front + 2) == 'u' &&
 							*(front + 3) == 'e') {
 							parseStack.top()->setBool(true, keyCache);
 							type = JsonValueType::Bool;
 						}
 						break;
 					case 'f':
-						if (contentLength >= 5 && 
-							*(front + 1) == 'a' && 
-							*(front + 2) == 'l' && 
-							*(front + 3) == 's' && 
+						if (contentLength >= 5 &&
+							*(front + 1) == 'a' &&
+							*(front + 2) == 'l' &&
+							*(front + 3) == 's' &&
 							*(front + 4) == 'e') {
 							parseStack.top()->setBool(false, keyCache);
 							type = JsonValueType::Bool;
 						}
 						break;
 					case 'n':
-						if (contentLength >= 4 && 
-							*(front + 1) == 'u' && 
-							*(front + 2) == 'l' && 
+						if (contentLength >= 4 &&
+							*(front + 1) == 'u' &&
+							*(front + 2) == 'l' &&
 							*(front + 3) == 'l') {
 							// do nothing, keep it as None
 							type = JsonValueType::Null;
@@ -565,14 +564,15 @@ namespace Visindigo::Utility {
 			}
 			dataPtr++;
 		}
-endParse:
+	endParse:
 		if (parseStack.isEmpty()) {
 			vgDebugF << "GeneralConfigParser::parseFromJson_2: Invalid JSON string format.";
 			if (ok) {
 				*ok = false;
 			}
 			return nullptr;
-		}else if (parseStack.size() > 1) {
+		}
+		else if (parseStack.size() > 1) {
 			vgDebugF << "GeneralConfigParser::parseFromJson_2: Incomplete JSON string format.";
 			if (ok) {
 				*ok = false;

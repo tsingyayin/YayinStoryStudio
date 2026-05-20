@@ -11,7 +11,7 @@
 class QTextDocument;
 namespace ASERStudio::AStorySyntax {
 	class AStoryXDocumentPrivate;
-	class ASERAPI AStoryXDocument :public QObject{
+	class ASERAPI AStoryXDocument :public QObject {
 		Q_OBJECT;
 	signals:
 		void currentRuleChanged();

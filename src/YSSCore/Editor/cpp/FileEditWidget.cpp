@@ -10,15 +10,15 @@
 namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
-	protected:
-		bool fileChanged = false;
-		bool isVirtualFile = false;
-		bool autoAbandon = false;
-		QString filePath;
+protected:
+	bool fileChanged = false;
+	bool isVirtualFile = false;
+	bool autoAbandon = false;
+	QString filePath;
 	};
 	/*!
 		\class YSSCore::Editor::FileEditWidget
-		\brief 此类为Yayin Story Studio 提供文件编辑的基类。
+		\brief 此类为Yayin Story Studio 提供文件编辑的基类.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 
@@ -57,7 +57,7 @@ namespace YSSCore::Editor {
 		在虚拟文件模式下，有关文件读写操作的四函数从onOpen、onClose、onSave、onReload
 		变更为onVirtualOpen、onVirtualClose、onVirtualSave、onVirtualReload，且默认实现为返回false。
 		但对应的外部使用接口不变，仍然为openFile、close、saveFile、reloadFile等。
-		
+
 		也就是说，外部调用者无需关心当前文件是否为虚拟文件，仍然按照正常的方式调用这些接口即可，
 		FileEditWidget会根据当前文件的类型自动调用相应的实现接口。不过值得一提的是，
 		在虚拟文件模式下，saveFile传入的两个参数均会被忽略。
@@ -76,36 +76,51 @@ namespace YSSCore::Editor {
 	/*!
 		\fn YSSCore::Editor::FileEditWidget::fileChanged(const QString& filePath)
 		\since YSS 0.13.0
-		当文件内容被修改时，应触发此信号。
+		\a filePath 当前文件路径。
+
+		当文件内容被修改时，自动触发此信号。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::FileEditWidget::fileChangeCanceled(const QString& filePath)
 		\since YSS 0.14.0
-		当文件内容修改被取消时，应触发此信号。
+		\a filePath 当前文件路径。
+
+		当文件内容修改被取消时，自动触发此信号。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::FileEditWidget::fileSaved(const QString& filePath)
 		\since YSS 0.13.0
+		\a filePath 当前文件路径。
+
 		当文件被成功保存时，自动触发此信号。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::FileEditWidget::fileRenamed(const QString& rawPath, const QString& changedPath)
 		\since YSS 0.15.0
+		\a rawPath 原文件路径。
+		\a changedPath 现文件路径。
+
 		当文件被成功保存，且路径与此前不一致时，自动触发此信号。
 	*/
 
 	/*!
-		\fn YSSCore::Editor::FileEditWidget::closed(const QString& filePath)
+		\fn YSSCore::Editor::FileEditWidget::fileClosed(const QString& filePath)
 		\since YSS 0.15.0
+		\a filePath 当前文件路径。
+
 		当文件最终被关闭时，自动触发此信号。
+
+		请注意，这函数发出之后，该FileEditWidget很快就会被销毁，且无法阻止。
+		请勿再保存该对象的指针以备后用。
 	*/
 
 	/*!
 		\since YSS 0.13.0
 		\a parent 为父对象。
+
 		构造FileEditWidget对象。
 	*/
 	FileEditWidget::FileEditWidget(QWidget* parent) : QFrame(parent) {
@@ -114,6 +129,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		析构FileEditWidget对象。
 	*/
 	FileEditWidget::~FileEditWidget() {
@@ -123,7 +139,8 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		return 当前文件编辑器的文件路径。
-		return 返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
+
+		返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
 
 		注意，这可能是个虚拟文件路径，如果当前文件是通过FileServer打开的虚拟文件，
 		则返回的路径格式为@ext!fileName?param，其中ext是文件扩展名，fileName是文件名，param是额外参数。
@@ -136,7 +153,8 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		return 当前文件编辑器的文件名。
-		return 返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
+
+		返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
 	*/
 	QString FileEditWidget::getFileName() const {
 		if (d->filePath.isEmpty()) {
@@ -152,7 +170,8 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		return 当前文件内容是否被修改。
-		return 如果文件内容被修改，返回true；否则返回false。
+
+		如果文件内容被修改，返回true；否则返回false。
 	*/
 	bool FileEditWidget::isFileChanged() const {
 		return d->fileChanged;
@@ -161,7 +180,8 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.15.0
 		return 当前文件是否为虚拟文件。
-		return 如果当前文件为虚拟文件，返回true；否则返回false。
+
+		如果当前文件为虚拟文件，返回true；否则返回false。
 
 		虚拟文件是指不对应实际磁盘文件的文件，通常由程序动态生成或从其他来源加载。对于虚拟文件，某些操作可能会有所不同，例如保存时可能需要特殊处理。
 	*/
@@ -172,12 +192,13 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.15.0
 		return 当前文件的扩展名。
-		return 返回当前文件的扩展名（不带点）。如果当前没有打开任何文件，则返回空字符串。
+
+		返回当前文件的扩展名（不带点）。如果当前没有打开任何文件，则返回空字符串。
 
 		对于虚拟文件路径，扩展名是路径中@和!之间的部分。
 	*/
 	QString FileEditWidget::getFileExt() const {
-		if (d->isVirtualFile){
+		if (d->isVirtualFile) {
 			static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
 			auto match = re.match(d->filePath);
 			if (match.hasMatch()) {
@@ -190,7 +211,8 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.15.0
 		return 当前虚拟文件的参数部分。
-		return 返回当前虚拟文件的参数部分。如果当前文件不是虚拟文件或没有参数，则返回空字符串。
+
+		返回当前虚拟文件的参数部分。如果当前文件不是虚拟文件或没有参数，则返回空字符串。
 
 		对于虚拟文件路径，参数部分是路径中?之后的部分。
 	*/
@@ -230,7 +252,8 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.15.0
 		return 当前文件编辑器的自动放弃状态。
-		return 如果在关闭文件时会自动放弃未保存的修改，返回true；否则返回false。
+
+		如果在关闭文件时会自动放弃未保存的修改，返回true；否则返回false。
 	*/
 	bool FileEditWidget::isAutoAbandon() const {
 		return d->autoAbandon;
@@ -249,6 +272,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		打开指定路径的文件，并加载其内容。
 		\a path 要打开的文件路径。
+
 		return 如果文件成功打开并加载，返回true；否则返回false。
 
 		此类在判定文件路径是否为空后，调用派生类实现的onOpen()函数以实际打开文件。
@@ -281,7 +305,9 @@ namespace YSSCore::Editor {
 		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
 		\a deleteWhenSaveAs 当执行另存为操作时，是否删除原文件。默认为false，即不删除原文件。如果设置为true，
 		可以视作重命名文件，保存成功后原文件将被删除。请谨慎使用此选项，以免误删重要文件。
+
 		return 如果文件成功保存，返回true；否则返回false。
+
 		此类在判定文件路径是否为空后，调用派生类实现的onSave()函数以实际保存文件。
 		一旦文件成功保存，fileChanged状态会被重置为false，并触发fileSaved信号。
 
@@ -328,7 +354,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		重新加载当前文件编辑器的内容。
+
 		return 如果文件成功重新加载，返回true；否则返回false。
+
 		此类在判定当前文件路径是否为空后，调用派生类实现的onReload()函数以实际重新加载文件。
 	*/
 	bool FileEditWidget::reloadFile() {
@@ -345,9 +373,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		关闭当前文件编辑器。\a autoAbandon 是否自动放弃未保存的修改。默认为false，即不自动放弃。
-		
+
 		这个函数直接调用QWidget的close()函数，触发关闭事件。
-		
+
 		关闭事件会调用派生类实现的onClose()函数以决定是否允许关闭。
 	*/
 	void FileEditWidget::closeFile(bool autoAbandon) {
@@ -358,7 +386,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		复制当前选中的内容到剪贴板。
+
 		return 如果复制操作成功，返回true；否则返回false。
+
 		此类调用派生类实现的onCopy()函数以实际处理复制逻辑。
 	*/
 	bool FileEditWidget::copy() {
@@ -368,7 +398,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		剪切当前选中的内容到剪贴板。
+
 		return 如果剪切操作成功，返回true；否则返回false。
+
 		此类调用派生类实现的onCut()函数以实际处理剪切逻辑。
 	*/
 	bool FileEditWidget::cut() {
@@ -378,7 +410,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		从剪贴板粘贴内容到当前光标位置。
+
 		return 如果粘贴操作成功，返回true；否则返回false。
+
 		此类调用派生类实现的onPaste()函数以实际处理粘贴逻辑。
 	*/
 	bool FileEditWidget::paste() {
@@ -388,7 +422,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		撤销上一次编辑操作。
+
 		return 如果撤销操作成功，返回true；否则返回false。
+
 		此类调用派生类实现的onUndo()函数以实际处理撤销逻辑。
 	*/
 	bool FileEditWidget::undo() {
@@ -398,7 +434,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		重做上一次被撤销的编辑操作。
+
 		return 如果重做操作成功，返回true；否则返回false。
+
 		此类调用派生类实现的onRedo()函数以实际处理重做逻辑。
 	*/
 	bool FileEditWidget::redo() {
@@ -408,7 +446,9 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		选中当前文件编辑器中的所有内容。
+
 		return 如果全选操作成功，返回true；否则返回false。
+
 		此类调用派生类实现的onSelectAll()函数以实际处理全选逻辑。
 	*/
 	bool FileEditWidget::selectAll() {
@@ -419,12 +459,14 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		\a lineNumber 行号，从1开始。
 		\a column 列号，从1开始。
+
 		将光标移动到指定的行号和列号位置。
+
+		return 如果光标成功移动到指定位置，返回true；否则返回false。
 	*/
 	bool FileEditWidget::cursorToPosition(qint32 lineNumber, qint32 column) {
 		return onCursorToPosition(lineNumber, column);
 	}
-
 
 	/*!
 		\since YSS 0.13.0
@@ -444,6 +486,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类可以实现此虚函数以处理文件关闭逻辑。
+
 		return 如果文件编辑器可以关闭，返回true；否则返回false。
 
 		这个函数默认会根据isFileChanged()的返回值来判断文件是否被修改过，
@@ -486,7 +529,9 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 
 		派生类必须实现此纯虚函数以处理文件保存逻辑。
+
 		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
+
 		return 如果文件成功保存，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onSave(const QString& path) {
@@ -496,6 +541,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理文件重新加载逻辑。
+
 		return 如果文件成功重新加载，返回true；否则返回false。
 
 		在0.15之前的版本，这个函数默认返回false
@@ -511,6 +557,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理复制逻辑。
+
 		return 如果复制操作成功，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onCopy() {
@@ -519,6 +566,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理剪切逻辑。
+
 		return 如果剪切操作成功，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onCut() {
@@ -528,6 +576,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理粘贴逻辑。
+
 		return 如果粘贴操作成功，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onPaste() {
@@ -537,6 +586,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理撤销逻辑。
+
 		return 如果撤销操作成功，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onUndo() {
@@ -546,6 +596,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理重做逻辑。
+
 		return 如果重做操作成功，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onRedo() {
@@ -555,6 +606,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		派生类实现此纯虚函数以处理全选逻辑。
+
 		return 如果全选操作成功，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onSelectAll() {
@@ -565,11 +617,14 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		\a lineNumber 行号，从1开始。
 		\a column 列号，从1开始。
+
 		由派生类实现的函数，用于将光标移动到指定的行号和列号位置。
 
-		由于FileEditWidget最早是面向文本文件设计，因此\a lineNumber 和
+		由于FileEditWidget最早是面向文本文件设计，因此 \a lineNumber 和
 		\a column 的语义是基于文本文件的行列号的。但如有需要，
 		也可以将其按照其他方式进行解释和使用，例如对于图片，可用理解为像素坐标等。
+
+		return 如果光标成功移动到指定位置，返回true；否则返回false。
 	*/
 	bool FileEditWidget::onCursorToPosition(qint32 lineNumber, qint32 column) {
 		return false;
@@ -583,6 +638,8 @@ namespace YSSCore::Editor {
 
 		处理虚拟文件的打开逻辑。
 
+		return 如果虚拟文件成功打开，返回true；否则返回false。
+
 		默认返回false。
 	*/
 	bool FileEditWidget::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {
@@ -592,6 +649,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.15.0
 		处理虚拟文件的关闭逻辑。
+
 		return 如果虚拟文件编辑器可以关闭，返回true；否则返回false。
 
 		默认返回true。
@@ -603,6 +661,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.15.0
 		处理虚拟文件的保存逻辑。
+
 		return 如果虚拟文件成功保存，返回true；否则返回false。
 
 		默认实现为返回false，表示虚拟文件不支持保存操作。派生类可以根据需要重载此函数以提供虚拟文件的保存功能。
@@ -614,6 +673,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.15.0
 		处理虚拟文件的重新加载逻辑。
+
 		return 如果虚拟文件成功重新加载，返回true；否则返回false。
 
 		这个实现默认重新调用onVirtualOpen。
@@ -622,12 +682,12 @@ namespace YSSCore::Editor {
 		return onVirtualOpen(getFileExt(), getFileName(), getVirtualFileParam());
 	}
 
-	
-
 	/*!
 		\since YSS 0.13.0
-		处理文件编辑器关闭事件。
 		\a event 关闭事件对象。
+
+		处理文件编辑器关闭事件。
+
 		此函数在文件编辑器尝试关闭时被调用，调用派生类实现的onClose()函数以决定是否允许关闭。
 		如果onClose()返回true，则接受关闭事件；否则忽略关闭事件，文件编辑器保持打开状态。
 		\warning 派生类若重载了closeEvent()，应确保调用基类的实现以保持正确的关闭行为。

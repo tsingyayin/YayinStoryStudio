@@ -49,7 +49,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\class ASERStudio::ASEREnv::ASERDebugIO
-		\brief ASERDebugIO提供与ASERDebugPipeline交互的API
+		\brief ASERDebugIO提供与ASERDebugPipeline交互的API.
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -66,15 +66,17 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
+
 		构造函数。
 	*/
-	ASERDebugIO::ASERDebugIO(){
+	ASERDebugIO::ASERDebugIO() {
 		d = new ASERDebugIOPrivate;
 		d->q = this;
 	}
 
 	/*!
 		\since ASERStudio 2.0
+
 		析构函数。
 	*/
 	ASERDebugIO::~ASERDebugIO() {
@@ -83,14 +85,15 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		设置ASERProgram实例以接收调试信息。
 		\a program ASERProgram实例的指针
+
+		设置ASERProgram实例以接收调试信息。
 	*/
 	void ASERDebugIO::setProgram(ASERProgram* program) {
 		if (program) {
 			d->Program = program;
 			connect(program, &ASERProgram::namedPipeReadable, this, [this](const QString& context) {
-					d->handleNamedPipeReadable(context);
+				d->handleNamedPipeReadable(context);
 				});
 			connect(program, &ASERProgram::programStopped, this, [this](qint64) {
 				d->CurrentPage = Page::home;
@@ -104,8 +107,8 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		return 当前设置的ASERProgram实例。
-		return 当前设置的ASERProgram实例的指针，如果没有设置则返回nullptr
+
+		return 当前设置的ASERProgram实例，如果没有设置则返回nullptr
 	*/
 	ASERProgram* ASERDebugIO::getProgram() const {
 		return d->Program;
@@ -113,6 +116,8 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.2
+		\a page 要切换到的页面
+
 		通过具名管道向ASER程序发送切换当前页面的命令。这里封装了switch命令
 	*/
 	void ASERDebugIO::switchPage(Page page) {
@@ -125,7 +130,10 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.2
-		return 当前页面的状态。这个状态是通过switchPage函数设置的。
+
+		return 当前页面的状态。
+
+		这个状态是通过switchPage函数设置的。
 		目前ASE-Remake <-> ASER Studio属于开环控制，因此状态可能不准确
 	*/
 	ASERDebugIO::Page ASERDebugIO::getCurrentPage() const {
@@ -134,6 +142,8 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.2
+		\a projectPath 要打开的项目文件路径
+
 		通过具名管道向ASER程序发送打开项目的命令。这里封装了open命令
 		这个命令不会自动切换页面，只是向ASER推送一个置顶项目的请求，
 		随后在切换到storyset页面时该项目会被打开
@@ -146,10 +156,11 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.2
+		\a fileName 要播放的故事文件名
+
 		通过具名管道向ASER程序发送播放故事的命令。这里封装了play命令
 		play命令只能在storyset页面执行，如果当前不是，这个函数
 		会自动发送相关命令切换到storyset页面。
-		\a fileName 要播放的故事文件名
 	*/
 	void ASERDebugIO::play(const QString& fileName) {
 		if (d->Program) {
@@ -166,6 +177,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.2
+
 		通过具名管道向ASER程序发送停止播放的命令。这里封装了stop命令
 	*/
 	void ASERDebugIO::stop() {
@@ -176,8 +188,9 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		通过具名管道向ASER程序发送切换当前目录的命令。这里封装了cd命令
 		\a directoryPath 要切换到的目录路径
+
+		通过具名管道向ASER程序发送切换当前目录的命令。这里封装了cd命令
 	*/
 	void ASERDebugIO::changeDirectory(const QString& directoryPath) {
 		if (d->Program) {
@@ -187,8 +200,9 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
-		通过具名管道向ASER程序发送选择分支的命令。这里封装了select命令
 		\a branchIndex 要选择的分支索引
+
+		通过具名管道向ASER程序发送选择分支的命令。这里封装了select命令
 	*/
 	void ASERDebugIO::selectBranch(qint32 branchIndex) {
 		if (d->Program) {
@@ -198,6 +212,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
+
 		通过具名管道向ASER程序发送切换播放速度的命令。这里封装了changespeed命令
 	*/
 	void ASERDebugIO::changeSpeed() {
@@ -208,6 +223,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.0
+
 		通过具名管道向ASER程序发送切换自动播放的命令。这里封装了toggleauto命令
 	*/
 	void ASERDebugIO::toggleAuto() {
@@ -215,5 +231,4 @@ namespace ASERStudio::ASEREnv {
 			d->Program->writeNamedPipe("toggleauto");
 		}
 	}
-
 }

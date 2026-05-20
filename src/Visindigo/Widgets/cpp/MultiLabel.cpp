@@ -218,7 +218,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		\a event resize事件
-		
+
 		由MultiLabel重载的resizeEvent函数，用于在组件大小发生改变时调整图标的高度以保持正方形。
 		如果继承此类并重写了resizeEvent函数，则必须显式调用此函数以保持图标的正确显示，否则图标可能会变形或布局可能会错乱。
 	*/

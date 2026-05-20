@@ -37,7 +37,7 @@ namespace ASERStudio::AStorySyntax {
 		return rtn;
 	}
 
-	QString AStoryXRebuilder::rebuild(const QString& ruleName, AStoryXController::ControllerType type, 
+	QString AStoryXRebuilder::rebuild(const QString& ruleName, AStoryXController::ControllerType type,
 		const QString& reqPara, const QMap<QString, QString>& optParas, RebuildErrorCode* errorCode) {
 		AStoryXRule* rule = AStoryXRule::getRule(ruleName);
 		if (rule == nullptr) {
@@ -73,7 +73,7 @@ namespace ASERStudio::AStorySyntax {
 		return rtn;
 	}
 
-	QString AStoryXRebuilder::rebuild(const QString& ruleName, const QString& rawLine, 
+	QString AStoryXRebuilder::rebuild(const QString& ruleName, const QString& rawLine,
 		qint32 lineIndex, RebuildErrorCode* errorCode) {
 		AStoryXRule* rule = AStoryXRule::getRule(ruleName);
 		if (rule == nullptr) {

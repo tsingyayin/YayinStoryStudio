@@ -53,7 +53,7 @@ namespace YSS::Editor {
 		MainLayout->addWidget(CentralWidget);
 		Layout = new QHBoxLayout(CentralWidget);
 		Layout->setContentsMargins(0, 0, 0, 0);
-		
+
 		Browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		Editors->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		Tools->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -106,7 +106,7 @@ namespace YSS::Editor {
 			Browser->refresh();
 			});
 
-		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
+		for (Visindigo::General::Plugin* plugin : VIPLM->getEnabledPlugins()) {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
 				if (editorPlugin) {
@@ -121,7 +121,7 @@ namespace YSS::Editor {
 		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
 		QStringList stillOKFiles;
 		for (const QString& filePath : openedFiles) {
-			bool ok  = YSSFSM->openFile(filePath);
+			bool ok = YSSFSM->openFile(filePath);
 			if (ok) {
 				stillOKFiles.append(filePath);
 			}
@@ -162,7 +162,7 @@ namespace YSS::Editor {
 		}
 		QString ext = QFileInfo(rawFilePath).suffix();
 		QString newfilePath = QFileDialog::getSaveFileName(this,
-			VITR("YSS::menu.file.saveAs"), rawFilePath, "(*."+ext+")");
+			VITR("YSS::menu.file.saveAs"), rawFilePath, "(*." + ext + ")");
 		if (newfilePath.isEmpty()) {
 			return;
 		}
@@ -178,9 +178,11 @@ namespace YSS::Editor {
 		QDir CurrentDir;
 		if (not path.isEmpty()) {
 			CurrentDir.setPath(path);
-		}else if (project) {
+		}
+		else if (project) {
 			CurrentDir.setPath(project->getProjectFolder());
-		}else {
+		}
+		else {
 			CurrentDir.setPath(QDir::currentPath());
 		}
 		QString filePath = QFileDialog::getOpenFileName(
@@ -291,14 +293,13 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::hideEvent(QHideEvent* event) {
-
 	}
 
 	void MainWin::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 	}
-	
+
 	void MainWin::keyPressEvent(QKeyEvent* event) {
 		QFrame::keyPressEvent(event);
 		if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
@@ -338,7 +339,7 @@ namespace YSS::Editor {
 				saveCurrentFocusedFileAs();
 			}
 		}
-		else if(event->key() == Qt::Key_F1) {
+		else if (event->key() == Qt::Key_F1) {
 			help();
 		}
 		else if (event->key() == Qt::Key_F5) {

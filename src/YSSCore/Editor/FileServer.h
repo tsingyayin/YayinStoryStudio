@@ -12,7 +12,7 @@ namespace YSSCore::Editor {
 }
 // Main
 namespace YSSCore::Editor {
-	class YSSCoreAPI FileServer :public Visindigo::General::PluginModule{
+	class YSSCoreAPI FileServer :public Visindigo::General::PluginModule {
 		Q_OBJECT;
 	public:
 		enum EditorType {

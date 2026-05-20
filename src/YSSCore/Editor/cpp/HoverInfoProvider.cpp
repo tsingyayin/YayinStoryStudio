@@ -13,7 +13,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::HoverInfoProvider
-		\brief HoverInfoProvider使用户可以向TextEdit提供鼠标悬停提示信息
+		\brief HoverInfoProvider使用户可以向TextEdit提供鼠标悬停提示信息.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup LangService
@@ -40,16 +40,19 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a textEdit 要提供悬停提示信息的TextEdit对象。
+
 		构造函数
 	*/
 	HoverInfoProvider::HoverInfoProvider(TextEdit* textEdit)
-		: QObject(textEdit->getDocument()), d(new YSSCore::__Private__::HoverInfoProviderPrivate){
+		: QObject(textEdit->getDocument()), d(new YSSCore::__Private__::HoverInfoProviderPrivate) {
 		d->Document = textEdit->getDocument();
 	}
 
 	/*!
 		\since YSS 0.13.0
-		triggerFromHover函数用于判断当前的悬停提示信息是否是由鼠标悬停触发的，还是由编辑操作触发的。
+
+		return 当前的悬停提示信息是否是由鼠标悬停触发的，还是由编辑操作触发的。
 	*/
 	bool HoverInfoProvider::triggerFromHover() {
 		return d->TriggerFromHover;
@@ -57,7 +60,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		setContent函数用于设置悬停提示信息的内容和格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
+		\a content 要设置的悬停提示信息内容。
+		\a format 要设置的悬停提示信息格式。
+
+		设置悬停提示信息的内容和格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
 	*/
 	void HoverInfoProvider::setContent(const QString& content, Format format) {
 		d->CurrentFormat = format;
@@ -67,7 +73,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		setPlainText函数用于设置悬停提示信息的内容为纯文本格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
+		\a text 要设置的纯文本内容。
+
+		用于设置悬停提示信息的内容为纯文本格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
 	*/
 	void HoverInfoProvider::setPlainText(const QString& text) {
 		setContent(text, PlainText);
@@ -75,7 +83,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		setMarkdown函数用于设置悬停提示信息的内容为Markdown格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
+		\a md 要设置的Markdown内容。
+
+		用于设置悬停提示信息的内容为Markdown格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
 	*/
 	void HoverInfoProvider::setMarkdown(const QString& md) {
 		setContent(md, Markdown);
@@ -83,10 +93,11 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		setHtml函数用于设置悬停提示信息的内容为HTML格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
+		\a html 要设置的HTML内容。
+
+		用于设置悬停提示信息的内容为HTML格式。你可以在onMouseHover函数中调用该函数来设置悬停提示信息。
 	*/
 	void HoverInfoProvider::setHtml(const QString& html) {
 		setContent(html, Html);
 	}
-
 }

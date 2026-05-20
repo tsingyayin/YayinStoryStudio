@@ -5,7 +5,7 @@
 namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::StringUtility
-		\brief 提供一些字符串相关的实用函数。
+		\brief 提供一些字符串相关的实用函数.
 		\since Visindigo 0.14.0
 		\inmodule VisindigoUtility
 
@@ -81,7 +81,7 @@ namespace Visindigo::Utility {
 		}
 		return result;
 	}
-	
+
 	/*!
 		\since Visindigo 0.14.0
 		\a list 输入字符串列表
@@ -106,7 +106,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.15.0
 		\a str 输入字符串
-		
+
 		return 一个字符串是否全部由空白字符组成。空白字符包括空格、制表符、换行符等。
 	*/
 	bool StringUtility::isAllBlank(const QString& str) {

@@ -3,7 +3,7 @@
 #include "General/Log.h"
 
 namespace Visindigo::__Private__ {
-	GeneralConfigPrivate::GeneralConfigPrivate(Visindigo::Utility::GeneralConfig * q) {
+	GeneralConfigPrivate::GeneralConfigPrivate(Visindigo::Utility::GeneralConfig* q) {
 		this->q = q;
 	}
 
@@ -83,7 +83,7 @@ namespace Visindigo::__Private__ {
 			return find(&keys, autoCreate, justCreated);
 		}
 	}
-	
+
 	GeneralConfigPrivate* GeneralConfigPrivate::find(QStringList* nodes, bool autoCreate, bool* justCreated) {
 		if (nodes->isEmpty()) {
 			return this;
@@ -94,7 +94,7 @@ namespace Visindigo::__Private__ {
 			bool ok = false;
 			int index = nodes->first().toInt(&ok);
 			if (ok) {
-				auto listPtr = (Visindigo::Utility::GeneralConfigList *)Value;
+				auto listPtr = (Visindigo::Utility::GeneralConfigList*)Value;
 				if (index >= 0 && index < listPtr->size()) {
 					p = listPtr->at(index)->d;
 				}
@@ -110,7 +110,7 @@ namespace Visindigo::__Private__ {
 						if (justCreated) {
 							*justCreated = true;
 						}
-						if (nodes->size() <= 1) {	
+						if (nodes->size() <= 1) {
 							return target->d;
 						}
 						else {
@@ -142,7 +142,7 @@ namespace Visindigo::__Private__ {
 		}
 		else if (Type == Visindigo::Utility::GeneralConfig::Map)
 		{
-			auto mapPtr = (Visindigo::Utility::GeneralConfigMap *)Value;
+			auto mapPtr = (Visindigo::Utility::GeneralConfigMap*)Value;
 			if (mapPtr->contains(nodes->first())) {
 				p = mapPtr->value(nodes->first())->d;
 			}
@@ -212,7 +212,7 @@ namespace Visindigo::__Private__ {
 				bool ok = false;
 				int index = nodes->first().toInt(&ok);
 				if (ok) {
-					auto listPtr = (Visindigo::Utility::GeneralConfigList *)Value;
+					auto listPtr = (Visindigo::Utility::GeneralConfigList*)Value;
 					if (index >= 0 && listPtr) {
 						if (index < listPtr->size()) {
 							return (*listPtr)[index]->d;
@@ -233,7 +233,7 @@ namespace Visindigo::__Private__ {
 				}
 			}
 			else if (Type == Visindigo::Utility::GeneralConfig::Map) {
-				auto mapPtr = (Visindigo::Utility::GeneralConfigMap *)Value;
+				auto mapPtr = (Visindigo::Utility::GeneralConfigMap*)Value;
 				if (mapPtr->contains(nodes->first())) {
 					return mapPtr->value(nodes->first())->d;
 				}
@@ -253,7 +253,7 @@ namespace Visindigo::__Private__ {
 			bool ok = false;
 			int index = key.toInt(&ok);
 			if (ok) {
-				auto listPtr = (Visindigo::Utility::GeneralConfigList *)Value;
+				auto listPtr = (Visindigo::Utility::GeneralConfigList*)Value;
 				if (index >= 0 && listPtr) {
 					if (index < listPtr->size()) {
 						auto nextD = listPtr->at(index)->d;
@@ -286,7 +286,7 @@ namespace Visindigo::__Private__ {
 		else if (Type == Visindigo::Utility::GeneralConfig::Map) {
 			QString key = nodes->first();
 			QString keyNext = nodes->at(1);
-			auto mapPtr = (Visindigo::Utility::GeneralConfigMap *)Value;
+			auto mapPtr = (Visindigo::Utility::GeneralConfigMap*)Value;
 			if (mapPtr->contains(key)) {
 				auto nextD = mapPtr->value(key)->d;
 				nodes->removeFirst();
@@ -317,13 +317,13 @@ namespace Visindigo::__Private__ {
 	void GeneralConfigPrivate::changeRoot(Visindigo::Utility::GeneralConfig* newRoot) {
 		Root = newRoot;
 		if (Type == Visindigo::Utility::GeneralConfig::List) {
-			auto listPtr = (Visindigo::Utility::GeneralConfigList *)Value;
+			auto listPtr = (Visindigo::Utility::GeneralConfigList*)Value;
 			for (auto item : *listPtr) {
 				item->d->changeRoot(newRoot);
 			}
 		}
 		else if (Type == Visindigo::Utility::GeneralConfig::Map) {
-			auto mapPtr = (Visindigo::Utility::GeneralConfigMap *)Value;
+			auto mapPtr = (Visindigo::Utility::GeneralConfigMap*)Value;
 			for (auto item : mapPtr->values()) {
 				item->d->changeRoot(newRoot);
 			}
@@ -333,13 +333,13 @@ namespace Visindigo::__Private__ {
 	void GeneralConfigPrivate::changeParent(Visindigo::Utility::GeneralConfig* newQ) {
 		q = newQ;
 		if (Type == Visindigo::Utility::GeneralConfig::List) {
-			auto listPtr = (Visindigo::Utility::GeneralConfigList *)Value;
+			auto listPtr = (Visindigo::Utility::GeneralConfigList*)Value;
 			for (auto item : *listPtr) {
 				item->d->Parent = newQ;
 			}
 		}
 		else if (Type == Visindigo::Utility::GeneralConfig::Map) {
-			auto mapPtr = (Visindigo::Utility::GeneralConfigMap *)Value;
+			auto mapPtr = (Visindigo::Utility::GeneralConfigMap*)Value;
 			for (auto item : mapPtr->values()) {
 				item->d->Parent = newQ;
 			}
@@ -383,7 +383,7 @@ namespace Visindigo::Utility {
 		\warning GeneralConfig类的设计和实现仍在初期阶段，未来可能会有较大的改动，请谨慎使用。
 
 		GeneralConfig类用于存储和管理各种类型的配置数据。
-		
+
 		它支持整数、实数、布尔值、字符串、列表和映射等多种数据类型，并允许嵌套使用这些类型来构建复杂的配置结构。
 		GeneralConfig类提供了方便的方法来设置和获取不同类型的数据，以及检查节点的类型和存在性。
 
@@ -446,7 +446,7 @@ namespace Visindigo::Utility {
 		\value Array 数组，List的别名
 		\value Dict 字典，Map的别名
 		\value Null 空，None的别名
-	
+
 		表达节点的类型
 	*/
 
@@ -475,7 +475,7 @@ namespace Visindigo::Utility {
 
 		使用整数值构造一个节点。
 	*/
-	GeneralConfig::GeneralConfig(qint64 value){
+	GeneralConfig::GeneralConfig(qint64 value) {
 		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = Type::Integer;
 		d->Value = value;
@@ -499,7 +499,7 @@ namespace Visindigo::Utility {
 
 		使用布尔值构造一个节点。
 	*/
-	GeneralConfig::GeneralConfig(bool value){
+	GeneralConfig::GeneralConfig(bool value) {
 		d = new Visindigo::__Private__::GeneralConfigPrivate(this);
 		d->Type = Type::Bool;
 		d->Value = value;
@@ -567,7 +567,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		析构函数，递归地释放节点及其子节点占用的内存。
 	*/
-	GeneralConfig::~GeneralConfig() { 
+	GeneralConfig::~GeneralConfig() {
 		delete d;
 	}
 
@@ -585,7 +585,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a other 另一个GeneralConfig对象
-		
+
 		移动构造函数，转移节点及其子节点的所有权。
 	*/
 	GeneralConfig::GeneralConfig(GeneralConfig&& other) noexcept {
@@ -621,7 +621,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a other 另一个GeneralConfig对象
-		
+
 		静态方法，递归地复制一个GeneralConfig节点及其子节点，返回新的节点指针。
 	*/
 	GeneralConfig* GeneralConfig::copyFrom(GeneralConfig* other) {
@@ -639,7 +639,7 @@ namespace Visindigo::Utility {
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
 
 		return 指定键路径下的整数值。
-		
+
 		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	qint64 GeneralConfig::getInt(const QString& key, qint64 def, bool* ok) {
@@ -664,7 +664,7 @@ namespace Visindigo::Utility {
 			return def;
 		}
 	}
-	
+
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
@@ -672,7 +672,7 @@ namespace Visindigo::Utility {
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
 
 		return 指定键路径下的实数值（双浮点数）。
-		
+
 		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	qreal GeneralConfig::getReal(const QString& key, qreal def, bool* ok) {
@@ -707,7 +707,7 @@ namespace Visindigo::Utility {
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
 
 		return 指定键路径下的布尔值。
-		
+
 		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	bool GeneralConfig::getBool(const QString& key, bool def, bool* ok) {
@@ -779,7 +779,7 @@ namespace Visindigo::Utility {
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
 
 		return 指定键路径下的引用节点的目标路径字符串值。
-		
+
 		如果节点不存在或类型不匹配，则返回默认值def。
 	*/
 	QString GeneralConfig::getRefNode(const QString& key, const QString& def, bool* ok) {
@@ -818,7 +818,7 @@ namespace Visindigo::Utility {
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
 
 		return 指定键路径下的列表值。
-		
+
 		如果节点不存在或类型不匹配，则返回默认值def。
 
 		请注意，不要将返回的列表值长期保存，请将其视为弱指针，即用即弃。
@@ -899,9 +899,9 @@ namespace Visindigo::Utility {
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
 		\a isHeadComment 指示是否获取头注释（true）还是行内注释（false）。
-		
+
 		return 指定键路径下节点的注释字符串。
-		
+
 		如果节点不存在，则返回空字符串。
 	*/
 	QString GeneralConfig::getComment(const QString& key, bool* ok, bool isHeadComment) {
@@ -931,9 +931,9 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		
+
 		return 指定键路径下的子节点指针。
-		
+
 		如果节点不存在，则返回nullptr。
 
 		这也是个应该即用即弃的弱指针。如果有必要长期保存，请使用GeneralConfig::copyFrom方法复制对应的节点。
@@ -952,9 +952,9 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
 		\a ok 可选输出参数，指示操作是否成功。发生任何错误时均设置为false。
-		
+
 		return 指定键路径下节点的所有子节点的键列表。
-		
+
 		如果节点不存在或类型不匹配，则返回空列表。
 
 		如果类型为Map，则返回映射的所有键；如果类型为List，则返回索引字符串列表（"0"、"1"等）。
@@ -969,7 +969,8 @@ namespace Visindigo::Utility {
 					*ok = true;
 				}
 				return rtn;
-			}else if (realD->Type == Type::List) {
+			}
+			else if (realD->Type == Type::List) {
 				auto listPtr = (GeneralConfigList*)realD->Value;
 				QStringList rtn;
 				for (int i = 0; i < listPtr->size(); i++) {
@@ -1171,7 +1172,7 @@ namespace Visindigo::Utility {
 		\a refNodeGetFinalType 指示如果节点为引用节点，是否获取其引用目标节点的最终类型。
 
 		return 指定键路径下节点的类型。
-		
+
 		如果节点不存在，则返回Type::None。
 		如果refNodeGetFinalType为true且节点为引用节点，则返回其引用目标节点的类型。
 	*/
@@ -1281,7 +1282,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a key 指定键路径，使用句点分隔各级节点名称。为空字符串表示当前节点。
-		
+
 		return 指定键路径下的节点是否为映射类型。
 	*/
 	bool GeneralConfig::isMap(const QString& key) {
@@ -1310,4 +1311,3 @@ namespace Visindigo::Utility {
 		}
 	}
 }
-

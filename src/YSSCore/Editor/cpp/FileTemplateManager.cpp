@@ -13,7 +13,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::FileTemplateManager
-		\brief FileTemplateManager保存Provider的实例
+		\brief FileTemplateManager保存Provider的实例.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup CreateService
@@ -62,7 +62,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获得所有Provider实例
+
+		return 所有Provider实例
 	*/
 	QList<FileTemplateProvider*> FileTemplateManager::getProviders() {
 		return d->ProviderMap.values();
@@ -70,7 +71,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		根据模板ID获得Provider实例
+		\a templateID 模板ID
+
+		return 根据模板ID获得Provider实例
 	*/
 	FileTemplateProvider* FileTemplateManager::getProvider(const QString templateID) {
 		return d->ProviderMap[templateID];
@@ -78,6 +81,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a provider 要添加的Provider实例
+
 		添加Provider实例
 	*/
 	void FileTemplateManager::addProvider(FileTemplateProvider* provider) {
@@ -89,6 +94,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a provider 要移除的Provider实例
+
 		移除Provider实例。这个函数不会销毁该实例。
 	*/
 	void FileTemplateManager::removeProvider(FileTemplateProvider* provider) {

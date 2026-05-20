@@ -3,9 +3,8 @@
 namespace YSSFileExt {
 	JsonLangServer::JsonLangServer(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::LangServer("YSS File Extension Json Language Server",
-			"YSSFileExt_Json", plugin, "Json", {"json", "yssp"})
+			"YSSFileExt_Json", plugin, "Json", { "json", "yssp" })
 	{
-		
 	}
 
 	YSSCore::Editor::SyntaxHighlighter* JsonLangServer::createHighlighter(YSSCore::Editor::TextEdit* parent) {
@@ -14,8 +13,7 @@ namespace YSSFileExt {
 
 	JsonLangHighlighter::JsonLangHighlighter(YSSCore::Editor::TextEdit* parent) :
 		YSSCore::Editor::SyntaxHighlighter(parent)
-	{
-	}
+	{}
 
 	void JsonLangHighlighter::onBlockChanged(const QString& text, int blockNumber) {
 		// Simple JSON syntax highlighting

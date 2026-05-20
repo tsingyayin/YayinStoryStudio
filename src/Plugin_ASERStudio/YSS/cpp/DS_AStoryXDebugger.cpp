@@ -18,16 +18,14 @@ namespace ASERStudio::YSS {
 		bool isRunning = false;
 		QString launchFileName;
 	};
-	DS_AStoryXDebugger::DS_AStoryXDebugger(YSSCore::Editor::EditorPlugin* plugin) : 
+	DS_AStoryXDebugger::DS_AStoryXDebugger(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::DebugServer("AStoryXDebugger", ASERStudio_AStoryXDebuggerID, plugin) {
 		d = new DS_AStoryXDebuggerPrivate;
 		this->setSupportedFeatures(
 			DebugRun | Run | Stop | Suspend | Continue
 		);
-		
 	}
-	DS_AStoryXDebugger::~DS_AStoryXDebugger() {
-	}
+	DS_AStoryXDebugger::~DS_AStoryXDebugger() {}
 	void DS_AStoryXDebugger::onRun(bool debug) {
 		auto launchFileName = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName();
 		if (not launchFileName.endsWith(".astoryx", Qt::CaseInsensitive)) {
@@ -97,7 +95,7 @@ namespace ASERStudio::YSS {
 			return;
 		}
 		vgDebug << "Debug Start";
-		
+
 		auto debugIO = ASERStudio::Main::getInstance()->getASERDebugIO();
 		auto param = ASERStudio::ASEREnv::ASERProgramLaunchParameter();
 		auto path = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder();

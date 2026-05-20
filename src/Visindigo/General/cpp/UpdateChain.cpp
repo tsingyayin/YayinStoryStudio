@@ -15,11 +15,11 @@ namespace Visindigo::General {
 		QList<UpdateChainNode> ChainNode;
 		QMap<QString, UpdateChainNode> ChainNodeMap;
 	};
-	
+
 	/*!
 		\class Visindigo::General::UpdateChainNode
 		\inmodule Visindigo
-		\brief 此类为Visindigo提供更新链节点表示。
+		\brief 此类为Visindigo提供更新链节点表示.
 
 		\warning 此类还在开发中，不应该使用它。
 	*/

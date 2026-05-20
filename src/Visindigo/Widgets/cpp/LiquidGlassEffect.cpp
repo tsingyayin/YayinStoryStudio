@@ -47,7 +47,7 @@ namespace Visindigo::Widgets {
 		\li 2. LiquidGlassEffect::BackgroundPolicy::CustomImage：允许用户直接设置一个自定义的图像作为被模糊源。这种方法可以确保模糊效果的正确性，但需要用户自己提供一个合适的图像。
 		一般来说，如果用户的窗体含有透明要素并存在多级层叠，这是唯一可能可以正确显示模糊效果的方法。
 		\endlist
-		
+
 		\section1 CustomImage 模式下的PositionPolicy
 		当BackgroundPolicy设置为CustomImage时，PositionPolicy的设置会影响模糊效果的位置，即模糊效果会根据PositionPolicy的设置在CustomImage上进行定位和裁剪：
 		\list
@@ -72,7 +72,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\enum Visindigo::Widgets::LiquidGlassEffect::EffectType
 		\since Visindigo 0.13.0
-		\brief 定义了液态玻璃效果的类型。
+		\brief 定义了液态玻璃效果的类型.
 		\value Distort 扭曲效果，模仿液体流动的效果。
 		\value Blur 模糊效果，模仿玻璃模糊的效果。
 		\value All 同时应用扭曲和模糊效果，扭曲永远优先于模糊。
@@ -81,7 +81,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\enum Visindigo::Widgets::LiquidGlassEffect::BackgroundPolicy
 		\since Visindigo 0.13.0
-		\brief 定义了获取被模糊源的方法。
+		\brief 定义了获取被模糊源的方法.
 		\value Render 指示此类直接从QWidget::render()获取被模糊源
 		\value CustomImage 指示此类使用用户提供的自定义图像作为被模糊源
 	*/
@@ -89,7 +89,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\enum Visindigo::Widgets::LiquidGlassEffect::PositionPolicy
 		\since Visindigo 0.13.0
-		\brief 定义了模糊效果在CustomImage上的定位和裁剪方式。
+		\brief 定义了模糊效果在CustomImage上的定位和裁剪方式.
 		\value ParentLocalGeometry 模糊效果的位置和大小与父对象的本地几何形状相匹配
 		\value ParentGlobalGeometry 模糊效果的位置和大小与父对象在屏幕上的全局几何形状相匹配
 		\value CustomGeometry 模糊效果的位置和大小由用户通过setCustomGeometry()方法设置的自定义几何形状决定
@@ -162,7 +162,7 @@ namespace Visindigo::Widgets {
 		\a percent 遮罩的透明度，值越大遮罩越透明，默认1。
 		颜色遮罩会在模糊效果之后应用，可以用来调整模糊效果的整体色调和透明度，从而更好地模仿液态玻璃的外观。
 	*/
-	void LiquidGlassEffect::setColorMask(const QColor& color, qreal percent){
+	void LiquidGlassEffect::setColorMask(const QColor& color, qreal percent) {
 		d->colorMask = color;
 		d->percent = percent;
 		update();
@@ -225,7 +225,7 @@ namespace Visindigo::Widgets {
 		\endcode
 		来计算，这个公式是OpenCV使用的经验公式，可以在不同半径下得到比较自然的模糊效果。
 	*/
-	QImage LiquidGlassEffect::blurImage(const QImage & image, int radius) {
+	QImage LiquidGlassEffect::blurImage(const QImage& image, int radius) {
 		if (radius <= 0) return image;
 		if (radius % 2 == 0) radius++;
 		double* kernel1D = new double[radius];
@@ -446,13 +446,13 @@ namespace Visindigo::Widgets {
 			case PositionPolicy::CustomGeometry:
 				coverdArea = d->backgroundImage.copy(d->customGeometry);
 				break;
-			}	
+			}
 		}
 		if (coverdArea.isNull()) {
 			painter->drawPixmap(0, 0, sourcePixmap);
 			return;
 		}
-		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::Distort)){
+		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::Distort)) {
 			coverdArea = distortImage(coverdArea, d->liquidDistortRadius);
 		}
 		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::Blur)) {

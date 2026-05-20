@@ -6,7 +6,7 @@
 namespace ASERStudio::ASEREnv {
 	class ASERProgram;
 	class ASERDebugIOPrivate;
-	class ASERAPI ASERDebugIO :public QObject{
+	class ASERAPI ASERDebugIO :public QObject {
 		Q_OBJECT;
 	public:
 		enum OfficialBundleManagerInitializeState {

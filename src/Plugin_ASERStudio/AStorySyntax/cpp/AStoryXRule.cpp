@@ -34,7 +34,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\class ASERStudio::AStorySyntax::AStoryXRule
-		\brief AStoryXRule是对整个AStoryX语法规则的封装，包含了对不同版本的AStoryX语法规则的解析和存储。
+		\brief AStoryXRule是对整个AStoryX语法规则的封装，包含了对不同版本的AStoryX语法规则的解析和存储.
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -73,29 +73,37 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXRule::operator=(AStoryXRule&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXRule实例
+
 		移动赋值运算符
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXRule::operator=(const AStoryXRule& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXRule实例
+
 		复制赋值运算符
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXRule::AStoryXRule(const AStoryXRule& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXRule实例
+
 		复制构造函数
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXRule::AStoryXRule(AStoryXRule&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXRule实例
+
 		移动构造函数
 	*/
 	VIMoveable_Impl(AStoryXRule);
 	VICopyable_Impl(AStoryXRule);
-	
+
 	/*!
 		\since ASERStudio 2.0
 		return AStoryX语法规则的版本号。
@@ -124,8 +132,13 @@ namespace ASERStudio::AStorySyntax {
 	}
 	/*!
 		\since ASERStudio 2.0
-		解析JSON字符串以设置AStoryX语法规则。
 		\a str 要解析的JSON字符串，必须符合ASERStudio的AStoryX语法规则JSON格式。
+
+		解析JSON字符串以设置AStoryX语法规则。
+
+		return 解析是否成功。
+
+		成功则返回true，并将解析结果存储在当前对象中；否则返回false，当前对象保持不变。
 	*/
 	bool AStoryXRule::parseJson(const QString& str) {
 		Visindigo::Utility::JsonConfig config;
@@ -134,7 +147,7 @@ namespace ASERStudio::AStorySyntax {
 			return false;
 		}
 		bool ok = true;
-		for(auto item: config.getArray("rules")) {
+		for (auto item : config.getArray("rules")) {
 			AStoryXController controller;
 			if (not controller.parseRule(item, d->MetaConfig)) {
 				ok = false;
@@ -148,15 +161,18 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型的头部字符串。与getStartSign等价。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QString AStoryXRule::getHeader(AStoryXController::ControllerType type) const {
 		if (type == AStoryXController::ControllerType::Preprocessor) {
 			return "#";
-		}else if (type == AStoryXController::ControllerType::Comment) {
+		}
+		else if (type == AStoryXController::ControllerType::Comment) {
 			return "//";
-		}else if (d->Controllers.contains(type)) {
+		}
+		else if (d->Controllers.contains(type)) {
 			return d->Controllers[type].getHeader();
 		}
 		return "";
@@ -164,8 +180,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型的起始标志字符串。与getHeader等价。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QString AStoryXRule::getStartSign(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
@@ -176,8 +193,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型的必需参数名称。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QString AStoryXRule::getRequiredParameterName(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
@@ -188,8 +206,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型的必需参数分隔符。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QString AStoryXRule::getRequiredParameterSeparator(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
@@ -200,8 +219,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型的可选参数名称列表。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QStringList AStoryXRule::getOptionalParameterNames(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
@@ -212,8 +232,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型的可选参数前缀列表。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QStringList AStoryXRule::getOptionalParameterPrefixes(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
@@ -224,7 +245,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+
 		return 指定控制器类型的可选参数值对象Map。
+
 		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	QMap<QString, AStoryXValueMeta> AStoryXRule::getOptionalParameterValues(AStoryXController::ControllerType type) const {
@@ -236,6 +259,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+
 		return 全部可用的控制器列表。
 	*/
 	QList<AStoryXController> AStoryXRule::getAvailableControllers() const {
@@ -244,6 +268,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+
 		return 全部支持的预处理器名称列表。
 	*/
 	QStringList AStoryXRule::getSupportedPreprocessors() const {
@@ -252,6 +277,8 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型的必需参数值对象。
 	*/
 	AStoryXValueMeta AStoryXRule::getRequiredParameterValue(AStoryXController::ControllerType type) const {
@@ -263,8 +290,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型是否具有单调性。与isAdvanced等价。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	bool AStoryXRule::isMonotonicity(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
@@ -275,8 +303,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		return 指定控制器类型是否为高级控制器。与isMonotonicity等价。
-		\a type 控制器类型，例如AStoryXController::ControllerType::Background、AStoryXController::ControllerType::Music等。
 	*/
 	bool AStoryXRule::isAdvanced(AStoryXController::ControllerType type) const {
 		if (d->Controllers.contains(type)) {
@@ -289,6 +318,8 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		\a str 要解析的AStoryX字符串，必须符合ASERStudio的AStoryX语法规则。
 		\a cursorPosition 可选参数，表示光标位置，用于诊断和错误提示，默认为-1表示不使用光标位置。
+		\a diagnostic 可选参数，表示是否启用诊断功能，默认为false表示不启用。
+		\a lineIndex 可选参数，表示行索引，用于诊断和错误提示，默认为-1表示不使用行索引。
 
 		解析AStoryX字符串以获取控制器解析数据。
 
@@ -335,6 +366,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+
 		return AStoryX控制器的元数据，以JSON格式表示。
 	*/
 	Visindigo::Utility::JsonConfig AStoryXRule::getAStoryXControllerMetaData() const {
@@ -343,6 +375,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+
 		return AStoryX语法规则是否有效。
 	*/
 	bool AStoryXRule::isValid() const {
@@ -351,6 +384,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.1
+
 		清除所有已注册的AStoryX语法规则。调用此函数后，之前通过registerRule注册的规则将不再可用。
 	*/
 	void AStoryXRule::clearRules() {
@@ -361,8 +395,9 @@ namespace ASERStudio::AStorySyntax {
 	}
 	/*!
 		\since ASERStudio 2.0
-		注册AStoryX语法规则。
-		\a rule 要注册的AStoryXRule对象。注册后可以通过getRule函数获取该规则。
+		\a rule 要注册的AStoryXRule对象。
+
+		注册AStoryX语法规则。注册后可以通过getRule函数获取该规则。
 	*/
 	void AStoryXRule::registerRule(const AStoryXRule& rule) {
 		AStoryXRule* newRule = new AStoryXRule(rule);
@@ -371,9 +406,11 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		return 已注册的AStoryX语法规则。
 		\a name 要获取的AStoryXRule对象的名称。必须与注册时设置的名称一致。
-		return 如果找到对应名称的规则，则返回指向该规则的指针；否则返回nullptr。
+
+		return 已注册的AStoryX语法规则。
+
+		如果找到对应名称的规则，则返回指向该规则的指针；否则返回nullptr。
 
 		\note 注意，该指针所有权归AStoryXRule类管理，且随时可能因为调用clearRules函数而失效，
 		因此调用者不应删除或长期持有该指针。
@@ -387,9 +424,11 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		检查是否存在已注册的AStoryX语法规则。
 		\a name 要检查的AStoryXRule对象的名称。必须与注册时设置的名称一致。
-		return 如果存在对应名称的规则，则返回true；否则返回false。
+
+		return 是否存在已注册的AStoryX语法规则。
+
+		如果存在对应名称的规则，则返回true；否则返回false。
 	*/
 	bool AStoryXRule::hasRule(const QString& name) {
 		return AStoryXRulePrivate::RegisteredRules.contains(name);
@@ -397,8 +436,8 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+
 		return 所有已注册的AStoryX语法规则的名称列表。
-		return 一个QStringList，包含所有已注册的AStoryXRule对象的名称。
 	*/
 	QStringList AStoryXRule::getAvailableRuleNames() {
 		return AStoryXRulePrivate::RegisteredRules.keys();
@@ -408,7 +447,12 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.2
 		\a str 要解析的AStoryX字符串，必须符合ASERStudio的AStoryX语法规则。
 		\a cursorPosition 可选参数，表示光标位置，用于诊断和错误提示，默认为-1表示不使用光标位置。
-		这个函数假定\a str 一定是别名预处理区域的一行，然后按照别名预处理器的语法规则解析它，并返回解析结果。
+		\a diagnostic 可选参数，表示是否启用诊断功能，默认为false表示不启用。
+		\a lineIndex 可选参数，表示行索引，用于诊断和错误提示，默认为-1表示不使用行索引。
+
+		这个函数假定 \a str 一定是别名预处理区域的一行，然后按照别名预处理器的语法规则解析它，并返回解析结果。
+
+		return 解析结果
 
 		值得指出的是，由于别名语法不受ASRule影响，因此这个函数是静态的。
 	*/

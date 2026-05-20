@@ -19,7 +19,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::LangServerManager
-		\brief LangServerManager保存LangServer的实例
+		\brief LangServerManager保存LangServer的实例.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup LangService
@@ -47,7 +47,11 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		添加一个LangServer实例。如果ID或扩展名已经存在，则返回false。
+		\a server 要添加的LangServer对象指针。
+
+		return 是否成功添加了LangServer对象。如果ID或扩展名已经存在，则返回false。
+
+		如果同一个LangServer对象被重复添加，则不会有任何效果。
 	*/
 	bool LangServerManager::addLangServer(LangServer* server) {
 		QString ID = server->getLangID();
@@ -70,7 +74,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		根据ID路由到一个LangServer实例。如果没有找到，则返回nullptr。
+		\a id 要路由的LangServer ID。
+
+		return 根据ID路由到的LangServer实例。如果没有找到，则返回nullptr。
 	*/
 	LangServer* LangServerManager::routeID(const QString& id) {
 		if (d->IDServers.contains(id)) {
@@ -81,7 +87,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		根据文件扩展名路由到一个LangServer实例。如果没有找到，则返回nullptr。
+		\a fileExt 要路由的文件扩展名。
+
+		return 根据文件扩展名路由到的LangServer实例。如果没有找到，则返回nullptr。
 	*/
 	LangServer* LangServerManager::routeExt(const QString& fileExt) {
 		if (d->ExtServers.contains(fileExt)) {
@@ -92,7 +100,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		移除一个LangServer实例。如果没有找到，则不做任何事情。
+		\a server 要移除的LangServer实例。
 
 		它不会顺带销毁该实例。
 	*/

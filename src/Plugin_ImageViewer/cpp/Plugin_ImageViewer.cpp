@@ -15,20 +15,14 @@ namespace YSS::ImageViewer {
 		setPluginName("Image Viewer");
 		setPluginAuthor({ "Tsing Yayin" });
 	}
-	Main::~Main() {
-	}
+	Main::~Main() {}
 	void Main::onPluginEnable() {
 		registerPluginModule(new Translator(this));
 		registerFileServer(new YSS::ImageViewer::FS_ImageViewer(this));
 	}
-	void Main::onApplicationInit() {
-	}
-	void Main::onPluginDisable() {
-	}
-	void Main::onTest() {
-	}
-	void Main::onProjectOpen(YSSCore::General::YSSProject* project) {
-	}
-	void Main::onProjectClose(YSSCore::General::YSSProject* project) {
-	}
+	void Main::onApplicationInit() {}
+	void Main::onPluginDisable() {}
+	void Main::onTest() {}
+	void Main::onProjectOpen(YSSCore::General::YSSProject* project) {}
+	void Main::onProjectClose(YSSCore::General::YSSProject* project) {}
 }

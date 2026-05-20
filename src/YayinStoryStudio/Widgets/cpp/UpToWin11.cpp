@@ -1,6 +1,6 @@
 #include "Widgets/UpToWin11.h"
 #include <Utility/FileUtility.h>
-namespace YSS::Widgets{
+namespace YSS::Widgets {
 	UpToWin11::UpToWin11() {
 		this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
 		this->setFixedSize(640, 360); // 16:9 ratio
@@ -31,7 +31,7 @@ namespace YSS::Widgets{
 		TitleLabel->setText(R"(<font color="black">你值得拥有 Windows 11</font>)");
 		TitleLabel->setContentsMargins(20, 5, 20, 5);
 		TitleLabel->setAlignment(Qt::AlignCenter);
-		
+
 		TitleEffect = new Visindigo::Widgets::LiquidGlassEffect(TitleBackgroundLabel);
 		TitleEffect->setBackgroundPolicy(Visindigo::Widgets::LiquidGlassEffect::BackgroundPolicy::CustomImage);
 		TitleEffect->setPositionPolicy(Visindigo::Widgets::LiquidGlassEffect::PositionPolicy::ParentLocalGeometry);
@@ -101,7 +101,7 @@ namespace YSS::Widgets{
 		BottomLayout->addWidget(TextLabel);
 		BottomLayout->addWidget(CancelButton);
 		BottomLayout->addWidget(ViewButton);
-		
+
 		connect(CancelButton, &QPushButton::clicked, this, [this]() {
 			this->close();
 			});

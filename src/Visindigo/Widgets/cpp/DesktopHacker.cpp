@@ -4,7 +4,7 @@
 #include <QtGui/qguiapplication.h>
 #ifdef Q_OS_WIN
 #include <Windows.h>
-#endif 
+#endif
 
 namespace Visindigo::Widgets {
 	class DesktopHackerPrivate {
@@ -19,7 +19,7 @@ namespace Visindigo::Widgets {
 			HWND WorkerW = NULL;
 			HWND DefView = NULL;
 			WorkerW = FindWindowEx(NULL, NULL, "WorkerW", NULL);
-			while((not DefView) && WorkerW) {
+			while ((not DefView) && WorkerW) {
 				DefView = FindWindowEx(WorkerW, NULL, "SHELLDLL_DefView", NULL);
 				WorkerW = FindWindowEx(NULL, WorkerW, "WorkerW", NULL);
 			}

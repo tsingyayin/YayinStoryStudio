@@ -34,7 +34,6 @@ namespace YSS {
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
 		registerColorScheme(":/resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json");
-		
 	}
 
 	void Main::onPluginEnable() {
@@ -60,7 +59,7 @@ namespace YSS {
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged, this, [](const QString& node, int index, QString data) {
 			if (node == "General.Theme") {
-					VISTM->changeColorTheme(data);
+				VISTM->changeColorTheme(data);
 			}
 			});
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, this, &Visindigo::General::Plugin::reloadPluginConfig);
@@ -73,7 +72,7 @@ namespace YSS {
 		VISTM->changeColorTheme(getPluginConfig()->getString("General.Theme"));
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
-		
+
 		if (Visindigo::General::VIApplication::isWindows() && not Visindigo::General::VIApplication::isWindows11()) {
 			if (not getPluginConfig()->getBool("General.ShowUpToWin11")) {
 				getPluginConfig()->setBool("General.ShowUpToWin11", true);
@@ -100,8 +99,6 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
-
-		
 	}
 
 	QWidget* Main::getConfigWidget() {
@@ -109,14 +106,13 @@ namespace YSS {
 	}
 
 	Main::~Main() {
-
 	}
 
 	Main* Main::getInstance() {
 		return MainPrivate::Instance;
 	}
 
-	TestDragWidget::TestDragWidget(QWidget* parent):QWidget(parent) {
+	TestDragWidget::TestDragWidget(QWidget* parent) :QWidget(parent) {
 		DragArea = new Visindigo::Widgets::DragWidget(this);
 		Label1 = new QLabel("Test1", this);
 		Label2 = new QLabel("Test2", this);

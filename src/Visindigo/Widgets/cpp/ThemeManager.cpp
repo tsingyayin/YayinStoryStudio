@@ -66,7 +66,7 @@ namespace Visindigo::Widgets {
 				}
 				// Update colors
 				QStringList keys = ActiveColorMap.keys();
-				for (auto key : keys) {
+				for (auto& key : keys) {
 					QColor startColor = PreviousColorMap.value(key, QColor("#ED1C24")); // Fallback to red
 					QColor endColor = ActiveColorMap.value(key, QColor("#ED1C24")); // Fallback to red
 					int r = startColor.red() + (endColor.red() - startColor.red()) * progress;
@@ -208,7 +208,7 @@ namespace Visindigo::Widgets {
 
 		如果各插件需要向程序注册配色方案或样式模板，使用函数ThemeManager::pluginRegisterColorScheme和
 		ThemeManager::pluginRegisterStyleTemplate即可。注意它不提供卸载方法（是设计缺陷，但暂时不打算更改）。
-		
+
 		如果需要在程序运行时重载从文件系统中读取的配色方案和样式模板，可以使用函数loadAndRefresh。
 		它默认在读取后重新合并（即调用mergeAndApply方法）并触发信号programThemeChanged。如果不需要自动合并和应用，可以传入
 		false参数。
@@ -221,13 +221,12 @@ namespace Visindigo::Widgets {
 		如果传入参数是Auto，则自动启用系统主题感知功能。请注意，Auto这个值比较特殊，不在ColorSheme的枚举里，
 		因此你不能通过ThemeID版本的重载函数来使用这个值，必须使用字符串版本的函数，并传入"Auto"。
 
-
 		如果你不信任字面量，也可以通过setAutoAdjustThemeToSystem(true)来启用系统主题感知功能。
 
 		此外，由于系统颜色感知依赖QStyleHints的特性，这里有个功能缺陷：systemThemeChanged信号在
 		autoAdjustThemeToSystem为false时不会触发，因此不可能既手动指定主题，又感知系统变化。除非Qt更改，
 		这问题无法解决。
-		
+
 		\section1 使用样式模板
 		要将ThemeManager的结果应用到应用程序中，可以在setStyleSheet时使用ThemeManager::getTemplate方法获取样式表字符串，
 		例如
@@ -269,6 +268,7 @@ namespace Visindigo::Widgets {
 		\warning 请务必注意主程序插件和插件的注册在时机上的差别，如果插件的注册时间延后到onPluginEnable，
 		会错过合并和应用主题的时机，从而导致主题不完整。
 		\li 4. 在所有插件启用前，ThemeManager会调用mergeAndApply方法，合并所有注册的配色方案和样式模板，并应用到应用程序中。
+		\endlist
 
 		ThemeManager在主题变更时的工作顺序如下：
 		\list
@@ -433,7 +433,6 @@ namespace Visindigo::Widgets {
 		ThemeManagerPrivate::UserThemeIDEnumMap[id] = themeID;
 	}
 
-
 	/*!
 		\since Visindigo 0.13.0
 		\a parent 父对象指针。
@@ -449,7 +448,7 @@ namespace Visindigo::Widgets {
 		d->Config = new Visindigo::Utility::JsonConfig();
 		if (!Visindigo::Utility::FileUtility::isFileExist(d->ConfigPath + "/config.json")) {
 			vgWarningF << "Theme config file not found at path:" << d->ConfigPath + "/config.json" << ", creating default config.";
-			d->Config->setArray("Schemes", QStringList({"#Default"}));
+			d->Config->setArray("Schemes", QStringList({ "#Default" }));
 			d->Config->setArray("Templates", QStringList());
 			d->Config->setString("Theme", "Dark");
 			vgDebugF << d->Config->toString();
@@ -510,7 +509,9 @@ namespace Visindigo::Widgets {
 		\a plugin 注册此配色方案的插件实例，
 		\a jsonStr 配色方案的JSON字符串。
 
-		插件注册配色方案。任何不符合规范的配色方案注册请求都会被拒绝并返回false。
+		供插件注册配色方案。
+
+		return 是否成功注册，任何jsonStr语法问题或不符合规范的注册请求都会导致注册失败并返回false。
 	*/
 	bool ThemeManager::pluginRegisterColorScheme(Visindigo::General::Plugin* plugin, const QString& jsonStr) {
 		Visindigo::Utility::JsonConfig* json = new Visindigo::Utility::JsonConfig();
@@ -550,7 +551,9 @@ namespace Visindigo::Widgets {
 		\a plugin 注册此样式模板的插件实例，
 		\a vstStr 样式模板的字符串内容。
 
-		插件注册样式模板。任何不符合规范的样式模板注册请求都会被拒绝并返回false。
+		供插件注册样式模板。
+
+		return 是否成功注册，任何vstStr语法问题或不符合规范的注册请求都会导致注册失败并返回false。
 	*/
 	bool ThemeManager::pluginRegisterStyleTemplate(Visindigo::General::Plugin* plugin, QString vstStr) {
 		StyleSheetTemplate templateSS;
@@ -597,7 +600,7 @@ namespace Visindigo::Widgets {
 		vgDebugF << "Loading color schemes and style templates from file system at path:" << d->ConfigPath;
 		QMap<QString, StyleSheetTemplate> pluginTemplates = QMap<QString, StyleSheetTemplate>();
 		QMap<QString, Visindigo::Utility::JsonConfig*> pluginSchemes = QMap<QString, Visindigo::Utility::JsonConfig*>();
-		for (auto json : d->ColorSchemes.keys()){
+		for (auto& json : d->ColorSchemes.keys()) {
 			if (!isColorSchemeFromPlugin(json) && d->ColorSchemes[json] != d->DefaultColorScheme) {
 				delete d->ColorSchemes[json];
 			}
@@ -607,7 +610,7 @@ namespace Visindigo::Widgets {
 		}
 		d->ColorSchemes = pluginSchemes;
 		d->ColorSchemes["#Default"] = d->DefaultColorScheme;
-		for (auto temp : d->Templates.keys()) {
+		for (auto& temp : d->Templates.keys()) {
 			if (!isStyleTemplateFromPlugin(temp)) {
 				d->Templates.remove(temp);
 			}
@@ -617,10 +620,10 @@ namespace Visindigo::Widgets {
 		}
 		d->Templates = pluginTemplates;
 
-		QStringList templates = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, {"*.vst"}, true);
-		QStringList schemes = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, {"*.json"}, true);
+		QStringList templates = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, { "*.vst" }, true);
+		QStringList schemes = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, { "*.json" }, true);
 
-		for(auto name : templates) {
+		for (auto& name : templates) {
 			QString all = Visindigo::Utility::FileUtility::readAll(name);
 			StyleSheetTemplate templateSS;
 			if (templateSS.parse(all)) {
@@ -632,7 +635,7 @@ namespace Visindigo::Widgets {
 			}
 		}
 		QFileInfo info(d->ConfigPath + "/config.json");
-		for (auto name : schemes) {
+		for (auto& name : schemes) {
 			if (name == info.absoluteFilePath()) {
 				continue; // skip config file
 			}
@@ -662,7 +665,7 @@ namespace Visindigo::Widgets {
 				delete json;
 			}
 		}
-		if (autoMergeAndApply){
+		if (autoMergeAndApply) {
 			mergeAndApply();
 		}
 	}
@@ -824,7 +827,7 @@ namespace Visindigo::Widgets {
 		d->MergedColorScheme->setString("SchemeID", "#MergedScheme");
 		d->MergedColorScheme->setString("SchemeName", "Final Merged Color Scheme");
 		QStringList finalSchemes;
-		for (auto schemeID : d->ColorSchemePriority) {
+		for (auto& schemeID : d->ColorSchemePriority) {
 			if (!d->ColorSchemes.contains(schemeID)) {
 				vgWarningF << "Color scheme" << schemeID << "not found in ColorSchemes map. Skipping.";
 				continue;
@@ -835,9 +838,9 @@ namespace Visindigo::Widgets {
 				continue;
 			}
 			QStringList themes = scheme->keys("Themes");
-			for (auto themeID : themes) {
+			for (auto& themeID : themes) {
 				QStringList colorNames = scheme->keys("Themes." + themeID);
-				for (auto colorName : colorNames) {
+				for (auto& colorName : colorNames) {
 					d->MergedColorScheme->setString("Themes." + themeID + "." + colorName, scheme->getString("Themes." + themeID + "." + colorName));
 				}
 			}
@@ -849,7 +852,7 @@ namespace Visindigo::Widgets {
 		d->MergedTemplate.setTemplateID("#MergedTemplate");
 		d->MergedTemplate.setTemplateName("Final Merged Template");
 		QStringList finalTemplates;
-		for (auto templateID : d->StyleTemplatePriority) {
+		for (auto& templateID : d->StyleTemplatePriority) {
 			if (!d->Templates.contains(templateID)) {
 				vgWarningF << "Style template" << templateID << "not found in Templates map. Skipping.";
 				continue;
@@ -861,7 +864,7 @@ namespace Visindigo::Widgets {
 		d->StyleTemplatePriority = finalTemplates;
 		d->Config->setStringList("Schemes", d->ColorSchemePriority);
 		d->Config->setStringList("Templates", d->StyleTemplatePriority);
-		if (d->AutoAdjustToSystem){
+		if (d->AutoAdjustToSystem) {
 			d->CurrentThemeID = "Auto";
 		}
 		d->Config->setString("Theme", d->CurrentThemeID);
@@ -907,7 +910,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		
+
 		return 合并后的配色方案中的所有色彩主题ID列表。
 	*/
 	QStringList ThemeManager::getColorThemes() {
@@ -952,10 +955,11 @@ namespace Visindigo::Widgets {
 		else {
 			d->AutoAdjustToSystem = false;
 			if (themeID == "Dark") {
-				if (Visindigo::General::VIApplication::isWindows()){
+				if (Visindigo::General::VIApplication::isWindows()) {
 					if (Visindigo::General::VIApplication::isWindows11()) {
 						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-					}else{
+					}
+					else {
 						auto currentFont = qApp->font();
 						QApplication::setStyle("fusion");
 						QApplication::setFont(currentFont);
@@ -965,7 +969,6 @@ namespace Visindigo::Widgets {
 				else {
 					qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
 				}
-				
 			}
 			else if (themeID == "Light") {
 				if (Visindigo::General::VIApplication::isWindows()) {
@@ -997,7 +1000,7 @@ namespace Visindigo::Widgets {
 		d->PreviousColorMap = d->ActiveColorMap;
 		d->ActiveColorMap = QMap<QString, QColor>();
 		QStringList colorNames = d->MergedColorScheme->keys("Themes." + autoID);
-		for (auto colorName : colorNames) {
+		for (auto& colorName : colorNames) {
 			QString colorStr = d->MergedColorScheme->getString("Themes." + autoID + "." + colorName);
 			d->ActiveColorMap[colorName] = QColor(colorStr);
 		}
@@ -1044,7 +1047,7 @@ namespace Visindigo::Widgets {
 		\a autoAdjust 是否自动根据系统主题调整应用程序主题。
 
 		设置是否自动根据系统主题调整应用程序主题。
-		
+
 		这会触发一次程序主题的变更。因此请注意，这个函数的最早调用周期是ApplicationInit，因为在PluginEnable期间还未进行配色
 		方案的合并和应用，因此可能会导致主题变更失败。建议在ApplicationInit或之后的周期调用此函数。
 	*/
@@ -1059,7 +1062,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		
+
 		return 当前是否设置为自动根据系统主题调整应用程序主题。
 	*/
 	bool ThemeManager::isAutoAdjustThemeToSystem() {
@@ -1068,7 +1071,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		
+
 		return 当前的配色主题ID。
 	*/
 	QString ThemeManager::getCurrentColorTheme() {
@@ -1087,7 +1090,7 @@ namespace Visindigo::Widgets {
 			vgWarningF << "No current theme set.";
 			return QColor("#ED1C24");
 		}
-		if (d->isInAnimation){
+		if (d->isInAnimation) {
 			if (d->AnimatingColorMap.contains(key)) {
 				return d->AnimatingColorMap[key];
 			}
@@ -1121,12 +1124,12 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		\a key 样式表键，
 		\a getter 可选的QWidget指针，用于从该组件的property属性中获取变量值进行代换。
-		
+
 		return 获取指定键的样式表字符串，并进行变量代换。
 	*/
 	QString ThemeManager::getTemplate(const QString& key, QWidget* getter) {
 		//vgDebugF << "Getting template for key:" << key << "with getter:" << getter;
-	    return d->MergedTemplate.getStyleSheet(key, getter);
+		return d->MergedTemplate.getStyleSheet(key, getter);
 	}
 
 	/*!
@@ -1163,16 +1166,6 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a widget ColorfulWidget组件指针。
-
-		return 是否已注册指定的ColorfulWidget组件。
-	*/
-	bool ThemeManager::isColorfulWidgetRegistered(Visindigo::Widgets::ColorfulWidget* widget) {
-		return d->RegisteredWidgets.contains(widget);
-	}
-
-	/*!
-		\since Visindigo 0.13.0
 
 		return 合并后的样式模板对象。
 	*/
@@ -1182,7 +1175,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		
+
 		获取合并后的配色方案对象。
 	*/
 	Visindigo::Utility::JsonConfig ThemeManager::getMergedColorScheme() {
@@ -1215,9 +1208,9 @@ namespace Visindigo::Widgets {
 		\class Visindigo::Widgets::ColorfulWidget
 		\since Visindigo 0.13.0
 		\brief ColorfulWidget是一个接口类，表示支持主题变化动画的组件.
-		\inheaderfile Widgets/ThemeManager.h
 		\ingroup VITheme
 		\inmodule Visindigo
+
 		用户可以通过继承ColorfulWidget类，并实现onThemeChanged方法来响应主题变化动画。
 	*/
 
@@ -1244,7 +1237,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		检查主题变化动画支持是否已启用。
+
+		return 主题变化动画支持是否已启用。
 	*/
 	bool ColorfulWidget::isColorfulEnabled() {
 		return Visindigo::Widgets::ThemeManager::getInstance()->isColorfulWidgetRegistered(this);

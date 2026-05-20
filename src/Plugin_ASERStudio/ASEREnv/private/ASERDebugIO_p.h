@@ -17,7 +17,7 @@ namespace ASERStudio::ASEREnv {
 		QString lastStorySetPath;
 		QString lastStoryName;
 	public:
-		void handleNamedPipeReadable(const QString& context);  
+		void handleNamedPipeReadable(const QString& context);
 	};
 }
 

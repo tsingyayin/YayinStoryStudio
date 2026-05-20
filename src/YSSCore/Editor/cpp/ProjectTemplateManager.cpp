@@ -13,11 +13,11 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::ProjectTemplateManager
-		\brief ProjectTemplateManager保存Provider的实例
+		\brief ProjectTemplateManager保存Provider的实例.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup CreateService
-	
+
 		ProjectTemplateManager是一个单例类，负责保存ProjectTemplateProvider的实例。
 		它真的只负责保存：如果调用removeProvider，它不会自动销毁该实例。
 	*/
@@ -52,7 +52,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获得实例
+
+		return ProjectTemplateManager的单例实例
 	*/
 	ProjectTemplateManager* ProjectTemplateManager::getInstance() {
 		if (ProjectTemplateManagerPrivate::Instance == nullptr) {
@@ -63,7 +64,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		获得所有Provider实例
+
+		return 所有Provider实例
 	*/
 	QList<ProjectTemplateProvider*> ProjectTemplateManager::getProviders() {
 		return d->ProviderMap.values();
@@ -71,7 +73,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		根据ID获得Provider实例
+		\a templateID 模板ID
+
+		return 根据ID获得Provider实例
 	*/
 	ProjectTemplateProvider* ProjectTemplateManager::getProvider(const QString templateID) {
 		return d->ProviderMap[templateID];
@@ -79,6 +83,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a provider 要添加的Provider实例
+
 		添加Provider实例。如果已经存在相同ID的实例，这个函数不做任何事情。
 	*/
 	void ProjectTemplateManager::addProvider(ProjectTemplateProvider* provider) {
@@ -90,6 +96,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
+		\a provider 要移除的Provider实例
+
 		移除Provider实例。这个函数不会销毁该实例。
 	*/
 	void ProjectTemplateManager::removeProvider(ProjectTemplateProvider* provider) {

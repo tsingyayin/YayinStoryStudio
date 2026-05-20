@@ -16,7 +16,7 @@ namespace YSS::TitlePage {
 		this->setFixedSize(900, 300);
 		Background->setGeometry(20, 20, 860, 260);
 		ShadowEffect = new QGraphicsDropShadowEffect(this);
-		ShadowEffect->setBlurRadius(10); 
+		ShadowEffect->setBlurRadius(10);
 		ShadowEffect->setOffset(0, 0);
 		ShadowEffect->setColor(QColor(0, 0, 0));
 		Background->setGraphicsEffect(ShadowEffect);

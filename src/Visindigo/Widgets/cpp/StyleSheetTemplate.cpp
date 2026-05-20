@@ -21,7 +21,7 @@ namespace Visindigo::Widgets {
 		\inheaderfile Widgets/StyleSheetTemplate.h
 		\brief 提供对vst（Visindigo Stylesheet Template）样式表模板的解析与管理功能.
 		\ingroup VITheme
-		\inmoudle Visindigo
+		\inmodule Visindigo
 		\since Visindigo 0.13.0
 
 		Visindigo样式表模板（vst）是一种用于定义和管理Qt样式表的文本格式。它允许开发者创建可重用的样式片段，并通过参数化的方式实现样式的动态生成。
@@ -90,6 +90,8 @@ namespace Visindigo::Widgets {
 		\a templateStr 样式表模板字符串
 
 		解析样式表模板字符串。
+
+		return 解析是否成功，任何语法问题或不符合规范的模板字符串都会导致解析失败并返回false。
 	*/
 	bool StyleSheetTemplate::parse(QString& templateStr) {
 		QStringList lines = templateStr.replace("\r\n", "\n").split("\n");

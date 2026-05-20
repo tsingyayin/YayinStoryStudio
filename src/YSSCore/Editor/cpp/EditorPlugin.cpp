@@ -18,7 +18,7 @@ namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::EditorPlugin
 		\inmodule YSSCore
-		\brief 此类为Yayin Story Studio提供插件基类。
+		\brief 此类为Yayin Story Studio提供插件基类.
 		\since YSSCore 0.13.0
 
 		EditorPlugin是所有YSS编辑器插件的基类。除非只需要提供标准Visindigo插件功能，
@@ -28,9 +28,10 @@ namespace YSSCore::Editor {
 	*/
 
 	/*!
+		\since YSS 0.13.0
+		\a apiVersion 插件的API版本
 		\a abiVersion 插件的ABI版本
 		\a parent 插件的父对象
-		\since YSS 0.13.0
 
 		对于abiVersion，其已经在头文件中被默认填充为Compiled_YSSABI_Version，代表您的插件编译时YSS对应的ABI版本。
 		在派生此类时，不需要实际传递任何参数。
@@ -51,21 +52,27 @@ namespace YSSCore::Editor {
 	/*!
 		\fn YSSCore::Editor::EditorPlugin::onProjectOpen(YSSCore::General::YSSProject* project)
 		\since YSS 0.13.0
-		打开项目时调用此函数。参数project是被打开的项目对象。
+		\a project 打开的项目对象
+
+		打开项目时调用此虚函数。参数project是被打开的项目对象。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::EditorPlugin::onProjectClose(YSSCore::General::YSSProject* project)
 		\since YSS 0.13.0
-		关闭项目时调用此函数。参数project是被关闭的项目对象。
+		\a project 关闭的项目对象
+
+		关闭项目时调用此虚函数。参数project是被关闭的项目对象。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::EditorPlugin::onToolWidgetRequested(const QString& widgetID)
 		\since YSSCore 0.15.0
+		\a widgetID 工具窗口ID
+
 		YSS需要请求显示工具窗口内容时调用此函数。参数widgetID是被请求的工具窗口ID。
 		如果插件提供了对应ID的工具窗口内容，则返回一个QWidget指针；否则返回nullptr。
-		
+
 		这个窗口一旦创建，所有权归YSS前台所有，插件不需要也不应该管理它的生命周期。
 		YSS会确保每次请求同一个工具窗口ID时，如果窗口仍然存活，则直接返回现有的实例；
 		如果窗口已经被关闭销毁，则再次调用此函数请求新的实例。因此，这个函数每次被调用时，
@@ -79,7 +86,6 @@ namespace YSSCore::Editor {
 		return nullptr;
 	}
 
-
 	void EditorPlugin::registerLangServer(LangServer* server) {
 		registerPluginModule(server);
 		LangServerManager::getInstance()->addLangServer(server);
@@ -87,6 +93,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a server 调试服务器
+
 		注册调试服务器。
 	*/
 	void EditorPlugin::registerDebugServer(DebugServer* server) {
@@ -96,6 +103,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a server 文件服务器
+
 		注册文件服务器。
 	*/
 	void EditorPlugin::registerFileServer(FileServer* server) {
@@ -106,6 +114,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a provider 项目模板提供者
+
 		注册项目模板提供者。
 	*/
 	void EditorPlugin::registerProjectTemplateProvider(ProjectTemplateProvider* provider) {
@@ -116,6 +125,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a provider 文件模板提供者
+
 		注册文件模板提供者。
 	*/
 	void EditorPlugin::registerFileTemplateProvider(FileTemplateProvider* provider) {
@@ -137,14 +147,14 @@ namespace YSSCore::Editor {
 		\since YSS 0.15.0
 		\a widgetID 工具窗口ID
 		\a widgetName 工具窗口名称
+
 		注册工具窗口。工具窗口是YSS编辑器中可以停靠的窗口，插件可以通过onToolWidgetRequested()提供工具窗口的内容。
 
-		工具窗口的ID必须全程序唯一，一般建议使用反向域命名法。\a widgetName是支持VI18N的字符串，用于直接显示在界面上。
+		工具窗口的ID必须全程序唯一，一般建议使用反向域命名法。 \a widgetName 是支持VI18N的字符串，用于直接显示在界面上。
 
 		另请参见YSSCore::Editor::ToolWidgetManager。
 	*/
 	void EditorPlugin::registerToolWidget(const QString& widgetID, const QString& widgetName) {
-		YSSCore::Editor::ToolWidgetManager::getInstance()->registerToolWidget(widgetID, widgetName, this);	
+		YSSCore::Editor::ToolWidgetManager::getInstance()->registerToolWidget(widgetID, widgetName, this);
 	}
-
 }

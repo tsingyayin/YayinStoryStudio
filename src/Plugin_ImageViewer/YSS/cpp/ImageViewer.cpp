@@ -79,6 +79,5 @@ namespace YSS::ImageViewer {
 	}
 
 	void ImageViewer::mouseReleaseEvent(QMouseEvent* event) {
-	
 	}
 }

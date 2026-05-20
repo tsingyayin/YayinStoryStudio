@@ -8,7 +8,7 @@ namespace Visindigo::Widgets {
 	class DragWidget;
 }
 namespace Visindigo::__Private__ {
-	class DragWidgetPrivate :public QObject{
+	class DragWidgetPrivate :public QObject {
 		Q_OBJECT;
 		friend class Visindigo::Widgets::DragWidget;
 	protected:

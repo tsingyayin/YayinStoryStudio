@@ -21,6 +21,8 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a color 要判断的颜色。
 
+		return 判断颜色是浅色还是深色。
+
 		对rgb分量版本函数的重载。
 	*/
 	bool ColorTool::isLightColor(const QColor& color) noexcept {
@@ -34,7 +36,8 @@ namespace Visindigo::Utility {
 		\a color 要转换的颜色
 		\a format 字符串的格式，默认为rgbHex（#RRGGBB）。
 
-		将颜色转换为字符串的函数。
+		return 将颜色转换为字符串。
+
 		这个函数支持多种格式，包括CSS的rgb()和rgba()函数、十六进制表示法以及整数表示法。
 	*/
 	QString ColorTool::toColorString(const QColor& color, ColorStrFormat format) noexcept {

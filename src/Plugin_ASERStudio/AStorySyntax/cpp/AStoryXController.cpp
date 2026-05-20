@@ -103,7 +103,7 @@ namespace ASERStudio::AStorySyntax {
 			}
 			auto requiredParameter = AStoryXParameter();
 			QString content;
-			// first ensure required. 
+			// first ensure required.
 			if (usedPrefixIndexes.size() > 0) {
 				content = str.left(usedPrefixIndexes.first());
 			}
@@ -182,7 +182,7 @@ namespace ASERStudio::AStorySyntax {
 			QStringList prefixNames = getOptionalParameterNames();
 			QStringList repeatedPrefixes;
 			QList<qint32> repeatedPrefixIndexes;
-			for (int i = 0; i < prefixes.size(); i++){
+			for (int i = 0; i < prefixes.size(); i++) {
 				QString prefix = prefixes[i];
 				prefixIndexes.append(str.indexOf(prefix));
 				if (str.count(prefix) > 1) {
@@ -206,9 +206,9 @@ namespace ASERStudio::AStorySyntax {
 					avaliablePrefixIndexes.append(std::tuple<qint32, QString, QString>(prefixIndexes[i], prefixes[i], prefixNames[i]));
 				}
 			}
-			std::sort(avaliablePrefixIndexes.begin(), avaliablePrefixIndexes.end(), [](const std::tuple<qint32, QString, QString>& a, 
+			std::sort(avaliablePrefixIndexes.begin(), avaliablePrefixIndexes.end(), [](const std::tuple<qint32, QString, QString>& a,
 				const std::tuple<qint32, QString, QString>& b) {
-				return std::get<0>(a) < std::get<0>(b);
+					return std::get<0>(a) < std::get<0>(b);
 				});
 			prefixIndexes.clear();
 			prefixes.clear();
@@ -307,7 +307,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\class ASERStudio::AStorySyntax::AStoryXController
-		\brief AStoryXController是对AStoryX控制器和解析的一体化封装。
+		\brief AStoryXController是对AStoryX控制器和解析的一体化封装.
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -383,24 +383,32 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXController::AStoryXController(const AStoryXController& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXController对象。
+
 		复制构造函数
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXController::AStoryXController(AStoryXController&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXController对象。
+
 		移动构造函数
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXController::operator=(const AStoryXController& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXController对象。
+
 		复制赋值运算符
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXController::operator=(AStoryXController&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXController对象。
+
 		移动赋值运算符
 	*/
 	VIMoveable_Impl(AStoryXController);
@@ -525,7 +533,7 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXParameter requiredParameter = result.getRequiredParameter();
 		if (d->Type == AStoryXController::ControllerType::Dialog) {
 			QString content = requiredParameter.getContent();
-			if (not Visindigo::Utility::StringUtility::isAllBlank(content) && 
+			if (not Visindigo::Utility::StringUtility::isAllBlank(content) &&
 				content.contains(" ") && not content.contains("\t") && diagnostic) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
 					VITR("ASERStudio::diagnostic.useTabInsteadSpace_dialog.message"),
@@ -870,10 +878,11 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a type 控制器类型。
+
 		将ControllerType枚举值转换为字符串。
 	*/
 	QString AStoryXController::controllerTypeToString(ControllerType type) {
 		return QMetaEnum::fromType<AStoryXController::ControllerType>().valueToKey(type);
 	}
-
 }

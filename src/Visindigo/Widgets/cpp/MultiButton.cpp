@@ -7,7 +7,7 @@
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::MultiButton
-		\brief MultiLabel的扩展，提供了按钮的功能。
+		\brief MultiLabel的扩展，提供了按钮的功能.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -19,6 +19,8 @@ namespace Visindigo::Widgets {
 		\fn Visindigo::Widgets::MultiButton::clicked()
 		\since Visindigo 0.13.0
 		当按钮被"咔哒"时发出此信号。即在此按钮区域内按下且释放鼠标时发出此信号。
+
+		（咔哒指的是，鼠标在此控件范围内按下，且在此控件范围内释放，它和QPushButton::clicked定义和行为完全相同）
 	*/
 
 	/*!
@@ -53,6 +55,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a parent 父组件指针，默认为nullptr。
+
 		构造函数
 	*/
 	MultiButton::MultiButton(QWidget* parent) :MultiLabel(parent) {
@@ -69,6 +73,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a styleSheet 样式表
+
 		设置按钮被按下时的样式表。
 	*/
 	void MultiButton::setPressedStyleSheet(const QString& styleSheet) {
@@ -77,6 +83,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a styleSheet 样式表
+
 		设置按钮被悬停时的样式表。
 	*/
 	void MultiButton::setHoverStyleSheet(const QString& styleSheet) {
@@ -85,6 +93,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a styleSheet 样式表
+
 		设置按钮的正常状态下的样式表。
 	*/
 	void MultiButton::setNormalStyleSheet(const QString& styleSheet) {
@@ -94,6 +104,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a styleSheet 样式表
+
 		设置按钮的非活动状态下的样式表。
 	*/
 	void MultiButton::setInactiveStyleSheet(const QString& styleSheet) {
@@ -105,6 +117,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a active 是否处于活动状态。
+
 		设置按钮是否处于活动状态。
 	*/
 	void MultiButton::setActive(bool active) {
@@ -137,7 +151,11 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.14.0
+		\a event 事件对象指针。
+
 		绘制事件处理函数。此函数会在按钮需要重绘时被调用。
+
+		任何继承此类且重写此虚函数的子类，在重写时都应该调用此函数，以确保按钮的正常绘制。
 	*/
 	void MultiButton::paintEvent(QPaintEvent* event) {
 		if (not d->inButtonGroup) {
@@ -179,7 +197,13 @@ namespace Visindigo::Widgets {
 	}
 	/*!
 		\since Visindigo 0.13.0
+		\a event 事件对象指针。
+
 		鼠标按下事件处理函数。此函数会在鼠标按下时被调用。
+
+		如果按钮处于非活动状态，则不会发出任何信号，也不会改变按钮的样式。
+
+		任何继承此类且重写此虚函数的子类，在重写时都应该调用此函数，以确保按钮的正常响应。
 	*/
 	void MultiButton::mousePressEvent(QMouseEvent* event) {
 		MultiLabel::mousePressEvent(event);
@@ -187,7 +211,7 @@ namespace Visindigo::Widgets {
 			return;
 		}
 		d->Pressed = true;
-		if(d->PressedStyleSheet.isEmpty()) {
+		if (d->PressedStyleSheet.isEmpty()) {
 			repaint();
 		}
 		else {
@@ -198,7 +222,13 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a event 事件对象指针。
+
 		鼠标释放事件处理函数。此函数会在鼠标释放时被调用。
+
+		如果按钮处于非活动状态，则不会发出任何信号，也不会改变按钮的样式。
+
+		任何继承此类且重写此虚函数的子类，在重写时都应该调用此函数，以确保按钮的正常响应。
 	*/
 	void MultiButton::mouseReleaseEvent(QMouseEvent* event) {
 		MultiLabel::mouseReleaseEvent(event);
@@ -220,7 +250,13 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a event 事件对象指针。
+
 		鼠标双击事件处理函数。此函数会在鼠标双击时被调用。
+
+		如果按钮处于非活动状态，则不会发出任何信号，也不会改变按钮的样式。
+
+		任何继承此类且重写此虚函数的子类，在重写时都应该调用此函数，以确保按钮的正常响应。
 	*/
 	void MultiButton::mouseDoubleClickEvent(QMouseEvent* event) {
 		MultiLabel::mouseDoubleClickEvent(event);
@@ -232,7 +268,13 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a event 事件对象指针。
+
 		鼠标进入事件处理函数。此函数会在鼠标进入按钮区域时被调用。
+
+		如果按钮处于非活动状态，则不会发出任何信号，也不会改变按钮的样式。
+
+		任何继承此类且重写此虚函数的子类，在重写时都应该调用此函数，以确保按钮的正常响应。
 	*/
 	void MultiButton::enterEvent(QEnterEvent* event) {
 		MultiLabel::enterEvent(event);
@@ -248,7 +290,13 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a event 事件对象指针。
+
 		鼠标离开事件处理函数。此函数会在鼠标离开按钮区域时被调用。
+
+		如果按钮处于非活动状态，则不会发出任何信号，也不会改变按钮的样式。
+
+		任何继承此类且重写此虚函数的子类，在重写时都应该调用此函数，以确保按钮的正常响应。
 	*/
 	void MultiButton::leaveEvent(QEvent* event) {
 		MultiLabel::leaveEvent(event);

@@ -425,7 +425,7 @@ namespace Visindigo::Utility {
 	void Console::binary(const QByteArray& data) {
 		print(binaryToString(data));
 	}
-	
+
 	/*!
 		\since Visindigo 0.13.0
 		\a data 为要进行二进制显示的数据。
@@ -488,7 +488,7 @@ namespace Visindigo::Utility {
 		return result;
 	}
 
-	/*! 
+	/*!
 		\fn template <typename T> static void Console::memory(const T * data)
 		\since Visindigo 0.13.0
 		\a data 为要进行二进制显示的对象

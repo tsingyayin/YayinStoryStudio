@@ -10,7 +10,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::JsonValueRef
-		\brief 此类用于访问VIJsonConfig中的值
+		\brief 此类用于访问VIJsonConfig中的值.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 

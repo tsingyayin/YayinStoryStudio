@@ -6,7 +6,5 @@
 #include "General/Exception.h"
 namespace Visindigo::Utility {
 	class GeneralConfigParser_Yaml {
-
 	};
-	
 }

@@ -30,7 +30,7 @@ namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::QtSSHelper
 		\inmodule Visindigo
-		\brief 此类提供了一些Qt信号槽相关的辅助函数。
+		\brief 此类提供了一些Qt信号槽相关的辅助函数.
 		\since Visindigo 0.13.0
 
 		此类提供一些用于辅助Qt信号槽机制的静态函数。它们在处理嵌套对象路径和深度连接信号槽时特别有用。
@@ -109,11 +109,11 @@ namespace Visindigo::Utility {
 			}
 		}
 		//vgDebugF << finalSignalName << finalSlotName;
-		if (!emiter){
+		if (!emiter) {
 			vgErrorF << "emiter not found for" << signalName;
 			return;
 		}
-		if (!reciver){
+		if (!reciver) {
 			vgErrorF << "reciver not found for" << slotName;
 			return;
 		}
@@ -121,10 +121,14 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a child 是要检查的子对象。
 		\a parent 是要检查的父对象。
-		\since Visindigo 0.13.0
-		此函数检查child是否是parent的后代（即child的父对象链中是否包含parent）。如果是，则返回true；否则返回false。
+
+		此函数检查child是否是parent的后代（即child的父对象链中是否包含parent）。
+
+		return 检查结果
+
 		它对于在QWidget等深度场景下查看某个小玩意是否是某个大区域内的一个组件非常有用。
 	*/
 	bool QtSSHelper::isDescendantsOf(QObject* child, QObject* parent) {

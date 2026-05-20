@@ -132,7 +132,7 @@ namespace YSS::NewFilePage {
 		this->deleteLater();
 	}
 	void NewFileWin::resizeEvent(QResizeEvent* event) {
-		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() -12 * this->devicePixelRatioF());
+		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() - 12 * this->devicePixelRatioF());
 	}
 	void NewFileWin::onFilePrepared(QString projectPath) {
 		emit filePrepared(projectPath);

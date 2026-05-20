@@ -13,7 +13,7 @@ namespace Visindigo::General {
 }
 // Main
 namespace Visindigo::General {
-	class VisindigoAPI CommandHost :public QObject{
+	class VisindigoAPI CommandHost :public QObject {
 		Q_OBJECT;
 	private:
 		CommandHost();

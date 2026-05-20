@@ -18,7 +18,7 @@ namespace Visindigo::Utility {
 		};
 	public:
 		static constexpr bool isLightColor(const quint8& r, const quint8& g, const quint8& b) noexcept {
-			return (((5 *g) + (2 * r) + b) > 1024);
+			return (((5 * g) + (2 * r) + b) > 1024);
 		};
 		static bool isLightColor(const QColor& color) noexcept;
 		static QString toColorString(const QColor& color, ColorStrFormat format = rgbHex) noexcept;

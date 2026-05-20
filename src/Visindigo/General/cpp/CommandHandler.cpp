@@ -14,10 +14,10 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::CommandErrorData
 		\inheaderfile General/CommandHandler.h
-		\brief 此类表示命令执行过程中可能发生的错误信息。
+		\brief 此类表示命令执行过程中可能发生的错误信息.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
-		
+
 		命令错误数据类用于封装命令执行过程中产生的错误信息，包括错误类型、错误消息、相关命令和错误位置等。
 
 		\note 这类的内容是不可变的，一旦创建，其内容就不能被修改。
@@ -25,7 +25,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		构造函数。此构造函数适用于从boolean值隐式转换的情况。为true时表示无错误，为false时表示未知错误。
+		构造函数。此构造函数适用于从 \a noError 布尔值隐式转换的情况。为true时表示无错误，为false时表示未知错误。
 
 		这构造函数用于方便地从布尔值创建错误数据对象，简化了无错误和未知错误的表示。但一般来说
 		仍然建议在有错误时采用更具体的构造函数来提供详细的错误信息。建议只将该构造函数用于无错误情况。
@@ -45,8 +45,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		构造函数。创建一个指定错误类型的命令错误数据对象。
-		\a type 指定错误的类型。
+		构造函数。创建一个由 \a type 指定的错误类型的命令错误数据对象。
 	*/
 	CommandErrorData::CommandErrorData(CommandErrorData::ErrorType type)
 		: d(new CommandErrorDataPrivate()) {
@@ -70,31 +69,41 @@ namespace Visindigo::General {
 		d->Message = message;
 		d->Command = command;
 		d->ErrorPosition = errorPosition;
-
 	}
 
 	/*!
 		\fn  Visindigo::General::CommandErrorData::CommandErrorData(CommandErrorData&& other)
 		\since Visindigo 0.13.0
+		\a other 另一个命令错误数据对象。
+
 		移动构造函数。将另一个命令错误数据对象的内容移动到当前对象中。
 	*/
 
 	/*!
 		\fn  Visindigo::General::CommandErrorData::CommandErrorData(const CommandErrorData& other)
 		\since Visindigo 0.13.0
+		\a other 另一个命令错误数据对象。
 		复制构造函数。将另一个命令错误数据对象的内容复制到当前对象中。
 	*/
 
 	/*!
 		\fn Visindigo::General::CommandErrorData::operator=(CommandErrorData&& other)
 		\since Visindigo 0.13.0
+		\a other 另一个命令错误数据对象。
+
 		移动赋值运算符。将另一个命令错误数据对象的内容移动到当前对象中。
+
+		return 当前对象的引用。
 	*/
 
 	/*!
 		\fn Visindigo::General::CommandErrorData::operator=(const CommandErrorData& other)
 		\since Visindigo 0.13.0
+		\a other 另一个命令错误数据对象。
+
 		复制赋值运算符。将另一个命令错误数据对象的内容复制到当前对象中。
+
+		return 当前对象的引用。
 	*/
 	VIMoveable_Impl(CommandErrorData);
 	VICopyable_Impl(CommandErrorData);
@@ -109,7 +118,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 错误的类型。
+
 		return 错误的类型枚举值。
 	*/
 	CommandErrorData::ErrorType CommandErrorData::getErrorType() const {
@@ -118,7 +127,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 错误的消息描述。
+
 		return 错误的消息字符串。
 	*/
 	QString CommandErrorData::getErrorMessage() const {
@@ -127,7 +136,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 相关的命令字符串。
+
 		return 相关的命令字符串。
 	*/
 	QString CommandErrorData::getCommand() const {
@@ -136,7 +145,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 错误发生的位置索引。
+
 		return 错误位置的索引值。
 	*/
 	qsizetype CommandErrorData::getErrorPosition() const {
@@ -153,7 +162,7 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::CommandHandler
 		\inheaderfile General/CommandHandler.h
-		\brief 此类提供了一个命令处理程序的接口，用于处理和补全命令行输入。
+		\brief 此类提供了一个命令处理程序的接口，用于处理和补全命令行输入.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -166,8 +175,12 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		构造函数。创建一个命令处理程序对象，并设置其命令名称和可选的别名列表。
+		\a parent 插件对象的指针，作为CommandHandler的父对象。
+		\a moduleID 模块ID，用于区分不同模块的命令处理程序
 		\a commandName 指定命令的名称，不能为空且不能包含空格。
 		\a alias 指定命令的别名列表，默认为空列表。别名不能为空且不能包含空格。
+
+		如果 \a commandName 为空，则使用 \a moduleID 作为命令名称。否则，使用 \a commandName 作为命令名称。
 	*/
 	CommandHandler::CommandHandler(Plugin* parent, const QString& moduleID, const QString& commandName, const QStringList& alias) :
 		PluginModule(parent, moduleID, VIModuleType_CommandHandler, commandName)
@@ -204,7 +217,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 命令的名称。
+
 		return 命令的名称字符串。
 	*/
 	QString CommandHandler::getCommandName() const {
@@ -235,7 +248,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 命令的别名列表。
+
 		return 命令的别名字符串列表。
 	*/
 	QStringList CommandHandler::getAlias() const {
@@ -262,7 +275,9 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		检查命令处理程序是否已启用。
+
+		return 命令处理程序是否已启用。
+
 		此函数是直接调用Visindigo::General::CommandHost::isCommandRegistered 实现的，请参考该函数的文档了解更多信息。
 	*/
 	bool CommandHandler::isEnabled() {
@@ -277,8 +292,8 @@ namespace Visindigo::General {
 		\a unnamedArgs 指定传递给命令的未命名参数列表。
 		\a namedArgs 指定传递给命令的命名参数映射。
 		此函数是一个纯虚函数，必须由派生类实现。实现此函数以定义命令的具体行为。
+
 		return 为命令执行结果的错误数据对象，表示命令执行是否成功以及可能的错误信息。
-		return 命令执行结果的错误数据对象。
 	*/
 
 	/*!
@@ -288,6 +303,7 @@ namespace Visindigo::General {
 		\a unnamedArgs 指定传递给命令的未命名参数列表。
 		\a namedArgs 指定传递给命令的命名参数映射。
 		默认实现返回一个空的字符串列表。派生类可以重写此函数以提供具体的补全建议。
+
 		return 命令补全建议的字符串列表。
 
 		默认情况下，此函数返回一个空的字符串列表。派生类可以根据具体需求重写此函数。

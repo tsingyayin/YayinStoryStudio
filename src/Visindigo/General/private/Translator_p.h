@@ -13,7 +13,7 @@ namespace Visindigo::__Private__ {
 		friend class Visindigo::General::TranslationHostPrivate;
 		friend class Visindigo::General::VisindigoTranslator;
 	protected:
-		QString ID;	
+		QString ID;
 		Visindigo::Utility::JsonConfig* DefaultLang = nullptr;
 		Visindigo::Utility::JsonConfig* Lang = nullptr;
 		Visindigo::General::Translator::LangID DefaultID = Visindigo::General::Translator::LangID::zh_CN;

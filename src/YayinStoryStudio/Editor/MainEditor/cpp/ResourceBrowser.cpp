@@ -24,7 +24,7 @@ namespace YSS::Editor {
 		RefreshButton->setToolTip(VITR("Visindigo::general.refresh"));
 		RefreshButton->setIconSize(QSize(32, 32));
 		RefreshButton->setFixedSize(40, 40);
-	
+
 		ShrinkButton = new QToolButton(ButtonWidget);
 		ShrinkButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png"));
 		ShrinkButton->setToolTip(VITR("Visindigo::general.shrink"));
@@ -107,7 +107,6 @@ namespace YSS::Editor {
 		else {
 			emit visibilityChanged(true);
 		}
-
 	}
 	void ResourceBrowser::onNewButtonClicked() {
 		QString currentSelectedPath;

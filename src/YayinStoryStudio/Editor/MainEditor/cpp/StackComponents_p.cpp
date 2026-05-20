@@ -27,7 +27,6 @@ namespace YSS::Editor {
 		PinLabel->hide();
 		CloseLabel->hide();
 
-		
 		connect(PinLabel, &QToolButton::clicked, this, [this]() {
 			setPinned(!isPinned());
 			emit pinClicked(FilePath);
@@ -41,7 +40,7 @@ namespace YSS::Editor {
 		ActionClose = new QAction(VITR("Visindigo::general.close"), this);
 		ActionPin = new QAction(VITR("Visindigo::general.pin"), this);
 		ActionCloseAll = new QAction(VITR("YSS::menu.file.closeAll"), this);
-		
+
 		connect(ActionClose, &QAction::triggered, this, [this]() {
 			emit closeClicked(FilePath);
 			});
@@ -91,7 +90,7 @@ namespace YSS::Editor {
 
 	void StackTag::setText(const QString& text) {
 		TitleLabel->setText(text);
-		if (toolWidgetMode){
+		if (toolWidgetMode) {
 			qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(text) + 40;
 			this->setFixedWidth(fixedWidth);
 		}
@@ -105,7 +104,7 @@ namespace YSS::Editor {
 		return FilePath;
 	}
 
-	QString StackTag::getText() const { 
+	QString StackTag::getText() const {
 		return TitleLabel->text();
 	}
 
@@ -253,8 +252,7 @@ namespace YSS::Editor {
 		onThemeChanged();
 	}
 
-	StackTagWidget::~StackTagWidget() {
-	}
+	StackTagWidget::~StackTagWidget() {}
 
 	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
 		QFileInfo fileInfo(filePath);
@@ -270,7 +268,7 @@ namespace YSS::Editor {
 		}
 		ContentLayout->addWidget(tagLabel);
 		Labels.append(tagLabel);
-		
+
 		connect(tagLabel, &StackTag::pinClicked, this, [this](const QString& filePath) {
 			pinStackLabel(filePath);
 			});
@@ -336,10 +334,10 @@ namespace YSS::Editor {
 		}
 		// NOTICE:
 		// This move-afterward operation working in two situations:
-		// 1. When pinning, it will move the label to the leftmost of all unpinned labels, 
+		// 1. When pinning, it will move the label to the leftmost of all unpinned labels,
 		// which is the most intuitive way to do it.
 		// 2. When unpinning, it will move the label to the rightmost of all pinned labels,
-		// Fortunately, these two situations are actually the same operation, 
+		// Fortunately, these two situations are actually the same operation,
 		// which is to move the label to the boundary of pinned and unpinned labels.
 		if (targetLabel) {
 			Labels.removeAll(targetLabel);
@@ -470,7 +468,7 @@ namespace YSS::Editor {
 			}
 		}
 	}
-	
+
 	void StackTagWidget::cancelFileChanged(const QString& path) {
 		for (auto label : Labels) {
 			if (label->getFilePath() == path) {

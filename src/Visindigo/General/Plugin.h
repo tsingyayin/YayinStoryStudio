@@ -35,7 +35,7 @@ namespace Visindigo::General {
 			MainPlugin
 		};
 	public:
-		Plugin(Visindigo::General::Version apiVersion = Compiled_VIAPI_Version, Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QString extensionID = "Visindigo_Base", QObject * parent = nullptr);
+		Plugin(Visindigo::General::Version apiVersion = Compiled_VIAPI_Version, Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QString extensionID = "Visindigo_Base", QObject* parent = nullptr);
 		virtual ~Plugin();
 		void setTestEnable();
 		bool isTestEnable() const;

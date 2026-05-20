@@ -18,8 +18,9 @@ namespace Visindigo::General {
 		\inheaderfile General/PluginModule.h
 		\inmodule Visindigo
 		\ingroup VIPlugin
-		\brief 此类为Yayin Story Studio 提供插件模块基类。
+		\brief 此类为Yayin Story Studio 提供插件模块基类.
 		\since Visindigo 0.13.0
+
 		PluginModule是插件模块的基类，所有插件模块都需要继承此类。
 
 		插件模块是插件的组成部分，提供了插件的具体功能实现。每个插件模块都属于一个插件。
@@ -36,14 +37,14 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a plugin 所属插件对象指针
+		\a parent 所属插件对象指针
 		\a moduleID 模块唯一标识符
 		\a typeID 模块类型标识符
 		\a moduleName 模块名称
 
 		构造函数，创建一个插件模块对象。
 	*/
-	PluginModule::PluginModule(Plugin* parent, const QString& moduleID, const QString& typeID, const QString& moduleName) :QObject(parent){
+	PluginModule::PluginModule(Plugin* parent, const QString& moduleID, const QString& typeID, const QString& moduleName) :QObject(parent) {
 		d = new PluginModulePrivate();
 		if (not parent) {
 			VI_Throw_ST(Exception::NullPointer, "plugin pointer is null");
@@ -129,7 +130,7 @@ namespace Visindigo::General {
 }
 
 /*!
-	\macro VISPM 
+	\macro VISPM
 	\since Visindigo 0.13.0
 	\relates Visindigo::General::PluginManager
 

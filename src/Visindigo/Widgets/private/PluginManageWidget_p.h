@@ -25,7 +25,7 @@ namespace Visindigo::__Private__ {
 		~Divider();
 	};
 
-	class PluginInfoPanel :public Visindigo::Widgets::BorderFrame{
+	class PluginInfoPanel :public Visindigo::Widgets::BorderFrame {
 		Q_OBJECT;
 	private:
 		QLabel* NameLabel;

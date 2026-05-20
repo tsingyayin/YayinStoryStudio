@@ -22,7 +22,7 @@ namespace ASERStudio {
 		addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.aserstudio/i18n/zh_CN.json");
 		addLangFilePath(en, ":/resource/cn.yxgeneral.aserstudio/i18n/en.json");
 	}
-	
+
 	class MainPrivate {
 		friend class Main;
 	protected:
@@ -81,8 +81,7 @@ namespace ASERStudio {
 		d->ASERDebugIO->setProgram(d->ASERProgram);
 		onConfigLoaded();
 	}
-	void Main::onApplicationInit() {
-	}
+	void Main::onApplicationInit() {}
 	void Main::onPluginDisable() {
 		if (d->ASERDebugIO) {
 			delete d->ASERDebugIO;
@@ -93,8 +92,7 @@ namespace ASERStudio {
 			d->ASERProgram = nullptr;
 		}
 	}
-	void Main::onTest() {
-	}
+	void Main::onTest() {}
 
 	void Main::onProjectOpen(YSSCore::General::YSSProject* project) {
 		QString projectFolder = project->getProjectFolder();
@@ -117,7 +115,7 @@ namespace ASERStudio {
 		ASERRM->changeProjectPath(projectFolder);
 	}
 
-	void Main::onConfigLoaded() { 
+	void Main::onConfigLoaded() {
 		d->ASERProgram->setExecutablePath(getPluginConfig()->getString("ASERExeSettings.ExePath"));
 	}
 

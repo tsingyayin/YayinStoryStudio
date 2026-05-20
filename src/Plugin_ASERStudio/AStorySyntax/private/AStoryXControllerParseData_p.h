@@ -5,7 +5,6 @@
 #include "AStorySyntax/AStoryXDiagnosticData.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
 namespace ASERStudio::AStorySyntax {
-
 	class AStoryXParameterPrivate {
 		friend class AStoryXParameter;
 		friend class AStoryXController;

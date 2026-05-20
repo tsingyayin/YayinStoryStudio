@@ -1,8 +1,7 @@
 #include "General/Exception.h"
 namespace Visindigo::General {
-
 	class ExceptionPrivate {
-		public:
+	public:
 		Exception::Type Type;
 		QString Message;
 		bool Critical;
@@ -15,7 +14,7 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::Exception
 		\inheaderfile General/Exception.h
-		\brief 异常类，用于表示和处理程序中的异常情况。
+		\brief 异常类，用于表示和处理程序中的异常情况.
 		\inmodule Visindigo
 		\since Visindigo 0.13.0
 
@@ -90,7 +89,7 @@ namespace Visindigo::General {
 		\a func 函数名称。
 	*/
 	Exception::Exception(Type type, QString message, bool critical, QString file, int line, QString func,
-	QList<StacktraceFrame> stacktrace) {
+		QList<StacktraceFrame> stacktrace) {
 		d = new ExceptionPrivate();
 		d->Type = type;
 		d->Message = message;
@@ -104,6 +103,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::Exception::Exception(const Exception& other)
 		\since Visindigo 0.13.0
+		\a other 被拷贝的Exception实例
 
 		拷贝构造函数
 	*/
@@ -111,6 +111,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::Exception::Exception(Exception&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 被移动的Exception实例
 
 		移动构造函数
 	*/
@@ -118,6 +119,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::Exception& Visindigo::General::Exception::operator=(const Exception& other)
 		\since Visindigo 0.13.0
+		\a other 被拷贝的Exception实例
 
 		拷贝赋值运算符
 	*/
@@ -125,6 +127,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::Exception& Visindigo::General::Exception::operator=(Exception&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 被移动的Exception实例
 
 		移动赋值运算符
 	*/
@@ -133,6 +136,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		析构函数，销毁异常对象。
 	*/
 	Exception::~Exception() {
@@ -149,7 +153,7 @@ namespace Visindigo::General {
 
 		what()函数返回与此相同的内容。
 
-		\sa what() toString()
+		\sa what(), toString()
 	*/
 	QString Exception::getMessage() const {
 		return d->Message;
@@ -162,7 +166,7 @@ namespace Visindigo::General {
 	Exception::Type Exception::getType() const {
 		return d->Type;
 	}
-	
+
 	/*!
 		\since Visindigo 0.13.0
 		return 异常是否为严重异常

@@ -16,5 +16,4 @@ void Plugin_YSSFileExt::onPluginEnable() {
 }
 
 void Plugin_YSSFileExt::onPluginDisable() {
-
 }

@@ -200,7 +200,7 @@ namespace YSS::Editor {
 
 			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
 			QObject::connect(ViewMenu, &QMenu::aboutToShow, q, &MainWinMenu::onPluginToolMenuAboutToShow);
-			QObject::connect(MainWin::getInstance()->getResourceBrowser(), &ResourceBrowser::visibilityChanged, 
+			QObject::connect(MainWin::getInstance()->getResourceBrowser(), &ResourceBrowser::visibilityChanged,
 				q, &MainWinMenu::onResourceBrowserVisibilityChanged);
 		}
 	};
@@ -225,10 +225,10 @@ namespace YSS::Editor {
 		d->initEditMenu();
 		d->initRunMenu();
 		d->initViewMenu();
-		
+
 		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened,
 			this, &MainWinMenu::onToolWidgetShow);
-		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, 
+		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed,
 			this, &MainWinMenu::onToolWidgetHide);
 
 		refreshToolMenu();
@@ -461,7 +461,7 @@ namespace YSS::Editor {
 			d->PluginToolsActionIDMap.clear();
 			return;
 		}
-		if (pluginTools != d->PluginToolsMap){
+		if (pluginTools != d->PluginToolsMap) {
 			for (auto action : d->PluginToolsActionIDMap.keys()) {
 				d->ViewMenu->removeAction(action);
 			}
@@ -475,7 +475,7 @@ namespace YSS::Editor {
 					QString toolID = d->PluginToolsActionIDMap[action];
 					bool checked = action->isChecked();
 					view_pluginTools(toolID, checked);
-				});
+					});
 			}
 		}
 	}

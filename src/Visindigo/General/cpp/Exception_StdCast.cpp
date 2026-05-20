@@ -11,7 +11,9 @@
 namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
-		将异常类型枚举值转换为字符串表示形式。
+		\a type 错误类型枚举值
+
+		return 将异常类型枚举值转换为字符串表示形式。
 	*/
 	QString Exception::typeToString(Type type) {
 		return QMetaEnum::fromType<Type>().valueToKey(static_cast<int>(type));
@@ -19,7 +21,8 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		\a e 标准异常对象
-		将标准异常对象转换为 Visindigo::General::Exception 对象。
+
+		return 标准异常对象转换为 Visindigo::General::Exception 对象。
 
 		由于标准异常对象的信息有限，转换后的异常对象的类型将被设置为 Unknown，
 		消息将包含标准异常的 what() 信息，其他信息（如文件名、行号、函数名和堆栈跟踪）将为空或默认值。
@@ -62,7 +65,8 @@ namespace Visindigo::General {
 			else {
 				type = Type::Std_Other;
 			}
-		} catch (...) {
+		}
+		catch (...) {
 			type = Type::Std_Unknown;
 		}
 		return Exception(type, message);

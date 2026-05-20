@@ -9,7 +9,7 @@ namespace Visindigo::General {
 		\class Visindigo::General::LoggerMsgHandler
 		\inheaderfile General/LoggerMsgHandler.h
 		\inmodule Visindigo
-		\brief LoggerMsgHandler是日志消息处理器，用于承接日志消息并将其传递给LoggerManager进行处理。
+		\brief LoggerMsgHandler是日志消息处理器，用于承接日志消息并将其传递给LoggerManager进行处理.
 		\since Visindigo 0.13.0
 		\ingroup VIDebug
 		\inmodule Visindigo
@@ -25,7 +25,7 @@ namespace Visindigo::General {
 		此类利用模板实现了大多数常用数据类型的日志消息承接功能，包括基本数据类型、QString、
 		符合一定要求的QList和QMap等。用户也可以通过继承Printable概念来实现自定义类型的日志消息承接功能。
 
-		\section1 概念 Printable 
+		\section1 概念 Printable
 		VDebug使用了C++20提供的concept特性定义了一个Printable概念，任何类型只要实现了toString()方法并返回
 		QString类型的结果，就可以被视为符合Printable概念的类型，从而可以被LoggerMsgHandler承接。
 
@@ -208,7 +208,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QByteArray类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QByteArray& byteArray) {
-		fromString("\n"+Visindigo::Utility::Console::binaryToString(byteArray));
+		fromString("\n" + Visindigo::Utility::Console::binaryToString(byteArray));
 		return *this;
 	}
 
@@ -290,6 +290,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a qobject_list 成员为QObject*指针的QList。
+
 		重载<<运算符以承接各种类型的日志消息。这是成员为QObject*指针类型的QList的实现。
 		它输出每个QObject指针的类名及地址。
 	*/
@@ -380,7 +382,7 @@ namespace Visindigo::General {
 	/*!
 		\fn template<Printable T> LoggerMsgHandler& LoggerMsgHandler::operator<<(T type)
 		\since Visindigo 0.13.0
-		
+
 		重载<<运算符以承接符合Printable概念的自定义类型的日志消息。
 	*/
 

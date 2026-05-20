@@ -16,7 +16,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::DiffUnit
-		\brief 此类为Yayin Story Studio 提供差异比较的基类。
+		\brief 此类为Yayin Story Studio 提供差异比较的基类.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -58,7 +58,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::DiffSequence
-		\brief 此类为Yayin Story Studio 提供差异比较的序列。
+		\brief 此类为Yayin Story Studio 提供差异比较的序列.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 

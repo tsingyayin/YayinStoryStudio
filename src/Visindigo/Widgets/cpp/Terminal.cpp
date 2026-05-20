@@ -36,7 +36,7 @@ namespace Visindigo::__Private__ {
 			QString line = stdInStream->readLine();
 			if (!line.isEmpty()) {
 				consoleView->append(line);
-				
+
 				if (consoleView->document()->blockCount() > maxCacheLines) {
 					// Remove oldest line
 					QTextCursor cursor = consoleView->textCursor();
@@ -47,7 +47,6 @@ namespace Visindigo::__Private__ {
 				if (autoScroll) {
 					consoleView->verticalScrollBar()->setValue(consoleView->verticalScrollBar()->maximum());
 				}
-			
 			}
 		}
 	}
@@ -56,7 +55,7 @@ namespace Visindigo::__Private__ {
 		if (obj == inputLine) {
 			if (event->type() == QEvent::KeyPress) {
 				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-				if (keyEvent->key() == Qt::Key_Up){
+				if (keyEvent->key() == Qt::Key_Up) {
 					QString startWith = inputLine->text().mid(0, inputLine->cursorPosition());
 					if (startWith != this->commandStartWith) {
 						commandHistory = VISCH->getCommandHistory(startWith);
@@ -93,13 +92,13 @@ namespace Visindigo::__Private__ {
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::Terminal
-		\brief 一个内置终端窗口，可以显示日志输出并接受用户输入的命令。
+		\brief 一个内置终端窗口，可以显示日志输出并接受用户输入的命令.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
 		Terminal类提供了一个内置的终端窗口，可以显示日志输出并接受用户输入的命令。
 		用户可以通过按下回车键或点击发送按钮来执行输入的命令。
-		
+
 		理论上，Terminal类还支持命令历史记录，用户可以通过上下箭头键来浏览之前输入的命令。
 
 		\warning 这个类有已知缺陷：它并未完整实现。例如，命令历史记录功能可能存在问题，输入行的事件过滤器也可能不够完善。
@@ -110,6 +109,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a parent 父组件。
+
 		构造函数
 	*/
 	Terminal::Terminal(QWidget* parent)
@@ -117,13 +118,13 @@ namespace Visindigo::Widgets {
 		this->setWindowTitle("Visindigo Terminal");
 		this->setMinimumSize(800, 600);
 		QFont font("Cascadia Mono");
-		d->consoleView = new QTextBrowser(this); 
+		d->consoleView = new QTextBrowser(this);
 		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
-		connect(Visindigo::General::LoggerManager::getInstance(), &Visindigo::General::LoggerManager::logReceived, 
+		connect(Visindigo::General::LoggerManager::getInstance(), &Visindigo::General::LoggerManager::logReceived,
 			this, [this](
-				const QString& handlerName, Visindigo::General::Logger::Level level, 
+				const QString& handlerName, Visindigo::General::Logger::Level level,
 				const QString& message, const QString& consoleStr, const Visindigo::General::LogMetaData& metaData
-			) {
+				) {
 					d->consoleView->append(Visindigo::Utility::Console::cmdColorToHtmlString(consoleStr));
 			});
 		d->inputLine = new QLineEdit(this);
@@ -142,16 +143,15 @@ namespace Visindigo::Widgets {
 				VISCH->executeCommand(line);
 				d->inputLine->clear();
 			}
-		});
+			});
 		connect(d->inputLine, &QLineEdit::returnPressed, this, [this]() {
 			if (d->useInput && d->sendOnEnter) {
 				QString line = d->inputLine->text();
 				VISCH->executeCommand(line);
 				d->inputLine->clear();
 			}
-		});
-		
-		
+			});
+
 		vgDebug << "Terminal initialized.";
 	}
 

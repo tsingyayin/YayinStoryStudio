@@ -14,9 +14,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::DebugServerManager
-		\inmodule YSSCore
-		\brief 此类为Visindigo提供调试服务器管理器.
 		\since YSS 0.13.0
+		\brief 此类为Visindigo提供调试服务器管理器.
+		\inmodule YSSCore
+
 		DebugServerManager负责管理调试服务器。
 	*/
 

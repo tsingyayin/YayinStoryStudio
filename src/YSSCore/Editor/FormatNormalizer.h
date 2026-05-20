@@ -7,7 +7,7 @@ class QTextDocument;
 namespace YSSCore::Editor {
 	class TextEdit;
 	class FormatNormalizerPrivate;
-	class YSSCoreAPI FormatNormalizer :public QObject{
+	class YSSCoreAPI FormatNormalizer :public QObject {
 	public:
 		FormatNormalizer(TextEdit* parent);
 		~FormatNormalizer();

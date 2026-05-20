@@ -5,7 +5,7 @@
 #include "AStorySyntax/AStoryXController.h"
 #include <QtCore/qstringlist.h>
 #include <VIMacro.h>
-namespace ASERStudio::AStorySyntax{
+namespace ASERStudio::AStorySyntax {
 	class AStoryXValueMeta;
 	class AStoryXRulePrivate;
 	class ASERAPI AStoryXRule {

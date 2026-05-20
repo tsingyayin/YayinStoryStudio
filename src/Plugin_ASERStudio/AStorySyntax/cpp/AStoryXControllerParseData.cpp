@@ -3,7 +3,7 @@
 namespace ASERStudio::AStorySyntax {
 	/*!
 		\class ASERStudio::AStorySyntax::AStoryXParameter
-		\brief AStoryXParameter记录AStoryXController解析AStoryX时得到的参数信息。
+		\brief AStoryXParameter记录AStoryXController解析AStoryX时得到的参数信息.
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -32,7 +32,7 @@ namespace ASERStudio::AStorySyntax {
 		\fn ASERStudio::AStorySyntax::AStoryXParameter::AStoryXParameter(const AStoryXParameter& other)
 		\since ASERStudio 2.0
 		\a other 另一个AStoryXParameter对象。
-	
+
 		复制构造函数
 	*/
 
@@ -155,7 +155,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\class ASERStudio::AStorySyntax::AStoryXControllerParseData
-		\brief AStoryXControllerParseData记录由AStoryXController解析AStoryX时得到的数据。
+		\brief AStoryXControllerParseData记录由AStoryXController解析AStoryX时得到的数据.
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -306,7 +306,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 行首标识符。
-		
+
 		对于预处理器来说，这个行首标识符永远是#。
 	*/
 	QString AStoryXControllerParseData::getStartSign() const {
@@ -324,7 +324,7 @@ namespace ASERStudio::AStorySyntax {
 	/*
 		\since ASERStudio 2.0
 		return 可选参数的解析结果列表。
-		
+
 		这个列表不包括那些没有被捕捉到的可选参数，
 		因此它的长度可能小于可选参数的实际定义数量。
 	*/
@@ -336,7 +336,7 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		\a cursorPosition 光标位置。
 		return 给定光标位置所在的参数名称。
-		
+
 		如果光标位置不在任何参数内，则返回空字符串。
 	*/
 	QString AStoryXControllerParseData::getCursorInWhichParameter(qint32 cursorPosition) const {
@@ -351,10 +351,10 @@ namespace ASERStudio::AStorySyntax {
 				return param.getName();
 			}
 		}
-		if (d->OptionalParameters.size()!=0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
+		if (d->OptionalParameters.size() != 0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
 			return d->OptionalParameters.last().getName();
 		}
-		
+
 		return "";
 	}
 
@@ -362,7 +362,7 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		\a cursorPosition 光标位置。
 		return 给定光标位置所在的参数解析结果。
-		
+
 		如果光标位置不在任何参数内，则返回一个无效的AStoryXParameter对象。
 	*/
 	AStoryXParameter AStoryXControllerParseData::getCursorParameter(qint32 cursorPosition) const {
@@ -377,16 +377,16 @@ namespace ASERStudio::AStorySyntax {
 				return param;
 			}
 		}
-		if (d->OptionalParameters.size()!=0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
+		if (d->OptionalParameters.size() != 0 && d->OptionalParameters.last().getIndex() + d->OptionalParameters.last().getContent().length() <= cursorPosition) {
 			return d->OptionalParameters.last();
 		}
-		
+
 		return AStoryXParameter();
 	}
 	/*!
 		\since ASERStudio 2.0
 		return文本中引用的变量列表。
-		
+
 		请注意和blockParameter进行区分。
 		refVar只包括那些可以用于判定的变量，而blockPara指的是block中用于替换的占位参数。
 	*/
@@ -397,7 +397,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.1
 		return 文本块参数列表。
-		
+
 		请注意和referenceVariable进行区分。
 		blockPara指的是block中用于替换的占位参数，而refVar只包括那些可以用于判定的变量。
 	*/
@@ -408,7 +408,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 解析是否启用了诊断。
-		
+
 		为false时，getDiagnostics的返回值不具有任何意义；
 		为true时，getDiagnostics的返回值可能包含诊断信息，也可能不包含诊断信息（如果没有语法错误的话）。
 	*/
@@ -419,7 +419,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 诊断信息列表。
-		
+
 		如果isDiagnosticAvailable返回false，则这个返回值不具有任何意义。
 		如果isDiagnosticAvailable返回true，且这个返回值为空列表，则保证没有语法错误。
 	*/
@@ -430,7 +430,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 这个解析结果的字符串表示。
-		
+
 		这个字符串表示不具有任何特定格式，仅供调试使用。
 	*/
 	QString AStoryXControllerParseData::toString() const {
@@ -445,7 +445,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 这个解析结果是否有效。
-		
+
 		无效的解析结果代表它是创建即返回的，没有包含任何有效数据。
 	*/
 	bool AStoryXControllerParseData::isValid() const {

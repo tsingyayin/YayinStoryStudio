@@ -11,7 +11,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::FileTemplateInitWidget
-		\brief FileTemplateInitWidget是一个QFrame，作为FileTemplateProvider的初始化界面。
+		\brief FileTemplateInitWidget是一个QFrame，作为FileTemplateProvider的初始化界面.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup CreateService
@@ -39,14 +39,17 @@ namespace YSSCore::Editor {
 	/*!
 		\fn void FileTemplateInitWidget::filePrepared(QString filePath);
 		\since YSS 0.13.0
+		\a filePath 文件路径
+
 		当文件准备就绪时（如用户点击了“创建”按钮，并且文件已经生成），你应该发出这个信号，并将文件路径作为参数传递出去。
 	*/
 
 	/*!
 		\since YSS 0.13.0
-		构造函数
 		\a initFolder 用户希望文件被创建的初始路径。你也可以选择不尊重这个参数。
 		\a parent 父对象
+
+		构造函数
 	*/
 	FileTemplateInitWidget::FileTemplateInitWidget(const QString& initFolder, QWidget* parent)
 		: QFrame(parent) {
@@ -56,6 +59,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		析构函数
 	*/
 	FileTemplateInitWidget::~FileTemplateInitWidget() {
@@ -64,6 +68,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 用户希望文件被创建的初始路径。你也可以选择不尊重这个参数。
 	*/
 	QString FileTemplateInitWidget::getInitFolder() const {
@@ -82,7 +87,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::FileTemplateProvider
-		\brief FileTemplateProvider向编辑器提供一个文件模板。
+		\brief FileTemplateProvider向编辑器提供一个文件模板.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup CreateService
@@ -98,9 +103,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		\value name 模板名称
-		\value id 模板ID，必须唯一
-		\value plugin 提供该模板的插件实例
+		\a name 模板名称
+		\a id 模板ID，必须唯一
+		\a plugin 提供该模板的插件实例
+
 		构造函数
 	*/
 	FileTemplateProvider::FileTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin) :
@@ -110,6 +116,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		析构函数
 	*/
 	FileTemplateProvider::~FileTemplateProvider() {
@@ -118,7 +125,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 获取模板图标路径
+
+		return 模板图标路径
 	*/
 	QString FileTemplateProvider::getTemplateIconPath() const {
 		return d->TemplateIconPath;
@@ -126,7 +134,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 设置模板图标路径
+		\a iconPath 模板图标路径
+
+		设置模板图标路径。这个图标会在新建文件界面展示，帮助用户识别不同的模板。建议使用相对于插件资源目录的相对路径。
 	*/
 	void FileTemplateProvider::setTemplateIconPath(const QString& iconPath) {
 		d->TemplateIconPath = iconPath;
@@ -134,7 +144,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 获取模板ID
+		return 模板ID
 	*/
 	QString FileTemplateProvider::getTemplateID() const {
 		return d->TemplateID;
@@ -142,23 +152,27 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 设置模板ID
+		\a id 模板ID，必须唯一
+
+		设置模板ID
 	*/
 	void FileTemplateProvider::setTemplateID(const QString& id) {
 		d->TemplateID = id;
 	}
-	
+
 	/*!
 		\since YSS 0.13.0
-		 获取模板名称
+		return 模板名称
 	*/
-	QString FileTemplateProvider::getTemplateName() const	{
+	QString FileTemplateProvider::getTemplateName() const {
 		return d->TemplateName;
 	}
 
 	/*!
 		\since YSS 0.13.0
-		 设置模板名称
+		\a name 模板名称
+
+		设置模板名称
 	*/
 	void FileTemplateProvider::setTemplateName(const QString& name) {
 		d->TemplateName = name;
@@ -166,7 +180,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 获取模板描述
+		return 模板描述
 	*/
 	QString FileTemplateProvider::getTemplateDescription() const {
 		return d->TemplateDescription;
@@ -174,7 +188,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 设置模板描述
+		\a description 模板描述
+
+		设置模板描述。这个描述会在新建文件界面展示，帮助用户了解这个模板的用途和特点。
 	*/
 	void FileTemplateProvider::setTemplateDescription(const QString& description) {
 		d->TemplateDescription = description;
@@ -182,7 +198,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 获取模板标签
+		return 模板标签列表
 	*/
 	QStringList FileTemplateProvider::getTemplateTags() const {
 		return d->TemplateTags;
@@ -190,7 +206,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		 设置模板标签
+		\a tags 模板标签列表
+
+		设置模板标签列表。标签可以帮助用户在新建文件界面通过筛选来快速找到想要的模板。
 	*/
 	void FileTemplateProvider::setTemplateTags(const QStringList& tags) {
 		d->TemplateTags = tags;

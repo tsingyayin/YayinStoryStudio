@@ -5,8 +5,7 @@
 #include "../../General/Log.h"
 namespace Visindigo::__Private__ {
 	MultiButtonGroupPrivate::MultiButtonGroupPrivate(Visindigo::Widgets::MultiButtonGroup* q)
-		: QObject(q), q(q) {
-	}
+		: QObject(q), q(q) {}
 	void MultiButtonGroupPrivate::onButtonClicked(Visindigo::Widgets::MultiButton* button) {
 		//vgDebugF; // <- WHY THIS F**KING FUNCTION CALLED WITHOUT ANY CONTENT?
 		if (CurrentPressedButton) {
@@ -29,7 +28,6 @@ namespace Visindigo::__Private__ {
 			else {
 				CurrentPressedButton->setStyleSheet(CurrentPressedButton->d->PressedStyleSheet);
 			}
-
 		}
 		if (CurrentPressedButton) {
 			CurrentPressedIndex = Buttons.indexOf(CurrentPressedButton);
@@ -133,12 +131,11 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		\a parent 父对象，可以不是QWidget。
-		
+
 		构造函数
 	*/
 	MultiButtonGroup::MultiButtonGroup(QObject* parent)
-		: QObject(parent), d(new __Private__::MultiButtonGroupPrivate(this)) {
-	}
+		: QObject(parent), d(new __Private__::MultiButtonGroupPrivate(this)) {}
 
 	/*!
 		\since Visindigo 0.14.0
@@ -264,7 +261,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		\a index 要选择的按钮在组内的索引
-		
+
 		选择指定索引的按钮。这个函数会将当前选中的按钮切换到组内索引为index的按钮，并发出相关信号。
 		如果参数index超出组内按钮的范围，则此函数不会执行任何操作。
 

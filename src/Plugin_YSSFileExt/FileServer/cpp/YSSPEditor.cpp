@@ -63,7 +63,6 @@ namespace YSSFileExt {
 		d->ContentLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		QStringList debuggerList = YSSDSM->getDebugServerIDs();
 		d->DebugServerComboBox->addItems(debuggerList);
-		
 	}
 	YSSPEditor::~YSSPEditor() {
 		delete d;
@@ -133,8 +132,7 @@ namespace YSSFileExt {
 		setEditorType(EditorType::BuiltInEditor);
 		setSupportedFileExts({ "yssp" });
 	}
-	YSSPFileServer::~YSSPFileServer() {
-	}
+	YSSPFileServer::~YSSPFileServer() {}
 	YSSCore::Editor::FileEditWidget* YSSPFileServer::onCreateFileEditWidget() {
 		return new YSSPEditor();
 	}

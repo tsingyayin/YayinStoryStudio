@@ -7,8 +7,6 @@
 #include "Editor/private/TextEdit_p.h"
 #include <QtCore/qtimer.h>
 namespace YSSCore::Editor {
-	
-
 	class SyntaxHighlighterPrivate {
 		friend class SyntaxHighlighter;
 	protected:
@@ -20,7 +18,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::SyntaxHighlighter
-		\brief SyntaxHighlighter是一个基于QSyntaxHighlighter的抽象类，用于实现文本编辑器中的语法高亮和错误提示功能。
+		\brief SyntaxHighlighter是一个基于QSyntaxHighlighter的抽象类，用于实现文本编辑器中的语法高亮和错误提示功能.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup LangService
@@ -52,32 +50,32 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\fn virtual void YSSCore::Editor::Syntaxhighlighter::onBlockChanged(const QString& text, int blockNumber) = 0
+		\fn YSSCore::Editor::SyntaxHighlighter::onBlockChanged(const QString& text, int blockNumber)
 		\since YSS 0.13.0
+		\a text 当前文本块的内容，
+		\a blockNumber 当前文本块的块号。
 
 		需要实现的纯虚函数，用户在其中实现具体的着色功能。语义上等价于QSyntaxHighlighter::highlightBlock
 	*/
 
 	/*!
 		\since YSS 0.15.0
-		\a startBlockNumber 被删除的文本块的起始块号，\a count 被删除的文本块的数量。
-		
+		\a startBlockNumber 被删除的文本块的起始块号， \a count 被删除的文本块的数量。
+
 		当每次触发着色时，如果当前文本块的总数小于上次触发时的总数，就会调用这个函数。默认实现为空。
 		这个函数先于onBlockChanged()被调用。
 	*/
 	void SyntaxHighlighter::onBlockRemoved(qint32 startBlockNumber, qint32 count) {
-
 	}
 
 	/*!
 		\since YSS 0.15.0
-		\a startBlockNumber 新增的文本块的起始块号，\a count 新增的文本块的数量。
-		
+		\a startBlockNumber 新增的文本块的起始块号， \a count 新增的文本块的数量。
+
 		当每次触发着色时，如果当前文本块的总数大于上次触发时的总数，就会调用这个函数。默认实现为空。
 		这个函数先于onBlockChanged()被调用。
 	*/
-	void SyntaxHighlighter::onBlockAdded(qint32 startBlockNumber, qint32 count) {
-	}
+	void SyntaxHighlighter::onBlockAdded(qint32 startBlockNumber, qint32 count) {}
 
 	/*!
 		\since YSS 0.13.0
@@ -95,7 +93,8 @@ namespace YSSCore::Editor {
 			//vgDebug << "Blocks removed: " << removedCount << ", from " << startBlockNumber << " to " << startBlockNumber + removedCount - 1;
 			DocumentMessageManager::getInstance()->d->moveMessageForward(d->Parent->getFilePath(), startBlockNumber, removedCount);
 			onBlockRemoved(startBlockNumber, removedCount);
-		}else if (totalNumber > d->LastTotalBlockNumber) {
+		}
+		else if (totalNumber > d->LastTotalBlockNumber) {
 			qint32 addedCount = totalNumber - d->LastTotalBlockNumber;
 			qint32 startBlockNumber = currentBlock().blockNumber();
 			//vgDebug << "Blocks added: " << addedCount << ", from " << startBlockNumber << " to " << startBlockNumber + addedCount - 1;
@@ -104,7 +103,7 @@ namespace YSSCore::Editor {
 		}
 		d->LastTotalBlockNumber = totalNumber;
 		int blockNumber = currentBlock().blockNumber();
-		DocumentMessageManager::getInstance()->d->clearMessagesForBlock(d->Parent->getFilePath() , blockNumber);
+		DocumentMessageManager::getInstance()->d->clearMessagesForBlock(d->Parent->getFilePath(), blockNumber);
 		onBlockChanged(text, blockNumber);
 		DocumentMessageManager::getInstance()->d->flushMessages(d->FilePath, blockNumber);
 	}

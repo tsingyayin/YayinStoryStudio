@@ -8,7 +8,7 @@ namespace ASERStudio::AStorySyntax {
 	class AStoryXControllerParseData;
 	class AStoryXValueMeta;
 	class AStoryXControllerPrivate;
-	class ASERAPI AStoryXController{
+	class ASERAPI AStoryXController {
 		Q_GADGET
 	public:
 		enum ControllerType {

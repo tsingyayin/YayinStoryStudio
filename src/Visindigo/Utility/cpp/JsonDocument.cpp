@@ -34,19 +34,21 @@ namespace Visindigo::Utility {
 
 		VIJsonDocument禁止拷贝和移动，因为设计上不希望（也建议用户不要）令一组配置文件被多个对象读写，这样会导致不可预知的结果。
 	*/
+
 	/*!
-		\brief 构造一个空的VIJsonDocument对象。
 		\since Visindigo 0.13.0
+		构造函数
 	*/
 	JsonDocument::JsonDocument() {
 		d = new JsonDocumentPrivate();
 	}
 
 	/*!
-		\brief 构造一个VIJsonDocument对象。
+		\since Visindigo 0.13.0
 		\a configPath 配置文件路径。
 		\a defaultConfigPath 默认配置文件路径。
-		\since Visindigo 0.13.0
+
+		构造函数，创建一个JsonDocument对象，并指定配置文件路径和默认配置文件路径。
 	*/
 	JsonDocument::JsonDocument(const QString& configPath, const QString& defaultConfigPath) {
 		d = new JsonDocumentPrivate();
@@ -55,25 +57,27 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 析构VIJsonDocument对象。
 		\since Visindigo 0.13.0
+
+		析构函数
 	*/
 	JsonDocument::~JsonDocument() {
 		delete d;
 	}
 
 	/*!
-		\brief 从配置文件中加载配置。
+		\since Visindigo 0.13.0
 		\a configPath 配置文件路径。
 		\a defaultConfigPath 默认配置文件路径。
 		\a whichError 指示是谁加载失败，1表示默认配置，2表示当前配置，0表示成功。
 		\a configAutoCreate 是否自动创建配置文件，默认为true。当默认配置文件读入成功但当前配置文件读入失败时，
 		会自动在指定位置创建当前配置文件。
-		\since Visindigo 0.13.0
 
 		此函数会从指定的配置文件中加载配置，如果加载失败，会返回一个QJsonParseError对象，whichError会指示是哪个配置文件加载失败。
 		这里的加载问题主要指语法问题，如果是文件读写时发生问题，则返回值会是QJsonParseError::NoError，但whichError会指示是
 		哪个文件读写失败，而非被置为0。
+
+		return 读取配置文件的结果，如果成功，则返回QJsonParseError::NoError；如果失败，则返回相应的错误类型。
 	*/
 	QJsonParseError JsonDocument::load(const QString& configPath, const QString& defaultConfigPath, uchar* whichError
 		, bool configAutoCreate) {
@@ -138,7 +142,6 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 保存配置到文件。
 		\since Visindigo 0.13.0
 
 		此函数会将当前配置保存到文件，如果文件不存在，会自动创建。考虑到读取时已经有强制文件存在的逻辑，
@@ -158,33 +161,34 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 获取配置文件中的所有键。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定路径下的所有键，如果路径为空，则返回根键。
+		return 指定路径下的所有键，如果路径为空，则返回根键。
 	*/
 	QStringList JsonDocument::keys(const QString& key) {
 		return d->Config.keys(key);
 	}
 
 	/*!
-		\brief 获取指定键的值。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空值。
+		return 指定键的值。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空值。
 	*/
 	JsonValueRef JsonDocument::operator[](const QString& key) {
 		return JsonValueRef(&d->Config, key);
 	}
 
 	/*!
-		\brief 获取指定键的值。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空值。
+		return 指定键的值。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空值。
 	*/
 	QJsonValue JsonDocument::getValue(const QString& key) {
 		bool ok = false;
@@ -194,55 +198,60 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 获取指定键的整数值。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的整数值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回0。
+		return 指定键的整数值。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回0。
 	*/
 	qint64 JsonDocument::getInt(const QString& key) {
 		return getValue(key).toInt();
 	}
 
 	/*!
-		\brief 获取指定键的字符串值。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的字符串值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空字符串。
+		return 指定键的字符串值。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空字符串。
 	*/
 	QString JsonDocument::getString(const QString& key) {
 		return getValue(key).toString();
 	}
 
 	/*!
-		\brief 获取指定键的布尔值。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的布尔值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键的布尔值。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 	bool JsonDocument::getBool(const QString& key) {
 		return getValue(key).toBool();
 	}
 
 	/*!
-		\brief 获取指定键的浮点数值。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的浮点数值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回0.0。
+		return 指定键的浮点数值。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回0.0。
 	*/
 	double JsonDocument::getDouble(const QString& key) {
 		return getValue(key).toDouble();
 	}
 
 	/*!
-		\brief 获取指定键的对象。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的对象，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空对象。
+		return 指定键的对象。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空对象。
 	*/
 	JsonConfig JsonDocument::getObject(const QString& key) {
 		bool ok = false;
@@ -252,11 +261,12 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 获取指定键的数组。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会返回指定键的数组，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空数组。
+		return 指定键的数组。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回一个空数组。
 	*/
 	QList<JsonConfig> JsonDocument::getArray(const QString& key) {
 		bool ok = false;
@@ -266,21 +276,21 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 判断指定键是否存在。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键是否存在，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键是否存在。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 	bool JsonDocument::contains(const QString& key) {
 		return d->Config.contains(key) || d->DefaultConfig.contains(key);
 	}
 
 	/*!
-		\brief 设置指定键的值。
+		\since Visindigo 0.13.0
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 0.13.0
 
 		此函数会设置指定键的值，如果键不存在，则会自动创建。
 	*/
@@ -289,10 +299,9 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 设置指定键的整数值。
+		\since Visindigo 0.13.0
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 0.13.0
 
 		此函数会设置指定键的整数值，如果键不存在，则会自动创建。
 	*/
@@ -301,10 +310,9 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 设置指定键的字符串值。
+		\since Visindigo 0.13.0
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 0.13.0
 
 		此函数会设置指定键的字符串值，如果键不存在，则会自动创建。
 	*/
@@ -313,10 +321,9 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 设置指定键的布尔值。
+		\since Visindigo 0.13.0
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 0.13.0
 
 		此函数会设置指定键的布尔值，如果键不存在，则会自动创建。
 	*/
@@ -325,10 +332,9 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 设置指定键的浮点数值。
+		\since Visindigo 0.13.0
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 0.13.0
 
 		此函数会设置指定键的浮点数值，如果键不存在，则会自动创建。
 	*/
@@ -337,10 +343,9 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 设置指定键的对象。
+		\since Visindigo 0.13.0
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 0.13.0
 
 		此函数会设置指定键的对象，如果键不存在，则会自动创建。
 	*/
@@ -349,10 +354,9 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 设置指定键的数组。
+		\since Visindigo 0.13.0
 		\a key 键的路径。
 		\a value 值。
-		\since Visindigo 0.13.0
 
 		此函数会设置指定键的数组，如果键不存在，则会自动创建。
 	*/
@@ -361,55 +365,60 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 判断指定键的值是否为空。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为空，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回true。
+		return 判断指定键是否存在。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回true。
 	*/
 	bool JsonDocument::isEmpty(const QString& key) {
 		return getValue(key).isNull();
 	}
 
 	/*!
-		\brief 判断指定键的值是否为null。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为null，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回true。
+		return 判断指定键的值是否为null。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回true。
 	*/
 	bool JsonDocument::isNull(const QString& key) {
 		return getValue(key).isNull();
 	}
 
 	/*!
-		\brief 判断指定键的值是否为对象。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为对象，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键的值是否为对象。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 	bool JsonDocument::isObject(const QString& key) {
 		return getValue(key).isObject();
 	}
 
 	/*!
-		\brief 判断指定键的值是否为数组。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为数组，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键的值是否为数组。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 	bool JsonDocument::isArray(const QString& key) {
 		return getValue(key).isArray();
 	}
 
 	/*!
-		\brief 判断指定键的值是否为字符串。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为字符串，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键的值是否为字符串。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 
 	bool JsonDocument::isString(const QString& key) {
@@ -417,33 +426,36 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\brief 判断指定键的值是否为布尔值。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为布尔值，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键的值是否为布尔值。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 	bool JsonDocument::isBool(const QString& key) {
 		return getValue(key).isBool();
 	}
 
 	/*!
-		\brief 判断指定键的值是否为整数。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为整数，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键的值是否为整数。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 	bool JsonDocument::isInt(const QString& key) {
 		return getValue(key).isDouble();
 	}
 
 	/*!
-		\brief 判断指定键的值是否为浮点数。
-		\a key 键的路径。
 		\since Visindigo 0.13.0
+		\a key 键的路径。
 
-		此函数会判断指定键的值是否为浮点数，如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
+		return 指定键的值是否为浮点数。
+
+		如果现有配置中键不存在，则尝试从默认配置中读取，如果默认配置中也不存在，则返回false。
 	*/
 	bool JsonDocument::isDouble(const QString& key) {
 		return getValue(key).isDouble();

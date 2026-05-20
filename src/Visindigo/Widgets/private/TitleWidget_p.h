@@ -30,7 +30,7 @@ namespace Visindigo::__Private__ {
 		virtual void paintEvent(QPaintEvent* event) override;
 	};
 
-	class TitleWidgetPrivate :public QObject{
+	class TitleWidgetPrivate :public QObject {
 		Q_OBJECT;
 		friend class Visindigo::Widgets::TitleWidget;
 		friend class TitleWidget_MinButton;
@@ -57,7 +57,5 @@ namespace Visindigo::__Private__ {
 		void adjustElements();
 		virtual bool eventFilter(QObject* target, QEvent* event) override;
 	};
-
-	
 }
 #endif // Visindigo_Widgets_TitleWidget_p_h

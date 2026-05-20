@@ -12,7 +12,7 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::LogMetaData
 		\inheaderfile General/LogMetaData.h
-		\brief 日志元数据类，用于存储日志消息的附加信息。
+		\brief 日志元数据类，用于存储日志消息的附加信息.
 		\inmodule Visindigo
 		\since Visindigo 0.13.0
 		\ingroup VIDebug
@@ -60,6 +60,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::LogMetaData::LogMetaData(const LogMetaData& other)
 		\since Visindigo 0.13.0
+		\a other 被拷贝的LogMetaData实例
 
 		拷贝构造函数
 	*/
@@ -67,6 +68,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::LogMetaData::LogMetaData(LogMetaData&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 被移动的LogMetaData实例
 
 		移动构造函数
 	*/
@@ -74,6 +76,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::LogMetaData& Visindigo::General::LogMetaData::operator=(const LogMetaData& other)
 		\since Visindigo 0.13.0
+		\a other 被拷贝的LogMetaData实例
 
 		拷贝赋值运算符
 	*/
@@ -81,6 +84,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::LogMetaData& Visindigo::General::LogMetaData::operator=(LogMetaData&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 被移动的LogMetaData实例
 
 		移动赋值运算符
 	*/
@@ -155,5 +159,4 @@ namespace Visindigo::General {
 	QString LogMetaData::toString() const {
 		return QString("%1 : %2").arg(d->FunctionName).arg(d->LineNumber);
 	}
-
 }

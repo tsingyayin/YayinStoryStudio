@@ -33,7 +33,7 @@ namespace Visindigo::__Private__ {
 	};
 
 	namespace VisindigoBuiltinPlaceholderProvider {
-		class VisindigoCore: public ::Visindigo::General::PlaceholderProvider {
+		class VisindigoCore : public ::Visindigo::General::PlaceholderProvider {
 		public:
 			VisindigoCore(Visindigo::General::Plugin* parent);
 			~VisindigoCore();

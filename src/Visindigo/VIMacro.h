@@ -1,10 +1,10 @@
 #pragma once
 
-#ifdef __cpp_lib_stacktrace 
-	#if __cpp_lib_stacktrace >= 202011L
-		#define VI_HAS_STD_STACKTRACE
-	#endif
-#endif 
+#ifdef __cpp_lib_stacktrace
+#if __cpp_lib_stacktrace >= 202011L
+#define VI_HAS_STD_STACKTRACE
+#endif
+#endif
 
 #define VINotNull // marker for not nullable
 #define VINullable // marker for nullable

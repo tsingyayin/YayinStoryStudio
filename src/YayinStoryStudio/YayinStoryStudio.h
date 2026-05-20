@@ -20,7 +20,7 @@ namespace YSS {
 		MainPrivate* d;
 	};
 
-	class TestDragWidget :public QWidget{
+	class TestDragWidget :public QWidget {
 		Q_OBJECT;
 	public:
 		Visindigo::Widgets::DragWidget* DragArea;

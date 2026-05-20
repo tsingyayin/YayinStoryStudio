@@ -29,10 +29,11 @@ namespace YSSCore::__Private__ {
 			qint32 blockNumber = it.key();
 			if (blockNumber < deletedBlockStartNumber) {
 				newMessages[blockNumber] = it.value();
-			} else if (blockNumber >= deletedBlockStartNumber + count) {
+			}
+			else if (blockNumber >= deletedBlockStartNumber + count) {
 				//vgDebug << "Moving messages for block " << blockNumber << " to " << (blockNumber - count);
 				newMessages[blockNumber - count] = it.value();
-				for(auto& msg : newMessages[blockNumber - count]) {
+				for (auto& msg : newMessages[blockNumber - count]) {
 					msg.d->LineNumber -= count;
 				}
 			}
@@ -48,10 +49,11 @@ namespace YSSCore::__Private__ {
 			qint32 blockNumber = it.key();
 			if (blockNumber < insertedBlockStartNumber) {
 				newMessages[blockNumber] = it.value();
-			} else if (blockNumber >= insertedBlockStartNumber) {
+			}
+			else if (blockNumber >= insertedBlockStartNumber) {
 				//vgDebug << "Moving messages for block " << blockNumber << " to " << (blockNumber + count);
 				newMessages[blockNumber + count] = it.value();
-				for(auto& msg : newMessages[blockNumber + count]) {
+				for (auto& msg : newMessages[blockNumber + count]) {
 					msg.d->LineNumber += count;
 				}
 			}

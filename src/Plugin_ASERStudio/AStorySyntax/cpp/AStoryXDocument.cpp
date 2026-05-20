@@ -47,7 +47,7 @@ namespace ASERStudio::AStorySyntax {
 			}
 		}
 
-		qint32 getUserState(qint32 currentLine, qint32 targetLine,  QTextBlock* block = nullptr) {
+		qint32 getUserState(qint32 currentLine, qint32 targetLine, QTextBlock* block = nullptr) {
 			if (block && Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
 				qint32 delta = currentLine - targetLine;
 				if (delta == 0) {
@@ -164,7 +164,7 @@ namespace ASERStudio::AStorySyntax {
 		\inmodule ASERStudio
 
 		AStoryXDocument是对整个AStoryX文档的封装，包含了对文档内容的解析和诊断信息的存储。
-		
+
 		你可以在你的SyntaxHighlighter中调用AStoryXDocument的onSyntaxHighlighter方法来解析每一行的内容，并获取相应的诊断信息
 
 		请注意，这个类获取信息依赖于通过setTextDocument方法设置的QTextDocument，
@@ -270,7 +270,7 @@ namespace ASERStudio::AStorySyntax {
 				d->LineUserStates.insert(startLine, 0);
 			}
 		}
-		for (qint32 i = 0 ; i < count ; ++i) {
+		for (qint32 i = 0; i < count; ++i) {
 			d->ParseDataCache.insert(startLine, AStoryXControllerParseData());
 		}
 	}
@@ -292,7 +292,7 @@ namespace ASERStudio::AStorySyntax {
 			}
 		}
 
-		for (qint32 i = 0 ; i < count ; ++i) {
+		for (qint32 i = 0; i < count; ++i) {
 			if (startLine >= d->ParseDataCache.size()) {
 				break;
 			}
@@ -392,7 +392,7 @@ namespace ASERStudio::AStorySyntax {
 	QList<AStoryXControllerParseData> AStoryXDocument::getAllParseData() const {
 		return d->ParseDataCache;
 	}
-	
+
 	/*!
 		\since ASERStudio 2.0
 		设置是否启用诊断功能，\a enable 为true表示启用，false表示禁用。
@@ -422,6 +422,4 @@ namespace ASERStudio::AStorySyntax {
 	bool AStoryXDocument::isDiagnosticEnabled() const {
 		return d->EnableDiagnostic;
 	}
-
-
 }

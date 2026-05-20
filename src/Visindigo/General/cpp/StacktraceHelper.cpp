@@ -3,8 +3,8 @@
 #include "General/Log.h"
 
 #ifdef VI_HAS_STD_STACKTRACE
-	#include <stacktrace>
-	#include <iostream>
+#include <stacktrace>
+#include <iostream>
 #endif
 
 namespace Visindigo::General {
@@ -21,7 +21,7 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::StacktraceFrame
 		\inheaderfile General/StacktraceHelper.h
-		\brief 堆栈跟踪帧数据类。
+		\brief 堆栈跟踪帧数据类.
 		\inmodule Visindigo
 		\ingroup VIDebug
 		\since Visindigo 0.13.0
@@ -46,7 +46,6 @@ namespace Visindigo::General {
 		因为此类是不可变的，使用这个构造函数基本等同于表示一个无效的堆栈帧。
 	*/
 	StacktraceFrame::StacktraceFrame() : d(new StacktraceFramePrivate()) {
-		
 	}
 
 	/*!
@@ -71,6 +70,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::StacktraceFrame::StacktraceFrame(const StacktraceFrame& other)
 		\since Visindigo 0.13.0
+		\a other 要复制的堆栈跟踪帧对象
 
 		拷贝构造函数
 	*/
@@ -78,6 +78,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::StacktraceFrame& Visindigo::General::StacktraceFrame::operator=(const StacktraceFrame& other)
 		\since Visindigo 0.13.0
+		\a other 要复制的堆栈跟踪帧对象
 
 		拷贝赋值运算符
 	*/
@@ -85,6 +86,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::StacktraceFrame::StacktraceFrame(StacktraceFrame&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 要移动的堆栈跟踪帧对象
 
 		移动构造函数
 	*/
@@ -92,6 +94,7 @@ namespace Visindigo::General {
 	/*!
 		\fn Visindigo::General::StacktraceFrame& Visindigo::General::StacktraceFrame::operator=(StacktraceFrame&& other) noexcept
 		\since Visindigo 0.13.0
+		\a other 要移动的堆栈跟踪帧对象
 
 		移动赋值运算符
 	*/
@@ -100,16 +103,18 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		析构函数，销毁堆栈跟踪帧对象。
 	*/
 	StacktraceFrame::~StacktraceFrame() {
-		if (d != nullptr){
+		if (d != nullptr) {
 			delete d;
 		}
 	}
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 函数名称
 	*/
 	QString StacktraceFrame::getFunctionName() const {
@@ -118,6 +123,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 源文件名
 	*/
 	QString StacktraceFrame::getSourceFileName() const {
@@ -126,6 +132,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 二进制文件名
 	*/
 	QString StacktraceFrame::getBinaryFileName() const {
@@ -134,6 +141,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 内存地址
 	*/
 	quint64 StacktraceFrame::getAddress() const {
@@ -142,6 +150,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 行号
 	*/
 	quint64 StacktraceFrame::getLineNumber() const {
@@ -150,6 +159,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 将堆栈跟踪帧信息格式化为字符串表示形式。
 
 		这是个用于调试的辅助函数，Visindigo输出日志时不依赖此函数，因此调用此函数
@@ -219,7 +229,7 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::StacktraceHelper
 		\inheaderfile General/StacktraceHelper.h
-		\brief 堆栈跟踪帮助类。
+		\brief 堆栈跟踪帮助类.
 		\inmodule Visindigo
 		\ingroup VIDebug
 		\since Visindigo 0.13.0
@@ -228,7 +238,7 @@ namespace Visindigo::General {
 		它允许开发者在调试和错误处理过程中获取程序执行路径的详细信息。
 
 		请注意，StacktraceHelper 类仅包含静态方法，因此不需要创建其实例。
-	
+
 	*/
 
 	/*!
@@ -265,5 +275,3 @@ namespace Visindigo::General {
 	}
 #endif
 }
-
- 

@@ -20,7 +20,7 @@ namespace Visindigo::General {
 	private:
 		TranslationHost();
 	public:
-		static TranslationHost* getInstance();	
+		static TranslationHost* getInstance();
 		~TranslationHost();
 		void setLangID(Translator::LangID id);
 		void registerTranslator(Translator* translator);

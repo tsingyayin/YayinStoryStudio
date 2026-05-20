@@ -24,24 +24,22 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.14.0
 		\a parent 父窗口
-		
+
 		BorderLabel的构造函数。
 	*/
 	BorderLabel::BorderLabel(QWidget* parent) : QLabel(parent) {
-
 	}
 
 	/*!
 		\since Visindigo 0.14.0
 		BorderLabel的析构函数。
 	*/
-	BorderLabel::~BorderLabel() {
-	}
+	BorderLabel::~BorderLabel() {}
 
 	/*!
 		\since Visindigo 0.14.0
 		\a event paint事件
-		
+
 		由BorderLabel重载的paintEvent函数。任何继承此类并重载paintEvent
 		的子类在重载的paintEvent中都应该调用此函数来绘制边框，否则就只能得到一个普通的QLabel了。
 	*/

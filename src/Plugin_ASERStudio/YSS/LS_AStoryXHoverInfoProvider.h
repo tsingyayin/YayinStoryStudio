@@ -3,7 +3,7 @@
 #include "ASERStudioCompileMacro.h"
 #include <Editor/HoverInfoProvider.h>
 
-namespace ASERStudio::YSS{
+namespace ASERStudio::YSS {
 	class LS_AStoryXHoverInfoProviderPrivate;
 	class LS_AStoryXHoverInfoProvider :public YSSCore::Editor::HoverInfoProvider {
 	public:

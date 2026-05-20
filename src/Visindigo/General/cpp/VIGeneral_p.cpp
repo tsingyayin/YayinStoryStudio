@@ -11,12 +11,10 @@ namespace Visindigo::__Private__ {
 		// nothing for now
 	};
 
-	VisindigoCore::VisindigoCore():Visindigo::General::Plugin(){
-
+	VisindigoCore::VisindigoCore() :Visindigo::General::Plugin() {
 	}
 
 	VisindigoCore::~VisindigoCore() {
-
 	}
 
 	void VisindigoCore::onPluginEnable() {
@@ -39,7 +37,7 @@ namespace Visindigo::__Private__ {
 		vgInfo << "VisindigoCore plugin test.";
 	}
 
-	VisindigoTranslator::VisindigoTranslator(Visindigo::General::Plugin* parent) 
+	VisindigoTranslator::VisindigoTranslator(Visindigo::General::Plugin* parent)
 		: Visindigo::General::Translator(parent, "Visindigo")
 	{
 		setDefaultLang(zh_CN);
@@ -52,11 +50,9 @@ namespace Visindigo::__Private__ {
 	}
 
 	VIGeneralCommandHandler::VIGeneralCommandHandler(Visindigo::General::Plugin* parent)
-		:General::CommandHandler(parent, "vigeneral", "vigeneral", {"vig"}) {
-	}
+		:General::CommandHandler(parent, "vigeneral", "vigeneral", { "vig" }) {}
 
 	VIGeneralCommandHandler::~VIGeneralCommandHandler() {
-		
 	}
 	General::CommandErrorData VIGeneralCommandHandler::onCommand(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) {
 		if (unnamedArgs.isEmpty()) {
@@ -72,11 +68,9 @@ namespace Visindigo::__Private__ {
 	}
 
 	namespace VisindigoBuiltinPlaceholderProvider {
-		VisindigoCore::VisindigoCore(Visindigo::General::Plugin* parent) : 
-			Visindigo::General::PlaceholderProvider(parent, "ph_visindigo", "visindigo") {
-		}
-		VisindigoCore::~VisindigoCore() {
-		}
+		VisindigoCore::VisindigoCore(Visindigo::General::Plugin* parent) :
+			Visindigo::General::PlaceholderProvider(parent, "ph_visindigo", "visindigo") {}
+		VisindigoCore::~VisindigoCore() {}
 		QString VisindigoCore::onPlaceholderRequest(const QString& name, const QString& param) {
 			if (name == "apiVersion") {
 				return ::Visindigo::General::Version::getAPIVersion().toString();
@@ -101,11 +95,9 @@ namespace Visindigo::__Private__ {
 			return QString();
 		}
 
-		VIFormat::VIFormat(Visindigo::General::Plugin* parent) : 
-			Visindigo::General::PlaceholderProvider(parent, "ph_viformat", "viformat") {
-		}
-		VIFormat::~VIFormat() {
-		}
+		VIFormat::VIFormat(Visindigo::General::Plugin* parent) :
+			Visindigo::General::PlaceholderProvider(parent, "ph_viformat", "viformat") {}
+		VIFormat::~VIFormat() {}
 		QString VIFormat::onPlaceholderRequest(const QString& name, const QString& param) {
 			if (name == "round") {
 				QStringList params = param.split(',');

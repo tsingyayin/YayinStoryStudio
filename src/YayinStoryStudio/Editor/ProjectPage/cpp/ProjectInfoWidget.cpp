@@ -36,7 +36,7 @@ namespace YSS::ProjectPage {
 		Layout->addWidget(LastModifiedTimeLabel, 3, 1, 1, 1);
 		Layout->addWidget(ShowInBrowserButton, 2, 3, 1, 1);
 		Layout->addWidget(DeleteButton, 3, 3, 1, 1);
-		
+
 		connect(DeleteButton, &QPushButton::clicked, this, &ProjectInfoWidget::onDeleteButtonClicked);
 		connect(ShowInBrowserButton, &QPushButton::clicked, this, &ProjectInfoWidget::onShowInBrowserButtonClicked);
 		initWidget();

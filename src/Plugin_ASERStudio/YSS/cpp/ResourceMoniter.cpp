@@ -164,7 +164,7 @@ namespace ASERStudio::YSS {
 	}
 
 	QString ResourceMoniter::getASERStandardConfigPath() {
-		return QDir::homePath()+"/AppData/LocalLow/Gradus/ASE-Remake";
+		return QDir::homePath() + "/AppData/LocalLow/Gradus/ASE-Remake";
 	}
 
 	QStringList ResourceMoniter::getBackground() {

@@ -61,7 +61,7 @@ namespace YSS::Editor {
 		virtual void leaveEvent(QEvent* event) override;
 	};
 
-	class StackTagWidget :public QFrame ,public Visindigo::Widgets::ColorfulWidget{
+	class StackTagWidget :public QFrame, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
 		void switchToFile(const QString& filePath);

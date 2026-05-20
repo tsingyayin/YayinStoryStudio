@@ -4,7 +4,7 @@
 #include <QtCore/qobject.h>
 namespace ASERStudio::YSS {
 	class ResourceMoniterPrivate;
-	class ASERAPI ResourceMoniter :public QObject{
+	class ASERAPI ResourceMoniter :public QObject {
 	private:
 		ResourceMoniter();
 	public:

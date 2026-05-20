@@ -1,7 +1,7 @@
 /*!
     \headerfile <VIMacro.h>
     \title 宏集中定义 VIMacro.h
-    \brief Visindigo 项目中使用的宏的集中定义
+    \brief Visindigo 项目中使用的宏的集中定义.
     \since Visindigo 0.13.0
     \inmodule Visindigo
 */
@@ -91,8 +91,6 @@
     \macro VIInterface
     \relates <VIMacro.h>
     \brief 定义接口类
-
-    \a name 接口类的名称
 
     C++关键字class的别名，用于标明这是一个用作接口的纯虚类。
 */ 

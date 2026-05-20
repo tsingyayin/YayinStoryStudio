@@ -25,7 +25,7 @@ namespace YSS::Editor {
 		d->Layout->setSpacing(0);
 		d->TagArea = new StackTagWidget(this);
 		d->TagArea->setFixedHeight(40);
-		
+
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
 		d->CentralArea->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
 		d->ContentArea = d->CentralArea;
@@ -98,14 +98,14 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::closeAll(bool autoGiveup) {
-		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
+		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
 			vgDebug << "close " << widget->getFilePath();
 			widget->closeFile(autoGiveup);
 		}
 	}
 
 	void FileEditWidgetArea::closeSaved() {
-		for(auto widget: YSSFSM->getAllFileEditWidgets()) {
+		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
 			QString filePath = widget->getFilePath();
 			if (not widget->isFileChanged() and not d->TagArea->isStackLabelPinned(filePath)) {
 				vgDebug << "close " << filePath;

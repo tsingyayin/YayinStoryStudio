@@ -69,7 +69,7 @@ namespace YSSCore::__Private__ {
 								onDirectionClicked(keyEvent);
 								return true;
 							}
-							else if (keyEvent->modifiers() == Qt::ControlModifier && (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down)){
+							else if (keyEvent->modifiers() == Qt::ControlModifier && (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down)) {
 								useKeyboardToMoveCursor = true;
 								auto cursor = Text->textCursor();
 								if (keyEvent->key() == Qt::Key_Up) {
@@ -471,7 +471,7 @@ namespace YSSCore::__Private__ {
 		if (FindAndReplaceWidget != nullptr && FindAndReplaceWidget->isVisible()) {
 			// I think this function should be moved to farWidget.hideEvent().
 			// Currently, different hide operations do not share same code, which is not good.
-			clearFindAllMultiSelection(); 
+			clearFindAllMultiSelection();
 			FindAndReplaceWidget->hide();
 		}
 	}
@@ -513,7 +513,8 @@ namespace YSSCore::__Private__ {
 		else if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
 			TabCompleterWidget->scrollBy(-event->angleDelta().y());
 			return true;
-		}else{
+		}
+		else {
 			return false;
 		}
 	}
@@ -705,7 +706,7 @@ namespace YSSCore::__Private__ {
 		}
 		FindAndReplaceWidget->show();
 	}
-	
+
 	void TextEditPrivate::adjustTabCompleterPosition() {
 		if (not TabCompleterWidget) {
 			return;
@@ -730,7 +731,6 @@ namespace YSSCore::__Private__ {
 				// down align
 				TabCompleterWidget->move(pos.x() + 10, pos.y() + 20);
 			}
-
 		}
 		else {
 			auto hpos = Text->mapTo(HoverArea, pos.topLeft());
@@ -755,7 +755,7 @@ namespace YSSCore::__Private__ {
 			}
 		}
 	}
-		
+
 	void TextEditPrivate::adjustHoverInfoPosition(const QTextCursor& cursor) {
 		if (not HoverInfoProvider) {
 			return;
@@ -820,7 +820,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup LangService FileService
-		
+
 		TextEdit是Yayin Story Studio中最关键、最核心的功能，即代码编辑器。
 
 		此类相比于Qt提供的QTextEdit，额外提供了其所缺失的现代代码编辑必备的几项基本功能：
@@ -924,7 +924,7 @@ namespace YSSCore::Editor {
 		// If we do nothing with this object, d->Text will be automaticly deleted by
 		// Qt's parent-child system. However, due to our YSSCore::Editor::SyntaxHighlighter
 		// object is initialized with this object, but ownership belongs to QTextDocument in d->Text.
-		// IF SyntaxHighlighter wants to access some of this object's members in its destructor, 
+		// IF SyntaxHighlighter wants to access some of this object's members in its destructor,
 		// it will cause a crash as our d pointer is already deleted.
 		// So, Delete d->Text first to make sure SyntaxHighlighter is deleted before we delete d.
 		if (d->HoverInfoWidget) {
@@ -940,7 +940,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a area 设置鼠标悬停提示的显示区域。
-		
+
 		如果不设置或设置为nullptr，那么悬停区域永远不会超出TextEdit的范围。
 		这可能在很多情况下会导致内容被遮挡，
 		因此我们建议您将悬停区域设置为一个更大的区域，如您的组件的主窗口等。
@@ -948,18 +948,18 @@ namespace YSSCore::Editor {
 	void TextEdit::setHoverArea(QWidget* area) {
 		if (not area) {
 			d->HoverArea = nullptr;
-			if (d->HoverInfoWidget){
+			if (d->HoverInfoWidget) {
 				d->HoverInfoWidget->setParent(d->Text);
 			}
-			if (d->TabCompleterWidget){
+			if (d->TabCompleterWidget) {
 				d->TabCompleterWidget->setParent(d->Text);
 			}
 		}
 		d->HoverArea = area;
-		if (d->HoverInfoWidget){
+		if (d->HoverInfoWidget) {
 			d->HoverInfoWidget->setParent(area);
 		}
-		if (d->TabCompleterWidget){
+		if (d->TabCompleterWidget) {
 			d->TabCompleterWidget->setParent(area);
 		}
 	}
@@ -967,7 +967,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a text 设置TextEdit中的文本内容。
-		
+
 		此函数会替换掉TextEdit中原有的全部文本内容。
 	*/
 	void TextEdit::setPlainText(const QString& text) {
@@ -986,7 +986,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a lineNumber 将光标移动到指定行
-		
+
 		行号从1开始。
 	*/
 	void TextEdit::moveCursorToLine(int lineNumber) {
@@ -1028,7 +1028,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a reload 设置Tab键是否使用空格进行缩进。
-		
+
 		默认为false，即使用制表符进行缩进。
 	*/
 	void TextEdit::setTabReload(bool reload) {
@@ -1046,7 +1046,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		return TextEdit中用于显示文本内容的QTextDocument对象。
-		
+
 		通过这个对象，您可以实现更底层的文本操作，如语法高亮、文本格式化等。
 	*/
 	QTextDocument* TextEdit::getDocument() const {
@@ -1077,8 +1077,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
-		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于 \a sourceAsRe 参数。
+		\a sourceAsRe 当为真时， \a source 被视作正则表达式进行查找；当为假时， \a source 被视作普通字符串进行查找。
 		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
 		\a multiSelection 当为真时，TextEdit会为每个匹配项创建选区以将它们临时高亮。请注意，这个临时选区只是视觉效果，不改变当前光标位置。
 
@@ -1116,7 +1116,7 @@ namespace YSSCore::Editor {
 		}
 		return results;
 	}
-	
+
 	/*!
 		\since YSS 0.14.0
 		清除findAll函数创建的临时选区。临时选区只是视觉效果，不改变当前光标位置。
@@ -1124,11 +1124,11 @@ namespace YSSCore::Editor {
 	void TextEdit::clearFindAllSelection() {
 		d->clearFindAllMultiSelection();
 	}
-	
+
 	/*!
 		\since YSS 0.14.0
-		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
-		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于 \a sourceAsRe 参数。
+		\a sourceAsRe 当为真时， \a source 被视作正则表达式进行查找；当为假时， \a source 被视作普通字符串进行查找。
 		\a from 查找的起始位置，默认为-1，表示从当前光标位置开始查找。
 		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
 		\a relocate 当为真时，如果找到匹配项，光标会被移动到这个匹配项的位置；当为假时，光标位置不变。
@@ -1155,8 +1155,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
-		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于 \a sourceAsRe 参数。
+		\a sourceAsRe 当为真时， \a source 被视作正则表达式进行查找；当为假时， \a source 被视作普通字符串进行查找。
 		\a newText 要替换为的新字符串。
 		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
 
@@ -1177,9 +1177,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.14.0
-		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于\a sourceAsRe参数。
+		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于 \a sourceAsRe 参数。
 		\a newText 要替换为的新字符串。
-		\a sourceAsRe 当为真时，\a source被视作正则表达式进行查找；当为假时，\a source被视作普通字符串进行查找。
+		\a sourceAsRe 当为真时， \a source 被视作正则表达式进行查找；当为假时， \a source 被视作普通字符串进行查找。
 		\a from 查找的起始位置，默认为-1，表示从当前光标位置开始查找。
 		\a options 查找选项，完全与QTextDocument::find()函数的flags参数相同。
 		\a relocate 当为真时，如果找到匹配项，光标会被移动到这个匹配项的位置；当为假时，光标位置不变。
@@ -1214,7 +1214,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.13.0
 		\a line 行号，从0开始。
 		\a column 列号，从0开始。
-		
+
 		按给定行号和列重定位光标。行号和列号均从0开始。
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用cursorToPosition()函数。
 
@@ -1237,6 +1237,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a path 文件路径
+
 		打开一个文件。
 
 		return 文件完全打开成功才会返回true，其他任何失败情况均返回false。
@@ -1304,8 +1306,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a path 文件路径
+
 		保存当前文件。
-		
+
 		return 当文件成功保存时才会返回true，其他任何失败情况均返回false。
 
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用saveFile()函数。
@@ -1314,7 +1318,7 @@ namespace YSSCore::Editor {
 		QFile file(path);
 		QFileInfo fileInfo(path);
 		if (fileInfo.exists() && not fileInfo.isWritable()) {
-			QMessageBox::warning(this, 
+			QMessageBox::warning(this,
 				VITR("YSS::editor.textEdit.readOnly.title"), VITR("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
 				QMessageBox::Ok);
 			vgWarning << "File is read-only:" << path << ",";
@@ -1347,7 +1351,7 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		重新加载当前文件。
-		
+
 		return 当文件成功重新加载时才会返回true，其他任何失败情况均返回false。
 
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用reloadFile()函数。

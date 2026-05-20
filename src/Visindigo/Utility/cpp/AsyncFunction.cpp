@@ -2,7 +2,7 @@
 namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::AsyncFunction
-		\brief 异步函数类模板
+		\brief 异步函数类模板.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 

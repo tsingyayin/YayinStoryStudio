@@ -152,7 +152,7 @@ namespace Visindigo::Widgets {
 					int ax = cacheData.PixmapTileIndex % CachePixmaps[pixmapIndex].RowCount * CachePixmaps[pixmapIndex].TileWidth;
 					int ay = cacheData.PixmapTileIndex / CachePixmaps[pixmapIndex].RowCount * CachePixmaps[pixmapIndex].TileWidth;
 					QPixmap cachePixmap = CachePixmaps[pixmapIndex].Pixmap.copy(ax, ay, cacheData.Width, cacheData.Height);
-					return cachePixmap;			
+					return cachePixmap;
 				}
 			doCache:
 				QPixmap rawPixmap(path);
@@ -169,7 +169,7 @@ namespace Visindigo::Widgets {
 				quint32 p2WidthL = p2Width >> 1;
 				bool ok = false;
 				for (int i = 0; i < CachePixmaps.size(); i++) {
-					if (CachePixmaps[i].TileWidth <= p2Width 
+					if (CachePixmaps[i].TileWidth <= p2Width
 						&& CachePixmaps[i].TileWidth > p2WidthL
 						&& CachePixmaps[i].FreeTileIndexes.size() != 0) {
 						int tileIndex = CachePixmaps[i].FreeTileIndexes.dequeue();
@@ -210,7 +210,7 @@ namespace Visindigo::Widgets {
 					tileData.TileWidth = p2Width;
 					tileData.RowCount = width / p2Width;
 					for (int i = 0; i < tileData.RowCount * tileData.RowCount; i++) {
-						if (i != 0)[[likely]] {
+						if (i != 0) [[likely]] {
 							tileData.FreeTileIndexes.append(i);
 						}
 					}

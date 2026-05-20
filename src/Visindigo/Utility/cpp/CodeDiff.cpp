@@ -11,7 +11,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::CodeLine
-		\brief 此类用于表示任何代码行。
+		\brief 此类用于表示任何代码行.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -74,7 +74,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::CodeDiff
-		\brief 此类用于表示代码差异。
+		\brief 此类用于表示代码差异.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -150,7 +150,9 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a str 为字符串
 		\a length 为长度。
+
 		将字符串格式化为指定长度的字符串。（这是一个应该被隐藏的内部函数）
+
 		return 格式化后的字符串。
 	*/
 	static QString fixedLength(QString str, int length = 40) {

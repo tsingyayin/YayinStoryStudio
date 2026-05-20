@@ -7,6 +7,5 @@ namespace YSSFileExt {
 		setSupportedFileExts({ "txt", "json", "yaml", "yml", "gitignore", "md", "xml", "log", "ini" });
 	}
 
-	DefaultTextEdit::~DefaultTextEdit() {
-	}
+	DefaultTextEdit::~DefaultTextEdit() {}
 }

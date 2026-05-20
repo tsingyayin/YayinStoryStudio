@@ -4,7 +4,7 @@
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::ProjectTemplateInitWidget
-		\brief ProjectTemplateInitWidget是一个QFrame，作为ProjectTemplateProvider的初始化界面。
+		\brief ProjectTemplateInitWidget是一个QFrame，作为ProjectTemplateProvider的初始化界面.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup CreateService
@@ -16,7 +16,7 @@ namespace YSSCore::Editor {
 
 		请注意，为了与YSS解耦，这个类设计上并未采用要求用户必须创建持续存活YSSCore::General::YSSProject实例
 		并在初始化完毕后将其传递给编辑器的方式来完成项目创建。
-		
+
 		相反，你可以在这个页面上收集到足够的信息之后自由的根据需要创建项目文件夹、生成必要的配置文件等，
 		最后通过projectPrepared信号，将项目路径即yssp文件的路径）推送出去，编辑器会监测这个信号，
 		并使用标准的从磁盘打开项目的流程来打开这个新项目。这种设计也使得YSS可以拥有统一的项目加载流程，
@@ -34,16 +34,19 @@ namespace YSSCore::Editor {
 	/*!
 		\fn void ProjectTemplateInitWidget::projectPrepared(QString projectPath);
 		\since YSS 0.13.0
+		\a projectPath 项目路径，即yssp文件的路径。
+
 		当项目准备就绪时（如用户点击了“创建”按钮，并且项目文件已经生成），你应该发出这个信号，并将项目路径（即yssp文件的路径）作为参数传递出去。
 	*/
 
 	/*!
 		\since YSS 0.13.0
+		\a parent 父组件
+
 		构造函数
 	*/
 	ProjectTemplateInitWidget::ProjectTemplateInitWidget(QWidget* parent)
-		: QFrame(parent) {
-	}
+		: QFrame(parent) {}
 
 	class ProjectTemplateProviderPrivate {
 	public:
@@ -56,7 +59,7 @@ namespace YSSCore::Editor {
 
 	/*
 		\class YSSCore::Editor::ProjectTemplateProvider
-		\brief ProjectTemplateProvider向编辑器提供一个项目模板。
+		\brief ProjectTemplateProvider向编辑器提供一个项目模板.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 		\ingroup CreateService
@@ -72,109 +75,127 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		\value name 模板名称
-		\value id 模板ID，必须唯一
-		\value plugin 提供该模板的插件实例
+		\a name 模板名称
+		\a id 模板ID，必须唯一
+		\a plugin 提供该模板的插件实例
 
 		构造函数
 	*/
 	ProjectTemplateProvider::ProjectTemplateProvider(const QString& name, const QString& id, EditorPlugin* plugin)
-		: Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_ProjectTemplateProvider ,name){
+		: Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_ProjectTemplateProvider, name) {
 		d = new ProjectTemplateProviderPrivate;
 	}
 
 	/*!
 		\since YSS 0.13.0
+
 		析构函数
 	*/
-	ProjectTemplateProvider::~ProjectTemplateProvider(){
+	ProjectTemplateProvider::~ProjectTemplateProvider() {
 		delete d;
 	}
 
 	/*!
 		\since YSS 0.13.0
+
 		return 模板图标路径
 	*/
-	QString ProjectTemplateProvider::getTemplateIconPath() const{
+	QString ProjectTemplateProvider::getTemplateIconPath() const {
 		return d->TemplateIconPath;
 	}
 
 	/*!
 		\since YSS 0.13.0
+		\a iconPath 模板图标路径
+
 		设置模板图标路径
 	*/
-	void ProjectTemplateProvider::setTemplateIconPath(const QString& iconPath){
+	void ProjectTemplateProvider::setTemplateIconPath(const QString& iconPath) {
 		d->TemplateIconPath = iconPath;
 	}
 
 	/*!
 		\since YSS 0.13.0
+
 		return 模板ID
 	*/
-	QString ProjectTemplateProvider::getTemplateID() const{
+	QString ProjectTemplateProvider::getTemplateID() const {
 		return d->TemplateID;
 	}
 
 	/*!
 		\since YSS 0.13.0
+		\a id 模板ID，必须唯一
+
 		设置模板ID，必须唯一
 	*/
-	void ProjectTemplateProvider::setTemplateID(const QString& id){
+	void ProjectTemplateProvider::setTemplateID(const QString& id) {
 		d->TemplateID = id;
 	}
 
 	/*!
 		\since YSS 0.13.0
+
 		return 模板名称
 	*/
-	QString ProjectTemplateProvider::getTemplateName() const{
+	QString ProjectTemplateProvider::getTemplateName() const {
 		return d->TemplateName;
 	}
 
 	/*!
 		\since YSS 0.13.0
+		\a name 模板名称
+
 		设置模板名称
 	*/
-	void ProjectTemplateProvider::setTemplateName(const QString& name){
+	void ProjectTemplateProvider::setTemplateName(const QString& name) {
 		d->TemplateName = name;
 	}
 
 	/*!
 		\since YSS 0.13.0
+
 		return 模板描述
 	*/
-	QString ProjectTemplateProvider::getTemplateDescription() const{
+	QString ProjectTemplateProvider::getTemplateDescription() const {
 		return d->TemplateDescription;
 	}
 
 	/*!
 		\since YSS 0.13.0
+		\a description 模板描述
+
 		设置模板描述
 	*/
-	void ProjectTemplateProvider::setTemplateDescription(const QString& description){
+	void ProjectTemplateProvider::setTemplateDescription(const QString& description) {
 		d->TemplateDescription = description;
 	}
 
 	/*!
 		\since YSS 0.13.0
+
 		return 模板标签列表
 	*/
-	QStringList ProjectTemplateProvider::getTemplateTags() const{
+	QStringList ProjectTemplateProvider::getTemplateTags() const {
 		return d->TemplateTags;
 	}
 
 	/*!
 		\since YSS 0.13.0
+		\a tags 模板标签列表
+
 		设置模板标签列表
 	*/
-	void ProjectTemplateProvider::setTemplateTags(const QStringList& tags){
+	void ProjectTemplateProvider::setTemplateTags(const QStringList& tags) {
 		d->TemplateTags = tags;
 	}
 
 	/*!
 		\fn virtual ProjectTemplateInitWidget* ProjectTemplateProvider::projectInitWidget() = 0;
 		\since YSS 0.13.0
-		YSS内部调用此函数，获取该项目模板的初始化界面。插件开发者需要在子类中实现此函数，返回一个ProjectTemplateInitWidget实例。
+		YSS内部调用此函数，获取该项目模板的初始化界面。插件开发者需要在子类中实现此函数。
+
+		return 一个ProjectTemplateInitWidget实例。
 
 		被返回的实例的所有权由YSS接管，并在必要时销毁。
 	*/

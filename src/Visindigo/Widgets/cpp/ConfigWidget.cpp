@@ -35,7 +35,7 @@ namespace Visindigo::__Private__ {
 			this->saveConfig();
 			emit this->self->saved();
 			if (this->saveNeedRestart) {
-				QMessageBox::information(this->self, VITR("Visindigo::widgets.configWidget.restartRequired"), 
+				QMessageBox::information(this->self, VITR("Visindigo::widgets.configWidget.restartRequired"),
 					VITR("Visindigo::widgets.configWidget.restartRequiredDesc"));
 			}
 			});
@@ -71,7 +71,7 @@ namespace Visindigo::__Private__ {
 			w->setParent(self);
 			Layout->addWidget(w);
 		}
-		
+
 		Layout->addWidget(ButtonWidget);
 		IndependentMode = cwJson.getBool("independent");
 		saveNeedRestart = cwJson.getBool("saveNeedRestart");
@@ -227,7 +227,7 @@ namespace Visindigo::__Private__ {
 			node = parentPath + "." + node;
 		}
 		QFrame* self = new QFrame();
-		
+
 		QVBoxLayout* Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
 		Layout->setContentsMargins(0, 0, 0, 0);
@@ -266,7 +266,6 @@ namespace Visindigo::__Private__ {
 			}
 			Layout->addWidget(Label);
 		}
-		
 
 		if (config.contains("children")) {
 			QStringList keys = config.keys("children");
@@ -307,7 +306,7 @@ namespace Visindigo::__Private__ {
 
 	QWidget* ConfigWidgetPrivate::widget_QFrame(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		// TODO: implement a shrink-expand frame
-		return nullptr; 
+		return nullptr;
 	}
 
 	QWidget* ConfigWidgetPrivate::widget_ComboBox(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
@@ -460,7 +459,7 @@ namespace Visindigo::__Private__ {
 		Config.setString(node, str);
 		emit self->textEditTextChanged(node, str);
 	}
-	
+
 	void ConfigWidgetPrivate::onColorChanged(const QColor& clr) {
 		QObject* obj = sender();
 		QString node = obj->objectName();
@@ -472,7 +471,7 @@ namespace Visindigo::__Private__ {
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::ConfigWidget
-		\brief 此类从CWJson创建配置窗口。
+		\brief 此类从CWJson创建配置窗口.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -761,7 +760,6 @@ namespace Visindigo::Widgets {
 	bool ConfigWidget::isIndependentMode() const {
 		return d->IndependentMode;
 	}
-
 
 	/*!
 		\since Visindigo 0.14.0

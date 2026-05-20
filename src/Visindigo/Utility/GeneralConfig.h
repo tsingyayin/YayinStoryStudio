@@ -31,7 +31,7 @@ namespace Visindigo::Utility {
 		enum StringFormat {
 			Stream, Formatted
 		};
-		
+
 		GeneralConfig();
 		GeneralConfig(qint64 value);
 		GeneralConfig(qreal value);
@@ -63,7 +63,6 @@ namespace Visindigo::Utility {
 		void setList(const VITransferred GeneralConfigList& value, const QString& key = "");
 		void setMap(const VITransferred GeneralConfigMap& value, const QString& key = "");
 		void setComment(const QString& comment, const QString& key = "", bool isHeadComment = false);
-		
 
 		bool contains(const QString& key);
 		Type getNodeType(const QString& key = "", bool refNodeGetFinalType = false);
@@ -78,8 +77,6 @@ namespace Visindigo::Utility {
 	protected:
 		Visindigo::__Private__::GeneralConfigPrivate* d;
 	};
-
-	
 }
 
 #endif

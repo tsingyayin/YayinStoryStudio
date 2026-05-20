@@ -17,13 +17,13 @@ namespace YSS::Editor {
 			if (not CurrentServer) {
 				QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID();
 				if (debugServerID.isEmpty()) {
-					QMessageBox::warning(YSS::Editor::MainWin::getInstance(), 
-						VITR("YSS::editor.debug.notSelected.title"), VITR("YSS::editor.debug.notSelected.message")); 
-					vgErrorF << "No debug server set for current project!"; 
+					QMessageBox::warning(YSS::Editor::MainWin::getInstance(),
+						VITR("YSS::editor.debug.notSelected.title"), VITR("YSS::editor.debug.notSelected.message"));
+					vgErrorF << "No debug server set for current project!";
 					return nullptr;
 				}
 				CurrentServer = YSSDSM->getDebugServer(debugServerID);
-				if (CurrentServer){
+				if (CurrentServer) {
 					QObject::connect(CurrentServer, &YSSCore::Editor::DebugServer::actionStarted,
 						Instance, &DebugServerRouter::actionStarted);
 					QObject::connect(CurrentServer, &YSSCore::Editor::DebugServer::actionPercent,
@@ -67,12 +67,12 @@ namespace YSS::Editor {
 			});
 		connect(this, &DebugServerRouter::actionFinished, this, [this](YSSCore::Editor::DebugServer::DebugAction action, bool success) {
 			vgInfoF << "Debug action finished:" << getActionString(action) << "Success:" << success;
-		});
+			});
 		connect(this, &DebugServerRouter::actionMessage, this, [this](YSSCore::Editor::DebugServer::DebugAction action, const QString& message) {
 			vgInfoF << "Debug action message:" << getActionString(action) << message;
 			});
 		connect(this, &DebugServerRouter::actionPercent, this, [this](YSSCore::Editor::DebugServer::DebugAction action, qint32 finished, qint32 total) {
-			vgInfoF << "Debug action percent:" << getActionString(action) << "Finished:" << finished << "Total:" 
+			vgInfoF << "Debug action percent:" << getActionString(action) << "Finished:" << finished << "Total:"
 				<< total << "Percent:" << (total > 0 ? QString::number((double)finished / total * 100, 'f', 2) + "%" : "N/A");
 			});
 
@@ -82,7 +82,6 @@ namespace YSS::Editor {
 		connect(this, &DebugServerRouter::targetStdError, this, [this](const QString& message) {
 			vgErrorF << "Debug target std error:" << message;
 			});
-
 	}
 
 	DebugServerRouter* DebugServerRouter::getInstance() {

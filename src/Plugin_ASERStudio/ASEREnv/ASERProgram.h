@@ -36,7 +36,7 @@ namespace ASERStudio::ASEREnv {
 	};
 
 	class ASERProgramPrivate;
-	class ASERAPI ASERProgram :public QObject{
+	class ASERAPI ASERProgram :public QObject {
 		Q_OBJECT;
 	signals:
 		void namedPipeReadable(const QString& context);

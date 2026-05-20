@@ -6,7 +6,7 @@
 namespace YSSCore::Editor {
 	class DebugServerManagerPrivate;
 
-	class YSSCoreAPI DebugServerManager :public QObject{
+	class YSSCoreAPI DebugServerManager :public QObject {
 		Q_OBJECT;
 	private:
 		DebugServerManager();

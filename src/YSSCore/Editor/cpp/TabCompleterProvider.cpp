@@ -16,7 +16,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::TabCompleterItem
-		\brief 代表TabCompleter中的一个补全项。
+		\brief 代表TabCompleter中的一个补全项.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 
@@ -85,24 +85,32 @@ namespace YSSCore::Editor {
 	/*!
 		\fn YSSCore::Editor::TabCompleterItem::TabCompleterItem(TabCompleterItem&& other)
 		\since YSS 0.13.0
+		\a other 另一个TabCompleterItem对象。
+
 		移动构造函数。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::TabCompleterItem::TabCompleterItem(const TabCompleterItem& other)
 		\since YSS 0.13.0
+		\a other 另一个TabCompleterItem对象。
+
 		复制构造函数。
 	*/
 
 	/*!
 		\fn YSSCore::Editor::TabCompleterItem& TabCompleterItem::operator=(TabCompleterItem&& other)
 		\since YSS 0.13.0
+		\a other 另一个TabCompleterItem对象。
+
 		移动赋值运算符。
 	*/
 
 	/*!
 		\fn TabCompleterItem& TabCompleterItem::operator=(const TabCompleterItem& other)
 		\since YSS 0.13.0
+		\a other 另一个TabCompleterItem对象。
+
 		复制赋值运算符。
 	*/
 	VIMoveable_Impl(TabCompleterItem);
@@ -111,6 +119,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a iconPath 补全项的图标路径。
+
 		设置补全项的图标路径。
 	*/
 	void TabCompleterItem::setIconPath(const QString& iconPath) {
@@ -119,6 +129,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a text 补全项的文本。
+
 		设置补全项的文本。
 	*/
 	void TabCompleterItem::setText(const QString& text) {
@@ -127,6 +139,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a description 补全项的描述。
+
 		设置补全项的描述。
 	*/
 	void TabCompleterItem::setDescription(const QString& description) {
@@ -135,6 +149,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a content 补全项的内容。
+
 		设置补全项的内容。
 	*/
 	void TabCompleterItem::setContent(const QString& content) {
@@ -143,9 +159,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		设置补全项的类型。
 		\a type 补全项的类型。
 		\a redirectIcon 是否根据类型自动设置图标路径，默认为true。
+
+		设置补全项的类型。
 	*/
 	void TabCompleterItem::setType(ItemType type, bool redirectIcon) {
 		if (redirectIcon) {
@@ -180,6 +197,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 补全项的图标路径。
 	*/
 	QString TabCompleterItem::getIconPath() const {
@@ -188,6 +206,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 补全项的文本。
 	*/
 	QString TabCompleterItem::getText() const {
@@ -196,6 +215,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 补全项的描述。
 	*/
 	QString TabCompleterItem::getDescription() const {
@@ -204,6 +224,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 补全项的内容。
 	*/
 	QString TabCompleterItem::getContent() const {
@@ -212,6 +233,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 补全项的类型。
 	*/
 	TabCompleterItem::ItemType TabCompleterItem::getType() const {
@@ -220,6 +242,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 补全项是否对齐。
 	*/
 	bool TabCompleterItem::isAlignment() const {
@@ -228,10 +251,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::TabCompleterProvider
-		\brief TabCompleter的提供者接口
+		\brief TabCompleter的提供者接口.
 		\since YSS 0.13.0
 		\inmodule YSSCore
-		
+
 		这类是YSSCore::Editor::LangServer（语言服务器）的三大接口类其中之一，
 		用于用户实现语言服务中的Tab补全功能。
 
@@ -245,10 +268,13 @@ namespace YSSCore::Editor {
 	/*!
 		\fn QList<YSSCore::Editor::TabCompleterItem> TabCompleterProvider::onTabComplete(qint32 lineNumber, qint32 column, const QString& content) = 0
 		\since YSS 0.13.0
-		纯虚函数，用户需要重写这个函数来提供Tab补全功能。
 		\a lineNumber 光标所在的行号，从0开始。
 		\a column 光标所在的列号，从0开始。
-		\a 当前整行的内容。
+		\a content 当前整行的内容。
+
+		return 补全项列表。
+
+		纯虚函数，用户需要重写这个函数来提供Tab补全功能。
 
 		如果返回空列表，则表示没有补全项；如果返回非空列表，则会在编辑器中显示这些补全项供用户选择。
 		编辑器不负责优化补全列表的顺序，用户应该根据实际情况自行排序补全项，以提供更好的用户体验。
@@ -256,8 +282,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		构造函数，接受一个TextEdit指针作为参数。
 		\a textEdit 绑定的TextEdit对象。
+
+		构造函数，接受一个TextEdit指针作为参数。
 		构造函数会将TabCompleterProvider绑定到传入的TextEdit上，以便提供补全功能。
 	*/
 	TabCompleterProvider::TabCompleterProvider(TextEdit* textEdit)
@@ -268,6 +295,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		析构函数。
 	*/
 	TabCompleterProvider::~TabCompleterProvider() {
@@ -276,6 +304,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+
 		return 绑定的TextEdit的文档对象。
 	*/
 	QTextDocument* TabCompleterProvider::getDocument() const {

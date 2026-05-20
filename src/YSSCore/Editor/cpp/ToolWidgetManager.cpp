@@ -18,7 +18,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::ToolWidgetManager
-		\brief 此类管理由插件提供的工具窗口部件。
+		\brief 此类管理由插件提供的工具窗口部件.
 		\since YSS 0.15.0
 		\inmodule YSSCore
 
@@ -121,15 +121,18 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since 0.15.0
+
 		return 所有打开的工具窗口部件实例的函数。返回一个QList，包含所有当前打开的工具窗口部件实例。
 	*/
 	QList<QWidget*> ToolWidgetManager::getAllOpenToolWidgets() const {
 		return d->WidgetInstanceMap.values();
 	}
+
 	/*!
 		\since 0.15.0
-		检查工具窗口是否打开的函数。\a widgetID 是被检查的工具窗口ID。
-		如果对应ID的工具窗口实例存在则返回true；否则返回false。
+		检查工具窗口是否打开的函数。 \a widgetID 是被检查的工具窗口ID。
+
+		return 如果对应ID的工具窗口实例存在则返回true；否则返回false。
 	*/
 	bool ToolWidgetManager::isToolWidgetOpen(const QString& widgetID) const {
 		return d->WidgetInstanceMap.contains(widgetID);
@@ -137,7 +140,9 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since 0.15.0
+
 		return 已注册工具窗口信息的函数。返回一个QMap，键是工具窗口ID，值是工具窗口显示名称。
+
 		注意，返回的显示名称是设置时的原始字符串，未经过翻译处理。如有需要，
 		调用者可以使用VI18N函数进行翻译。
 	*/

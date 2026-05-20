@@ -27,7 +27,7 @@ namespace Visindigo::General {
 			LogTimeFormat = VIApp->getEnvConfig(VIApplication::LogTimeFormat).toString();
 			QString birthTime = QDateTime::currentDateTime().toString(LogFileNameTimeFormat);
 			QString LogFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString();
-			LogFile.setFileName(LogFolderPath%"/"%birthTime%".log");
+			LogFile.setFileName(LogFolderPath % "/" % birthTime % ".log");
 			QDir logDir(LogFolderPath);
 			if (!logDir.exists()) {
 				logDir.mkpath(".");
@@ -68,8 +68,8 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::LoggerManager
 		\inheaderfile General/LoggerManager.h
-		\brief LoggerManager是日志记录器管理器，用于管理全局日志对象并处理日志消息。
-		\inmodule Visindigo 
+		\brief LoggerManager是日志记录器管理器，用于管理全局日志对象并处理日志消息.
+		\inmodule Visindigo
 		\ingroup VIDebug
 		\since Visindigo 0.13.0
 
@@ -80,7 +80,7 @@ namespace Visindigo::General {
 		实现文件输出功能。
 
 		此类是VDebug的核心类，用于管理Logger实例并处理日志消息的输出。
-		
+
 		VDebug和QDebug在结构上略有不同：
 		\list
 		\li QDebug使用QDebug类来承接日志消息，而VDebug则是LoggerMsgHandler类。
@@ -94,7 +94,7 @@ namespace Visindigo::General {
 
 		在0.13.0开发过程中，曾经被直接使用std::cout实现输出，但这在Android平台上导致
 		调试器看不到日志，并不实用。
-		
+
 		现在的实现中，已经改用Qt未公开的函数qt_message_output来实现日志输出，
 		这使得VDebug的性能（至少在最后输出阶段）与QDebug相当。
 	*/

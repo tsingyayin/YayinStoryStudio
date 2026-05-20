@@ -100,7 +100,7 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\class ASERStudio::AStorySyntax::AStoryXValueMeta
-		\brief AStoryXValue用于对AStoryX中的参数进行类型定义和检查。
+		\brief AStoryXValue用于对AStoryX中的参数进行类型定义和检查.
 		\since ASERStudio 2.0
 		\inmodule ASERStudio
 
@@ -112,7 +112,7 @@ namespace ASERStudio::AStorySyntax {
 		而非类似于std::variant或QVariant的通用数据容器。虽然它提供了从字符串解析获得
 		其他数据类型的能力，但主要是为了方便在AStoryX语法解析过程中进行类型验证和错误诊断，
 		而不是作为一个通用的值存储类。
-	
+
 		\section1 ValueMetaJSON
 		AStoryXValueMeta的元数据可以通过JSON配置进行设置，JSON的基础结构如下：
 		\badcode
@@ -232,8 +232,7 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		构造函数
 	*/
-	AStoryXValueMeta::AStoryXValueMeta() : d(new AStoryXValueMetaPrivate) {
-	}
+	AStoryXValueMeta::AStoryXValueMeta() : d(new AStoryXValueMetaPrivate) {}
 
 	AStoryXValueMeta::AStoryXValueMeta(const QString& paramName, Type type, const QString& defaultValue) : d(new AStoryXValueMetaPrivate) {
 		d->ParameterName = paramName;
@@ -252,24 +251,32 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::AStoryXValueMeta(AStoryXValueMeta&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXValueMeta对象。
+
 		移动构造函数
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::AStoryXValueMeta(const AStoryXValueMeta& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXValueMeta对象。
+
 		复制构造函数
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::operator=(const AStoryXValueMeta& other)
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXValueMeta对象。
+
 		复制赋值运算符
 	*/
 
 	/*!
 		\fn ASERStudio::AStorySyntax::AStoryXValueMeta::operator=(AStoryXValueMeta&& other) noexcept
 		\since ASERStudio 2.0
+		\a other 另一个AStoryXValueMeta对象。
+
 		移动赋值运算符
 	*/
 	VIMoveable_Impl(AStoryXValueMeta);
@@ -277,8 +284,10 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+		\a paramName 参数名称，必须是一个有效的QString对象。
+		\a metaData 元数据配置，必须是一个有效的Visindigo::Utility::JsonConfig对象，且应包含与参数名称对应的元数据信息。
+
 		设置元数据。
-		\a metaData 元数据。
 	*/
 	void AStoryXValueMeta::setMetaData(const QString& paramName, const Visindigo::Utility::JsonConfig& metaData) {
 		d->ParameterName = paramName;
@@ -290,70 +299,70 @@ namespace ASERStudio::AStorySyntax {
 		d->Type = (AStoryXValueMeta::Type)QMetaEnum::fromType<AStoryXValueMeta::Type>().keyToValue(type.toStdString().c_str());
 		d->DefaultValue = paramMeta.getString("defaultValue");
 		switch (d->Type) {
-			case AStoryXValueMeta::Type::String:
-				d->StringCheckRegex = paramMeta.getString("regex");
-				break;
-			case AStoryXValueMeta::Type::Integer: {
-				qint64 min = std::numeric_limits<qint64>::min();
-				qint64 max = std::numeric_limits<qint64>::max();
-				if (paramMeta.contains("range")) {
-					min = paramMeta.contains("range.0") ? paramMeta.getInt("range.0") : std::numeric_limits<qint64>::min();
-					max = paramMeta.contains("range.1") ? paramMeta.getInt("range.1") : std::numeric_limits<qint64>::max();
-				}
-				else {
-					min = paramMeta.contains("min") ? paramMeta.getInt("min") : std::numeric_limits<qint64>::min();
-					max = paramMeta.contains("max") ? paramMeta.getInt("max") : std::numeric_limits<qint64>::max();
-				}
-				d->IntegerCheckRange = qMakePair(min, max);
-				break;
+		case AStoryXValueMeta::Type::String:
+			d->StringCheckRegex = paramMeta.getString("regex");
+			break;
+		case AStoryXValueMeta::Type::Integer: {
+			qint64 min = std::numeric_limits<qint64>::min();
+			qint64 max = std::numeric_limits<qint64>::max();
+			if (paramMeta.contains("range")) {
+				min = paramMeta.contains("range.0") ? paramMeta.getInt("range.0") : std::numeric_limits<qint64>::min();
+				max = paramMeta.contains("range.1") ? paramMeta.getInt("range.1") : std::numeric_limits<qint64>::max();
 			}
-			case AStoryXValueMeta::Type::Float: {
+			else {
+				min = paramMeta.contains("min") ? paramMeta.getInt("min") : std::numeric_limits<qint64>::min();
+				max = paramMeta.contains("max") ? paramMeta.getInt("max") : std::numeric_limits<qint64>::max();
+			}
+			d->IntegerCheckRange = qMakePair(min, max);
+			break;
+		}
+		case AStoryXValueMeta::Type::Float: {
+			double min = -std::numeric_limits<double>::infinity();
+			double max = std::numeric_limits<double>::infinity();
+			if (paramMeta.contains("range")) {
+				min = paramMeta.contains("range.0") ? paramMeta.getDouble("range.0") : -std::numeric_limits<double>::infinity();
+				max = paramMeta.contains("range.1") ? paramMeta.getDouble("range.1") : std::numeric_limits<double>::infinity();
+			}
+			else {
+				min = paramMeta.contains("min") ? paramMeta.getDouble("min") : -std::numeric_limits<double>::infinity();
+				max = paramMeta.contains("max") ? paramMeta.getDouble("max") : std::numeric_limits<double>::infinity();
+			}
+			d->FloatCheckRange = qMakePair(min, max);
+			break;
+		}
+		case AStoryXValueMeta::Type::Vector: {
+			QList<qint64> dimensions = paramMeta.contains("dimensions") ? paramMeta.getIntArray("dimensions") : QList<qint64>{ 3 };
+			qint64 maxDim = 0;
+			for (qint64 dim : dimensions) {
+				if (dim > maxDim) {
+					maxDim = dim;
+				}
+			}
+			QList<QPair<double, double>> range;
+			for (qint32 i = 0; i < maxDim; i++) {
+				auto dimConfig = paramMeta.getObject(QString("limit.%1").arg(i));
 				double min = -std::numeric_limits<double>::infinity();
 				double max = std::numeric_limits<double>::infinity();
-				if (paramMeta.contains("range")) {
-					min = paramMeta.contains("range.0") ? paramMeta.getDouble("range.0") : -std::numeric_limits<double>::infinity();
-					max = paramMeta.contains("range.1") ? paramMeta.getDouble("range.1") : std::numeric_limits<double>::infinity();
+				if (dimConfig.contains("range")) {
+					min = dimConfig.contains("range.0") ? dimConfig.getDouble("range.0") : -std::numeric_limits<double>::infinity();
+					max = dimConfig.contains("range.1") ? dimConfig.getDouble("range.1") : std::numeric_limits<double>::infinity();
 				}
 				else {
-					min = paramMeta.contains("min") ? paramMeta.getDouble("min") : -std::numeric_limits<double>::infinity();
-					max = paramMeta.contains("max") ? paramMeta.getDouble("max") : std::numeric_limits<double>::infinity();
+					min = dimConfig.contains("min") ? dimConfig.getDouble("min") : -std::numeric_limits<double>::infinity();
+					max = dimConfig.contains("max") ? dimConfig.getDouble("max") : std::numeric_limits<double>::infinity();
 				}
-				d->FloatCheckRange = qMakePair(min, max);
-				break;
 			}
-			case AStoryXValueMeta::Type::Vector: {
-				QList<qint64> dimensions = paramMeta.contains("dimensions") ? paramMeta.getIntArray("dimensions") : QList<qint64>{ 3 };
-				qint64 maxDim = 0;
-				for (qint64 dim : dimensions) {
-					if (dim > maxDim) {
-						maxDim = dim;
-					}
-				}
-				QList<QPair<double, double>> range;
-				for (qint32 i = 0; i < maxDim; i++) {
-					auto dimConfig = paramMeta.getObject(QString("limit.%1").arg(i));
-					double min =  -std::numeric_limits<double>::infinity();
-					double max = std::numeric_limits<double>::infinity();
-					if (dimConfig.contains("range")) {
-						min = dimConfig.contains("range.0") ? dimConfig.getDouble("range.0") : -std::numeric_limits<double>::infinity();
-						max = dimConfig.contains("range.1") ? dimConfig.getDouble("range.1") : std::numeric_limits<double>::infinity();
-					}
-					else {
-						min = dimConfig.contains("min") ? dimConfig.getDouble("min") : -std::numeric_limits<double>::infinity();
-						max = dimConfig.contains("max") ? dimConfig.getDouble("max") : std::numeric_limits<double>::infinity();
-					}
-				}
-				d->VectorCheckRange = range;
-				d->VectorCheckDimensions = dimensions;
-				break;
-			}
-			case AStoryXValueMeta::Type::Enum: {
-				QList<qint64> dimensions = paramMeta.contains("dimensions") ? paramMeta.getIntArray("dimensions") : QList<qint64>{ 1 };
-				d->VectorCheckDimensions = dimensions;
-				QString enumListName = paramMeta.getString("enums");
-				d->EnumCheckList = metaData.getStringList("__GeneralMetaData__." + enumListName);
-				break;
-			}
+			d->VectorCheckRange = range;
+			d->VectorCheckDimensions = dimensions;
+			break;
+		}
+		case AStoryXValueMeta::Type::Enum: {
+			QList<qint64> dimensions = paramMeta.contains("dimensions") ? paramMeta.getIntArray("dimensions") : QList<qint64>{ 1 };
+			d->VectorCheckDimensions = dimensions;
+			QString enumListName = paramMeta.getString("enums");
+			d->EnumCheckList = metaData.getStringList("__GeneralMetaData__." + enumListName);
+			break;
+		}
 		}
 	}
 
@@ -369,7 +378,8 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 参数名称。
-		return 参数名称，返回一个QString对象。如果未设置参数名称，则返回空字符串。
+
+		返回一个QString对象。如果未设置参数名称，则返回空字符串。
 	*/
 	QString AStoryXValueMeta::getParameterName() const {
 		return d->ParameterName;
@@ -386,7 +396,8 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 参数类型。
-		return 参数类型，返回值为AStoryXValue::Type枚举中的一个值。
+
+		返回值为AStoryXValue::Type枚举中的一个值。
 	*/
 	AStoryXValueMeta::Type AStoryXValueMeta::getType() const {
 		return d->Type;
@@ -400,7 +411,6 @@ namespace ASERStudio::AStorySyntax {
 		return typeToString(d->Type);
 	}
 
-
 	/*!
 		\since ASERStudio 2.0
 		设置默认值。
@@ -413,7 +423,8 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 默认值。
-		return 默认值，返回一个QString对象。如果未设置默认值，则返回空字符串。
+
+		返回一个QString对象。如果未设置默认值，则返回空字符串。
 	*/
 	QString AStoryXValueMeta::getDefaultValue() const {
 		return d->DefaultValue;
@@ -422,6 +433,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		设置字符串检查的正则表达式。
+
 		\a regex 正则表达式，必须是一个有效的QString对象。该正则表达式将用于验证字符串类型参数的格式。
 	*/
 	void AStoryXValueMeta::setStringCheckRegex(const QString& regex) {
@@ -431,7 +443,8 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 字符串检查的正则表达式。
-		return 正则表达式，返回一个QString对象。如果未设置正则表达式，则返回空字符串。
+
+		返回一个QString对象。如果未设置正则表达式，则返回空字符串。
 	*/
 	QString AStoryXValueMeta::getStringCheckRegex() const {
 		return d->StringCheckRegex;
@@ -450,7 +463,8 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 整数检查的范围。
-		return 整数检查范围，返回一个QPair<qint64, qint64>对象，其中first表示最小值，second表示最大值。
+
+		返回一个QPair<qint64, qint64>对象，其中first表示最小值，second表示最大值。
 		如果未设置范围，则返回默认的QPair对象，其first和second均为0。
 	*/
 	QPair<qint64, qint64> AStoryXValueMeta::getIntegerCheckRange() const {
@@ -470,7 +484,8 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 浮点数检查的范围。
-		return 浮点数检查范围，返回一个QPair<double, double>对象，其中first表示最小值，second表示最大值。
+
+		返回一个QPair<double, double>对象，其中first表示最小值，second表示最大值。
 		如果未设置范围，则返回默认的QPair对象，其first和second均为0.0。
 	*/
 	QPair<double, double> AStoryXValueMeta::getFloatCheckRange() const {
@@ -480,8 +495,10 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.1
 		设置向量检查的范围和维度。
+
 		\a range 向量检查范围，必须是一个QList<QPair<double, double>>对象，其中每个QPair表示一个维度的最小值和最大值。
 		range的大小必须等于dimensions中的最大值。
+
 		\a dimensions 向量维度，必须是一个QList<qint64>对象，表示允许的维度值列表。dimensions中的每个值必须大于0。
 	*/
 	void AStoryXValueMeta::setVectorCheckRange(const QList<QPair<double, double>>& range, const QList<qint64>& dimensions) {
@@ -492,7 +509,9 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 向量检查的范围。
-		return 向量检查范围，返回一个QList<QPair<double, double>>对象，其中每个QPair表示一个维度的最小值和最大值。
+
+		返回一个QList<QPair<double, double>>对象，其中每个QPair表示一个维度的最小值和最大值。
+
 		如果未设置范围，则返回一个空的QList对象。
 	*/
 	QList<QPair<double, double>> AStoryXValueMeta::getVectorCheckRange() const {
@@ -502,7 +521,9 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.1
 		return 向量检查的维度。
-		return 向量检查维度，返回一个qint64的列表，代表允许的维度值列表。
+
+		返回一个qint64的列表，代表允许的维度值列表。
+
 		如果未设置维度，则返回0。
 	*/
 	QList<qint64> AStoryXValueMeta::getVectorCheckDimensions() const {
@@ -521,7 +542,9 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		return 枚举检查的列表。
-		return 枚举检查列表，返回一个QStringList对象，包含所有有效的枚举值。
+
+		返回一个QStringList对象，包含所有有效的枚举值。
+
 		如果未设置枚举检查列表，则返回一个空的QStringList对象。
 	*/
 	QStringList AStoryXValueMeta::getEnumCheckList() const {
@@ -530,7 +553,10 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.1
+		\a dimensions 枚举检查的维度，必须是一个QList<qint64>对象，表示允许的维度值列表。
+
 		设置枚举检查的维度。请注意，它和向量检查维度共用一个内部对象
+
 		保存数据，因此如果你中途切换该类的元数据，那么先前设置的维度可能会被覆盖或丢失。请确保在设置元数据时正确配置维度以避免潜在的问题。
 	*/
 	void AStoryXValueMeta::setEnumCheckDimensions(const QList<qint64>& dimensions) {
@@ -539,7 +565,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.1
+
 		return 枚举检查的维度。请注意，它和向量检查维度共用一个内部对象
+
 		保存数据，因此如果你中途切换该类的元数据，那么先前设置的维度可能会被覆盖或丢失。请确保在设置元数据时正确配置维度以避免潜在的问题。
 	*/
 	QList<qint64> AStoryXValueMeta::getEnumCheckDimensions() const {
@@ -549,6 +577,7 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		检查给定的参数值是否符合预设的类型和规则。
+
 		\a value 参数值，必须是一个QString对象。该值将根据当前设置的类型和检查规则进行验证。
 
 		return 诊断结果，返回一个AStoryXDiagnosticData::DiagnosticType枚举值，表示参数值的验证结果。
@@ -602,7 +631,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		根据参数值的格式猜测参数类型。
+		\a value 参数值，必须是一个QString对象。该函数将根据参数值的格式进行分析和判断，以猜测其可能的类型。
+
+		return 根据参数值的格式猜测参数类型。
 
 		注意，这个函数只会在如下类型中按顺序猜测：Integer、Float、Vector、Bool和String。
 		该函数最差（即前四种假设均失败时）也会返回String类型，而不会返回Undefined。
@@ -643,7 +674,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		将参数类型枚举值转换为字符串表示。
+		\a type 参数类型，必须是AStoryXValueMeta::Type枚举中的一个值。
+
+		return 将参数类型枚举值转换为字符串表示。
 	*/
 	QString AStoryXValueMeta::typeToString(Type type) {
 		return QMetaEnum::fromType<AStoryXValueMeta::Type>().valueToKey(type);
@@ -651,7 +684,9 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		将参数值转换为整数。
+
 		\a value 参数值，必须是一个符合整数类型要求的QString对象。
+
 		return 转换结果，返回一个qint64类型的整数。如果转换失败（例如参数值不符合整数格式），则返回0。
 
 		这函数不做任何检查。
@@ -663,7 +698,9 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		将参数值转换为浮点数。
+
 		\a value 参数值，必须是一个符合浮点数类型要求的QString对象。
+
 		return 转换结果，返回一个double类型的数值。如果转换失败（例如参数值不符合浮点数格式），则返回0.0。
 
 		这函数不做任何检查。
@@ -675,8 +712,11 @@ namespace ASERStudio::AStorySyntax {
 	/*!
 		\since ASERStudio 2.0
 		将参数值转换为向量。
+
 		\a value 参数值，必须是一个符合向量类型要求的QString对象，即逗号分隔的数值列表。
+
 		return 转换结果，返回一个QList<double>对象，包含向量的各个分量。
+
 		如果整体切分失败，可能返回一个包含唯一0值的列表；如果切分成功但某个分量转换失败，则该分量的值为0。
 
 		这函数不做任何检查。
@@ -692,9 +732,13 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
+
 		将参数值转换为布尔值。
+
 		\a value 参数值，必须是一个符合布尔类型要求的QString对象，例如"true"、"false"、"1"、"0"、"yes"或"no"等。
+
 		return 转换结果，返回一个bool类型的值。如果转换失败（例如参数值不符合布尔格式），则返回false。
+
 		这函数不做任何检查。
 	*/
 	bool AStoryXValueMeta::toBool(const QString& value) {

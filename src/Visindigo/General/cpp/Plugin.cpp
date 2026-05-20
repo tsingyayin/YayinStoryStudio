@@ -72,7 +72,7 @@ namespace Visindigo::General {
 		\inheaderfile General/Plugin.h
 		\inmodule Visindigo
 		\ingroup VIPlugin
-		\brief 此类为Visindigo提供插件基类。
+		\brief 此类为Visindigo提供插件基类.
 		\since Visindigo 0.13.0
 
 		要开发Visindigo插件或应用程序，您就必须实现此类的一个派生。即Visindigo将基于其实现的插件
@@ -82,7 +82,7 @@ namespace Visindigo::General {
 		\section1 主要函数说明
 
 		Plugin类最重要的函数有五个，是用户必须实现的函数，即构造函数，onPluginEnable()，onPluginDisbale()，onApplicationInit()和onTest()。
-		
+
 		无论是开发应用程序还是插件，这五个函数都遵循相同的逻辑与原则：
 		\list
 		\li 构造函数：只用于设置本插件或本应用程序的基础信息，如setPluginID()，setPluginName()，setPluginAuthor()等。除此之外
@@ -123,7 +123,7 @@ namespace Visindigo::General {
 		\warning 请注意，VisindigoPluginMain函数必须是extern "C"的，否则Visindigo将无法找到它。
 
 		Visindigo会通过此函数取得您的插件实例，并且在适当的时候调用它的各个函数。
-	
+
 		但是，若要使Yayin Story Studio能够找到您的插件，您还需要至少三步操作：
 
 		1. 在VIApplication的envConfig中指定的插件存放目录下创建存放插件的文件夹，命名可以任选，最好为您的插件ID。
@@ -165,7 +165,7 @@ namespace Visindigo::General {
 		\value MainPlugin 插件是作为应用程序的主插件加载的，这插件在VIApplication::getMainPlugin()中可用
 	*/
 
-	/*! 
+	/*!
 		\typedef Visindigo::General::Package
 		\relates Visindigo::General::Plugin
 		\since Visindigo 0.13.0
@@ -173,7 +173,7 @@ namespace Visindigo::General {
 		作为Visindigo::General::Plugin类的别名，方便用户将其称为“应用程序包”。
 	*/
 
-	/*! 
+	/*!
 		\typedef Visindigo::General::PackageModule
 		\relates Visindigo::General::PluginModule
 		\since Visindigo 0.13.0
@@ -195,7 +195,6 @@ namespace Visindigo::General {
 		\a extID 插件的扩展ID
 		\a parent 插件的父对象
 		\since Visindigo 0.13.0
-
 
 		对于abiVersion，其已经在头文件中被默认填充为Compiled_YSSABI_Version，代表您的插件编译时Visindigo对应的ABI版本。
 
@@ -381,7 +380,7 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		\a id 模块的ID
-		return 插件中ID为\a id的模块，如果没有找到，则返回nullptr
+		return 插件中ID为 \a id 的模块，如果没有找到，则返回nullptr
 
 		请注意，出于从ID搜索模块可能并不常用考虑，在注册模块到插件时，
 		并不会立即将他们存入Map中以节省空间和提高性能，因此使用此
@@ -405,7 +404,7 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		\a typeID 特定类型的ID
-		return 插件中全部类型ID为\a typeID的模块列表，如果没有找到，则返回一个空列表
+		return 插件中全部类型ID为 \a typeID 的模块列表，如果没有找到，则返回一个空列表
 
 		请注意，出于从类型ID搜索模块可能并不常用考虑，在注册模块到插件时，
 		并不会立即将他们存入Map中以节省空间和提高性能，因此使用此
@@ -470,7 +469,7 @@ namespace Visindigo::General {
 		return 插件的配置界面，如果插件没有提供配置界面，则默认返回nullptr
 
 		关于此虚函数建议如下原则实现：
-		
+
 		懒初始化您的插件配置页面，即在第一次有人调用此函数前，
 		不要创建您的插件配置页面，这有助于节省内存和提高性能。
 		与此同时，建议持久化存储该指针并在disable时再销毁它。
@@ -533,7 +532,7 @@ namespace Visindigo::General {
 	void Plugin::setPluginVersion(const Visindigo::General::Version& version) {
 		d->PluginVersion = version;
 	}
-	
+
 	/*!
 		\since Visindigo 0.13.0
 		\a module 要注册的模块
@@ -571,7 +570,6 @@ namespace Visindigo::General {
 			TranslationHost::getInstance()->unregisterTranslator(dynamic_cast<Translator*>(module));
 		}
 		else if (module->getModuleTypeID() == QString(VIModuleType_PlaceholderProvider)) {
-			
 		}
 	}
 

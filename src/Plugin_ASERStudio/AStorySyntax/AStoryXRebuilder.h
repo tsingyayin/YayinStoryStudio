@@ -22,7 +22,7 @@ namespace ASERStudio::AStorySyntax {
 		};
 	public:
 		static QString rebuild(const QString& ruleName, const AStoryXControllerParseData& data, RebuildErrorCode* errorCode = nullptr);
-		static QString rebuild(const QString& ruleName, AStoryXController::ControllerType type, 
+		static QString rebuild(const QString& ruleName, AStoryXController::ControllerType type,
 			const QString& reqPara, const QMap<QString, QString>& optParas, RebuildErrorCode* errorCode = nullptr);
 		static QString rebuild(const QString& ruleName, const QString& rawLine, qint32 lineIndex = -1, RebuildErrorCode* errorCode = nullptr);
 		static bool rebuildDocument(const QString& fromFile, const QString& toFile, const QString& fromRule, const QString& toRule,

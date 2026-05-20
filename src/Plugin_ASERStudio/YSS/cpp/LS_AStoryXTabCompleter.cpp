@@ -65,7 +65,7 @@ namespace ASERStudio::YSS {
 		}
 		else {
 			QStringList optNames = rule->getOptionalParameterNames(parseData.getControllerType());
-			if (not optNames.isEmpty() && optNames.last() != parameter.getName()){
+			if (not optNames.isEmpty() && optNames.last() != parameter.getName()) {
 				for (auto s : optPrefixes) {
 					items.append(YSSCore::Editor::TabCompleterItem(s, s, "Optional Parameter Prefix", YSSCore::Editor::TabCompleterItem::ItemType::Operator, false));
 				}
@@ -80,7 +80,7 @@ namespace ASERStudio::YSS {
 					controller.getStartSign(), controller.getHeader(), YSSCore::Editor::TabCompleterItem::ItemType::Function));
 			}
 		}
-		
+
 		if (content.isEmpty() || content.startsWith("#") && content.size() <= 1) {
 			QStringList preprocessors = rule->getSupportedPreprocessors();
 			for (auto preprocessor : preprocessors) {
@@ -100,23 +100,22 @@ namespace ASERStudio::YSS {
 						items->append(YSSCore::Editor::TabCompleterItem("[ TAB ]", "\t", "Parameter Separator", YSSCore::Editor::TabCompleterItem::ItemType::Operator));
 					}
 					else {
-						
 						items->append(YSSCore::Editor::TabCompleterItem(separator, separator, "Parameter Separator", YSSCore::Editor::TabCompleterItem::ItemType::Operator));
 					}
 				}
 			}
 		}
 		if (data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Character ||
-			data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Interlude){
+			data->getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Interlude) {
 			//.vgDebug << data->getCursorInWhichParameter(column) << data->getRequiredParameter().getName();
-			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()){
+			if (data->getCursorInWhichParameter(column) == data->getRequiredParameter().getName()) {
 				QString paramContent = data->getRequiredParameter().getContent();
 				//vgDebug << paramContent << data->getRequiredParameter().getSeparator();
 				if (not paramContent.contains(data->getRequiredParameter().getSeparator())) {
 					auto charas = ASERRM->getCharacters();
 					charas = Visindigo::Utility::StringUtility::getStartWith(paramContent, charas);
 					//vgDebug << charas;
-					
+
 					for (auto chara : charas) {
 						items->append(YSSCore::Editor::TabCompleterItem(chara, chara, "Character", YSSCore::Editor::TabCompleterItem::ItemType::Object));
 					}
@@ -127,7 +126,7 @@ namespace ASERStudio::YSS {
 					diffs = Visindigo::Utility::StringUtility::getStartWith(paramContent.split(data->getRequiredParameter().getSeparator()).last(), diffs);
 					//vgDebug << diffs;
 					for (auto diff : diffs) {
-						items->append(YSSCore::Editor::TabCompleterItem(chara+data->getRequiredParameter().getSeparator()+diff, diff, "Character Diff", YSSCore::Editor::TabCompleterItem::ItemType::Object));
+						items->append(YSSCore::Editor::TabCompleterItem(chara + data->getRequiredParameter().getSeparator() + diff, diff, "Character Diff", YSSCore::Editor::TabCompleterItem::ItemType::Object));
 					}
 				}
 			}

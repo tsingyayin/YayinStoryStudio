@@ -58,7 +58,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::FileUtility
-		\brief 此类为Yayin Story Studio 提供文件操作的相关函数
+		\brief 此类为Yayin Story Studio 提供文件操作的相关函数.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -70,7 +70,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\enum Visindigo::Utility::FileUtility::BinarySizeFormat
-		\brief 此枚举用于表示文件大小的单位
+		此枚举用于表示文件大小的单位
 		\since Visindigo 0.13.0
 		\value IEC 二进制单位
 		\value SI 十进制单位
@@ -83,7 +83,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\enum Visindigo::Utility::FileUtility::BinarySizeUnit
-		\brief 此枚举用于表示文件大小的单位
+		此枚举用于表示文件大小的单位
 		\since Visindigo 0.13.0
 		\value bit 位
 		\value Byte 字节
@@ -92,7 +92,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\enum Visindigo::Utility::FileUtility::CountingUnit
-		\brief 此枚举用于表示文件大小的单位
+		此枚举用于表示文件大小的单位
 		\since Visindigo 0.13.0
 		\value _0 （无单位）
 		\value K 千
@@ -128,7 +128,7 @@ namespace Visindigo::Utility {
 		file.close();
 		return rtn;
 	}
-	
+
 	/*!
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
@@ -174,7 +174,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
-		\a data 需要保存的数据
+		\a lines 需要保存的行列表
 		\a joinLine 行连接符
 
 		将QStringList保存到文件中
@@ -238,7 +238,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
 		\a data 需要保存的数据
-		
+
 		将QByteArray保存到文件中
 	*/
 	void FileUtility::saveByteArray(const QString& filePath, const QByteArray& data) {
@@ -268,7 +268,7 @@ namespace Visindigo::Utility {
 		\a root 根目录
 		\a exts 文件扩展名，这exts应形如 "*.ext1"、"*.ext2"、"*.ext3"，请务必注意星号。
 		\a considerSubFolder 是否考虑子目录
-		
+
 		过滤指定目录下的文件。
 
 		return 一个QStringList，包含了所有符合条件的文件的绝对路径。
@@ -276,7 +276,7 @@ namespace Visindigo::Utility {
 	QStringList FileUtility::fileFilter(const QString& root, const QStringList& exts, bool considerSubFolder) {
 		QDirListing list(root, exts, (considerSubFolder ? QDirListing::IteratorFlag::Recursive : QDirListing::IteratorFlag::Default) | QDirListing::IteratorFlag::FilesOnly);
 		QStringList files;
-		for(auto li: list){
+		for (auto li : list) {
 			files.append(li.absoluteFilePath());
 		}
 		return files;
@@ -294,7 +294,7 @@ namespace Visindigo::Utility {
 	QStringList FileUtility::folderFilter(const QString& root, bool considerSubFolder) {
 		QDirListing list(root, QStringList(), (considerSubFolder ? QDirListing::IteratorFlag::Recursive : QDirListing::IteratorFlag::Default) | QDirListing::IteratorFlag::DirsOnly);
 		QStringList folders;
-		for(auto li: list){
+		for (auto li : list) {
 			folders.append(li.absoluteFilePath());
 		}
 		return folders;
@@ -323,7 +323,7 @@ namespace Visindigo::Utility {
 		\a bytes 字节数
 		\a u 单位
 		\a f 格式
-		
+
 		获取指定字节数的可读大小，
 		return 一个QString，包含了可读大小和单位，例如"1.23MB"。
 	*/
@@ -334,7 +334,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a path 路径
-	
+
 		打开指定路径的资源管理器。
 		从0.15.0开始，这个函数在Windows上进行优化：如果路径是一个文件，则会额外选中该文件。
 	*/
@@ -347,10 +347,10 @@ namespace Visindigo::Utility {
 			QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 		}
 		else if (fileInfo.isFile()) {
-			QString absPath = fileInfo.absoluteFilePath().replace("/","\\");
+			QString absPath = fileInfo.absoluteFilePath().replace("/", "\\");
 			QString cmd = "explorer /select,\"" + absPath + "\"";
 			vgDebug << cmd;
-			system(("explorer /select,\"" + absPath +"\"").toStdString().c_str());
+			system(("explorer /select,\"" + absPath + "\"").toStdString().c_str());
 		}
 #endif
 	}
@@ -358,7 +358,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a url 链接
-		
+
 		打开指定链接的浏览器。
 	*/
 	void FileUtility::openBrowser(const QString& url) {
@@ -369,7 +369,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a name 文件名
 		\a replace 替换字符
-		
+
 		将文件名中的非法字符替换为指定字符
 		return 返回合法的文件名。
 
@@ -386,7 +386,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
-		
+
 		return 指定文件是否存在
 	*/
 	bool FileUtility::isFileExist(const QString& filePath) {
@@ -397,7 +397,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a dirPath 目录路径
-		
+
 		return 指定目录是否存在
 	*/
 	bool FileUtility::isDirExist(const QString& dirPath) {
@@ -408,7 +408,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a dirPath 目录路径
-		
+
 		return 指定目录是否为空。如果目录不存在，则返回false。
 	*/
 	bool FileUtility::isDirEmpty(const QString& dirPath) {
@@ -422,9 +422,9 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a dirPath 目录路径
-		
+
 		创建指定目录，
-		
+
 		return 是否创建成功。
 	*/
 	bool FileUtility::createDir(const QString& dirPath) {
@@ -439,7 +439,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a startWith 起始路径
 		\a path 绝对路径
-		
+
 		return 如果path以startWith开头，相对于startWith的路径，否则返回path。
 	*/
 	QString FileUtility::getRelativeIfStartWith(const QString& startWith, const QString& path) {
@@ -455,11 +455,11 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a argv 程序启动时输入main的参数
-		
+
 		return 程序所在目录的绝对路径。
 	*/
-	QString FileUtility::getProgramPath(char** argv){
-		if (argv==nullptr) {
+	QString FileUtility::getProgramPath(char** argv) {
+		if (argv == nullptr) {
 			QFileInfo fileInfo(QCoreApplication::applicationFilePath());
 			return fileInfo.absolutePath();
 		}
@@ -472,7 +472,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
-		
+
 		return 指定文件的创建时间，返回一个QDateTime。如果文件不存在，则返回一个无效的QDateTime。
 	*/
 	QDateTime FileUtility::getFileCreateTime(const QString& filePath) {
@@ -486,7 +486,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
-		
+
 		return 指定文件的修改时间，返回一个QDateTime。如果文件不存在，则返回一个无效的QDateTime。
 	*/
 	QDateTime FileUtility::getFileModifyTime(const QString& filePath) {
@@ -500,7 +500,7 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
-		
+
 		return 指定文件的访问时间，返回一个QDateTime。如果文件不存在，则返回一个无效的QDateTime。
 	*/
 	QDateTime FileUtility::getFileAccessTime(const QString& filePath) {
@@ -515,7 +515,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
 		\a moveToTrash 是否移动到回收站
-		
+
 		删除指定文件，如果moveToTrash为true，则移动到回收站，否则直接删除。
 	*/
 	void FileUtility::deleteFile(const QString& filePath, bool moveToTrash) {
@@ -537,7 +537,7 @@ namespace Visindigo::Utility {
 		\a dstPath 目标文件路径
 		\a rinse 是否使用漂洗的方式复制文件
 		\a overwrite 是否覆盖已存在的目标文件
-		
+
 		复制文件，如果rinse为true，则使用漂洗的方式复制文件，否则使用QFile::copy()，如果overwrite为true，则覆盖已存在的目标文件，否则不进行复制。
 
 		漂洗模式只忠实传递文件本体的二进制数据，不从源文件读取任何元数据，也不写入任何元数据到目标文件，
@@ -561,16 +561,20 @@ namespace Visindigo::Utility {
 				return;
 			}
 		}
-		if (not rinse) {	
+		if (not rinse) {
 			srcFile.copy(dstPath);
 		}
 		else {
-			srcFile.open(QIODevice::ReadOnly);
-			QByteArray data = srcFile.readAll();
-			srcFile.close();
-			dstFile.open(QIODevice::WriteOnly);
-			dstFile.write(data);
-			dstFile.close();
+			if (srcFile.open(QIODevice::ReadOnly)) {
+				QByteArray data = srcFile.readAll();
+				srcFile.close();
+				if (dstFile.open(QIODevice::WriteOnly)) {
+					dstFile.write(data);
+					dstFile.close();
+					return;
+				}
+			}
+			vgErrorF << "Failed to copy file: " << srcPath << " to " << dstPath;
 		}
 	}
 }

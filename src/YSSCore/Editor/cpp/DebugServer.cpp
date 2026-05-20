@@ -38,7 +38,6 @@ namespace YSSCore::Editor {
 		光标的信号（你不应该滥用breakpointHited信号来实现这个功能），因为这个
 		功能已经在YSSCore::Editor::FileServerManager::focusOnFile中提供。
 
-		
 		\note 虽然这类从0.13.0开始提供，但文档从0.15.0开始提供，因此没有记录中途变化历史，
 		不能根据此文档使用0.13和0.14中的此类。
 	*/
@@ -58,10 +57,13 @@ namespace YSSCore::Editor {
 		\value Continue 支持继续功能。
 		\value Stop 支持停止功能。
 		\value Breakpoint 支持断点功能。
+		\value TargetOutput 支持获取被调试程序的标准输出功能。
+		\value TargetError 支持获取被调试程序的标准错误功能。
+		\value TargetStdInput 支持向被调试程序的标准输入写入数据功能。
 	*/
 
 	/*!
-		\typedef YSSCore::Editor::DebugServer::SupportedDebugFeatureFlag YSSCore::Editor::DebugServer::DebugAction
+		\typedef YSSCore::Editor::DebugServer::DebugAction
 		\relates YSSCore::Editor::DebugServer
 		\since YSS 0.15.0
 		将SupportedDebugFeatureFlag赋予别名为DebugAction，以更好地表达它在信号中的含义。
@@ -101,7 +103,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.15.0
 
 		当一个调试操作有消息更新时发出此信号。理应只有on开始的函数才应该发出对应的信号。
-		
+
 		message的具体含义取决于正在执行的调试操作，由实现自行决定，YSS
 		使用这个数据在输出窗口中输出。
 	*/
@@ -113,11 +115,11 @@ namespace YSSCore::Editor {
 		\a success 调试操作是否成功完成。
 
 		当一个调试操作完成时发出此信号。理应只有on开始的函数才应该发出对应的信号。
-		
-		如果一个步骤最终未能顺利执行完毕，则应该在适当的时候发出这个信号，
-		并将\a success设置为false，以通知编辑器这个步骤未能成功完成。
 
-		请注意，YSS约定，如果收到了\a success为false的该信号，则将
+		如果一个步骤最终未能顺利执行完毕，则应该在适当的时候发出这个信号，
+		并将 \a success 设置为false，以通知编辑器这个步骤未能成功完成。
+
+		请注意，YSS约定，如果收到了 \a success 为false的该信号，则将
 		从actionMessage收到的最后一条信息视作错误信息，并以
 		一定策略显示出来。
 	*/
@@ -130,8 +132,8 @@ namespace YSSCore::Editor {
 		\since YSS 0.15.0
 
 		当一个断点被添加、删除时发出此信号。有关何时应该发出此信号，请参见setBreakpoint和setBreakpoints函数的文档说明。
-		
-		由于写入此类的文件路径理应都是绝对路径，因此期望这个函数的\a filePath也是绝对路径。
+
+		由于写入此类的文件路径理应都是绝对路径，因此期望这个函数的 \a filePath 也是绝对路径。
 
 		此外，YSS约定，行号从0开始计数。
 	*/
@@ -144,7 +146,7 @@ namespace YSSCore::Editor {
 
 		当程序执行过程中命中了一个断点时发出此信号。
 
-		由于写入此类的文件路径理应都是绝对路径，因此期望这个函数的\a filePath也是绝对路径。
+		由于写入此类的文件路径理应都是绝对路径，因此期望这个函数的 \a filePath 也是绝对路径。
 
 		此外，YSS约定，行号从0开始计数。
 	*/
@@ -164,7 +166,7 @@ namespace YSSCore::Editor {
 		\a name 模块名称，\a id 模块ID，\a plugin 所属插件。
 	*/
 	DebugServer::DebugServer(const QString& name, const QString& id, EditorPlugin* plugin)
-		: Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_DebugServer, name ) {
+		: Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_DebugServer, name) {
 		d = new DebugServerPrivate();
 	}
 
@@ -178,6 +180,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a features 这个DebugServer支持的调试功能。
+
 		设置这个DebugServer支持的调试功能。
 	*/
 	void DebugServer::setSupportedFeatures(SupportedDebugFeature features) {
@@ -202,16 +206,15 @@ namespace YSSCore::Editor {
 		步骤理应是无法被跳过的。
 
 		为了性能考虑，构建操作并不总是一定要通过处理整个项目进行构建，
-		这个时候\a rebuild即是false，指示实现可以根据需要有选择的进行构建。
-		相反，如果\a rebuild是true，则指示实现需要进行全部重新构建。
+		这个时候 \a rebuild 即是false，指示实现可以根据需要有选择的进行构建。
+		相反，如果 \a rebuild 是true，则指示实现需要进行全部重新构建。
 
-		实现应首先保证全部重新构建的功能完整实现，然后再考虑在\a rebuild为false时的优化实现。
+		实现应首先保证全部重新构建的功能完整实现，然后再考虑在 \a rebuild 为false时的优化实现。
 
 		构建开始时，发出actionStarted信号，构建过程中根据需要发出actionPercent和actionMessage
 		信号，构建完成时发出actionFinished信号。
 	*/
 	void DebugServer::onBuild(bool rebuild) {
-	
 	}
 
 	/*!
@@ -219,17 +222,16 @@ namespace YSSCore::Editor {
 		当清理构建产物操作开始时调用此函数。插件可以重写此函数来实现具体的清理构建产物功能。
 		\a includeTarget 是否包括输出文件。
 
-		这个函数被调用时，如果\a includeTarget为false，则只应该清理
-		构建过程中产生的中间文件，而不应该清理输出文件。相反，如果\a includeTarget为true，
+		这个函数被调用时，如果 \a includeTarget 为false，则只应该清理
+		构建过程中产生的中间文件，而不应该清理输出文件。相反，如果 \a includeTarget 为true，
 		则应该清理包括输出文件在内的所有构建产物。
 
-		实现应首先保证包括输出文件在内的全部清理功能完整实现，然后再考虑在\a includeTarget为false时的优化实现。
+		实现应首先保证包括输出文件在内的全部清理功能完整实现，然后再考虑在 \a includeTarget 为false时的优化实现。
 
 		清理开始时，发出actionStarted信号，清理过程中根据需要发出actionPercent和actionMessage
 		信号，清理完成时发出actionFinished信号。
 	*/
 	void DebugServer::onClean(bool includeTarget) {
-	
 	}
 
 	/*!
@@ -252,7 +254,6 @@ namespace YSSCore::Editor {
 		YSS不处理DebugAction为Run或DebugRun时的actionPercent信号。
 	*/
 	void DebugServer::onRun(bool debug) {
-	
 	}
 
 	/*!
@@ -266,7 +267,6 @@ namespace YSSCore::Editor {
 		YSS不处理DebugAction为StepInto时的actionPercent信号。
 	*/
 	void DebugServer::onStepInto() {
-	
 	}
 
 	/*!
@@ -280,7 +280,6 @@ namespace YSSCore::Editor {
 		YSS不处理DebugAction为StepOver时的actionPercent信号。
 	*/
 	void DebugServer::onStepOver() {
-	
 	}
 
 	/*!
@@ -294,7 +293,6 @@ namespace YSSCore::Editor {
 		YSS不处理DebugAction为Suspend时的actionPercent信号。
 	*/
 	void DebugServer::onSuspend() {
-	
 	}
 
 	/*!
@@ -308,7 +306,6 @@ namespace YSSCore::Editor {
 		YSS不处理DebugAction为Continue时的actionPercent信号。
 	*/
 	void DebugServer::onContinue() {
-	
 	}
 
 	/*!
@@ -322,7 +319,6 @@ namespace YSSCore::Editor {
 		YSS不处理DebugAction为Stop时的actionPercent信号。
 	*/
 	void DebugServer::onStop() {
-	
 	}
 
 	/*!
@@ -337,18 +333,17 @@ namespace YSSCore::Editor {
 		传入这个函数的文件路径理应是绝对路径。
 	*/
 	void DebugServer::setBreakpoint(const QString& filePath, qint32 lineNumber, bool enabled) {
-	
 	}
 
 	/*!
 		\since YSS 0.15.0
 		return 断点信息。插件可以重写此函数来实现具体的获取断点信息功能。
-		
+
 		返回值是一个QMap，键是文件路径，值是该文件中所有断点所在的行号列表。
 		YSS约定，行号从0开始计数。
 
 		由于setBreakpoint时使用的理应是绝对路径，因此期望这里返回的也是绝对路径。
-		
+
 		YSS会在保存项目时，通过调用此函数保存断点信息。不过在保存时，会
 		自动根据文件是项目内文件还是项目外文件，来将路径转换为相对路径或绝对路径
 		存储，避免项目移动后丢失断点信息。
@@ -366,14 +361,13 @@ namespace YSSCore::Editor {
 
 		对于传入的断点信息，插件应该将其保存起来，并对其中的每一条断点信息，
 		发出breakpointChanged信号，以通知编辑器断点信息的变化。
-		
+
 		YSS会在加载项目时，通过调用此函数加载断点信息。在加载时，会自动将
 		所有路径转换为绝对路径。
 
 		此外，YSS约定，行号从0开始计数。
 	*/
 	void DebugServer::setBreakpoints(const QMap<QString, QList<qint32>>& breakpoints) {
-	
 	}
 
 	/*!
@@ -383,6 +377,5 @@ namespace YSSCore::Editor {
 
 	*/
 	void DebugServer::writeTargetStdInput(const QString& input) {
-	
 	}
 }

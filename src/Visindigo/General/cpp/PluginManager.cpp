@@ -55,7 +55,7 @@ namespace Visindigo::General {
 		\inheaderfile General/PluginManager.h
 		\inmodule Visindigo
 		\ingroup VIPlugin
-		\brief 此类为Visindigo提供插件管理器。
+		\brief 此类为Visindigo提供插件管理器.
 		\since Visindigo 0.13.0
 
 		PluginManager负责加载和管理插件。
@@ -116,6 +116,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return PluginManager单例对象指针。单例不存在时自动创建，是获得PluginManager对象的唯一途径。
 
 		\sa VISPM
@@ -130,10 +131,10 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		扫描并加载插件到内存里，但不启用它们。
-		
+
 		此函数会扫描Visindigo::General::VIApplication::EnvKey::PluginFolderPath
 		指定的目录下的所有插件，并根据插件的依赖关系决定加载顺序。
-		
+
 		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
 
 		\note 这个函数不能被多次调用，重复调用会被忽略。
@@ -145,7 +146,7 @@ namespace Visindigo::General {
 		}
 		QString pluginFolder = VIApplication::getInstance()->getEnvConfig(VIApplication::PluginFolderPath).toString();
 		vgNoticeF << "Scanning plugins in" << pluginFolder;
-		
+
 		QFileInfoList Plugins = PluginManagerPrivate::recursionGetAllDll(pluginFolder);
 		for (QFileInfo info : Plugins) {
 			QString path = info.absoluteFilePath() + ".json";
@@ -156,7 +157,7 @@ namespace Visindigo::General {
 				vgWarning << "The json file in " << info.path() << "does not contain \"ID\" key. IGNORED";
 				continue;
 			}
-			if (d->PluginPathMap.contains(id)){
+			if (d->PluginPathMap.contains(id)) {
 				vgWarning << "Plugin with meta-id" << id << "has already exist. The plugin in" << info.path() << "will be ignored.";
 				continue;
 			}
@@ -207,7 +208,7 @@ namespace Visindigo::General {
 				}
 				else {
 					if (d->LoadResults[depend] != PluginManager::LoadPluginResult::Success) {
-						if (d->LoadResults[depend] == PluginManager::LoadPluginResult::Deactivated){
+						if (d->LoadResults[depend] == PluginManager::LoadPluginResult::Deactivated) {
 							vgError << "Failed when load plugin" << key << ", dependency" << depend << "is deactivated!";
 							d->LoadResults[key] = PluginManager::LoadPluginResult::Deactivated;
 						}
@@ -315,7 +316,7 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		测试所有已加载的插件。这调用所有插件的Visindigo::General::Plugin::onTest()函数。
-		
+
 		如果插件未启用测试，则跳过该插件的测试。
 
 		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
@@ -357,7 +358,7 @@ namespace Visindigo::General {
 		// disable in reverse order
 		for (int i = d->PriorityPlugins.size() - 1; i >= 0; i--) {
 			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
-			if (isPluginEnable(plugin)){
+			if (isPluginEnable(plugin)) {
 				try {
 					vgMessageF << "Trying to disable plugin" << plugin->getPluginName();
 					plugin->onPluginDisable();
@@ -374,6 +375,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 已加载的插件数量。这是被正确识别且加载到内存的插件动态链接库的数量。
 
 		根据插件加载的成功情况，插件在内存中的关系遵循如下规律：
@@ -383,7 +385,7 @@ namespace Visindigo::General {
 		或ID与metajson不符，则立即析构该插件实例（如果可以），并立即卸载该动态链接库。
 		\li 3. 在启用插件时，如果发生异常，则立即调用该插件的禁用函数，并保持该插件处于未启用状态，但插件仍然保留在内存中。
 		\endlist
-		
+
 		\sa getEnabledPluginCount()
 	*/
 	qint32 PluginManager::getLoadedPluginCount() const {
@@ -392,6 +394,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 已启用的插件数量。这是被启用并可以使用的插件对象的数量。
 
 		\sa getLoadedPluginCount()
@@ -402,7 +405,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		检查ID为\a id的插件是否被启用。
+
+		return ID为 \a id 的插件是否被启用。
 	*/
 	bool PluginManager::isPluginEnable(const QString& id) const {
 		if (d->PluginIDMap.contains(id)) {
@@ -413,7 +417,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		检查\a plugin插件是否被启用。
+
+		return \a plugin 插件是否被启用。
 	*/
 	bool PluginManager::isPluginEnable(Plugin* plugin) const {
 		return d->EnabledPlugins.contains(plugin);
@@ -421,11 +426,11 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置ID为\a id的插件的禁用状态，true为禁用，false为启用。
+		设置ID为 \a id 的插件的 \a deactivate 状态，true为禁用，false为启用。
 
 		被设置为false状态的插件将在加载动态链接库到内存这一步时被跳过，因此也不会启用。
 		请注意，如果这插件是其他插件的依赖项，那么依赖它的所有插件都会被连带禁用。
-		
+
 		只要调用这个函数，它就会同步修改主插件配置文件中"Plugins.Deactivated"项的内容，以确保这个设置在下次启动时仍然有效。
 		被连带禁用的插件不会出现在这个配置项中，这个配置项永远只包含被手动设置为禁用状态的插件ID。
 
@@ -444,7 +449,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		检查ID为\a id的插件是否被手动设置为禁用状态。
+
+		return ID为 \a id 的插件是否被手动设置为禁用状态。
 
 		请注意，和禁用状态有关的几个函数都有以下要点：
 		\list
@@ -452,6 +458,7 @@ namespace Visindigo::General {
 		即使在全部插件都没加载的阶段，也可以设置某个插件的激活状态。它不依赖插件实例，只从ID判断。
 		\li 2. 一个插件被配置为禁用状态后，依赖它的所有插件都会被连带设置为禁用状态。
 		但连带禁用的插件不会出现在禁用列表中，这个列表永远只含有被手动指定为禁用的插件ID。
+		\endlist
 
 		如果需要知道所有被禁用（无论是手动禁用还是连带禁用）的插件ID，
 		可以使用getPluginLoadResultByID()函数来判断插件的加载结果是否为Deactivated。
@@ -476,7 +483,7 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		return 所有被设置为未激活状态的插件ID列表。
-		
+
 		请注意，这只包括被手动设置为未激活状态的插件ID，而不包括那些因为依赖关系而被自动禁用的插件ID。
 	*/
 	QStringList PluginManager::getDeactivatedPluginIDList() const {
@@ -495,7 +502,7 @@ namespace Visindigo::General {
 			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
 			if (!isPluginEnable(plugin)) {
 				try {
-					plugin->d->initializePluginFolder(VIApp->getEnvConfig(VIApplication::ConfigPath).toString()+"/plugins");
+					plugin->d->initializePluginFolder(VIApp->getEnvConfig(VIApplication::ConfigPath).toString() + "/plugins");
 					plugin->d->setPluginLoadType(Plugin::LoadType::FromDisk);
 					vgMessageF << "Trying to enable plugin" << plugin->getPluginName();
 					plugin->onPluginEnable();
@@ -514,7 +521,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		根据插件ID获取插件对象指针。如果插件ID不存在或未被正确加载，则返回nullptr。
+		根据 \a id 获取插件对象指针。如果插件ID不存在或未被正确加载，则返回nullptr。
 	*/
 	Plugin* PluginManager::getPluginByID(const QString& id) const {
 		if (d->PluginIDMap.contains(id)) {
@@ -525,7 +532,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		根据插件名称获取插件对象指针。如果插件名称不存在或未被正确加载，则返回nullptr。
+		根据插件名称 \a name 获取插件对象指针。如果插件名称不存在或未被正确加载，则返回nullptr。
 	*/
 	Plugin* PluginManager::getPluginByName(const QString& name) const {
 		for (int i = 0; i < d->Plugins.size(); i++) {
@@ -536,6 +543,12 @@ namespace Visindigo::General {
 		return nullptr;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		根据 \a id 获取插件的加载结果。这个结果反映了插件在加载阶段的状态，包括是否成功加载、是否被禁用、是否缺少依赖等。
+
+		如果插件ID不存在，则返回LoadPluginResult::Unknown。
+	*/
 	PluginManager::LoadPluginResult PluginManager::getPluginLoadResultByID(const QString& id) const {
 		if (d->LoadResults.contains(id)) {
 			return d->LoadResults.value(id);
@@ -543,44 +556,100 @@ namespace Visindigo::General {
 		return LoadPluginResult::Unknown;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		return 已加载的插件对象列表。这个列表包含所有被正确识别并加载到内存中的插件对象指针，无论它们是否被启用。
+	*/
 	QList<Plugin*> PluginManager::getLoadedPlugins() const {
 		return d->Plugins;
 	}
 
+	/*!
+		\since Visindigo 0.15.1
+		return 已启用的插件对象列表。这个列表包含所有被启用并可以使用的插件对象指针。
+	*/
+	QList<Plugin*> PluginManager::getEnabledPlugins() const {
+		return d->EnabledPlugins;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		return 所有插件的加载结果映射。这个映射包含所有已加载插件的ID和对应的加载结果。
+	*/
 	QMap<QString, PluginManager::LoadPluginResult> PluginManager::getAllPluginLoadResults() const {
 		return d->LoadResults;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		\a typeID 插件类型ID，必须是唯一的字符串标识符。
+		\a typeName 插件类型名称，用于在用户界面中显示。
+		\a description 插件类型描述，用于在用户界面中显示详细信息。
+
+		为插件类型ID \a typeID 设置插件类型名称和描述。这些信息可以在用户界面中显示，以帮助用户识别和理解不同类型的插件。
+	*/
 	void PluginManager::setPluginTypeDescription(const QString& typeID, const QString& typeName, const QString& description) {
 		d->PluginTypeNames[typeID] = typeName;
 		d->PluginTypeDescriptions[typeID] = description;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		return 根据插件类型ID \a typeID 获取的插件类型名称。如果类型ID不存在，则返回空字符串。
+	*/
 	QString PluginManager::getPluginTypeName(const QString& typeID) const {
 		return d->PluginTypeNames.value(typeID, QString());
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		return 根据插件类型ID \a typeID 获取的插件类型描述。如果类型ID不存在，则返回空字符串。
+	*/
 	QString PluginManager::getPluginTypeDescription(const QString& typeID) const {
 		return d->PluginTypeDescriptions.value(typeID, QString());
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		return 所有已注册的插件类型ID列表。这个列表包含所有被注册的插件类型ID字符串。
+	*/
 	QStringList PluginManager::getAllPluginTypeID() const {
 		return d->PluginTypeNames.keys();
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		\a typeID 插件模块类型ID，必须是唯一的字符串标识符。
+		\a typeName 插件模块类型名称，用于在用户界面中显示。
+		\a description 插件模块类型描述，用于在用户界面中显示详细信息。
+
+		为插件模块类型ID \a typeID 设置插件模块类型名称和描述。这些信息可以在用户界面中显示，以帮助用户识别和理解不同类型的插件模块。
+	*/
 	void PluginManager::setPluginModuleTypeDescription(const QString& typeID, const QString& typeName, const QString& description) {
 		d->PluginModuleTypeNames[typeID] = typeName;
 		d->PluginModuleTypeDescriptions[typeID] = description;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		return 根据插件模块类型ID \a typeID 获取的插件模块类型名称。如果类型ID不存在，则返回空字符串。
+	*/
 	QString PluginManager::getPluginModuleTypeName(const QString& typeID) const {
 		return d->PluginModuleTypeNames.value(typeID, QString());
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		return 根据插件模块类型ID \a typeID 获取的插件模块类型描述。如果类型ID不存在，则返回空字符串。
+	*/
 	QString PluginManager::getPluginModuleTypeDescription(const QString& typeID) const {
 		return d->PluginModuleTypeDescriptions.value(typeID, QString());
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		return 所有已注册的插件模块类型ID列表。这个列表包含所有被注册的插件模块类型ID字符串。
+	*/
 	QStringList PluginManager::getAllPluginModuleTypeID() const {
 		return d->PluginModuleTypeNames.keys();
 	}

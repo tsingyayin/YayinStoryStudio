@@ -33,7 +33,7 @@ namespace YSSCore::__Private__ {
 		this->setFixedHeight(maxAllowedHeight);
 		ScrollBar->setGeometry(300 - 16, 0, 16, this->height());
 		ScrollBar->setRange(0, 0);
-		for(int i = 0; i < buttonCacheSize; i++) {
+		for (int i = 0; i < buttonCacheSize; i++) {
 			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(this);
 			button->setTitle("");
 			button->setPixmapPath("");
@@ -65,7 +65,7 @@ namespace YSSCore::__Private__ {
 	void TabCompleterWidget::selectPrevious() {
 		qint32 oldY = ScrollBar->value();
 		ScrollBar->setValue(oldY - buttonHeight);
-		if (currentSelectedIndex != 0) { 
+		if (currentSelectedIndex != 0) {
 			ButtonGroup->selectPrevious();
 			currentSelectedIndex--;
 		}
@@ -168,7 +168,7 @@ namespace YSSCore::__Private__ {
 		this->scrollBy(-event->angleDelta().y());
 	}
 
-	void TabCompleterWidget::onThemeChanged(){
+	void TabCompleterWidget::onThemeChanged() {
 		for (auto button : Buttons) {
 			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed", button));
 			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Normal", button));

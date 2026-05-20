@@ -49,7 +49,7 @@ namespace Visindigo::General {
 		bool getUseBuild() const;
 		quint32 getBuild() const;
 		QString getNickName() const;
-		
+
 	private:
 		VersionPrivate* d;
 	};

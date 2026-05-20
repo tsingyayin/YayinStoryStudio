@@ -19,6 +19,5 @@ namespace YSS::Editor {
 		void onMessageChanged(const QString& filePath);
 		void onMessageChangedForLine(const QString& filePath, qint32 lineNumber);
 	};
-
 }
 #endif // YSS_Editor_MainWin_MessageViewer_h

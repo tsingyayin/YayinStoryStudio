@@ -66,5 +66,4 @@ namespace ASERStudio::ASEREnv {
 			}
 			});
 	}
-
 }

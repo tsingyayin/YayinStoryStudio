@@ -23,7 +23,7 @@ namespace Visindigo::General {
 
 	/*!
 		\class Visindigo::General::Version
-		\brief 在现有主流版本号表示方法中找到的一个折中方案。
+		\brief 在现有主流版本号表示方法中找到的一个相对通用的方案.
 		\inmodule Visindigo
 		\inheaderfile General/Version.h
 		\since Visindigo 0.13.0
@@ -34,6 +34,7 @@ namespace Visindigo::General {
 	*/
 
 	/*!
+		\since Visindigo 0.13.0
 		默认构造函数，创建一个版本号为0.0.0的对象。默认不使用构建号，昵称为空。
 	*/
 	Version::Version()
@@ -48,6 +49,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a major 主版本号
 		\a minor 次版本号
 		\a patch 修订号
@@ -64,6 +66,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a version 版本号字符串，格式为 "major.minor.patch[.build] [nickName]"。
 
 		如果字符串格式不正确，则版本号保持为默认值0.0.0。
@@ -75,6 +78,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		复制构造函数，创建一个与 \a other 相同的版本号对象。
@@ -91,9 +95,10 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		移动构造函数，转移 \a other 的资源到新对象中，\a other 变为空对象。
+		移动构造函数，转移 \a other 的资源到新对象中， \a other 变为空对象。
 	*/
 	Version::Version(Version&& other) noexcept
 	{
@@ -102,9 +107,11 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		复制赋值运算符，将 \a other 的值赋给当前对象。
+		return 当前对象的引用。
 	*/
 	Version& Version::operator=(const Version& other)
 	{
@@ -120,9 +127,11 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		移动赋值运算符，将 \a other 的资源转移到当前对象中，\a other 变为空对象。
+		return 当前对象的引用。
 	*/
 	Version& Version::operator=(Version&& other) noexcept
 	{
@@ -145,9 +154,11 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		大于运算符，比较当前对象与 \a other 的版本号大小。它依次比较主版本号、次版本号、修订号和构建号（如果使用）。
+		return 如果当前对象的版本号大于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator>(const Version& other) const
 	{
@@ -175,9 +186,11 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		小于运算符，比较当前对象与 \a other 的版本号大小。它依次比较主版本号、次版本号、修订号和构建号（如果使用）。
+		return 如果当前对象的版本号小于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator<(const Version& other) const
 	{
@@ -205,9 +218,11 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		等于运算符，比较当前对象与 \a other 的版本号是否相等。它比较主版本号、次版本号、修订号和构建号（如果使用）。
+		return 如果当前对象的版本号等于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator==(const Version& other) const
 	{
@@ -226,34 +241,43 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		不等于运算符，是等于运算符的取反。
+		return 如果当前对象的版本号不等于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator!=(const Version& other) const {
 		return !(*this == other);
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		大于等于运算符，是大于运算符和等于运算符的取或。
+		return 如果当前对象的版本号大于或等于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator>=(const Version& other) const {
 		return *this > other || *this == other;
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
 		小于等于运算符，是小于运算符和等于运算符的取或。
+		return 如果当前对象的版本号小于或等于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator<=(const Version& other) const {
 		return *this < other || *this == other;
 	}
 
 	/*!
-		将版本号转换为字符串表示，格式为 "major.minor.patch[.build] [nickName]"。
+		\since Visindigo 0.13.0
+		return 将版本号转换为字符串表示
+
+		格式为 "major.minor.patch[.build] [nickName]"。
 	*/
 	QString Version::toString() const {
 		QString version = QString("%1.%2.%3").arg(d->major).arg(d->minor).arg(d->patch);
@@ -267,6 +291,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a version 版本号字符串，格式为 "major.minor.patch[.build] [nickName]"。
 
 		如果字符串格式不正确，则版本号保持不变。
@@ -312,6 +337,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a major 主版本号
 		\a minor 次版本号
 		\a patch 修订号
@@ -330,7 +356,10 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a name 昵称
+
+		 设置版本号的昵称。昵称可以是任何字符串，通常用于表示版本的特殊含义或状态，例如 "beta"、"alpha"、"release candidate" 等等。
 	*/
 	void Version::setNickName(const QString& name)
 	{
@@ -338,6 +367,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		return 主版本号。
 	*/
 	quint32 Version::getMajor() const
@@ -346,6 +376,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		return 次版本号。
 	*/
 	quint32 Version::getMinor() const
@@ -353,6 +384,7 @@ namespace Visindigo::General {
 		return d->minor;
 	}
 	/*!
+		\since Visindigo 0.13.0
 		return 修订号。
 	*/
 	quint32 Version::getPatch() const
@@ -360,6 +392,7 @@ namespace Visindigo::General {
 		return d->patch;
 	}
 	/*!
+		\since Visindigo 0.13.0
 		return 是否使用构建号。
 	*/
 	bool Version::getUseBuild() const
@@ -367,6 +400,7 @@ namespace Visindigo::General {
 		return d->useBuild;
 	}
 	/*!
+		\since Visindigo 0.13.0
 		return 构建号。
 	*/
 	quint32 Version::getBuild() const
@@ -374,6 +408,7 @@ namespace Visindigo::General {
 		return d->build;
 	}
 	/*!
+		\since Visindigo 0.13.0
 		return 昵称。
 	*/
 	QString Version::getNickName() const
@@ -382,6 +417,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		return Visindigo在编译时的API版本号。这个版本号存储在动态链接库里，
 		表达Visindigo本身的版本号。需要查询插件（包）的版本号，请参见
 		Visindigo::General::Plugin自己的相关函数。
@@ -391,6 +427,7 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		return Visindigo在编译时的ABI版本号。这个版本号存储在动态链接库里，
 		表达Visindigo本身的版本号。需要查询插件（包）的版本号，请参见
 		Visindigo::General::Plugin自己的相关函数。
@@ -400,20 +437,26 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a env 运行环境的版本号
 		\a tar 目标版本号
-		检查运行环境的API版本号 \a env 是否兼容目标版本号 \a tar。
+		检查运行环境的API版本号 \a env 是否兼容目标版本号 \a tar 。
 		只要环境版本号不小于目标版本号，就被认为兼容。因此必要时应该通过ABI作为兼容性检查的补充。
+
+		return 如果环境版本号兼容目标版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::isCompatibleAPIVersion(const Version& env, const Version& tar) {
 		return env >= tar;
 	}
 
 	/*!
+		\since Visindigo 0.13.0
 		\a env 运行环境的版本号
 		\a tar 目标版本号
-		检查运行环境的ABI版本号 \a env 是否兼容目标版本号 \a tar。
+		检查运行环境的ABI版本号 \a env 是否兼容目标版本号 \a tar  。
 		兼容的条件是：主版本号相同，次版本号不小于目标版本号的次版本号。
+
+		return 如果环境版本号兼容目标版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::isCompatibleABIVersion(const Version& env, const Version& tar) {
 		return env.getMajor() == tar.getMajor() && env.getMinor() >= tar.getMinor();

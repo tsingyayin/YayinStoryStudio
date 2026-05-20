@@ -1,5 +1,5 @@
 #include "Widgets/private/PluginManageWidget_p.h"
-#include "Widgets/PluginManageWidget.h" 
+#include "Widgets/PluginManageWidget.h"
 #include "General/TranslationHost.h"
 #include "General/Plugin.h"
 #include "General/PluginManager.h"
@@ -31,8 +31,7 @@ namespace Visindigo::__Private__ {
 		Layout->addWidget(line);
 	}
 
-	Divider::~Divider() {
-	}
+	Divider::~Divider() {}
 
 	PluginInfoPanel::PluginInfoPanel(bool asdependency, QWidget* parent) : Visindigo::Widgets::BorderFrame(parent)
 	{
@@ -87,7 +86,7 @@ namespace Visindigo::__Private__ {
 		CheckBoxLabel->setText(deactivate ? VITR("Visindigo::general.deactive") : VITR("Visindigo::general.active"));
 		ActiveCheckBox->setChecked(not deactivate);
 		vgDebug << ":/resource/" + plugin->getPluginID() + "/icon.png";
-		QPixmap icon(":/resource/"+plugin->getPluginID()+"/icon.png");
+		QPixmap icon(":/resource/" + plugin->getPluginID() + "/icon.png");
 		if (icon.isNull()) {
 			IconLabel->setPixmap(QPixmap(":/resource/default_plugin_icon.png").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		}
@@ -108,8 +107,7 @@ namespace Visindigo::__Private__ {
 		IconLabel->setFixedWidth(IconLabel->height());
 	}
 
-	PluginInfoPanel::~PluginInfoPanel() {
-	}
+	PluginInfoPanel::~PluginInfoPanel() {}
 
 	void PluginInfoPanel::onActiveStateChanged(bool checked) {
 		if (not Plugin) { return; }
@@ -146,8 +144,7 @@ namespace Visindigo::__Private__ {
 			});
 	}
 
-	DeactivatePluginInfoPanel::~DeactivatePluginInfoPanel() {
-	}
+	DeactivatePluginInfoPanel::~DeactivatePluginInfoPanel() {}
 
 	void DeactivatePluginInfoPanel::setPluginID(const QString& pluginID) {
 		IDLabel->setText(pluginID);
@@ -211,7 +208,7 @@ namespace Visindigo::Widgets {
 			delete d->Dividers[i];
 		}
 		d->Dividers.clear();
-		for(int i = 0; i < d->EmptyLabels.size(); i++) {
+		for (int i = 0; i < d->EmptyLabels.size(); i++) {
 			d->ScrollAreaLayout->removeWidget(d->EmptyLabels[i]);
 			delete d->EmptyLabels[i];
 		}
@@ -246,7 +243,7 @@ namespace Visindigo::Widgets {
 		d->ScrollAreaLayout->addWidget(dependencyDivider);
 
 		bool hasDependency = VIApp->getDependencyPlugins().size() > 0;
-		if (hasDependency) {	
+		if (hasDependency) {
 			QList<General::Plugin*> dependencyPlugins = VIApp->getDependencyPlugins();
 			for (int i = 0; i < dependencyPlugins.size(); i++) {
 				__Private__::PluginInfoPanel* panel = new __Private__::PluginInfoPanel(true, d->ScrollAreaWidget);
@@ -266,7 +263,6 @@ namespace Visindigo::Widgets {
 		d->Dividers.append(pluginDivider);
 		d->ScrollAreaLayout->addWidget(pluginDivider);
 
-
 		QList<General::Plugin*> plugins = General::PluginManager::getInstance()->getLoadedPlugins();
 		if (plugins.size() > 0) {
 			for (int i = 0; i < plugins.size(); i++) {
@@ -275,7 +271,6 @@ namespace Visindigo::Widgets {
 				d->PluginInfoPanels.append(panel);
 				d->ScrollAreaLayout->addWidget(panel);
 			}
-			
 		}
 		else {
 			auto emptyLabel = new QLabel(VITR("Visindigo::widgets.pluginManager.nothing"), d->ScrollAreaWidget);
@@ -311,11 +306,10 @@ namespace Visindigo::Widgets {
 			d->EmptyLabels.append(emptyLabel);
 			d->ScrollAreaLayout->addWidget(emptyLabel);
 		}
-		
+
 		d->ScrollAreaWidget->setFixedHeight(d->ScrollAreaLayout->sizeHint().height());
 		d->ScrollAreaWidget->setFixedWidth(this->width() - d->ScrollArea->verticalScrollBar()->width());
 		d->ScrollArea->setGeometry(0, 0, this->width(), this->height());
-		
 	}
 
 	/*!
@@ -330,7 +324,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 		\a event 调整大小事件
-		
+
 		由于插件信息面板的宽度需要根据窗口大小进行调整，因此重写了resizeEvent函数。
 		当窗口大小发生变化时，调整滚动区域和滚动区域内组件的宽度以适应新的窗口大小。
 
@@ -341,5 +335,4 @@ namespace Visindigo::Widgets {
 		d->ScrollArea->setGeometry(0, 0, this->width(), this->height());
 		d->ScrollAreaWidget->setFixedWidth(this->width() - 16);
 	}
-	
 }

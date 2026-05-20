@@ -15,7 +15,7 @@ namespace YSSCore::Editor {
 }
 // Main
 namespace YSSCore::Editor {
-	class YSSCoreAPI DebugServer :public Visindigo::General::PluginModule{
+	class YSSCoreAPI DebugServer :public Visindigo::General::PluginModule {
 		Q_OBJECT;
 	public:
 		enum SupportedDebugFeatureFlag :quint16 {

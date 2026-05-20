@@ -7,5 +7,4 @@ YSSInstaller::YSSInstaller(QWidget* parent)
 }
 
 YSSInstaller::~YSSInstaller()
-{
-}
+{}

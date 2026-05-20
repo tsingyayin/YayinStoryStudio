@@ -23,7 +23,7 @@ namespace Visindigo::General {
 			qsizetype length = cmdBytes.size();
 			bool inQuotes = false;
 			qsizetype index = 0;
-			for(index; index < length; ++index) {
+			for (index; index < length; ++index) {
 				if (*ptr == ' ') {
 					*name = QString::fromUtf8(cmdBytes.constData(), index);
 					break;
@@ -41,7 +41,8 @@ namespace Visindigo::General {
 					if (*prevChar != '\\') {
 						inQuotes = !inQuotes;
 					}
-				} else if (*ptr == ' ' && !inQuotes) {
+				}
+				else if (*ptr == ' ' && !inQuotes) {
 					if (argStart < index) {
 						QString arg = QString::fromUtf8(cmdBytes.constData() + argStart, index - argStart);
 						if (arg.startsWith('\"') && arg.endsWith('\"') && arg.size() >= 2) {
@@ -51,10 +52,12 @@ namespace Visindigo::General {
 							namedArgs->insert(currentKey, arg);
 							lastWasKey = false;
 							currentKey.clear();
-						} else if (arg.startsWith('-')) {
+						}
+						else if (arg.startsWith('-')) {
 							currentKey = arg.mid(1);
 							lastWasKey = true;
-						} else {
+						}
+						else {
 							unnamedArgs->append(arg);
 						}
 					}
@@ -68,7 +71,7 @@ namespace Visindigo::General {
 	CommandHost* CommandHostPrivate::Instance = nullptr;
 	/*!
 		\class Visindigo::General::CommandHost
-		\brief 此类提供了一个命令主机，用于注册和管理命令处理程序。
+		\brief 此类提供了一个命令主机，用于注册和管理命令处理程序.
 		\inheaderfile General/CommandHost.h
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
@@ -77,7 +80,7 @@ namespace Visindigo::General {
 		有所不同。建议用户参考本类的文档和示例代码，以了解如何使用新版本。
 
 		命令主机是一个单例类，负责维护所有注册的命令处理程序，并提供执行命令的接口。
-		
+
 		\section1 命令格式
 		Visindigo将命令格式分为两类：匿名参数命令和具名参数命令。
 		匿名参数命令的格式为：
@@ -116,9 +119,9 @@ namespace Visindigo::General {
 		此外，命令处理程序还可以有一个或多个别名（alias），这些别名也是用于标识该命令的有效名称。
 		但是，所有命令名和别名在整个命令主机中必须是唯一的，不能重复注册。如果注册命令时发现
 		命令名已被占用，则注册将失败，命令处理程序仍然保持未注册状态。
-		
+
 		但重复的别名不影响注册本身，只是后来者的别名将无法使用，因为命令主机会优先匹配最先注册的命令处理程序。
-		
+
 		\section1 命名建议
 		Visindigo命令处理框架的灵感来源于Minecraft的命令系统，因此在命令命名方面，我们推荐遵循
 		Minecraft插件社区大部分作品所采用的一种不成文的规则：
@@ -164,7 +167,6 @@ namespace Visindigo::General {
 		if (d->saveCommandHistory) {
 			d->CommandHistory = Visindigo::Utility::FileUtility::readLines(d->savedPath);
 		}
-		
 	}
 
 	/*!
@@ -212,8 +214,9 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a startWith 可选的命令前缀字符串，如果提供，则只返回以此字符串开头的命令历史记录项。
+
 		return 命令历史记录的列表。
-		return 命令历史记录的字符串列表。
 	*/
 	QStringList CommandHost::getCommandHistory(const QString& startWith) const {
 		if (startWith.isEmpty()) {
@@ -232,9 +235,10 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 最后执行的命令。
+
 		如果没有命令被执行过，则返回一个空字符串。
-		return 最后执行的命令字符串。
 	*/
 	QString CommandHost::getLastCommand() const {
 		if (d->CommandHistory.isEmpty()) {
@@ -245,8 +249,11 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		注册一个命令处理程序。
+
 		\a handler 要注册的命令处理程序指针。
+
 		如果命令处理程序的命令名已被占用，则注册将失败，命令处理程序仍然保持未注册状态。
 		各CommandHandler的enable方法本质是调用此函数。
 	*/
@@ -275,8 +282,11 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		注销一个命令处理程序。
+
 		\a handler 要注销的命令处理程序指针。
+
 		各CommandHandler的disable方法本质是调用此函数。
 	*/
 	void CommandHost::unregisterCommand(CommandHandler* handler) {
@@ -296,9 +306,13 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		检查一个命令处理程序是否已注册。
+
 		\a handler 要检查的命令处理程序指针。
-		如果命令处理程序已注册，则返回true；否则返回false。
+
+		return 如果命令处理程序已注册，则返回true；否则返回false。
+
 		各CommandHandler的isEnabled方法本质是调用此函数。
 	*/
 	bool CommandHost::isCommandRegistered(CommandHandler* handler) {
@@ -314,8 +328,11 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		根据命令名获取对应的命令处理程序。
+
 		\a commandName 要查找的命令名字符串。
+
 		如果找到对应的命令处理程序，则返回其指针；否则返回nullptr。
 	*/
 	CommandHandler* CommandHost::getCommandHandler(const QString& commandName) {
@@ -324,8 +341,11 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		执行一个命令行字符串。
+
 		\a commandLine 要执行的命令行字符串。
+
 		此函数为了便于跨线程调用而置为槽函数，因此没有返回值。
 		如果命令执行出现问题，则会通过errorOccurred 信号发出错误信息。
 	*/
@@ -359,7 +379,9 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		启用或禁用标准输入（stdin）监听功能。
+
 		\a enabled 如果为true，则启用stdin监听；如果为false，则禁用stdin监听。
 	*/
 	void CommandHost::setStdInListeningEnabled(bool enabled) {
@@ -368,7 +390,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 所有已注册的命令名列表。
+
 		return 已注册命令名的字符串列表。
 	*/
 	QStringList CommandHost::getRegisteredCommandNames() const {
@@ -377,8 +399,11 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		根据部分命令行字符串获取可能的命令补全选项。
+
 		\a commandLine 部分命令行字符串。
+
 		return 可能的补全选项字符串列表。
 	*/
 	QStringList CommandHost::completeCommand(const QString& commandLine) {

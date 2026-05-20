@@ -11,15 +11,13 @@ namespace ASERStudio::YSS {
 		setEditorType(EditorType::CodeEditor);
 		setSupportedFileExts({ "astoryx" });
 	}
-	FileServer_AStoryX::~FileServer_AStoryX() {
-	}
+	FileServer_AStoryX::~FileServer_AStoryX() {}
 	FileServer_ASRuleJson::FileServer_ASRuleJson(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::FileServer("ASRule JSON File Server", "ASERStudio.FileServer.ASRuleJson", plugin) {
 		setEditorType(EditorType::BuiltInEditor); // TODO: implement a custom editor for ASRule JSON files
 		setSupportedFileExts({ "json" });
 	}
-	FileServer_ASRuleJson::~FileServer_ASRuleJson() {
-	}
+	FileServer_ASRuleJson::~FileServer_ASRuleJson() {}
 	qint64 FileServer_ASRuleJson::especiallyFocusFile(const QString& filePath) {
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		QString projectFolder = project->getProjectFolder();

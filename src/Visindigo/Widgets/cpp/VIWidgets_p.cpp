@@ -3,10 +3,8 @@
 #include "General/Log.h"
 namespace Visindigo::__Private__ {
 	VisindigoWidgets::VisindigoWidgets()
-		:General::Plugin() {
-	}
+		:General::Plugin() {}
 	VisindigoWidgets::~VisindigoWidgets() {
-	
 	}
 	void VisindigoWidgets::onPluginEnable() {
 		Widgets::ThemeManager::getInstance();
@@ -23,10 +21,8 @@ namespace Visindigo::__Private__ {
 	}
 	static VIWidgetsCommandHandler* s_instance = nullptr;
 	VIWidgetsCommandHandler::VIWidgetsCommandHandler(Visindigo::General::Plugin* parent)
-		:General::CommandHandler(parent, "viwidgets", "viwidgets", {"viw"}) {
-	}
+		:General::CommandHandler(parent, "viwidgets", "viwidgets", { "viw" }) {}
 	VIWidgetsCommandHandler::~VIWidgetsCommandHandler() {
-	
 	}
 	General::CommandErrorData VIWidgetsCommandHandler::onCommand(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) {
 		switch (unnamedArgs.size()) {
@@ -36,13 +32,15 @@ namespace Visindigo::__Private__ {
 			vgInfo << "  Aliases: " << getAlias();
 			vgInfo << "  Available Commands:";
 			vgInfo << "    list-color-schemes";
-		break;
+			break;
 		case 1:
 			if (unnamedArgs[0] == "list-color-schemes") {
 				vgInfo << Visindigo::Widgets::ThemeManager::getInstance()->getAllColorSchemes();
-			}else if (unnamedArgs[0] == "list-style-templates") {
+			}
+			else if (unnamedArgs[0] == "list-style-templates") {
 				vgInfo << Visindigo::Widgets::ThemeManager::getInstance()->getAllStyleTemplates();
-			}else if (unnamedArgs[0] == "reload-themes") {
+			}
+			else if (unnamedArgs[0] == "reload-themes") {
 				Visindigo::Widgets::ThemeManager::getInstance()->loadAndRefresh();
 			}
 			else {

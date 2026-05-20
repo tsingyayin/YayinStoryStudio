@@ -20,7 +20,7 @@ namespace Visindigo::__Private__ {
 			TopWidget->setWindowFlags(Qt::FramelessWindowHint);
 		}
 	};
-	
+
 	void TitleWidgetPrivate::adjustElements() {
 		if (!Layout) {
 			Layout = new QHBoxLayout(q);
@@ -72,8 +72,8 @@ namespace Visindigo::__Private__ {
 			else {
 				CloseButton->hide();
 			}
-		
-		}else if (ButtonStyle.testAnyFlag(Visindigo::Widgets::TitleWidget::ButtonLeft)) {
+		}
+		else if (ButtonStyle.testAnyFlag(Visindigo::Widgets::TitleWidget::ButtonLeft)) {
 			if (ButtonFeature.testAnyFlag(Visindigo::Widgets::TitleWidget::Close)) {
 				CloseButton->show();
 				Layout->addWidget(CloseButton);
@@ -112,13 +112,13 @@ namespace Visindigo::__Private__ {
 	}
 
 	bool TitleWidgetPrivate::eventFilter(QObject* target, QEvent* event) {
-		if (target != q && target != TextLabel && target != TopWidget){
+		if (target != q && target != TextLabel && target != TopWidget) {
 			return QObject::eventFilter(target, event);
 		}
 		switch (event->type()) {
 		case QEvent::WindowStateChange:
 			if (target == TopWidget) {
-				if (TopWidget->isMaximized()!=MaxButton->isMaximized) {
+				if (TopWidget->isMaximized() != MaxButton->isMaximized) {
 					MaxButton->isMaximized = TopWidget->isMaximized();
 					MaxButton->update();
 				}
@@ -140,21 +140,21 @@ namespace Visindigo::__Private__ {
 			}
 			break;
 		case QEvent::MouseButtonPress:
-			{
-				if (target != TextLabel) {
-					break;
-				}
-				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-				if (mouseEvent->button() == Qt::LeftButton) {
-					LastMousePos = mouseEvent->globalPos() - q->pos();
-				}
+		{
+			if (target != TextLabel) {
+				break;
 			}
-			break;
+			QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+			if (mouseEvent->button() == Qt::LeftButton) {
+				LastMousePos = mouseEvent->globalPos() - q->pos();
+			}
+		}
+		break;
 		case QEvent::MouseMove:
 			if (TopWidget->isMaximized() || TopWidget->isFullScreen()) {
 				break;
 			}
-			if (DragMoveEnable && target == TextLabel){
+			if (DragMoveEnable && target == TextLabel) {
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 				if (mouseEvent->buttons() & Qt::LeftButton) {
 					int deltaX = mouseEvent->globalX() - LastMousePos.x() - q->pos().x();
@@ -193,7 +193,7 @@ namespace Visindigo::__Private__ {
 			painter.save();
 			painter.setPen(pen);
 			// draw short line for minimize button
-			painter.drawLine(size.width()*2/10, size.height() / 2 + 1, size.width()*8/10, size.height() / 2 + 1);
+			painter.drawLine(size.width() * 2 / 10, size.height() / 2 + 1, size.width() * 8 / 10, size.height() / 2 + 1);
 			painter.restore();
 		}
 	}
@@ -212,12 +212,12 @@ namespace Visindigo::__Private__ {
 			painter.setPen(pen);
 			if (isMaximized) {
 				// draw two overlapping squares for maximize button
-				painter.drawRect(size.width()*2/10, size.height()*4/10,  size.width()*4/10, size.height()*3/10);
-				painter.drawRect(size.width() * 4 / 10, size.height() * 2 / 10 , size.width() * 4/ 10, size.height() * 3 / 10);
+				painter.drawRect(size.width() * 2 / 10, size.height() * 4 / 10, size.width() * 4 / 10, size.height() * 3 / 10);
+				painter.drawRect(size.width() * 4 / 10, size.height() * 2 / 10, size.width() * 4 / 10, size.height() * 3 / 10);
 			}
 			else {
 				// draw one square for maximize button
-				painter.drawRect(size.width()*2/10, size.height()*3/10, size.width()*6/10, size.height()*4/10);
+				painter.drawRect(size.width() * 2 / 10, size.height() * 3 / 10, size.width() * 6 / 10, size.height() * 4 / 10);
 			}
 			painter.restore();
 		}
@@ -236,8 +236,8 @@ namespace Visindigo::__Private__ {
 			painter.save();
 			painter.setPen(pen);
 			// draw X for close button
-			painter.drawLine(size.width()*2/10,size.height()*2/10, size.width()*8/10, size.height()*8/10);
-			painter.drawLine(size.width()*8/10, size.height()*2/10, size.width()*2/10, size.height()*8/10);
+			painter.drawLine(size.width() * 2 / 10, size.height() * 2 / 10, size.width() * 8 / 10, size.height() * 8 / 10);
+			painter.drawLine(size.width() * 8 / 10, size.height() * 2 / 10, size.width() * 2 / 10, size.height() * 8 / 10);
 			painter.restore();
 		}
 	}
@@ -246,10 +246,10 @@ namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::TitleWidget
 		\inheaderfile Widgets/TitleWidget.h
-		\brief 提供一个自定义标题栏控件，可以用于无边框窗口的标题栏显示和操作。
+		\brief 提供一个自定义标题栏控件，可以用于无边框窗口的标题栏显示和操作.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
-		
+
 		TitleWidget 类继承自 QFrame，提供了一个可定制的标题栏控件。它允许用户设置标题文本、图标、按钮样式等属性，
 		并支持拖动窗口移动等功能。该控件适用于需要自定义窗口外观的应用程序，特别是无边框窗口。
 
@@ -301,14 +301,14 @@ namespace Visindigo::Widgets {
 
 		TitleWidget 构造函数。
 	*/
-	TitleWidget::TitleWidget(QWidget* parent, QWidget* topWidget, bool autoSetupTopWidget, bool enableDragMove) :QFrame(parent){
+	TitleWidget::TitleWidget(QWidget* parent, QWidget* topWidget, bool autoSetupTopWidget, bool enableDragMove) :QFrame(parent) {
 		d = new __Private__::TitleWidgetPrivate();
 		d->q = this;
 		if (parent && !topWidget) {
 			d->TopWidget = parent;
-		}else if (topWidget){
+		}
+		else if (topWidget) {
 			d->TopWidget = topWidget;
-			
 		}
 		d->Spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 		d->TopWidget->installEventFilter(d);
@@ -338,7 +338,7 @@ namespace Visindigo::Widgets {
 			});
 		connect(d->MaxButton, &QPushButton::clicked, this, [this]() {
 			if (d->TopWidget) {
-				qDebug() << "bt1"<<d->TopWidget->windowState();
+				qDebug() << "bt1" << d->TopWidget->windowState();
 				if (d->TopWidget->isMaximized()) {
 					bool frameless = d->TopWidget->windowFlags().testAnyFlag(Qt::FramelessWindowHint);
 					QRect restoreRect = d->TopWidget->normalGeometry();
@@ -356,7 +356,7 @@ namespace Visindigo::Widgets {
 				else {
 					d->TopWidget->showMaximized();
 				}
-				qDebug() << "bt2"<<d->TopWidget->windowState();
+				qDebug() << "bt2" << d->TopWidget->windowState();
 				d->MaxButton->isMaximized = d->TopWidget->isMaximized();
 				d->MaxButton->update();
 			}
@@ -370,6 +370,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		TitleWidget 析构函数。
 	*/
 	TitleWidget::~TitleWidget() {
@@ -378,6 +379,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a color 要设置的颜色。
+
 		设置符号模式下按钮的符号颜色
 	*/
 	void TitleWidget::setSignColor(const QColor& color) {
@@ -388,7 +391,8 @@ namespace Visindigo::Widgets {
 	}
 	/*!
 		\since Visindigo 0.13.0
-		设置 TitleWidget 所管理的顶层窗口为 \a topWidget。
+
+		设置 TitleWidget 所管理的顶层窗口为 \a topWidget 。
 	*/
 	void TitleWidget::setTopWidget(QWidget* topWidget) {
 		d->TopWidget = topWidget;
@@ -396,7 +400,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		return  TitleWidget 所管理的顶层窗口。
+
+		return TitleWidget 所管理的顶层窗口。
 	*/
 	QWidget* TitleWidget::getTopWidget() const {
 		return d->TopWidget;
@@ -404,7 +409,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置标题文本为 \a text。
+
+		设置标题文本为 \a text 。
 	*/
 	void TitleWidget::setTitleText(const QString& text) {
 		d->TextLabel->setText(text);
@@ -412,6 +418,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 当前的标题文本。
 	*/
 	QString TitleWidget::getTitleText() const {
@@ -420,7 +427,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置标题图标的文件路径为 \a filePath。
+
+		设置标题图标的文件路径为 \a filePath 。
 	*/
 	void TitleWidget::setPixmapPath(const QString& filePath) {
 		d->PixmapPath = filePath;
@@ -432,6 +440,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 当前标题图标的文件路径。
 	*/
 	QString TitleWidget::getPixmapPath() const {
@@ -440,7 +449,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置标题栏按钮的功能为 \a feature。
+
+		设置标题栏按钮的功能为 \a feature 。
 	*/
 	void TitleWidget::setTitleButtonFeature(TitleButtonFeature feature) {
 		d->ButtonFeature = feature;
@@ -448,6 +458,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 当前标题栏按钮的功能。
 	*/
 	TitleWidget::TitleButtonFeature TitleWidget::getTitleButtonFeature() const {
@@ -456,7 +467,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置标题栏按钮的样式为 \a style。
+
+		设置标题栏按钮的样式为 \a style 。
 	*/
 	void TitleWidget::setButtonStyle(ButtonStyleFeature style) {
 		d->ButtonStyle = style;
@@ -476,6 +488,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 当前标题栏按钮的样式。
 	*/
 	TitleWidget::ButtonStyleFeature TitleWidget::getButtonStyle() const {
@@ -484,6 +497,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		设置 TitleWidget 所管理的顶层窗口为无边框窗口。
 	*/
 	void TitleWidget::setupTopWidget() {
@@ -492,7 +506,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置是否启用通过拖动标题栏移动窗口的功能为 \a enable。
+		设置是否启用通过拖动标题栏移动窗口的功能为 \a enable 。
 	*/
 	void TitleWidget::setDragMoveEnable(bool enable) {
 		d->DragMoveEnable = enable;
@@ -500,7 +514,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置插入控件为 \a widget。
+
+		设置插入控件为 \a widget 。
 	*/
 	void TitleWidget::setInsertWidget(QWidget* widget) {
 		d->InsertWidget = widget;
@@ -509,6 +524,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 当前的插入控件。
 	*/
 	QWidget* TitleWidget::getInsertWidget() const {
@@ -517,7 +533,8 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		设置标题文本的对齐方式为 \a alignment。
+
+		设置标题文本的对齐方式为 \a alignment 。
 	*/
 	void TitleWidget::setTitleAlignment(Qt::Alignment alignment) {
 		d->TextLabel->setAlignment(alignment);
@@ -525,6 +542,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 当前标题文本的对齐方式。
 	*/
 	Qt::Alignment TitleWidget::getTitleAlignment() const {
@@ -533,6 +551,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 是否启用通过拖动标题栏移动窗口的功能。
 	*/
 	bool TitleWidget::isDragMoveEnable() const {

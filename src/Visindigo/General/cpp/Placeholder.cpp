@@ -14,7 +14,7 @@ namespace Visindigo::General {
 
 	/*!
 		\class Visindigo::General::PlaceholderProvider
-		\brief PlaceholderProvider是占位符提供者的基类，插件可以通过继承这个类来创建自己的占位符提供者。
+		\brief PlaceholderProvider是占位符提供者的基类，插件可以通过继承这个类来创建自己的占位符提供者.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -30,7 +30,7 @@ namespace Visindigo::General {
 		\a providerName 占位符提供者的名称，用于在占位符中引用。如果不设置，则使用moduleID作为占位符提供者的ID。
 		构造函数。
 	*/
-	PlaceholderProvider::PlaceholderProvider(Plugin* plugin, const QString& moduleID, const QString& providerName) : 
+	PlaceholderProvider::PlaceholderProvider(Plugin* plugin, const QString& moduleID, const QString& providerName) :
 		PluginModule(plugin, moduleID, VIModuleType_PlaceholderProvider, providerName), d(new PlaceholderProviderPrivate) {
 		if (providerName == QString()) {
 			d->name = moduleID;
@@ -59,7 +59,7 @@ namespace Visindigo::General {
 	/*!
 		\fn virtual QString PlaceholderProvider::onPlaceholderRequest(const QString& name, const QString& param) = 0;
 		\since Visindigo 0.13.0
-		当占位符被请求解析时，这个函数会被调用。name是占位符的名称，param是占位符的参数。插件需要重写这个函数来返回占位符的值。
+		当占位符被请求解析时，这个函数会被调用。 \a name 是占位符的名称， \a param 是占位符的参数。插件需要重写这个函数来返回占位符的值。
 
 		在编写这个函数时，不需要考虑嵌套和递归，它对这个函数屏蔽。只需要根据name和param返回正确的值即可。占位符解析系统会负责处理嵌套和递归的部分。
 	*/
@@ -75,7 +75,7 @@ namespace Visindigo::General {
 
 	/*!
 		\class Visindigo::General::PlaceholderManager
-		\brief PlaceManager提供一个全局的占位符解析系统，允许插件注册占位符提供者来动态生成文本内容。
+		\brief PlaceManager提供一个全局的占位符解析系统，允许插件注册占位符提供者来动态生成文本内容.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -96,15 +96,18 @@ namespace Visindigo::General {
 	*/
 
 	/*!
-		\relates Visindigo::General::PlaceholderManager
 		\macro VIPM
-		return PlaceholderManager的单例实例。这个宏是PlaceholderManager的一个便捷接口，直接调用PlaceholderManager::getInstance()来获取单例实例。
+		\relates Visindigo::General::PlaceholderManager
+
+		这个宏是PlaceholderManager的一个便捷接口，直接调用PlaceholderManager::getInstance()来获取单例实例。
 	*/
 
 	/*!
-		\relates Visindigo::General::PlaceholderManager
 		\macro VIPlaceholder(str)
-		解析带有占位符的字符串。这个宏是PlaceholderManager的一个便捷接口，直接调用PlaceholderManager::getInstance()->requestPlaceholder(str)来解析字符串中的占位符。
+		\relates Visindigo::General::PlaceholderManager
+		\a str 包含占位符的原始文本。
+
+		这个宏是PlaceholderManager的一个便捷接口，直接调用PlaceholderManager::getInstance()->requestPlaceholder(str)来解析字符串中的占位符。
 	*/
 
 	/*!
@@ -112,7 +115,6 @@ namespace Visindigo::General {
 		构造函数
 	*/
 	PlaceholderManager::PlaceholderManager() : d(new PlaceholderManagerPrivate) {
-
 	}
 
 	/*!
@@ -136,13 +138,15 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a provider 要注册的占位符提供者对象指针
+
 		注册一个占位符提供者
 	*/
 	void PlaceholderManager::registerProvider(PlaceholderProvider* provider) {
 		if (!provider) {
 			return;
 		}
-		if(d->providers.contains(provider->getPlaceholderName())) {
+		if (d->providers.contains(provider->getPlaceholderName())) {
 			vgWarningF << "Provider with ID " << provider->getPlaceholderName() << " already exists, skipping registration.";
 			return;
 		}
@@ -152,13 +156,15 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a provider QObject提供者
+
 		注册一个QObject作为占位符提供者
 	*/
 	void PlaceholderManager::registerQObject(QObject* provider) {
 		if (!provider) {
 			return;
 		}
-		if ( d->qobjectProviders.contains(provider->objectName()) ) {
+		if (d->qobjectProviders.contains(provider->objectName())) {
 			vgWarningF << "QObject provider with object name " << provider->objectName() << " already exists, skipping registration.";
 			return;
 		}
@@ -168,6 +174,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a providerID 占位符提供者的ID
+
 		注销一个占位符提供者
 	*/
 	void PlaceholderManager::unregisterProvider(const QString& providerID) {
@@ -177,6 +185,8 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
+		\a providerObjectName QObject提供者的对象名称
+
 		注销一个QObject占位符提供者
 	*/
 	void PlaceholderManager::unregisterQObject(const QString& providerObjectName) {
@@ -186,7 +196,10 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		请求解析一个包含占位符的文本，返回解析后的文本。
+		\a rawText 包含占位符的原始文本。
+		请求解析一个包含占位符的文本。
+
+		return 解析后的文本。
 
 		占位符解析是懒替换的，如果没有可以解析这个占位符的Provider，则占位符将被原样保留在文本中。
 	*/
@@ -203,7 +216,7 @@ namespace Visindigo::General {
 			QString providerID = match.captured(1);
 			QString name = match.captured(2);
 			QString param = match.captured(4);
-			if (providerID=="#QObject") {
+			if (providerID == "#QObject") {
 				QObject* provider = d->qobjectProviders.value(name);
 				if (!provider) {
 					vgErrorF << "QObject provider with object name " << name << " unexpectedly null, will be removed from QObject providers list.";
@@ -214,9 +227,9 @@ namespace Visindigo::General {
 				rawText.replace(match.capturedStart(), match.capturedLength(), result.toString());
 			}
 			else if (d->providers.contains(providerID)) {
-				if(param.contains("$(")) {
+				if (param.contains("$(")) {
 					//vgDebugF << "recursive detected: " << param;
-					param = requestPlaceholder(param); // recursive 
+					param = requestPlaceholder(param); // recursive
 					//vgDebugF << param;
 				}
 				PlaceholderProvider* provider = d->providers.value(providerID);
@@ -229,12 +242,16 @@ namespace Visindigo::General {
 				rawText.replace(match.capturedStart(), match.capturedLength(), result);
 			}
 		}
-		return rawText; 
+		return rawText;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		解析一个包含占位符的文本，返回解析后的文本。它只是requestPlaceholder的别名。
+		\a rawText 包含占位符的原始文本。
+
+		解析一个包含占位符的文本。
+
+		return 返回解析后的文本。它只是requestPlaceholder的别名。
 	*/
 	QString PlaceholderManager::parse(QString rawText) {
 		return requestPlaceholder(rawText);

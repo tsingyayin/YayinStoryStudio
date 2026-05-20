@@ -21,7 +21,7 @@ namespace ASERStudio::AStorySyntax {
 		"#useRule", "#aliases", "#endaliases", "#block", "#endblock", "#use", "#version"
 	};
 
-	void AStoryXPreprocessorPrivate::onUseRule(const QString& str, qint32 cursorPosition, 
+	void AStoryXPreprocessorPrivate::onUseRule(const QString& str, qint32 cursorPosition,
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
 		QString content = str.mid(QString("#useRule:").length());
 		AStoryXParameter requiredParameter;
@@ -29,7 +29,7 @@ namespace ASERStudio::AStorySyntax {
 		data->d->RequiredParameter = requiredParameter;
 		if (content.size() > 0) {
 			AStoryXParameter optionalParameter;
-			optionalParameter.d->setParameter("ruleName", "", content, AStoryXValueMeta("useRule.ruleName", AStoryXValueMeta::Type::String), 
+			optionalParameter.d->setParameter("ruleName", "", content, AStoryXValueMeta("useRule.ruleName", AStoryXValueMeta::Type::String),
 				QString("#useRule:").length());
 			data->d->OptionalParameters.append(optionalParameter);
 		}
@@ -41,7 +41,7 @@ namespace ASERStudio::AStorySyntax {
 		}
 	}
 
-	void AStoryXPreprocessorPrivate::onAliases(const QString& str, qint32 cursorPosition, 
+	void AStoryXPreprocessorPrivate::onAliases(const QString& str, qint32 cursorPosition,
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
 		AStoryXParameter requiredParameter;
 		requiredParameter.d->setParameter("type", "", "aliases", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
@@ -49,7 +49,7 @@ namespace ASERStudio::AStorySyntax {
 		data->d->cursorInWhichParameter = "type";
 	}
 
-	void AStoryXPreprocessorPrivate::onEndAliases(const QString& str, qint32 cursorPosition, 
+	void AStoryXPreprocessorPrivate::onEndAliases(const QString& str, qint32 cursorPosition,
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
 		AStoryXParameter requiredParameter;
 		requiredParameter.d->setParameter("type", "", "endaliases", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
@@ -57,7 +57,7 @@ namespace ASERStudio::AStorySyntax {
 		data->d->cursorInWhichParameter = "type";
 	}
 
-	void AStoryXPreprocessorPrivate::onBlock(const QString& str, qint32 cursorPosition, 
+	void AStoryXPreprocessorPrivate::onBlock(const QString& str, qint32 cursorPosition,
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
 		QString context = str.mid(QString("#block ").length());
 		//#block blockName(param1, param2, ...)
@@ -68,7 +68,7 @@ namespace ASERStudio::AStorySyntax {
 		requiredParameter.d->setParameter("type", "", "block ", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
 		data->d->RequiredParameter = requiredParameter;
 		AStoryXParameter blockNameParameter;
-		blockNameParameter.d->setParameter("blockName", "", blockName, AStoryXValueMeta("block.blockName", AStoryXValueMeta::Type::Function), 
+		blockNameParameter.d->setParameter("blockName", "", blockName, AStoryXValueMeta("block.blockName", AStoryXValueMeta::Type::Function),
 			QString("#block ").length());
 		data->d->OptionalParameters.append(blockNameParameter);
 		QString params = context.mid(leftParenIndex + 1, rightParenIndex - leftParenIndex - 1);
@@ -77,8 +77,8 @@ namespace ASERStudio::AStorySyntax {
 		int paramStartIndex = leftParenIndex + 1 + QString("#block ").length();
 		for (const QString& param : paramsList) {
 			AStoryXParameter paramParameter;
-			paramParameter.d->setParameter(QString("param%1").arg(index), "", param, 
-				AStoryXValueMeta(QString("block.param"), AStoryXValueMeta::Type::MacroParameter), 
+			paramParameter.d->setParameter(QString("param%1").arg(index), "", param,
+				AStoryXValueMeta(QString("block.param"), AStoryXValueMeta::Type::MacroParameter),
 				paramStartIndex);
 			data->d->OptionalParameters.append(paramParameter);
 			paramStartIndex += param.length() + 1; // +1 for the comma
@@ -102,7 +102,7 @@ namespace ASERStudio::AStorySyntax {
 		}
 	}
 
-	void AStoryXPreprocessorPrivate::onEndBlock(const QString& str, qint32 cursorPosition, 
+	void AStoryXPreprocessorPrivate::onEndBlock(const QString& str, qint32 cursorPosition,
 		AStoryXControllerParseData* data, bool diagnostic, qint32 lineIndex) {
 		AStoryXParameter requiredParameter;
 		requiredParameter.d->setParameter("type", "", "endblock", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
@@ -120,7 +120,7 @@ namespace ASERStudio::AStorySyntax {
 		requiredParameter.d->setParameter("type", "", "use ", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
 		data->d->RequiredParameter = requiredParameter;
 		AStoryXParameter blockNameParameter;
-		blockNameParameter.d->setParameter("blockName", "", blockName, AStoryXValueMeta("use.blockName", AStoryXValueMeta::Type::Function), 
+		blockNameParameter.d->setParameter("blockName", "", blockName, AStoryXValueMeta("use.blockName", AStoryXValueMeta::Type::Function),
 			QString("#use ").length());
 		data->d->OptionalParameters.append(blockNameParameter);
 		QString params = context.mid(leftParenIndex + 1, rightParenIndex - leftParenIndex - 1);
@@ -129,8 +129,8 @@ namespace ASERStudio::AStorySyntax {
 		int paramStartIndex = leftParenIndex + 1 + QString("#use ").length();
 		for (const QString& param : paramsList) {
 			AStoryXParameter paramParameter;
-			paramParameter.d->setParameter(QString("param%1").arg(index), "", param, 
-				AStoryXValueMeta(QString("use.param"), AStoryXValueMeta::Type::MacroParameter), 
+			paramParameter.d->setParameter(QString("param%1").arg(index), "", param,
+				AStoryXValueMeta(QString("use.param"), AStoryXValueMeta::Type::MacroParameter),
 				paramStartIndex);
 			data->d->OptionalParameters.append(paramParameter);
 			paramStartIndex += param.length() + 1; // +1 for the comma
@@ -161,7 +161,7 @@ namespace ASERStudio::AStorySyntax {
 		requiredParameter.d->setParameter("type", "", "version ", AStoryXValueMeta("preprocessor.type", AStoryXValueMeta::Type::Macro), 1);
 		data->d->RequiredParameter = requiredParameter;
 		AStoryXParameter versionParameter;
-		versionParameter.d->setParameter("versionNumber", "", versionNumber, AStoryXValueMeta("version.versionNumber", AStoryXValueMeta::Type::String), 
+		versionParameter.d->setParameter("versionNumber", "", versionNumber, AStoryXValueMeta("version.versionNumber", AStoryXValueMeta::Type::String),
 			QString("#version ").length());
 		data->d->OptionalParameters.append(versionParameter);
 		if (cursorPosition > QString("#version:").length()) {
@@ -187,7 +187,7 @@ namespace ASERStudio::AStorySyntax {
 
 	   你一般不需要独立使用它，除非你有特殊需求（比如你在确定场景下只解析预处理指令）。
 	   针对任意文本的解析，应该使用ASERStudio::AStorySyntax::AStoryXRule::parseAStoryX函数。
-	   
+
 	   有关AStoryXPreprocessor如何通过AStoryXControllerParseData存储解析结果的说明，请参见AStoryXControllerParseData的文档。
 	*/
 
@@ -245,7 +245,8 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 	   \since ASERStudio 2.0
-	   获取支持的预处理指令列表。
+
+	   return 支持的预处理指令列表。
 	*/
 	QStringList AStoryXPreprocessor::getSupportedPreprocessors() const {
 		return AStoryXPreprocessorPrivate::PreprocessorHeaders;
@@ -253,8 +254,9 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 	   \since ASERStudio 2.0
-	   判断给定的字符串是否是一个预处理指令。
 	   \a str 待判断的字符串
+
+	   return 给定的字符串是否是一个预处理指令。
 	*/
 	bool AStoryXPreprocessor::isPreprocessor(const QString& str) {
 		for (const QString& header : AStoryXPreprocessorPrivate::PreprocessorHeaders) {

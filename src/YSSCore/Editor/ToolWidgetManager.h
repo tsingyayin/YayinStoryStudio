@@ -8,7 +8,7 @@ class QWidget;
 namespace YSSCore::Editor {
 	class EditorPlugin;
 	class ToolWidgetManagerPrivate;
-	class YSSCoreAPI ToolWidgetManager :public QObject{
+	class YSSCoreAPI ToolWidgetManager :public QObject {
 		Q_OBJECT;
 	signals:
 		void focusRequested(const QString& widgetID);

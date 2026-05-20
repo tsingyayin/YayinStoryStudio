@@ -10,11 +10,9 @@ namespace ASERStudio::YSS {
 	};
 	QMap<QString, ASERStudio::AStorySyntax::AStoryXDocument*> AStoryXLanguageServerPrivate::DocumentMap;
 
-	AStoryXLanguageServer::AStoryXLanguageServer(YSSCore::Editor::EditorPlugin* plugin) : 
-		LangServer("ASE-Remake AStoryX File Language Server", "ASEAStoryXLS", plugin, "AStoryX", { "astoryx" }) {
-	}
+	AStoryXLanguageServer::AStoryXLanguageServer(YSSCore::Editor::EditorPlugin* plugin) :
+		LangServer("ASE-Remake AStoryX File Language Server", "ASEAStoryXLS", plugin, "AStoryX", { "astoryx" }) {}
 	YSSCore::Editor::SyntaxHighlighter* AStoryXLanguageServer::createHighlighter(YSSCore::Editor::TextEdit* textEdit) {
-		
 		return new LS_AStoryXSyntaxHighlighter(textEdit);
 	}
 	YSSCore::Editor::TabCompleterProvider* AStoryXLanguageServer::createTabCompleter(YSSCore::Editor::TextEdit* textEdit) {

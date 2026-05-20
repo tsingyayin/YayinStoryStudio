@@ -27,8 +27,7 @@ namespace Visindigo::__Private__ {
 		vgNoticeF << "[Loading Message Handler] Disabled default console handler.";
 	}
 
-	CoreApplication::CoreApplication(int& argc, char** argv) :QCoreApplication(argc, argv) {
-	}
+	CoreApplication::CoreApplication(int& argc, char** argv) :QCoreApplication(argc, argv) {}
 	bool CoreApplication::notify(QObject* receiver, QEvent* event) {
 		try {
 			return QCoreApplication::notify(receiver, event);
@@ -45,8 +44,7 @@ namespace Visindigo::__Private__ {
 		return false;
 	}
 
-	GuiApplication::GuiApplication(int& argc, char** argv) :QGuiApplication(argc, argv) {
-	}
+	GuiApplication::GuiApplication(int& argc, char** argv) :QGuiApplication(argc, argv) {}
 	bool GuiApplication::notify(QObject* receiver, QEvent* event) {
 		try {
 			return QGuiApplication::notify(receiver, event);
@@ -63,8 +61,7 @@ namespace Visindigo::__Private__ {
 		return false;
 	}
 
-	Application::Application(int& argc, char** argv) :QApplication(argc, argv) {
-	}
+	Application::Application(int& argc, char** argv) :QApplication(argc, argv) {}
 	bool Application::notify(QObject* receiver, QEvent* event) {
 		try {
 			return QApplication::notify(receiver, event);
@@ -83,11 +80,10 @@ namespace Visindigo::__Private__ {
 }
 
 namespace Visindigo::General {
-
 	/*!
 		\class Visindigo::General::ApplicationLoadingMessageHandler
 		\inheaderfile General/VIApplication.h
-		\brief Visindigo应用程序加载消息处理器接口类。
+		\brief Visindigo应用程序加载消息处理器接口类.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -121,7 +117,7 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::ApplicationExceptionMessageHandler
 		\inheaderfile General/VIApplication.h
-		\brief Visindigo应用程序异常消息处理器接口类。
+		\brief Visindigo应用程序异常消息处理器接口类.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -231,7 +227,7 @@ namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::VIApplication
 		\inheaderfile General/VIApplication.h
-		\brief Visindigo应用程序的根基，使用部分Visindigo功能必须首先初始化此类。
+		\brief Visindigo应用程序的根基，使用部分Visindigo功能必须首先初始化此类.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -343,14 +339,14 @@ namespace Visindigo::General {
 		vgDebug << ("\033[38;2;115;43;235m ╰╯\t─┴─\t──╯\t─┴─\t╯╰╯\t└─╯\t─┴─\t╰─╯\t╰─╯\033[0m");
 		vgDebug << ("   \t   \t———\t  流\t   \t清  \t———\t   \t   \t");
 		vgDebug << ("\033[38;2;50;130;246m===================================================================\033[0m");
-		vgDebug << "\033[38;2;234;54;128mABI" << General::Version::getABIVersion().toString() << "API" 
-			<< General::Version::getAPIVersion().toString() << 
+		vgDebug << "\033[38;2;234;54;128mABI" << General::Version::getABIVersion().toString() << "API"
+			<< General::Version::getAPIVersion().toString() <<
 #ifdef QT_DEBUG
 			"\033[38;2;255;253;85m[DEBUG compilation mode]\033[0m";
 #else
 			"\033[38;2;255;253;85m[RELEASE compilation mode]\033[0m";
 #endif
-		vgDebug << "\033[38;2;234;63;247mVersion Compilation Time \033[0m: \033[38;2;255;253;85m" << QString(Visindigo_VERSION_BUILD_DATE) << 
+		vgDebug << "\033[38;2;234;63;247mVersion Compilation Time \033[0m: \033[38;2;255;253;85m" << QString(Visindigo_VERSION_BUILD_DATE) <<
 			QString(Visindigo_VERSION_BUILD_TIME) << "[" << QSysInfo::buildCpuArchitecture() << "]\033[0m";
 		vgDebug << Utility::Console::inWarningStyle("Working Path: ") << Utility::Console::inNoticeStyle(QDir::currentPath());
 		vgDebug << "Hello," << QDir::home().dirName() << "! Welcome to Visindigo!";
@@ -360,17 +356,17 @@ namespace Visindigo::General {
 		d->LoadingMessageHandler = new __Private__::ApplicationLoadingMessageHandlerDefaultConsoleImpl();
 
 		connect(PluginManager::getInstance(), &PluginManager::pluginLoaded, this, [this](Plugin* plugin) {
-				if (d->LoadingMessageHandler) {
-					d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.loaded").arg(plugin->getPluginName()));
-					qApp->processEvents();
-				}
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.loaded").arg(plugin->getPluginName()));
+				qApp->processEvents();
+			}
 			});
 
 		connect(PluginManager::getInstance(), &PluginManager::pluginEnabled, this, [this](Plugin* plugin) {
-				if (d->LoadingMessageHandler) {
-					d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.enabled").arg(plugin->getPluginName()));
-					qApp->processEvents();
-				}
+			if (d->LoadingMessageHandler) {
+				d->LoadingMessageHandler->onLoadingMessage(VITR("Visindigo::plugin.enabled").arg(plugin->getPluginName()));
+				qApp->processEvents();
+			}
 			});
 	}
 
@@ -594,9 +590,9 @@ namespace Visindigo::General {
 				widgetsPlugin->onPluginEnable();
 			}
 
-			for (auto dp: d->DependencyPlugins) {
+			for (auto dp : d->DependencyPlugins) {
 				dp->d->setPluginLoadType(Plugin::LoadType::FromMemory);
-				dp->d->initializePluginFolder(getEnvConfig(ConfigPath).toString()+"/depends");
+				dp->d->initializePluginFolder(getEnvConfig(ConfigPath).toString() + "/depends");
 				dp->onPluginEnable();
 				d->LoadingMessageHandler->onLoadingMessage(QString("Dependency plugin %1 enabled").arg(dp->getPluginName()));
 			}
@@ -605,7 +601,7 @@ namespace Visindigo::General {
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
 			}
-			
+
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
 				qApp->processEvents();
@@ -650,7 +646,7 @@ namespace Visindigo::General {
 			if (widgetsPlugin) {
 				widgetsPlugin->onApplicationInit();
 			}
-			
+
 			if (d->MainPlugin) {
 				d->MainPlugin->onApplicationInit();
 				if (d->MainPlugin->isTestEnable()) {
@@ -672,7 +668,7 @@ namespace Visindigo::General {
 			default:
 				throw Exception(Exception::InvalidArgument, "Invalid AppType");
 			}
-			
+
 			PluginManager::getInstance()->disableAllPlugin();
 			if (d->MainPlugin) {
 				d->MainPlugin->onPluginDisable();
@@ -700,7 +696,7 @@ namespace Visindigo::General {
 		catch (const Exception& ex) {
 			this->onException(ex);
 			return -1;
-		} 
+		}
 		catch (const std::exception& e) {
 			this->onException(Exception::fromStdException(e));
 			return -1;
@@ -719,7 +715,7 @@ namespace Visindigo::General {
 
 		此函数允许用户获取应用程序的环境配置参数，如日志文件路径、插件文件路径等。
 	*/
-	QVariant VIApplication::getEnvConfig(EnvKey key){
+	QVariant VIApplication::getEnvConfig(EnvKey key) {
 		return VIApplicationPrivate::EnvConfig.value(key, QVariant());
 	}
 

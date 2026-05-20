@@ -25,7 +25,7 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.14.0
 		\a parent 父窗口
-		
+
 		BorderFrame的构造函数。
 	*/
 	BorderFrame::BorderFrame(QWidget* parent) : QFrame(parent) {
@@ -36,8 +36,7 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.14.0
 		BorderFrame的析构函数。
 	*/
-	BorderFrame::~BorderFrame() {
-	}
+	BorderFrame::~BorderFrame() {}
 
 	/*!
 		\since Visindigo 0.14.0
@@ -52,13 +51,12 @@ namespace Visindigo::Widgets {
 		opFrame.initFrom(this);
 		opFrame.features = QStyleOptionFrame::Rounded;
 		opFrame.frameShape = QFrame::Box;
-		
+
 		this->style()->drawPrimitive(QStyle::PE_Frame, &opFrame, &painter, this);
 		if (this->style()->name() == "fusion") {
 			// fusion style does not have background, so we need to fill it manually
 			QColor bgColor = this->palette().color(QPalette::Window);
 			painter.fillRect(this->rect(), bgColor);
-
 		}
 	}
 }

@@ -18,7 +18,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\class Visindigo::Widgets::QuickMenu
-		\brief QuickMenu提供了一种从JSON快速创建菜单的方式。
+		\brief QuickMenu提供了一种从JSON快速创建菜单的方式.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 

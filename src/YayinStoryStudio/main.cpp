@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	}
 	yInfo << "Yayin Story Studio " << Visindigo::General::Version::getAPIVersion();
 	/*
-	QMessageBox::information(nullptr, "SEA TP 技术预览版本警告", 
+	QMessageBox::information(nullptr, "SEA TP 技术预览版本警告",
 R"(警告！
 您当前正在使用技术预览版本！
 

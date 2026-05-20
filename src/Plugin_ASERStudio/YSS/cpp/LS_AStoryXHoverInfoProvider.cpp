@@ -16,7 +16,7 @@ namespace ASERStudio::YSS {
 		QString filePath;
 	};
 
-	LS_AStoryXHoverInfoProvider::LS_AStoryXHoverInfoProvider(YSSCore::Editor::TextEdit* textEdit) : 
+	LS_AStoryXHoverInfoProvider::LS_AStoryXHoverInfoProvider(YSSCore::Editor::TextEdit* textEdit) :
 		HoverInfoProvider(textEdit), d(new LS_AStoryXHoverInfoProviderPrivate) {
 		d->filePath = textEdit->getFilePath();
 		d->Document = AStoryXLanguageServer::getAStoryXDocument(d->filePath);

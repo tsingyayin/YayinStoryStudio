@@ -7,7 +7,7 @@
 namespace Visindigo::Widgets {
 	class MessageHandler;
 	class MessageCenterPrivate;
-	class VisindigoAPI MessageCenter :public QObject{
+	class VisindigoAPI MessageCenter :public QObject {
 		Q_OBJECT;
 	signals:
 		void messageHandled(qint32 handleID, qint32 handleRtn);

@@ -282,7 +282,7 @@ namespace YSS::ProjectPage {
 			QString projectPath = Config->getString("RecentProjects." + key);
 			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 			YSSCore::General::YSSProject::LoadProjectResult res = project->loadProject(projectPath);
-			if (res!=YSSCore::General::YSSProject::Success) {
+			if (res != YSSCore::General::YSSProject::Success) {
 				delete project;
 				continue;
 			}
@@ -316,7 +316,7 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->addWidget(label);
 			//label->setSpacing(5);
 			//label->setContentsMargins(10, 10, 10, 10);
-			label->setToolTip(VITR("YSS::tooltips.projectWin.project")); 
+			label->setToolTip(VITR("YSS::tooltips.projectWin.project"));
 			label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 			//label->setFixedHeight(50);
 			label->show();

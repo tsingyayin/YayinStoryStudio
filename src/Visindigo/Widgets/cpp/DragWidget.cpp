@@ -62,7 +62,6 @@ namespace Visindigo::__Private__ {
 			currentDraggingWidget->raise();
 		}
 		currentDraggingWidget->move(event->globalPos() - DragDeltaPos);
-
 	}
 
 	void DragWidgetPrivate::onDragMove(QMouseEvent* event) {
@@ -72,14 +71,14 @@ namespace Visindigo::__Private__ {
 	}
 
 	void DragWidgetPrivate::onDragEnd(QMouseEvent* event) {
-		if (currentDraggingWidget) { 
+		if (currentDraggingWidget) {
 			currentDraggingWidget->move(event->globalPos() - DragDeltaPos);
 		}
 		currentDraggingWidget->hide();
 		QWidget* targetWidget = qApp->widgetAt(event->globalPos());
 		qint32 targetIndex;
 		if (targetWidget != spaceWidget) {
-			targetIndex = Widgets.indexOf(targetWidget)+1;
+			targetIndex = Widgets.indexOf(targetWidget) + 1;
 		}
 		else {
 			targetIndex = currentIndex;
@@ -92,8 +91,6 @@ namespace Visindigo::__Private__ {
 		Widgets.insert(targetIndex, currentDraggingWidget);
 		Widgets.removeAll(nullptr);
 	}
-
-
 }
 namespace Visindigo::Widgets {
 	DragWidget::DragWidget(QWidget* parent) :QFrame(parent), d(new Visindigo::__Private__::DragWidgetPrivate()) {

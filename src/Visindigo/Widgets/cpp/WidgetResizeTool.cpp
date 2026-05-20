@@ -28,7 +28,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\class Visindigo::Widgets::WidgetResizeTool
-		\brief WidgetResizeTool提供了一个为任意QWidget通过拖动边框调整大小的工具。
+		\brief WidgetResizeTool提供了一个为任意QWidget通过拖动边框调整大小的工具.
 		\since Visindigo 0.13.0
 		\inmodule Visindigo
 
@@ -73,7 +73,7 @@ namespace Visindigo::Widgets {
 		d->borderWidth = borderWidth;
 		d->mouseChecker = new QTimer(this);
 		d->mouseChecker->setInterval(50);
-		
+
 		if (topParent != nullptr) {
 			d->topParent = topParent;
 		}
@@ -113,9 +113,13 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.13.0
-		事件过滤器
+		\a target 事件过滤器的目标对象。
+		\a event 事件对象。
+
 		该函数会过滤安装了该工具的顶级父级QWidget的鼠标移动事件，以检测鼠标是否悬停在可调整大小的边框区域，并显示相应的调整大小光标。
 		当用户按下鼠标左键并拖动时，该函数会根据鼠标移动的距离调整窗口的大小。
+
+		return 如果事件被处理了，返回true；否则返回false。
 	*/
 	bool WidgetResizeTool::eventFilter(QObject* target, QEvent* event) {
 		if (target != d->topParent) {
@@ -174,7 +178,8 @@ namespace Visindigo::Widgets {
 				parentWidget->unsetCursor();
 				d->resizing = false;
 				return false;
-			}else{
+			}
+			else {
 				if (mouseEvent->buttons() == Qt::LeftButton) {
 					if (!d->resizing) {
 						d->resizing = true;
@@ -239,7 +244,7 @@ namespace Visindigo::Widgets {
 				}
 			}
 			parentWidget->setCursor(cursorShape);
-			return false;	
+			return false;
 		}
 		else {
 			return QObject::eventFilter(target, event);

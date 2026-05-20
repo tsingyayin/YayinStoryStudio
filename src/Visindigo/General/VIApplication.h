@@ -5,7 +5,7 @@
 #include <QtWidgets/qapplication.h>
 #include "General/Exception.h"
 #include "VICompileMacro.h"
-namespace Visindigo::Widgets { 
+namespace Visindigo::Widgets {
 	class Terminal;
 }
 namespace Visindigo::General {
@@ -27,7 +27,7 @@ namespace Visindigo::General {
 		virtual void disableHandler() = 0;
 	};
 
-	class VisindigoAPI VIApplication :public QObject{
+	class VisindigoAPI VIApplication :public QObject {
 		Q_OBJECT;
 	public:
 		enum AppType {

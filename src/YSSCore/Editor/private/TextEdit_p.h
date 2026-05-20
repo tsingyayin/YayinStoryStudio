@@ -43,7 +43,7 @@ namespace YSSCore::__Private__ {
 		void findAll();
 	protected:
 		YSSCore::Editor::TextEdit* parent;
-		
+
 		QGridLayout* layout;
 		QLabel* titleLabel;
 		QPushButton* closeButton;
