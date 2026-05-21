@@ -10,6 +10,9 @@
 namespace YSSCore::__Private__ {
 	TextEditFindAndReplace::TextEditFindAndReplace(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {
 		this->parent = parent;
+		auto font = this->font();
+		font.setPointSizeF(font.pointSizeF() * 0.85);
+		this->setFont(font);
 		layout = new QGridLayout(this);
 		titleLabel = new QLabel(VITR("YSS::editor.far.title"), this);
 		closeButton = new QPushButton(VITR("Visindigo::general.close"), this);

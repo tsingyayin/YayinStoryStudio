@@ -144,7 +144,7 @@ namespace YSSCore::__Private__ {
 				return false;
 			}
 			else if (event->type() == QEvent::Resize) {
-				FindAndReplaceWidget->move(q->width() - 412, 0); // 400 for width, 12 for vertical scrollbar width
+				FindAndReplaceWidget->move(q->width() - 352, 0); // 340 for width, 12 for vertical scrollbar width
 				adjustTabCompleterPosition();
 				adjustHoverInfoPosition(Text->textCursor());
 			}
@@ -905,8 +905,8 @@ namespace YSSCore::Editor {
 		d->HoverTimer->setInterval(d->HoverTimeout);
 
 		d->FindAndReplaceWidget = new YSSCore::__Private__::TextEditFindAndReplace(this);
-		d->FindAndReplaceWidget->resize(400, 200);
-		d->FindAndReplaceWidget->move(this->width() - 412, 0);
+		d->FindAndReplaceWidget->resize(340, 180);
+		d->FindAndReplaceWidget->move(this->width() - 352, 0);
 		d->FindAndReplaceWidget->hide();
 		connect(d->Text->document(), &QTextDocument::blockCountChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onBlockCountChanged);
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);

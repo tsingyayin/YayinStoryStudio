@@ -89,10 +89,11 @@ namespace Visindigo::__Private__ {
 	void ConfigWidgetPrivate::initConfig() {
 		QString config = Visindigo::Utility::FileUtility::readAll(TargetConfigPath);
 		Config = Visindigo::Utility::JsonConfig();
-		if (!config.isEmpty()) {
+		if (not config.isEmpty()) {
 			Config.parse(config);
 		}
-		if (TargetConfigNode != "") {
+		if (not TargetConfigNode.isEmpty()) {
+			vgDebugF << "Loading config from" << TargetConfigPath << "node:" << TargetConfigNode;
 			Config = Visindigo::Utility::JsonConfig(Config.getObject(TargetConfigNode));
 		}
 		spawnConfig();
@@ -198,6 +199,7 @@ namespace Visindigo::__Private__ {
 			Visindigo::Utility::FileUtility::saveAll(TargetConfigPath, config);
 		}
 		else {
+			vgDebugF << "Saving config to" << TargetConfigPath << "node:" << TargetConfigNode;
 			Visindigo::Utility::JsonConfig rawConfig;
 			rawConfig.parse(Visindigo::Utility::FileUtility::readAll(TargetConfigPath));
 			rawConfig.setObject(TargetConfigNode, Config);
@@ -652,7 +654,9 @@ namespace Visindigo::Widgets {
 	*/
 	void ConfigWidget::setTargetConfig(const QString& path, const QString& node, const QString& fileType) {
 		d->TargetConfigPath = VIPlaceholder(path);
-		d->TargetConfigNode = node;
+		if (not node.isEmpty()) {
+			d->TargetConfigNode = node;
+		}
 		d->initConfig();
 	}
 

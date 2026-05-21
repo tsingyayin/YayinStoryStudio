@@ -163,10 +163,13 @@ namespace Visindigo::Widgets {
 			option.initFrom(this);
 			if (d->Active) {
 				if (d->Pressed) {
-					option.state |= QStyle::State_Sunken;
-				}
-				if (d->Hovered) {
 					option.state |= QStyle::State_MouseOver;
+				}
+				else if (d->Hovered) {
+					option.state |= QStyle::State_Raised;
+				}
+				else {
+					option.state |= QStyle::State_Sunken;
 				}
 			}
 			QPainter painter(this);
@@ -177,17 +180,14 @@ namespace Visindigo::Widgets {
 			QStyleOptionViewItem option;
 			option.initFrom(this);
 			if (d->Active) {
-				if (d->Pressed) {
-					option.state |= QStyle::State_Sunken;
-				}
-				if (d->Hovered) {
+				if (d->Pressed || d->buttonGroupChecked){
 					option.state |= QStyle::State_MouseOver;
 				}
-				if (d->buttonGroupChecked) {
-					option.state |= QStyle::State_On;
+				else if (d->Hovered) {
+					option.state |= QStyle::State_Raised;
 				}
 				else {
-					option.state |= QStyle::State_Off;
+					option.state |= QStyle::State_Sunken;
 				}
 			}
 			QPainter painter(this);

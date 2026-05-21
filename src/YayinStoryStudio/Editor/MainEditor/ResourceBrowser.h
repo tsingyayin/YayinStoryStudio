@@ -42,6 +42,7 @@ namespace YSS::Editor {
 		virtual void hideEvent(QHideEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 		virtual void onThemeChanged() override;
+		virtual void paintEvent(QPaintEvent* event) override;
 	private:
 		void onNewButtonClicked();
 		void refreshFileList();

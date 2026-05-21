@@ -18,6 +18,9 @@ namespace YSSCore::__Private__ {
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
 		this->setFocusPolicy(Qt::NoFocus);
 		this->setFixedWidth(300);
+		auto font = this->font();
+		font.setPointSizeF(font.pointSizeF() * 0.9);
+		this->setFont(font);
 		this->ButtonGroup = new Visindigo::Widgets::MultiButtonGroup(this);
 		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::doubleClicked, this, &TabCompleterWidget::doComplete);
 		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::selectIndexChanged, this, [this](qint32 index) {
@@ -170,9 +173,9 @@ namespace YSSCore::__Private__ {
 
 	void TabCompleterWidget::onThemeChanged() {
 		for (auto button : Buttons) {
-			button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed", button));
-			button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Normal", button));
-			button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Hover", button));
+			//button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed", button));
+			//button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Normal", button));
+			//button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Hover", button));
 		}
 		this->update();
 	}

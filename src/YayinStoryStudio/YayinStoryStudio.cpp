@@ -39,7 +39,7 @@ namespace YSS {
 	}
 
 	void Main::onPluginEnable() {
-		auto LangID = Visindigo::General::Translator::stringToLangID(getPluginConfig()->getString("General.Language"));
+		auto LangID = Visindigo::General::Translator::stringToLangID(getPluginConfig()->getString("Settings.General.Language"));
 		VITRH->setLangID(LangID);
 		VISTM->setAnimationDuration(500);
 		YSSCore::Editor::FileServerManager::getInstance();
@@ -60,7 +60,7 @@ namespace YSS {
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json"));
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged, this, [](const QString& node, int index, QString data) {
-			if (node == "General.Theme") {
+			if (node == "Settings.General.Theme") {
 				VISTM->changeColorTheme(data);
 			}
 			});
@@ -71,7 +71,7 @@ namespace YSS {
 	}
 
 	void Main::onApplicationInit() {
-		VISTM->changeColorTheme(getPluginConfig()->getString("General.Theme"));
+		VISTM->changeColorTheme(getPluginConfig()->getString("Settings.General.Theme"));
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
 

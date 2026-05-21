@@ -10,10 +10,12 @@
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
 #include <General/VIApplication.h>
+#include <QtGui/qpainter.h>
 namespace YSS::Editor {
 	StackTag::StackTag(QWidget* parent, bool toolWidgetMode) :QFrame(parent) {
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
+	
 		PinLabel = new QToolButton(this);
 		//PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
 		CloseLabel = new QToolButton(this);
@@ -110,12 +112,7 @@ namespace YSS::Editor {
 
 	void StackTag::setFocusOn(bool focus) {
 		Focused = focus;
-		if (Focused) {
-			QFrame::setStyleSheet(PressedStyle);
-		}
-		else {
-			QFrame::setStyleSheet(NormalStyle);
-		}
+		repaint();
 	}
 
 	bool StackTag::isFocusOn() const {
@@ -142,23 +139,10 @@ namespace YSS::Editor {
 		return Pinned;
 	}
 
-	void StackTag::setStyleSheet(const QString& normal, const QString& hover, const QString& pressed) {
-		NormalStyle = normal;
-		HoverStyle = hover;
-		PressedStyle = pressed;
-		if (Focused) {
-			QFrame::setStyleSheet(PressedStyle);
-		}
-		else {
-			QFrame::setStyleSheet(NormalStyle);
-		}
-	}
-
 	void StackTag::mousePressEvent(QMouseEvent* event) {
 		QFrame::mousePressEvent(event);
 		if (event->button() == Qt::LeftButton) {
 			Pressed = true;
-			QFrame::setStyleSheet(PressedStyle);
 		}
 	}
 
@@ -166,12 +150,6 @@ namespace YSS::Editor {
 		QFrame::mouseReleaseEvent(event);
 		if (Pressed && event->button() == Qt::LeftButton) {
 			Pressed = false;
-			if (Focused) {
-				QFrame::setStyleSheet(PressedStyle);
-			}
-			else {
-				QFrame::setStyleSheet(HoverStyle);
-			}
 			emit clicked(FilePath);
 		}
 	}
@@ -194,9 +172,7 @@ namespace YSS::Editor {
 
 	void StackTag::enterEvent(QEnterEvent* event) {
 		QFrame::enterEvent(event);
-		if (not Focused) {
-			QFrame::setStyleSheet(HoverStyle);
-		}
+		Hovering = true;
 		PinLabel->show();
 		CloseLabel->show();
 		QFontMetrics fm(TitleLabel->font());
@@ -211,9 +187,7 @@ namespace YSS::Editor {
 
 	void StackTag::leaveEvent(QEvent* event) {
 		QFrame::leaveEvent(event);
-		if (not Focused) {
-			QFrame::setStyleSheet(NormalStyle);
-		}
+		Hovering = false;
 		if (not Pinned) {
 			PinLabel->hide();
 		}
@@ -228,13 +202,41 @@ namespace YSS::Editor {
 		}
 	}
 
+	void StackTag::paintEvent(QPaintEvent* event) {
+		QFrame::paintEvent(event);
+		QStyleOptionButton option;
+		option.initFrom(this);
+		if (Pressed || Focused) {
+			option.state |= QStyle::State_MouseOver;
+		}else if (Hovering) {
+			option.state |= QStyle::State_Raised;
+		}
+		else {
+			option.state |= QStyle::State_Sunken;
+		}
+		QPainter painter(this);
+		QStyle* style = this->style();
+		style->drawControl(QStyle::CE_PushButton, &option, &painter, this);
+		if (Pressed || Focused) {
+			QPen pen(VISTM->getPaletteAccentColor());
+			pen.setWidth(1);
+			painter.setPen(pen);
+			painter.drawLine(4, this->height() - 3, this->width()-4, this->height() - 3);
+		}
+		TitleLabel->setPalette(qApp->palette());
+	}
+
 	StackTagWidget::StackTagWidget(QWidget* parent) :QFrame(parent) {
-		ContentLayout = new QHBoxLayout();
+		ScrollContent = new QWidget(this);
+		ScrollContent->setObjectName("StackTagScrollContent");
+		ScrollContent->setStyleSheet("QWidget#StackTagScrollContent { background: transparent; }");
+		ContentLayout = new QHBoxLayout(ScrollContent);
 		ContentLayout->setContentsMargins(0, 0, 0, 0);
-		ContentLayout->setSpacing(2);
-		ScrollContent = new QFrame();
+		ContentLayout->setSpacing(0);
 		ScrollContent->setLayout(ContentLayout);
 		ScrollArea = new QScrollArea(this);
+		ScrollArea->setStyleSheet("QScrollArea { background: transparent; border: none; }");
+		ScrollArea->setContentsMargins(0, 0, 0, 0);
 		ScrollArea->setWidget(ScrollContent);
 		ScrollArea->setWidgetResizable(true);
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -250,6 +252,11 @@ namespace YSS::Editor {
 			QString filePath = WidgetSelector->itemData(index).toString();
 			setCurrentStackLabel(filePath);
 			emit switchToFile(filePath);
+			});
+		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged, this, [this](const QString& themeID) {
+			auto textColor = VISTM->getPaletteTextColor();
+			auto accentColor = VISTM->getPaletteAccentColor();
+			applyIcon(nullptr, textColor, accentColor);
 			});
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -325,13 +332,14 @@ namespace YSS::Editor {
 			emit closeSavedRequested();
 			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
-		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
+		/*tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
 			VISTMGT("YSS::Editor.StackTag.Hover"),
-			VISTMGT("YSS::Editor.StackTag.Pressed"));
+			VISTMGT("YSS::Editor.StackTag.Pressed"));*/
 		auto textColor = VISTM->getPaletteTextColor();
 		auto accentColor = VISTM->getPaletteAccentColor();
 		applyIcon(tagLabel, textColor, accentColor);
 		adjustScrollArea();
+		
 	}
 
 	void StackTagWidget::changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName) {
@@ -491,7 +499,7 @@ namespace YSS::Editor {
 			totalWidth += label->width() + ContentLayout->spacing();
 		}
 		totalWidth -= ContentLayout->spacing();
-		ScrollContent->setFixedWidth(totalWidth + 2 * ScrollContent->frameWidth());
+		ScrollContent->setFixedWidth(totalWidth);
 	}
 
 	void StackTagWidget::setFileChanged(const QString& path) {
@@ -559,21 +567,11 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::onThemeChanged() {
-		for (StackTag* label : Labels) {
-			label->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
-				VISTMGT("YSS::Editor.StackTag.Hover"),
-				VISTMGT("YSS::Editor.StackTag.Pressed"));
-		}
-		static QColor textColor;
-		static QColor accentColor;
-		if (textColor != VISTM->getPaletteTextColor() || accentColor != VISTM->getPaletteAccentColor()) {
-			textColor = VISTM->getPaletteTextColor();
-			accentColor = VISTM->getPaletteAccentColor();
-			applyIcon(nullptr, textColor, accentColor);
-		}
+
 	}
 	void StackTagWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
+		WidgetSelector->setFixedHeight(this->height());
 		adjustScrollArea();
 	}
 

@@ -73,6 +73,9 @@ namespace YSS::Editor {
 
 		void initFileMenu() {
 			FileMenu = MenuBar->addMenu(VITR("YSS::menu.file.title"));
+			auto font = FileMenu->font();
+			font.setPointSizeF(font.pointSizeF() * 0.9);
+			FileMenu->setFont(font);
 			FileMenu->setObjectName("file");
 			File_File_New = FileMenu->addAction(VITR("YSS::menu.file.new"));
 			File_File_New->setObjectName("new");
@@ -121,6 +124,9 @@ namespace YSS::Editor {
 
 		void initEditMenu() {
 			EditMenu = MenuBar->addMenu(VITR("YSS::menu.edit.title"));
+			auto font = EditMenu->font();
+			font.setPointSizeF(font.pointSizeF() * 0.9);
+			EditMenu->setFont(font);
 			EditMenu->setObjectName("edit");
 			Edit_Undo = EditMenu->addAction(VITR("YSS::menu.edit.undo"));
 			Edit_Undo->setObjectName("undo");
@@ -150,6 +156,9 @@ namespace YSS::Editor {
 
 		void initRunMenu() {
 			RunMenu = MenuBar->addMenu(VITR("YSS::menu.run.title"));
+			auto font = RunMenu->font();
+			font.setPointSizeF(font.pointSizeF() * 0.9);
+			RunMenu->setFont(font);
 			RunMenu->setObjectName("run");
 			Run_Run_Debug = RunMenu->addAction(VITR("YSS::menu.run.debug"));
 			Run_Run_Debug->setObjectName("debug");
@@ -191,6 +200,9 @@ namespace YSS::Editor {
 
 		void initViewMenu() {
 			ViewMenu = MenuBar->addMenu(VITR("YSS::menu.view.title"));
+			auto font = ViewMenu->font();
+			font.setPointSizeF(font.pointSizeF() * 0.9);
+			ViewMenu->setFont(font);
 			ViewMenu->setObjectName("view");
 			View_ResourceBrowser = ViewMenu->addAction(VITR("YSS::menu.view.resourceBrowser"));
 			View_ResourceBrowser->setObjectName("resourceBrowser");
@@ -209,7 +221,7 @@ namespace YSS::Editor {
 		d = new MainWinMenuPrivate();
 		d->q = this;
 		d->Parent = parent;
-		this->setMaximumHeight(32);
+		this->setFixedHeight(32);
 
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->setContentsMargins(10, 0, 10, 0);

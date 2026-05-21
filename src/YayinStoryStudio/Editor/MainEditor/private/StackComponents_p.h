@@ -19,10 +19,8 @@ namespace YSS::Editor {
 		QLabel* TitleLabel;
 		QHBoxLayout* Layout;
 		QString FilePath;
-		QString NormalStyle;
-		QString HoverStyle;
-		QString PressedStyle;
 		bool toolWidgetMode = false;
+		bool Hovering = false;
 		bool Focused = false;
 		bool Pinned = false;
 		bool Pressed = false;
@@ -55,13 +53,13 @@ namespace YSS::Editor {
 		bool isFocusOn() const;
 		void setPinned(bool pinned);
 		bool isPinned() const;
-		void setStyleSheet(const QString& normal, const QString& hover, const QString& pressed);
 	public:
 		virtual void mousePressEvent(QMouseEvent* event) override;
 		virtual void mouseReleaseEvent(QMouseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 		virtual void enterEvent(QEnterEvent* event) override;
 		virtual void leaveEvent(QEvent* event) override;
+		virtual void paintEvent(QPaintEvent* event) override;
 	};
 
 	class StackTagWidget :public QFrame, public Visindigo::Widgets::ColorfulWidget {
@@ -75,7 +73,7 @@ namespace YSS::Editor {
 		void closeSavedRequested();
 	private:
 		QHBoxLayout* ContentLayout;
-		QFrame* ScrollContent;
+		QWidget* ScrollContent;
 		QScrollArea* ScrollArea;
 		QComboBox* WidgetSelector;
 		QHBoxLayout* Layout;

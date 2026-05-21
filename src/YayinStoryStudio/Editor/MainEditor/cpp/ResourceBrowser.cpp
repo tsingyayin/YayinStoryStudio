@@ -16,6 +16,7 @@
 #include <QtGui/qevent.h>
 #include <General/VIApplication.h>
 #include <QtWidgets/qtoolbar.h>
+#include <QtGui/qpainter.h>
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		Layout = new QVBoxLayout(this);
@@ -149,5 +150,9 @@ namespace YSS::Editor {
 				YSSFSM->openFile(filePath);
 			}
 		}
+	}
+
+	void ResourceBrowser::paintEvent(QPaintEvent* event) {
+		Visindigo::Widgets::BorderFrame::paintEvent(event);
 	}
 }

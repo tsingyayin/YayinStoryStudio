@@ -253,7 +253,7 @@ namespace YSS::Editor {
 		Menu->setShortcutTips(currentTips);
 	}
 	void MainWin::onThemeChanged() {
-		this->applyVIStyleTemplate("YSS::MainWin");
+		//this->applyVIStyleTemplate("YSS::MainWin");
 	}
 
 	void MainWin::showEvent(QShowEvent* event) {

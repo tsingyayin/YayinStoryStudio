@@ -3,6 +3,7 @@
     "windowIcon": "icon.png",
     "independent": true,
     "saveNeedRestart": true,
+    "targetNode": "Settings",
     "widget":[
         {
             "node": "General",

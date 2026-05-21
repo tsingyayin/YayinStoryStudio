@@ -1,7 +1,9 @@
 {
-    "General": {
-        "Language": "zh_CN",
-        "Theme": "Dark"
+    "Settings": {
+        "General": {
+            "Language": "zh_CN",
+            "Theme": "Dark"
+        }
     },
     "Plugins": {
         "Deactivated": [
