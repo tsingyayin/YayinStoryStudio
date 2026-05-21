@@ -20,7 +20,7 @@ namespace YSS::NewFilePage {
 	NewFileWin::NewFileWin(const QString& initPath) :QWidget() {
 		this->InitPath = initPath;
 		this->setMinimumSize(900, 600);
-		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setWindowTitle(VITR("YSS::project.createNewFile"));
 		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
 		TitleLabel->setObjectName("ProgramTitleLabel");

@@ -434,6 +434,29 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
+		\since Visindigo 0.15.2
+		return 获取当前系统主题的主色调颜色。
+
+		这个函数从qApp->palette()中获取当前系统主题的主色调颜色。
+		这个功能至少要求Qt6.6
+	*/
+	QColor ThemeManager::getPaletteAccentColor() {
+		QPalette palette = qApp->palette();
+		return palette.color(QPalette::Accent);
+	}
+
+	/*!
+		\since Visindigo 0.15.2
+		return 获取当前系统主题的文本颜色。
+
+		这个函数从qApp->palette()中获取当前系统主题的文本颜色。
+	*/
+	QColor ThemeManager::getPaletteTextColor() {
+		QPalette palette = qApp->palette();
+		return palette.color(QPalette::Text);
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		\a parent 父对象指针。
 

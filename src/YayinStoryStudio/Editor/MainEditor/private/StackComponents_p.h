@@ -12,11 +12,11 @@
 #include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
 	class StackTag :public QFrame {
+		friend class StackTagWidget;
+		friend class StackTagWidgetPrivate;
 		Q_OBJECT;
 	private:
 		QLabel* TitleLabel;
-		QToolButton* PinLabel;
-		QToolButton* CloseLabel;
 		QHBoxLayout* Layout;
 		QString FilePath;
 		QString NormalStyle;
@@ -26,6 +26,9 @@ namespace YSS::Editor {
 		bool Focused = false;
 		bool Pinned = false;
 		bool Pressed = false;
+	protected:
+		QToolButton* PinLabel;
+		QToolButton* CloseLabel;
 		QAction* ActionClose;
 		QAction* ActionPin;
 		QAction* ActionReload;
@@ -99,6 +102,8 @@ namespace YSS::Editor {
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;
 		virtual void resizeEvent(QResizeEvent* event) override;
+	private:
+		void applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor);
 	};
 
 	class DefaultStackWidgetCentralArea :public QFrame {

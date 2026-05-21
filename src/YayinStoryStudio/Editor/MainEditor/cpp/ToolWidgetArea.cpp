@@ -14,10 +14,11 @@ namespace YSS::Editor {
 		DefaultStackWidgetCentralArea* CentralArea;
 	};
 
-	ToolWidgetArea::ToolWidgetArea(QWidget* parent) : QFrame(parent) {
+	ToolWidgetArea::ToolWidgetArea(QWidget* parent) : Visindigo::Widgets::BorderFrame(parent) {
 		d = new ToolWidgetAreaPrivate;
 		d->Layout = new QVBoxLayout(this);
 		d->Layout->setSpacing(0);
+		d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->TagArea = new StackTagWidget(this);
 		d->TagArea->setToolWidgetMode(true);
 		d->TagArea->setFixedHeight(32);

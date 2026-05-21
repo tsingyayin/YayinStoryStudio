@@ -19,7 +19,7 @@
 namespace YSS::NewProjectPage {
 	NewProjectWin::NewProjectWin() :QWidget() {
 		this->setMinimumSize(900, 600);
-		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setWindowTitle(VITR("YSS::project.createNewProject"));
 		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
 		TitleLabel->setObjectName("ProgramTitleLabel");

@@ -34,25 +34,29 @@ namespace YSS::Editor {
 
 	MainWin::MainWin() :QFrame() {
 		Instance = this;
-		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setWindowTitle("Yayin Story Studio");
+		this->setMinimumSize(800, 600);
+
 		MainLayout = new QVBoxLayout(this);
 		MainLayout->setContentsMargins(0, 0, 0, 0);
 		MainLayout->setSpacing(0);
 
+		Menu = new MainWinMenu(this);
+		this->setMenuShortcutTips();
+		MainLayout->addWidget(Menu);
+
+		CentralWidget = new QWidget(this);
+		MainLayout->addWidget(CentralWidget);
+
+		Layout = new QHBoxLayout(CentralWidget);
+		Layout->setContentsMargins(10, 0, 10, 10);
+		
 		Browser = new ResourceBrowser(CentralWidget);
 		Editors = new FileEditWidgetArea(CentralWidget);
 		Tools = new ToolWidgetArea(CentralWidget);
 
-		Menu = new MainWinMenu(this);
-		this->setMenuShortcutTips();
-		MainLayout->addWidget(Menu);
-		this->setMinimumSize(800, 600);
 		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
-		CentralWidget = new QWidget(this);
-		MainLayout->addWidget(CentralWidget);
-		Layout = new QHBoxLayout(CentralWidget);
-		Layout->setContentsMargins(0, 0, 0, 0);
 
 		Browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		Editors->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -62,17 +66,18 @@ namespace YSS::Editor {
 		hSplitter->setContentsMargins(0, 0, 0, 0);
 		hSplitter->addWidget(Editors);
 		hSplitter->addWidget(Tools);
-		hSplitter->setHandleWidth(4);
+		hSplitter->setHandleWidth(6);
 		hSplitter->setStretchFactor(0, 3);
 		hSplitter->setStretchFactor(1, 1);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
 		splitter->setContentsMargins(0, 0, 0, 0);
 		splitter->addWidget(Browser);
 		splitter->addWidget(hSplitter);
-		splitter->setHandleWidth(4);
+		splitter->setHandleWidth(6);
 		splitter->setStretchFactor(0, 1);
 		splitter->setStretchFactor(1, 4);
 		Layout->addWidget(splitter);
+
 		setColorfulEnable(true);
 		onThemeChanged();
 

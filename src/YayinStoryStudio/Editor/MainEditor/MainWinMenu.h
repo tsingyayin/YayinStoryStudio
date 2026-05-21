@@ -3,10 +3,11 @@
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qaction.h>
+#include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
 	class MainWin;
 	class MainWinMenuPrivate;
-	class MainWinMenu :public QFrame {
+	class MainWinMenu :public QFrame , public Visindigo::Widgets::ColorfulWidget{
 		Q_OBJECT;
 	public:
 		MainWinMenu(MainWin* parent);
@@ -56,8 +57,9 @@ namespace YSS::Editor {
 		void onToolWidgetHide(const QString& toolWidgetID);
 		void onToolWidgetToggled(const QString& toolWidgetID, bool checked);
 		void onResourceBrowserVisibilityChanged(bool visible);
-		void onPluginToolsTriggered(QAction* action);
 		void onPluginToolMenuAboutToShow();
+	public:
+		virtual void onThemeChanged() override;
 	private:
 		MainWinMenuPrivate* d;
 	};

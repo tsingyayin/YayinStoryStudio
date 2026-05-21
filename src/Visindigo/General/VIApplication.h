@@ -2,6 +2,7 @@
 #define Visindigo_General_VIApplication_h
 #include <QtCore/qcoreapplication.h>
 #include <QtGui/qguiapplication.h>
+#include <QtGui/qcolor.h>
 #include <QtWidgets/qapplication.h>
 #include "General/Exception.h"
 #include "VICompileMacro.h"
@@ -67,6 +68,10 @@ namespace Visindigo::General {
 		void setLoadingMessageHandler(ApplicationLoadingMessageHandler* handler);
 		void setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler);
 		void setGlobalFont(const QString& fontPath, int fontID = 0);
+		void setIconFont(const QString& fontPath, int fontID = 0);
+		QFont getGlobalFont() const;
+		QFont getIconFont() const;
+		QIcon getFontIcon(QString unicode, int iconSize = 64, QList<QColor> layerColors = { QColor("#000000") }) const;
 		int start();
 		bool applicationStarted() const;
 		Widgets::Terminal* getVirtualTerminal() const;

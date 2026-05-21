@@ -2,10 +2,10 @@
 #define YSS_Editor_MainWin_StackWidgetArea_h
 #include <QtWidgets/qframe.h>
 #include <Editor/FileEditWidget.h>
-
+#include <Widgets/BorderFrame.h>
 namespace YSS::Editor {
 	class FileEditWidgetAreaPrivate;
-	class FileEditWidgetArea :public QFrame {
+	class FileEditWidgetArea :public Visindigo::Widgets::BorderFrame {
 		Q_OBJECT;
 	signals:
 		void renameRequested(const QString& absOldPath);

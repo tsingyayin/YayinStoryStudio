@@ -3,10 +3,10 @@
 #include <QtCore/qobject.h>
 #include <QtWidgets/qframe.h>
 #include <Editor/ToolWidgetManager.h>
-
+#include <Widgets/BorderFrame.h>
 namespace YSS::Editor {
 	class ToolWidgetAreaPrivate;
-	class ToolWidgetArea :public QFrame {
+	class ToolWidgetArea :public Visindigo::Widgets::BorderFrame {
 		Q_OBJECT;
 	signals:
 		void closed(const QString& widgetID);

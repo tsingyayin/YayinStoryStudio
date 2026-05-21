@@ -14,58 +14,49 @@
 #include <General/TranslationHost.h>
 #include <General/Log.h>
 #include <QtGui/qevent.h>
+#include <General/VIApplication.h>
+#include <QtWidgets/qtoolbar.h>
 namespace YSS::Editor {
-	ResourceBrowser::ResourceBrowser(QWidget* parent) :QWidget(parent) {
-		ButtonWidget = new QWidget(this);
-
-		ButtonLayout = new QHBoxLayout(ButtonWidget);
-		RefreshButton = new QToolButton(ButtonWidget);
-		RefreshButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/refresh.png"));
-		RefreshButton->setToolTip(VITR("Visindigo::general.refresh"));
-		RefreshButton->setIconSize(QSize(32, 32));
-		RefreshButton->setFixedSize(40, 40);
-
-		ShrinkButton = new QToolButton(ButtonWidget);
-		ShrinkButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png"));
-		ShrinkButton->setToolTip(VITR("Visindigo::general.shrink"));
-		ShrinkButton->setIconSize(QSize(30, 30));
-		ShrinkButton->setFixedSize(40, 40);
-		ExpandButton = new QToolButton(ButtonWidget);
-		ExpandButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/expand.png"));
-		ExpandButton->setToolTip(VITR("Visindigo::general.expand"));
-		ExpandButton->setIconSize(QSize(30, 30));
-		ExpandButton->setFixedSize(40, 40);
-		NewButton = new QToolButton(ButtonWidget);
-		NewButton->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/new.png"));
-		NewButton->setToolTip(VITR("Visindigo::general.new"));
-		NewButton->setIconSize(QSize(30, 30));
-		NewButton->setFixedSize(40, 40);
-		ButtonLayout->addWidget(RefreshButton);
-		ButtonLayout->addWidget(ShrinkButton);
-		ButtonLayout->addWidget(ExpandButton);
-		ButtonLayout->addWidget(NewButton);
-		ButtonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-		ButtonLayout->setContentsMargins(0, 0, 0, 0);
-		ButtonWidget->setLayout(ButtonLayout);
-		ButtonWidget->setMinimumHeight(40);
-
+	ResourceBrowser::ResourceBrowser(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		Layout = new QVBoxLayout(this);
+		Layout->setSpacing(0);
+		Layout->setContentsMargins(0, 0, 0, 0);
+		//ButtonWidget = new QWidget(this);
+
+		//ButtonLayout = new QHBoxLayout(ButtonWidget);
+
+		ToolBar = new QToolBar(this);
+		ToolActionRefresh = ToolBar->addAction(VITR("Visindigo::general.refresh"));
+		ToolActionShrink = ToolBar->addAction(VITR("Visindigo::general.shrink"));
+		ToolActionExpand = ToolBar->addAction(VITR("Visindigo::general.expand"));
+		ToolActionNew = ToolBar->addAction(VITR("Visindigo::general.new"));
+		ToolBar->setMaximumHeight(40);
+		Layout->addWidget(ToolBar);
+		//ButtonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		//ButtonLayout->setContentsMargins(0, 0, 0, 0);
+		//ButtonWidget->setLayout(ButtonLayout);
+		//ButtonWidget->setMinimumHeight(40);
+
+		
 		FileTree = new QTreeView(this);
 		FileModel = new QFileSystemModel(this);
 		FileTree->setModel(FileModel);
 		FileTree->setHeaderHidden(true);
-		Layout->addWidget(ButtonWidget);
+
 		Layout->addWidget(FileTree);
 
-		connect(RefreshButton, &QToolButton::clicked, this, &ResourceBrowser::refreshFileList);
-		connect(NewButton, &QToolButton::clicked, this, &ResourceBrowser::onNewButtonClicked);
+		connect(ToolActionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
+		connect(ToolActionNew, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
 		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
-		connect(ShrinkButton, &QToolButton::clicked, this, [this]() {
+		connect(ToolActionShrink, &QAction::triggered, this, [this]() {
 			FileTree->collapseAll();
 			});
-		connect(ExpandButton, &QToolButton::clicked, this, [this]() {
+		connect(ToolActionExpand, &QAction::triggered, this, [this]() {
 			FileTree->expandAll();
 			});
+
+		setColorfulEnable(true);
+		onThemeChanged();
 	}
 
 	void ResourceBrowser::openNewFileWindow() {
@@ -131,6 +122,17 @@ namespace YSS::Editor {
 			}
 			});
 		newFileWin->show();
+	}
+
+	void ResourceBrowser::onThemeChanged() {
+		static QColor textColor;
+		if (textColor != VISTM->getPaletteTextColor()) {
+			textColor = VISTM->getPaletteTextColor();
+			ToolActionRefresh->setIcon(VIApp->getFontIcon("\uE72C", 40, { textColor }));
+			ToolActionShrink->setIcon(VIApp->getFontIcon("\uE70E", 40, { textColor }));
+			ToolActionExpand->setIcon(VIApp->getFontIcon("\uE70D", 40, { textColor }));
+			ToolActionNew->setIcon(VIApp->getFontIcon("\uED11", 40, { textColor }));
+		}
 	}
 
 	void ResourceBrowser::refreshFileList() {

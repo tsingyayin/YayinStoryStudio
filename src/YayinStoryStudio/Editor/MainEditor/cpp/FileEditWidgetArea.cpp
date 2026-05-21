@@ -19,10 +19,11 @@ namespace YSS::Editor {
 		DefaultStackWidgetCentralArea* CentralArea;
 	};
 
-	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent) :QFrame(parent) {
+	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		d = new FileEditWidgetAreaPrivate;
 		d->Layout = new QVBoxLayout(this);
 		d->Layout->setSpacing(0);
+		d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->TagArea = new StackTagWidget(this);
 		d->TagArea->setFixedHeight(40);
 

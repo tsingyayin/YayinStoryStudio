@@ -39,6 +39,8 @@ namespace Visindigo::Widgets {
 		static QString themeIDToString(ThemeID id);
 		static ThemeID stringToThemeID(const QString& str);
 		static void registerUserThemeID(const QString& id, ThemeID themeID);
+		static QColor getPaletteAccentColor();
+		static QColor getPaletteTextColor();
 	private:
 		ThemeManager(QObject* parent = nullptr);
 	public:

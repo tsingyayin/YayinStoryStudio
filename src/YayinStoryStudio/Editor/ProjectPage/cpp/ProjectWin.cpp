@@ -64,7 +64,7 @@ namespace YSS::ProjectPage {
 			});
 
 		//this->setAttribute(Qt::WA_TranslucentBackground);
-		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/yssicon.png"));
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setMinimumSize(1366, 768);
 		this->setWindowTitle(VITR("YSS::project.projectManager"));
 		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);

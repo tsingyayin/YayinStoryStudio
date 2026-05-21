@@ -232,6 +232,8 @@ namespace YSS::Editor {
 			this, &MainWinMenu::onToolWidgetHide);
 
 		refreshToolMenu();
+		setColorfulEnable(true);
+		onThemeChanged();
 	}
 
 	MainWinMenu::~MainWinMenu() {
@@ -325,6 +327,7 @@ namespace YSS::Editor {
 
 	void MainWinMenu::file_program_pluginAndPreferences() {
 		auto widget = new Visindigo::Widgets::PluginManageWidget();
+		widget->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		widget->setAttribute(Qt::WA_DeleteOnClose);
 		widget->setWindowModality(Qt::ApplicationModal);
 		widget->setWindowFlags(widget->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
@@ -499,5 +502,47 @@ namespace YSS::Editor {
 
 	void MainWinMenu::onResourceBrowserVisibilityChanged(bool visible) {
 		d->View_ResourceBrowser->setChecked(visible);
+	}
+
+	void MainWinMenu::onThemeChanged() {
+		static QColor textColor;
+		if (textColor != VISTM->getPaletteTextColor()) {
+			textColor = VISTM->getPaletteTextColor();
+			d->File_File_New->setIcon(VIApp->getFontIcon("\uED11", 64, {textColor}));
+			d->File_File_Open->setIcon(VIApp->getFontIcon("\uE8E5", 64, { textColor }));
+			d->File_File_Save->setIcon(VIApp->getFontIcon("\uE74E", 64, { textColor }));
+			d->File_File_SaveAll->setIcon(VIApp->getFontIcon("\uEA35", 64, { textColor }));
+			d->File_File_SaveAs->setIcon(VIApp->getFontIcon("\uE792", 64, { textColor }));
+			d->File_File_ProjectConfig->setIcon(VIApp->getFontIcon("\uF259", 64, { textColor }));
+			d->File_File_ShowInExplorer->setIcon(VIApp->getFontIcon("\uE8A7", 64, { textColor }));
+			d->File_Program_BackToHome->setIcon(VIApp->getFontIcon("\uE80F", 64, { textColor }));
+			d->File_Program_Terminal->setIcon(VIApp->getFontIcon("\uE756", 64, { textColor }));
+			d->File_Program_PluginAndPreferences->setIcon(VIApp->getFontIcon("\uE713", 64, { textColor }));
+			d->File_Program_About->setIcon(VIApp->getFontIcon("\uE946", 64, { textColor }));
+			d->File_Program_Documentation->setIcon(VIApp->getFontIcon("\uE897", 64, { textColor }));
+			d->File_Program_Exit->setIcon(VIApp->getFontIcon("\uE711", 64, { textColor }));
+			
+			d->Edit_Undo->setIcon(VIApp->getFontIcon("\uE7A7", 64, { textColor }));
+			d->Edit_Redo->setIcon(VIApp->getFontIcon("\uE7A6", 64, { textColor }));
+			d->Edit_Cut->setIcon(VIApp->getFontIcon("\uE8C6", 64, { textColor }));
+			d->Edit_Copy->setIcon(VIApp->getFontIcon("\uE8C8", 64, { textColor }));
+			d->Edit_Paste->setIcon(VIApp->getFontIcon("\uE77F", 64, { textColor }));
+			d->Edit_SelectAll->setIcon(VIApp->getFontIcon("\uE8B3", 64, { textColor }));
+			d->Edit_FindAndReplace->setIcon(VIApp->getFontIcon("\uE721", 64, { textColor }));
+
+			d->Run_Run_Debug->setIcon(VIApp->getFontIcon("\uE9D9", 64, { textColor }));
+			d->Run_Run_Run->setIcon(VIApp->getFontIcon("\uE768", 64, { textColor }));
+			d->Run_Run_Stop->setIcon(VIApp->getFontIcon("\uE71A", 64, { textColor }));
+			d->Run_Run_Restart->setIcon(VIApp->getFontIcon("\uF83F\uF83E", 64, { textColor, textColor }));
+			d->Run_Build_Build->setIcon(VIApp->getFontIcon("\uEC7A", 64, { textColor }));
+			d->Run_Build_Rebuild->setIcon(VIApp->getFontIcon("\uEB97", 64, { textColor, textColor }));
+			d->Run_Build_Clean->setIcon(VIApp->getFontIcon("\uE75C", 64, { textColor }));
+			d->Run_Action_StepInto->setIcon(VIApp->getFontIcon("\uE8B5", 64, { textColor }));
+			d->Run_Action_StepOver->setIcon(VIApp->getFontIcon("\uE8B6", 64, { textColor }));
+			d->Run_Action_Suspend->setIcon(VIApp->getFontIcon("\uE769", 64, { textColor }));
+			d->Run_Action_Resume->setIcon(VIApp->getFontIcon("\uE893", 64, { textColor }));
+
+			d->View_ResourceBrowser->setIcon(VIApp->getFontIcon("\uEC50", 64, { textColor }));
+		}
 	}
 }

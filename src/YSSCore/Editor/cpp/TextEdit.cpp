@@ -867,7 +867,7 @@ namespace YSSCore::Editor {
 
 		d->Line = new QTextBrowser(this);
 		d->Line->setReadOnly(true);
-		d->Line->setMaximumWidth(100);
+		d->Line->setMaximumWidth(80);
 		d->Line->setAlignment(Qt::AlignRight);
 		d->Line->document()->setDefaultFont(QFont("Microsoft YaHei"));
 		d->Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

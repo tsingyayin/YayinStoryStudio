@@ -9,14 +9,15 @@
 #include <Utility/FileUtility.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
+#include <General/VIApplication.h>
 namespace YSS::Editor {
 	StackTag::StackTag(QWidget* parent, bool toolWidgetMode) :QFrame(parent) {
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
 		PinLabel = new QToolButton(this);
-		PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
+		//PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
 		CloseLabel = new QToolButton(this);
-		CloseLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/close.png"));
+		//CloseLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/close.png"));
 		this->setContentsMargins(0, 0, 0, 0);
 		Layout = new QHBoxLayout(this);
 		Layout->setContentsMargins(5, 0, 2, 0);
@@ -53,31 +54,30 @@ namespace YSS::Editor {
 			});
 
 		this->toolWidgetMode = toolWidgetMode;
-		if (not toolWidgetMode) {
-			ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
-			ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
-			ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
-			ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
-			ActionCloseSaved = new QAction(VITR("YSS::menu.file.closeSaved"), this);
-			connect(ActionReload, &QAction::triggered, this, [this]() {
-				YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(FilePath);
-				if (editor) {
-					editor->reloadFile();
-				}
-				});
-			connect(ActionRename, &QAction::triggered, this, [this]() {
-				emit renameRequested(FilePath);
-				});
-			connect(ActionSaveAs, &QAction::triggered, this, [this]() {
-				emit saveAsRequested(FilePath);
-				});
-			connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
-				Visindigo::Utility::FileUtility::openExplorer(FilePath);
-				});
-			connect(ActionCloseSaved, &QAction::triggered, this, [this]() {
-				emit closeSavedRequested();
-				});
-		}
+		ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
+		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
+		ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
+		ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
+		ActionCloseSaved = new QAction(VITR("YSS::menu.file.closeSaved"), this);
+		connect(ActionReload, &QAction::triggered, this, [this]() {
+			YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(FilePath);
+			if (editor) {
+				editor->reloadFile();
+			}
+			});
+		connect(ActionRename, &QAction::triggered, this, [this]() {
+			emit renameRequested(FilePath);
+			});
+		connect(ActionSaveAs, &QAction::triggered, this, [this]() {
+			emit saveAsRequested(FilePath);
+			});
+		connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
+			Visindigo::Utility::FileUtility::openExplorer(FilePath);
+			});
+		connect(ActionCloseSaved, &QAction::triggered, this, [this]() {
+			emit closeSavedRequested();
+			});
+
 		if (not toolWidgetMode) {
 			this->addActions({ ActionClose, ActionPin, ActionReload,
 				ActionRename, ActionSaveAs, ActionShowInExplorer,
@@ -128,10 +128,13 @@ namespace YSS::Editor {
 		}
 		Pinned = pinned;
 		if (Pinned) {
-			PinLabel->show();
+			//PinLabel->show();
+			PinLabel->setIcon(VIApp->getFontIcon("\uE841\uE840", 64, { VISTM->getPaletteAccentColor(), 
+				VISTM->getPaletteTextColor() }));
 		}
 		else {
-			PinLabel->hide();
+			//PinLabel->hide();
+			PinLabel->setIcon(VIApp->getFontIcon("\uE840", 64, { VISTM->getPaletteTextColor() }));
 		}
 	}
 
@@ -254,6 +257,37 @@ namespace YSS::Editor {
 
 	StackTagWidget::~StackTagWidget() {}
 
+	void StackTagWidget::applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor) {
+		QIcon pinIcon = VIApp->getFontIcon("\uE840", 64, { textColor });
+		QIcon pinnedIcon = VIApp->getFontIcon("\uE841\uE840", 64, { accentColor, textColor });
+		QIcon closeIcon = VIApp->getFontIcon("\uE711", 64, { textColor });
+		QIcon reloadIcon = VIApp->getFontIcon("\uE895", 64, { textColor });
+		QIcon renameIcon = VIApp->getFontIcon("\uE8AC", 64, { textColor });
+		QIcon saveAsIcon = VIApp->getFontIcon("\uE792", 64, { textColor });
+		QIcon showInExplorerIcon = VIApp->getFontIcon("\uE8A7", 64, { textColor });
+		QIcon closeAllIcon = VIApp->getFontIcon("\uEA39", 64, { textColor});
+		QIcon closeSavedIcon = VIApp->getFontIcon("\uE711", 64, { textColor });
+		QList<StackTag*> targets;
+		if (not label) {
+			targets = Labels;
+		}
+		else {
+			targets.append(label);
+		}
+		for (auto label : targets) {
+			label->CloseLabel->setIcon(closeIcon);
+			label->PinLabel->setIcon(label->isPinned() ? pinnedIcon : pinIcon);
+			label->ActionClose->setIcon(closeIcon);
+			label->ActionPin->setIcon(label->isPinned() ? pinnedIcon : pinIcon);
+			label->ActionReload->setIcon(reloadIcon);
+			label->ActionRename->setIcon(renameIcon);
+			label->ActionSaveAs->setIcon(saveAsIcon);
+			label->ActionShowInExplorer->setIcon(showInExplorerIcon);
+			label->ActionCloseAll->setIcon(closeAllIcon);
+			label->ActionCloseSaved->setIcon(closeSavedIcon); 
+		}
+	}
+
 	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
 		QFileInfo fileInfo(filePath);
 		StackTag* tagLabel = new StackTag(ScrollContent, ToolWidgetMode);
@@ -294,6 +328,9 @@ namespace YSS::Editor {
 		tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
 			VISTMGT("YSS::Editor.StackTag.Hover"),
 			VISTMGT("YSS::Editor.StackTag.Pressed"));
+		auto textColor = VISTM->getPaletteTextColor();
+		auto accentColor = VISTM->getPaletteAccentColor();
+		applyIcon(tagLabel, textColor, accentColor);
 		adjustScrollArea();
 	}
 
@@ -526,6 +563,13 @@ namespace YSS::Editor {
 			label->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
 				VISTMGT("YSS::Editor.StackTag.Hover"),
 				VISTMGT("YSS::Editor.StackTag.Pressed"));
+		}
+		static QColor textColor;
+		static QColor accentColor;
+		if (textColor != VISTM->getPaletteTextColor() || accentColor != VISTM->getPaletteAccentColor()) {
+			textColor = VISTM->getPaletteTextColor();
+			accentColor = VISTM->getPaletteAccentColor();
+			applyIcon(nullptr, textColor, accentColor);
 		}
 	}
 	void StackTagWidget::resizeEvent(QResizeEvent* event) {

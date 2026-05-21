@@ -34,6 +34,8 @@ namespace YSS {
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
 		registerColorScheme(":/resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json");
+		VIApp->setGlobalFont(":/resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf");
+		VIApp->setIconFont(":/resource/cn.yxgeneral.yayinstorystudio/Segoe Fluent Icons.ttf");
 	}
 
 	void Main::onPluginEnable() {
@@ -51,7 +53,7 @@ namespace YSS {
 		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("yssp", "YayinStoryStudio Project",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
 		YSS::GlobalValue::getInstance();
-		VIApp->setGlobalFont(":/resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf");
+		
 		registerPluginModule(new YSS::Editor::YSSCommandHandler(this));
 		registerPluginModule(new YSS::Editor::YSSTranslator(this));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();

@@ -1,15 +1,16 @@
 #include <QtCore/qdir.h>
 #include <QtCore/qthread.h>
 #include <chrono>
-#include "../VIApplication.h"
-#include "../private/AUTO_VERSION.h"
-#include "../private/VIApplication_p.h"
-#include "../PluginManager.h"
-#include "../TranslationHost.h"
-#include "../Plugin.h"
-#include "../Log.h"
-#include "../../Utility/Console.h"
+#include "General/VIApplication.h"
+#include "General/private/AUTO_VERSION.h"
+#include "General/private/VIApplication_p.h"
+#include "General/PluginManager.h"
+#include "General/TranslationHost.h"
+#include "General/Plugin.h"
+#include "General/Log.h"
+#include "Utility/Console.h"
 #include <QtGui/qfontdatabase.h>
+#include <QtGui/qpainter.h>
 #include "Widgets/Terminal.h"
 #include "Widgets/ThemeManager.h"
 #include "Widgets/private/VIWidgets_p.h"
@@ -161,17 +162,18 @@ namespace Visindigo::General {
 		static QMap<VIApplication::EnvKey, QVariant> EnvConfig;
 		static VIApplication* Instance;
 
-		VIApplication::AppType AppType;
 		void* AppInstance;
+		bool started = false;
+		VIApplication::AppType AppType;
 		Visindigo::__Private__::VisindigoCore* CorePlugin;
 		Visindigo::__Private__::VisindigoWidgets* WidgetsPlugin;
 		Plugin* MainPlugin;
-		bool started = false;
 		ApplicationLoadingMessageHandler* LoadingMessageHandler = nullptr;
 		ApplicationExceptionMessageHandler* ExceptionMessageHandler = nullptr;
 		Widgets::Terminal* VirtualTerminal = nullptr;
-
 		QList<Plugin*> DependencyPlugins;
+		QFont GlobalFont;
+		QFont IconFont;
 	};
 
 	VIApplication* VIApplicationPrivate::Instance = nullptr;
@@ -513,9 +515,79 @@ namespace Visindigo::General {
 		}
 		QString family = QFontDatabase::applicationFontFamilies(id).at(fontID);
 		QFont font(family);
+		d->GlobalFont = font;
 		qApp->setFont(font);
 		vgNoticeF << "Global font set to" << family;
 	}
+
+	/*!
+		\since Visindigo 0.15.2
+		\a fontPath 字体文件的路径。
+		\a fontID 字体文件中字体的索引，默认为0。
+
+		设置一个用于图标的字体。这个字体不会以任何方式和Qt直接发生交互，
+		在设置完毕后，在需要的地方调用getIconFont使用这个字体即可。
+	*/
+	void VIApplication::setIconFont(const QString& fontPath, int fontID) {
+		int id = QFontDatabase::addApplicationFont(fontPath);
+		if (id == -1) {
+			throw Exception(Exception::InternalError, QString("Failed to load icon font from %1").arg(fontPath));
+		}
+		QString family = QFontDatabase::applicationFontFamilies(id).at(fontID);
+		QFont font(family);
+		d->IconFont = font;
+		vgNoticeF << "Icon font set to" << family;
+	}
+
+	/*!
+		\since Visindigo 0.15.2
+		return 当前设置的全局字体对象。
+	*/
+	QFont VIApplication::getGlobalFont() const {
+		return d->GlobalFont;
+	}
+
+	/*!
+		\since Visindigo 0.15.2
+		return 当前设置的图标字体对象。
+	*/
+	QFont VIApplication::getIconFont() const {
+		return d->IconFont;
+	}
+
+	/*!
+		\fn QIcon VIApplication::getFontIcon(QString unicode, int iconSize, QList<QColor> layerColors) const
+		\since Visindigo 0.15.2
+		\a unicode 指定的图标的Unicode编码。
+		\a iconSize 图标的大小，默认为64像素。
+		\a layerColors 图表中各个层的颜色列表，默认为一个只有黑色的列表
+
+		return 一个QIcon对象，包含了渲染的结果。
+
+		这个函数用于获取一个图标字体中的特定图标字符。用户需要先使用setIconFont设置一个图标字体，
+		然后通过传入对应图标的Unicode编码来获取这个图标的字符。
+	*/
+	QIcon VIApplication::getFontIcon(QString unicode, int iconSize, QList<QColor> layerColors) const {
+		if (d->IconFont.family().isEmpty()) {
+			throw Exception(Exception::InternalError, "Icon font is not set");
+		}
+		QFont font = d->IconFont;
+		font.setPixelSize(iconSize);
+		QPixmap pixmap(64, 64);
+		pixmap.fill(Qt::transparent);
+		QPainter painter(&pixmap);
+		painter.setFont(font);
+		for (int i = layerColors.size(); i < unicode.size(); i++) {
+			layerColors.append(Qt::black);
+		}
+		for (int i = 0; i < unicode.size(); i++) {
+			painter.setPen(layerColors[i]);
+			painter.drawText(pixmap.rect(), Qt::AlignCenter, unicode[i]);
+		}
+		
+		return QIcon(pixmap);
+	}
+
 
 	/*!
 		\since Visindigo 0.13.0
