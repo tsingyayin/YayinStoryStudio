@@ -28,6 +28,7 @@ namespace Visindigo::General {
 		void setGlobalLogLevel(Logger::Level level);
 		void finalSave();
 		void generateCrashReport(const Exception& ex);
+		QString generateHardwareInfo(bool debugOutput = true);
 	private:
 		LoggerManagerPrivate* d;
 	};

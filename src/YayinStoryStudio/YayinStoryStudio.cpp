@@ -35,7 +35,7 @@ namespace YSS {
 		setPluginAuthor({ "Tsing Yayin" });
 		registerColorScheme(":/resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json");
 		VIApp->setGlobalFont(":/resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf");
-		VIApp->setIconFont(":/resource/cn.yxgeneral.yayinstorystudio/Segoe Fluent Icons.ttf");
+		VIApp->setIconFont(":/resource/cn.yxgeneral.visindigo/Segoe Fluent Icons.ttf");
 	}
 
 	void Main::onPluginEnable() {
@@ -74,7 +74,8 @@ namespace YSS {
 		VISTM->changeColorTheme(getPluginConfig()->getString("Settings.General.Theme"));
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
-
+		// style problem has been solved in 0.15.2, maybe we can remove this in the future
+		/*
 		if (Visindigo::General::VIApplication::isWindows() && not Visindigo::General::VIApplication::isWindows11()) {
 			if (not getPluginConfig()->getBool("General.ShowUpToWin11")) {
 				getPluginConfig()->setBool("General.ShowUpToWin11", true);
@@ -90,9 +91,7 @@ namespace YSS {
 				}
 				getPluginConfig()->setInt("General.ShowUpToWin11Count", count);
 			}
-		}
-		//YSS::TestDragWidget* tw = new YSS::TestDragWidget();
-		//tw->show();
+		}*/
 	}
 
 	void Main::onPluginDisable() {

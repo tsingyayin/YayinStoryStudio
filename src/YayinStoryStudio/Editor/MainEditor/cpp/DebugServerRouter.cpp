@@ -40,6 +40,7 @@ namespace YSS::Editor {
 						Instance, &DebugServerRouter::breakpointChanged);
 					QObject::connect(CurrentServer, &YSSCore::Editor::DebugServer::breakpointHited,
 						Instance, &DebugServerRouter::breakpointHited);
+					Instance->debugServerChanged();
 				}
 				else {
 					QMessageBox::warning(YSS::Editor::MainWin::getInstance(),

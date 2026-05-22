@@ -242,10 +242,12 @@ namespace YSS::Editor {
 			this, &MainWinMenu::onToolWidgetShow);
 		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed,
 			this, &MainWinMenu::onToolWidgetHide);
-
+		connect(DebugServerRouter::getInstance(), &DebugServerRouter::debugServerChanged,
+			this, &MainWinMenu::onDebugServerChanged);
 		refreshToolMenu();
 		setColorfulEnable(true);
 		onThemeChanged();
+		onDebugServerChanged();
 	}
 
 	MainWinMenu::~MainWinMenu() {
@@ -514,6 +516,20 @@ namespace YSS::Editor {
 
 	void MainWinMenu::onResourceBrowserVisibilityChanged(bool visible) {
 		d->View_ResourceBrowser->setChecked(visible);
+	}
+
+	void MainWinMenu::onDebugServerChanged() {
+		d->Run_Run_Debug->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::DebugRun));
+		d->Run_Run_Run->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Run));
+		d->Run_Run_Stop->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Stop));
+		d->Run_Run_Restart->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Run | YSSCore::Editor::DebugServer::Stop));
+		d->Run_Build_Build->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Build));
+		d->Run_Build_Rebuild->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Build));
+		d->Run_Build_Clean->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Clean));
+		d->Run_Action_StepInto->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::StepInto));
+		d->Run_Action_StepOver->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::StepOver));
+		d->Run_Action_Suspend->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Suspend));
+		d->Run_Action_Resume->setEnabled(DebugServerRouter::getInstance()->testDebugFeature(YSSCore::Editor::DebugServer::Continue));
 	}
 
 	void MainWinMenu::onThemeChanged() {

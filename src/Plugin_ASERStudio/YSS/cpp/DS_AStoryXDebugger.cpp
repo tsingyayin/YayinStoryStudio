@@ -22,7 +22,7 @@ namespace ASERStudio::YSS {
 		YSSCore::Editor::DebugServer("AStoryXDebugger", ASERStudio_AStoryXDebuggerID, plugin) {
 		d = new DS_AStoryXDebuggerPrivate;
 		this->setSupportedFeatures(
-			DebugRun | Run | Stop | Suspend | Continue
+			DebugRun | Run | Stop 
 		);
 	}
 	DS_AStoryXDebugger::~DS_AStoryXDebugger() {}

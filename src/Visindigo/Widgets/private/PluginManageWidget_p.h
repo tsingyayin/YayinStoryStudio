@@ -9,6 +9,7 @@ class QPushButton;
 class QGridLayout;
 class QHBoxLayout;
 class QVBoxLayout;
+class QToolButton;
 namespace Visindigo::General {
 	class Plugin;
 }
@@ -36,8 +37,8 @@ namespace Visindigo::__Private__ {
 		QLabel* DescriptionLabel;
 		QLabel* CheckBoxLabel;
 		QCheckBox* ActiveCheckBox;
-		QPushButton* OpenFolderButton;
-		QPushButton* OpenConfigButton;
+		QToolButton* OpenFolderButton;
+		QToolButton* OpenConfigButton;
 		QGridLayout* Layout;
 		Visindigo::General::Plugin* Plugin = nullptr;
 		bool AsDependency = false;

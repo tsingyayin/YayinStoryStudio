@@ -58,6 +58,7 @@ namespace YSS::Editor {
 		void onToolWidgetToggled(const QString& toolWidgetID, bool checked);
 		void onResourceBrowserVisibilityChanged(bool visible);
 		void onPluginToolMenuAboutToShow();
+		void onDebugServerChanged();
 	public:
 		virtual void onThemeChanged() override;
 	private:

@@ -15,6 +15,8 @@
 #include <QtGui/qpalette.h>
 #include <QtCore/qfileinfo.h>
 #include <QtGui/qfont.h>
+#include <QtGui/qfontdatabase.h>
+
 namespace Visindigo::Widgets {
 	class ThemeManagerPrivate {
 		friend class ThemeManager;
@@ -466,6 +468,8 @@ namespace Visindigo::Widgets {
 		d = new ThemeManagerPrivate();
 		d->DefaultColorScheme = new Visindigo::Utility::JsonConfig();
 		d->DefaultColorScheme->parse(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.visindigo/default/defaultTheme.json"));
+		
+		QFontDatabase::addApplicationFont(":/resource/cn.yxgeneral.visindigo/Segoe Fluent Icons.ttf");
 		//d->ColorSchemes["#Default"] = d->DefaultColorScheme;
 		d->ConfigPath = VIApp->getEnvConfig(Visindigo::General::VIApplication::EnvKey::ThemeFolderPath).toString();
 		d->Config = new Visindigo::Utility::JsonConfig();
@@ -984,7 +988,7 @@ namespace Visindigo::Widgets {
 					}
 					else {
 						auto currentFont = qApp->font();
-						QApplication::setStyle("fusion");
+						QApplication::setStyle("windows11");
 						QApplication::setFont(currentFont);
 						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Dark);
 					}
@@ -1000,7 +1004,7 @@ namespace Visindigo::Widgets {
 					}
 					else {
 						auto currentFont = qApp->font();
-						QApplication::setStyle("fusion");
+						QApplication::setStyle("windows11");
 						QApplication::setFont(currentFont);
 						qApp->styleHints()->setColorScheme(Qt::ColorScheme::Light);
 					}

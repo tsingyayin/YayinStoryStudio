@@ -7,6 +7,7 @@ namespace YSS::Editor {
 	class DebugServerRouter :public QObject {
 		Q_OBJECT;
 	signals:
+		void debugServerChanged();
 		void actionStarted(YSSCore::Editor::DebugServer::DebugAction action);
 		void actionPercent(YSSCore::Editor::DebugServer::DebugAction action, qint32 finished, qint32 total);
 		void actionMessage(YSSCore::Editor::DebugServer::DebugAction action, const QString& message);

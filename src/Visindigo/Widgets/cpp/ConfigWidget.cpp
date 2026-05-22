@@ -249,7 +249,7 @@ namespace Visindigo::__Private__ {
 				Visindigo::Utility::JsonConfig selfConfig = config.getObject("data");
 				QWidget* target = widgetRouter(type, node, selfConfig, config.getBool("readOnly"));
 				if (target != nullptr) {
-					target->setMinimumWidth(200);
+					target->setFixedWidth(300);
 					target->setParent(MultiLabel);
 					MultiLabel->addCustomWidget(target);
 				}
@@ -351,6 +351,8 @@ namespace Visindigo::__Private__ {
 			LineEditDefault.insert(LineEdit, VIPlaceholder(defaultValue));
 			QFrame* container = new QFrame();
 			QHBoxLayout* layout = new QHBoxLayout(container);
+			layout->setContentsMargins(0, 0, 0, 0);
+			layout->setSpacing(0);
 			LineEdit->setParent(container);
 			layout->addWidget(LineEdit);
 			QPushButton* selectButton = new QPushButton(container);

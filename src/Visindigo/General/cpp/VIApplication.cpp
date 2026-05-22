@@ -352,6 +352,9 @@ namespace Visindigo::General {
 			QString(Visindigo_VERSION_BUILD_TIME) << "[" << QSysInfo::buildCpuArchitecture() << "]\033[0m";
 		vgDebug << Utility::Console::inWarningStyle("Working Path: ") << Utility::Console::inNoticeStyle(QDir::currentPath());
 		vgDebug << "Hello," << QDir::home().dirName() << "! Welcome to Visindigo!";
+
+		LoggerManager::getInstance()->generateHardwareInfo();
+
 		PluginManager::getInstance(); // Initialize PluginManager
 		TranslationHost::getInstance(); // Initialize TranslationHost
 

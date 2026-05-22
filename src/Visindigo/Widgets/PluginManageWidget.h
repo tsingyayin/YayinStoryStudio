@@ -10,6 +10,7 @@ namespace Visindigo::Widgets {
 		PluginManageWidget(QWidget* parent = nullptr);
 		~PluginManageWidget();
 		void refreshPluginList();
+		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 	private:
 		PluginManageWidgetPrivate* d;

@@ -13,7 +13,8 @@
 #include "General/Log.h"
 #include <QtCore/qdir.h>
 #include <QtWidgets/qscrollbar.h>
-
+#include <QtWidgets/qtoolbutton.h>
+#include "Widgets/ThemeManager.h"
 namespace Visindigo::__Private__ {
 	Divider::Divider(const QString& title, const QString& description, QWidget* parent) : QFrame(parent)
 	{
@@ -45,13 +46,18 @@ namespace Visindigo::__Private__ {
 		DescriptionLabel->setWordWrap(true);
 		ActiveCheckBox = new QCheckBox(this);
 		CheckBoxLabel = new QLabel(this);
-		OpenFolderButton = new QPushButton(this);
+		OpenFolderButton = new QToolButton(this);
 		OpenFolderButton->setFixedWidth(140);
-		OpenFolderButton->setText(VITR("Visindigo::general.openFolder"));
-		OpenConfigButton = new QPushButton(this);
+		OpenFolderButton->setToolTip(VITR("Visindigo::general.openFolder"));
+		OpenFolderButton->setIcon(VIApp->getFontIcon("\uE838", 40, { VISTM->getPaletteTextColor() }));
+		OpenFolderButton->setFixedSize(50, 50);
+		OpenFolderButton->setIconSize(QSize(40, 40));
+		OpenConfigButton = new QToolButton(this);
 		OpenConfigButton->setFixedWidth(140);
-		OpenConfigButton->setText(VITR("Visindigo::general.openConfig"));
-
+		OpenConfigButton->setToolTip(VITR("Visindigo::general.openConfig"));
+		OpenConfigButton->setIcon(VIApp->getFontIcon("\uE713", 40, { VISTM->getPaletteTextColor() }));
+		OpenConfigButton->setFixedSize(50, 50);
+		OpenConfigButton->setIconSize(QSize(40, 40));
 		Layout = new QGridLayout(this);
 		Layout->addWidget(IconLabel, 0, 0, 3, 1);
 		Layout->addWidget(NameLabel, 0, 1);
@@ -59,12 +65,13 @@ namespace Visindigo::__Private__ {
 		Layout->addWidget(DateTimeLabel, 1, 2);
 		Layout->addWidget(AuthorLabel, 2, 1, 1, 2);
 		Layout->addWidget(DescriptionLabel, 0, 3, 3, 1);
-		Layout->addWidget(OpenFolderButton, 0, 4);
-		Layout->addWidget(OpenConfigButton, 1, 4);
+		Layout->addWidget(OpenFolderButton, 0, 4, 2, 1);
+		Layout->addWidget(OpenConfigButton, 0, 5, 2, 1);
+		Layout->setSpacing(1);
 		auto checkLayout = new QHBoxLayout();
 		checkLayout->addWidget(CheckBoxLabel);
 		checkLayout->addWidget(ActiveCheckBox);
-		Layout->addLayout(checkLayout, 2, 4);
+		Layout->addLayout(checkLayout, 2, 4, 1, 2);
 		AsDependency = asdependency;
 		if (AsDependency) {
 			ActiveCheckBox->setVisible(false);
@@ -96,9 +103,11 @@ namespace Visindigo::__Private__ {
 		QWidget* configWidget = plugin->getConfigWidget();
 		if (not configWidget) {
 			OpenConfigButton->setEnabled(false);
+			OpenConfigButton->setIcon(VIApp->getFontIcon("\uE713\uE871", 40, { VISTM->getPaletteTextColor(), VISTM->getPaletteTextColor() }));
 		}
 		else {
 			OpenConfigButton->setEnabled(true);
+
 		}
 	}
 
@@ -321,6 +330,9 @@ namespace Visindigo::Widgets {
 		delete d;
 	}
 
+	void PluginManageWidget::showEvent(QShowEvent* event) {
+		QFrame::showEvent(event);
+	}
 	/*!
 		\since Visindigo 0.13.0
 		\a event 调整大小事件
