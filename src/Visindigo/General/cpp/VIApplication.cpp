@@ -581,7 +581,7 @@ namespace Visindigo::General {
 		QPainter painter(&pixmap);
 		painter.setFont(font);
 		for (int i = layerColors.size(); i < unicode.size(); i++) {
-			layerColors.append(Qt::black);
+			layerColors.append(QColor::fromString("#888888"));
 		}
 		for (int i = 0; i < unicode.size(); i++) {
 			painter.setPen(layerColors[i]);

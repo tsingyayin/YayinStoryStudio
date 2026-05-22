@@ -13,6 +13,7 @@ namespace YSS::Editor {
 		static DebugServerRouter* Instance;
 		YSSCore::Editor::DebugServer* CurrentServer = nullptr;
 		bool lastDebugStart = false;
+		bool notFoundWarned = false;
 		YSSCore::Editor::DebugServer* getCurrentServer() {
 			if (not CurrentServer) {
 				QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID();
@@ -24,6 +25,7 @@ namespace YSS::Editor {
 				}
 				CurrentServer = YSSDSM->getDebugServer(debugServerID);
 				if (CurrentServer) {
+					notFoundWarned = false;
 					QObject::connect(CurrentServer, &YSSCore::Editor::DebugServer::actionStarted,
 						Instance, &DebugServerRouter::actionStarted);
 					QObject::connect(CurrentServer, &YSSCore::Editor::DebugServer::actionPercent,
@@ -43,9 +45,12 @@ namespace YSS::Editor {
 					Instance->debugServerChanged();
 				}
 				else {
-					QMessageBox::warning(YSS::Editor::MainWin::getInstance(),
-						VITR("YSS::editor.debug.notFound.title"), VITR("YSS::editor.debug.notFound.message").arg(debugServerID));
-					vgErrorF << "Debug server" << debugServerID << "not found!";
+					if (not notFoundWarned) {
+						QMessageBox::warning(YSS::Editor::MainWin::getInstance(),
+							VITR("YSS::editor.debug.notFound.title"), VITR("YSS::editor.debug.notFound.message").arg(debugServerID));
+						vgErrorF << "Debug server" << debugServerID << "not found!";
+						notFoundWarned = true;
+					}
 				}
 			}
 			return CurrentServer;

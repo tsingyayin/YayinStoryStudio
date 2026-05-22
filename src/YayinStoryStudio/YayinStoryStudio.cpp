@@ -60,7 +60,8 @@ namespace YSS {
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json"));
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged, this, [](const QString& node, int index, QString data) {
-			if (node == "Settings.General.Theme") {
+			vgDebug << node;
+			if (node == "General.Theme") {
 				VISTM->changeColorTheme(data);
 			}
 			});

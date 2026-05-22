@@ -103,7 +103,8 @@ namespace Visindigo::__Private__ {
 		QWidget* configWidget = plugin->getConfigWidget();
 		if (not configWidget) {
 			OpenConfigButton->setEnabled(false);
-			OpenConfigButton->setIcon(VIApp->getFontIcon("\uE713\uE871", 40, { VISTM->getPaletteTextColor(), VISTM->getPaletteTextColor() }));
+			OpenConfigButton->setIcon(VIApp->getFontIcon("\uE713\uE871", 40, { VISTM->getPaletteTextColor(), QColor::fromString("#E8E64D")}));
+			OpenConfigButton->setToolTip(VITR("Visindigo::general.configNotSupported"));
 		}
 		else {
 			OpenConfigButton->setEnabled(true);

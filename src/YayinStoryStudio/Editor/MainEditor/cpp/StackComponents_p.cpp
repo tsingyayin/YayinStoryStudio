@@ -15,14 +15,14 @@ namespace YSS::Editor {
 	StackTag::StackTag(QWidget* parent, bool toolWidgetMode) :QFrame(parent) {
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
-	
+		TitleLabel->setContentsMargins(5, 0, 5, 0);
 		PinLabel = new QToolButton(this);
 		//PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
 		CloseLabel = new QToolButton(this);
 		//CloseLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/close.png"));
 		this->setContentsMargins(0, 0, 0, 0);
 		Layout = new QHBoxLayout(this);
-		Layout->setContentsMargins(5, 0, 2, 0);
+		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->setSpacing(0);
 		Layout->addWidget(TitleLabel);
 		Layout->addWidget(PinLabel);
@@ -86,6 +86,7 @@ namespace YSS::Editor {
 				ActionCloseAll, ActionCloseSaved });
 		}
 		else {
+			this->TitleLabel->setAlignment(Qt::AlignCenter);
 			this->addActions({ ActionClose, ActionPin, ActionCloseAll });
 		}
 	}
@@ -219,9 +220,10 @@ namespace YSS::Editor {
 		style->drawControl(QStyle::CE_PushButton, &option, &painter, this);
 		if (Pressed || Focused) {
 			QPen pen(VISTM->getPaletteAccentColor());
-			pen.setWidth(1);
+			pen.setWidth(2);
+			pen.setCapStyle(Qt::RoundCap);
 			painter.setPen(pen);
-			painter.drawLine(4, this->height() - 3, this->width()-4, this->height() - 3);
+			painter.drawLine(6, this->height() - 3, this->width()-6, this->height() - 3);
 		}
 		TitleLabel->setPalette(qApp->palette());
 	}

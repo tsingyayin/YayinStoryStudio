@@ -7,6 +7,7 @@
 #include <General/TranslationHost.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qmessagebox.h>
+
 namespace YSSCore::__Private__ {
 	TextEditFindAndReplace::TextEditFindAndReplace(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {
 		this->parent = parent;

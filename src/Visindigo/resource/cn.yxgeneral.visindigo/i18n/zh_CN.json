@@ -32,6 +32,7 @@
 		"ok": "确定",
 		"open": "打开",
 		"openConfig": "打开配置",
+		"configNotSupported": "未提供可配置选项",
 		"openFolder": "打开文件夹",
 		"pause": "暂停",
 		"pin": "固定",

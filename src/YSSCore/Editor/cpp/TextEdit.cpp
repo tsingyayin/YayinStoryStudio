@@ -208,36 +208,32 @@ namespace YSSCore::__Private__ {
 			useKeyboardToMoveCursor = false;
 			return;
 		}
-		onCompleter();
-		onHoverInfo(false);
 		QTextCursor cursor = Text->textCursor();
 		int index = cursor.block().blockNumber();
 		int column = cursor.positionInBlock();
 		int selection = cursor.selectedText().length();
 		CursorInfo->setCursorInfo(index + 1, column + 1, selection);
-		if (index == LastCursorLine) {
-			return;
-		}
 		if (index >= Line->document()->blockCount()) {
 			onBlockCountChanged(index + 1);
 		}
-		if (Line->document()->findBlockByNumber(index).text().isEmpty()) {
+		if (selection != 0) {
+			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+				TabCompleterWidget->hide();
+			}
+			if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+				HoverInfoWidget->hide();
+			}
+			CurrentLineSelection.format.setBackground(Qt::transparent);
+			onMultiSelectionChanged();
 			return;
 		}
-		int delta = index - LastCursorLine;
-		QTextBlockFormat format = LastCursor.blockFormat();
-		//format.setBackground(VISTM->getColor("Editor.Background"));
-		//format.setForeground(VISTM->getColor("Editor.LineNumber"));
-		LastCursor.setBlockFormat(format);
-		if (delta > 0) {
-			LastCursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, delta);
-		}
-		else {
-			LastCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -delta);
-		}
-		//format.setBackground(VISTM->getColor("Editor.Selection"));
-		LastCursor.setBlockFormat(format);
-		LastCursorLine = index;
+		onCompleter();
+		onHoverInfo(false);
+		CurrentLineSelection.cursor = cursor;
+		CurrentLineSelection.cursor.clearSelection();
+		CurrentLineSelection.format.setBackground(Text->palette().color(QPalette::AlternateBase).lighter(100));
+		CurrentLineSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+		onMultiSelectionChanged();
 	}
 
 	void TextEditPrivate::onCompleter() {
@@ -658,7 +654,7 @@ namespace YSSCore::__Private__ {
 				selection.format.setBackground(VISTM->getColor("SelectedTextBackground").lighter(150));
 				AltMultiSelections.append(selection);
 			}
-			Text->setExtraSelections(AltMultiSelections);
+			onMultiSelectionChanged();
 		}
 		else if (event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
 			if (AltMultiSelections.isEmpty()) {
@@ -669,14 +665,14 @@ namespace YSSCore::__Private__ {
 				cursor.movePosition(event->key() == Qt::Key_Left ? QTextCursor::Left : QTextCursor::Right, QTextCursor::KeepAnchor);
 				AltMultiSelections[i].cursor = cursor;
 			}
-			Text->setExtraSelections(AltMultiSelections);
+			onMultiSelectionChanged();
 		}
 	}
 
 	void TextEditPrivate::clearAltMultiSelection() {
 		if (!AltMultiSelections.isEmpty()) {
 			AltMultiSelections.clear();
-			Text->setExtraSelections(AltMultiSelections);
+			onMultiSelectionChanged();
 		}
 	}
 
@@ -688,13 +684,13 @@ namespace YSSCore::__Private__ {
 			selection.format.setBackground(VISTM->getColor("SelectedTextBackground").lighter(150));
 			FindAllMultiSelections.append(selection);
 		}
-		Text->setExtraSelections(FindAllMultiSelections);
+		onMultiSelectionChanged();
 	}
 
 	void TextEditPrivate::clearFindAllMultiSelection() {
-		if (!FindAllMultiSelections.isEmpty()) {
+		if (not FindAllMultiSelections.isEmpty()) {
 			FindAllMultiSelections.clear();
-			Text->setExtraSelections(FindAllMultiSelections);
+			onMultiSelectionChanged();
 		}
 	}
 
@@ -705,6 +701,12 @@ namespace YSSCore::__Private__ {
 			FindAndReplaceWidget->setFindText(selectedText);
 		}
 		FindAndReplaceWidget->show();
+	}
+
+	void TextEditPrivate::onMultiSelectionChanged() {
+		QList<QTextEdit::ExtraSelection> allSelections = AltMultiSelections + FindAllMultiSelections;
+		allSelections << CurrentLineSelection;
+		Text->setExtraSelections(allSelections);
 	}
 
 	void TextEditPrivate::adjustTabCompleterPosition() {
@@ -860,31 +862,24 @@ namespace YSSCore::Editor {
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		d = new YSSCore::__Private__::TextEditPrivate;
 		d->q = this;
-		//this->setMinimumSize(800, 600);
 		this->setMouseTracking(true);
-		d->Font = qApp->font();
-		d->FontMetrics = new QFontMetricsF(d->Font);
-
+		
 		d->Line = new QTextBrowser(this);
 		d->Line->setReadOnly(true);
+		d->Line->setTextInteractionFlags(Qt::NoTextInteraction);
 		d->Line->setMaximumWidth(80);
 		d->Line->setAlignment(Qt::AlignRight);
-		d->Line->document()->setDefaultFont(QFont("Microsoft YaHei"));
 		d->Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 		d->Text = new QTextEdit(this);
-		d->Text->document()->setDefaultFont(QFont("Microsoft YaHei"));
-		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
-		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
-		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
-		//vgDebug << "TabStopDistance:" << d->Text->tabStopDistance() << d->TabWidth * d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
 		d->Text->installEventFilter(d);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
-		//d->Text->verticalScrollBar()->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 		d->Text->setAcceptRichText(false);
+
+		setTextFont(QFont("Microsoft YaHei"));
 		this->installEventFilter(d);
 		d->Layout = new QGridLayout(this);
 		d->Layout->addWidget(d->Line, 0, 0);
@@ -894,12 +889,7 @@ namespace YSSCore::Editor {
 		d->CursorInfo = new YSSCore::__Private__::TextEditCursorInfo(this);
 		d->CursorInfo->setFixedHeight(30);
 		d->CursorInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-		//testLabel->setFrameStyle(QFrame::Box | QFrame::Plain);
 		d->Layout->addWidget(d->CursorInfo, 1, 0, 1, 2);
-
-		d->LastCursor = d->Line->textCursor();
-		d->LastCursor.movePosition(QTextCursor::Start);
-		d->LastCursorLine = 0;
 
 		d->HoverTimer = new QTimer(this);
 		d->HoverTimer->setInterval(d->HoverTimeout);
@@ -1054,6 +1044,14 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
+		\since YSS 0.15.2
+		return TextEdit中的光标对象。
+	*/
+	QTextCursor TextEdit::getTextCursor() const {
+		return d->Text->textCursor();
+	}
+
+	/*!
 		\since YSS 0.14.0
 		return 字体的字号。
 	*/
@@ -1066,13 +1064,41 @@ namespace YSSCore::Editor {
 		\a size 设置字体的字号。
 	*/
 	void TextEdit::setFontSize(qint32 size) {
-		QFont font = d->Text->font();
+		QFont font = d->Text->document()->defaultFont();
 		font.setPointSize(size);
-		d->Text->setFont(font);
-		d->Line->setFont(font);
+		d->Text->document()->setDefaultFont(font);
+		d->Line->document()->setDefaultFont(font);
 		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
 		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
+	}
+
+	/*!
+		\since YSS 0.15.2
+		\a font 设置字体。
+
+		设置用于显示文本内容的字体。这个设置只影响文本编辑区域和行号的字体，不干涉鼠标悬停提示和Tab补全的字体设置。
+	*/
+	void TextEdit::setTextFont(const QFont& font) {
+		if (d->FontMetrics) {
+			delete d->FontMetrics;
+			d->FontMetrics = nullptr;
+		}
+		d->FontMetrics = new QFontMetricsF(font);
+		d->Text->document()->setDefaultFont(font);
+		d->Line->document()->setDefaultFont(font);
+		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
+		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
+		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
+	}
+
+	/*!
+		\since YSS 0.15.2
+
+		return 用于显示文本内容的字体。
+	*/
+	QFont TextEdit::getTextFont() const {
+		return d->Text->font();
 	}
 
 	/*!
@@ -1293,7 +1319,6 @@ namespace YSSCore::Editor {
 		QTextStream in(&file);
 		in.setEncoding(QStringConverter::Utf8);
 		d->Text->setPlainText(in.readAll());
-		d->LastCursor.movePosition(QTextCursor::Start);
 		file.close();
 		cancelFileChanged();
 		connect(d->Text, &QTextEdit::textChanged, [this]() {

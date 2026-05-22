@@ -32,6 +32,7 @@
 		"ok": "OK",
 		"open": "Open",
 		"openConfig": "Open Config",
+		"configNotSupported": "No configurable options provided",
 		"openFolder": "Open Folder",
 		"pause": "Pause",
 		"pin": "Pin",

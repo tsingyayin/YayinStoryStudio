@@ -20,6 +20,11 @@
 #include <Editor/TextEdit.h>
 #include <Editor/ToolWidgetManager.h>
 #include <Utility/QtSSHelper.h>
+#include <QtWidgets/qapplication.h>
+#include <QtGui/qclipboard.h>
+#include <QtCore/qmimedata.h>
+#include <QtGui/qtextcursor.h>
+
 namespace YSS::Editor {
 	class MainWinMenuPrivate {
 		friend class MainWinMenu;
@@ -244,6 +249,7 @@ namespace YSS::Editor {
 			this, &MainWinMenu::onToolWidgetHide);
 		connect(DebugServerRouter::getInstance(), &DebugServerRouter::debugServerChanged,
 			this, &MainWinMenu::onDebugServerChanged);
+		connect(d->EditMenu, &QMenu::aboutToShow, this, &MainWinMenu::onEditMenuAboutToShow);
 		refreshToolMenu();
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -495,6 +501,19 @@ namespace YSS::Editor {
 					});
 			}
 		}
+	}
+	
+	void MainWinMenu::onEditMenuAboutToShow() {
+		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentWidget);
+		bool hasTextEdit = (textEdit != nullptr);
+		d->Edit_Undo->setEnabled(hasTextEdit && textEdit->getDocument()->isUndoAvailable());
+		d->Edit_Redo->setEnabled(hasTextEdit && textEdit->getDocument()->isRedoAvailable());
+		d->Edit_Cut->setEnabled(hasTextEdit && textEdit->getTextCursor().hasSelection());
+		d->Edit_Copy->setEnabled(hasTextEdit && textEdit->getTextCursor().hasSelection());
+		d->Edit_Paste->setEnabled(hasTextEdit && QApplication::clipboard()->mimeData()->hasText());
+		d->Edit_SelectAll->setEnabled(hasTextEdit && !textEdit->getDocument()->isEmpty());
+		d->Edit_FindAndReplace->setEnabled(hasTextEdit);
 	}
 
 	void MainWinMenu::onToolWidgetShow(const QString& toolWidgetID) {

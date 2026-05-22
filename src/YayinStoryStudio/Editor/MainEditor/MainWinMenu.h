@@ -53,6 +53,7 @@ namespace YSS::Editor {
 		void view_resourceBrowser(bool checked);
 		void view_pluginTools(const QString& toolID, bool checked);
 	public:
+		void onEditMenuAboutToShow();
 		void onToolWidgetShow(const QString& toolWidgetID);
 		void onToolWidgetHide(const QString& toolWidgetID);
 		void onToolWidgetToggled(const QString& toolWidgetID, bool checked);

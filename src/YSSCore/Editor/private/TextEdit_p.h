@@ -59,7 +59,7 @@ namespace YSSCore::__Private__ {
 		QPushButton* replaceNextButton;
 		QPushButton* replaceAllButton;
 	};
-
+	
 	class TextEditCursorInfo :public Visindigo::Widgets::BorderFrame {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TextEdit;
@@ -88,9 +88,6 @@ namespace YSSCore::__Private__ {
 		QGridLayout* Layout = nullptr;
 		qint32 LineCount = 0;
 		qint8 TabWidth = 4;
-		qint32 LastCursorLine = 0;
-		QTextCursor LastCursor;
-		QFont Font;
 		QFontMetricsF* FontMetrics = nullptr;
 		YSSCore::Editor::SyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::TabCompleterProvider* TabCompleter = nullptr;
@@ -105,6 +102,7 @@ namespace YSSCore::__Private__ {
 		QWidget* HoverArea = nullptr;
 		QList<QTextEdit::ExtraSelection> AltMultiSelections;
 		QList<QTextEdit::ExtraSelection> FindAllMultiSelections;
+		QTextEdit::ExtraSelection CurrentLineSelection;
 		TextEditFindAndReplace* FindAndReplaceWidget = nullptr;
 		bool Rehighlighting = false;
 		TextEditPrivate() {};
@@ -133,6 +131,7 @@ namespace YSSCore::__Private__ {
 		void createFindAllMultiSelection(QList<QTextCursor> findResults);
 		void clearFindAllMultiSelection();
 		void showFindAndReplace();
+		void onMultiSelectionChanged();
 		void adjustTabCompleterPosition();
 		void adjustHoverInfoPosition(const QTextCursor& cursor);
 	};
