@@ -23,6 +23,7 @@
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/ToolWidgetArea.h"
 #include "Editor/MainEditor/RenameDialog.h"
+#include "Editor/MainEditor/BottomInfoWidget.h"
 #include <Widgets/DesktopHacker.h>
 
 namespace YSS::Editor {
@@ -77,6 +78,10 @@ namespace YSS::Editor {
 		splitter->setStretchFactor(0, 1);
 		splitter->setStretchFactor(1, 4);
 		Layout->addWidget(splitter);
+
+		BottomFrame = new BottomInfoWidget(this);
+		BottomFrame->setFixedHeight(30);
+		MainLayout->addWidget(BottomFrame);
 
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -302,7 +307,7 @@ namespace YSS::Editor {
 
 	void MainWin::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
-		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
+		this->CentralWidget->resize(this->width(), this->height() - Menu->height() - BottomFrame->height());
 	}
 
 	void MainWin::keyPressEvent(QKeyEvent* event) {

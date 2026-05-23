@@ -153,7 +153,6 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onBlockCountChanged(qint32 count) {
-		CursorInfo->setTotalLines(count);
 		qint32 delta = count - LineCount;
 		if (delta > 0) {
 			QTextCursor cursor = Line->textCursor();
@@ -198,6 +197,14 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onCursorPositionChanged() {
+		
+		QTextCursor cursor = Text->textCursor();
+		int index = cursor.block().blockNumber();
+		int column = cursor.positionInBlock();
+		int selection = cursor.selectedText().length();
+		if (index >= Line->document()->blockCount()) {
+			onBlockCountChanged(index + 1);
+		}
 		if (useKeyboardToMoveCursor) {
 			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
 				TabCompleterWidget->hide();
@@ -206,15 +213,8 @@ namespace YSSCore::__Private__ {
 				HoverInfoWidget->hide();
 			}
 			useKeyboardToMoveCursor = false;
+			emit q->cursorPositionChanged(cursor);
 			return;
-		}
-		QTextCursor cursor = Text->textCursor();
-		int index = cursor.block().blockNumber();
-		int column = cursor.positionInBlock();
-		int selection = cursor.selectedText().length();
-		CursorInfo->setCursorInfo(index + 1, column + 1, selection);
-		if (index >= Line->document()->blockCount()) {
-			onBlockCountChanged(index + 1);
 		}
 		if (selection != 0) {
 			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
@@ -225,6 +225,7 @@ namespace YSSCore::__Private__ {
 			}
 			CurrentLineSelection.format.setBackground(Qt::transparent);
 			onMultiSelectionChanged();
+			emit q->cursorPositionChanged(cursor);
 			return;
 		}
 		onCompleter();
@@ -234,6 +235,7 @@ namespace YSSCore::__Private__ {
 		CurrentLineSelection.format.setBackground(Text->palette().color(QPalette::AlternateBase).lighter(100));
 		CurrentLineSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
 		onMultiSelectionChanged();
+		emit q->cursorPositionChanged(cursor);
 	}
 
 	void TextEditPrivate::onCompleter() {
@@ -886,10 +888,6 @@ namespace YSSCore::Editor {
 		d->Layout->addWidget(d->Text, 0, 1);
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
-		d->CursorInfo = new YSSCore::__Private__::TextEditCursorInfo(this);
-		d->CursorInfo->setFixedHeight(30);
-		d->CursorInfo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-		d->Layout->addWidget(d->CursorInfo, 1, 0, 1, 2);
 
 		d->HoverTimer = new QTimer(this);
 		d->HoverTimer->setInterval(d->HoverTimeout);
@@ -991,11 +989,13 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		return 当前光标所在的行号。行号从1开始。
+		return 当前光标所在的行号。行号从0开始。
+
+		\warning 在0.16.0之前，行号从1开始。为了保持与Qt的QTextBlock::blockNumber()函数一致，0.16.0版本将行号调整为从0开始。
 	*/
 	int TextEdit::getCurrentLineNumber() const {
 		QTextCursor cursor = d->Text->textCursor();
-		return cursor.block().blockNumber() + 1;
+		return cursor.block().blockNumber();
 	}
 
 	/*!

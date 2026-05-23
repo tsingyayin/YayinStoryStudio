@@ -26,9 +26,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\HoverTip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,11 +89,11 @@
     <ClCompile Include="Editor\MainEditor\cpp\MainEditorBuiltinPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Editor\MainEditor\HoverTip.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -155,6 +152,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\MessageViewer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\BottomInfoWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

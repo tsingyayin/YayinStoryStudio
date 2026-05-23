@@ -151,6 +151,7 @@
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
     <ClInclude Include="Editor\FormatNormalizer.h" />
+    <ClInclude Include="Editor\InlineToolProvider.h" />
     <ClInclude Include="Editor\LangServer.h" />
     <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Editor\private\HoverInfoProvider_p.h" />

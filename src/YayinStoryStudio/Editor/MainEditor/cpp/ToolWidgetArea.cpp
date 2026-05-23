@@ -126,4 +126,11 @@ namespace YSS::Editor {
 		emit currentWidgetChanged(widgetID);
 		d->TagArea->setCurrentStackLabel(widgetID);
 	}
+
+	QWidget* ToolWidgetArea::getCurrentWidget() const {
+		if (d->ContentArea == d->CentralArea) {
+			return nullptr;
+		}
+		return d->ContentArea;
+	}
 }

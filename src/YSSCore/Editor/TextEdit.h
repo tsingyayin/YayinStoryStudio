@@ -23,6 +23,14 @@ namespace YSSCore::Editor {
 		friend class YSSCore::__Private__::TextEditPrivate;
 		friend class HoverInfoProvider;
 		friend class SyntaxHighlighter;
+	signals:
+		void fontSizeChanged(qint32 newSize);
+		void textFontChanged(const QFont& newFont);
+		void cursorPositionChanged(const QTextCursor& cursor);
+		void modifySuggestionAccepted(qint32 lineNumber, const QString& suggestion);
+		void modifySuggestionRejected(qint32 lineNumber, const QString& suggestion);
+		void ghostTextAccepted(qint32 insertLine, const QStringList& ghostText);
+		void ghostTextRejected(qint32 insertLine, const QStringList& ghostText);
 	public:
 		TextEdit(QWidget* parent = nullptr);
 		virtual ~TextEdit();
@@ -47,6 +55,10 @@ namespace YSSCore::Editor {
 		qint32 replaceAll(const QString& text, const QString& newText, bool textAsRe = false, QTextDocument::FindFlags options = QTextDocument::FindFlags());
 		bool replaceNext(const QString& text, const QString& newText, bool textAsRe = false, qint32 from = -1, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool relocate = false);
 		void showFindAndReplace();
+		bool hasModifySuggestion() const;
+		bool hasGhostText() const;
+		void setModifySuggestion(qint32 lineNumber, const QStringList& suggestions);
+		void setGhostText(qint32 insertLine, const QList<QStringList>& ghostTexts);
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;

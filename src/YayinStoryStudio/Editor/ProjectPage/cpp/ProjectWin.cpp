@@ -78,7 +78,10 @@ namespace YSS::ProjectPage {
 		TitleLabel->setFont(font);
 
 		HistoryProjectArea = new QScrollArea(this);
+		HistoryProjectArea->setStyleSheet("QScrollArea { background: transparent; border: none; }");
 		HistoryProjectWidget = new QWidget(HistoryProjectArea);
+		HistoryProjectWidget->setObjectName("HistoryProjectWidget");
+		HistoryProjectWidget->setStyleSheet("QWidget#HistoryProjectWidget { background: transparent; }");
 		HistoryProjectLayout = new QVBoxLayout(HistoryProjectWidget);
 		HistoryProjectLayout->setContentsMargins(0, 0, 0, 0);
 		HistoryProjectLayout->setSpacing(0);
@@ -169,7 +172,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::resizeEvent(QResizeEvent* event) {
-		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - 16);
+		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - 12);
 	}
 
 	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {

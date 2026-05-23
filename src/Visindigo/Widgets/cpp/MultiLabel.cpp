@@ -53,11 +53,12 @@ namespace Visindigo::Widgets {
 		d->Icon = new QLabel(this);
 		d->Icon->setObjectName("IconLabel");
 		d->Layout = new QGridLayout(this);
+		d->Layout->setSpacing(0);
 		this->setLayout(d->Layout);
 		d->Layout->addWidget(d->Title, 0, 1, 1, 1);
 		d->Icon->setAlignment(Qt::AlignCenter);
-		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
+		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 		this->setPixmapFixedWidth(64);
 		d->Icon->hide();
 		d->Description->hide();
@@ -79,7 +80,7 @@ namespace Visindigo::Widgets {
 	*/
 	void MultiLabel::setTitle(const QString& str) {
 		d->Title->setText(str);
-		d->Title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		//d->Title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	}
 
 	/*!
@@ -92,13 +93,16 @@ namespace Visindigo::Widgets {
 		d->Description->setText(str);
 		if (!str.isEmpty()) {
 			d->Layout->addWidget(d->Description, 1, 1, 1, 1);
-			d->Layout->setRowStretch(0, 2);
-			d->Layout->setRowStretch(1, 1);
+			//d->Layout->setRowStretch(0, 2);
+			//d->Layout->setRowStretch(1, 1);
 			d->Description->show();
 		}
 		QFont font = qApp->font();
-		font.setPointSizeF(font.pointSizeF() * 0.8);
+		font.setPointSizeF(font.pointSizeF() * 0.9);
 		d->Description->setFont(font);
+		auto palette = qApp->palette();
+		palette.setColor(QPalette::WindowText, palette.color(QPalette::WindowText).darker(120));
+		d->Description->setPalette(palette);
 	}
 
 	/*!
@@ -169,8 +173,8 @@ namespace Visindigo::Widgets {
 		设置文本对齐方式
 	*/
 	void MultiLabel::setAlignment(Qt::Alignment align) {
-		d->Title->setAlignment(align);
-		d->Description->setAlignment(align);
+		d->Title->setAlignment(align | Qt::AlignBottom);
+		d->Description->setAlignment(align | Qt::AlignTop);
 	}
 
 	/*!
@@ -225,6 +229,20 @@ namespace Visindigo::Widgets {
 	void MultiLabel::resizeEvent(QResizeEvent* event) {
 		if (d->Icon->isVisible()) {
 			d->Icon->setFixedHeight(d->Icon->width());
+		}
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a event 事件
+		由MultiLabel重载的changeEvent函数，用于在主题发生改变时调整描述文本的颜色以保持与当前主题的协调。
+		如果继承此类并重写了changeEvent函数，则必须显式调用此函数以保持描述文本的正确显示，否则描述文本可能会与当前主题不协调。
+	*/
+	void MultiLabel::changeEvent(QEvent* event) {
+		if (event->type() == QEvent::PaletteChange) {
+			auto palette = qApp->palette();
+			palette.setColor(QPalette::WindowText, palette.color(QPalette::WindowText).darker(120));
+			d->Description->setPalette(palette);
 		}
 	}
 

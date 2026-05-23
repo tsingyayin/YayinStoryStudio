@@ -359,6 +359,9 @@
   <ItemGroup>
     <QtRcc Include="Visindigo.qrc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="resource\cn.yxgeneral.visindigo\icon\图标.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />

@@ -8,6 +8,7 @@ class QMenu;
 class QAction;
 class QHBoxLayout;
 class QVBoxLayout;
+class QLineEdit;
 namespace Visindigo::Widgets {
 	class QuickMenu;
 }
@@ -17,6 +18,7 @@ namespace YSS::Editor {
 	class RenameDialog;
 	class MainWinMenu;
 	class ToolWidgetArea;
+	class BottomInfoWidget;
 
 	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
@@ -29,6 +31,7 @@ namespace YSS::Editor {
 		QHBoxLayout* Layout = nullptr;
 		RenameDialog* RenameDlg = nullptr;
 		MainWinMenu* Menu = nullptr;
+		BottomInfoWidget* BottomFrame = nullptr;
 		bool closeForBack = false;
 		static MainWin* Instance;
 	public:
