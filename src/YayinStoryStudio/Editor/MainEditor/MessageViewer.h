@@ -11,6 +11,7 @@ namespace YSS::Editor {
 		QVBoxLayout* Layout;
 		QTableWidget* MessageTable;
 		QString CurrentFilePath;
+		QColor TextColor;
 	public:
 		MessageViewer(QWidget* parent = nullptr);
 		void changeCurrentFile(const QString& filePath);

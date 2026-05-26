@@ -126,13 +126,12 @@ namespace YSS::Editor {
 	}
 
 	void ResourceBrowser::onThemeChanged() {
-		static QColor textColor;
-		if (textColor != VISTM->getPaletteTextColor()) {
-			textColor = VISTM->getPaletteTextColor();
-			ToolActionRefresh->setIcon(VIApp->getFontIcon("\uE72C", 40, { textColor }));
-			ToolActionShrink->setIcon(VIApp->getFontIcon("\uE70E", 40, { textColor }));
-			ToolActionExpand->setIcon(VIApp->getFontIcon("\uE70D", 40, { textColor }));
-			ToolActionNew->setIcon(VIApp->getFontIcon("\uED11", 40, { textColor }));
+		if (TextColor != VISTM->getPaletteTextColor()) {
+			TextColor = VISTM->getPaletteTextColor();
+			ToolActionRefresh->setIcon(VIApp->getFontIcon("\uE72C", 40, { TextColor }));
+			ToolActionShrink->setIcon(VIApp->getFontIcon("\uE70E", 40, { TextColor }));
+			ToolActionExpand->setIcon(VIApp->getFontIcon("\uE70D", 40, {TextColor }));
+			ToolActionNew->setIcon(VIApp->getFontIcon("\uED11", 40, { TextColor }));
 		}
 	}
 

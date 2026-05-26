@@ -204,7 +204,8 @@
             "AudioName": "Specifies the audio name used for the sound effect",
             "Volume": "Specifies the sound effect volume, ranging from 0 to 1",
             "Position": "Spatial position of the sound effect, -1 for left, 1 for right, adjustable within this range",
-            "Steps": "Specifies the number of steps the sound effect lasts, i.e., how many controllers it continues for before terminating"
+            "Steps": "Specifies the number of steps the sound effect lasts, i.e., how many controllers it continues for before terminating",
+            "AsVoice": "Whether to treat this sound effect as a voice. When true and the next controller is a dialog controller, the dialog controller will ensure that this voice finishes playing before starting to execute the next line."
         },
         "Mask": {
             "__description": "Controls mask display.",

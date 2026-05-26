@@ -134,6 +134,10 @@
       "type": "Integer",
       "defaultValue": "0",
       "min": 0
+    },
+    "AsVoice": {
+      "type": "Bool",
+      "defaultValue": "false"
     }
   },
   "Mask": {

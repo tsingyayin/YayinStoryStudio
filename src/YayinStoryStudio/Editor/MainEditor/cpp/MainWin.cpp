@@ -312,7 +312,6 @@ namespace YSS::Editor {
 				saveProject();
 			}
 			else if (event->key() == Qt::Key_F5) {
-				saveProject();
 				Menu->run_run_restart();
 			}
 		}
@@ -335,7 +334,6 @@ namespace YSS::Editor {
 		}
 		else if (event->modifiers() == Qt::ShiftModifier) {
 			if (event->key() == Qt::Key_F5) {
-				saveAllFiles();
 				Menu->run_run_stop();
 			}
 		}
@@ -348,7 +346,6 @@ namespace YSS::Editor {
 			help();
 		}
 		else if (event->key() == Qt::Key_F5) {
-			saveAllFiles();
 			Menu->run_run_debug();
 		}
 	}
