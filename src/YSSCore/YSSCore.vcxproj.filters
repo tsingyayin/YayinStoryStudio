@@ -101,6 +101,9 @@
     <ClCompile Include="Editor\cpp\ToolWidgetManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\DocumentMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\private\EditorPlugin_p.h">
@@ -145,10 +148,10 @@
     <ClInclude Include="Editor\VirtualFilePath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\private\DocumentMessage_p.h">
+    <ClInclude Include="Editor\InlineToolProvider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\InlineToolProvider.h">
+    <ClInclude Include="Editor\DocumentMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

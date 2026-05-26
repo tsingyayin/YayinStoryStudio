@@ -32,7 +32,10 @@ namespace YSS::NewFilePage {
 		SearchLineEdit = new QLineEdit(this);
 
 		FileTemplateArea = new QScrollArea(this);
+		FileTemplateArea->setStyleSheet("QScrollArea { background: transparent; border: none; }");
 		FileTemplateWidget = new QWidget(FileTemplateArea);
+		FileTemplateWidget->setObjectName("FileTemplateWidget");
+		FileTemplateWidget->setStyleSheet("QWidget#FileTemplateWidget { background: transparent; }");
 		FileTemplateArea->setWidget(FileTemplateWidget);
 		FileTemplateArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 		FileTemplateArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -86,9 +89,6 @@ namespace YSS::NewFilePage {
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
-			//ProviderButton->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			//ProviderButton->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			//ProviderButton->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->setCustomWidgetOrientation(Qt::Vertical);
@@ -121,18 +121,13 @@ namespace YSS::NewFilePage {
 		}
 	}
 	void NewFileWin::onThemeChanged() {
-		//this->applyVIStyleTemplate("YSS::ProjectWin");
-		for (Visindigo::Widgets::MultiButton* button : FileList) {
-			//button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			//button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			//button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
-		}
+
 	}
 	void NewFileWin::closeEvent(QCloseEvent* event) {
 		this->deleteLater();
 	}
 	void NewFileWin::resizeEvent(QResizeEvent* event) {
-		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() - 12 * this->devicePixelRatioF());
+		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() - 12);
 	}
 	void NewFileWin::onFilePrepared(QString projectPath) {
 		emit filePrepared(projectPath);

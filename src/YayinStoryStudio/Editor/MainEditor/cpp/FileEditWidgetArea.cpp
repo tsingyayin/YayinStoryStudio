@@ -93,6 +93,9 @@ namespace YSS::Editor {
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {
 			textEdit->setHoverArea(YSS::Editor::MainWin::getInstance());
+			connect(textEdit, &YSSCore::Editor::TextEdit::cursorPositionChanged, this, [this, textEdit]() {
+				emit textEditCursorPositionChanged(textEdit->getFilePath(), textEdit->getTextCursor());
+				});
 		}
 		GlobalValue::getCurrentProject()->addEditorOpenedFile(filePath);
 		setCurrentWidget(filePath);

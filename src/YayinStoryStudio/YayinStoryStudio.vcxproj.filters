@@ -157,6 +157,9 @@
     <QtMoc Include="Editor\MainEditor\BottomInfoWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">

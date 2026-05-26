@@ -31,6 +31,7 @@ namespace YSS::Editor {
 		QAction* ActionShrink;
 		QAction* ActionRename;
 		QAction* ActionShowInExplorer;
+		QColor TextColor;
 	signals:
 		void visibilityChanged(bool visible);
 	public:

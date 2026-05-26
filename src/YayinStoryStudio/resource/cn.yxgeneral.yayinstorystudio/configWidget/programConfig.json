@@ -55,6 +55,30 @@
                         ],
                         "default": "Dark"
                     }
+                },
+                {
+                    "node": "UpdateChannel",
+                    "type": "ComboBox",
+                    "icon": "",
+                    "title": "i18n:YSS::config.general.updateChannel.title",
+                    "text": "i18n:YSS::config.general.updateChannel.text",
+                    "data": {
+                        "comboBox": [
+                            {
+                                "data": "release",
+                                "key": "i18n:YSS::config.general.updateChannel.release"
+                            },
+                            {
+                                "data": "tp",
+                                "key": "i18n:YSS::config.general.updateChannel.tp"
+                            },
+                            {
+                                "data": "beta",
+                                "key": "i18n:YSS::config.general.updateChannel.beta"
+                            }
+                        ],
+                        "default": "release"
+                    }
                 }
             ]
         },

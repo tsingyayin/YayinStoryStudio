@@ -16,6 +16,13 @@
 				"dark":"深色",
 				"light":"浅色",
 				"auto": "自动（跟随系统）"
+			},
+			"updateChannel":{
+				"title": "更新通道",
+				"text":"选择应用程序使用的更新通道，正式版只接受正式版的更新消息，Beta版会同时接受正式版和Beta版的更新消息，技术预览版会接受三种版本的全部更新消息。",
+				"release": "正式版",
+				"beta": "测试版",
+				"tp": "技术预览版"
 			}
 		 },
 		 "editor":{
@@ -26,6 +33,11 @@
 				"text":"控制编辑器是否应该在行首出现TAB时将其替换为空格（这个选项暂时无效）"
 			}
 		}
+	},
+	"update": {
+		"newVersionAvailable": "有新版本可用！",
+		"newVersionAvailableDesc": "版本%1现已发布，您当前使用的版本是%2。\n请参阅发布日志了解新版本的更新内容，并访问官方网站下载最新版本。",
+		"newsLoadFailed": "未能从服务器同步到新闻，请检查您的网络连接并稍后再试。"
 	},
 	"tooltips": {
 		"projectWin":{
@@ -66,7 +78,6 @@
 			"InvaildConfig":"项目配置无效，缺少必要的字段或字段类型不正确。",
 			"UnknownError":"发生未知错误，无法打开项目。"
 		},
-		"newsLoadFailed": "未能从服务器同步到新闻，请检查您的网络连接并稍后再试。",
 		"saveQuestion": {
 			"title": "要关闭程序吗？",
 			"text": "您的项目%1已经发生修改，且还未保存。是否要保存项目？"
@@ -168,7 +179,8 @@
 			},
 			"cursorInfo_s": "行 %1，列 %2（已选中 %3）",
 			"cursorInfo": "行 %1，列 %2",
-			"totalLines": "总行数 %1"
+			"totalLines": "总行数 %1",
+			"ready": "就绪"
 		},
 		"debug": {
 			"notFound": {

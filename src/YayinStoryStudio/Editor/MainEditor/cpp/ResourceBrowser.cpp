@@ -22,9 +22,6 @@ namespace YSS::Editor {
 		Layout = new QVBoxLayout(this);
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
-		//ButtonWidget = new QWidget(this);
-
-		//ButtonLayout = new QHBoxLayout(ButtonWidget);
 
 		ToolBar = new QToolBar(this);
 		ToolActionRefresh = ToolBar->addAction(VITR("Visindigo::general.refresh"));
@@ -33,12 +30,7 @@ namespace YSS::Editor {
 		ToolActionNew = ToolBar->addAction(VITR("Visindigo::general.new"));
 		ToolBar->setMaximumHeight(40);
 		Layout->addWidget(ToolBar);
-		//ButtonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-		//ButtonLayout->setContentsMargins(0, 0, 0, 0);
-		//ButtonWidget->setLayout(ButtonLayout);
-		//ButtonWidget->setMinimumHeight(40);
 
-		
 		FileTree = new QTreeView(this);
 		FileModel = new QFileSystemModel(this);
 		FileTree->setModel(FileModel);
@@ -126,13 +118,12 @@ namespace YSS::Editor {
 	}
 
 	void ResourceBrowser::onThemeChanged() {
-		static QColor textColor;
-		if (textColor != VISTM->getPaletteTextColor()) {
-			textColor = VISTM->getPaletteTextColor();
-			ToolActionRefresh->setIcon(VIApp->getFontIcon("\uE72C", 40, { textColor }));
-			ToolActionShrink->setIcon(VIApp->getFontIcon("\uE70E", 40, { textColor }));
-			ToolActionExpand->setIcon(VIApp->getFontIcon("\uE70D", 40, { textColor }));
-			ToolActionNew->setIcon(VIApp->getFontIcon("\uED11", 40, { textColor }));
+		if (TextColor != VISTM->getPaletteTextColor()) {
+			TextColor = VISTM->getPaletteTextColor();
+			ToolActionRefresh->setIcon(VIApp->getFontIcon("\uE72C", 40, { TextColor }));
+			ToolActionShrink->setIcon(VIApp->getFontIcon("\uE70E", 40, { TextColor }));
+			ToolActionExpand->setIcon(VIApp->getFontIcon("\uE70D", 40, { TextColor }));
+			ToolActionNew->setIcon(VIApp->getFontIcon("\uED11", 40, { TextColor }));
 		}
 	}
 

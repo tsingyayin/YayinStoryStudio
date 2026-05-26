@@ -53,7 +53,7 @@ namespace Visindigo::Widgets {
 		d->Icon = new QLabel(this);
 		d->Icon->setObjectName("IconLabel");
 		d->Layout = new QGridLayout(this);
-		d->Layout->setSpacing(0);
+		d->Layout->setSpacing(10);
 		this->setLayout(d->Layout);
 		d->Layout->addWidget(d->Title, 0, 1, 1, 1);
 		d->Icon->setAlignment(Qt::AlignCenter);

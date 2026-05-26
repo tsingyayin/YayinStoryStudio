@@ -10,6 +10,7 @@
 #include <General/Plugin.h>
 #include <Editor/EditorPlugin.h>
 #include <Editor/FileServerManager.h>
+#include <Editor/TextEdit.h>
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
 #include <Utility/ColorTool.h>
@@ -24,6 +25,7 @@
 #include "Editor/MainEditor/ToolWidgetArea.h"
 #include "Editor/MainEditor/RenameDialog.h"
 #include "Editor/MainEditor/BottomInfoWidget.h"
+#include <Editor/DocumentMessageManager.h>
 #include <Widgets/DesktopHacker.h>
 
 namespace YSS::Editor {
@@ -81,6 +83,7 @@ namespace YSS::Editor {
 
 		BottomFrame = new BottomInfoWidget(this);
 		BottomFrame->setFixedHeight(30);
+		BottomFrame->setGitInfoEnable(false);
 		MainLayout->addWidget(BottomFrame);
 
 		setColorfulEnable(true);
@@ -114,6 +117,33 @@ namespace YSS::Editor {
 				editor->saveFile(newName, true);
 			}
 			Browser->refresh();
+			});
+
+		connect(Editors, &FileEditWidgetArea::currentFileChanged, this, [this](const QString& filePath) {
+			BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
+			auto currentEditWidget = Editors->getCurrentWidget();
+			auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
+			if (textEdit) {
+				BottomFrame->displayEditorInfo(textEdit->getTextCursor());
+				BottomFrame->setEditorInfoEnable(true);
+			}
+			else {
+				BottomFrame->setEditorInfoEnable(false);
+			}
+		});
+
+		connect(Editors, &FileEditWidgetArea::textEditCursorPositionChanged, this, [this](const QString& filePath, const QTextCursor& cursor) {
+			BottomFrame->displayEditorInfo(cursor);
+			});
+
+		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), &YSSCore::Editor::DocumentMessageManager::messageChanged, 
+			this, [this](const QString& filePath) {
+				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
+			});
+
+		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), &YSSCore::Editor::DocumentMessageManager::messageChangedForLine,
+			this, [this](const QString& filePath, qint32 lineNumber) {
+				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
 			});
 
 		for (Visindigo::General::Plugin* plugin : VIPLM->getEnabledPlugins()) {
@@ -317,7 +347,6 @@ namespace YSS::Editor {
 				saveProject();
 			}
 			else if (event->key() == Qt::Key_F5) {
-				saveProject();
 				Menu->run_run_restart();
 			}
 		}
@@ -340,7 +369,6 @@ namespace YSS::Editor {
 		}
 		else if (event->modifiers() == Qt::ShiftModifier) {
 			if (event->key() == Qt::Key_F5) {
-				saveAllFiles();
 				Menu->run_run_stop();
 			}
 		}
@@ -353,7 +381,6 @@ namespace YSS::Editor {
 			help();
 		}
 		else if (event->key() == Qt::Key_F5) {
-			saveAllFiles();
 			Menu->run_run_debug();
 		}
 	}

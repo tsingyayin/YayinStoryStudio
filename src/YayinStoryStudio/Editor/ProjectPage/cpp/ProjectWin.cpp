@@ -29,6 +29,7 @@
 #include <General/VIApplication.h>
 #include <General/Plugin.h>
 #include <Widgets/MultiButtonGroup.h>
+#include "YayinStoryStudio.h"
 namespace YSS::ProjectPage {
 	bool ProjectWin::firstOpen = true;
 	ProjectWin::ProjectWin() :QFrame() {
@@ -47,6 +48,13 @@ namespace YSS::ProjectPage {
 					if (!content.isEmpty()) {
 						NewsWidget->setMarkdown(content);
 					}
+					bool needUpdate = YSS::Main::getInstance()->getPluginConfig()->getBool("Update.Needed");
+					QString latestVersion = YSS::Main::getInstance()->getPluginConfig()->getString("Update.LatestVersion");
+					if (needUpdate) {
+						QString currentVersion = YSS::Main::getInstance()->getPluginVersion().toString();
+						QMessageBox::information(this, VITR("YSS::update.newVersionAvailable"), 
+							VITR("YSS::update.newVersionAvailableDesc").arg(latestVersion).arg(currentVersion));
+					}
 					reply->deleteLater();
 					return;
 				}
@@ -57,20 +65,19 @@ namespace YSS::ProjectPage {
 				}
 			}
 			else {
-				NewsWidget->setMarkdown(VITR("YSS::project.newsLoadFailed"));
+				NewsWidget->setMarkdown(VITR("YSS::update.newsLoadFailed"));
 				NewsWidget->setAlignment(Qt::AlignCenter);
 			}
 			reply->deleteLater();
 			});
 
-		//this->setAttribute(Qt::WA_TranslucentBackground);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
-		this->setMinimumSize(1366, 768);
+		this->setMinimumSize(1024, 576);
 		this->setWindowTitle(VITR("YSS::project.projectManager"));
 		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
 		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
 		TitleLabel->setContentsMargins(10, 0, 10, 0);
-		TitleLabel->setText(" Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
+		TitleLabel->setText("Yayin Story Studio " + Visindigo::General::Version::getAPIVersion().toString());
 		TitleLabel->setObjectName("ProgramTitleLabel");
 		TitleLabel->setFixedHeight(80);
 		auto font = TitleLabel->font();
@@ -91,7 +98,7 @@ namespace YSS::ProjectPage {
 		HistoryProjectArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 		NewsWidget = new QTextBrowser(this);
-		NewsWidget->setMaximumWidth(300);
+		NewsWidget->setMaximumWidth(360);
 
 		OptionWidget = new Visindigo::Widgets::BorderFrame(this);
 		CreateProjectButton = new QPushButton(OptionWidget);
@@ -110,6 +117,7 @@ namespace YSS::ProjectPage {
 		ButtonLayout->addWidget(OpenFolderButton);
 		ButtonLayout->addWidget(CloneGitButton);
 		InfoWidget = new ProjectInfoWidget(this);
+		InfoWidget->setMinimumHeight(160);
 		Layout = new QGridLayout(this);
 
 		this->setLayout(Layout);
@@ -122,7 +130,6 @@ namespace YSS::ProjectPage {
 		Layout->setColumnStretch(1, 1);
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
-		//this->HistoryProjectArea->setStyleSheet(VISTMGT("YSS::NormalScrollBar", this));
 		loadProject();
 
 		int width = GlobalValue::getConfig()->getInt("Window.Project.Width");
@@ -314,7 +321,7 @@ namespace YSS::ProjectPage {
 			label->setObjectName("HistoryProject");
 			label->setTitle(project->getProjectName());
 			QString lastModifyTime = project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss");
-			label->setDescription(lastModifyTime + "\t" + project->getProjectFolder());
+			label->setDescription(lastModifyTime + "\n" + project->getProjectFolder());
 			HistoryProjectLabelList.append(label);
 			HistoryProjectLayout->addWidget(label);
 			//label->setSpacing(5);
@@ -327,7 +334,7 @@ namespace YSS::ProjectPage {
 			connect(label, &Visindigo::Widgets::MultiButton::clicked, this, &ProjectWin::onProjectSelected);
 			connect(label, &Visindigo::Widgets::MultiButton::doubleClicked, this, &ProjectWin::onProjectDoubleClicked);
 		}
-		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 80);
+		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 90);
 	}
 
 	void ProjectWin::onThemeChanged() {
@@ -345,19 +352,27 @@ namespace YSS::ProjectPage {
 			QString version = config.getString("version");
 			Visindigo::General::Version metaVersion(version);
 			auto req = QNetworkRequest();
-			if (metaVersion > VIApp->getMainPlugin()->getPluginVersion()) {
+			bool isUpdate = metaVersion > VIApp->getMainPlugin()->getPluginVersion();
+			if (isUpdate) {
 				req = QNetworkRequest(QUrl(config.getString("update_news")));
 			}
 			else {
 				req = QNetworkRequest(QUrl(config.getString("news")));
 			}
 			QNetworkReply* reply = NetworkManager->get(req);
-			connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+			connect(reply, &QNetworkReply::finished, this, [this, reply, isUpdate, metaVersion]() {
 				if (reply->error() == QNetworkReply::NoError) {
 					QByteArray responseData = reply->readAll();
 					QString newsStr = QString::fromUtf8(responseData);
 					NewsWidget->setMarkdown(newsStr);
 					Visindigo::Utility::FileUtility::saveAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_content"), newsStr);
+					YSS::Main::getInstance()->getPluginConfig()->setBool("Update.Needed", isUpdate);
+					YSS::Main::getInstance()->getPluginConfig()->setString("Update.LatestVersion", metaVersion.toString());
+					if (isUpdate) {
+						auto version = YSS::Main::getInstance()->getPluginVersion().toString();
+						QMessageBox::information(this, VITR("YSS::update.newVersionAvailable"), 
+							VITR("YSS::update.newVersionAvailableDesc").arg(metaVersion.toString()).arg(version));
+					}
 				}
 				reply->deleteLater();
 				});

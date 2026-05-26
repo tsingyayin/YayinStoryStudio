@@ -155,6 +155,7 @@
     <QtMoc Include="Editor\MainEditor\MainEditorBuiltinPlugin.h" />
     <QtMoc Include="Editor\MainEditor\MessageViewer.h" />
     <QtMoc Include="Editor\MainEditor\BottomInfoWidget.h" />
+    <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

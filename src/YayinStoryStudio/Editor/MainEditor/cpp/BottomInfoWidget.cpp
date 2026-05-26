@@ -5,7 +5,8 @@
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qtoolbutton.h>
 #include <General/VIApplication.h>
-
+#include <Widgets/ThemeManager.h>
+#include <General/TranslationHost.h>
 namespace YSS::Editor {
 	class BottomInfoWidgetPrivate {
 		friend class BottomInfoWidget;
@@ -15,6 +16,8 @@ namespace YSS::Editor {
 
 		QHBoxLayout* DebugInfoLayout;
 		YSSCore::Editor::DebugServer::DebugAction DebugAction = YSSCore::Editor::DebugServer::DebugAction::Unknown;
+
+		QWidget* DebugInfoWidget;
 		QLabel* DebugInfoIcon;
 		QLabel* DebugInfoText;
 		QProgressBar* DebugProgressBar;
@@ -73,6 +76,17 @@ namespace YSS::Editor {
 				ProgramMessagesButton->setIcon(VIApp->getFontIcon("\uEA8F", iconSize, { textColor }).pixmap(iconSize, iconSize));
 			}
 		}
+
+		void initFontSizeComboBox() {
+			EditorFontSizeComboBox->addItem("50%", 0.5f);
+			EditorFontSizeComboBox->addItem("75%", 0.75f);
+			EditorFontSizeComboBox->addItem("100%", 1.0f);
+			EditorFontSizeComboBox->addItem("125%", 1.25f);
+			EditorFontSizeComboBox->addItem("150%", 1.5f);
+			EditorFontSizeComboBox->addItem("175%", 1.75f);
+			EditorFontSizeComboBox->addItem("200%", 2.0f);
+			EditorFontSizeComboBox->setCurrentIndex(2);
+		}
 	};
 
 	BottomInfoWidget::BottomInfoWidget(QWidget* parent) :BorderFrame(parent), d(new BottomInfoWidgetPrivate) {
@@ -83,12 +97,14 @@ namespace YSS::Editor {
 		d->ProcessingMessagesButton->setIconSize(QSize(d->iconSize, d->iconSize));
 		d->MainLayout->addWidget(d->ProcessingMessagesButton);
 
-		d->DebugInfoLayout = new QHBoxLayout();
+		d->DebugInfoWidget = new QWidget(this);
+		d->DebugInfoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		d->DebugInfoLayout = new QHBoxLayout(d->DebugInfoWidget);
 		d->DebugInfoLayout->setContentsMargins(0, 0, 0, 0);
 		d->DebugInfoLayout->setSpacing(5);
-		d->DebugInfoIcon = new QLabel(this);
-		d->DebugInfoText = new QLabel(this);
-		d->DebugProgressBar = new QProgressBar(this);
+		d->DebugInfoIcon = new QLabel(d->DebugInfoWidget);
+		d->DebugInfoText = new QLabel(d->DebugInfoWidget);
+		d->DebugProgressBar = new QProgressBar(d->DebugInfoWidget);
 		d->DebugProgressBar->setTextVisible(false);
 		d->DebugProgressBar->setMinimum(0);
 		d->DebugProgressBar->setMaximum(100);
@@ -98,9 +114,10 @@ namespace YSS::Editor {
 		d->DebugInfoLayout->addWidget(d->DebugInfoIcon);
 		d->DebugInfoLayout->addWidget(d->DebugInfoText);
 		d->DebugInfoLayout->addWidget(d->DebugProgressBar);
-		d->MainLayout->addLayout(d->DebugInfoLayout);
+		d->MainLayout->addWidget(d->DebugInfoWidget);
 
 		d->EditorInfoWidget = new QWidget(this);
+		d->EditorInfoWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 		d->EditorInfoLayout = new QHBoxLayout(d->EditorInfoWidget);
 		d->EditorInfoLayout->setContentsMargins(0, 0, 0, 0);
 		d->EditorInfoLayout->setSpacing(5);
@@ -114,9 +131,9 @@ namespace YSS::Editor {
 		d->FM_InfoText = new QLabel(d->EditorInfoWidget);
 		d->FM_InfoText->setText("0");
 		d->EditorInfoText = new QLabel(d->EditorInfoWidget);
-		d->EditorInfoText->setText("行 1 （共 1）列 1（已选中1）");
+		d->EditorInfoText->setText("");
 		d->EditorFontSizeComboBox = new QComboBox(d->EditorInfoWidget);
-		d->EditorFontSizeComboBox->addItem("100%", 100);
+		d->initFontSizeComboBox();
 		d->EditorInfoLayout->addWidget(d->FM_ErrorIcon);
 		d->EditorInfoLayout->addWidget(d->FM_ErrorText);
 		d->EditorInfoLayout->addWidget(d->FM_WarningIcon);
@@ -155,6 +172,8 @@ namespace YSS::Editor {
 		d->ProgramMessagesButton->setIconSize(QSize(d->iconSize, d->iconSize));
 		d->MainLayout->addWidget(d->ProgramMessagesButton);
 
+		displayDebugProgress(YSSCore::Editor::DebugServer::DebugAction::Unknown, 0, 0);
+		clearDebugProgress();
 		setColorfulEnable(true);
 		onThemeChanged();
 	}
@@ -171,43 +190,97 @@ namespace YSS::Editor {
 		QFrame::resizeEvent(event);
 		d->ProcessingMessagesButton->setFixedSize(this->height(), this->height());
 		d->ProgramMessagesButton->setFixedSize(this->height(), this->height());
+	}
+	
+	void BottomInfoWidget::displayDebugInfo(YSSCore::Editor::DebugServer::DebugAction action, const QString& info) {
+		d->DebugAction = action;
+		d->applyIcon();
+		d->DebugInfoText->setText(info);
+	}
 
-		if (d->EditorInfoEnable) {
-			if (this->width() < 1000) {
-				d->EditorFontSizeComboBox->hide();
+	void BottomInfoWidget::clearDebugInfo() {
+		d->DebugAction = YSSCore::Editor::DebugServer::DebugAction::Unknown;
+		d->applyIcon();
+		d->DebugInfoText->setText("");
+	}
+
+	void BottomInfoWidget::displayDebugProgress(YSSCore::Editor::DebugServer::DebugAction action, qint32 finished, qint32 total) {
+		d->DebugAction = action;
+		d->applyIcon();
+		if (total > 0) {
+			if (d->DebugProgressBar->maximum() != 100) {
+				d->DebugProgressBar->setMaximum(100);
 			}
-			else {
-				d->EditorFontSizeComboBox->show();
-			}
-			if (this->width() < 950) {
-				d->FM_InfoIcon->hide();
-				d->FM_InfoText->hide();
-			}
-			else {
-				d->FM_InfoIcon->show();
-				d->FM_InfoText->show();
-			}
-			if (this->width() < 900) {
-				d->EditorInfoText->hide();
-			}
-			else {
-				d->EditorInfoText->show();
-			}
-			
-			if (this->width() < 850) {
-				d->EditorInfoWidget->hide();
-			}
-			else {
-				d->EditorInfoWidget->show();
-			}
+			d->DebugProgressBar->setValue(finished * 100 / total);
+			d->DebugProgressBar->setVisible(true);
 		}
-		if (d->GitInfoEnable) {
-			if (this->width() < 700) {
-				d->GitInfoWidget->hide();
-			}
-			else {
-				d->GitInfoWidget->show();
-			}
+		else if (total == 0 && finished == 0) {
+			d->DebugProgressBar->setMaximum(0); // busy indicator
+			d->DebugProgressBar->setVisible(true);
+		}
+	}
+
+	void BottomInfoWidget::clearDebugProgress() {
+		d->DebugProgressBar->setVisible(false);
+	}
+
+	void BottomInfoWidget::setEditorFontSize(float fontSize) {
+		// todo.
+		// need to handle freedom input logic. Will not implement immediately.
+	}
+
+	void BottomInfoWidget::displayEditorInfo(qint32 totalLine, qint32 currentLine, qint32 currentColumn, qint32 selected) {
+		QString totalLines = VITR("YSS::editor.textEdit.totalLines").arg(totalLine) + ". ";
+		if (selected > 0) {
+			totalLines += VITR("YSS::editor.textEdit.cursorInfo_s").arg(currentLine).arg(currentColumn).arg(selected);
+		}else{
+			totalLines += VITR("YSS::editor.textEdit.cursorInfo").arg(currentLine).arg(currentColumn);
+		}
+		d->EditorInfoText->setText(totalLines);
+	}
+
+	void BottomInfoWidget::displayEditorInfo(const QTextCursor& cursor) {
+		qint32 totalLine = cursor.document()->blockCount();
+		qint32 currentLine = cursor.blockNumber() + 1;
+		qint32 currentColumn = cursor.positionInBlock();
+		qint32 selected = cursor.selectedText().length();
+		displayEditorInfo(totalLine, currentLine, currentColumn, selected);
+	}
+
+	void BottomInfoWidget::setEditorInfoEnable(bool enable) {
+		d->EditorInfoEnable = enable;
+		if (not enable) {
+			d->EditorInfoWidget->hide();
+		}
+		else {
+			d->EditorInfoWidget->show();
+		}
+	}
+
+	void BottomInfoWidget::displayFileMessageCount(qint32 error, qint32 warning, qint32 info) {
+		d->FM_ErrorText->setText(QString::number(error));
+		d->FM_WarningText->setText(QString::number(warning));
+		d->FM_InfoText->setText(QString::number(info));
+	}
+
+	void BottomInfoWidget::displayFileMessageCount(const std::tuple<qint32, qint32, qint32>& values) {
+		d->FM_ErrorText->setText(QString::number(std::get<0>(values)));
+		d->FM_WarningText->setText(QString::number(std::get<1>(values)));
+		d->FM_InfoText->setText(QString::number(std::get<2>(values)));
+	}
+	void BottomInfoWidget::displayGitInfo(qint32 pull, qint32 push, qint32 modified, QStringList branchs, QString currentBranch) {
+		d->GI_PushPullText->setText(QString("%1 / %2").arg(pull).arg(push));
+		d->GI_ModifiedText->setText(QString::number(modified));
+		d->GI_BranchText->setText(currentBranch);
+	}
+
+	void BottomInfoWidget::setGitInfoEnable(bool enable) {
+		d->GitInfoEnable = enable;
+		if (not enable) {
+			d->GitInfoWidget->hide();
+		}
+		else {
+			d->GitInfoWidget->show();
 		}
 	}
 

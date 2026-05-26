@@ -1,21 +1,7 @@
-#include "Editor/SyntaxHighlighter.h"
+#include "Editor/DocumentMessage.h"
+#include "Editor/private/DocumentMessageManager_p.h"
 
 namespace YSSCore::Editor {
-	class DocumentMessagePrivate {
-		friend class DocumentMessage;
-		friend class DocumentMessageManager;
-		friend class YSSCore::__Private__::DocumentMessageManagerPrivate;
-	protected:
-		DocumentMessage::MessageType Type;
-		QString Message;
-		qint32 LineNumber;
-		qint32 ColumnNumber;
-		qint32 Length;
-		QString Code;
-		QString fixAdvice;
-		QUrl HelpUrl;
-	};
-
 	/*!
 		\class YSSCore::Editor::DocumentMessage
 		\brief DocumentMessage代表文档特定位置的消息，如错误、警告或信息提示。

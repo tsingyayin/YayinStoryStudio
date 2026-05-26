@@ -5,21 +5,22 @@
 namespace Visindigo::General {
 	class ProgressMonitor;
 	class ProgressHandlePrivate;
-	class VisindigoAPI ProgressHandler {
+	class VisindigoAPI ProgressTracker {
 		friend class ProgressMonitor;
 	protected:
-		ProgressHandler(qint32 id) {};
+		ProgressTracker(qint32 id) {};
 	public:
-		VIMoveable(ProgressHandler);
-		ProgressHandler(const ProgressHandler& other) = delete; // not copyable
-		ProgressHandler& operator=(const ProgressHandler& other) = delete; // not copyable
-		~ProgressHandler();
+		VIMoveable(ProgressTracker);
+		ProgressTracker(const ProgressTracker& other) = delete; // not copyable
+		ProgressTracker& operator=(const ProgressTracker& other) = delete; // not copyable
+		~ProgressTracker();
 		qint32 getID() const;
 		void update(float progress);
 		void finish();
 	private:
 		ProgressHandlePrivate* d;
 	};
+
 	class ProgressMonitorPrivate;
 	class VisindigoAPI ProgressMonitor :public QObject {
 	public:
@@ -34,7 +35,7 @@ namespace Visindigo::General {
 		void setMonitorType(MonitorType type);
 		void setExternalMonitorID(const QString& id);
 		MonitorType getMonitorType() const;
-		ProgressHandler startProgress(const QString& progressName, qint32 waitingTime = 5000, qint32 stepWaitingTime = 100);
+		ProgressTracker startProgress(const QString& progressName, qint32 waitingTime = 5000, qint32 stepWaitingTime = 100);
 	private:
 		ProgressMonitorPrivate* d;
 	};

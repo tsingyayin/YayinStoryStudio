@@ -1,6 +1,7 @@
 #ifndef YSS_Editor_MainWin_StackWidgetArea_h
 #define YSS_Editor_MainWin_StackWidgetArea_h
 #include <QtWidgets/qframe.h>
+#include <QtGui/qtextcursor.h>
 #include <Editor/FileEditWidget.h>
 #include <Widgets/BorderFrame.h>
 namespace YSS::Editor {
@@ -11,6 +12,7 @@ namespace YSS::Editor {
 		void renameRequested(const QString& absOldPath);
 		void saveAsRequested(const QString& rawFilePath);
 		void currentFileChanged(const QString& filePath);
+		void textEditCursorPositionChanged(const QString& filePath, const QTextCursor& cursor);
 	public:
 		FileEditWidgetArea(QWidget* parent = nullptr);
 		virtual ~FileEditWidgetArea();

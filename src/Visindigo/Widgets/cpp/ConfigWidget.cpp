@@ -1,8 +1,8 @@
 #include "../ConfigWidget.h"
 #include <QtCore/qfile.h>
-#include "../../Utility/JsonConfig.h"
-#include "../../Utility/FileUtility.h"
-#include "../../General/TranslationHost.h"
+#include "Utility/JsonConfig.h"
+#include "Utility/FileUtility.h"
+#include "General/TranslationHost.h"
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qcombobox.h>
@@ -11,18 +11,22 @@
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qfiledialog.h>
-#include "../private/ConfigWidget_p.h"
-#include "../../Widgets/MultiLabel.h"
-#include "../../General/Log.h"
-#include "../ThemeManager.h"
+#include "Widgets/private/ConfigWidget_p.h"
+#include "Widgets/MultiLabel.h"
+#include "General/Log.h"
+#include "Widgets/ThemeManager.h"
 #include <QtWidgets/qtextedit.h>
 #include <QtGui/qcolor.h>
 #include <QtWidgets/qcolordialog.h>
 #include "General/Placeholder.h"
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qtoolbutton.h>
+#include "General/VIApplication.h"
+
 namespace Visindigo::__Private__ {
 	ConfigWidgetPrivate::ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self) {
 		this->self = self;
+		self->installEventFilter(this);
 		this->Layout = new QVBoxLayout(self);
 		ButtonWidget = new QWidget(self);
 		ResetButton = new QPushButton(VITR("Visindigo::general.reset"), ButtonWidget);
@@ -65,6 +69,12 @@ namespace Visindigo::__Private__ {
 			}
 		}
 		SettingsWidget.clear();
+		ComboBoxDefault.clear();
+		RadioButtonDefault.clear();
+		LineEditDefault.clear();
+		TextEditDefault.clear();
+		ColorDialogDefault.clear();
+		FileButtons.clear();
 		QList<Visindigo::Utility::JsonConfig> widget = cwJson.getArray("widget");
 		SettingsWidget = spawnWidget(widget);
 		for (QWidget* w : SettingsWidget) {
@@ -211,6 +221,12 @@ namespace Visindigo::__Private__ {
 		}
 	}
 
+	bool ConfigWidgetPrivate::eventFilter(QObject* watched, QEvent* event) {
+		if (event->type() == QEvent::PaletteChange){
+			this->onPaletteChanged();
+		}
+		return QObject::eventFilter(watched, event);
+	}
 	QList<QWidget*> ConfigWidgetPrivate::spawnWidget(QList<Visindigo::Utility::JsonConfig>& config) {
 		QList<QWidget*> rtn;
 		for (Visindigo::Utility::JsonConfig widget : config) {
@@ -233,7 +249,6 @@ namespace Visindigo::__Private__ {
 		QVBoxLayout* Layout = new QVBoxLayout(self);
 		self->setLayout(Layout);
 		Layout->setContentsMargins(0, 0, 0, 0);
-
 		if (type != "Frame") {
 			Visindigo::Widgets::MultiLabel* MultiLabel = new Visindigo::Widgets::MultiLabel(self);
 			Layout->addWidget(MultiLabel);
@@ -249,7 +264,7 @@ namespace Visindigo::__Private__ {
 				Visindigo::Utility::JsonConfig selfConfig = config.getObject("data");
 				QWidget* target = widgetRouter(type, node, selfConfig, config.getBool("readOnly"));
 				if (target != nullptr) {
-					target->setFixedWidth(300);
+					target->setFixedWidth(200);
 					target->setParent(MultiLabel);
 					MultiLabel->addCustomWidget(target);
 				}
@@ -355,11 +370,15 @@ namespace Visindigo::__Private__ {
 			layout->setSpacing(0);
 			LineEdit->setParent(container);
 			layout->addWidget(LineEdit);
-			QPushButton* selectButton = new QPushButton(container);
-			selectButton->setText(VITR("Visindigo::general.preview"));
+			QToolButton* selectButton = new QToolButton(container);
+			FileButtons.append(selectButton);
+			selectButton->setIcon(VIApp->getFontIcon("\uE721", 64, {VISTM->getPaletteTextColor()}));
+			selectButton->setToolTip(VITR("Visindigo::general.preview"));
+			selectButton->setFixedSize(30, 30);
+			selectButton->setIconSize(QSize(22, 22));
 			layout->addWidget(selectButton);
 			if (config.contains("isFolder")) {
-				connect(selectButton, &QPushButton::clicked, [=]() {
+				connect(selectButton, &QAbstractButton::clicked, [=]() {
 					QString folder = QFileDialog::getExistingDirectory(container,
 						VITR("Visindigo::general.selectFolder"),
 						VIPlaceholder(defaultValue),
@@ -371,7 +390,7 @@ namespace Visindigo::__Private__ {
 					});
 			}
 			else {
-				connect(selectButton, &QPushButton::clicked, [=]() {
+				connect(selectButton, &QAbstractButton::clicked, [=]() {
 					QString file = QFileDialog::getOpenFileName(container,
 						VITR("Visindigo::general.selectFile"),
 						VIPlaceholder(defaultValue)
@@ -430,6 +449,12 @@ namespace Visindigo::__Private__ {
 			ColorButton->setEnabled(false);
 		}
 		return ColorButton;
+	}
+
+	void ConfigWidgetPrivate::onPaletteChanged() {
+		for (QToolButton* btn : FileButtons) {
+			btn->setIcon(VIApp->getFontIcon("\uE721", 64, {VISTM->getPaletteTextColor()}));
+		}
 	}
 
 	void ConfigWidgetPrivate::onComboBoxIndexChanged(int index) {
@@ -728,6 +753,36 @@ namespace Visindigo::Widgets {
 			}
 		}
 	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a node 配置项节点
+		\a items 要设置的选项列表，格式为QList<QPair<QString, QString>>，其中第一个QString为选项显示文本，第二个QString为选项数据。
+		\a defaultIndex 默认选中项索引，用于重置设置使用，默认为0，它不控制设置后的直接选中项。
+
+		手动设置某个ComboBox的选项列表。
+		这对于那些不能通过CWJson静态定义选项列表的场景非常有用，
+		比如选项列表需要根据其他配置项动态生成，或者选项列表过长不适合放在CWJson中。
+
+		\note 调用这个函数后，会直接选择第一个选项。如果要修改，请另行调用setComboBoxIndex()函数来设置选中项。
+		默认选中项索引仅用于resetConfig()函数重置时使用，不会影响直接调用setComboBoxIndex()函数后的选中项。
+	*/
+	void ConfigWidget::setComboBoxItems(const QString& node, const QList<QPair<QString, QString>>& items, qint32 defaultIndex) {
+		for (QComboBox* obj : d->ComboBoxDefault.keys()) {
+			if (obj->objectName() == node) {
+				obj->clear();
+				for (const QPair<QString, QString>& item : items) {
+					obj->addItem(item.first, item.second);
+				}
+				if (defaultIndex >= 0 && defaultIndex < obj->count()) {
+					d->ComboBoxDefault[obj] = items[defaultIndex].second;
+				}
+				obj->setCurrentIndex(0);
+				return;
+			}
+		}
+	}
+
 
 	/*!
 		\since Visindigo 0.13.0

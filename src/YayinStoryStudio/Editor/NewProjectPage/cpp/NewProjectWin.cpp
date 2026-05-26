@@ -31,7 +31,10 @@ namespace YSS::NewProjectPage {
 		SearchLineEdit = new QLineEdit(this);
 
 		ProjectTemplateArea = new QScrollArea(this);
+		ProjectTemplateArea->setStyleSheet("QScrollArea { background: transparent; border: none; }");
 		ProjectTemplateWidget = new QWidget(ProjectTemplateArea);
+		ProjectTemplateWidget->setObjectName("ProjectTemplateWidget");
+		ProjectTemplateWidget->setStyleSheet("QWidget#ProjectTemplateWidget { background: transparent; }");
 		ProjectTemplateArea->setWidget(ProjectTemplateWidget);
 		ProjectTemplateArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 		ProjectTemplateArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -84,9 +87,6 @@ namespace YSS::NewProjectPage {
 			ProviderButton->setTitle(provider->getTemplateName());
 			ProviderButton->setDescription(provider->getTemplateDescription());
 			ProviderButton->setPixmapPath(provider->getTemplateIconPath());
-			//ProviderButton->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			//ProviderButton->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			//ProviderButton->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
 			QLabel* tags = new QLabel(ProviderButton);
 			tags->setText(provider->getTemplateTags().join("; "));
 			ProviderButton->setCustomWidgetOrientation(Qt::Vertical);
@@ -119,18 +119,15 @@ namespace YSS::NewProjectPage {
 		}
 	}
 	void NewProjectWin::onThemeChanged() {
-		//this->applyVIStyleTemplate("YSS::ProjectWin");
 		for (Visindigo::Widgets::MultiButton* button : ProjectList) {
-			//button->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			//button->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			//button->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
+
 		}
 	}
 	void NewProjectWin::closeEvent(QCloseEvent* event) {
 		this->deleteLater();
 	}
 	void NewProjectWin::resizeEvent(QResizeEvent* event) {
-		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() - 12 * this->devicePixelRatioF());
+		ProjectTemplateWidget->setFixedWidth(ProjectTemplateArea->width() - 12);
 	}
 	void NewProjectWin::onProjectPrepared(QString projectPath) {
 		emit projectPrepared(projectPath);

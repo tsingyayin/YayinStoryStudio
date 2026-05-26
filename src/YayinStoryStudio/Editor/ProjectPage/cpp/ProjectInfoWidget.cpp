@@ -10,7 +10,7 @@
 #include <General/Log.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/YSSLogger.h>
-
+#include <QtWidgets/qApplication.h>
 namespace YSS::ProjectPage {
 	ProjectInfoWidget::ProjectInfoWidget(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		this->setObjectName("ProjectInfoWidget");
@@ -19,6 +19,10 @@ namespace YSS::ProjectPage {
 		CoverLabel->setObjectName("ProjectCoverLabel");
 		TitleLabel = new QLabel(this);
 		TitleLabel->setObjectName("ProjectTitleLabel");
+		auto font = qApp->font();
+		font.setPointSizeF(font.pointSizeF() * 1.5);
+		//font.setBold(true);
+		TitleLabel->setFont(font);
 		CreateTimeLabel = new QLabel(this);
 		LastModifiedTimeLabel = new QLabel(this);
 		SizeLabel = new QLabel(this);
@@ -129,7 +133,8 @@ namespace YSS::ProjectPage {
 
 	void ProjectInfoWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
-		this->CoverLabel->setFixedHeight((float)this->CoverLabel->width() / 16 * 9); // 16:9 aspect ratio
+		//this->CoverLabel->setFixedHeight((float)this->CoverLabel->width() / 16 * 9); // 16:9 aspect ratio
+		this->CoverLabel->setFixedWidth(this->CoverLabel->height() / 9 * 16);
 	}
 
 	void ProjectInfoWidget::onThemeChanged() {

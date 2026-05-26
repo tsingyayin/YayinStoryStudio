@@ -61,28 +61,11 @@ namespace YSSCore::__Private__ {
 		QPushButton* replaceAllButton;
 	};
 
-	class GhostTextBlock :public QObject, public QTextObjectInterface {
-		Q_OBJECT;
-		Q_INTERFACES(QTextObjectInterface);
-	public:
-		GhostTextBlock(QObject* parent = nullptr);
-		virtual ~GhostTextBlock();
-	public:
-		virtual void drawObject(QPainter* painter, const QRectF& rect, QTextDocument* doc, int posInDocument, const QTextFormat& format) override;
-		virtual QSizeF intrinsicSize(QTextDocument* doc, int posInDocument, const QTextFormat& format) override;
-	};
-
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::Editor::HoverInfoProvider;
 		friend class YSSCore::Editor::SyntaxHighlighter;
-	public:
-		enum UserObject {
-			// note: suggestion will be directly shown in a qlabel, so will not have any relation with qdocument itself.
-			GhostText = QTextFormat::UserObject + 1,
-			InlineTool = QTextFormat::UserObject + 0x1000 // used for color picker for example, will be developed later, so currently has no implementation.
-		};
 	protected:
 		YSSCore::Editor::TextEdit* q = nullptr;
 		QTextEdit* Line = nullptr;

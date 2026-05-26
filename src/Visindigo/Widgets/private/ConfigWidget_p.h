@@ -14,6 +14,7 @@ class QTextEdit;
 class QLabel;
 class QPushButton;
 class QHBoxLayout;
+class QToolButton;
 namespace Visindigo::Widgets {
 	class ConfigWidget;
 }
@@ -33,6 +34,7 @@ namespace Visindigo::__Private__ {
 		QMap<QTextEdit*, QString> TextEditDefault;
 		QMap<QLabel*, QString> ColorDialogDefault;
 		QList<QWidget*> SettingsWidget;
+		QList<QToolButton*> FileButtons;
 		QWidget* ButtonWidget = nullptr;
 		QPushButton* ResetButton = nullptr;
 		QPushButton* SaveButton = nullptr;
@@ -48,6 +50,7 @@ namespace Visindigo::__Private__ {
 		void resetConfig();
 		void spawnConfig();
 		void saveConfig();
+		virtual bool eventFilter(QObject* watched, QEvent* event) override;
 		QList<QWidget*> spawnWidget(QList<Visindigo::Utility::JsonConfig>& config);
 		QWidget* widgetSpawner(Visindigo::Utility::JsonConfig& config, const QString& parentPath = "");
 		QWidget* widgetRouter(const QString& type, const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
@@ -58,6 +61,7 @@ namespace Visindigo::__Private__ {
 		QWidget* widget_TextEdit(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
 		QWidget* widget_ColorDialog(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly);
 	private slots:
+		void onPaletteChanged();
 		void onComboBoxIndexChanged(int index);
 		void onRadioButtonChanged(bool checked);
 		void onLineEditTextChanged(QString str);

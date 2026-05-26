@@ -119,6 +119,7 @@
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
     <ClCompile Include="Editor\cpp\DebugServerManager.cpp" />
     <ClCompile Include="Editor\cpp\DebugStepData.cpp" />
+    <ClCompile Include="Editor\cpp\DocumentMessage.cpp" />
     <ClCompile Include="Editor\cpp\DocumentMessageManager.cpp" />
     <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
     <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
@@ -147,6 +148,7 @@
     <QtMoc Include="Editor\DebugServerManager.h" />
     <ClInclude Include="Editor\DebugStepData.h" />
     <QtMoc Include="Editor\DocumentMessageManager.h" />
+    <ClInclude Include="Editor\DocumentMessage.h" />
     <ClInclude Include="Editor\EditorProjectHelper.h" />
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
@@ -156,7 +158,6 @@
     <ClInclude Include="Editor\LangServerManager.h" />
     <QtMoc Include="Editor\private\HoverInfoProvider_p.h" />
     <ClInclude Include="Editor\private\DocumentMessageManager_p.h" />
-    <ClInclude Include="Editor\private\DocumentMessage_p.h" />
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <QtMoc Include="Editor\SyntaxHighlighter.h" />
     <QtMoc Include="Editor\ToolWidgetManager.h" />
