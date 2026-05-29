@@ -1,4 +1,4 @@
-#include "YSS/ResourceMoniter.h"
+#include "ASEREnv/ASERResourceMoniter.h"
 #include <Utility/FileUtility.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qfilesystemwatcher.h>
@@ -7,9 +7,9 @@
 #include <General/Log.h>
 #include <Utility/JsonConfig.h>
 #include <QtCore/qset.h>
-namespace ASERStudio::YSS {
-	class ResourceMoniterPrivate {
-		friend class ResourceMoniter;
+namespace ASERStudio::ASEREnv {
+	class ASERResourceMoniterPrivate {
+		friend class ASERResourceMoniter;
 	protected:
 		QStringList Backgrounds;
 		QMap<QString, QStringList> CharaDiffs;
@@ -20,22 +20,18 @@ namespace ASERStudio::YSS {
 		QMap<QString, QStringList> OfficialCharaDiffs;
 		QStringList OfficialMusics;
 		QStringList OfficialSoundEffects;
-		QStringList totalBackgrounds;
-		QMap<QString, QStringList> totalCharaDiffs;
-		QStringList totalMusics;
-		QStringList totalSoundEffects;
 		QFileSystemWatcher* Watcher = nullptr;
 		QFileSystemWatcher* OfficialWatcher = nullptr;
-		static ResourceMoniter* Instance;
+		static ASERResourceMoniter* Instance;
 
 		void refreshOfficial() {
 			auto collections = Visindigo::Utility::JsonConfig();
-			collections.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json"));
+			collections.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json"));
 			auto aliases = Visindigo::Utility::JsonConfig();
-			aliases.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+			aliases.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
 			auto character = Visindigo::Utility::JsonConfig();
-			character.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
-			vgDebug << ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json";
+			character.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
+			vgDebug << ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json";
 			QStringList rawCharaKeysTachies = collections.keys("characterTachies");
 			QMap<QString, QStringList> officialCharaDiffs;
 			for (auto key : rawCharaKeysTachies) {
@@ -121,32 +117,43 @@ namespace ASERStudio::YSS {
 			}
 			OfficialSoundEffects = officialSoundEffectAliases + officialSoundEffects;
 		}
-
-		void refreshTotalBackgrounds() {
-			totalBackgrounds = Backgrounds;
-			QSet<QString> backgroundSet;
-			for (const QString& background : Backgrounds) {
-				backgroundSet.insert(background);
-			}
-			for (const QString& background : OfficialBackgrounds) {
-				if (not backgroundSet.contains(background)) {
-					totalBackgrounds.append(background);
-				}
-			}
-		}
 	};
 
-	ResourceMoniter* ResourceMoniterPrivate::Instance = nullptr;
+	ASERResourceMoniter* ASERResourceMoniterPrivate::Instance = nullptr;
 
-	ResourceMoniter* ResourceMoniter::getInstance() {
-		if (!ResourceMoniterPrivate::Instance) {
-			ResourceMoniterPrivate::Instance = new ResourceMoniter();
+	/*!
+		\class ASERStudio::ASEREnv::ASERResourceMoniter
+		\since ASERStudio 2.4.0
+		\brief ASERResourceMonitor提供对ASER官方资源和项目资源的实时监视
+		\inmodule ASERStudio
+
+		ASERResourceMoniter是一个单例类，提供对ASER官方资源和项目资源的实时监视功能。
+		当项目资源发生变化时，ASERResourceMoniter会自动更新资源列表，通过相关的函数，
+		用户可以获取实时更新的项目中可用的资源的名称，包括背景、角色立绘、音乐和音效等。
+
+		\note 这类实际上从2.0.0开始提供，但此前因划分到插件非API部分的YSS命名空间而未提供文档支持。
+		在2.4.0之前，其为ASERStudio::YSS::ResourceMoniter，提供与2.4.0版本完全等价的功能。
+	*/
+
+	/*!
+		\since ASERStudio 2.4.0
+		
+		return ASERResourceMoniter的单例实例
+	*/
+	ASERResourceMoniter* ASERResourceMoniter::getInstance() {
+		if (!ASERResourceMoniterPrivate::Instance) {
+			ASERResourceMoniterPrivate::Instance = new ASERResourceMoniter();
 		}
-		return ResourceMoniterPrivate::Instance;
+		return ASERResourceMoniterPrivate::Instance;
 	}
 
-	ResourceMoniter::ResourceMoniter() {
-		d = new ResourceMoniterPrivate();
+	/*!
+		\since ASERStudio 2.4.0
+
+		构造函数。
+	*/
+	ASERResourceMoniter::ASERResourceMoniter() {
+		d = new ASERResourceMoniterPrivate();
 		d->Watcher = new QFileSystemWatcher(this);
 		connect(d->Watcher, &QFileSystemWatcher::directoryChanged, this, [this](const QString& path) {
 			refresh();
@@ -159,42 +166,96 @@ namespace ASERStudio::YSS {
 			});
 	}
 
-	ResourceMoniter::~ResourceMoniter() {
+
+	/*!
+		\since ASERStudio 2.4.0
+		析构函数。
+	*/
+	ASERResourceMoniter::~ASERResourceMoniter() {
 		delete d;
 	}
 
-	QString ResourceMoniter::getASERStandardConfigPath() {
+	/*!
+		\since ASERStudio 2.4.0
+		return ASER官方资源的标准配置文件所在路径
+
+		\warning 这个函数只在Windows平台上有效。其他平台上会返回一个无效路径。
+	*/
+	QString ASERResourceMoniter::getASERStandardConfigPath() {
 		return QDir::homePath() + "/AppData/LocalLow/Gradus/ASE-Remake";
 	}
 
-	QStringList ResourceMoniter::getBackground() {
+	/*!
+		\since ASERStudio 2.4.0
+
+		return 当前项目中可用的背景资源名称列表，包括项目资源和ASER官方资源。资源名称不包含文件扩展名。
+	*/
+	QStringList ASERResourceMoniter::getBackground() {
 		return d->Backgrounds + d->OfficialBackgrounds;
 	}
 
-	QStringList ResourceMoniter::getCharacters() {
+	/*!
+		\since ASERStudio 2.4.0
+
+		return 当前项目中可用的角色立绘资源名称列表，包括项目资源和ASER官方资源。资源名称不包含文件扩展名。
+
+		\note 较为特殊的是，ASERStudio未按ASE-Remake的实现分别独立处理普通角色立绘
+		与Spine动态立绘。因此如果动态立绘与普通立绘有重复，则动态立绘的结果将覆盖普通立绘的结果。
+		这是实现错误，但目前不打算修正。
+	*/
+	QStringList ASERResourceMoniter::getCharacters() {
 		return d->CharaDiffs.keys() + d->OfficialCharaDiffs.keys();
 	}
 
-	QStringList ResourceMoniter::getCharaDiff(const QString& chara) {
+	/*!
+		\since ASERStudio 2.4.0
+		\a chara 角色名称
+
+		return 给定角色的立绘差分资源名称列表，包括项目资源和ASER官方资源。资源名称不包含文件扩展名。
+	*/
+	QStringList ASERResourceMoniter::getCharaDiff(const QString& chara) {
 		return d->CharaDiffs.value(chara) + d->OfficialCharaDiffs.value(chara);
 	}
 
-	QStringList ResourceMoniter::getMusic() {
+	/*!
+		\since ASERStudio 2.4.0
+
+		return 当前项目中可用的音乐资源名称列表，包括项目资源和ASER官方资源。资源名称不包含文件扩展名。
+	*/
+	QStringList ASERResourceMoniter::getMusic() {
 		return d->Musics + d->OfficialMusics;
 	}
 
-	QStringList ResourceMoniter::getSoundEffect() {
+	/*!
+		\since ASERStudio 2.4.0
+
+		return 当前项目中可用的音效资源名称列表，包括项目资源和ASER官方资源。资源名称不包含文件扩展名。
+	*/
+	QStringList ASERResourceMoniter::getSoundEffect() {
 		return d->SoundEffects + d->OfficialSoundEffects;
 	}
 
-	void ResourceMoniter::changeProjectPath(const QString& path) {
+	/*!
+		\since ASERStudio 2.4.0
+		\a path 项目路径
+
+		更改当前监视的项目路径。调用此函数后，ASERResourceMoniter将开始监视新的项目路径，并更新资源列表以反映新路径下的资源。
+	*/
+	void ASERResourceMoniter::changeProjectPath(const QString& path) {
 		d->Watcher->removePaths(d->Watcher->directories());
 		d->Watcher->addPath(path + "/Resources");
 		d->ProjectPath = path;
 		refresh();
 	}
 
-	void ResourceMoniter::refresh(ResourceTypes types) {
+	/*!
+		\since ASERStudio 2.4.0
+		\a types 资源类型标志
+
+		刷新资源列表。根据提供的资源类型标志，ASERResourceMoniter将检查相应类型的资源目录，
+		并更新资源列表以反映当前项目路径下的资源状态。
+	*/
+	void ASERResourceMoniter::refresh(ResourceTypes types) {
 		if (types.testAnyFlag(ResourceType::Background)) {
 			auto absFiles = Visindigo::Utility::FileUtility::fileFilter(d->ProjectPath + "/Resources/Background", { "*.png" });
 			QStringList backgrounds;

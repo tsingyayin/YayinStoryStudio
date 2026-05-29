@@ -1,12 +1,12 @@
-#ifndef ASERStudio_YSS_ResourceMoniter_h
-#define ASERStudio_YSS_ResourceMoniter_h
+#ifndef ASERStudio_ASEREnv_ASERResourceMoniter_h
+#define ASERStudio_ASEREnv_ASERResourceMoniter_h
 #include "ASERStudioCompileMacro.h"
 #include <QtCore/qobject.h>
-namespace ASERStudio::YSS {
-	class ResourceMoniterPrivate;
-	class ASERAPI ResourceMoniter :public QObject {
+namespace ASERStudio::ASEREnv {
+	class ASERResourceMoniterPrivate;
+	class ASERAPI ASERResourceMoniter :public QObject {
 	private:
-		ResourceMoniter();
+		ASERResourceMoniter();
 	public:
 		enum class ResourceType {
 			Background = 0x01,
@@ -19,8 +19,8 @@ namespace ASERStudio::YSS {
 	public:
 		static QString getASERStandardConfigPath();
 	public:
-		static ResourceMoniter* getInstance();
-		~ResourceMoniter();
+		static ASERResourceMoniter* getInstance();
+		~ASERResourceMoniter();
 		QStringList getBackground();
 		QStringList getCharacters();
 		QStringList getCharaDiff(const QString& chara);
@@ -29,9 +29,9 @@ namespace ASERStudio::YSS {
 		void changeProjectPath(const QString& path);
 		void refresh(ResourceTypes types = ResourceType::All);
 	private:
-		ResourceMoniterPrivate* d;
+		ASERResourceMoniterPrivate* d;
 	};
-	Q_DECLARE_OPERATORS_FOR_FLAGS(ResourceMoniter::ResourceTypes)
+	Q_DECLARE_OPERATORS_FOR_FLAGS(ASERResourceMoniter::ResourceTypes)
 }
-#define ASERRM ASERStudio::YSS::ResourceMoniter::getInstance()
-#endif ASERStudio_YSS_ResourceMoniter_h
+#define ASERRM ASERStudio::ASEREnv::ASERResourceMoniter::getInstance()
+#endif ASERStudio_ASEREnv_ASERResourceMoniter_h

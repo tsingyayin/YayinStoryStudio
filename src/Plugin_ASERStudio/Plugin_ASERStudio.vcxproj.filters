@@ -121,7 +121,7 @@
     <ClCompile Include="YSS\cpp\DS_AStoryXDebugger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="YSS\cpp\ResourceMoniter.cpp">
+    <ClCompile Include="ASEREnv\cpp\ASERResourceMoniter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AStorySyntax\cpp\AStoryXRebuilder.cpp">
@@ -159,7 +159,7 @@
     <ClInclude Include="YSS\DS_AStoryXDebugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="YSS\ResourceMoniter.h">
+    <ClInclude Include="ASEREnv\ASERResourceMoniter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AStorySyntax\AStoryXRebuilder.h">

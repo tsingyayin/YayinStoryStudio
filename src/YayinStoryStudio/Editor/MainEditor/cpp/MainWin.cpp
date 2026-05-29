@@ -59,7 +59,7 @@ namespace YSS::Editor {
 		Editors = new FileEditWidgetArea(CentralWidget);
 		Tools = new ToolWidgetArea(CentralWidget);
 
-		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
+		QObject::connect(Browser, &ResourceBrowser::visibilityChanged, Menu, &MainWinMenu::onResourceBrowserVisibilityChanged);
 
 		Browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		Editors->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -96,6 +96,7 @@ namespace YSS::Editor {
 		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
 			this->showMaximized();
 		}
+
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened, this, &MainWin::onToolWidgetOpened);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());

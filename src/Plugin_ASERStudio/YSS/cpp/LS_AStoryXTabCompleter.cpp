@@ -4,7 +4,7 @@
 #include "AStorySyntax/AStoryXController.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
 #include "YSS/LangServer_AStoryX.h"
-#include "YSS/ResourceMoniter.h"
+#include "ASEREnv/ASERResourceMoniter.h"
 #include <General/Log.h>
 #include <Editor/TextEdit.h>
 #include <General/TranslationHost.h>

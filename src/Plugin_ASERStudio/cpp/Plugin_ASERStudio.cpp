@@ -12,7 +12,7 @@
 #include <QtCore/qdir.h>
 #include "ASEREnv/ASERProgram.h"
 #include "ASEREnv/ASERDebugIO.h"
-#include "YSS/ResourceMoniter.h"
+#include "ASEREnv/ASERResourceMoniter.h"
 #include "ASEREnv/ASERWarpper.h"
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
@@ -37,7 +37,7 @@ namespace ASERStudio {
 	Main::Main() : YSSCore::Editor::EditorPlugin() {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
-		setPluginVersion(Visindigo::General::Version(2, 2, 2));
+		setPluginVersion(Visindigo::General::Version(Visindigo_VERSION_MAJOR + 2, Visindigo_VERSION_MINOR - 13, Visindigo_VERSION_PATCH));
 		setPluginID("cn.yxgeneral.aserstudio");
 		setPluginName("ASER Studio");
 		setPluginAuthor({ "Gra_dus", "Tsing Yayin" });
@@ -121,6 +121,9 @@ namespace ASERStudio {
 
 	void Main::onProjectClose(YSSCore::General::YSSProject* project) {
 		ASERStudio::AStorySyntax::AStoryXRule::clearRules();
+		if (d->ASERProgram->isRunning()) {
+			d->ASERProgram->stop();
+		}
 	}
 
 	QWidget* Main::onToolWidgetRequested(const QString& widgetID) {

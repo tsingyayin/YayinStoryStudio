@@ -24,7 +24,7 @@
 #include <QtGui/qclipboard.h>
 #include <QtCore/qmimedata.h>
 #include <QtGui/qtextcursor.h>
-
+#include <General/Log.h>
 namespace YSS::Editor {
 	class MainWinMenuPrivate {
 		friend class MainWinMenu;
@@ -218,8 +218,6 @@ namespace YSS::Editor {
 
 			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
 			QObject::connect(ViewMenu, &QMenu::aboutToShow, q, &MainWinMenu::onPluginToolMenuAboutToShow);
-			QObject::connect(MainWin::getInstance()->getResourceBrowser(), &ResourceBrowser::visibilityChanged,
-				q, &MainWinMenu::onResourceBrowserVisibilityChanged);
 		}
 	};
 
@@ -467,6 +465,12 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::view_resourceBrowser(bool checked) {
+		if (checked && d->Parent->getResourceBrowser()->isHidden()) {
+			d->Parent->getResourceBrowser()->show();
+		}else if (checked && d->Parent->getResourceBrowser()->width() == 0) {
+			d->Parent->getResourceBrowser()->show();
+			d->Parent->getResourceBrowser()->resize(300, d->Parent->getResourceBrowser()->height());
+		}
 		d->Parent->getResourceBrowser()->setVisible(checked);
 	}
 
