@@ -272,6 +272,9 @@ namespace Visindigo::Utility {
 	*/
 	QString Console::getRawText(QString colorString) {
 		QString rawText = colorString;
+		if (not colorString.contains("\033")) {
+			return rawText;
+		}
 		rawText = rawText.remove(QRegularExpression("\u001B\\[[(0-9)*;*]*m"));
 		return rawText;
 	}

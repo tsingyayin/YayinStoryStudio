@@ -279,7 +279,7 @@ namespace Visindigo::General {
 				index++;
 			}
 			stream << "=========================================\n";
-			stream << generateHardwareInfo(false) << "\n";
+			stream << generateHardwareInfo(false, true) << "\n";
 			crashReportFile.close();
 		}
 	}
@@ -296,14 +296,21 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.15.2
 		\a debugOutput 是否将生成的硬件信息报告输出到调试控制台。
+		\a containsNetworkInfo 是否包含网络接口信息。
 
-		生成硬件信息报告。如果 \a debugOutput 为true，则在返回相关信息的同时
+		return 生成硬件信息报告。
+		
+		如果 \a debugOutput 为true，则在返回相关信息的同时
 		也会将报告输出到调试控制台。报告内容包括操作系统版本、内核版本、CPU架构、网络接口信息等。
 		
 		这个函数默认在程序启动，以及崩溃的时候被自动调用，以生成硬件信息报告。
 		用户也可以手动调用此函数以获取当前的硬件信息。
+
+		\warning 如果启用 \a containsNetworkInfo 选项，则报告中将包含网络接口的详细信息，
+		这可能会暴露用户的隐私信息（如MAC地址、IP地址等）。请谨慎使用此选项。
+		在生成崩溃日志时，会启用 \a containsNetworkInfo 选项以提供更全面的系统信息，但在其他情况下默认不启用以保护用户隐私。
 	*/
-	QString LoggerManager::generateHardwareInfo(bool debugOutput) {
+	QString LoggerManager::generateHardwareInfo(bool debugOutput, bool containsNetworkInfo) {
 		Logger logger("HardwareInfoReport");
 		QStringList content;
 		content << "Operating System: " % QSysInfo::productType();
@@ -314,32 +321,34 @@ namespace Visindigo::General {
 		content << "CPU Architecture: " % QSysInfo::currentCpuArchitecture();
 		content << "Machine UUID: " % QString(QSysInfo::machineUniqueId().toHex());
 		content << "Machine HostName: " % QSysInfo::machineHostName();
-		content << "Network Interfaces:";
-		content << "----------------------------------------";
-		QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-		for (const QNetworkInterface& interface : interfaces) {
-			if (not isValidInterface(interface)) {
-				continue; 
-			}
-			content << "Interface Name: " % interface.name();
-			content << "Human Readable Name: " % interface.humanReadableName();
-			content << "MAC Address: " % interface.hardwareAddress();
-			content << "Interface Type: " % QString(QMetaEnum::fromType<QNetworkInterface::InterfaceType>().valueToKey(interface.type()));
-			QList<QNetworkAddressEntry> entries = interface.addressEntries();
-			for (const QNetworkAddressEntry& entry : entries) {
-				QHostAddress ip = entry.ip();
-				if (ip.isLoopback()) continue;
-				if (ip.protocol() == QAbstractSocket::IPv4Protocol) {
-					content << "  [IPv4] " % ip.toString();
+		if (containsNetworkInfo) {
+			content << "Network Interfaces:";
+			content << "----------------------------------------";
+			QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+			for (const QNetworkInterface& interface : interfaces) {
+				if (not isValidInterface(interface)) {
+					continue;
 				}
-				else if (ip.protocol() == QAbstractSocket::IPv6Protocol) {
-					content << "  [IPv6] " % ip.toString();
-					if (!ip.scopeId().isEmpty()) {
-						content << "    (Scope ID:" % ip.scopeId() % ")";
+				content << "Interface Name: " % interface.name();
+				content << "Human Readable Name: " % interface.humanReadableName();
+				content << "MAC Address: " % interface.hardwareAddress();
+				content << "Interface Type: " % QString(QMetaEnum::fromType<QNetworkInterface::InterfaceType>().valueToKey(interface.type()));
+				QList<QNetworkAddressEntry> entries = interface.addressEntries();
+				for (const QNetworkAddressEntry& entry : entries) {
+					QHostAddress ip = entry.ip();
+					if (ip.isLoopback()) continue;
+					if (ip.protocol() == QAbstractSocket::IPv4Protocol) {
+						content << "  [IPv4] " % ip.toString();
+					}
+					else if (ip.protocol() == QAbstractSocket::IPv6Protocol) {
+						content << "  [IPv6] " % ip.toString();
+						if (!ip.scopeId().isEmpty()) {
+							content << "    (Scope ID:" % ip.scopeId() % ")";
+						}
 					}
 				}
+				content << "----------------------------------------";
 			}
-			content << "----------------------------------------";
 		}
 		QString report = content.join("\n");
 		if (debugOutput) {

@@ -16,7 +16,7 @@
 #include <Widgets/ConfigWidget.h>
 #include <QtCore/qdir.h>
 #include <General/TranslationHost.h>
-#include <Widgets/UpToWin11.h>
+#include <Utility/BenchmarkTimer.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -29,6 +29,7 @@ namespace YSS {
 	Main::Main() {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
+		setTestEnable();
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
 		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
@@ -101,6 +102,7 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
+
 	}
 
 	QWidget* Main::getConfigWidget() {

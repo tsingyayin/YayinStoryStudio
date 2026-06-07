@@ -191,6 +191,9 @@
     <ClCompile Include="Widgets\cpp\BorderLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\cpp\BenchmarkTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -305,6 +308,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\ProgressMonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\BenchmarkTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

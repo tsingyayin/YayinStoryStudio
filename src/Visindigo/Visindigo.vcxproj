@@ -225,6 +225,7 @@
     <ClCompile Include="General\cpp\VIApplication.cpp" />
     <ClCompile Include="General\cpp\VIGeneral_p.cpp" />
     <ClCompile Include="Utility\cpp\BandizipBinder.cpp" />
+    <ClCompile Include="Utility\cpp\BenchmarkTimer.cpp" />
     <ClCompile Include="Utility\cpp\ColorTool.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfig.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfigParser_Json.cpp" />
@@ -302,6 +303,7 @@
     <ClInclude Include="Utility\GeneralConfigParser.h" />
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />
     <ClInclude Include="Utility\QtSSHelper.h" />
+    <ClInclude Include="Utility\BenchmarkTimer.h" />
     <ClInclude Include="Utility\StringUtility.h" />
     <ClInclude Include="VICompileMacro.h" />
     <ClInclude Include="VIMacro.h" />

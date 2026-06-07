@@ -901,6 +901,11 @@ namespace YSSCore::Editor {
 		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
+		connect(d->Text, &QTextEdit::textChanged, [this]() {
+			if (not d->Rehighlighting) {
+				this->setFileChanged();
+			}
+			});
 	}
 
 	/*!
@@ -1274,15 +1279,20 @@ namespace YSSCore::Editor {
 	bool TextEdit::onOpen(const QString& path) {
 		QString ext = QFileInfo(path).suffix();
 		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
-		if (d->Highlighter) {
-			d->Highlighter->setParent(nullptr);
-			d->Highlighter->deleteLater();
-			d->Highlighter = nullptr;
+		if (d->HoverInfoProvider) {
+			d->HoverInfoProvider->setParent(nullptr);
+			delete d->HoverInfoProvider;
+			d->HoverInfoProvider = nullptr;
 		}
 		if (d->TabCompleter) {
 			d->TabCompleter->setParent(nullptr);
-			d->TabCompleter->deleteLater();
+			delete d->TabCompleter;
 			d->TabCompleter = nullptr;
+		}
+		if (d->Highlighter) {
+			d->Highlighter->setParent(nullptr);
+			delete d->Highlighter;
+			d->Highlighter = nullptr;
 		}
 		if (d->TabCompleterWidget) {
 			d->TabCompleterWidget->setParent(nullptr);
@@ -1321,11 +1331,7 @@ namespace YSSCore::Editor {
 		d->Text->setPlainText(in.readAll());
 		file.close();
 		cancelFileChanged();
-		connect(d->Text, &QTextEdit::textChanged, [this]() {
-			if (not d->Rehighlighting) {
-				this->setFileChanged();
-			}
-			});
+		
 		return true;
 	}
 
@@ -1400,7 +1406,9 @@ namespace YSSCore::Editor {
 				break;
 			}
 		}
-		return false;
+		else {
+			openFile(getFilePath());
+		}
 	}
 
 	/*!
