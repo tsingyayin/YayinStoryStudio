@@ -17,6 +17,7 @@
 #include <QtCore/qdir.h>
 #include <General/TranslationHost.h>
 #include <Utility/BenchmarkTimer.h>
+#include <Utility/SevenZipBinder.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -30,7 +31,7 @@ namespace YSS {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
 		setTestEnable();
-		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
+		setPluginVersion(getPluginAPIVersion()); // YSS uses the same version as Visindigo API version
 		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
@@ -102,7 +103,25 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
-
+		/*auto t1 = 0;
+		auto t2 = 0;
+		{
+			auto timer = Visindigo::Utility::BenchmarkTimer();
+			for (int i = 0; i < 10000;i++) {
+				vgDebug << "Test" << i;
+			}
+			t1 = timer.elapsed();
+		}
+		{
+			auto timer = Visindigo::Utility::BenchmarkTimer();
+			for (int i = 0; i < 10000; i++) {
+				qDebug() << "Test" << i;
+			}
+			t2 = timer.elapsed();
+		}
+		vgDebug << "Visindigo Logger:" << t1 << "ms";
+		vgDebug << "Qt Logger:" << t2 << "ms";*/
+		//VI7zBinder->compressFilesToZip({ "C:/Users/tsing/Desktop/" }, "C:/Users/tsing/Desktop/TestArchive.zip", Visindigo::Utility::SevenZipBinder::zip, "password");
 	}
 
 	QWidget* Main::getConfigWidget() {

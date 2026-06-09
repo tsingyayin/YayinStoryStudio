@@ -16,10 +16,17 @@ namespace ASERStudio::ASEREnv {
 		QStringList Musics;
 		QStringList SoundEffects;
 		QString ProjectPath;
+
 		QStringList OfficialBackgrounds;
 		QMap<QString, QStringList> OfficialCharaDiffs;
 		QStringList OfficialMusics;
 		QStringList OfficialSoundEffects;
+
+		QStringList OfficialBackgroundsLocalOverrides;
+		QMap<QString, QStringList> OfficialCharaDiffsLocalOverrides;
+		QStringList OfficialMusicsLocalOverrides;
+		QStringList OfficialSoundEffectsLocalOverrides;
+
 		QFileSystemWatcher* Watcher = nullptr;
 		QFileSystemWatcher* OfficialWatcher = nullptr;
 		static ASERResourceMoniter* Instance;
@@ -27,11 +34,31 @@ namespace ASERStudio::ASEREnv {
 		void refreshOfficial() {
 			auto collections = Visindigo::Utility::JsonConfig();
 			collections.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json"));
+
 			auto aliases = Visindigo::Utility::JsonConfig();
-			aliases.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+			if (Visindigo::Utility::FileUtility::isFileExist(ProjectPath + "/Configs/officialAssets_aliases.json")) {
+				QString content = Visindigo::Utility::FileUtility::readAll(ProjectPath + "/Configs/officialAssets_aliases.json");
+				auto rtn = aliases.parse(content);
+				if (rtn.error != QJsonParseError::NoError) {
+					aliases.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+				}
+			}
+			else {
+				aliases.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+			}
+
 			auto character = Visindigo::Utility::JsonConfig();
-			character.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
-			vgDebug << ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json";
+			if (Visindigo::Utility::FileUtility::isFileExist(ProjectPath + "/Configs/officialAssets_userConfigs.json")) {
+				QString content = Visindigo::Utility::FileUtility::readAll(ProjectPath + "/Configs/officialAssets_userConfigs.json");
+				auto rtn = character.parse(content);
+				if (rtn.error != QJsonParseError::NoError) {
+					character.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
+				}
+			}
+			else {
+				character.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
+			}
+
 			QStringList rawCharaKeysTachies = collections.keys("characterTachies");
 			QMap<QString, QStringList> officialCharaDiffs;
 			for (auto key : rawCharaKeysTachies) {
@@ -200,7 +227,7 @@ namespace ASERStudio::ASEREnv {
 		return 当前项目中可用的角色立绘资源名称列表，包括项目资源和ASER官方资源。资源名称不包含文件扩展名。
 
 		\note 较为特殊的是，ASERStudio未按ASE-Remake的实现分别独立处理普通角色立绘
-		与Spine动态立绘。因此如果动态立绘与普通立绘有重复，则动态立绘的结果将覆盖普通立绘的结果。
+		与Spine动态立绘。因此如果动态立绘与普通立绘的名称有所重复，则动态立绘的结果将覆盖普通立绘的结果。
 		这是实现错误，但目前不打算修正。
 	*/
 	QStringList ASERResourceMoniter::getCharacters() {
@@ -244,6 +271,8 @@ namespace ASERStudio::ASEREnv {
 	void ASERResourceMoniter::changeProjectPath(const QString& path) {
 		d->Watcher->removePaths(d->Watcher->directories());
 		d->Watcher->addPath(path + "/Resources");
+		d->OfficialWatcher->removePath(d->ProjectPath + "/Configs");
+		d->OfficialWatcher->addPath(path + "/Configs");
 		d->ProjectPath = path;
 		refresh();
 	}

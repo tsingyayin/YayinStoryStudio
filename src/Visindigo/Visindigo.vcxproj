@@ -224,7 +224,7 @@
     <ClCompile Include="General\cpp\StacktraceHelper.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
     <ClCompile Include="General\cpp\VIGeneral_p.cpp" />
-    <ClCompile Include="Utility\cpp\BandizipBinder.cpp" />
+    <ClCompile Include="Utility\cpp\SevenZipBinder.cpp" />
     <ClCompile Include="Utility\cpp\BenchmarkTimer.cpp" />
     <ClCompile Include="Utility\cpp\ColorTool.cpp" />
     <ClCompile Include="Utility\cpp\GeneralConfig.cpp" />
@@ -290,7 +290,6 @@
     <ClInclude Include="General\Package.h" />
     <QtMoc Include="General\PluginBinaryHelper.h" />
     <ClInclude Include="General\Permission.h" />
-    <ClInclude Include="General\private\LoggerMsgHandlerDataPool.h" />
     <ClInclude Include="General\private\Plugin_p.h" />
     <ClInclude Include="General\private\VIApplication_p.h" />
     <QtMoc Include="General\private\VIGeneral_p.h" />
@@ -298,7 +297,7 @@
     <QtMoc Include="General\VIApplication.h" />
     <ClInclude Include="General\ProgressMonitor.h" />
     <ClInclude Include="General\StacktraceHelper.h" />
-    <QtMoc Include="Utility\BandizipBinder.h" />
+    <QtMoc Include="Utility\SevenZipBinder.h" />
     <ClInclude Include="Utility\ColorTool.h" />
     <ClInclude Include="Utility\GeneralConfigParser.h" />
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />
@@ -333,7 +332,6 @@
     <ClInclude Include="General\Logger.h" />
     <QtMoc Include="General\LoggerManager.h" />
     <ClInclude Include="General\LoggerMsgHandler.h" />
-    <ClInclude Include="General\private\LoggerMsgHandler_p.h" />
     <ClInclude Include="Utility\GeneralConfig.h" />
     <QtMoc Include="Widgets\private\ConfigWidget_p.h" />
     <ClInclude Include="General\private\Translator_p.h" />

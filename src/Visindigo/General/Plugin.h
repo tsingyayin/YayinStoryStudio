@@ -53,6 +53,7 @@ namespace Visindigo::General {
 		Visindigo::Utility::JsonConfig* getPluginConfig();
 		void savePluginConfig();
 		void reloadPluginConfig();
+		bool testPluginConfig(const QString& node) const;
 		LoadType getPluginLoadType() const;
 		QList<PluginModule*> getModules() const;
 		PluginModule* getModuleByID(const QString& id) const;

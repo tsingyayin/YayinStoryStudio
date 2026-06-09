@@ -137,7 +137,7 @@
     <ClCompile Include="Utility\cpp\GeneralConfigParser_Yaml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\BandizipBinder.cpp">
+    <ClCompile Include="Utility\cpp\SevenZipBinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\cpp\TitleWidget.cpp">
@@ -247,9 +247,6 @@
     <ClInclude Include="General\private\LoggerMsgHandler_impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\private\LoggerMsgHandler_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -275,9 +272,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\VIApplication_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\private\LoggerMsgHandlerDataPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\LogMetaData.h">
@@ -369,7 +363,7 @@
     <QtMoc Include="Widgets\private\Terminal_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Utility\BandizipBinder.h">
+    <QtMoc Include="Utility\SevenZipBinder.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\TitleWidget.h">

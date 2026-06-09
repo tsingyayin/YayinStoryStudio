@@ -2,12 +2,12 @@
 #define Visindigo_General_LogMetaData_H
 #include "VICompileMacro.h"
 #include <QtCore/qtypes.h>
-class QString;
+#include <QtCore/qstring.h>
 namespace Visindigo::General {
-	class LogMetaDataPrivate;
 	class VisindigoAPI LogMetaData final {
-		VIMoveable(LogMetaData);
-		VICopyable(LogMetaData);
+	private:
+		QString FunctionName;
+		qint32 LineNumber;
 	public:
 		LogMetaData();
 		LogMetaData(const QString& funcName, qint32 lineNumber);
@@ -18,8 +18,6 @@ namespace Visindigo::General {
 		void setLineNumber(qint32 lineNumber);
 		bool isValid() const;
 		QString toString() const;
-	private:
-		LogMetaDataPrivate* d;
 	};
 }
 

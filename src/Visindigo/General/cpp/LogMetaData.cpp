@@ -1,14 +1,6 @@
 #include "General/LogMetaData.h"
-#include <QtCore/qstring.h>
 
 namespace Visindigo::General {
-	class LogMetaDataPrivate {
-		friend class LogMetaData;
-	protected:
-		QString FunctionName;
-		qint32 LineNumber;
-	};
-
 	/*!
 		\class Visindigo::General::LogMetaData
 		\inheaderfile General/LogMetaData.h
@@ -32,6 +24,9 @@ namespace Visindigo::General {
 		在VDebug中，这两个类一般同时使用，即使部分信息是重复的。
 
 		与Visindigo::General::StacktraceFrame类不同，LogMetaData类是可变的，因此可以在创建后修改其内容。
+
+		\note 从0.16.0开始，为提高性能，弃用了PIMPL模式，改为直接在类中存储数据成员，因此不再使用指针成员变量。
+		相应的，移动构造和复制构造已经恢复为默认实现，移动赋值和复制赋值也恢复为默认实现。
 	*/
 
 	/*!
@@ -39,9 +34,8 @@ namespace Visindigo::General {
 		默认构造函数，创建一个空的日志元数据对象。
 	*/
 	LogMetaData::LogMetaData() {
-		d = new LogMetaDataPrivate;
-		d->FunctionName = "";
-		d->LineNumber = -1;
+		FunctionName = "";
+		LineNumber = -1;
 	}
 
 	/*!
@@ -52,9 +46,8 @@ namespace Visindigo::General {
 		\a lineNumber 行号。
 	*/
 	LogMetaData::LogMetaData(const QString& funcName, qint32 lineNumber) {
-		d = new LogMetaDataPrivate;
-		d->FunctionName = funcName;
-		d->LineNumber = lineNumber;
+		FunctionName = funcName;
+		LineNumber = lineNumber;
 	}
 
 	/*!
@@ -89,17 +82,12 @@ namespace Visindigo::General {
 		移动赋值运算符
 	*/
 
-	VIMoveable_Impl(LogMetaData);
-	VICopyable_Impl(LogMetaData);
-
 	/*!
 		\since Visindigo 0.13.0
 		析构函数，销毁日志元数据对象。
 	*/
 	LogMetaData::~LogMetaData() {
-		if (d != nullptr) {
-			delete d;
-		}
+
 	}
 
 	/*!
@@ -107,7 +95,7 @@ namespace Visindigo::General {
 		return 函数名称
 	*/
 	QString LogMetaData::getFunctionName() const {
-		return d->FunctionName;
+		return FunctionName;
 	}
 
 	/*!
@@ -115,7 +103,7 @@ namespace Visindigo::General {
 		return 行号
 	*/
 	qint32 LogMetaData::getLineNumber() const {
-		return d->LineNumber;
+		return LineNumber;
 	}
 
 	/*!
@@ -124,7 +112,7 @@ namespace Visindigo::General {
 		设置函数名称
 	*/
 	void LogMetaData::setFunctionName(const QString& funcName) {
-		d->FunctionName = funcName;
+		FunctionName = funcName;
 	}
 
 	/*!
@@ -133,7 +121,7 @@ namespace Visindigo::General {
 		设置行号
 	*/
 	void LogMetaData::setLineNumber(qint32 lineNumber) {
-		d->LineNumber = lineNumber;
+		LineNumber = lineNumber;
 	}
 
 	/*!
@@ -146,7 +134,7 @@ namespace Visindigo::General {
 		这在某些情况下很有用。
 	*/
 	bool LogMetaData::isValid() const {
-		return !(d->FunctionName.isEmpty() && d->LineNumber == -1);
+		return !(FunctionName.isEmpty() && LineNumber == -1);
 	}
 
 	/*!
@@ -157,6 +145,6 @@ namespace Visindigo::General {
 		输出的结果和在日志上看到的结果有所不同。
 	*/
 	QString LogMetaData::toString() const {
-		return QString("%1 : %2").arg(d->FunctionName).arg(d->LineNumber);
+		return QString("%1, %2").arg(FunctionName).arg(LineNumber);
 	}
 }

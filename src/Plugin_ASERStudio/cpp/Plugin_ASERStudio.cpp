@@ -54,7 +54,7 @@ namespace ASERStudio {
 
 	void Main::onPluginEnable() {
 		Visindigo::Utility::JsonConfig config = VISTM->getMergedColorScheme();
-		vgDebug << "Merged Color Scheme:" << config;
+		//vgDebug << "Merged Color Scheme:" << config;
 		// not prepared.
 		//registerToolWidget("cn.yxgeneral.aserstudio.aser_warpper", "i18n:ASERStudio::toolWidget.aserWarpper.title");
 		registerPluginModule(new ASERStudioTranslator(this));

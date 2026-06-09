@@ -10,7 +10,6 @@
 #include "../PluginManager.h"
 #include "../Plugin.h"
 #include "../VIApplication.h"
-#include <memory>
 
 using IDString = QString;
 using NameString = QString;
@@ -34,6 +33,7 @@ namespace Visindigo::General {
 		QMap<IDString, QString> PluginTypeNames;
 		QMap<IDString, QString> PluginModuleTypeDescriptions;
 		QMap<IDString, QString> PluginModuleTypeNames;
+
 		static QFileInfoList recursionGetAllDll(const QString& path) {
 			QDir dir(path);
 			QStringList filters;
@@ -62,16 +62,6 @@ namespace Visindigo::General {
 
 		此类中有几个函数是由Visindigo::General::VIApplication在恰当时机自动调用的，
 		一般不需要手动调用这些函数，除非你非常清楚你在做什么。
-
-		如果你不想使用Visindigo::General::VIApplication，但又需要插件管理功能，
-		你可以手动调用这些函数，但请确保调用顺序正确：
-		\list
-		\li 1. loadAllPlugin()
-		\li 2. enableAllPlugin()
-		\li 3. applicationInitAllPlugin()
-		\li 4. testAllPlugin()
-		\li 5. disableAllPlugin()
-		\endlist
 	*/
 
 	/*!
@@ -98,8 +88,9 @@ namespace Visindigo::General {
 		构造PluginManager对象。
 	*/
 	PluginManager::PluginManager(QObject* parent) : QObject(parent) {
+		vgNoticeF << "Initializing";
 		d = new PluginManagerPrivate();
-		vgSuccessF << "Plugin Manager initialized successfully.";
+		vgSuccessF << "Done";
 	}
 
 	/*!

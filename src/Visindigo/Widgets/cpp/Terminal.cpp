@@ -120,13 +120,14 @@ namespace Visindigo::Widgets {
 		QFont font("Cascadia Mono");
 		d->consoleView = new QTextBrowser(this);
 		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
+		/*
 		connect(Visindigo::General::LoggerManager::getInstance(), &Visindigo::General::LoggerManager::logReceived,
 			this, [this](
 				const QString& handlerName, Visindigo::General::Logger::Level level,
 				const QString& message, const QString& consoleStr, const Visindigo::General::LogMetaData& metaData
 				) {
 					d->consoleView->append(Visindigo::Utility::Console::cmdColorToHtmlString(consoleStr));
-			});
+			});*/
 		d->inputLine = new QLineEdit(this);
 		d->inputLine->installEventFilter(d);
 		d->consoleView->setFont(font);

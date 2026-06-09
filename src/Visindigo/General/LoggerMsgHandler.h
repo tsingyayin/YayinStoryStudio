@@ -7,19 +7,15 @@
 #include <QtCore/qobject.h>
 #include "VICompileMacro.h"
 #include "General/Logger.h"
-#include "General/private/LoggerMsgHandler_p.h"
 #include "General/LogMetaData.h"
 #include "General/StacktraceHelper.h"
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/qdebug.h>
+
 // Forward declarations
 class QSize;
 class QRect;
-namespace Visindigo::__Private__ {
-	class LoggerMsgHandlerDataPool;
-	class LoggerMsgHandlerPrivate;
-}
 namespace Visindigo::General {
 	template <typename T> concept Printable = requires(T t) {
 		{ t.toString() }->::std::same_as<QString>;
@@ -39,7 +35,12 @@ namespace Visindigo::General {
 	// Main
 	class VisindigoAPI LoggerMsgHandler final {
 		friend class Logger;
-		friend class Visindigo::__Private__::LoggerMsgHandlerDataPool;
+	private:
+		Logger* Who;
+		QString Msg;
+		Logger::Level Level;
+		LogMetaData MetaData;
+		QList<StacktraceFrame> Stacktrace;
 	protected:
 		LoggerMsgHandler(Logger* who, Logger::Level level);
 	public:
@@ -89,8 +90,6 @@ namespace Visindigo::General {
 		Logger::Level getLevel();
 		LogMetaData getMetaData();
 		QList<StacktraceFrame> getStacktrace();
-	protected:
-		Visindigo::__Private__::LoggerMsgHandlerPrivate* d;
 	};
 }
 

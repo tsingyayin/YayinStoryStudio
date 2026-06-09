@@ -3,7 +3,7 @@
 #include "General/Log.h"
 #include "General/Version.h"
 #include <QtCore/qdir.h>
-
+#include "Utility/SevenZipBinder.h"
 namespace Visindigo::__Private__ {
 	class VisindigoCorePrivate {
 		friend class VisindigoCore;
@@ -30,6 +30,7 @@ namespace Visindigo::__Private__ {
 	}
 
 	void VisindigoCore::onPluginDisable() {
+		delete VI7zBinder;
 		vgInfo << "VisindigoCore plugin disabled.";
 	}
 

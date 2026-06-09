@@ -362,6 +362,18 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.16.0
+		\a key 键
+
+		一个便捷函数，用于获取配置中的一个布尔量。如果该键不存在或无法转换为布尔值，则返回false
+
+		return 指定键的值
+	*/
+	bool Plugin::testPluginConfig(const QString& key) const {
+		return d->Config.getBool(key);
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		return 插件的加载方式
 	*/

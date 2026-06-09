@@ -1,6 +1,5 @@
 #include "../LoggerMsgHandler.h"
 #include "../LoggerManager.h"
-#include "../private/LoggerMsgHandler_p.h"
 #include <QtCore/qobject.h>
 #include "../../Utility/Console.h"
 #include <QtGui/qregion.h>
@@ -51,9 +50,8 @@ namespace Visindigo::General {
 		此构造函数由Logger类的日志宏间接调用，用户无需直接使用它。
 	*/
 	LoggerMsgHandler::LoggerMsgHandler(Logger* who, Logger::Level level) {
-		d = new Visindigo::__Private__::LoggerMsgHandlerPrivate;
-		d->Logger = who;
-		d->Level = level;
+		Who = who;
+		Level = level;
 	}
 
 	/*!
@@ -74,7 +72,7 @@ namespace Visindigo::General {
 		此函数用于将字符串追加到日志消息中，用户可以通过重载的<<运算符间接调用它。
 	*/
 	void LoggerMsgHandler::fromString(const QString& str) {
-		d->Msg += str % " ";
+		Msg += str % " ";
 	}
 
 	/*!
@@ -243,7 +241,7 @@ namespace Visindigo::General {
 		允许从<<运算符输入日志的元信息。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const LogMetaData& metaData) {
-		d->MetaData = metaData;
+		MetaData = metaData;
 		return *this;
 	}
 
@@ -252,7 +250,7 @@ namespace Visindigo::General {
 		允许从<<运算符输入日志的堆栈跟踪信息。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QList<StacktraceFrame>& stacktrace) {
-		d->Stacktrace = stacktrace;
+		Stacktrace = stacktrace;
 		return *this;
 	}
 
@@ -328,55 +326,57 @@ namespace Visindigo::General {
 	}
 	/*!
 		\since Visindigo 0.13.0
-		return 日志消息内容。
+
 		return 返回日志消息内容的QString表示。
 
 		此函数用于获取当前LoggerMsgHandler对象承接的日志消息内容。
 	*/
 	QString LoggerMsgHandler::getMessage() {
-		return d->Msg;
+		return Msg;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
+
 		return 创建此LoggerMsgHandler对象的Logger对象的指针。
-		return 返回指向Logger对象的指针。
 
 		此函数用于获取创建此LoggerMsgHandler对象的Logger对象的指针。
 	*/
 	Logger* LoggerMsgHandler::getLogger() {
-		return d->Logger;
+		return Who;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		return 日志级别。
+
 		return 返回日志级别枚举值。
 
 		此函数用于获取当前LoggerMsgHandler对象的日志级别。
 	*/
 	Logger::Level LoggerMsgHandler::getLevel() {
-		return d->Level;
+		return Level;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		return 日志元信息。
+
 		return 返回LogMetaData对象。
+
 		此函数用于获取当前LoggerMsgHandler对象的日志元信息。
 	*/
 	LogMetaData LoggerMsgHandler::getMetaData() {
-		return d->MetaData;
+		return MetaData;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		return 日志堆栈跟踪信息。
+
 		return 返回包含StacktraceFrame对象的QList。
+
 		此函数用于获取当前LoggerMsgHandler对象的日志堆栈跟踪信息。
 	*/
 	QList<StacktraceFrame> LoggerMsgHandler::getStacktrace() {
-		return d->Stacktrace;
+		return Stacktrace;
 	}
 
 	/*!

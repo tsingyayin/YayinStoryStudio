@@ -4,7 +4,7 @@
 namespace Visindigo::General {
 	template<Printable T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(T t) {
-		d->Msg += t.toString();
+		Msg += t.toString();
 		return *this;
 	}
 	template<typename T>
@@ -16,7 +16,7 @@ namespace Visindigo::General {
 		}
 		temp.removeLast();
 		temp += "}";
-		d->Msg += temp;
+		Msg += temp;
 		return *this;
 	}
 	template<Printable T>
@@ -27,7 +27,7 @@ namespace Visindigo::General {
 		}
 		temp.removeLast();
 		temp += "}";
-		d->Msg += temp;
+		Msg += temp;
 		return *this;
 	}
 	template<typename T>
@@ -39,7 +39,7 @@ namespace Visindigo::General {
 		}
 		temp.removeLast();
 		temp += "}";
-		d->Msg += temp;
+		Msg += temp;
 		return *this;
 	}
 	template<Printable T>
@@ -50,7 +50,7 @@ namespace Visindigo::General {
 		}
 		temp.removeLast();
 		temp += "}";
-		d->Msg += temp;
+		Msg += temp;
 		return *this;
 	}
 }

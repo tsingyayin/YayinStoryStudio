@@ -79,7 +79,7 @@ namespace YSS::ProjectPage {
 		SizeLabel->setText(VITR("YSS::project.size") + ": " + VITR("YSS::project.calculating"));
 		CoverLabel->setText("");
 		CoverLabel->setStyleSheet("QLabel{border-image:url(" + project->getProjectFolder() + "/" + project->getProjectIconPath() + ")}");
-		yDebugF << project->getProjectFolder() + "/" + project->getProjectIconPath();
+		//yDebugF << project->getProjectFolder() + "/" + project->getProjectIconPath();
 		TitleLabel->setText(project->getProjectName());
 		CreateTimeLabel->setText(VITR("YSS::project.createTime") + ": " + project->getProjectCreateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		LastModifiedTimeLabel->setText(VITR("YSS::project.lastModifiedTime") + ": " + project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss"));
@@ -126,7 +126,7 @@ namespace YSS::ProjectPage {
 	void ProjectInfoWidget::onShowInBrowserButtonClicked() {
 		if (Project != nullptr) {
 			QString dir = Project->getProjectFolder();
-			yDebugF << dir;
+			//yDebugF << dir;
 			Visindigo::Utility::FileUtility::openExplorer(dir);
 		}
 	}
