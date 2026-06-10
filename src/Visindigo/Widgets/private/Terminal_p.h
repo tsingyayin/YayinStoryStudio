@@ -1,11 +1,15 @@
 #ifndef Visindigo_Widgets_Terminal_p_h
 #define Visindigo_Widgets_Terminal_p_h
-#include "../../VICompileMacro.h"
+#include "VICompileMacro.h"
+#include "Widgets/Terminal.h"
 #include <QtCore/qobject.h>
+#include <QtGui/qtextcursor.h>
+#include <QtCore/qtypes.h>
+
 class QTextBrowser;
 class QLineEdit;
 class QPushButton;
-class QGridLayout;
+class QVBoxLayout;
 class QTextStream;
 namespace Visindigo::Widgets {
 	class Terminal;
@@ -15,25 +19,27 @@ namespace Visindigo::__Private__ {
 		friend class Visindigo::Widgets::Terminal;
 		Q_OBJECT;
 	protected:
+		Widgets::Terminal* q;
 		QTextBrowser* consoleView;
 		QLineEdit* inputLine;
-		QPushButton* sendButton;
-		QGridLayout* layout;
-		bool useInput = true;
-		bool sendOnEnter = true;
+		QVBoxLayout* layout;
+		qint32 savedCursorLine = -1;
+		qint32 savedCursorCol = -1;
+		Widgets::Terminal::WorkMode workMode = Widgets::Terminal::VirtualTerminal;
+		bool enableInput = true;
 		bool autoScroll = true;
-		bool autoListen = true;
-		bool enableStyle = true;
-		qint32 maxCacheLines = 100;
+		qint32 maxLines = 1000;
 		QTextStream* stdInStream = nullptr;
 		QStringList commandHistory;
+		qint32 maxHistoryCount = 1000;
 		QString commandStartWith;
-		qsizetype historyIndex = -1;
-		TerminalPrivate();
-		~TerminalPrivate();
-		void writeToStdIn(const QString& line);
-		void onStdInputAvailable();
-		bool eventFilter(QObject* obj, QEvent* event) override;
+	protected:
+		void onANSILineReceived(const QString& line);
+		void onComplexControlDetected(const QChar& command, const QString& content);
+		qint32 getFirstLineInViewport() const;
+		qint32 getLastLineInViewport() const;
+		void onColorAndFormatControlDetected(const QString& content);
+		void insertPlainText(const QString& text);
 	};
 }
 #endif // Visindigo_Widgets_Terminal_p_h

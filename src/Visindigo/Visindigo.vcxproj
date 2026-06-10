@@ -64,7 +64,7 @@
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'" Label="QtSettings">
-    <QtInstall>6.10.1</QtInstall>
+    <QtInstall>6.10.3</QtInstall>
     <QtModules>core;gui;network;widgets;gui;widgets;</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>

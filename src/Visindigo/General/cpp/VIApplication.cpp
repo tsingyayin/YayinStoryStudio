@@ -331,6 +331,13 @@ namespace Visindigo::General {
 		}
 		if (VIApplication::getEnvConfig(VIApplication::UseVirtualTerminal).toBool()) {
 			d->VirtualTerminal = new Widgets::Terminal();
+			connect(LoggerManager::getInstance(), &LoggerManager::logReceived, this, 
+				[this](const QString& handlerName, Logger::Level level, const QString& message, const QString& consoleStr, const LogMetaData& metaData) {
+				if (d->VirtualTerminal) {
+					d->VirtualTerminal->addLine(consoleStr+"\r\n");
+				}
+				});
+			//d->VirtualTerminal->show(); // for debug.
 			if (VIApplication::getEnvConfig(VIApplication::TerminalAutoShow).toBool()) {
 				d->VirtualTerminal->show();
 			}
