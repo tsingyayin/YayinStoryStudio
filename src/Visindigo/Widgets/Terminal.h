@@ -30,6 +30,8 @@ namespace Visindigo::Widgets {
 		void clearConsole();
 		void addLine(const QString& line);
 		void setWorkMode(WorkMode mode);
+		void setRefreshDelay(qint32 ms);
+		qint32 getRefreshDelay();
 		WorkMode getWorkMode() const;
 	private:
 		Visindigo::__Private__::TerminalPrivate* d;

@@ -72,6 +72,7 @@
     <Link>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);Visindigo.lib</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions);YSSCore_EXPORT</PreprocessorDefinitions>
@@ -111,8 +112,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <OptimizeReferences>false</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

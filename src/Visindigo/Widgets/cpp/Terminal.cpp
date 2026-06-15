@@ -13,6 +13,8 @@
 #include "Utility/Console.h"
 #include "General/CommandHost.h"
 #include "General/TranslationHost.h"
+#include <QtWidgets/qapplication.h>
+#include <QtCore/qdatetime.h>
 /*
 单一控制字符的控制序列格式如下：
 M: 上移一行
@@ -134,20 +136,13 @@ namespace Visindigo::__Private__ {
 				}		
 				normalTextStart = i + 1;
 				auto cursor = consoleView->textCursor();
-				auto column = cursor.positionInBlock();
 				cursor.movePosition(QTextCursor::EndOfBlock);
 				//如果下一行不存在，则创建一个新行
 				if (not cursor.movePosition(QTextCursor::Down)) {
 					cursor.insertBlock();
 				}
+				//光标移动到新行的行首
 				cursor.movePosition(QTextCursor::StartOfLine);
-				
-				auto contentOfNextLine = cursor.block().text();
-				if (column > contentOfNextLine.length()) {
-					cursor.movePosition(QTextCursor::EndOfLine);
-					cursor.insertText(QString(column - contentOfNextLine.length(), ' '));
-				}
-				cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, column);
 				if (autoScroll) {
 					consoleView->verticalScrollBar()->setValue(cursor.blockNumber());
 				}
@@ -174,15 +169,21 @@ namespace Visindigo::__Private__ {
 		}
 		auto cursor = consoleView->textCursor();
 		if (cursor.atBlockEnd()) {
-			cursor.insertText(text);
+			consoleView->insertPlainText(text);
 		}
 		else {
 			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, text.size());
 			cursor.insertText(text);
+			consoleView->setTextCursor(cursor);
 		}
-		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, text.size());
-		consoleView->setTextCursor(cursor);
+		//cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, text.size());
+		
 	}
+
+	void TerminalPrivate::onUpdate(double elapsedTime_ms) {
+		eventLoopRunning = true;
+	}
+
 	qint32 TerminalPrivate::getFirstLineInViewport() const {
 		auto cursor = consoleView->cursorForPosition(consoleView->viewport()->rect().topLeft() + QPoint(2, 2));
 		return cursor.blockNumber();
@@ -501,7 +502,7 @@ namespace Visindigo::__Private__ {
 			int code = params[i].toInt();
 			switch (code) {
 			case 38:
-				if (code == 38 && params.size() >= 5 && params[1] == "2" || i == 0) {
+				if (code == 38 && params.size() >= 5 && params[1] == "2" && i == 0) {
 					int r = params[2].toInt();
 					int g = params[3].toInt();
 					int b = params[4].toInt();
@@ -510,7 +511,7 @@ namespace Visindigo::__Private__ {
 				}
 				break;
 			case 48:
-				if (code == 48 && params.size() >= 5 && params[1] == "2" || i == 0) {
+				if (code == 48 && params.size() >= 5 && params[1] == "2" && i == 0) {
 					int r = params[2].toInt();
 					int g = params[3].toInt();
 					int b = params[4].toInt();
@@ -649,6 +650,7 @@ namespace Visindigo::Widgets {
 		d->layout->addWidget(d->consoleView);
 		d->layout->addWidget(d->inputLine);
 		setLayout(d->layout);
+		d->enableUpdate();
 		vgDebug << "Terminal initialized.";
 	}
 
@@ -657,7 +659,7 @@ namespace Visindigo::Widgets {
 		析构函数
 	*/
 	Terminal::~Terminal() {
-		delete d;
+		d->disableAndDelete();
 	}
 
 	void Terminal::setInputEnable(bool enable) {
@@ -690,4 +692,9 @@ namespace Visindigo::Widgets {
 			d->onANSILineReceived(processedLine);
 		}
 	}
+
+	void Terminal::setWorkMode(WorkMode mode) {
+		d->workMode = mode;
+	}
+
 }

@@ -103,7 +103,7 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
-		auto t1 = 0;
+		/*auto t1 = 0;
 		auto t2 = 0;
 		{
 			auto timer = Visindigo::Utility::BenchmarkTimer();
@@ -120,7 +120,7 @@ namespace YSS {
 			t2 = timer.elapsed();
 		}
 		vgDebug << "Visindigo Logger:" << t1 << "ms";
-		vgDebug << "Qt Logger:" << t2 << "ms";
+		vgDebug << "Qt Logger:" << t2 << "ms";*/
 		//VI7zBinder->compressFilesToZip({ "C:/Users/tsing/Desktop/" }, "C:/Users/tsing/Desktop/TestArchive.zip", Visindigo::Utility::SevenZipBinder::zip, "password");
 	}
 

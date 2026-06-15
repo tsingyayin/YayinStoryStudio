@@ -26,6 +26,7 @@ namespace Visindigo::General {
 		bool Pause = false;
 		QString LogFileNameTimeFormat;
 		QString LogTimeFormat;
+		qint64 currentEpoch = 0;
 		LoggerManagerPrivate() {
 			LogFileNameTimeFormat = VIApp->getEnvConfig(VIApplication::LogFileNameTimeFormat).toString();
 			LogTimeFormat = VIApp->getEnvConfig(VIApplication::LogTimeFormat).toString();
@@ -43,17 +44,19 @@ namespace Visindigo::General {
 			Stream->setEncoding(QStringConverter::Utf8);
 			Timer.setInterval(10000);
 			QObject::connect(&Timer, &QTimer::timeout, [this]() {
-				if (!Pause) {
-					save();
-					current = 0;
+				if (Pause) {
+					return;
 				}
-				Pause = true;
+				qint64 nowEpoch = QDateTime::currentSecsSinceEpoch();
+				if (nowEpoch - currentEpoch >= 10) {
+					save();
+					Pause = true;
+				}
 				});
 			Timer.start();
 		}
 		void log(QString line) {
 			Pause = false;
-			Timer.start();
 			if (Stream) {
 				*Stream << line << "\n";
 				current++;
@@ -77,13 +80,21 @@ namespace Visindigo::General {
 		\ingroup VIDebug
 		\since Visindigo 0.13.0
 
-		VDebug是一种用于在Qt开发中与QDebug提供相似功能的日志管理。
-		它并不旨在取代QDebug，因为它比QDebug性能更差，但更灵活。
-		例如，您可以监听LoggerManager::logReceived信号自由的将
-		日志路由到别处。除此之外，VDebug默认同时输出到文件，不需单独
-		实现文件输出功能。
-
 		此类是VDebug的核心类，用于管理Logger实例并处理日志消息的输出。
+
+		在Visindigo开发中，大部分情况下可以直接取代QDebug使用。如果直接比较
+		\code
+		vgDebug << "log"
+		qDebug() << "log"
+		\endcode
+		则在VDebug确实需要QDebug约120%~200%的耗时，但这么比较并不公平，因为VDebug提供了更多的功能，
+		例如日志级别、日志文件输出、日志重定向等，这些功能的实现需要额外的处理和资源。如果将VDebug与
+		经过了相当设置的QDebug相比（即使用Qt的日志格式、输出重定向等功能之后），则二者耗时基本相当。
+
+		此外值得指出的是，如果在VIApplication中使用了虚拟终端功能，则VDebug的性能会变得极差，因为需要
+		将消息在图形页面中渲染，且需要解析日志中的ANSI转义控制以模拟终端行为，这些都会极大地增加日志输出的耗时。
+
+		因此，如果没有使用虚拟终端的需要，应在VIApplication中禁用虚拟终端功能以获得更好的日志性能。
 
 		VDebug和QDebug在结构上略有不同：
 		\list
@@ -92,15 +103,6 @@ namespace Visindigo::General {
 		\li QMessageLogger使用不同的QMessageLoggingCategory构造QDebug来区分不同的日志命名空间，
 		而VDebug则是通过Logger类的实例来区分不同的日志命名空间。
 		\endlist
-
-		\section1 性能与特性说明
-		在0.13.0之前的版本中，VDebug是重新转发到QDebug实现的输出，因此性能较差。
-
-		在0.13.0开发过程中，曾经被直接使用std::cout实现输出，但这在Android平台上导致
-		调试器看不到日志，并不实用。
-
-		现在的实现中，已经改用Qt未公开的函数qt_message_output来实现日志输出，
-		这使得VDebug的性能（至少在最后输出阶段）与QDebug相当。
 	*/
 
 	/*!
@@ -183,7 +185,8 @@ namespace Visindigo::General {
 		// TODO:
 		// This implementation does not check the log level threshold.
 		// It will log all messages regardless of the threshold.
-		QString logStr = QString("[") % QDateTime::currentDateTime().toString(d->LogTimeFormat) %
+		d->currentEpoch = QDateTime::currentMSecsSinceEpoch();
+		QString logStr = QString("[") % QDateTime::fromMSecsSinceEpoch(d->currentEpoch).toString(d->LogTimeFormat) %
 			"][" % handler->getLogger()->getNamespace() % "]";
 		switch (handler->getLevel()) {
 		case Logger::Level::Debug:

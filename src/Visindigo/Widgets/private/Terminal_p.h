@@ -5,7 +5,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qtypes.h>
-
+#include <QtCore/qtimer.h>
+#include "General/TickObject.h"
 class QTextBrowser;
 class QLineEdit;
 class QPushButton;
@@ -15,7 +16,7 @@ namespace Visindigo::Widgets {
 	class Terminal;
 }
 namespace Visindigo::__Private__ {
-	class TerminalPrivate :public QObject {
+	class TerminalPrivate :public QObject, public Visindigo::General::TickObject {
 		friend class Visindigo::Widgets::Terminal;
 		Q_OBJECT;
 	protected:
@@ -28,11 +29,13 @@ namespace Visindigo::__Private__ {
 		Widgets::Terminal::WorkMode workMode = Widgets::Terminal::VirtualTerminal;
 		bool enableInput = true;
 		bool autoScroll = true;
+		bool eventLoopRunning = false;
 		qint32 maxLines = 1000;
+		qint32 maxHistoryCount = 1000;
 		QTextStream* stdInStream = nullptr;
 		QStringList commandHistory;
-		qint32 maxHistoryCount = 1000;
 		QString commandStartWith;
+		QString cacheANSILine;
 	protected:
 		void onANSILineReceived(const QString& line);
 		void onComplexControlDetected(const QChar& command, const QString& content);
@@ -40,6 +43,7 @@ namespace Visindigo::__Private__ {
 		qint32 getLastLineInViewport() const;
 		void onColorAndFormatControlDetected(const QString& content);
 		void insertPlainText(const QString& text);
+		virtual void onUpdate(double elapsedTime_ms) override;
 	};
 }
 #endif // Visindigo_Widgets_Terminal_p_h

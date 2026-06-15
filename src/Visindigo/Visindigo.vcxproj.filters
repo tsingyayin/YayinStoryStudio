@@ -194,6 +194,9 @@
     <ClCompile Include="Utility\cpp\BenchmarkTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\TickObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -287,9 +290,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\ColorTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\Permission.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\PixmapCacheHelper.h">
@@ -424,6 +424,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\MessageCenter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\TickObject.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
