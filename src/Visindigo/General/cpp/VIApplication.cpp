@@ -16,6 +16,7 @@
 #include "Widgets/private/VIWidgets_p.h"
 #include "General/private/VIGeneral_p.h"
 #include "General/private/Plugin_p.h"
+#include "General/CommandHost.h"
 
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
@@ -334,9 +335,10 @@ namespace Visindigo::General {
 			connect(LoggerManager::getInstance(), &LoggerManager::logReceived, this,
 				[this](const QString& handlerName, Logger::Level level, const QString& message, const QString& consoleStr, const LogMetaData& metaData) {
 				if (d->VirtualTerminal) {
-					d->VirtualTerminal->addLine(consoleStr+"\r\n");
+					d->VirtualTerminal->addLine(consoleStr+"\n");
 				}
 				});
+			connect(d->VirtualTerminal, &Widgets::Terminal::inputPrepared, VISCH, &CommandHost::executeCommand);
 			d->VirtualTerminal->show(); // for debug.
 			if (VIApplication::getEnvConfig(VIApplication::TerminalAutoShow).toBool()) {
 				d->VirtualTerminal->show();
@@ -732,6 +734,7 @@ namespace Visindigo::General {
 			if (d->MainPlugin) {
 				d->MainPlugin->onApplicationInit();
 				if (d->MainPlugin->isTestEnable()) {
+					vgDebug << "Running main plugin test...";
 					d->MainPlugin->onTest();
 				}
 			}
@@ -830,9 +833,10 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 应用程序的虚拟终端窗口。
-		return 为指向虚拟终端窗口对象的指针。如果未启用虚拟终端功能，则返回nullptr。
+		return 应用程序的虚拟终端窗口。如果未启用虚拟终端功能，则返回nullptr。
+
 		此函数允许用户获取应用程序的虚拟终端窗口，以便在其中执行命令行操作。
+		请注意，这个虚拟终端实例固定为本程序的终端。如果用户需要执行其他程序，请新建其他终端实例。
 	*/
 	Widgets::Terminal* VIApplication::getVirtualTerminal() const {
 		return d->VirtualTerminal;

@@ -7,6 +7,7 @@
 #include <QtCore/qset.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qdatetime.h>
+
 namespace Visindigo::General {
 	class TickObjectPrivate {
 		friend class TickObject;
@@ -180,7 +181,13 @@ namespace Visindigo::General {
 			d->currentLoop->disableTickObject(this);
 		}
 		else {
-			delete this;
+			QObject* self = dynamic_cast<QObject*>(this);
+			if (self) {
+				self->deleteLater();
+			}
+			else {
+				delete this;
+			}
 		}
 	}
 
@@ -363,7 +370,13 @@ namespace Visindigo::General {
 					tickObjects.remove(obj);
 					obj->d->currentLoop = nullptr;
 					if (obj->d->aboutToDelete) {
-						delete obj;
+						QObject* qobj = dynamic_cast<QObject*>(obj);
+						if (qobj) {
+							qobj->deleteLater();
+						}
+						else {
+							delete obj;
+						}
 					}
 				}
 			}
@@ -502,7 +515,13 @@ namespace Visindigo::General {
 				d->tickObjects.remove(obj);
 				obj->d->currentLoop = nullptr;
 				if (obj->d->aboutToDelete) {
-					delete obj;
+					QObject* qobj = dynamic_cast<QObject*>(obj);
+					if (qobj) {
+						qobj->deleteLater();
+					}
+					else {
+						delete obj;
+					}
 				}
 			}
 		}
@@ -546,13 +565,11 @@ namespace Visindigo::General {
 		这个函数是线程安全的，你可以在任何线程中调用它。
 	*/
 	void TickLoop::enableTickObject(TickObject* obj) {
-		if (obj->d->currentLoop) {
-			return;
-		}
 		QMutexLocker locker(&d->tickObjectsEnabledMutex);
 		if (not d->pendingEnableObjects.contains(obj)){
 			obj->d->currentLoop = this;
 			d->pendingEnableObjects.append(obj);
+			vgInfo << "Enabling TickObject" << obj << "in TickLoop" << this;
 		}
 	}
 

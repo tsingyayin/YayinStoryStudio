@@ -28,22 +28,25 @@ namespace Visindigo::__Private__ {
 		qint32 savedCursorCol = -1;
 		Widgets::Terminal::WorkMode workMode = Widgets::Terminal::VirtualTerminal;
 		bool enableInput = true;
-		bool autoScroll = true;
-		bool eventLoopRunning = false;
+		bool autoScroll= true;
 		qint32 maxLines = 1000;
-		qint32 maxHistoryCount = 1000;
+		qint32 maxCommandHistory = 1000;
+		qint32 historyQueryDelta = 0;
+		QString currentHistory = "";
 		QTextStream* stdInStream = nullptr;
 		QStringList commandHistory;
 		QString commandStartWith;
 		QString cacheANSILine;
 	protected:
+		void appendANSICache(const QString& line, bool forceFlush);
 		void onANSILineReceived(const QString& line);
 		void onComplexControlDetected(const QChar& command, const QString& content);
 		qint32 getFirstLineInViewport() const;
 		qint32 getLastLineInViewport() const;
 		void onColorAndFormatControlDetected(const QString& content);
 		void insertPlainText(const QString& text);
-		virtual void onUpdate(double elapsedTime_ms) override;
+		virtual void onFixUpdate(double elapsedTime_ms) override;
+		virtual bool eventFilter(QObject* watched, QEvent* event) override;
 	};
 }
 #endif // Visindigo_Widgets_Terminal_p_h

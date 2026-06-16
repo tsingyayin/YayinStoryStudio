@@ -12,11 +12,11 @@ namespace Visindigo::General{
 		friend class TickLoop;
 		friend class TickLoopPrivate;
 	public:
-		enum class UpdateType {
+		enum UpdateType {
 			Update,
 			FixUpdate
 		};
-		enum class PresetInterval {
+		enum PresetInterval {
 			FPS_8, FPS_10, FPS_15, FPS_20, FPS_24, FPS_30, 
 			FPS_60, FPS_70, FPS_120, FPS_144, FPS_240,
 			FPS_360, FPS_480

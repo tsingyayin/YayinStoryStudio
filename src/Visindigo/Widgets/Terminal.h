@@ -20,18 +20,16 @@ namespace Visindigo::Widgets {
 		~Terminal() override;
 		void setInputEnable(bool enable);
 		bool isInputEnabled() const;
-		QStringList getInputHistory() const;
-		void setMaxInputHistory(qint32 count);
-		qint32 getMaxInputHistory() const;
+		QStringList getCommandHistory() const;
+		void setMaxCommandHistory(qint32 count);
+		qint32 getMaxCommandHistory() const;
 		void setAutoScroll(bool enable);
 		bool isAutoScroll() const;
 		void setMaxLines(qint32 count);
 		qint32 getMaxLines() const;
 		void clearConsole();
-		void addLine(const QString& line);
+		void addLine(const QString& line, bool forceFlush = false);
 		void setWorkMode(WorkMode mode);
-		void setRefreshDelay(qint32 ms);
-		qint32 getRefreshDelay();
 		WorkMode getWorkMode() const;
 	private:
 		Visindigo::__Private__::TerminalPrivate* d;

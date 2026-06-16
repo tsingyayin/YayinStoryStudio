@@ -36,7 +36,6 @@ R"(警告！
 	app.addDependencyPlugin(mainEditorBuiltinPlugin);
 
 	YSS::Main* mainPlugin = new YSS::Main();
-	mainPlugin->setTestEnable();
 	app.setMainPlugin(mainPlugin);
 	app.setLoadingMessageHandler(new YSS::TitlePage::TitlePage());
 

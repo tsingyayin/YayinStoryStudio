@@ -67,6 +67,14 @@ u: 恢复光标位置
 >: 小键盘数字模式
 */
 namespace Visindigo::__Private__ {
+	void TerminalPrivate::appendANSICache(const QString& line, bool forceFlush) {
+		cacheANSILine += line;
+		if (forceFlush) {
+			onANSILineReceived(cacheANSILine);
+			cacheANSILine.clear();
+		}
+	}
+
 	void TerminalPrivate::onANSILineReceived(const QString& line) {
 		QString debugLine = line;
 		//qDebug() << debugLine.replace("\r", "\\r").replace("\n", "\\n");
@@ -162,7 +170,17 @@ namespace Visindigo::__Private__ {
 		if (normalTextStart < line.length()) {
 			insertPlainText(line.mid(normalTextStart));
 		}
+		if (consoleView->document()->blockCount() > maxLines) {
+			auto cursor = consoleView->textCursor();
+			cursor.movePosition(QTextCursor::Start);
+			for (int i = 0; i < consoleView->document()->blockCount() - maxLines; ++i) {
+				cursor.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor);
+			}
+			cursor.removeSelectedText();
+			cursor.deleteChar(); // 删除多余的行后会剩下一个空行，这里删除掉
+		}
 	}
+
 	void TerminalPrivate::insertPlainText(const QString& text) {
 		if (text.isEmpty()) {
 			return;
@@ -176,12 +194,14 @@ namespace Visindigo::__Private__ {
 			cursor.insertText(text);
 			consoleView->setTextCursor(cursor);
 		}
-		//cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, text.size());
-		
 	}
 
-	void TerminalPrivate::onUpdate(double elapsedTime_ms) {
-		eventLoopRunning = true;
+	void TerminalPrivate::onFixUpdate(double elapsedTime_ms) {
+		if (not cacheANSILine.isEmpty()) {
+			onANSILineReceived(cacheANSILine);
+			cacheANSILine.clear();
+		}
+		//qDebug() << "Terminal onFixUpdate, elapsedTime_ms: " << elapsedTime_ms; 
 	}
 
 	qint32 TerminalPrivate::getFirstLineInViewport() const {
@@ -609,6 +629,45 @@ namespace Visindigo::__Private__ {
 		}
 		consoleView->setCurrentCharFormat(format);
 	}
+
+	bool TerminalPrivate::eventFilter(QObject* obj, QEvent* event) {
+		if (obj == inputLine) {
+			if (event->type() == QEvent::KeyPress) {
+				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+				if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
+					QString command = inputLine->text();
+					commandHistory.append(command);
+					if (commandHistory.size() > maxCommandHistory) {
+						commandHistory.removeFirst();
+					}
+					inputLine->clear();
+					emit q->inputPrepared(command);
+					return true;
+				}
+				else if (keyEvent->key() == Qt::Key_Up) {
+					if (historyQueryDelta == 0) {
+						currentHistory = inputLine->text();
+					}
+					historyQueryDelta++;
+					inputLine->setText(commandHistory.value(commandHistory.size() - historyQueryDelta, currentHistory));
+				}
+				else if (keyEvent->key() == Qt::Key_Down) {
+					if (historyQueryDelta > 0) {
+						historyQueryDelta--;
+						inputLine->setText(commandHistory.value(commandHistory.size() - historyQueryDelta, currentHistory));
+					}
+					else {
+						inputLine->setText(currentHistory);
+					}
+				}
+				else {
+					currentHistory = inputLine->text();
+					historyQueryDelta = 0;
+				}
+			}
+		}
+		return QObject::eventFilter(obj, event);
+	}
 }
 namespace Visindigo::Widgets {
 	/*!
@@ -618,16 +677,37 @@ namespace Visindigo::Widgets {
 		\inmodule Visindigo
 
 		Terminal类提供了一个内置的终端窗口，可以显示日志输出并接受用户输入的命令。
-		用户可以通过按下回车键或点击发送按钮来执行输入的命令。
+		用户可以通过按下回车键或点击发送按钮来执行输入的命令。稍后，inputPrepared信号将被触发，携带用户输入的命令文本，供外部处理。
+
+		值得指出的是，Terminal类仅仅作为显示工具，并不直接处理命令执行，也不负责管理进程，因此一般
+		需要配合QProcess或类似的类来驱动外部命令行程序，并将其输入输出重定向到Terminal类中。
 
 		理论上，Terminal类还支持命令历史记录，用户可以通过上下箭头键来浏览之前输入的命令。
 
-		\warning 这个类有已知缺陷：它并未完整实现。例如，命令历史记录功能可能存在问题，输入行的事件过滤器也可能不够完善。
-		但它不会被移除，这个类的功能会逐步完善，直到它能够满足基本的终端需求为止。
+		\section1 性能与实时性
+		Terminal类的设计目标是提供一个功能完善的终端窗口，能够正确处理ANSI控制序列并显示丰富的文本格式。
+		然而，由于Qt的文本渲染机制和事件处理机制，Terminal类的解析性能相对较差，且只能在事件循环正常
+		运行时刷新显示内容。这就意味着在主线程的某个循环体内大量输出日志时，实际上并不会有东西显示出来。
 
-		因此目前不为此类提供详细文档，也建议用户暂时不要使用。
+		Terminal类在早期曾经尝试过允许用户设置缓冲区与内部调用qApp->processEvent以缓解性能问题并
+		解决实时性，但内部调用processEvent可能会破坏原有的事件循环封装，带来难以预料的问题。因此基于
+		这种难以达到实时性的考虑，我们退而求其次也取消了缓冲区设计，转为每秒固定尝试刷新显示内容
+		20次。
+
+		这种摆烂设计的一个重要好处是不会破坏事件循环封装，也不会影响循环体的执行性能。如果用户真的
+		需要在中途刷新显示内容，应当自行尝试使用qApp->processEvent或类似的方式，
+		但这需要用户自己权衡性能与实时性，并且需要注意可能带来的副作用。
 	*/
 
+	/*!
+		\since Visindigo 0.16.0
+		\enum Visindigo::Widgets::Terminal::WorkMode
+		\value PureText 纯文本模式，终端将不解析任何ANSI控制序列，所有输入都将被视为普通文本直接显示。这种模式适用于只需要简单日志输出而不需要格式控制的场景。
+		\value ANSIControl ANSI控制序列模式，终端将解析输入中的ANSI控制序列以实现丰富的文本格式和控制效果。这是默认模式，适用于需要完整终端功能的场景。
+
+		如果你确定输出的内容不会有任何ANSI序列控制，则PureText模式会有更好的性能表现。
+		与此同时，PureText下，每次addLine时都直接将文本添加到终端中，而不需要等待定时刷新。
+	*/
 	/*!
 		\since Visindigo 0.13.0
 		\a parent 父组件。
@@ -650,6 +730,9 @@ namespace Visindigo::Widgets {
 		d->layout->addWidget(d->consoleView);
 		d->layout->addWidget(d->inputLine);
 		setLayout(d->layout);
+		d->inputLine->installEventFilter(d);
+		d->setUpdateType(Visindigo::General::TickObject::FixUpdate);
+		d->setFixUpdateInterval(Visindigo::General::TickObject::FPS_20);
 		d->enableUpdate();
 		vgDebug << "Terminal initialized.";
 	}
@@ -662,39 +745,143 @@ namespace Visindigo::Widgets {
 		d->disableAndDelete();
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+		\a enable 是否启用输入框。
+
+		设置输入框是否启用。
+	*/
 	void Terminal::setInputEnable(bool enable) {
 		d->enableInput = enable;
 		d->inputLine->setEnabled(enable);
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+
+		return 输入框是否启用。
+	*/
 	bool Terminal::isInputEnabled() const {
 		return d->enableInput;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+
+		return 命令历史记录的最大数量。
+	*/
+	QStringList Terminal::getCommandHistory() const {
+		return d->commandHistory;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		\a historyCount 历史记录的最大数量。
+
+		设置命令历史记录的最大数量。当历史记录超过这个数量时，最早的记录将被删除。
+	*/
+	void Terminal::setMaxCommandHistory(qint32 historyCount) {
+		d->maxCommandHistory = historyCount;
+		while (d->commandHistory.size() > d->maxCommandHistory) {
+			d->commandHistory.removeFirst();
+		}
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+
+		return 命令历史记录的最大数量。
+	*/
+	qint32 Terminal::getMaxCommandHistory() const {
+		return d->maxCommandHistory;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		\a autoScroll 是否启用自动滚动。
+
+		设置是否启用自动滚动。当启用时，终端会在输出新内容时自动滚动到最新行。
+
+		目前，只要有新行被添加，就强制滚动到最新。
+	*/
+	void Terminal::setAutoScroll(bool autoScroll) {
+		d->autoScroll = autoScroll;
+	}
+	
+	/*!
+		\since Visindigo 0.13.0
+
+		return 是否启用自动滚动。
+	*/
+	bool Terminal::isAutoScroll() const {
+		return d->autoScroll;
+	}
+
+	/*!
+		\since Visindigo 0.13.0
+		\a lineCount 最大行数。
+
+		设置终端缓存的最大行数。当终端中的行数超过这个数量时，最早的行将被删除以保持行数不超过这个限制。
+	*/
 	void Terminal::setMaxLines(qint32 lineCount) {
 		d->maxLines = lineCount;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+
+		return 终端缓存的最大行数。
+	*/
 	qint32 Terminal::getMaxLines() const {
 		return d->maxLines;
 	}
 
+	/*!
+		\since Visindigo 0.13.0
+
+		 清除终端中的所有内容。
+	*/
 	void Terminal::clearConsole() {
 		d->consoleView->clear();
 	}
 
-	void Terminal::addLine(const QString& line) {
+	/*!
+		\since Visindigo 0.16.0
+		\a line 要添加的行文本。
+		\a forceFlush 是否强制刷新显示内容。
+		向终端添加一行文本。该函数会正确处理ANSI控制序列以实现丰富的文本格式和控制效果。
+
+		如果forceFlush参数为true，函数会立即刷新显示内容，否则会等待下一次定时刷新。
+
+		请注意，这个forceFlush参数的立即刷新仅仅是将缓冲区中的内容进行解析，但不保证
+		显示内容也立即更新，因为Qt的显示更新仍然需要等到事件循环处理时才会进行。
+	*/
+	void Terminal::addLine(const QString& line, bool forceFlush ) {
 		QString processedLine = line;
 		if (d->workMode == WorkMode::PureText) {
 			d->consoleView->append(processedLine);
 		}
 		else {
-			d->onANSILineReceived(processedLine);
+			d->appendANSICache(line, forceFlush);
 		}
 	}
 
+	/*!
+		\since Visindigo 0.16.0
+		\a mode 工作模式。
+
+		 设置终端的工作模式。不同的工作模式会影响终端如何处理输入的文本以及如何显示内容。
+	*/
 	void Terminal::setWorkMode(WorkMode mode) {
 		d->workMode = mode;
 	}
 
+	/*!
+		\since Visindigo 0.16.0
+
+		 return 终端当前的工作模式。
+	*/
+	Terminal::WorkMode Terminal::getWorkMode() const {
+		return d->workMode;
+	}
 }

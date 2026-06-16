@@ -91,11 +91,6 @@ namespace Visindigo::General {
 		例如日志级别、日志文件输出、日志重定向等，这些功能的实现需要额外的处理和资源。如果将VDebug与
 		经过了相当设置的QDebug相比（即使用Qt的日志格式、输出重定向等功能之后），则二者耗时基本相当。
 
-		此外值得指出的是，如果在VIApplication中使用了虚拟终端功能，则VDebug的性能会变得极差，因为需要
-		将消息在图形页面中渲染，且需要解析日志中的ANSI转义控制以模拟终端行为，这些都会极大地增加日志输出的耗时。
-
-		因此，如果没有使用虚拟终端的需要，应在VIApplication中禁用虚拟终端功能以获得更好的日志性能。
-
 		VDebug和QDebug在结构上略有不同：
 		\list
 		\li QDebug使用QDebug类来承接日志消息，而VDebug则是LoggerMsgHandler类。

@@ -92,6 +92,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\MultiTerminalTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
@@ -158,6 +161,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\MultiTerminalTool.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
