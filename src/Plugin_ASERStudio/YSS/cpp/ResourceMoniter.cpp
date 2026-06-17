@@ -31,11 +31,31 @@ namespace ASERStudio::YSS {
 		void refreshOfficial() {
 			auto collections = Visindigo::Utility::JsonConfig();
 			collections.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json"));
+
 			auto aliases = Visindigo::Utility::JsonConfig();
-			aliases.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+			if (Visindigo::Utility::FileUtility::isFileExist(ProjectPath + "/Configs/officialAssets_aliases.json")) {
+				QString content = Visindigo::Utility::FileUtility::readAll(ProjectPath + "/Configs/officialAssets_aliases.json");
+				auto rtn = aliases.parse(content);
+				if (rtn.error != QJsonParseError::NoError) {
+					aliases.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+				}
+			}
+			else {
+				aliases.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+			}
+
 			auto character = Visindigo::Utility::JsonConfig();
-			character.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
-			vgDebug << ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json";
+			if (Visindigo::Utility::FileUtility::isFileExist(ProjectPath + "/Configs/officialAssets_userConfigs.json")) {
+				QString content = Visindigo::Utility::FileUtility::readAll(ProjectPath + "/Configs/officialAssets_userConfigs.json");
+				auto rtn = character.parse(content);
+				if (rtn.error != QJsonParseError::NoError) {
+					character.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
+				}
+			}
+			else {
+				character.parse(Visindigo::Utility::FileUtility::readAll(ResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
+			}
+			
 			QStringList rawCharaKeysTachies = collections.keys("characterTachies");
 			QMap<QString, QStringList> officialCharaDiffs;
 			for (auto key : rawCharaKeysTachies) {

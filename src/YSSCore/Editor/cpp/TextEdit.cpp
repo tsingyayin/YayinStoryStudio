@@ -1397,17 +1397,17 @@ namespace YSSCore::Editor {
 			int ret = msgBox.exec();
 			switch (ret) {
 			case QMessageBox::Yes:
-				openFile(getFilePath());
-				return true;
+				return openFile(getFilePath());
 				break;
 			case QMessageBox::Cancel:
 				break;
 			default:
 				break;
 			}
+			return false;
 		}
 		else {
-			openFile(getFilePath());
+			return openFile(getFilePath());
 		}
 	}
 

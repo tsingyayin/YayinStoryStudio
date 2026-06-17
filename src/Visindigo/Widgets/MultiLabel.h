@@ -30,6 +30,7 @@ namespace Visindigo::Widgets {
 		void addCustomWidget(QWidget* widget);
 		void setCustomWidgetOrientation(Qt::Orientation orientation);
 		virtual void resizeEvent(QResizeEvent* event) override;
+		virtual void changeEvent(QEvent* event) override;
 		QWidget* getCustomWidget();
 	private:
 		MultiLabelPrivate* d;

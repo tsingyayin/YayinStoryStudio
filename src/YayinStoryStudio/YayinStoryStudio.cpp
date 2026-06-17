@@ -17,6 +17,7 @@
 #include <QtCore/qdir.h>
 #include <General/TranslationHost.h>
 #include <Widgets/UpToWin11.h>
+#include <chrono>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -29,6 +30,7 @@ namespace YSS {
 	Main::Main() {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
+		//setTestEnable();
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
 		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
@@ -101,6 +103,19 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
+		auto now = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 10000; i++) {
+			vgDebug << "Test log" << i;
+		}
+		auto vgEnd = std::chrono::high_resolution_clock::now();
+		for (int i = 0; i < 10000; i++) {
+			qDebug() << "Test log" << i;
+		}
+		auto qDebugEnd = std::chrono::high_resolution_clock::now();
+		auto vgDuration = std::chrono::duration_cast<std::chrono::milliseconds>(vgEnd - now).count();
+		auto qDebugDuration = std::chrono::duration_cast<std::chrono::milliseconds>(qDebugEnd - vgEnd).count();
+		vgInfo << "VG Debug duration:" << vgDuration << "ms";
+		vgInfo << "QDebug duration:" << qDebugDuration << "ms";
 	}
 
 	QWidget* Main::getConfigWidget() {
