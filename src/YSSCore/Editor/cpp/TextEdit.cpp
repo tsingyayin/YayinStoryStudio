@@ -288,10 +288,11 @@ namespace YSSCore::__Private__ {
 			QList<YSSCore::Editor::TabCompleterItem> high;
 			QList<YSSCore::Editor::TabCompleterItem> medium;
 			QList<YSSCore::Editor::TabCompleterItem> low;
-			for (const auto& item : list) {
+			for (auto& item : list) {
 				if (item.getCompleterLevel() <= CompleterLevel) {
 					switch (item.getCompleterPriority()) {
 					case YSSCore::Editor::TabCompleterItem::CompleterPriority::Top:
+						item.setText("★ " + item.getText());
 						top.append(item);
 						break;
 					case YSSCore::Editor::TabCompleterItem::CompleterPriority::High:
@@ -1292,6 +1293,29 @@ namespace YSSCore::Editor {
 	TabCompleterItem::CompleterLevel TextEdit::getCompleterLevel() const {
 		return d->CompleterLevel;
 	}
+
+	/*!
+		\since YSS 0.16.0
+		\a filter 类型过滤值
+
+		设置补全提示的类型过滤，是YSSCore::Editor::TabCompleterItem::TypeFlag的逻辑或。
+	*/
+	void TextEdit::setCompleterTypeFilter(TabCompleterItem::ItemTypes filter) {
+		bool equal = (d->CompleterTypeFilter == filter);
+		d->CompleterTypeFilter = filter;
+		if (not equal && d->TabCompleterWidget && d->TabCompleterWidget->isVisible()) {
+			d->TabCompleterWidget->reApplyFilter();
+		}
+	}
+
+	/*!
+		\since YSS 0.16.0
+
+		return 当前补全提示的类型过滤值，是YSSCore::Editor::TabCompleterItem::TypeFlag的逻辑或。
+	*/
+	TabCompleterItem::ItemTypes TextEdit::getCompleterTypeFilter() const {
+		return d->CompleterTypeFilter;
+	}
 	/*!
 		\since YSS 0.13.0
 		\a line 行号，从0开始。
@@ -1359,7 +1383,7 @@ namespace YSSCore::Editor {
 			d->Highlighter = server->createHighlighter(this);
 			d->TabCompleter = server->createTabCompleter(this);
 			if (d->TabCompleter) {
-				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(d->Text);
+				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(this);
 				d->TabCompleterWidget->hide();
 			}
 			d->HoverInfoProvider = server->createHoverInfoProvider(this);

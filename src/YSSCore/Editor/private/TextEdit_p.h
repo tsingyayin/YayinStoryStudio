@@ -92,6 +92,7 @@ namespace YSSCore::__Private__ {
 		QList<QTextEdit::ExtraSelection> FindAllMultiSelections;
 		QTextEdit::ExtraSelection CurrentLineSelection;
 		TextEditFindAndReplace* FindAndReplaceWidget = nullptr;
+		YSSCore::Editor::TabCompleterItem::ItemTypes CompleterTypeFilter = YSSCore::Editor::TabCompleterItem::ItemType::AllType;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	public:

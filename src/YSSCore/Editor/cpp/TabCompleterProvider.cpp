@@ -7,7 +7,7 @@ namespace YSSCore::Editor {
 		friend class TabCompleterItem;
 	protected:
 		TabCompleterItem::ItemType Type = TabCompleterItem::ItemType::Default;
-		TabCompleterItem::CompleterLevel Level = TabCompleterItem::CompleterLevel::Few;
+		TabCompleterItem::CompleterLevel Level = TabCompleterItem::CompleterLevel::Some;
 		TabCompleterItem::CompleterPriority Priority = TabCompleterItem::CompleterPriority::Low;
 		QString IconPath;
 		QString Text;
@@ -31,6 +31,9 @@ namespace YSSCore::Editor {
 	/*!
 		\enum YSSCore::Editor::TabCompleterItem::ItemType
 		\since YSS 0.13.0
+		补全项目的类型。这个类型主要用于区分不同类型的补全项，以便在显示时使用不同的图标或样式。
+		除此之外，也在YSSCore::Editor::TextEdit::setCompleterFilter()中使用这个类型来过滤显示的补全项。
+
 		\value Default 默认类型，图标为默认图标。
 		\value Value 代表一个值，图标为值图标。
 		\value Const 代表一个常量，图标为常量图标。
@@ -38,7 +41,8 @@ namespace YSSCore::Editor {
 		\value Function 代表一个函数，图标为函数图标。
 		\value Object 代表一个对象，图标为对象图标。
 		\value Operator 代表一个操作符，图标为操作符图标。
-		\value UserDefined 代表一个用户自定义类型，图标需要用户自己设置。
+		\value UserDefined 代表一个用户自定义类型，从这个类型之后留作用户自行设置。
+		\value AllType 代表所有类型，主要用于在设置过滤时囊括全部的类型，不与特定图标相对。
 	*/
 
 	/*!
@@ -49,8 +53,9 @@ namespace YSSCore::Editor {
 		Many和All级别的补全项会被隐藏。也就是说，越重要的补全项反而应设置越低的级别，
 		以便用户在Few级别时也能看到他们。
 
-		默认的详细度可见级别是Few，以便大部分不愿意区分细节的实现不需要额外的设置。
-		但仍然建议根据补全项的重要程度合理设置这个级别，以便用户能够根据自己的需求调整显示的补全项数量。
+		默认的详细度可见级别是Some，以便大部分不愿意区分细节的实现不需要额外的设置，又
+		不至于让重要的补全项被隐藏。但仍然建议根据补全项的重要程度合理设置这个级别，
+		以便用户能够根据自己的需求调整显示的补全项数量。
 
 		\value None 不显示任何提示，这个值仅供在YSSCore::Editor::TextEdit::setCompleterLevel()中使用，代表不显示任何补全项。
 		在TabCompleterItem中设置此值，自动视为Few。
@@ -59,7 +64,8 @@ namespace YSSCore::Editor {
 		\value Many 高详细度可见级别，代表一般的补全项，应该在Many及以上级别显示。
 		\value All 最高详细度可见级别，代表不太重要的补全项，应该只在All级别显示。
 
-		可见级别不影响排序。
+		可见级别不影响排序。此外，根据YSSCore目前的实现，可见度为Few级别的项目，
+		在最终显示出来之前，显示内容的前面会被加上一个★符号，以突出它的重要程度。
 	*/
 
 	/*!
@@ -77,6 +83,33 @@ namespace YSSCore::Editor {
 		\value High 高优先级，代表重要的补全项，应该排在前面。
 		\value Top 最高优先级，代表非常重要的补全项，应该排在最前面。
 	*/
+
+	/*!
+		\since YSS 0.16.0
+		\a type 补全项的类型。
+
+		返回YSS自带的默认类型对应图标的路径。对于用户自定义类型，返回空字符串。
+	*/
+	QString TabCompleterItem::getTypeIconPath(ItemType type) {
+		switch (type) {
+		case ItemType::Default:
+			return ":/resource/cn.yxgeneral.yayinstorystudio/icon/default.png";
+		case ItemType::Value:
+			return ":/resource/cn.yxgeneral.yayinstorystudio/icon/value.png";
+		case ItemType::Const:
+			return ":/resource/cn.yxgeneral.yayinstorystudio/icon/const.png";
+		case ItemType::Enum:
+			return ":/resource/cn.yxgeneral.yayinstorystudio/icon/enum.png";
+		case ItemType::Function:
+			return ":/resource/cn.yxgeneral.yayinstorystudio/icon/function.png";
+		case ItemType::Object:
+			return ":/resource/cn.yxgeneral.yayinstorystudio/icon/object.png";
+		case ItemType::Operator:
+			return ":/resource/cn.yxgeneral.yayinstorystudio/icon/operator.png";
+		default:
+			return "";
+		}
+	}
 
 	/*!
 		\since YSS 0.13.0
@@ -209,34 +242,10 @@ namespace YSSCore::Editor {
 		设置补全项的类型。
 	*/
 	void TabCompleterItem::setType(ItemType type, bool redirectIcon) {
-		if (redirectIcon) {
-			switch (type) {
-			case ItemType::Default:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/default.png";
-				break;
-			case ItemType::Value:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/value.png";
-				break;
-			case ItemType::Const:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/const.png";
-				break;
-			case ItemType::Enum:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/enum.png";
-				break;
-			case ItemType::Function:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/function.png";
-				break;
-			case ItemType::Object:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/object.png";
-				break;
-			case ItemType::Operator:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/operator.png";
-				break;
-			default:
-				d->IconPath = ":/resource/cn.yxgeneral.yayinstorystudio/icon/default.png";
-			}
-		}
 		d->Type = type;
+		if (redirectIcon) {
+			d->IconPath = getTypeIconPath(type);
+		}
 	}
 
 	/*!

@@ -57,6 +57,8 @@ namespace YSSCore::Editor {
 		void showFindAndReplace();
 		void setCompleterLevel(TabCompleterItem::CompleterLevel level);
 		TabCompleterItem::CompleterLevel getCompleterLevel() const;
+		void setCompleterTypeFilter(TabCompleterItem::ItemTypes filter);
+		TabCompleterItem::ItemTypes getCompleterTypeFilter() const;
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;

@@ -97,7 +97,8 @@ namespace ASERStudio::YSS {
 				QString separator = data->getRequiredParameter().getSeparator();
 				if (not paramContent.contains(separator)) {
 					if (separator == "\t") {
-						items->append(YSSCore::Editor::TabCompleterItem("[ TAB ]", "\t", "Parameter Separator", YSSCore::Editor::TabCompleterItem::ItemType::Operator));
+						items->append(YSSCore::Editor::TabCompleterItem("[ TAB ]", "\t", "Parameter Separator", YSSCore::Editor::TabCompleterItem::ItemType::Operator,
+							true, YSSCore::Editor::TabCompleterItem::CompleterLevel::Few, YSSCore::Editor::TabCompleterItem::CompleterPriority::Top));
 					}
 					else {
 						items->append(YSSCore::Editor::TabCompleterItem(separator, separator, "Parameter Separator", YSSCore::Editor::TabCompleterItem::ItemType::Operator));

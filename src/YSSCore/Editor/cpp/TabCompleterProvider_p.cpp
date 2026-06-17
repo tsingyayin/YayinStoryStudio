@@ -11,8 +11,9 @@
 #include "../private/TabCompleterProvider_p.h"
 #include "../TabCompleterProvider.h"
 #include "General/YSSLogger.h"
+#include <General/TranslationHost.h>
 namespace YSSCore::__Private__ {
-	TabCompleterWidget::TabCompleterWidget(QTextEdit* textEdit)
+	TabCompleterWidget::TabCompleterWidget(YSSCore::Editor::TextEdit* textEdit)
 		: Visindigo::Widgets::BorderFrame(textEdit) {
 		Target = textEdit;
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
@@ -21,23 +22,33 @@ namespace YSSCore::__Private__ {
 		auto font = this->font();
 		font.setPointSizeF(font.pointSizeF() * 0.9);
 		this->setFont(font);
+		this->DescriptionLabel = new Visindigo::Widgets::BorderLabel(this);
+		this->DescriptionLabel->setMinimumHeight(32);
 		this->ButtonGroup = new Visindigo::Widgets::MultiButtonGroup(this);
 		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::doubleClicked, this, &TabCompleterWidget::doComplete);
 		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::selectIndexChanged, this, [this](qint32 index) {
 			if (index == -1) return;
 			qint32 globalIndex = ButtonCycleIndexes[index] * ButtonCycleIndexes.size() + index;
 			this->currentSelectedIndex = globalIndex;
+			this->DescriptionLabel->setText(Items[globalIndex].getDescription());
 			});
-		ScrollBar = new QScrollBar(Qt::Vertical, this);
+
+		Layout = new QVBoxLayout(this);
+		Layout->setContentsMargins(0, 0, 0, 0);
+		Layout->setSpacing(0);
+		ScrollContainer = new QWidget(this);
+		ScrollContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		Layout->addWidget(ScrollContainer);
+		ScrollBar = new QScrollBar(Qt::Vertical, ScrollContainer);
 		ScrollBar->setVisible(true);
 		ScrollBar->setSingleStep(120);
 		connect(ScrollBar, &QScrollBar::valueChanged, this, &TabCompleterWidget::onScrollValueChanged);
 		maxAllowedHeight = (buttonCacheSize - 4) * buttonHeight;
 		this->setFixedHeight(maxAllowedHeight);
-		ScrollBar->setGeometry(300 - 16, 0, 16, this->height());
+		ScrollBar->setGeometry(300 - 16, 0, 16, ScrollContainer->height());
 		ScrollBar->setRange(0, 0);
 		for (int i = 0; i < buttonCacheSize; i++) {
-			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(this);
+			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(ScrollContainer);
 			button->setTitle("");
 			button->setPixmapPath("");
 			button->setPixmapFixedWidth(buttonHeight - 4);
@@ -49,20 +60,81 @@ namespace YSSCore::__Private__ {
 			ButtonGroup->addButton(button);
 			ButtonCycleIndexes.append(-1);
 		}
+		TypeToolBar = new QToolBar(this);
+		Layout->addWidget(TypeToolBar);
+		Layout->addWidget(DescriptionLabel);
+		ValueFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.value"), this);
+		ValueFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Value)));
+		ConstFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.const"), this);
+		ConstFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Const)));
+		EnumFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.enum"), this);
+		EnumFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Enum)));
+		FunctionFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.function"), this);
+		FunctionFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Function)));
+		ObjectFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.object"), this);
+		ObjectFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Object)));
+		OperatorFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.operator"), this);
+		OperatorFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Operator)));
+		ValueFilter->setCheckable(true);
+		ConstFilter->setCheckable(true);
+		EnumFilter->setCheckable(true);
+		FunctionFilter->setCheckable(true);
+		ObjectFilter->setCheckable(true);
+		OperatorFilter->setCheckable(true);
+		TypeToolBar->addActions({ ValueFilter, ConstFilter, EnumFilter, FunctionFilter, ObjectFilter, OperatorFilter });
+		connect(ValueFilter, &QAction::toggled, this, &TabCompleterWidget::onFilterButtonToggled);
+		connect(ConstFilter, &QAction::toggled, this, &TabCompleterWidget::onFilterButtonToggled);
+		connect(EnumFilter, &QAction::toggled, this, &TabCompleterWidget::onFilterButtonToggled);
+		connect(FunctionFilter, &QAction::toggled, this, &TabCompleterWidget::onFilterButtonToggled);
+		connect(ObjectFilter, &QAction::toggled, this, &TabCompleterWidget::onFilterButtonToggled);
+		connect(OperatorFilter, &QAction::toggled, this, &TabCompleterWidget::onFilterButtonToggled);
 		setColorfulEnable(true);
 		onThemeChanged();
 	}
 
 	void TabCompleterWidget::setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items) {
-		Items = items;
+		RawItems = items;
+		reApplyFilter();
+	}
+
+	void TabCompleterWidget::reApplyFilter() {
+		Items.clear();
+		auto filter = Target->getCompleterTypeFilter();
+		for (const auto& item : RawItems) {
+			if (filter.testAnyFlag(item.getType())) {
+				Items.append(item);
+			}
+		}
 		for (int i = 0; i < ButtonCycleIndexes.size(); i++) {
 			ButtonCycleIndexes[i] = -1;
 		}
-		this->ScrollBar->setRange(0, items.size() * buttonHeight);
+		asyncFilterButton();
+		this->ScrollBar->setRange(0, Items.size() * buttonHeight);
 		this->ScrollBar->setValue(0);
 		this->currentSelectedIndex = 0;
 		this->ButtonGroup->selectButton(0);
 		this->onScrollValueChanged(0);
+	}
+
+	void TabCompleterWidget::asyncFilterButton() {
+		auto filter = Target->getCompleterTypeFilter();
+		ValueFilter->setChecked(filter.testFlag(YSSCore::Editor::TabCompleterItem::Value));
+		ConstFilter->setChecked(filter.testFlag(YSSCore::Editor::TabCompleterItem::Const));
+		EnumFilter->setChecked(filter.testFlag(YSSCore::Editor::TabCompleterItem::Enum));
+		FunctionFilter->setChecked(filter.testFlag(YSSCore::Editor::TabCompleterItem::Function));
+		ObjectFilter->setChecked(filter.testFlag(YSSCore::Editor::TabCompleterItem::Object));
+		OperatorFilter->setChecked(filter.testFlag(YSSCore::Editor::TabCompleterItem::Operator));
+	}
+
+	void TabCompleterWidget::onFilterButtonToggled(bool checked) {
+		auto filter = Target->getCompleterTypeFilter();
+		filter.setFlag(YSSCore::Editor::TabCompleterItem::Value, ValueFilter->isChecked());
+		filter.setFlag(YSSCore::Editor::TabCompleterItem::Const, ConstFilter->isChecked());
+		filter.setFlag(YSSCore::Editor::TabCompleterItem::Enum, EnumFilter->isChecked());
+		filter.setFlag(YSSCore::Editor::TabCompleterItem::Function, FunctionFilter->isChecked());
+		filter.setFlag(YSSCore::Editor::TabCompleterItem::Object, ObjectFilter->isChecked());
+		filter.setFlag(YSSCore::Editor::TabCompleterItem::Operator, OperatorFilter->isChecked());
+		Target->setCompleterTypeFilter(filter);
 	}
 
 	void TabCompleterWidget::selectPrevious() {
@@ -92,7 +164,7 @@ namespace YSSCore::__Private__ {
 		qint32 globalIndex = ButtonCycleIndexes[localindex] * ButtonCycleIndexes.size() + localindex;
 		auto item = Items[globalIndex];
 		if (item.getContent().isEmpty()) return;
-		QTextCursor cursor = Target->textCursor();
+		QTextCursor cursor = Target->getTextCursor();
 		yDebugF << "Complete Content:" << item.isAlignment();
 		if (item.isAlignment()) {
 			QString selected;
@@ -160,7 +232,11 @@ namespace YSSCore::__Private__ {
 
 	void TabCompleterWidget::adjustHeight(qint32 height) {
 		this->setFixedHeight(height);
-		ScrollBar->setGeometry(300 - 16, 0, 16, height);
+		ScrollBar->setGeometry(300 - 16, 0, 16, ScrollContainer->height());
+	}
+
+	void TabCompleterWidget::resizeEvent(QResizeEvent* event) {
+		ScrollBar->setGeometry(300 - 16, 0, 16, ScrollContainer->height());
 	}
 
 	qint32 TabCompleterWidget::getMaxAllowedHeight() const {

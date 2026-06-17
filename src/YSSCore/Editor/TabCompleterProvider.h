@@ -16,18 +16,21 @@ namespace YSSCore::Editor {
 // Main
 namespace YSSCore::Editor {
 	class YSSCoreAPI TabCompleterItem {
+		Q_GADGET;
 		friend class TabCompleterItemPrivate;
 	public:
-		enum ItemType {
-			Default = 0,
-			Value = 1,
-			Const = 2,
-			Enum = 3,
-			Function = 4,
-			Object = 5,
-			Operator = 6,
-			UserDefined = 1000
+		enum ItemType : quint32 {
+			Default = 0x0001,
+			Value = 0x0002,
+			Const = 0x0004,
+			Enum = 0x0008,
+			Function = 0x0010,
+			Object = 0x0020,
+			Operator = 0x0040,
+			UserDefined = 0x10000,
+			AllType = 0xFFFFFFFF
 		};
+		Q_DECLARE_FLAGS(ItemTypes, ItemType);
 		enum CompleterLevel {
 			None = -1,
 			Few = 0,
@@ -35,16 +38,20 @@ namespace YSSCore::Editor {
 			Many = 2,
 			All = 3
 		};
+		Q_ENUM(CompleterLevel);
 		enum CompleterPriority {
 			Low = 0,
 			Medium = 1,
 			High = 2,
 			Top = 3
 		};
+		Q_ENUM(CompleterPriority);
+	public:
+		static QString getTypeIconPath(ItemType type);
 	public:
 		TabCompleterItem();
 		TabCompleterItem(QString text, QString content, QString description = "", ItemType type = ItemType::Default, bool alignment = true, 
-			CompleterLevel level = CompleterLevel::Few, CompleterPriority priority = CompleterPriority::Low);
+			CompleterLevel level = CompleterLevel::Some, CompleterPriority priority = CompleterPriority::Low);
 		~TabCompleterItem();
 		VIMoveable(TabCompleterItem);
 		VICopyable(TabCompleterItem);
@@ -66,6 +73,7 @@ namespace YSSCore::Editor {
 	private:
 		TabCompleterItemPrivate* d;
 	};
+	Q_DECLARE_OPERATORS_FOR_FLAGS(TabCompleterItem::ItemTypes);
 
 	class YSSCoreAPI TabCompleterProvider :public QObject {
 		friend class TextEdit;

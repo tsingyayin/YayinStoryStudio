@@ -5,7 +5,12 @@
 #include <QtWidgets/qframe.h>
 #include "../TabCompleterProvider.h"
 #include <Widgets/BorderFrame.h>
+#include <Widgets/BorderLabel.h>
 #include <Widgets/ThemeManager.h>
+#include <QtWidgets/qtoolbutton.h>
+#include <QtWidgets/qtoolbar.h>
+#include <QtWidgets/qlabel.h>
+#include "Editor/TextEdit.h"
 // Forward declarations
 class QTextDocument;
 class QTextCursor;
@@ -37,17 +42,28 @@ namespace YSSCore::__Private__ {
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::__Private__::TextEditPrivate;
 	protected:
-		QTextEdit* Target;
+		YSSCore::Editor::TextEdit* Target;
+		QVBoxLayout* Layout;
+		Visindigo::Widgets::BorderLabel* DescriptionLabel;
+		QWidget* ScrollContainer;
 		QScrollBar* ScrollBar;
+		QList<YSSCore::Editor::TabCompleterItem> RawItems;
 		QList<YSSCore::Editor::TabCompleterItem> Items;
 		QList<Visindigo::Widgets::MultiButton*> Buttons;
+		QToolBar* TypeToolBar;
+		QAction* ValueFilter;
+		QAction* ConstFilter;
+		QAction* EnumFilter;
+		QAction* FunctionFilter;
+		QAction* ObjectFilter;
+		QAction* OperatorFilter;
 		QList<qint32> ButtonCycleIndexes;
 		Visindigo::Widgets::MultiButtonGroup* ButtonGroup = nullptr;
 		qint32 currentSelectedIndex = -1;
 		qint32 buttonCacheSize = 18;
 		qint32 buttonHeight = 30;
 		qint32 maxAllowedHeight = 0;
-		TabCompleterWidget(QTextEdit* textEdit);
+		TabCompleterWidget(YSSCore::Editor::TextEdit* textEdit);
 		void setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items);
 		void selectPrevious();
 		void selectNext();
@@ -55,8 +71,12 @@ namespace YSSCore::__Private__ {
 		void scrollBy(qint32 y);
 		void onScrollValueChanged(qint32 value);
 		void adjustHeight(qint32 height);
+		void onFilterButtonToggled(bool checked);
+		void reApplyFilter();
+		void asyncFilterButton();
 		qint32 getMaxAllowedHeight() const;
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;
+		virtual void resizeEvent(QResizeEvent* event) override;
 	};
 }
