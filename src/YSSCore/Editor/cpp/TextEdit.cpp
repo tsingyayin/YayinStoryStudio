@@ -279,8 +279,39 @@ namespace YSSCore::__Private__ {
 				TabCompleterWidget->hide();
 				return;
 			}
+			if (CompleterLevel == YSSCore::Editor::TabCompleterItem::CompleterLevel::None) {
+				TabCompleterWidget->hide();
+				return;
+			}
+			QList<YSSCore::Editor::TabCompleterItem> filteredList;
+			QList<YSSCore::Editor::TabCompleterItem> top;
+			QList<YSSCore::Editor::TabCompleterItem> high;
+			QList<YSSCore::Editor::TabCompleterItem> medium;
+			QList<YSSCore::Editor::TabCompleterItem> low;
+			for (const auto& item : list) {
+				if (item.getCompleterLevel() <= CompleterLevel) {
+					switch (item.getCompleterPriority()) {
+					case YSSCore::Editor::TabCompleterItem::CompleterPriority::Top:
+						top.append(item);
+						break;
+					case YSSCore::Editor::TabCompleterItem::CompleterPriority::High:
+						high.append(item);
+						break;
+					case YSSCore::Editor::TabCompleterItem::CompleterPriority::Medium:
+						medium.append(item);
+						break;
+					case YSSCore::Editor::TabCompleterItem::CompleterPriority::Low:
+						low.append(item);
+						break;
+					}
+				}
+			}
+			filteredList.append(top);
+			filteredList.append(high);
+			filteredList.append(medium);
+			filteredList.append(low);
 			///yDebugF << "TabCompleterWidget is shown";
-			TabCompleterWidget->setCompleterItems(list);
+			TabCompleterWidget->setCompleterItems(filteredList);
 			adjustTabCompleterPosition();
 			TabCompleterWidget->show();
 			Text->setFocus();
@@ -1241,6 +1272,26 @@ namespace YSSCore::Editor {
 		d->showFindAndReplace();
 	}
 
+	/*!
+		\since YSS 0.16.0
+		\a level 补全提示详细等级
+
+		设置补全提示的详细等级。置为None时，不显示任何补全提示。
+
+		值得指出的是，为了插件行为的一致性，补全等级设置不影响相关函数的调用，
+		也就是说，即使补全等级设置为None，相关的补全函数仍然会被调用，只是它们的结果不会被显示出来。
+	*/
+	void TextEdit::setCompleterLevel(TabCompleterItem::CompleterLevel level) {
+		d->CompleterLevel = level;
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return 当前补全提示的详细等级。
+	*/
+	TabCompleterItem::CompleterLevel TextEdit::getCompleterLevel() const {
+		return d->CompleterLevel;
+	}
 	/*!
 		\since YSS 0.13.0
 		\a line 行号，从0开始。

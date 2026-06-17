@@ -20,6 +20,7 @@ namespace YSS::Editor {
 	public:
 		virtual void onThemeChanged() override;
 		virtual void resizeEvent(QResizeEvent* event) override;
+		virtual void closeEvent(QCloseEvent* event) override;
 	private:
 		MultiTerminalToolPrivate* d;
 	};

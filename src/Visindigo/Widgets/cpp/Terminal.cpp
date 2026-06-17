@@ -15,6 +15,8 @@
 #include "General/TranslationHost.h"
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qdatetime.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qregularexpression.h>
 /*
 单一控制字符的控制序列格式如下：
 M: 上移一行
@@ -145,6 +147,7 @@ namespace Visindigo::__Private__ {
 				normalTextStart = i + 1;
 				auto cursor = consoleView->textCursor();
 				cursor.movePosition(QTextCursor::EndOfBlock);
+				checkUrl(cursor);
 				//如果下一行不存在，则创建一个新行
 				if (not cursor.movePosition(QTextCursor::Down)) {
 					cursor.insertBlock();
@@ -196,10 +199,62 @@ namespace Visindigo::__Private__ {
 		}
 	}
 
+	void TerminalPrivate::checkUrl(QTextCursor& cursor) {
+		QTextBlock block = cursor.block();
+		QString lineText = block.text();
+		if (lineText.isEmpty()) return;
+
+		QRegularExpression urlrx(R"(https?://\S+)");
+		QRegularExpressionMatchIterator it = urlrx.globalMatch(lineText);
+		if (!it.hasNext()) return;
+
+		QTextDocument* doc = cursor.document();
+		int blockPos = block.position();
+
+		while (it.hasNext()) {
+			QRegularExpressionMatch match = it.next();
+			int start = match.capturedStart();
+			int end = match.capturedEnd();
+			QString url = match.captured(0);
+			while (!url.isEmpty() && (url.back() == '.' || url.back() == ',' ||
+				url.back() == ';' || url.back() == '?' ||
+				url.back() == '!' || url.back() == ':')) {
+				url.chop(1);
+				end--;
+			}
+			if (url.isEmpty()) continue;
+			QTextCursor urlCursor(doc);
+			urlCursor.setPosition(blockPos + start);
+			urlCursor.setPosition(blockPos + end, QTextCursor::KeepAnchor);
+			QTextCharFormat currentFmt = urlCursor.charFormat();
+			QTextCharFormat newFmt = currentFmt;
+			newFmt.setAnchor(true);
+			newFmt.setAnchorHref(url);
+
+			// newFmt.setForeground(Qt::blue);
+			// newFmt.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+
+			urlCursor.setCharFormat(newFmt);
+		}
+	}
+
+
 	void TerminalPrivate::onFixUpdate(double elapsedTime_ms) {
 		if (not cacheANSILine.isEmpty()) {
 			onANSILineReceived(cacheANSILine);
 			cacheANSILine.clear();
+		}
+		if (ExternalProcess && ExternalProcess->state() == QProcess::Running) {
+			QByteArray output = ExternalProcess->readAllStandardOutput();
+			if (output.size() != 0) {
+				QString text = QString::fromUtf8(output);
+				q->addLine(text);
+			}
+			QByteArray error = ExternalProcess->readAllStandardError();
+			if (error.size() != 0) {
+				QString text = QString::fromUtf8(error);
+				q->addLine(text);
+			}
 		}
 		//qDebug() << "Terminal onFixUpdate, elapsedTime_ms: " << elapsedTime_ms; 
 	}
@@ -679,8 +734,9 @@ namespace Visindigo::Widgets {
 		Terminal类提供了一个内置的终端窗口，可以显示日志输出并接受用户输入的命令。
 		用户可以通过按下回车键或点击发送按钮来执行输入的命令。稍后，inputPrepared信号将被触发，携带用户输入的命令文本，供外部处理。
 
-		值得指出的是，Terminal类仅仅作为显示工具，并不直接处理命令执行，也不负责管理进程，因此一般
-		需要配合QProcess或类似的类来驱动外部命令行程序，并将其输入输出重定向到Terminal类中。
+		自0.16.0开始，这类自带一个外部进程管理。通过launchExternalProcess方法，用户可以在终端中启动一个外部进程，
+		并将该进程的标准输出和标准错误输出重定向到终端窗口中显示。同时，用户在终端中输入的命令也会被发送到该外部进程的标准输入。
+		这使得Terminal类不仅可以作为一个简单的日志窗口，还可以作为一个功能完整的终端模拟器来使用。
 
 		理论上，Terminal类还支持命令历史记录，用户可以通过上下箭头键来浏览之前输入的命令。
 
@@ -708,6 +764,55 @@ namespace Visindigo::Widgets {
 		如果你确定输出的内容不会有任何ANSI序列控制，则PureText模式会有更好的性能表现。
 		与此同时，PureText下，每次addLine时都直接将文本添加到终端中，而不需要等待定时刷新。
 	*/
+
+	/*!
+		\fn void Visindigo::Widgets::Terminal::inputPrepared(const QString& command)
+		\since Visindigo 0.16.0
+
+		当用户在输入框中输入命令并按下回车键时，inputPrepared信号将被触发，携带用户输入的命令文本，供外部处理。
+		
+		input函数也会触发此信号。
+	*/
+
+	/*!
+		\fn void Visindigo::Widgets::Terminal::externalProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+		\since Visindigo 0.16.0
+		
+		当通过launchExternalProcess启动的外部进程结束时，externalProcessFinished信号将被触发，携带外部进程的退出代码和退出状态。
+	*/
+
+	/*!
+		\fn void Visindigo::Widgets::Terminal::stdoutReceived(const QString& text)
+		\since Visindigo 0.16.0
+
+		当通过launchExternalProcess启动的外部进程有新的标准输出内容时，stdoutReceived信号将被触发，携带新输出的文本内容。
+	*/
+
+	/*!
+		\fn void Visindigo::Widgets::Terminal::stderrReceived(const QString& text)
+		\since Visindigo 0.16.0
+
+		当通过launchExternalProcess启动的外部进程有新的标准错误输出内容时，stderrReceived信号将被触发，携带新输出的文本内容。
+	*/
+
+	/*!
+		\since Visindigo 0.16.0
+
+		在Windows平台上，创建一个预配置为使用PowerShell的Terminal实例。
+
+		它最大的便捷之处在于提前将代码页切换到65001（UTF-8），这样就不需要担心中文乱码问题了。
+
+		在其他平台，这返回空指针。
+	*/
+	Terminal* Terminal::createPowerShell() {
+#ifdef Q_OS_WIN
+		Terminal* terminal = new Terminal;
+		terminal->launchExternalProcess("powershell.exe", QStringList() << "-NoExit" << "-Command" << "chcp 65001 > null");
+		return terminal;
+#else
+		return nullptr;
+#endif
+	}
 	/*!
 		\since Visindigo 0.13.0
 		\a parent 父组件。
@@ -722,6 +827,7 @@ namespace Visindigo::Widgets {
 		QFont font("Cascadia Mono");
 		d->consoleView = new QTextBrowser(this);
 		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
+		d->consoleView->setOpenExternalLinks(true);
 		d->inputLine = new QLineEdit(this);
 		d->inputLine->installEventFilter(d);
 		d->consoleView->setFont(font);
@@ -742,6 +848,15 @@ namespace Visindigo::Widgets {
 		析构函数
 	*/
 	Terminal::~Terminal() {
+		if (d->ExternalProcess && d->ExternalProcess->state() == QProcess::Running) {
+			if (not d->detachWhenTerminalClosed){
+				d->ExternalProcess->kill();
+				d->ExternalProcess->waitForFinished();
+			}
+			else {
+				d->ExternalProcess->setParent(nullptr);
+			}
+		}
 		d->disableAndDelete();
 	}
 
@@ -847,6 +962,21 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.16.0
+		\a line 要输入的命令文本。
+
+		模拟从输入框直接输入命令的效果，基本上等于直接触发inputPrepared信号，但也会将输入的命令添加到命令历史中。
+		如果输入框中已有内容，它不会干扰已有内容和历史记录的浏览。
+	*/
+	void Terminal::input(const QString& line) {
+		d->commandHistory.append(line);
+		if (d->commandHistory.size() > d->maxCommandHistory) {
+			d->commandHistory.removeFirst();
+		}
+		emit inputPrepared(line);
+	}
+
+	/*!
+		\since Visindigo 0.16.0
 		\a line 要添加的行文本。
 		\a forceFlush 是否强制刷新显示内容。
 		向终端添加一行文本。该函数会正确处理ANSI控制序列以实现丰富的文本格式和控制效果。
@@ -883,5 +1013,123 @@ namespace Visindigo::Widgets {
 	*/
 	Terminal::WorkMode Terminal::getWorkMode() const {
 		return d->workMode;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a utf8 设置是否以UTF-8编码对待外部进程，默认为true。
+
+		设置是否以UTF-8编码对待通过launchExternalProcess启动的外部进程。当设置为true时，
+		终端会将外部进程的标准输出和标准错误输出视为UTF-8编码的文本进行解析和显示；
+		并将输入的命令文本以UTF-8编码发送到外部进程的标准输入。
+
+		当设置为false时，终端会使用系统默认的本地代码页（所谓Local8Bit）来解析输出并传递输入。
+
+		你可以随时更改它，更改立即生效，并且会影响后续的输入输出，但不会影响已经显示的内容。
+	*/
+	void Terminal::setExternalProcessUTF8(bool utf8) {
+		d->externalProcessUTF8 = utf8;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+
+		return 是否以UTF-8编码对待外部进程。
+	*/
+	bool Terminal::isExternalProcessUTF8() const {
+		return d->externalProcessUTF8;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a systemCommand 要执行的系统命令，用于启动外部进程
+		\a arguments 外部进程的命令行参数
+		\a workingDirectory 外部进程的工作目录，默认为空表示使用当前目录
+
+		Terminal使用 \a systemCommand 启动一个外部进程，并将该进程的标准输出和标准错误输出重定向到终端窗口中显示。
+		同时，用户在终端中输入的命令也会被发送到该外部进程的标准输入。
+
+		请注意，如果已有外部进程在运行，这个函数不做任何事情
+	*/
+	void Terminal::launchExternalProcess(const QString& systemCommand, const QStringList& arguments, const QString& workingDirectory) {
+		if (not d->ExternalProcess) {
+			d->ExternalProcess = new QProcess(this);
+			connect(d->ExternalProcess, &QProcess::readyReadStandardOutput, this, [this]() {
+				QByteArray output = d->ExternalProcess->readAllStandardOutput();
+				QString text;
+				if (not d->externalProcessUTF8) {
+					text = QString::fromLocal8Bit(output);
+				}
+				else {
+					text = QString::fromUtf8(output);
+				}
+				emit stdoutReceived(text);
+				//vgDebug << "External process stdout: " << text.replace("\033", "\\033");
+				addLine(text);
+				});
+			connect(d->ExternalProcess, &QProcess::readyReadStandardError, this, [this]() {
+				QByteArray output = d->ExternalProcess->readAllStandardError();
+				QString text;
+				if (not d->externalProcessUTF8) {
+					text = QString::fromLocal8Bit(output);
+				}
+				else {
+					text = QString::fromUtf8(output);
+				}
+				emit stderrReceived(text);
+				addLine(text);
+				});
+			connect(this, &Terminal::inputPrepared, this, [this](const QString& command) {
+				if (d->ExternalProcess && d->ExternalProcess->state() != QProcess::NotRunning) {
+					if (not d->externalProcessUTF8) {
+						d->ExternalProcess->write((command + "\n").toLocal8Bit());
+					}
+					else {
+						d->ExternalProcess->write((command + "\n").toUtf8());
+					}
+				}
+				});
+			connect(d->ExternalProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
+				emit externalProcessFinished(exitCode, exitStatus);
+				});
+		}
+		if (d->ExternalProcess->state() == QProcess::NotRunning) {
+			QString workingDir = workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory;
+			d->ExternalProcess->setWorkingDirectory(workingDir);
+			d->ExternalProcess->start(systemCommand, arguments);
+		}
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		 
+		 return 外部进程是否正在运行
+	*/
+	bool Terminal::isExternalProcessRunning() const {
+		return d->ExternalProcess && d->ExternalProcess->state() != QProcess::NotRunning;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a waiting 是否等待程序终止
+
+		终止正在运行的外部进程
+	*/
+	void Terminal::terminateExternalProcess(bool waiting) {
+		if (d->ExternalProcess && d->ExternalProcess->state() != QProcess::NotRunning) {
+			d->ExternalProcess->terminate();
+			if (waiting) {
+				d->ExternalProcess->waitForFinished();
+			}
+		}
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+
+		return 外部进程的QProcess对象，在没有调用过launchExternalProcess的情况下，可能返回nullptr
+	*/
+	QProcess* Terminal::getExternalProcess() const {
+		return d->ExternalProcess;
 	}
 }

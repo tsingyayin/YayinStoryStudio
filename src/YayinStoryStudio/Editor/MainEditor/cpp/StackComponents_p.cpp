@@ -12,7 +12,8 @@
 #include <General/VIApplication.h>
 #include <QtGui/qpainter.h>
 namespace YSS::Editor {
-	StackTag::StackTag(QWidget* parent, bool toolWidgetMode) :QFrame(parent) {
+	StackTag::StackTag(QWidget* parent, bool toolWidgetMode, Qt::Orientation orientation) :QFrame(parent){
+		Orientation = orientation;
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
 		TitleLabel->setContentsMargins(5, 0, 5, 0);
@@ -223,16 +224,27 @@ namespace YSS::Editor {
 			pen.setWidth(2);
 			pen.setCapStyle(Qt::RoundCap);
 			painter.setPen(pen);
-			painter.drawLine(6, this->height() - 3, this->width()-6, this->height() - 3);
+			if (Orientation == Qt::Horizontal) {
+				painter.drawLine(6, this->height() - 3, this->width() - 6, this->height() - 3); // bottom line
+			}
+			else {
+				painter.drawLine(3, 6, 3, this->height() - 6); // left line
+			}
 		}
 		TitleLabel->setPalette(qApp->palette());
 	}
 
-	StackTagWidget::StackTagWidget(QWidget* parent) :QFrame(parent) {
+	StackTagWidget::StackTagWidget(QWidget* parent, Qt::Orientation orientation) :QFrame(parent) {
+		Orientation = orientation;
 		ScrollContent = new QWidget(this);
 		ScrollContent->setObjectName("StackTagScrollContent");
 		ScrollContent->setStyleSheet("QWidget#StackTagScrollContent { background: transparent; }");
-		ContentLayout = new QHBoxLayout(ScrollContent);
+		if (orientation == Qt::Horizontal) {
+			ContentLayout = new QHBoxLayout(ScrollContent);
+		}
+		else {
+			ContentLayout = new QVBoxLayout(ScrollContent);
+		}
 		ContentLayout->setContentsMargins(0, 0, 0, 0);
 		ContentLayout->setSpacing(0);
 		ScrollContent->setLayout(ContentLayout);
@@ -245,8 +257,16 @@ namespace YSS::Editor {
 		ScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		adjustScrollArea();
 		WidgetSelector = new QComboBox(this);
-		WidgetSelector->setMinimumWidth(200);
-		Layout = new QHBoxLayout(this);
+		if (orientation == Qt::Horizontal) {
+			WidgetSelector->setMinimumWidth(200);
+			Layout = new QHBoxLayout(this);
+			WidgetSelector->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+		}
+		else {
+			WidgetSelector->setMinimumHeight(32);
+			Layout = new QVBoxLayout(this);
+			WidgetSelector->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+		}
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->addWidget(ScrollArea);
 		Layout->addWidget(WidgetSelector);
@@ -299,7 +319,7 @@ namespace YSS::Editor {
 
 	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
 		QFileInfo fileInfo(filePath);
-		StackTag* tagLabel = new StackTag(ScrollContent, ToolWidgetMode);
+		StackTag* tagLabel = new StackTag(ScrollContent, ToolWidgetMode, Orientation);
 		tagLabel->setFilePath(filePath);
 		if (displayName.isEmpty()) {
 			tagLabel->setText(fileInfo.fileName());
@@ -482,7 +502,12 @@ namespace YSS::Editor {
 					break;
 				}
 			}
-			ScrollArea->horizontalScrollBar()->setValue(cache * Labels.last()->width());
+			if (Orientation == Qt::Horizontal) {
+				ScrollArea->horizontalScrollBar()->setValue(cache * Labels.last()->width());
+			}
+			else {
+				ScrollArea->verticalScrollBar()->setValue(cache * Labels.last()->height());
+			}
 		}
 	}
 
@@ -491,17 +516,30 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::adjustScrollArea() {
-		//ScrollContent->setFixedHeight(this->height());
-		if (Labels.size() == 0) {
-			ScrollContent->setFixedWidth(0);
-			return;
+		if (Orientation == Qt::Horizontal) {
+			if (Labels.size() == 0) {
+				ScrollContent->setFixedWidth(0);
+				return;
+			}
+			int totalWidth = 0;
+			for (StackTag* label : Labels) {
+				totalWidth += label->width() + ContentLayout->spacing();
+			}
+			totalWidth -= ContentLayout->spacing();
+			ScrollContent->setFixedWidth(totalWidth);
 		}
-		int totalWidth = 0;
-		for (StackTag* label : Labels) {
-			totalWidth += label->width() + ContentLayout->spacing();
+		else {
+			if (Labels.size() == 0) {
+				ScrollContent->setFixedHeight(0);
+				return;
+			}
+			int totalHeight = 0;
+			for (StackTag* label : Labels) {
+				totalHeight += label->height() + ContentLayout->spacing();
+			}
+			totalHeight -= ContentLayout->spacing();
+			ScrollContent->setFixedHeight(totalHeight);
 		}
-		totalWidth -= ContentLayout->spacing();
-		ScrollContent->setFixedWidth(totalWidth);
 	}
 
 	void StackTagWidget::setFileChanged(const QString& path) {
@@ -564,8 +602,14 @@ namespace YSS::Editor {
 		QFrame::wheelEvent(event);
 		int numDegrees = event->angleDelta().y() / 8;
 		int numSteps = numDegrees / 15;
-		int stepSize = Labels.size() > 0 ? Labels[0]->width() + ContentLayout->spacing() : 100;
-		ScrollArea->horizontalScrollBar()->setValue(ScrollArea->horizontalScrollBar()->value() - numSteps * stepSize);
+		if (Orientation == Qt::Vertical) {
+			int stepSize = Labels.size() > 0 ? Labels[0]->height() + ContentLayout->spacing() : 32;
+			ScrollArea->verticalScrollBar()->setValue(ScrollArea->verticalScrollBar()->value() - numSteps * stepSize);
+		}
+		else {
+			int stepSize = Labels.size() > 0 ? Labels[0]->width() + ContentLayout->spacing() : 100;
+			ScrollArea->horizontalScrollBar()->setValue(ScrollArea->horizontalScrollBar()->value() - numSteps * stepSize);
+		}
 	}
 
 	void StackTagWidget::onThemeChanged() {
@@ -573,7 +617,11 @@ namespace YSS::Editor {
 	}
 	void StackTagWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
-		WidgetSelector->setFixedHeight(this->height());
+		if (Orientation == Qt::Horizontal) {
+			WidgetSelector->setFixedHeight(this->height());
+		}else{
+			WidgetSelector->setFixedWidth(this->width());
+		}
 		adjustScrollArea();
 	}
 

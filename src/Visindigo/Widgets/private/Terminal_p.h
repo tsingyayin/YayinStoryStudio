@@ -12,6 +12,7 @@ class QLineEdit;
 class QPushButton;
 class QVBoxLayout;
 class QTextStream;
+class QProcess;
 namespace Visindigo::Widgets {
 	class Terminal;
 }
@@ -37,6 +38,9 @@ namespace Visindigo::__Private__ {
 		QStringList commandHistory;
 		QString commandStartWith;
 		QString cacheANSILine;
+		QProcess* ExternalProcess = nullptr;
+		bool detachWhenTerminalClosed = false;
+		bool externalProcessUTF8 = true;
 	protected:
 		void appendANSICache(const QString& line, bool forceFlush);
 		void onANSILineReceived(const QString& line);
@@ -45,6 +49,7 @@ namespace Visindigo::__Private__ {
 		qint32 getLastLineInViewport() const;
 		void onColorAndFormatControlDetected(const QString& content);
 		void insertPlainText(const QString& text);
+		void checkUrl(QTextCursor& cursor);
 		virtual void onFixUpdate(double elapsedTime_ms) override;
 		virtual bool eventFilter(QObject* watched, QEvent* event) override;
 	};

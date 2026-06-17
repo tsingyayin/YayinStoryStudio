@@ -56,12 +56,13 @@ namespace Visindigo::Widgets {
 		d->Layout->setSpacing(10);
 		this->setLayout(d->Layout);
 		d->Layout->addWidget(d->Title, 0, 1, 1, 1);
+		d->Layout->addWidget(d->Description, 1, 1, 1, 1);
+		d->Layout->addWidget(d->Icon, 0, 0, 1, 1);
 		d->Icon->setAlignment(Qt::AlignCenter);
-		d->Title->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
-		d->Description->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 		this->setPixmapFixedWidth(64);
 		d->Icon->hide();
 		d->Description->hide();
+		this->setAlignment(Qt::AlignLeft);
 	}
 
 	/*!
@@ -91,11 +92,15 @@ namespace Visindigo::Widgets {
 	*/
 	void MultiLabel::setDescription(const QString& str) {
 		d->Description->setText(str);
-		if (!str.isEmpty()) {
-			d->Layout->addWidget(d->Description, 1, 1, 1, 1);
-			//d->Layout->setRowStretch(0, 2);
-			//d->Layout->setRowStretch(1, 1);
+		if (not str.isEmpty()) {
 			d->Description->show();
+			d->Layout->removeWidget(d->Icon);
+			d->Layout->addWidget(d->Icon, 0, 0, 2, 1);
+		}
+		else {
+			d->Description->hide();
+			d->Layout->removeWidget(d->Icon);
+			d->Layout->addWidget(d->Icon, 0, 0, 1, 1);
 		}
 		QFont font = qApp->font();
 		font.setPointSizeF(font.pointSizeF() * 0.9);
@@ -113,11 +118,11 @@ namespace Visindigo::Widgets {
 	*/
 	void MultiLabel::setPixmapPath(const QString& filePath) {
 		if (filePath.isEmpty()) {
+			d->Icon->hide();
 			return;
 		}
 		d->Icon->setStyleSheet("QLabel{border-image: url(" + filePath + ");}");
 		d->PixmapPath = filePath;
-		d->Layout->addWidget(d->Icon, 0, 0, 2, 1);
 		d->Icon->setFixedHeight(d->Icon->width());
 		d->Icon->show();
 	}
@@ -173,8 +178,14 @@ namespace Visindigo::Widgets {
 		设置文本对齐方式
 	*/
 	void MultiLabel::setAlignment(Qt::Alignment align) {
-		d->Title->setAlignment(align | Qt::AlignBottom);
-		d->Description->setAlignment(align | Qt::AlignTop);
+		if (d->Description->isVisible()) {
+			d->Title->setAlignment(align | Qt::AlignBottom);
+			d->Description->setAlignment(align | Qt::AlignTop);
+		}
+		else {
+			d->Title->setAlignment(align | Qt::AlignVCenter);
+			d->Description->setAlignment(align | Qt::AlignVCenter);
+		}
 	}
 
 	/*!

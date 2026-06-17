@@ -3,19 +3,25 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qpushbutton.h>
+#include "Editor/MainEditor/private/StackComponents_p.h"
+
 namespace YSS::Editor {
 	class MultiTerminalToolPrivate {
 		friend class MultiTerminalTool;
 	protected:
-		QList<Visindigo::Widgets::Terminal*> Terminals;
-		QStringList TerminalNames;
-		QVBoxLayout* Layout;
-		QComboBox* TerminalSelector;
-		QPushButton* CreateButton;
 		static MultiTerminalTool* Instance;
+		static QList<Visindigo::Widgets::Terminal*> Terminals; // terminal resource should not be released when q class deleted.
+		static QStringList TerminalNames;
+		QHBoxLayout* Layout;
+		QPushButton* CreateButton;
+		StackTagWidget* TagArea;
+		QWidget* ContentArea = nullptr;
+		DefaultStackWidgetCentralArea* CentralArea;
 	};
 
 	MultiTerminalTool* MultiTerminalToolPrivate::Instance = nullptr;
+	QList<Visindigo::Widgets::Terminal*> MultiTerminalToolPrivate::Terminals = {};
+	QStringList MultiTerminalToolPrivate::TerminalNames = {};
 
 	MultiTerminalTool::MultiTerminalTool(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent), d(new MultiTerminalToolPrivate()) {
 		MultiTerminalToolPrivate::Instance = this;
@@ -45,5 +51,8 @@ namespace YSS::Editor {
 	}
 	void MultiTerminalTool::resizeEvent(QResizeEvent* event) {
 
+	}
+	void MultiTerminalTool::closeEvent(QCloseEvent* event) {
+		
 	}
 }

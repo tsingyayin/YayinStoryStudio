@@ -28,9 +28,23 @@ namespace YSSCore::Editor {
 			Operator = 6,
 			UserDefined = 1000
 		};
+		enum CompleterLevel {
+			None = -1,
+			Few = 0,
+			Some = 1,
+			Many = 2,
+			All = 3
+		};
+		enum CompleterPriority {
+			Low = 0,
+			Medium = 1,
+			High = 2,
+			Top = 3
+		};
 	public:
 		TabCompleterItem();
-		TabCompleterItem(QString text, QString content, QString description = "", ItemType type = ItemType::Default, bool alignment = true);
+		TabCompleterItem(QString text, QString content, QString description = "", ItemType type = ItemType::Default, bool alignment = true, 
+			CompleterLevel level = CompleterLevel::Few, CompleterPriority priority = CompleterPriority::Low);
 		~TabCompleterItem();
 		VIMoveable(TabCompleterItem);
 		VICopyable(TabCompleterItem);
@@ -39,12 +53,16 @@ namespace YSSCore::Editor {
 		void setDescription(const QString& description);
 		void setContent(const QString& content);
 		void setType(ItemType type, bool redirectIcon = true);
+		void setCompleterLevel(CompleterLevel level);
+		void setCompleterPriority(CompleterPriority priority);
 		QString getIconPath() const;
 		QString getText() const;
 		QString getDescription() const;
 		QString getContent() const;
 		ItemType getType() const;
 		bool isAlignment() const;
+		CompleterLevel getCompleterLevel() const;
+		CompleterPriority getCompleterPriority() const;	
 	private:
 		TabCompleterItemPrivate* d;
 	};

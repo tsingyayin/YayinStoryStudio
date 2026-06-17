@@ -48,6 +48,7 @@ namespace YSSCore::Editor {
 		virtual void onProjectOpen(YSSCore::General::YSSProject* project) {};
 		virtual void onProjectClose(YSSCore::General::YSSProject* project) {};
 		virtual QWidget* onToolWidgetRequested(const QString& widgetID);
+		virtual bool onProjectAboutToClose(YSSCore::General::YSSProject* project) { return true; };
 	protected:
 		void registerLangServer(LangServer* server);
 		void registerDebugServer(DebugServer* server);

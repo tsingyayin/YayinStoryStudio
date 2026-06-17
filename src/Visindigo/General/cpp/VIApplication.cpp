@@ -339,7 +339,7 @@ namespace Visindigo::General {
 				}
 				});
 			connect(d->VirtualTerminal, &Widgets::Terminal::inputPrepared, VISCH, &CommandHost::executeCommand);
-			d->VirtualTerminal->show(); // for debug.
+			//d->VirtualTerminal->show(); // for debug.
 			if (VIApplication::getEnvConfig(VIApplication::TerminalAutoShow).toBool()) {
 				d->VirtualTerminal->show();
 			}

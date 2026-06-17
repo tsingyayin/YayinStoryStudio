@@ -18,6 +18,7 @@
 #include <General/TranslationHost.h>
 #include <Utility/BenchmarkTimer.h>
 #include <Utility/SevenZipBinder.h>
+#include <Widgets/Terminal.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -30,7 +31,7 @@ namespace YSS {
 	Main::Main() {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
-		setTestEnable();
+		//setTestEnable();
 		setPluginVersion(getPluginAPIVersion()); // YSS uses the same version as Visindigo API version
 		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
@@ -70,7 +71,9 @@ namespace YSS {
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, this, &Visindigo::General::Plugin::reloadPluginConfig);
 		vgDebug << getPluginFolder().filePath("config.json");
 		VISTM->setStyleTemplatePriority({ "YSS" });
-		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future use
+		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future us
+		auto powershell = Visindigo::Widgets::Terminal::createPowerShell();
+		powershell->show();
 	}
 
 	void Main::onApplicationInit() {

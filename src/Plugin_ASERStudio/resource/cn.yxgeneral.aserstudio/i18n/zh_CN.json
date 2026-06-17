@@ -489,5 +489,13 @@
         "aserWarpper":{
             "title": "ASER包装器"
         }
+    },
+    "project":{
+        "close": {
+            "stillRunning": {
+                "title": "ASE-Remake仍在运行",
+                "message": "你正在尝试关闭项目，但ASE-Remake程序似乎仍在运行中。\n如果你继续关闭项目，则将会强制终止ASE-Remake，你确定要继续关闭项目吗？"
+            }
+        }
     }
 }

@@ -80,12 +80,34 @@ namespace YSSCore::Editor {
 
 		此外，这个窗口不应该中途移除Qt::WA_DeleteOnClose属性，YSS使用此属性来辅助管理工具窗口的生命周期。
 
+		如果你确实有持久化存储一些数据的需求，请考虑将其存储在工具窗口类的外部。
+
 		另请参见YSSCore::Editor::ToolWidgetManager。
 	*/
 	QWidget* EditorPlugin::onToolWidgetRequested(const QString& widgetID) {
 		return nullptr;
 	}
 
+	/*!
+		\fn YSSCore::Editor::EditorPlugin::onProjectAboutToClose(YSSCore::General::YSSProject* project)
+		\since YSSCore 0.16.0
+		\a project 即将关闭的项目对象
+		当项目即将被关闭时调用此函数。参数project是即将被关闭的项目对象。
+		YSS会在关闭项目之前调用此函数，询问插件是否同意关闭项目。如果所有插件都同意，则项目正常关闭；
+		如果有任何一个插件不同意，则取消关闭项目的操作。因此，如果您的插件需要在项目关闭前进行一些检查，
+		或者需要提示用户保存未保存的更改，您可以在这个函数中实现相关逻辑，并根据情况返回true或false。
+
+		默认实现返回true，表示同意关闭项目。您可以重写此函数来实现自定义的关闭前逻辑。
+
+		请注意，根据YSSCore的实现，只要有插件不同意关闭项目，则后续的onProjectAboutToClose都不会再继续调用。
+		因此，不应当在这个函数中执行资源回收或其他影响插件状态的操作，只判断当前是否可以关闭项目即可。
+	*/
+
+	/*!
+		\since YSS 0.13.0
+		\a server 语言服务器
+		注册语言服务器。语言服务器是YSS编辑器中为特定编程语言提供编辑功能（如语法高亮、代码补全、悬停提示等）的模块。
+	*/
 	void EditorPlugin::registerLangServer(LangServer* server) {
 		registerPluginModule(server);
 		LangServerManager::getInstance()->addLangServer(server);

@@ -14,6 +14,8 @@
 #include "ASEREnv/ASERDebugIO.h"
 #include "ASEREnv/ASERResourceMoniter.h"
 #include "ASEREnv/ASERWarpper.h"
+#include <QtWidgets/qmessagebox.h>
+#include <General/TranslationHost.h>
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "ASERStudio")
@@ -132,6 +134,20 @@ namespace ASERStudio {
 			return warpper;
 		}
 		return nullptr;
+	}
+
+	bool Main::onProjectAboutToClose(YSSCore::General::YSSProject* project) {
+		if (d->ASERProgram->isRunning()) {
+			QMessageBox::StandardButton result = 
+				QMessageBox::question(nullptr, VITR("ASERStudio::project.close.stillRunning.title"), VITR("ASERStudio::project.close.stillRunning.message"),
+					QMessageBox::Yes | QMessageBox::No);
+			if (result == QMessageBox::Yes) {
+				return true; // allow to close, ASER program will be stopped in onProjectClose.
+			} else {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	QWidget* Main::getConfigWidget() {

@@ -7,11 +7,13 @@ namespace YSSCore::Editor {
 		friend class TabCompleterItem;
 	protected:
 		TabCompleterItem::ItemType Type = TabCompleterItem::ItemType::Default;
+		TabCompleterItem::CompleterLevel Level = TabCompleterItem::CompleterLevel::Few;
+		TabCompleterItem::CompleterPriority Priority = TabCompleterItem::CompleterPriority::Low;
 		QString IconPath;
 		QString Text;
 		QString Description;
 		QString Content;
-		bool Alignment;
+		bool Alignment = true;
 	};
 
 	/*!
@@ -21,6 +23,9 @@ namespace YSSCore::Editor {
 		\inmodule YSSCore
 
 		这类是个数据类，代表一个补全项，包含了补全项的文本、描述、内容、类型等信息。
+
+		\warning 这类从0.16.0开始因为增加了CompleterLevel和CompleterPriority两个属性，修改了构造函数，
+		因此ABI与此前不兼容。
 	*/
 
 	/*!
@@ -35,27 +40,63 @@ namespace YSSCore::Editor {
 		\value Operator 代表一个操作符，图标为操作符图标。
 		\value UserDefined 代表一个用户自定义类型，图标需要用户自己设置。
 	*/
+
+	/*!
+		\enum YSSCore::Editor::TabCompleterItem::CompleterLevel
+		\since YSS 0.16.0
+		补全对象的详细度可见级别。值得指出的是，这个详细度可见级别是针对YSS的用户而言的，
+		当YSS用户将补全详细度可见级别调整为Some时，则只有Few和Some级别的补全项会被显示，
+		Many和All级别的补全项会被隐藏。也就是说，越重要的补全项反而应设置越低的级别，
+		以便用户在Few级别时也能看到他们。
+
+		默认的详细度可见级别是Few，以便大部分不愿意区分细节的实现不需要额外的设置。
+		但仍然建议根据补全项的重要程度合理设置这个级别，以便用户能够根据自己的需求调整显示的补全项数量。
+
+		\value None 不显示任何提示，这个值仅供在YSSCore::Editor::TextEdit::setCompleterLevel()中使用，代表不显示任何补全项。
+		在TabCompleterItem中设置此值，自动视为Few。
+		\value Few 低详细度可见级别，代表非常重要的补全项，应该在所有级别都显示。
+		\value Some 中等详细度可见级别，代表重要的补全项，应该在Some及以上级别显示。
+		\value Many 高详细度可见级别，代表一般的补全项，应该在Many及以上级别显示。
+		\value All 最高详细度可见级别，代表不太重要的补全项，应该只在All级别显示。
+
+		可见级别不影响排序。
+	*/
+
+	/*!
+		\enum YSSCore::Editor::TabCompleterItem::CompleterPriority
+		\since YSS 0.16.0
+		补全项的优先级。优先级越高的补全项会排在越前面。具有相同级别的补全项会
+		根据它们被添加到TabCompleterProvider的顺序进行排序，先添加的排在前面。
+
+		默认的优先级是Low，以便大部分不需要区分优先级的实现不会冲撞那些确实有
+		优先级需求的实现。但仍然建议根据补全项的重要程度合理设置这个优先级，
+		以便用户能够更快地找到重要的补全项。
+
+		\value Low 低优先级，代表不太重要的补全项，应该排在后面。
+		\value Medium 中等优先级，代表一般的补全项，应该排在中间。
+		\value High 高优先级，代表重要的补全项，应该排在前面。
+		\value Top 最高优先级，代表非常重要的补全项，应该排在最前面。
+	*/
+
 	/*!
 		\since YSS 0.13.0
 		默认构造函数。
 	*/
 	TabCompleterItem::TabCompleterItem()
 		: d(new TabCompleterItemPrivate) {
-		d->IconPath = "";
-		d->Text = "";
-		d->Description = "";
-		d->Content = "";
-		d->Alignment = true;
+
 	}
 
 	/*!
-		\since YSS 0.13.0
+		\since YSS 0.16.0
 		构造函数，接受补全项的文本、内容、描述、类型和对齐方式。
 		\a text 补全项的文本，用于显示在补全列表里。
 		\a content 补全项的内容，通常是插入到编辑器中的文本。
 		\a description 补全项的描述，通常用于显示在补全列表中。
 		\a type 补全项的类型，用于区分不同类型的补全项。
 		\a alignment 是否对齐补全项，默认为true。
+		\a level 补全项的详细度可见级别，默认为Low。
+		\a priority 补全项的优先级，默认为Low。
 
 		对齐是个特殊概念，意味着当TextEdit尝试使用content插入到编辑器中时，如果alignment为true，则会自动
 		从光标所在位置向前检查，查看content的内容中是否有一些内容已经存在，如果存在就忽略重复性内容，
@@ -63,7 +104,8 @@ namespace YSSCore::Editor {
 
 		为false时，则不进行对齐，直接插入content的全部内容。一般来说应该使用true。
 	*/
-	TabCompleterItem::TabCompleterItem(QString text, QString content, QString description, ItemType type, bool alignment)
+	TabCompleterItem::TabCompleterItem(QString text, QString content, QString description, ItemType type, bool alignment,
+		CompleterLevel level, CompleterPriority priority)
 		: d(new TabCompleterItemPrivate) {
 		d->IconPath = "";
 		d->Text = text;
@@ -71,6 +113,8 @@ namespace YSSCore::Editor {
 		d->Content = content;
 		d->Type = type;
 		d->Alignment = alignment;
+		d->Level = level;
+		d->Priority = priority;
 		setType(type, true);
 	}
 
@@ -196,6 +240,24 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
+		\since YSS 0.16.0
+		\a level 补全项的详细度可见级别。
+		设置补全项的详细度可见级别。
+	*/
+	void TabCompleterItem::setCompleterLevel(CompleterLevel level) {
+		d->Level = level;
+	}
+
+	/*!
+		\since YSS 0.16.0
+		\a priority 补全项的优先级。
+		设置补全项的优先级。
+	*/
+	void TabCompleterItem::setCompleterPriority(CompleterPriority priority) {
+		d->Priority = priority;
+	}
+
+	/*!
 		\since YSS 0.13.0
 
 		return 补全项的图标路径。
@@ -247,6 +309,22 @@ namespace YSSCore::Editor {
 	*/
 	bool TabCompleterItem::isAlignment() const {
 		return d->Alignment;
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return 补全项的详细度可见级别。
+	*/
+	TabCompleterItem::CompleterLevel TabCompleterItem::getCompleterLevel() const {
+		return d->Level;
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return 补全项的优先级。
+	*/
+	TabCompleterItem::CompleterPriority TabCompleterItem::getCompleterPriority() const {
+		return d->Priority;
 	}
 
 	/*!

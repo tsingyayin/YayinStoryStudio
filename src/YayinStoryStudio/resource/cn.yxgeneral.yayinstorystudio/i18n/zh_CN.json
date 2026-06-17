@@ -146,6 +146,14 @@
 			"line": "行",
 			"column": "列"
 		},
+		"multiTerminal": {
+			"title": "终端",
+			"newTerminal": "新建终端",
+			"closeTerminal": "关闭终端",
+			"closeOtherTerminals": "关闭其他终端",
+			"closeAllTerminals": "关闭所有终端",
+			"terminalName": "终端 %1"
+		},
 		"far":{
 			"title": "查找和替换",
 			"find": "查找",

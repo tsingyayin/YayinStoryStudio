@@ -7,6 +7,7 @@
 #include <QtWidgets/qtextedit.h>
 #include <Widgets/BorderFrame.h>
 #include <QtGui/qabstracttextdocumentlayout.h>
+#include "Editor/TabCompleterProvider.h"
 
 // Forward declarations
 namespace YSSCore::Editor {
@@ -73,23 +74,24 @@ namespace YSSCore::__Private__ {
 		QGridLayout* Layout = nullptr;
 		qint32 LineCount = 0;
 		qint8 TabWidth = 4;
+		bool ReloadTab = false;
+		bool useKeyboardToMoveCursor = false;
+		bool Rehighlighting = false;
 		QFontMetricsF* FontMetrics = nullptr;
 		YSSCore::Editor::SyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::TabCompleterProvider* TabCompleter = nullptr;
 		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
 		YSSCore::Editor::HoverInfoProvider* HoverInfoProvider = nullptr;
 		YSSCore::__Private__::HoverInfoWidget* HoverInfoWidget = nullptr;
-		bool ReloadTab = false;
 		qint32 HoverTimeout = 400;
+		YSSCore::Editor::TabCompleterItem::CompleterLevel CompleterLevel = YSSCore::Editor::TabCompleterItem::CompleterLevel::All;
 		QTimer* HoverTimer = nullptr;
 		QPoint LastMousePos;
-		bool useKeyboardToMoveCursor = false;
 		QWidget* HoverArea = nullptr;
 		QList<QTextEdit::ExtraSelection> AltMultiSelections;
 		QList<QTextEdit::ExtraSelection> FindAllMultiSelections;
 		QTextEdit::ExtraSelection CurrentLineSelection;
 		TextEditFindAndReplace* FindAndReplaceWidget = nullptr;
-		bool Rehighlighting = false;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	public:

@@ -301,6 +301,20 @@ namespace YSS::Editor {
 	void MainWin::closeEvent(QCloseEvent* event) {
 		yDebugF << "MainWin Close Event";
 		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
+			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
+				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
+				if (editorPlugin) {
+					bool okToClose = editorPlugin->onProjectAboutToClose(GlobalValue::getCurrentProject());
+					if (not okToClose) {
+						event->ignore();
+						closeForBack = false;
+						return;
+					}
+				}
+			}
+		}
+
 		QMessageBox::StandardButton result = QMessageBox::question(this, VITR("YSS::project.saveQuestion.title"),
 			VITR("YSS::project.saveQuestion.text").arg(project->getProjectName()),
 			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,

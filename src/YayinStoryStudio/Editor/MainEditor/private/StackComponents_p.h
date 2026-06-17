@@ -16,6 +16,7 @@ namespace YSS::Editor {
 		friend class StackTagWidgetPrivate;
 		Q_OBJECT;
 	private:
+		Qt::Orientation Orientation;
 		QLabel* TitleLabel;
 		QHBoxLayout* Layout;
 		QString FilePath;
@@ -44,7 +45,7 @@ namespace YSS::Editor {
 		void closeAllRequested();
 		void closeSavedRequested();
 	public:
-		StackTag(QWidget* parent = nullptr, bool toolWidgetMode = false);
+		StackTag(QWidget* parent = nullptr, bool toolWidgetMode = false, Qt::Orientation orientation = Qt::Horizontal);
 		void setText(const QString& text);
 		void setFilePath(const QString& filePath);
 		QString getFilePath() const;
@@ -72,16 +73,17 @@ namespace YSS::Editor {
 		void closeAllRequested();
 		void closeSavedRequested();
 	private:
-		QHBoxLayout* ContentLayout;
+		Qt::Orientation Orientation;
+		QBoxLayout* ContentLayout;
 		QWidget* ScrollContent;
 		QScrollArea* ScrollArea;
 		QComboBox* WidgetSelector;
-		QHBoxLayout* Layout;
+		QBoxLayout* Layout;
 		QList<StackTag*> Labels;
 		QString CurrentSelected;
 		bool ToolWidgetMode = false;
 	public:
-		StackTagWidget(QWidget* parent = nullptr);
+		StackTagWidget(QWidget* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 		virtual ~StackTagWidget();
 		void addStackLabel(const QString& filePath, const QString& displayName = QString());
 		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName = QString());

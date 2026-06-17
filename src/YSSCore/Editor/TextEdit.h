@@ -3,7 +3,7 @@
 #include "YSSCoreCompileMacro.h"
 #include "Editor/FileEditWidget.h"
 #include <QtGui/qtextdocument.h>
-
+#include "Editor/TabCompleterProvider.h"
 // Forward declarations
 class QTextEdit;
 class QHBoxLayout;
@@ -55,6 +55,8 @@ namespace YSSCore::Editor {
 		qint32 replaceAll(const QString& text, const QString& newText, bool textAsRe = false, QTextDocument::FindFlags options = QTextDocument::FindFlags());
 		bool replaceNext(const QString& text, const QString& newText, bool textAsRe = false, qint32 from = -1, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool relocate = false);
 		void showFindAndReplace();
+		void setCompleterLevel(TabCompleterItem::CompleterLevel level);
+		TabCompleterItem::CompleterLevel getCompleterLevel() const;
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;
