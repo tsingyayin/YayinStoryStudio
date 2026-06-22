@@ -9,7 +9,7 @@
 #define Visindigo_VERSION_PATCH 6
 
 #define Visindigo_ABI_VERSION_MAJOR 15
-#define Visindigo_ABI_VERSION_MINOR 3
+#define Visindigo_ABI_VERSION_MINOR 4
 #define Compiled_VIABI_Version Visindigo::General::Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0)
 #define Compiled_VIAPI_Version Visindigo::General::Version(Visindigo_VERSION_MAJOR, Visindigo_VERSION_MINOR, Visindigo_VERSION_PATCH, true, Visindigo_VERSION_BUILD, QString(Visindigo_VERSION_NICKNAME))
 // Forward declarations

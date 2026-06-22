@@ -254,39 +254,23 @@ namespace Visindigo::General {
 #include <DbgHelp.h>
 #include <time.h>
 #include <strsafe.h>
-static WCHAR absSafefilePath[1024] = { 0x00 };
-
-struct _VISINDIGO_WINDOWS_EXCEPTION_CAPTURE_MEMORY {
-	SYSTEMTIME* pCurrentTime;
-	HRESULT hrFileName;
-	HANDLE hDumpFile;
-	MINIDUMP_EXCEPTION_INFORMATION* pDumpInfo;
-};
-#define _VWECM _VISINDIGO_WINDOWS_EXCEPTION_CAPTURE_MEMORY
-static quint8 absSafeMemory[sizeof(_VWECM)] = {0x00};
-#define _vwecMem ((_VWECM*)(&absSafeMemory))
-
 LONG WINAPI VisindigoWindowsExceptionCapture(EXCEPTION_POINTERS* pExceptionInfo) {
-	_vwecMem->pCurrentTime = new SYSTEMTIME();
-	GetLocalTime(_vwecMem->pCurrentTime);
-	_vwecMem->hrFileName = StringCchPrintfW(
-		absSafefilePath,
-		1024, 
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	WCHAR fileName[MAX_PATH];
+	HRESULT hr = StringCchPrintfW(
+		fileName,
+		MAX_PATH,
 		L"Exception_%04d%02d%02d_%02d%02d%02d.dmp",
-		_vwecMem->pCurrentTime->wYear,
-		_vwecMem->pCurrentTime->wMonth,
-		_vwecMem->pCurrentTime->wDay,
-		_vwecMem->pCurrentTime->wHour,
-		_vwecMem->pCurrentTime->wMinute,
-		_vwecMem->pCurrentTime->wSecond
+		st.wYear, st.wMonth, st.wDay,
+		st.wHour, st.wMinute, st.wSecond
 	);
-
-	if (FAILED(_vwecMem->hrFileName)) {
-		wcscpy_s(absSafefilePath, 1024, L"Exception.dmp");
+	if (FAILED(hr)) {
+		wcscpy_s(fileName, MAX_PATH, L"Exception.dmp");
 	}
 
-	_vwecMem->hDumpFile = CreateFileW(
-		absSafefilePath,
+	HANDLE hDumpFile = CreateFileW(
+		fileName,
 		GENERIC_WRITE,
 		0,
 		NULL,
@@ -295,15 +279,16 @@ LONG WINAPI VisindigoWindowsExceptionCapture(EXCEPTION_POINTERS* pExceptionInfo)
 		NULL
 	);
 
-	if (_vwecMem->hDumpFile != INVALID_HANDLE_VALUE) {
-		_vwecMem->pDumpInfo = new MINIDUMP_EXCEPTION_INFORMATION();
-		_vwecMem->pDumpInfo->ThreadId = GetCurrentThreadId();
-		_vwecMem->pDumpInfo->ExceptionPointers = pExceptionInfo;
-		_vwecMem->pDumpInfo->ClientPointers = FALSE;
-		MiniDumpWriteDump(
+	if (hDumpFile != INVALID_HANDLE_VALUE) {
+		MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
+		dumpInfo.ThreadId = GetCurrentThreadId();
+		dumpInfo.ExceptionPointers = pExceptionInfo;
+		dumpInfo.ClientPointers = FALSE;
+
+		BOOL bResult = MiniDumpWriteDump(
 			GetCurrentProcess(),
 			GetCurrentProcessId(),
-			_vwecMem->hDumpFile,
+			hDumpFile,
 			(MINIDUMP_TYPE)(
 				MiniDumpWithDataSegs |
 				MiniDumpWithProcessThreadData |
@@ -312,11 +297,11 @@ LONG WINAPI VisindigoWindowsExceptionCapture(EXCEPTION_POINTERS* pExceptionInfo)
 				MiniDumpWithFullMemoryInfo |
 				MiniDumpWithThreadInfo
 				),
-			_vwecMem->pDumpInfo,
+			&dumpInfo,
 			NULL,
 			NULL
 		);
-		CloseHandle(_vwecMem->hDumpFile);
+		CloseHandle(hDumpFile);
 	}
 	return EXCEPTION_EXECUTE_HANDLER;
 }
