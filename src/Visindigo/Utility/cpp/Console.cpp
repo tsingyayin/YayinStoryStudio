@@ -241,7 +241,7 @@ namespace Visindigo::Utility {
 		return 一个带有错误样式的文本，即红色加粗。
 	*/
 	QString Console::inErrorStyle(QString rawText) {
-		return getColorString(rawText, Color::Red, Style::Bold);
+		return getColorString(rawText, QColor(237, 28, 36), Style::Bold);
 	}
 
 	/*!
@@ -251,7 +251,7 @@ namespace Visindigo::Utility {
 		return 一个带有成功样式的文本，即绿色加粗。
 	*/
 	QString Console::inSuccessStyle(QString rawText) {
-		return getColorString(rawText, Color::Green, Style::Bold);
+		return getColorString(rawText, QColor(22, 198, 12), Style::Bold);
 	}
 
 	/*!
@@ -261,7 +261,7 @@ namespace Visindigo::Utility {
 		return 一个带有通知样式的文本，即蓝色加粗。
 	*/
 	QString Console::inNoticeStyle(QString rawText) {
-		return getColorString(rawText, Color::Blue, Style::Bold);
+		return getColorString(rawText, QColor(59, 120, 255), Style::Bold);
 	}
 
 	/*!

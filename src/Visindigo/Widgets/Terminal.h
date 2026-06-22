@@ -28,6 +28,7 @@ namespace Visindigo::Widgets {
 		void setInputEnable(bool enable);
 		bool isInputEnabled() const;
 		QStringList getCommandHistory() const;
+		void setCommandHistory(const QStringList& history);
 		void setMaxCommandHistory(qint32 count);
 		qint32 getMaxCommandHistory() const;
 		void setAutoScroll(bool enable);

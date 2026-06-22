@@ -94,8 +94,11 @@ namespace YSS::Editor {
 
 	void StackTag::setText(const QString& text) {
 		TitleLabel->setText(text);
-		if (toolWidgetMode) {
+		if (toolWidgetMode && Orientation == Qt::Horizontal) {
 			qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(text) + 40;
+			if (fixedWidth < 100) {
+				fixedWidth = 100;
+			}
 			this->setFixedWidth(fixedWidth);
 		}
 	}
@@ -523,6 +526,7 @@ namespace YSS::Editor {
 			}
 			int totalWidth = 0;
 			for (StackTag* label : Labels) {
+				label->setFixedHeight(this->height());
 				totalWidth += label->width() + ContentLayout->spacing();
 			}
 			totalWidth -= ContentLayout->spacing();
@@ -535,6 +539,7 @@ namespace YSS::Editor {
 			}
 			int totalHeight = 0;
 			for (StackTag* label : Labels) {
+				label->setFixedWidth(this->width());
 				totalHeight += label->height() + ContentLayout->spacing();
 			}
 			totalHeight -= ContentLayout->spacing();

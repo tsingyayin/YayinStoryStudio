@@ -17,7 +17,7 @@
 #include "General/private/VIGeneral_p.h"
 #include "General/private/Plugin_p.h"
 #include "General/CommandHost.h"
-
+#include "Widgets/IconFontRouter.h"
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
 		vgNoticeF << "[Loading Message Handler] " << message;
@@ -175,6 +175,7 @@ namespace Visindigo::General {
 		QList<Plugin*> DependencyPlugins;
 		QFont GlobalFont;
 		QFont IconFont;
+		Visindigo::Widgets::IconFontRouter* IconFontRouter = nullptr;
 	};
 
 	VIApplication* VIApplicationPrivate::Instance = nullptr;
@@ -533,14 +534,20 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		\since Visindigo 0.15.2
+		\since Visindigo 0.16.0
 		\a fontPath 字体文件的路径。
 		\a fontID 字体文件中字体的索引，默认为0。
+		\a iconFontRouter 字体的命名路由，不设置默认采用Segoe Fluent UI的路由。
 
 		设置一个用于图标的字体。这个字体不会以任何方式和Qt直接发生交互，
 		在设置完毕后，在需要的地方调用getIconFont使用这个字体即可。
+
+		如果不设置iconFontRouter，则默认使用Segoe Fluent UI字体的命名路由，即
+		按微软的标准返回图标。如果需要重新路由字符，需要单独实现字体路由
+
+		另请参见 Visindigo::Widgets::IconFontRouter。
 	*/
-	void VIApplication::setIconFont(const QString& fontPath, int fontID) {
+	void VIApplication::setIconFont(const QString& fontPath, int fontID, Visindigo::Widgets::IconFontRouter* iconFontRouter) {
 		int id = QFontDatabase::addApplicationFont(fontPath);
 		if (id == -1) {
 			throw Exception(Exception::InternalError, QString("Failed to load icon font from %1").arg(fontPath));
@@ -548,7 +555,28 @@ namespace Visindigo::General {
 		QString family = QFontDatabase::applicationFontFamilies(id).at(fontID);
 		QFont font(family);
 		d->IconFont = font;
+		d->IconFontRouter = iconFontRouter;
 		vgNoticeF << "Icon font set to" << family;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a iconFontRouter 字体命名路由
+		
+		设置图标字体的命名路由。
+	*/
+	void VIApplication::setIconFontRouter(Visindigo::Widgets::IconFontRouter* router) {
+		d->IconFontRouter = router;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+
+		return 图标字体的命名路由。
+		这个指针可以是空的。
+	*/
+	Visindigo::Widgets::IconFontRouter* VIApplication::getIconFontRouter() const {
+		return d->IconFontRouter;
 	}
 
 	/*!
@@ -568,7 +596,6 @@ namespace Visindigo::General {
 	}
 
 	/*!
-		\fn QIcon VIApplication::getFontIcon(QString unicode, int iconSize, QList<QColor> layerColors) const
 		\since Visindigo 0.15.2
 		\a unicode 指定的图标的Unicode编码。
 		\a iconSize 图标的大小，默认为64像素。
@@ -578,6 +605,9 @@ namespace Visindigo::General {
 
 		这个函数用于获取一个图标字体中的特定图标字符。用户需要先使用setIconFont设置一个图标字体，
 		然后通过传入对应图标的Unicode编码来获取这个图标的字符。
+
+		\note 从0.16.0开始，由于引入了命名路由，考虑到多种图标字体下的程序兼容性，建议
+		改用getNamedFontIcon
 	*/
 	QIcon VIApplication::getFontIcon(QString unicode, int iconSize, QList<QColor> layerColors) const {
 		if (d->IconFont.family().isEmpty()) {
@@ -600,6 +630,45 @@ namespace Visindigo::General {
 		return QIcon(pixmap);
 	}
 
+	/*!
+		\since Visindigo 0.16.0
+		\a iconNames 字体图标的命名，可以是用字符;分割的多个名字
+		\a iconSize 图标的大小，默认为64像素。
+		\a layerColors 图表中各个层的颜色列表，默认为一个只有黑色的列表
+
+		return 一个QIcon对象，包含了渲染的结果。
+
+		这个函数用于获取一个图标字体中的特定图标字符。用户需要先使用setIconFont设置一个图标字体，
+		然后通过传入对应字体图标的命名来获取这个图标的字符。
+
+		有关这字体图标的命名，请参见Visindigo::Widgets::IconFontRouter::IconName的说明，
+		或者参考微软的Segoe Fluent UI Font页面的相关说明。
+	*/
+	QIcon VIApplication::getNamedFontIcon(QString iconNames, int iconSize, QList<QColor> layerColors) const {
+		if (d->IconFont.family().isEmpty()) {
+			throw Exception(Exception::InternalError, "Icon font is not set");
+		}
+		auto router = d->IconFontRouter;
+		if (not router) {
+			router = Widgets::IconFontRouter::getSegoeFluentRouter();
+		}
+		auto unicode = router->getChars(iconNames);
+		QFont font = d->IconFont;
+		font.setPixelSize(iconSize);
+		QPixmap pixmap(64, 64);
+		pixmap.fill(Qt::transparent);
+		QPainter painter(&pixmap);
+		painter.setFont(font);
+		for (int i = layerColors.size(); i < unicode.size(); i++) {
+			layerColors.append(QColor::fromString("#888888"));
+		}
+		for (int i = 0; i < unicode.size(); i++) {
+			painter.setPen(layerColors[i]);
+			painter.drawText(pixmap.rect(), Qt::AlignCenter, unicode[i]);
+		}
+
+		return QIcon(pixmap);
+	}
 
 	/*!
 		\since Visindigo 0.13.0

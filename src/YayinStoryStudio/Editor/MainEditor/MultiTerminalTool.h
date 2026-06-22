@@ -10,13 +10,19 @@ namespace YSS::Editor {
 	class MultiTerminalToolPrivate;
 	class MultiTerminalTool :public Visindigo::Widgets::BorderFrame, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
+	signals:
+		void currentTerminalChanged(const QString& name);
 	public:
 		MultiTerminalTool(QWidget* parent = nullptr);
 		~MultiTerminalTool();
 		static MultiTerminalTool* getInstance();
 		void addTerminal(const QString& name, const QString& command, const QDir& workingDir = QDir::homePath());
-		void switchTo(const QString& name);
+		void closeTerminal(const QString& name);
+		void closeAll();
+		bool containsTerminal(const QString& name) const; 
 		QStringList getTerminalNames() const;
+		QString getCurrentTerminalName() const;
+		void setCurrentTerminal(const QString& name);
 	public:
 		virtual void onThemeChanged() override;
 		virtual void resizeEvent(QResizeEvent* event) override;

@@ -6,8 +6,10 @@
 #include <QtWidgets/qapplication.h>
 #include "General/Exception.h"
 #include "VICompileMacro.h"
+#include "Widgets/IconFontRouter.h"
 namespace Visindigo::Widgets {
 	class Terminal;
+	class IconFontRouter;
 }
 namespace Visindigo::General {
 	class VIApplicationPrivate;
@@ -68,10 +70,14 @@ namespace Visindigo::General {
 		void setLoadingMessageHandler(ApplicationLoadingMessageHandler* handler);
 		void setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler);
 		void setGlobalFont(const QString& fontPath, int fontID = 0);
-		void setIconFont(const QString& fontPath, int fontID = 0);
+		void setIconFont(const QString& fontPath, int fontID = 0, Visindigo::Widgets::IconFontRouter* iconFontRouter = nullptr);
+		void setIconFontRouter(Visindigo::Widgets::IconFontRouter* iconFontRouter);
+		Visindigo::Widgets::IconFontRouter* getIconFontRouter() const;
 		QFont getGlobalFont() const;
 		QFont getIconFont() const;
 		QIcon getFontIcon(QString unicode, int iconSize = 64, QList<QColor> layerColors = { QColor("#000000") }) const;
+		QIcon getNamedFontIcon(QString iconNames, int iconSize = 64, QList<QColor> layerColors = { QColor("#000000") }) const;
+		QIcon getNamedFontIcon(QList<Visindigo::Widgets::IconFontRouter::IconName> iconName, int iconSize = 64, QList<QColor> layerColors = { QColor("#000000") }) const;
 		int start();
 		bool applicationStarted() const;
 		Widgets::Terminal* getVirtualTerminal() const;

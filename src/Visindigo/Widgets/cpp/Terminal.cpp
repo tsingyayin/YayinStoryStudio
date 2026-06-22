@@ -823,8 +823,10 @@ namespace Visindigo::Widgets {
 		: QFrame(parent), d(new Visindigo::__Private__::TerminalPrivate) {
 		d->q = this;
 		this->setWindowTitle("Visindigo Terminal");
-		this->setMinimumSize(800, 600);
+		this->resize(800, 600);
 		QFont font("Cascadia Mono");
+		font.setPointSizeF(qApp->font().pointSizeF() * 0.8);
+		this->setContentsMargins(10, 10, 10, 10);
 		d->consoleView = new QTextBrowser(this);
 		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
 		d->consoleView->setOpenExternalLinks(true);
@@ -833,6 +835,7 @@ namespace Visindigo::Widgets {
 		d->consoleView->setFont(font);
 		d->inputLine->setFont(font);
 		d->layout = new QVBoxLayout(this);
+		d->layout->setContentsMargins(0, 0, 0, 0);
 		d->layout->addWidget(d->consoleView);
 		d->layout->addWidget(d->inputLine);
 		setLayout(d->layout);
@@ -883,10 +886,25 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.13.0
 
-		return 命令历史记录的最大数量。
+		return 命令历史记录。
 	*/
 	QStringList Terminal::getCommandHistory() const {
 		return d->commandHistory;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a historyList 命令历史记录列表。
+
+		设置命令历史记录列表。这个函数会替换掉原有的命令历史记录，并且会将历史记录数量限制在当前设置的最大数量之内。
+
+		结合get函数，你可以有办法持久化存储命令历史记录，例如在程序关闭时保存到文件中，在程序启动时加载回来。
+	*/
+	void Terminal::setCommandHistory(const QStringList& historyList) {
+		d->commandHistory = historyList;
+		while (d->commandHistory.size() > d->maxCommandHistory) {
+			d->commandHistory.removeFirst();
+		}
 	}
 
 	/*!

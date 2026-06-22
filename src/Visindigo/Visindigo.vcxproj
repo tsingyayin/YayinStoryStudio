@@ -238,6 +238,7 @@
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp" />
     <ClCompile Include="Widgets\cpp\DesktopHacker.cpp" />
     <ClCompile Include="Widgets\cpp\DragWidget.cpp" />
+    <ClCompile Include="Widgets\cpp\IconFontRouter.cpp" />
     <ClCompile Include="Widgets\cpp\LiquidGlassEffect.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButtonGroup.cpp" />
     <ClCompile Include="Widgets\cpp\PixmapCacheHelper.cpp" />
@@ -316,9 +317,12 @@
     <QtMoc Include="Widgets\BorderLabel.h" />
     <ClInclude Include="Widgets\DesktopHacker.h" />
     <QtMoc Include="Widgets\MessageCenter.h" />
+    <QtMoc Include="Widgets\IconFontRouter.h" />
     <ClInclude Include="Widgets\PixmapCacheHelper.h" />
     <QtMoc Include="Widgets\PluginManageWidget.h" />
     <QtMoc Include="Widgets\private\DragWidget_p.h" />
+    <ClInclude Include="Widgets\private\IconFontRouter_SegoeFluent_p.h" />
+    <ClInclude Include="Widgets\private\IconNameEnum.hpp" />
     <ClInclude Include="Widgets\private\MultiButton_p.h" />
     <QtMoc Include="Widgets\QuickMenu.h" />
     <QtMoc Include="Widgets\private\Terminal_p.h" />

@@ -197,6 +197,9 @@
     <ClCompile Include="General\cpp\TickObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\IconFontRouter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -305,6 +308,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\BenchmarkTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\private\IconFontRouter_SegoeFluent_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\private\IconNameEnum.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -427,6 +436,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\TickObject.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\IconFontRouter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

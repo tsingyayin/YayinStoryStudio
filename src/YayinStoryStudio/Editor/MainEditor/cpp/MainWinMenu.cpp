@@ -562,11 +562,11 @@ namespace YSS::Editor {
 	void MainWinMenu::onThemeChanged() {
 		if (d->MenuTextColor != VISTM->getPaletteTextColor()) {
 			d->MenuTextColor = VISTM->getPaletteTextColor();
-			d->File_File_New->setIcon(VIApp->getFontIcon("\uED11", 64, { d->MenuTextColor }));
-			d->File_File_Open->setIcon(VIApp->getFontIcon("\uE8E5", 64, { d->MenuTextColor }));
-			d->File_File_Save->setIcon(VIApp->getFontIcon("\uE74E", 64, { d->MenuTextColor }));
-			d->File_File_SaveAll->setIcon(VIApp->getFontIcon("\uEA35", 64, { d->MenuTextColor }));
-			d->File_File_SaveAs->setIcon(VIApp->getFontIcon("\uE792", 64, { d->MenuTextColor }));
+			d->File_File_New->setIcon(VIApp->getNamedFontIcon("SubscriptionAdd", 64, { d->MenuTextColor }));
+			d->File_File_Open->setIcon(VIApp->getNamedFontIcon("OpenFile", 64, { d->MenuTextColor }));
+			d->File_File_Save->setIcon(VIApp->getNamedFontIcon("Save", 64, { d->MenuTextColor }));
+			d->File_File_SaveAll->setIcon(VIApp->getNamedFontIcon("SaveCopy", 64, { d->MenuTextColor }));
+			d->File_File_SaveAs->setIcon(VIApp->getNamedFontIcon("SaveAs", 64, { d->MenuTextColor }));
 			d->File_File_ProjectConfig->setIcon(VIApp->getFontIcon("\uF259", 64, { d->MenuTextColor }));
 			d->File_File_ShowInExplorer->setIcon(VIApp->getFontIcon("\uE8A7", 64, { d->MenuTextColor }));
 			d->File_Program_BackToHome->setIcon(VIApp->getFontIcon("\uE80F", 64, { d->MenuTextColor }));
