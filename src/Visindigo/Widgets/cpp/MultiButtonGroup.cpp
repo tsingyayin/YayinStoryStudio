@@ -7,7 +7,18 @@ namespace Visindigo::__Private__ {
 	MultiButtonGroupPrivate::MultiButtonGroupPrivate(Visindigo::Widgets::MultiButtonGroup* q)
 		: QObject(q), q(q) {}
 	void MultiButtonGroupPrivate::onButtonClicked(Visindigo::Widgets::MultiButton* button) {
-		//vgDebugF; // <- WHY THIS F**KING FUNCTION CALLED WITHOUT ANY CONTENT?
+		if (CurrentHoveredButton) {
+			CurrentHoveredButton->d->Hovered = false;
+			if (CurrentHoveredButton->d->NormalStyleSheet.isEmpty()) {
+				CurrentHoveredButton->repaint();
+			}
+			else {
+				CurrentHoveredButton->setStyleSheet(CurrentHoveredButton->d->NormalStyleSheet);
+			}
+			CurrentHoveredButton = nullptr;
+			emit q->leave(Buttons[CurrentPressedIndex]);
+		}
+
 		if (CurrentPressedButton) {
 			if (CurrentPressedButton != button) {
 				CurrentPressedButton->d->buttonGroupChecked = false;
@@ -35,19 +46,16 @@ namespace Visindigo::__Private__ {
 		else {
 			CurrentPressedIndex = -1;
 		}
+		emit q->clicked(button);
 	}
 	void MultiButtonGroupPrivate::onButtonReleased(Visindigo::Widgets::MultiButton* button) {
 		// PASS
 	}
 	void MultiButtonGroupPrivate::onButtonHovered(Visindigo::Widgets::MultiButton* button) {
-		if (button == CurrentPressedButton) {
-			//button->setStyleSheet(button->d->PressedStyleSheet);
-		}
+		CurrentHoveredButton = button;
 	}
 	void MultiButtonGroupPrivate::onButtonLeft(Visindigo::Widgets::MultiButton* button) {
-		if (button == CurrentPressedButton) {
-			//button->setStyleSheet(button->d->PressedStyleSheet);
-		}
+		CurrentHoveredButton = nullptr;
 	}
 }
 

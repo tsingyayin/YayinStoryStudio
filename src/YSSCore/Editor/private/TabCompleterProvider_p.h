@@ -58,7 +58,6 @@ namespace YSSCore::__Private__ {
 		QAction* ObjectFilter;
 		QAction* OperatorFilter;
 		QList<qint32> ButtonCycleIndexes;
-		Visindigo::Widgets::MultiButtonGroup* ButtonGroup = nullptr;
 		qint32 currentSelectedIndex = -1;
 		qint32 buttonCacheSize = 18;
 		qint32 buttonHeight = 30;

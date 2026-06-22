@@ -306,7 +306,14 @@ namespace Visindigo::General {
 		\a appType 参数指定应用程序的类型，默认为WidgetApp。
 		\a changeWorkingDirToExeDir 参数指定是否将当前工作目录更改为可执行文件所在目录，默认为true。
 	*/
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <winnt.h>
+#endif // Q_OS_WIN
 	VIApplication::VIApplication(int& argc, char** argv, AppType appType, bool changeWorkingDirToExeDir) :QObject(nullptr) {
+#ifdef Q_OS_WIN
+		SetUnhandledExceptionFilter(VisindigoWindowsExceptionCapture);
+#endif // Q_OS_WIN
 		if (VIApplicationPrivate::Instance != nullptr) {
 			vgWarningF << "VIApplication instance already exists.";
 			throw Exception(Exception::UnsupportedOperation, "VIApplication instance already exists");

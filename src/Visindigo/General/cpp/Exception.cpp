@@ -249,3 +249,77 @@ namespace Visindigo::General {
 			.arg(stacktraceStr);
 	}
 }
+
+
+
+#ifdef Q_OS_WIN
+#include <DbgHelp.h>
+#include <time.h>
+#include <strsafe.h>
+static WCHAR absSafefilePath[1024] = { 0x00 };
+
+struct _VISINDIGO_WINDOWS_EXCEPTION_CAPTURE_MEMORY {
+	SYSTEMTIME* pCurrentTime;
+	HRESULT hrFileName;
+	HANDLE hDumpFile;
+	MINIDUMP_EXCEPTION_INFORMATION* pDumpInfo;
+};
+#define _VWECM _VISINDIGO_WINDOWS_EXCEPTION_CAPTURE_MEMORY
+static quint8 absSafeMemory[sizeof(_VWECM)] = { 0x00 };
+#define _vwecMem ((_VWECM*)(&absSafeMemory))
+
+LONG WINAPI VisindigoWindowsExceptionCapture(EXCEPTION_POINTERS* pExceptionInfo) {
+	_vwecMem->pCurrentTime = new SYSTEMTIME();
+	GetLocalTime(_vwecMem->pCurrentTime);
+	_vwecMem->hrFileName = StringCchPrintfW(
+		absSafefilePath,
+		1024,
+		L"Exception_%04d%02d%02d_%02d%02d%02d.dmp",
+		_vwecMem->pCurrentTime->wYear,
+		_vwecMem->pCurrentTime->wMonth,
+		_vwecMem->pCurrentTime->wDay,
+		_vwecMem->pCurrentTime->wHour,
+		_vwecMem->pCurrentTime->wMinute,
+		_vwecMem->pCurrentTime->wSecond
+	);
+
+	if (FAILED(_vwecMem->hrFileName)) {
+		wcscpy_s(absSafefilePath, 1024, L"Exception.dmp");
+	}
+
+	_vwecMem->hDumpFile = CreateFileW(
+		absSafefilePath,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	if (_vwecMem->hDumpFile != INVALID_HANDLE_VALUE) {
+		_vwecMem->pDumpInfo = new MINIDUMP_EXCEPTION_INFORMATION();
+		_vwecMem->pDumpInfo->ThreadId = GetCurrentThreadId();
+		_vwecMem->pDumpInfo->ExceptionPointers = pExceptionInfo;
+		_vwecMem->pDumpInfo->ClientPointers = FALSE;
+		MiniDumpWriteDump(
+			GetCurrentProcess(),
+			GetCurrentProcessId(),
+			_vwecMem->hDumpFile,
+			(MINIDUMP_TYPE)(
+				MiniDumpWithDataSegs |
+				MiniDumpWithProcessThreadData |
+				MiniDumpWithHandleData |
+				MiniDumpWithUnloadedModules |
+				MiniDumpWithFullMemoryInfo |
+				MiniDumpWithThreadInfo
+				),
+			_vwecMem->pDumpInfo,
+			NULL,
+			NULL
+		);
+		CloseHandle(_vwecMem->hDumpFile);
+	}
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif // Q_OS_WIN

@@ -22,6 +22,7 @@ namespace Visindigo::Widgets {
 		void released();
 		void hover();
 		void leave();
+		void checked(bool checked);
 	public:
 		MultiButton(QWidget* parent = nullptr);
 		virtual ~MultiButton();
@@ -30,7 +31,9 @@ namespace Visindigo::Widgets {
 		void setNormalStyleSheet(const QString& styleSheet);
 		void setInactiveStyleSheet(const QString& styleSheet);
 		void setActive(bool active);
-		bool inButtonGroup();
+		void setCheckedEnable(bool enable);
+		void setChecked(bool checked);
+		void setUseItemStyle(bool use);
 		bool isActive();
 		bool isHovered();
 	protected:

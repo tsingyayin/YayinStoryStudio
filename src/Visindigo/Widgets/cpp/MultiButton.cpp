@@ -134,6 +134,58 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
+		\since Visindigo 0.15.6
+		\a 设置是否启用选中状态功能。
+
+		设置按钮是否启用选中状态功能。启用后，按钮可以通过setChecked(bool)函数设置为选中或非选中状态，
+		并且在被点击时会自动切换选中状态。选中状态与被按下状态使用相同的样式。
+	*/
+	void MultiButton::setCheckedEnable(bool enable) {
+		d->EnableCheck = enable;
+	}
+
+	/*!
+		\since Visindigo 0.15.6
+		\a check 是否选中。
+		设置按钮的选中状态。仅当启用选中状态功能后，此函数才会生效。
+		当按钮被点击时，如果启用了选中状态功能，按钮会自动切换选中状态。
+	*/
+	void MultiButton::setChecked(bool check) {
+		if (d->EnableCheck) {
+			if (d->Checked != check) {
+				d->Checked = check;
+				if (d->Checked) {
+					if (d->PressedStyleSheet.isEmpty()) {
+						repaint();
+					}
+					else {
+						setStyleSheet(d->PressedStyleSheet);
+					}
+				}
+				else {
+					if (d->NormalStyleSheet.isEmpty()) {
+						repaint();
+					}
+					else {
+						setStyleSheet(d->NormalStyleSheet);
+					}
+				}
+				emit checked(d->Checked);
+			}
+		}
+	}
+
+	/*!
+		\since Visindigo 0.15.6
+		\a use 是否使用Item风格
+
+		设置样式是否为Item风格。Item风格更适合在按钮列表中使用。
+	*/
+	void MultiButton::setUseItemStyle(bool use) {
+		d->inButtonGroup = use;
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		return 按钮是否处于活动状态。
 	*/
@@ -162,7 +214,7 @@ namespace Visindigo::Widgets {
 			QStyleOptionButton option;
 			option.initFrom(this);
 			if (d->Active) {
-				if (d->Pressed) {
+				if (d->Pressed || d->Checked){
 					option.state |= QStyle::State_MouseOver;
 				}
 				else if (d->Hovered) {
@@ -180,7 +232,7 @@ namespace Visindigo::Widgets {
 			QStyleOptionViewItem option;
 			option.initFrom(this);
 			if (d->Active) {
-				if (d->Pressed || d->buttonGroupChecked){
+				if (d->Pressed || d->buttonGroupChecked || d->Checked){
 					option.state |= QStyle::State_MouseOver;
 				}
 				else if (d->Hovered) {
@@ -245,6 +297,7 @@ namespace Visindigo::Widgets {
 		if (d->Pressed) {
 			d->Pressed = false;
 			emit clicked();
+			setChecked(not d->Checked);
 		}
 	}
 
