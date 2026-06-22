@@ -22,5 +22,7 @@ namespace Visindigo::__Private__ {
 		bool Pressed = false;
 		bool Hovered = false;
 		bool Active = true;
+		bool EnableCheck = false;
+		bool Checked = false;
 	};
 }

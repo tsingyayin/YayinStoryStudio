@@ -251,7 +251,7 @@ namespace ASERStudio::YSS {
 			d->Musics = musics;
 		}
 		if (types.testAnyFlag(ResourceType::SoundEffect)) {
-			auto soundEffects = Visindigo::Utility::FileUtility::fileFilter(d->ProjectPath + "Resources/SoundEffect", { "*.wav" });
+			auto soundEffects = Visindigo::Utility::FileUtility::fileFilter(d->ProjectPath + "/Resources/SoundEffect", { "*.wav" });
 			QStringList soundEffectList;
 			for (const QString& file : soundEffects) {
 				QFileInfo info(file);

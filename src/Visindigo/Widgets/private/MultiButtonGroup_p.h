@@ -15,6 +15,7 @@ namespace Visindigo::__Private__ {
 		qint32 CurrentPressedIndex = -1;
 		QList<Visindigo::Widgets::MultiButton*> Buttons;
 		Visindigo::Widgets::MultiButtonGroup* q;
+		Visindigo::Widgets::MultiButton* CurrentHoveredButton = nullptr;
 		MultiButtonGroupPrivate(Visindigo::Widgets::MultiButtonGroup* q);
 		void onButtonClicked(Visindigo::Widgets::MultiButton* button);
 		void onButtonReleased(Visindigo::Widgets::MultiButton* button);

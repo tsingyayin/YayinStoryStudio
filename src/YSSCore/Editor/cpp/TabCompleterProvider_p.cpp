@@ -21,13 +21,6 @@ namespace YSSCore::__Private__ {
 		auto font = this->font();
 		font.setPointSizeF(font.pointSizeF() * 0.9);
 		this->setFont(font);
-		this->ButtonGroup = new Visindigo::Widgets::MultiButtonGroup(this);
-		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::doubleClicked, this, &TabCompleterWidget::doComplete);
-		connect(ButtonGroup, &Visindigo::Widgets::MultiButtonGroup::selectIndexChanged, this, [this](qint32 index) {
-			if (index == -1) return;
-			qint32 globalIndex = ButtonCycleIndexes[index] * ButtonCycleIndexes.size() + index;
-			this->currentSelectedIndex = globalIndex;
-			});
 		ScrollBar = new QScrollBar(Qt::Vertical, this);
 		ScrollBar->setVisible(true);
 		ScrollBar->setSingleStep(120);
@@ -38,6 +31,8 @@ namespace YSSCore::__Private__ {
 		ScrollBar->setRange(0, 0);
 		for (int i = 0; i < buttonCacheSize; i++) {
 			Visindigo::Widgets::MultiButton* button = new Visindigo::Widgets::MultiButton(this);
+			button->setCheckedEnable(true);
+			button->setUseItemStyle(true);
 			button->setTitle("");
 			button->setPixmapPath("");
 			button->setPixmapFixedWidth(buttonHeight - 4);
@@ -46,8 +41,22 @@ namespace YSSCore::__Private__ {
 			button->setSpacing(2);
 			button->setContentsMargins(2, 2, 2, 2);
 			Buttons.append(button);
-			ButtonGroup->addButton(button);
 			ButtonCycleIndexes.append(-1);
+			connect(button, &Visindigo::Widgets::MultiButton::doubleClicked, this, [this, button]() {
+				this->doComplete(button);
+				});
+			connect(button, &Visindigo::Widgets::MultiButton::clicked, this, [this, button, i]() {
+				this->currentSelectedIndex = ButtonCycleIndexes[i] * ButtonCycleIndexes.size() + i;
+				});
+			connect(button, &Visindigo::Widgets::MultiButton::checked, this, [this, button](bool checked) {
+				if (checked) {
+					for (auto other : Buttons) {
+						if (other != button) {
+							other->setChecked(false);
+						}
+					}
+				}
+				});
 		}
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -58,42 +67,52 @@ namespace YSSCore::__Private__ {
 		for (int i = 0; i < ButtonCycleIndexes.size(); i++) {
 			ButtonCycleIndexes[i] = -1;
 		}
-		this->ScrollBar->setRange(0, items.size() * buttonHeight);
+		this->ScrollBar->setRange(0, (items.size()-1) * buttonHeight);
 		this->ScrollBar->setValue(0);
 		this->currentSelectedIndex = 0;
-		this->ButtonGroup->selectButton(0);
+		this->Buttons[0]->setChecked(true);
 		this->onScrollValueChanged(0);
 	}
 
 	void TabCompleterWidget::selectPrevious() {
-		qint32 oldY = ScrollBar->value();
-		ScrollBar->setValue(oldY - buttonHeight);
+		if (Items.size() == 0) return;
 		if (currentSelectedIndex != 0) {
-			ButtonGroup->selectPrevious();
 			currentSelectedIndex--;
 		}
+		else {
+			currentSelectedIndex = Items.size() - 1;
+		}
+		//vgDebugF << "Select Previous, Current Selected Index:" << currentSelectedIndex;
+		qint32 tY = currentSelectedIndex * buttonHeight;
+		if (tY < 0) { tY = ScrollBar->maximum() - buttonHeight; }
+		ScrollBar->setValue(tY);
 	}
 
 	void TabCompleterWidget::selectNext() {
-		qint32 oldY = ScrollBar->value();
-		ScrollBar->setValue(oldY + buttonHeight);
+		if (Items.size() == 0) return;
 		if (currentSelectedIndex != Items.size() - 1) {
-			ButtonGroup->selectNext();
 			currentSelectedIndex++;
 		}
+		else {
+			currentSelectedIndex = 0;
+		}
+		//vgDebugF << "Select Next, Current Selected Index:" << currentSelectedIndex;
+		qint32 tY = currentSelectedIndex * buttonHeight;
+		if (tY > ScrollBar->maximum()) { tY = 0; }
+		ScrollBar->setValue(tY);
 	}
 
 	void TabCompleterWidget::doComplete(Visindigo::Widgets::MultiButton* pressed) {
-		if (pressed == nullptr) {
-			pressed = ButtonGroup->getSelectedButton();
+		if (not pressed) {
+			pressed = Buttons[currentSelectedIndex % ButtonCycleIndexes.size()];
 		}
-		if (!pressed) return;
 		qint32 localindex = Buttons.indexOf(pressed);
 		qint32 globalIndex = ButtonCycleIndexes[localindex] * ButtonCycleIndexes.size() + localindex;
+		if (globalIndex < 0 || globalIndex >= Items.size()) return;
 		auto item = Items[globalIndex];
 		if (item.getContent().isEmpty()) return;
 		QTextCursor cursor = Target->textCursor();
-		yDebugF << "Complete Content:" << item.isAlignment();
+		yDebugF << "Complete Content:" << item.getContent();
 		if (item.isAlignment()) {
 			QString selected;
 			while (cursor.positionInBlock() != 0) {
@@ -112,7 +131,7 @@ namespace YSSCore::__Private__ {
 		else {
 			cursor.insertText(item.getContent());
 		}
-		yDebugF << "Do Complete";
+		//yDebugF << "Do Complete";
 	}
 
 	void TabCompleterWidget::scrollBy(qint32 y) {
@@ -120,6 +139,7 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TabCompleterWidget::onScrollValueChanged(qint32 value) {
+		
 		qint32 firstIndex = value / (buttonHeight * ButtonCycleIndexes.size());
 		qint32 deltaY = value % (buttonHeight * ButtonCycleIndexes.size());
 		//vgDebug << "Scroll Value Changed:" << value << "First Index:" << firstIndex << "DeltaY:" << deltaY;
@@ -135,10 +155,8 @@ namespace YSSCore::__Private__ {
 				Buttons[i]->setTitle("");
 				Buttons[i]->setPixmapPath("");
 				Buttons[i]->hide();
-				if (ButtonGroup->getSelectedButton() == Buttons[i]) {
-					ButtonGroup->selectButton(-1);
-				}
 				ButtonCycleIndexes[i] = -1;
+				Buttons[i]->setChecked(false);
 				continue;
 			}
 			if (ButtonCycleIndexes[i] != firstIndex + indexDelta) {
@@ -146,13 +164,13 @@ namespace YSSCore::__Private__ {
 				Buttons[i]->setTitle(item.getText());
 				Buttons[i]->setPixmapPath(item.getIconPath());
 				Buttons[i]->show();
-				if (ButtonGroup->getSelectedButton() == Buttons[i]) {
-					ButtonGroup->selectButton(-1);
-				}
-				qint32 globalIndex = (firstIndex + indexDelta) * ButtonCycleIndexes.size() + i;
-				if (globalIndex == this->currentSelectedIndex) {
-					ButtonGroup->selectButton(Buttons[i]);
-				}
+			}
+			qint32 globalIndex = (firstIndex + indexDelta) * ButtonCycleIndexes.size() + i;
+			if (globalIndex == this->currentSelectedIndex) {
+				Buttons[i]->setChecked(true);
+				//vgDebugF << "Set Button" << i << "Checked, Global Index:" << globalIndex;
+			}else{
+				Buttons[i]->setChecked(false);
 			}
 			ButtonCycleIndexes[i] = firstIndex + indexDelta;
 		}

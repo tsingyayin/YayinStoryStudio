@@ -246,11 +246,14 @@ namespace Visindigo::General {
 
 		一般来说不需要用户手动调用此函数，但也可以用它生成异常的报告。
 		它不含任何附带异常处理或程序终止的逻辑，仅负责生成报告文件。
+
+		这个函数在所有平台上可用，但只能处理Visindigo::General::Exception类型的异常，以及
+		已经被充分转换为该类型的std异常。
 	*/
 	void LoggerManager::generateCrashReport(const Exception& ex) {
 		QString crashReportFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString() + "/crashreports";
 		QDir crashReportDir(crashReportFolderPath);
-		if (!crashReportDir.exists()) {
+		if (not crashReportDir.exists()) {
 			crashReportDir.mkpath(".");
 		}
 		QString crashReportFileName = QDateTime::currentDateTime().toString(d->LogFileNameTimeFormat) % "_crashreport.log";

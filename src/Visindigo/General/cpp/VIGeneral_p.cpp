@@ -3,7 +3,7 @@
 #include "General/Log.h"
 #include "General/Version.h"
 #include <QtCore/qdir.h>
-
+#include "General/Exception.h"
 namespace Visindigo::__Private__ {
 	class VisindigoCorePrivate {
 		friend class VisindigoCore;
@@ -63,6 +63,11 @@ namespace Visindigo::__Private__ {
 			QString placeHolderString = params.join(' ');
 			QString result = General::PlaceholderManager::getInstance()->requestPlaceholder(placeHolderString);
 			vgInfo << "Parsed placeholder: " << result;
+		}else if (unnamedArgs.first() == "craSHvi") {
+			VI_Throw(General::Exception::InternalError, "This is a test crash triggered by the craSHvi command.");
+		}
+		else if (unnamedArgs.first() == "craSHc") {
+			throw;
 		}
 		return true;
 	}

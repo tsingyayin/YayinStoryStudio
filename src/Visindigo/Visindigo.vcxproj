@@ -156,7 +156,7 @@
       <Command>python.exe "$(ProjectDir)pytools\AutoVersionFromGIT.py"</Command>
     </PreBuildEvent>
     <Link>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);DbgHelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
       <GenerateMapFile>true</GenerateMapFile>
       <MapExports>true</MapExports>
