@@ -807,7 +807,7 @@ namespace Visindigo::Widgets {
 	Terminal* Terminal::createPowerShell() {
 #ifdef Q_OS_WIN
 		Terminal* terminal = new Terminal;
-		terminal->launchExternalProcess("powershell.exe", QStringList() << "-NoExit" << "-Command" << "chcp 65001 > null");
+		terminal->launchExternalProcess("powershell.exe", QStringList() << "-NoExit" << "-Command" << "chcp 65001 > $null");
 		return terminal;
 #else
 		return nullptr;
