@@ -46,6 +46,7 @@ namespace Visindigo::Widgets {
 		static QMap<QString, ThemeManager::ThemeID> UserThemeIDEnumMap;
 		QTimer* animationTimer = nullptr;
 		void startThemeChangeAnimation();
+		~ThemeManagerPrivate();
 	};
 
 	QMap<QString, ThemeManager::ThemeID> ThemeManagerPrivate::UserThemeIDEnumMap = QMap<QString, ThemeManager::ThemeID>();
@@ -53,7 +54,7 @@ namespace Visindigo::Widgets {
 	void ThemeManagerPrivate::startThemeChangeAnimation() {
 		if (!animationTimer) {
 			animationTimer = new QTimer();
-			QObject::connect(animationTimer, &QTimer::timeout, [this]() {
+			QObject::connect(animationTimer, &QTimer::timeout, Instance, [this]() {
 				currentAnimationStep += 1000.0 / AnimationFrameRate;
 				float progress = currentAnimationStep / AnimationDurationMS;
 				if (progress >= 1.0f) {
@@ -85,6 +86,25 @@ namespace Visindigo::Widgets {
 		isInAnimation = true;
 		currentAnimationStep = 0;
 		animationTimer->start(1000.0 / AnimationFrameRate);
+	}
+
+	ThemeManagerPrivate::~ThemeManagerPrivate() {
+		if (Config) {
+			delete Config;
+			Config = nullptr;
+		}
+		if (DefaultColorScheme) {
+			delete DefaultColorScheme;
+			DefaultColorScheme = nullptr;
+		}
+		if (MergedColorScheme) {
+			delete MergedColorScheme;
+			MergedColorScheme = nullptr;
+		}
+		if (animationTimer) {
+			delete animationTimer;
+			animationTimer = nullptr;
+		}
 	}
 
 	ThemeManager* ThemeManagerPrivate::Instance = nullptr;

@@ -95,7 +95,9 @@ namespace Visindigo::Utility {
 			error = d->DefaultConfig.parse(defaultStream.readAll());
 			defaultFile.close();
 			if (error.error != QJsonParseError::NoError) {
-				*whichError = 1;
+				if (whichError){
+					*whichError = 1;
+				}
 				return error;
 			}
 		}

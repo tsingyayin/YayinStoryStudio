@@ -556,14 +556,32 @@ namespace Visindigo::General {
 			d->ModuleTypeIDMap[module->getModuleTypeID()].append(module);
 		}
 		if (module->getModuleTypeID() == QString(VIModuleType_Translator)) {
-			TranslationHost::getInstance()->registerTranslator(dynamic_cast<Translator*>(module));
+			auto translator = dynamic_cast<Translator*>(module);
+			if (translator) {
+				TranslationHost::getInstance()->registerTranslator(translator);
+			}
+			else {
+				vgErrorF << "Could not register translator module " << module->getModuleID() << " because it is not a Translator.";
+			}
 		}
 		else if (module->getModuleTypeID() == QString(VIModuleType_PlaceholderProvider)) {
-			PlaceholderManager::getInstance()->registerProvider(dynamic_cast<PlaceholderProvider*>(module));
+			auto provider = dynamic_cast<PlaceholderProvider*>(module);
+			if (provider) {
+				PlaceholderManager::getInstance()->registerProvider(provider);
+			}
+			else {
+				vgErrorF << "Could not register placeholder provider module " << module->getModuleID() << " because it is not a PlaceholderProvider.";
+			}
 		}
 		else if (module->getModuleTypeID() == QString(VIModuleType_CommandHandler)) {
-			CommandHost::getInstance()->registerCommand(dynamic_cast<CommandHandler*>(module));
-			dynamic_cast<CommandHandler*>(module)->enable();
+			auto handler = dynamic_cast<CommandHandler*>(module);
+			if (handler) {
+				CommandHost::getInstance()->registerCommand(handler);
+				handler->enable();
+			}
+			else {
+				vgErrorF << "Could not register command handler module " << module->getModuleID() << " because it is not a CommandHandler.";
+			}
 		}
 	}
 
@@ -579,9 +597,22 @@ namespace Visindigo::General {
 			d->ModuleTypeIDMap[module->getModuleTypeID()].removeAll(module);
 		}
 		if (module->getModuleTypeID() == QString(VIModuleType_Translator)) {
-			TranslationHost::getInstance()->unregisterTranslator(dynamic_cast<Translator*>(module));
+			auto translator = dynamic_cast<Translator*>(module);
+			if (translator) {
+				TranslationHost::getInstance()->unregisterTranslator(translator);
+			}
+			else {
+				vgErrorF << "Could not unregister translator module " << module->getModuleID() << " because it is not a Translator.";
+			}
 		}
 		else if (module->getModuleTypeID() == QString(VIModuleType_PlaceholderProvider)) {
+			auto provider = dynamic_cast<PlaceholderProvider*>(module);
+			if (provider) {
+				PlaceholderManager::getInstance()->unregisterProvider(provider->getModuleID());
+			}
+			else {
+				vgErrorF << "Could not unregister placeholder provider module " << module->getModuleID() << " because it is not a PlaceholderProvider.";
+			}
 		}
 	}
 

@@ -673,7 +673,6 @@ namespace Visindigo::General {
 			painter.setPen(layerColors[i]);
 			painter.drawText(pixmap.rect(), Qt::AlignCenter, unicode[i]);
 		}
-
 		return QIcon(pixmap);
 	}
 

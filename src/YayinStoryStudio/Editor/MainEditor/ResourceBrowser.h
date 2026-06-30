@@ -21,17 +21,24 @@ namespace YSS::Editor {
 		QFileSystemModel* FileModel;
 		QVBoxLayout* Layout;
 		QDir CurrentDir;
-		QMenu* Menu;
 		QToolBar* ToolBar;
 		QAction* ToolActionRefresh;
 		QAction* ToolActionExpand;
 		QAction* ToolActionShrink;
 		QAction* ToolActionNew;
-		QAction* ActionExpand;
-		QAction* ActionShrink;
-		QAction* ActionRename;
-		QAction* ActionShowInExplorer;
 		QColor TextColor;
+		QMenu* FileOptions;
+		QString CurrentFilePath;
+		QAction* FileOptionOpen;
+		QAction* FileOptionRename;
+		QAction* FileOptionDelete;
+		QAction* FileOptionNewFile;
+		QAction* FileOptionNewFolder;
+		QAction* FileOptionCopyPath;
+		QAction* FileOptionCopyName;
+		QAction* FileOptionCopy;
+		QAction* FileOptionPaste;
+		QAction* FileOptionCut;
 	signals:
 		void visibilityChanged(bool visible);
 	public:
@@ -48,5 +55,6 @@ namespace YSS::Editor {
 		void onNewButtonClicked();
 		void refreshFileList();
 		void onItemDoubleClicked(const QModelIndex& index);
+		void onFileTreeContextMenuRequested(const QPoint& pos);
 	};
 }

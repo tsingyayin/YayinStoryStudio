@@ -87,6 +87,8 @@
 		"file": {
 			"title": "文件",
 			"new": "新建文件",
+			"newFile": "新建文件",
+      		"newFolder": "新建文件夹",
 			"open": "打开",
 			"save": "保存",
 			"saveAll": "全部保存",
@@ -108,6 +110,8 @@
 			"redo": "重做",
 			"cut": "剪切",
 			"copy": "复制",
+			"copyPath": "复制文件路径",
+      "copyName": "复制文件名",
 			"paste": "粘贴",
 			"selectAll": "全选",
 			"findAndReplace": "查找和替换"

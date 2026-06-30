@@ -202,8 +202,11 @@ namespace YSS::ProjectPage {
 			}
 		}
 		GlobalValue::saveConfig();
-
-		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * (HistoryProjectLabelList.first()->height() + HistoryProjectLayout->spacing()) + HistoryProjectLayout->contentsMargins().top() + HistoryProjectLayout->contentsMargins().bottom());
+		if (HistoryProjectLabelList.isEmpty()) {
+			HistoryProjectWidget->setFixedHeight(0);
+		}else{
+			HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * (HistoryProjectLabelList.first()->height() + HistoryProjectLayout->spacing()) + HistoryProjectLayout->contentsMargins().top() + HistoryProjectLayout->contentsMargins().bottom());
+		}
 		delete project;
 		project = nullptr;
 	}

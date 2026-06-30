@@ -8,7 +8,7 @@ namespace ASERStudio::YSS {
 	class DS_AStoryXDebugger :public YSSCore::Editor::DebugServer {
 	public:
 		DS_AStoryXDebugger(YSSCore::Editor::EditorPlugin* plugin);
-		~DS_AStoryXDebugger();
+		virtual ~DS_AStoryXDebugger();
 		virtual void onRun(bool debug) override;
 		virtual void onStop() override;
 	private:

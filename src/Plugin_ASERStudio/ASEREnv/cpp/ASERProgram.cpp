@@ -166,6 +166,7 @@ namespace ASERStudio::ASEREnv {
 		qint64 ExitCode;
 		bool Running;
 		QWindow* ProcessWindow;
+		QTimer* PipeReconnectTimer;
 	};
 
 	/*!
@@ -228,6 +229,22 @@ namespace ASERStudio::ASEREnv {
 		connect(d->ASERPipe, qOverload<QLocalSocket::LocalSocketError>(&QLocalSocket::errorOccurred),
 			this, [this](QLocalSocket::LocalSocketError error) {
 				emit namedPipeError(d->ASERPipe->errorString());
+			});
+		d->PipeReconnectTimer = new QTimer(this);
+		d->PipeReconnectTimer->setInterval(200);
+		connect(d->PipeReconnectTimer, &QTimer::timeout, this, [this]()
+			{
+				if (d->ASERProcess->state() == QProcess::Running) {
+					if (d->ASERPipe->state() != QLocalSocket::ConnectedState) {
+						d->ASERPipe->connectToServer("ASERDebugPipe");
+					}else {
+						vgSuccess << "Named pipe connected successfully.";
+						d->PipeReconnectTimer->stop();
+					}
+				}
+				else {
+					d->PipeReconnectTimer->stop();
+				}
 			});
 	}
 
@@ -311,26 +328,7 @@ namespace ASERStudio::ASEREnv {
 		d->LastArguments = arguments;
 		d->ASERProcess->setArguments(arguments);
 		d->ASERProcess->start();
-		QTimer* timer = new QTimer(this);
-		timer->setInterval(200);
-		connect(timer, &QTimer::timeout, this, [this, timer]() {
-			if (d->ASERProcess->state() == QProcess::Running) {
-				vgDebug << "Waiting for server to connect...";
-				if (d->ASERPipe->state() != QLocalSocket::ConnectedState) {
-					d->ASERPipe->connectToServer("ASERDebugPipe");
-				}
-				else {
-					vgDebug << "Server connected successfully.";
-					timer->stop();
-					timer->deleteLater();
-				}
-			}
-			else { // connected.
-				timer->stop();
-				timer->deleteLater();
-			}
-			});
-		timer->start();
+		d->PipeReconnectTimer->start();
 	}
 
 #ifdef Q_OS_WIN

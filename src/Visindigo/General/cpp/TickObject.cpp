@@ -405,7 +405,7 @@ namespace Visindigo::General {
 		\section1 RealTime 超时策略
 		当FixTickTimeoutPolicy设置为RealTime时，TickLoop在每次调用onFixUpdate时都会传入实际的时间增量，而不是设定的固定时间间隔。
 		这意味着如果应用负载过高导致TickLoop无法按预期频率调用onFixUpdate方法，elapsedTime_ms参数的值会相应增加，以反映实际的时间增量。
-		它不追求按需要的次数去调用onFixUpdate，而追求每次调用时忠实反应时间的流逝。
+		它不追求在超时之后继续严格按期望的次数去调用onFixUpdate，而追求每次调用时忠实反应时间的流逝。
 
 		这种策略适用于需要根据实际时间增量进行物理计算的场景，可以在一定程度上保持物理计算的准确性。大部分情况下使用RealTime
 		超时策略即可，这也是默认设置。
@@ -422,7 +422,11 @@ namespace Visindigo::General {
 		则会为其创建一个新的实例。也就是说，每个线程都有一个默认的TickLoop实例。大部分情况下，这就已经满足使用要求。
 
 		但如果你需要在一个线程中使用多个TickLoop实例，则在该线程中直接创建新的TickLoop实例即可。
+		在一些游戏引擎中，为TickObject分组比较有用，譬如可以只针对某些对象进行更新，而冻结其他更新行为。
+		
 		每个TickLoop实例都可以独立管理自己的TickObject列表，并且它们之间不会互相干扰。
+
+		\note 此类中部分常用函数都是线程安全的，不必额外加锁。
 
 		\section1 注意事项
 		\list 
@@ -432,6 +436,9 @@ namespace Visindigo::General {
 		\li 你可以在onUpdate和onFixUpdate中安全的调用对应线程的exec()函数进入新的循环层级，这不会发生递归调用，
 		因为TickLoop的事件处理函数会在每次循环结束时才调用更新方法。在exec()进入新的循环层级后，TickLoop会被
 		冻结在当前层级，直到新的循环层级退出后才会继续调用更新方法。
+		
+		话虽如此，这里的安全指的也仅仅是TickLoop不会发生递归调用，
+		但新增事件循环层级仍然可能破坏一些逻辑设计，因此还是应当慎用exec()
 
 	*/
 
@@ -537,6 +544,8 @@ namespace Visindigo::General {
 
 		重写事件处理函数，用于TickLoop寄生到Qt事件循环中。如果你要在派生类
 		中重写事件处理函数，请务必调用基类的实现以确保TickLoop的正常工作。
+
+		显然，此函数不应被用户调用。
 	*/
 	bool TickLoop::event(QEvent* event) {
 		if (event->type() == TickLoopPrivate::TickEventType) {

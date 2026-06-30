@@ -1,22 +1,23 @@
-#include "../ResourceBrowser.h"
-#include <Editor/FileServerManager.h>
-#include <Editor/FileTemplateManager.h>
-#include <QHBoxLayout>
-#include <QPushButton>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtoolbutton.h>
-#include <QListWidget>
-#include <QLineEdit>
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qmenu.h>
 #include <QtWidgets/qtreewidget.h>
 #include <QtWidgets/qfilesystemmodel.h>
-#include "Editor/GlobalValue.h"
-#include <General/YSSProject.h>
-#include "Editor/NewFilePage/NewFileWin.h"
-#include <General/TranslationHost.h>
-#include <General/Log.h>
 #include <QtGui/qevent.h>
-#include <General/VIApplication.h>
 #include <QtWidgets/qtoolbar.h>
 #include <QtGui/qpainter.h>
+#include <General/TranslationHost.h>
+#include <General/Log.h>
+#include <General/VIApplication.h>
+#include <General/YSSProject.h>
+#include <Editor/FileServerManager.h>
+#include <Editor/FileTemplateManager.h>
+#include "Editor/MainEditor/ResourceBrowser.h"
+#include "Editor/NewFilePage/NewFileWin.h"
+#include "Editor/GlobalValue.h"
+
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		Layout = new QVBoxLayout(this);
@@ -32,12 +33,26 @@ namespace YSS::Editor {
 		Layout->addWidget(ToolBar);
 
 		FileTree = new QTreeView(this);
+		FileTree->setContextMenuPolicy(Qt::CustomContextMenu);
+		Layout->addWidget(FileTree);
+		
 		FileModel = new QFileSystemModel(this);
 		FileTree->setModel(FileModel);
 		FileTree->setHeaderHidden(true);
-
-		Layout->addWidget(FileTree);
-
+		
+		FileOptions = new QMenu(this);
+		FileOptionOpen = FileOptions->addAction(VITR("Visindigo::general.open"));
+		FileOptionRename = FileOptions->addAction(VITR("Visindigo::general.rename"));
+		FileOptionDelete = FileOptions->addAction(VITR("Visindigo::general.delete"));
+		FileOptionNewFile = FileOptions->addAction(VITR("YSS::menu.file.newFile"));
+		FileOptionNewFolder = FileOptions->addAction(VITR("YSS::menu.file.newFolder"));
+		FileOptions->addSeparator();
+		FileOptionCopyPath = FileOptions->addAction(VITR("YSS::menu.edit.copyPath"));
+		FileOptionCopyName = FileOptions->addAction(VITR("YSS::menu.edit.copyName"));
+		FileOptions->addSeparator();
+		FileOptionCopy = FileOptions->addAction(VITR("YSS::menu.edit.copy"));
+		FileOptionPaste = FileOptions->addAction(VITR("YSS::menu.edit.paste"));
+		FileOptionCut = FileOptions->addAction(VITR("YSS::menu.edit.cut"));
 		connect(ToolActionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
 		connect(ToolActionNew, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
 		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
@@ -47,6 +62,9 @@ namespace YSS::Editor {
 		connect(ToolActionExpand, &QAction::triggered, this, [this]() {
 			FileTree->expandAll();
 			});
+		connect(FileTree, &QTreeView::customContextMenuRequested, this, &ResourceBrowser::onFileTreeContextMenuRequested);
+
+		connect(FileOptionNewFile, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
 
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -120,10 +138,20 @@ namespace YSS::Editor {
 	void ResourceBrowser::onThemeChanged() {
 		if (TextColor != VISTM->getPaletteTextColor()) {
 			TextColor = VISTM->getPaletteTextColor();
-			ToolActionRefresh->setIcon(VIApp->getFontIcon("\uE72C", 40, { TextColor }));
-			ToolActionShrink->setIcon(VIApp->getFontIcon("\uE70E", 40, { TextColor }));
-			ToolActionExpand->setIcon(VIApp->getFontIcon("\uE70D", 40, { TextColor }));
-			ToolActionNew->setIcon(VIApp->getFontIcon("\uED11", 40, { TextColor }));
+			ToolActionRefresh->setIcon(VIApp->getNamedFontIcon("Refresh", 40, { TextColor }));
+			ToolActionShrink->setIcon(VIApp->getNamedFontIcon("ChevronUp", 40, { TextColor }));
+			ToolActionExpand->setIcon(VIApp->getNamedFontIcon("ChevronDown", 40, { TextColor }));
+			ToolActionNew->setIcon(VIApp->getNamedFontIcon("SubscriptionAdd", 40, { TextColor }));
+			FileOptionOpen->setIcon(VIApp->getNamedFontIcon("OpenFile", 64, { TextColor }));
+			FileOptionRename->setIcon(VIApp->getNamedFontIcon("Rename", 64, { TextColor }));
+			FileOptionDelete->setIcon(VIApp->getNamedFontIcon("Delete", 64, { TextColor }));
+			FileOptionNewFile->setIcon(VIApp->getNamedFontIcon("SubscriptionAdd", 64, { TextColor }));
+			FileOptionNewFolder->setIcon(VIApp->getNamedFontIcon("NewFolder", 64, { TextColor }));
+			FileOptionCopyPath->setIcon(VIApp->getNamedFontIcon("HardDrive", 64, { TextColor }));
+			FileOptionCopyName->setIcon(VIApp->getNamedFontIcon("Dictionary", 64, { TextColor }));
+			FileOptionCopy->setIcon(VIApp->getNamedFontIcon("Copy", 64, { TextColor }));
+			FileOptionPaste->setIcon(VIApp->getNamedFontIcon("Paste", 64, { TextColor }));
+			FileOptionCut->setIcon(VIApp->getNamedFontIcon("Cut", 64, { TextColor }));
 		}
 	}
 
@@ -145,5 +173,13 @@ namespace YSS::Editor {
 
 	void ResourceBrowser::paintEvent(QPaintEvent* event) {
 		Visindigo::Widgets::BorderFrame::paintEvent(event);
+	}
+
+	void ResourceBrowser::onFileTreeContextMenuRequested(const QPoint& pos) {
+		QModelIndex index = FileTree->indexAt(pos);
+		if (!index.isValid())
+			return;
+		CurrentFilePath = FileModel->filePath(index); 
+		FileOptions->exec(FileTree->viewport()->mapToGlobal(pos));
 	}
 }

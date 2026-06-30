@@ -51,6 +51,7 @@ namespace ASERStudio {
 
 	Main::~Main() {
 		MainPrivate::Instance = nullptr;
+		delete d->ConfigWidget;
 		delete d;
 	}
 

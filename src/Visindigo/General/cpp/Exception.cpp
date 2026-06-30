@@ -1,4 +1,5 @@
 #include "General/Exception.h"
+#include <string.h>
 namespace Visindigo::General {
 	class ExceptionPrivate {
 	public:
@@ -9,6 +10,7 @@ namespace Visindigo::General {
 		int Line;
 		QString Function;
 		QList<StacktraceFrame> Stacktrace;
+		std::string messageStd;
 	};
 
 	/*!
@@ -222,7 +224,8 @@ namespace Visindigo::General {
 		\sa getMessage()
 	*/
 	const char* Exception::what() const noexcept {
-		return d->Message.toStdString().c_str();
+		d->messageStd = d->Message.toStdString();
+		return d->messageStd.c_str();
 	}
 
 	/*!

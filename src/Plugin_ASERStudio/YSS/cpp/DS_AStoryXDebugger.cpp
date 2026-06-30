@@ -25,7 +25,9 @@ namespace ASERStudio::YSS {
 			DebugRun | Run | Stop 
 		);
 	}
-	DS_AStoryXDebugger::~DS_AStoryXDebugger() {}
+	DS_AStoryXDebugger::~DS_AStoryXDebugger() {
+		delete d;
+	}
 	void DS_AStoryXDebugger::onRun(bool debug) {
 		auto launchFileName = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName();
 		if (not launchFileName.endsWith(".astoryx", Qt::CaseInsensitive)) {

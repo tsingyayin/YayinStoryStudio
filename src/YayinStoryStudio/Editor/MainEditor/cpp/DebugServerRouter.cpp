@@ -42,6 +42,10 @@ namespace YSS::Editor {
 						Instance, &DebugServerRouter::breakpointChanged);
 					QObject::connect(CurrentServer, &YSSCore::Editor::DebugServer::breakpointHited,
 						Instance, &DebugServerRouter::breakpointHited);
+					QObject::connect(CurrentServer, &QObject::destroyed, Instance, [this]() {
+						CurrentServer = nullptr;
+						Instance->debugServerChanged();
+						});
 					Instance->debugServerChanged();
 				}
 				else {

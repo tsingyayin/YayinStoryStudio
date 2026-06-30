@@ -492,6 +492,7 @@ namespace Visindigo::__Private__ {
 		case 'c': // 报告终端类型，回报格式为\033[?1;2c
 		{
 			emit q->inputPrepared("\033[?1;2c");
+			break;
 		}
 		case 'd': // 移动光标到指定行, p1 行数
 		{
