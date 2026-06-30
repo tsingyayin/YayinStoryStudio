@@ -95,6 +95,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\MultiTerminalTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\YSSCommandHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\MainEditor\FileOperationCommands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

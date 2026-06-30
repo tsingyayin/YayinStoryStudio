@@ -112,6 +112,7 @@
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainEditorBuiltinPlugin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp" />
@@ -158,6 +159,7 @@
     <QtMoc Include="Editor\MainEditor\BottomInfoWidget.h" />
     <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h" />
     <QtMoc Include="Editor\MainEditor\MultiTerminalTool.h" />
+    <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

@@ -20,6 +20,7 @@
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/MainWinMenu.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
+#include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/ToolWidgetArea.h"
@@ -117,6 +118,22 @@ namespace YSS::Editor {
 			if (editor) {
 				editor->saveFile(newName, true);
 			}
+			Browser->refresh();
+			});
+
+		connect(Browser, &ResourceBrowser::fileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
+			const QString absOldPath = path + "/" + oldName;
+			auto editor = YSSFSM->getFileEditWidget(absOldPath);
+			if (editor) {
+				const QString absNewPath = path + "/" + newName;
+				editor->saveFile(absNewPath, true);
+			}
+			});
+
+		connect(Browser, &ResourceBrowser::fileOperationRequested, this, [this](QUndoCommand* cmd) {
+			cmd->redo();          // execute now
+			// TODO: push to global QUndoStack when ready
+			delete cmd;           // temporary — replace with stack management later
 			Browser->refresh();
 			});
 

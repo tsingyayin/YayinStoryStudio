@@ -3,6 +3,7 @@
 #include <QtWidgets/qwidget.h>
 #include <Widgets/ThemeManager.h>
 #include <Widgets/BorderFrame.h>
+#include <QtWidgets/qabstractitemdelegate.h>
 class QListWidget;
 class QListWidgetItem;
 class QLineEdit;
@@ -13,6 +14,7 @@ class QVBoxLayout;
 class QTreeView;
 class QFileSystemModel;
 class QToolBar;
+class QUndoCommand;
 namespace YSS::Editor {
 	class ResourceBrowser :public Visindigo::Widgets::BorderFrame, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
@@ -29,6 +31,7 @@ namespace YSS::Editor {
 		QColor TextColor;
 		QMenu* FileOptions;
 		QString CurrentFilePath;
+		QPersistentModelIndex RightClickedIndex;
 		QAction* FileOptionOpen;
 		QAction* FileOptionRename;
 		QAction* FileOptionDelete;
@@ -41,6 +44,8 @@ namespace YSS::Editor {
 		QAction* FileOptionCut;
 	signals:
 		void visibilityChanged(bool visible);
+		void fileRenamed(const QString& path, const QString& oldName, const QString& newName);
+		void fileOperationRequested(QUndoCommand* command);
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
 		void openNewFileWindow();
@@ -56,5 +61,6 @@ namespace YSS::Editor {
 		void refreshFileList();
 		void onItemDoubleClicked(const QModelIndex& index);
 		void onFileTreeContextMenuRequested(const QPoint& pos);
+		void onRenameTriggered();
 	};
 }

@@ -5,9 +5,14 @@
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qtreewidget.h>
 #include <QtWidgets/qfilesystemmodel.h>
+#include <QtWidgets/qapplication.h>
+#include <QtCore/qmimedata.h>
+#include <QtCore/qurl.h>
+#include <QtCore/qdatastream.h>
 #include <QtGui/qevent.h>
 #include <QtWidgets/qtoolbar.h>
 #include <QtGui/qpainter.h>
+#include <QtGui/qclipboard.h>
 #include <General/TranslationHost.h>
 #include <General/Log.h>
 #include <General/VIApplication.h>
@@ -15,6 +20,7 @@
 #include <Editor/FileServerManager.h>
 #include <Editor/FileTemplateManager.h>
 #include "Editor/MainEditor/ResourceBrowser.h"
+#include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/NewFilePage/NewFileWin.h"
 #include "Editor/GlobalValue.h"
 
@@ -34,9 +40,11 @@ namespace YSS::Editor {
 
 		FileTree = new QTreeView(this);
 		FileTree->setContextMenuPolicy(Qt::CustomContextMenu);
+		FileTree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 		Layout->addWidget(FileTree);
 		
 		FileModel = new QFileSystemModel(this);
+		FileModel->setReadOnly(false);
 		FileTree->setModel(FileModel);
 		FileTree->setHeaderHidden(true);
 		
@@ -65,6 +73,75 @@ namespace YSS::Editor {
 		connect(FileTree, &QTreeView::customContextMenuRequested, this, &ResourceBrowser::onFileTreeContextMenuRequested);
 
 		connect(FileOptionNewFile, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
+		connect(FileOptionRename, &QAction::triggered, this, &ResourceBrowser::onRenameTriggered);
+		connect(FileOptionCopyPath, &QAction::triggered, this, [this]() {
+			QApplication::clipboard()->setText(CurrentFilePath);
+			});
+		connect(FileOptionCopyName, &QAction::triggered, this, [this]() {
+			QApplication::clipboard()->setText(QFileInfo(CurrentFilePath).fileName());
+			});
+		// ── file copy / cut / paste / delete (system-clipboard + QUndoCommand) ──
+		connect(FileOptionCopy, &QAction::triggered, this, [this]() {
+			auto* mime = new QMimeData();
+			mime->setUrls({ QUrl::fromLocalFile(CurrentFilePath) });
+			QByteArray effect;
+			QDataStream(&effect, QIODevice::WriteOnly) << (int)1;   // DROPEFFECT_COPY
+			mime->setData(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""), effect);
+			QApplication::clipboard()->setMimeData(mime);
+			});
+		connect(FileOptionCut, &QAction::triggered, this, [this]() {
+			auto* mime = new QMimeData();
+			mime->setUrls({ QUrl::fromLocalFile(CurrentFilePath) });
+			QByteArray effect;
+			QDataStream(&effect, QIODevice::WriteOnly) << (int)2;   // DROPEFFECT_MOVE
+			mime->setData(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""), effect);
+			QApplication::clipboard()->setMimeData(mime);
+			});
+		connect(FileOptionPaste, &QAction::triggered, this, [this]() {
+			const QMimeData* mime = QApplication::clipboard()->mimeData();
+			if (!mime || !mime->hasUrls()) return;
+
+			bool isCut = false;
+			if (mime->hasFormat(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""))) {
+				QByteArray data = mime->data(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""));
+				QDataStream stream(data);
+				int effect; stream >> effect;
+				isCut = (effect == 2);
+			}
+
+			const QFileInfo curInfo(CurrentFilePath);
+			const QString targetDir = curInfo.isDir() ? CurrentFilePath : curInfo.absolutePath();
+
+			for (const QUrl& url : mime->urls()) {
+				const QString src = url.toLocalFile();
+				if (src.isEmpty()) continue;
+
+				QString dst = targetDir + "/" + QFileInfo(src).fileName();
+				if (dst == src) continue;
+
+				if (QFileInfo::exists(dst)) {
+					const QString base = QFileInfo(src).completeBaseName();
+					const QString suf = QFileInfo(src).suffix();
+					int n = 1;
+					do {
+						dst = targetDir + "/" + base + " - Copy"
+							+ (n > 1 ? QString(" (%1)").arg(n) : QString())
+							+ (suf.isEmpty() ? "" : "." + suf);
+						++n;
+					} while (QFileInfo::exists(dst));
+				}
+
+				QUndoCommand* cmd = isCut
+					? static_cast<QUndoCommand*>(new FileMoveCommand(src, dst))
+					: static_cast<QUndoCommand*>(new FileCopyCommand(src, dst));
+				emit fileOperationRequested(cmd);
+			}
+			});
+		connect(FileOptionDelete, &QAction::triggered, this, [this]() {
+			emit fileOperationRequested(new FileDeleteCommand(CurrentFilePath));
+			});
+
+		connect(FileModel, &QFileSystemModel::fileRenamed, this, &ResourceBrowser::fileRenamed);
 
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -179,7 +256,15 @@ namespace YSS::Editor {
 		QModelIndex index = FileTree->indexAt(pos);
 		if (!index.isValid())
 			return;
-		CurrentFilePath = FileModel->filePath(index); 
+		CurrentFilePath = FileModel->filePath(index);
+		RightClickedIndex = index.siblingAtColumn(0);
 		FileOptions->exec(FileTree->viewport()->mapToGlobal(pos));
+	}
+
+	void ResourceBrowser::onRenameTriggered() {
+		if (!RightClickedIndex.isValid())
+			return;
+		FileTree->scrollTo(RightClickedIndex);
+		FileTree->edit(RightClickedIndex);
 	}
 }
