@@ -384,6 +384,20 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.16.0
+		创建当前文件的备份。
+
+		这函数直接调用onBackup()函数以获取备份数据，并返回该函数的返回值。
+
+		目前没有打算为FileEditWidget引入恢复备份的功能，因为YSS预计会直接将备份文件按
+		用户要求覆盖现有文件或显式的存储到别处并直接打开，不需要复写当前编辑态。
+	*/
+	QByteArray FileEditWidget::createFileBackup() {
+		return onBackup();
+	}
+
+
+	/*!
 		\since YSS 0.13.0
 		复制当前选中的内容到剪贴板。
 

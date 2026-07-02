@@ -200,6 +200,9 @@
     <ClCompile Include="Widgets\cpp\IconFontRouter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\VirtualStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -314,6 +317,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\private\IconNameEnum.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\VirtualStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

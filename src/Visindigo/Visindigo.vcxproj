@@ -65,7 +65,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DllRelease|x64'" Label="QtSettings">
     <QtInstall>6.10.3</QtInstall>
-    <QtModules>core;gui;network;widgets;gui;widgets;</QtModules>
+    <QtModules>core;gui;network;widgets;sql</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -225,6 +225,7 @@
     <ClCompile Include="General\cpp\TickObject.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
     <ClCompile Include="General\cpp\VIGeneral_p.cpp" />
+    <ClCompile Include="General\cpp\VirtualStorage.cpp" />
     <ClCompile Include="Utility\cpp\SevenZipBinder.cpp" />
     <ClCompile Include="Utility\cpp\BenchmarkTimer.cpp" />
     <ClCompile Include="Utility\cpp\ColorTool.cpp" />
@@ -300,6 +301,7 @@
     <ClInclude Include="General\StacktraceHelper.h" />
     <QtMoc Include="Utility\SevenZipBinder.h" />
     <QtMoc Include="General\TickObject.h" />
+    <ClInclude Include="General\VirtualStorage.h" />
     <ClInclude Include="Utility\ColorTool.h" />
     <ClInclude Include="Utility\GeneralConfigParser.h" />
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />

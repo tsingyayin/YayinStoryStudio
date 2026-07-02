@@ -3,17 +3,24 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/src/Visindigo",
+                "${workspaceFolder}/src/YSSCore",
+                "D:/Qt/6.8.3/msvc2022_64/include",
+                "D:/Qt/6.8.3/msvc2022_64/include/QtCore",
+                "D:/Qt/6.8.3/msvc2022_64/include/QtSql",
+                "D:/Qt/6.8.3/msvc2022_64/include/QtGui",
+                "D:/Qt/6.8.3/msvc2022_64/include/QtWidgets"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "Visindigo_DEVELOPMENT"
             ],
             "windowsSdkVersion": "10.0.26100.0",
-            "compilerPath": "cl.exe",
+            "compilerPath": "D:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe",
             "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cppStandard": "c++23",
             "intelliSenseMode": "windows-msvc-x64"
         }
     ],

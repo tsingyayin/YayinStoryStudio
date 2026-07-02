@@ -2,10 +2,15 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qdatetime.h>
+#include <algorithm>
+#include <functional>
 #include <General/Version.h>
 #include <General/Log.h>
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
+#include <General/VirtualStorage.h>
 #include "General/YSSLogger.h"
 #include <General/Plugin.h>
 #include "Editor/DebugServerManager.h"
@@ -16,7 +21,10 @@ namespace YSSCore::General {
 		static YSSProject* CurrentProject;
 		Visindigo::Utility::JsonConfig* ProjectConfig = nullptr;
 		QString ConfigPath;
-	protected:
+		Visindigo::Utility::VirtualStorage* BackupStorage = nullptr;
+		Visindigo::Utility::VirtualStorage* TrashStorage = nullptr;
+		qint32 BackupMaxCount = 50;
+
 		YSSProjectPrivate() {
 			ProjectConfig = new Visindigo::Utility::JsonConfig();
 		}
@@ -24,9 +32,114 @@ namespace YSSCore::General {
 			if (ProjectConfig != nullptr) {
 				delete ProjectConfig;
 			}
+			if (BackupStorage != nullptr) {
+				delete BackupStorage;
+			}
+			if (TrashStorage != nullptr) {
+				delete TrashStorage;
+			}
 		}
+
 		void updateLastModifyTime() {
 			ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		}
+
+		QString yssDir() const {
+			QFileInfo info(ConfigPath);
+			return info.absolutePath() + "/.yss";
+		}
+
+		void ensureYssDir() const {
+			QString path = yssDir();
+			if (!Visindigo::Utility::FileUtility::isDirExist(path)) {
+				Visindigo::Utility::FileUtility::createDir(path);
+			}
+		}
+
+		Visindigo::Utility::VirtualStorage* getBackupStorage() {
+			if (BackupStorage == nullptr) {
+				ensureYssDir();
+				BackupStorage = new Visindigo::Utility::VirtualStorage(
+					yssDir() + "/backup.db");
+			}
+			return BackupStorage;
+		}
+
+		Visindigo::Utility::VirtualStorage* getTrashStorage() {
+			if (TrashStorage == nullptr) {
+				ensureYssDir();
+				TrashStorage = new Visindigo::Utility::VirtualStorage(
+					yssDir() + "/trash.db");
+			}
+			return TrashStorage;
+		}
+
+		/*!
+			关闭并销毁 \a storage，删除对应数据库文件，然后重建新的空库。
+		*/
+		void resetStorage(Visindigo::Utility::VirtualStorage*& storage,
+			const QString& dbFileName) {
+			if (storage != nullptr) {
+				delete storage;
+				storage = nullptr;
+			}
+			QString dbPath = yssDir() + "/" + dbFileName;
+			QFile::remove(dbPath);
+			storage = new Visindigo::Utility::VirtualStorage(dbPath);
+		}
+
+		/*!
+			将路径中的 "." 替换为 "|"（Windows 路径非法字符），
+			避免 JsonConfig 的 "." 键分隔符误切路径段。
+			由于 "|" 不会出现在任何合法项目路径中，转换完全可逆。
+		*/
+		static QString escapeDots(const QString& path) {
+			QString result = path;
+			result.replace(QLatin1Char('.'), QLatin1Char('|'));
+			return result;
+		}
+
+		/*!
+			构造备份虚拟路径：
+			escapedPath/yyyyMMdd_hh_mm_ss.ext
+		*/
+		static QString backupVirtualPath(const QString& inProjRelativePth,
+			const QDateTime& time,
+			const QString& extension) {
+			QString folder = escapeDots(inProjRelativePth);
+			QString ts = time.toString("yyyyMMdd_hh_mm_ss");
+			return folder + "/" + ts + "." + extension;
+		}
+
+		/*!
+			构造回收站虚拟路径：同备份路径规则。
+		*/
+		static QString trashVirtualPath(const QString& inProjRelativePth,
+			const QDateTime& time,
+			const QString& extension) {
+			return backupVirtualPath(inProjRelativePth, time, extension);
+		}
+
+		/*!
+			从备份虚拟路径的文件名中解析出 QDateTime。
+			文件名格式：yyyyMMdd_hh_mm_ss.ext
+		*/
+		static QDateTime parseTimestampFromName(const QString& fileName) {
+			// 取第一个 '.' 之前的部分尝试解析
+			int dotPos = fileName.indexOf(QLatin1Char('.'));
+			QString tsPart = (dotPos >= 0) ? fileName.left(dotPos) : fileName;
+			return QDateTime::fromString(tsPart, "yyyyMMdd_hh_mm_ss");
+		}
+
+		/*!
+			获取给定路径的原始扩展名（不含点）。
+		*/
+		static QString fileExtension(const QString& path) {
+			int dotPos = path.lastIndexOf(QLatin1Char('.'));
+			if (dotPos >= 0) {
+				return path.mid(dotPos + 1);
+			}
+			return QString();
 		}
 	};
 
@@ -518,4 +631,309 @@ namespace YSSCore::General {
 		}
 		YSSProjectPrivate::CurrentProject = project;
 	}
+
+	// ============================================================
+	//  备份功能
+	// ============================================================
+
+	/*!
+		为项目内相对路径 \a inProjRelativePth 指向的文件创建一份备份。
+		文件内容从磁盘按原路径读取，存入备份虚拟存储中。
+	*/
+	void YSSProject::createFileBackup(const QString& inProjRelativePth) {
+		QString absPath = getProjectFolder() + "/" + inProjRelativePth;
+		if (!Visindigo::Utility::FileUtility::isFileExist(absPath)) {
+			yErrorF << "File not found for backup:" << absPath;
+			return;
+		}
+
+		QByteArray content;
+		{
+			QFile file(absPath);
+			if (file.open(QIODevice::ReadOnly)) {
+				content = file.readAll();
+			}
+		}
+		QDateTime now = QDateTime::currentDateTime();
+		QString ext = d->fileExtension(inProjRelativePth);
+		QString vpth = d->backupVirtualPath(inProjRelativePth, now, ext);
+
+		d->getBackupStorage()->saveFile(vpth, content);
+
+		// 清理超出上限的旧备份
+		QString folder = d->escapeDots(inProjRelativePth);
+		Visindigo::Utility::JsonConfig listing = d->getBackupStorage()->listFolder(folder, false);
+		Visindigo::Utility::JsonConfig filesObj = listing.getObject("files");
+		QStringList fileNames = filesObj.keys();
+		if (fileNames.size() > d->BackupMaxCount) {
+			// 按时间戳排序，保留最新的 BackupMaxCount 个
+			QList<QPair<QDateTime, QString>> sorted;
+			for (const QString& name : fileNames) {
+				QDateTime ts = d->parseTimestampFromName(name);
+				if (ts.isValid()) {
+					sorted.append({ts, name});
+				}
+			}
+			std::sort(sorted.begin(), sorted.end(),
+				[](const QPair<QDateTime, QString>& a,
+				   const QPair<QDateTime, QString>& b) {
+					return a.first > b.first; // 降序，最新的在前
+				});
+			for (int i = d->BackupMaxCount; i < sorted.size(); ++i) {
+				d->getBackupStorage()->removeFile(folder + "/" + sorted[i].second);
+			}
+		}
+	}
+
+	/*!
+		返回 \a inProjRelativePth 的所有备份时间列表。
+	*/
+	QList<QDateTime> YSSProject::getFileBackupList(const QString& inProjRelativePth) {
+		QList<QDateTime> result;
+		QString folder = d->escapeDots(inProjRelativePth);
+		Visindigo::Utility::JsonConfig listing = d->getBackupStorage()->listFolder(folder, false);
+		Visindigo::Utility::JsonConfig filesObj = listing.getObject("files");
+		QStringList fileNames = filesObj.keys();
+
+		for (const QString& name : fileNames) {
+			QDateTime ts = d->parseTimestampFromName(name);
+			if (ts.isValid()) {
+				result.append(ts);
+			}
+		}
+		std::sort(result.begin(), result.end(),
+		          std::greater<QDateTime>());
+		return result;
+	}
+
+	/*!
+		获取 \a inProjRelativePth 在 \a backupTime 时的备份内容。
+	*/
+	QByteArray YSSProject::getFileBackupContent(const QString& inProjRelativePth,
+	                                             const QDateTime& backupTime) {
+		QString ext = d->fileExtension(inProjRelativePth);
+		QString vpth = d->backupVirtualPath(inProjRelativePth, backupTime, ext);
+		return d->getBackupStorage()->readFile(vpth);
+	}
+
+	/*!
+		将 \a inProjRelativePth 在 \a backupTime 的备份还原到磁盘。
+		若 \a restoreToPath 非空，则还原到指定路径；
+		若 \a overwrite 为 false 且目标已存在，则不覆盖返回 false。
+	*/
+	bool YSSProject::restoreFileBackup(const QString& inProjRelativePth,
+	                                    const QDateTime& backupTime,
+	                                    const QString& restoreToPath, bool overwrite) {
+		QString ext = d->fileExtension(inProjRelativePth);
+		QString vpth = d->backupVirtualPath(inProjRelativePth, backupTime, ext);
+		QByteArray content = d->getBackupStorage()->readFile(vpth);
+		if (content.isEmpty()) {
+			return false;
+		}
+
+		QString targetPath = restoreToPath.isEmpty()
+			? (getProjectFolder() + "/" + inProjRelativePth)
+			: restoreToPath;
+
+		if (!overwrite && Visindigo::Utility::FileUtility::isFileExist(targetPath)) {
+			return false;
+		}
+
+		{
+			QFile file(targetPath);
+			if (file.open(QIODevice::WriteOnly)) {
+				file.write(content);
+			}
+		}
+		return true;
+	}
+
+	/*!
+		删除 \a inProjRelativePth 在 \a backupTime 的单份备份。
+	*/
+	void YSSProject::removeFileBackup(const QString& inProjRelativePth,
+	                                   const QDateTime& backupTime) {
+		QString ext = d->fileExtension(inProjRelativePth);
+		QString vpth = d->backupVirtualPath(inProjRelativePth, backupTime, ext);
+		d->getBackupStorage()->removeFile(vpth);
+	}
+
+	/*!
+		删除 \a inProjRelativePth 的所有备份。
+	*/
+	void YSSProject::removeFileBackup(const QString& inProjRelativePth) {
+		QString folder = d->escapeDots(inProjRelativePth);
+		Visindigo::Utility::JsonConfig listing = d->getBackupStorage()->listFolder(folder, false);
+		Visindigo::Utility::JsonConfig filesObj = listing.getObject("files");
+		QStringList fileNames = filesObj.keys();
+		for (const QString& name : fileNames) {
+			d->getBackupStorage()->removeFile(folder + "/" + name);
+		}
+	}
+
+	/*!
+		删除项目中所有文件的全部备份。
+		直接销毁数据库文件并重建空库，避免逐条 SQL DELETE 的开销。
+	*/
+	void YSSProject::removeAllFileBackup() {
+		d->resetStorage(d->BackupStorage, "backup.db");
+	}
+
+	/*!
+		设置每个文件保留的最大备份数量。超过上限时，最旧的备份会被自动清理。
+	*/
+	void YSSProject::setFileBackupMaxCount(qint32 count) {
+		d->BackupMaxCount = (count > 0) ? count : 1;
+	}
+
+	/*!
+		return 当前设置的每文件最大备份数量。
+	*/
+	qint32 YSSProject::getFileBackupMaxCount() {
+		return d->BackupMaxCount;
+	}
+
+	/*!
+		return 所有已备份文件的原始项目内相对路径列表。
+	*/
+	QStringList YSSProject::getAllFileBackups() {
+		QStringList result;
+		Visindigo::Utility::JsonConfig root =
+			d->getBackupStorage()->listFolder("", false);
+		Visindigo::Utility::JsonConfig foldersObj = root.getObject("sub_folders");
+		QStringList escapedNames = foldersObj.keys();
+		for (const QString& escaped : escapedNames) {
+			QString origPath = escaped;
+			origPath.replace(QLatin1Char('|'), QLatin1Char('.'));
+			result.append(origPath);
+		}
+		return result;
+	}
+
+	// ============================================================
+	//  回收站功能
+	// ============================================================
+
+	/*!
+		将项目内相对路径 \a inProjRelativePth 指向的文件移入回收站。
+		文件从磁盘读取后存入回收站虚拟存储，随后从磁盘删除原文件。
+	*/
+	void YSSProject::moveToTrash(const QString& inProjRelativePth) {
+		QString absPath = getProjectFolder() + "/" + inProjRelativePth;
+		if (!Visindigo::Utility::FileUtility::isFileExist(absPath)) {
+			yErrorF << "File not found for trash:" << absPath;
+			return;
+		}
+
+		QByteArray content;
+		{
+			QFile file(absPath);
+			if (file.open(QIODevice::ReadOnly)) {
+				content = file.readAll();
+			}
+		}
+		QDateTime now = QDateTime::currentDateTime();
+		QString ext = d->fileExtension(inProjRelativePth);
+		QString vpth = d->trashVirtualPath(inProjRelativePth, now, ext);
+
+		d->getTrashStorage()->saveFile(vpth, content);
+
+		// 从磁盘删除原文件
+		QFile::remove(absPath);
+	}
+
+	/*!
+		return 回收站中所有文件的原路径及其被删除时间。
+	*/
+	std::pair<QString, QDateTime> YSSProject::getTrashFiles() {
+		// 返回最近一个被删除的文件及其时间
+		std::pair<QString, QDateTime> best;
+		best.second = QDateTime();
+
+		Visindigo::Utility::JsonConfig root = d->getTrashStorage()->listFolder("", true);
+
+		std::function<void(const Visindigo::Utility::JsonConfig&, const QString&)> walk;
+		walk = [&](const Visindigo::Utility::JsonConfig& node, const QString& prefix) {
+			Visindigo::Utility::JsonConfig filesObj = node.getObject("files");
+			QStringList fileNames = filesObj.keys();
+			for (const QString& name : fileNames) {
+				QDateTime ts = d->parseTimestampFromName(name);
+				if (ts.isValid() && ts > best.second) {
+					best.second = ts;
+				// 从 prefix 重建原始路径（将 | 还原为 .）
+				QString origPath = prefix;
+				origPath.replace(QLatin1Char('|'), QLatin1Char('.'));
+					// 加上文件名（去掉时间戳和扩展名以得到原始文件名）
+					int firstDot = name.indexOf(QLatin1Char('.'));
+					if (firstDot >= 0) {
+						QString origName = name.mid(firstDot); // 含点，如 ".txt"
+						origPath += origName;
+					}
+					best.first = origPath;
+				}
+			}
+			Visindigo::Utility::JsonConfig foldersObj = node.getObject("sub_folders");
+			QStringList subNames = foldersObj.keys();
+			for (const QString& sub : subNames) {
+				QString childPrefix = prefix.isEmpty() ? sub : prefix + "/" + sub;
+				walk(foldersObj.getObject(sub), childPrefix);
+			}
+		};
+		walk(root, "");
+		return best;
+	}
+
+	/*!
+		获取回收站中 \a inProjRelativePth 在 \a trashTime 时刻被删除的文件内容。
+	*/
+	QByteArray YSSProject::getTrashFileContent(const QString& inProjRelativePth,
+	                                            const QDateTime& trashTime) {
+		QString ext = d->fileExtension(inProjRelativePth);
+		QString vpth = d->trashVirtualPath(inProjRelativePth, trashTime, ext);
+		return d->getTrashStorage()->readFile(vpth);
+	}
+
+	/*!
+		从回收站还原 \a inProjRelativePth 在 \a trashTime 时刻被删除的文件。
+		若 \a restoreToPath 非空则还原到指定路径；
+		若 \a overwrite 为 false 且目标已存在则返回 false。
+	*/
+	bool YSSProject::restoreFromTrash(const QString& inProjRelativePth,
+	                                   const QDateTime& trashTime,
+	                                   const QString& restoreToPath, bool overwrite) {
+		QString ext = d->fileExtension(inProjRelativePth);
+		QString vpth = d->trashVirtualPath(inProjRelativePth, trashTime, ext);
+		QByteArray content = d->getTrashStorage()->readFile(vpth);
+		if (content.isEmpty()) {
+			return false;
+		}
+
+		QString targetPath = restoreToPath.isEmpty()
+			? (getProjectFolder() + "/" + inProjRelativePth)
+			: restoreToPath;
+
+		if (!overwrite && Visindigo::Utility::FileUtility::isFileExist(targetPath)) {
+			return false;
+		}
+
+		{
+			QFile file(targetPath);
+			if (file.open(QIODevice::WriteOnly)) {
+				file.write(content);
+			}
+		}
+
+		// 还原成功后从回收站移除
+		d->getTrashStorage()->removeFile(vpth);
+		return true;
+	}
+
+	/*!
+		清空回收站中的所有文件。
+		直接销毁数据库文件并重建，避免逐条删除的开销。
+	*/
+	void YSSProject::clearTrash() {
+		d->resetStorage(d->TrashStorage, "trash.db");
+	}
+
 }

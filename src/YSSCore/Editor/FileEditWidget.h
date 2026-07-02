@@ -37,6 +37,7 @@ namespace YSSCore::Editor {
 		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false);
 		bool reloadFile();
 		void closeFile(bool autoAbandon = false);
+		QByteArray createFileBackup();
 	public:
 		bool copy();
 		bool cut();
@@ -65,6 +66,8 @@ namespace YSSCore::Editor {
 		virtual bool onVirtualReload();
 	public:
 		virtual void closeEvent(QCloseEvent* event) override;
+	protected:
+		virtual QByteArray onBackup();
 	};
 }
 

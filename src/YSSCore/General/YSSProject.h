@@ -57,6 +57,21 @@ namespace YSSCore::General {
 		QString getFocusedFile(); // return absolute path
 		QString getFocusedFileName(); // return only file name
 		void refreshLastModifyTime();
+		void createFileBackup(const QString& inProjRelativePth);
+		QList<QDateTime> getFileBackupList(const QString& inProjRelativePth);
+		QByteArray getFileBackupContent(const QString& inProjRelativePth, const QDateTime& backupTime);
+		bool restoreFileBackup(const QString& inProjRelativePth, const QDateTime& backupTime, const QString& restoreToPath = "", bool overwrite = false);
+		void removeFileBackup(const QString& inProjRelativePth, const QDateTime& backupTime);
+		void removeFileBackup(const QString& inProjRelativePth);
+		void removeAllFileBackup();
+		QStringList getAllFileBackups();
+		void setFileBackupMaxCount(qint32 count);
+		qint32 getFileBackupMaxCount();
+		void moveToTrash(const QString& inProjRelativePth);
+		std::pair<QString, QDateTime> getTrashFiles();
+		QByteArray getTrashFileContent(const QString& inProjRelativePth, const QDateTime& trashTime);
+		bool restoreFromTrash(const QString& inProjRelativePth, const QDateTime& trashTime, const QString& restoreToPath = "", bool overwrite = false);
+		void clearTrash();
 		static YSSProject* getCurrentProject();
 		static void setCurrentProject(YSSProject* project);
 	private:

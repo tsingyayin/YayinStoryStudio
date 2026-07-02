@@ -40,6 +40,8 @@ bld/
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 .VSCodeCounter/
+# VS Code 本地环境配置（含绝对路径，不适合共享）
+.vscode/c_cpp_properties.json
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 doc/html
