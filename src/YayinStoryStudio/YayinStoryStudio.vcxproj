@@ -62,7 +62,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath);$(SolutionDir)$(Platform)\0.15\$(Configuration)</LibraryPath>
+    <LibraryPath>$(LibraryPath);$(SolutionDir)$(Platform)\0.15\$(Configuration)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\0.15\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

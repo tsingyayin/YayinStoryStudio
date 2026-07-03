@@ -123,7 +123,7 @@
 			"noTools": "没有工具可显示"
 		}
 	},
-	"editor":{
+	"editor": {
 		"messageViewer": {
 			"title": "消息查看器",
 			"error": "错误",
@@ -135,7 +135,7 @@
 			"line": "行",
 			"column": "列"
 		},
-		"far":{
+		"far": {
 			"title": "查找和替换",
 			"find": "查找",
 			"findNext": "查找下个",
@@ -157,7 +157,7 @@
 		"toolWidgetArea": {
 			"noToolWidget": "没有工具可显示"
 		},
-		"textEdit":{
+		"textEdit": {
 			"readOnly": {
 				"title": "这个文件是只读的",
 				"message": "您希望保存的文件 %1 是只读的，你不能在这个文件上进行保存操作。请检查文件权限，或者选择另存为来保存到其他位置。"
@@ -179,6 +179,10 @@
 				"title": "调试器未配置！",
 				"message": "这个项目没有配置调试器选项，请打开项目设置，在调试器选项中选择一个调试器，然后重试。"
 			}
+		},
+		"saveAsConflict": {
+			"title": "即将被覆盖的文件已打开，且存在未保存的修改",
+			"message": "请先保存或关闭文件 %1，然后再尝试另存为覆盖操作。"
 		},
 		"saveWarning": {
 			"title": "文件已修改",
