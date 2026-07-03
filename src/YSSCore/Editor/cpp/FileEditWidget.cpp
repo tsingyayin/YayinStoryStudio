@@ -70,7 +70,20 @@ protected:
 
 		此外，根据目前FileServerManager的实现，fileClosed信号发出之后，在下一个事件循环该
 		FileEditWidget对象就会被销毁，因此任何连接到fileClosed信号的槽函数都只应做一些立即操作，
-		并且不得缓存该对象的指针以备后用，因为该对象可能已经被销毁了。
+		并且不得缓存该对象的指针以备后用，因为该对象可能已经被销毁了。（此信号基本等同于
+		QObject::destroyed信号）
+
+		\section1 文件备份的行为
+		FileEditWidget提供了一个createFileBackup函数，用于创建当前文件的备份。该函数会调用onBackup虚函数，
+		并返回一个QByteArray，表示当前文件的备份内容。默认情况下，onBackup函数会返回一个空的QByteArray，
+		因此如果需要实现文件备份功能，子类需要重载onBackup函数，并返回实际的备份内容。
+
+		这个QByteArray必须是当前文件的完整内容，而非增量备份。也就是说，onBackup函数的返回值在被
+		直接写到磁盘后，形成的文件应该与当前编辑器中的内容完全一致。
+
+		根据YSS目前的实现，createFileBackup函数会定时调用以生成备份，并在相关文件被手动保存后
+		移除备份内容，因此，备份不作为版本控制的手段。（这与VSCode的历史编辑行为不同，VSCode的文件历史记录
+		作为Git记录的补充存在，且为增量记录）
 	*/
 
 	/*!
@@ -724,5 +737,18 @@ protected:
 		else {
 			event->ignore();
 		}
+	}
+
+	/*!
+		\since YSS 0.16.0
+		派生类可以实现此虚函数以提供文件备份数据。
+
+		默认返回空的QByteArray，表示不提供备份数据。派生类可以根据需要重载此函数以返回当前文件的备份数据，
+		这个备份数据必须是完整文件的二进制内容，以便在需要时可以恢复文件。
+
+		\note 如果返回QByteArray为空，YSS也不会为该文件创建备份文件，无需担心生成空文件。
+	*/
+	QByteArray FileEditWidget::onBackup() {
+		return QByteArray();
 	}
 }

@@ -111,7 +111,7 @@
 			"cut": "剪切",
 			"copy": "复制",
 			"copyPath": "复制文件路径",
-      "copyName": "复制文件名",
+			"copyName": "复制文件名",
 			"paste": "粘贴",
 			"selectAll": "全选",
 			"findAndReplace": "查找和替换"
@@ -216,6 +216,10 @@
 		"saveWarning": {
 			"title": "文件已修改",
 			"message": "文件 %1 已经被修改了，是否要保存更改？"
+		},
+		"saveAsConflict": {
+			"title": "即将被覆盖的文件已打开，且存在未保存的修改",
+			"message": "请先保存或关闭文件 %1，然后再尝试另存为覆盖操作。"
 		},
 		"reloadWarning": {
 			"title": "现在重新加载吗？",

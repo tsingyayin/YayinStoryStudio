@@ -224,7 +224,15 @@ namespace YSS::Editor {
 		if (newfilePath.isEmpty()) {
 			return;
 		}
-		auto editor = YSSFSM->getFileEditWidget(rawFilePath);
+		auto editor = YSSFSM->getFileEditWidget(newfilePath);
+		if (editor) {
+			if (editor->isFileChanged()) {
+				QMessageBox::warning(this, VITR("YSS::editor.saveAsConflict.title"), VITR("YSS::editor.saveAsConflict.message").arg(newfilePath));
+				return;
+			}
+			editor->closeFile();
+		}
+		editor = YSSFSM->getFileEditWidget(rawFilePath);
 		if (editor) {
 			editor->saveFile(newfilePath);
 			Browser->refresh();
