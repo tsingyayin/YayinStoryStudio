@@ -281,19 +281,11 @@ namespace YSSCore::Editor {
 		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
 		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
 
-		\warning 值得指出的是，为了统一下游的使用体验，FileServerManager在尝试使用FileServer打开文件时会将文件路径转换为绝对路径，
-		并且不区分路径的大小写（如果操作系统不区分大小写）。如果FileServer有必要对文件路径进行处理，请严格使用QFile、QFileInfo、
-		QDir等文件系统相关类对输入的路径字符串进行处理，而不是直接对字符串进行操作，以避免字面值发生变化导致逻辑错误。
-
 		如果filePath为虚拟文件路径，则只匹配支持该虚拟文件的FileServer，不考虑 \a preferredServerId 、特别关注强度、优先级列表、 \a useFallback 等因素。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		if (filePath.isEmpty()) {
 			vgErrorF << "File path is empty!";
-			return false;
-		}
-		if (not Visindigo::Utility::FileUtility::isFileExist(filePath)) {
-			vgErrorF << "File does not exist:" << filePath;
 			return false;
 		}
 		static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
@@ -313,8 +305,33 @@ namespace YSSCore::Editor {
 				return false;
 			}
 		}
-		QString ext = QFileInfo(filePath).suffix();
-		QString absPath = QFileInfo(filePath).absoluteFilePath();
+		return openFile(QFileInfo(filePath), preferredServerId, useFallback);
+	}
+
+	/*!
+		\since YSS 0.16.0
+		打开一个文件。如果有合适的FileServer注册，则使用该FileServer打开文件，否则使用内置的文本编辑器打开文件。
+
+		这是openFile的主实现版本。接受QFileInfo对象以避免路径字面值问题。
+		\a fileInfo 要打开的文件信息对象。
+		\a preferredServerId 优先使用的FileServer ID。
+		\a useFallback 是否在没有任何FileServer成功打开文件时使用内置文本编辑器打开文件。默认为true。
+
+		return 文件成功是否成功打开
+
+		如果存在优先使用的FileServerID且该FileServer成功打开文件，则会优先使用该FileServer。
+		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
+		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
+
+		\warning QFileInfo不处理虚拟文件路径。虚拟文件路径的判断和分发在openFile(const QString&)版本中完成。
+	*/
+	bool FileServerManager::openFile(const QFileInfo& fileInfo, const QString& preferredServerId, bool useFallback) {
+		QString ext = fileInfo.suffix();
+		QString absPath = fileInfo.absoluteFilePath();
+		if (not fileInfo.exists()) {
+			vgErrorF << "File does not exist:" << absPath;
+			return false;
+		}
 		if (d->isFileAlreadyOpen(absPath)) {
 			yDebug << "File already open:" << absPath;
 			emit fileOpened(absPath);
@@ -503,9 +520,22 @@ namespace YSSCore::Editor {
 		\a filePath 文件路径。
 		return 指定文件路径对应的文件编辑窗口指针，如果没有找到则返回nullptr。
 		该返回值应即用即弃，不应被缓存或长期持有，因为FileServerManager会负责在窗口关闭时删除窗口对象。
+
+		委托到getFileEditWidget(const QFileInfo&)版本。
 	*/
 	FileEditWidget* FileServerManager::getFileEditWidget(const QString& filePath) {
-		QFileInfo fileInfo(filePath);
+		return getFileEditWidget(QFileInfo(filePath));
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return 指定文件信息对应的文件编辑窗口。
+		\a fileInfo 文件信息对象。
+		return 指定文件对应的文件编辑窗口指针，如果没有找到则返回nullptr。
+
+		这是getFileEditWidget的主实现版本。直接接受QFileInfo，以规范化路径进行索引查找。
+	*/
+	FileEditWidget* FileServerManager::getFileEditWidget(const QFileInfo& fileInfo) {
 		QString absPath = fileInfo.absoluteFilePath();
 		if (d->OpenedFileEditWidgets.contains(absPath)) {
 			return d->OpenedFileEditWidgets[absPath];

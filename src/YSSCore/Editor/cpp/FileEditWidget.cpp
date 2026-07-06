@@ -7,6 +7,7 @@
 #include <QtCore/qregularexpression.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
+#include <QtCore/qdir.h>
 namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
@@ -14,7 +15,8 @@ protected:
 	bool fileChanged = false;
 	bool isVirtualFile = false;
 	bool autoAbandon = false;
-	QString filePath;
+	QString filePath;   // 仅虚拟文件使用
+	QFileInfo fileInfo; // 真实文件使用
 	};
 	/*!
 		\class YSSCore::Editor::FileEditWidget
@@ -84,6 +86,12 @@ protected:
 		根据YSS目前的实现，createFileBackup函数会定时调用以生成备份，并在相关文件被手动保存后
 		移除备份内容，因此，备份不作为版本控制的手段。（这与VSCode的历史编辑行为不同，VSCode的文件历史记录
 		作为Git记录的补充存在，且为增量记录）
+
+		\section1 QFileInfo规范化
+		自0.16.0版本开始，为了解决不同路径字符串可能实质上指向同一文件的问题，FileEditWidget在内部改用QFileInfo存储
+		真实文件的索引，并在先前返回QString的接口中永远直接返回QFileInfo::absoluteFilePath()的结果。
+		也就是说，所有返回文件路径的接口都将返回绝对路径，且在不同平台上遵循QFileInfo的规范化行为。
+		这对于减少潜在的文件路径比较问题有很大帮助。
 	*/
 
 	/*!
@@ -158,9 +166,29 @@ protected:
 		注意，这可能是个虚拟文件路径，如果当前文件是通过FileServer打开的虚拟文件，
 		则返回的路径格式为@ext!fileName?param，其中ext是文件扩展名，fileName是文件名，param是额外参数。
 		对于虚拟文件路径，getFileName()函数会正确解析并返回文件名部分。
+
+		对于真实文件，永远返回从QFileInfo获得的绝对路径。不同平台上的路径规范行为由QFileInfo担保。
 	*/
 	QString FileEditWidget::getFilePath() const {
-		return d->filePath;
+		if (d->isVirtualFile) {
+			return d->filePath;
+		}
+		return d->fileInfo.absoluteFilePath();
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return 当前文件的QFileInfo对象。
+
+		返回当前文件的QFileInfo对象。如果是虚拟文件，返回一个空的（无效的）QFileInfo。
+
+		下游可以直接使用此对象进行文件存在性、权限、元数据等判断，无需再次构造QFileInfo。
+	*/
+	QFileInfo FileEditWidget::getFileInfo() const {
+		if (d->isVirtualFile) {
+			return QFileInfo();
+		}
+		return d->fileInfo;
 	}
 
 	/*!
@@ -168,16 +196,18 @@ protected:
 		return 当前文件编辑器的文件名。
 
 		返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
+
+		对于虚拟文件，返回的是@ext!fileName?param路径中的fileName部分，即!和?之间的内容。
 	*/
 	QString FileEditWidget::getFileName() const {
-		if (d->filePath.isEmpty()) {
+		if (d->isVirtualFile) {
 			static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
 			auto match = re.match(d->filePath);
 			if (match.hasMatch()) {
 				return match.captured(2);
 			}
 		}
-		return QFileInfo(d->filePath).fileName();
+		return d->fileInfo.fileName();
 	}
 
 	/*!
@@ -195,8 +225,6 @@ protected:
 		return 当前文件是否为虚拟文件。
 
 		如果当前文件为虚拟文件，返回true；否则返回false。
-
-		虚拟文件是指不对应实际磁盘文件的文件，通常由程序动态生成或从其他来源加载。对于虚拟文件，某些操作可能会有所不同，例如保存时可能需要特殊处理。
 	*/
 	bool FileEditWidget::isVirtualFile() const {
 		return d->isVirtualFile;
@@ -208,7 +236,7 @@ protected:
 
 		返回当前文件的扩展名（不带点）。如果当前没有打开任何文件，则返回空字符串。
 
-		对于虚拟文件路径，扩展名是路径中@和!之间的部分。
+		对于虚拟文件路径，返回的是@ext!fileName?param路径中的ext部分，即@和!之间的内容。
 	*/
 	QString FileEditWidget::getFileExt() const {
 		if (d->isVirtualFile) {
@@ -218,7 +246,7 @@ protected:
 				return match.captured(1);
 			}
 		}
-		return QFileInfo(d->filePath).suffix();
+		return d->fileInfo.suffix();
 	}
 
 	/*!
@@ -248,7 +276,7 @@ protected:
 	*/
 	void FileEditWidget::setFileChanged() {
 		d->fileChanged = true;
-		emit fileChanged(d->filePath);
+		emit fileChanged(getFilePath());
 	}
 
 	/*!
@@ -259,7 +287,7 @@ protected:
 	*/
 	void FileEditWidget::cancelFileChanged() {
 		d->fileChanged = false;
-		emit fileChangeCanceled(d->filePath);
+		emit fileChangeCanceled(getFilePath());
 	}
 
 	/*!
@@ -282,13 +310,32 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.16.0
+		打开指定QFileInfo对应的文件，并加载其内容。
+		\a fileInfo 要打开的文件信息对象。
+
+		return 如果文件成功打开并加载，返回true；否则返回false。
+
+		显然，此函数只能打开真实文件。
+	*/
+	bool FileEditWidget::openFile(const QFileInfo& fileInfo) {
+		QString absPath = fileInfo.absoluteFilePath();
+		if (absPath.isEmpty()) {
+			yWarningF << "File path is empty.";
+			return false;
+		}
+		d->fileInfo = fileInfo;
+		return onOpen(absPath);
+	}
+
+	/*!
 		\since YSS 0.13.0
 		打开指定路径的文件，并加载其内容。
 		\a path 要打开的文件路径。
 
 		return 如果文件成功打开并加载，返回true；否则返回false。
 
-		此类在判定文件路径是否为空后，调用派生类实现的onOpen()函数以实际打开文件。
+		对于真实文件路径，等同于QFileInfo版本的重载。
 
 		从0.15.0开始，这个函数会事先判定文件路径是否满足虚拟文件路径，如果是的话，则调用
 		onVirtualOpen()函数打开。有关虚拟文件路径的概念，请参考FileServer类的说明。
@@ -308,8 +355,55 @@ protected:
 			yWarningF << "File path is empty.";
 			return false;
 		}
-		d->filePath = path;
-		return onOpen(path);
+		return openFile(QFileInfo(path));
+	}
+
+	/*!
+		\since YSS 0.16.0
+		保存当前文件编辑器的内容到指定QFileInfo对应的路径。
+		\a fileInfo 要保存到的文件信息对象。
+		\a deleteWhenSaveAs 当执行另存为操作时，是否删除原文件。
+
+		return 如果文件成功保存，返回true；否则返回false。
+
+		此函数会调用派生类实现的onSave()函数以实际处理保存逻辑。保存成功后，首先触发
+		fileChangeCanceled信号，通知外部文件内容修改已被取消，并传递当前文件路径作为参数。
+
+		之后自动触发fileSaved信号，通知外部文件已被保存，并传递当前文件路径作为参数。
+
+		如果保存成功且路径与此前不一致，还会触发fileRenamed信号，通知外部文件已被重命名，
+		并传递原路径和新路径作为参数。
+
+		为了保持一致性，此函数不会重新判定路径是否为虚拟文件，因此不可能对虚拟文件使用
+		真实路径保存。反之，也不可能对真实文件使用虚拟路径保存。
+	*/
+	bool FileEditWidget::saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs) {
+		if (d->isVirtualFile) {
+			return onVirtualSave();
+		}
+		QString targetPath = fileInfo.absoluteFilePath();
+		bool ok = onSave(targetPath);
+		if (not Visindigo::Utility::FileUtility::isFileExist(targetPath)) {
+			return false;
+		}
+		if (ok) {
+			cancelFileChanged();
+			QString currentPath = d->fileInfo.absoluteFilePath();
+			if (targetPath != currentPath) {
+				if (deleteWhenSaveAs) {
+					QFile::remove(currentPath);
+				}
+				QString oldPath = currentPath;
+				d->fileInfo = fileInfo;
+				emit fileSaved(d->fileInfo.absoluteFilePath());
+				emit fileRenamed(oldPath, targetPath);
+			}
+			else {
+				d->fileInfo = fileInfo;
+				emit fileSaved(d->fileInfo.absoluteFilePath());
+			}
+		}
+		return ok;
 	}
 
 	/*!
@@ -321,14 +415,12 @@ protected:
 
 		return 如果文件成功保存，返回true；否则返回false。
 
-		此类在判定文件路径是否为空后，调用派生类实现的onSave()函数以实际保存文件。
-		一旦文件成功保存，fileChanged状态会被重置为false，并触发fileSaved信号。
-
-		\note 这个函数最初从0.13.0引入，在0.15.0中增加了deleteWhenSaveAs参数以支持在另存为操作时删除原文件的功能。
-		此外，从0.15.0开始，这个函数会在调用虚函数onSave之后，额外检查文件是否确实存在，以确保保存操作的成功性。
-		这是因为某些派生类的onSave实现可能会在保存失败时没有正确返回false，因此增加了文件存在性的检查以提高函数的可靠性。
-
 		在虚拟文件模式下，它会直接调用onVirtualSave()函数进行保存。虚拟保存时，\a path 和 \a deleteWhenSaveAs 均无效。
+
+		对于真实文件，等同于QFileInfo版本的重载。
+
+		为了保持一致性，此函数不会重新判定路径是否为虚拟文件，因此不可能对虚拟文件使用
+		真实路径保存。反之，也不可能对真实文件使用虚拟路径保存。
 	*/
 	bool FileEditWidget::saveFile(const QString& path, bool deleteWhenSaveAs) {
 		if (d->isVirtualFile) {
@@ -336,32 +428,12 @@ protected:
 		}
 		QString pathCopy = path;
 		if (path.isEmpty()) {
-			if (d->filePath.isEmpty()) {
+			pathCopy = d->fileInfo.absoluteFilePath();
+			if (pathCopy.isEmpty()) {
 				return false;
 			}
-			pathCopy = d->filePath;
 		}
-		bool ok = onSave(pathCopy);
-		if (not Visindigo::Utility::FileUtility::isFileExist(pathCopy)) {
-			return false;
-		}
-		if (ok) {
-			cancelFileChanged();
-			if (not path.isEmpty() && path != d->filePath) {
-				if (deleteWhenSaveAs) {
-					QFile::remove(d->filePath);
-				}
-				QString oldPath = d->filePath;
-				d->filePath = pathCopy;
-				emit fileSaved(d->filePath);
-				emit fileRenamed(oldPath, pathCopy);
-			}
-			else {
-				d->filePath = pathCopy;
-				emit fileSaved(d->filePath);
-			}
-		}
-		return ok;
+		return saveFile(QFileInfo(pathCopy), deleteWhenSaveAs);
 	}
 
 	/*!
@@ -370,13 +442,9 @@ protected:
 
 		return 如果文件成功重新加载，返回true；否则返回false。
 
-		此类在判定当前文件路径是否为空后，调用派生类实现的onReload()函数以实际重新加载文件。
+		如果是虚拟文件，重新路由到onVirtualReload()函数；如果是普通文件，重新路由到onReload()函数。
 	*/
 	bool FileEditWidget::reloadFile() {
-		if (d->filePath.isEmpty()) {
-			yWarningF << "File path is empty.";
-			return false;
-		}
 		if (d->isVirtualFile) {
 			return onVirtualReload();
 		}
@@ -575,10 +643,11 @@ protected:
 		从0.15开始，这个函数默认使用现在的文件路径重新调用onOpen()
 	*/
 	bool FileEditWidget::onReload() {
-		if (d->filePath.isEmpty()) {
+		QString absPath = d->fileInfo.absoluteFilePath();
+		if (absPath.isEmpty()) {
 			return false;
 		}
-		return onOpen(d->filePath);
+		return onOpen(absPath);
 	}
 
 	/*!
@@ -732,7 +801,7 @@ protected:
 		}
 		if (onClose()) {
 			event->accept();
-			emit fileClosed(d->filePath);
+			emit fileClosed(getFilePath());
 		}
 		else {
 			event->ignore();

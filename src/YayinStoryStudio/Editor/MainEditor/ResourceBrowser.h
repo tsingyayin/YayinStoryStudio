@@ -45,6 +45,7 @@ namespace YSS::Editor {
 	signals:
 		void visibilityChanged(bool visible);
 		void fileRenamed(const QString& path, const QString& oldName, const QString& newName);
+		void directoryRenamed(const QString& path, const QString& oldName, const QString& newName);
 		void fileOperationRequested(QUndoCommand* command);
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);

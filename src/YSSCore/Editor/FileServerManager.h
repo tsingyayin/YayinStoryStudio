@@ -1,11 +1,13 @@
 #ifndef YSSCore_Editor_FileServerManager_h
 #define YSSCore_Editor_FileServerManager_h
 #include <QtCore/qobject.h>
+#include <QtCore/qfileinfo.h>
 #include <QtWidgets/qwidget.h>
 #include "Editor/FileEditWidget.h"
 #include "YSSCoreCompileMacro.h"
 // Forward declarations
 class QString;
+class QFileInfo;
 namespace YSSCore::Editor {
 	class FileServer;
 	class FileServerManagerPrivate;
@@ -30,6 +32,7 @@ namespace YSSCore::Editor {
 		~FileServerManager();
 		void registerFileServer(FileServer* server);
 		void unregisterFileServer(FileServer* server);
+		bool openFile(const QFileInfo& fileInfo, const QString& preferredServerId = QString(), bool useFallback = true);
 		bool openFile(const QString& filePath, const QString& preferredServerId = QString(), bool useFallback = true);
 		QStringList getSupportedFileExts();
 		QStringList getAvailableFileServerForFileExt(const QString& fileExt);
@@ -39,6 +42,7 @@ namespace YSSCore::Editor {
 		bool isEspeciallyFocusEnable(const QString& fileExt);
 		QList<FileEditWidget*> getAllFileEditWidgets();
 		QStringList getAllOpenedFilePaths();
+		FileEditWidget* getFileEditWidget(const QFileInfo& fileInfo);
 		FileEditWidget* getFileEditWidget(const QString& filePath);
 	private:
 		FileServerManagerPrivate* d;

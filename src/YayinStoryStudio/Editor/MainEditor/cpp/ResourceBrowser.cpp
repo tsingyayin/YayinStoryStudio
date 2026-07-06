@@ -141,7 +141,17 @@ namespace YSS::Editor {
 			emit fileOperationRequested(new FileDeleteCommand(CurrentFilePath));
 			});
 
-		connect(FileModel, &QFileSystemModel::fileRenamed, this, &ResourceBrowser::fileRenamed);
+		connect(FileModel, &QFileSystemModel::fileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
+			vgDebug << "ResourceBrowser: fileRenamed signal received: " << path << ", " << oldName << ", " << newName; 
+			vgDebug << QFileInfo(path + "/" + newName).isFile();
+			vgDebug << QFileInfo(path + "/" + newName).isDir();
+			if (QFileInfo(path + "/" + newName).isFile()) {
+				emit fileRenamed(path, oldName, newName);
+			}
+			else if (QFileInfo(path + "/" + newName).isDir()) {
+				emit directoryRenamed(path, oldName, newName);
+			}
+			});
 
 		setColorfulEnable(true);
 		onThemeChanged();

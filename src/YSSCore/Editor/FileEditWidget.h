@@ -1,10 +1,12 @@
 #ifndef Visindigo_Editor_FileEditWidget_h
 #define Visindigo_Editor_FileEditWidget_h
 #include <QtWidgets/qframe.h>
+#include <QtCore/qfileinfo.h>
 #include "YSSCoreCompileMacro.h"
 // Forward declarations
 class QWidget;
 class QString;
+class QFileInfo;
 namespace YSSCore::Editor {
 	class FileEditWidgetPrivate;
 }
@@ -23,6 +25,7 @@ namespace YSSCore::Editor {
 		FileEditWidget(QWidget* parent = nullptr);
 		virtual ~FileEditWidget();
 		QString getFilePath() const;
+		QFileInfo getFileInfo() const;
 		QString getFileName() const;
 		bool isFileChanged() const;
 		bool isVirtualFile() const;
@@ -33,7 +36,9 @@ namespace YSSCore::Editor {
 		bool isAutoAbandon() const;
 		void setAutoAbandon(bool autoAbandon);
 	public:
+		bool openFile(const QFileInfo& fileInfo);
 		bool openFile(const QString& path);
+		bool saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs = false);
 		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false);
 		bool reloadFile();
 		void closeFile(bool autoAbandon = false);

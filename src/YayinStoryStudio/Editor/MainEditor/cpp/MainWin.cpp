@@ -123,10 +123,30 @@ namespace YSS::Editor {
 
 		connect(Browser, &ResourceBrowser::fileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
 			const QString absOldPath = path + "/" + oldName;
-			auto editor = YSSFSM->getFileEditWidget(absOldPath);
-			if (editor) {
-				const QString absNewPath = path + "/" + newName;
-				editor->saveFile(absNewPath, true);
+			if (QFileInfo(absOldPath).isFile()) {
+				auto editor = YSSFSM->getFileEditWidget(absOldPath);
+				if (editor) {
+					const QString absNewPath = path + "/" + newName;
+					editor->saveFile(absNewPath, true);
+				}
+			}
+			});
+		connect(Browser, &ResourceBrowser::directoryRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
+			const QString absOldPath = path + "/" + oldName;
+			const QString absNewPath = path + "/" + newName;
+			vgDebug << "Directory renamed from" << absOldPath << "to" << absNewPath;
+			if (QFileInfo(absNewPath).isDir()) {
+				auto newFileAbsPaths = Visindigo::Utility::FileUtility::fileFilter(absNewPath, {"*.*"}, true);
+				vgDebug << "Renamed directory" << absOldPath << "to" << absNewPath << ", found" << newFileAbsPaths.size() << "files";
+				for (auto newPath : newFileAbsPaths) {
+					QString newRelativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(absNewPath, newPath);
+					newRelativePath = newRelativePath.mid(2);
+					QString oldFileAbsPath = absOldPath + "/" + newRelativePath;
+					auto editor = YSSFSM->getFileEditWidget(oldFileAbsPath);
+					if (editor) {
+						editor->saveFile(newPath, true);
+					}
+				}
 			}
 			});
 
