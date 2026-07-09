@@ -11,6 +11,7 @@ class QSyntaxHighlighter;
 
 namespace YSSCore::__Private__ {
 	class TextEditPrivate;
+	class DocumentOverviewLabel;
 }
 namespace YSSCore::Editor {
 	class TabCompleterProvider;
@@ -21,6 +22,7 @@ namespace YSSCore::Editor {
 	class YSSCoreAPI TextEdit :public YSSCore::Editor::FileEditWidget {
 		Q_OBJECT;
 		friend class YSSCore::__Private__::TextEditPrivate;
+		friend class YSSCore::__Private__::DocumentOverviewLabel;
 		friend class HoverInfoProvider;
 		friend class SyntaxHighlighter;
 	signals:

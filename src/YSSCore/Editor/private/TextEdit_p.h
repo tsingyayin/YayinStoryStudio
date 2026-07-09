@@ -8,7 +8,8 @@
 #include <Widgets/BorderFrame.h>
 #include <QtGui/qabstracttextdocumentlayout.h>
 #include "Editor/TabCompleterProvider.h"
-
+#include <QtGui/qimage.h>
+#include <QtWidgets/qlabel.h>
 // Forward declarations
 namespace YSSCore::Editor {
 	class TextEdit;
@@ -62,8 +63,47 @@ namespace YSSCore::__Private__ {
 		QPushButton* replaceAllButton;
 	};
 
+	class ViewportIndicator : public QWidget {
+	public:
+		using QWidget::QWidget;
+	protected:
+		void paintEvent(QPaintEvent* event) override;
+	};
+
+	class DocumentOverviewLabel : public QWidget {
+		Q_OBJECT;
+		friend class YSSCore::Editor::TextEdit;
+		friend class TextEditPrivate;
+	public:
+		DocumentOverviewLabel(YSSCore::Editor::TextEdit* editor, QWidget* parent = nullptr);
+	protected:
+		void paintEvent(QPaintEvent* event) override;
+		void resizeEvent(QResizeEvent* event) override;
+		bool eventFilter(QObject* obj, QEvent* event) override;
+		QSize sizeHint() const override;
+	private:
+		YSSCore::Editor::TextEdit* editor = nullptr;
+		QTextDocument* document = nullptr;
+		QList<QList<QColor>> lineColors;
+		QList<int> errorLines;
+
+		ViewportIndicator* viewportIndicator = nullptr;
+		bool draggingViewport = false;
+		int dragStartY = 0;
+		int dragStartScrollValue = 0;
+
+		void onContentsChange(int position, int charsRemoved, int charsAdded);
+		void onMessageChanged(const QString& filePath);
+		void onMessageChangedForLine(const QString& filePath, qint32 lineNumber);
+		void recalculateAll();
+		void recalculateBlock(int blockNumber);
+		void rebuildErrorLines();
+		void updateViewportIndicator();
+	};
+
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
+		friend class DocumentOverviewLabel;
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::Editor::HoverInfoProvider;
 		friend class YSSCore::Editor::SyntaxHighlighter;
@@ -71,6 +111,7 @@ namespace YSSCore::__Private__ {
 		YSSCore::Editor::TextEdit* q = nullptr;
 		QTextEdit* Line = nullptr;
 		QTextEdit* Text = nullptr;
+		DocumentOverviewLabel* Overview = nullptr;
 		QGridLayout* Layout = nullptr;
 		qint32 LineCount = 0;
 		qint8 TabWidth = 4;

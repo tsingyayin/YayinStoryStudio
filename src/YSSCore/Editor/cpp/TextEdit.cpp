@@ -898,6 +898,11 @@ namespace YSSCore::Editor {
 		d->q = this;
 		this->setMouseTracking(true);
 		
+
+		d->Layout = new QGridLayout(this);
+		d->Layout->setSpacing(0);
+		d->Layout->setContentsMargins(0, 0, 0, 0);
+
 		d->Line = new QTextBrowser(this);
 		d->Line->setReadOnly(true);
 		d->Line->setTextInteractionFlags(Qt::NoTextInteraction);
@@ -905,6 +910,7 @@ namespace YSSCore::Editor {
 		d->Line->setAlignment(Qt::AlignRight);
 		d->Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		d->Layout->addWidget(d->Line, 0, 0);
 
 		d->Text = new QTextEdit(this);
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
@@ -912,15 +918,12 @@ namespace YSSCore::Editor {
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
 		d->Text->setAcceptRichText(false);
+		d->Layout->addWidget(d->Text, 0, 1);
 
 		setTextFont(QFont("Microsoft YaHei"));
-		this->installEventFilter(d);
-		d->Layout = new QGridLayout(this);
-		d->Layout->addWidget(d->Line, 0, 0);
-		d->Layout->addWidget(d->Text, 0, 1);
-		d->Layout->setSpacing(0);
-		d->Layout->setContentsMargins(0, 0, 0, 0);
 
+		d->Overview = new YSSCore::__Private__::DocumentOverviewLabel(this, this);
+		d->Layout->addWidget(d->Overview, 0, 2);
 		d->HoverTimer = new QTimer(this);
 		d->HoverTimer->setInterval(d->HoverTimeout);
 
@@ -938,6 +941,7 @@ namespace YSSCore::Editor {
 				this->setFileChanged();
 			}
 			});
+		this->installEventFilter(d);
 	}
 
 	/*!
