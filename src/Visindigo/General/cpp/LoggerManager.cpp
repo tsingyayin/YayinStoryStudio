@@ -181,31 +181,34 @@ namespace Visindigo::General {
 		// This implementation does not check the log level threshold.
 		// It will log all messages regardless of the threshold.
 		d->currentEpoch = QDateTime::currentMSecsSinceEpoch();
-		QString logStr = QString("[") % QDateTime::fromMSecsSinceEpoch(d->currentEpoch).toString(d->LogTimeFormat) %
-			"][" % handler->getLogger()->getNamespace() % "]";
+		QString logStr = QString("[%1]").arg(QDateTime::fromMSecsSinceEpoch(d->currentEpoch).toString(d->LogTimeFormat));
 		switch (handler->getLevel()) {
 		case Logger::Level::Debug:
-			logStr += "[DEBUG]" % getHandlerMsg(handler);
+			logStr += "[Debug]   (" % handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler);
 			qt_message_output(QtMsgType::QtDebugMsg, QMessageLogContext(), logStr);
 			break;
 		case Logger::Level::Message:
-			logStr += "[MSG]" % getHandlerMsg(handler);
+			logStr += "[Message] (" % handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler);
 			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), logStr);
 			break;
 		case Logger::Level::Notice:
-			logStr += Visindigo::Utility::Console::inNoticeStyle("[NOTICE]" % getHandlerMsg(handler));
+			logStr += Visindigo::Utility::Console::inNoticeStyle("[NOTICE]  (" %
+				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
 			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), logStr);
 			break;
 		case Logger::Level::Success:
-			logStr += Visindigo::Utility::Console::inSuccessStyle("[SUCCESS]" % getHandlerMsg(handler));
+			logStr += Visindigo::Utility::Console::inSuccessStyle("[Success] (" % 
+				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
 			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), logStr);
 			break;
 		case Logger::Level::Warning:
-			logStr += Visindigo::Utility::Console::inWarningStyle("[WARNING]" % getHandlerMsg(handler));
+			logStr += Visindigo::Utility::Console::inWarningStyle("[WARNING] (" % 
+				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
 			qt_message_output(QtMsgType::QtWarningMsg, QMessageLogContext(), logStr);
 			break;
 		case Logger::Level::Error:
-			logStr += Visindigo::Utility::Console::inErrorStyle("[ERROR]" % getHandlerMsg(handler));
+			logStr += Visindigo::Utility::Console::inErrorStyle("[ERROR]   (" % 
+				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
 			qt_message_output(QtMsgType::QtCriticalMsg, QMessageLogContext(), logStr);
 			break;
 		}

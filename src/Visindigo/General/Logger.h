@@ -64,6 +64,7 @@ namespace Visindigo::General {
 #define vLogF(getInstnaceFunction) getInstnaceFunction->log()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)
 #define vNoticeF(getInstnaceFunction) getInstnaceFunction->notice()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)
 #define vSuccessF(getInstnaceFunction) getInstnaceFunction->success()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)
+
 #ifdef VI_HAS_STD_STACKTRACE
 #define vWarningF(getInstnaceFunction) getInstnaceFunction->warning()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)<<Visindigo::General::StacktraceHelper::getStacktrace()
 #define vErrorF(getInstnaceFunction) getInstnaceFunction->error()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)<<Visindigo::General::StacktraceHelper::getStacktrace()
@@ -74,7 +75,9 @@ namespace Visindigo::General {
 #define vLogST(getInstnaceFunction) getInstnaceFunction->log()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)<<Visindigo::General::StacktraceHelper::getStacktrace()
 #define vNoticeST(getInstnaceFunction) getInstnaceFunction->notice()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)<<Visindigo::General::StacktraceHelper::getStacktrace()
 #define vSuccessST(getInstnaceFunction) getInstnaceFunction->success()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)<<Visindigo::General::StacktraceHelper::getStacktrace()
+
 #else
+
 #define vWarningF(getInstnaceFunction) getInstnaceFunction->warning()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)
 #define vErrorF(getInstnaceFunction) getInstnaceFunction->error()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)
 #define VDebugST(getInstnaceFunction) vDebugF(getInstnaceFunction)
@@ -112,4 +115,12 @@ namespace Visindigo::General {
 #define vgNoticeST vNoticeST(VILoggerGlobal)
 #define vgSuccessST vSuccessST(VILoggerGlobal)
 
+#define VI_DECLARE_LOGGER(loggerName, macroPrefix, ...)\
+namespace __VA_ARGS__ {\
+	class loggerName##Logger : public Visindigo::General::Logger {\
+	public:\
+		loggerName##Logger() : Visindigo::General::Logger(#loggerName) {}\
+	};\
+	static loggerName##Logger* macroPrefix = new loggerName##Logger();\
+}
 #endif // Visindigo_General_Logger_h

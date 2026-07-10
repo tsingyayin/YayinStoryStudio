@@ -2,17 +2,21 @@
 #include <QtCore/qlibrary.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
-#include "../../General/Log.h"
-#include "../../Utility/JsonConfig.h"
-#include "../../Utility/FileUtility.h"
-#include "../private/Plugin_p.h"
+#include "General/Log.h"
+#include "Utility/JsonConfig.h"
+#include "Utility/FileUtility.h"
+#include "General/private/Plugin_p.h"
 #include <QtCore/qmap.h>
-#include "../PluginManager.h"
-#include "../Plugin.h"
-#include "../VIApplication.h"
+#include "General/PluginManager.h"
+#include "General/Plugin.h"
+#include "General/VIApplication.h"
+#include "General/PluginModule.h"
 
 using IDString = QString;
 using NameString = QString;
+
+VI_DECLARE_LOGGER(VIPluginManager, VIPM, Visindigo::General);
+
 namespace Visindigo::General {
 	class PluginManagerPrivate {
 		friend class PluginManager;
@@ -88,9 +92,9 @@ namespace Visindigo::General {
 		构造PluginManager对象。
 	*/
 	PluginManager::PluginManager(QObject* parent) : QObject(parent) {
-		vgNoticeF << "Initializing";
+		VIPM->notice() << "Initializing";
 		d = new PluginManagerPrivate();
-		vgSuccessF << "Done";
+		VIPM->success() << "Done";
 	}
 
 	/*!
@@ -132,11 +136,11 @@ namespace Visindigo::General {
 	*/
 	void PluginManager::loadAllPlugin() {
 		if (d->loaded) {
-			vgWarning << "Plugins have already been loaded, this operation will be ignored.";
+			VIPM->warning() << "Plugins have already been loaded, this operation will be ignored.";
 			return;
 		}
 		QString pluginFolder = VIApplication::getInstance()->getEnvConfig(VIApplication::PluginFolderPath).toString();
-		vgNoticeF << "Scanning plugins in" << pluginFolder;
+		VIPM->notice() << "Scanning plugins in" << pluginFolder;
 
 		QFileInfoList Plugins = PluginManagerPrivate::recursionGetAllDll(pluginFolder);
 		for (QFileInfo info : Plugins) {
@@ -145,18 +149,18 @@ namespace Visindigo::General {
 			Utility::JsonConfig jsonConfig(jsonStr);
 			IDString id = jsonConfig.getString("ID");
 			if (id.isEmpty()) {
-				vgWarning << "The json file in " << info.path() << "does not contain \"ID\" key. IGNORED";
+				VIPM->warning() << "The json file in " << info.path() << "does not contain \"ID\" key. IGNORED";
 				continue;
 			}
 			if (d->PluginPathMap.contains(id)) {
-				vgWarning << "Plugin with meta-id" << id << "has already exist. The plugin in" << info.path() << "will be ignored.";
+				VIPM->warning() << "Plugin with meta-id" << id << "has already exist. The plugin in" << info.path() << "will be ignored.";
 				continue;
 			}
 			d->PluginPathMap.insert(id, info.absoluteFilePath());
 			if (!d->PriorityMap.contains(id)) {
 				d->PriorityMap.insert(id, 0);
 			}
-			vgMessageF << "Plugin with meta-id" << id << "finded";
+			VIPM->message() << "Plugin with meta-id" << id << "finded";
 			if (!jsonConfig.contains("Dependencies")) {
 				continue;
 			}
@@ -174,18 +178,18 @@ namespace Visindigo::General {
 			}
 		}
 
-		vgMessageF << "Determining loading order based on priority";
+		VIPM->message() << "Determining loading order based on priority";
 		d->PriorityPlugins = d->PriorityMap.keys();
 		std::sort(d->PriorityPlugins.begin(), d->PriorityPlugins.end(), [this](const QString& a, const QString& b) {
 			return d->PriorityMap[a] > d->PriorityMap[b];
 			});
 		for (int i = 0; i < d->PriorityPlugins.length(); i++) {
-			vgMessageF << "Load order:" << d->PriorityPlugins[i] << "[" << i << "]";
+			VIPM->message() << "Load order:" << d->PriorityPlugins[i] << "[" << i << "]";
 		}
 		for (QString key : d->PriorityPlugins) {
 			d->LoadResults[key] = PluginManager::LoadPluginResult::Unknown;
 			if (d->DeactivatedPluginIDList.contains(key)) {
-				vgWarning << "Plugin with id" << key << "is in deactivated list, the plugin in will be ignored.";
+				VIPM->warning() << "Plugin with id" << key << "is in deactivated list, the plugin in will be ignored.";
 				d->LoadResults[key] = PluginManager::LoadPluginResult::Deactivated;
 				continue;
 			}
@@ -193,24 +197,24 @@ namespace Visindigo::General {
 			bool dependFailed = false;
 			for (IDString depend : dependList) {
 				if (!d->PluginIDMap.contains(depend)) {
-					vgError << "Failed when load plugin" << key << ", dependency" << depend << "not found!";
+					VIPM->error() << "Failed when load plugin" << key << ", dependency" << depend << "not found!";
 					d->LoadResults[key] = PluginManager::LoadPluginResult::DependencyNotFound;
 					dependFailed = true;
 				}
 				else {
 					if (d->LoadResults[depend] != PluginManager::LoadPluginResult::Success) {
 						if (d->LoadResults[depend] == PluginManager::LoadPluginResult::Deactivated) {
-							vgError << "Failed when load plugin" << key << ", dependency" << depend << "is deactivated!";
+							VIPM->error() << "Failed when load plugin" << key << ", dependency" << depend << "is deactivated!";
 							d->LoadResults[key] = PluginManager::LoadPluginResult::Deactivated;
 						}
 						else {
-							vgError << "Failed when load plugin" << key << ", as dependency" << depend << "failed to load!";
+							VIPM->error() << "Failed when load plugin" << key << ", as dependency" << depend << "failed to load!";
 							d->LoadResults[key] = PluginManager::LoadPluginResult::DependencyLoadFailed;
 						}
 						dependFailed = true;
 					}
 					else {
-						vgMessageF << "Dependency" << depend << "for plugin" << key << "is loaded successfully.";
+						VIPM->message() << "Dependency" << depend << "for plugin" << key << "is loaded successfully.";
 					}
 				}
 			}
@@ -220,14 +224,14 @@ namespace Visindigo::General {
 			QString path = d->PluginPathMap.value(key);
 			QLibrary* hLibrary = new QLibrary(path);
 			if (hLibrary->load() == false) {
-				vgError << "Failed when load plugin" << key << ", cannot load plugin file into memory!";
+				VIPM->error() << "Failed when load plugin" << key << ", cannot load plugin file into memory!";
 				d->LoadResults[key] = PluginManager::LoadPluginResult::InvalidPluginBinary;
 				hLibrary->deleteLater();
 				continue;
 			}
 			__VisindigoPluginMain PluginDllMain = (__VisindigoPluginMain)hLibrary->resolve(Visindigo_PluginMain_Function_Name);
 			if (PluginDllMain == nullptr) {
-				vgError << "Failed when load plugin" << key << ", cannot find entry point VisindigoPluginMain!";
+				VIPM->error() << "Failed when load plugin" << key << ", cannot find entry point VisindigoPluginMain!";
 				hLibrary->unload();
 				d->LoadResults[key] = PluginManager::LoadPluginResult::EntryPointNotFound;
 				hLibrary->deleteLater();
@@ -238,14 +242,14 @@ namespace Visindigo::General {
 				plugin = PluginDllMain();
 			}
 			catch (...) {
-				vgError << "Exception occured when load plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
+				VIPM->error() << "Exception occured when load plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
 				hLibrary->unload();
 				d->LoadResults[key] = PluginManager::LoadPluginResult::ConstructorError;
 				hLibrary->deleteLater();
 				return;
 			}
 			if (plugin == nullptr) {
-				vgError << "Failed when init plugin" << key << ", cannot create EditorPlugin Instance!";
+				VIPM->error() << "Failed when init plugin" << key << ", cannot create EditorPlugin Instance!";
 				hLibrary->unload();
 				d->LoadResults[key] = PluginManager::LoadPluginResult::ConstructorError;
 				hLibrary->deleteLater();
@@ -253,7 +257,7 @@ namespace Visindigo::General {
 			}
 			QString pluginID = plugin->getPluginID();
 			if (pluginID != key) {
-				vgError << "Failed when init plugin" << key << ", the ID from plugin instance is different from the ID from meta file.";
+				VIPM->error() << "Failed when init plugin" << key << ", the ID from plugin instance is different from the ID from meta file.";
 				delete plugin;
 				hLibrary->unload();
 				d->LoadResults[key] = PluginManager::LoadPluginResult::MetadataNotSame;
@@ -264,7 +268,7 @@ namespace Visindigo::General {
 				Visindigo::General::Version::getAPIVersion(), plugin->getPluginAPIVersion()
 			);
 			if (!apiCompatible) {
-				vgError << "Failed when init plugin" << key << ", API incompatible. This plugin use api " << plugin->getPluginAPIVersion()
+				VIPM->error() << "Failed when init plugin" << key << ", API incompatible. This plugin use api " << plugin->getPluginAPIVersion()
 					<< ", but program is" << Visindigo::General::Version::getAPIVersion();
 				delete plugin;
 				hLibrary->unload();
@@ -276,7 +280,7 @@ namespace Visindigo::General {
 				Visindigo::General::Version::getABIVersion(), plugin->getPluginABIVersion()
 			);
 			if (!abiCompatible) {
-				vgError << "Failed when init plugin" << key << ", ABI incompatible. This plugin use abi " << plugin->getPluginABIVersion()
+				VIPM->error() << "Failed when init plugin" << key << ", ABI incompatible. This plugin use abi " << plugin->getPluginABIVersion()
 					<< ", but program is" << Visindigo::General::Version::getABIVersion();
 				delete plugin;
 				hLibrary->unload();
@@ -290,7 +294,7 @@ namespace Visindigo::General {
 			plugin->d->PluginFolder = path;
 			d->LoadResults[key] = PluginManager::LoadPluginResult::Success;
 			emit pluginLoaded(plugin);
-			vgSuccessF << "Plugin" << key << "create instance successfully. Will be enable later";
+			VIPM->success() << "Plugin" << key << "create instance successfully. Will be enable later";
 		}
 		for (int i = 0; i < d->PriorityPlugins.size();) {
 			IDString id = d->PriorityPlugins.at(i);
@@ -317,7 +321,7 @@ namespace Visindigo::General {
 		for (int i = 0; i < d->Plugins.size(); i++) {
 			Plugin* plugin = d->Plugins[i];
 			if (plugin->isTestEnable()) {
-				vgMessageF << "Testing plugin" << plugin->getPluginName();
+				VIPM->notice() << "Testing plugin" << plugin->getPluginName();
 				plugin->onTest();
 			}
 		}
@@ -333,7 +337,7 @@ namespace Visindigo::General {
 	void PluginManager::applicationInitAllPlugin() {
 		for (int i = 0; i < d->Plugins.size(); i++) {
 			Plugin* plugin = d->Plugins[i];
-			vgMessageF << plugin->getPluginName() << " is handling application init";
+			VIPM->notice() << plugin->getPluginName() << " is handling application init";
 			plugin->onApplicationInit();
 		}
 	}
@@ -351,14 +355,14 @@ namespace Visindigo::General {
 			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
 			if (isPluginEnable(plugin)) {
 				try {
-					vgMessageF << "Trying to disable plugin" << plugin->getPluginName();
+					VIPM->notice() << "Trying to disable plugin" << plugin->getPluginName();
 					plugin->onPluginDisable();
 				}
 				catch (...) {
-					vgError << "Failed when disable plugin" << plugin->getPluginName() << ", disable function may not have completed properly. RESTART is RECOMMENDED!";
+					VIPM->error() << "Failed when disable plugin" << plugin->getPluginName() << ", disable function may not have completed properly. RESTART is RECOMMENDED!";
 					continue;
 				}
-				vgSuccessF << "Plugin" << plugin->getPluginName() << "disabled";
+				VIPM->success() << "Plugin" << plugin->getPluginName() << "disabled";
 				d->EnabledPlugins.removeAll(plugin);
 			}
 		}
@@ -495,16 +499,22 @@ namespace Visindigo::General {
 				try {
 					plugin->d->initializePluginFolder(VIApp->getEnvConfig(VIApplication::ConfigPath).toString() + "/plugins");
 					plugin->d->setPluginLoadType(Plugin::LoadType::FromDisk);
-					vgMessageF << "Trying to enable plugin" << plugin->getPluginName();
+					VIPM->notice() << "Trying to enable plugin" << plugin->getPluginName();
 					plugin->onPluginEnable();
 				}
 				catch (...) {
-					vgError << "Failed when enable plugin" << plugin->getPluginName() << ", disable function will be called. RESTART is RECOMMENDED!";
+					VIPM->error() << "Failed when enable plugin" << plugin->getPluginName() << ", disable function will be called. RESTART is RECOMMENDED!";
 					plugin->onPluginDisable();
 					continue;
 				}
-				vgSuccessF << "Plugin" << plugin->getPluginName() << "enabled";
+				QList<PluginModule*> modules = plugin->getModules();
+				VIPM->info() << "Plugin" << plugin->getPluginName() << "has" << modules.size() << "modules:";
+				for (auto module : modules) {
+					VIPM->info() << "  - " + module->getModuleName();
+					VIPM->info() << "    - ID: " + module->getModuleID() + ", Type: " + module->getModuleTypeID();
+				}
 				emit pluginEnabled(plugin);
+				VIPM->success() << "Plugin" << plugin->getPluginName() << "enabled";
 				d->EnabledPlugins.append(plugin);
 			}
 		}

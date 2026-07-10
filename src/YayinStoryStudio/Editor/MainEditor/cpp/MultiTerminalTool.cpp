@@ -59,7 +59,7 @@ namespace YSS::Editor {
 		d->Layout->addWidget(d->CentralArea);
 		d->Layout->addWidget(d->TagArea);
 
-		this->setMinimumHeight(200);
+		//this->setMinimumHeight(200);
 		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const QString& widgetID) {
 			setCurrentTerminal(widgetID);
 			});

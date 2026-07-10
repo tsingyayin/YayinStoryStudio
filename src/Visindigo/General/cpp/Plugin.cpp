@@ -551,6 +551,9 @@ namespace Visindigo::General {
 		注册一个插件模块
 	*/
 	void Plugin::registerPluginModule(PluginModule* module) {
+		if (d->Modules.contains(module)) {
+			return;
+		}
 		d->Modules.append(module);
 		if (d->ModuleTypeIDMap.contains(module->getModuleTypeID())) {
 			d->ModuleTypeIDMap[module->getModuleTypeID()].append(module);

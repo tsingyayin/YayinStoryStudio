@@ -2,7 +2,7 @@
 
 namespace YSS::Editor {
 	PreferenceVFServer::PreferenceVFServer(YSSCore::Editor::EditorPlugin* plugin) :
-		YSSCore::Editor::FileServer("Preference Virtual File Server", "YSS.Editor.PreferenceVFServer", plugin) {
+		YSSCore::Editor::FileServer("Preference Virtual File Server", "YSS.Editor.PreferencesVFServer", plugin) {
 		setEditorType(EditorType::BuiltInEditor);
 		setSupportedFileExts({ "YSS.MainEditor.Preferences" });
 		setAsVitrualFileServer(true);

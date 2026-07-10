@@ -50,7 +50,6 @@ namespace Visindigo::General {
 			VI_Throw_ST(Exception::NullPointer, "plugin pointer is null");
 		}
 		d->ParentPlugin = parent;
-		d->ParentPlugin->registerPluginModule(this);
 		if (moduleName == QString()) {
 			d->ModuleName = moduleID;
 		}
@@ -59,6 +58,7 @@ namespace Visindigo::General {
 		}
 		d->ModuleID = moduleID;
 		d->ModuleTypeID = typeID;
+		//d->ParentPlugin->registerPluginModule(this);
 	}
 
 	/*!
