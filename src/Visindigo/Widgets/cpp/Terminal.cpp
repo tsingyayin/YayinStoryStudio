@@ -844,6 +844,15 @@ namespace Visindigo::Widgets {
 		d->setUpdateType(Visindigo::General::TickObject::FixUpdate);
 		d->setFixUpdateInterval(Visindigo::General::TickObject::FPS_20);
 		d->enableUpdate();
+		connect(this, &Terminal::inputPrepared, this, [this](const QString& command) {
+			if (d->ExternalProcess && d->ExternalProcess->state() != QProcess::NotRunning) {
+				if (not d->externalProcessUTF8) {
+					d->ExternalProcess->write((command + "\n").toLocal8Bit());
+				} else {
+					d->ExternalProcess->write((command + "\n").toUtf8());
+				}
+			}
+		});
 		vgDebug << "Terminal initialized.";
 	}
 
@@ -1098,16 +1107,6 @@ namespace Visindigo::Widgets {
 				emit stderrReceived(text);
 				addLine(text);
 				});
-			connect(this, &Terminal::inputPrepared, this, [this](const QString& command) {
-				if (d->ExternalProcess && d->ExternalProcess->state() != QProcess::NotRunning) {
-					if (not d->externalProcessUTF8) {
-						d->ExternalProcess->write((command + "\n").toLocal8Bit());
-					}
-					else {
-						d->ExternalProcess->write((command + "\n").toUtf8());
-					}
-				}
-				});
 			connect(d->ExternalProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
 				emit externalProcessFinished(exitCode, exitStatus);
 				});
@@ -1150,5 +1149,70 @@ namespace Visindigo::Widgets {
 	*/
 	QProcess* Terminal::getExternalProcess() const {
 		return d->ExternalProcess;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a proc 要绑定的外部QProcess指针，传入nullptr可解除绑定。
+
+		将一个外部的QProcess绑定到此Terminal。与launchExternalProcess不同，
+		bindQProcess不会创建新的QProcess对象，而是直接使用外部已有的QProcess实例。
+		Terminal不会取得该QProcess的所有权——当Terminal析构时，绑定的外部QProcess
+		不会被终止或删除，只会断开信号连接并释放引用。
+
+		绑定后，Terminal会自动连接该QProcess的readyReadStandardOutput、
+		readyReadStandardError和finished信号，以将输出重定向到终端显示。
+		用户在终端中输入的文本也会通过inputPrepared信号发送到该QProcess的标准输入。
+
+		如果此前已经有一个通过launchExternalProcess创建的内部QProcess正在运行，
+		该内部进程会被终止并销毁。如果此前已经绑定了一个外部QProcess，则会先
+		断开与旧进程的信号连接。
+	*/
+	void Terminal::bindQProcess(QProcess* proc) {
+		// 如果已有旧进程，清理它
+		if (d->ExternalProcess) {
+			// 断开与旧进程的所有信号连接
+			disconnect(d->ExternalProcess, nullptr, this, nullptr);
+
+			// 如果是内部拥有的进程，终止并销毁
+			if (!d->detachWhenTerminalClosed) {
+				if (d->ExternalProcess->state() != QProcess::NotRunning) {
+					d->ExternalProcess->terminate();
+					d->ExternalProcess->waitForFinished();
+				}
+				d->ExternalProcess->deleteLater();
+			}
+		}
+
+		d->ExternalProcess = proc;
+		d->detachWhenTerminalClosed = true; // 不取得所有权
+
+		if (proc) {
+			connect(proc, &QProcess::readyReadStandardOutput, this, [this]() {
+				QByteArray output = d->ExternalProcess->readAllStandardOutput();
+				QString text;
+				if (not d->externalProcessUTF8) {
+					text = QString::fromLocal8Bit(output);
+				} else {
+					text = QString::fromUtf8(output);
+				}
+				emit stdoutReceived(text);
+				addLine(text);
+			});
+			connect(proc, &QProcess::readyReadStandardError, this, [this]() {
+				QByteArray output = d->ExternalProcess->readAllStandardError();
+				QString text;
+				if (not d->externalProcessUTF8) {
+					text = QString::fromLocal8Bit(output);
+				} else {
+					text = QString::fromUtf8(output);
+				}
+				emit stderrReceived(text);
+				addLine(text);
+			});
+			connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
+				emit externalProcessFinished(exitCode, exitStatus);
+			});
+		}
 	}
 }

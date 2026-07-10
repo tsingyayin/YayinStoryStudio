@@ -118,6 +118,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MessageViewer.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MultiTerminalTool.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\PreferenceEditWidget.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\RenameDialog.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditWidgetArea.cpp" />
@@ -160,6 +161,7 @@
     <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h" />
     <QtMoc Include="Editor\MainEditor\MultiTerminalTool.h" />
     <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />
+    <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

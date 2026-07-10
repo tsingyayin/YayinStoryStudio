@@ -4,11 +4,11 @@
 #include "../FileServerManager.h"
 #include "../FileServer.h"
 #include "../TextEdit.h"
+#include "Editor/VirtualFilePath.h"
 #include "General/YSSLogger.h"
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
 #include <Utility/FileUtility.h>
-#include <QtCore/qregularexpression.h>
 
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
@@ -281,17 +281,16 @@ namespace YSSCore::Editor {
 		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
 		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
 
-		如果filePath为虚拟文件路径，则只匹配支持该虚拟文件的FileServer，不考虑 \a preferredServerId 、特别关注强度、优先级列表、 \a useFallback 等因素。
+		如果filePath为虚拟文件路径（参见 YSSCore::Editor::VirtualFilePath），则只匹配支持该虚拟文件的FileServer，不考虑 \a preferredServerId 、特别关注强度、优先级列表、 \a useFallback 等因素。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		if (filePath.isEmpty()) {
 			vgErrorF << "File path is empty!";
 			return false;
 		}
-		static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
-		auto match = re.match(filePath);
-		if (match.hasMatch()) {
-			QString ext = match.captured(1);
+		auto vfp = VirtualFilePath(filePath);
+		if (vfp.isValid()) {
+			QString ext = vfp.getExt();
 			FileServer* server = nullptr;
 			if (d->VirtualFileServerMap.contains(ext)) {
 				server = d->VirtualFileServerMap[ext];
@@ -323,7 +322,7 @@ namespace YSSCore::Editor {
 		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
 		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
 
-		\warning QFileInfo不处理虚拟文件路径。虚拟文件路径的判断和分发在openFile(const QString&)版本中完成。
+		\warning QFileInfo不处理虚拟文件路径。虚拟文件路径的判断和分发在 openFile(const QString&) 版本中完成，使用 YSSCore::Editor::VirtualFilePath 进行解析。
 	*/
 	bool FileServerManager::openFile(const QFileInfo& fileInfo, const QString& preferredServerId, bool useFallback) {
 		QString ext = fileInfo.suffix();
@@ -524,6 +523,9 @@ namespace YSSCore::Editor {
 		委托到getFileEditWidget(const QFileInfo&)版本。
 	*/
 	FileEditWidget* FileServerManager::getFileEditWidget(const QString& filePath) {
+		if (VirtualFilePath::isVirtualFilePath(filePath)) {
+			return d->OpenedFileEditWidgets.value(filePath, nullptr);
+		}
 		return getFileEditWidget(QFileInfo(filePath));
 	}
 

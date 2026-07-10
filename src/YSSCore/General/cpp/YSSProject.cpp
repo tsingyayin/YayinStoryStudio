@@ -14,6 +14,7 @@
 #include "General/YSSLogger.h"
 #include <General/Plugin.h>
 #include "Editor/DebugServerManager.h"
+#include "Editor/VirtualFilePath.h"
 namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
@@ -567,12 +568,19 @@ namespace YSSCore::General {
 		if (abs_filePath.isEmpty()) {
 			return;
 		}
-		if (not Visindigo::Utility::FileUtility::isFileExist(abs_filePath)) {
-			yErrorF << "File not exist:" << abs_filePath;
-			return;
+		auto vfs = YSSCore::Editor::VirtualFilePath(abs_filePath);
+		if (vfs.isValid()) {
+			yInfo << "Focused file is a virtual file path, store as absolute path:" << abs_filePath;
+			d->ProjectConfig->setString("Editor.FocusedFile", abs_filePath);
 		}
-		QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), abs_filePath);
-		d->ProjectConfig->setString("Editor.FocusedFile", relativePath);
+		else {
+			if (not Visindigo::Utility::FileUtility::isFileExist(abs_filePath)) {
+				yErrorF << "File not exist:" << abs_filePath;
+				return;
+			}
+			QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), abs_filePath);
+			d->ProjectConfig->setString("Editor.FocusedFile", relativePath);
+		}
 	}
 
 	/*!

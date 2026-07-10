@@ -298,7 +298,7 @@ namespace Visindigo::__Private__ {
 
 	QWidget* ConfigWidgetPrivate::widgetRouter(const QString& type, const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
 		QWidget* rtn = nullptr;
-		vgDebugF << node << type;
+		//vgDebugF << node << type;
 		if (type == "Frame") {
 			rtn = widget_QFrame(node, config, readOnly);
 		}

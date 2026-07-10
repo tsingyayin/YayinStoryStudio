@@ -141,6 +141,7 @@
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit_p.cpp" />
     <ClCompile Include="Editor\cpp\ToolWidgetManager.cpp" />
+    <ClCompile Include="Editor\cpp\VirtualFilePath.cpp" />
     <ClCompile Include="General\cpp\YSSLogger.cpp" />
     <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />

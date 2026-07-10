@@ -345,12 +345,14 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_program_pluginAndPreferences() {
+		/*
 		auto widget = new Visindigo::Widgets::PluginManageWidget();
 		widget->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		widget->setAttribute(Qt::WA_DeleteOnClose);
 		widget->setWindowModality(Qt::ApplicationModal);
 		widget->setWindowFlags(widget->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
-		widget->show();
+		widget->show();*/
+		YSSFSM->openFile("@YSS.MainEditor.Preferences!首选项?");
 	}
 
 	void MainWinMenu::file_program_about() {

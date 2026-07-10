@@ -1,10 +1,10 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qfileinfo.h>
 #include "../FileEditWidget.h"
+#include "Editor/VirtualFilePath.h"
 #include <General/Log.h>
 #include "General/YSSLogger.h"
 #include <Utility/FileUtility.h>
-#include <QtCore/qregularexpression.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
 #include <QtCore/qdir.h>
@@ -49,7 +49,7 @@ protected:
 
 		\section1 虚拟文件
 		YSSCore提供了一套被称之为虚拟文件的概念。有关该概念的详细阐述，
-		以及虚拟文件的虚拟文件路径的格式，请参考YSSCore::Editor::FileServer的相关文档。
+		以及虚拟文件路径的格式，请参考 YSSCore::Editor::VirtualFilePath 类的相关文档。
 		这里我们只说明一下FileEditWidget在虚拟文件模式下的一些特殊行为。
 
 		当openFile函数被调用时，如果传入的路径符合虚拟文件路径的格式（即以@开头，且包含!和?），
@@ -164,8 +164,8 @@ protected:
 		返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
 
 		注意，这可能是个虚拟文件路径，如果当前文件是通过FileServer打开的虚拟文件，
-		则返回的路径格式为@ext!fileName?param，其中ext是文件扩展名，fileName是文件名，param是额外参数。
-		对于虚拟文件路径，getFileName()函数会正确解析并返回文件名部分。
+		则返回的路径格式为 \c{@ext!fileName?param}。有关虚拟文件路径的详细格式，
+		请参考 YSSCore::Editor::VirtualFilePath。
 
 		对于真实文件，永远返回从QFileInfo获得的绝对路径。不同平台上的路径规范行为由QFileInfo担保。
 	*/
@@ -197,14 +197,15 @@ protected:
 
 		返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
 
-		对于虚拟文件，返回的是@ext!fileName?param路径中的fileName部分，即!和?之间的内容。
+		对于虚拟文件，返回的是虚拟文件路径中的fileName部分。
+
+		解析方式请参考 YSSCore::Editor::VirtualFilePath。
 	*/
 	QString FileEditWidget::getFileName() const {
 		if (d->isVirtualFile) {
-			static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
-			auto match = re.match(d->filePath);
-			if (match.hasMatch()) {
-				return match.captured(2);
+			auto vfp = VirtualFilePath(d->filePath);
+			if (vfp.isValid()) {
+				return vfp.getFileName();
 			}
 		}
 		return d->fileInfo.fileName();
@@ -236,14 +237,15 @@ protected:
 
 		返回当前文件的扩展名（不带点）。如果当前没有打开任何文件，则返回空字符串。
 
-		对于虚拟文件路径，返回的是@ext!fileName?param路径中的ext部分，即@和!之间的内容。
+		对于虚拟文件路径，返回的是虚拟文件路径中的ext部分。
+
+		解析方式请参考 YSSCore::Editor::VirtualFilePath。
 	*/
 	QString FileEditWidget::getFileExt() const {
 		if (d->isVirtualFile) {
-			static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
-			auto match = re.match(d->filePath);
-			if (match.hasMatch()) {
-				return match.captured(1);
+			auto vfp = VirtualFilePath(d->filePath);
+			if (vfp.isValid()) {
+				return vfp.getExt();
 			}
 		}
 		return d->fileInfo.suffix();
@@ -256,13 +258,14 @@ protected:
 		返回当前虚拟文件的参数部分。如果当前文件不是虚拟文件或没有参数，则返回空字符串。
 
 		对于虚拟文件路径，参数部分是路径中?之后的部分。
+
+		解析方式请参考 YSSCore::Editor::VirtualFilePath。
 	*/
 	QString FileEditWidget::getVirtualFileParam() const {
 		if (d->isVirtualFile) {
-			static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
-			auto match = re.match(d->filePath);
-			if (match.hasMatch()) {
-				return match.captured(3);
+			auto vfp = VirtualFilePath(d->filePath);
+			if (vfp.isValid()) {
+				return vfp.getParam();
 			}
 		}
 		return QString();
@@ -337,19 +340,16 @@ protected:
 
 		对于真实文件路径，等同于QFileInfo版本的重载。
 
-		从0.15.0开始，这个函数会事先判定文件路径是否满足虚拟文件路径，如果是的话，则调用
-		onVirtualOpen()函数打开。有关虚拟文件路径的概念，请参考FileServer类的说明。
+		从0.15.0开始，这个函数会事先判定文件路径是否满足虚拟文件路径格式（参见
+		YSSCore::Editor::VirtualFilePath），如果是的话，则调用
+		onVirtualOpen()函数打开。
 	*/
 	bool FileEditWidget::openFile(const QString& path) {
-		static auto re = QRegularExpression(R"(^@([^!]+)!([^?]+)\?(.*)$)");
-		auto match = re.match(path);
-		if (match.hasMatch()) {
+		auto vfp = VirtualFilePath(path);
+		if (vfp.isValid()) {
 			d->isVirtualFile = true;
-			QString ext = match.captured(1);
-			QString fileName = match.captured(2);
-			QString param = match.captured(3);
 			d->filePath = path;
-			return onVirtualOpen(ext, fileName, param);
+			return onVirtualOpen(vfp.getExt(), vfp.getFileName(), vfp.getParam());
 		}
 		if (path.isEmpty()) {
 			yWarningF << "File path is empty.";

@@ -41,7 +41,7 @@
     <QtMoc Include="AStorySyntax\AStoryXValueMeta.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="YSS\ASERFIleServer.h">
+    <QtMoc Include="YSS\ASERFileServer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="YSS\ASERProjectTemplate.h">

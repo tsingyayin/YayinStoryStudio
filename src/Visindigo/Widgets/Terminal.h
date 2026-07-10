@@ -46,6 +46,7 @@ namespace Visindigo::Widgets {
 		bool isExternalProcessRunning() const;
 		void terminateExternalProcess(bool waiting = false);
 		QProcess* getExternalProcess() const;
+		void bindQProcess(QProcess* proc);
 	private:
 		Visindigo::__Private__::TerminalPrivate* d;
 	};

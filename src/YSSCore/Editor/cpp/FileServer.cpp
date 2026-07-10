@@ -37,40 +37,13 @@ namespace YSSCore::Editor {
 				需要同时实现onCreateFileEditWidget函数。
 		\endlist
 
-		\section1 虚拟文件
-		从0.15.0开始，引入虚拟文件概念，以便在文件编辑区域打开一些并非真实存在的文件进行编辑，譬如程序设置、
-		插件设置等页面。
+		\section1 虚拟文件服务器
+		从0.15.0开始，引入虚拟文件概念，以便在文件编辑区域打开一些并非真实存在的文件进行编辑。
 
-		在虚拟文件模式下，文件路径被固定为以下写法：
-		\badcode
-			@file_ext!file_name?param
-		\endcode
-		譬如，对于通过setSupportedFileExts将扩展名设置为YSS.SettingsWidget的虚拟文件服务器，
-		当出现虚拟文件路径为
-		\badcode
-			@YSS.SettingsWidget!ProgramSettings?from=menubar
-		\endcode
-		的时候，则会对应调用该服务器，且file_name会在FileEditWidget中解析为ProgramSettings。
+		在虚拟文件服务器模式下，文件路径使用虚拟文件路径格式，具体格式和解析方式请参考
+		YSSCore::Editor::VirtualFilePath 类的文档。
 
-		有关虚拟文件模式下，FileEditWidget的其他特殊行为，请参考相关文档。
-
-		至于参数部分，目前推荐按url参数格式书写，但不强制规定。
-
-		既然提到了参数格式，我们也需要对file_ext和file_name做一些推荐标准：
-
-		由于file_name被约定为显示出来的文件名，而虚拟文件的编辑器可能通常
-		是一些配置界面，需要本地化，因此不推荐使用file_name进行功能区分，
-		而推荐只将file_ext作为功能区分的ID进行使用，且使用域命名法来书写。
-
-		事实上，在YSS内部，file_ext确实也是作为ID使用的，即不能有多个FileServer
-		同时注册一个file_ext，否则后来者无效。
-
-		譬如，对于上面那个YSS程序设置的例子，其实我们更推荐写为：
-		\badcode
-			@YSS.SettingsWidget.ProgramSettings!程序设置?from=menubar
-		\endcode
-		这样file_ext就可以直接用来区分不同的功能，而file_name则
-		可以直接用来显示给用户看。
+		虚拟文件服务器的 \c file_ext 作为ID使用，不能有多个FileServer同时注册同一个 \c file_ext，否则后来者无效。
 	*/
 
 	/*!

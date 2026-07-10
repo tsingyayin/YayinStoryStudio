@@ -8,6 +8,7 @@
 #include <Editor/FileServerManager.h>
 #include <QtCore/qfileinfo.h>
 #include <General/TranslationHost.h>
+#include <Editor/VirtualFilePath.h>
 namespace YSS::Editor {
 	class FileEditWidgetAreaPrivate {
 		friend class FileEditWidgetArea;
@@ -77,7 +78,14 @@ namespace YSS::Editor {
 			return;
 		}
 		widget->setParent(this);
-		d->TagArea->addStackLabel(filePath);
+		auto vfp = YSSCore::Editor::VirtualFilePath(filePath);
+		if (vfp.isValid()) {
+			d->TagArea->addStackLabel(filePath, vfp.getFileName());
+		}
+		else {
+			d->TagArea->addStackLabel(filePath);
+		}
+	
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackTagWidget::setFileChanged);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea, &StackTagWidget::cancelFileChanged);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea, &StackTagWidget::cancelFileChanged);
@@ -122,12 +130,7 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::closeWidget(const QString& filePath) {
-		QFileInfo fileInfo(filePath);
-		QString absPath = fileInfo.absoluteFilePath();
-		if (not YSSFSM->getAllOpenedFilePaths().contains(absPath)) {
-			return;
-		}
-		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
 		if (not widget) {
 			return;
 		}
@@ -147,12 +150,7 @@ namespace YSS::Editor {
 			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
-		QFileInfo fileInfo(filePath);
-		QString absPath = fileInfo.absoluteFilePath();
-		if (not YSSFSM->getAllOpenedFilePaths().contains(absPath)) {
-			return;
-		}
-		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
 		if (not widget) {
 			return;
 		}
