@@ -72,32 +72,12 @@ namespace YSS {
 		vgDebug << getPluginFolder().filePath("config.json");
 		VISTM->setStyleTemplatePriority({ "YSS" });
 		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future us
-		auto powershell = Visindigo::Widgets::Terminal::createPowerShell();
-		powershell->show();
 	}
 
 	void Main::onApplicationInit() {
 		VISTM->changeColorTheme(getPluginConfig()->getString("Settings.General.Theme"));
 		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 		win->show();
-		// style problem has been solved in 0.15.2, maybe we can remove this in the future
-		/*
-		if (Visindigo::General::VIApplication::isWindows() && not Visindigo::General::VIApplication::isWindows11()) {
-			if (not getPluginConfig()->getBool("General.ShowUpToWin11")) {
-				getPluginConfig()->setBool("General.ShowUpToWin11", true);
-				getPluginConfig()->setInt("General.ShowUpToWin11Count", 1);
-				YSS::Widgets::UpToWin11* upToWin11 = new YSS::Widgets::UpToWin11();
-				upToWin11->show();
-			}
-			else {
-				qint32 count = getPluginConfig()->getInt("General.ShowUpToWin11Count");
-				count++;
-				if (count > 20) {
-					getPluginConfig()->setBool("General.ShowUpToWin11", false);
-				}
-				getPluginConfig()->setInt("General.ShowUpToWin11Count", count);
-			}
-		}*/
 	}
 
 	void Main::onPluginDisable() {
@@ -124,7 +104,6 @@ namespace YSS {
 		}
 		vgDebug << "Visindigo Logger:" << t1 << "ms";
 		vgDebug << "Qt Logger:" << t2 << "ms"; 
-		//VI7zBinder->compressFilesToZip({ "C:/Users/tsing/Desktop/" }, "C:/Users/tsing/Desktop/TestArchive.zip", Visindigo::Utility::SevenZipBinder::zip, "password");
 	}
 
 	QWidget* Main::getConfigWidget() {

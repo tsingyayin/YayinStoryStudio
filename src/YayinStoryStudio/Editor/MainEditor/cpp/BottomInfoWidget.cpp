@@ -32,6 +32,7 @@ namespace YSS::Editor {
 		QLabel* FM_InfoText;
 		QLabel* EditorInfoText;
 		QComboBox* EditorFontSizeComboBox;
+		QComboBox* EditorTabCompleterLevelComboBox;
 
 		QWidget* GitInfoWidget;
 		QHBoxLayout* GitInfoLayout;
@@ -85,7 +86,38 @@ namespace YSS::Editor {
 			EditorFontSizeComboBox->addItem("150%", 1.5f);
 			EditorFontSizeComboBox->addItem("175%", 1.75f);
 			EditorFontSizeComboBox->addItem("200%", 2.0f);
-			EditorFontSizeComboBox->setCurrentIndex(2);
+			qint32 index = -1;
+			float configFontSize = YSS::Editor::TextEditConfigOperator::getFontScale();
+			for (qint32 i = 0; i < EditorFontSizeComboBox->count(); i++) {
+				if (EditorFontSizeComboBox->itemData(i).toFloat() == configFontSize) {
+					index = i;
+					break;
+				}
+			}
+			if (index == -1) {
+				index = 2; // Default to 100% if not found
+			}
+			EditorFontSizeComboBox->setCurrentIndex(index);
+		}
+
+		void initTabCompleterLevelComboBox() {
+			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.none"), YSSCore::Editor::TabCompleterItem::CompleterLevel::None);
+			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.few"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Few);
+			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.some"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Some);
+			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.many"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Many);
+			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.all"), YSSCore::Editor::TabCompleterItem::CompleterLevel::All);
+			qint32 index = -1;
+			auto configLevel = YSS::Editor::TextEditConfigOperator::getCompleterLevel();
+			for (qint32 i = 0; i < EditorTabCompleterLevelComboBox->count(); i++) {
+				if (EditorTabCompleterLevelComboBox->itemData(i).value<YSSCore::Editor::TabCompleterItem::CompleterLevel>() == configLevel) {
+					index = i;
+					break;
+				}
+			}
+			if (index == -1) {
+				index = 4; // Default to "All" if not found
+			}
+			EditorTabCompleterLevelComboBox->setCurrentIndex(index);
 		}
 	};
 
@@ -133,7 +165,9 @@ namespace YSS::Editor {
 		d->EditorInfoText = new QLabel(d->EditorInfoWidget);
 		d->EditorInfoText->setText("");
 		d->EditorFontSizeComboBox = new QComboBox(d->EditorInfoWidget);
+		d->EditorTabCompleterLevelComboBox = new QComboBox(d->EditorInfoWidget);
 		d->initFontSizeComboBox();
+		d->initTabCompleterLevelComboBox();
 		d->EditorInfoLayout->addWidget(d->FM_ErrorIcon);
 		d->EditorInfoLayout->addWidget(d->FM_ErrorText);
 		d->EditorInfoLayout->addWidget(d->FM_WarningIcon);
@@ -145,6 +179,7 @@ namespace YSS::Editor {
 		d->EditorInfoLayout->addWidget(spacer);
 		d->EditorInfoLayout->addWidget(d->EditorInfoText);
 		d->EditorInfoLayout->addWidget(d->EditorFontSizeComboBox);
+		d->EditorInfoLayout->addWidget(d->EditorTabCompleterLevelComboBox);
 		d->MainLayout->addWidget(d->EditorInfoWidget);
 
 		d->GitInfoWidget = new QWidget(this);
@@ -176,6 +211,21 @@ namespace YSS::Editor {
 		clearDebugProgress();
 		setColorfulEnable(true);
 		onThemeChanged();
+
+		connect(d->EditorFontSizeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
+			if (index >= 0) {
+				float fontSize = d->EditorFontSizeComboBox->itemData(index).toFloat();
+				setEditorFontSize(fontSize);
+			}
+			});
+
+		connect(d->EditorTabCompleterLevelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
+			if (index >= 0) {
+				YSSCore::Editor::TabCompleterItem::CompleterLevel level = 
+					static_cast<YSSCore::Editor::TabCompleterItem::CompleterLevel>(d->EditorTabCompleterLevelComboBox->itemData(index).toInt());
+				YSS::Editor::TextEditConfigOperator::setCompleterLevel(level, true);
+			}
+			});
 	}
 
 	BottomInfoWidget::~BottomInfoWidget() {
@@ -225,8 +275,9 @@ namespace YSS::Editor {
 	}
 
 	void BottomInfoWidget::setEditorFontSize(float fontSize) {
-		// todo.
-		// need to handle freedom input logic. Will not implement immediately.
+		if (fontSize <= 0.2f) fontSize = 0.2f;
+		if (fontSize >= 5.0f) fontSize = 5.0f;
+		YSS::Editor::TextEditConfigOperator::setFontScale(fontSize, true);
 	}
 
 	void BottomInfoWidget::displayEditorInfo(qint32 totalLine, qint32 currentLine, qint32 currentColumn, qint32 selected) {

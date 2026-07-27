@@ -27,7 +27,6 @@ namespace YSS::Editor {
 		void setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column);
 		YSSCore::Editor::FileEditWidget* getCurrentWidget() const;
 		QString getCurrentWidgetFilePath() const;
-		void setMessageViewerEnable(bool enable);
 	public:
 		virtual void resizeEvent(QResizeEvent* event) override;
 	private:

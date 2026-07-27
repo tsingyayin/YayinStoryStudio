@@ -9,6 +9,7 @@
 #include <QtCore/qfileinfo.h>
 #include <General/TranslationHost.h>
 #include <Editor/VirtualFilePath.h>
+#include "Editor/MainEditor/TextEditConfigOperator.h"
 namespace YSS::Editor {
 	class FileEditWidgetAreaPrivate {
 		friend class FileEditWidgetArea;
@@ -104,6 +105,7 @@ namespace YSS::Editor {
 			connect(textEdit, &YSSCore::Editor::TextEdit::cursorPositionChanged, this, [this, textEdit]() {
 				emit textEditCursorPositionChanged(textEdit->getFilePath(), textEdit->getTextCursor());
 				});
+			YSS::Editor::TextEditConfigOperator::applyTo(textEdit);
 		}
 		GlobalValue::getCurrentProject()->addEditorOpenedFile(filePath);
 		setCurrentWidget(filePath);
@@ -147,7 +149,6 @@ namespace YSS::Editor {
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(1, d->ContentArea);
-			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
 		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
@@ -159,7 +160,6 @@ namespace YSS::Editor {
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = widget;
 			d->Layout->insertWidget(1, d->ContentArea);
-			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
 		GlobalValue::getCurrentProject()->setFocusedFile(filePath);
@@ -177,7 +177,6 @@ namespace YSS::Editor {
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(1, d->ContentArea);
-			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
 			d->ContentArea->show();
 		}
 		QFileInfo fileInfo(filePath);
@@ -208,20 +207,8 @@ namespace YSS::Editor {
 		return QString();
 	}
 
-	void FileEditWidgetArea::setMessageViewerEnable(bool enable) {
-		if (enable) {
-			//d->MsgViewer->show();
-		}
-		else {
-			//d->MsgViewer->hide();
-		}
-	}
-
 	void FileEditWidgetArea::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
-		if (d->ContentArea) {
-			//d->ContentArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
-		}
-		//d->CentralArea->setFixedHeight(this->height() - d->TagArea->height() - (d->MsgViewer->isVisible() ? d->MsgViewer->height() : 0));
+
 	}
 }

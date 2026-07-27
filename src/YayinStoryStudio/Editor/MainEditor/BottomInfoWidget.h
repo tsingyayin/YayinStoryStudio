@@ -5,6 +5,7 @@
 #include <Widgets/ThemeManager.h>
 #include <QtGui/qtextcursor.h>
 #include <tuple>
+#include <Editor/MainEditor/TextEditConfigOperator.h>
 namespace YSS::Editor{
 	class BottomInfoWidgetPrivate;
 	class BottomInfoWidget :public Visindigo::Widgets::BorderFrame , public Visindigo::Widgets::ColorfulWidget{

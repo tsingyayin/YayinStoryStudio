@@ -201,6 +201,13 @@
 				"function": "函数 类型",
 				"object": "对象 类型",
 				"operator": "运算符 类型"
+			},
+			"tabCompleterLevel":{
+				"none": "无提示",
+				"few": "少量提示",
+				"some": "适量提示",
+				"many": "大量提示",
+				"all": "全部提示"
 			}
 		},
 		"debug": {

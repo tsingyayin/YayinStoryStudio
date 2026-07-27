@@ -123,6 +123,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditWidgetArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackComponents_p.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ToolWidgetArea.cpp" />
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
@@ -162,6 +163,7 @@
     <QtMoc Include="Editor\MainEditor\MultiTerminalTool.h" />
     <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
+    <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

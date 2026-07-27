@@ -1143,6 +1143,29 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
+		\since YSS 0.16.0
+		\a width 设置Tab键的宽度，单位为空格数。
+
+		默认值为4，即一个Tab键等于4个空格的宽度。
+	*/
+	void TextEdit::setTabWidth(qint32 width) {
+		d->TabWidth = width;
+		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
+		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
+		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return Tab键的宽度，单位为空格数。
+
+		默认值为4，即一个Tab键等于4个空格的宽度。
+	*/
+	qint32 TextEdit::getTabWidth() const {
+		return d->TabWidth;
+	}
+
+	/*!
 		\since YSS 0.14.0
 		\a source 目标字符串，可以是普通字符串，也可以是正则表达式，取决于 \a sourceAsRe 参数。
 		\a sourceAsRe 当为真时， \a source 被视作正则表达式进行查找；当为假时， \a source 被视作普通字符串进行查找。

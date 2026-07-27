@@ -51,6 +51,8 @@ namespace YSSCore::Editor {
 		void setFontSize(qint32 size);
 		void setTextFont(const QFont& font);
 		QFont getTextFont() const;
+		void setTabWidth(qint32 width);
+		qint32 getTabWidth() const;
 		QList<QTextCursor> findAll(const QString& source, bool sourceAsRe = false, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool multiSelection = false) const;
 		void clearFindAllSelection();
 		QTextCursor findNext(const QString& text, bool sourceAsRe = false, qint32 from = -1, QTextDocument::FindFlags options = QTextDocument::FindFlags(), bool relocate = false) const;

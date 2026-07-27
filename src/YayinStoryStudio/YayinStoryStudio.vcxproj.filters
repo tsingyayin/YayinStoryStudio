@@ -98,6 +98,12 @@
     <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\PreferenceEditWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
@@ -167,6 +173,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\MultiTerminalTool.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
