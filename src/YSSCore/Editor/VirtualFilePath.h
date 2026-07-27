@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSCore_Editor_VirtualFilePath_h
+#define YSSCore_Editor_VirtualFilePath_h
 #include "YSSCoreCompileMacro.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qvariant.h>
@@ -33,3 +34,4 @@ namespace YSSCore::Editor {
 		VirtualFilePathPrivate* d;
 	};
 }
+#endif // YSSCore_Editor_VirtualFilePath_h

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASERStudio_Plugin_ASERStudio_h
+#define ASERStudio_Plugin_ASERStudio_h
 #include <Editor/EditorPlugin.h>
 #include <General/Translator.h>
 namespace ASERStudio::ASEREnv {
@@ -34,3 +35,4 @@ namespace ASERStudio {
 		MainPrivate* d;
 	};
 }
+#endif // ASERStudio_Plugin_ASERStudio_h

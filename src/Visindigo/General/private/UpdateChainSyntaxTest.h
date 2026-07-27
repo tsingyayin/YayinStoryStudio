@@ -1,5 +1,6 @@
-#pragma once
-#include "../UpdateChain.h"
+#ifndef Visindigo_General_private_UpdateChainSyntaxTest_h
+#define Visindigo_General_private_UpdateChainSyntaxTest_h
+#include "General/UpdateChain.h"
 
 namespace Visindigo::__Private__ {
 	class MyUpdateChain :public Visindigo::General::UpdateChain {
@@ -18,3 +19,4 @@ namespace Visindigo::__Private__ {
 		}
 	};
 }
+#endif // Visindigo_General_private_UpdateChainSyntaxTest_h

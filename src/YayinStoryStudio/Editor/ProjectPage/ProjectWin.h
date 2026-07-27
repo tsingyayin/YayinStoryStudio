@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_ProjectPage_ProjectWin_h
+#define YayinStoryStudio_Editor_ProjectPage_ProjectWin_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
@@ -67,3 +68,4 @@ namespace YSS::ProjectPage {
 		void loadProject();
 	};
 }
+#endif // YayinStoryStudio_Editor_ProjectPage_ProjectWin_h

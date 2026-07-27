@@ -1,4 +1,4 @@
-#include "../NewFileWin.h"
+#include "Editor/NewFilePage/NewFileWin.h"
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qscrollarea.h>

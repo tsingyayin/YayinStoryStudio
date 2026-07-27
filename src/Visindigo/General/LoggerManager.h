@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_General_LoggerManager_h
+#define Visindigo_General_LoggerManager_h
 #include "VICompileMacro.h"
 #include "General/Logger.h"
 #include <QtCore/qobject.h>
@@ -33,3 +34,4 @@ namespace Visindigo::General {
 		LoggerManagerPrivate* d;
 	};
 };
+#endif // Visindigo_General_LoggerManager_h

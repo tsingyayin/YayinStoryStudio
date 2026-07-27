@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSCore_General_YSSProject_h
+#define YSSCore_General_YSSProject_h
 #include "YSSCoreCompileMacro.h"
 #include <QtCore/qstring.h>
 // Forward declarations
@@ -78,3 +79,4 @@ namespace YSSCore::General {
 		YSSProjectPrivate* d;
 	};
 }
+#endif // YSSCore_General_YSSProject_h

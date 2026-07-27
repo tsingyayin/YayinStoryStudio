@@ -3,8 +3,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qdir.h>
-#include "../Version.h"
-#include "../../Utility/JsonConfig.h"
+#include "General/Version.h"
+#include "Utility/JsonConfig.h"
 #include "General/Plugin.h"
 namespace Visindigo::General {
 	class Plugin;

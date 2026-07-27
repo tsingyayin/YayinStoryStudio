@@ -1,6 +1,6 @@
 #ifndef VISINDIGO_GENERAL_VIAPPLICATION_P_H
 #define VISINDIGO_GENERAL_VIAPPLICATION_P_H
-#include "../VIApplication.h"
+#include "General/VIApplication.h"
 
 namespace Visindigo::__Private__ {
 	class VisindigoAPI CoreApplication :public QCoreApplication {

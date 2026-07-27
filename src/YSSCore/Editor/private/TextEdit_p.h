@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSCore_Editor_private_TextEdit_p_h
+#define YSSCore_Editor_private_TextEdit_p_h
 #include <QtCore/qobject.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qtextcursor.h>
@@ -165,3 +166,4 @@ namespace YSSCore::__Private__ {
 		void adjustHoverInfoPosition(const QTextCursor& cursor);
 	};
 }
+#endif // YSSCore_Editor_private_TextEdit_p_h

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Utility_private_qnamespace_key_h
+#define Visindigo_Utility_private_qnamespace_key_h
 #include <QtCore/qobject.h>
 /*
 * Most of the content in this file is copy-pasted from Qt source code (qnamespace.h)
@@ -554,3 +555,4 @@ namespace Visindigo::__Private__ {
 		Q_ENUM(KeyEnum);
 	};
 }
+#endif // Visindigo_Utility_private_qnamespace_key_h

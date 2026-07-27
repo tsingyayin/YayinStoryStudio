@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_MainEditor_MainWin_h
+#define YayinStoryStudio_Editor_MainEditor_MainWin_h
 #include <QObject>
 #include <QtWidgets/qframe.h>
 #include <Widgets/ThemeManager.h>
@@ -60,3 +61,4 @@ namespace YSS::Editor {
 		virtual void keyPressEvent(QKeyEvent* event) override;
 	};
 }
+#endif // YayinStoryStudio_Editor_MainEditor_MainWin_h

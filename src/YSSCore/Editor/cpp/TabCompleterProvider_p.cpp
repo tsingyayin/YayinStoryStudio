@@ -8,8 +8,8 @@
 #include <Widgets/MultiButton.h>
 #include <Widgets/MultiButtonGroup.h>
 #include <Widgets/ThemeManager.h>
-#include "../private/TabCompleterProvider_p.h"
-#include "../TabCompleterProvider.h"
+#include "Editor/private/TabCompleterProvider_p.h"
+#include "Editor/TabCompleterProvider.h"
 #include "General/YSSLogger.h"
 #include <General/TranslationHost.h>
 namespace YSSCore::__Private__ {

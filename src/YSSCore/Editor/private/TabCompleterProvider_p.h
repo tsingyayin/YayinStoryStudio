@@ -1,9 +1,10 @@
-#pragma once
+#ifndef YSSCore_Editor_private_TabCompleterProvider_p_h
+#define YSSCore_Editor_private_TabCompleterProvider_p_h
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtWidgets/qframe.h>
-#include "../TabCompleterProvider.h"
+#include "Editor/TabCompleterProvider.h"
 #include <Widgets/BorderFrame.h>
 #include <Widgets/BorderLabel.h>
 #include <Widgets/ThemeManager.h>
@@ -79,3 +80,4 @@ namespace YSSCore::__Private__ {
 		virtual void resizeEvent(QResizeEvent* event) override;
 	};
 }
+#endif // YSSCore_Editor_private_TabCompleterProvider_p_h

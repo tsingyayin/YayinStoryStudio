@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Widgets_UpToWin11_h
+#define YayinStoryStudio_Widgets_UpToWin11_h
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qpushbutton.h>
@@ -24,3 +25,4 @@ namespace YSS::Widgets {
 		Visindigo::Widgets::LiquidGlassEffect* BottomEffect;
 	};
 }
+#endif // YayinStoryStudio_Widgets_UpToWin11_h

@@ -1,6 +1,6 @@
 #include <QtCore/qstring.h>
 #include <QtGui/qsyntaxhighlighter.h>
-#include "../LangServer.h"
+#include "Editor/LangServer.h"
 #include <General/Plugin.h>
 #include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {

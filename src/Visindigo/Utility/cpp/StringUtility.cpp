@@ -1,4 +1,4 @@
-#include "../StringUtility.h"
+#include "Utility/StringUtility.h"
 #include <QtCore/qlist.h>
 #include <QtCore/qset>
 

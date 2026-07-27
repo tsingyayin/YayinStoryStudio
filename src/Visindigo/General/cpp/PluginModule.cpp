@@ -1,5 +1,5 @@
-#include "../PluginModule.h"
-#include "../Plugin.h"
+#include "General/PluginModule.h"
+#include "General/Plugin.h"
 #include "General/Exception.h"
 #include "General/Plugin.h"
 #include "General/TranslationHost.h"

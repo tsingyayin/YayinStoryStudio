@@ -1,9 +1,9 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qfileinfo.h>
 #include <General/Log.h>
-#include "../FileServerManager.h"
-#include "../FileServer.h"
-#include "../TextEdit.h"
+#include "Editor/FileServerManager.h"
+#include "Editor/FileServer.h"
+#include "Editor/TextEdit.h"
 #include "Editor/VirtualFilePath.h"
 #include "General/YSSLogger.h"
 #include <QtWidgets/qmessagebox.h>

@@ -1,5 +1,5 @@
 #include <QtWidgets/qwidget.h>
-#include "../FileServer.h"
+#include "Editor/FileServer.h"
 #include <General/Plugin.h>
 #include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {

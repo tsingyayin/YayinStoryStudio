@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSFileExt_Plugin_YSSFileExt_h
+#define YSSFileExt_Plugin_YSSFileExt_h
 #include <Editor/EditorPlugin.h>
 
 class Plugin_YSSFileExt : public YSSCore::Editor::EditorPlugin {
@@ -9,3 +10,4 @@ public:
 	virtual void onPluginEnable() override;
 	virtual void onPluginDisable() override;
 };
+#endif // YSSFileExt_Plugin_YSSFileExt_h

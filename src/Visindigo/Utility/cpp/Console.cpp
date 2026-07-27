@@ -1,4 +1,4 @@
-#include "../Console.h"
+#include "Utility/Console.h"
 #include <QtCore/qstring.h>
 #include <QtGui/qcolor.h>
 #include <iostream>

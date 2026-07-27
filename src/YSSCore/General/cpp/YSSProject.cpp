@@ -1,4 +1,4 @@
-#include "../YSSProject.h"
+#include "General/YSSProject.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qdir.h>

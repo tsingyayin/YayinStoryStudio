@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Widgets_private_MultiButton_p_h
+#define Visindigo_Widgets_private_MultiButton_p_h
 #include <QtCore/qstring.h>
 namespace Visindigo::Widgets {
 	class MultiButton;
@@ -26,3 +27,4 @@ namespace Visindigo::__Private__ {
 		bool Checked = false;
 	};
 }
+#endif // Visindigo_Widgets_private_MultiButton_p_h

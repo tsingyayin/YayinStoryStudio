@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_General_private_LoggerMsgHandler_impl_h
+#define Visindigo_General_private_LoggerMsgHandler_impl_h
 #include <type_traits>
 
 namespace Visindigo::General {
@@ -54,3 +55,4 @@ namespace Visindigo::General {
 		return *this;
 	}
 }
+#endif // Visindigo_General_private_LoggerMsgHandler_impl_h

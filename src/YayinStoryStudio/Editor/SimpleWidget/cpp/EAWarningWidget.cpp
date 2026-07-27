@@ -1,4 +1,4 @@
-#include "../EAWarningWidget.h"
+#include "Editor/SimpleWidget/EAWarningWidget.h"
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qboxlayout.h>

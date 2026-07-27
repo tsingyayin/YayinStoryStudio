@@ -1,6 +1,6 @@
-#include "../TranslationHost.h"
-#include "../private/Translator_p.h"
-#include "../Log.h"
+#include "General/TranslationHost.h"
+#include "General/private/Translator_p.h"
+#include "General/Log.h"
 #include "QtCore/qtranslator.h"
 #include "QtCore/qcoreapplication.h"
 namespace Visindigo::General {

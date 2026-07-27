@@ -1,5 +1,5 @@
-#include "../MultiButton.h"
-#include "../private/MultiButton_p.h"
+#include "Widgets/MultiButton.h"
+#include "Widgets/private/MultiButton_p.h"
 #include <QtWidgets/qstyleoption.h>
 #include <QtWidgets/qstyle.h>
 #include <QtGui/qpainter.h>

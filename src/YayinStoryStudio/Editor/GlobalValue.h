@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_GlobalValue_h
+#define YayinStoryStudio_Editor_GlobalValue_h
 #include <QtCore/qobject.h>
 // Forward declarations
 namespace Visindigo {
@@ -46,3 +47,4 @@ namespace YSS {
 		static YSSCore::General::YSSProject* getCurrentProject();
 	};
 }
+#endif // YayinStoryStudio_Editor_GlobalValue_h

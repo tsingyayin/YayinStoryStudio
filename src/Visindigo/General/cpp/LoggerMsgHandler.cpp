@@ -1,7 +1,7 @@
-#include "../LoggerMsgHandler.h"
-#include "../LoggerManager.h"
+#include "General/LoggerMsgHandler.h"
+#include "General/LoggerManager.h"
 #include <QtCore/qobject.h>
-#include "../../Utility/Console.h"
+#include "Utility/Console.h"
 #include <QtGui/qregion.h>
 namespace Visindigo::General {
 	/*!

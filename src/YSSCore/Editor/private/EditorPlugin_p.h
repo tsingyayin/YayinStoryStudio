@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSCore_Editor_private_EditorPlugin_p_h
+#define YSSCore_Editor_private_EditorPlugin_p_h
 #include <QtCore/qstringlist.h>
 #include <General/Version.h>
 #include <Utility/JsonConfig.h>
@@ -23,3 +24,4 @@ namespace YSSCore::__Private__ {
 		QString PluginFolder;
 	};
 }
+#endif // YSSCore_Editor_private_EditorPlugin_p_h

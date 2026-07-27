@@ -1,4 +1,4 @@
-#include "../JsonLangServer.h"
+#include "LangServer/JsonLangServer.h"
 #include <QtCore/qregularexpression.h>
 namespace YSSFileExt {
 	JsonLangServer::JsonLangServer(YSSCore::Editor::EditorPlugin* plugin) :

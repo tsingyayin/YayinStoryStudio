@@ -1,6 +1,6 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qfileinfo.h>
-#include "../FileEditWidget.h"
+#include "Editor/FileEditWidget.h"
 #include "Editor/VirtualFilePath.h"
 #include <General/Log.h>
 #include "General/YSSLogger.h"

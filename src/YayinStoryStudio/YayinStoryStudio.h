@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_YayinStoryStudio_h
+#define YayinStoryStudio_YayinStoryStudio_h
 #include <General/Package.h>
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qlabel.h>
@@ -35,3 +36,4 @@ namespace YSS {
 }
 
 #define YSSApp YSS::Main::getInstance()
+#endif // YayinStoryStudio_YayinStoryStudio_h

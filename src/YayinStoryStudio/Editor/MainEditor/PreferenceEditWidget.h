@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_MainEditor_PreferenceEditWidget_h
+#define YayinStoryStudio_Editor_MainEditor_PreferenceEditWidget_h
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServer.h>
 #include <Widgets/PluginManageWidget.h>
@@ -25,3 +26,4 @@ namespace YSS::Editor {
 		virtual bool onVirtualSave() override;
 	};
 }
+#endif // YayinStoryStudio_Editor_MainEditor_PreferenceEditWidget_h

@@ -1,10 +1,10 @@
-#include "../JsonConfig.h"
+#include "Utility/JsonConfig.h"
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qjsonobject.h>
 #include <QtCore/qjsonvalue.h>
 #include <QtCore/qjsonarray.h>
-#include "../JsonValueRef.h"
-#include "../../General/Log.h"
+#include "Utility/JsonValueRef.h"
+#include "General/Log.h"
 namespace Visindigo::Utility {
 	class JsonConfigPrivate
 	{

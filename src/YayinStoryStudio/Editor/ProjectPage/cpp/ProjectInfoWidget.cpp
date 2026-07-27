@@ -1,4 +1,4 @@
-#include "../ProjectInfoWidget.h"
+#include "Editor/ProjectPage/ProjectInfoWidget.h"
 #include <Utility/FileUtility.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>

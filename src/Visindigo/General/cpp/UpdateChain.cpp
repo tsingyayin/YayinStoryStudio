@@ -1,4 +1,4 @@
-#include "../UpdateChain.h"
+#include "General/UpdateChain.h"
 #include <QtCore/qdebug.h>
 namespace Visindigo::General {
 	class UpdateChainNodePrivate {

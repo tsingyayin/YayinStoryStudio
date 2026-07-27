@@ -1,4 +1,4 @@
-#include "../GlobalValue.h"
+#include "Editor/GlobalValue.h"
 #include "YayinStoryStudio.h"
 #include <Utility/JsonConfig.h>
 #include <Widgets/ThemeManager.h>

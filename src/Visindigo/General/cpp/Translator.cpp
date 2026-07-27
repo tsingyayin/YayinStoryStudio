@@ -1,9 +1,9 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qtextstream.h>
-#include "../private/Translator_p.h"
-#include "../../Utility/JsonDocument.h"
-#include "../../General/Log.h"
+#include "General/private/Translator_p.h"
+#include "Utility/JsonDocument.h"
+#include "General/Log.h"
 
 namespace Visindigo::__Private__ {
 	bool TranslatorPrivate::loadDefault() {

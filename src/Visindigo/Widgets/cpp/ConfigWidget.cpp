@@ -1,4 +1,4 @@
-#include "../ConfigWidget.h"
+#include "Widgets/ConfigWidget.h"
 #include <QtCore/qfile.h>
 #include "Utility/JsonConfig.h"
 #include "Utility/FileUtility.h"

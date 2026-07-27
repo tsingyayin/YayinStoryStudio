@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_NewFilePage_NewFileWin_h
+#define YayinStoryStudio_Editor_NewFilePage_NewFileWin_h
 #include <QtWidgets/qwidget.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
@@ -50,3 +51,4 @@ namespace YSS::NewFilePage {
 		void refreshTemplate() {};
 	};
 }
+#endif // YayinStoryStudio_Editor_NewFilePage_NewFileWin_h

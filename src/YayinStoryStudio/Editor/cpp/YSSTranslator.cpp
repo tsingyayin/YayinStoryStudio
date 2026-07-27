@@ -1,4 +1,4 @@
-#include "../YSSTranslator.h"
+#include "Editor/YSSTranslator.h"
 
 namespace YSS::Editor {
 	YSSTranslator::YSSTranslator(Visindigo::General::Plugin* parent) : Translator(parent, "YSS") {

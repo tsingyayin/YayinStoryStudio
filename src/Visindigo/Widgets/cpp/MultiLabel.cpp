@@ -1,4 +1,4 @@
-#include "../MultiLabel.h"
+#include "Widgets/MultiLabel.h"
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qapplication.h>

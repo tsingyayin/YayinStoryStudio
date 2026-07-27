@@ -1,12 +1,12 @@
-#include "../QuickMenu.h"
+#include "Widgets/QuickMenu.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qobject.h>
 #include <QtWidgets/qaction.h>
 #include <QtWidgets/qmenu.h>
-#include "../../Utility/JsonConfig.h"
-#include "../../General/TranslationHost.h"
-#include "../../Utility/QtSSHelper.h"
-#include "../../General/Log.h"
+#include "Utility/JsonConfig.h"
+#include "General/TranslationHost.h"
+#include "Utility/QtSSHelper.h"
+#include "General/Log.h"
 namespace Visindigo::Widgets {
 	class QuickMenuPrivate {
 		friend class QuickMenu;

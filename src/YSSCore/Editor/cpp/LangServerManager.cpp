@@ -2,8 +2,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <General/Log.h>
-#include "../LangServerManager.h"
-#include "../LangServer.h"
+#include "Editor/LangServerManager.h"
+#include "Editor/LangServer.h"
 #include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	class LangServerManagerPrivate {

@@ -1,5 +1,5 @@
-#include "../DebugServerManager.h"
-#include "../DebugServer.h"
+#include "Editor/DebugServerManager.h"
+#include "Editor/DebugServer.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qmap.h>
 namespace YSSCore::Editor {

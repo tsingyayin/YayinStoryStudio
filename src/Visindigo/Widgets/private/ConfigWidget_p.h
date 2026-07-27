@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Widgets_private_ConfigWidget_p_h
+#define Visindigo_Widgets_private_ConfigWidget_p_h
 #include <QtGui/qcolor.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
@@ -69,3 +70,4 @@ namespace Visindigo::__Private__ {
 		void onColorChanged(const QColor& clr);
 	};
 }
+#endif // Visindigo_Widgets_private_ConfigWidget_p_h

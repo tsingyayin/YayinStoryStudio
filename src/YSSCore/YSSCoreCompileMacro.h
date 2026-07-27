@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSCore_YSSCoreCompileMacro_h
+#define YSSCore_YSSCoreCompileMacro_h
 #include <QtCore/qtypes.h>
 
 #define YSSCoreAPI __declspec(dllimport)
@@ -12,3 +13,4 @@
 #endif
 
 #include <VIMacro.h>
+#endif // YSSCore_YSSCoreCompileMacro_h

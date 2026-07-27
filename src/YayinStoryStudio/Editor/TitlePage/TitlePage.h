@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_TitlePage_TitlePage_h
+#define YayinStoryStudio_Editor_TitlePage_TitlePage_h
 #include <QtCore/QObject>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QLabel>
@@ -17,3 +18,4 @@ namespace YSS::TitlePage {
 		virtual void disableHandler() override;
 	};
 }
+#endif // YayinStoryStudio_Editor_TitlePage_TitlePage_h

@@ -1,6 +1,7 @@
-#pragma once
-#include "../Translator.h"
-#include "../../Utility/JsonConfig.h"
+#ifndef Visindigo_General_private_Translator_p_h
+#define Visindigo_General_private_Translator_p_h
+#include "General/Translator.h"
+#include "Utility/JsonConfig.h"
 namespace Visindigo::General {
 	class TranslationHost;
 	class TranslationHostPrivate;
@@ -23,3 +24,4 @@ namespace Visindigo::__Private__ {
 		bool loadTranslationFile(Visindigo::General::Translator::LangID id, bool asDefault = false);
 	};
 }
+#endif // Visindigo_General_private_Translator_p_h

@@ -1,6 +1,6 @@
-#include "../Logger.h"
+#include "General/Logger.h"
 #include <QtCore/qstring.h>
-#include "../LoggerMsgHandler.h"
+#include "General/LoggerMsgHandler.h"
 namespace Visindigo::General {
 	class LoggerPrivate {
 		friend class Logger;

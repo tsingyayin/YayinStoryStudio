@@ -1,11 +1,11 @@
-#include "../ProjectWin.h"
-#include "../ProjectInfoWidget.h"
+#include "Editor/ProjectPage/ProjectWin.h"
+#include "Editor/ProjectPage/ProjectInfoWidget.h"
 #include <General/Version.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qboxlayout.h>
-#include "../../GlobalValue.h"
+#include "Editor/GlobalValue.h"
 #include <Utility/JsonConfig.h>
 #include <Widgets/ThemeManager.h>
 #include <General/TranslationHost.h>

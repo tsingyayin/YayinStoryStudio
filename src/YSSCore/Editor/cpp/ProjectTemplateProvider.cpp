@@ -1,4 +1,4 @@
-#include "../ProjectTemplateProvider.h"
+#include "Editor/ProjectTemplateProvider.h"
 #include <General/Plugin.h>
 #include "Editor/EditorPlugin.h"
 namespace YSSCore::Editor {

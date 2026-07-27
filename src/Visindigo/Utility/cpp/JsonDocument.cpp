@@ -1,6 +1,6 @@
-#include "../JsonDocument.h"
-#include "../JsonConfig.h"
-#include "../JsonValueRef.h"
+#include "Utility/JsonDocument.h"
+#include "Utility/JsonConfig.h"
+#include "Utility/JsonValueRef.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qjsondocument.h>
 #include <QtCore/qfile.h>

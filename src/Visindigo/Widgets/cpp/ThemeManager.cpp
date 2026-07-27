@@ -1,4 +1,4 @@
-#include "../ThemeManager.h"
+#include "Widgets/ThemeManager.h"
 #include <QtGui/qcolor.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qiodevice.h>

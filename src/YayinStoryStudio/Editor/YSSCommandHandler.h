@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_YSSCommandHandler_h
+#define YayinStoryStudio_Editor_YSSCommandHandler_h
 #include <General/CommandHandler.h>
 #include <General/CommandHost.h>
 namespace YSS::Editor {
@@ -9,3 +10,4 @@ namespace YSS::Editor {
 		virtual QStringList onComplete(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) override;
 	};
 }
+#endif // YayinStoryStudio_Editor_YSSCommandHandler_h

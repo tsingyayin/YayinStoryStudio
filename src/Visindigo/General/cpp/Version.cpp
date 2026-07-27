@@ -1,8 +1,8 @@
-#include "../Version.h"
+#include "General/Version.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qregularexpression.h>
-#include "../private/AUTO_VERSION.h"
+#include "General/private/AUTO_VERSION.h"
 
 namespace Visindigo::General {
 	class VersionPrivate

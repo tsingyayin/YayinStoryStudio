@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_ProjectPage_ProjectInfoWidget_h
+#define YayinStoryStudio_Editor_ProjectPage_ProjectInfoWidget_h
 #include <QtWidgets/qframe.h>
 #include <Widgets/ThemeManager.h>
 #include <Widgets/BorderFrame.h>
@@ -36,3 +37,4 @@ namespace YSS::ProjectPage {
 		virtual void onThemeChanged() override;
 	};
 }
+#endif // YayinStoryStudio_Editor_ProjectPage_ProjectInfoWidget_h

@@ -1,6 +1,6 @@
-#include "../CodeDiff.h"
+#include "Utility/CodeDiff.h"
 #include <QtCore/qstringlist.h>
-#include "../Console.h"
+#include "Utility/Console.h"
 
 namespace Visindigo::Utility {
 	class CodeLinePrivate {

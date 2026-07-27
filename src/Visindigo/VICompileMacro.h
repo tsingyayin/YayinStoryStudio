@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_VICompileMacro_h
+#define Visindigo_VICompileMacro_h
 #include <QtCompilerDetection>
 #include <QtCore/qtypes.h>
 
@@ -17,3 +18,4 @@
 #endif
 
 #include "VIMacro.h"
+#endif // Visindigo_VICompileMacro_h

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Widgets_private_MultiButtonGroup_p_h
+#define Visindigo_Widgets_private_MultiButtonGroup_p_h
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
 namespace Visindigo::Widgets
@@ -23,3 +24,4 @@ namespace Visindigo::__Private__ {
 		void onButtonLeft(Visindigo::Widgets::MultiButton* button);
 	};
 }
+#endif // Visindigo_Widgets_private_MultiButtonGroup_p_h

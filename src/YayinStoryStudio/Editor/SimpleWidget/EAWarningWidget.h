@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_SimpleWidget_EAWarningWidget_h
+#define YayinStoryStudio_Editor_SimpleWidget_EAWarningWidget_h
 #include <QtWidgets/qwidget.h>
 
 class QLabel;
@@ -18,3 +19,4 @@ namespace YSS::SimpleWidget {
 		virtual void closeEvent(QCloseEvent* event) override;
 	};
 }
+#endif // YayinStoryStudio_Editor_SimpleWidget_EAWarningWidget_h

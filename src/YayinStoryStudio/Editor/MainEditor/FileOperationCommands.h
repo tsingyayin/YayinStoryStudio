@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_MainEditor_FileOperationCommands_h
+#define YayinStoryStudio_Editor_MainEditor_FileOperationCommands_h
 #include <QtGui/qundostack.h>
 #include <QtCore/qstring.h>
 
@@ -37,3 +38,4 @@ private:
 } // namespace YSS::Editor
 
 Q_DECLARE_METATYPE(QUndoCommand*)
+#endif // YayinStoryStudio_Editor_MainEditor_FileOperationCommands_h

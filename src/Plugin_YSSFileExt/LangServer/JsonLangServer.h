@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSFileExt_LangServer_JsonLangServer_h
+#define YSSFileExt_LangServer_JsonLangServer_h
 #include <Editor/LangServer.h>
 #include <Editor/EditorPlugin.h>
 #include <Editor/SyntaxHighlighter.h>
@@ -17,3 +18,4 @@ namespace YSSFileExt {
 		virtual void onBlockChanged(const QString& text, int blockNumber) override;
 	};
 }
+#endif // YSSFileExt_LangServer_JsonLangServer_h

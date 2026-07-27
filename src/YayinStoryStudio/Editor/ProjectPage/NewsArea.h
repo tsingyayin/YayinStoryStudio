@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_ProjectPage_NewsArea_h
+#define YayinStoryStudio_Editor_ProjectPage_NewsArea_h
 #include <QtWidgets/qframe.h>
 
 namespace YSS::ProjectPage {
@@ -8,3 +9,4 @@ namespace YSS::ProjectPage {
 		NewsArea(QWidget* parent = nullptr) {};
 	};
 }
+#endif // YayinStoryStudio_Editor_ProjectPage_NewsArea_h

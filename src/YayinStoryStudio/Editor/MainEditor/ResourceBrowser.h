@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h
+#define YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h
 #include <QtCore/qdir.h>
 #include <QtWidgets/qwidget.h>
 #include <Widgets/ThemeManager.h>
@@ -65,3 +66,4 @@ namespace YSS::Editor {
 		void onRenameTriggered();
 	};
 }
+#endif // YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h

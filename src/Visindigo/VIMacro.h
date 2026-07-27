@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef Visindigo_VIMacro_h
+#define Visindigo_VIMacro_h
 #ifdef __cpp_lib_stacktrace
 #if __cpp_lib_stacktrace >= 202011L
 #define VI_HAS_STD_STACKTRACE
@@ -83,3 +83,4 @@
 		ptr->deleteLater(); \
 		ptr = nullptr; \
 	}
+#endif // Visindigo_VIMacro_h

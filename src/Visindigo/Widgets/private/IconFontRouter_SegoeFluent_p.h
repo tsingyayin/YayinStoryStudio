@@ -1,4 +1,5 @@
-#pragma once
+#ifndef Visindigo_Widgets_private_IconFontRouter_SegoeFluent_p_h
+#define Visindigo_Widgets_private_IconFontRouter_SegoeFluent_p_h
 #include "Widgets/IconFontRouter.h"
 
 namespace Visindigo::__Private__ {
@@ -11,3 +12,4 @@ namespace Visindigo::__Private__ {
 		virtual QChar getChar(IconName iconName) override;
 	};
 }
+#endif // Visindigo_Widgets_private_IconFontRouter_SegoeFluent_p_h
