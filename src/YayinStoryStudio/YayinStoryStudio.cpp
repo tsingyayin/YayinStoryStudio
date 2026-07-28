@@ -19,6 +19,7 @@
 #include <Utility/BenchmarkTimer.h>
 #include <Utility/SevenZipBinder.h>
 #include <Widgets/Terminal.h>
+#include <QtCore/qstandardpaths.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -42,6 +43,7 @@ namespace YSS {
 	}
 
 	void Main::onPluginEnable() {
+		releaseInstaller();
 		auto LangID = Visindigo::General::Translator::stringToLangID(getPluginConfig()->getString("Settings.General.Language"));
 		VITRH->setLangID(LangID);
 		VISTM->setAnimationDuration(500);
@@ -66,6 +68,9 @@ namespace YSS {
 			vgDebug << node;
 			if (node == "General.Theme") {
 				VISTM->changeColorTheme(data);
+			}
+			else if (node == "General.UpdateChannel") {
+				Visindigo::Utility::FileUtility::deleteFile(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache"));
 			}
 			});
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, this, &Visindigo::General::Plugin::reloadPluginConfig);
@@ -106,6 +111,32 @@ namespace YSS {
 		vgDebug << "Qt Logger:" << t2 << "ms"; 
 	}
 
+	void Main::releaseInstaller(){
+		QString installerPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + 
+		"/AppData/LocalLow/TsingYayin/YayinStoryStudio/Installer/YSSInstaller.exe";
+		if (not Visindigo::Utility::FileUtility::isFileExist(installerPath)) {
+			vgDebug << "Installer not found at:" << installerPath;
+			vgDebug << "Releasing installer...";
+			QString installerFolder = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+			"/AppData/LocalLow/TsingYayin/YayinStoryStudio/Installer";
+			QStringList files = {
+				"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
+				"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
+			};
+			QStringList folders = {
+				"iconengiens", "imageformats", "networkinformation", "platforms", "styles", "translations"
+			};
+			Visindigo::Utility::FileUtility::createDir(installerFolder);
+			for (const QString& file : files) {
+				Visindigo::Utility::FileUtility::copyFile(Visindigo::Utility::FileUtility::getProgramPath() + 
+				"/" + file, installerFolder + "/" + file, true, true);
+			}
+			for (const QString& folder : folders) {
+				Visindigo::Utility::FileUtility::copyDir(Visindigo::Utility::FileUtility::getProgramPath() + 
+				"/" + folder, installerFolder + "/" + folder, true, true);
+			}
+		}
+	}
 	QWidget* Main::getConfigWidget() {
 		return d->ConfigWidget;
 	}

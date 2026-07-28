@@ -45,7 +45,7 @@ namespace YSS::ProjectPage {
 				QString cacheStr = Visindigo::Utility::FileUtility::readAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache"));
 				if (jsonStr == cacheStr) {
 					QString content = Visindigo::Utility::FileUtility::readAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_content"));
-					if (!content.isEmpty()) {
+					if (not content.isEmpty()) {
 						NewsWidget->setMarkdown(content);
 					}
 					bool needUpdate = YSS::Main::getInstance()->getPluginConfig()->getBool("Update.Needed");
@@ -351,16 +351,33 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::onNewsMetaGot(const Visindigo::Utility::JsonConfig& config) {
-		if (config.contains("version")) {
-			QString version = config.getString("version");
+		QString versionKey = "version";
+		QString updateNewsKey = "update_news";
+		QString newsKey = "news";
+		QString updateChannel = VIApp->getMainPlugin()->getPluginConfig()->getString("Settings.General.UpdateChannel");
+		if (updateChannel == "beta") {
+			versionKey = "version_beta";
+			updateNewsKey = "update_news_beta";
+			newsKey = "news_beta";
+		}
+		else if (updateChannel == "tp") {
+			versionKey = "version_tp";
+			updateNewsKey = "update_news_tp";
+			newsKey = "news_tp";
+		}
+		else {
+			VIApp->getMainPlugin()->getPluginConfig()->setString("Settings.General.UpdateChannel", "release");
+		}
+		if (config.contains(versionKey)) {
+			QString version = config.getString(versionKey);
 			Visindigo::General::Version metaVersion(version);
 			auto req = QNetworkRequest();
 			bool isUpdate = metaVersion > VIApp->getMainPlugin()->getPluginVersion();
 			if (isUpdate) {
-				req = QNetworkRequest(QUrl(config.getString("update_news")));
+				req = QNetworkRequest(QUrl(config.getString(updateNewsKey)));
 			}
 			else {
-				req = QNetworkRequest(QUrl(config.getString("news")));
+				req = QNetworkRequest(QUrl(config.getString(newsKey)));
 			}
 			QNetworkReply* reply = NetworkManager->get(req);
 			connect(reply, &QNetworkReply::finished, this, [this, reply, isUpdate, metaVersion]() {

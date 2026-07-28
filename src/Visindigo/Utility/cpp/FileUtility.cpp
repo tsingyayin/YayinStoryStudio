@@ -577,4 +577,119 @@ namespace Visindigo::Utility {
 			vgErrorF << "Failed to copy file: " << srcPath << " to " << dstPath;
 		}
 	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a srcPath 源文件路径
+		\a dstPath 目标文件路径
+		\a rinse 是否使用漂洗的方式移动文件
+		\a overwrite 是否覆盖已存在的目标文件
+
+		移动文件。如果overwrite为true，则覆盖已存在的目标文件，否则不进行移动。
+
+		当rinse为false时，使用QFile::rename()直接重命名移动；当rinse为true时，
+		先漂洗复制再删除源文件，适用于跨卷移动或需要剥离元数据的场景。
+	*/
+	void FileUtility::moveFile(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
+		QFile srcFile(srcPath);
+		if (!srcFile.exists()) {
+			return;
+		}
+		QFile dstFile(dstPath);
+		if (dstFile.exists()) {
+			if (overwrite) {
+				dstFile.remove();
+			}
+			else {
+				return;
+			}
+		}
+		if (not rinse) {
+			srcFile.rename(dstPath);
+		}
+		else {
+			// Rinse mode: copy then remove source
+			if (srcFile.open(QIODevice::ReadOnly)) {
+				QByteArray data = srcFile.readAll();
+				srcFile.close();
+				if (dstFile.open(QIODevice::WriteOnly)) {
+					dstFile.write(data);
+					dstFile.close();
+					srcFile.remove();
+					return;
+				}
+			}
+			vgErrorF << "Failed to move file: " << srcPath << " to " << dstPath;
+		}
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a dirPath 目录路径
+
+		直接删除指定目录及其所有内容。如果目录不存在，则不做任何操作。
+
+		\note 此函数会递归删除目录中的所有文件和子目录，请谨慎使用。
+	*/
+	void FileUtility::deleteDir(const QString& dirPath) {
+		QDir dir(dirPath);
+		if (!dir.exists()) {
+			return;
+		}
+		dir.removeRecursively();
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a srcPath 源目录路径
+		\a dstPath 目标目录路径
+		\a rinse 是否使用漂洗的方式复制文件
+		\a overwrite 是否覆盖已存在的目标文件
+
+		复制整个目录。此函数会遍历源目录中的所有文件，并对每个文件调用copyFile()。
+	*/
+	void FileUtility::copyDir(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
+		QDir srcDir(srcPath);
+		if (!srcDir.exists()) {
+			return;
+		}
+		QStringList files = fileFilter(srcPath, QStringList() << "*", true);
+		for (const QString& srcFilePath : files) {
+			QString relativePath = srcDir.relativeFilePath(srcFilePath);
+			QString dstFilePath = QDir(dstPath).absoluteFilePath(relativePath);
+			// Ensure destination subdirectory exists
+			QFileInfo dstFileInfo(dstFilePath);
+			createDir(dstFileInfo.absolutePath());
+			copyFile(srcFilePath, dstFilePath, rinse, overwrite);
+		}
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a srcPath 源目录路径
+		\a dstPath 目标目录路径
+		\a rinse 是否使用漂洗的方式移动文件
+		\a overwrite 是否覆盖已存在的目标文件
+
+		移动整个目录。此函数会遍历源目录中的所有文件，并对每个文件调用moveFile()。
+		移动完成后会删除空的源目录结构。
+	*/
+	void FileUtility::moveDir(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
+		QDir srcDir(srcPath);
+		if (!srcDir.exists()) {
+			return;
+		}
+		QStringList files = fileFilter(srcPath, QStringList() << "*", true);
+		for (const QString& srcFilePath : files) {
+			QString relativePath = srcDir.relativeFilePath(srcFilePath);
+			QString dstFilePath = QDir(dstPath).absoluteFilePath(relativePath);
+			// Ensure destination subdirectory exists
+			QFileInfo dstFileInfo(dstFilePath);
+			createDir(dstFileInfo.absolutePath());
+			moveFile(srcFilePath, dstFilePath, rinse, overwrite);
+		}
+		// Remove the now-empty source directory tree
+		srcDir.removeRecursively();
+	}
+
 }
