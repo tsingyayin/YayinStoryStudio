@@ -11,6 +11,7 @@ namespace Visindigo::Utility {
 		static QStringList getStartWith(const QString& str, const QStringList& candidates, bool caseSensitive = true);
 		static QStringList deduplicate(const QStringList& list);
 		static bool isAllBlank(const QString& str);
+		static QString autoElide(const QString& str, qint32 maxLength, const QString& elideStr = "...");
 	};
 }
 #endif // Visindigo_Utility_StringUtility_h	

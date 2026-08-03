@@ -32,6 +32,7 @@ namespace Visindigo::__Private__ {
 		QMap<QComboBox*, QString> ComboBoxDefault;
 		QMap<QRadioButton*, bool> RadioButtonDefault;
 		QMap<QLineEdit*, QString> LineEditDefault;
+		QMap<QLineEdit*, QComboBox*> LineEditPrefabricatedComboBox;
 		QMap<QTextEdit*, QString> TextEditDefault;
 		QMap<QLabel*, QString> ColorDialogDefault;
 		QList<QWidget*> SettingsWidget;

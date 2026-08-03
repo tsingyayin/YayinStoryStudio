@@ -28,6 +28,7 @@ namespace ASERStudio::ASEREnv {
 		QStringList getSoundEffect();
 		void changeProjectPath(const QString& path);
 		void refresh(ResourceTypes types = ResourceType::All);
+		QList<QPair<QString, QString>> getASERProgramPaths();
 	private:
 		ASERResourceMoniterPrivate* d;
 	};

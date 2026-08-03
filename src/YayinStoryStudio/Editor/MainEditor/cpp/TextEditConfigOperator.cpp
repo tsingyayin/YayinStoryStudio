@@ -3,6 +3,8 @@
 #include <Editor/FileServerManager.h>
 #include <QtWidgets/qapplication.h>
 #include <QtCore/qmetaobject.h>
+#include <General/Log.h>
+
 namespace YSS::Editor {
 	qint32 TextEditConfigOperator::getTabWidth() {
 		bool ok = true;
@@ -117,16 +119,18 @@ namespace YSS::Editor {
 	}
 
 	void TextEditConfigOperator::applyAll() {
+		applyTextFont();
 		applyTabWidth();
 		applyFontScale();
 		applyCompleterLevel();
-		applyTextFont();
 	}
 
 	void TextEditConfigOperator::applyTo(YSSCore::Editor::TextEdit* target) {
 		if (not target) {
 			return;
 		}
+		QFont textFont = getTextFont();
+		target->setFont(textFont);
 
 		qint32 tabWidth = getTabWidth();
 		target->setTabWidth(tabWidth);
@@ -139,8 +143,7 @@ namespace YSS::Editor {
 		YSSCore::Editor::TabCompleterItem::CompleterLevel completerLevel = getCompleterLevel();
 		target->setCompleterLevel(completerLevel);
 
-		QFont textFont = getTextFont();
-		target->setFont(textFont);
+		vgDebugF << "Applied text edit config to target text edit: " << target;
 	}
 
 

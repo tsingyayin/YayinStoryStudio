@@ -117,4 +117,20 @@ namespace Visindigo::Utility {
 		}
 		return true;
 	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a str 输入字符串
+		\a maxLength 最大长度
+		\a elideStr 省略符字符串，默认为"..."。
+
+		return 如果输入字符串的长度超过最大长度，则返回一个被截断并添加省略符的字符串；否则返回原字符串。
+	*/
+	QString StringUtility::autoElide(const QString& str, qint32 maxLength, const QString& elideStr) {
+		if (str.length() <= maxLength){
+			return str;
+		}
+		qint32 halfLength = (maxLength - elideStr.length()) / 2;
+		return str.left(halfLength) + elideStr + str.right(halfLength);
+	}
 }

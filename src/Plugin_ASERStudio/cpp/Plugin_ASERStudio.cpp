@@ -16,6 +16,7 @@
 #include "ASEREnv/ASERWarpper.h"
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
+#include "Utility/StringUtility.h"
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "ASERStudio")
@@ -152,6 +153,14 @@ namespace ASERStudio {
 	}
 
 	QWidget* Main::getConfigWidget() {
+		auto aser_programs = ASEREnv::ASERResourceMoniter::getInstance()->getASERProgramPaths();
+		QList<QPair<QString, QString>> items;
+		for (auto aser_info : aser_programs) {
+			QString elidedPath = Visindigo::Utility::StringUtility::autoElide(aser_info.first, 30);
+			QString text = "(" + aser_info.second + ") " + elidedPath;
+			items.append({text, aser_info.first});
+		}
+		d->ConfigWidget->setLineEditPrefabricatedItems("ASERExeSettings.ExePath", items);
 		return d->ConfigWidget;
 	}
 

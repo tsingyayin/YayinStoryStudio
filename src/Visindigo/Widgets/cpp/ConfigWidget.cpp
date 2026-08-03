@@ -357,26 +357,60 @@ namespace Visindigo::__Private__ {
 	}
 
 	QWidget* ConfigWidgetPrivate::widget_LineEdit(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
-		QLineEdit* LineEdit = new QLineEdit();
+		QFrame* container = new QFrame();
+		QLineEdit* LineEdit = new QLineEdit(container);
 		LineEdit->setObjectName(node);
 		QString defaultValue = config.getString("default");
+		LineEdit->setText(VIPlaceholder(defaultValue));
+		LineEditDefault.insert(LineEdit, VIPlaceholder(defaultValue));
+
+		QGridLayout* layout = new QGridLayout(container);
+		layout->setContentsMargins(0, 0, 0, 0);
+		layout->setSpacing(0);
+		layout->addWidget(LineEdit, 0, 0);
+
+		QToolButton* selectButton = new QToolButton(container);
+		FileButtons.append(selectButton);
+		selectButton->setIcon(VIApp->getFontIcon("\uE721", 64, { VISTM->getPaletteTextColor() }));
+		selectButton->setToolTip(VITR("Visindigo::general.preview"));
+		selectButton->setFixedSize(30, 30);
+		selectButton->setIconSize(QSize(22, 22));
+		selectButton->hide();
+		layout->addWidget(selectButton, 0, 1);
+
+		QComboBox* comboBox = new QComboBox(container);
+		layout->addWidget(comboBox, 1, 0);
+		comboBox->addItem("(fill in freely)");
+		auto items = config.getArray("prefabricated");
+		if (items.size() != 0) {
+			for (Visindigo::Utility::JsonConfig item : items) {
+				QString combo_data = item.getString("data");
+				QString combo_key = VI18N(item.getString("key"));
+				comboBox->addItem(combo_key, combo_data);
+			}
+		}
+		else {
+			comboBox->hide();
+		}
+		LineEditPrefabricatedComboBox.insert(LineEdit, comboBox);
+		connect(comboBox, &QComboBox::currentIndexChanged, [=](int index) {
+			vgDebug << "ComboBox index changed:" << index << comboBox->itemData(index).toString();
+			if (index <= 0) {
+				return;
+			}
+			QString item = comboBox->itemData(index).toString();
+			LineEdit->setText(item);
+			});
+
+		if (readOnly) {
+			selectButton->setEnabled(false);
+			LineEdit->setEnabled(false);
+			comboBox->setEnabled(false);
+		}
+		
 		connect(LineEdit, &QLineEdit::textChanged, this, &ConfigWidgetPrivate::onLineEditTextChanged);
 		if (config.contains("isFolder") || config.contains("isFile")) {
-			LineEdit->setText(VIPlaceholder(defaultValue));
-			LineEditDefault.insert(LineEdit, VIPlaceholder(defaultValue));
-			QFrame* container = new QFrame();
-			QHBoxLayout* layout = new QHBoxLayout(container);
-			layout->setContentsMargins(0, 0, 0, 0);
-			layout->setSpacing(0);
-			LineEdit->setParent(container);
-			layout->addWidget(LineEdit);
-			QToolButton* selectButton = new QToolButton(container);
-			FileButtons.append(selectButton);
-			selectButton->setIcon(VIApp->getFontIcon("\uE721", 64, {VISTM->getPaletteTextColor()}));
-			selectButton->setToolTip(VITR("Visindigo::general.preview"));
-			selectButton->setFixedSize(30, 30);
-			selectButton->setIconSize(QSize(22, 22));
-			layout->addWidget(selectButton);
+			selectButton->show();
 			if (config.contains("isFolder")) {
 				connect(selectButton, &QAbstractButton::clicked, [=]() {
 					QString folder = QFileDialog::getExistingDirectory(container,
@@ -400,20 +434,8 @@ namespace Visindigo::__Private__ {
 					}
 					});
 			}
-			if (readOnly) {
-				selectButton->setEnabled(false);
-				LineEdit->setEnabled(false);
-			}
-			return container;
 		}
-		else {
-			LineEditDefault.insert(LineEdit, defaultValue);
-			LineEdit->setText(defaultValue);
-			if (readOnly) {
-				LineEdit->setEnabled(false);
-			}
-			return LineEdit;
-		}
+		return container;
 	}
 
 	QWidget* ConfigWidgetPrivate::widget_TextEdit(const QString& node, Visindigo::Utility::JsonConfig& config, bool readOnly) {
@@ -477,6 +499,18 @@ namespace Visindigo::__Private__ {
 		QObject* obj = sender();
 		QString node = obj->objectName();
 		Config.setString(node, str);
+		QComboBox* comboBox = LineEditPrefabricatedComboBox.value(static_cast<QLineEdit*>(obj), nullptr);
+		if (comboBox) {
+			int index = comboBox->findData(str);
+			if (index != -1) {
+				if (index != comboBox->currentIndex()) {
+					comboBox->setCurrentIndex(index);
+				}
+			}
+			else {
+				comboBox->setCurrentIndex(0);
+			}
+		}
 		emit self->lineEditTextChanged(node, str);
 	}
 
@@ -732,6 +766,31 @@ namespace Visindigo::Widgets {
 		for (QLineEdit* obj : d->LineEditDefault.keys()) {
 			if (obj->objectName() == node) {
 				obj->setText(text);
+				return;
+			}
+		}
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a node 配置项节点
+		\a items 要设置的选项列表，格式为QList<QPair<QString, QString>>
+
+		手动设置某个LineEdit的预设选项列表。
+	*/
+	void ConfigWidget::setLineEditPrefabricatedItems(const QString& node, const QList<QPair<QString, QString>>& items) {
+		for (QLineEdit* obj : d->LineEditDefault.keys()) {
+			if (obj->objectName() == node) {
+				QComboBox* comboBox = d->LineEditPrefabricatedComboBox.value(obj, nullptr);
+				if (comboBox) {
+					comboBox->clear();
+					comboBox->addItem("(fill in freely)", "");
+					for (const QPair<QString, QString>& item : items) {
+						comboBox->addItem(VI18N(item.first), item.second);
+					}
+					comboBox->setCurrentIndex(0);
+					comboBox->setVisible(not items.isEmpty());
+				}
 				return;
 			}
 		}

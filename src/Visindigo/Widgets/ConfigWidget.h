@@ -32,6 +32,7 @@ namespace Visindigo::Widgets {
 		void syncConfig();
 		void saveConfig();
 		void setLineEditText(const QString& node, const QString& text);
+		void setLineEditPrefabricatedItems(const QString& node, const QList<QPair<QString, QString>>& items);
 		void setComboBoxIndex(const QString& node, int index);
 		void setComboBoxItems(const QString& node, const QList<QPair<QString, QString>>& items, qint32 defaultIndex = 0);
 		void setRadioButtonChecked(const QString& node, bool checked);

@@ -29,7 +29,14 @@ namespace ASERStudio::ASEREnv {
 
 		QFileSystemWatcher* Watcher = nullptr;
 		QFileSystemWatcher* OfficialWatcher = nullptr;
+
+		Visindigo::Utility::JsonConfig ASERConfig;
+
 		static ASERResourceMoniter* Instance;
+
+		void refreshASERConfig() {
+			ASERConfig.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/userData.json"));
+		}
 
 		void refreshOfficial() {
 			auto collections = Visindigo::Utility::JsonConfig();
@@ -164,7 +171,7 @@ namespace ASERStudio::ASEREnv {
 
 	/*!
 		\since ASERStudio 2.4.0
-		
+
 		return ASERResourceMoniter的单例实例
 	*/
 	ASERResourceMoniter* ASERResourceMoniter::getInstance() {
@@ -186,8 +193,13 @@ namespace ASERStudio::ASEREnv {
 			refresh();
 			});
 		d->OfficialWatcher = new QFileSystemWatcher(this);
+		d->OfficialWatcher->addPath(getASERStandardConfigPath() + "/userData.json");
 		d->OfficialWatcher->addPath(getASERStandardConfigPath() + "/Configs");
 		d->refreshOfficial();
+		d->refreshASERConfig();
+		connect(d->OfficialWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString& path) {
+			d->refreshASERConfig();
+			});
 		connect(d->OfficialWatcher, &QFileSystemWatcher::directoryChanged, this, [this](const QString& path) {
 			d->refreshOfficial();
 			});
@@ -329,5 +341,23 @@ namespace ASERStudio::ASEREnv {
 			}
 			d->SoundEffects = soundEffectList;
 		}
+	}
+
+	/*!
+		\since ASERStudio 2.4.0
+		return 当前ASERStudio程序中可用的ASER程序路径列表。每个路径包含路径和对应的版本。
+
+		ASER从3.7.12版本开始，每次启动时都会在配置文件中记录当前ASER程序的路径和版本信息。
+		ASERStudio通过读取这些信息，获取当前系统中可用的ASER程序路径列表。
+	*/
+	QList<QPair<QString, QString>> ASERResourceMoniter::getASERProgramPaths() {
+		auto paths = d->ASERConfig.getArray("RecentApplicationInfos");
+		QList<QPair<QString, QString>> result;
+		for (auto node : paths) {
+			QString path = node.getString("Path") + "/ASE-Remake.exe";
+			QString version = node.getString("Version");
+			result.append(QPair<QString, QString>(path, version));
+		}
+		return result;
 	}
 }
