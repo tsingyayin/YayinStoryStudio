@@ -107,7 +107,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Editor\cpp\GlobalValue.cpp" />
+    <ClCompile Include="Editor\cpp\InstallerClient.cpp" />
     <ClCompile Include="Editor\cpp\YSSCommandHandler.cpp" />
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp" />
@@ -139,7 +139,6 @@
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h" />
     <QtMoc Include="Editor\MainEditor\MainWin.h" />
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />
-    <QtMoc Include="Editor\GlobalValue.h" />
     <QtMoc Include="Editor\TitlePage\TitlePage.h" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +160,7 @@
     <QtMoc Include="Editor\MainEditor\BottomInfoWidget.h" />
     <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h" />
     <QtMoc Include="Editor\MainEditor\MultiTerminalTool.h" />
+    <QtMoc Include="Editor\InstallerClient.h" />
     <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />

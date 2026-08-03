@@ -1,5 +1,4 @@
 #include "Editor/MainEditor/DebugServerRouter.h"
-#include "Editor/GlobalValue.h"
 #include <General/YSSProject.h>
 #include <QtWidgets/qmessagebox.h>
 #include "Editor/MainEditor/MainWin.h"
@@ -16,7 +15,7 @@ namespace YSS::Editor {
 		bool notFoundWarned = false;
 		YSSCore::Editor::DebugServer* getCurrentServer() {
 			if (not CurrentServer) {
-				QString debugServerID = YSS::GlobalValue::getCurrentProject()->getProjectDebugServerID();
+				QString debugServerID = YSSCore::General::YSSProject::getCurrentProject()->getProjectDebugServerID();
 				if (debugServerID.isEmpty()) {
 					QMessageBox::warning(YSS::Editor::MainWin::getInstance(),
 						VITR("YSS::editor.debug.notSelected.title"), VITR("YSS::editor.debug.notSelected.message"));

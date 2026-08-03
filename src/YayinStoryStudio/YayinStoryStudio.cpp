@@ -5,7 +5,6 @@
 #include <Editor/LangServerManager.h>
 #include <Utility/ExtTool.h>
 #include <Utility/FileUtility.h>
-#include "Editor/GlobalValue.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/ProjectPage/ProjectWin.h"
 #include <General/VIApplication.h>
@@ -57,7 +56,6 @@ namespace YSS {
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,1");
 		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("yssp", "YayinStoryStudio Project",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
-		YSS::GlobalValue::getInstance();
 		
 		registerPluginModule(new YSS::Editor::YSSCommandHandler(this));
 		registerPluginModule(new YSS::Editor::YSSTranslator(this));
@@ -86,8 +84,7 @@ namespace YSS {
 	}
 
 	void Main::onPluginDisable() {
-		GlobalValue::saveConfig();
-		// Plugin disabled actions
+		savePluginConfig();
 	}
 
 	void Main::onTest() {

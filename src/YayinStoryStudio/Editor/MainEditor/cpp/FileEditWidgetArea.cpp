@@ -1,6 +1,5 @@
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
-#include "Editor/GlobalValue.h"
 #include "Editor/MainEditor/MainWin.h"
 #include <General/YSSProject.h>
 #include <Editor/TextEdit.h>
@@ -92,12 +91,12 @@ namespace YSS::Editor {
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea, &StackTagWidget::cancelFileChanged);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileClosed, this, [this, widget]() {
 			d->TagArea->removeStackLabel(widget->getFilePath()); // this function handle re-choice if the closed widget is current one
-			GlobalValue::getCurrentProject()->removeEditorOpenedFile(widget->getFilePath());
+			YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFile(widget->getFilePath());
 			});
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileRenamed, this, [this](const QString& oldPath, const QString& newPath) {
 			d->TagArea->changeStackLabel(oldPath, newPath);
-			GlobalValue::getCurrentProject()->removeEditorOpenedFile(oldPath);
-			GlobalValue::getCurrentProject()->addEditorOpenedFile(newPath);
+			YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFile(oldPath);
+			YSSCore::General::YSSProject::getCurrentProject()->addEditorOpenedFile(newPath);
 			});
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {
@@ -107,7 +106,7 @@ namespace YSS::Editor {
 				});
 			YSS::Editor::TextEditConfigOperator::applyTo(textEdit);
 		}
-		GlobalValue::getCurrentProject()->addEditorOpenedFile(filePath);
+		YSSCore::General::YSSProject::getCurrentProject()->addEditorOpenedFile(filePath);
 		setCurrentWidget(filePath);
 	}
 
@@ -162,7 +161,7 @@ namespace YSS::Editor {
 			d->Layout->insertWidget(1, d->ContentArea);
 			d->ContentArea->show();
 		}
-		GlobalValue::getCurrentProject()->setFocusedFile(filePath);
+		YSSCore::General::YSSProject::getCurrentProject()->setFocusedFile(filePath);
 		emit currentFileChanged(filePath);
 		d->TagArea->setCurrentStackLabel(filePath);
 	}

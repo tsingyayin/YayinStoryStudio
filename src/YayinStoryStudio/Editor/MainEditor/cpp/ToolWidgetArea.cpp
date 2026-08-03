@@ -1,6 +1,5 @@
 #include "Editor/MainEditor/ToolWidgetArea.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
-#include "Editor/GlobalValue.h"
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <Editor/ToolWidgetManager.h>

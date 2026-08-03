@@ -16,7 +16,6 @@
 #include <Utility/ColorTool.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/ProjectPage/ProjectWin.h"
-#include "Editor/GlobalValue.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/MainWinMenu.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
@@ -28,7 +27,7 @@
 #include "Editor/MainEditor/BottomInfoWidget.h"
 #include <Editor/DocumentMessageManager.h>
 #include <Widgets/DesktopHacker.h>
-
+#include <General/VIApplication.h>
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
 
@@ -90,11 +89,11 @@ namespace YSS::Editor {
 		setColorfulEnable(true);
 		onThemeChanged();
 
-		qint64 width = GlobalValue::getConfig()->getInt("Window.Editor.Width");
-		qint64 height = GlobalValue::getConfig()->getInt("Window.Editor.Height");
+		qint64 width = VIApp->getMainPlugin()->getPluginConfig()->getInt("Window.Editor.Width");
+		qint64 height = VIApp->getMainPlugin()->getPluginConfig()->getInt("Window.Editor.Height");
 
 		this->resize(width, height);
-		if (GlobalValue::getConfig()->getBool("Window.Editor.Maximized")) {
+		if (VIApp->getMainPlugin()->getPluginConfig()->getBool("Window.Editor.Maximized")) {
 			this->showMaximized();
 		}
 
@@ -188,15 +187,15 @@ namespace YSS::Editor {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
 				if (editorPlugin) {
-					editorPlugin->onProjectOpen(GlobalValue::getCurrentProject());
+					editorPlugin->onProjectOpen(YSSCore::General::YSSProject::getCurrentProject());
 				}
 			}
 		}
 
-		GlobalValue::getCurrentProject()->refreshLastModifyTime();
-		GlobalValue::getCurrentProject()->saveProject();
-		QStringList openedFiles = GlobalValue::getCurrentProject()->getEditorOpenedFiles();
-		QString focusedFile = GlobalValue::getCurrentProject()->getFocusedFile();
+		YSSCore::General::YSSProject::getCurrentProject()->refreshLastModifyTime();
+		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
+		QStringList openedFiles = YSSCore::General::YSSProject::getCurrentProject()->getEditorOpenedFiles();
+		QString focusedFile = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFile();
 		QStringList stillOKFiles;
 		for (const QString& filePath : openedFiles) {
 			bool ok = YSSFSM->openFile(filePath);
@@ -205,9 +204,9 @@ namespace YSS::Editor {
 			}
 		}
 		vgDebug << "Opened files" << stillOKFiles;
-		GlobalValue::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
+		YSSCore::General::YSSProject::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
 		Editors->setCurrentWidget(focusedFile);
-		GlobalValue::getCurrentProject()->saveProject();
+		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
 
 		YSSTWM->openToolWidget("cn.yxgeneral.yss.messageViewer");
 	}
@@ -260,7 +259,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::openFile(const QString& path) {
-		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		QDir CurrentDir;
 		if (not path.isEmpty()) {
 			CurrentDir.setPath(path);
@@ -345,12 +344,12 @@ namespace YSS::Editor {
 
 	void MainWin::closeEvent(QCloseEvent* event) {
 		yDebugF << "MainWin Close Event";
-		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
 				if (editorPlugin) {
-					bool okToClose = editorPlugin->onProjectAboutToClose(GlobalValue::getCurrentProject());
+					bool okToClose = editorPlugin->onProjectAboutToClose(YSSCore::General::YSSProject::getCurrentProject());
 					if (not okToClose) {
 						event->ignore();
 						closeForBack = false;
@@ -377,14 +376,14 @@ namespace YSS::Editor {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
 				if (editorPlugin) {
-					editorPlugin->onProjectClose(GlobalValue::getCurrentProject());
+					editorPlugin->onProjectClose(YSSCore::General::YSSProject::getCurrentProject());
 				}
 			}
 		}
 		Editors->closeAll(true); // close all should be later than saveProject.
 		Tools->closeAll(); // this two lines indicates a potential memory trap. see comments in its destructor.
 		Instance = nullptr;
-		delete GlobalValue::getCurrentProject();
+		delete YSSCore::General::YSSProject::getCurrentProject();
 		this->deleteLater();
 		if (closeForBack) {
 			YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
@@ -447,8 +446,8 @@ namespace YSS::Editor {
 
 	void MainWin::saveProject() {
 		saveAllFiles();
-		GlobalValue::getCurrentProject()->setFocusedFile(Editors->getCurrentWidget() ? Editors->getCurrentWidget()->getFilePath() : "");
-		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
+		YSSCore::General::YSSProject::getCurrentProject()->setFocusedFile(Editors->getCurrentWidget() ? Editors->getCurrentWidget()->getFilePath() : "");
+		Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
 		if (this->isMaximized()) {
 			config->setBool("Window.Editor.Maximized", true);
 		}
@@ -457,7 +456,7 @@ namespace YSS::Editor {
 			config->setInt("Window.Editor.Height", this->height());
 			config->setBool("Window.Editor.Maximized", false);
 		}
-		GlobalValue::saveConfig();
-		GlobalValue::getCurrentProject()->saveProject();
+		VIApp->getMainPlugin()->savePluginConfig();
+		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
 	}
 }

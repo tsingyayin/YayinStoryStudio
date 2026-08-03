@@ -5,7 +5,6 @@
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qboxlayout.h>
-#include "Editor/GlobalValue.h"
 #include <Utility/JsonConfig.h>
 #include <Widgets/ThemeManager.h>
 #include <General/TranslationHost.h>
@@ -29,6 +28,7 @@
 #include <General/VIApplication.h>
 #include <General/Plugin.h>
 #include <Widgets/MultiButtonGroup.h>
+#include <General/VIApplication.h>
 #include "YayinStoryStudio.h"
 namespace YSS::ProjectPage {
 	bool ProjectWin::firstOpen = true;
@@ -48,10 +48,10 @@ namespace YSS::ProjectPage {
 					if (not content.isEmpty()) {
 						NewsWidget->setMarkdown(content);
 					}
-					bool needUpdate = YSS::Main::getInstance()->getPluginConfig()->getBool("Update.Needed");
-					QString latestVersion = YSS::Main::getInstance()->getPluginConfig()->getString("Update.LatestVersion");
+					bool needUpdate = VIApp->getMainPlugin()->getPluginConfig()->getBool("Update.Needed");
+					QString latestVersion = VIApp->getMainPlugin()->getPluginConfig()->getString("Update.LatestVersion");
 					if (needUpdate) {
-						QString currentVersion = YSS::Main::getInstance()->getPluginVersion().toString();
+						QString currentVersion = VIApp->getMainPlugin()->getPluginVersion().toString();
 						QMessageBox::information(this, VITR("YSS::update.newVersionAvailable"), 
 							VITR("YSS::update.newVersionAvailableDesc").arg(latestVersion).arg(currentVersion));
 					}
@@ -132,11 +132,11 @@ namespace YSS::ProjectPage {
 		Layout->setContentsMargins(0, 0, 0, 0);
 		loadProject();
 
-		int width = GlobalValue::getConfig()->getInt("Window.Project.Width");
-		int height = GlobalValue::getConfig()->getInt("Window.Project.Height");
+		int width = VIApp->getMainPlugin()->getPluginConfig()->getInt("Window.Project.Width");
+		int height = VIApp->getMainPlugin()->getPluginConfig()->getInt("Window.Project.Height");
 
 		this->resize(width, height);
-		if (GlobalValue::getConfig()->getBool("Window.Project.Maximized")) {
+		if (VIApp->getMainPlugin()->getPluginConfig()->getBool("Window.Project.Maximized")) {
 			this->showMaximized();
 		}
 		connect(CreateProjectButton, &QPushButton::clicked, this, &ProjectWin::onCreateProject);
@@ -160,16 +160,16 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event) {
-		Visindigo::Utility::JsonConfig* config = GlobalValue::getConfig();
+		Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
 		config->setInt("Window.Project.Width", this->normalGeometry().width());
 		config->setInt("Window.Project.Height", this->normalGeometry().height());
 		config->setBool("Window.Project.Maximized", this->isMaximized());
-		GlobalValue::saveConfig();
+		VIApp->getMainPlugin()->savePluginConfig();
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
 			project = nullptr;
 		}
-		if (GlobalValue::getCurrentProject()) {
+		if (YSSCore::General::YSSProject::getCurrentProject()) {
 			if (YSS::Editor::MainWin::getInstance() == nullptr) {
 				new YSS::Editor::MainWin();
 			}
@@ -192,7 +192,7 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->removeWidget(widget);
 			widget->deleteLater();
 		}
-		Visindigo::Utility::JsonConfig* Config = GlobalValue::getConfig();
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
 		QStringList keys = Config->keys("RecentProjects");
 		for (int i = 0; i < keys.size(); i++) {
 			if (Config->getString("RecentProjects." + keys[i]) == project->getProjectPath()) {
@@ -201,7 +201,7 @@ namespace YSS::ProjectPage {
 				break;
 			}
 		}
-		GlobalValue::saveConfig();
+		VIApp->getMainPlugin()->savePluginConfig();
 		if (HistoryProjectLabelList.isEmpty()) {
 			HistoryProjectWidget->setFixedHeight(0);
 		}else{
@@ -225,7 +225,7 @@ namespace YSS::ProjectPage {
 		Visindigo::Widgets::MultiButton* label = qobject_cast<Visindigo::Widgets::MultiButton*>(sender());
 		YSSCore::General::YSSProject* project = HistoryProjectMap[label];
 		HistoryProjectList.removeAll(project);
-		GlobalValue::setCurrentProject(project);
+		YSSCore::General::YSSProject::setCurrentProject(project);
 		this->close();
 	}
 
@@ -237,7 +237,7 @@ namespace YSS::ProjectPage {
 			filePath = QFileDialog::getOpenFileName(this, VITR("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		}
 		filePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(), filePath);
-		Visindigo::Utility::JsonConfig* Config = GlobalValue::getConfig();
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
 		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 		YSSCore::General::YSSProject::LoadProjectResult res = project->loadProject(filePath);
 		if (res == YSSCore::General::YSSProject::Success) {
@@ -250,7 +250,7 @@ namespace YSS::ProjectPage {
 				yMessageF << "Add" << filePath << "to project list.";
 				Config->setString("RecentProjects." + QString::number(Config->keys("RecentProjects").size()), filePath);
 			}
-			GlobalValue::setCurrentProject(project);
+			YSSCore::General::YSSProject::setCurrentProject(project);
 			this->close();
 		}
 		else {
@@ -290,7 +290,7 @@ namespace YSS::ProjectPage {
 		}
 		HistoryProjectList.clear();
 		QStringList okProjects;
-		Visindigo::Utility::JsonConfig* Config = GlobalValue::getConfig();
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
 		for (QString key : Config->keys("RecentProjects")) {
 			QString projectPath = Config->getString("RecentProjects." + key);
 			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
@@ -386,8 +386,8 @@ namespace YSS::ProjectPage {
 					QString newsStr = QString::fromUtf8(responseData);
 					NewsWidget->setMarkdown(newsStr);
 					Visindigo::Utility::FileUtility::saveAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_content"), newsStr);
-					YSS::Main::getInstance()->getPluginConfig()->setBool("Update.Needed", isUpdate);
-					YSS::Main::getInstance()->getPluginConfig()->setString("Update.LatestVersion", metaVersion.toString());
+					VIApp->getMainPlugin()->getPluginConfig()->setBool("Update.Needed", isUpdate);
+					VIApp->getMainPlugin()->getPluginConfig()->setString("Update.LatestVersion", metaVersion.toString());
 					if (isUpdate) {
 						auto version = YSS::Main::getInstance()->getPluginVersion().toString();
 						QMessageBox::information(this, VITR("YSS::update.newVersionAvailable"), 

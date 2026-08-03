@@ -114,7 +114,9 @@
   <ItemGroup>
     <QtRcc Include="YSSInstaller.qrc" />
     <QtMoc Include="YSSInstaller.h" />
+    <QtMoc Include="Installer\InstallerServer.h" />
     <ClCompile Include="YSSInstaller.cpp" />
+    <ClCompile Include="Installer\cpp\InstallerServer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

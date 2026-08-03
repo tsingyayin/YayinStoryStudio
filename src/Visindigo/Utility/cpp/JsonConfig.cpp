@@ -518,8 +518,10 @@ namespace Visindigo::Utility {
 		\a format 为Json格式。
 
 		return 以指定格式将Json对象转换为字符串。
+
+		\note 这函数在0.16.0后补上了缺失const修饰，因此ABI发生了变化。
 	*/
-	QString JsonConfig::toString(QJsonDocument::JsonFormat format)
+	QString JsonConfig::toString(QJsonDocument::JsonFormat format) const
 	{
 		return d->JsonDoc.toJson(format);
 	}

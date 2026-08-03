@@ -32,9 +32,6 @@
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\GlobalValue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -104,6 +101,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\InstallerClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
@@ -113,9 +113,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\TitlePage\TitlePage.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\GlobalValue.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h">
@@ -179,6 +176,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\InstallerClient.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -46,7 +46,7 @@ namespace Visindigo::Utility {
 		QStringList keys(const QString& key = "") const;
 		bool remove(const QString& key);
 		QJsonParseError parse(const QString& jsonStr);
-		QString toString(QJsonDocument::JsonFormat format = QJsonDocument::Indented);
+		QString toString(QJsonDocument::JsonFormat format = QJsonDocument::Indented) const;
 		QJsonValue getValue(const QString& key = "", bool* ok = nullptr) const;
 		qint64 getInt(const QString& key = "", bool* ok = nullptr) const;
 		QString getString(const QString& key = "", bool* ok = nullptr) const;

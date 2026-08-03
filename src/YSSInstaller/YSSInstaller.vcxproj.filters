@@ -29,7 +29,13 @@
     <QtMoc Include="YSSInstaller.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Installer\InstallerServer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <ClCompile Include="YSSInstaller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Installer\InstallerServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

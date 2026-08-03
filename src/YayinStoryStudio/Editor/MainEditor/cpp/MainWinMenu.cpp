@@ -4,7 +4,6 @@
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/DebugServerRouter.h"
 #include <Editor/FileEditWidget.h>
-#include "Editor/GlobalValue.h"
 #include <General/YSSProject.h>
 #include <General/TranslationHost.h>
 #include <QtWidgets/qlabel.h>
@@ -233,7 +232,7 @@ namespace YSS::Editor {
 		d->Layout->addWidget(d->MenuBar);
 		d->ProjectNameLabel = new Visindigo::Widgets::BorderLabel(this);
 		d->ProjectNameLabel->setContentsMargins(10, 0, 10, 0);
-		d->ProjectNameLabel->setText(GlobalValue::getCurrentProject()->getProjectName());
+		d->ProjectNameLabel->setText(YSSCore::General::YSSProject::getCurrentProject()->getProjectName());
 		d->Layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		d->Layout->addWidget(d->ProjectNameLabel);
 
@@ -323,13 +322,13 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_file_projectConfig() {
-		QString ysspFilePath = YSS::GlobalValue::getCurrentProject()->getProjectConfigPath();
+		QString ysspFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectConfigPath();
 		QDir projectDir(ysspFilePath);
 		YSSFSM->openFile(projectDir.absoluteFilePath(""));
 	}
 
 	void MainWinMenu::file_file_showInExplorer() {
-		QString projectFolder = YSS::GlobalValue::getCurrentProject()->getProjectFolder();
+		QString projectFolder = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder();
 		Visindigo::Utility::FileUtility::openExplorer(projectFolder);
 	}
 

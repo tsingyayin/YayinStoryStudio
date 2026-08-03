@@ -22,7 +22,6 @@
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/NewFilePage/NewFileWin.h"
-#include "Editor/GlobalValue.h"
 
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
@@ -166,7 +165,7 @@ namespace YSS::Editor {
 	}
 
 	void ResourceBrowser::showEvent(QShowEvent* event) {
-		YSSCore::General::YSSProject* project = GlobalValue::getCurrentProject();
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		if (project != nullptr) {
 			CurrentDir.setPath(project->getProjectFolder());
 			FileTree->setRootIndex(FileModel->setRootPath(project->getProjectFolder()));
