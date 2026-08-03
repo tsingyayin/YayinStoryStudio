@@ -1,6 +1,8 @@
 #include "Editor/InstallerClient.h"
 #include "General/Log.h"
 #include <QtCore/qtimer.h>
+#include <General/VIApplication.h>
+#include <General/Plugin.h>
 namespace YSS::Editor {
 	class InstallerClientPrivate {
 		friend class InstallerClient;
@@ -56,23 +58,18 @@ namespace YSS::Editor {
 		InstallerClientPrivate::Instance = this;
 		d->socket = new QLocalSocket(this);
 		d->timer = new QTimer(this);
-		d->timer->setInterval(1000);
+		d->timer->setInterval(5000);
 		connect(d->timer, &QTimer::timeout, this, [this]() {
 			if (d->socket->state() == QLocalSocket::ConnectedState) {
 				d->timer->stop();
-				emit connected();
 			}
 			else {
-				if (d->socket->error() == QLocalSocket::ServerNotFoundError) {
-					emit installerNotLaunched();
-					d->timer->stop();
-					return;
-				}
 				d->socket->abort();
 				d->socket->connectToServer("YSSInstaller");
 				d->retryCount++;
 				if (d->retryCount >= d->maxRetryCount) {
-					emit installerNotLaunched();
+					d->retryCount = 0;
+					vgError << "YSS Installer Client failed to connect to installer after" << d->maxRetryCount << "attempts.";
 					d->timer->stop();
 				}
 			}
@@ -82,7 +79,7 @@ namespace YSS::Editor {
 				emit installerNotLaunched();
 			}
 			else {
-				qDebug() << "InstallerClient socket error: " << socketError;
+				vgError << "InstallerClient socket error: " << socketError;
 			}
 			});
 		connect(d->socket, &QLocalSocket::disconnected, this, [this]() {
@@ -90,10 +87,19 @@ namespace YSS::Editor {
 			});
 		connect(d->socket, &QLocalSocket::readyRead, this, [this]() {
 			d->buffer.append(d->socket->readAll());
-			while (d->socket->size() > 6) {
-				d->handleReceivedData();
-			}
+			d->handleReceivedData();
 		});
+		connect(d->socket, &QLocalSocket::connected, this, [this]() {
+			d->retryCount = 0;
+			d->timer->stop();
+			emit connected();
+			Visindigo::Utility::JsonConfig command;
+			command.setString("type", "client_data");
+			command.setString("data.programPath", QCoreApplication::applicationFilePath());
+			command.setString("data.programVersion", VIApp->getMainPlugin()->getPluginVersion().toString());
+			command.setBool("data.autoUpdateEnabled", true);
+			sendCommand(command);
+			});
 	}
 
 	InstallerClient::~InstallerClient() {
@@ -102,7 +108,7 @@ namespace YSS::Editor {
 	}
 
 	void InstallerClient::connectToInstaller() {
-		d->timer->start();
+		d->socket->connectToServer("YSSInstaller");
 	}
 
 	void InstallerClient::sendCommand(const Visindigo::Utility::JsonConfig& command) {

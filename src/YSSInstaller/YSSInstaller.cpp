@@ -4,7 +4,8 @@
 #include <General/Version.h>
 #include <Widgets/ConfigWidget.h>
 #include <Utility/FileUtility.h>
-
+#include "Installer/TrayIcon.h"
+#include "Installer/InstallerServer.h"
 class YSSInstallerPrivate {
     friend class YSSInstaller;
 protected:
@@ -17,7 +18,7 @@ YSSInstaller::YSSInstaller() {
     d = new YSSInstallerPrivate;
     YSSInstallerPrivate::Instance = this;
     setPluginVersion(getPluginAPIVersion());
-    setPluginID("cn.yxgeneral.yayinstorystudio.installer");
+    setPluginID("cn.yxgeneral.yss_installer");
     setPluginName("YSS Installer");
     setPluginAuthor({ "Tsing Yayin" });
 }
@@ -27,7 +28,21 @@ YSSInstaller::~YSSInstaller() {
 }
 
 void YSSInstaller::onPluginEnable() {
-    // Installer plugin enabled actions
+    YSS::Installer::TrayIcon* trayIcon = new YSS::Installer::TrayIcon();
+    trayIcon->show();
+    YSS::Installer::InstallerServer* installerServer = new YSS::Installer::InstallerServer();
+    connect(installerServer, &YSS::Installer::InstallerServer::serverEstablished, this, []() {
+        vgDebug << "Installer server established.";
+        });
+    connect(installerServer, &YSS::Installer::InstallerServer::installerHasLaunched, this, []() {
+        vgDebug << "Installer has launched.";
+        // if in event loop
+        exit(0);
+        });
+	connect(installerServer, &YSS::Installer::InstallerServer::clientConnected, this, [](QLocalSocket* client) {
+        vgDebug << "Client connected to installer server:" << client;
+		});
+    installerServer->launchServer();
 }
 
 void YSSInstaller::onApplicationInit() {

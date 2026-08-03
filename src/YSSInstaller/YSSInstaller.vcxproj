@@ -85,6 +85,8 @@
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);Visindigo.lib</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <MapExports>true</MapExports>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <EnableUAC>true</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -115,9 +117,16 @@
     <QtRcc Include="YSSInstaller.qrc" />
     <QtMoc Include="YSSInstaller.h" />
     <QtMoc Include="Installer\InstallerServer.h" />
+    <ClCompile Include="Installer\cpp\TrayIcon.cpp" />
     <ClCompile Include="YSSInstaller.cpp" />
     <ClCompile Include="Installer\cpp\InstallerServer.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Installer\InstallerClientData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Installer\TrayIcon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

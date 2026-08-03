@@ -3,7 +3,7 @@
 #include <QtCore/qobject.h>
 #include <QtNetwork/qlocalserver.h>
 #include <QtNetwork/qlocalsocket.h>
-
+#include <General/Version.h>
 namespace YSS::Installer {
 	class InstallerServerPrivate;
 	class InstallerServer : public QObject {
@@ -18,6 +18,7 @@ namespace YSS::Installer {
 	public:
 		InstallerServer(QObject* parent = nullptr);
 		virtual ~InstallerServer();
+		void launchServer();
 	private:
 		InstallerServerPrivate* d;
 	};

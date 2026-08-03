@@ -81,6 +81,7 @@ namespace Visindigo::General {
 		int start();
 		bool applicationStarted() const;
 		Widgets::Terminal* getVirtualTerminal() const;
+		QString getProgramPath() const;
 	private:
 		VIApplicationPrivate* d;
 	};

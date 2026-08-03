@@ -298,41 +298,23 @@ namespace Visindigo::General {
 	*/
 	void Version::setVersion(const QString& version)
 	{
-		QRegularExpression nickNameRE("[\\[\\{\\(].+[\\]\\}\\)]");
+		QRegularExpression nickNameRE(R"((\d+)\.(\d+)\.(\d+)(?:\.(\d+))?(?:\s?\[([^\]]+)\])?)");
 		QRegularExpressionMatch match = nickNameRE.match(version);
-		QString nickName, versionStr;
-		if (match.hasMatch())
-		{
-			nickName = match.captured(0);
-			versionStr = version;
-			versionStr.remove(nickName);
-		}
-		else
-		{
-			versionStr = version;
-		}
-		QStringList list = versionStr.split(".");
-		if (list.size() < 3)
-			return;
+		QString majorStr = match.captured(1);
+		QString minorStr = match.captured(2);
+		QString patchStr = match.captured(3);
+		QString buildStr = match.captured(4);
+		QString nickName = match.captured(5);
 		bool ok = false;
-		quint32 major = list[0].toUInt(&ok);
-		if (!ok)
-			return;
-		quint32 minor = list[1].toUInt(&ok);
-		if (!ok)
-			return;
-		quint32 patch = list[2].toUInt(&ok);
-		if (!ok)
-			return;
-		bool useBuild = false;
-		quint32 build = 0;
-		if (list.size() > 3)
-		{
-			useBuild = true;
-			build = list[3].toUInt(&ok);
-			if (!ok)
-				return;
-		}
+		quint32 major = majorStr.toUInt(&ok);
+		if (not ok) return;
+		quint32 minor = minorStr.toUInt(&ok);
+		if (not ok) return;
+		quint32 patch = patchStr.toUInt(&ok);
+		if (not ok) return;
+		bool useBuild = not buildStr.isEmpty();
+		quint32 build = useBuild ? buildStr.toUInt(&ok) : 0;
+		if (useBuild and not ok) return;
 		setVersion(major, minor, patch, useBuild, build, nickName);
 	}
 

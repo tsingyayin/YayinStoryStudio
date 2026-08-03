@@ -916,4 +916,14 @@ namespace Visindigo::General {
 	Widgets::Terminal* VIApplication::getVirtualTerminal() const {
 		return d->VirtualTerminal;
 	}
+
+	/*!
+		\since Visindigo 0.16.0
+		return 应用程序的路径。
+
+		返回当前应用程序的完整路径。
+	*/
+	QString VIApplication::getProgramPath() const {
+		return QCoreApplication::applicationFilePath();
+	}
 }

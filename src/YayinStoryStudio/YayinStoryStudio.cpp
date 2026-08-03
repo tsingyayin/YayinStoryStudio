@@ -19,6 +19,9 @@
 #include <Utility/SevenZipBinder.h>
 #include <Widgets/Terminal.h>
 #include <QtCore/qstandardpaths.h>
+#include "Utility/Console.h"
+#include "Editor/InstallerClient.h"
+#include <QtCore/qtimer.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -43,6 +46,23 @@ namespace YSS {
 
 	void Main::onPluginEnable() {
 		releaseInstaller();
+		YSS::Editor::InstallerClient* installerClient = new YSS::Editor::InstallerClient();
+		connect(installerClient, &YSS::Editor::InstallerClient::installerNotLaunched, this, [this]() {
+			QString installerPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+				"/AppData/Local/TsingYayin/YayinStoryStudio/Installer/YSSInstaller.exe";
+			QString launchCommand = QString("start \"\" \"%1\"").arg(installerPath);
+			Visindigo::Utility::Console::exec(launchCommand);
+			QTimer::singleShot(5000, this, [this]() {
+				YSS::Editor::InstallerClient::getInstance()->connectToInstaller();
+				});
+			});
+		connect(installerClient, &YSS::Editor::InstallerClient::installerRequestProgramClose, this, []() {
+			qApp->quit();
+			});
+		connect(installerClient, &YSS::Editor::InstallerClient::connected, this, []() {
+			vgDebug << "Connected to installer.";
+			});
+		YSS::Editor::InstallerClient::getInstance()->connectToInstaller();
 		auto LangID = Visindigo::General::Translator::stringToLangID(getPluginConfig()->getString("Settings.General.Language"));
 		VITRH->setLangID(LangID);
 		VISTM->setAnimationDuration(500);
@@ -110,28 +130,43 @@ namespace YSS {
 
 	void Main::releaseInstaller(){
 		QString installerPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + 
-		"/AppData/LocalLow/TsingYayin/YayinStoryStudio/Installer/YSSInstaller.exe";
+		"/AppData/Local/TsingYayin/YayinStoryStudio/Installer/YSSInstaller.exe";
+		bool needToRelease = false;
 		if (not Visindigo::Utility::FileUtility::isFileExist(installerPath)) {
 			vgDebug << "Installer not found at:" << installerPath;
 			vgDebug << "Releasing installer...";
-			QString installerFolder = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
-			"/AppData/LocalLow/TsingYayin/YayinStoryStudio/Installer";
-			QStringList files = {
-				"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
-				"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
-			};
-			QStringList folders = {
-				"iconengiens", "imageformats", "networkinformation", "platforms", "styles", "translations"
-			};
-			Visindigo::Utility::FileUtility::createDir(installerFolder);
-			for (const QString& file : files) {
-				Visindigo::Utility::FileUtility::copyFile(Visindigo::Utility::FileUtility::getProgramPath() + 
-				"/" + file, installerFolder + "/" + file, true, true);
+			needToRelease = true;
+		}
+		else {
+			vgDebug << "Installer found at:" << installerPath;
+			QDateTime installerLastModified = Visindigo::Utility::FileUtility::getFileModifyTime(installerPath);
+			QDateTime currentInstallerLastModified = 
+				Visindigo::Utility::FileUtility::getFileModifyTime(Visindigo::Utility::FileUtility::getProgramPath() + "/YSSInstaller.exe");
+			if (installerLastModified < currentInstallerLastModified) {
+				vgDebug << "Installer is outdated, releasing new version...";
+				needToRelease = true;
 			}
-			for (const QString& folder : folders) {
-				Visindigo::Utility::FileUtility::copyDir(Visindigo::Utility::FileUtility::getProgramPath() + 
-				"/" + folder, installerFolder + "/" + folder, true, true);
+			else {
+				vgDebug << "Installer is up to date.";
 			}
+		}
+		QString installerFolder = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+		"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";
+		QStringList files = {
+			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
+			"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
+		};
+		QStringList folders = {
+			"iconengiens", "imageformats", "networkinformation", "platforms", "styles", "translations"
+		};
+		Visindigo::Utility::FileUtility::createDir(installerFolder);
+		for (const QString& file : files) {
+			Visindigo::Utility::FileUtility::copyFile(Visindigo::Utility::FileUtility::getProgramPath() + 
+			"/" + file, installerFolder + "/" + file, true, true);
+		}
+		for (const QString& folder : folders) {
+			Visindigo::Utility::FileUtility::copyDir(Visindigo::Utility::FileUtility::getProgramPath() + 
+			"/" + folder, installerFolder + "/" + folder, true, true);
 		}
 	}
 	QWidget* Main::getConfigWidget() {
@@ -139,6 +174,7 @@ namespace YSS {
 	}
 
 	Main::~Main() {
+		delete d;
 	}
 
 	Main* Main::getInstance() {
