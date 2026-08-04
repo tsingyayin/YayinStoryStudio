@@ -46,12 +46,24 @@
     <ClCompile Include="Installer\cpp\TrayIcon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Installer\cpp\VersionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Installer\cpp\LocalUpdateWizard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Installer\InstallerClientData.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Installer\TrayIcon.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Installer\LocalUpdateWizard.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Installer\VersionManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

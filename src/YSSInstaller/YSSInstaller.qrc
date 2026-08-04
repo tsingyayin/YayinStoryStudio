@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>resource/cn.yxgeneral.yss_installer/icon.png</file>
+        <file>resource/cn.yxgeneral.yss_installer/i18n/zh_CN.json</file>
     </qresource>
 </RCC>

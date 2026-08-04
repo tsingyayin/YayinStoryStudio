@@ -24,7 +24,6 @@ namespace YSS::Editor {
 		void file_file_projectConfig();
 		void file_file_showInExplorer();
 		void file_program_backToHome();
-		void file_program_terminal();
 		void file_program_pluginAndPreferences();
 		void file_program_about();
 		void file_program_documentation();

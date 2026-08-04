@@ -42,7 +42,6 @@ namespace YSS::Editor {
 		QAction* File_File_ProjectConfig;
 		QAction* File_File_ShowInExplorer;
 		QAction* File_Program_BackToHome;
-		QAction* File_Program_Terminal;
 		QAction* File_Program_PluginAndPreferences;
 		QAction* File_Program_About;
 		QAction* File_Program_Documentation;
@@ -100,8 +99,6 @@ namespace YSS::Editor {
 			FileMenu->addSeparator();
 			File_Program_BackToHome = FileMenu->addAction(VITR("YSS::menu.file.backToHome"));
 			File_Program_BackToHome->setObjectName("backToHome");
-			File_Program_Terminal = FileMenu->addAction(VITR("YSS::menu.file.terminal"));
-			File_Program_Terminal->setObjectName("terminal");
 			File_Program_PluginAndPreferences = FileMenu->addAction(VITR("YSS::menu.file.pluginAndPreferences"));
 			File_Program_PluginAndPreferences->setObjectName("pluginAndPreferences");
 			File_Program_About = FileMenu->addAction(VITR("YSS::menu.file.about"));
@@ -120,7 +117,6 @@ namespace YSS::Editor {
 			QObject::connect(File_File_ProjectConfig, &QAction::triggered, q, &MainWinMenu::file_file_projectConfig);
 			QObject::connect(File_File_ShowInExplorer, &QAction::triggered, q, &MainWinMenu::file_file_showInExplorer);
 			QObject::connect(File_Program_BackToHome, &QAction::triggered, q, &MainWinMenu::file_program_backToHome);
-			QObject::connect(File_Program_Terminal, &QAction::triggered, q, &MainWinMenu::file_program_terminal);
 			QObject::connect(File_Program_PluginAndPreferences, &QAction::triggered, q, &MainWinMenu::file_program_pluginAndPreferences);
 			QObject::connect(File_Program_About, &QAction::triggered, q, &MainWinMenu::file_program_about);
 			QObject::connect(File_Program_Documentation, &QAction::triggered, q, &MainWinMenu::file_program_documentation);
@@ -336,21 +332,7 @@ namespace YSS::Editor {
 		d->Parent->backToHome();
 	}
 
-	void MainWinMenu::file_program_terminal() {
-		auto terminal = VIApp->getVirtualTerminal();
-		if (terminal) {
-			terminal->show();
-		}
-	}
-
 	void MainWinMenu::file_program_pluginAndPreferences() {
-		/*
-		auto widget = new Visindigo::Widgets::PluginManageWidget();
-		widget->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
-		widget->setAttribute(Qt::WA_DeleteOnClose);
-		widget->setWindowModality(Qt::ApplicationModal);
-		widget->setWindowFlags(widget->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
-		widget->show();*/
 		YSSFSM->openFile("@YSS.MainEditor.Preferences!首选项?");
 	}
 
@@ -571,7 +553,6 @@ namespace YSS::Editor {
 			d->File_File_ProjectConfig->setIcon(VIApp->getFontIcon("\uF259", 64, { d->MenuTextColor }));
 			d->File_File_ShowInExplorer->setIcon(VIApp->getFontIcon("\uE8A7", 64, { d->MenuTextColor }));
 			d->File_Program_BackToHome->setIcon(VIApp->getFontIcon("\uE80F", 64, { d->MenuTextColor }));
-			d->File_Program_Terminal->setIcon(VIApp->getFontIcon("\uE756", 64, { d->MenuTextColor }));
 			d->File_Program_PluginAndPreferences->setIcon(VIApp->getFontIcon("\uE713", 64, { d->MenuTextColor }));
 			d->File_Program_About->setIcon(VIApp->getFontIcon("\uE946", 64, { d->MenuTextColor }));
 			d->File_Program_Documentation->setIcon(VIApp->getFontIcon("\uE897", 64, { d->MenuTextColor }));

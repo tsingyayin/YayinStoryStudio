@@ -5,6 +5,10 @@
 #include <Utility/JsonConfig.h>
 #include <QtCore/qset.h>
 #include <QtWidgets/qapplication.h>
+#include "Installer/TrayIcon.h"
+#include "Installer/VersionManager.h"
+#include <General/TranslationHost.h>
+
 namespace YSS::Installer {
 	struct InstallerClientSocket {
 		QLocalSocket* socket;
@@ -60,9 +64,11 @@ namespace YSS::Installer {
 					Visindigo::Utility::JsonConfig dataConfig = command.getObject("data");
 					clientData = Visindigo::Utility::JsonConfig::toMetable<InstallerClientData>(dataConfig);
 					clientSockets[socket].clientData = clientData;
+					VersionManager::getInstance()->recordYSSClient(clientData);
 					vgDebug << "Received client data from socket:" << socket << 
 						"Program Path:" << clientData.getProgramPath() << "Version:" << clientData.getProgramVersion() 
 						<< "Auto Update Enabled:" << clientData.getAutoUpdateEnabled();
+					TrayIcon::getInstance()->showMessage(VITR("YSSInstaller::Monitor.Title"),  VITR("YSSInstaller::Monitor.Launched").arg(clientData.getProgramVersion()));
 				}
 			}
 		}
@@ -109,7 +115,12 @@ namespace YSS::Installer {
 					if (d->activeSockets.contains(clientSocket)) {
 						d->activeSockets.remove(clientSocket);
 						if (d->activeSockets.isEmpty()) {
-							qApp->quit();
+							if (not VersionManager::getInstance()->inUpdateProgress()) {
+								qApp->quit();
+							}
+							else {
+								emit allClientDisconnected();
+							}
 						}
 					}
 				});
@@ -126,5 +137,9 @@ namespace YSS::Installer {
 
 	void InstallerServer::launchServer() {
 		d->probeSocket->connectToServer("YSSInstaller");
+	}
+
+	qint32 InstallerServer::getConnectedClientCount() {
+		return d->clientSockets.size();
 	}
 }

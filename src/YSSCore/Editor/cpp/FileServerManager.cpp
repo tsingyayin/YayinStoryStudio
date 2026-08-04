@@ -290,6 +290,11 @@ namespace YSSCore::Editor {
 		}
 		auto vfp = VirtualFilePath(filePath);
 		if (vfp.isValid()) {
+			if (d->isFileAlreadyOpen(filePath)) {
+				yDebug << "Virtual file already open:" << filePath;
+				emit fileOpened(filePath);
+				return true;
+			}
 			QString ext = vfp.getExt();
 			FileServer* server = nullptr;
 			if (d->VirtualFileServerMap.contains(ext)) {

@@ -6,6 +6,16 @@
 #include <Utility/FileUtility.h>
 #include "Installer/TrayIcon.h"
 #include "Installer/InstallerServer.h"
+#include "General/TranslationHost.h"
+#include "Installer/LocalUpdateWizard.h"
+YSSInstallerTranslator::YSSInstallerTranslator(Visindigo::General::Plugin* parent) :
+	Visindigo::General::Translator(parent, "YSSInstaller")
+{
+	setDefaultLang(zh_CN);
+	addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.yss_installer/i18n/zh_CN.json");
+	addLangFilePath(en, ":/resource/cn.yxgeneral.yss_installer/i18n/en.json");
+}
+
 class YSSInstallerPrivate {
     friend class YSSInstaller;
 protected:
@@ -28,6 +38,8 @@ YSSInstaller::~YSSInstaller() {
 }
 
 void YSSInstaller::onPluginEnable() {
+    VITRH->setLangID(Visindigo::General::Translator::zh_CN);
+	registerPluginModule(new YSSInstallerTranslator(this));
     YSS::Installer::TrayIcon* trayIcon = new YSS::Installer::TrayIcon();
     trayIcon->show();
     YSS::Installer::InstallerServer* installerServer = new YSS::Installer::InstallerServer();

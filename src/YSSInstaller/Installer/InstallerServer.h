@@ -13,12 +13,14 @@ namespace YSS::Installer {
 		void clientDisconnected(QLocalSocket* client);
 		void installerHasLaunched();
 		void serverEstablished();
+		void allClientDisconnected();
 	public:
 		static InstallerServer* getInstance();
 	public:
 		InstallerServer(QObject* parent = nullptr);
 		virtual ~InstallerServer();
 		void launchServer();
+		qint32 getConnectedClientCount();
 	private:
 		InstallerServerPrivate* d;
 	};

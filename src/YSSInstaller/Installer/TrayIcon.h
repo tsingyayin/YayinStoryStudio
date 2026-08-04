@@ -9,6 +9,7 @@ namespace YSS::Installer {
 	public:
 		TrayIcon();
 		virtual ~TrayIcon();
+		static TrayIcon* getInstance();
 	private:
 		TrayIconPrivate* d;
 	};

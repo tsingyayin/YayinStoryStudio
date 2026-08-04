@@ -6,9 +6,13 @@ namespace YSS::Installer {
 	protected:
 		QMenu* menu;
 		QAction* exitAction;
+		static TrayIcon* instance;
 	};
 
+	TrayIcon* TrayIconPrivate::instance = nullptr;
+
 	TrayIcon::TrayIcon() {
+		TrayIconPrivate::instance = this;
 		setIcon(QIcon(":/resource/cn.yxgeneral.yss_installer/icon.png"));
 		d = new TrayIconPrivate();
 		d->menu = new QMenu();
@@ -18,6 +22,11 @@ namespace YSS::Installer {
 	}
 
 	TrayIcon::~TrayIcon() {
+		TrayIconPrivate::instance = nullptr;
 		delete d;
+	}
+
+	TrayIcon* TrayIcon::getInstance() {
+		return TrayIconPrivate::instance;
 	}
 }

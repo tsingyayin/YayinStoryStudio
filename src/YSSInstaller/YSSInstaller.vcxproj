@@ -109,7 +109,7 @@
       <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -117,7 +117,14 @@
     <QtRcc Include="YSSInstaller.qrc" />
     <QtMoc Include="YSSInstaller.h" />
     <QtMoc Include="Installer\InstallerServer.h" />
+    <ClCompile Include="Installer\cpp\LocalUpdateWizard.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
     <ClCompile Include="Installer\cpp\TrayIcon.cpp" />
+    <ClCompile Include="Installer\cpp\VersionManager.cpp" />
     <ClCompile Include="YSSInstaller.cpp" />
     <ClCompile Include="Installer\cpp\InstallerServer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -127,6 +134,10 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Installer\TrayIcon.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Installer\LocalUpdateWizard.h" />
+    <QtMoc Include="Installer\VersionManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
