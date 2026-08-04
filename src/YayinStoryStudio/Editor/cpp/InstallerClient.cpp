@@ -1,8 +1,14 @@
 #include "Editor/InstallerClient.h"
 #include "General/Log.h"
 #include <QtCore/qtimer.h>
+#include <QtCore/qstandardpaths.h>
+#include <QtCore/qstringlist.h>
 #include <General/VIApplication.h>
 #include <General/Plugin.h>
+#include <General/TranslationHost.h>
+#include <Utility/FileUtility.h>
+#include <QtWidgets/qmessagebox.h>
+#include "Utility/Console.h"
 namespace YSS::Editor {
 	class InstallerClientPrivate {
 		friend class InstallerClient;
@@ -43,6 +49,14 @@ namespace YSS::Editor {
 				if (type == "program_close") {
 					emit InstallerClientPrivate::Instance->installerRequestProgramClose();
 				}
+				else if (type == "update_yss_installer") {
+					// 通知安装程序关闭自身（以便替换其文件），然后释放（更新）自己的安装程序副本。
+					Visindigo::Utility::JsonConfig closeCommand;
+					closeCommand.setString("type", "program_close");
+					InstallerClientPrivate::Instance->sendCommand(closeCommand);
+					// 运行过程中触发的更新：弹窗提示用户。
+					InstallerClient::releaseInstaller(true, true);
+				}
 			}
 		}
 	};
@@ -59,6 +73,15 @@ namespace YSS::Editor {
 		d->socket = new QLocalSocket(this);
 		d->timer = new QTimer(this);
 		d->timer->setInterval(5000);
+		connect(this, &YSS::Editor::InstallerClient::installerNotLaunched, this, [this]() {
+			QString installerPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+				"/AppData/Local/TsingYayin/YayinStoryStudio/Installer/YSSInstaller.exe";
+			QString launchCommand = QString("start \"\" \"%1\"").arg(installerPath);
+			Visindigo::Utility::Console::exec(launchCommand);
+			QTimer::singleShot(5000, this, [this]() {
+				YSS::Editor::InstallerClient::getInstance()->connectToInstaller();
+				});
+			});
 		connect(d->timer, &QTimer::timeout, this, [this]() {
 			if (d->socket->state() == QLocalSocket::ConnectedState) {
 				d->timer->stop();
@@ -124,5 +147,35 @@ namespace YSS::Editor {
 		dataPacket.append(jsonData);
 		dataPacket.append(0x02); // End of packet
 		d->socket->write(dataPacket);
+	}
+
+	void InstallerClient::releaseInstaller(bool autoLaunch, bool showNotification) {
+		if (showNotification) {
+			// 运行过程中触发的安装程序更新：弹窗提示用户。
+			QMessageBox::information(nullptr,
+				VITR("YSS::update.installerUpdating"),
+				VITR("YSS::update.installerUpdatingDesc"));
+		}
+		QString installerFolder = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+			"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";
+		QStringList files = {
+			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
+			"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
+		};
+		QStringList folders = {
+			"iconengiens", "imageformats", "networkinformation", "platforms", "styles", "translations"
+		};
+		Visindigo::Utility::FileUtility::createDir(installerFolder);
+		for (const QString& file : files) {
+			Visindigo::Utility::FileUtility::copyFile(Visindigo::Utility::FileUtility::getProgramPath() +
+				"/" + file, installerFolder + "/" + file, true, true);
+		}
+		for (const QString& folder : folders) {
+			Visindigo::Utility::FileUtility::copyDir(Visindigo::Utility::FileUtility::getProgramPath() +
+				"/" + folder, installerFolder + "/" + folder, true, true);
+		}
+		if (autoLaunch) {
+			getInstance()->connectToInstaller();
+		}
 	}
 }

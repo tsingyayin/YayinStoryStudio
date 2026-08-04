@@ -37,7 +37,9 @@
 	"update": {
 		"newVersionAvailable": "有新版本可用！",
 		"newVersionAvailableDesc": "版本%1现已发布，您当前使用的版本是%2。\n请参阅发布日志了解新版本的更新内容，并访问官方网站下载最新版本。",
-		"newsLoadFailed": "未能从服务器同步到新闻，请检查您的网络连接并稍后再试。"
+		"newsLoadFailed": "未能从服务器同步到新闻，请检查您的网络连接并稍后再试。",
+		"installerUpdating": "正在更新 YSS 安装程序",
+		"installerUpdatingDesc": "检测到新版本的 YSS 安装程序，正在更新并重新连接，请稍候..."
 	},
 	"tooltips": {
 		"projectWin":{

@@ -19,6 +19,7 @@ namespace YSS::Editor {
 		virtual ~InstallerClient();
 		void connectToInstaller();
 		void sendCommand(const Visindigo::Utility::JsonConfig& command);
+		static void releaseInstaller(bool autoLaunch = false, bool showNotification = false);
 	public:
 		void syncProgramVersion();
 	private:

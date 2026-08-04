@@ -47,15 +47,6 @@ namespace YSS {
 	void Main::onPluginEnable() {
 		releaseInstaller();
 		YSS::Editor::InstallerClient* installerClient = new YSS::Editor::InstallerClient();
-		connect(installerClient, &YSS::Editor::InstallerClient::installerNotLaunched, this, [this]() {
-			QString installerPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
-				"/AppData/Local/TsingYayin/YayinStoryStudio/Installer/YSSInstaller.exe";
-			QString launchCommand = QString("start \"\" \"%1\"").arg(installerPath);
-			Visindigo::Utility::Console::exec(launchCommand);
-			QTimer::singleShot(5000, this, [this]() {
-				YSS::Editor::InstallerClient::getInstance()->connectToInstaller();
-				});
-			});
 		connect(installerClient, &YSS::Editor::InstallerClient::installerRequestProgramClose, this, []() {
 			qApp->quit();
 			});
@@ -150,23 +141,8 @@ namespace YSS {
 				vgDebug << "Installer is up to date.";
 			}
 		}
-		QString installerFolder = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
-		"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";
-		QStringList files = {
-			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
-			"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
-		};
-		QStringList folders = {
-			"iconengiens", "imageformats", "networkinformation", "platforms", "styles", "translations"
-		};
-		Visindigo::Utility::FileUtility::createDir(installerFolder);
-		for (const QString& file : files) {
-			Visindigo::Utility::FileUtility::copyFile(Visindigo::Utility::FileUtility::getProgramPath() + 
-			"/" + file, installerFolder + "/" + file, true, true);
-		}
-		for (const QString& folder : folders) {
-			Visindigo::Utility::FileUtility::copyDir(Visindigo::Utility::FileUtility::getProgramPath() + 
-			"/" + folder, installerFolder + "/" + folder, true, true);
+		if (needToRelease) {
+			YSS::Editor::InstallerClient::releaseInstaller();
 		}
 	}
 	QWidget* Main::getConfigWidget() {

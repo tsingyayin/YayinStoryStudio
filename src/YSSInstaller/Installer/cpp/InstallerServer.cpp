@@ -70,6 +70,10 @@ namespace YSS::Installer {
 						<< "Auto Update Enabled:" << clientData.getAutoUpdateEnabled();
 					TrayIcon::getInstance()->showMessage(VITR("YSSInstaller::Monitor.Title"),  VITR("YSSInstaller::Monitor.Launched").arg(clientData.getProgramVersion()));
 				}
+				else if (type == "program_close") {
+					// 收到 program_close 命令时，关闭 YSSInstaller 自身。
+					qApp->quit();
+				}
 			}
 		}
 	};
@@ -141,5 +145,37 @@ namespace YSS::Installer {
 
 	qint32 InstallerServer::getConnectedClientCount() {
 		return d->clientSockets.size();
+	}
+
+	QLocalSocket* InstallerServer::getSocketByClientData(const InstallerClientData& clientData) const {
+		for (auto it = d->clientSockets.constBegin(); it != d->clientSockets.constEnd(); ++it) {
+			if (it.value().clientData.getProgramPath() == clientData.getProgramPath()) {
+				return it.key();
+			}
+		}
+		return nullptr;
+	}
+
+	void InstallerServer::sendCommand(const InstallerClientData& clientData, const Visindigo::Utility::JsonConfig& command) {
+		QLocalSocket* socket = getSocketByClientData(clientData);
+		if (socket == nullptr || socket->state() != QLocalSocket::ConnectedState) {
+			vgErrorF << "YSS Installer Server cannot send command: client socket not found or not connected.";
+			return;
+		}
+		// 与 InstallerClient::sendCommand 相同的二进制报文：0x03 起始 + 4 字节长度 + JSON 数据 + 0x02 结束。
+		QByteArray jsonData = command.toString().toUtf8();
+		QByteArray dataPacket;
+		dataPacket.append(0x03); // Start of packet
+		quint32 size = jsonData.size();
+		dataPacket.append(reinterpret_cast<const char*>(&size), sizeof(size));
+		dataPacket.append(jsonData);
+		dataPacket.append(0x02); // End of packet
+		socket->write(dataPacket);
+	}
+
+	void InstallerServer::sendUpdateYSSInstallerRequest(const InstallerClientData& clientData) {
+		Visindigo::Utility::JsonConfig command;
+		command.setString("type", "update_yss_installer");
+		sendCommand(clientData, command);
 	}
 }

@@ -4,6 +4,10 @@
 #include <Utility/FileUtility.h>
 #include <General/Plugin.h>
 #include "Installer/LocalUpdateWizard.h"
+#include "Installer/InstallerServer.h"
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qdatetime.h>
+#include <General/Log.h>
 namespace YSS::Installer {
 	class VersionManagerPrivate {
 		friend class VersionManager;
@@ -32,6 +36,7 @@ namespace YSS::Installer {
 				clientData.setProgramPath(record.getString("program_path"));
 				clientData.setProgramVersion(record.getString("program_version"));
 				clientData.setAutoUpdateEnabled(record.getBool("auto_update_enabled"));
+				
 				// 有效性检测：可执行文件不存在则跳过该记录。
 				if (!isClientValid(clientData)) {
 					continue;
@@ -49,26 +54,33 @@ namespace YSS::Installer {
 	}
 
 	void VersionManager::recordYSSClient(const InstallerClientData& clientData) {
-		bool inPlaceUpdate = false;
-		triggerUpdate(clientData); // debug.
+		if (d->clientRecords.isEmpty()) {
+			d->newestVersion = Visindigo::General::Version(clientData.getProgramVersion());
+			d->clientRecords.append(clientData);
+			saveClients();
+			return;
+		}
 		for (auto& client : d->clientRecords) {
 			if (client.getProgramPath() == clientData.getProgramPath()) {
 				client = clientData;
-				inPlaceUpdate = true;
 				if (Visindigo::General::Version(clientData.getProgramVersion()) > d->newestVersion) {
 					d->newestVersion = Visindigo::General::Version(clientData.getProgramVersion());
 				}
+				saveClients();
+				return;
 			}
 		}
-		if (not inPlaceUpdate) {
-			if (Visindigo::General::Version(clientData.getProgramVersion()) > d->newestVersion) {
-				d->newestVersion = Visindigo::General::Version(clientData.getProgramVersion());
-				for (auto& client : d->clientRecords) {
-					if (client.getAutoUpdateEnabled()) {
-						triggerUpdate(clientData);
-					}
+		// new client that never recorded before.
+		if (Visindigo::General::Version(clientData.getProgramVersion()) > d->newestVersion) {
+			triggerUpdate(clientData);
+			for (auto& client : d->clientRecords) {
+				if (client.getAutoUpdateEnabled()) {
+					// auto update logic is not used yet.
 				}
 			}
+		}
+		else {
+			d->clientRecords.append(clientData); // new client but old version, just record it.
 		}
 	}
 
@@ -85,6 +97,7 @@ namespace YSS::Installer {
 		QList<Visindigo::Utility::JsonConfig> records;
 		for (const InstallerClientData& client : d->clientRecords) {
 			// 有效性检测：可执行文件不存在则跳过该记录。
+			vgDebug << client.getProgramPath();
 			if (!isClientValid(client)) {
 				continue;
 			}
@@ -99,10 +112,21 @@ namespace YSS::Installer {
 	}
 
 	bool VersionManager::isClientValid(const InstallerClientData& client) const {
-		return Visindigo::Utility::FileUtility::isFileExist(client.getProgramPath() + "/YayinStoryStudio.exe");
+		return Visindigo::Utility::FileUtility::isFileExist(client.getProgramPath());
 	}
 
 	void VersionManager::triggerUpdate(const InstallerClientData& clientData) {
+		QString selfPath = VIApp->getProgramPath();
+		QDateTime selfDate = Visindigo::Utility::FileUtility::getFileModifyTime(selfPath);
+		QFileInfo clientExeInfo(clientData.getProgramPath());
+		QString clientInstallerPath = clientExeInfo.absolutePath() + "/YSSInstaller.exe";
+		QDateTime clientInstallerDate = Visindigo::Utility::FileUtility::getFileModifyTime(clientInstallerPath);
+		if (clientInstallerDate.isValid() && selfDate.isValid() && clientInstallerDate > selfDate) {
+			vgNotice << "A newer YSSInstaller carried by client is available, requesting update.";
+			InstallerServer::getInstance()->sendUpdateYSSInstallerRequest(clientData);
+			return; // YSSInstaller should be updated first.
+		}
+
 		if (d->updateWizard == nullptr) {
 			d->updateWizard = new LocalUpdateWizard(clientData);
 			d->updateWizard->setAttribute(Qt::WA_DeleteOnClose);
@@ -111,6 +135,7 @@ namespace YSS::Installer {
 				});
 			connect(d->updateWizard, &LocalUpdateWizard::asIndependent, this, [this](const InstallerClientData& clientData) {
 				bool found = false;
+				d->newestVersion = Visindigo::General::Version(clientData.getProgramVersion());
 				for (auto& client : d->clientRecords) {
 					if (client.getProgramPath() == clientData.getProgramPath()) {
 						client = clientData;
@@ -118,12 +143,15 @@ namespace YSS::Installer {
 						break;
 					}
 				}
-				if (!found) {
+				if (not found) {
 					d->clientRecords.append(clientData);
-				}
+				}		
 				saveClients();
 			});
 			d->updateWizard->show();
+		}
+		else {
+			vgError << "Update wizard is already running, cannot trigger another update.";
 		}
 	}
 }
