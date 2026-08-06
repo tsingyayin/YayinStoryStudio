@@ -232,6 +232,9 @@
     <ClInclude Include="General\private\AUTO_VERSION.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\private\VersionMacro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="General\private\UpdateChainSyntaxTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>

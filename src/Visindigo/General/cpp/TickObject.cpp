@@ -551,7 +551,10 @@ namespace Visindigo::General {
 		if (event->type() == TickLoopPrivate::TickEventType) {
 			if (d->autoStepping) {
 				d->stepTick();
-				qApp->postEvent(this, new QEvent(TickLoopPrivate::TickEventType));
+				// 没有活跃 TickObject 时不再续发 TickEvent，让 Qt 事件循环真正休眠，避免后台空转占用 CPU。
+				if (not d->tickObjects.isEmpty()) {
+					qApp->postEvent(this, new QEvent(TickLoopPrivate::TickEventType));
+				}
 			}
 			else {
 				d->stepTick(d->manualStepElapsedTime_ns);
@@ -579,6 +582,11 @@ namespace Visindigo::General {
 			obj->d->currentLoop = this;
 			d->pendingEnableObjects.append(obj);
 			vgInfo << "Enabling TickObject" << obj << "in TickLoop" << this;
+			// TickLoop 可能因无活跃对象已停止续发事件，这里补发一个 TickEvent 唤醒循环。
+			if (d->autoStepping) {
+				d->lastTickTime_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+				qApp->postEvent(this, new QEvent(TickLoopPrivate::TickEventType));
+			}
 		}
 	}
 

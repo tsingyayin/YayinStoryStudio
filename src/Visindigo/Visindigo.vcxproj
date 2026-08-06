@@ -356,6 +356,7 @@
     <QtMoc Include="Widgets\TitleWidget.h" />
     <QtMoc Include="Widgets\ThemeManager.h" />
     <ClInclude Include="General\private\AUTO_VERSION.h" />
+    <ClInclude Include="General\private\VersionMacro.h" />
     <ClInclude Include="General\Version.h" />
     <ClInclude Include="Utility\Console.h" />
     <ClInclude Include="Utility\ExtTool.h" />

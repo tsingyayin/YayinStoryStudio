@@ -1,0 +1,41 @@
+﻿#pragma code_page(65001)
+
+#include "../Visindigo/General/private/VersionMacro.h"
+#include "../Visindigo/General/private/AUTO_VERSION.h"
+
+#ifndef VS_VERSION_INFO
+#define VS_VERSION_INFO 1
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION     Visindigo_VERSION_MAJOR,Visindigo_VERSION_MINOR,Visindigo_VERSION_PATCH,Visindigo_VERSION_BUILD
+ PRODUCTVERSION  Visindigo_VERSION_MAJOR,Visindigo_VERSION_MINOR,Visindigo_VERSION_PATCH,Visindigo_VERSION_BUILD
+ FILEFLAGSMASK   0x3fL
+#ifdef _DEBUG
+ FILEFLAGS       0x1L
+#else
+ FILEFLAGS       0x0L
+#endif
+ FILEOS          0x40004L
+ FILETYPE        0x1L
+ FILESUBTYPE     0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"          // 0x0804 = 中文(简体), 0x04B0 = Unicode(1200)
+        BEGIN
+            VALUE "CompanyName",      "Studio Indigo"
+            VALUE "FileDescription",  "YSS Installer (Update & Telemetry Service)"
+            VALUE "FileVersion",      Visindigo_VERSION_STRING
+            VALUE "InternalName",     "YSS Installer (Update & Telemetry Service)"
+            VALUE "LegalCopyright",   ""
+            VALUE "OriginalFilename", "YSSInstaller.exe"
+            VALUE "ProductName",      "YSS Installer (Update & Telemetry Service)"
+            VALUE "ProductVersion",   Visindigo_VERSION_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0804, 1200
+    END
+END

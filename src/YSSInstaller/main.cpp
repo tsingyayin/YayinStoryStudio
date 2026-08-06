@@ -7,8 +7,8 @@
 int main(int argc, char* argv[])
 {
     VISetEnv(Visindigo::General::VIApplication::MinimumLoadingTimeMS, 0);
-    VISetEnv(Visindigo::General::VIApplication::UseVirtualTerminal, true);
-    VISetEnv(Visindigo::General::VIApplication::SaveCommandHistory, true);
+    VISetEnv(Visindigo::General::VIApplication::UseVirtualTerminal, false);
+    VISetEnv(Visindigo::General::VIApplication::SaveCommandHistory, false);
     Visindigo::General::VIApplication app(argc, argv, Visindigo::General::VIApplication::WidgetApp, true);
 	qApp->setQuitOnLastWindowClosed(false);
 	QObject::connect(qApp, &QApplication::lastWindowClosed, []() {

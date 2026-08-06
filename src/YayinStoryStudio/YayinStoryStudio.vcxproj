@@ -175,6 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
+    <ResourceCompile Include="VersionInfo.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="compiled\icon\yss_plugin.ico" />
