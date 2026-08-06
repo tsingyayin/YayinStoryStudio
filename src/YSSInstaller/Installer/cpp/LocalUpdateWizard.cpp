@@ -234,7 +234,8 @@ namespace YSS::Installer {
 
 			autoDeleteCheck = new QCheckBox(VITR("YSSInstaller::AutoUpdate.Option_AutoDelete"), this);
 			autoLaunchCheck = new QCheckBox(VITR("YSSInstaller::AutoUpdate.Option_AutoLaunch"), this);
-			autoDeleteCheck->setChecked(true);
+			autoDeleteCheck->setChecked(false);
+			autoLaunchCheck->setChecked(true);
 			layout->addWidget(autoDeleteCheck);
 			layout->addWidget(autoLaunchCheck);
 			layout->addStretch();
@@ -573,8 +574,15 @@ namespace YSS::Installer {
 		});
 
 		connect(d->finishedPage->confirmButton, &QPushButton::clicked, this, [this]() {
-			d->autoLaunchTarget = d->finishedPage->selectedAutoLaunchClient();
-			onAutoLaunch();
+			if (d->autoLaunch) {
+				if (d->selectedTargets.size() == 1) {
+					d->autoLaunchTarget = d->selectedTargets.first();
+				}
+				else {
+					d->autoLaunchTarget = d->finishedPage->selectedAutoLaunchClient();
+				}
+				onAutoLaunch();
+			}
 			close();
 		});
 
