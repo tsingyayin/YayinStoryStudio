@@ -50,11 +50,9 @@ namespace YSS::Editor {
 					emit InstallerClientPrivate::Instance->installerRequestProgramClose();
 				}
 				else if (type == "update_yss_installer") {
-					// 通知安装程序关闭自身（以便替换其文件），然后释放（更新）自己的安装程序副本。
 					Visindigo::Utility::JsonConfig closeCommand;
 					closeCommand.setString("type", "program_close");
 					InstallerClientPrivate::Instance->sendCommand(closeCommand);
-					// 运行过程中触发的更新：弹窗提示用户。
 					InstallerClient::releaseInstaller(true, true);
 				}
 			}
@@ -151,7 +149,6 @@ namespace YSS::Editor {
 
 	void InstallerClient::releaseInstaller(bool autoLaunch, bool showNotification) {
 		if (showNotification) {
-			// 运行过程中触发的安装程序更新：弹窗提示用户。
 			QMessageBox::information(nullptr,
 				VITR("YSS::update.installerUpdating"),
 				VITR("YSS::update.installerUpdatingDesc"));
@@ -168,11 +165,11 @@ namespace YSS::Editor {
 		Visindigo::Utility::FileUtility::createDir(installerFolder);
 		for (const QString& file : files) {
 			Visindigo::Utility::FileUtility::copyFile(Visindigo::Utility::FileUtility::getProgramPath() +
-				"/" + file, installerFolder + "/" + file, true, true);
+				"/" + file, installerFolder + "/" + file, false, true);
 		}
 		for (const QString& folder : folders) {
 			Visindigo::Utility::FileUtility::copyDir(Visindigo::Utility::FileUtility::getProgramPath() +
-				"/" + folder, installerFolder + "/" + folder, true, true);
+				"/" + folder, installerFolder + "/" + folder, false, true);
 		}
 		if (autoLaunch) {
 			getInstance()->connectToInstaller();

@@ -17,24 +17,12 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qalgorithms.h>
 #include <QtCore/qstring.h>
-
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qdir.h>
+#include <Utility/FileUtility.h>
+#include "Installer/InstallerServer.h"
+#include <Utility/Console.h>
 namespace YSS::Installer {
-
-	namespace {
-		QList<InstallerClientData> sampleClients() {
-			QList<InstallerClientData> samples;
-			InstallerClientData one;
-			one.setProgramVersion("0.13.0.92");
-			one.setProgramPath("C:/Program Files/YayinStoryStudio_0.13");
-			samples.append(one);
-			InstallerClientData two;
-			two.setProgramVersion("0.15.6.154");
-			two.setProgramPath("C:/Program Files/YayinStoryStudio_0.15");
-			samples.append(two);
-			return samples;
-		}
-	}
-
 	class StepIndicator :public QWidget {
 	public:
 		StepIndicator(const QStringList& steps, QWidget* parent = nullptr)
@@ -427,7 +415,6 @@ namespace YSS::Installer {
 		UpdateFinishedPage* finishedPage = nullptr;
 		StepIndicator* stepIndicator = nullptr;
 		InstallerClientData autoLaunchTarget;
-		QPushButton* debugNextButton = nullptr;
 	};
 
 	LocalUpdateWizard::LocalUpdateWizard(const InstallerClientData& clientData, QWidget* parent) : QWidget(parent) {
@@ -473,11 +460,6 @@ namespace YSS::Installer {
 		rightLayout->setContentsMargins(0, 0, 0, 0);
 		rightLayout->addWidget(d->stack);
 
-		d->debugNextButton = new QPushButton(QStringLiteral("调试：下一页"), rightPanel);
-		d->debugNextButton->setObjectName("debugNextButton");
-		d->debugNextButton->setFixedWidth(140);
-		rightLayout->addWidget(d->debugNextButton, 0, Qt::AlignHCenter);
-
 		QHBoxLayout* mainLayout = new QHBoxLayout(this);
 		mainLayout->setContentsMargins(16, 16, 16, 16);
 		mainLayout->setSpacing(16);
@@ -486,33 +468,6 @@ namespace YSS::Installer {
 
 		connect(d->stack, &QStackedWidget::currentChanged, this, [this](int index) {
 			d->stepIndicator->setCurrentStep(qMin(index, 4));
-		});
-
-		connect(d->debugNextButton, &QPushButton::clicked, this, [this]() {
-			int index = d->stack->currentIndex();
-			index = (index + 1) % d->stack->count();
-			switch (index) {
-			case 1:
-				d->selectPage->setClients(d->oldClients.isEmpty()
-					? sampleClients()
-					: d->oldClients);
-				break;
-			case 3:
-				d->closePage->setRunningClients(d->selectedTargets.isEmpty()
-					? (d->oldClients.isEmpty() ? sampleClients() : d->oldClients)
-					: d->selectedTargets);
-				break;
-			case 5:
-				d->selectedTargets = d->selectedTargets.isEmpty()
-					? (d->oldClients.isEmpty() ? sampleClients() : d->oldClients)
-					: d->selectedTargets;
-				d->autoLaunch = true;
-				onUpdateFinished();
-				return;
-			default:
-				break;
-			}
-			d->stack->setCurrentIndex(index);
 		});
 
 		d->askPage->descriptionLabel->setText(
@@ -566,8 +521,18 @@ namespace YSS::Installer {
 		connect(d->optionPage->nextButton, &QPushButton::clicked, this, [this]() {
 			d->autoDelete = d->optionPage->autoDeleteCheck->isChecked();
 			d->autoLaunch = d->optionPage->autoLaunchCheck->isChecked();
-			if (checkProgramStillRunning(d->selectedTargets)) {
-				d->closePage->setRunningClients(d->selectedTargets);
+			QList<InstallerClientData> Clients = d->selectedTargets;
+			Clients.append(d->clientData);
+			QList<bool> runningStates = checkProgramStillRunning(Clients);
+			bool someRunning = std::any_of(runningStates.begin(), runningStates.end(), [](bool state) { return state; });
+			if (someRunning) {
+				QList<InstallerClientData> runningClients;
+				for (int i = 0; i < Clients.size(); i++) {
+					if (runningStates[i]) {
+						runningClients.append(Clients[i]);
+					}
+				}
+				d->closePage->setRunningClients(runningClients);
 				d->stack->setCurrentWidget(d->closePage);
 			}
 			else {
@@ -580,8 +545,18 @@ namespace YSS::Installer {
 		});
 
 		connect(d->closePage->retryButton, &QPushButton::clicked, this, [this]() {
-			if (checkProgramStillRunning(d->selectedTargets)) {
-				d->closePage->setRunningClients(d->selectedTargets);
+			QList<InstallerClientData> Clients = d->selectedTargets;
+			Clients.append(d->clientData);
+			QList<bool> runningStates = checkProgramStillRunning(Clients);
+			bool someRunning = std::any_of(runningStates.begin(), runningStates.end(), [](bool state) { return state; });
+			if (someRunning) {
+				QList<InstallerClientData> runningClients;
+				for (int i = 0; i < Clients.size(); i++) {
+					if (runningStates[i]) {
+						runningClients.append(Clients[i]);
+					}
+				}
+				d->closePage->setRunningClients(runningClients);
 			}
 			else {
 				d->stack->setCurrentWidget(d->readyPage);
@@ -599,6 +574,7 @@ namespace YSS::Installer {
 
 		connect(d->finishedPage->confirmButton, &QPushButton::clicked, this, [this]() {
 			d->autoLaunchTarget = d->finishedPage->selectedAutoLaunchClient();
+			onAutoLaunch();
 			close();
 		});
 
@@ -609,19 +585,64 @@ namespace YSS::Installer {
 		delete d;
 	}
 
-	bool LocalUpdateWizard::checkProgramStillRunning(const QList<InstallerClientData>& targets) {
-		// TODO.
-		return false;
+	QList<bool> LocalUpdateWizard::checkProgramStillRunning(const QList<InstallerClientData>& targets) {
+		QList<bool> rtn;
+		for (const InstallerClientData& target : targets) {
+			rtn.append(InstallerServer::getInstance()->isClientStillRunning(target));
+		}
+		return rtn;
 	}
-
 
 	void LocalUpdateWizard::onUpdateFinished() {
 		bool needAutoLaunchSelection = d->autoLaunch && d->selectedTargets.size() > 1;
 		d->finishedPage->setAutoLaunchSelection(d->selectedTargets, needAutoLaunchSelection);
 		d->stack->setCurrentWidget(d->finishedPage);
 	}
+
 	bool LocalUpdateWizard::updateProgram(const InstallerClientData& from, const QList<InstallerClientData>& targets) {
-		// TODO.
-		return false;
+		QStringList files = {
+			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
+			"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe",
+			"YayinStoryStudio.exe", "YSSCore.dll",
+			"user_data/themes/template/yss.vst",
+		};
+		QStringList folders = {
+			"user_data/plugins"
+		};
+		QDir fromPath = QFileInfo(from.getProgramPath()).absoluteDir();
+		QList<QDir> toPath;
+		for (auto t : targets) {
+			toPath.append(QFileInfo(t.getProgramPath()).absoluteDir());
+		}
+		QList<InstallerClientData> targetList = targets;
+		qint32 i = 0;
+		for (auto t : toPath) {
+			for (auto f : files) {
+				Visindigo::Utility::FileUtility::copyFile(fromPath.absolutePath() + "/" + f,
+					t.absolutePath() + "/" + f, false, true);
+			}
+			for (auto f : folders) {
+				Visindigo::Utility::FileUtility::copyDir(fromPath.absolutePath() + "/" + f,
+					t.absolutePath() + "/" + f, false, true);
+			}
+			targetList[i].setProgramVersion(from.getProgramVersion());
+			VersionManager::getInstance()->updateClientRecord(targetList[i]);
+			i++;
+		}
+
+		if (d->autoDelete) {
+			Visindigo::Utility::FileUtility::deleteDir(fromPath.absolutePath(), { 
+				fromPath.absolutePath() + "/user_data/repos",
+				fromPath.absolutePath() + "/user_data/third_party",
+				});
+		}
+		return true;
+	}
+
+	void LocalUpdateWizard::onAutoLaunch() {
+		if (not d->autoLaunchTarget.getProgramPath().isEmpty()) {
+			QString exePath = d->autoLaunchTarget.getProgramPath();
+			Visindigo::Utility::Console::exec(QString("start \"\" \"%1\"").arg(exePath.replace('/', '\\')));
+		}
 	}
 }

@@ -5,7 +5,9 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qset.h>
 #include <QtCore/qtextstream.h>
+#include <functional>
 #include <QtGui/qdesktopservices.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qregularexpression.h>
@@ -553,6 +555,10 @@ namespace Visindigo::Utility {
 			return;
 		}
 		QFile dstFile(dstPath);
+		QFileInfo dstFileInfo(dstFile);
+		if (not dstFileInfo.absoluteDir().exists()) {
+			dstFileInfo.absoluteDir().mkpath(".");
+		}
 		if (dstFile.exists()) {
 			if (overwrite) {
 				dstFile.remove();
@@ -626,17 +632,48 @@ namespace Visindigo::Utility {
 	/*!
 		\since Visindigo 0.16.0
 		\a dirPath 目录路径
+		\a exclude 排除的文件或目录列表
 
 		直接删除指定目录及其所有内容。如果目录不存在，则不做任何操作。
+		由于Qt未提供统一的将整个文件夹挪动到回收站的接口，因此此函数不提供移动到回收站的选项。
+		对于dirPath中的文件或目录，如果它们在exclude列表中，则不会被删除。
 
 		\note 此函数会递归删除目录中的所有文件和子目录，请谨慎使用。
 	*/
-	void FileUtility::deleteDir(const QString& dirPath) {
-		QDir dir(dirPath);
-		if (!dir.exists()) {
+	void FileUtility::deleteDir(const QString& dirPath, const QStringList& exclude) {
+		QDir root(dirPath);
+		if (!root.exists()) {
 			return;
 		}
-		dir.removeRecursively();
+
+		QSet<QString> excludeSet;
+		for (const QString& path : exclude) {
+			const QString key = QDir::cleanPath(QFileInfo(path).absoluteFilePath());
+			if (!key.isEmpty()) {
+				excludeSet.insert(key);
+			}
+		}
+
+		std::function<void(const QDir&)> removeContents = [&](const QDir& dir) {
+			if (excludeSet.contains(QDir::cleanPath(dir.absolutePath()))) {
+				return;
+			}
+			const QFileInfoList entries = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries | QDir::Hidden | QDir::System);
+			for (const QFileInfo& entry : entries) {
+				if (excludeSet.contains(QDir::cleanPath(entry.absoluteFilePath()))) {
+					continue;
+				}
+				if (entry.isDir() && !entry.isSymLink()) {
+					removeContents(QDir(entry.absoluteFilePath()));
+				}
+				else {
+					QFile::remove(entry.absoluteFilePath());
+				}
+			}
+			dir.rmdir(QDir::cleanPath(dir.absolutePath()));
+		};
+
+		removeContents(root);
 	}
 
 	/*!

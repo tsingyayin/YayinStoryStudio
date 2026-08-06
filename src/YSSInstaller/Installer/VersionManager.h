@@ -13,6 +13,7 @@ namespace YSS::Installer {
 		~VersionManager();
 	public:
 		void recordYSSClient(const InstallerClientData& clientData);
+		void updateClientRecord(const InstallerClientData& clientData);
 		bool inUpdateProgress();
 		QList<InstallerClientData> getClientRecords() const;
 		void saveClients();

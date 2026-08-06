@@ -22,6 +22,13 @@ namespace Visindigo::Utility {
 		enum CountingUnit { // The number of this enum can't be changed, as it is used in calculation directly
 			_0 = 1, K, M, G, T, P, E, Z, Y
 		};
+		enum ErrorCode {
+			Success = 0,
+			FileNotFound = 1,
+			DirNotFound = 2,
+			PermissionDenied = 3,
+			UnknownError = 4
+		};
 	public:
 		static QStringList readLines(const QString& filePath);
 		static QString readAll(const QString& filePath);
@@ -48,7 +55,7 @@ namespace Visindigo::Utility {
 		static void deleteFile(const QString& filePath, bool moveToTrash = true);
 		static void copyFile(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 		static void moveFile(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
-		static void deleteDir(const QString& dirPath);
+		static void deleteDir(const QString& dirPath, const QStringList& exclude);
 		static void copyDir(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 		static void moveDir(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 	};

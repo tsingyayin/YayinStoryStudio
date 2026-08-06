@@ -84,6 +84,19 @@ namespace YSS::Installer {
 		}
 	}
 
+	void VersionManager::updateClientRecord(const InstallerClientData& clientData) {
+		for (auto& client : d->clientRecords) {
+			if (client.getProgramPath() == clientData.getProgramPath()) {
+				client = clientData;
+				if (Visindigo::General::Version(clientData.getProgramVersion()) > d->newestVersion) {
+					d->newestVersion = Visindigo::General::Version(clientData.getProgramVersion());
+				}
+				saveClients();
+				return;
+			}
+		}
+	}
+
 	bool VersionManager::inUpdateProgress() {
 		return d->updateWizard != nullptr;
 	}
@@ -96,7 +109,6 @@ namespace YSS::Installer {
 		Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
 		QList<Visindigo::Utility::JsonConfig> records;
 		for (const InstallerClientData& client : d->clientRecords) {
-			// 有效性检测：可执行文件不存在则跳过该记录。
 			vgDebug << client.getProgramPath();
 			if (!isClientValid(client)) {
 				continue;

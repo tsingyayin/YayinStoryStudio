@@ -178,4 +178,9 @@ namespace YSS::Installer {
 		command.setString("type", "update_yss_installer");
 		sendCommand(clientData, command);
 	}
+
+	bool InstallerServer::isClientStillRunning(const InstallerClientData& clientData) {
+		QLocalSocket* socket = getSocketByClientData(clientData);
+		return socket != nullptr && socket->state() == QLocalSocket::ConnectedState;
+	}
 }

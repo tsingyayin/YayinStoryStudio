@@ -1,11 +1,11 @@
 {
     "AutoUpdate":{
-        "Title": "YSS 更新包自动部署服务",
+        "Title": "YSS 更新与遥测服务 - 有自动更新可用",
         "Desc_CanUpdate": "当前启动的 Yayin Story Studio 程序（版本%1，位于%2）看上去是本计算机中最新的YSS应用程序。然而，我们发现您计算机上还安装了一个或多个旧版YSS应用程序。\nYSS 更新包自动部署服务可以将此新版本%1作为更新包自动升级这些旧版。\n您接下来希望怎么做？",
         "Option_AutoUpdate": "我希望将此新版本%1作为更新包自动升级旧版程序。",
         "Option_Keep": "我希望保留旧版程序，并独立使用这个新版本%1。",
         "Desc_UpdateOption": "请选择要在更新时应用的选项",
-        "Option_AutoDelete": "更新后自动删除这个作为安装包的文件夹",
+        "Option_AutoDelete": "更新后自动删除这个作为安装包的文件夹（user_data中的repos、third_party会被保留）",
         "Option_AutoLaunch": "更新后自动启动新版程序",
         "Desc_MultiOldVersion": "我们在您计算机上发现了多个旧版YSS应用，请在下面勾选您希望升级的旧版YSS应用程序。",
         "Path": "路径",
@@ -29,7 +29,7 @@
         "Option_Confirm": "确认"
     },
     "Monitor": {
-        "Title": "YSS 本地协同服务",
+        "Title": "YSS 更新与遥测服务 - 程序已启动",
         "Launched": "版本%1的YSS程序已启动"
     }
 }

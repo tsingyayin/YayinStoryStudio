@@ -11,13 +11,12 @@ namespace YSS::Installer {
 		LocalUpdateWizard(const InstallerClientData& clientData, QWidget* parent = nullptr);
 		virtual ~LocalUpdateWizard();
 	signals:
-		//! 用户选择将新版本作为独立版本使用（保留旧版，不升级）时发出。
 		void asIndependent(const InstallerClientData& clientData);
 	public:
-		bool checkProgramStillRunning(const QList<InstallerClientData>& targets);
+		QList<bool> checkProgramStillRunning(const QList<InstallerClientData>& targets);
 		bool updateProgram(const InstallerClientData& from, const QList<InstallerClientData>& targets);
-		//! 更新过程结束后调用，展示“更新完成”页面。
 		void onUpdateFinished();
+		void onAutoLaunch();
 	private:
 		LocalUpdateWizardPrivate* d;
 	};
