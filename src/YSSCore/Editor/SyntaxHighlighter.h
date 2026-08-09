@@ -7,6 +7,7 @@ namespace YSSCore::__Private__ {
 }
 
 namespace YSSCore::Editor {
+	class StyleData;
 	class TextEdit;
 	class SyntaxHighlighterPrivate;
 	class YSSCoreAPI SyntaxHighlighter : public QSyntaxHighlighter {
@@ -20,6 +21,7 @@ namespace YSSCore::Editor {
 		virtual void onBlockChanged(const QString& text, int blockNumber) = 0;
 		virtual void onBlockRemoved(qint32 startBlockNumber, qint32 count);
 		virtual void onBlockAdded(qint32 startBlockNumber, qint32 count);
+		virtual void onThemeChanged(const QMap<QString, StyleData>& theme);
 		void rehighlight_s();
 		void autoRenderMessageWaveLine(bool autoRender);
 		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");

@@ -12,6 +12,7 @@ namespace YSSCore::Editor {
 	class LangServerPrivate;
 	class SyntaxHighlighter;
 	class FormatNormalizer;
+	class ColorThemeProvider;
 	class TextEdit;
 }
 // Main
@@ -26,6 +27,7 @@ namespace YSSCore::Editor {
 		virtual TabCompleterProvider* createTabCompleter(TextEdit* doc);
 		virtual HoverInfoProvider* createHoverInfoProvider(TextEdit* doc);
 		virtual FormatNormalizer* createFormatNormalizer(TextEdit* doc);
+		ColorThemeProvider* getColorThemeProvider();
 		QString getLangID();
 		QStringList getLangExts();
 	protected:

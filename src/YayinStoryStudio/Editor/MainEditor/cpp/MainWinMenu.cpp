@@ -43,6 +43,7 @@ namespace YSS::Editor {
 		QAction* File_File_ShowInExplorer;
 		QAction* File_Program_BackToHome;
 		QAction* File_Program_PluginAndPreferences;
+		QAction* File_Program_ColorThemeSettings;
 		QAction* File_Program_About;
 		QAction* File_Program_Documentation;
 		QAction* File_Program_Exit;
@@ -101,6 +102,8 @@ namespace YSS::Editor {
 			File_Program_BackToHome->setObjectName("backToHome");
 			File_Program_PluginAndPreferences = FileMenu->addAction(VITR("YSS::menu.file.pluginAndPreferences"));
 			File_Program_PluginAndPreferences->setObjectName("pluginAndPreferences");
+			File_Program_ColorThemeSettings = FileMenu->addAction(VITR("YSS::menu.file.colorThemeSettings"));
+			File_Program_ColorThemeSettings->setObjectName("colorThemeSettings");
 			File_Program_About = FileMenu->addAction(VITR("YSS::menu.file.about"));
 			File_Program_About->setObjectName("about");
 			File_Program_Documentation = FileMenu->addAction(VITR("YSS::menu.file.documentation"));
@@ -118,6 +121,7 @@ namespace YSS::Editor {
 			QObject::connect(File_File_ShowInExplorer, &QAction::triggered, q, &MainWinMenu::file_file_showInExplorer);
 			QObject::connect(File_Program_BackToHome, &QAction::triggered, q, &MainWinMenu::file_program_backToHome);
 			QObject::connect(File_Program_PluginAndPreferences, &QAction::triggered, q, &MainWinMenu::file_program_pluginAndPreferences);
+			QObject::connect(File_Program_ColorThemeSettings, &QAction::triggered, q, &MainWinMenu::file_program_colorThemeSettings);
 			QObject::connect(File_Program_About, &QAction::triggered, q, &MainWinMenu::file_program_about);
 			QObject::connect(File_Program_Documentation, &QAction::triggered, q, &MainWinMenu::file_program_documentation);
 			QObject::connect(File_Program_Exit, &QAction::triggered, q, &MainWinMenu::file_program_exit);
@@ -334,6 +338,10 @@ namespace YSS::Editor {
 
 	void MainWinMenu::file_program_pluginAndPreferences() {
 		YSSFSM->openFile("@YSS.MainEditor.Preferences!首选项?");
+	}
+
+	void MainWinMenu::file_program_colorThemeSettings() {
+		YSSFSM->openFile("@YSS.MainEditor.ColorThemeSettings!颜色主题设置?");
 	}
 
 	void MainWinMenu::file_program_about() {

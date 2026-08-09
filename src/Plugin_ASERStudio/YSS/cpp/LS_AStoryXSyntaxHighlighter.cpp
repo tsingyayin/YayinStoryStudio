@@ -7,12 +7,15 @@
 #include <Utility/ColorTool.h>
 #include "AStorySyntax/AStoryXValueMeta.h"
 #include <Widgets/ThemeManager.h>
+#include <Editor/ColorThemeProvider.h>
+#include <QtGui/qfont.h>
 namespace ASERStudio::YSS {
 	class LS_AStoryXSyntaxHighlighterPrivate {
 		friend class LS_AStoryXSyntaxHighlighter;
 	protected:
 		QString FilePath;
 		AStorySyntax::AStoryXDocument* Document = nullptr;
+		QMap<QString, YSSCore::Editor::StyleData> CurrentTheme;
 	};
 	LS_AStoryXSyntaxHighlighter::LS_AStoryXSyntaxHighlighter(YSSCore::Editor::TextEdit* parent) : SyntaxHighlighter(parent) {
 		d = new LS_AStoryXSyntaxHighlighterPrivate();
@@ -23,9 +26,6 @@ namespace ASERStudio::YSS {
 		d->Document = AStoryXLanguageServer::getAStoryXDocument(d->FilePath);
 		connect(d->Document, &AStorySyntax::AStoryXDocument::currentRuleChanged, this,
 			&LS_AStoryXSyntaxHighlighter::rehighlight_s);
-		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged, this, [this]() {
-			rehighlight_s();
-			});
 	}
 	LS_AStoryXSyntaxHighlighter::~LS_AStoryXSyntaxHighlighter() {
 		AStoryXLanguageServer::deleteAStoryXDocument(d->FilePath);
@@ -59,7 +59,7 @@ namespace ASERStudio::YSS {
 			requiredType = "Enum";
 			break;
 		case ASERStudio::AStorySyntax::AStoryXValueMeta::Vector:
-			requiredType = "Class";
+			requiredType = "Vector";
 			break;
 		case ASERStudio::AStorySyntax::AStoryXValueMeta::None:
 			requiredType = "PlainText";
@@ -100,7 +100,7 @@ namespace ASERStudio::YSS {
 				type = "Enum";
 				break;
 			case ASERStudio::AStorySyntax::AStoryXValueMeta::Vector:
-				type = "Class";
+				type = "Vector";
 				break;
 			case ASERStudio::AStorySyntax::AStoryXValueMeta::None:
 				type = "PlainText";
@@ -152,6 +152,10 @@ namespace ASERStudio::YSS {
 		}
 	}
 
+	void LS_AStoryXSyntaxHighlighter::onThemeChanged(const QMap<QString, YSSCore::Editor::StyleData>& theme) {
+		d->CurrentTheme = theme;
+	}
+
 	void LS_AStoryXSyntaxHighlighter::onBlockRemoved(qint32 startBlockNumber, qint32 count) {
 		d->Document->onLinesRemoved(startBlockNumber, count);
 	}
@@ -160,20 +164,19 @@ namespace ASERStudio::YSS {
 		d->Document->onLinesAdded(startBlockNumber, count);
 	}
 
-	void LS_AStoryXSyntaxHighlighter::setFormatWithColorKey(int start, int count, const QString& colorKey_F, const QString& colorKey_B, const QString& colorKey_U) {
-		QColor color_F = VISTM->getColor(colorKey_F);
-		//vgDebug << Visindigo::Utility::ColorTool::toColorString(VISTM->getColor(colorKey_F));
-		QTextCharFormat format;;
-		format.setForeground(color_F);
-		if (!colorKey_B.isEmpty()) {
-			QColor color_B = VISTM->getColor(colorKey_B);
-			format.setBackground(color_B);
+	void LS_AStoryXSyntaxHighlighter::setFormatWithColorKey(int start, int count, const QString& styleKey) {
+		YSSCore::Editor::StyleData styleData = d->CurrentTheme.value(styleKey, YSSCore::Editor::StyleData());
+		QTextCharFormat format;
+		format.setForeground(styleData.getTextColor());
+		if (styleData.isBgColorEnabled()) {
+			format.setBackground(styleData.getBgColor());
 		}
-		if (!colorKey_U.isEmpty()) {
-			QColor color_U = VISTM->getColor(colorKey_U);
-			format.setUnderlineColor(color_U);
-			format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+		if (styleData.getUnderlineType() != YSSCore::Editor::StyleData::UnderlineType::NoUnderline) {
+			format.setUnderlineColor(styleData.getLineColor());
+			format.setUnderlineStyle(QTextCharFormat::UnderlineStyle(styleData.getUnderlineType()));
 		}
+		format.setFontWeight(styleData.isBold() ? QFont::Bold : QFont::Normal);
+		format.setFontItalic(styleData.isItalic());
 		setFormat(start, count, format);
 	}
 

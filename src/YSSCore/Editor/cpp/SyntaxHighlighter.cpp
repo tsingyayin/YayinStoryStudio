@@ -78,6 +78,24 @@ namespace YSSCore::Editor {
 	void SyntaxHighlighter::onBlockAdded(qint32 startBlockNumber, qint32 count) {}
 
 	/*!
+		\since YSS 0.16.0
+		\a theme 新的样式主题。
+
+		当主题改变时被调用。默认实现为空。
+
+		这个函数与YSSCore::Editor::ColorThemeProvider::currentThemeChanged()信号不同，该信号只在主题整体变化时发出，
+		而这个函数在主题内任何设置数据发生变化时都会被调用。不过它也与YSSCore::Editor::ColorThemeProvider::themeModified()信号不同，
+		这个函数还有可能在用户编辑主题过程中被调用，而themeModified()信号只在用户保存主题后才会发出。
+
+		因此，如果需要正常支持YSS的主题编辑功能，应直接在这里实现获取数据的逻辑，连接themeModified()信号可能会导致主题编辑时的实时预览无法正常工作。
+
+		与此同时，这个函数在SyntaxHighlighter对象构造后，第一次着色调前被至少调用一次，因此无需单独编写初始获得数据的逻辑。
+
+		除了上述的第一次调用之外，其余情况下此函数被调用后，还会自动调用rehighlight_s()来重新着色整个文档，因此你无需在这里手动调用rehighlight_s()。
+	*/
+	void SyntaxHighlighter::onThemeChanged(const QMap<QString, StyleData>& theme) {}
+
+	/*!
 		\since YSS 0.13.0
 		重写自QSyntaxHighlighter的函数，在文本块内容改变时被调用。
 		\a text 当前文本块的内容。
@@ -126,14 +144,10 @@ namespace YSSCore::Editor {
 		\endlist
 	*/
 	void SyntaxHighlighter::rehighlight_s() {
-		if (d->Parent) {
-			d->Parent->d->Rehighlighting = true;
-		}
 		QTimer::singleShot(0, this, [this]() {
+			d->Parent->d->Rehighlighting = true;
 			this->rehighlight();
-			if (d->Parent) {
-				d->Parent->d->Rehighlighting = false;
-			}
+			d->Parent->d->Rehighlighting = false;
 			});
 	}
 	/*!

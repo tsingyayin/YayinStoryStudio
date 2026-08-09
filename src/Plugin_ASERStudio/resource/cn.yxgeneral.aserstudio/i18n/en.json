@@ -489,5 +489,25 @@
         "aserWarpper": {
             "title": "ASER Wrapper"
         }
+    },
+    "syntaxColorTheme": {
+        "PlainText": "Plain Text",
+        "SelectedTextBackground": "Selected Text Background",
+        "LineNumber": "Line Number",
+        "Function": "Function",
+        "String": "String",
+        "SpecialString": "Special String",
+        "Number": "Number",
+        "Parameter": "Parameter",
+        "Keyword": "Keyword",
+        "Vector": "Vector",
+        "Comment": "Comment",
+        "Namespace": "Namespace",
+        "Enum": "Enum",
+        "Macro": "Macro",
+        "MacroParameter": "Macro Parameter",
+        "ErrorLine": "Error Line",
+        "WarningLine": "Warning Line",
+        "InfoLine": "Info Line"
     }
 }

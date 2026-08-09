@@ -107,6 +107,9 @@
     <ClCompile Include="Editor\cpp\VirtualFilePath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\ColorThemeProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\private\EditorPlugin_p.h">
@@ -211,6 +214,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\DebugServerManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\ColorThemeProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

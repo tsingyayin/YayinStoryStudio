@@ -83,6 +83,7 @@
 			"backToHome": "Back to Home",
 			"terminal": "Terminal",
 			"pluginAndPreferences": "Plugins & Preferences",
+			"colorThemeSettings": "Color Theme Settings",
 			"exit": "Exit",
 			"documentation": "Documentation",
 			"about": "About Yayin Story Studio",
@@ -208,5 +209,22 @@
 			"title": "About Yayin Story Studio",
 			"message": "Version %1, a Tsing Yayin work. Yayin Story Studio is part of Project Visindigo, a brand new project evolved from Yayin Story Player, aiming to provide an easy-to-use development environment for ASE users."
 		}
+	},
+	"colorThemeSettings": {
+		"langServer": "Language Server",
+		"theme": "Theme",
+		"duplicate": "Duplicate",
+		"delete": "Delete",
+		"font": "Font",
+		"preview": "Preview",
+		"textColor": "Text Color",
+		"bgColor": "Background Color",
+		"bgColorEnabled": "Use Background Color",
+		"lineColor": "Line Color",
+		"lineType": "Line Type",
+		"bold": "Bold",
+		"italic": "Italic",
+		"save": "Save",
+		"reset": "Reset"
 	}
 }

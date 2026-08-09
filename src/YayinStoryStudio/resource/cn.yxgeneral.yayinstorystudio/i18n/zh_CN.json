@@ -98,6 +98,7 @@
 			"backToHome": "返回首页",
 			"terminal": "终端",
 			"pluginAndPreferences": "插件和首选项",
+			"colorThemeSettings": "颜色主题设置",
 			"exit": "退出",
 			"documentation": "文档",
 			"about": "关于 Yayin Story Studio",
@@ -254,5 +255,22 @@
 			"title": "关于 Yayin Story Studio",
 			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清计划）的一部分，是从Yayin Story Player发展而来的一个全新的项目，旨在为ASE用户提供一个易用的开发环境。"
 		}
+	},
+	"colorThemeSettings": {
+		"langServer": "语言服务器",
+		"theme": "主题",
+		"duplicate": "复制",
+		"delete": "删除",
+		"font": "字体",
+		"preview": "预览",
+		"textColor": "文本颜色",
+		"bgColor": "背景颜色",
+		"bgColorEnabled": "使用背景颜色",
+		"lineColor": "线条颜色",
+		"lineType": "线条类型",
+		"bold": "粗体",
+		"italic": "斜体",
+		"save": "保存",
+		"reset": "重置"
 	}
 }

@@ -14,6 +14,7 @@
 #include "Editor/FileTemplateProvider.h"
 #include "General/YSSProject.h"
 #include "Editor/ToolWidgetManager.h"
+#include "Editor/ColorThemeProvider.h"
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::EditorPlugin
@@ -106,10 +107,18 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		\a server 语言服务器
-		注册语言服务器。语言服务器是YSS编辑器中为特定编程语言提供编辑功能（如语法高亮、代码补全、悬停提示等）的模块。
+
+		注册语言服务器。此函数还会自动从插件配置中读取该语言服务器的当前主题，并设置给语言服务器的颜色主题提供者。
 	*/
 	void EditorPlugin::registerLangServer(LangServer* server) {
 		registerPluginModule(server);
+		QString currentThemeName = getPluginConfig()->getString("_yss_auto_.LangServer." + server->getModuleID() + ".CurrentTheme"); 
+		if (not currentThemeName.isEmpty()) {
+			server->getColorThemeProvider()->setCurrentTheme(currentThemeName);
+		}
+		connect(server->getColorThemeProvider(), &ColorThemeProvider::currentThemeChanged, this, [this, server](const QString& newThemeName) {
+			getPluginConfig()->setString("_yss_auto_.LangServer." + server->getModuleID() + ".CurrentTheme", newThemeName);
+			});
 		LangServerManager::getInstance()->addLangServer(server);
 	}
 	/*!

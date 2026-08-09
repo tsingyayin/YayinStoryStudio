@@ -122,6 +122,14 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		return 所有LangServer实例的列表。
+	*/
+	QList<LangServer*> LangServerManager::getAllServers() {
+		return d->LangServers;
+	}
+
+	/*!
+		\since YSS 0.13.0
 		return LangServerManager的实例。
 	*/
 	LangServerManager* LangServerManager::getInstance() {

@@ -103,7 +103,7 @@ namespace Visindigo::Utility {
 		for (int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); i++) {
 			QMetaProperty property = metaObject->property(i);
 			const char* propName = property.name();
-			QVariant value = property.read(&object);
+			QVariant value = property.readOnGadget(&object);
 			config.setValue(QString::fromLocal8Bit(propName), QJsonValue::fromVariant(value));
 		}
 		return config;

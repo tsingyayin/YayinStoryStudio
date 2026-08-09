@@ -22,6 +22,7 @@
 #include "Utility/Console.h"
 #include "Editor/InstallerClient.h"
 #include <QtCore/qtimer.h>
+#include <Editor/ColorThemeProvider.h>
 namespace YSS {
 	class MainPrivate {
 		friend class Main;
@@ -34,7 +35,7 @@ namespace YSS {
 	Main::Main() {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
-		//setTestEnable();
+		setTestEnable();
 		setPluginVersion(getPluginAPIVersion()); // YSS uses the same version as Visindigo API version
 		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
@@ -99,24 +100,10 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
-		auto t1 = 0;
-		auto t2 = 0;
-		{
-			auto timer = Visindigo::Utility::BenchmarkTimer();
-			for (int i = 0; i < 10000;i++) {
-				vgDebug << "Test" << i;
-			}
-			t1 = timer.elapsed();
-		}
-		{
-			auto timer = Visindigo::Utility::BenchmarkTimer();
-			for (int i = 0; i < 10000; i++) {
-				qDebug() << "Test" << i;
-			}
-			t2 = timer.elapsed();
-		}
-		vgDebug << "Visindigo Logger:" << t1 << "ms";
-		vgDebug << "Qt Logger:" << t2 << "ms"; 
+		auto styleData = YSSCore::Editor::StyleData();
+		auto jsonConfig = Visindigo::Utility::JsonConfig::fromMetable(styleData);
+		QString json = jsonConfig.toString();
+		vgDebug << json;
 	}
 
 	void Main::releaseInstaller(){

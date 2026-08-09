@@ -21,6 +21,7 @@
 #include <General/TranslationHost.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtCore/qregularexpression.h>
+#include "Editor/ColorThemeProvider.h"
 namespace YSSCore::__Private__ {
 	TextEditPrivate::~TextEditPrivate() {
 		if (FontMetrics != nullptr) {
@@ -241,6 +242,9 @@ namespace YSSCore::__Private__ {
 	void TextEditPrivate::onCompleter() {
 		QTextCursor cursor = Text->textCursor();
 		if (cursor.hasSelection()) {
+			return;
+		}
+		if (Text->isReadOnly()) {
 			return;
 		}
 		if (TabCompleter) {
@@ -555,6 +559,9 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onHoverInfo(bool triggerFromHover) {
 		if (not triggerFromHover && Text->textCursor().hasSelection()) {
+			return;
+		}
+		if (Text->isReadOnly()) {
 			return;
 		}
 		if (HoverInfoProvider != nullptr) {
@@ -1343,6 +1350,33 @@ namespace YSSCore::Editor {
 	TabCompleterItem::ItemTypes TextEdit::getCompleterTypeFilter() const {
 		return d->CompleterTypeFilter;
 	}
+
+	/*!
+		\since YSS 0.16.0
+		\a readOnly 设置TextEdit是否为只读模式。
+	*/
+	void TextEdit::setReadOnly(bool readOnly) {
+		d->Text->setReadOnly(readOnly);
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return TextEdit是否为只读模式。
+	*/
+	bool TextEdit::isReadOnly() const {
+		return d->Text->isReadOnly();
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return TextEdit的语法高亮器。
+
+		如果当前文件没有对应的语言服务器，返回nullptr。
+	*/
+	SyntaxHighlighter* TextEdit::getSyntaxHighlighter() const {
+		return d->Highlighter;
+	}
+
 	/*!
 		\since YSS 0.13.0
 		\a line 行号，从0开始。
@@ -1408,6 +1442,15 @@ namespace YSSCore::Editor {
 		}
 		if (server) {
 			d->Highlighter = server->createHighlighter(this);
+			if (d->Highlighter) {
+				auto themeProvider = server->getColorThemeProvider();
+				d->Highlighter->onThemeChanged(themeProvider->getCurrentThemeStyleData());
+				connect(themeProvider, &YSSCore::Editor::ColorThemeProvider::themeModified,
+					d->Highlighter, [this, themeProvider](const QString& themeName) {
+						d->Highlighter->onThemeChanged(themeProvider->getCurrentThemeStyleData());
+						d->Highlighter->rehighlight_s();
+					});
+			}
 			d->TabCompleter = server->createTabCompleter(this);
 			if (d->TabCompleter) {
 				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(this);

@@ -3,14 +3,27 @@
 #include "Editor/LangServer.h"
 #include <General/Plugin.h>
 #include "Editor/EditorPlugin.h"
+#include "Editor/ColorThemeProvider.h"
+#include <QtCore/qdir.h>
+#include <Utility/FileUtility.h>
 namespace YSSCore::Editor {
 	class LangServerPrivate
 	{
 		friend class LangServer;
 		friend class LangServerManager;
 	protected:
+		LangServer* q;
 		QString LanguageID;
 		QStringList LanguageExt;
+		ColorThemeProvider* colorThemeProvider;
+		void loadUserTheme() {
+			auto plugin = q->getPlugin();
+			QDir pluginFolder = plugin->getPluginFolder();
+			QStringList files = Visindigo::Utility::FileUtility::fileFilter(pluginFolder.absolutePath()+"/_yss_auto_/LangServer/"+q->getModuleID(), {"*.theme.json"}, false);
+			for (auto f : files) {
+				colorThemeProvider->parseUserThemeFrom(Visindigo::Utility::FileUtility::readAll(f));
+			}
+		}
 	};
 
 	/*!
@@ -42,8 +55,11 @@ namespace YSSCore::Editor {
 	LangServer::LangServer(const QString& name, const QString& id, EditorPlugin* plugin, const QString& lang_id, QStringList ext) :
 		Visindigo::General::PluginModule((Visindigo::General::Plugin*)plugin, id, YSSPluginModule_LangServer, name) {
 		d = new LangServerPrivate();
+		d->q = this;
 		d->LanguageID = lang_id;
 		d->LanguageExt = ext;
+		d->colorThemeProvider = new ColorThemeProvider(this);
+		d->loadUserTheme();
 	}
 
 	/*!
@@ -107,6 +123,16 @@ namespace YSSCore::Editor {
 	*/
 	FormatNormalizer* LangServer::createFormatNormalizer(TextEdit* doc) {
 		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.16.0
+		return 语言服务器的颜色主题提供者实例。
+
+		与其他返回值不同，这个返回值恒不为nullptr，且由语言服务器自身管理其生命周期。
+	*/
+	ColorThemeProvider* LangServer::getColorThemeProvider() {
+		return d->colorThemeProvider;
 	}
 
 	/*!

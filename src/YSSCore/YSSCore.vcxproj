@@ -117,6 +117,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Editor\cpp\ColorThemeProvider.cpp" />
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
     <ClCompile Include="Editor\cpp\DebugServerManager.cpp" />
     <ClCompile Include="Editor\cpp\DebugStepData.cpp" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\DebugServerManager.h" />
+    <QtMoc Include="Editor\ColorThemeProvider.h" />
     <ClInclude Include="Editor\DebugStepData.h" />
     <QtMoc Include="Editor\DocumentMessageManager.h" />
     <ClInclude Include="Editor\DocumentMessage.h" />

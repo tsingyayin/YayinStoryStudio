@@ -104,6 +104,9 @@
     <ClCompile Include="Editor\cpp\InstallerClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
@@ -179,6 +182,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\InstallerClient.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\ColorThemeSettings.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

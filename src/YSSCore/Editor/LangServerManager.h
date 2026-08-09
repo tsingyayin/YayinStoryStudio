@@ -16,6 +16,7 @@ namespace YSSCore::Editor {
 		LangServer* routeID(const QString& id);
 		LangServer* routeExt(const QString& fileExt);
 		void removeServer(LangServer* server);
+		QList<LangServer*> getAllServers();
 	private:
 		LangServerManagerPrivate* d;
 	};

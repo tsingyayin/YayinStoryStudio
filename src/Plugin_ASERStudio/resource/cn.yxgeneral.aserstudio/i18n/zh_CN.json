@@ -497,5 +497,25 @@
                 "message": "你正在尝试关闭项目，但ASE-Remake程序似乎仍在运行中。\n如果你继续关闭项目，则将会强制终止ASE-Remake，你确定要继续关闭项目吗？"
             }
         }
+    },
+    "syntaxColorTheme": {
+        "PlainText": "纯文本",
+        "SelectedTextBackground": "选中文本背景",
+        "LineNumber": "行号",
+        "Function": "函数",
+        "String": "字符串",
+        "SpecialString": "特殊字符串",
+        "Number": "数字",
+        "Parameter": "参数",
+        "Keyword": "关键字",
+        "Vector": "向量",
+        "Comment": "注释",
+        "Namespace": "命名空间",
+        "Enum": "枚举",
+        "Macro": "宏",
+        "MacroParameter": "宏参数",
+        "ErrorLine": "错误线条",
+        "WarningLine": "警告线条",
+        "InfoLine": "信息线条"
     }
 }
