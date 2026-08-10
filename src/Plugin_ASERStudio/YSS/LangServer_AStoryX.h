@@ -12,6 +12,7 @@ namespace ASERStudio::YSS {
 		virtual YSSCore::Editor::HoverInfoProvider* createHoverInfoProvider(YSSCore::Editor::TextEdit* doc) override;
 		static void setAStoryXDocument(const QString& filePath, ASERStudio::AStorySyntax::AStoryXDocument* doc);
 		static void deleteAStoryXDocument(const QString& filePath);
+		static void renameAStoryXDocument(const QString& oldFilePath, const QString& newFilePath);
 		static ASERStudio::AStorySyntax::AStoryXDocument* getAStoryXDocument(const QString& filePath);
 	};
 }

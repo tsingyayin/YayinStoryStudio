@@ -449,6 +449,7 @@ namespace YSSCore::Editor {
 				}
 			}
 		}
+		d->FileServerPriorityMap[fileExt] = servers;
 	}
 
 	/*!

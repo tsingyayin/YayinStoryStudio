@@ -26,6 +26,12 @@ namespace ASERStudio::YSS {
 		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged, this, [this]() {
 			rehighlight_s();
 			});
+		connect(parent, &YSSCore::Editor::FileEditWidget::fileRenamed, this, [this](const QString& oldPath, const QString& newPath) {
+			if (oldPath == d->FilePath) {
+				AStoryXLanguageServer::renameAStoryXDocument(oldPath, newPath);
+				d->FilePath = newPath;
+			}
+			});
 	}
 	LS_AStoryXSyntaxHighlighter::~LS_AStoryXSyntaxHighlighter() {
 		AStoryXLanguageServer::deleteAStoryXDocument(d->FilePath);

@@ -154,7 +154,9 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::saveCurrentFocusedFile() {
-		getFileEditWidgetArea()->getCurrentWidget()->saveFile();
+		if (getFileEditWidgetArea()->getCurrentWidget()) {
+			getFileEditWidgetArea()->getCurrentWidget()->saveFile();
+		}
 	}
 
 	void MainWin::saveCurrentFocusedFileAs(QString rawFilePath) {
