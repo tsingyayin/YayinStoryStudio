@@ -64,6 +64,13 @@ namespace ASERStudio::YSS {
 		}
 		AStoryXLanguageServerPrivate::DocumentMap.remove(who);
 	}
+	void AStoryXLanguageServer::renameAStoryXDocument(const QString& oldWho, const QString& newWho) {
+		ASERStudio::AStorySyntax::AStoryXDocument* doc = AStoryXLanguageServerPrivate::DocumentMap.value(oldWho, nullptr);
+		if (doc) {
+			AStoryXLanguageServerPrivate::DocumentMap.remove(oldWho);
+			AStoryXLanguageServerPrivate::DocumentMap.insert(newWho, doc);
+		}
+	}
 	ASERStudio::AStorySyntax::AStoryXDocument* AStoryXLanguageServer::getAStoryXDocument(const QString& who) {
 		return AStoryXLanguageServerPrivate::DocumentMap.value(who, nullptr);
 	}

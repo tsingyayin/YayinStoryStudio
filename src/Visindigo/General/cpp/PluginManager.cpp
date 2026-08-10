@@ -253,7 +253,7 @@ namespace Visindigo::General {
 				hLibrary->unload();
 				d->LoadResults[key] = PluginManager::LoadPluginResult::ConstructorError;
 				hLibrary->deleteLater();
-				return;
+				continue;
 			}
 			QString pluginID = plugin->getPluginID();
 			if (pluginID != key) {

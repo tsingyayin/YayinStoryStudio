@@ -337,11 +337,11 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_program_pluginAndPreferences() {
-		YSSFSM->openFile("@YSS.MainEditor.Preferences!首选项?");
+		YSSFSM->openFile(QString("@YSS.MainEditor.Preferences!%1?").arg(VITR("YSS::menu.file.pluginAndPreferences")));
 	}
 
 	void MainWinMenu::file_program_colorThemeSettings() {
-		YSSFSM->openFile("@YSS.MainEditor.ColorThemeSettings!颜色主题设置?");
+		YSSFSM->openFile(QString("@YSS.MainEditor.ColorThemeSettings!%1?").arg(VITR("YSS::menu.file.colorThemeSettings")));
 	}
 
 	void MainWinMenu::file_program_about() {
@@ -562,6 +562,7 @@ namespace YSS::Editor {
 			d->File_File_ShowInExplorer->setIcon(VIApp->getFontIcon("\uE8A7", 64, { d->MenuTextColor }));
 			d->File_Program_BackToHome->setIcon(VIApp->getFontIcon("\uE80F", 64, { d->MenuTextColor }));
 			d->File_Program_PluginAndPreferences->setIcon(VIApp->getFontIcon("\uE713", 64, { d->MenuTextColor }));
+			d->File_Program_ColorThemeSettings->setIcon(VIApp->getNamedFontIcon("Color", 64, { d->MenuTextColor }));
 			d->File_Program_About->setIcon(VIApp->getFontIcon("\uE946", 64, { d->MenuTextColor }));
 			d->File_Program_Documentation->setIcon(VIApp->getFontIcon("\uE897", 64, { d->MenuTextColor }));
 			d->File_Program_Exit->setIcon(VIApp->getFontIcon("\uE711", 64, { d->MenuTextColor }));

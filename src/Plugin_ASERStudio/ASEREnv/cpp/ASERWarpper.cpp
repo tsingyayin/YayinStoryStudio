@@ -31,7 +31,9 @@ namespace ASERStudio::ASEREnv {
 		connect(d->StartButton, &QPushButton::clicked, this, [this]() {
 			if (d->Program->isRunning()) {
 				d->Layout->removeWidget(d->ASERWindow);
-				d->ASERWindow->deleteLater(); // 解除
+				if (d->ASERWindow) {
+					d->ASERWindow->deleteLater(); // 解除
+				}
 				return;
 			}
 			d->Program->start();
