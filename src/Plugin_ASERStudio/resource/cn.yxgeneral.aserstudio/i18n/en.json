@@ -490,6 +490,14 @@
             "title": "ASER Wrapper"
         }
     },
+    "project": {
+        "close": {
+            "stillRunning": {
+                "title": "ASE-Remake is still running",
+                "message": "You are attempting to close the project, but the ASE-Remake program appears to still be running.\nIf you continue to close the project, ASE-Remake will be forcefully terminated. Are you sure you want to continue closing the project?"
+            }
+        }
+    },
     "syntaxColorTheme": {
         "PlainText": "Plain Text",
         "SelectedTextBackground": "Selected Text Background",

@@ -1,0 +1,521 @@
+{
+    "diagnostic": {
+        "undefined": {
+            "name": "Nicht definiert",
+            "message": "\"Undefined\" in Diagnoseinformationen bedeutet normalerweise, dass hier kein Problem vorliegt.",
+            "fixAdvice": "Sie müssen diese Diagnose normalerweise nicht beachten, es sei denn, Sie bemerken ein anderes ungewöhnliches Verhalten."
+        },
+        "unknownError": {
+            "name": "Unbekannter Fehler",
+            "message": "Ein unbekannter Fehler ist aufgetreten, möglicherweise aufgrund eines internen Fehlers oder einer unbehandelten Ausnahme.",
+            "fixAdvice": "Bitte versuchen Sie, ASER Studio neu zu starten. Wenn das Problem weiterhin besteht, wenden Sie sich an den technischen Support und stellen Sie die entsprechenden Protokolle bereit."
+        },
+        "ruleNotSelected": {
+            "name": "Keine Syntaxregel ausgewählt",
+            "message": "Das Dokument %1 legt über die #useRule-Direktive keine Syntaxregel fest.",
+            "fixAdvice": "Versuchen Sie, in der zweiten Zeile des Dokuments #useRule:%1 hinzuzufügen, um die in %1 definierte Syntaxregel anzugeben."
+        },
+        "noSuchRule": {
+            "name": "Die Syntaxregel existiert nicht",
+            "message": "Die über die #useRule-Direktive in Dokument %1 angegebene Syntaxregel %2 ist ungültig.",
+            "fixAdvice": "Überprüfen Sie den Parameter der #useRule-Direktive in Dokument %1, um sicherzustellen, dass er korrekt eine vorhandene Syntaxregel angibt. Aktuell gültige Regeln: %2"
+        },
+        "noSuchController": {
+            "name": "Der Controller existiert nicht",
+            "message": "Es gibt keinen solchen Controller %1.",
+            "fixAdvice": "Überprüfen Sie, ob Ihr Code korrekt auf das von Regel %1 angegebene Controller-Präfix verweist, und stellen Sie sicher, dass es definiert und richtig geschrieben ist."
+        },
+        "missingRequiredParameter": {
+            "name": "Erforderlicher Parameter fehlt",
+            "message": "Dem Controller \"%1 controller\" fehlt der erforderliche Parameter %2.",
+            "fixAdvice": "Entfernen Sie das Symbol, das optionale Parameter kennzeichnet, und füllen Sie den Wert ab dem Zeilenanfangs-Identifikator erneut aus."
+        },
+        "parameterTypeMismatch": {
+            "name": "Parameter-Typ stimmt nicht überein",
+            "message": "Der Typ von Parameter %1 stimmt nicht überein: Sie haben möglicherweise Typ %2 angegeben, aber erwartet wird Typ %3",
+            "fixAdvice": "Korrigieren Sie den Typ auf %1"
+        },
+        "parameterOutOfRange": {
+            "name": "Parameter außerhalb des Bereichs",
+            "message": "Der Wert von Parameter %1 liegt außerhalb des zulässigen Bereichs.",
+            "fixAdvice": "Überprüfen Sie die Controller-Parameter, um sicherzustellen, dass der Wert innerhalb des zulässigen Bereichs liegt.",
+            "allowedMin": "Der minimal zulässige Wert ist %1.",
+            "allowedMax": "Der maximal zulässige Wert ist %1.",
+            "allowedRange": "Der zulässige Bereich ist %1 bis %2.",
+            "allowedEnums": "Die zulässigen Enum-Werte sind %1."
+        },
+        "parameterFormatError": {
+            "name": "Parameterformatfehler",
+            "message": "Das Format von Parameter %1 ist falsch.",
+            "fixAdvice": "Überprüfen Sie die Controller-Parameter, um sicherzustellen, dass das Format den Erwartungen entspricht.",
+            "allowedDimension": "Die zulässige Dimension ist %1.",
+            "allowedFormat": "Das zulässige Format ist %1."
+        },
+        "unexceptedParameter": {
+            "name": "Unerwarteter Parameter",
+            "message": "Controller %1 hat einen unerwarteten Parameter %2 erhalten.",
+            "fixAdvice": "Überprüfen Sie die Definition von Controller %1, um sicherzustellen, dass er nur erwartete Parameter akzeptiert und keine zusätzlichen Parameter übergeben werden."
+        },
+        "unclosedSymbol": {
+            "name": "Nicht geschlossenes Symbol",
+            "message": "Symbol %2 in Dokument %1 ist nicht ordnungsgemäß geschlossen.",
+            "fixAdvice": "Überprüfen Sie Symbol %2 in Dokument %1 und stellen Sie sicher, dass es ordnungsgemäß geschlossen ist. (Fügen Sie an geeigneten Stellen Symbol %3 hinzu, um sie zu schließen)"
+        },
+        "variableNotDefined": {
+            "name": "Variable nicht definiert",
+            "message": "Variable %2 ist nicht definiert.",
+            "fixAdvice": "Überprüfen Sie die Schreibweise von %1 oder stellen Sie sicher, dass Sie diese Variable zuvor über Anweisung %1 definiert haben."
+        },
+        "useTabInsteadSpace": {
+            "name": "Tabulatoren statt Leerzeichen verwenden",
+            "message": "Es wurden Leerzeichen verwendet, wo Tabulatoren verwendet werden sollten.",
+            "fixAdvice": "Ersetzen Sie Leerzeichen durch Tabulatoren."
+        },
+        "useSpaceInsteadTab": {
+            "name": "Leerzeichen statt Tabulatoren verwenden",
+            "message": "Es wurden Tabulatoren verwendet, wo Leerzeichen verwendet werden sollten.",
+            "fixAdvice": "Ersetzen Sie Tabulatoren durch eine angemessene Anzahl von Leerzeichen."
+        },
+        "useEnglishPunctuation": {
+            "name": "Englische Interpunktion verwenden",
+            "message": "Es wurde chinesische Interpunktion verwendet, wo englische Interpunktion erforderlich ist.",
+            "fixAdvice": "Ersetzen Sie chinesische Interpunktion durch die entsprechende englische Interpunktion."
+        },
+        "useChinesePunctuation": {
+            "name": "Chinesische Interpunktion verwenden",
+            "message": "Es wurde englische Interpunktion verwendet, wo chinesische Interpunktion erforderlich ist.",
+            "fixAdvice": "Ersetzen Sie englische Interpunktion durch die entsprechende chinesische Interpunktion."
+        },
+        "noSuchBlock": {
+            "name": "Der Block existiert nicht",
+            "message": "Es gibt keinen solchen Block %1.",
+            "fixAdvice": "Überprüfen Sie die Schreibweise von %1 oder stellen Sie sicher, dass Sie diesen Block zuvor über Anweisung %1 definiert haben."
+        },
+        "blockNameConflict": {
+            "name": "Blocknamenkonflikt",
+            "message": "Block %1 ist bereits in Zeile %2 definiert.",
+            "fixAdvice": "Wählen Sie einen anderen Namen für diesen Block oder den in Zeile %1 definierten Block."
+        },
+        "instrumentRedundant": {
+            "name": "Redundante Direktive",
+            "message": "Direktive %1 ist hier redundant; sie dupliziert die Direktive in Zeile %1",
+            "fixAdvice": "Löschen Sie diese redundante %1-Direktive"
+        },
+        "noSuchPreprocessor": {
+            "name": "Der Präprozessor existiert nicht",
+            "message": "Es gibt keinen solchen Präprozessor %1.",
+            "fixAdvice": "Überprüfen Sie die Schreibweise von %1"
+        },
+        "parameterRepeated": {
+            "name": "Parameter wiederholt",
+            "message": "Parameter %1 ist in Spalte %2 erneut definiert",
+            "fixAdvice": "Überprüfen Sie die Parameterliste des Controllers, um sicherzustellen, dass jeder Parameter nur einmal vorkommt."
+        },
+        "unknownWarning": {
+            "name": "Unbekannte Warnung",
+            "message": "Eine unbekannte Warnung ist aufgetreten, möglicherweise aufgrund eines internen Fehlers oder einer unbehandelten Ausnahme.",
+            "fixAdvice": "Bitte versuchen Sie, ASER Studio neu zu starten. Wenn das Problem weiterhin besteht, wenden Sie sich an den technischen Support und stellen Sie die entsprechenden Protokolle bereit."
+        },
+        "nosuchResource": {
+            "name": "Die Ressource existiert nicht",
+            "message": "Es gibt keine solche Ressource %1.",
+            "fixAdvice": "Überprüfen Sie die Schreibweise von %1 oder fügen Sie Ihrem Projekt eine Ressource namens %1 hinzu."
+        },
+        "useTabInsteadSpace_dialog": {
+            "name": "Tabulatoren statt Leerzeichen im Dialog-Controller verwenden",
+            "message": "Verwenden Sie im Dialog-Controller Tabulatoren, um Sprecher und Dialoginhalt zu trennen, statt Leerzeichen. Wenn Sie sicher sind, dass die Leerzeichen Teil des Namens sind, ignorieren Sie diese Warnung.",
+            "fixAdvice": "Ersetzen Sie Leerzeichen durch Tabulatoren."
+        }
+    },
+    "value": {
+        "integer": "Ganzzahl",
+        "float": "Gleitkommazahl",
+        "string": "Zeichenkette",
+        "bool": "Boolescher Wert",
+        "enum": "Enum",
+        "vector": "Vektor"
+    },
+    "controller": {
+        "Background": "Hintergrund",
+        "Music": "Musik",
+        "SoundEffect": "Soundeffekt",
+        "Mask": "Maske",
+        "Character": "Charakter",
+        "Choice": "Auswahl",
+        "Delay": "Verzögerung",
+        "VisualEffect": "Visueller Effekt",
+        "Interlude": "Zwischenspiel",
+        "ColorMask": "Farbschicht",
+        "Shake": "Bildschirmzittern",
+        "FreeText": "Freier Text",
+        "Cut": "Bildschirmschnitt",
+        "Filter": "Filter",
+        "AnimatedText": "Animierter Text",
+        "Sign": "Markierung",
+        "Variable": "Variable",
+        "Judge": "Beurteilung",
+        "Branch": "Verzweigung",
+        "Narration": "Erzählung",
+        "Dialog": "Dialog",
+        "Preprocessor": "Präprozessor",
+        "Comment": "Kommentar",
+        "Aliases": "Aliasse"
+    },
+    "document": {
+        "Preprocessor": {
+            "__description": "Präprozessor-Direktiven, die verwendet werden, um das Dokument in der Vorbereitungsphase vor der Wiedergabe zu verarbeiten.",
+            "type": "Art der Vorverarbeitungsdirektive",
+            "ruleName": "Name der Syntaxregel, wird in der #useRule-Direktive zum Definieren eines Syntaxregelnamens verwendet",
+            "blockName": "Blockname, wird in der #block-Direktive zum Definieren eines Blocknamens und in der #use-Direktive zum Angeben des aufzurufenden Blocks verwendet",
+            "versionNumber": "Versionsname, wird in der #version-Direktive zum Angeben der Version eines Controllers oder einer Syntaxregel verwendet",
+            "param0": "1. Parameter des referenzierten Blocks",
+            "param1": "2. Parameter des referenzierten Blocks",
+            "param2": "3. Parameter des referenzierten Blocks",
+            "param3": "4. Parameter des referenzierten Blocks",
+            "param4": "5. Parameter des referenzierten Blocks",
+            "param5": "6. Parameter des referenzierten Blocks",
+            "param6": "7. Parameter des referenzierten Blocks",
+            "param7": "8. Parameter des referenzierten Blocks",
+            "param8": "9. Parameter des referenzierten Blocks",
+            "param9": "10. Parameter des referenzierten Blocks"
+        },
+        "Background": {
+            "__description": "Steuert die Anzeige des Hintergrunds.",
+            "ImageName": "Gibt den für den Hintergrund verwendeten Bildnamen an",
+            "FadeInTime": "Gibt die Einblendzeit des Hintergrunds in Sekunden an",
+            "StartPosition": "Startkoordinatenposition für die Anzeige des Hintergrundbilds",
+            "EndPosition": "Endkoordinatenposition für die Anzeige des Hintergrundbilds",
+            "MoveTime": "Zeit in Sekunden, die der Hintergrund von der Start- zur Endposition benötigt",
+            "MoveCurve": "Kurventyp für die Bewegung des Hintergrunds",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt",
+            "StitchVertically": "Ob mehrere Bilder vertikal zusammengefügt werden sollen. true für vertikales, false für horizontales Zusammenfügen.",
+            "StitchColumnCount": "Maximale Anzahl von Zusammenfügungen in der aktuellen Richtung; bei Überschreitung wird automatisch zur nächsten Spalte oder Zeile für ein gitterförmiges Zusammenfügen gewechselt"
+        },
+        "Music": {
+            "__description": "Steuert die Musikwiedergabe.",
+            "AudioName": "Gibt den für die Musik verwendeten Audionamen an",
+            "Volume": "Gibt die Lautstärke der Musik an, von 0 bis 1",
+            "FadeInTime": "Gibt die Einblendzeit der Musik in Sekunden an",
+            "SlotIndex": "Gibt den Slot-Index für die Musik an, Standard 0 (d. h. die Spur-Nummer). Um mehrere Musikstücke gleichzeitig abzuspielen, verwenden Sie unterschiedliche Slot-Indizes.",
+            "Position": "Räumliche Position der Musik: -1 für links, 1 für rechts, in diesem Bereich frei einstellbar"
+        },
+        "SoundEffect": {
+            "__description": "Steuert die Wiedergabe von Soundeffekten.",
+            "AudioName": "Gibt den für den Soundeffekt verwendeten Audionamen an",
+            "Volume": "Gibt die Lautstärke des Soundeffekts an, von 0 bis 1",
+            "Position": "Räumliche Position des Soundeffekts: -1 für links, 1 für rechts, in diesem Bereich frei einstellbar",
+            "Steps": "Gibt die Anzahl der Schritte des Soundeffekts an, d. h. wie viele Controller er durchläuft, bevor er endet"
+        },
+        "Mask": {
+            "__description": "Steuert die Anzeige der Maske.",
+            "IsOn": "Ob die Maske angezeigt werden soll"
+        },
+        "Character": {
+            "__description": "Steuert die Anzeige des Charakters.",
+            "Character&Variant": "Gibt den Namen und die Variante des Charakters an; wenn keine Variante vorhanden ist, verwenden Sie nur den Charakternamen",
+            "SlotIndex": "Gibt den Slot-Index für den Charakter an, Standard 0. Um mehrere Charaktere gleichzeitig anzuzeigen, verwenden Sie unterschiedliche Slot-Indizes.",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt",
+            "FadeInTime": "Gibt die Einblendzeit des Charakters in Sekunden an",
+            "FadeOutTime": "Gibt die Ausblendzeit des Charakters in Sekunden an",
+            "Effects": "Gibt die Effekte des Charakters an",
+            "Alpha": "Transparenz des Charakters, von 0 bis 1",
+            "RenderOrder": "Renderreihenfolge des Charakters; Werte mit größerer Zahl überdecken Werte mit kleinerer Zahl",
+            "StartPosition": "Startkoordinatenposition für die Anzeige des Charakters",
+            "EndPosition": "Endkoordinatenposition für die Anzeige des Charakters",
+            "MoveTime": "Zeit in Sekunden, die der Charakter von der Start- zur Endposition benötigt",
+            "MoveCurve": "Kurventyp für die Bewegung des Charakters"
+        },
+        "Choice": {
+            "__description": "Steuert die Anzeige der Auswahlmöglichkeiten.",
+            "ChoiceContent": "Textinhalt der Auswahlmöglichkeit",
+            "OutputVariable": "Name der Ausgabevariable der Auswahl; das Ergebnis der Spielerauswahl wird in dieser Variable gespeichert"
+        },
+        "Delay": {
+            "__description": "Steuert die Verzögerung.",
+            "DelayTime": "Dauer der Verzögerung in Sekunden"
+        },
+        "VisualEffect": {
+            "__description": "Steuert die Anzeige visueller Effekte.",
+            "VisualEffectName": "Gibt den für den visuellen Effekt verwendeten Effektnamen an",
+            "Steps": "Gibt die Anzahl der Schritte des visuellen Effekts an, d. h. wie viele Controller er durchläuft, bevor er endet",
+            "Position": "Koordinatenposition des visuellen Effekts",
+            "RenderOrder": "Renderreihenfolge des visuellen Effekts; größere Werte überdecken kleinere Werte"
+        },
+        "Interlude": {
+            "__description": "Steuert die Anzeige des Zwischenspiels.",
+            "Character&Variant": "Gibt den Namen und die Variante des Charakters im Zwischenspiel an; wenn keine Variante vorhanden ist, verwenden Sie nur den Charakternamen",
+            "SlotIndex": "Gibt den Slot-Index für den Charakter im Zwischenspiel an, Standard 0. Um mehrere Charaktere gleichzeitig anzuzeigen, verwenden Sie unterschiedliche Slot-Indizes.",
+            "IsOn": "Ob das Zwischenspiel angezeigt werden soll",
+            "Type": "Art des Zwischenspiels. 0 für grau vertikal, 1 für Avatar-Typ",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt",
+            "Effects": "Gibt die Effekte des Zwischenspiels an",
+            "RenderOrder": "Renderreihenfolge des Zwischenspiels; größere Werte überdecken kleinere Werte",
+            "Position": "Koordinatenposition des Zwischenspiels"
+        },
+        "ColorMask": {
+            "__description": "Steuert die Anzeige der Farbschicht.",
+            "Color": "Farbe der Farbschicht, unter Verwendung eines 4D-Vektors",
+            "FadeInTime": "Gibt die Einblendzeit der Farbschicht in Sekunden an",
+            "StayTime": "Gibt die Anzeigedauer der Farbschicht in Sekunden an",
+            "FadeOutTime": "Gibt die Ausblendzeit der Farbschicht in Sekunden an",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt"
+        },
+        "Shake": {
+            "__description": "Steuert das Bildschirmzittern.",
+            "Intensity": "Intensität des Bildschirmzitterns",
+            "FadeInTime": "Gibt die Einblendzeit des Zitterns in Sekunden an",
+            "StayTime": "Gibt die Dauer des Zitterns in Sekunden an",
+            "FadeOutTime": "Gibt die Abklingzeit des Zitterns in Sekunden an",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt"
+        },
+        "FreeText": {
+            "__description": "Steuert die Anzeige von freiem Text.",
+            "Content": "Inhalt des Texts",
+            "IsAddition": "Ob es sich um zusätzlichen Text handelt. Zusätzlicher Text wird zum vorhandenen Text hinzugefügt, anstatt ihn zu ersetzen",
+            "Immediate": "Ob der Text sofort statt zeichenweise angezeigt werden soll",
+            "Alignment": "Textausrichtung",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt",
+            "FadeInTime": "Gibt die Einblendzeit des Texts in Sekunden an",
+            "StayTime": "Gibt die Anzeigedauer des Texts in Sekunden an",
+            "FadeOutTime": "Gibt die Ausblendzeit des Texts in Sekunden an",
+            "SlotIndex": "Gibt den Slot-Index für den Text an, Standard 0. Um mehrere Textsegmente gleichzeitig anzuzeigen, verwenden Sie unterschiedliche Slot-Indizes.",
+            "AsSeceneObject": "Ob der Text als Szenenobjekt behandelt werden soll, wodurch er von anderen Szenencontrollern wie Bildschirmzittern und Farbschicht beeinflusst wird",
+            "Position": "Koordinatenposition des Texts",
+            "RenderOrder": "Renderreihenfolge des Texts; größere Werte überdecken kleinere Werte",
+            "Interval": "Zeitintervall in Sekunden zwischen den einzelnen Zeichen bei zeichenweiser Anzeige",
+            "ExtraStayTime": "Zusätzliche Dauer in Sekunden nach vollständiger Anzeige des Texts bei zeichenweiser Anzeige"
+        },
+        "Cut": {
+            "__description": "Steuert den Bildschirmschnitt.",
+            "Intensity": "Intensität des Schnitts",
+            "Angle": "Winkel des Schnitts in Grad",
+            "SlotIndex": "Gibt den Slot-Index für den Schnitt an, Standard 0. Um mehrere Schnitte gleichzeitig zu verwenden, verwenden Sie unterschiedliche Slot-Indizes.",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt",
+            "FadeInTime": "Gibt die Einblendzeit des Schnitts in Sekunden an",
+            "StayTime": "Gibt die Dauer des Schnitts in Sekunden an",
+            "FadeOutTime": "Gibt die Ausblendzeit des Schnitts in Sekunden an",
+            "RenderOrder": "Renderreihenfolge des Schnitts; größere Werte überdecken kleinere Werte"
+        },
+        "Filter": {
+            "__description": "Steuert die Anzeige des Filters.",
+            "Type&Intensity": "Gibt Typ und Intensität des Filters an; verschiedene Typen haben unterschiedliche Intensitätsbereiche",
+            "FadeInTime": "Gibt die Einblendzeit des Filters in Sekunden an",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt"
+        },
+        "AnimatedText": {
+            "__description": "Steuert die Anzeige von animiertem Text.",
+            "Content": "Inhalt des Texts",
+            "Type": "Art des animierten Texts; verschiedene Arten haben unterschiedliche Animationseffekte",
+            "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt"
+        },
+        "Sign": {
+            "__description": "Deklariert eine Markierung",
+            "Name": "Name der Markierung"
+        },
+        "Variable": {
+            "__description": "Deklariert eine Variable",
+            "Name": "Name der Variable",
+            "Expression": "Ausdruck der Variable; der Wert der Variable wird als Ergebnis dieses Ausdrucks berechnet"
+        },
+        "Judge": {
+            "__description": "Führt eine Beurteilung durch",
+            "Name": "Name der Variable zum Speichern des Beurteilungsergebnisses",
+            "Expression": "Beurteilungsausdruck; wenn das Berechnungsergebnis größer als 0 ist, wird es in der Variable gespeichert"
+        },
+        "Branch": {
+            "__description": "Verzweigt basierend auf einer Bedingung",
+            "Name": "Name der Verzweigung",
+            "Branches": "Namen der Markierungen, zu denen gesprungen werden soll"
+        },
+        "Narration": {
+            "__description": "Steuert die Anzeige der Erzählung.",
+            "Content": "Textinhalt der Erzählung"
+        },
+        "Dialog": {
+            "__description": "Steuert die Anzeige des Dialogs.",
+            "Speaker&Content": "Name des Sprechers und Textinhalt des Dialogs",
+            "IsAdditional": "Ob es sich um einen zusätzlichen Dialog handelt. Zusätzlicher Dialog wird zum vorhandenen Dialog hinzugefügt, anstatt ihn zu ersetzen",
+            "ModifyCharacters": "Ob die Anzeige vorhandener Charakterporträts synchron gesteuert werden soll, um Änderungen des Sprechers im Dialog zu entsprechen, wodurch Porträts im Verlauf des Dialogs automatisch abgedunkelt oder aufgehellt werden",
+            "BasicStayTime": "Basisdauer des Dialogs in Sekunden. Der Dialog erhält basierend auf der Textlänge zusätzliche Dauer zu dieser Basiszeit",
+            "Interval": "Zeitintervall in Sekunden zwischen den einzelnen Zeichen bei zeichenweiser Anzeige",
+            "ExtraStayTime": "Zusätzliche Dauer in Sekunden nach vollständiger Anzeige des Texts bei zeichenweiser Anzeige",
+            "IsBlocker": "Ob blockierend. Wenn dieser Dialog-Controller einem Charakterporträt zugeordnet ist, steuert diese Option, ob der Dialog-Controller auf das Ende aller Animationen im Porträt wartet, bevor er die nächste Zeile ausführt."
+        },
+        "Comment": {
+            "__description": "Kommentarzeile, wird nicht von der Wiedergabe-Engine ausgeführt.",
+            "Content": "Textinhalt des Kommentars"
+        },
+        "Aliases": {
+            "__description": "Definiert einen oder mehrere Aliasse, sodass der Dialog-Controller basierend auf dem Alias automatisch die entsprechenden Porträts hervorheben kann.",
+            "Name": "Ursprünglicher Name des Porträtmaterials",
+            "Target": "Alias des Materials"
+        }
+    },
+    "aseinfo": {
+        "projectName": "Projektname",
+        "projectPath": "Projektpfad",
+        "path": "ASE-Anwendungspfad",
+        "version": "Kompatible ASE-Version",
+        "mainFileName": "Name der Hauptdatei"
+    },
+    "provider": {
+        "window": {
+            "title": "Initialisierungsassistent für das ASE-Remake-Geschichtsprojekt",
+            "create": "Projekt erstellen",
+            "where": "Das neue Projekt wird in \"%1\" erstellt.",
+            "exists": "\"%1\" existiert bereits oder ist nicht leer! Hier kann kein neues Projekt erstellt werden."
+        },
+        "failed": {
+            "title": "Projekterstellung fehlgeschlagen",
+            "text": "Projekt konnte nicht erstellt werden. Stellen Sie sicher, dass der Zielordner leer ist oder Sie die Berechtigung zum Erstellen neuer Dateien in diesem Ordner haben."
+        },
+        "astory": {
+            "name": "ASE-Remake-Geschichtsprojekt",
+            "description": "Mit AStoryX geschriebene ASE-Remake-Geschichte",
+            "tags": {
+                "ase": "ASE-Remake",
+                "astory": "AStoryX",
+                "engine-native": "Engine-nativ",
+                "script": "Skript",
+                "arknights": "Arknights"
+            },
+            "title": "ASE-Projektinitialisierung"
+        },
+        "project": {
+            "title": "Initialisierungsassistent für das ASE-Remake-Geschichtsprojekt",
+            "name": {
+                "title": "Projektname",
+                "text": "Der Name des Geschichtsprojekts. Wenn nur pfadgültige Zeichen verwendet werden, ist dies auch der Name des Projektordners."
+            },
+            "path": {
+                "title": "Projektpfad",
+                "text": "Ein neuer Projektordner wird unter diesem Pfad erstellt"
+            },
+            "version": {
+                "title": "Ziel-ASE-Version",
+                "text": "Standardmäßig wird die neueste ASE-Version verwendet. Wenn eine bestimmte ältere Version benötigt wird, ordnen Sie die entsprechende Version in den Plugin-Einstellungen zu.",
+                "uptodate": "Neueste Version"
+            }
+        }
+    },
+    "fileProvider": {
+        "window": {
+            "title": "Initialisierungsassistent für AStoryX-Dateien",
+            "create": "Datei erstellen",
+            "where": "Die neue Datei wird als \"%1\" erstellt.",
+            "exists": "\"%1\" existiert bereits! Neue Datei kann nicht erstellt werden."
+        },
+        "failed": {
+            "title": "Dateierstellung fehlgeschlagen",
+            "text": "Datei konnte nicht erstellt werden. Stellen Sie sicher, dass der Zielordner leer ist oder Sie die Berechtigung zum Erstellen neuer Dateien in diesem Ordner haben."
+        },
+        "astory": {
+            "name": "ASE-Geschichtsdatei",
+            "description": "Mit AStory geschriebene ASE-Geschichte, die alle nativen ASE-Funktionen unterstützt.",
+            "tags": {
+                "ase": "ASE-Remake",
+                "astory": "AStoryX",
+                "engine-native": "Engine-nativ",
+                "script": "Skript",
+                "arknights": "Arknights"
+            },
+            "title": "AStoryX-Dateiinitialisierung"
+        },
+        "file": {
+            "title": "Initialisierungsassistent für die ASE-Remake-Geschichtsdatei",
+            "name": {
+                "title": "Dateiname",
+                "text": "Der Name der Geschichtsdatei. Wenn nur pfadgültige Zeichen verwendet werden, ist dies auch der Name der Datei."
+            },
+            "path": {
+                "title": "Dateipfad",
+                "text": "Eine neue Geschichtsdatei wird unter diesem Pfad erstellt"
+            },
+            "version": {
+                "title": "Ziel-ASE-Version",
+                "text": "Standardmäßig wird die neueste ASE-Version verwendet. Wenn eine bestimmte ältere Version benötigt wird, ordnen Sie die entsprechende Version in den Plugin-Einstellungen zu.",
+                "uptodate": "Neueste Version"
+            }
+        }
+    },
+    "config": {
+        "title": "ASER Studio-Einstellungen",
+        "aserExeSettings": {
+            "title": "Starteinstellungen für das ASE-Remake-Programm",
+            "exePath": {
+                "title": "Pfad zum ASE-Remake-Programm",
+                "text": "Speicherort der Datei ASE-Remake.exe.\nKonfigurieren Sie diesen Punkt korrekt, um ASE-Remake von YSS aus zu starten."
+            },
+            "version": {
+                "title": "ASE-Version",
+                "text": "Die Version Ihres ausgewählten ASE-Programms. Wenn Sie sich über die Version Ihres ASE-Programms nicht sicher sind oder es die neueste Version ist, wählen Sie \"Neueste Version\". Eine korrekte Versionskonfiguration ermöglicht es ASER Studio, sich besser in Ihr ASE-Programm zu integrieren und potenzielle Probleme zu vermeiden.",
+                "uptodate": "Neueste Version"
+            },
+            "windowSize": {
+                "title": "Fenstergröße",
+                "text": "ASER Studio kann beim Starten von ASE-Remake Fenstergrößenoptionen angeben; diese Optionen werden direkt an das ASE-Remake-Programm übergeben.",
+                "FullScreen": "Vollbild"
+            }
+        }
+    },
+    "debugger": {
+        "executableNotFound": {
+            "title": "ASE-Remake kann nicht gestartet werden",
+            "message": "Der konfigurierte Pfad zum ASE-Remake-Programm \"%1\" ist ungültig. Die ASE-Remake-Anwendung kann nicht gestartet werden.\nÜberprüfen Sie Ihre Konfiguration unter Datei -> Plugins und Einstellungen -> ASER Studio-Einstellungen und stellen Sie sicher, dass Sie den Pfad zu ASE-Remake.exe korrekt festgelegt haben."
+        },
+        "isRunning": {
+            "title": "Es scheint hier einen Konflikt zu geben...",
+            "message": "Es wurde erkannt, dass ein anderes ASE-Remake-Programm bereits ausgeführt wird, was zu Konflikten mit dem Debugger führt.\nDer Debugger unterstützt derzeit keine gleichzeitige Verbindung zu mehreren ASE-Remake-Programmen. Bitte schließen Sie andere laufende ASE-Remake-Programme, bevor Sie versuchen, das Debugging zu starten."
+        },
+        "starting": {
+            "title": "Hinweis auf Defekt der ASE-Remake-Betaversion",
+            "message": "Aufgrund eines bekannten Defekts in der ASE-Remake-Betaversion kann YSS ASE-Remake derzeit nur einfach starten und kann das Projektverzeichnis oder die Wiedergabedatei nicht korrekt festlegen. Sie müssen die Wiedergabe manuell starten. Das Starten des Debuggings dient jetzt nur als schnelle Möglichkeit, das ASE-Remake-Programm zu öffnen. Bitte verfolgen Sie das Änderungsprotokoll der ASE-Remake-Betaversion und warten Sie, bis dieses Problem behoben ist."
+        },
+        "notLegalFile": {
+            "title": "Hoppla, Sie haben die falsche Taste gedrückt!",
+            "message": "Sie versuchen, das Debugging für Datei %1 zu starten, aber dies ist keine gültige ASER-Skriptdatei.\nBitte wechseln Sie zu einer .astoryx-Datei, bevor Sie versuchen, das Debugging zu starten."
+        },
+        "executing": {
+            "waitingForLaunch": "Warten auf den Start von ASE-Remake...",
+            "waitingForPipe": "Warten auf die Einrichtung der Kommunikationspipeline mit ASE-Remake...",
+            "waitingForOBMI": "Warten auf die Bestätigung des Ressourceninitialisierungsstatus durch ASE-Remake...",
+            "waitingForPlay": "Warten auf den Start der Wiedergabe durch ASE-Remake...",
+            "loading": "Skript %1 wird geladen...",
+            "started": "Die Wiedergabe von Skript %1 wurde gestartet",
+            "exited": "Die Wiedergabe von Skript %1 wurde beendet"
+        }
+    },
+    "toolWidget": {
+        "aserWarpper": {
+            "title": "ASER-Wrapper"
+        }
+    },
+    "project": {
+        "close": {
+            "stillRunning": {
+                "title": "ASE-Remake läuft noch",
+                "message": "Sie versuchen, das Projekt zu schließen, aber das ASE-Remake-Programm scheint noch zu laufen.\nWenn Sie das Projekt weiter schließen, wird ASE-Remake zwangsweise beendet. Möchten Sie das Projekt wirklich weiter schließen?"
+            }
+        }
+    },
+    "syntaxColorTheme": {
+        "PlainText": "Klartext",
+        "SelectedTextBackground": "Hintergrund des ausgewählten Texts",
+        "LineNumber": "Zeilennummer",
+        "Function": "Funktion",
+        "String": "Zeichenkette",
+        "SpecialString": "Spezielle Zeichenkette",
+        "Number": "Zahl",
+        "Parameter": "Parameter",
+        "Keyword": "Schlüsselwort",
+        "Vector": "Vektor",
+        "Comment": "Kommentar",
+        "Namespace": "Namespace",
+        "Enum": "Enum",
+        "Macro": "Makro",
+        "MacroParameter": "Makroparameter",
+        "ErrorLine": "Fehlerlinie",
+        "WarningLine": "Warnlinie",
+        "InfoLine": "Infolinie"
+    }
+}

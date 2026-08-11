@@ -1,0 +1,295 @@
+{
+	"config": {
+		"title": "Einstellungen von Yayin Story Studio",
+		"general": {
+			"title": "Allgemein",
+			"text": "Allgemeine Programmeinstellungen",
+			"language": {
+				"title": "Sprache",
+				"text": "Anwendungssprache auswählen",
+				"zh_CN": "Chinesisch (vereinfacht)",
+				"en": "Englisch",
+				"ja": "Japanisch",
+				"ko": "Koreanisch",
+				"ru": "Russisch",
+				"de": "Deutsch",
+				"fr": "Französisch"
+			},
+			"theme": {
+				"title": "Farbschema",
+				"text": "Farbschema der Anwendung auswählen",
+				"dark": "Dunkel",
+				"light": "Hell",
+				"auto": "Automatisch (System folgen)"
+			},
+			"updateChannel": {
+				"title": "Update-Kanal",
+				"text": "Wählen Sie den von der Anwendung verwendeten Update-Kanal. Die stabile Version akzeptiert nur stabile Update-Meldungen; die Beta-Version akzeptiert sowohl stabile als auch Beta-Update-Meldungen; die technische Vorschauversion akzeptiert alle Update-Meldungen der drei Versionen.",
+				"release": "Stable",
+				"beta": "Beta",
+				"tp": "Technische Vorschau"
+			}
+		},
+		"editor": {
+			"title": "Editor",
+			"text": "Editorbezogene Einstellungen",
+			"reloadtab": {
+				"title": "TAB-Verhalten neu laden",
+				"text": "Steuert, ob der Editor Tabulatoren am Zeilenanfang durch Leerzeichen ersetzen soll (diese Option ist vorübergehend wirkungslos)"
+			}
+		}
+	},
+	"update": {
+		"newVersionAvailable": "Eine neue Version ist verfügbar!",
+		"newVersionAvailableDesc": "Version %1 ist jetzt veröffentlicht, und Sie verwenden derzeit Version %2.\nBitte lesen Sie die Versionshinweise für die Änderungen der neuen Version und besuchen Sie die offizielle Website, um die neueste Version herunterzuladen.",
+		"newsLoadFailed": "Die Neuigkeiten konnten nicht vom Server synchronisiert werden. Überprüfen Sie Ihre Netzwerkverbindung und versuchen Sie es später erneut.",
+		"installerUpdating": "YSS Installer wird aktualisiert",
+		"installerUpdatingDesc": "Eine neue Version des YSS Installers wurde erkannt. Die Aktualisierung und Neuverbindung wird durchgeführt, bitte warten..."
+	},
+	"tooltips": {
+		"projectWin": {
+			"project": "Klicken, um Details anzuzeigen, doppelklicken, um das Projekt zu öffnen",
+			"showInBrowser": "Projektordner im Datei-Explorer öffnen",
+			"delete": "Projekt aus der Liste entfernen",
+			"createNewProject": "Neues Projekt aus Vorlage erstellen",
+			"openFolder": "Ein Yayin Story Studio-Projekt öffnen",
+			"cloneFromGit": "Ein Projekt aus einer Git-Repository-URL klonen"
+		}
+	},
+	"project": {
+		"author": "Autor",
+		"description": "Beschreibung",
+		"debugServer": "Debug-Server",
+		"projectManager": "Projektmanager",
+		"selectToShow": "Wählen Sie ein Projekt aus, um Details anzuzeigen...",
+		"noCover": "Kein Cover",
+		"lastModifiedTime": "Zuletzt geändert",
+		"createTime": "Erstellt",
+		"size": "Größe",
+		"calculating": "Wird berechnet...",
+		"showInBrowser": "Im Datei-Explorer anzeigen",
+		"delete": "Projekt löschen",
+		"deleteConfirm": "Yayin Story Studio unterstützt derzeit kein sicheres Löschen von Projekten in den Papierkorb.\nAus Sicherheitsgründen wird durch Klicken auf OK das Projekt nur aus der Liste entfernt.\nSie können das Projekt später manuell im Datei-Explorer löschen.\n\nFortfahren?",
+		"removeFromList": "Aus der Liste entfernen",
+		"createNewProject": "Neues Projekt erstellen",
+		"createNewFile": "Neue Datei erstellen",
+		"openFolder": "Projekt öffnen",
+		"openYSSProject": "YSS-Projekt öffnen",
+		"cloneFromGit": "Von Git klonen",
+		"createFromTemplate": "Aus Vorlage erstellen",
+		"searchWithTags": "Vorlagen nach Tags durchsuchen",
+		"recentUsed": "Zuletzt verwendet",
+		"openProjectFailed": {
+			"message": "Projekt konnte nicht geöffnet werden",
+			"ParseError": "Die Projektdatei konnte nicht analysiert werden. Möglicherweise enthält sie Syntaxfehler oder ist beschädigt.",
+			"InvaildConfig": "Ungültige Projektkonfiguration: Pflichtfelder fehlen oder Feldtypen sind falsch.",
+			"UnknownError": "Ein unbekannter Fehler ist aufgetreten. Das Projekt konnte nicht geöffnet werden."
+		},
+		"saveQuestion": {
+			"title": "Programm schließen?",
+			"text": "Ihr Projekt \"%1\" wurde geändert und noch nicht gespeichert. Möchten Sie das Projekt speichern?"
+		}
+	},
+	"menu": {
+		"file": {
+			"title": "Datei",
+			"new": "Neue Datei",
+			"newFile": "Neue Datei",
+			"newFolder": "Neuer Ordner",
+			"open": "Öffnen",
+			"save": "Speichern",
+			"saveAll": "Alle speichern",
+			"saveAs": "Speichern unter",
+			"backToHome": "Zurück zur Startseite",
+			"terminal": "Terminal",
+			"pluginAndPreferences": "Plugins und Einstellungen",
+			"colorThemeSettings": "Syntaxhervorhebungseinstellungen",
+			"exit": "Beenden",
+			"documentation": "Dokumentation",
+			"about": "Über Yayin Story Studio",
+			"projectConfig": "Projekteinstellungen",
+			"showInExplorer": "Im Datei-Explorer anzeigen",
+			"closeAll": "Alle schließen",
+			"closeSaved": "Gespeicherte schließen"
+		},
+		"edit": {
+			"title": "Bearbeiten",
+			"undo": "Rückgängig",
+			"redo": "Wiederholen",
+			"cut": "Ausschneiden",
+			"copy": "Kopieren",
+			"copyPath": "Dateipfad kopieren",
+			"copyName": "Dateinamen kopieren",
+			"paste": "Einfügen",
+			"selectAll": "Alles auswählen",
+			"findAndReplace": "Suchen und Ersetzen"
+		},
+		"run": {
+			"title": "Ausführen",
+			"run": "Starten (ohne Debugging)",
+			"debug": "Starten (mit Debugging)",
+			"stop": "Stoppen",
+			"restart": "Neu starten",
+			"build": "Projekt erstellen",
+			"rebuild": "Neu erstellen (erzwungen)",
+			"clean": "Build bereinigen",
+			"stepInto": "Einzelsschritt",
+			"stepOver": "Prozedurschritt",
+			"suspend": "Anhalten",
+			"resume": "Fortsetzen"
+		},
+		"view": {
+			"title": "Ansicht",
+			"resourceBrowser": "Ressourcen-Browser",
+			"messageViewer": "Nachrichtenanzeige",
+			"pluginTools": "Plugin-Werkzeuge",
+			"noTools": "Keine Werkzeuge anzeigbar"
+		}
+	},
+	"editor": {
+		"messageViewer": {
+			"title": "Nachrichtenanzeige",
+			"error": "Fehler",
+			"warning": "Warnung",
+			"info": "Info",
+			"code": "Code",
+			"message": "Beschreibung",
+			"file": "Datei",
+			"line": "Zeile",
+			"column": "Spalte"
+		},
+		"multiTerminal": {
+			"title": "Terminal",
+			"newTerminal": "Neues Terminal",
+			"closeTerminal": "Terminal schließen",
+			"closeOtherTerminals": "Andere Terminals schließen",
+			"closeAllTerminals": "Alle Terminals schließen",
+			"terminalName": "Terminal %1"
+		},
+		"far": {
+			"title": "Suchen und Ersetzen",
+			"find": "Suchen",
+			"findNext": "Nächstes suchen",
+			"replace": "Ersetzen",
+			"replaceNext": "Nächstes ersetzen",
+			"replaceAll": "Alle ersetzen",
+			"matchCase": "Groß-/Kleinschreibung beachten",
+			"wholeWord": "Ganzes Wort",
+			"useRegExp": "Regulärer Ausdruck",
+			"notFound": "Keine weiteren Einträge gefunden",
+			"notFoundDesc": "Zieltext \"%1\" nicht gefunden",
+			"replaced": "Ersetzung abgeschlossen",
+			"replacedDesc": "%1 Vorkommen ersetzt",
+			"matchCount": "Gesamt %1"
+		},
+		"stackWidgetArea": {
+			"noFileOpened": "Keine Dateien geöffnet"
+		},
+		"toolWidgetArea": {
+			"noToolWidget": "Keine Werkzeuge anzeigbar"
+		},
+		"textEdit": {
+			"readOnly": {
+				"title": "Diese Datei ist schreibgeschützt",
+				"message": "Die Datei %1, die Sie speichern möchten, ist schreibgeschützt. Sie können in dieser Datei nicht speichern. Überprüfen Sie die Dateiberechtigungen oder verwenden Sie \"Speichern unter\", um an einem anderen Ort zu speichern."
+			},
+			"notSuitable": {
+				"title": "Kein Dienst gefunden, der diese Datei unterstützt",
+				"message": "Für die Dateierweiterung %1 wurde kein geeigneter Öffnungsdienst gefunden. YSS kann dennoch versuchen, die Datei mit dem eingebauten Texteditor zu öffnen, aber dies kann einige Binärdaten beschädigen. Möchten Sie wirklich mit dem eingebauten Texteditor fortfahren? (Stark nicht empfohlen)"
+			},
+			"cursorInfo_s": "Zeile %1, Spalte %2 (ausgewählt %3)",
+			"cursorInfo": "Zeile %1, Spalte %2",
+			"totalLines": "Gesamtzahl der Zeilen: %1",
+			"ready": "Bereit",
+			"tabCompleter": {
+				"top": "Beste Vorschläge, vom Plugin %1 basierend auf dem Kontext empfohlen",
+				"value": "Wert. Typ",
+				"const": "Konstante. Typ",
+				"enum": "Enum. Typ",
+				"function": "Funktion. Typ",
+				"object": "Objekt. Typ",
+				"operator": "Operator. Typ"
+			},
+			"tabCompleterLevel": {
+				"none": "Keine Vorschläge",
+				"few": "Wenige Vorschläge",
+				"some": "Einige Vorschläge",
+				"many": "Viele Vorschläge",
+				"all": "Alle Vorschläge"
+			}
+		},
+		"debug": {
+			"notFound": {
+				"title": "Hoppla! Debugger nicht gefunden",
+				"message": "Der für dieses Projekt angegebene Debugger %1 wurde nicht gefunden. Haben Sie das Plugin, das diesen Debugger bereitstellt, deaktiviert oder entfernt? Bitte aktivieren oder fügen Sie es wieder hinzu, starten Sie das Programm neu und versuchen Sie es erneut."
+			},
+			"notSelect": {
+				"title": "Debugger nicht konfiguriert!",
+				"message": "Für dieses Projekt ist kein Debugger konfiguriert. Öffnen Sie die Projekteinstellungen, wählen Sie einen Debugger aus und versuchen Sie es erneut."
+			}
+		},
+		"saveWarning": {
+			"title": "Datei geändert",
+			"message": "Die Datei %1 wurde geändert. Möchten Sie die Änderungen speichern?"
+		},
+		"saveAsConflict": {
+			"title": "Die zu überschreibende Datei ist geöffnet und enthält nicht gespeicherte Änderungen",
+			"message": "Bitte speichern oder schließen Sie zuerst die Datei %1 und versuchen Sie dann erneut, die Überschreibung über \"Speichern unter\" durchzuführen."
+		},
+		"reloadWarning": {
+			"title": "Jetzt neu laden?",
+			"message": "Die Datei %1 wurde geändert. Wenn Sie jetzt neu laden, gehen Ihre Änderungen an dieser Datei verloren. Möchten Sie neu laden?"
+		},
+		"renameDialog": {
+			"title": "Umbenennen",
+			"rename": "Datei %1 wird umbenannt",
+			"request": "Bitte geben Sie einen neuen Namen ein",
+			"warning": {
+				"empty": "Der Name darf nicht leer sein. Bitte geben Sie einen Namen ein.",
+				"same": "Der neue Name ist identisch mit dem alten. Bitte geben Sie einen anderen Namen ein.",
+				"exists": "Im selben Verzeichnis existiert bereits eine Datei mit diesem Namen. Bitte wählen Sie einen anderen Namen.",
+				"invalid": "Ungültiger Dateiname. Er darf die folgenden Zeichen nicht enthalten: \\ / : * ? \" < > |",
+				"extNotSame": {
+					"normal": "Die Erweiterung des neuen Namens unterscheidet sich von der ursprünglichen, was Probleme verursachen kann.",
+					"title": "Möchten Sie die Erweiterung wirklich ändern?",
+					"message": "Die im neuen Namen angegebene Erweiterung %1 unterscheidet sich von der ursprünglichen Erweiterung %2. Dies kann zu Problemen führen, z. B. dass die Datei nicht korrekt erkannt und geöffnet wird. Möchten Sie die Umbenennung wirklich fortsetzen?"
+				}
+			}
+		},
+		"about": {
+			"title": "Über Yayin Story Studio",
+			"message": "Version %1, ein Werk von Tsing Yayin. Yayin Story Studio ist Teil von Project Visindigo, ein völlig neues Projekt, das aus Yayin Story Player hervorgegangen ist und darauf abzielt, ASE-Benutzern eine benutzerfreundliche Entwicklungsumgebung zu bieten."
+		}
+	},
+	"colorThemeSettings": {
+		"langServer": "Sprachserver",
+		"theme": "Thema",
+		"duplicate": "Duplizieren",
+		"delete": "Löschen",
+		"font": "Schriftart",
+		"preview": "Vorschau",
+		"textColor": "Textfarbe",
+		"bgColor": "Hintergrundfarbe",
+		"bgColorEnabled": "Hintergrundfarbe verwenden",
+		"lineColor": "Linienfarbe",
+		"lineType": "Linientyp",
+		"bold": "Fett",
+		"italic": "Kursiv",
+		"save": "Speichern",
+		"reset": "Zurücksetzen",
+		"underlineType": {
+			"NoUnderline": "Keine",
+			"SingleUnderline": "Durchgezogen",
+			"DashUnderline": "Gestrichelt",
+			"DotLine": "Gepunktet",
+			"DashDotLine": "Strich-Punkt",
+			"DashDotDotLine": "Strich-Punkt-Punkt",
+			"WaveUnderline": "Wellenlinie",
+			"SpellCheckUnderline": "Rechtschreibprüfung"
+		},
+		"unsavedChanges": {
+			"title": "Nicht gespeicherte Änderungen",
+			"message": "Sie haben nicht gespeicherte Änderungen. Möchten Sie sie speichern? Wenn Sie nicht speichern, gehen alle Änderungen verloren."
+		}
+	}
+}

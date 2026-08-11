@@ -1,0 +1,42 @@
+{
+    "AutoUpdate":{
+        "Title": "YSS Update & Telemetry Service - Mise à jour automatique disponible",
+        "Desc_CanUpdate": "Le programme Yayin Story Studio actuellement lancé (version %1, situé à %2) semble être la dernière application YSS de cet ordinateur. Cependant, nous avons constaté qu'une ou plusieurs anciennes applications YSS sont également installées sur votre ordinateur.\nLe service de déploiement automatique des paquets de mise à jour YSS peut utiliser cette nouvelle version %1 comme paquet de mise à jour pour mettre à niveau automatiquement ces anciennes versions.\nQue souhaitez-vous faire ensuite ?",
+        "Option_AutoUpdate": "Je souhaite utiliser cette nouvelle version %1 comme paquet de mise à jour pour mettre à niveau automatiquement les anciens programmes.",
+        "Option_Keep": "Je souhaite conserver les anciens programmes et utiliser cette nouvelle version %1 de manière indépendante.",
+        "Desc_UpdateOption": "Veuillez sélectionner les options à appliquer lors de la mise à jour",
+        "Option_AutoDelete": "Supprimer automatiquement ce dossier utilisé comme paquet d'installation après la mise à jour (repos et third_party dans user_data seront conservés)",
+        "Option_AutoLaunch": "Lancer automatiquement la nouvelle version après la mise à jour",
+        "Desc_MultiOldVersion": "Nous avons trouvé plusieurs anciennes applications YSS sur votre ordinateur. Veuillez cocher ci-dessous les anciennes applications YSS que vous souhaitez mettre à niveau.",
+        "Path": "Chemin",
+        "Version": "Version",
+        "IWantToUpdate": "Je souhaite mettre à niveau",
+        "Desc_CloseProgram": "Le processus de mise à niveau nécessite la fermeture de toutes les applications YSS concernées. Veuillez enregistrer tout votre travail et fermer ces programmes avant la mise à niveau.",
+        "StillRunning": "Applications YSS encore en cours d'exécution",
+        "Option_Retry": "Fermées, veuillez réessayer",
+        "BackwardStep": "Retour",
+        "Desc_Ready": "Toute la préparation pour la mise à jour des anciens programmes est terminée, et le processus de mise à jour va commencer.\nVeuillez confirmer si vous souhaitez continuer.",
+        "Option_Next": "Suivant",
+        "Option_Cancel": "Annuler",
+        "Option_OK": "OK",
+        "Step_Confirm": "Confirmer la mise à jour",
+        "Step_Select": "Sélectionner les versions",
+        "Step_Option": "Options de mise à jour",
+        "Step_Check": "Vérifier l'état d'exécution",
+        "Step_Update": "Exécuter la mise à jour",
+        "Desc_Finished": "Mise à jour terminée",
+        "Desc_ChooseAutoLaunch": "Plusieurs anciens programmes ont été mis à jour. Veuillez sélectionner le programme à lancer automatiquement plus tard :",
+        "Option_Confirm": "Confirmer"
+    },
+    "Monitor": {
+        "Title": "YSS Update & Telemetry Service - Programme lancé",
+        "Launched": "Le programme YSS version %1 a été lancé"
+    },
+    "TrayIcon": {
+        "About": "À propos"
+    },
+    "About": {
+        "Title": "YSS Update & Telemetry Service - À propos",
+        "Desc": "YSS Update & Telemetry Service est un programme auxiliaire de Yayin Story Studio, chargé d'installer et de mettre à jour les applications YSS sur votre ordinateur. Dans les versions futures, il fournira également des services de télémétrie pour aider les développeurs à collecter les informations d'utilisation et les rapports de crash du programme, afin de mieux améliorer YSS.\n\nCe programme démarre automatiquement au lancement de YSS et s'exécute silencieusement en arrière-plan sans intervention de l'utilisateur. Lorsque YSS se ferme, ce programme se ferme également automatiquement."
+    }
+}

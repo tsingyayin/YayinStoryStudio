@@ -14,6 +14,11 @@ YSSInstallerTranslator::YSSInstallerTranslator(Visindigo::General::Plugin* paren
 	setDefaultLang(zh_CN);
 	addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.yss_installer/i18n/zh_CN.json");
 	addLangFilePath(en, ":/resource/cn.yxgeneral.yss_installer/i18n/en.json");
+	addLangFilePath(ja, ":/resource/cn.yxgeneral.yss_installer/i18n/ja.json");
+	addLangFilePath(ko, ":/resource/cn.yxgeneral.yss_installer/i18n/ko.json");
+	addLangFilePath(ru, ":/resource/cn.yxgeneral.yss_installer/i18n/ru.json");
+	addLangFilePath(de, ":/resource/cn.yxgeneral.yss_installer/i18n/de.json");
+	addLangFilePath(fr, ":/resource/cn.yxgeneral.yss_installer/i18n/fr.json");
 }
 
 class YSSInstallerPrivate {

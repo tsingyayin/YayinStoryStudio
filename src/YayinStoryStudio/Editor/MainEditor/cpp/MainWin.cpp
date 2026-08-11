@@ -260,11 +260,11 @@ namespace YSS::Editor {
 		}
 	}
 
-	void MainWin::openFile(const QString& path) {
+	void MainWin::openFileDialog(const QString& startPath) {
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		QDir CurrentDir;
-		if (not path.isEmpty()) {
-			CurrentDir.setPath(path);
+		if (not startPath.isEmpty()) {
+			CurrentDir.setPath(startPath);
 		}
 		else if (project) {
 			CurrentDir.setPath(project->getProjectFolder());
@@ -419,7 +419,7 @@ namespace YSS::Editor {
 				}
 			}
 			else if (event->key() == Qt::Key_O) {
-				this->openFile();
+				this->openFileDialog();
 			}
 			else if (event->key() == Qt::Key_N) {
 				this->openNewFileWindow();

@@ -14,6 +14,11 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/refresh.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/en.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/ja.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/ko.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/ru.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/de.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/fr.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/config.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/const.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/default.png</file>

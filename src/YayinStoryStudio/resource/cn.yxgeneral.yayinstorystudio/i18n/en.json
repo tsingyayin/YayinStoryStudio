@@ -8,7 +8,12 @@
 				"title": "Language",
 				"text": "Select application language",
 				"zh_CN": "Simplified Chinese",
-				"en": "English"
+				"en": "English",
+				"ja": "Japanese",
+				"ko": "Korean",
+				"ru": "Russian",
+				"de": "German",
+				"fr": "French"
 			},
 			"theme": {
 				"title": "Color Theme",
@@ -16,6 +21,13 @@
 				"dark": "Dark",
 				"light": "Light",
 				"auto": "Auto (Follow System)"
+			},
+			"updateChannel": {
+				"title": "Update Channel",
+				"text": "Select the update channel used by the application. The Release channel only accepts release update messages; the Beta channel accepts both release and beta update messages; the Technical Preview channel accepts all update messages of the three versions.",
+				"release": "Release",
+				"beta": "Beta",
+				"tp": "Technical Preview"
 			}
 		},
 		"editor": {
@@ -26,6 +38,13 @@
 				"text": "Controls whether the editor should replace TAB with spaces when it appears at the beginning of a line (this option is temporarily ineffective)"
 			}
 		}
+	},
+	"update": {
+		"newVersionAvailable": "A new version is available!",
+		"newVersionAvailableDesc": "Version %1 has been released, and you are currently using version %2.\nPlease refer to the release notes for details about the new version, and visit the official website to download the latest version.",
+		"newsLoadFailed": "Failed to sync news from the server. Please check your network connection and try again later.",
+		"installerUpdating": "Updating YSS Installer",
+		"installerUpdatingDesc": "A new version of YSS Installer was detected. It is being updated and reconnected. Please wait..."
 	},
 	"tooltips": {
 		"projectWin": {
@@ -66,7 +85,6 @@
 			"InvaildConfig": "Invalid project configuration, missing required fields or incorrect field types.",
 			"UnknownError": "An unknown error occurred and the project could not be opened."
 		},
-		"newsLoadFailed": "Failed to sync news from server. Please check your network connection and try again later.",
 		"saveQuestion": {
 			"title": "Close application?",
 			"text": "Your project %1 has unsaved changes. Do you want to save the project?"
@@ -76,6 +94,8 @@
 		"file": {
 			"title": "File",
 			"new": "New File",
+			"newFile": "New File",
+			"newFolder": "New Folder",
 			"open": "Open",
 			"save": "Save",
 			"saveAll": "Save All",
@@ -98,6 +118,8 @@
 			"redo": "Redo",
 			"cut": "Cut",
 			"copy": "Copy",
+			"copyPath": "Copy File Path",
+			"copyName": "Copy File Name",
 			"paste": "Paste",
 			"selectAll": "Select All",
 			"findAndReplace": "Find and Replace"
@@ -136,6 +158,14 @@
 			"line": "Line",
 			"column": "Column"
 		},
+		"multiTerminal": {
+			"title": "Terminal",
+			"newTerminal": "New Terminal",
+			"closeTerminal": "Close Terminal",
+			"closeOtherTerminals": "Close Other Terminals",
+			"closeAllTerminals": "Close All Terminals",
+			"terminalName": "Terminal %1"
+		},
 		"far": {
 			"title": "Find and Replace",
 			"find": "Find",
@@ -169,7 +199,24 @@
 			},
 			"cursorInfo_s": "Line %1, Column %2 (Selected %3)",
 			"cursorInfo": "Line %1, Column %2",
-			"totalLines": "Total lines: %1"
+			"totalLines": "Total lines: %1",
+			"ready": "Ready",
+			"tabCompleter": {
+				"top": "Top items recommended by the %1 plugin based on context",
+				"value": "Value Type",
+				"const": "Constant Type",
+				"enum": "Enum Type",
+				"function": "Function Type",
+				"object": "Object Type",
+				"operator": "Operator Type"
+			},
+			"tabCompleterLevel": {
+				"none": "No Suggestions",
+				"few": "Few Suggestions",
+				"some": "Some Suggestions",
+				"many": "Many Suggestions",
+				"all": "All Suggestions"
+			}
 		},
 		"debug": {
 			"notFound": {
@@ -184,6 +231,10 @@
 		"saveWarning": {
 			"title": "File Modified",
 			"message": "The file %1 has been modified. Do you want to save the changes?"
+		},
+		"saveAsConflict": {
+			"title": "The file to be overwritten is open and has unsaved changes",
+			"message": "Please save or close file %1 first, then try the Save As overwrite operation again."
 		},
 		"reloadWarning": {
 			"title": "Reload now?",
@@ -225,6 +276,20 @@
 		"bold": "Bold",
 		"italic": "Italic",
 		"save": "Save",
-		"reset": "Reset"
+		"reset": "Reset",
+		"underlineType": {
+			"NoUnderline": "None",
+			"SingleUnderline": "Solid",
+			"DashUnderline": "Dashed",
+			"DotLine": "Dotted",
+			"DashDotLine": "Dash-Dot",
+			"DashDotDotLine": "Dash-Dot-Dot",
+			"WaveUnderline": "Wave",
+			"SpellCheckUnderline": "Spell Check"
+		},
+		"unsavedChanges": {
+			"title": "Unsaved Changes",
+			"message": "You have unsaved changes. Do you want to save them? If you do not save, all changes will be lost."
+		}
 	}
 }

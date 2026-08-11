@@ -487,6 +487,12 @@ namespace YSSCore::General {
 	void YSSProject::refreshLastModifyTime() {
 		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 	}
+
+	/*!
+		\since YSS 0.13.0
+
+		return 项目中编辑器当前打开的文件路径列表。对于真实文件路径，永远返回绝对路径；对于虚拟文件路径，返回原始的虚拟文件路径。
+	*/
 	QStringList YSSProject::getEditorOpenedFiles() {
 		QStringList files;
 		QStringList keys = d->ProjectConfig->keys("Editor.OpenedFiles");
@@ -512,11 +518,20 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::addEditorOpenedFile(const QString& filePath) {
 		QStringList files = getEditorOpenedFiles();
-		if (files.contains(filePath)) {
+		QString absInput = filePath;
+		if (absInput.startsWith("./")) {
+			absInput = getProjectFolder() + "/" + absInput.mid(2);
+		}
+		if (files.contains(absInput)) {
 			return;
 		}
-		QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
-		d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), relativePath);
+		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
+			QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
+			d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), relativePath);
+		}
+		else {
+			d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), filePath);
+		}
 	}
 
 	/*!
@@ -546,11 +561,14 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::removeEditorOpenedFile(const QString& filePath) {
 		QStringList files = getEditorOpenedFiles();
-		QString absPath = QFileInfo(filePath).absoluteFilePath();
-		if (!files.contains(absPath)) {
+		QString absInput = filePath;
+		if (absInput.startsWith("./")) {
+			absInput = getProjectFolder() + "/" + absInput.mid(2);
+		}
+		if (not files.contains(absInput)) {
 			return;
 		}
-		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(absPath)));
+		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(absInput)));
 	}
 
 	/*!
@@ -585,7 +603,8 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		return 项目中编辑器当前聚焦的文件路径。
+
+		return 项目中编辑器当前聚焦的文件路径。对于真实文件路径，永远返回绝对路径；对于虚拟文件路径，返回原始的虚拟文件路径。
 	*/
 	QString YSSProject::getFocusedFile() {
 		QString relativePath = d->ProjectConfig->getString("Editor.FocusedFile");
@@ -600,12 +619,16 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		return 项目中编辑器当前聚焦的文件的文件名（不带路径）。
+
+		return 项目中编辑器当前聚焦的文件的文件名（不带路径）。对于虚拟文件路径，返回虚拟文件路径的名称部分。对于真实文件路径，返回真实文件的文件名。
 	*/
 	QString YSSProject::getFocusedFileName() {
 		QString abs_path = getFocusedFile();
 		if (abs_path.isEmpty()) {
 			return QString();
+		}
+		if (YSSCore::Editor::VirtualFilePath::isVirtualFilePath(abs_path)) {
+			return YSSCore::Editor::VirtualFilePath(abs_path).getFileName();
 		}
 		QFileInfo info(abs_path);
 		return info.fileName();

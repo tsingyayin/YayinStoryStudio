@@ -48,7 +48,7 @@ namespace YSS::Editor {
 		void onToolWidgetOpened(const QString& toolWidgetID);
 		void saveCurrentFocusedFile();
 		void saveCurrentFocusedFileAs(QString rawFilePath = "");
-		void openFile(const QString& path = "");
+		void openFileDialog(const QString& startPath = "");
 		void openNewFileWindow();
 		void help();
 		void setMenuShortcutTips();

@@ -5,6 +5,11 @@
         <file>resource/cn.yxgeneral.visindigo/default/defaultTheme.json</file>
         <file>resource/cn.yxgeneral.visindigo/icon.png</file>
         <file>resource/cn.yxgeneral.visindigo/i18n/en.json</file>
+        <file>resource/cn.yxgeneral.visindigo/i18n/ja.json</file>
+        <file>resource/cn.yxgeneral.visindigo/i18n/ko.json</file>
+        <file>resource/cn.yxgeneral.visindigo/i18n/ru.json</file>
+        <file>resource/cn.yxgeneral.visindigo/i18n/de.json</file>
+        <file>resource/cn.yxgeneral.visindigo/i18n/fr.json</file>
         <file>resource/cn.yxgeneral.visindigo/Segoe Fluent Icons.ttf</file>
     </qresource>
 </RCC>

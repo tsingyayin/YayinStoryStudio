@@ -51,6 +51,7 @@ namespace YSS::ProjectPage {
 	void ProjectInfoWidget::initWidget() {
 		Project = nullptr;
 		CoverLabel->setText(VITR("YSS::project.noCover"));
+		CoverLabel->setStyleSheet("QLabel{border-image:url()}");
 		TitleLabel->setText(VITR("YSS::project.selectToShow"));
 		CreateTimeLabel->setText(VITR("YSS::project.createTime") + ": ");
 		LastModifiedTimeLabel->setText(VITR("YSS::project.lastModifiedTime") + ": ");
@@ -61,9 +62,10 @@ namespace YSS::ProjectPage {
 
 	void ProjectInfoWidget::showProject(YSSCore::General::YSSProject* project) {
 		if (project == nullptr) {
+			initWidget();
 			return;
 		}
-		initWidget();
+		
 		Project = project;
 		QString path = project->getProjectFolder();
 		YSSAsync<qint64, QString>(

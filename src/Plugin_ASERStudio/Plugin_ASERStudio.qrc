@@ -16,6 +16,11 @@
         <file>resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json</file>
         <file>resource/cn.yxgeneral.aserstudio/config.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/en.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/ja.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/ko.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/ru.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/de.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/fr.json</file>
         <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_dark_2024.json</file>
         <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_light_2024.json</file>
         <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/templateFile.astoryx</file>

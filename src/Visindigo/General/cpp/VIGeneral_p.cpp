@@ -47,7 +47,12 @@ namespace Visindigo::__Private__ {
 		setLangFilePath(
 			{
 				{zh_CN, ":/resource/cn.yxgeneral.visindigo/i18n/zh_CN.json"},
-				{en, ":/resource/cn.yxgeneral.visindigo/i18n/en.json"}
+				{en, ":/resource/cn.yxgeneral.visindigo/i18n/en.json"},
+				{ja, ":/resource/cn.yxgeneral.visindigo/i18n/ja.json"},
+				{ko, ":/resource/cn.yxgeneral.visindigo/i18n/ko.json"},
+				{ru, ":/resource/cn.yxgeneral.visindigo/i18n/ru.json"},
+				{de, ":/resource/cn.yxgeneral.visindigo/i18n/de.json"},
+				{fr, ":/resource/cn.yxgeneral.visindigo/i18n/fr.json"}
 			}
 		);
 	}

@@ -135,7 +135,7 @@ namespace YSS::Editor {
 
 		void onThemeChanged(int index) {
 			if (themeStyleDataEditingChanged) {
-				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges"), VITR("YSS::colorThemeSettings.unsavedChangesPrompt"), QMessageBox::Yes | QMessageBox::No);
+				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges.title"), VITR("YSS::colorThemeSettings.unsavedChanges.desc"), QMessageBox::Yes | QMessageBox::No);
 				if (ret == QMessageBox::Yes) {
 					currentLangServer->getColorThemeProvider()->setThemeStyleData(currentThemeName, themeStyleDataEditing);
 				}
@@ -255,6 +255,25 @@ namespace YSS::Editor {
 			cursor.select(QTextCursor::Document);
 			cursor.setCharFormat(format);
 		}
+
+		void onSaveButtonClicked() {
+			if (currentLangServer) {
+				currentLangServer->getColorThemeProvider()->setThemeStyleData(currentThemeName, themeStyleDataEditing);
+				themeStyleDataEditingChanged = false;
+			}
+		}
+
+		void onResetButtonClicked() {
+			if (currentLangServer) {
+				themeStyleDataEditing = themeStyleDataBackup;
+				themeStyleDataEditingChanged = false;
+				onConfigNodeSelected(configNodeView->currentIndex());
+				if (documentPreviewTextEdit->getSyntaxHighlighter()) {
+					documentPreviewTextEdit->getSyntaxHighlighter()->onThemeChanged(themeStyleDataEditing);
+					documentPreviewTextEdit->getSyntaxHighlighter()->rehighlight_s();
+				}
+			}
+		}
 	};
 
 	ColorThemeSettingsEditWidget::ColorThemeSettingsEditWidget(QWidget* parent) : YSSCore::Editor::FileEditWidget(parent) {
@@ -331,12 +350,12 @@ namespace YSS::Editor {
 		d->lineColorButton = new QPushButton(d->editFrame);
 		d->lineTypeTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.lineType"), d->editFrame);
 		d->lineTypeComboBox = new QComboBox(d->editFrame);
-		{
-			QMetaEnum underlineMeta = QMetaEnum::fromType<YSSCore::Editor::StyleData::UnderlineType>();
-			for (int i = 0; i < underlineMeta.keyCount(); ++i) {
-				d->lineTypeComboBox->addItem(QString::fromUtf8(underlineMeta.key(i)));
-			}
+
+		QMetaEnum underlineMeta = QMetaEnum::fromType<YSSCore::Editor::StyleData::UnderlineType>();
+		for (int i = 0; i < underlineMeta.keyCount(); ++i) {
+			d->lineTypeComboBox->addItem(VITR("YSS::colorThemeSettings.underlineType." + QString::fromUtf8(underlineMeta.key(i))));
 		}
+		
 		d->useBoldCheckBox = new QCheckBox(VITR("YSS::colorThemeSettings.bold"), d->editFrame);
 		d->useItalicCheckBox = new QCheckBox(VITR("YSS::colorThemeSettings.italic"), d->editFrame);
 		d->useBgColorCheckBox = new QCheckBox(VITR("YSS::colorThemeSettings.bgColorEnabled"), d->editFrame);
@@ -370,7 +389,7 @@ namespace YSS::Editor {
 		d->mainLayout->addWidget(d->themeFrame, 2, 0, 1, -1);
 		d->mainLayout->addWidget(d->styleFrame, 3, 0, 1, -1);
 		d->mainLayout->addWidget(d->documentPreviewTextEdit, 4, 0);
-		d->mainLayout->addWidget(d->editFrame, 4, 1);
+		d->mainLayout->addWidget(d->editFrame, 4, 1, 1, -1);
 		d->mainLayout->addWidget(d->saveButton, 5, 1, Qt::AlignRight);
 		d->mainLayout->addWidget(d->resetButton, 5, 2, Qt::AlignRight);
 		d->mainLayout->setRowStretch(4, 1);
@@ -404,6 +423,12 @@ namespace YSS::Editor {
 			});
 		connect(d->useBgColorCheckBox, &QCheckBox::stateChanged, this, [this](int) {
 			d->onAnyStylePropertyChanged();
+			});
+		connect(d->saveButton, &QPushButton::clicked, this, [this]() {
+			d->onSaveButtonClicked();
+			});
+		connect(d->resetButton, &QPushButton::clicked, this, [this]() {
+			d->onResetButtonClicked();
 			});
 		bool success = d->initLangServer();
 

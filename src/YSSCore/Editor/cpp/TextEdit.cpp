@@ -325,7 +325,12 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onTabClicked(QKeyEvent* event) {
 		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
-			onTabClicked_TabCompleter(event);
+			if (event->key() == Qt::Key_Tab) {
+				onTabClicked_TabCompleter(event);
+			}
+			else {
+				TabCompleterWidget->hide();
+			}
 		}
 		else {
 			onTabClicked_NormalInput(event);

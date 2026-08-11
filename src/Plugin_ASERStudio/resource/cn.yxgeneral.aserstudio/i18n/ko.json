@@ -1,0 +1,521 @@
+{
+    "diagnostic": {
+        "undefined": {
+            "name": "정의되지 않음",
+            "message": "진단 정보의 Undefined는 일반적으로 여기에 문제가 없음을 의미합니다.",
+            "fixAdvice": "다른 비정상적인 동작을 발견하지 않는 한 일반적으로 이 진단 정보를 고려할 필요가 없습니다."
+        },
+        "unknownError": {
+            "name": "알 수 없는 오류",
+            "message": "내부 오류 또는 처리되지 않은 예외로 인해 알 수 없는 오류가 발생했습니다.",
+            "fixAdvice": "ASER Studio를 다시 시작해 보세요. 문제가 지속되면 기술 지원에 문의하고 관련 로그를 제공하세요."
+        },
+        "ruleNotSelected": {
+            "name": "구문 규칙이 선택되지 않음",
+            "message": "문서 %1은(는) #useRule 지시문을 통해 구문 규칙을 지정하지 않았습니다.",
+            "fixAdvice": "문서의 두 번째 줄에 #useRule:%1을(를) 추가하여 %1에 정의된 구문 규칙을 지정해 보세요."
+        },
+        "noSuchRule": {
+            "name": "구문 규칙이 존재하지 않음",
+            "message": "문서 %1의 #useRule 지시문으로 지정된 구문 규칙 %2이(가) 유효하지 않습니다.",
+            "fixAdvice": "문서 %1의 #useRule 지시문 매개변수를 확인하여 존재하는 구문 규칙을 올바르게 지정했는지 확인하세요. 현재 유효한 규칙은 %2입니다"
+        },
+        "noSuchController": {
+            "name": "컨트롤러가 존재하지 않음",
+            "message": "그런 컨트롤러 %1이(가) 없습니다.",
+            "fixAdvice": "코드가 규칙 %1에서 지정한 컨트롤러 접두사를 올바르게 참조하는지 확인하고, 정의되어 있고 이름 철자가 올바른지 확인하세요."
+        },
+        "missingRequiredParameter": {
+            "name": "필수 매개변수 누락",
+            "message": "컨트롤러 \"%1 controller\"에 필수 매개변수 %2이(가) 없습니다.",
+            "fixAdvice": "선택적 매개변수를 나타내는 기호를 제거하고 줄 시작 식별자부터 값을 다시 입력하세요."
+        },
+        "parameterTypeMismatch": {
+            "name": "매개변수 유형 불일치",
+            "message": "매개변수 %1의 유형이 일치하지 않습니다. 입력한 유형은 %2일 수 있지만 예상 유형은 %3입니다",
+            "fixAdvice": "유형을 %1(으)로 수정하세요"
+        },
+        "parameterOutOfRange": {
+            "name": "매개변수가 범위를 벗어남",
+            "message": "매개변수 %1의 값이 허용 범위를 벗어났습니다.",
+            "fixAdvice": "컨트롤러 매개변수를 확인하여 값이 허용 범위 내에 있는지 확인하세요.",
+            "allowedMin": "허용되는 최소값은 %1입니다.",
+            "allowedMax": "허용되는 최대값은 %1입니다.",
+            "allowedRange": "허용 범위는 %1에서 %2까지입니다.",
+            "allowedEnums": "허용되는 열거 값은 %1입니다."
+        },
+        "parameterFormatError": {
+            "name": "매개변수 형식 오류",
+            "message": "매개변수 %1의 형식이 잘못되었습니다.",
+            "fixAdvice": "컨트롤러 매개변수를 확인하여 형식이 예상과 일치하는지 확인하세요.",
+            "allowedDimension": "허용되는 차원은 %1입니다.",
+            "allowedFormat": "허용되는 형식은 %1입니다."
+        },
+        "unexceptedParameter": {
+            "name": "예기치 않은 매개변수",
+            "message": "컨트롤러 %1이(가) 예기치 않은 매개변수 %2을(를) 수신했습니다.",
+            "fixAdvice": "컨트롤러 %1의 정의를 확인하여 예상 매개변수만 수락하고 추가 매개변수가 전달되지 않았는지 확인하세요."
+        },
+        "unclosedSymbol": {
+            "name": "닫히지 않은 기호",
+            "message": "문서 %1의 기호 %2이(가) 올바르게 닫히지 않았습니다.",
+            "fixAdvice": "문서 %1의 기호 %2을(를) 확인하고 올바르게 닫혀 있는지 확인하세요. (적절한 위치에 %3 기호를 추가하여 닫으세요)"
+        },
+        "variableNotDefined": {
+            "name": "변수가 정의되지 않음",
+            "message": "변수 %2이(가) 정의되지 않았습니다.",
+            "fixAdvice": "%1의 철자를 확인하거나 명령문 %1을(를) 통해 이 변수를 미리 정의했는지 확인하세요."
+        },
+        "useTabInsteadSpace": {
+            "name": "공백 대신 탭 사용",
+            "message": "탭을 사용해야 하는 곳에 공백이 사용되었습니다.",
+            "fixAdvice": "공백을 탭(Tab)으로 바꾸세요."
+        },
+        "useSpaceInsteadTab": {
+            "name": "탭 대신 공백 사용",
+            "message": "공백을 사용해야 하는 곳에 탭이 사용되었습니다.",
+            "fixAdvice": "탭(Tab)을 적절한 수의 공백으로 바꾸세요."
+        },
+        "useEnglishPunctuation": {
+            "name": "영문 구두점 사용",
+            "message": "영문 구두점을 사용해야 하는 곳에 중국어 구두점이 사용되었습니다.",
+            "fixAdvice": "중국어 구두점을 해당하는 영문 구두점으로 바꾸세요."
+        },
+        "useChinesePunctuation": {
+            "name": "중국어 구두점 사용",
+            "message": "중국어 구두점을 사용해야 하는 곳에 영문 구두점이 사용되었습니다.",
+            "fixAdvice": "영문 구두점을 해당하는 중국어 구두점으로 바꾸세요."
+        },
+        "noSuchBlock": {
+            "name": "블록이 존재하지 않음",
+            "message": "그런 블록 %1이(가) 없습니다.",
+            "fixAdvice": "%1의 철자를 확인하거나 명령문 %1을(를) 통해 이 블록을 미리 정의했는지 확인하세요."
+        },
+        "blockNameConflict": {
+            "name": "블록 이름 충돌",
+            "message": "블록 %1은(는) %2행에 이미 정의되어 있습니다.",
+            "fixAdvice": "이 블록 또는 %1행에 정의된 블록에 대해 다른 이름을 선택하세요."
+        },
+        "instrumentRedundant": {
+            "name": "중복 지시문",
+            "message": "지시문 %1은(는) 여기에서 중복됩니다. %1행의 지시문과 중복됩니다",
+            "fixAdvice": "이 중복된 %1 지시문을 삭제하세요"
+        },
+        "noSuchPreprocessor": {
+            "name": "전처리기가 존재하지 않음",
+            "message": "그런 전처리기 %1이(가) 없습니다.",
+            "fixAdvice": "%1의 철자를 확인하세요"
+        },
+        "parameterRepeated": {
+            "name": "매개변수 중복",
+            "message": "매개변수 %1이(가) %2열에 다시 정의되었습니다",
+            "fixAdvice": "컨트롤러의 매개변수 목록을 확인하여 각 매개변수가 한 번만 나타나는지 확인하세요."
+        },
+        "unknownWarning": {
+            "name": "알 수 없는 경고",
+            "message": "내부 오류 또는 처리되지 않은 예외로 인해 알 수 없는 경고가 발생했습니다.",
+            "fixAdvice": "ASER Studio를 다시 시작해 보세요. 문제가 지속되면 기술 지원에 문의하고 관련 로그를 제공하세요."
+        },
+        "nosuchResource": {
+            "name": "리소스가 존재하지 않음",
+            "message": "그런 리소스 %1이(가) 없습니다.",
+            "fixAdvice": "%1의 철자를 확인하거나 프로젝트에 %1이라는 이름의 리소스를 추가하세요."
+        },
+        "useTabInsteadSpace_dialog": {
+            "name": "대화 컨트롤러에서 공백 대신 탭 사용",
+            "message": "대화 컨트롤러에서는 공백 대신 탭(Tab) 키를 사용하여 화자와 대화 내용을 구분하세요. 공백이 이름의 일부인 것이 확실하면 이 경고를 무시하세요.",
+            "fixAdvice": "공백을 탭(Tab)으로 바꾸세요."
+        }
+    },
+    "value": {
+        "integer": "정수",
+        "float": "부동 소수점",
+        "string": "문자열",
+        "bool": "부울 값",
+        "enum": "열거 값",
+        "vector": "벡터"
+    },
+    "controller": {
+        "Background": "배경",
+        "Music": "음악",
+        "SoundEffect": "효과음",
+        "Mask": "마스크",
+        "Character": "캐릭터",
+        "Choice": "선택지",
+        "Delay": "지연",
+        "VisualEffect": "시각 효과",
+        "Interlude": "삽입",
+        "ColorMask": "색상 레이어",
+        "Shake": "화면 흔들림",
+        "FreeText": "자유 텍스트",
+        "Cut": "화면 전환",
+        "Filter": "필터",
+        "AnimatedText": "동적 텍스트",
+        "Sign": "라벨",
+        "Variable": "변수",
+        "Judge": "판단",
+        "Branch": "분기",
+        "Narration": "나레이션",
+        "Dialog": "대화",
+        "Preprocessor": "전처리기",
+        "Comment": "주석",
+        "Aliases": "별칭"
+    },
+    "document": {
+        "Preprocessor": {
+            "__description": "재생 전 준비 단계에서 문서를 처리하기 위해 사용되는 전처리기 지시문입니다.",
+            "type": "전처리 지시문 유형",
+            "ruleName": "구문 규칙 이름, #useRule 지시문에서 구문 규칙 이름을 정의하는 데 사용",
+            "blockName": "블록 이름, #block 지시문에서 블록 이름을 정의하고 #use 지시문에서 호출할 블록 이름을 지정하는 데 사용",
+            "versionNumber": "버전 이름, #version 지시문에서 컨트롤러 또는 구문 규칙의 버전을 지정하는 데 사용",
+            "param0": "참조하는 블록의 1번째 매개변수",
+            "param1": "참조하는 블록의 2번째 매개변수",
+            "param2": "참조하는 블록의 3번째 매개변수",
+            "param3": "참조하는 블록의 4번째 매개변수",
+            "param4": "참조하는 블록의 5번째 매개변수",
+            "param5": "참조하는 블록의 6번째 매개변수",
+            "param6": "참조하는 블록의 7번째 매개변수",
+            "param7": "참조하는 블록의 8번째 매개변수",
+            "param8": "참조하는 블록의 9번째 매개변수",
+            "param9": "참조하는 블록의 10번째 매개변수"
+        },
+        "Background": {
+            "__description": "배경 표시를 제어합니다.",
+            "ImageName": "배경에 사용할 이미지 이름을 지정합니다",
+            "FadeInTime": "배경 페이드인 시간을 초 단위로 지정합니다",
+            "StartPosition": "배경 이미지 표시의 시작 좌표 위치",
+            "EndPosition": "배경 이미지 표시의 끝 좌표 위치",
+            "MoveTime": "배경이 시작 위치에서 끝 위치로 이동하는 시간(초)",
+            "MoveCurve": "배경 이동의 곡선 유형",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다",
+            "StitchVertically": "여러 이미지를 세로로 타일링할지 여부. true는 세로 타일링, false는 가로 타일링입니다.",
+            "StitchColumnCount": "현재 타일링 방향의 최대 타일 수. 이 수를 초과하면 자동으로 다음 열 또는 행으로 이동하여 격자 모양으로 타일링합니다"
+        },
+        "Music": {
+            "__description": "음악 재생을 제어합니다.",
+            "AudioName": "음악에 사용할 오디오 이름을 지정합니다",
+            "Volume": "음악의 볼륨을 지정합니다. 범위는 0부터 1까지",
+            "FadeInTime": "음악 페이드인 시간을 초 단위로 지정합니다",
+            "SlotIndex": "음악의 슬롯 인덱스를 지정합니다. 기본값은 0(트랙 번호)입니다. 여러 음악을 동시에 재생하려면 다른 슬롯 인덱스를 사용하여 구분할 수 있습니다.",
+            "Position": "음악의 공간 위치. -1은 왼쪽, 1은 오른쪽이며 이 범위 내에서 자유롭게 조정할 수 있습니다"
+        },
+        "SoundEffect": {
+            "__description": "효과음 재생을 제어합니다.",
+            "AudioName": "효과음에 사용할 오디오 이름을 지정합니다",
+            "Volume": "효과음의 볼륨을 지정합니다. 범위는 0부터 1까지",
+            "Position": "효과음의 공간 위치. -1은 왼쪽, 1은 오른쪽이며 이 범위 내에서 자유롭게 조정할 수 있습니다",
+            "Steps": "효과음 재생의 단계 수를 지정합니다. 즉, 몇 개의 컨트롤러를 거쳐 종료되는지"
+        },
+        "Mask": {
+            "__description": "마스크 표시를 제어합니다.",
+            "IsOn": "마스크 표시 여부"
+        },
+        "Character": {
+            "__description": "캐릭터 표시를 제어합니다.",
+            "Character&Variant": "캐릭터 이름과 변형을 지정합니다. 변형이 없으면 캐릭터 이름만 사용합니다",
+            "SlotIndex": "캐릭터의 슬롯 인덱스를 지정합니다. 기본값은 0. 여러 캐릭터를 동시에 표시하려면 다른 슬롯 인덱스를 사용하여 구분할 수 있습니다.",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다",
+            "FadeInTime": "캐릭터 페이드인 시간을 초 단위로 지정합니다",
+            "FadeOutTime": "캐릭터 페이드아웃 시간을 초 단위로 지정합니다",
+            "Effects": "캐릭터의 효과를 지정합니다",
+            "Alpha": "캐릭터의 투명도. 범위는 0부터 1까지",
+            "RenderOrder": "캐릭터의 렌더링 순서. 값이 큰 캐릭터가 값이 작은 캐릭터 위에 겹칩니다",
+            "StartPosition": "캐릭터 표시의 시작 좌표 위치",
+            "EndPosition": "캐릭터 표시의 끝 좌표 위치",
+            "MoveTime": "캐릭터가 시작 위치에서 끝 위치로 이동하는 시간(초)",
+            "MoveCurve": "캐릭터 이동의 곡선 유형"
+        },
+        "Choice": {
+            "__description": "선택지 표시를 제어합니다.",
+            "ChoiceContent": "선택지의 텍스트 내용",
+            "OutputVariable": "선택지의 출력 변수 이름. 플레이어의 선택 결과가 이 변수에 저장됩니다"
+        },
+        "Delay": {
+            "__description": "지연을 제어합니다.",
+            "DelayTime": "지연의 지속 시간(초)"
+        },
+        "VisualEffect": {
+            "__description": "시각 효과 표시를 제어합니다.",
+            "VisualEffectName": "시각 효과에 사용할 효과 이름을 지정합니다",
+            "Steps": "시각 효과의 지속 단계 수를 지정합니다. 즉, 몇 개의 컨트롤러를 거쳐 종료되는지",
+            "Position": "시각 효과의 좌표 위치",
+            "RenderOrder": "시각 효과의 렌더링 순서. 값이 큰 효과가 값이 작은 효과 위에 겹칩니다"
+        },
+        "Interlude": {
+            "__description": "삽입 표시를 제어합니다.",
+            "Character&Variant": "삽입에서 캐릭터 이름과 변형을 지정합니다. 변형이 없으면 캐릭터 이름만 사용합니다",
+            "SlotIndex": "삽입에서 캐릭터의 슬롯 인덱스를 지정합니다. 기본값은 0. 여러 캐릭터를 동시에 표시하려면 다른 슬롯 인덱스를 사용하여 구분할 수 있습니다.",
+            "IsOn": "삽입 표시 여부",
+            "Type": "삽입의 유형. 0은 회색 세로형, 1은 아바타형",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다",
+            "Effects": "삽입의 효과를 지정합니다",
+            "RenderOrder": "삽입의 렌더링 순서. 값이 큰 삽입이 값이 작은 삽입 위에 겹칩니다",
+            "Position": "삽입의 좌표 위치"
+        },
+        "ColorMask": {
+            "__description": "색상 레이어 표시를 제어합니다.",
+            "Color": "색상 레이어의 색상. 4차원 벡터를 사용합니다",
+            "FadeInTime": "색상 레이어 페이드인 시간을 초 단위로 지정합니다",
+            "StayTime": "색상 레이어의 지속 시간을 초 단위로 지정합니다",
+            "FadeOutTime": "색상 레이어 페이드아웃 시간을 초 단위로 지정합니다",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다"
+        },
+        "Shake": {
+            "__description": "화면 흔들림을 제어합니다.",
+            "Intensity": "화면 흔들림의 강도",
+            "FadeInTime": "화면 흔들림 페이드인 시간을 초 단위로 지정합니다",
+            "StayTime": "화면 흔들림의 지속 시간을 초 단위로 지정합니다",
+            "FadeOutTime": "화면 흔들림 페이드아웃 시간을 초 단위로 지정합니다",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다"
+        },
+        "FreeText": {
+            "__description": "자유 텍스트 표시를 제어합니다.",
+            "Content": "텍스트의 내용",
+            "IsAddition": "추가 텍스트인지 여부. 추가 텍스트는 기존 텍스트에 추가되며 교체하지 않습니다",
+            "Immediate": "텍스트를 한 글자씩이 아닌 즉시 표시할지 여부",
+            "Alignment": "텍스트 정렬",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다",
+            "FadeInTime": "텍스트 페이드인 시간을 초 단위로 지정합니다",
+            "StayTime": "텍스트의 지속 시간을 초 단위로 지정합니다",
+            "FadeOutTime": "텍스트 페이드아웃 시간을 초 단위로 지정합니다",
+            "SlotIndex": "텍스트의 슬롯 인덱스를 지정합니다. 기본값은 0. 여러 텍스트를 동시에 표시하려면 다른 슬롯 인덱스를 사용하여 구분할 수 있습니다.",
+            "AsSeceneObject": "텍스트를 장면 개체로 처리할지 여부. 이 경우 화면 흔들림과 색상 레이어 등 장면의 다른 컨트롤러의 영향을 받습니다",
+            "Position": "텍스트의 좌표 위치",
+            "RenderOrder": "텍스트의 렌더링 순서. 값이 큰 텍스트가 값이 작은 텍스트 위에 겹칩니다",
+            "Interval": "한 글자씩 표시할 때 각 글자가 나타나는 시간 간격(초)",
+            "ExtraStayTime": "한 글자씩 표시할 때 텍스트가 완전히 표시된 후 추가로 지속되는 시간(초)"
+        },
+        "Cut": {
+            "__description": "화면 전환을 제어합니다.",
+            "Intensity": "전환의 강도",
+            "Angle": "전환의 각도(도)",
+            "SlotIndex": "전환의 슬롯 인덱스를 지정합니다. 기본값은 0. 여러 전환을 동시에 사용하려면 다른 슬롯 인덱스를 사용하여 구분할 수 있습니다.",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다",
+            "FadeInTime": "전환 페이드인 시간을 초 단위로 지정합니다",
+            "StayTime": "전환의 지속 시간을 초 단위로 지정합니다",
+            "FadeOutTime": "전환 페이드아웃 시간을 초 단위로 지정합니다",
+            "RenderOrder": "전환의 렌더링 순서. 값이 큰 전환이 값이 작은 전환 위에 겹칩니다"
+        },
+        "Filter": {
+            "__description": "필터 표시를 제어합니다.",
+            "Type&Intensity": "필터의 유형과 강도를 지정합니다. 필터 유형에 따라 강도 범위가 다릅니다",
+            "FadeInTime": "필터 페이드인 시간을 초 단위로 지정합니다",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다"
+        },
+        "AnimatedText": {
+            "__description": "동적 텍스트 표시를 제어합니다.",
+            "Content": "텍스트의 내용",
+            "Type": "동적 텍스트의 유형. 유형에 따라 애니메이션 효과가 다릅니다",
+            "IsBlocker": "차단 여부. 차단하는 컨트롤러는 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행합니다"
+        },
+        "Sign": {
+            "__description": "라벨을 선언합니다",
+            "Name": "라벨의 이름"
+        },
+        "Variable": {
+            "__description": "변수를 선언합니다",
+            "Name": "변수의 이름",
+            "Expression": "변수의 식. 변수의 값은 이 식의 결과로 계산됩니다"
+        },
+        "Judge": {
+            "__description": "판단을 수행합니다",
+            "Name": "판단 결과를 저장할 변수 이름",
+            "Expression": "판단의 식. 계산 결과가 0보다 크면 변수에 저장됩니다"
+        },
+        "Branch": {
+            "__description": "조건에 따라 분기합니다",
+            "Name": "분기의 이름",
+            "Branches": "이동할 표식의 이름"
+        },
+        "Narration": {
+            "__description": "나레이션 표시를 제어합니다.",
+            "Content": "나레이션의 텍스트 내용"
+        },
+        "Dialog": {
+            "__description": "대화 표시를 제어합니다.",
+            "Speaker&Content": "화자의 이름과 대화의 텍스트 내용",
+            "IsAdditional": "추가 대화인지 여부. 추가 대화는 기존 대화에 추가되며 교체하지 않습니다",
+            "ModifyCharacters": "대화에서 화자의 변화에 맞춰 기존 캐릭터 입체 초상화 표시를 동기적으로 제어할지 여부. 이 경우 대화가 진행됨에 따라 캐릭터 초상화가 자동으로 밝아지거나 어두워집니다",
+            "BasicStayTime": "대화의 기본 지속 시간(초). 대화는 이 기본 시간에 텍스트 길이에 따라 추가 지속 시간이 더해집니다",
+            "Interval": "한 글자씩 표시할 때 각 글자가 나타나는 시간 간격(초)",
+            "ExtraStayTime": "한 글자씩 표시할 때 텍스트가 완전히 표시된 후 추가로 지속되는 시간(초)",
+            "IsBlocker": "차단 여부. 이 대화 컨트롤러가 캐릭터 초상화와 연결된 경우, 이 옵션은 대화 컨트롤러가 초상화의 모든 애니메이션이 끝날 때까지 기다린 후 다음 줄을 실행할지 여부를 제어합니다."
+        },
+        "Comment": {
+            "__description": "주석 줄. 재생 엔진에서 실행되지 않습니다.",
+            "Content": "주석의 텍스트 내용"
+        },
+        "Aliases": {
+            "__description": "하나 이상의 별칭을 정의하여 대화 컨트롤러가 별칭에 따라 해당 초상화를 자동으로 강조 표시할 수 있게 합니다.",
+            "Name": "초상화 자료의 원래 이름",
+            "Target": "자료의 별칭"
+        }
+    },
+    "aseinfo": {
+        "projectName": "프로젝트 이름",
+        "projectPath": "프로젝트 경로",
+        "path": "ASE 애플리케이션 경로",
+        "version": "ASE 호환 버전",
+        "mainFileName": "메인 파일 이름"
+    },
+    "provider": {
+        "window": {
+            "title": "ASE-Remake 스토리 프로젝트 초기화 도우미",
+            "create": "프로젝트 만들기",
+            "where": "새 프로젝트는 \"%1\"에 만들어집니다.",
+            "exists": "\"%1\"은(는) 이미 존재하거나 비어 있지 않습니다! 여기에 새 프로젝트를 만들 수 없습니다."
+        },
+        "failed": {
+            "title": "프로젝트 만들기 실패",
+            "text": "프로젝트를 만들 수 없습니다. 대상 폴더가 비어 있는지, 이 폴더에 새 파일을 만들 수 있는 권한이 있는지 확인하세요."
+        },
+        "astory": {
+            "name": "ASE-Remake 스토리 프로젝트",
+            "description": "AStoryX로 작성된 ASE-Remake 스토리",
+            "tags": {
+                "ase": "ASE-Remake",
+                "astory": "AStoryX",
+                "engine-native": "엔진 기본",
+                "script": "스크립트",
+                "arknights": "명일방주"
+            },
+            "title": "ASE 프로젝트 초기화"
+        },
+        "project": {
+            "title": "ASE-Remake 스토리 프로젝트 초기화 도우미",
+            "name": {
+                "title": "프로젝트 이름",
+                "text": "스토리 프로젝트의 이름. 경로에서 유효한 문자만 사용하는 경우 프로젝트 폴더의 이름이기도 합니다."
+            },
+            "path": {
+                "title": "프로젝트 경로",
+                "text": "이 경로 아래에 새 프로젝트 폴더가 만들어집니다"
+            },
+            "version": {
+                "title": "대상 ASE 버전",
+                "text": "기본적으로 최신 ASE 버전만 사용합니다. 특정 이전 ASE 버전이 필요한 경우 플러그인 설정에서 관련 버전을 연결하세요.",
+                "uptodate": "최신 버전"
+            }
+        }
+    },
+    "fileProvider": {
+        "window": {
+            "title": "AStoryX 파일 초기화 도우미",
+            "create": "파일 만들기",
+            "where": "새 파일은 \"%1\"로 만들어집니다.",
+            "exists": "\"%1\"은(는) 이미 존재합니다! 새 파일을 만들 수 없습니다."
+        },
+        "failed": {
+            "title": "파일 만들기 실패",
+            "text": "파일을 만들 수 없습니다. 대상 폴더가 비어 있는지, 이 폴더에 새 파일을 만들 수 있는 권한이 있는지 확인하세요."
+        },
+        "astory": {
+            "name": "ASE 스토리 파일",
+            "description": "AStory로 작성된 ASE 스토리. 모든 ASE 기본 기능을 지원합니다.",
+            "tags": {
+                "ase": "ASE-Remake",
+                "astory": "AStoryX",
+                "engine-native": "엔진 기본",
+                "script": "스크립트",
+                "arknights": "명일방주"
+            },
+            "title": "AStoryX 파일 초기화"
+        },
+        "file": {
+            "title": "ASE-Remake 스토리 파일 초기화 도우미",
+            "name": {
+                "title": "파일 이름",
+                "text": "스토리 파일의 이름. 경로에서 유효한 문자만 사용하는 경우 파일의 이름이기도 합니다."
+            },
+            "path": {
+                "title": "파일 경로",
+                "text": "이 경로 아래에 새 스토리 파일이 만들어집니다"
+            },
+            "version": {
+                "title": "대상 ASE 버전",
+                "text": "기본적으로 최신 ASE 버전만 사용합니다. 특정 이전 ASE 버전이 필요한 경우 플러그인 설정에서 관련 버전을 연결하세요.",
+                "uptodate": "최신 버전"
+            }
+        }
+    },
+    "config": {
+        "title": "ASER Studio 설정",
+        "aserExeSettings": {
+            "title": "ASE-Remake 프로그램 시작 설정",
+            "exePath": {
+                "title": "ASE-Remake 프로그램 경로",
+                "text": "ASE-Remake.exe 파일의 위치.\n이 항목을 올바르게 구성해야 YSS에서 ASE-Remake를 시작할 수 있습니다."
+            },
+            "version": {
+                "title": "ASE 버전",
+                "text": "선택한 ASE 프로그램의 버전. ASE 프로그램의 버전을 확실하지 않거나 최신 버전인 경우 \"최신 버전\"을 선택하세요. 올바른 버전 설정을 통해 ASER Studio가 ASE 프로그램과 더 잘 호환되어 잠재적인 문제를 피할 수 있습니다.",
+                "uptodate": "최신 버전"
+            },
+            "windowSize": {
+                "title": "창 크기",
+                "text": "ASER Studio는 ASE-Remake를 시작할 때 창 크기 옵션을 지정할 수 있습니다. 이 옵션은 ASE-Remake 프로그램에 직접 전달됩니다.",
+                "FullScreen": "전체 화면"
+            }
+        }
+    },
+    "debugger": {
+        "executableNotFound": {
+            "title": "ASE-Remake를 시작할 수 없음",
+            "message": "구성된 ASE-Remake 프로그램 경로 \"%1\"이(가) 유효하지 않습니다. ASE-Remake 애플리케이션을 시작할 수 없습니다.\n파일 -> 플러그인 및 기본 설정 -> ASER Studio 설정에서 구성을 확인하여 ASE-Remake.exe 경로가 올바르게 설정되었는지 확인하세요."
+        },
+        "isRunning": {
+            "title": "무언가 충돌이 있는 것 같습니다...",
+            "message": "다른 ASE-Remake 프로그램이 이미 실행 중임이 감지되어 디버거에 충돌이 발생했습니다.\n현재 디버거는 여러 ASE-Remake 프로그램에 동시에 연결하는 것을 지원하지 않습니다. 디버깅을 시작하기 전에 실행 중인 다른 ASE-Remake 프로그램을 닫으세요."
+        },
+        "starting": {
+            "title": "ASE-Remake 베타 버전 결함 알림",
+            "message": "ASE-Remake 베타 버전의 알려진 결함으로 인해 YSS는 현재 ASE-Remake를 단순히 시작할 수만 있으며 프로젝트 디렉터리와 재생 파일을 올바르게 설정할 수 없습니다. 재생을 직접 시작해야 합니다. 현재 디버그 시작은 ASE-Remake 프로그램을 빠르게 여는 방법으로만 사용할 수 있습니다. ASE-Remake 베타 버전의 업데이트 로그를 확인하고 이 문제가 해결될 때까지 기다리세요."
+        },
+        "notLegalFile": {
+            "title": "이런, 잘못된 버튼을 눌렀습니다!",
+            "message": "파일 %1에 대해 디버깅을 시작하려고 하지만 이는 유효한 ASER 스크립트 파일이 아닙니다.\n.astoryx 파일로 전환한 후 디버깅을 시작하세요."
+        },
+        "executing": {
+            "waitingForLaunch": "ASE-Remake 시작을 기다리는 중...",
+            "waitingForPipe": "ASE-Remake와의 통신 파이프 연결을 기다리는 중...",
+            "waitingForOBMI": "ASE-Remake가 리소스 초기화 상태를 확인할 때까지 기다리는 중...",
+            "waitingForPlay": "ASE-Remake가 재생을 시작할 때까지 기다리는 중...",
+            "loading": "스크립트 %1을(를) 불러오는 중...",
+            "started": "스크립트 %1의 재생이 시작되었습니다",
+            "exited": "스크립트 %1의 재생이 종료되었습니다"
+        }
+    },
+    "toolWidget": {
+        "aserWarpper": {
+            "title": "ASER 래퍼"
+        }
+    },
+    "project": {
+        "close": {
+            "stillRunning": {
+                "title": "ASE-Remake가 아직 실행 중입니다",
+                "message": "프로젝트를 닫으려고 하지만 ASE-Remake 프로그램이 아직 실행 중인 것 같습니다.\n프로젝트 닫기를 계속하면 ASE-Remake가 강제로 종료됩니다. 프로젝트 닫기를 계속하시겠습니까?"
+            }
+        }
+    },
+    "syntaxColorTheme": {
+        "PlainText": "일반 텍스트",
+        "SelectedTextBackground": "선택된 텍스트 배경",
+        "LineNumber": "줄 번호",
+        "Function": "함수",
+        "String": "문자열",
+        "SpecialString": "특수 문자열",
+        "Number": "숫자",
+        "Parameter": "매개변수",
+        "Keyword": "키워드",
+        "Vector": "벡터",
+        "Comment": "주석",
+        "Namespace": "네임스페이스",
+        "Enum": "열거형",
+        "Macro": "매크로",
+        "MacroParameter": "매크로 매개변수",
+        "ErrorLine": "오류 선",
+        "WarningLine": "경고 선",
+        "InfoLine": "정보 선"
+    }
+}

@@ -1,0 +1,295 @@
+{
+	"config": {
+		"title": "Préférences de Yayin Story Studio",
+		"general": {
+			"title": "Général",
+			"text": "Paramètres généraux de l'application",
+			"language": {
+				"title": "Langue",
+				"text": "Sélectionnez la langue de l'application",
+				"zh_CN": "Chinois simplifié",
+				"en": "Anglais",
+				"ja": "Japonais",
+				"ko": "Coréen",
+				"ru": "Russe",
+				"de": "Allemand",
+				"fr": "Français"
+			},
+			"theme": {
+				"title": "Thème de couleurs",
+				"text": "Sélectionnez le thème de couleurs de l'application",
+				"dark": "Sombre",
+				"light": "Clair",
+				"auto": "Auto (suivre le système)"
+			},
+			"updateChannel": {
+				"title": "Canal de mise à jour",
+				"text": "Sélectionnez le canal de mise à jour utilisé par l'application. La version stable n'accepte que les messages de mise à jour stables ; la version bêta accepte à la fois les messages de mise à jour stables et bêta ; la version d'aperçu technique accepte tous les messages de mise à jour des trois versions.",
+				"release": "Stable",
+				"beta": "Bêta",
+				"tp": "Aperçu technique"
+			}
+		},
+		"editor": {
+			"title": "Éditeur",
+			"text": "Paramètres de l'éditeur",
+			"reloadtab": {
+				"title": "Comportement de la touche Tab",
+				"text": "Contrôle si l'éditeur doit remplacer Tab par des espaces en début de ligne (cette option est temporairement sans effet)"
+			}
+		}
+	},
+	"update": {
+		"newVersionAvailable": "Une nouvelle version est disponible !",
+		"newVersionAvailableDesc": "La version %1 est maintenant disponible, et vous utilisez actuellement la version %2.\nVeuillez consulter le journal des versions pour connaître le contenu de la mise à jour, et visitez le site officiel pour télécharger la dernière version.",
+		"newsLoadFailed": "Échec de la synchronisation des actualités depuis le serveur. Vérifiez votre connexion réseau et réessayez plus tard.",
+		"installerUpdating": "Mise à jour de YSS Installer",
+		"installerUpdatingDesc": "Une nouvelle version de YSS Installer a été détectée. Mise à jour et reconnexion en cours, veuillez patienter..."
+	},
+	"tooltips": {
+		"projectWin": {
+			"project": "Cliquez pour voir les détails, double-cliquez pour ouvrir le projet",
+			"showInBrowser": "Ouvrir le dossier du projet dans l'explorateur de fichiers",
+			"delete": "Retirer le projet de la liste",
+			"createNewProject": "Créer un nouveau projet à partir d'un modèle",
+			"openFolder": "Ouvrir un projet Yayin Story Studio",
+			"cloneFromGit": "Cloner un projet depuis une URL de dépôt Git"
+		}
+	},
+	"project": {
+		"author": "Auteur",
+		"description": "Description",
+		"debugServer": "Serveur de débogage",
+		"projectManager": "Gestionnaire de projets",
+		"selectToShow": "Sélectionnez un projet pour voir les détails...",
+		"noCover": "Aucune couverture",
+		"lastModifiedTime": "Dernière modification",
+		"createTime": "Date de création",
+		"size": "Taille",
+		"calculating": "Calcul en cours...",
+		"showInBrowser": "Afficher dans l'Explorateur",
+		"delete": "Supprimer le projet",
+		"deleteConfirm": "Yayin Story Studio ne prend actuellement pas en charge la suppression sécurisée des projets vers la corbeille.\nPar conséquent, pour des raisons de sécurité, appuyer sur OK ne fera que retirer le projet de la liste.\nVous pourrez supprimer le projet manuellement dans l'explorateur de fichiers ultérieurement.\n\nContinuer ?",
+		"removeFromList": "Retirer de la liste",
+		"createNewProject": "Créer un nouveau projet",
+		"createNewFile": "Créer un nouveau fichier",
+		"openFolder": "Ouvrir le projet",
+		"openYSSProject": "Ouvrir un projet YSS",
+		"cloneFromGit": "Cloner depuis Git",
+		"createFromTemplate": "Créer à partir d'un modèle",
+		"searchWithTags": "Rechercher des modèles par tags",
+		"recentUsed": "Utilisés récemment",
+		"openProjectFailed": {
+			"message": "Échec de l'ouverture du projet",
+			"ParseError": "Échec de l'analyse du fichier de projet. Le fichier contient peut-être des erreurs de syntaxe ou est corrompu.",
+			"InvaildConfig": "Configuration de projet invalide : champs obligatoires manquants ou types de champs incorrects.",
+			"UnknownError": "Une erreur inconnue s'est produite, impossible d'ouvrir le projet."
+		},
+		"saveQuestion": {
+			"title": "Fermer le programme ?",
+			"text": "Votre projet \"%1\" a été modifié et n'a pas été enregistré. Voulez-vous enregistrer le projet ?"
+		}
+	},
+	"menu": {
+		"file": {
+			"title": "Fichier",
+			"new": "Nouveau fichier",
+			"newFile": "Nouveau fichier",
+			"newFolder": "Nouveau dossier",
+			"open": "Ouvrir",
+			"save": "Enregistrer",
+			"saveAll": "Tout enregistrer",
+			"saveAs": "Enregistrer sous",
+			"backToHome": "Retour à l'accueil",
+			"terminal": "Terminal",
+			"pluginAndPreferences": "Plugins et préférences",
+			"colorThemeSettings": "Paramètres de coloration syntaxique",
+			"exit": "Quitter",
+			"documentation": "Documentation",
+			"about": "À propos de Yayin Story Studio",
+			"projectConfig": "Paramètres du projet",
+			"showInExplorer": "Afficher dans l'Explorateur",
+			"closeAll": "Tout fermer",
+			"closeSaved": "Fermer les enregistrés"
+		},
+		"edit": {
+			"title": "Édition",
+			"undo": "Annuler",
+			"redo": "Rétablir",
+			"cut": "Couper",
+			"copy": "Copier",
+			"copyPath": "Copier le chemin du fichier",
+			"copyName": "Copier le nom du fichier",
+			"paste": "Coller",
+			"selectAll": "Tout sélectionner",
+			"findAndReplace": "Rechercher et remplacer"
+		},
+		"run": {
+			"title": "Exécution",
+			"run": "Démarrer (sans débogage)",
+			"debug": "Démarrer (avec débogage)",
+			"stop": "Arrêter",
+			"restart": "Redémarrer",
+			"build": "Compiler le projet",
+			"rebuild": "Recompiler de force",
+			"clean": "Nettoyer la compilation",
+			"stepInto": "Pas à pas détaillé",
+			"stepOver": "Pas à pas principal",
+			"suspend": "Suspendre",
+			"resume": "Reprendre"
+		},
+		"view": {
+			"title": "Affichage",
+			"resourceBrowser": "Explorateur de ressources",
+			"messageViewer": "Visionneuse de messages",
+			"pluginTools": "Outils de plugins",
+			"noTools": "Aucun outil à afficher"
+		}
+	},
+	"editor": {
+		"messageViewer": {
+			"title": "Visionneuse de messages",
+			"error": "Erreur",
+			"warning": "Avertissement",
+			"info": "Info",
+			"code": "Code",
+			"message": "Description",
+			"file": "Fichier",
+			"line": "Ligne",
+			"column": "Colonne"
+		},
+		"multiTerminal": {
+			"title": "Terminal",
+			"newTerminal": "Nouveau terminal",
+			"closeTerminal": "Fermer le terminal",
+			"closeOtherTerminals": "Fermer les autres terminaux",
+			"closeAllTerminals": "Fermer tous les terminaux",
+			"terminalName": "Terminal %1"
+		},
+		"far": {
+			"title": "Rechercher et remplacer",
+			"find": "Rechercher",
+			"findNext": "Rechercher suivant",
+			"replace": "Remplacer",
+			"replaceNext": "Remplacer suivant",
+			"replaceAll": "Tout remplacer",
+			"matchCase": "Respecter la casse",
+			"wholeWord": "Mot entier",
+			"useRegExp": "Expression régulière",
+			"notFound": "Aucun élément supplémentaire trouvé",
+			"notFoundDesc": "Le texte « %1 » est introuvable",
+			"replaced": "Remplacement terminé",
+			"replacedDesc": "%1 occurrence(s) remplacée(s)",
+			"matchCount": "Total %1"
+		},
+		"stackWidgetArea": {
+			"noFileOpened": "Aucun fichier ouvert"
+		},
+		"toolWidgetArea": {
+			"noToolWidget": "Aucun outil à afficher"
+		},
+		"textEdit": {
+			"readOnly": {
+				"title": "Ce fichier est en lecture seule",
+				"message": "Le fichier %1 que vous souhaitez enregistrer est en lecture seule. Vous ne pouvez pas enregistrer dans ce fichier. Vérifiez les autorisations du fichier ou utilisez « Enregistrer sous » pour enregistrer à un autre emplacement."
+			},
+			"notSuitable": {
+				"title": "Aucun service trouvé pour prendre en charge ce fichier",
+				"message": "Aucun service d'ouverture adapté n'a été trouvé pour l'extension de fichier %1. YSS peut encore tenter d'ouvrir le fichier avec l'éditeur de texte intégré par défaut, mais cela peut endommager certaines données binaires. Voulez-vous vraiment continuer avec l'éditeur de texte intégré ? (Fortement déconseillé)"
+			},
+			"cursorInfo_s": "Ligne %1, colonne %2 (sélection %3)",
+			"cursorInfo": "Ligne %1, colonne %2",
+			"totalLines": "Nombre total de lignes : %1",
+			"ready": "Prêt",
+			"tabCompleter": {
+				"top": "Meilleures suggestions recommandées par le plugin %1 selon le contexte",
+				"value": "Valeur. Type",
+				"const": "Constante. Type",
+				"enum": "Énumération. Type",
+				"function": "Fonction. Type",
+				"object": "Objet. Type",
+				"operator": "Opérateur. Type"
+			},
+			"tabCompleterLevel": {
+				"none": "Aucune suggestion",
+				"few": "Peu de suggestions",
+				"some": "Quelques suggestions",
+				"many": "Beaucoup de suggestions",
+				"all": "Toutes les suggestions"
+			}
+		},
+		"debug": {
+			"notFound": {
+				"title": "Oups ! Débogueur introuvable",
+				"message": "Le débogueur %1 spécifié pour ce projet est introuvable. Avez-vous désactivé ou supprimé le plugin qui fournit ce débogueur ? Veuillez le réactiver ou l'ajouter, puis redémarrer le programme et réessayer."
+			},
+			"notSelect": {
+				"title": "Débogueur non configuré !",
+				"message": "Ce projet n'a pas de débogueur configuré. Ouvrez les paramètres du projet, sélectionnez un débogueur, puis réessayez."
+			}
+		},
+		"saveWarning": {
+			"title": "Fichier modifié",
+			"message": "Le fichier %1 a été modifié. Voulez-vous enregistrer les modifications ?"
+		},
+		"saveAsConflict": {
+			"title": "Le fichier à écraser est ouvert et contient des modifications non enregistrées",
+			"message": "Veuillez d'abord enregistrer ou fermer le fichier %1, puis réessayez l'opération d'écrasement via « Enregistrer sous »."
+		},
+		"reloadWarning": {
+			"title": "Recharger maintenant ?",
+			"message": "Le fichier %1 a été modifié. Si vous rechargez maintenant, vos modifications sur ce fichier seront perdues. Voulez-vous recharger ?"
+		},
+		"renameDialog": {
+			"title": "Renommer",
+			"rename": "Renommage du fichier %1",
+			"request": "Veuillez saisir un nouveau nom",
+			"warning": {
+				"empty": "Le nom ne peut pas être vide. Veuillez saisir un nom.",
+				"same": "Le nouveau nom est identique à l'ancien. Veuillez saisir un nom différent.",
+				"exists": "Un fichier portant ce nom existe déjà dans le même dossier. Veuillez choisir un autre nom.",
+				"invalid": "Nom de fichier invalide. Il ne peut pas contenir les caractères suivants : \\ / : * ? \" < > |",
+				"extNotSame": {
+					"normal": "L'extension du nouveau nom diffère de l'originale, ce qui peut poser problème.",
+					"title": "Voulez-vous vraiment changer l'extension ?",
+					"message": "L'extension %1 indiquée dans le nouveau nom diffère de l'extension d'origine %2. Cela peut entraîner des problèmes, comme une reconnaissance ou une ouverture incorrecte du fichier. Voulez-vous vraiment continuer le renommage ?"
+				}
+			}
+		},
+		"about": {
+			"title": "À propos de Yayin Story Studio",
+			"message": "Version %1, une œuvre de Tsing Yayin. Yayin Story Studio fait partie du projet Visindigo, un tout nouveau projet issu de Yayin Story Player, visant à fournir un environnement de développement convivial aux utilisateurs d'ASE."
+		}
+	},
+	"colorThemeSettings": {
+		"langServer": "Serveur de langage",
+		"theme": "Thème",
+		"duplicate": "Dupliquer",
+		"delete": "Supprimer",
+		"font": "Police",
+		"preview": "Aperçu",
+		"textColor": "Couleur du texte",
+		"bgColor": "Couleur d'arrière-plan",
+		"bgColorEnabled": "Utiliser la couleur d'arrière-plan",
+		"lineColor": "Couleur de ligne",
+		"lineType": "Type de ligne",
+		"bold": "Gras",
+		"italic": "Italique",
+		"save": "Enregistrer",
+		"reset": "Réinitialiser",
+		"underlineType": {
+			"NoUnderline": "Aucun",
+			"SingleUnderline": "Trait continu",
+			"DashUnderline": "Tirets",
+			"DotLine": "Pointillés",
+			"DashDotLine": "Tiret-point",
+			"DashDotDotLine": "Tiret-point-point",
+			"WaveUnderline": "Vague",
+			"SpellCheckUnderline": "Vérification orthographique"
+		},
+		"unsavedChanges": {
+			"title": "Modifications non enregistrées",
+			"message": "Vous avez des modifications non enregistrées. Voulez-vous les enregistrer ? Si vous ne les enregistrez pas, toutes les modifications seront perdues."
+		}
+	}
+}

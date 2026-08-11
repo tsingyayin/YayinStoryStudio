@@ -2,5 +2,11 @@
     <qresource prefix="/">
         <file>resource/cn.yxgeneral.yss_installer/icon.png</file>
         <file>resource/cn.yxgeneral.yss_installer/i18n/zh_CN.json</file>
+        <file>resource/cn.yxgeneral.yss_installer/i18n/en.json</file>
+        <file>resource/cn.yxgeneral.yss_installer/i18n/ja.json</file>
+        <file>resource/cn.yxgeneral.yss_installer/i18n/ko.json</file>
+        <file>resource/cn.yxgeneral.yss_installer/i18n/ru.json</file>
+        <file>resource/cn.yxgeneral.yss_installer/i18n/de.json</file>
+        <file>resource/cn.yxgeneral.yss_installer/i18n/fr.json</file>
     </qresource>
 </RCC>

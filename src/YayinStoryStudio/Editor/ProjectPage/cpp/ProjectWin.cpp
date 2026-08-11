@@ -202,6 +202,7 @@ namespace YSS::ProjectPage {
 			}
 		}
 		VIApp->getMainPlugin()->savePluginConfig();
+		InfoWidget->showProject(nullptr);
 		if (HistoryProjectLabelList.isEmpty()) {
 			HistoryProjectWidget->setFixedHeight(0);
 		}else{

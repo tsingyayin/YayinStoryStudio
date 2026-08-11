@@ -306,7 +306,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_file_open() {
-		d->Parent->openFile();
+		d->Parent->openFileDialog();
 	}
 
 	void MainWinMenu::file_file_save() {

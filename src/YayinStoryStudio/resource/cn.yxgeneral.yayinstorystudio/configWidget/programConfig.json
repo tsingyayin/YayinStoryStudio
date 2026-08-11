@@ -27,6 +27,26 @@
                             {
                                 "data": "en",
                                 "key": "i18n:YSS::config.general.language.en"
+                            },
+                            {
+                                "data": "ja",
+                                "key": "i18n:YSS::config.general.language.ja"
+                            },
+                            {
+                                "data": "ko",
+                                "key": "i18n:YSS::config.general.language.ko"
+                            },
+                            {
+                                "data": "ru",
+                                "key": "i18n:YSS::config.general.language.ru"
+                            },
+                            {
+                                "data": "de",
+                                "key": "i18n:YSS::config.general.language.de"
+                            },
+                            {
+                                "data": "fr",
+                                "key": "i18n:YSS::config.general.language.fr"
                             }
                         ],
                         "default": "zh_CN"
