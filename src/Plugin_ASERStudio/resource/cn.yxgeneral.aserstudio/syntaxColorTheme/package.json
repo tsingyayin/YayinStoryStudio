@@ -1,0 +1,176 @@
+{
+	"name": "astory-ase",
+	"displayName": "Arknights Story ASE",
+	"description": "Syntax highlighting for Arknights Story Editor ASE (astory/astoryx)",
+	"version": "1.0.0",
+	"engines": {
+		"vscode": "^1.80.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "astory",
+				"aliases": [
+					"Arknights Story ASE",
+					"astory"
+				],
+				"extensions": [
+					".astory",
+					".astoryx"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "astory",
+				"scopeName": "source.astory",
+				"path": "./syntaxes/astory.tmLanguage.json"
+			}
+		],
+		"configurationDefaults": {
+			"editor.tokenColorCustomizations": {
+				"textMateRules": [
+					{
+						"scope": "keyword.control.directive.astory",
+						"settings": {
+							"foreground": "#D06060",
+							"fontStyle": "bold"
+						}
+					},
+					{
+						"scope": "keyword.control.background.astory",
+						"settings": {
+							"foreground": "#80C0FF",
+							"fontStyle": "bold"
+						}
+					},
+					{
+						"scope": "keyword.control.music.astory",
+						"settings": {
+							"foreground": "#FFFF80",
+							"fontStyle": "bold"
+						}
+					},
+					{
+						"scope": "keyword.control.sound.astory",
+						"settings": {
+							"foreground": "#C0C080"
+						}
+					},
+					{
+						"scope": "keyword.control.character.astory",
+						"settings": {
+							"foreground": "#A0E0FF",
+							"fontStyle": "bold"
+						}
+					},
+					{
+						"scope": "keyword.control.speaker.astory",
+						"settings": {
+							"foreground": "#80C0E0"
+						}
+					},
+					{
+						"scope": "keyword.control.mask.astory",
+						"settings": {
+							"foreground": "#80E0C0"
+						}
+					},
+					{
+						"scope": "keyword.control.wait.astory",
+						"settings": {
+							"foreground": "#8080C0"
+						}
+					},
+					{
+						"scope": "keyword.control.effect.astory",
+						"settings": {
+							"foreground": "#8080FF"
+						}
+					},
+					{
+						"scope": "keyword.control.branch.astory",
+						"settings": {
+							"foreground": "#E080C0"
+						}
+					},
+					{
+						"scope": "keyword.control.freetext.astory",
+						"settings": {
+							"foreground": "#C0FFC0"
+						}
+					},
+					{
+						"scope": "keyword.control.broadcast.astory",
+						"settings": {
+							"foreground": "#B0E57C"
+						}
+					},
+					{
+						"scope": "keyword.control.dynamictext.astory",
+						"settings": {
+							"foreground": "#DDA0DD"
+						}
+					},
+					{
+						"scope": "variable.parameter.astory",
+						"settings": {
+							"foreground": "#C08040"
+						}
+					},
+					{
+						"scope": "variable.parameter.var.astory",
+						"settings": {
+							"foreground": "#00C0FF"
+						}
+					},
+					{
+						"scope": "constant.language.varref.astory",
+						"settings": {
+							"foreground": "#00C0FF"
+						}
+					},
+					{
+						"scope": "variable.parameter.sign.astory",
+						"settings": {
+							"foreground": "#00ffC0"
+						}
+					},
+					{
+						"scope": "support.constant.block.astory",
+						"settings": {
+							"foreground": "#FFD700"
+						}
+					},
+					{
+						"scope": "support.constant.param.astory",
+						"settings": {
+							"foreground": "#c06090"
+						}
+					},
+					{
+						"scope": "string.quoted.option.astory",
+						"settings": {
+							"foreground": "#FFA500"
+						}
+					},
+					{
+						"scope": "markup.bold.richtext.astory",
+						"settings": {
+							"foreground": "#C0C080"
+						}
+					}
+				]
+			}
+		}
+	},
+	"__metadata": {
+		"installedTimestamp": 1779549079568,
+		"targetPlatform": "undefined",
+		"size": 10578
+	}
+}

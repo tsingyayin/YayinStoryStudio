@@ -544,6 +544,9 @@ namespace YSSCore::__Private__ {
 	}
 
 	bool TextEditPrivate::onMouseScroll(QWheelEvent* event) {
+		if (Text->isReadOnly() && (event->modifiers() & Qt::ControlModifier)) {
+			return true;
+		}
 		if (HoverInfoWidget && HoverInfoWidget->isVisible()) {
 			// scroll the hover info widget
 			HoverInfoWidget->scrollBy(-event->angleDelta().y());
@@ -926,6 +929,7 @@ namespace YSSCore::Editor {
 
 		d->Text = new QTextEdit(this);
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
+		d->Text->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->Text->installEventFilter(d);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
@@ -951,6 +955,9 @@ namespace YSSCore::Editor {
 		connect(d->Text, &QTextEdit::textChanged, [this]() {
 			if (not d->Rehighlighting) {
 				this->setFileChanged();
+			}
+			else {
+				d->Overview->recalculateAll();
 			}
 			});
 		this->installEventFilter(d);
@@ -1121,6 +1128,11 @@ namespace YSSCore::Editor {
 		font.setPointSize(size);
 		d->Text->document()->setDefaultFont(font);
 		d->Line->document()->setDefaultFont(font);
+		if (d->FontMetrics) {
+			delete d->FontMetrics;
+			d->FontMetrics = nullptr;
+		}
+		d->FontMetrics = new QFontMetricsF(font);
 		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
 		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));
@@ -1133,13 +1145,17 @@ namespace YSSCore::Editor {
 		设置用于显示文本内容的字体。这个设置只影响文本编辑区域和行号的字体，不干涉鼠标悬停提示和Tab补全的字体设置。
 	*/
 	void TextEdit::setTextFont(const QFont& font) {
+		auto fontSize = d->Text->document()->defaultFont().pointSize();
 		if (d->FontMetrics) {
 			delete d->FontMetrics;
 			d->FontMetrics = nullptr;
 		}
-		d->FontMetrics = new QFontMetricsF(font);
-		d->Text->document()->setDefaultFont(font);
-		d->Line->document()->setDefaultFont(font);
+		
+		auto target = font;
+		target.setPointSize(fontSize);
+		d->Text->document()->setDefaultFont(target);
+		d->Line->document()->setDefaultFont(target);
+		d->FontMetrics = new QFontMetricsF(target);
 		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
 		d->Text->setTabStopDistance(qMax(20.0, tabStopDistance));

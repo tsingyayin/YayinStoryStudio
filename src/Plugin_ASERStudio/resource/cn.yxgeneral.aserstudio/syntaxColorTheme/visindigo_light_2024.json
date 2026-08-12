@@ -12,28 +12,6 @@
             "bold": false,
             "italic": false
         },
-        "SelectedTextBackground": {
-            "styleName": "i18n:ASERStudio::syntaxColorTheme.SelectedTextBackground",
-            "identifierType": "__Overlay_Background__",
-            "textColor": "#000000",
-            "bgColor": "#3399FF",
-            "bgColorEnabled": true,
-            "lineColor": "#000000",
-            "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
-        "LineNumber": {
-            "styleName": "i18n:ASERStudio::syntaxColorTheme.LineNumber",
-            "identifierType": "__LineNumber__",
-            "textColor": "#8A8A8A",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#000000",
-            "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
         "Function": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Function",
             "identifierType": "Function",
@@ -122,17 +100,6 @@
             "bold": false,
             "italic": false
         },
-        "Namespace": {
-            "styleName": "i18n:ASERStudio::syntaxColorTheme.Namespace",
-            "identifierType": "Namespace",
-            "textColor": "#71CB0E",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#000000",
-            "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
         "Enum": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Enum",
             "identifierType": "Enum",
@@ -163,39 +130,6 @@
             "bgColorEnabled": false,
             "lineColor": "#000000",
             "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
-        "ErrorLine": {
-            "styleName": "i18n:ASERStudio::syntaxColorTheme.ErrorLine",
-            "identifierType": "__Overlay_Underline__",
-            "textColor": "#000000",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#95DB7D",
-            "underlineType": "WaveUnderline",
-            "bold": false,
-            "italic": false
-        },
-        "WarningLine": {
-            "styleName": "i18n:ASERStudio::syntaxColorTheme.WarningLine",
-            "identifierType": "__Overlay_Underline__",
-            "textColor": "#000000",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#FFA500",
-            "underlineType": "WaveUnderline",
-            "bold": false,
-            "italic": false
-        },
-        "InfoLine": {
-            "styleName": "i18n:ASERStudio::syntaxColorTheme.InfoLine",
-            "identifierType": "__Overlay_Underline__",
-            "textColor": "#000000",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#55AAFF",
-            "underlineType": "WaveUnderline",
             "bold": false,
             "italic": false
         }

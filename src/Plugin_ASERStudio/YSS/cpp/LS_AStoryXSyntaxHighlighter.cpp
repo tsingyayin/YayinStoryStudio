@@ -9,7 +9,19 @@
 #include <Widgets/ThemeManager.h>
 #include <Editor/ColorThemeProvider.h>
 #include <QtGui/qfont.h>
+#include <QtCore/qmetaobject.h>
+#include <QtCore/qset.h>
 namespace ASERStudio::YSS {
+	static bool isControllerStyleKey(const QString& key) {
+		static QSet<QString> controllerNames;
+		if (controllerNames.isEmpty()) {
+			QMetaEnum meta = QMetaEnum::fromType<ASERStudio::AStorySyntax::AStoryXController::ControllerType>();
+			for (int i = 0; i < meta.keyCount(); ++i) {
+				controllerNames.insert(QString::fromUtf8(meta.key(i)));
+			}
+		}
+		return controllerNames.contains(key);
+	}
 	class LS_AStoryXSyntaxHighlighterPrivate {
 		friend class LS_AStoryXSyntaxHighlighter;
 	protected:
@@ -46,7 +58,8 @@ namespace ASERStudio::YSS {
 			return;
 		}
 		//vgDebug << "Highlighting line " << blockNumber << " with controller type " << parseData.getControllerType();
-		setFormatWithColorKey(0, parseData.getStartSign().length(), "Keyword");
+		QString controllerKey = ASERStudio::AStorySyntax::AStoryXController::controllerTypeToString(parseData.getControllerType());
+		setFormatWithColorKey(0, parseData.getStartSign().length(), controllerKey);
 		auto required = parseData.getRequiredParameter();
 		QString requiredType = "PlainText";
 		switch (required.getValue().getType()) {
@@ -169,7 +182,11 @@ namespace ASERStudio::YSS {
 	}
 
 	void LS_AStoryXSyntaxHighlighter::setFormatWithColorKey(int start, int count, const QString& styleKey) {
-		YSSCore::Editor::StyleData styleData = d->CurrentTheme.value(styleKey, YSSCore::Editor::StyleData());
+		QString resolvedKey = styleKey;
+		if (isControllerStyleKey(styleKey) && not d->CurrentTheme.contains(styleKey)) {
+			resolvedKey = "Keyword";
+		}
+		YSSCore::Editor::StyleData styleData = d->CurrentTheme.value(resolvedKey, YSSCore::Editor::StyleData());
 		QTextCharFormat format;
 		format.setForeground(styleData.getTextColor());
 		if (styleData.isBgColorEnabled()) {

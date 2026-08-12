@@ -24,6 +24,9 @@ namespace ASERStudio::YSS {
 				else if (syntaxTheme == "Gradus Code Light") {
 					getColorThemeProvider()->setCurrentTheme("Gradus Code Dark");
 				}
+				else if (syntaxTheme == "Gradus VS Code Light") {
+					getColorThemeProvider()->setCurrentTheme("Gradus VS Code Dark");
+				}
 			}
 			else if (VISTM->getCurrentColorTheme() == "Light") {
 				QString syntaxTheme = getColorThemeProvider()->getCurrentTheme();
@@ -33,12 +36,19 @@ namespace ASERStudio::YSS {
 				else if (syntaxTheme == "Gradus Code Dark") {
 					getColorThemeProvider()->setCurrentTheme("Gradus Code Light");
 				}
+				else if (syntaxTheme == "Gradus VS Code Dark") {
+					getColorThemeProvider()->setCurrentTheme("Gradus VS Code Light");
+				}
 			}
 			});
 		getColorThemeProvider()->parseStaticThemeFrom(
 			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_dark_2024.json"));
 		getColorThemeProvider()->parseStaticThemeFrom(
 			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_light_2024.json"));
+		getColorThemeProvider()->parseStaticThemeFrom(
+			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_dark.json"));
+		getColorThemeProvider()->parseStaticThemeFrom(
+			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_light.json"));
 		getColorThemeProvider()->setTemplateTextPath(
 			":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/templateFile.astoryx");
 		if (getPlugin()->getPluginConfig()->getString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme").isEmpty()) {

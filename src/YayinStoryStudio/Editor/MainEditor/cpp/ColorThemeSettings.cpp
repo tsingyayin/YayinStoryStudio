@@ -1,4 +1,5 @@
 #include "Editor/MainEditor/ColorThemeSettings.h"
+#include "Editor/MainEditor/TextEditConfigOperator.h"
 #include <General/TranslationHost.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qfontcombobox.h>
@@ -124,8 +125,10 @@ namespace YSS::Editor {
 			QStringList themes = currentLangServer->getColorThemeProvider()->getSupportedThemes();
 			themeComboBox->clear();
 			themeComboBox->addItems(themes);
-			
-			themeComboBox->setCurrentIndex(0);
+
+			// 显示当前正在使用的主题
+			int currentIndex = themeComboBox->findText(currentLangServer->getColorThemeProvider()->getCurrentTheme());
+			themeComboBox->setCurrentIndex(currentIndex >= 0 ? currentIndex : 0);
 
 			QString previewTextPath = currentLangServer->getColorThemeProvider()->getTemplateTextPath();
 			if (not previewTextPath.isEmpty()) {
@@ -259,6 +262,8 @@ namespace YSS::Editor {
 		void onSaveButtonClicked() {
 			if (currentLangServer) {
 				currentLangServer->getColorThemeProvider()->setThemeStyleData(currentThemeName, themeStyleDataEditing);
+				// 保存当前选择的主题（切换）
+				currentLangServer->getColorThemeProvider()->setCurrentTheme(currentThemeName);
 				themeStyleDataEditingChanged = false;
 			}
 		}
@@ -286,6 +291,22 @@ namespace YSS::Editor {
 		d->mainLayout->setColumnStretch(0, 3);
 		d->mainLayout->setColumnStretch(1, 2);
 
+		// style section (horizontal)
+		d->styleFrame = new Visindigo::Widgets::BorderFrame(this);
+		d->styleLayout = new QGridLayout(d->styleFrame);
+		d->styleLayout->setContentsMargins(8, 4, 8, 4);
+		d->fontTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.font"), d->styleFrame);
+		d->fontComboBox = new QFontComboBox(d->styleFrame);
+		d->fontComboBox->setCurrentFont(TextEditConfigOperator::getTextFont());
+		d->styleLayout->addWidget(d->fontTitleLabel, 0, 0);
+		d->styleLayout->addWidget(d->fontComboBox, 0, 1);
+		d->styleLayout->setColumnStretch(1, 1);
+
+		// horizontal separator
+		QFrame* separator = new QFrame(this);
+		separator->setFrameShape(QFrame::HLine);
+		separator->setFrameShadow(QFrame::Sunken);
+
 		// langServer section (horizontal)
 		d->langServerFrame = new Visindigo::Widgets::BorderFrame(this);
 		d->langServerLayout = new QGridLayout(d->langServerFrame);
@@ -295,11 +316,6 @@ namespace YSS::Editor {
 		d->langServerLayout->addWidget(d->langServerTitleLabel, 0, 0);
 		d->langServerLayout->addWidget(d->langServerComboBox, 0, 1);
 		d->langServerLayout->setColumnStretch(1, 1);
-
-		// horizontal separator
-		QFrame* separator = new QFrame(this);
-		separator->setFrameShape(QFrame::HLine);
-		separator->setFrameShadow(QFrame::Sunken);
 
 		// theme section (horizontal)
 		d->themeFrame = new Visindigo::Widgets::BorderFrame(this);
@@ -315,19 +331,11 @@ namespace YSS::Editor {
 		d->themeLayout->addWidget(d->deleteButton, 0, 3);
 		d->themeLayout->setColumnStretch(1, 1);
 
-		// style section (horizontal)
-		d->styleFrame = new Visindigo::Widgets::BorderFrame(this);
-		d->styleLayout = new QGridLayout(d->styleFrame);
-		d->styleLayout->setContentsMargins(8, 4, 8, 4);
-		d->fontTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.font"), d->styleFrame);
-		d->fontComboBox = new QFontComboBox(d->styleFrame);
-		d->styleLayout->addWidget(d->fontTitleLabel, 0, 0);
-		d->styleLayout->addWidget(d->fontComboBox, 0, 1);
-		d->styleLayout->setColumnStretch(1, 1);
-
 		// document preview (whole theme, powered by the language server highlighter)
 		d->documentPreviewTextEdit = new YSSCore::Editor::TextEdit(this);
 		d->documentPreviewTextEdit->setReadOnly(true);
+		// 预览文档字体与全局编辑器字体保持一致
+		d->documentPreviewTextEdit->setFont(TextEditConfigOperator::getTextFont());
 
 		// edit section (grid)
 		d->editFrame = new Visindigo::Widgets::BorderFrame(this);
@@ -384,10 +392,10 @@ namespace YSS::Editor {
 		d->resetButton = new QPushButton(VITR("YSS::colorThemeSettings.reset"), this);
 
 		// mainLayout arrangement
-		d->mainLayout->addWidget(d->langServerFrame, 0, 0, 1, -1);
+		d->mainLayout->addWidget(d->styleFrame, 0, 0, 1, -1);
 		d->mainLayout->addWidget(separator, 1, 0, 1, -1);
-		d->mainLayout->addWidget(d->themeFrame, 2, 0, 1, -1);
-		d->mainLayout->addWidget(d->styleFrame, 3, 0, 1, -1);
+		d->mainLayout->addWidget(d->langServerFrame, 2, 0, 1, -1);
+		d->mainLayout->addWidget(d->themeFrame, 3, 0, 1, -1);
 		d->mainLayout->addWidget(d->documentPreviewTextEdit, 4, 0);
 		d->mainLayout->addWidget(d->editFrame, 4, 1, 1, -1);
 		d->mainLayout->addWidget(d->saveButton, 5, 1, Qt::AlignRight);
@@ -399,6 +407,10 @@ namespace YSS::Editor {
 			});
 		connect(d->themeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
 			d->onThemeChanged(index);
+			});
+		connect(d->fontComboBox, &QFontComboBox::currentFontChanged, this, [this](const QFont& font) {
+			d->documentPreviewTextEdit->setFont(font);
+			TextEditConfigOperator::setTextFont(font, true);
 			});
 		connect(d->configNodeView, &QListView::clicked, this, [this](const QModelIndex& index) {
 			d->onConfigNodeSelected(index);

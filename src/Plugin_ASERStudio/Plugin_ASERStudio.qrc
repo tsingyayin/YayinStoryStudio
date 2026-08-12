@@ -23,6 +23,8 @@
         <file>resource/cn.yxgeneral.aserstudio/i18n/fr.json</file>
         <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_dark_2024.json</file>
         <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_light_2024.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_dark.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_light.json</file>
         <file>resource/cn.yxgeneral.aserstudio/syntaxColorTheme/templateFile.astoryx</file>
     </qresource>
 </RCC>
