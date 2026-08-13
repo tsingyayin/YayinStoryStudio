@@ -1,0 +1,36 @@
+{
+	"windowTitle": "i18n:ASERStudio::provider.project.title",
+	"windowIcon": "icon.png",
+	"widget":[
+		{	
+			"node": "Project",
+			"type": "Frame",
+			"icon": "",
+			"title": "i18n:ASERStudio::provider.project.title",
+			"text": "",
+			"children":[
+				{
+					"node": "Path",
+					"type": "LineEdit",
+					"icon": "",
+					"title": "i18n:ASERStudio::provider.project.path.title",
+					"text": "i18n:ASERStudio::provider.project.path.text",
+					"data": {
+						"default": "$(visindigo::programPath)/user_data/repos",
+						"isFolder": true
+					}
+				},
+				{
+					"node": "Name",
+					"type": "LineEdit",
+					"icon": "",
+					"title": "i18n:ASERStudio::provider.project.name.title",
+					"text": "i18n:ASERStudio::provider.project.name.text",
+					"data": {
+						"default": "ASE Story Project Sample"
+					}
+				}
+			]	
+		}
+	]
+}

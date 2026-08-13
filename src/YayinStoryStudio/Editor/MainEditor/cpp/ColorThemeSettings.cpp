@@ -344,7 +344,14 @@ namespace YSS::Editor {
 		d->previewTextEdit = new QTextEdit(d->editFrame);
 		d->previewTextEdit->setPlainText("ij = I::oO(0xB81l);");
 		d->previewTextEdit->setReadOnly(true);
-		d->previewTextEdit->setFixedHeight(d->previewTextEdit->fontMetrics().height() + 2 * d->previewTextEdit->frameWidth() + 8);
+		d->previewTextEdit->setAlignment(Qt::AlignCenter);
+		d->previewTextEdit->setFrameStyle(QFrame::NoFrame);
+		auto target = TextEditConfigOperator::getTextFont();
+		target.setPointSize(target.pointSize() * 1.5);
+		d->previewTextEdit->setFont(target);
+		auto height = std::max(30, d->previewTextEdit->fontMetrics().height() + 8);
+		d->previewTextEdit->setFixedHeight(height);
+		
 		d->previewTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->previewTextEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->configNodeView = new QListView(d->editFrame);
@@ -411,6 +418,11 @@ namespace YSS::Editor {
 		connect(d->fontComboBox, &QFontComboBox::currentFontChanged, this, [this](const QFont& font) {
 			d->documentPreviewTextEdit->setFont(font);
 			TextEditConfigOperator::setTextFont(font, true);
+			auto target = font;
+			target.setPointSize(font.pointSize() * 1.5);
+			d->previewTextEdit->setFont(target);
+			auto height = std::max(30, d->previewTextEdit->fontMetrics().height() + 8);
+			d->previewTextEdit->setFixedHeight(height);
 			});
 		connect(d->configNodeView, &QListView::clicked, this, [this](const QModelIndex& index) {
 			d->onConfigNodeSelected(index);

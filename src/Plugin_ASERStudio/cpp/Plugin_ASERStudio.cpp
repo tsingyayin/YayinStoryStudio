@@ -68,6 +68,7 @@ namespace ASERStudio {
 		//registerToolWidget("cn.yxgeneral.aserstudio.aser_warpper", "i18n:ASERStudio::toolWidget.aserWarpper.title");
 		registerPluginModule(new ASERStudioTranslator(this));
 		registerProjectTemplateProvider(new YSS::ProjectTemplate_AStoryX(this));
+		registerProjectTemplateProvider(new YSS::ProjectTemplate_AStoryX_3_6_7(this));
 		registerFileTemplateProvider(new YSS::FileTemplate_AStoryX(this));
 		registerLangServer(new YSS::AStoryXLanguageServer(this));
 		registerFileServer(new YSS::FileServer_AStoryX(this));

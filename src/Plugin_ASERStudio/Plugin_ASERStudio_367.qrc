@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Configs/override_aliases.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Configs/override_userConfigs.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Background/bg_amb2026.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Picture/mon3tr(amb2026)/mon3tr(amb2026)_config.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Picture/mon3tr(amb2026)/normal.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Spine/Amiya(furnace_finale)/Amiya(furnace_finale).atlas</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Spine/Amiya(furnace_finale)/Amiya(furnace_finale).png</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Spine/Amiya(furnace_finale)/Amiya(furnace_finale).skel</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Spine/Amiya(furnace_finale)/Amiya(furnace_finale)_config.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/SoundEffect/MagneticBurst.wav</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/VisualEffect/manifest.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/VisualEffect/prefab/furnace_finale.ab</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/VisualEffect/shader/shader.ab</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/VisualEffect/texture/noise.ab</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/VisualEffect/texture/ring.ab</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Rules/AdvanceRule.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Rules/BaseRule.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Stories/00_BasicExample_1.astoryx</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Stories/01_BasicExample_2.astoryx</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Stories/02_BasicExample_3.astoryx</file>
+    </qresource>
+</RCC>

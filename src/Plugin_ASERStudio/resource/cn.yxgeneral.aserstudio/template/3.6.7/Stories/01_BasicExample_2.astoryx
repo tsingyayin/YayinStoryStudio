@@ -1,0 +1,140 @@
+ASE重制版的基础示例剧本，补充介绍部分剧情效果和分支系统。<color=#ffff00>如欲正常播放需要官方素材连接</color>。
+#useRule:AdvanceRule
+#version:2
+
+#aliases
+mon3tr(amb2026)->Mon3tr
+avg_npc_252->Sharp
+avg_npc_167->Stormeye
+avg_npc_249_1->Touch
+avg_npc_1310_1->Pith
+dyn_illust_char_4133_logos_ambiencesynesthesia#6->Logos
+dyn_illust_char_391_rosmon_sale#16->Rosmotis
+#endaliases
+
+#block 显示背景(bgName,startY,endY,moveTime)
+背景：$(bgName),@FadeInTime=1,@StitchVertically=true,@StartPosition=0,$(startY),10
++1
+背景：$(bgName),@FadeInTime=0,@StitchVertically=true,@StartPosition=0,$(startY),10,@EndPosition=0,$(endY),10,@MoveTime=$(moveTime)
++2
+#endblock
+
+音乐：immutable_ins
+背景：bg_amb2026,@FadeInTime=3
+动态文本：演示区域, 深度: PARADISE
+--mon3tr(amb2026):normal,@FadeInTime=1
++1
+遮罩：true
+Mon3tr	又见面了！
+Mon3tr	我们直入主题吧。
+Mon3tr	本次讲解会依靠官方素材的帮助介绍一些之前没有提到的控制器和参数，以及对分支系统的整体介绍。
+Mon3tr	那么开始吧。
+遮罩：false
++2
+遮罩：true
+Mon3tr	首先是背景控制器上的参数StitchVertically。
+Mon3tr	要介绍这个参数，首先要知道一个背景控制器上是可以填写多份图片资源的。
+Mon3tr	此时这些图片会在一个方向上拼接起来形成完整的图形，这对部分分离存储的官方CG有作用。
+Mon3tr	而StitchVertically开启时，拼接方向为自底向上；否则为自左向右。
+Mon3tr	我们来看一个《慈悲灯塔》中的CG。
+遮罩：false
+--mon3tr(amb2026):normal,@FadeOutTime=1
++1
+#use 显示背景(50_g21_2+50_g21_1,3.67,-17.21,10)
+背景：50_g21_2+50_g21_1,@StitchVertically=true,@StartPosition=0,-17.21,10,@EndPosition=0,-6.77,45,@MoveTime=3,@MoveCurve=InOutCubic
++1
+遮罩：true
+Mon3tr	这就是一个由两张图片拼合而成的大幅CG。
+遮罩：false
+背景：无,@FadeInTime=0.5
+背景：bg_amb2026,@FadeInTime=1
++0.5
+--mon3tr(amb2026):normal,@FadeInTime=1
++0.5
+遮罩：true
+Mon3tr	接下来是在多种控制器上出现的RenderOrder参数。
+Mon3tr	我请了几位我们的干员来辅助演示。
+遮罩：false
++1
+--avg_npc_252:#0$1,@SlotIndex=1,@FadeInTime=1,@IsBlocker=false,@StartPosition=-2,0,10
+--avg_npc_167:#0$1,@SlotIndex=2,@FadeInTime=1,@IsBlocker=false,@StartPosition=-4.8,0,10,@RenderOrder=-1
+--avg_npc_1310_1:#0$1,@SlotIndex=3,@FadeInTime=1,@IsBlocker=false,@StartPosition=5,0,11.5,@RenderOrder=-1
+--avg_npc_249_1:#0$1,@SlotIndex=4,@FadeInTime=1,@IsBlocker=false,@StartPosition=2.5,0,12
+--dyn_illust_char_4133_logos_ambiencesynesthesia#6:Idle,@SlotIndex=5,@FadeInTime=1,@IsBlocker=false,@StartPosition=-2.7,3.9,13,@RenderOrder=-102
+--dyn_illust_char_391_rosmon_sale#16:Idle,@SlotIndex=6,@FadeInTime=1,@IsBlocker=false,@StartPosition=5.2,2.7,12,@RenderOrder=-203
++2
+遮罩：true
+Mon3tr	RenderOrder可以控制场景物体的显示顺序，数值越大的越靠前。
+Mon3tr	在有人说话时，非发言者的立绘不仅会进入暗色状态，而且其显示顺序会被暗中降低100点，以被遮挡在发言者的后方。
+Touch	这样大多数时候，发言者的立绘总是位于最前。
+Stormeye&Pith	对参数值的微调可以用于同级别的场景物体，只要数值差距小于100，对话控制器的顺序控制都会正常表现。
+Logos	而当数值差超过100，情况就会变得不同。
+Logos	比如我的RenderOrder是-102，这样即使我发言而其他人的顺序被减少100，我依然位于他们的后方。
+Rosmotis	我排最后一个......
+Mon3tr	好的，感谢各位干员配合。
+Sharp	下班。
+遮罩：false
+--avg_npc_252:#0$1,@SlotIndex=1,@FadeOutTime=1,@IsBlocker=false,@StartPosition=-2,0,10
+--avg_npc_167:#0$1,@SlotIndex=2,@FadeOutTime=1,@IsBlocker=false,@StartPosition=-4.8,0,10,@RenderOrder=-1
+--avg_npc_1310_1:#0$1,@SlotIndex=3,@FadeOutTime=1,@IsBlocker=false,@StartPosition=5,0,11.5,@RenderOrder=-1
+--avg_npc_249_1:#0$1,@SlotIndex=4,@FadeOutTime=1,@IsBlocker=false,@StartPosition=2.5,0,12
+--dyn_illust_char_4133_logos_ambiencesynesthesia#6:Idle,@SlotIndex=5,@FadeOutTime=1,@IsBlocker=false,@StartPosition=-2.7,3.9,13,@RenderOrder=-102
+--dyn_illust_char_391_rosmon_sale#16:Idle,@SlotIndex=6,@FadeOutTime=1,@IsBlocker=false,@StartPosition=5.2,2.7,12,@RenderOrder=-203
++2
+遮罩：true
+Mon3tr	接下来是音效控制器上的Steps参数，并以此介绍特效控制器。
+Mon3tr	这两个控制器因为可以持续驻场，同时又因为不会相互挤占位置而需要使用插槽，因此使用了这一参数管理其产生和回收。
+音效：d_avg_messagestream_loop,@Steps=2
+特效：avg_scifiscreen_01,@Steps=2
+Mon3tr	Steps的数值表示，在音效或特效控制器生效之后，效果再持续的控制器条数。
+Mon3tr	当我开始说这句话时，刚才的音效应该结束了，因为在音效控制器Steps为2，之后经过了一个特效控制器和一个对话控制器，在上个对话控制器结束时便会一同结束。
+Mon3tr	同理，当我开始说这句话时，特效也应该结束。
+Mon3tr	音效控制器的Steps可以且默认为0。此时音效会在播放一遍后自动回收。
+Mon3tr	但特效控制器由于无法统一地获取到某些单次型特效的“持续时长”，因此目前要想出效果，Steps就必须覆盖到至少一个拥有内禀时间的控制器。
+Mon3tr	好的，对于场景效果的补充介绍大概就是这些了，接下来是分支系统。
+遮罩：false
++2
+遮罩：true
+Mon3tr	分支系统包括选项、标记、变量、判断和分支控制器。
+Mon3tr	其中核心是变量，它是分支系统执行的基础。
+Mon3tr	所有的变量运算都仅在自动播放模式下执行，无论是阅读模式还是调试模式下的跳转都不会触发。
+Mon3tr	可以直接使用变量控制器来命名一个变量并为其赋值。
+Mon3tr	赋值由表达式进行。在表达式中，可以使用其他变量名以引用其值，使用小括号，四则运算符号和优先级最高的取随机数符号“~”。
+变量：变量基础=325
+变量：变量结果=9961-变量基础*2
+变量：变量随机=变量结果
+变量：变量随机=变量随机+0~10
+Mon3tr	如果刚才的内容全都在自动播放模式下正确执行，下一句话应该会显示9311和一个比其高出[0,10)随机整数的值。
+Mon3tr	$[变量结果]，$[变量随机]。
+Mon3tr	判断控制器通过判断的形式来为一个变量赋值。
+Mon3tr	在命名需要赋值的变量后，它对一系列赋值表达式进行判断，每个表达式的计算结果大于0时（不含等于），判断为真。
+Mon3tr	判断结果会以位标记的形式保存。通俗来说，保存结果的变量初始值为0。
+Mon3tr	第一个判断通过时，结果值增加1；第二个通过时增加2；第三个增加4，第四个增加8，以此类推。
+判断：判断结果,@Expressions=变量结果;变量结果-9310;变量结果-9311
+Mon3tr	刚才那个判断在自动播放下结果应该为3，实际为$[判断结果]。
+Mon3tr	选项控制器会弹出需要用户点击的选项，并将结果保存在OutputVariable参数指定名称的变量中。
+遮罩：false
++0.25
+选项：选择第一个选项`选择第二个选项`选择第三个选项,@OutputVariable=选择结果
+变量：选择结果显示=选择结果+1
+遮罩：true
+Mon3tr	你刚才选择了第$[选择结果显示]个选项。
+Mon3tr	保存的选择结果变量值是从0开始计算的，会比刚才显示的结果少1，那就是$[选择结果]。
+Mon3tr	标记控制器用于声明一个指定名称的标记位置，作为分支控制器的落点。
+Mon3tr	分支控制器用于接收一个变量，并根据其值将剧情跳转到指定名称的标记位置处。
+Mon3tr	当接收的变量值位于(-∞,1)之间时，跳转至第一个标记，位于[1,2)之间时跳转至第二个，以此类推。
+Mon3tr	如果值已经超过了目标标记的数量则会跳转至最后一个标记处。
+分支：选择结果,@Branches=选择结果1,选择结果2,选择结果3
+标记：选择结果1
+Mon3tr	看到这句话说明你刚才选的是第一个选项。
+分支：_,@Branches=分支结束
+标记：选择结果2
+Mon3tr	如果你选择了第二个选项，你看到的内容是这样的。
+分支：_,@Branches=分支结束
+标记：选择结果3
+Mon3tr	这句话是你选择了第三个选项会看到的结果。
+分支：_,@Branches=分支结束
+标记：分支结束
+Mon3tr	理解了吗？
+Mon3tr	那么控制器讲解到这里就全部结束了，祝各位创作愉快。
+遮罩：false

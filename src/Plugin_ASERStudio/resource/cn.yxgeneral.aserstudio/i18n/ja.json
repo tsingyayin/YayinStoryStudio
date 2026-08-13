@@ -381,6 +381,10 @@
             },
             "title": "ASEプロジェクト初期化"
         },
+        "astory367": {
+            "name": "ASE-Remake サンプルプロジェクト",
+            "description": "ASE-Remake 3.6.7以降のバージョンに対応した教学用サンプルプロジェクトです。"
+        },
         "project": {
             "title": "ASE-Remake ストーリープロジェクト初期化アシスタント",
             "name": {

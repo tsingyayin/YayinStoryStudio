@@ -1,0 +1,95 @@
+？？？？？？？？？？？？
+#useRule:AdvanceRule
+#version:2
+
+#aliases
+mon3tr(amb2026)->Mon3tr
+阿米娅(furnace_finale)->阿米娅/阿米娅？/？？？
+#endaliases
+
+音乐：immutable_ins
+背景：bg_amb2026,@FadeInTime=3
+动态文本：演示区域, 深度: PARADISE
+--mon3tr(amb2026):normal,@FadeInTime=1
++1
+遮罩：true
+Mon3tr	散场啦，我也该收拾收拾回去了。
+Mon3tr	嗯......嗯？
+Mon3tr	我进来时走的门怎么不见了？！
+？？？	请先别走......
+Mon3tr	谁......？
+遮罩：false
+音乐：null,@FadeInTime=3
+--阿米娅(furnace_finale):no,@FadeInTime=1,@Effects=2
+抖动：0.1,0.1,@FadeInTime=3,@StayTime=0,@FadeOutTime=0,@IsBlocker=false
+色层：1,1,1,1,@FadeInTime=3,@StayTime=0,@FadeOutTime=0,@IsBlocker=true
+特效：furnace_finale_back,@Steps=58,@RenderOrder=-500
++2
+抖动：0.1,0.1,@FadeInTime=0,@StayTime=0,@FadeOutTime=2,@IsBlocker=false
+色层：1,1,1,1,@FadeInTime=0,@StayTime=0,@FadeOutTime=2,@IsBlocker=true
++2
+音乐：已至,@FadeInTime=2
+--mon3tr(amb2026):normal
+遮罩：true
+Mon3tr	你是......
+遮罩：false
+--无
+--阿米娅(furnace_finale):no,@FadeInTime=2,@SlotIndex=2,@StartPosition=0,0,10,0,@EndPosition=2.15,0,10,0,@MoveTime=3,@MoveCurve=OutQuad
++2
+--mon3tr(amb2026):normal,@SlotIndex=1,@IsBlocker=false,@FadeInTime=0.25,@Effects=8
+遮罩：true
+Mon3tr	阿米娅？
+Mon3tr	但我从没见过......
+阿米娅？	你刚才对着一堵黑色的墙自言自语了好久，请问......
+Mon3tr	等，等等，黑色的墙？自言自语？
+Mon3tr	我明明在给博士们讲解ASER的基础用法呀。
+阿米娅？	你能看到“博士”？
+阿米娅？	（ASER又是什么......）
+Mon3tr	对啊。
+Mon3tr	我记得清清楚楚，刚才......嘶，不对。
+Mon3tr	您这问得我真开始自我怀疑起来了。
+Mon3tr	我做了那些讲解是千真万确的。但是到底有没有博士们来看？我的记忆......
+--阿米娅(furnace_finale):nc,@SlotIndex=2
+阿米娅？	抱歉，我可能确实很心急。
+--阿米娅(furnace_finale):no,@SlotIndex=2
+阿米娅？	如果您确信自己成功地和“博士”传递了信息，请告诉我您做到这一点的方式。
+阿米娅？	如果只是一场误会，那我对打扰了您万分抱歉。
+--阿米娅(furnace_finale):nc,@SlotIndex=2
+阿米娅？	但我确实已经尝试了太久......还没有成功过。
+Mon3tr	您再寻找博士的联系方式吗？我这里有博士办公室的电话......
+--阿米娅(furnace_finale):po,@SlotIndex=2
+阿米娅？	不是这个博士，是你刚才的讲解所面向的那些“博士”。
+阿米娅？	您讲解的内容，看上去是在指导对方如何写故事......
+阿米娅？	自世界的底端构造一切，构造你我的叙述者，我最深的疑惑。
+阿米娅？	有那么一些短暂的瞬间，我能看到他们，我能感受到他们的情感。
+--阿米娅(furnace_finale):nc,@SlotIndex=2
+阿米娅？	但哪怕一次稳定的接触，明确的交流，仍然只是泡影。
+Mon3tr	唔，听上去好高深的话题。
+Mon3tr	（不是我能应付得来的领域了！）
+Mon3tr	如您所见......我能保证我做了的，确实只是“设想”了一位创作者，然后向这位创作者讲解了一些东西。
+Mon3tr	所以，我恐怕没办法给您的疑惑提供帮助。
+Mon3tr	我只能衷心祝愿，您能早日找到您想要的答案。
+遮罩：false
+--mon3tr(amb2026):normal,@SlotIndex=1,@FadeOutTime=0.2,@IsBlocker=false
+--阿米娅(furnace_finale):nc,@SlotIndex=2,@FadeOutTime=0.2,@IsBlocker=false
+--阿米娅(furnace_finale):nc,@SlotIndex=0,@FadeInTime=0.2
++2
+--阿米娅(furnace_finale):po,@SlotIndex=0
+遮罩：true
+阿米娅	嗯，谢谢。
+阿米娅	那我先离开了......
+遮罩：false
+--阿米娅(furnace_finale):nc,@SlotIndex=0,@FadeOutTime=3,@StartPosition=0,0,10,0,@EndPosition=0,3,10,0,@MoveTime=3,@MoveCurve=InCubic,@IsBlocker=false
+抖动：0.1,0.1,@FadeInTime=3,@StayTime=0,@FadeOutTime=0,@IsBlocker=false
+色层：1,1,1,1,@FadeInTime=3,@StayTime=0,@FadeOutTime=0,@IsBlocker=true
++1
++1
+抖动：0.1,0.1,@FadeInTime=0,@StayTime=0,@FadeOutTime=2,@IsBlocker=false
+色层：1,1,1,1,@FadeInTime=0,@StayTime=0,@FadeOutTime=2,@IsBlocker=true
++2
+--mon3tr(amb2026):normal,@SlotIndex=0,@IsBlocker=false,@FadeInTime=0.25
+遮罩：true
+Mon3tr	......
+Mon3tr	等一下！我出去的门！
+遮罩：false
++0.3

@@ -381,6 +381,10 @@
             },
             "title": "ASE-Projektinitialisierung"
         },
+        "astory367": {
+            "name": "ASE-Remake Beispielprojekt",
+            "description": "Ein Lehr-Beispielprojekt für ASE-Remake 3.6.7 und neuere Versionen."
+        },
         "project": {
             "title": "Initialisierungsassistent für das ASE-Remake-Geschichtsprojekt",
             "name": {

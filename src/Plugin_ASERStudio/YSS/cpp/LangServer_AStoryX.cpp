@@ -21,9 +21,6 @@ namespace ASERStudio::YSS {
 				if (syntaxTheme == "Visindigo Light 2024") {
 					getColorThemeProvider()->setCurrentTheme("Visindigo Dark 2024");
 				}
-				else if (syntaxTheme == "Gradus Code Light") {
-					getColorThemeProvider()->setCurrentTheme("Gradus Code Dark");
-				}
 				else if (syntaxTheme == "Gradus VS Code Light") {
 					getColorThemeProvider()->setCurrentTheme("Gradus VS Code Dark");
 				}
@@ -32,9 +29,6 @@ namespace ASERStudio::YSS {
 				QString syntaxTheme = getColorThemeProvider()->getCurrentTheme();
 				if (syntaxTheme == "Visindigo Dark 2024") {
 					getColorThemeProvider()->setCurrentTheme("Visindigo Light 2024");
-				}
-				else if (syntaxTheme == "Gradus Code Dark") {
-					getColorThemeProvider()->setCurrentTheme("Gradus Code Light");
 				}
 				else if (syntaxTheme == "Gradus VS Code Dark") {
 					getColorThemeProvider()->setCurrentTheme("Gradus VS Code Light");

@@ -1,0 +1,11 @@
+{
+  "furnace_finale_back": {
+    "assetPath": "Assets/VisualEffectPrefabs/furnace_finale_back.prefab",
+    "bundlePath": "prefab/furnace_finale.ab",
+    "dependencies": [
+      "shader/shader.ab",
+      "texture/noise.ab",
+      "texture/ring.ab"
+    ]
+  }
+}

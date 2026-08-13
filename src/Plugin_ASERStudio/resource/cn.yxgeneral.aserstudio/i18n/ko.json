@@ -381,6 +381,10 @@
             },
             "title": "ASE 프로젝트 초기화"
         },
+        "astory367": {
+            "name": "ASE-Remake 샘플 프로젝트",
+            "description": "ASE-Remake 3.6.7 이상 버전에 적용되는 교육용 샘플 프로젝트입니다."
+        },
         "project": {
             "title": "ASE-Remake 스토리 프로젝트 초기화 도우미",
             "name": {

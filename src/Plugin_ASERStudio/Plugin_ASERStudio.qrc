@@ -4,6 +4,7 @@
         <file>resource/cn.yxgeneral.aserstudio/i18n/zh_CN.json</file>
         <file>resource/cn.yxgeneral.aserstudio/configWidget/FTP.json</file>
         <file>resource/cn.yxgeneral.aserstudio/configWidget/PTP.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/configWidget/PTP_3_6_7.json</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.0/classic.png</file>

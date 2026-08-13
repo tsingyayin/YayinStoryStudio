@@ -1,0 +1,27 @@
+{
+  "name": "mon3tr(amb2026)",
+  "variations": {
+    "normal": {
+      "bodyTexturePath": "Resources/Char_Picture/mon3tr(amb2026)/normal.png",
+      "faceTexturePath": null,
+      "facePos": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "faceSize": {
+        "x": 0.0,
+        "y": 0.0
+      }
+    }
+  },
+  "positionOffset": {
+    "x": 0.0,
+    "y": 0.4,
+    "z": -2.0
+  },
+  "avatarOffset": {
+    "x": 0.02,
+    "y": -1.03,
+    "z": -2.0
+  }
+}

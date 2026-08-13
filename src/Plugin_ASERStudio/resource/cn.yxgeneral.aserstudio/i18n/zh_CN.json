@@ -381,6 +381,10 @@
 			},
 			"title": "ASE项目初始化"
 		},
+		"astory367":{
+			"name": "ASE-Remake 样例项目（Sample）",
+			"description": "适用于ASE-Remake 3.6.7及更高版本的教学样例项目。"
+		},
 		"project":{
 			"title": "ASE-Remake 剧情项目 初始化助手",
 			"name":{

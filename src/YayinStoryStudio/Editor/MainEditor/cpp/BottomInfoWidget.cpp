@@ -127,6 +127,7 @@ namespace YSS::Editor {
 		d->MainLayout->setSpacing(30);
 		d->ProcessingMessagesButton = new QToolButton(this);
 		d->ProcessingMessagesButton->setIconSize(QSize(d->iconSize, d->iconSize));
+		d->ProcessingMessagesButton->hide(); // not implemented in 0.16.
 		d->MainLayout->addWidget(d->ProcessingMessagesButton);
 
 		d->DebugInfoWidget = new QWidget(this);
@@ -205,6 +206,7 @@ namespace YSS::Editor {
 
 		d->ProgramMessagesButton = new QToolButton(this);
 		d->ProgramMessagesButton->setIconSize(QSize(d->iconSize, d->iconSize));
+		d->ProgramMessagesButton->hide(); // not implemented in 0.16.
 		d->MainLayout->addWidget(d->ProgramMessagesButton);
 
 		displayDebugProgress(YSSCore::Editor::DebugServer::DebugAction::Unknown, 0, 0);
