@@ -672,8 +672,25 @@ namespace Visindigo::Utility {
 			}
 			dir.rmdir(QDir::cleanPath(dir.absolutePath()));
 		};
-
 		removeContents(root);
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a path 文件或目录路径
+
+		将指定的文件或目录移动到回收站。如果路径不存在，则不做任何操作。
+		这个函数实质上是调用了QFile::moveToTrash()，因此在不同平台上可能有不同的行为。
+
+		如果可以，返回值会是移动到回收站后的新路径，否则返回空字符串。
+	*/
+	QString FileUtility::moveToTrash(const QString& path) {
+		QFile file(path);
+		if (not file.exists()) {
+			return QString();
+		}
+		file.moveToTrash();
+		return file.fileName();
 	}
 
 	/*!

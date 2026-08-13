@@ -7,6 +7,7 @@
 #include <QtCore/qset.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qdatetime.h>
+#include <QtCore/qchronotimer.h>
 
 namespace Visindigo::General {
 	class TickObjectPrivate {
@@ -287,8 +288,11 @@ namespace Visindigo::General {
 		static QMap<Qt::HANDLE, TickLoop*> threadTickLoops;
 		static QMutex threadTickLoopsMutex;
 		static const QEvent::Type TickEventType = static_cast<QEvent::Type>(QEvent::User + 0x325);
-		QSet<TickObject*> tickObjects;
+		QSet<TickObject*> updateObjects;      // Update 型：每个 Tick 周期都更新
+		QSet<TickObject*> fixUpdateObjects;   // FixUpdate 型：按固定间隔更新
 		QList<qint32> fixUpdateIntervals;
+		double minInterval = 2.0833;          // 休眠的最细粒度(ms)，默认 PresetInterval::FPS_480
+		QChronoTimer* fixTimer = nullptr;     // 仅存在 FixUpdate 对象时使用的休眠定时器
 		QThread* thread = nullptr;
 		QMutex autoSteppingMutex;
 		bool autoStepping = true;
@@ -301,6 +305,55 @@ namespace Visindigo::General {
 		QList<TickObject*> pendingDisableObjects;
 		QMutex tickObjectsDisabledMutex;
 		qint64 currentMillisecondsSinceEpoch = 0;
+		void updateMinInterval() {
+			// 休眠的最细粒度：取所有 FixUpdate 对象中最短的间隔（下限为 FPS_480 默认值）。
+			// 若任一 FixUpdate 对象间隔 <= 0（表示每个 Tick 都要调用），则无法休眠，置 0。
+			minInterval = 2.0833; // PresetInterval::FPS_480
+			for (TickObject* obj : fixUpdateObjects) {
+				double iv = obj->d->fixUpdateInterval_ms;
+				if (iv <= 0.0) {
+					minInterval = 0.0;
+					break;
+				}
+				if (iv < minInterval) {
+					minInterval = iv;
+				}
+			}
+		}
+
+		void scheduleNextTick(QObject* owner) {
+			if (not autoStepping) {
+				return;
+			}
+			if (not updateObjects.isEmpty() || minInterval <= 0.0) {
+				// 有 Update 型对象（或存在需要每个 Tick 都更新的对象）：保持立即续发，事件循环满速。
+				if (fixTimer) {
+					fixTimer->stop();
+				}
+				qApp->postEvent(owner, new QEvent(TickEventType));
+			}
+			else if (not fixUpdateObjects.isEmpty()) {
+				// 只有 FixUpdate 型对象：按最细粒度 minInterval 休眠，用定时器驱动 stepTick。
+				if (not fixTimer) {
+					return;
+				}
+				qint64 interval_ns = qint64(minInterval * 1'000'000.0);
+				if (interval_ns < 1) {
+					interval_ns = 1;
+				}
+				fixTimer->setInterval(std::chrono::nanoseconds(interval_ns));
+				if (not fixTimer->isActive()) {
+					fixTimer->start();
+				}
+			}
+			else {
+				// 没有任何对象：停止定时器，事件循环彻底休眠。
+				if (fixTimer) {
+					fixTimer->stop();
+				}
+			}
+		}
+
 		void stepTick(double elapsedTime_ns = -1.0) {
 			QList<TickObject*> pendingEnable;
 			tickObjectsEnabledMutex.lock();
@@ -308,11 +361,20 @@ namespace Visindigo::General {
 			pendingEnableObjects.clear();
 			tickObjectsEnabledMutex.unlock();
 
+			// 在 pending 阶段即按更新类型分类填入对应的对象集合。
 			for (TickObject* obj : pendingEnable) {
-				if (not tickObjects.contains(obj)) {
-					tickObjects.insert(obj);
+				if (obj->d->updateType == TickObject::UpdateType::Update) {
+					if (not updateObjects.contains(obj)) {
+						updateObjects.insert(obj);
+					}
+				}
+				else {
+					if (not fixUpdateObjects.contains(obj)) {
+						fixUpdateObjects.insert(obj);
+					}
 				}
 			}
+			updateMinInterval();
 			qint64 currentTime_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 			currentMillisecondsSinceEpoch = currentTime_ns / 1'000'000;
 			if (elapsedTime_ns < 0.0) {
@@ -320,42 +382,42 @@ namespace Visindigo::General {
 			}
 			lastTickTime_ns = currentTime_ns;
 			double elapsedTime_ms = elapsedTime_ns / 1'000'000.0; // convert to miliseconds
-			for (TickObject* obj : tickObjects) {
-				if (obj->d->updateType == TickObject::UpdateType::Update) {
-					obj->onUpdate(elapsedTime_ms);
+			// Update 型对象：每个 Tick 周期都更新。
+			for (TickObject* obj : updateObjects) {
+				obj->onUpdate(elapsedTime_ms);
+			}
+			// FixUpdate 型对象：按固定间隔更新。
+			for (TickObject* obj : fixUpdateObjects) {
+				if (obj->d->fixUpdateInterval_ms > 0.0) {
+					obj->d->accumulatedTime_ms += elapsedTime_ms;
+					if (fixTickTimeoutPolicy == TickLoop::FixTickTimeoutPolicy::RealTime) {
+						if (obj->d->accumulatedTime_ms >= obj->d->fixUpdateInterval_ms_dynamic) {
+							obj->onFixUpdate(obj->d->accumulatedTime_ms);
+							double delta = obj->d->accumulatedTime_ms - obj->d->fixUpdateInterval_ms;
+							if (delta > obj->d->fixUpdateInterval_ms) {
+								obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms; // 超时量过大，直接重置为设定的固定时间间隔
+							}
+							else if (delta > 0.0 && delta < obj->d->fixUpdateInterval_ms) {
+								obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms - delta; // 弥补超时量
+							}
+							else {
+								obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms + delta; // 预留超时量
+							}
+							if (obj->d->fixUpdateInterval_ms_dynamic < 0.0) {
+								obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms; // 预留超时量过大，重置为设定的固定时间间隔
+							}
+							obj->d->accumulatedTime_ms = 0.0;
+						}
+					}
+					else if (fixTickTimeoutPolicy == TickLoop::FixTickTimeoutPolicy::FixInterval) {
+						while (obj->d->accumulatedTime_ms >= obj->d->fixUpdateInterval_ms) {
+							obj->onFixUpdate(obj->d->fixUpdateInterval_ms);
+							obj->d->accumulatedTime_ms -= obj->d->fixUpdateInterval_ms;
+						}
+					}
 				}
-				else if (obj->d->updateType == TickObject::UpdateType::FixUpdate) {
-					if (obj->d->fixUpdateInterval_ms > 0.0) {
-						obj->d->accumulatedTime_ms += elapsedTime_ms;
-						if (fixTickTimeoutPolicy == TickLoop::FixTickTimeoutPolicy::RealTime) {
-							if (obj->d->accumulatedTime_ms >= obj->d->fixUpdateInterval_ms_dynamic) {
-								obj->onFixUpdate(obj->d->accumulatedTime_ms);
-								double delta = obj->d->accumulatedTime_ms - obj->d->fixUpdateInterval_ms;
-								if (delta > obj->d->fixUpdateInterval_ms) {
-									obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms; // 超时量过大，直接重置为设定的固定时间间隔
-								}
-								else if (delta > 0.0 && delta < obj->d->fixUpdateInterval_ms) {
-									obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms - delta; // 弥补超时量
-								}
-								else {
-									obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms + delta; // 预留超时量
-								}
-								if (obj->d->fixUpdateInterval_ms_dynamic < 0.0) {
-									obj->d->fixUpdateInterval_ms_dynamic = obj->d->fixUpdateInterval_ms; // 预留超时量过大，重置为设定的固定时间间隔
-								}
-								obj->d->accumulatedTime_ms = 0.0;
-							}
-						}
-						else if (fixTickTimeoutPolicy == TickLoop::FixTickTimeoutPolicy::FixInterval) {
-							while (obj->d->accumulatedTime_ms >= obj->d->fixUpdateInterval_ms) {
-								obj->onFixUpdate(obj->d->fixUpdateInterval_ms);
-								obj->d->accumulatedTime_ms -= obj->d->fixUpdateInterval_ms;
-							}
-						}
-					}
-					else {
-						obj->onFixUpdate(elapsedTime_ms);
-					}
+				else {
+					obj->onFixUpdate(elapsedTime_ms);
 				}
 			}
 
@@ -366,8 +428,9 @@ namespace Visindigo::General {
 			tickObjectsDisabledMutex.unlock();
 
 			for (TickObject* obj : pendingDisable) {
-				if (tickObjects.contains(obj)) {
-					tickObjects.remove(obj);
+				bool removed = updateObjects.remove(obj);
+				removed = fixUpdateObjects.remove(obj) || removed;
+				if (removed) {
 					obj->d->currentLoop = nullptr;
 					if (obj->d->aboutToDelete) {
 						QObject* qobj = dynamic_cast<QObject*>(obj);
@@ -380,6 +443,7 @@ namespace Visindigo::General {
 					}
 				}
 			}
+			updateMinInterval();
 		}
 	};
 	
@@ -484,7 +548,15 @@ namespace Visindigo::General {
 		}
 		d->thread = targetThread;
 		this->moveToThread(targetThread);
-		
+
+		// 仅在存在 FixUpdate 对象且没有 Update 对象时使用的休眠定时器（单次触发，每次 tick 后重新武装）。
+		d->fixTimer = new QChronoTimer(this);
+		d->fixTimer->setSingleShot(true);
+		connect(d->fixTimer, &QChronoTimer::timeout, this, [this]() {
+			d->stepTick();
+			d->scheduleNextTick(this);
+			});
+
 		if (d->autoStepping) {
 			d->lastTickTime_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 			qApp->postEvent(this, new QEvent(TickLoopPrivate::TickEventType));
@@ -502,14 +574,20 @@ namespace Visindigo::General {
 		if (TickLoopPrivate::threadTickLoops.contains(threadId) && TickLoopPrivate::threadTickLoops[threadId] == this) {
 			TickLoopPrivate::threadTickLoops.remove(threadId);
 		}
+		if (d->fixTimer) {
+			d->fixTimer->stop();
+		}
 		QList<TickObject*> pendingEnable;
 		d->tickObjectsEnabledMutex.lock();
 		pendingEnable = d->pendingEnableObjects;
 		d->pendingEnableObjects.clear();
 		d->tickObjectsEnabledMutex.unlock();
 		for (TickObject* obj : pendingEnable) {
-			if (not d->tickObjects.contains(obj)) {
-				d->tickObjects.insert(obj);
+			if (obj->d->updateType == TickObject::UpdateType::Update) {
+				d->updateObjects.insert(obj);
+			}
+			else {
+				d->fixUpdateObjects.insert(obj);
 			}
 		}
 		QList<TickObject*> pendingDisable;
@@ -518,8 +596,9 @@ namespace Visindigo::General {
 		d->pendingDisableObjects.clear();
 		d->tickObjectsDisabledMutex.unlock();
 		for (TickObject* obj : pendingDisable) {
-			if (d->tickObjects.contains(obj)) {
-				d->tickObjects.remove(obj);
+			bool removed = d->updateObjects.remove(obj);
+			removed = d->fixUpdateObjects.remove(obj) || removed;
+			if (removed) {
 				obj->d->currentLoop = nullptr;
 				if (obj->d->aboutToDelete) {
 					QObject* qobj = dynamic_cast<QObject*>(obj);
@@ -532,7 +611,10 @@ namespace Visindigo::General {
 				}
 			}
 		}
-		for (TickObject* obj : d->tickObjects) {
+		for (TickObject* obj : d->updateObjects) {
+			obj->d->currentLoop = nullptr;
+		}
+		for (TickObject* obj : d->fixUpdateObjects) {
 			obj->d->currentLoop = nullptr;
 		}
 		delete d;
@@ -551,10 +633,7 @@ namespace Visindigo::General {
 		if (event->type() == TickLoopPrivate::TickEventType) {
 			if (d->autoStepping) {
 				d->stepTick();
-				// 没有活跃 TickObject 时不再续发 TickEvent，让 Qt 事件循环真正休眠，避免后台空转占用 CPU。
-				if (not d->tickObjects.isEmpty()) {
-					qApp->postEvent(this, new QEvent(TickLoopPrivate::TickEventType));
-				}
+				d->scheduleNextTick(this);
 			}
 			else {
 				d->stepTick(d->manualStepElapsedTime_ns);

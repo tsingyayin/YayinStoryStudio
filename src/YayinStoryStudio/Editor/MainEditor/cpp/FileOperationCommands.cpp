@@ -1,4 +1,5 @@
 #include "Editor/MainEditor/FileOperationCommands.h"
+#include <Utility/FileUtility.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qfile.h>
@@ -48,23 +49,18 @@ void FileMoveCommand::redo() {
 
 FileDeleteCommand::FileDeleteCommand(const QString& path)
 	: QUndoCommand(QStringLiteral("Delete '%1'").arg(QFileInfo(path).fileName()))
-	, Path(path)
+	, Path(path), Backup()
 {
-	// NOTICE: 
-	// we will implement a in-project rubbish bin in the future with back-up function.
-	// this rename is just for feature testing, and will be removed in the future.
-	Backup = QFileInfo(path).absolutePath() + "/.~"
-		+ QFileInfo(path).fileName() + "_"
-		+ QString::number(QDateTime::currentMSecsSinceEpoch());
 }
 
 void FileDeleteCommand::undo() {
-	if (!Backup.isEmpty())
+	if (!Backup.isEmpty()) {
 		QFile::rename(Backup, Path);
+	}
 }
 
 void FileDeleteCommand::redo() {
-	QFile::rename(Path, Backup);
+	Backup = Visindigo::Utility::FileUtility::moveToTrash(Path);
 }
 
 } // namespace YSS::Editor

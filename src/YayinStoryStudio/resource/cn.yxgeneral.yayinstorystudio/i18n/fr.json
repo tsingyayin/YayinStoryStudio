@@ -259,6 +259,14 @@
 		"about": {
 			"title": "À propos de Yayin Story Studio",
 			"message": "Version %1, une œuvre de Tsing Yayin. Yayin Story Studio fait partie du projet Visindigo, un tout nouveau projet issu de Yayin Story Player, visant à fournir un environnement de développement convivial aux utilisateurs d'ASE."
+		},
+		"deleteProjectFile": {
+			"title": "Le fichier de métadonnées du projet ne peut pas être supprimé",
+			"message": "Vous ne pouvez pas supprimer le fichier de métadonnées du projet actuellement ouvert. Si vous souhaitez supprimer le projet, revenez à la page de sélection des projets et choisissez de supprimer le projet."
+		},
+		"deleteFile": {
+			"title": "Confirmation de suppression",
+			"message": "Voulez-vous vraiment supprimer le fichier ou le dossier %1 ? Il sera déplacé vers la corbeille du système, d'où vous pourrez le restaurer."
 		}
 	},
 	"colorThemeSettings": {

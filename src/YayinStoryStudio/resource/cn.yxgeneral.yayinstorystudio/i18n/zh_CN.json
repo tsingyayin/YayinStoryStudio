@@ -259,6 +259,14 @@
 		"about": {
 			"title": "关于 Yayin Story Studio",
 			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清计划）的一部分，是从Yayin Story Player发展而来的一个全新的项目，旨在为ASE用户提供一个易用的开发环境。"
+		},
+		"deleteProjectFile": {
+			"title": "项目元文件不可删除",
+			"message": "不能删除正在打开项目的元信息文件。如果你要删除项目，请回到项目选择页面，选择删除项目。"
+		},
+		"deleteFile": {
+			"title": "删除确认",
+			"message": "你确定要删除文件或文件夹 %1 吗？它们会被移动到系统回收站中，你可以从回收站中恢复它们。"
 		}
 	},
 	"colorThemeSettings": {

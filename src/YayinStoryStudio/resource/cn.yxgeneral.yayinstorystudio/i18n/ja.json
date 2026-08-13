@@ -259,6 +259,14 @@
 		"about": {
 			"title": "Yayin Story Studioについて",
 			"message": "バージョン%1、Tsing Yayinの作品です。Yayin Story StudioはProject Visindigoの一部であり、Yayin Story Playerから発展した新しいプロジェクトで、ASEユーザーに使いやすい開発環境を提供することを目的としています。"
+		},
+		"deleteProjectFile": {
+			"title": "プロジェクトメタファイルは削除できません",
+			"message": "現在開いているプロジェクトのメタ情報ファイルは削除できません。プロジェクトを削除する場合は、プロジェクト選択ページに戻り、プロジェクトの削除を選択してください。"
+		},
+		"deleteFile": {
+			"title": "削除の確認",
+			"message": "ファイルまたはフォルダー %1 を削除してもよろしいですか？削除された項目はシステムのごみ箱に移動されるため、ごみ箱から復元できます。"
 		}
 	},
 	"colorThemeSettings": {

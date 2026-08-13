@@ -56,6 +56,7 @@ namespace Visindigo::Utility {
 		static void copyFile(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 		static void moveFile(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 		static void deleteDir(const QString& dirPath, const QStringList& exclude);
+		static QString moveToTrash(const QString& path);
 		static void copyDir(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 		static void moveDir(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 	};

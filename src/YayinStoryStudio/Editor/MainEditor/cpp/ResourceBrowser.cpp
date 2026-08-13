@@ -22,7 +22,7 @@
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/NewFilePage/NewFileWin.h"
-
+#include <QtWidgets/qmessagebox.h>
 namespace YSS::Editor {
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		Layout = new QVBoxLayout(this);
@@ -137,7 +137,16 @@ namespace YSS::Editor {
 			}
 			});
 		connect(FileOptionDelete, &QAction::triggered, this, [this]() {
-			emit fileOperationRequested(new FileDeleteCommand(CurrentFilePath));
+			if (CurrentFilePath.isEmpty()) return;
+			auto projectFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder() + "/project.yssp";
+			if (QFileInfo(CurrentFilePath).absoluteFilePath() == QFileInfo(projectFilePath).absoluteFilePath()) {
+				QMessageBox::warning(this, VITR("YSS::editor.deleteProjectFile.title"), VITR("YSS::editor.deleteProjectFile.message"));
+				return;
+			}
+			auto rtn = QMessageBox::question(this, VITR("YSS::editor.deleteFile.title"), VITR("YSS::editor.deleteFile.message").arg(CurrentFilePath), QMessageBox::Yes | QMessageBox::No);
+			if (rtn == QMessageBox::Yes) {
+				emit fileOperationRequested(new FileDeleteCommand(CurrentFilePath));
+			}
 			});
 
 		connect(FileModel, &QFileSystemModel::fileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {

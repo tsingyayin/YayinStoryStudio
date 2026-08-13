@@ -149,6 +149,11 @@ namespace YSS::Editor {
 			}
 			});
 
+		// NOTICE: Bad design here. temporary pointer should never be used in signal-slot connection.
+		// If nobody handle the pointer, it will cause memory leak. And it`s ownership is not clear when
+		// multiple slots are connected to the same signal.
+		// As it`s not a public API, refactoring is not urgent.
+		// SHOULD BE SOLVED in 0.17~0.18 version.
 		connect(Browser, &ResourceBrowser::fileOperationRequested, this, [this](QUndoCommand* cmd) {
 			cmd->redo();          // execute now
 			// TODO: push to global QUndoStack when ready
