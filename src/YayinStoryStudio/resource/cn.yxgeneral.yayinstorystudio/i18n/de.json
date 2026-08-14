@@ -188,6 +188,14 @@
 		"toolWidgetArea": {
 			"noToolWidget": "Keine Werkzeuge anzeigbar"
 		},
+		"bottomInfoWidget": {
+			"debugMessage": {
+				"prepared": "Bereit"
+			},
+			"cursorInfo_s": "Zeile %1, Spalte %2 (ausgewählt %3)",
+			"cursorInfo": "Zeile %1, Spalte %2",
+			"totalLines": "Gesamtzahl der Zeilen: %1"
+		},
 		"textEdit": {
 			"readOnly": {
 				"title": "Diese Datei ist schreibgeschützt",
@@ -197,12 +205,10 @@
 				"title": "Kein Dienst gefunden, der diese Datei unterstützt",
 				"message": "Für die Dateierweiterung %1 wurde kein geeigneter Öffnungsdienst gefunden. YSS kann dennoch versuchen, die Datei mit dem eingebauten Texteditor zu öffnen, aber dies kann einige Binärdaten beschädigen. Möchten Sie wirklich mit dem eingebauten Texteditor fortfahren? (Stark nicht empfohlen)"
 			},
-			"cursorInfo_s": "Zeile %1, Spalte %2 (ausgewählt %3)",
-			"cursorInfo": "Zeile %1, Spalte %2",
-			"totalLines": "Gesamtzahl der Zeilen: %1",
 			"ready": "Bereit",
 			"tabCompleter": {
 				"top": "Beste Vorschläge, vom Plugin %1 basierend auf dem Kontext empfohlen",
+				"viewDescription": "(Klicken oder fahren Sie mit der Maus über ein Vervollständigungselement, um die Beschreibung anzuzeigen)",
 				"value": "Wert. Typ",
 				"const": "Konstante. Typ",
 				"enum": "Enum. Typ",

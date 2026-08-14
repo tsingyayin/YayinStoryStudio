@@ -37,6 +37,15 @@ namespace YSS::Editor {
 		ToolBar->setMaximumHeight(40);
 		Layout->addWidget(ToolBar);
 
+		connect(ToolActionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
+		connect(ToolActionNew, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
+		connect(ToolActionShrink, &QAction::triggered, this, [this]() {
+			FileTree->collapseAll();
+			});
+		connect(ToolActionExpand, &QAction::triggered, this, [this]() {
+			FileTree->expandAll();
+			});
+
 		FileTree = new QTreeView(this);
 		FileTree->setContextMenuPolicy(Qt::CustomContextMenu);
 		FileTree->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -47,6 +56,9 @@ namespace YSS::Editor {
 		FileTree->setModel(FileModel);
 		FileTree->setHeaderHidden(true);
 		
+		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
+		connect(FileTree, &QTreeView::customContextMenuRequested, this, &ResourceBrowser::onFileTreeContextMenuRequested);
+
 		FileOptions = new QMenu(this);
 		FileOptionOpen = FileOptions->addAction(VITR("Visindigo::general.open"));
 		FileOptionRename = FileOptions->addAction(VITR("Visindigo::general.rename"));
@@ -60,17 +72,17 @@ namespace YSS::Editor {
 		FileOptionCopy = FileOptions->addAction(VITR("YSS::menu.edit.copy"));
 		FileOptionPaste = FileOptions->addAction(VITR("YSS::menu.edit.paste"));
 		FileOptionCut = FileOptions->addAction(VITR("YSS::menu.edit.cut"));
-		connect(ToolActionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
-		connect(ToolActionNew, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
-		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
-		connect(ToolActionShrink, &QAction::triggered, this, [this]() {
-			FileTree->collapseAll();
+		
+		
+		connect(FileOptionOpen, &QAction::triggered, this, [this]() {
+			auto fileInfo = QFileInfo(CurrentFilePath);
+			if (fileInfo.isFile()) {
+				YSSFSM->openFile(CurrentFilePath);
+			}
+			else if (fileInfo.isDir()) {
+				FileTree->expand(RightClickedIndex);
+			}
 			});
-		connect(ToolActionExpand, &QAction::triggered, this, [this]() {
-			FileTree->expandAll();
-			});
-		connect(FileTree, &QTreeView::customContextMenuRequested, this, &ResourceBrowser::onFileTreeContextMenuRequested);
-
 		connect(FileOptionNewFile, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
 		connect(FileOptionRename, &QAction::triggered, this, &ResourceBrowser::onRenameTriggered);
 		connect(FileOptionCopyPath, &QAction::triggered, this, [this]() {
@@ -136,6 +148,7 @@ namespace YSS::Editor {
 				emit fileOperationRequested(cmd);
 			}
 			});
+
 		connect(FileOptionDelete, &QAction::triggered, this, [this]() {
 			if (CurrentFilePath.isEmpty()) return;
 			auto projectFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder() + "/project.yssp";
@@ -242,8 +255,9 @@ namespace YSS::Editor {
 			FileOptionDelete->setIcon(VIApp->getNamedFontIcon("Delete", 64, { TextColor }));
 			FileOptionNewFile->setIcon(VIApp->getNamedFontIcon("SubscriptionAdd", 64, { TextColor }));
 			FileOptionNewFolder->setIcon(VIApp->getNamedFontIcon("NewFolder", 64, { TextColor }));
-			FileOptionCopyPath->setIcon(VIApp->getNamedFontIcon("HardDrive", 64, { TextColor }));
-			FileOptionCopyName->setIcon(VIApp->getNamedFontIcon("Dictionary", 64, { TextColor }));
+			// These two icons may not satisfy.
+			//FileOptionCopyPath->setIcon(VIApp->getNamedFontIcon("HardDrive", 64, { TextColor }));
+			//FileOptionCopyName->setIcon(VIApp->getNamedFontIcon("Dictionary", 64, { TextColor }));
 			FileOptionCopy->setIcon(VIApp->getNamedFontIcon("Copy", 64, { TextColor }));
 			FileOptionPaste->setIcon(VIApp->getNamedFontIcon("Paste", 64, { TextColor }));
 			FileOptionCut->setIcon(VIApp->getNamedFontIcon("Cut", 64, { TextColor }));

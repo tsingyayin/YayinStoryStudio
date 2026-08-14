@@ -47,11 +47,13 @@ namespace ASERStudio::YSS {
 			connect(ASERStudio::Main::getInstance()->getASERProgram(), &ASERStudio::ASEREnv::ASERProgram::programStarted, this, [this]() {
 				if (d->isRunning) {
 					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForPipe"));
+					emit actionPercent(d->isDebugMode ? DebugRun : Run, 1, 5);
 				}
 				});
 			connect(ASERStudio::Main::getInstance()->getASERProgram(), &ASERStudio::ASEREnv::ASERProgram::namedPipeConnected, this, [this]() {
 				if (d->isRunning) {
 					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForOBMI"));
+					emit actionPercent(d->isDebugMode ? DebugRun : Run, 2, 5);
 					ASERStudio::Main::getInstance()->getASERProgram()->getProcessWindow()->setFlags(Qt::WindowStaysOnTopHint);
 				}
 				});
@@ -59,6 +61,7 @@ namespace ASERStudio::YSS {
 				this, [this](ASERStudio::ASEREnv::ASERDebugIO::OfficialBundleManagerInitializeState state) {
 					if (d->isRunning) {
 						emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForPlay"));
+						emit actionPercent(d->isDebugMode ? DebugRun : Run, 3, 5);
 						if (d->isDebugMode) {
 							ASERStudio::Main::getInstance()->getASERDebugIO()->play(d->launchFileName);
 						}
@@ -67,11 +70,13 @@ namespace ASERStudio::YSS {
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyLoading, this, [this](const QString& name) {
 				if (d->isRunning) {
 					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.loading").arg(name));
+					emit actionPercent(d->isDebugMode ? DebugRun : Run, 4, 5);
 				}
 				});
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyStarted, this, [this](const QString& name) {
 				if (d->isRunning) {
 					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.started").arg(name));
+					emit actionPercent(d->isDebugMode ? DebugRun : Run, -1, -1);
 				}
 				});
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyExited, this, [this](const QString& name) {
@@ -105,7 +110,11 @@ namespace ASERStudio::YSS {
 		auto sizeMode = ASERStudio::Main::getInstance()->getPluginConfig()->getString("ASERExeSettings.WindowSize");
 		param.setSizeMode((ASERStudio::ASEREnv::ASERProgramLaunchParameter::SizeMode)sizeMode.toInt());
 		emit actionMessage(debug ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForLaunch"));
-		program->start(param);
+		emit actionPercent(debug ? DebugRun : Run, 0, 0);
+		if (not program->start(param)) {
+			emit actionFinished(debug ? DebugRun : Run, false);
+			return;
+		}
 	}
 
 	void DS_AStoryXDebugger::onStop() {

@@ -53,21 +53,6 @@ namespace YSS::Editor {
 			if (textColor != VISTM->getPaletteTextColor()) {
 				textColor = VISTM->getPaletteTextColor();
 				ProcessingMessagesButton->setIcon(VIApp->getFontIcon("\uE8BD", iconSize, { textColor }));
-				switch (DebugAction)
-				{
-				case YSSCore::Editor::DebugServer::DebugAction::DebugRun:
-					DebugInfoIcon->setPixmap(VIApp->getFontIcon("\uE9D9", iconSize, { textColor }).pixmap(iconSize, iconSize));
-					break;
-				case YSSCore::Editor::DebugServer::DebugAction::Run:
-					DebugInfoIcon->setPixmap(VIApp->getFontIcon("\uE768", iconSize, { textColor }).pixmap(iconSize, iconSize));
-					break;
-				case YSSCore::Editor::DebugServer::DebugAction::Build:
-					DebugInfoIcon->setPixmap(VIApp->getFontIcon("\uEC7A", iconSize, { textColor }).pixmap(iconSize, iconSize));
-					break;
-				default:
-					DebugInfoIcon->setPixmap(QPixmap());
-					break;
-				}
 				FM_ErrorIcon->setPixmap(VIApp->getFontIcon("\uEA39", iconSize, { textColor }).pixmap(iconSize, iconSize));
 				FM_WarningIcon->setPixmap(VIApp->getFontIcon("\uE7BA", iconSize, { textColor }).pixmap(iconSize, iconSize));
 				FM_InfoIcon->setPixmap(VIApp->getFontIcon("\uE946", iconSize, { textColor }).pixmap(iconSize, iconSize));
@@ -75,6 +60,21 @@ namespace YSS::Editor {
 				GI_ModifiedIcon->setPixmap(VIApp->getFontIcon("\uE70F", iconSize, { textColor }).pixmap(iconSize, iconSize));
 				GI_BranchIcon->setPixmap(VIApp->getFontIcon("\uF003", iconSize, { textColor }).pixmap(iconSize, iconSize));
 				ProgramMessagesButton->setIcon(VIApp->getFontIcon("\uEA8F", iconSize, { textColor }).pixmap(iconSize, iconSize));
+			}
+			switch (DebugAction)
+			{
+			case YSSCore::Editor::DebugServer::DebugAction::DebugRun:
+				DebugInfoIcon->setPixmap(VIApp->getFontIcon("\uE9D9", iconSize, { textColor }).pixmap(iconSize, iconSize));
+				break;
+			case YSSCore::Editor::DebugServer::DebugAction::Run:
+				DebugInfoIcon->setPixmap(VIApp->getFontIcon("\uE768", iconSize, { textColor }).pixmap(iconSize, iconSize));
+				break;
+			case YSSCore::Editor::DebugServer::DebugAction::Build:
+				DebugInfoIcon->setPixmap(VIApp->getFontIcon("\uEC7A", iconSize, { textColor }).pixmap(iconSize, iconSize));
+				break;
+			default:
+				DebugInfoIcon->setPixmap(VIApp->getFontIcon("\uE8BD", iconSize, { textColor }).pixmap(iconSize, iconSize));
+				break;
 			}
 		}
 
@@ -136,7 +136,10 @@ namespace YSS::Editor {
 		d->DebugInfoLayout->setContentsMargins(0, 0, 0, 0);
 		d->DebugInfoLayout->setSpacing(5);
 		d->DebugInfoIcon = new QLabel(d->DebugInfoWidget);
+		d->DebugInfoIcon->setFixedSize(d->iconSize, d->iconSize);
 		d->DebugInfoText = new QLabel(d->DebugInfoWidget);
+		d->DebugInfoText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		d->DebugInfoText->setText(VITR("YSS::editor.bottomInfoWidget.debugMessage.prepared"));
 		d->DebugProgressBar = new QProgressBar(d->DebugInfoWidget);
 		d->DebugProgressBar->setTextVisible(false);
 		d->DebugProgressBar->setMinimum(0);
@@ -145,8 +148,8 @@ namespace YSS::Editor {
 		d->DebugProgressBar->setVisible(true);
 		d->DebugProgressBar->setFixedWidth(100);
 		d->DebugInfoLayout->addWidget(d->DebugInfoIcon);
-		d->DebugInfoLayout->addWidget(d->DebugInfoText);
 		d->DebugInfoLayout->addWidget(d->DebugProgressBar);
+		d->DebugInfoLayout->addWidget(d->DebugInfoText);
 		d->MainLayout->addWidget(d->DebugInfoWidget);
 
 		d->EditorInfoWidget = new QWidget(this);
@@ -253,7 +256,7 @@ namespace YSS::Editor {
 	void BottomInfoWidget::clearDebugInfo() {
 		d->DebugAction = YSSCore::Editor::DebugServer::DebugAction::Unknown;
 		d->applyIcon();
-		d->DebugInfoText->setText("");
+		d->DebugInfoText->setText(VITR("YSS::editor.bottomInfoWidget.debugMessage.prepared"));
 	}
 
 	void BottomInfoWidget::displayDebugProgress(YSSCore::Editor::DebugServer::DebugAction action, qint32 finished, qint32 total) {
@@ -270,6 +273,11 @@ namespace YSS::Editor {
 			d->DebugProgressBar->setMaximum(0); // busy indicator
 			d->DebugProgressBar->setVisible(true);
 		}
+		else if (total == -1 && finished == -1) {
+			d->DebugProgressBar->setMaximum(100);
+			d->DebugProgressBar->setValue(0);
+			d->DebugProgressBar->setVisible(false);
+		}
 	}
 
 	void BottomInfoWidget::clearDebugProgress() {
@@ -283,11 +291,11 @@ namespace YSS::Editor {
 	}
 
 	void BottomInfoWidget::displayEditorInfo(qint32 totalLine, qint32 currentLine, qint32 currentColumn, qint32 selected) {
-		QString totalLines = VITR("YSS::editor.textEdit.totalLines").arg(totalLine) + ". ";
+		QString totalLines = VITR("YSS::editor.bottomInfoWidget.totalLines").arg(totalLine) + ". ";
 		if (selected > 0) {
-			totalLines += VITR("YSS::editor.textEdit.cursorInfo_s").arg(currentLine).arg(currentColumn).arg(selected);
+			totalLines += VITR("YSS::editor.bottomInfoWidget.cursorInfo_s").arg(currentLine).arg(currentColumn).arg(selected);
 		}else{
-			totalLines += VITR("YSS::editor.textEdit.cursorInfo").arg(currentLine).arg(currentColumn);
+			totalLines += VITR("YSS::editor.bottomInfoWidget.cursorInfo").arg(currentLine).arg(currentColumn);
 		}
 		d->EditorInfoText->setText(totalLines);
 	}

@@ -188,6 +188,14 @@
 		"toolWidgetArea": {
 			"noToolWidget": "表示できるツールがありません"
 		},
+		"bottomInfoWidget": {
+			"debugMessage": {
+				"prepared": "準備完了"
+			},
+			"cursorInfo_s": "行 %1、列 %2（選択 %3）",
+			"cursorInfo": "行 %1、列 %2",
+			"totalLines": "総行数 %1"
+		},
 		"textEdit": {
 			"readOnly": {
 				"title": "このファイルは読み取り専用です",
@@ -197,12 +205,10 @@
 				"title": "このファイルをサポートするサービスが見つかりません",
 				"message": "ファイル拡張子%1に適した開くサービスが見つかりませんでした。YSSは組み込みのテキストエディターでファイルを開こうとすることもできますが、一部のバイナリデータが破損する可能性があります。組み込みのテキストエディターで開き続けますか？（強く推奨しません）"
 			},
-			"cursorInfo_s": "行 %1、列 %2（選択 %3）",
-			"cursorInfo": "行 %1、列 %2",
-			"totalLines": "総行数 %1",
 			"ready": "準備完了",
 			"tabCompleter": {
 				"top": "%1 プラグインがコンテキストに基づいて推奨する優先表示の候補",
+				"viewDescription": "(補完項目をクリックまたはホバーすると説明を表示します)",
 				"value": "値 型",
 				"const": "定数 型",
 				"enum": "列挙 型",

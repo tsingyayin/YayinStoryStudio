@@ -61,7 +61,7 @@ namespace YSSCore::__Private__ {
 		QList<qint32> ButtonCycleIndexes;
 		qint32 currentSelectedIndex = -1;
 		qint32 buttonCacheSize = 18;
-		qint32 buttonHeight = 30;
+		qint32 buttonHeight = 26;
 		qint32 maxAllowedHeight = 0;
 		TabCompleterWidget(YSSCore::Editor::TextEdit* textEdit);
 		void setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items);
@@ -74,6 +74,7 @@ namespace YSSCore::__Private__ {
 		void onFilterButtonToggled(bool checked);
 		void reApplyFilter();
 		void asyncFilterButton();
+		void updateDescription();
 		qint32 getMaxAllowedHeight() const;
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;

@@ -188,6 +188,14 @@
 		"toolWidgetArea": {
 			"noToolWidget": "Aucun outil à afficher"
 		},
+		"bottomInfoWidget": {
+			"debugMessage": {
+				"prepared": "Prêt"
+			},
+			"cursorInfo_s": "Ligne %1, colonne %2 (sélection %3)",
+			"cursorInfo": "Ligne %1, colonne %2",
+			"totalLines": "Nombre total de lignes : %1"
+		},
 		"textEdit": {
 			"readOnly": {
 				"title": "Ce fichier est en lecture seule",
@@ -197,12 +205,10 @@
 				"title": "Aucun service trouvé pour prendre en charge ce fichier",
 				"message": "Aucun service d'ouverture adapté n'a été trouvé pour l'extension de fichier %1. YSS peut encore tenter d'ouvrir le fichier avec l'éditeur de texte intégré par défaut, mais cela peut endommager certaines données binaires. Voulez-vous vraiment continuer avec l'éditeur de texte intégré ? (Fortement déconseillé)"
 			},
-			"cursorInfo_s": "Ligne %1, colonne %2 (sélection %3)",
-			"cursorInfo": "Ligne %1, colonne %2",
-			"totalLines": "Nombre total de lignes : %1",
 			"ready": "Prêt",
 			"tabCompleter": {
 				"top": "Meilleures suggestions recommandées par le plugin %1 selon le contexte",
+				"viewDescription": "(Cliquez ou survolez un élément de complétion pour voir sa description)",
 				"value": "Valeur. Type",
 				"const": "Constante. Type",
 				"enum": "Énumération. Type",

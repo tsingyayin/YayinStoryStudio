@@ -54,8 +54,8 @@ namespace ASERStudio::ASEREnv {
 		void setWorkingDirectory(const QString& path);
 		QString getWorkingDirectory() const;
 		QStringList getLastArguments() const;
-		void start(const QStringList& arguments = QStringList());
-		void start(const ASERProgramLaunchParameter& parameter, const QStringList& arguments = QStringList());
+		bool start(const QStringList& arguments = QStringList());
+		bool start(const ASERProgramLaunchParameter& parameter, const QStringList& arguments = QStringList());
 		void stop();
 		bool waitStop(qint32 waitMS = 3000);
 		qint64 getProcessID() const;

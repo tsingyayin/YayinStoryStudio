@@ -773,14 +773,23 @@ namespace YSSCore::__Private__ {
 				// left align
 				TabCompleterWidget->move(pos.x() + 10, pos.y() + 20);
 			}
-			bool bottomOut = pos.y() + 20 + TabCompleterWidget->height() > Text->viewport()->height();
-			if (bottomOut) {
-				// up align
+			// 垂直方向：下侧剩余高度（Text 视口坐标系）
+			qint32 downY = pos.y() + 20;
+			qint32 remainingBelow = Text->viewport()->height() - downY;
+			if (TabCompleterWidget->height() > remainingBelow) {
+				// 下超边界：先将剩余高度设置给 TabCompleterWidget（内部会进行钳制）
+				TabCompleterWidget->adjustHeight(remainingBelow);
+				if (TabCompleterWidget->height() < remainingBelow) {
+					// 钳制后能放入下侧剩余空间，保持顶端对齐即可
+					return;
+				}
+				// 钳制后仍超出：改为底部对齐（向上移），同样先设置剩余高度以进行钳制；若仍超出上边界则忽略
+				TabCompleterWidget->adjustHeight(pos.y() - 10);
 				TabCompleterWidget->move(TabCompleterWidget->x(), pos.y() - 10 - TabCompleterWidget->height());
 			}
 			else {
-				// down align
-				TabCompleterWidget->move(pos.x() + 10, pos.y() + 20);
+				// 不超界：顶端对齐
+				TabCompleterWidget->move(pos.x() + 10, downY);
 			}
 		}
 		else {
@@ -794,15 +803,23 @@ namespace YSSCore::__Private__ {
 				// left align
 				TabCompleterWidget->move(Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)));
 			}
-			bool bottomOut = hpos.y() + 20 + TabCompleterWidget->height() > HoverArea->height();
-			if (bottomOut) {
-				// up align
-				TabCompleterWidget->move(TabCompleterWidget->x(),
-					Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() - 10 - TabCompleterWidget->height())).y());
+			// 垂直方向：下侧剩余高度（HoverArea 坐标系）
+			qint32 downY = hpos.y() + 20;
+			qint32 remainingBelow = HoverArea->height() - downY;
+			if (TabCompleterWidget->height() > remainingBelow) {
+				// 下超边界：先将剩余高度设置给 TabCompleterWidget（内部会进行钳制）
+				TabCompleterWidget->adjustHeight(remainingBelow);
+				if (TabCompleterWidget->height() < remainingBelow) {
+					// 钳制后能放入下侧剩余空间，保持顶端对齐即可
+					return;
+				}
+				// 钳制后仍超出：改为底部对齐（向上移），同样先设置剩余高度以进行钳制；若仍超出上边界则忽略
+				TabCompleterWidget->adjustHeight(hpos.y() - 10);
+				TabCompleterWidget->move(TabCompleterWidget->x(), hpos.y() - 10 - TabCompleterWidget->height());
 			}
 			else {
-				// down align
-				TabCompleterWidget->move(TabCompleterWidget->x(), Text->mapTo(HoverArea, QPoint(pos.x() + 10, pos.y() + 20)).y());
+				// 不超界：顶端对齐
+				TabCompleterWidget->move(TabCompleterWidget->x(), downY);
 			}
 		}
 	}

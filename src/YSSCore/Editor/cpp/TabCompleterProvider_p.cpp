@@ -18,12 +18,13 @@ namespace YSSCore::__Private__ {
 		Target = textEdit;
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
 		this->setFocusPolicy(Qt::NoFocus);
-		this->setFixedWidth(300);
+		this->setFixedWidth(240);
 		auto font = this->font();
-		font.setPointSizeF(font.pointSizeF() * 0.9);
+		font.setPointSizeF(font.pointSizeF() * 0.8);
 		this->setFont(font);
 		this->DescriptionLabel = new Visindigo::Widgets::BorderLabel(this);
 		this->DescriptionLabel->setMinimumHeight(32);
+		this->DescriptionLabel->setText(VITR("YSS::editor.textEdit.tabCompleter.viewDescription"));
 
 		Layout = new QVBoxLayout(this);
 		Layout->setContentsMargins(0, 0, 0, 0);
@@ -57,12 +58,19 @@ namespace YSSCore::__Private__ {
 				});
 			connect(button, &Visindigo::Widgets::MultiButton::clicked, this, [this, button, i]() {
 				this->currentSelectedIndex = ButtonCycleIndexes[i] * ButtonCycleIndexes.size() + i;
-				if (this->currentSelectedIndex >= 0 && this->currentSelectedIndex < Items.size()) {
-					this->DescriptionLabel->setText(Items[this->currentSelectedIndex].getDescription());
+				this->updateDescription();
+				});
+			connect(button, &Visindigo::Widgets::MultiButton::hover, this, [this, i]() {
+				qint32 index = ButtonCycleIndexes[i] * ButtonCycleIndexes.size() + i;
+				if (index >= 0 && index < Items.size()) {
+					this->DescriptionLabel->setText(Items[index].getDescription());
 				}
 				else {
-					this->DescriptionLabel->setText("");
+					this->DescriptionLabel->setText(VITR("YSS::editor.textEdit.tabCompleter.viewDescription"));
 				}
+				});
+			connect(button, &Visindigo::Widgets::MultiButton::leave, this, [this]() {
+				this->updateDescription();
 				});
 			connect(button, &Visindigo::Widgets::MultiButton::checked, this, [this, button](bool checked) {
 				if (checked) {
@@ -151,6 +159,15 @@ namespace YSSCore::__Private__ {
 		Target->setCompleterTypeFilter(filter);
 	}
 
+	void TabCompleterWidget::updateDescription() {
+		if (currentSelectedIndex >= 0 && currentSelectedIndex < Items.size()) {
+			this->DescriptionLabel->setText(Items[currentSelectedIndex].getDescription());
+		}
+		else {
+			this->DescriptionLabel->setText(VITR("YSS::editor.textEdit.tabCompleter.viewDescription"));
+		}
+	}
+
 	void TabCompleterWidget::selectPrevious() {
 		if (Items.size() == 0) return;
 		if (currentSelectedIndex != 0) {
@@ -163,6 +180,7 @@ namespace YSSCore::__Private__ {
 		qint32 tY = currentSelectedIndex * buttonHeight;
 		if (tY < 0) { tY = ScrollBar->maximum() - buttonHeight; }
 		ScrollBar->setValue(tY);
+		updateDescription();
 	}
 
 	void TabCompleterWidget::selectNext() {
@@ -177,6 +195,7 @@ namespace YSSCore::__Private__ {
 		qint32 tY = currentSelectedIndex * buttonHeight;
 		if (tY > ScrollBar->maximum()) { tY = 0; }
 		ScrollBar->setValue(tY);
+		updateDescription();
 	}
 
 	void TabCompleterWidget::doComplete(Visindigo::Widgets::MultiButton* pressed) {
@@ -254,6 +273,12 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TabCompleterWidget::adjustHeight(qint32 height) {
+		if (height > maxAllowedHeight) {
+			height = maxAllowedHeight;
+		}
+		if (height < buttonHeight * 5) {
+			height = buttonHeight * 5;
+		}
 		this->setFixedHeight(height);
 		ScrollBar->setGeometry(300 - 16, 0, 16, ScrollContainer->height());
 	}

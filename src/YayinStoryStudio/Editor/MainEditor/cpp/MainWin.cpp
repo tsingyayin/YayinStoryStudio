@@ -25,6 +25,7 @@
 #include "Editor/MainEditor/ToolWidgetArea.h"
 #include "Editor/MainEditor/RenameDialog.h"
 #include "Editor/MainEditor/BottomInfoWidget.h"
+#include "Editor/MainEditor/DebugServerRouter.h"
 #include <Editor/DocumentMessageManager.h>
 #include <Widgets/DesktopHacker.h>
 #include <General/VIApplication.h>
@@ -85,6 +86,20 @@ namespace YSS::Editor {
 		BottomFrame->setFixedHeight(30);
 		BottomFrame->setGitInfoEnable(false);
 		MainLayout->addWidget(BottomFrame);
+
+		connect(YSSDSR, &DebugServerRouter::actionStarted, this, [this](YSSCore::Editor::DebugServer::DebugAction action) {
+			BottomFrame->displayDebugInfo(action, QString());
+			});
+		connect(YSSDSR, &DebugServerRouter::actionPercent, this, [this](YSSCore::Editor::DebugServer::DebugAction action, qint32 finished, qint32 total) {
+			BottomFrame->displayDebugProgress(action, finished, total);
+			});
+		connect(YSSDSR, &DebugServerRouter::actionMessage, this, [this](YSSCore::Editor::DebugServer::DebugAction action, const QString& message) {
+			BottomFrame->displayDebugInfo(action, message);
+			});
+		connect(YSSDSR, &DebugServerRouter::actionFinished, this, [this](YSSCore::Editor::DebugServer::DebugAction action, bool success) {
+			BottomFrame->clearDebugInfo();
+			BottomFrame->clearDebugProgress();
+			});
 
 		setColorfulEnable(true);
 		onThemeChanged();

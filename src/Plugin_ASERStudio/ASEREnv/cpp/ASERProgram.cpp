@@ -314,23 +314,6 @@ namespace ASERStudio::ASEREnv {
 		return d->LastArguments;
 	}
 
-	/*!
-		\since ASERStudio 2.0
-		\a arguments 启动参数列表
-
-		启动ASER程序，接受可选的参数列表。如果程序已经启动，这函数
-		不产生任何效果，也不会记录参数。
-	*/
-	void ASERProgram::start(const QStringList& arguments) {
-		if (d->ASERProcess->state() == QProcess::Running) {
-			return;
-		}
-		d->LastArguments = arguments;
-		d->ASERProcess->setArguments(arguments);
-		d->ASERProcess->start();
-		d->PipeReconnectTimer->start();
-	}
-
 #ifdef Q_OS_WIN
 	static bool IsProcessRunning(const wchar_t* processName)
 	{
@@ -338,7 +321,7 @@ namespace ASERStudio::ASEREnv {
 		HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 		if (hSnapshot == INVALID_HANDLE_VALUE)
 			return false;
-		PROCESSENTRY32W pe32 = {0};
+		PROCESSENTRY32W pe32 = { 0 };
 		pe32.dwSize = sizeof(PROCESSENTRY32W);
 		if (Process32FirstW(hSnapshot, &pe32))
 		{
@@ -368,19 +351,41 @@ namespace ASERStudio::ASEREnv {
 	}
 	/*!
 		\since ASERStudio 2.0
+		\a arguments 启动参数列表
+
+		启动ASER程序，接受可选的参数列表。如果程序已经启动，这函数
+		不产生任何效果，也不会记录参数。
+
+		return 如果程序成功启动，返回true；如果程序已经在运行，返回false。
+	*/
+	bool ASERProgram::start(const QStringList& arguments) {
+		if (anotherInstanceRunning()) {
+			return false;
+		}
+		if (d->ASERProcess->state() == QProcess::Running) {
+			return false;
+		}
+		d->LastArguments = arguments;
+		d->ASERProcess->setArguments(arguments);
+		d->ASERProcess->start();
+		d->PipeReconnectTimer->start();
+		return true;
+	}
+
+	/*!
+		\since ASERStudio 2.0
 
 		通过ASERProgramLaunchParameter结构体启动ASER程序。这个函数会根据
 		参数中的文件路径和大小模式来构建适当的命令行参数。
 		值得指出的是，当前ASE-Remake程序的有效启动参数均通过一个JSON结构体传递，
 		因此 \a parameter 中的有效参数会被格式化为一个Json字符串并作为首个参数
 		传递给ASE-Remake程序。除此之外其他Unity通用参数可以通过 \a arguments 参数传递。
+
+		return 如果程序成功启动，返回true；如果程序已经在运行，返回false。
 	*/
-	void ASERProgram::start(const ASERProgramLaunchParameter& parameter, const QStringList& arguments) {
-		if (anotherInstanceRunning()) {
-			return;
-		}
+	bool ASERProgram::start(const ASERProgramLaunchParameter& parameter, const QStringList& arguments) {
 		if (d->ASERProcess->state() == QProcess::Running) {
-			return;
+			return false;
 		}
 		Visindigo::Utility::JsonConfig jsonParam;
 		jsonParam.setString("storySetPath", parameter.getProjectPath());
@@ -390,7 +395,7 @@ namespace ASERStudio::ASEREnv {
 		QStringList paramArgs;
 		paramArgs += jsonString;
 		paramArgs += arguments;
-		start(paramArgs);
+		return start(paramArgs);
 	}
 	/*!
 		\since ASERStudio 2.0

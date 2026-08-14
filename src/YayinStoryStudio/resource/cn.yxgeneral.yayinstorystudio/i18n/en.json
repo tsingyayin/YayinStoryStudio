@@ -188,6 +188,14 @@
 		"toolWidgetArea": {
 			"noToolWidget": "No tools to display"
 		},
+		"bottomInfoWidget": {
+			"debugMessage": {
+				"prepared": "Ready"
+			},
+			"cursorInfo_s": "Line %1, Column %2 (Selected %3)",
+			"cursorInfo": "Line %1, Column %2",
+			"totalLines": "Total lines: %1"
+		},
 		"textEdit": {
 			"readOnly": {
 				"title": "File is read-only",
@@ -197,12 +205,10 @@
 				"title": "No service found to support this file",
 				"message": "No suitable opening service found for file extension %1. YSS can still attempt to open the file using the default built-in text editor, but this may corrupt binary data. Are you sure you want to continue with the built-in text editor? (Strongly not recommended)"
 			},
-			"cursorInfo_s": "Line %1, Column %2 (Selected %3)",
-			"cursorInfo": "Line %1, Column %2",
-			"totalLines": "Total lines: %1",
 			"ready": "Ready",
 			"tabCompleter": {
 				"top": "Top items recommended by the %1 plugin based on context",
+				"viewDescription": "(Click or hover over a completion item to view its description)",
 				"value": "Value Type",
 				"const": "Constant Type",
 				"enum": "Enum Type",

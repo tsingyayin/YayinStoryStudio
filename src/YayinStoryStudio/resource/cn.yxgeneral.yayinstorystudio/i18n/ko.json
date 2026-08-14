@@ -188,6 +188,14 @@
 		"toolWidgetArea": {
 			"noToolWidget": "표시할 도구가 없습니다"
 		},
+		"bottomInfoWidget": {
+			"debugMessage": {
+				"prepared": "준비됨"
+			},
+			"cursorInfo_s": "줄 %1, 열 %2(선택됨 %3)",
+			"cursorInfo": "줄 %1, 열 %2",
+			"totalLines": "총 줄 수 %1"
+		},
 		"textEdit": {
 			"readOnly": {
 				"title": "이 파일은 읽기 전용입니다",
@@ -197,12 +205,10 @@
 				"title": "이 파일을 지원하는 서비스를 찾을 수 없습니다",
 				"message": "파일 확장자 %1에 적합한 열기 서비스를 찾을 수 없습니다. YSS는 기본 제공 텍스트 편집기로 파일을 열려고 시도할 수 있지만 일부 이진 데이터가 손상될 수 있습니다. 기본 제공 텍스트 편집기로 계속 시도하시겠습니까?(강력히 권장하지 않음)"
 			},
-			"cursorInfo_s": "줄 %1, 열 %2(선택됨 %3)",
-			"cursorInfo": "줄 %1, 열 %2",
-			"totalLines": "총 줄 수 %1",
 			"ready": "준비됨",
 			"tabCompleter": {
 				"top": "%1 플러그인이 컨텍스트에 따라 추천하는 상위 후보",
+				"viewDescription": "(자동 완성 항목을 클릭하거나 마우스를 올리면 설명을 볼 수 있습니다)",
 				"value": "값 유형",
 				"const": "상수 유형",
 				"enum": "열거형 유형",
