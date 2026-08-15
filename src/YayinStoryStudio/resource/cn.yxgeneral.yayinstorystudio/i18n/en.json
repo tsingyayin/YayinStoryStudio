@@ -280,6 +280,19 @@
 		"theme": "Theme",
 		"duplicate": "Duplicate",
 		"delete": "Delete",
+		"duplicateDialog": {
+			"title": "Duplicate Theme",
+			"desc": "Duplicating theme \"%1\". Please enter a name for the new theme:",
+			"warning": {
+				"empty": "The name cannot be empty. Please enter a name.",
+				"same": "The new name is the same as the source theme. Please enter a different name.",
+				"exists": "A theme with this name already exists. Please choose another name."
+			}
+		},
+		"deleteConfirm": {
+			"title": "Delete Theme",
+			"message": "Are you sure you want to delete theme \"%1\"? This action cannot be undone."
+		},
 		"font": "Font",
 		"preview": "Preview",
 		"textColor": "Text Color",
@@ -304,6 +317,7 @@
 		"unsavedChanges": {
 			"title": "Unsaved Changes",
 			"message": "You have unsaved changes. Do you want to save them? If you do not save, all changes will be lost."
-		}
+		},
+		"staticThemeWarning": "! Note: This is a built-in theme. Changes to it will never take effect. Please duplicate it before modifying."
 	}
 }

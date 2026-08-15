@@ -280,6 +280,19 @@
 		"theme": "Thème",
 		"duplicate": "Dupliquer",
 		"delete": "Supprimer",
+		"duplicateDialog": {
+			"title": "Dupliquer le thème",
+			"desc": "Duplication du thème « %1 ». Veuillez saisir un nom pour le nouveau thème :",
+			"warning": {
+				"empty": "Le nom ne peut pas être vide. Veuillez saisir un nom.",
+				"same": "Le nouveau nom est identique au thème source. Veuillez saisir un autre nom.",
+				"exists": "Un thème portant ce nom existe déjà. Veuillez choisir un autre nom."
+			}
+		},
+		"deleteConfirm": {
+			"title": "Supprimer le thème",
+			"message": "Voulez-vous vraiment supprimer le thème « %1 » ? Cette action est irréversible."
+		},
 		"font": "Police",
 		"preview": "Aperçu",
 		"textColor": "Couleur du texte",
@@ -304,6 +317,7 @@
 		"unsavedChanges": {
 			"title": "Modifications non enregistrées",
 			"message": "Vous avez des modifications non enregistrées. Voulez-vous les enregistrer ? Si vous ne les enregistrez pas, toutes les modifications seront perdues."
-		}
+		},
+		"staticThemeWarning": "! Remarque : il s'agit d'un thème intégré. Toute modification n'aura jamais d'effet. Veuillez le dupliquer avant de modifier."
 	}
 }

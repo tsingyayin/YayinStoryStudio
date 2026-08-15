@@ -280,6 +280,19 @@
 		"theme": "主题",
 		"duplicate": "复制",
 		"delete": "删除",
+		"duplicateDialog": {
+			"title": "复制主题",
+			"desc": "正在复制主题“%1”。请输入新主题的名称：",
+			"warning": {
+				"empty": "名称不能为空，请输入一个名称",
+				"same": "新名称与源主题相同，请输入一个不同的名称",
+				"exists": "已经存在同名主题，请换一个名称"
+			}
+		},
+		"deleteConfirm": {
+			"title": "删除主题",
+			"message": "你确定要删除主题“%1”吗？此操作无法撤销。"
+		},
 		"font": "字体",
 		"preview": "预览",
 		"textColor": "文本颜色",
@@ -304,6 +317,7 @@
 		"unsavedChanges": {
 			"title": "有未保存的更改",
 			"message": "您有未保存的更改，是否要保存？如果不保存，所有更改将会丢失。"
-		}
+		},
+		"staticThemeWarning": "！注意：这是个固有主题，对其的更改永远不会生效。请复制后再修改。"
 	}
 }

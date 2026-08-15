@@ -118,6 +118,7 @@ namespace YSSCore::Editor {
 		}
 		connect(server->getColorThemeProvider(), &ColorThemeProvider::currentThemeChanged, this, [this, server](const QString& newThemeName) {
 			getPluginConfig()->setString("_yss_auto_.LangServer." + server->getModuleID() + ".CurrentTheme", newThemeName);
+			savePluginConfig();
 			});
 		LangServerManager::getInstance()->addLangServer(server);
 	}

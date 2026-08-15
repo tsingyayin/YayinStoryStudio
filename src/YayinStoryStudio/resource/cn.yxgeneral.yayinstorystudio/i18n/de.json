@@ -280,6 +280,19 @@
 		"theme": "Thema",
 		"duplicate": "Duplizieren",
 		"delete": "Löschen",
+		"duplicateDialog": {
+			"title": "Design duplizieren",
+			"desc": "Design „%1“ wird dupliziert. Bitte geben Sie einen Namen für das neue Design ein:",
+			"warning": {
+				"empty": "Der Name darf nicht leer sein. Bitte geben Sie einen Namen ein.",
+				"same": "Der neue Name ist mit dem Quelldesign identisch. Bitte geben Sie einen anderen Namen ein.",
+				"exists": "Ein Design mit diesem Namen ist bereits vorhanden. Bitte wählen Sie einen anderen Namen."
+			}
+		},
+		"deleteConfirm": {
+			"title": "Design löschen",
+			"message": "Möchten Sie das Design „%1“ wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+		},
 		"font": "Schriftart",
 		"preview": "Vorschau",
 		"textColor": "Textfarbe",
@@ -304,6 +317,7 @@
 		"unsavedChanges": {
 			"title": "Nicht gespeicherte Änderungen",
 			"message": "Sie haben nicht gespeicherte Änderungen. Möchten Sie sie speichern? Wenn Sie nicht speichern, gehen alle Änderungen verloren."
-		}
+		},
+		"staticThemeWarning": "! Hinweis: Dies ist ein integriertes Design. Änderungen daran werden nie wirksam. Bitte duplizieren Sie es, bevor Sie es ändern."
 	}
 }

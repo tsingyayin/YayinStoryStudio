@@ -150,6 +150,13 @@ namespace YSSCore::__Private__ {
 				adjustHoverInfoPosition(Text->textCursor());
 			}
 		}
+		else if (obj == Line->viewport()) {
+			if (event->type() == QEvent::Wheel) { 
+				if ((static_cast<QWheelEvent*>(event))->modifiers() & Qt::ControlModifier) {
+					return true; // forbid zooming in/out when Ctrl + mouse wheel
+				}
+			}
+		}
 		return false;
 	}
 
@@ -952,6 +959,7 @@ namespace YSSCore::Editor {
 		d->Text->viewport()->installEventFilter(d);
 		d->Text->setAcceptRichText(false);
 		d->Layout->addWidget(d->Text, 0, 1);
+		d->Line->viewport()->installEventFilter(d); 
 
 		setTextFont(QFont("Microsoft YaHei"));
 

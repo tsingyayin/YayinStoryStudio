@@ -1,4 +1,5 @@
 #include <QtCore/qstring.h>
+#include <QtCore/qobject.h>
 #include <QtGui/qsyntaxhighlighter.h>
 #include "Editor/LangServer.h"
 #include <General/Plugin.h>
@@ -16,13 +17,49 @@ namespace YSSCore::Editor {
 		QString LanguageID;
 		QStringList LanguageExt;
 		ColorThemeProvider* colorThemeProvider;
+		QString userThemeDir() const {
+			return q->getPlugin()->getPluginFolder().absolutePath() + "/_yss_auto_/LangServer/" + q->getModuleID();
+		}
 		void loadUserTheme() {
-			auto plugin = q->getPlugin();
-			QDir pluginFolder = plugin->getPluginFolder();
-			QStringList files = Visindigo::Utility::FileUtility::fileFilter(pluginFolder.absolutePath()+"/_yss_auto_/LangServer/"+q->getModuleID(), {"*.theme.json"}, false);
+			QStringList files = Visindigo::Utility::FileUtility::fileFilter(userThemeDir(), {"*.theme.json"}, false);
 			for (auto f : files) {
 				colorThemeProvider->parseUserThemeFrom(Visindigo::Utility::FileUtility::readAll(f));
 			}
+		}
+		void saveUserTheme(const QString& themeName) {
+			if (colorThemeProvider->isStaticTheme(themeName)) {
+				return; // 静态主题由资源提供，不写入 _yss_auto_
+			}
+			QString json = colorThemeProvider->deriveUserThemeToJson(themeName);
+			if (json.isEmpty()) {
+				return;
+			}
+			Visindigo::Utility::FileUtility::saveAll(
+				userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegelFileName(themeName) + ".theme.json", json);
+		}
+		void deleteUserTheme(const QString& themeName) {
+			QString filePath = userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegelFileName(themeName) + ".theme.json";
+			Visindigo::Utility::FileUtility::deleteFile(filePath, false);
+		}
+		void setupUserThemeAutoSave() {
+			QObject::connect(colorThemeProvider, &ColorThemeProvider::themeAdded, q, [this](const QString& themeName) {
+				if (colorThemeProvider->isStaticTheme(themeName)) {
+					return;
+				}
+				saveUserTheme(themeName);
+				});
+			QObject::connect(colorThemeProvider, &ColorThemeProvider::themeModified, q, [this](const QString& themeName) {
+				if (colorThemeProvider->isStaticTheme(themeName)) {
+					return;
+				}
+				saveUserTheme(themeName);
+				});
+			QObject::connect(colorThemeProvider, &ColorThemeProvider::themeRemoved, q, [this](const QString& themeName) {
+				if (colorThemeProvider->isStaticTheme(themeName)) {
+					return;
+				}
+				deleteUserTheme(themeName);
+				});
 		}
 	};
 
@@ -59,6 +96,7 @@ namespace YSSCore::Editor {
 		d->LanguageID = lang_id;
 		d->LanguageExt = ext;
 		d->colorThemeProvider = new ColorThemeProvider(this);
+		d->setupUserThemeAutoSave();
 		d->loadUserTheme();
 	}
 

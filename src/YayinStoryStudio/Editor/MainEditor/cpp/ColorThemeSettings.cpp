@@ -1,4 +1,5 @@
 #include "Editor/MainEditor/ColorThemeSettings.h"
+#include "Editor/MainEditor/private/ColorThemeSettings_p.h"
 #include "Editor/MainEditor/TextEditConfigOperator.h"
 #include <General/TranslationHost.h>
 #include <QtWidgets/qcombobox.h>
@@ -87,6 +88,7 @@ namespace YSS::Editor {
 		QCheckBox* useItalicCheckBox;
 		QCheckBox* useBgColorCheckBox;
 
+		QLabel* staticWarningLabel;
 		QPushButton* saveButton;
 		QPushButton* resetButton;
 
@@ -147,6 +149,16 @@ namespace YSS::Editor {
 			currentThemeName = themeComboBox->itemText(index);
 			themeStyleDataBackup = currentLangServer->getColorThemeProvider()->getThemeStyleData(currentThemeName);
 			themeStyleDataEditing = themeStyleDataBackup;
+			if (currentLangServer->getColorThemeProvider()->isStaticTheme(currentThemeName)) {
+				staticWarningLabel->setVisible(true);
+				duplicateButton->setEnabled(true);
+				deleteButton->setEnabled(false);
+			}
+			else {
+				staticWarningLabel->setVisible(false);
+				duplicateButton->setEnabled(true);
+				deleteButton->setEnabled(true);
+			}
 
 			auto* configModel = qobject_cast<QStandardItemModel*>(configNodeView->model());
 			configModel->clear();
@@ -395,6 +407,7 @@ namespace YSS::Editor {
 		d->editLayout->setColumnStretch(1, 1);
 
 		// save / reset buttons
+		d->staticWarningLabel = new QLabel(VITR("YSS::colorThemeSettings.staticThemeWarning"), this);
 		d->saveButton = new QPushButton(VITR("YSS::colorThemeSettings.save"), this);
 		d->resetButton = new QPushButton(VITR("YSS::colorThemeSettings.reset"), this);
 
@@ -405,6 +418,7 @@ namespace YSS::Editor {
 		d->mainLayout->addWidget(d->themeFrame, 3, 0, 1, -1);
 		d->mainLayout->addWidget(d->documentPreviewTextEdit, 4, 0);
 		d->mainLayout->addWidget(d->editFrame, 4, 1, 1, -1);
+		d->mainLayout->addWidget(d->staticWarningLabel, 5, 0);
 		d->mainLayout->addWidget(d->saveButton, 5, 1, Qt::AlignRight);
 		d->mainLayout->addWidget(d->resetButton, 5, 2, Qt::AlignRight);
 		d->mainLayout->setRowStretch(4, 1);
@@ -453,6 +467,50 @@ namespace YSS::Editor {
 			});
 		connect(d->resetButton, &QPushButton::clicked, this, [this]() {
 			d->onResetButtonClicked();
+			});
+		connect(d->duplicateButton, &QPushButton::clicked, this, [this]() {
+			if (d->currentLangServer == nullptr || d->currentThemeName.isEmpty()) {
+				return;
+			}
+			QString sourceThemeName = d->currentThemeName;
+			auto* copyDialog = new ColorThemeSettingsCopyDialog(this);
+			copyDialog->setAttribute(Qt::WA_DeleteOnClose);
+			copyDialog->setCurrentThemes(d->currentLangServer->getColorThemeProvider()->getSupportedThemes());
+			copyDialog->setFromThemeName(sourceThemeName);
+			connect(copyDialog, &ColorThemeSettingsCopyDialog::confirmed, this, [this, sourceThemeName](const QString& newName) {
+				auto* provider = d->currentLangServer->getColorThemeProvider();
+				provider->createNewTheme(newName, sourceThemeName);
+				// 刷新主题下拉框并选中新主题
+				QStringList themes = provider->getSupportedThemes();
+				d->themeComboBox->clear();
+				d->themeComboBox->addItems(themes);
+				int idx = d->themeComboBox->findText(newName);
+				if (idx >= 0) {
+					d->themeComboBox->setCurrentIndex(idx);
+				}
+				});
+			copyDialog->show();
+			});
+		connect(d->deleteButton, &QPushButton::clicked, this, [this]() {
+			if (d->currentLangServer == nullptr || d->currentThemeName.isEmpty()) {
+				return;
+			}
+			auto* provider = d->currentLangServer->getColorThemeProvider();
+			if (provider->isStaticTheme(d->currentThemeName)) {
+				return; // 静态主题不允许删除
+			}
+			int ret = QMessageBox::question(this, VITR("YSS::colorThemeSettings.deleteConfirm.title"),
+				VITR("YSS::colorThemeSettings.deleteConfirm.message").arg(d->currentThemeName),
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+			if (ret != QMessageBox::Yes) {
+				return;
+			}
+			provider->removeTheme(d->currentThemeName);
+			// 刷新主题下拉框，选中第一个可用的主题
+			QStringList themes = provider->getSupportedThemes();
+			d->themeComboBox->clear();
+			d->themeComboBox->addItems(themes);
+			d->themeComboBox->setCurrentIndex(0);
 			});
 		bool success = d->initLangServer();
 

@@ -47,6 +47,7 @@ namespace ASERStudio::YSS {
 			":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/templateFile.astoryx");
 		if (getPlugin()->getPluginConfig()->getString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme").isEmpty()) {
 			getPlugin()->getPluginConfig()->setString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme", "Visindigo Dark 2024");
+			getPlugin()->savePluginConfig();
 		}
 	}
 	YSSCore::Editor::SyntaxHighlighter* AStoryXLanguageServer::createHighlighter(YSSCore::Editor::TextEdit* textEdit) {

@@ -53,9 +53,9 @@ namespace YSS::Editor {
 			if (textColor != VISTM->getPaletteTextColor()) {
 				textColor = VISTM->getPaletteTextColor();
 				ProcessingMessagesButton->setIcon(VIApp->getFontIcon("\uE8BD", iconSize, { textColor }));
-				FM_ErrorIcon->setPixmap(VIApp->getFontIcon("\uEA39", iconSize, { textColor }).pixmap(iconSize, iconSize));
-				FM_WarningIcon->setPixmap(VIApp->getFontIcon("\uE7BA", iconSize, { textColor }).pixmap(iconSize, iconSize));
-				FM_InfoIcon->setPixmap(VIApp->getFontIcon("\uE946", iconSize, { textColor }).pixmap(iconSize, iconSize));
+				FM_ErrorIcon->setPixmap(VIApp->getFontIcon("\uEA39", iconSize, { QColor("#EB3324")}).pixmap(iconSize, iconSize));
+				FM_WarningIcon->setPixmap(VIApp->getFontIcon("\uE7BA", iconSize, { QColor("#F5F352")}).pixmap(iconSize, iconSize));
+				FM_InfoIcon->setPixmap(VIApp->getFontIcon("\uE946", iconSize, { QColor("#3282F6")}).pixmap(iconSize, iconSize));
 				GI_PushPullIcon->setPixmap(VIApp->getFontIcon("\uE8CB", iconSize, { textColor }).pixmap(iconSize, iconSize));
 				GI_ModifiedIcon->setPixmap(VIApp->getFontIcon("\uE70F", iconSize, { textColor }).pixmap(iconSize, iconSize));
 				GI_BranchIcon->setPixmap(VIApp->getFontIcon("\uF003", iconSize, { textColor }).pixmap(iconSize, iconSize));
