@@ -194,7 +194,19 @@
 			},
 			"cursorInfo_s": "줄 %1, 열 %2(선택됨 %3)",
 			"cursorInfo": "줄 %1, 열 %2",
-			"totalLines": "총 줄 수 %1"
+			"totalLines": "총 줄 수 %1",
+			"statistic": {
+				"tooltip": "클릭하여 상세 통계 보기",
+				"title": "문서 통계",
+				"titleWithName": "문서 통계 - %1",
+				"wordCount": "단어 수: %1",
+				"charCountIncludeWhitespace": "문자 수(공백 포함): %1",
+				"charCountExcludeWhitespace": "문자 수(공백 제외): %1",
+				"cjkvCharCount": "CJKV 문자 수: %1",
+				"nonCJKVCharCount": "비 CJKV 문자 수: %1",
+				"paragraphCount": "단락 수: %1",
+				"noEditor": "현재 열린 편집기가 없습니다"
+			}
 		},
 		"textEdit": {
 			"readOnly": {

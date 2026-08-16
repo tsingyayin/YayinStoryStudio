@@ -194,7 +194,19 @@
 			},
 			"cursorInfo_s": "行 %1，列 %2（已选中 %3）",
 			"cursorInfo": "行 %1，列 %2",
-			"totalLines": "总行数 %1"
+			"totalLines": "总行数 %1",
+			"statistic": {
+				"tooltip": "单击查看详细统计数据",
+				"title": "文档统计",
+				"titleWithName": "文档统计 - %1",
+				"wordCount": "字数：%1",
+				"charCountIncludeWhitespace": "字符数（含空白）：%1",
+				"charCountExcludeWhitespace": "字符数（不含空白）：%1",
+				"cjkvCharCount": "CJKV 字符数：%1",
+				"nonCJKVCharCount": "非 CJKV 字符数：%1",
+				"paragraphCount": "段落数：%1",
+				"noEditor": "当前没有打开的编辑器"
+			}
 		},
 		"textEdit":{
 			"readOnly": {

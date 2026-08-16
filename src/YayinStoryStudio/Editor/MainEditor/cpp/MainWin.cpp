@@ -14,6 +14,7 @@
 #include <Utility/JsonConfig.h>
 #include <Utility/FileUtility.h>
 #include <Utility/ColorTool.h>
+#include <Utility/StringUtility.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/ProjectPage/ProjectWin.h"
 #include "Editor/MainEditor/MainWin.h"
@@ -191,6 +192,31 @@ namespace YSS::Editor {
 
 		connect(Editors, &FileEditWidgetArea::textEditCursorPositionChanged, this, [this](const QString& filePath, const QTextCursor& cursor) {
 			BottomFrame->displayEditorInfo(cursor);
+			});
+
+		connect(BottomFrame, &BottomInfoWidget::requestStatistic, this, [this]() {
+			auto currentEditWidget = Editors->getCurrentWidget();
+			auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
+			QMessageBox box(this);
+			box.setIcon(QMessageBox::NoIcon); // 不显示程序 Logo
+			if (textEdit) {
+				const QString fileName = QFileInfo(Editors->getCurrentWidgetFilePath()).fileName();
+				box.setWindowTitle(VITR("YSS::editor.bottomInfoWidget.statistic.titleWithName").arg(fileName));
+				auto stat = Visindigo::Utility::StringUtility::getStatistic(textEdit->getPlainText());
+				QString message;
+				message += VITR("YSS::editor.bottomInfoWidget.statistic.wordCount").arg(stat.WordCount) + "\n";
+				message += VITR("YSS::editor.bottomInfoWidget.statistic.charCountIncludeWhitespace").arg(stat.CharCountIncludeWhitespace) + "\n";
+				message += VITR("YSS::editor.bottomInfoWidget.statistic.charCountExcludeWhitespace").arg(stat.CharCountExcludeWhitespace) + "\n";
+				message += VITR("YSS::editor.bottomInfoWidget.statistic.cjkvCharCount").arg(stat.CJKVCharCount) + "\n";
+				message += VITR("YSS::editor.bottomInfoWidget.statistic.nonCJKVCharCount").arg(stat.NonCJKVCharCount) + "\n";
+				message += VITR("YSS::editor.bottomInfoWidget.statistic.paragraphCount").arg(stat.ParagraphCount);
+				box.setText(message);
+			}
+			else {
+				box.setWindowTitle(VITR("YSS::editor.bottomInfoWidget.statistic.title"));
+				box.setText(VITR("YSS::editor.bottomInfoWidget.statistic.noEditor"));
+			}
+			box.exec();
 			});
 
 		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), &YSSCore::Editor::DocumentMessageManager::messageChanged, 

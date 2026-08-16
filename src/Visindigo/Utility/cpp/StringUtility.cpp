@@ -133,4 +133,127 @@ namespace Visindigo::Utility {
 		qint32 halfLength = (maxLength - elideStr.length()) / 2;
 		return str.left(halfLength) + elideStr + str.right(halfLength);
 	}
+
+	
+	/*!
+		\since Visindigo 0.16.0
+		\a codePoint 一个 Unicode 码点
+
+		return 该码点是否属于 CJKV （中日韩越统一表意文字）相关字符，包括 CJK 统一表意文字及其扩展区、
+		平假名、片假名、谚文、注音、CJK 符号与标点、全角/半角形式等。
+	*/
+	bool StringUtility::isCJKV(uint codePoint) {
+		if (codePoint < 0x2E80) {
+			return false;
+		}
+		if (codePoint <= 0x303F) {                 // CJK 部首 / 康熙部首 / 表意描述 / CJK 符号和标点
+			return true;
+		}
+		if (codePoint >= 0x3040 && codePoint <= 0x30FF) {   // 平假名、片假名
+			return true;
+		}
+		if (codePoint >= 0x3100 && codePoint <= 0x33FF) {   // 注音、谚文兼容 Jamo、CJK 笔顺、CJK 兼容等
+			return true;
+		}
+		if (codePoint >= 0x3400 && codePoint <= 0x4DBF) {   // CJK 统一表意文字扩展 A
+			return true;
+		}
+		if (codePoint >= 0x4E00 && codePoint <= 0x9FFF) {   // CJK 统一表意文字
+			return true;
+		}
+		if (codePoint >= 0xAC00 && codePoint <= 0xD7AF) {   // 谚文音节
+			return true;
+		}
+		if (codePoint >= 0xF900 && codePoint <= 0xFAFF) {   // CJK 兼容表意文字
+			return true;
+		}
+		if (codePoint >= 0xFF00 && codePoint <= 0xFFEF) {   // 全角 / 半角形式（含全角假名与全角拉丁字母）
+			return true;
+		}
+		if (codePoint >= 0x20000 && codePoint <= 0x2FA1F) { // CJK 统一表意文字扩展 B~F 及兼容补充
+			return true;
+		}
+		if (codePoint >= 0x30000 && codePoint <= 0x323AF) { // CJK 统一表意文字扩展 G / H
+			return true;
+		}
+		return false;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		\a str 输入字符串
+
+		return 一个包含字数、字符数、段落数等信息的统计结果。
+
+		统计规则：
+		- WordCount：每个 CJKV 字符计为一个字，连续的由非 CJKV、非空白、非标点字符组成的片段计为一个词，
+		  非 CJKV 标点也会作为词边界；
+		- CharCountIncludeWhitespace：按 Unicode 码点计数的总字符数（包含空白）；
+		- CharCountExcludeWhitespace：不含空白字符的字符数；
+		- CJKVCharCount / NonCJKVCharCount：中、日、韩、越（CJKV）相关字符的个数；
+		- ParagraphCount：以换行符分隔的非空段落个数。
+	*/
+	StringUtility::Statistic StringUtility::getStatistic(const QString& str) {
+		Statistic result;
+
+		bool inWord = false;          // 是否正处在一段连续的"非 CJKV 词"中
+		bool lineHasContent = false;  // 当前段落是否含有非空白字符
+
+		for (int i = 0; i < str.size(); ) {
+			const ushort first = str[i].unicode();
+			uint codePoint = first;
+			if (QChar::isHighSurrogate(first)
+				&& i + 1 < str.size()
+				&& QChar::isLowSurrogate(str[i + 1].unicode())) {
+				codePoint = QChar::surrogateToUcs4(str[i], str[i + 1]);
+				i += 2;
+			}
+			else {
+				i += 1;
+			}
+
+			result.CharCountIncludeWhitespace++;
+
+			if (codePoint == '\n') {
+				if (lineHasContent) {
+					result.ParagraphCount++;
+					lineHasContent = false;
+				}
+				inWord = false;
+				continue;
+			}
+
+			const bool isSpace = QChar(codePoint).isSpace();
+			const bool isPunct = QChar(codePoint).isPunct();
+			if (!isSpace) {
+				result.CharCountExcludeWhitespace++;
+				lineHasContent = true;
+			}
+
+			if (isCJKV(codePoint)) {
+				result.CJKVCharCount++;
+				result.WordCount++;       // 每个 CJKV 字符计为一个字
+				inWord = false;
+			}
+			else if (!isSpace) {
+				result.NonCJKVCharCount++;
+				if (isPunct) {
+					inWord = false;       // 非 CJKV 标点作为词边界，不单独成词
+				}
+				else if (!inWord) {
+					result.WordCount++;   // 一段连续的西方文字计为一个词
+					inWord = true;
+				}
+			}
+			else {
+				inWord = false;           // 空白字符作为词边界
+			}
+		}
+
+		if (lineHasContent) {
+			result.ParagraphCount++;
+		}
+
+		return result;
+	}
 }

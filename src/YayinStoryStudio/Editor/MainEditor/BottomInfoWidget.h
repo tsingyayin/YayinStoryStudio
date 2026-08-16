@@ -12,6 +12,7 @@ namespace YSS::Editor{
 		Q_OBJECT;
 	signals:
 		void requestEditorFontSizeChange(float scaleFactor);
+		void requestStatistic();
 	public:
 		BottomInfoWidget(QWidget* parent = nullptr);
 		~BottomInfoWidget();

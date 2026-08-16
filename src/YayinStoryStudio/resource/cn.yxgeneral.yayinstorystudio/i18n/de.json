@@ -194,7 +194,19 @@
 			},
 			"cursorInfo_s": "Zeile %1, Spalte %2 (ausgewählt %3)",
 			"cursorInfo": "Zeile %1, Spalte %2",
-			"totalLines": "Gesamtzahl der Zeilen: %1"
+			"totalLines": "Gesamtzahl der Zeilen: %1",
+			"statistic": {
+				"tooltip": "Klicken Sie, um detaillierte Statistiken anzuzeigen",
+				"title": "Dokumentstatistik",
+				"titleWithName": "Dokumentstatistik - %1",
+				"wordCount": "Wörter: %1",
+				"charCountIncludeWhitespace": "Zeichen (mit Leerzeichen): %1",
+				"charCountExcludeWhitespace": "Zeichen (ohne Leerzeichen): %1",
+				"cjkvCharCount": "CJKV-Zeichen: %1",
+				"nonCJKVCharCount": "Nicht-CJKV-Zeichen: %1",
+				"paragraphCount": "Absätze: %1",
+				"noEditor": "Derzeit ist kein Editor geöffnet"
+			}
 		},
 		"textEdit": {
 			"readOnly": {

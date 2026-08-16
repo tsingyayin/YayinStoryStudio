@@ -194,7 +194,19 @@
 			},
 			"cursorInfo_s": "Line %1, Column %2 (Selected %3)",
 			"cursorInfo": "Line %1, Column %2",
-			"totalLines": "Total lines: %1"
+			"totalLines": "Total lines: %1",
+			"statistic": {
+				"tooltip": "Click to view detailed statistics",
+				"title": "Document Statistics",
+				"titleWithName": "Document Statistics - %1",
+				"wordCount": "Words: %1",
+				"charCountIncludeWhitespace": "Characters (with whitespace): %1",
+				"charCountExcludeWhitespace": "Characters (without whitespace): %1",
+				"cjkvCharCount": "CJKV characters: %1",
+				"nonCJKVCharCount": "Non-CJKV characters: %1",
+				"paragraphCount": "Paragraphs: %1",
+				"noEditor": "No editor is currently open"
+			}
 		},
 		"textEdit": {
 			"readOnly": {

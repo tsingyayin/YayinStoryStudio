@@ -30,7 +30,7 @@ namespace YSS::Editor {
 		QLabel* FM_WarningText;
 		QLabel* FM_InfoIcon;
 		QLabel* FM_InfoText;
-		QLabel* EditorInfoText;
+		QToolButton* EditorInfoText;
 		QComboBox* EditorFontSizeComboBox;
 		QComboBox* EditorTabCompleterLevelComboBox;
 
@@ -166,8 +166,13 @@ namespace YSS::Editor {
 		d->FM_InfoIcon = new QLabel(d->EditorInfoWidget);
 		d->FM_InfoText = new QLabel(d->EditorInfoWidget);
 		d->FM_InfoText->setText("0");
-		d->EditorInfoText = new QLabel(d->EditorInfoWidget);
+		d->EditorInfoText = new QToolButton(d->EditorInfoWidget);
 		d->EditorInfoText->setText("");
+		//d->EditorInfoText->setFlat(true); // 无边框按钮
+		d->EditorInfoText->setToolTip(VITR("YSS::editor.bottomInfoWidget.statistic.tooltip"));
+		connect(d->EditorInfoText, &QToolButton::clicked, this, [this]() {
+			emit requestStatistic();
+			});
 		d->EditorFontSizeComboBox = new QComboBox(d->EditorInfoWidget);
 		d->EditorTabCompleterLevelComboBox = new QComboBox(d->EditorInfoWidget);
 		d->initFontSizeComboBox();

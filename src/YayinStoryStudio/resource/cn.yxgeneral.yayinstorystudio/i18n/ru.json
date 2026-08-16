@@ -194,7 +194,19 @@
 			},
 			"cursorInfo_s": "Строка %1, столбец %2 (выделено %3)",
 			"cursorInfo": "Строка %1, столбец %2",
-			"totalLines": "Всего строк: %1"
+			"totalLines": "Всего строк: %1",
+			"statistic": {
+				"tooltip": "Нажмите, чтобы просмотреть подробную статистику",
+				"title": "Статистика документа",
+				"titleWithName": "Статистика документа - %1",
+				"wordCount": "Слов: %1",
+				"charCountIncludeWhitespace": "Символов (с пробелами): %1",
+				"charCountExcludeWhitespace": "Символов (без пробелов): %1",
+				"cjkvCharCount": "CJKV-символов: %1",
+				"nonCJKVCharCount": "Не-CJKV символов: %1",
+				"paragraphCount": "Абзацев: %1",
+				"noEditor": "Сейчас нет открытых редакторов"
+			}
 		},
 		"textEdit": {
 			"readOnly": {
