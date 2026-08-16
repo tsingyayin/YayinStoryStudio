@@ -134,6 +134,10 @@
       "type": "Integer",
       "defaultValue": "0",
       "min": 0
+    },
+    "AsVoice": {
+      "type": "Bool",
+      "defaultValue": "false"
     }
   },
   "Mask": {
@@ -485,6 +489,12 @@
       "defaultValue": ""
     },
     "Branches": {
+      "type": "String",
+      "defaultValue": ""
+    }
+  },
+  "Narration": {
+    "Content": {
       "type": "String",
       "defaultValue": ""
     }

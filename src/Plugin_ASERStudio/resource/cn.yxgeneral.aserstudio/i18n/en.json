@@ -204,7 +204,8 @@
             "AudioName": "Specifies the audio name used for the sound effect",
             "Volume": "Specifies the sound effect volume, ranging from 0 to 1",
             "Position": "Spatial position of the sound effect, -1 for left, 1 for right, adjustable within this range",
-            "Steps": "Specifies the number of steps the sound effect lasts, i.e., how many controllers it continues for before terminating"
+            "Steps": "Specifies the number of steps the sound effect lasts, i.e., how many controllers it continues for before terminating",
+            "AsVoice": "Whether to treat this sound effect as voice acting. If treated as voice acting, the next dialog controller will automatically coordinate the playback time of this sound effect to ensure synchronization between the dialog and the voice."
         },
         "Mask": {
             "__description": "Controls mask display.",
@@ -328,7 +329,7 @@
             "Branches": "Label names to jump to"
         },
         "Narration": {
-            "__description": "Controls narration display.",
+            "__description": "Sets the text content of the narration. This narration serves as contextual hints displayed in the dialog log, intended for quickly browsing the story, and is not a monologue shown during playback.",
             "Content": "Narration text content"
         },
         "Dialog": {

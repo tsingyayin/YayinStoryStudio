@@ -61,43 +61,57 @@ namespace ASERStudio::YSS {
 		QString controllerKey = ASERStudio::AStorySyntax::AStoryXController::controllerTypeToString(parseData.getControllerType());
 		setFormatWithColorKey(0, parseData.getStartSign().length(), controllerKey);
 		auto required = parseData.getRequiredParameter();
-		QString requiredType = "PlainText";
-		switch (required.getValue().getType()) {
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::String:
-			requiredType = "String";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Number:
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Integer:
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Float:
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Bool:
-			requiredType = "Number";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Enum:
-			requiredType = "Enum";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Vector:
-			requiredType = "Vector";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::None:
-			requiredType = "PlainText";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Function:
-			requiredType = "Function";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Parameter:
-			requiredType = "Parameter";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Keyword:
-			requiredType = "Keyword";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::Macro:
-			requiredType = "Macro";
-			break;
-		case ASERStudio::AStorySyntax::AStoryXValueMeta::MacroParameter:
-			requiredType = "MacroParameter";
-			break;
+		if (parseData.getControllerType() != ASERStudio::AStorySyntax::AStoryXController::ControllerType::Dialog) {
+			QString requiredType = "PlainText";
+			switch (required.getValue().getType()) {
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::String:
+				requiredType = "String";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Number:
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Integer:
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Float:
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Bool:
+				requiredType = "Number";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Enum:
+				requiredType = "Enum";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Vector:
+				requiredType = "Vector";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::None:
+				requiredType = "PlainText";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Function:
+				requiredType = "Function";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Parameter:
+				requiredType = "Parameter";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Keyword:
+				requiredType = "Keyword";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::Macro:
+				requiredType = "Macro";
+				break;
+			case ASERStudio::AStorySyntax::AStoryXValueMeta::MacroParameter:
+				requiredType = "MacroParameter";
+				break;
+			}
+			setFormatWithColorKey(required.getIndex(), required.getContent().size(), requiredType);
 		}
-		setFormatWithColorKey(required.getIndex(), required.getContent().size(), requiredType);
+		else {
+			auto dialogRequired = parseData.getRequiredParameter();
+			auto content = dialogRequired.getContent();
+			qint32 tabIndex = content.indexOf("\t");
+			if (d->CurrentTheme.contains("Dialog")) {
+				setFormatWithColorKey(dialogRequired.getIndex(), tabIndex, "Dialog");
+				setFormatWithColorKey(dialogRequired.getIndex() + tabIndex, content.size() - tabIndex, "String");
+			}
+			else {
+				setFormatWithColorKey(dialogRequired.getIndex(), content.size(), "String");
+			}
+		}
 
 		for (auto optional : parseData.getOptionalParameters()) {
 			setFormatWithColorKey(optional.getIndex(), optional.getPrefix().size(), "PlainText");

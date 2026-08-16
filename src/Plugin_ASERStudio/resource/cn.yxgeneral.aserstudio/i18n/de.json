@@ -204,7 +204,8 @@
             "AudioName": "Gibt den für den Soundeffekt verwendeten Audionamen an",
             "Volume": "Gibt die Lautstärke des Soundeffekts an, von 0 bis 1",
             "Position": "Räumliche Position des Soundeffekts: -1 für links, 1 für rechts, in diesem Bereich frei einstellbar",
-            "Steps": "Gibt die Anzahl der Schritte des Soundeffekts an, d. h. wie viele Controller er durchläuft, bevor er endet"
+            "Steps": "Gibt die Anzahl der Schritte des Soundeffekts an, d. h. wie viele Controller er durchläuft, bevor er endet",
+            "AsVoice": "Ob dieser Soundeffekt als Sprachausgabe behandelt werden soll. Wenn er als Sprachausgabe behandelt wird, koordiniert der nächste Dialog-Controller automatisch die Wiedergabezeit dieses Soundeffekts, um die Synchronisation zwischen Dialog und Sprache zu gewährleisten."
         },
         "Mask": {
             "__description": "Steuert die Anzeige der Maske.",
@@ -328,7 +329,7 @@
             "Branches": "Namen der Markierungen, zu denen gesprungen werden soll"
         },
         "Narration": {
-            "__description": "Steuert die Anzeige der Erzählung.",
+            "__description": "Legt den Textinhalt der Erzählung fest. Diese Erzählung dient als Kontext-Hinweis, der im Dialogprotokoll angezeigt wird, um die Handlung schnell zu überblicken, und ist kein Monolog, der während der Wiedergabe angezeigt wird.",
             "Content": "Textinhalt der Erzählung"
         },
         "Dialog": {

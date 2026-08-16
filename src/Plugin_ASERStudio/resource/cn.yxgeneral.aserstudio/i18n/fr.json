@@ -204,7 +204,8 @@
             "AudioName": "Spécifie le nom de l'audio utilisé pour l'effet sonore",
             "Volume": "Spécifie le volume de l'effet sonore, de 0 à 1",
             "Position": "Position spatiale de l'effet sonore : -1 pour gauche, 1 pour droite, réglable librement dans cette plage",
-            "Steps": "Spécifie le nombre d'étapes de lecture de l'effet sonore, c'est-à-dire le nombre de contrôleurs qu'il parcourt avant de se terminer"
+            "Steps": "Spécifie le nombre d'étapes de lecture de l'effet sonore, c'est-à-dire le nombre de contrôleurs qu'il parcourt avant de se terminer",
+            "AsVoice": "Indique si cet effet sonore doit être considéré comme une voix. Si c'est le cas, le prochain contrôleur de dialogue coordonnera automatiquement le temps de lecture de cet effet sonore afin de garantir la synchronisation entre le dialogue et la voix."
         },
         "Mask": {
             "__description": "Contrôle l'affichage du masque.",
@@ -328,7 +329,7 @@
             "Branches": "Noms des étiquettes vers lesquelles sauter"
         },
         "Narration": {
-            "__description": "Contrôle l'affichage de la narration.",
+            "__description": "Définit le contenu textuel de la narration. Cette narration sert d'indication contextuelle affichée dans le journal de dialogue, destinée à parcourir rapidement l'histoire, et n'est pas un monologue affiché pendant la lecture.",
             "Content": "Contenu textuel de la narration"
         },
         "Dialog": {
