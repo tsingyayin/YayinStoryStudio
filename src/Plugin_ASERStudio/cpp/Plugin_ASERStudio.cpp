@@ -23,8 +23,10 @@ namespace ASERStudio {
 	{
 		setDefaultLang(zh_CN);
 		addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.aserstudio/i18n/zh_CN.json");
+		addLangFilePath(zh_TW, ":/resource/cn.yxgeneral.aserstudio/i18n/zh_TW.json");
 		addLangFilePath(en, ":/resource/cn.yxgeneral.aserstudio/i18n/en.json");
 		addLangFilePath(ja, ":/resource/cn.yxgeneral.aserstudio/i18n/ja.json");
+		addLangFilePath(jp_less_loanword, ":/resource/cn.yxgeneral.aserstudio/i18n/jp_less_loanword.json");
 		addLangFilePath(ko, ":/resource/cn.yxgeneral.aserstudio/i18n/ko.json");
 		addLangFilePath(ru, ":/resource/cn.yxgeneral.aserstudio/i18n/ru.json");
 		addLangFilePath(de, ":/resource/cn.yxgeneral.aserstudio/i18n/de.json");

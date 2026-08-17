@@ -1,0 +1,42 @@
+{
+    "AutoUpdate":{
+        "Title": "YSS 更新與遙測服務 - 有自動更新可用",
+        "Desc_CanUpdate": "目前啟動的 Yayin Story Studio 程式（版本%1，位於%2）看上去是本電腦中最新的YSS應用程式。然而，我們發現您電腦上還安裝了一個或多個舊版YSS應用程式。\nYSS 更新套件自動部署服務可以將此新版本%1作為更新套件自動升級這些舊版。\n您接下來希望怎麼做？",
+        "Option_AutoUpdate": "我希望將此新版本%1作為更新套件自動升級舊版程式。",
+        "Option_Keep": "我希望保留舊版程式，並獨立使用這個新版本%1。",
+        "Desc_UpdateOption": "請選擇要在更新時套用的選項",
+        "Option_AutoDelete": "更新後自動刪除這個作為安裝套件的資料夾（user_data中的repos、third_party會被保留）",
+        "Option_AutoLaunch": "更新後自動啟動新版程式",
+        "Desc_MultiOldVersion": "我們在您電腦上發現了多個舊版YSS應用，請在下面勾選您希望升級的舊版YSS應用程式。",
+        "Path": "路徑",
+        "Version": "版本",
+        "IWantToUpdate": "我希望升級",
+        "Desc_CloseProgram": "升級過程需要關閉所有受到影響的YSS應用程式，請在升級前儲存好所有工作並關閉這些程式。",
+        "StillRunning": "仍在執行的YSS應用程式",
+        "Option_Retry": "已經關閉，請重試",
+        "BackwardStep": "上一步",
+        "Desc_Ready": "所有舊版程式的更新準備工作已經完成，更新過程即將開始。\n請確認是否繼續。",
+        "Option_Next": "下一步",
+        "Option_Cancel": "取消",
+        "Option_OK": "確定",
+        "Step_Confirm": "確認更新",
+        "Step_Select": "選擇版本",
+        "Step_Option": "更新設定",
+        "Step_Check": "檢查執行情況",
+        "Step_Update": "執行更新",
+        "Desc_Finished": "更新完成",
+        "Desc_ChooseAutoLaunch": "已更新多個舊版程式，請選擇稍後自動啟動的程式：",
+        "Option_Confirm": "確認"
+    },
+    "Monitor": {
+        "Title": "YSS 更新與遙測服務 - 程式已啟動",
+        "Launched": "版本%1的YSS程式已啟動"
+    },
+    "TrayIcon": {
+        "About": "關於"
+    },
+    "About": {
+        "Title": "YSS 更新與遙測服務 - 關於",
+        "Desc": "YSS 更新與遙測服務是 Yayin Story Studio 的一個輔助程式，負責在電腦上安裝、更新YSS應用程式。未來的版本中，它還將提供遙測服務，協助開發者收集程式使用情況和當機報告，以便更好地改進YSS。\n\n本程式在啟動YSS時自動啟動並在背景靜默執行，無需使用者干預。當YSS結束時，本程式也會自動結束。"
+    }
+}

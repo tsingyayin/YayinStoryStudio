@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>resource/cn.yxgeneral.aserstudio/astoryxMeta/default.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/zh_CN.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/zh_TW.json</file>
         <file>resource/cn.yxgeneral.aserstudio/configWidget/FTP.json</file>
         <file>resource/cn.yxgeneral.aserstudio/configWidget/PTP.json</file>
         <file>resource/cn.yxgeneral.aserstudio/configWidget/PTP_3_6_7.json</file>
@@ -18,6 +19,7 @@
         <file>resource/cn.yxgeneral.aserstudio/config.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/en.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/ja.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/i18n/jp_less_loanword.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/ko.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/ru.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/de.json</file>

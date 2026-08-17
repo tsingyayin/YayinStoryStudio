@@ -1,0 +1,337 @@
+{
+	"config":{
+		"title": "Yayin Story Studio 程式設定",
+		"general":{
+			"title":"一般",
+			"text":"一些一般的程式設定",
+			"language":{
+				"title":"語言",
+				"text":"選擇應用程式語言",
+				"zh_CN":"简体中文",
+				"zh_TW":"繁體中文",
+				"en":"English",
+				"ja":"日本語",
+				"jp_less_loanword":"日本語（外来語控えめ）",
+				"ko":"한국어",
+				"ru":"Русский",
+				"de":"Deutsch",
+				"fr":"Français"
+			},
+			"theme":{
+				"title": "色彩主題",
+				"text":"選擇應用程式色彩主題",
+				"dark":"深色",
+				"light":"淺色",
+				"auto": "自動（跟隨系統）"
+			},
+			"updateChannel":{
+				"title": "更新通道",
+				"text":"選擇應用程式使用的更新通道，正式版只接受正式版的更新訊息，Beta版會同時接受正式版和Beta版的更新訊息，技術預覽版會接受三種版本的全部更新訊息。",
+				"release": "正式版",
+				"beta": "測試版",
+				"tp": "技術預覽版"
+			}
+		 },
+		 "editor":{
+			"title":"編輯器",
+			"text":"編輯器相關設定",
+			"reloadtab":{
+				"title":"重新載入TAB行為",
+				"text":"控制編輯器是否應該在行首出現TAB時將其取代為空格（這個選項暫時無效）"
+			}
+		}
+	},
+	"update": {
+		"newVersionAvailable": "有新版本可用！",
+		"newVersionAvailableDesc": "版本%1現已發佈，您目前使用的版本是%2。\n請參閱發佈日誌了解新版本的更新內容，並造訪官方網站下載最新版本。",
+		"newsLoadFailed": "未能從伺服器同步到新聞，請檢查您的網路連線並稍後再試。",
+		"installerUpdating": "正在更新 YSS 安裝程式",
+		"installerUpdatingDesc": "偵測到新版本的 YSS 安裝程式，正在更新並重新連線，請稍候..."
+	},
+	"tooltips": {
+		"projectWin":{
+			"project": "按一下檢視詳情，按兩下開啟該專案",
+			"showInBrowser": "從系統檔案總管開啟專案所在資料夾",
+			"delete": "從清單中移除專案",
+			"createNewProject": "從專案範本建立一個新專案",
+			"openFolder": "開啟一個Yayin Story Studio 專案",
+			"cloneFromGit": "從指定的Git儲存庫位址複製一個專案"
+		}
+	},
+	"project":{
+		"author":"作者",
+		"description":"描述",
+		"debugServer":"偵錯伺服器",
+		"projectManager":"專案管理員",
+		"selectToShow": "選擇專案以檢視詳情...",
+		"noCover":"無封面",
+		"lastModifiedTime":"上次修改時間",
+		"createTime":"建立時間",
+		"size":"大小",
+		"calculating":"計算中...",
+		"showInBrowser":"在檔案總管中顯示",
+		"delete":"刪除專案",
+		"deleteConfirm": "Yayin Story Studio 目前不支援安全刪除專案到資源回收筒。\n因此安全起見，按下確定後，只會將專案從清單中移除。\n您稍後可以在檔案總管中自行刪除專案。\n\n是否繼續？",
+		"removeFromList":"從清單中移除",
+		"createNewProject":"建立新專案",
+		"createNewFile":"建立新檔案",
+		"openFolder":"開啟專案",
+		"openYSSProject": "開啟YSS專案",
+		"cloneFromGit":"從Git複製",
+		"createFromTemplate":"從範本新增",
+		"searchWithTags": "依標籤搜尋範本",
+		"recentUsed":"最近使用",
+		"openProjectFailed":{
+			"message":"開啟專案失敗",
+			"ParseError":"專案檔案解析失敗，可能是因為專案檔案存在語法錯誤或已經損壞。",
+			"InvaildConfig":"專案設定無效，缺少必要的欄位或欄位型別不正確。",
+			"UnknownError":"發生未知錯誤，無法開啟專案。"
+		},
+		"saveQuestion": {
+			"title": "要關閉程式嗎？",
+			"text": "您的專案\"%1\"已經發生修改，且還未儲存。是否要儲存專案？"
+		}
+	},
+	"menu": {
+		"file": {
+			"title": "檔案",
+			"new": "新增檔案",
+			"newFile": "新增檔案",
+      		"newFolder": "新增資料夾",
+			"open": "開啟",
+			"save": "儲存",
+			"saveAll": "全部儲存",
+			"saveAs": "另存新檔",
+			"backToHome": "返回首頁",
+			"terminal": "終端機",
+			"pluginAndPreferences": "外掛程式和偏好設定",
+			"colorThemeSettings": "程式碼語法著色設定",
+			"exit": "結束",
+			"documentation": "文件",
+			"about": "關於 Yayin Story Studio",
+			"projectConfig": "專案設定",
+			"showInExplorer": "在檔案總管中顯示",
+			"closeAll": "關閉全部",
+			"closeSaved": "關閉已儲存"
+		},
+		"edit": {
+			"title": "編輯",
+			"undo": "復原",
+			"redo": "重做",
+			"cut": "剪下",
+			"copy": "複製",
+			"copyPath": "複製檔案路徑",
+			"copyName": "複製檔案名稱",
+			"paste": "貼上",
+			"selectAll": "全選",
+			"findAndReplace": "尋找和取代"
+		},
+		"run": {
+			"title": "執行",
+			"run": "開始執行（不偵錯）",
+			"debug": "開始執行（偵錯）",
+			"stop": "停止",
+			"restart": "重新啟動",
+			"build": "建置專案",
+			"rebuild": "強制重新建置",
+			"clean": "清除建置",
+			"stepInto": "逐步",
+			"stepOver": "逐程序",
+			"suspend": "暫停",
+			"resume": "繼續"
+		},
+		"view": {
+			"title": "檢視",
+			"resourceBrowser": "資源瀏覽器",
+			"messageViewer": "訊息檢視器",
+			"pluginTools": "外掛程式工具",
+			"noTools": "沒有工具可顯示"
+		}
+	},
+	"editor":{
+		"messageViewer": {
+			"title": "訊息檢視器",
+			"error": "錯誤",
+			"warning": "警告",
+			"info": "資訊",
+			"code": "程式碼",
+			"message": "說明",
+			"file": "檔案",
+			"line": "行",
+			"column": "欄"
+		},
+		"multiTerminal": {
+			"title": "終端機",
+			"newTerminal": "新增終端機",
+			"closeTerminal": "關閉終端機",
+			"closeOtherTerminals": "關閉其他終端機",
+			"closeAllTerminals": "關閉所有終端機",
+			"terminalName": "終端機 %1"
+		},
+		"far":{
+			"title": "尋找和取代",
+			"find": "尋找",
+			"findNext": "尋找下一個",
+			"replace": "取代",
+			"replaceNext": "取代下一個",
+			"replaceAll": "全部取代",
+			"matchCase": "區分大小寫",
+			"wholeWord": "全字比對",
+			"useRegExp": "正規表示式模式",
+			"notFound": "沒有找到下一項",
+			"notFoundDesc": "目標文字「%1」沒有找到",
+			"replaced": "取代完成",
+			"replacedDesc": "已取代 %1 項",
+			"matchCount": "共 %1"
+		},
+		"stackWidgetArea": {
+			"noFileOpened": "沒有開啟的檔案"
+		},
+		"toolWidgetArea": {
+			"noToolWidget": "沒有工具可顯示"
+		},
+		"bottomInfoWidget":{
+			"debugMessage": {
+				"prepared": "就緒"
+			},
+			"cursorInfo_s": "行 %1，欄 %2（已選取 %3）",
+			"cursorInfo": "行 %1，欄 %2",
+			"totalLines": "總行數 %1",
+			"statistic": {
+				"tooltip": "按一下檢視詳細統計資料",
+				"title": "文件統計",
+				"titleWithName": "文件統計 - %1",
+				"wordCount": "字數：%1",
+				"charCountIncludeWhitespace": "字元數（含空白）：%1",
+				"charCountExcludeWhitespace": "字元數（不含空白）：%1",
+				"cjkvCharCount": "CJKV 字元數：%1",
+				"nonCJKVCharCount": "非 CJKV 字元數：%1",
+				"paragraphCount": "段落數：%1",
+				"noEditor": "目前沒有開啟的編輯器"
+			}
+		},
+		"textEdit":{
+			"readOnly": {
+				"title": "這個檔案是唯讀的",
+				"message": "您希望儲存的檔案 %1 是唯讀的，您不能在這個檔案上進行儲存操作。請檢查檔案權限，或者選擇另存新檔來儲存到其他位置。"
+			},
+			"notSuitable": {
+				"title": "沒有找到支援此檔案的服務",
+				"message": "沒有為檔案副檔名%1找到適合它的開啟服務。YSS仍然可以嘗試使用預設的內建文字編輯器開啟檔案，但這會損壞一些二進位資料，您確定要使用內建文字編輯器繼續嘗試開啟嗎？（強烈不建議）"
+			},
+			"ready": "就緒",
+			"tabCompleter":{
+				"top": "%1 外掛程式根據內容推薦的置頂選項",
+				"viewDescription": "(按一下或懸停在補全項上檢視描述)",
+				"value": "值 型別",
+				"const": "常數 型別",
+				"enum": "列舉 型別",
+				"function": "函式 型別",
+				"object": "物件 型別",
+				"operator": "運算子 型別"
+			},
+			"tabCompleterLevel":{
+				"none": "無提示",
+				"few": "少量提示",
+				"some": "適量提示",
+				"many": "大量提示",
+				"all": "全部提示"
+			}
+		},
+		"debug": {
+			"notFound": {
+				"title": "哎呀！沒有找到偵錯器",
+				"message": "這個專案指定的偵錯器%1沒有找到。您是否停用或刪除了提供該偵錯器的外掛程式？請重新啟用或新增它們，然後重新啟動程式再試。"
+			},
+			"notSelect": {
+				"title": "偵錯器未設定！",
+				"message": "這個專案沒有設定偵錯器選項，請開啟專案設定，在偵錯器選項中選擇一個偵錯器，然後重試。"
+			}
+		},
+		"saveWarning": {
+			"title": "檔案已修改",
+			"message": "檔案 %1 已經被修改了，是否要儲存變更？"
+		},
+		"saveAsConflict": {
+			"title": "即將被覆寫的檔案已開啟，且存在未儲存的修改",
+			"message": "請先儲存或關閉檔案 %1，然後再嘗試另存新檔覆寫操作。"
+		},
+		"reloadWarning": {
+			"title": "現在重新載入嗎？",
+			"message": "檔案 %1 已經被修改過了，如果直接重新載入，您對這個檔案的修改將會遺失。是否要重新載入？"
+		},
+		"renameDialog": {
+			"title": "重新命名",
+			"rename": "正在重新命名檔案 %1",
+			"request": "請輸入新名稱",
+			"warning": {
+				"empty": "名稱不能為空，請輸入一個名稱",
+				"same": "新名稱與舊名稱相同，請輸入一個不同的名稱",
+				"exists": "同層目錄下已經存在擁有這個名稱的檔案了，請換一個名稱",
+				"invalid": "檔案名稱無效，不能包含以下字元：\\ / : * ? \" < > |",
+				"extNotSame": {
+					"normal": "新名稱的副檔名和原有的不同，這可能會導致問題",
+					"title": "您確定要變更副檔名嗎？",
+					"message": "新名稱中指定的副檔名 %1 和原有的副檔名 %2 不同，這可能會導致一些問題，例如無法被正確識別和開啟。您確定要繼續重新命名嗎？"
+				}
+			}
+		},
+		"about": {
+			"title": "關於 Yayin Story Studio",
+			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清計劃）的一部分，是從Yayin Story Player發展而來的一個全新的專案，旨在為ASE使用者提供一個易用的開發環境。"
+		},
+		"deleteProjectFile": {
+			"title": "專案元檔案不可刪除",
+			"message": "不能刪除正在開啟專案的中繼資訊檔案。如果您要刪除專案，請回到專案選擇頁面，選擇刪除專案。"
+		},
+		"deleteFile": {
+			"title": "刪除確認",
+			"message": "您確定要刪除檔案或資料夾 %1 嗎？它們會被移動到系統資源回收筒中，您可以從資源回收筒中還原它們。"
+		}
+	},
+	"colorThemeSettings": {
+		"langServer": "語言伺服器",
+		"theme": "主題",
+		"duplicate": "複製",
+		"delete": "刪除",
+		"duplicateDialog": {
+			"title": "複製主題",
+			"desc": "正在複製主題「%1」。請輸入新主題的名稱：",
+			"warning": {
+				"empty": "名稱不能為空，請輸入一個名稱",
+				"same": "新名稱與來源主題相同，請輸入一個不同的名稱",
+				"exists": "已經存在同名主題，請換一個名稱"
+			}
+		},
+		"deleteConfirm": {
+			"title": "刪除主題",
+			"message": "您確定要刪除主題「%1」嗎？此操作無法復原。"
+		},
+		"font": "字型",
+		"preview": "預覽",
+		"textColor": "文字顏色",
+		"bgColor": "背景顏色",
+		"bgColorEnabled": "使用背景顏色",
+		"lineColor": "線條顏色",
+		"lineType": "線條類型",
+		"bold": "粗體",
+		"italic": "斜體",
+		"save": "儲存",
+		"reset": "重設",
+		"underlineType": {
+			"NoUnderline": "無",
+			"SingleUnderline": "單實線",
+			"DashUnderline": "虛線",
+			"DotLine": "點線",
+			"DashDotLine": "點劃線",
+			"DashDotDotLine": "雙點劃線",
+			"WaveUnderline": "波浪線",
+			"SpellCheckUnderline": "拼字檢查線"
+		},
+		"unsavedChanges": {
+			"title": "有未儲存的變更",
+			"message": "您有未儲存的變更，是否要儲存？如果不儲存，所有變更將會遺失。"
+		},
+		"staticThemeWarning": "！注意：這是個內建主題，對其的變更永遠不會生效。請複製後再修改。"
+	}
+}

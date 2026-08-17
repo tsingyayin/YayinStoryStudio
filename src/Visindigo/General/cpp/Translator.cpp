@@ -108,6 +108,7 @@ namespace Visindigo::General
 		\value zh_TC 繁体中文
 		\value en 英文
 		\value ja 日文
+		\value jp_less_loanword 日文（减少外来语版本）
 		\value ko 韩文
 		\value ru 俄文
 		\value de 德文

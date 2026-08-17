@@ -24,6 +24,19 @@ namespace Visindigo::General {
 		}
 
 		void refreshQtLang(Translator::LangID langID) {
+			if (langID == Translator::LangID::Unknown) {
+				vgErrorF << "Invalid language ID: Unknown.";
+				return;
+			}
+			else if (langID == Translator::LangID::zh_SC) {
+				langID = Translator::LangID::zh_CN;
+			}
+			else if (langID == Translator::LangID::zh_TC) {
+				langID = Translator::LangID::zh_TW;
+			}
+			else if (langID == Translator::LangID::jp_less_loanword) {
+				langID = Translator::LangID::ja;
+			}
 			QString langId = QMetaEnum::fromType<Translator::LangID>().valueToKey(langID);
 			if (currentQTranslator) {
 				QCoreApplication::removeTranslator(currentQTranslator);

@@ -25,12 +25,20 @@
                                 "key": "i18n:YSS::config.general.language.zh_CN"
                             },
                             {
+                                "data": "zh_TW",
+                                "key": "i18n:YSS::config.general.language.zh_TW"
+                            },
+                            {
                                 "data": "en",
                                 "key": "i18n:YSS::config.general.language.en"
                             },
                             {
                                 "data": "ja",
                                 "key": "i18n:YSS::config.general.language.ja"
+                            },
+                            {
+                                "data": "jp_less_loanword",
+                                "key": "i18n:YSS::config.general.language.jp_less_loanword"
                             },
                             {
                                 "data": "ko",

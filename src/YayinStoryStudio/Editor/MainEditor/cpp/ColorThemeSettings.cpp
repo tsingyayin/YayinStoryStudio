@@ -115,7 +115,17 @@ namespace YSS::Editor {
 
 		void onLangServerChanged(int index) {
 			if (themeStyleDataEditingChanged) {
-				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges"), VITR("YSS::colorThemeSettings.unsavedChangesPrompt"), QMessageBox::Yes | QMessageBox::No);
+				if (currentLangServer == nullptr) {
+					return;
+				}
+				if (currentThemeName.isEmpty()) {
+					return;
+				}
+				if (currentLangServer->getColorThemeProvider()->isStaticTheme(currentThemeName)) {
+					themeStyleDataEditingChanged = false;
+					return;
+				}
+				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges.title"), VITR("YSS::colorThemeSettings.unsavedChanges.message"), QMessageBox::Yes | QMessageBox::No);
 				if (ret == QMessageBox::Yes) {
 					auto server = langServerList[index];
 					currentLangServer->getColorThemeProvider()->setThemeStyleData(currentThemeName, themeStyleDataEditing);
@@ -140,7 +150,17 @@ namespace YSS::Editor {
 
 		void onThemeChanged(int index) {
 			if (themeStyleDataEditingChanged) {
-				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges.title"), VITR("YSS::colorThemeSettings.unsavedChanges.desc"), QMessageBox::Yes | QMessageBox::No);
+				if (currentLangServer == nullptr) {
+					return;
+				}
+				if (currentThemeName.isEmpty()) {
+					return;
+				}
+				if (currentLangServer->getColorThemeProvider()->isStaticTheme(currentThemeName)) {
+					themeStyleDataEditingChanged = false;
+					return;
+				}
+				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges.title"), VITR("YSS::colorThemeSettings.unsavedChanges.message"), QMessageBox::Yes | QMessageBox::No);
 				if (ret == QMessageBox::Yes) {
 					currentLangServer->getColorThemeProvider()->setThemeStyleData(currentThemeName, themeStyleDataEditing);
 				}

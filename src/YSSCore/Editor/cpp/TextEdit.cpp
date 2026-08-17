@@ -769,6 +769,7 @@ namespace YSSCore::__Private__ {
 		if (not TabCompleterWidget) {
 			return;
 		}
+		TabCompleterWidget->adjustHeight(TabCompleterWidget->getMaxAllowedHeight());
 		QRect pos = Text->cursorRect();
 		if (not HoverArea) {
 			bool rightOut = pos.x() + TabCompleterWidget->width() > Text->viewport()->width();
@@ -965,6 +966,20 @@ namespace YSSCore::Editor {
 
 		d->Overview = new YSSCore::__Private__::DocumentOverviewLabel(this, this);
 		d->Layout->addWidget(d->Overview, 0, 2);
+
+		// 底部横向滚动轴：整个控件底部统一横向滚动 Text 的内容
+		d->HScrollBar = new QScrollBar(Qt::Horizontal, this);
+		d->Layout->addWidget(d->HScrollBar, 1, 0, 1, 3);
+		d->Layout->setRowStretch(0, 1);
+		auto textHBar = d->Text->horizontalScrollBar();
+		connect(textHBar, &QScrollBar::rangeChanged, this, [this, textHBar](int min, int max) {
+			d->HScrollBar->setRange(min, max);
+			d->HScrollBar->setPageStep(textHBar->pageStep());
+			d->HScrollBar->setSingleStep(textHBar->singleStep());
+			});
+		connect(textHBar, &QScrollBar::valueChanged, d->HScrollBar, &QScrollBar::setValue);
+		connect(d->HScrollBar, &QScrollBar::valueChanged, textHBar, &QScrollBar::setValue);
+
 		d->HoverTimer = new QTimer(this);
 		d->HoverTimer->setInterval(d->HoverTimeout);
 

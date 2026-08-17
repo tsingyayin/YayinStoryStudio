@@ -1,0 +1,526 @@
+{
+    "diagnostic": {
+        "undefined": {
+            "name": "未定義",
+            "message": "診斷資訊中的Undefined通常代表這裡沒有任何問題。",
+            "fixAdvice": "您一般不需要考慮這個診斷資訊，除非您發現了其他異常行為。"
+        },
+        "unknownError": {
+            "name": "未知錯誤",
+            "message": "發生了一個未知錯誤，可能是由於內部錯誤或未處理的例外引起的。",
+            "fixAdvice": "請嘗試重新啟動ASER Studio，如果問題持續存在，請聯絡技術支援並提供相關日誌。"
+        },
+        "ruleNotSelected": {
+            "name": "未選擇語法規則",
+            "message": "文件%1沒有透過#useRule指令指定任何語法規則。",
+            "fixAdvice": "嘗試在文件第二行增加#useRule:%1，指定%1中定義的語法規則。"
+        },
+        "noSuchRule": {
+            "name": "語法規則不存在",
+            "message": "文件%1透過#useRule指令指定的語法規則%2無效。",
+            "fixAdvice": "檢查%1文件中#useRule指令的參數，確保它正確地指定了一個存在的語法規則。目前有效的規則有%2"
+        },
+        "noSuchController": {
+            "name": "控制器不存在",
+            "message": "沒有這樣的控制器%1。",
+            "fixAdvice": "檢查您的程式碼中是否正確地引用了規則%1指定的控制器前綴，確保它已經被定義並且名稱拼寫正確。"
+        },
+        "missingRequiredParameter": {
+            "name": "缺少必要參數",
+            "message": "控制器\"%1控制器\"缺少必要的參數%2。",
+            "fixAdvice": "請移除指示可選參數的符號，從行首識別符開始重填數值。"
+        },
+        "parameterTypeMismatch": {
+            "name": "參數類型不匹配",
+            "message": "參數%1的類型不匹配，您輸入的類型可能是%2，但期望類型是%3",
+            "fixAdvice": "將類型修正為%1"
+        },
+        "parameterOutOfRange": {
+            "name": "參數超出範圍。",
+            "message": "參數%1的值超出允許的範圍。",
+            "fixAdvice": "檢查控制器參數，確保它的值在允許的範圍內。",
+            "allowedMin": "允許的最小值是%1。",
+            "allowedMax": "允許的最大值是%1。",
+            "allowedRange": "允許的範圍是%1到%2。",
+            "allowedEnums": "允許的列舉值是%1。"
+        },
+        "parameterFormatError": {
+            "name": "參數格式錯誤。",
+            "message": "參數%1格式錯誤。",
+            "fixAdvice": "檢查控制器參數，確保它的格式符合預期。",
+            "allowedDimension": "允許的維度是%1。",
+            "allowedFormat": "允許的格式是%1。"
+        },
+        "unexceptedParameter": {
+            "name": "意外的參數",
+            "message": "控制器%1收到了一個意外的參數%2。",
+            "fixAdvice": "檢查控制器%1的定義，確保它只接受預期的參數，並且沒有多餘的參數被傳遞。"
+        },
+        "unclosedSymbol": {
+            "name": "未閉合的符號",
+            "message": "在文件%1中，符號%2未正確閉合。",
+            "fixAdvice": "檢查文件%1中的符號%2，確保它們正確地閉合。(請在合適的位置添加%3符號來閉合它們)"
+        },
+        "variableNotDefined": {
+            "name": "變數未定義",
+            "message": "變數%2未定義。",
+            "fixAdvice": "請檢查%1的拼寫，或者確保您已經透過語句%1在此之前定義了這個變數。"
+        },
+        "useTabInsteadSpace": {
+            "name": "使用製表符代替空格",
+            "message": "應使用製表符的地方使用了空格。",
+            "fixAdvice": "將空格取代為製表符(Tab)。"
+        },
+        "useSpaceInsteadTab": {
+            "name": "使用空格代替製表符",
+            "message": "應使用空格的地方使用了製表符。",
+            "fixAdvice": "將製表符(Tab)取代為適當數量的空格。"
+        },
+        "useEnglishPunctuation": {
+            "name": "使用英文標點",
+            "message": "應使用英文標點的地方使用了中文標點。",
+            "fixAdvice": "將中文標點取代為對應的英文標點。"
+        },
+        "useChinesePunctuation": {
+            "name": "使用中文標點",
+            "message": "應使用中文標點的地方使用了英文標點。",
+            "fixAdvice": "將英文標點取代為對應的中文標點。"
+        },
+        "noSuchBlock": {
+            "name": "呼叫區塊不存在",
+            "message": "沒有這樣的區塊%1。",
+            "fixAdvice": "請檢查%1的拼寫，或者確保您已經透過語句%1在此之前定義了這個區塊。"
+        },
+        "blockNameConflict": {
+            "name": "區塊名稱衝突",
+            "message": "區塊%1已經在%2行中存在定義了。",
+            "fixAdvice": "為這個區塊或%1行中已經定義的區塊選擇一個不同的名稱。"
+        },
+        "instrumentRedundant": {
+            "name": "冗餘的指令",
+            "message": "指令%1在這裡是冗餘的，它和%1行中的指令重複",
+            "fixAdvice": "刪除這個冗餘的%1指令"
+        },
+        "noSuchPreprocessor": {
+            "name": "預處理器不存在",
+            "message": "沒有這樣的預處理器%1。",
+            "fixAdvice": "請檢查%1的拼寫"
+        },
+        "parameterRepeated": {
+            "name": "參數重複",
+            "message": "參數%1在第%2欄被重複定義",
+            "fixAdvice": "請檢查控制器的參數清單，確保每個參數只出現一次。"
+        },
+        "unknownWarning": {
+            "name": "未知警告",
+            "message": "發生了一個未知警告，可能是由於內部錯誤或未處理的例外引起的。",
+            "fixAdvice": "請嘗試重新啟動ASER Studio，如果問題持續存在，請聯絡技術支援並提供相關日誌。"
+        },
+        "nosuchResource": {
+            "name": "資源不存在",
+            "message": "沒有這樣的資源%1。",
+            "fixAdvice": "請檢查%1的拼寫，或者在您的專案中新增一個名為%1的資源。"
+        },
+        "useTabInsteadSpace_dialog": {
+            "name": "在對話控制器中使用製表符代替空格",
+            "message": "在對話控制器中，使用製表符（Tab鍵）來分隔說話者和對話內容，而不是使用空格。如果您確定您的空格是人名的一部分，請忽略此警告。",
+            "fixAdvice": "將空格取代為製表符(Tab)。"
+        }
+    },
+    "value":{
+        "integer": "整數",
+        "float": "浮點數",
+        "string": "字串",
+        "bool": "布林值",
+        "enum": "列舉值",
+        "vector": "向量"
+    },
+    "controller":{
+        "Background": "背景",
+        "Music": "音樂",
+        "SoundEffect": "音效",
+        "Mask": "遮罩",
+        "Character": "角色",
+        "Choice": "選項",
+        "Delay": "延遲",
+        "VisualEffect": "視效",
+        "Interlude": "插播",
+        "ColorMask": "色層",
+        "Shake": "震屏",
+        "FreeText": "自由文本",
+        "Cut": "切屏",
+        "Filter": "濾鏡",
+        "AnimatedText": "動態文本",
+        "Sign": "標籤",
+        "Variable": "變數",
+        "Judge": "判斷",
+        "Branch": "分支",
+        "Narration": "旁白",
+        "Dialog": "對話",
+        "Preprocessor": "預處理器",
+        "Comment": "註解",
+        "Aliases": "別名"
+    },
+    "document":{
+        "Preprocessor": {
+            "__description": "預處理器指令，用於在播放前準備階段對文件進行處理。",
+            "type": "預處理指令類型",
+            "ruleName": "語法規則名稱，在#useRule指令中用於定義語法規則名稱",
+            "blockName": "區塊名稱，在#block指令中用於定義區塊名稱，在#use指令中用於指定要呼叫的區塊名稱",
+            "versionNumber": "版本名稱，在#version指令中用於指定控制器或語法規則的版本",
+            "param0": "引用區塊的第1個參數",
+            "param1": "引用區塊的第2個參數",
+            "param2": "引用區塊的第3個參數",
+            "param3": "引用區塊的第4個參數",
+            "param4": "引用區塊的第5個參數",
+            "param5": "引用區塊的第6個參數",
+            "param6": "引用區塊的第7個參數",
+            "param7": "引用區塊的第8個參數",
+            "param8": "引用區塊的第9個參數",
+            "param9": "引用區塊的第10個參數"
+        },
+        "Background": {
+            "__description": "控制背景的顯示。",
+            "ImageName": "指定背景所使用的圖片名稱",
+            "FadeInTime": "指定背景淡入的時間，單位為秒",
+            "StartPosition": "背景圖片顯示的起始座標位置",
+            "EndPosition": "背景圖片顯示的結束座標位置",
+            "MoveTime": "背景圖片從起始位置移動到結束位置的時間，單位為秒",
+            "MoveCurve": "背景圖片移動的曲線類型",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行",
+            "StitchVertically": "是否將多個圖片進行垂直拼貼。這個布林值true為垂直拼貼，false為水平拼貼。",
+            "StitchColumnCount": "在目前拼貼方向上的最大拼貼個數，超出這個數目後會自動轉到下一欄或下一行，以進行網格狀的拼貼"
+        },
+        "Music": {
+            "__description": "控制音樂的播放。",
+            "AudioName": "指定音樂所使用的音訊名稱",
+            "Volume": "指定音樂的音量，範圍從0到1",
+            "FadeInTime": "指定音樂淡入的時間，單位為秒",
+            "SlotIndex": "指定音樂的插槽索引，預設為0（即音軌序號）。如果需要同時播放多段音樂，可以使用不同的插槽索引來區分它們。",
+            "Position": "音樂的空間位置，-1為左，1為右，可在這個範圍內自由調整"
+        },
+        "SoundEffect": {
+            "__description": "控制音效的播放。",
+            "AudioName": "指定音效所使用的音訊名稱",
+            "Volume": "指定音效的音量，範圍從0到1",
+            "Position": "音效的空間位置，-1為左，1為右，可在這個範圍內自由調整",
+            "Steps": "指定音效播放的步數，即持續多少個控制器後終止",
+            "AsVoice": "是否將這個音效視作配音。如果視作配音的話，下一個對話控制器會自動協調這個音效的播放時間，以保證對話和配音的同步。"
+        },
+        "Mask": {
+            "__description": "控制遮罩的顯示。",
+            "IsOn": "是否顯示遮罩"
+        },
+        "Character": {
+            "__description": "控制角色的顯示。",
+            "Character&Variant": "指定角色的名稱和變體，如果沒有變體則直接使用角色名稱",
+            "SlotIndex": "指定角色的插槽索引，預設為0。如果需要同時顯示多位角色，可以使用不同的插槽索引來區分它們。",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行",
+            "FadeInTime": "指定角色淡入的時間，單位為秒",
+            "FadeOutTime": "指定角色淡出的時間，單位為秒",
+            "Effects": "指定角色的特效",
+            "Alpha": "角色的透明度，範圍從0到1",
+            "RenderOrder": "角色的渲染順序，數值較大的角色會覆蓋在數值較小的角色上",
+            "StartPosition": "角色顯示的起始座標位置",
+            "EndPosition": "角色顯示的結束座標位置",
+            "MoveTime": "角色從起始位置移動到結束位置的時間，單位為秒",
+            "MoveCurve": "角色移動的曲線類型"
+        },
+        "Choice": {
+            "__description": "控制選項的顯示。",
+            "ChoiceContent": "選項的文字內容",
+            "OutputVariable": "選項的輸出變數名稱，玩家選擇的結果會被儲存在這個變數中"
+        },
+        "Delay": {
+            "__description": "控制延遲。",
+            "DelayTime": "延遲的持續時間，單位為秒"
+        },
+        "VisualEffect": {
+            "__description": "控制視效的顯示。",
+            "VisualEffectName": "指定視效所使用的特效名稱",
+            "Steps": "指定視效持續的步數，即持續多少個控制器後終止",
+            "Position": "視效的座標位置",
+            "RenderOrder": "視效的渲染順序，數值較大的視效會覆蓋在數值較小的視效上"
+        },
+        "Interlude": {
+            "__description": "控制插播的顯示。",
+            "Character&Variant": "指定插播中角色的名稱和變體，如果沒有變體則直接使用角色名稱",
+            "SlotIndex": "指定插播中角色的插槽索引，預設為0。如果需要同時顯示多位角色，可以使用不同的插槽索引來區分它們。",
+            "IsOn": "是否顯示插播",
+            "Type": "插播的類型。0為灰色縱向類型，1為頭像類型",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行",
+            "Effects": "指定插播的特效",
+            "RenderOrder": "插播的渲染順序，數值較大的插播會覆蓋在數值較小的插播上",
+            "Position": "插播的座標位置"
+        },
+        "ColorMask": {
+            "__description": "控制色層的顯示。",
+            "Color": "色層的顏色，使用四維向量",
+            "FadeInTime": "指定色層淡入的時間，單位為秒",
+            "StayTime": "指定色層持續的時間，單位為秒",
+            "FadeOutTime": "指定色層淡出的時間，單位為秒",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行"
+        },
+        "Shake": {
+            "__description": "控制震屏。",
+            "Intensity": "震屏的強度",
+            "FadeInTime": "指定震屏淡入的時間，單位為秒",
+            "StayTime": "指定震屏持續的時間，單位為秒",
+            "FadeOutTime": "指定震屏淡出的時間，單位為秒",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行"
+        },
+        "FreeText": {
+            "__description": "控制自由文本的顯示。",
+            "Content": "文字的內容",
+            "IsAddition": "是否為附加文字。附加文字會在原有文字的基礎上增加，而不是取代原有文字",
+            "Immediate": "是否立即顯示文字，而不是逐字顯示",
+            "Alignment": "文字的對齊方式",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行",
+            "FadeInTime": "指定文字淡入的時間，單位為秒",
+            "StayTime": "指定文字持續的時間，單位為秒",
+            "FadeOutTime": "指定文字淡出的時間，單位為秒",
+            "SlotIndex": "指定文字的插槽索引，預設為0。如果需要同時顯示多段文字，可以使用不同的插槽索引來區分它們。",
+            "AsSeceneObject": "是否將文字作為場景物件來處理，這會使它受到場景中其他控制器的影響，例如震屏和色層等",
+            "Position": "文字的座標位置",
+            "RenderOrder": "文字的渲染順序，數值較大的文字會覆蓋在數值較小的文字上",
+            "Interval": "逐字顯示時每個字出現的時間間隔，單位為秒",
+            "ExtraStayTime": "逐字顯示時文字完全顯示後額外持續的時間，單位為秒"
+        },
+        "Cut": {
+            "__description": "控制螢幕裁切。",
+            "Intensity": "裁切的強度",
+            "Angle": "裁切的角度，單位為度",
+            "SlotIndex": "指定裁切的插槽索引，預設為0。如果需要同時使用多段裁切，可以使用不同的插槽索引來區分它們。",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行",
+            "FadeInTime": "指定裁切淡入的時間，單位為秒",
+            "StayTime": "指定裁切持續的時間，單位為秒",
+            "FadeOutTime": "指定裁切淡出的時間，單位為秒",
+            "RenderOrder": "裁切的渲染順序，數值較大的裁切會覆蓋在數值較小的裁切上"
+        },
+        "Filter": {
+            "__description": "控制濾鏡的顯示。",
+            "Type&Intensity": "指定濾鏡的類型和強度，不同類型的濾鏡會有不同的強度範圍",
+            "FadeInTime": "指定濾鏡淡入的時間，單位為秒",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行"
+        },
+        "AnimatedText": {
+            "__description": "控制動態文本的顯示。",
+            "Content": "文字的內容",
+            "Type": "動態文本的類型，不同類型的動態文本會有不同的動畫效果",
+            "IsBlocker": "是否阻塞。阻塞的控制器會等待全部動畫結束才開始執行下一行"
+        },
+        "Sign": {
+            "__description": "宣告一個標籤",
+            "Name": "標籤的名稱"
+        },
+        "Variable": {
+            "__description": "宣告一個變數",
+            "Name": "變數的名稱",
+            "Expression": "變數的表達式，變數的值會被計算為這個表達式的結果"
+        },
+        "Judge": {
+            "__description": "進行一個判斷",
+            "Name": "需要儲存的判斷結果的變數名稱",
+            "Expression": "判斷的表達式，如果計算結果大於0，就儲存到變數中"
+        },
+        "Branch": {
+            "__description": "根據條件進行分支",
+            "Name": "分支的名稱",
+            "Branches": "將要跳轉到的標記的名稱"
+        },
+        "Narration": {
+            "__description": "設定旁白的文字內容。這個旁白是用於在對話記錄中顯示的上下文提示，供快速瀏覽劇情時使用，並非顯示在播放過程中的獨白。",
+            "Content": "旁白的文字內容"
+        },
+        "Dialog": {
+            "__description": "控制對話的顯示。",
+            "Speaker&Content": "說話者的名稱和對話的文字內容",
+            "IsAdditional": "是否為附加對話。附加對話會在原有對話的基礎上增加，而不是取代原有對話",
+            "ModifyCharacters": "是否同步控制已有角色立繪的顯示以匹配對話中說話者的變化，這會使角色立繪隨著對話的進行而自動明暗切換",
+            "BasicStayTime": "對話持續的基本時間，單位為秒。對話會在這個基本時間的基礎上根據文字長度增加額外的持續時間",
+            "Interval": "逐字顯示時每個字出現的時間間隔，單位為秒",
+            "ExtraStayTime": "逐字顯示時文字完全顯示後額外持續的時間，單位為秒",
+            "IsBlocker": "是否阻塞。當這個對話控制器關聯到一個角色立繪時，這個選項會控制這個對話控制器是否要等待角色立繪中的動畫全部結束才開始執行下一行。"
+        },
+        "Comment": {
+            "__description": "註解行，不會被播放引擎執行。",
+            "Content": "註解的文字內容"
+        },
+        "Aliases": {
+            "__description": "定義一個或多個別名，使得對話控制器可以根據別名自動高亮對應的立繪。",
+            "Name": "立繪素材的原始名稱",
+            "Target": "該素材的別名"
+        }
+    },
+    "aseinfo":{
+		"projectName": "專案名稱",
+		"projectPath": "專案路徑",
+		"path": "ASE應用程式路徑",
+		"version": "ASE相容版本",
+		"mainFileName": "主檔案名稱"
+	},
+	"provider":{
+		"window":{
+			"title": "ASE-Remake 劇情專案 初始化助手",
+			"create": "建立專案",
+			"where": "新的專案會在\"%1\"中建立。",
+			"exists": "\"%1\"已存在或非空！無法在此建立新專案。"
+		},
+		"failed": {
+			"title": "建立專案失敗",
+			"text": "無法建立專案，請檢查目標資料夾是否為空資料夾，或者是否有權限在此資料夾建立新檔案。"
+		},
+		"astory":{
+			"name": "ASE-Remake 劇情專案",
+			"description": "使用AStoryX編寫的ASE-Remake劇情",
+			"tags": {
+				"ase": "ASE-Remake",
+				"astory": "AStoryX",
+				"engine-native": "引擎原生",
+				"script": "腳本",
+				"arknights": "明日方舟"
+			},
+			"title": "ASE專案初始化"
+		},
+		"astory367":{
+			"name": "ASE-Remake 範例專案（Sample）",
+			"description": "適用於ASE-Remake 3.6.7及更高版本的教學範例專案。"
+		},
+		"project":{
+			"title": "ASE-Remake 劇情專案 初始化助手",
+			"name":{
+				"title": "專案名稱",
+				"text": "劇情專案的名稱，當全部使用路徑合法字元時，則同時也是專案資料夾的名稱。"
+			},
+			"path":{
+				"title": "專案路徑",
+				"text": "一個新的專案資料夾會被建立在這個路徑下"
+			},
+			"version":{
+				"title": "目標ASE版本",
+				"text": "預設只用最新的ASE版本。如果需要使用特定的舊版ASE，請在插件設定中關聯相關版本。",
+				"uptodate": "最新版本"
+			}
+		}
+	},
+	"fileProvider":{
+		"window": {
+            "title": "AStoryX檔案 初始化助手",
+			"create": "建立檔案",
+			"where": "新檔案將被建立為\"%1\"。",
+			"exists": "\"%1\"已存在！無法建立新檔案。"
+		},
+		"failed": {
+			"title": "建立檔案失敗",
+			"text": "無法建立檔案，請檢查目標資料夾是否為空資料夾，或者是否有權限在此資料夾建立新檔案。"
+		},
+		"astory": {
+			"name": "ASE劇情檔案",
+			"description": "使用AStory編寫的ASE劇情，支援所有ASE原生功能。",
+			"tags": {
+				"ase": "ASE-Remake",
+				"astory": "AStoryX",
+				"engine-native": "引擎原生",
+				"script": "腳本",
+				"arknights": "明日方舟"
+			},
+			"title": "AStoryX檔案初始化"
+		},
+		"file": {
+			"title": "ASE-Remake 劇情檔案初始化助手",
+			"name": {
+				"title": "檔案名稱",
+				"text": "劇情檔案的名稱，當全部使用路徑合法字元時，則同時也是檔案的名稱。"
+			},
+			"path": {
+				"title": "檔案路徑",
+				"text": "一個新的劇情檔案會被建立在這個路徑下"
+			},
+			"version": {
+				"title": "目標ASE版本",
+				"text": "預設只用最新的ASE版本。如果需要使用特定的舊版ASE，請在插件設定中關聯相關版本。",
+				"uptodate": "最新版本"
+			}
+		}
+	},
+    "config": {
+        "title": "ASER Studio 設定",
+        "aserExeSettings": {
+            "title": "ASE-Remake 程式啟動設定",
+            "exePath": {
+                "title": "ASE-Remake程式路徑",
+                "text": "ASE-Remake.exe檔案的位置。\n正確設定該項目，才能從YSS啟動ASE-Remake."
+            },
+            "version": {
+                "title": "ASE版本",
+                "text": "您選定的ASE程式的版本。如果您不確定您的ASE程式的版本，或者您的ASE程式是最新版本，選擇\"最新版本\"即可。正確的版本設定可以讓ASER Studio更好地相容您的ASE程式，避免一些潛在的問題。",
+                "uptodate": "最新版本"
+            },
+            "windowSize": {
+                "title": "視窗大小",
+                "text": "ASER Studio在啟動ASE-Remake時可以指定視窗大小選項，這些選項會直接傳遞給ASE-Remake程式。",
+                "FullScreen": "全螢幕"
+            }
+        }
+    },
+    "debugger": {
+        "executableNotFound": {
+            "title": "無法啟動ASE-Remake",
+            "message": "設定的ASE-Remake程式路徑\"%1無效\"，無法啟動ASE-Remake應用。\n請在檔案->外掛程式和偏好設定->ASER Studio設定中檢查您的設定，確保您已經正確地設定了ASE-Remake.exe的路徑。"
+        },
+        "isRunning": {
+            "title": "似乎這裡有點什麼衝突...",
+            "message": "偵測到有其他ASE-Remake程式已經在執行了，因此偵錯器陷入了一些衝突。\n目前偵錯器不支援同時連接多個ASE-Remake程式，請先關閉其他正在執行的ASE-Remake程式後再嘗試啟動偵錯。"
+        },
+        "starting": {
+            "title": "ASE-Remake測試版缺陷通知",
+            "message": "由於ASE-Remake測試版中一個已知缺陷，YSS目前只能簡單啟動ASE-Remake，無法正確設定專案目錄和播放檔案，需要您手動啟動播放。目前啟動偵錯只能作為快捷開啟ASE-Remake程式的方式使用。請關注ASE-Remake測試版的更新日誌，等待這個問題被修復。"
+        },
+        "notLegalFile": {
+            "title": "哎呀，您按錯了！",
+            "message": "您正在嘗試對檔案%1啟動偵錯，然而這不是一個合法的ASER腳本檔案。\n請切換到.astoryx檔案後再嘗試啟動偵錯。"
+        },
+        "executing":{
+            "waitingForLaunch": "正在等待ASE-Remake啟動...",
+            "waitingForPipe": "正在等待與ASE-Remake的通訊管道建立...",
+            "waitingForOBMI": "正在等待ASE-Remake確認資源初始化狀態...",
+            "waitingForPlay": "正在等待ASE-Remake啟動播放...",
+            "loading": "正在載入腳本 %1...",
+            "started": "已經啟動腳本 %1 的播放",
+            "exited": "腳本 %1 已經結束"
+        }
+    },
+    "toolWidget": {
+        "aserWarpper":{
+            "title": "ASER包裝器"
+        }
+    },
+    "project":{
+        "close": {
+            "stillRunning": {
+                "title": "ASE-Remake仍在執行",
+                "message": "您正在嘗試關閉專案，但ASE-Remake程式似乎仍在執行中。\n如果您繼續關閉專案，則將會強制終止ASE-Remake，您確定要繼續關閉專案嗎？"
+            }
+        }
+    },
+    "syntaxColorTheme": {
+        "PlainText": "一般文字",
+        "SelectedTextBackground": "選取文字背景",
+        "LineNumber": "行號",
+        "Function": "函式",
+        "String": "字串",
+        "SpecialString": "特殊字串",
+        "Number": "數字",
+        "Parameter": "參數",
+        "Keyword": "關鍵字",
+        "Vector": "向量",
+        "Comment": "註解",
+        "Namespace": "命名空間",
+        "Enum": "列舉",
+        "Macro": "巨集",
+        "MacroParameter": "巨集參數",
+        "ErrorLine": "錯誤線條",
+        "WarningLine": "警告線條",
+        "InfoLine": "資訊線條"
+    }
+}

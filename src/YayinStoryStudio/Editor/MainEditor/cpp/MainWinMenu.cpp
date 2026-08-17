@@ -31,7 +31,7 @@ namespace YSS::Editor {
 		MainWinMenu* q;
 		MainWin* Parent;
 		QHBoxLayout* Layout;
-		Visindigo::Widgets::BorderLabel* ProjectNameLabel;
+		QLabel* ProjectNameLabel;
 		QMenuBar* MenuBar;
 		QMenu* FileMenu;
 		QAction* File_File_New;
@@ -224,13 +224,13 @@ namespace YSS::Editor {
 		d = new MainWinMenuPrivate();
 		d->q = this;
 		d->Parent = parent;
-		this->setFixedHeight(32);
+		this->setFixedHeight(38);
 
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->setContentsMargins(10, 0, 10, 0);
 		d->MenuBar = new QMenuBar(this);
 		d->Layout->addWidget(d->MenuBar);
-		d->ProjectNameLabel = new Visindigo::Widgets::BorderLabel(this);
+		d->ProjectNameLabel = new QLabel(this);
 		d->ProjectNameLabel->setContentsMargins(10, 0, 10, 0);
 		d->ProjectNameLabel->setText(YSSCore::General::YSSProject::getCurrentProject()->getProjectName());
 		d->Layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));

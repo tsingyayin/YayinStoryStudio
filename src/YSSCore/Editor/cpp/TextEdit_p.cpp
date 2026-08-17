@@ -14,6 +14,7 @@
 #include <QtGui/qtextobject.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qstyleoption.h>
+#include <QtCore/qtimer.h>
 
 namespace YSSCore::__Private__ {
 	TextEditFindAndReplace::TextEditFindAndReplace(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {
@@ -140,9 +141,12 @@ namespace YSSCore::__Private__ {
 	}
 
 	void DocumentOverviewLabel::resizeEvent(QResizeEvent* event) {
-		recalculateAll();
-		updateViewportIndicator();
 		QWidget::resizeEvent(event);
+		// To solve the problem of incorrect size when the window maximizes.
+		QTimer::singleShot(0, this, [this]() {
+			recalculateAll();
+			updateViewportIndicator();
+			});
 	}
 
 	QSize DocumentOverviewLabel::sizeHint() const {

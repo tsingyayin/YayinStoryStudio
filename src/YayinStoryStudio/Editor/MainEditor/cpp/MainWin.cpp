@@ -55,7 +55,7 @@ namespace YSS::Editor {
 		MainLayout->addWidget(CentralWidget);
 
 		Layout = new QHBoxLayout(CentralWidget);
-		Layout->setContentsMargins(10, 0, 10, 10);
+		Layout->setContentsMargins(10, 0, 10, 0);
 		
 		Browser = new ResourceBrowser(CentralWidget);
 		Editors = new FileEditWidgetArea(CentralWidget);
@@ -71,14 +71,14 @@ namespace YSS::Editor {
 		hSplitter->setContentsMargins(0, 0, 0, 0);
 		hSplitter->addWidget(Editors);
 		hSplitter->addWidget(Tools);
-		hSplitter->setHandleWidth(6);
+		hSplitter->setHandleWidth(8);
 		hSplitter->setStretchFactor(0, 3);
 		hSplitter->setStretchFactor(1, 1);
 		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
 		splitter->setContentsMargins(0, 0, 0, 0);
 		splitter->addWidget(Browser);
 		splitter->addWidget(hSplitter);
-		splitter->setHandleWidth(6);
+		splitter->setHandleWidth(8);
 		splitter->setStretchFactor(0, 1);
 		splitter->setStretchFactor(1, 4);
 		Layout->addWidget(splitter);

@@ -121,7 +121,7 @@ namespace YSS::Editor {
 		}
 	};
 
-	BottomInfoWidget::BottomInfoWidget(QWidget* parent) :BorderFrame(parent), d(new BottomInfoWidgetPrivate) {
+	BottomInfoWidget::BottomInfoWidget(QWidget* parent) :QFrame(parent), d(new BottomInfoWidgetPrivate) {
 		d->MainLayout = new QHBoxLayout(this);
 		d->MainLayout->setContentsMargins(0, 0, 0, 0);
 		d->MainLayout->setSpacing(30);
@@ -155,7 +155,7 @@ namespace YSS::Editor {
 		d->EditorInfoWidget = new QWidget(this);
 		d->EditorInfoWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 		d->EditorInfoLayout = new QHBoxLayout(d->EditorInfoWidget);
-		d->EditorInfoLayout->setContentsMargins(0, 0, 0, 0);
+		d->EditorInfoLayout->setContentsMargins(10, 0, 10, 0);
 		d->EditorInfoLayout->setSpacing(5);
 		d->FM_ErrorIcon = new QLabel(d->EditorInfoWidget);
 		d->FM_ErrorText = new QLabel(d->EditorInfoWidget);
@@ -167,14 +167,16 @@ namespace YSS::Editor {
 		d->FM_InfoText = new QLabel(d->EditorInfoWidget);
 		d->FM_InfoText->setText("0");
 		d->EditorInfoText = new QToolButton(d->EditorInfoWidget);
+		d->EditorInfoText->setAutoRaise(true); // borderless, only shows frame on hover
 		d->EditorInfoText->setText("");
-		//d->EditorInfoText->setFlat(true); // 无边框按钮
 		d->EditorInfoText->setToolTip(VITR("YSS::editor.bottomInfoWidget.statistic.tooltip"));
 		connect(d->EditorInfoText, &QToolButton::clicked, this, [this]() {
 			emit requestStatistic();
 			});
 		d->EditorFontSizeComboBox = new QComboBox(d->EditorInfoWidget);
+		d->EditorFontSizeComboBox->setStyleSheet("QComboBox { border: none; background: transparent; }");
 		d->EditorTabCompleterLevelComboBox = new QComboBox(d->EditorInfoWidget);
+		d->EditorTabCompleterLevelComboBox->setStyleSheet("QComboBox { border: none; background: transparent; }");
 		d->initFontSizeComboBox();
 		d->initTabCompleterLevelComboBox();
 		d->EditorInfoLayout->addWidget(d->FM_ErrorIcon);
@@ -187,7 +189,9 @@ namespace YSS::Editor {
 		spacer->setFixedWidth(20);
 		d->EditorInfoLayout->addWidget(spacer);
 		d->EditorInfoLayout->addWidget(d->EditorInfoText);
+		d->EditorInfoLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum));
 		d->EditorInfoLayout->addWidget(d->EditorFontSizeComboBox);
+		d->EditorInfoLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum));
 		d->EditorInfoLayout->addWidget(d->EditorTabCompleterLevelComboBox);
 		d->MainLayout->addWidget(d->EditorInfoWidget);
 

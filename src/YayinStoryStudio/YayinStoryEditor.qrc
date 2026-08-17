@@ -3,6 +3,7 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/yayinstorystudio.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/zh_CN.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/zh_TW.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/configWidget/mainEditorMenu.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/test_bg.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json</file>
@@ -15,6 +16,7 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/shrink.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/en.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/ja.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio/i18n/jp_less_loanword.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/ko.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/ru.json</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/i18n/de.json</file>

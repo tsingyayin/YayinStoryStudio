@@ -8,7 +8,7 @@
 #include <Editor/MainEditor/TextEditConfigOperator.h>
 namespace YSS::Editor{
 	class BottomInfoWidgetPrivate;
-	class BottomInfoWidget :public Visindigo::Widgets::BorderFrame , public Visindigo::Widgets::ColorfulWidget{
+	class BottomInfoWidget :public QFrame, public Visindigo::Widgets::ColorfulWidget{
 		Q_OBJECT;
 	signals:
 		void requestEditorFontSizeChange(float scaleFactor);

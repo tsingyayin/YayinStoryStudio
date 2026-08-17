@@ -31,6 +31,7 @@ class QLineEdit;
 class QLabel;
 class QPushButton;
 class QCheckBox;
+class QScrollBar;
 namespace YSSCore::__Private__ {
 	class TabCompleterWidget;
 	class HoverInfoWidget;
@@ -113,6 +114,7 @@ namespace YSSCore::__Private__ {
 		QTextEdit* Line = nullptr;
 		QTextEdit* Text = nullptr;
 		DocumentOverviewLabel* Overview = nullptr;
+		QScrollBar* HScrollBar = nullptr;
 		QGridLayout* Layout = nullptr;
 		qint32 LineCount = 0;
 		qint8 TabWidth = 4;
