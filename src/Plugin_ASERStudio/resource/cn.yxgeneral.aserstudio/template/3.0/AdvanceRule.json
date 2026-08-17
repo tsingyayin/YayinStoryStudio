@@ -88,6 +88,10 @@
           {
             "parameterName": "Steps",
             "prefix": ",@Steps="
+          },
+          {
+            "parameterName": "AsVoice",
+            "prefix": ",@AsVoice="
           }
         ],
         "isAdvanced": true
