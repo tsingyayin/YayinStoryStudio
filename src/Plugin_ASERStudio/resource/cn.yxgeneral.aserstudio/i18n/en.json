@@ -217,6 +217,7 @@
             "SlotIndex": "Specifies the slot index for the character, default is 0. To display multiple characters simultaneously, use different slot indices to distinguish them.",
             "IsBlocker": "Whether it blocks. A blocking controller waits for all animations to finish before executing the next line",
             "FadeInTime": "Specifies the character fade-in time in seconds",
+            "StayTime": "Specifies the duration the character remains in seconds",
             "FadeOutTime": "Specifies the character fade-out time in seconds",
             "Effects": "Specifies character effects",
             "Alpha": "Character transparency, ranging from 0 to 1",
@@ -272,7 +273,7 @@
         "FreeText": {
             "__description": "Controls free text display.",
             "Content": "Text content",
-            "IsAddition": "Whether it is additional text. Additional text appends to existing text rather than replacing it",
+            "IsAdditional": "Whether it is additional text. Additional text appends to existing text rather than replacing it",
             "Immediate": "Whether to display text immediately instead of character by character",
             "Alignment": "Text alignment",
             "IsBlocker": "Whether it blocks. A blocking controller waits for all animations to finish before executing the next line",
@@ -280,7 +281,7 @@
             "StayTime": "Specifies the duration the text remains in seconds",
             "FadeOutTime": "Specifies the text fade-out time in seconds",
             "SlotIndex": "Specifies the slot index for the text, default is 0. To display multiple text segments simultaneously, use different slot indices to distinguish them.",
-            "AsSeceneObject": "Whether to treat the text as a scene object, making it affected by other controllers in the scene such as screen shake and color mask",
+            "AsSceneObject": "Whether to treat the text as a scene object, making it affected by other controllers in the scene such as screen shake and color mask",
             "Position": "Coordinate position of the text",
             "RenderOrder": "Rendering order of the text; higher values overlay lower values",
             "Interval": "Time interval in seconds between each character when displaying character by character",
@@ -321,7 +322,8 @@
         "Judge": {
             "__description": "Performs a judgment",
             "Name": "Variable name to store the judgment result",
-            "Expression": "Judgment expression; if the calculation result is greater than 0, it is stored in the variable"
+            "Expression": "Judgment expression; if the calculation result is greater than 0, it is stored in the variable",
+            "Expressions": "Judgment expressions; if the calculation result is greater than 0, it is stored in the variable"
         },
         "Branch": {
             "__description": "Branches based on a condition",
@@ -351,6 +353,13 @@
             "Name": "Original name of the sprite material",
             "Target": "Alias of the material"
         }
+    },
+    "ruleEditor": {
+        "requiredParameters": "Required Parameters",
+        "optionalParameters": "Optional Parameters",
+        "parameterType": "Parameter Type",
+        "internalSeparator": "Internal Separator",
+        "prefix": "Prefix"
     },
     "aseinfo": {
         "projectName": "Project Name",

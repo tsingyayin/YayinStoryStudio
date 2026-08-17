@@ -159,6 +159,7 @@
     <QtMoc Include="YSS\ASERFileTemplate.h" />
     <QtMoc Include="YSS\ASERProjectTemplate.h" />
     <QtMoc Include="YSS\ASERFileServer.h" />
+    <QtMoc Include="YSS\private\ASERFileServer_p.h" />
     <QtMoc Include="AStorySyntax\AStoryXValueMeta.h" />
     <ClInclude Include="AStorySyntax\private\AStoryXControllerParseData_p.h" />
     <QtMoc Include="ASEREnv\ASERDebugIO.h" />

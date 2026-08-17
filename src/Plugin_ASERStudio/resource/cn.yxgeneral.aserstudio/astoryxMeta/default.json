@@ -164,6 +164,11 @@
       "defaultValue": "0",
       "min": 0
     },
+    "StayTime": {
+      "type": "Float",
+      "defaultValue": "1.75",
+      "min": 0
+    },
     "FadeOutTime": {
       "type": "Float",
       "defaultValue": "0",
@@ -331,7 +336,7 @@
       "type": "String",
       "defaultValue": ""
     },
-    "IsAddition": {
+    "IsAdditional": {
       "type": "Bool",
       "defaultValue": "false"
     },
@@ -367,7 +372,7 @@
       "type": "Integer",
       "defaultValue": "0"
     },
-    "AsSeceneObject": {
+    "AsSceneObject": {
       "type": "Bool",
       "defaultValue": "false"
     },
@@ -478,7 +483,7 @@
       "type": "String",
       "defaultValue": ""
     },
-    "Expression": {
+    "Expressions": {
       "type": "String",
       "defaultValue": ""
     }

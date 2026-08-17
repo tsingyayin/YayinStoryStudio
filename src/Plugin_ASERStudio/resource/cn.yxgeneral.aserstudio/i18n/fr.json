@@ -217,6 +217,7 @@
             "SlotIndex": "Spécifie l'index d'emplacement du personnage, par défaut 0. Pour afficher plusieurs personnages simultanément, utilisez des index d'emplacement différents.",
             "IsBlocker": "S'il bloque. Un contrôleur bloquant attend la fin de toutes les animations avant d'exécuter la ligne suivante",
             "FadeInTime": "Spécifie le temps d'apparition du personnage en secondes",
+            "StayTime": "Spécifie la durée d'affichage du personnage en secondes",
             "FadeOutTime": "Spécifie le temps de disparition du personnage en secondes",
             "Effects": "Spécifie les effets du personnage",
             "Alpha": "Transparence du personnage, de 0 à 1",
@@ -272,7 +273,7 @@
         "FreeText": {
             "__description": "Contrôle l'affichage du texte libre.",
             "Content": "Contenu du texte",
-            "IsAddition": "S'il s'agit d'un texte additionnel. Le texte additionnel s'ajoute au texte existant au lieu de le remplacer",
+            "IsAdditional": "S'il s'agit d'un texte additionnel. Le texte additionnel s'ajoute au texte existant au lieu de le remplacer",
             "Immediate": "Afficher le texte immédiatement au lieu de caractère par caractère",
             "Alignment": "Alignement du texte",
             "IsBlocker": "S'il bloque. Un contrôleur bloquant attend la fin de toutes les animations avant d'exécuter la ligne suivante",
@@ -280,7 +281,7 @@
             "StayTime": "Spécifie la durée d'affichage du texte en secondes",
             "FadeOutTime": "Spécifie le temps de disparition du texte en secondes",
             "SlotIndex": "Spécifie l'index d'emplacement du texte, par défaut 0. Pour afficher plusieurs segments de texte simultanément, utilisez des index d'emplacement différents.",
-            "AsSeceneObject": "Traiter le texte comme un objet de scène ou non, ce qui le rend affecté par d'autres contrôleurs de la scène comme la secousse d'écran et le calque de couleur",
+            "AsSceneObject": "Traiter le texte comme un objet de scène ou non, ce qui le rend affecté par d'autres contrôleurs de la scène comme la secousse d'écran et le calque de couleur",
             "Position": "Position du texte",
             "RenderOrder": "Ordre de rendu du texte ; les valeurs supérieures recouvrent les valeurs inférieures",
             "Interval": "Intervalle en secondes entre chaque caractère lors de l'affichage caractère par caractère",
@@ -321,7 +322,8 @@
         "Judge": {
             "__description": "Effectue une évaluation",
             "Name": "Nom de la variable pour stocker le résultat de l'évaluation",
-            "Expression": "Expression de l'évaluation ; si le résultat du calcul est supérieur à 0, il est stocké dans la variable"
+            "Expression": "Expression de l'évaluation ; si le résultat du calcul est supérieur à 0, il est stocké dans la variable",
+            "Expressions": "Expressions de l'évaluation ; si le résultat du calcul est supérieur à 0, il est stocké dans la variable"
         },
         "Branch": {
             "__description": "Effectue une branche selon une condition",
@@ -351,6 +353,13 @@
             "Name": "Nom d'origine du matériau du portrait",
             "Target": "Alias du matériau"
         }
+    },
+    "ruleEditor": {
+        "requiredParameters": "Paramètres requis",
+        "optionalParameters": "Paramètres facultatifs",
+        "parameterType": "Type de paramètre",
+        "internalSeparator": "Séparateur interne",
+        "prefix": "Préfixe"
     },
     "aseinfo": {
         "projectName": "Nom du projet",

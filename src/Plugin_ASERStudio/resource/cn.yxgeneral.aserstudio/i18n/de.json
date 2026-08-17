@@ -217,6 +217,7 @@
             "SlotIndex": "Gibt den Slot-Index für den Charakter an, Standard 0. Um mehrere Charaktere gleichzeitig anzuzeigen, verwenden Sie unterschiedliche Slot-Indizes.",
             "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt",
             "FadeInTime": "Gibt die Einblendzeit des Charakters in Sekunden an",
+            "StayTime": "Gibt die Anzeigedauer des Charakters in Sekunden an",
             "FadeOutTime": "Gibt die Ausblendzeit des Charakters in Sekunden an",
             "Effects": "Gibt die Effekte des Charakters an",
             "Alpha": "Transparenz des Charakters, von 0 bis 1",
@@ -272,7 +273,7 @@
         "FreeText": {
             "__description": "Steuert die Anzeige von freiem Text.",
             "Content": "Inhalt des Texts",
-            "IsAddition": "Ob es sich um zusätzlichen Text handelt. Zusätzlicher Text wird zum vorhandenen Text hinzugefügt, anstatt ihn zu ersetzen",
+            "IsAdditional": "Ob es sich um zusätzlichen Text handelt. Zusätzlicher Text wird zum vorhandenen Text hinzugefügt, anstatt ihn zu ersetzen",
             "Immediate": "Ob der Text sofort statt zeichenweise angezeigt werden soll",
             "Alignment": "Textausrichtung",
             "IsBlocker": "Ob blockierend. Ein blockierender Controller wartet auf das Ende aller Animationen, bevor er die nächste Zeile ausführt",
@@ -280,7 +281,7 @@
             "StayTime": "Gibt die Anzeigedauer des Texts in Sekunden an",
             "FadeOutTime": "Gibt die Ausblendzeit des Texts in Sekunden an",
             "SlotIndex": "Gibt den Slot-Index für den Text an, Standard 0. Um mehrere Textsegmente gleichzeitig anzuzeigen, verwenden Sie unterschiedliche Slot-Indizes.",
-            "AsSeceneObject": "Ob der Text als Szenenobjekt behandelt werden soll, wodurch er von anderen Szenencontrollern wie Bildschirmzittern und Farbschicht beeinflusst wird",
+            "AsSceneObject": "Ob der Text als Szenenobjekt behandelt werden soll, wodurch er von anderen Szenencontrollern wie Bildschirmzittern und Farbschicht beeinflusst wird",
             "Position": "Koordinatenposition des Texts",
             "RenderOrder": "Renderreihenfolge des Texts; größere Werte überdecken kleinere Werte",
             "Interval": "Zeitintervall in Sekunden zwischen den einzelnen Zeichen bei zeichenweiser Anzeige",
@@ -321,7 +322,8 @@
         "Judge": {
             "__description": "Führt eine Beurteilung durch",
             "Name": "Name der Variable zum Speichern des Beurteilungsergebnisses",
-            "Expression": "Beurteilungsausdruck; wenn das Berechnungsergebnis größer als 0 ist, wird es in der Variable gespeichert"
+            "Expression": "Beurteilungsausdruck; wenn das Berechnungsergebnis größer als 0 ist, wird es in der Variable gespeichert",
+            "Expressions": "Beurteilungsausdrücke; wenn das Berechnungsergebnis größer als 0 ist, wird es in der Variable gespeichert"
         },
         "Branch": {
             "__description": "Verzweigt basierend auf einer Bedingung",
@@ -351,6 +353,13 @@
             "Name": "Ursprünglicher Name des Porträtmaterials",
             "Target": "Alias des Materials"
         }
+    },
+    "ruleEditor": {
+        "requiredParameters": "Erforderliche Parameter",
+        "optionalParameters": "Optionale Parameter",
+        "parameterType": "Parametertyp",
+        "internalSeparator": "Internes Trennzeichen",
+        "prefix": "Präfix"
     },
     "aseinfo": {
         "projectName": "Projektname",

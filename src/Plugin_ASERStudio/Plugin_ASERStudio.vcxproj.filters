@@ -50,6 +50,9 @@
     <QtMoc Include="YSS\ASERFileTemplate.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="YSS\private\ASERFileServer_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="YSS\LS_AStoryXSyntaxHighlighter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
