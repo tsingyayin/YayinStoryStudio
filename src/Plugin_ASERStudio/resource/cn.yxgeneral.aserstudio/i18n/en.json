@@ -133,7 +133,16 @@
         "string": "String",
         "bool": "Boolean",
         "enum": "Enum",
-        "vector": "Vector"
+        "vector": "Vector",
+        "other": {
+            "scanned_character": "Automatically scanned character",
+            "scanned_chara_diff": "Automatically scanned character diff",
+            "scanned_background": "Automatically scanned background",
+            "scanned_music": "Automatically scanned music",
+            "scanned_sound_effect": "Automatically scanned sound effect",
+            "parameter_separator": "Required parameter inner separator",
+            "optional_para_prefix": "Optional parameter prefix"
+        }
     },
     "controller": {
         "Background": "Background",

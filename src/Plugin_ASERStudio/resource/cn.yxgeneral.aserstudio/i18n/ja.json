@@ -133,7 +133,16 @@
         "string": "文字列",
         "bool": "ブール値",
         "enum": "列挙値",
-        "vector": "ベクトル"
+        "vector": "ベクトル",
+        "other": {
+            "scanned_character": "自動スキャンされたキャラクター",
+            "scanned_chara_diff": "自動スキャンされたキャラクター差分",
+            "scanned_background": "自動スキャンされた背景",
+            "scanned_music": "自動スキャンされた音楽",
+            "scanned_sound_effect": "自動スキャンされた効果音",
+            "parameter_separator": "必須パラメータの内側区切り文字",
+            "optional_para_prefix": "オプションパラメータの接頭辞"
+        }
     },
     "controller": {
         "Background": "背景",

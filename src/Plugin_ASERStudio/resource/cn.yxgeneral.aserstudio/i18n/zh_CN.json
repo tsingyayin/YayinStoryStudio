@@ -133,7 +133,16 @@
         "string": "字符串",
         "bool": "布尔值",
         "enum": "枚举值",
-        "vector": "向量"
+        "vector": "向量",
+        "other": {
+            "scanned_character": "自动扫描到的角色",
+            "scanned_chara_diff": "自动扫描到的角色差分",
+            "scanned_background": "自动扫描到的背景",
+            "scanned_music": "自动扫描到的音乐",
+            "scanned_sound_effect": "自动扫描到的音效",
+            "parameter_separator": "必选参数内分隔符",
+            "optional_para_prefix": "可选参数的前缀"
+        }
     },
     "controller":{
         "Background": "背景",

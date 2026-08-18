@@ -133,7 +133,16 @@
         "string": "字串",
         "bool": "布林值",
         "enum": "列舉值",
-        "vector": "向量"
+        "vector": "向量",
+        "other": {
+            "scanned_character": "自動掃描到的角色",
+            "scanned_chara_diff": "自動掃描到的角色差分",
+            "scanned_background": "自動掃描到的背景",
+            "scanned_music": "自動掃描到的音樂",
+            "scanned_sound_effect": "自動掃描到的音效",
+            "parameter_separator": "必選參數內分隔符",
+            "optional_para_prefix": "可選參數的前綴"
+        }
     },
     "controller":{
         "Background": "背景",

@@ -133,7 +133,16 @@
         "string": "Chaîne",
         "bool": "Booléen",
         "enum": "Énumération",
-        "vector": "Vecteur"
+        "vector": "Vecteur",
+        "other": {
+            "scanned_character": "Personnage détecté automatiquement",
+            "scanned_chara_diff": "Diff de personnage détecté automatiquement",
+            "scanned_background": "Fond détecté automatiquement",
+            "scanned_music": "Musique détectée automatiquement",
+            "scanned_sound_effect": "Effet sonore détecté automatiquement",
+            "parameter_separator": "Séparateur interne du paramètre obligatoire",
+            "optional_para_prefix": "Préfixe du paramètre facultatif"
+        }
     },
     "controller": {
         "Background": "Arrière-plan",

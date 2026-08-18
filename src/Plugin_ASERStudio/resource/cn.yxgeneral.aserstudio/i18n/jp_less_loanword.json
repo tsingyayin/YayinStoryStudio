@@ -133,7 +133,16 @@
         "string": "文字列",
         "bool": "真偽値",
         "enum": "列挙値",
-        "vector": "ベクトル"
+        "vector": "ベクトル",
+        "other": {
+            "scanned_character": "自動検出されたキャラクター",
+            "scanned_chara_diff": "自動検出されたキャラクター差分",
+            "scanned_background": "自動検出された背景",
+            "scanned_music": "自動検出された音楽",
+            "scanned_sound_effect": "自動検出された効果音",
+            "parameter_separator": "必須引数の内側区切り文字",
+            "optional_para_prefix": "任意引数の接頭辞"
+        }
     },
     "controller": {
         "Background": "背景",

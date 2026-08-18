@@ -133,7 +133,16 @@
         "string": "문자열",
         "bool": "부울 값",
         "enum": "열거 값",
-        "vector": "벡터"
+        "vector": "벡터",
+        "other": {
+            "scanned_character": "자동으로 스캔된 캐릭터",
+            "scanned_chara_diff": "자동으로 스캔된 캐릭터 차분",
+            "scanned_background": "자동으로 스캔된 배경",
+            "scanned_music": "자동으로 스캔된 음악",
+            "scanned_sound_effect": "자동으로 스캔된 효과음",
+            "parameter_separator": "필수 매개변수 내부 구분자",
+            "optional_para_prefix": "선택 매개변수의 접두사"
+        }
     },
     "controller": {
         "Background": "배경",

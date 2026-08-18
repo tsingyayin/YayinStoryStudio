@@ -133,7 +133,16 @@
         "string": "Zeichenkette",
         "bool": "Boolescher Wert",
         "enum": "Enum",
-        "vector": "Vektor"
+        "vector": "Vektor",
+        "other": {
+            "scanned_character": "Automatisch gescannte Figur",
+            "scanned_chara_diff": "Automatisch gescannte Figuren-Differenz",
+            "scanned_background": "Automatisch gescannter Hintergrund",
+            "scanned_music": "Automatisch gescannte Musik",
+            "scanned_sound_effect": "Automatisch gescannter Soundeffekt",
+            "parameter_separator": "Internes Trennzeichen für Pflichtparameter",
+            "optional_para_prefix": "Präfix für optionale Parameter"
+        }
     },
     "controller": {
         "Background": "Hintergrund",

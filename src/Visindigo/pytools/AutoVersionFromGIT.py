@@ -5,7 +5,7 @@ import datetime
 
 AutoVersionFilePath = "\\Visindigo\\General\\private\\AUTO_VERSION.h"
 VersionMacroFilePath = "\\Visindigo\\General\\private\\VersionMacro.h"
-VersionNickName = "EA Beta1"
+VersionNickName = "EA Release"
 
 def getCommitCount():
     gitCommitsCount = os.popen("git log --oneline | find /v /c \"\"").read()
