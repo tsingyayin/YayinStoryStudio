@@ -54,6 +54,7 @@ namespace YSSCore::__Private__ {
 
 	void DocumentMessageManagerPrivate::moveMessageForward(const QString& filePath, qint32 deletedBlockStartNumber, qint32 count) {
 		if (!Messages.contains(filePath)) return;
+		qint32 errorCount = 0, warningCount = 0, infoCount = 0;
 		QMap<qint32, QList<YSSCore::Editor::DocumentMessage>> newMessages;
 		for (auto it = Messages[filePath].begin(); it != Messages[filePath].end(); ++it) {
 			qint32 blockNumber = it.key();
@@ -67,8 +68,22 @@ namespace YSSCore::__Private__ {
 					msg.d->LineNumber -= count;
 				}
 			}
+			else {
+				for (const auto& msg : it.value()) {
+					switch (msg.getType()) {
+					case Editor::DocumentMessage::MessageType::Error: errorCount++; break;
+					case Editor::DocumentMessage::MessageType::Warning: warningCount++; break;
+					case Editor::DocumentMessage::MessageType::Info: infoCount++; break;
+					}
+				}
+			}
 		}
 		Messages[filePath] = newMessages;
+		if ((errorCount || warningCount || infoCount) && MessageCounts.contains(filePath)) {
+			std::get<0>(MessageCounts[filePath]) -= errorCount;
+			std::get<1>(MessageCounts[filePath]) -= warningCount;
+			std::get<2>(MessageCounts[filePath]) -= infoCount;
+		}
 		emit Instance->messageChanged(filePath);
 	}
 

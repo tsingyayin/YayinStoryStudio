@@ -125,6 +125,11 @@
             "name": "Utiliser des tabulations au lieu d'espaces dans le contrôleur de dialogue",
             "message": "Dans le contrôleur de dialogue, utilisez des tabulations pour séparer l'intervenant du contenu du dialogue au lieu d'espaces. Si vous êtes sûr que les espaces font partie du nom, ignorez cet avertissement.",
             "fixAdvice": "Remplacez les espaces par des tabulations."
+        },
+        "parameterFormatError_character": {
+            "name": "Erreur de format de paramètre du contrôleur de personnage",
+            "message": "Le séparateur \"%1\" manque dans les paramètres obligatoires du contrôleur de personnage. Contrairement à l'ancien AStory, le nouveau AStoryX exige l'utilisation du nom de différence dans le cadre des paramètres obligatoires",
+            "fixAdvice": "Ajoutez le séparateur %1 aux paramètres obligatoires du contrôleur de personnage pour respecter les exigences de syntaxe du nouveau AStoryX."
         }
     },
     "value": {

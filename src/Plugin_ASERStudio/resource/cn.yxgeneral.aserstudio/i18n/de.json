@@ -125,6 +125,11 @@
             "name": "Tabulatoren statt Leerzeichen im Dialog-Controller verwenden",
             "message": "Verwenden Sie im Dialog-Controller Tabulatoren, um Sprecher und Dialoginhalt zu trennen, statt Leerzeichen. Wenn Sie sicher sind, dass die Leerzeichen Teil des Namens sind, ignorieren Sie diese Warnung.",
             "fixAdvice": "Ersetzen Sie Leerzeichen durch Tabulatoren."
+        },
+        "parameterFormatError_character": {
+            "name": "Parameterformatfehler im Charakter-Controller",
+            "message": "In den Pflichtparametern des Charakter-Controllers fehlt das Trennzeichen \"%1\". Anders als beim alten AStory verlangt das neue AStoryX die Verwendung des Differenznamens als Teil der Pflichtparameter",
+            "fixAdvice": "Fügen Sie den Pflichtparametern des Charakter-Controllers das Trennzeichen %1 hinzu, um den Syntaxanforderungen des neuen AStoryX zu entsprechen."
         }
     },
     "value": {

@@ -1,0 +1,22 @@
+{
+	"syntaxColorTheme": {
+		"PlainText": "Klartext",
+		"SelectedTextBackground": "Hintergrund des ausgewählten Texts",
+		"LineNumber": "Zeilennummer",
+		"Function": "Funktion",
+		"String": "Zeichenkette",
+		"SpecialString": "Spezielle Zeichenkette",
+		"Number": "Zahl",
+		"Parameter": "Parameter",
+		"Keyword": "Schlüsselwort",
+		"Vector": "Vektor",
+		"Comment": "Kommentar",
+		"Namespace": "Namespace",
+		"Enum": "Enum",
+		"Macro": "Makro",
+		"MacroParameter": "Makroparameter",
+		"ErrorLine": "Fehlerlinie",
+		"WarningLine": "Warnlinie",
+		"InfoLine": "Infolinie"
+	}
+}

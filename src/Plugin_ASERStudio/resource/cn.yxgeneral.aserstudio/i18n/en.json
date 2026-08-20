@@ -125,6 +125,11 @@
             "name": "Use Tab Instead of Spaces in Dialog Controller",
             "message": "In the dialog controller, use tabs to separate the speaker and dialogue content instead of spaces. If you are sure the spaces are part of the person's name, ignore this warning.",
             "fixAdvice": "Replace spaces with tabs."
+        },
+        "parameterFormatError_character": {
+            "name": "Character Controller Parameter Format Error",
+            "message": "The required parameters of the character controller are missing the separator \"%1\". Unlike the old AStory, the new AStoryX requires the use of the character difference name as part of the required parameters",
+            "fixAdvice": "Add the separator %1 to the required parameters of the character controller to comply with the new AStoryX syntax requirements."
         }
     },
     "value": {

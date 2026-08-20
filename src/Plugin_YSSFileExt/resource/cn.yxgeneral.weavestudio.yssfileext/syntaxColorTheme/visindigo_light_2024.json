@@ -1,0 +1,137 @@
+{
+    "name": "Visindigo Light 2024",
+    "datas": {
+        "PlainText": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.PlainText",
+            "identifierType": "Normal",
+            "textColor": "#242424",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Function": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Function",
+            "identifierType": "Function",
+            "textColor": "#FF00FF",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "String": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.String",
+            "identifierType": "String",
+            "textColor": "#D69D85",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "SpecialString": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.SpecialString",
+            "identifierType": "SpecialString",
+            "textColor": "#D9AC5E",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Number": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Number",
+            "identifierType": "Number",
+            "textColor": "#829479",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Parameter": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Parameter",
+            "identifierType": "Parameter",
+            "textColor": "#BDBD29",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Keyword": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Keyword",
+            "identifierType": "Keyword",
+            "textColor": "#569CD6",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Vector": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Vector",
+            "identifierType": "Vector",
+            "textColor": "#4EC9B0",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Comment": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Comment",
+            "identifierType": "Comment",
+            "textColor": "#57A64A",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Enum": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Enum",
+            "identifierType": "Enum",
+            "textColor": "#768A68",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Macro": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Macro",
+            "identifierType": "Macro",
+            "textColor": "#C586C0",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "MacroParameter": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.MacroParameter",
+            "identifierType": "MacroParameter",
+            "textColor": "#0F0F0F",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        }
+    }
+}

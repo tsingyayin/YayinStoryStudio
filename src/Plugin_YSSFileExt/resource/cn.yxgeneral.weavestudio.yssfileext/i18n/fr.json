@@ -1,0 +1,22 @@
+{
+	"syntaxColorTheme": {
+		"PlainText": "Texte brut",
+		"SelectedTextBackground": "Arrière-plan du texte sélectionné",
+		"LineNumber": "Numéro de ligne",
+		"Function": "Fonction",
+		"String": "Chaîne",
+		"SpecialString": "Chaîne spéciale",
+		"Number": "Nombre",
+		"Parameter": "Paramètre",
+		"Keyword": "Mot-clé",
+		"Vector": "Vecteur",
+		"Comment": "Commentaire",
+		"Namespace": "Espace de noms",
+		"Enum": "Énumération",
+		"Macro": "Macro",
+		"MacroParameter": "Paramètre de macro",
+		"ErrorLine": "Ligne d'erreur",
+		"WarningLine": "Ligne d'avertissement",
+		"InfoLine": "Ligne d'information"
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"syntaxColorTheme": {
+		"PlainText": "素の文章",
+		"SelectedTextBackground": "選択文章の背景",
+		"LineNumber": "行番号",
+		"Function": "関数",
+		"String": "文字列",
+		"SpecialString": "特殊文字列",
+		"Number": "数字",
+		"Parameter": "引数",
+		"Keyword": "キーワード",
+		"Vector": "ベクトル",
+		"Comment": "コメント",
+		"Namespace": "名前空間",
+		"Enum": "列挙",
+		"Macro": "マクロ",
+		"MacroParameter": "マクロ引数",
+		"ErrorLine": "エラー線",
+		"WarningLine": "警告線",
+		"InfoLine": "情報線"
+	}
+}

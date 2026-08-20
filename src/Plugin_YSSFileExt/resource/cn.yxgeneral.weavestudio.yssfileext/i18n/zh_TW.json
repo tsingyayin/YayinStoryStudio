@@ -1,0 +1,22 @@
+{
+	"syntaxColorTheme": {
+		"PlainText": "一般文字",
+		"SelectedTextBackground": "選取文字背景",
+		"LineNumber": "行號",
+		"Function": "函式",
+		"String": "字串",
+		"SpecialString": "特殊字串",
+		"Number": "數字",
+		"Parameter": "參數",
+		"Keyword": "關鍵字",
+		"Vector": "向量",
+		"Comment": "註解",
+		"Namespace": "命名空間",
+		"Enum": "列舉",
+		"Macro": "巨集",
+		"MacroParameter": "巨集參數",
+		"ErrorLine": "錯誤線條",
+		"WarningLine": "警告線條",
+		"InfoLine": "資訊線條"
+	}
+}

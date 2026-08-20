@@ -112,10 +112,12 @@
     <ClCompile Include="cpp\Plugin_YSSFileExt.cpp" />
     <ClCompile Include="FileServer\cpp\DefaultTextEdit.cpp" />
     <ClCompile Include="FileServer\cpp\YSSPEditor.cpp" />
+    <ClCompile Include="LangServer\cpp\JsonDocument.cpp" />
     <ClCompile Include="LangServer\cpp\JsonLangServer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="LangServer\JsonDocument.h" />
     <QtMoc Include="LangServer\JsonLangServer.h" />
     <QtMoc Include="FileServer\YSSPEditor.h" />
     <ClInclude Include="FileServer\DefaultTextEdit.h" />

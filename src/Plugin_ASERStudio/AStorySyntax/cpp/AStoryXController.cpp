@@ -124,6 +124,7 @@ namespace ASERStudio::AStorySyntax {
 			qint32 deltaLength = content.length() - rawRequiredLength;
 			requiredParameter.d->setParameter(RequiredParameterName, "", content, RequiredParameterValue, outputIndexOffset, RequiredParameterSeparator);
 			data->d->RequiredParameter = requiredParameter;
+
 			if (usedPrefixIndexes.size() == 0) {
 				if (cursorPosition > outputIndexOffset) {
 					data->d->cursorInWhichParameter = RequiredParameterName;
@@ -531,8 +532,8 @@ namespace ASERStudio::AStorySyntax {
 			d->parseNonmonotonicity(protectedStrs, protectedRefStrs, protectedBlockParaStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
 		}
 		AStoryXParameter requiredParameter = result.getRequiredParameter();
+		QString content = requiredParameter.getContent();
 		if (d->Type == AStoryXController::ControllerType::Dialog) {
-			QString content = requiredParameter.getContent();
 			if (not Visindigo::Utility::StringUtility::isAllBlank(content) &&
 				content.contains(" ") && not content.contains("\t") && diagnostic) {
 				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
@@ -540,6 +541,17 @@ namespace ASERStudio::AStorySyntax {
 					lineIndex, requiredParameter.getIndex() + content.indexOf(" ")
 					, AStoryXDiagnosticData::DiagnosticType::UseTabInsteadSpace,
 					VITR("ASERStudio::diagnostic.useTabInsteadSpace_dialog.fixAdvice")
+				);
+				result.d->Diagnostics.append(diagnosticData);
+			}
+			
+		}
+		else if (d->Type == AStoryXController::ControllerType::Character) {
+			if (not content.contains(requiredParameter.getSeparator()) && diagnostic) {
+				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
+					VITR("ASERStudio::diagnostic.parameterFormatError_character.message").arg(requiredParameter.getSeparator()),
+					lineIndex, requiredParameter.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterFormatError,
+					VITR("ASERStudio::diagnostic.parameterFormatError_character.fixAdvice").arg(requiredParameter.getSeparator())
 				);
 				result.d->Diagnostics.append(diagnosticData);
 			}

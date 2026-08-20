@@ -1,0 +1,22 @@
+{
+	"syntaxColorTheme": {
+		"PlainText": "일반 텍스트",
+		"SelectedTextBackground": "선택된 텍스트 배경",
+		"LineNumber": "줄 번호",
+		"Function": "함수",
+		"String": "문자열",
+		"SpecialString": "특수 문자열",
+		"Number": "숫자",
+		"Parameter": "매개변수",
+		"Keyword": "키워드",
+		"Vector": "벡터",
+		"Comment": "주석",
+		"Namespace": "네임스페이스",
+		"Enum": "열거형",
+		"Macro": "매크로",
+		"MacroParameter": "매크로 매개변수",
+		"ErrorLine": "오류 선",
+		"WarningLine": "경고 선",
+		"InfoLine": "정보 선"
+	}
+}

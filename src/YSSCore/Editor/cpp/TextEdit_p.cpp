@@ -180,7 +180,7 @@ namespace YSSCore::__Private__ {
 				} else {
 					lineTop = y - 2;  lineBottom = y + 2;
 				}
-				painter.drawLine(1, lineTop, 1, lineBottom);
+				painter.drawLine(3, lineTop, 3, lineBottom);
 			}
 
 			if (lessHalf) {

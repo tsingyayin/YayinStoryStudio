@@ -29,6 +29,9 @@
     <ClCompile Include="cpp\Plugin_YSSFileExt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LangServer\cpp\JsonDocument.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="LangServer\cpp\JsonLangServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Plugin_YSSFileExt.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LangServer\JsonDocument.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="LangServer\JsonLangServer.h">

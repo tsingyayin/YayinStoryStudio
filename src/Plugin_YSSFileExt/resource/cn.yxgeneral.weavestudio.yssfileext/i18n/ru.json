@@ -1,0 +1,22 @@
+{
+	"syntaxColorTheme": {
+		"PlainText": "Обычный текст",
+		"SelectedTextBackground": "Фон выделенного текста",
+		"LineNumber": "Номер строки",
+		"Function": "Функция",
+		"String": "Строка",
+		"SpecialString": "Специальная строка",
+		"Number": "Число",
+		"Parameter": "Параметр",
+		"Keyword": "Ключевое слово",
+		"Vector": "Вектор",
+		"Comment": "Комментарий",
+		"Namespace": "Пространство имён",
+		"Enum": "Перечисление",
+		"Macro": "Макрос",
+		"MacroParameter": "Параметр макроса",
+		"ErrorLine": "Линия ошибки",
+		"WarningLine": "Линия предупреждения",
+		"InfoLine": "Линия информации"
+	}
+}

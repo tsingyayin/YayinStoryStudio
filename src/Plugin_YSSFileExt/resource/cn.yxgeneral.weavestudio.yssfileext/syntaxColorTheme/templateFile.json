@@ -1,0 +1,22 @@
+{
+	"title": "YSS JSON 颜色主题预览样本",
+	"description": "此样本用于预览 JSON 的着色效果：键、字符串、数字、true/false/null 与嵌套结构。\n支持转义：\"引号\"、\\反斜杠、\/斜杠、\b退格、\f换页、\n换行、\r回车、\t制表、\u4F60\u597D。",
+	"version": 1,
+	"enabled": true,
+	"disabled": false,
+	"empty": null,
+	"rating": 4.5,
+	"negative": -273.15,
+	"exponent": 6.022e23,
+	"small": 0.000001,
+	"colors": ["red", "green", "blue"],
+	"nested": {
+		"object": {
+			"deep": [1, 2, 3],
+			"flags": [true, false, null]
+		},
+		"matrix": [[1, 0], [0, 1]]
+	},
+	"unicode": "雪豹 · 罗德岛",
+	"author": "Tsing Yayin"
+}

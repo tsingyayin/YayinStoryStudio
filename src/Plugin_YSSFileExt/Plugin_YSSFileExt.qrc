@@ -1,5 +1,17 @@
 <RCC>
     <qresource prefix="/">
         <file>resource/cn.yxgeneral.weavestudio.yssfileext/icon.png</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/zh_CN.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/zh_TW.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/en.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/ja.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/jp_less_loanword.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/ko.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/ru.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/de.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/fr.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/visindigo_dark_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/visindigo_light_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateFile.json</file>
     </qresource>
 </RCC>
