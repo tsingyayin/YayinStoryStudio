@@ -339,6 +339,7 @@ namespace Visindigo::General {
 			Plugin* plugin = d->Plugins[i];
 			VIPM->notice() << plugin->getPluginName() << " is handling application init";
 			plugin->onApplicationInit();
+			LoggerManager::getInstance()->finalSave();
 		}
 	}
 

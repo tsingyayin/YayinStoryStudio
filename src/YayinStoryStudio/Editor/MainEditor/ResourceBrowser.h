@@ -1,6 +1,7 @@
 #ifndef YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h
 #define YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h
 #include <QtCore/qdir.h>
+#include <QtCore/qfileinfo.h>
 #include <QtWidgets/qwidget.h>
 #include <Widgets/ThemeManager.h>
 #include <Widgets/BorderFrame.h>
@@ -23,12 +24,13 @@ namespace YSS::Editor {
 		QTreeView* FileTree;
 		QFileSystemModel* FileModel;
 		QVBoxLayout* Layout;
-		QDir CurrentDir;
+		QDir ProjectRootDir;
 		QToolBar* ToolBar;
 		QAction* ToolActionRefresh;
 		QAction* ToolActionExpand;
 		QAction* ToolActionShrink;
-		QAction* ToolActionNew;
+		QAction* ToolActionNewFile;
+		QAction* ToolActionNewFolder;
 		QColor TextColor;
 		QMenu* FileOptions;
 		QString CurrentFilePath;
@@ -43,6 +45,7 @@ namespace YSS::Editor {
 		QAction* FileOptionCopy;
 		QAction* FileOptionPaste;
 		QAction* FileOptionCut;
+		QAction* FileOptionRefresh;
 	signals:
 		void visibilityChanged(bool visible);
 		void fileRenamed(const QString& path, const QString& oldName, const QString& newName);
@@ -52,6 +55,7 @@ namespace YSS::Editor {
 		ResourceBrowser(QWidget* parent = nullptr);
 		void openNewFileWindow();
 		void refresh();
+		void setCurrentSelected(const QFileInfo& path);
 	public:
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void hideEvent(QHideEvent* event) override;
@@ -64,6 +68,7 @@ namespace YSS::Editor {
 		void onItemDoubleClicked(const QModelIndex& index);
 		void onFileTreeContextMenuRequested(const QPoint& pos);
 		void onRenameTriggered();
+		void onNewFolderTriggered();
 	};
 }
 #endif // YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h

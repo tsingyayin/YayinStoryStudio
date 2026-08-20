@@ -306,18 +306,20 @@ namespace Visindigo::General {
 		QMutex tickObjectsDisabledMutex;
 		qint64 currentMillisecondsSinceEpoch = 0;
 		void updateMinInterval() {
-			// 休眠的最细粒度：取所有 FixUpdate 对象中最短的间隔（下限为 FPS_480 默认值）。
-			// 若任一 FixUpdate 对象间隔 <= 0（表示每个 Tick 都要调用），则无法休眠，置 0。
-			minInterval = 2.0833; // PresetInterval::FPS_480
+			double shortestInterval = 1e9;
 			for (TickObject* obj : fixUpdateObjects) {
 				double iv = obj->d->fixUpdateInterval_ms;
 				if (iv <= 0.0) {
 					minInterval = 0.0;
-					break;
+					return;
 				}
-				if (iv < minInterval) {
-					minInterval = iv;
+				if (iv < shortestInterval) {
+					shortestInterval = iv;
 				}
+			}
+			minInterval = shortestInterval;
+			if (minInterval < 2.0833) { // 下限：PresetInterval::FPS_480
+				minInterval = 2.0833;
 			}
 		}
 

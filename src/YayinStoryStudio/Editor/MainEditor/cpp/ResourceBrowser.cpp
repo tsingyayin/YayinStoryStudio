@@ -20,6 +20,7 @@
 #include <Editor/FileServerManager.h>
 #include <Editor/FileTemplateManager.h>
 #include "Editor/MainEditor/ResourceBrowser.h"
+#include "Editor/MainEditor/SimpleFileDialog.h"
 #include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/NewFilePage/NewFileWin.h"
 #include <QtWidgets/qmessagebox.h>
@@ -33,12 +34,14 @@ namespace YSS::Editor {
 		ToolActionRefresh = ToolBar->addAction(VITR("Visindigo::general.refresh"));
 		ToolActionShrink = ToolBar->addAction(VITR("Visindigo::general.shrink"));
 		ToolActionExpand = ToolBar->addAction(VITR("Visindigo::general.expand"));
-		ToolActionNew = ToolBar->addAction(VITR("Visindigo::general.new"));
+		ToolActionNewFile = ToolBar->addAction(VITR("Visindigo::general.new"));
+		ToolActionNewFolder = ToolBar->addAction(VITR("YSS::menu.file.newFolder"));
 		ToolBar->setMaximumHeight(40);
 		Layout->addWidget(ToolBar);
 
 		connect(ToolActionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
-		connect(ToolActionNew, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
+		connect(ToolActionNewFile, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
+		connect(ToolActionNewFolder, &QAction::triggered, this, &ResourceBrowser::onNewFolderTriggered);
 		connect(ToolActionShrink, &QAction::triggered, this, [this]() {
 			FileTree->collapseAll();
 			});
@@ -72,6 +75,8 @@ namespace YSS::Editor {
 		FileOptionCopy = FileOptions->addAction(VITR("YSS::menu.edit.copy"));
 		FileOptionPaste = FileOptions->addAction(VITR("YSS::menu.edit.paste"));
 		FileOptionCut = FileOptions->addAction(VITR("YSS::menu.edit.cut"));
+		FileOptions->addSeparator();
+		FileOptionRefresh = FileOptions->addAction(VITR("Visindigo::general.refresh"));
 		
 		
 		connect(FileOptionOpen, &QAction::triggered, this, [this]() {
@@ -84,7 +89,9 @@ namespace YSS::Editor {
 			}
 			});
 		connect(FileOptionNewFile, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
+		connect(FileOptionNewFolder, &QAction::triggered, this, &ResourceBrowser::onNewFolderTriggered);
 		connect(FileOptionRename, &QAction::triggered, this, &ResourceBrowser::onRenameTriggered);
+		connect(FileOptionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
 		connect(FileOptionCopyPath, &QAction::triggered, this, [this]() {
 			QApplication::clipboard()->setText(CurrentFilePath);
 			});
@@ -186,17 +193,31 @@ namespace YSS::Editor {
 		refreshFileList();
 	}
 
+	void ResourceBrowser::setCurrentSelected(const QFileInfo& path) {
+		QModelIndex index = FileModel->index(path.absoluteFilePath());
+		if (!index.isValid())
+			return;
+		// 展开祖先节点，确保该项可见
+		QModelIndex parent = index.parent();
+		while (parent.isValid()) {
+			FileTree->expand(parent);
+			parent = parent.parent();
+		}
+		FileTree->setCurrentIndex(index);
+		FileTree->scrollTo(index);
+	}
+
 	void ResourceBrowser::showEvent(QShowEvent* event) {
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		if (project != nullptr) {
-			CurrentDir.setPath(project->getProjectFolder());
+			ProjectRootDir.setPath(project->getProjectFolder());
 			FileTree->setRootIndex(FileModel->setRootPath(project->getProjectFolder()));
 			for (int i = 1; i < FileModel->columnCount(); i++) {
 				FileTree->setColumnHidden(i, true);
 			}
 		}
 		else {
-			CurrentDir.setPath(QDir::currentPath());
+			ProjectRootDir.setPath(QDir::currentPath());
 			FileTree->setRootIndex(FileModel->setRootPath(QDir::currentPath()));
 			for (int i = 1; i < FileModel->columnCount(); i++) {
 				FileTree->setColumnHidden(i, true);
@@ -229,7 +250,7 @@ namespace YSS::Editor {
 			}
 		}
 		else {
-			currentSelectedPath = CurrentDir.path();
+			currentSelectedPath = ProjectRootDir.path();
 		}
 		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(currentSelectedPath);
 		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
@@ -249,7 +270,8 @@ namespace YSS::Editor {
 			ToolActionRefresh->setIcon(VIApp->getNamedFontIcon("Refresh", 40, { TextColor }));
 			ToolActionShrink->setIcon(VIApp->getNamedFontIcon("ChevronUp", 40, { TextColor }));
 			ToolActionExpand->setIcon(VIApp->getNamedFontIcon("ChevronDown", 40, { TextColor }));
-			ToolActionNew->setIcon(VIApp->getNamedFontIcon("SubscriptionAdd", 40, { TextColor }));
+			ToolActionNewFile->setIcon(VIApp->getNamedFontIcon("SubscriptionAdd", 40, { TextColor }));
+			ToolActionNewFolder->setIcon(VIApp->getNamedFontIcon("NewFolder", 40, { TextColor }));
 			FileOptionOpen->setIcon(VIApp->getNamedFontIcon("OpenFile", 64, { TextColor }));
 			FileOptionRename->setIcon(VIApp->getNamedFontIcon("Rename", 64, { TextColor }));
 			FileOptionDelete->setIcon(VIApp->getNamedFontIcon("Delete", 64, { TextColor }));
@@ -261,12 +283,13 @@ namespace YSS::Editor {
 			FileOptionCopy->setIcon(VIApp->getNamedFontIcon("Copy", 64, { TextColor }));
 			FileOptionPaste->setIcon(VIApp->getNamedFontIcon("Paste", 64, { TextColor }));
 			FileOptionCut->setIcon(VIApp->getNamedFontIcon("Cut", 64, { TextColor }));
+			FileOptionRefresh->setIcon(VIApp->getNamedFontIcon("Refresh", 64, { TextColor }));
 		}
 	}
 
 	void ResourceBrowser::refreshFileList() {
-		FileModel->setRootPath(CurrentDir.path());
-		FileTree->setRootIndex(FileModel->index(CurrentDir.path()));
+		FileModel->setRootPath(ProjectRootDir.path());
+		FileTree->setRootIndex(FileModel->index(ProjectRootDir.path()));
 	}
 
 	void ResourceBrowser::onItemDoubleClicked(const QModelIndex& index) {
@@ -286,10 +309,35 @@ namespace YSS::Editor {
 
 	void ResourceBrowser::onFileTreeContextMenuRequested(const QPoint& pos) {
 		QModelIndex index = FileTree->indexAt(pos);
-		if (!index.isValid())
-			return;
-		CurrentFilePath = FileModel->filePath(index);
-		RightClickedIndex = index.siblingAtColumn(0);
+		const bool onItem = index.isValid();
+		if (onItem) {
+			CurrentFilePath = FileModel->filePath(index);
+			RightClickedIndex = index.siblingAtColumn(0);
+			FileTree->setCurrentIndex(RightClickedIndex);
+		}
+		else {
+			// 空处右键：默认选中项目目录本身
+			CurrentFilePath = ProjectRootDir.path();
+			RightClickedIndex = FileModel->index(ProjectRootDir.path());
+			FileTree->setCurrentIndex(RightClickedIndex);
+		}
+
+		const QMimeData* clipMime = QApplication::clipboard()->mimeData();
+		const bool clipboardHasUrls = clipMime != nullptr && clipMime->hasUrls();
+
+		// 空处右键时只保留“新建文件 / 新建文件夹 / 刷新”可用
+		FileOptionOpen->setEnabled(onItem);
+		FileOptionRename->setEnabled(onItem);
+		FileOptionDelete->setEnabled(onItem);
+		FileOptionCopyPath->setEnabled(onItem);
+		FileOptionCopyName->setEnabled(onItem);
+		FileOptionCopy->setEnabled(onItem);
+		FileOptionCut->setEnabled(onItem);
+		FileOptionPaste->setEnabled(clipboardHasUrls);
+		FileOptionNewFile->setEnabled(true);
+		FileOptionNewFolder->setEnabled(true);
+		FileOptionRefresh->setEnabled(true);
+
 		FileOptions->exec(FileTree->viewport()->mapToGlobal(pos));
 	}
 
@@ -298,5 +346,34 @@ namespace YSS::Editor {
 			return;
 		FileTree->scrollTo(RightClickedIndex);
 		FileTree->edit(RightClickedIndex);
+	}
+
+	void ResourceBrowser::onNewFolderTriggered() {
+		QString targetPath;
+		QModelIndex currentIndex = FileTree->currentIndex();
+		if (currentIndex.isValid()) {
+			targetPath = FileModel->filePath(currentIndex);
+			QFileInfo fileInfo(targetPath);
+			if (fileInfo.isFile()) {
+				targetPath = fileInfo.absoluteDir().absolutePath();
+			}
+		}
+		else {
+			targetPath = ProjectRootDir.path();
+		}
+
+		QDir targetDir(targetPath);
+		QStringList existingNames = targetDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+
+		NewFolderDialog* dialog = new NewFolderDialog();
+		dialog->setAttribute(Qt::WA_DeleteOnClose);
+		dialog->setContext(targetPath, existingNames);
+		connect(dialog, &NewFolderDialog::confirmed, this, [this, targetPath](const QString& newName) {
+			QDir dir(targetPath);
+			if (dir.mkdir(newName)) {
+				refreshFileList();
+			}
+			});
+		dialog->show();
 	}
 }

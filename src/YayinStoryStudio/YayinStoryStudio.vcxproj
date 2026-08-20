@@ -122,7 +122,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\MessageViewer.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MultiTerminalTool.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\PreferenceEditWidget.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\RenameDialog.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\SimpleFileDialog.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditWidgetArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackComponents_p.cpp" />
@@ -154,7 +154,7 @@
     <QtMoc Include="Editor\ProjectPage\NewsArea.h" />
     <QtMoc Include="Editor\MainEditor\FileEditWidgetArea.h" />
     <QtMoc Include="Editor\MainEditor\private\StackComponents_p.h" />
-    <QtMoc Include="Editor\MainEditor\RenameDialog.h" />
+    <QtMoc Include="Editor\MainEditor\SimpleFileDialog.h" />
     <QtMoc Include="Editor\MainEditor\ToolWidgetArea.h" />
     <QtMoc Include="Editor\MainEditor\MainWinMenu.h" />
     <QtMoc Include="Editor\MainEditor\DebugServerRouter.h" />

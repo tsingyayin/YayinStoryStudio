@@ -1,11 +1,12 @@
-#ifndef YSSCore_Editor_RenameDialog_h
-#define YSSCore_Editor_RenameDialog_h
+#ifndef YSSCore_Editor_SimpleFileDialog_h
+#define YSSCore_Editor_SimpleFileDialog_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qstring.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qboxlayout.h>
+#include <QtCore/qstringlist.h>
 
 namespace YSS::Editor {
 	class RenameDialog :public QFrame {
@@ -28,5 +29,27 @@ namespace YSS::Editor {
 		bool validNewName = false;
 		bool dirMode = false;
 	};
+
+	class NewFolderDialog :public QFrame {
+		Q_OBJECT;
+	signals:
+		void confirmed(const QString& newName);
+	public:
+		NewFolderDialog();
+		void setContext(const QString& parentPath, const QStringList& existingNames);
+	private:
+		void validateName();
+		void onConfirmClicked();
+	private:
+		QString ParentPath;
+		QStringList ExistingNames;
+		QLabel* DescriptionLabel;
+		QLineEdit* NameEdit;
+		QLabel* CheckLabel;
+		QPushButton* ConfirmButton;
+		QPushButton* CancelButton;
+		QVBoxLayout* MainLayout;
+		bool ValidName = false;
+	};
 }
-#endif // YSSCore_Editor_RenameDialog_h
+#endif // YSSCore_Editor_SimpleFileDialog_h

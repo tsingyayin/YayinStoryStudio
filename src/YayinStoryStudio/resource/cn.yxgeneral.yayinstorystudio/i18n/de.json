@@ -276,6 +276,15 @@
 				}
 			}
 		},
+		"newFolderDialog": {
+			"title": "Neuer Ordner",
+			"desc": "Ein neuer Ordner wird im Ordner %1 erstellt. Bitte geben Sie einen Namen für den neuen Ordner ein:",
+			"warning": {
+				"empty": "Der Name darf nicht leer sein. Bitte geben Sie einen Namen ein.",
+				"exists": "Im selben Verzeichnis existiert bereits ein Ordner mit diesem Namen. Bitte wählen Sie einen anderen Namen.",
+				"invalid": "Ungültiger Ordnername. Er darf die folgenden Zeichen nicht enthalten: \\ / : * ? \" < > |"
+			}
+		},
 		"about": {
 			"title": "Über Yayin Story Studio",
 			"message": "Version %1, ein Werk von Tsing Yayin. Yayin Story Studio ist Teil von Project Visindigo, ein völlig neues Projekt, das aus Yayin Story Player hervorgegangen ist und darauf abzielt, ASE-Benutzern eine benutzerfreundliche Entwicklungsumgebung zu bieten."

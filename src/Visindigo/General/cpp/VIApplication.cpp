@@ -755,11 +755,13 @@ namespace Visindigo::General {
 				dp->onPluginEnable();
 				d->LoadingMessageHandler->onLoadingMessage(QString("Dependency plugin %1 enabled").arg(dp->getPluginName()));
 			}
+			LoggerManager::getInstance()->finalSave(); 
 
 			d->MainPlugin->onPluginEnable();
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
 			}
+			LoggerManager::getInstance()->finalSave();
 
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
@@ -767,6 +769,7 @@ namespace Visindigo::General {
 			}
 
 			PluginManager::getInstance()->loadAllPlugin();
+			LoggerManager::getInstance()->finalSave();
 			if (d->AppType == WidgetApp) {
 				if (d->LoadingMessageHandler) {
 					d->LoadingMessageHandler->onLoadingMessage("Merging themes...");
@@ -779,16 +782,19 @@ namespace Visindigo::General {
 				qApp->processEvents();
 			}
 			PluginManager::getInstance()->enableAllPlugin();
+			LoggerManager::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Initializing application...");
 				qApp->processEvents();
 			}
 			PluginManager::getInstance()->applicationInitAllPlugin();
+			LoggerManager::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Running tests...");
 				qApp->processEvents();
 			}
 			PluginManager::getInstance()->testAllPlugin();
+			LoggerManager::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
 			auto end = std::chrono::high_resolution_clock::now();
 			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 			qint32 minLoadingTime = d->EnvConfig.value(MinimumLoadingTimeMS, 3000).toInt();

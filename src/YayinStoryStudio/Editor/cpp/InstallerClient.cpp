@@ -8,6 +8,7 @@
 #include <General/TranslationHost.h>
 #include <Utility/FileUtility.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtCore/qprocess.h>
 #include "Utility/Console.h"
 namespace YSS::Editor {
 	class InstallerClientPrivate {
@@ -74,8 +75,9 @@ namespace YSS::Editor {
 		connect(this, &YSS::Editor::InstallerClient::installerNotLaunched, this, [this]() {
 			QString installerPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
 				"/AppData/Local/TsingYayin/YayinStoryStudio/Installer/YSSInstaller.exe";
-			QString launchCommand = QString("start \"\" \"%1\"").arg(installerPath);
-			Visindigo::Utility::Console::exec(launchCommand);
+			if (not QProcess::startDetached(installerPath)) {
+				vgErrorF << "Failed to launch installer: " << installerPath;
+			}
 			QTimer::singleShot(5000, this, [this]() {
 				YSS::Editor::InstallerClient::getInstance()->connectToInstaller();
 				});

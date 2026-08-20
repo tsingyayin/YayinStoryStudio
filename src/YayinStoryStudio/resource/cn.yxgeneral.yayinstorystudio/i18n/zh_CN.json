@@ -276,6 +276,15 @@
 				}
 			}
 		},
+		"newFolderDialog": {
+			"title": "新建文件夹",
+			"desc": "正在文件夹 %1 中创建新文件夹。请输入新文件夹的名称：",
+			"warning": {
+				"empty": "名称不能为空，请输入一个名称",
+				"exists": "同级目录下已经存在同名文件夹，请换一个名称",
+				"invalid": "文件夹名称无效，不能包含以下字符：\\ / : * ? \" < > |"
+			}
+		},
 		"about": {
 			"title": "关于 Yayin Story Studio",
 			"message": "版本%1，Tsing Yayin作品。Yayin Story Studio是Project Visindigo（流清计划）的一部分，是从Yayin Story Player发展而来的一个全新的项目，旨在为ASE用户提供一个易用的开发环境。"

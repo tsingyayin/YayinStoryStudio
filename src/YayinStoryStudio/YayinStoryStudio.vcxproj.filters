@@ -65,7 +65,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackComponents_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\RenameDialog.cpp">
+    <ClCompile Include="Editor\MainEditor\cpp\SimpleFileDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\cpp\UpToWin11.cpp">
@@ -148,7 +148,7 @@
     <QtMoc Include="Editor\MainEditor\private\StackComponents_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\MainEditor\RenameDialog.h">
+    <QtMoc Include="Editor\MainEditor\SimpleFileDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\UpToWin11.h">

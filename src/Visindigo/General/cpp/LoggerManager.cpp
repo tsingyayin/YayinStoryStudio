@@ -47,8 +47,8 @@ namespace Visindigo::General {
 				if (Pause) {
 					return;
 				}
-				qint64 nowEpoch = QDateTime::currentSecsSinceEpoch();
-				if (nowEpoch - currentEpoch >= 10) {
+				qint64 nowEpoch = QDateTime::currentMSecsSinceEpoch();
+				if (nowEpoch - currentEpoch >= 10000) {
 					save();
 					Pause = true;
 				}

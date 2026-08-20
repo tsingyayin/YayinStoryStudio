@@ -276,6 +276,15 @@
 				}
 			}
 		},
+		"newFolderDialog": {
+			"title": "새 폴더",
+			"desc": "폴더 %1에 새 폴더를 만들고 있습니다. 새 폴더의 이름을 입력하세요:",
+			"warning": {
+				"empty": "이름은 비워 둘 수 없습니다. 이름을 입력하세요.",
+				"exists": "같은 디렉터리에 이 이름의 폴더가 이미 있습니다. 다른 이름을 선택하세요.",
+				"invalid": "폴더 이름이 잘못되었습니다. 다음 문자는 포함할 수 없습니다: \\ / : * ? \" < > |"
+			}
+		},
 		"about": {
 			"title": "Yayin Story Studio 정보",
 			"message": "버전 %1, Tsing Yayin의 작품입니다. Yayin Story Studio는 Project Visindigo의 일부로, Yayin Story Player에서 발전한 새로운 프로젝트로 ASE 사용자에게 사용하기 쉬운 개발 환경을 제공하는 것을 목표로 합니다."

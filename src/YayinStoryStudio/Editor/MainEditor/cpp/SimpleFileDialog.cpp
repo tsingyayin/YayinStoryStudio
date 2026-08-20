@@ -1,4 +1,4 @@
-#include "Editor/MainEditor/RenameDialog.h"
+#include "Editor/MainEditor/SimpleFileDialog.h"
 #include <QtCore/qfileinfo.h>
 #include <General/TranslationHost.h>
 #include <QtCore/qregularexpression.h>
@@ -144,5 +144,83 @@ namespace YSS::Editor {
 			this->WarningLabel->setText("");
 		}
 		validNewName = true;
+	}
+
+	NewFolderDialog::NewFolderDialog() :QFrame() {
+		this->setWindowFlags(Qt::Dialog);
+		this->setFixedWidth(420);
+		this->setWindowTitle(VITR("YSS::editor.newFolderDialog.title"));
+
+		MainLayout = new QVBoxLayout(this);
+		this->setLayout(MainLayout);
+
+		DescriptionLabel = new QLabel(this);
+		DescriptionLabel->setWordWrap(true);
+		MainLayout->addWidget(DescriptionLabel);
+
+		NameEdit = new QLineEdit(this);
+		MainLayout->addWidget(NameEdit);
+
+		CheckLabel = new QLabel(this);
+		CheckLabel->setWordWrap(true);
+		MainLayout->addWidget(CheckLabel);
+
+		QHBoxLayout* buttonLayout = new QHBoxLayout();
+		ConfirmButton = new QPushButton(VITR("Visindigo::general.confirm"), this);
+		CancelButton = new QPushButton(VITR("Visindigo::general.cancel"), this);
+		buttonLayout->addStretch(1);
+		buttonLayout->addWidget(ConfirmButton);
+		buttonLayout->addWidget(CancelButton);
+		MainLayout->addLayout(buttonLayout);
+
+		connect(ConfirmButton, &QPushButton::clicked, this, [this]() {
+			onConfirmClicked();
+			});
+		connect(CancelButton, &QPushButton::clicked, this, [this]() {
+			this->close();
+			});
+		connect(NameEdit, &QLineEdit::textChanged, this, [this](const QString&) {
+			validateName();
+			});
+	}
+
+	void NewFolderDialog::setContext(const QString& parentPath, const QStringList& existingNames) {
+		this->ParentPath = parentPath;
+		this->ExistingNames = existingNames;
+		this->DescriptionLabel->setText(VITR("YSS::editor.newFolderDialog.desc").arg(parentPath));
+		this->NameEdit->clear();
+		this->validateName();
+	}
+
+	void NewFolderDialog::validateName() {
+		ValidName = false;
+		QString newName = NameEdit->text().trimmed();
+		if (newName.isEmpty()) {
+			CheckLabel->setText(VITR("YSS::editor.newFolderDialog.warning.empty"));
+			CheckLabel->setStyleSheet("QLabel{color: red;}");
+			return;
+		}
+		QRegularExpression invalidCharsPattern(R"([\/:*?"<>|])");
+		if (newName.contains(invalidCharsPattern)) {
+			CheckLabel->setText(VITR("YSS::editor.newFolderDialog.warning.invalid"));
+			CheckLabel->setStyleSheet("QLabel{color: red;}");
+			return;
+		}
+		if (ExistingNames.contains(newName) || QFileInfo(ParentPath + QDir::separator() + newName).exists()) {
+			CheckLabel->setText(VITR("YSS::editor.newFolderDialog.warning.exists"));
+			CheckLabel->setStyleSheet("QLabel{color: red;}");
+			return;
+		}
+		CheckLabel->setText(QString());
+		ValidName = true;
+	}
+
+	void NewFolderDialog::onConfirmClicked() {
+		validateName();
+		if (not ValidName) {
+			return;
+		}
+		emit confirmed(NameEdit->text().trimmed());
+		this->close();
 	}
 }

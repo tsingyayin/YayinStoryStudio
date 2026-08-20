@@ -276,6 +276,15 @@
 				}
 			}
 		},
+		"newFolderDialog": {
+			"title": "新しいフォルダー",
+			"desc": "フォルダー %1 に新しいフォルダーを作成しています。新しいフォルダーの名前を入力してください：",
+			"warning": {
+				"empty": "名前を空にすることはできません。名前を入力してください。",
+				"exists": "同じディレクトリにこの名前のフォルダーが既に存在します。別の名前を選んでください。",
+				"invalid": "フォルダー名が無効です。次の文字を含めることはできません：\\ / : * ? \" < > |"
+			}
+		},
 		"about": {
 			"title": "Yayin Story Studioについて",
 			"message": "バージョン%1、Tsing Yayinの作品です。Yayin Story StudioはProject Visindigoの一部であり、Yayin Story Playerから発展した新しいプロジェクトで、ASEユーザーに使いやすい開発環境を提供することを目的としています。"

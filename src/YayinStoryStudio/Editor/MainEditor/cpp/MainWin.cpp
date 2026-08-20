@@ -24,12 +24,13 @@
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/ToolWidgetArea.h"
-#include "Editor/MainEditor/RenameDialog.h"
+#include "Editor/MainEditor/SimpleFileDialog.h"
 #include "Editor/MainEditor/BottomInfoWidget.h"
 #include "Editor/MainEditor/DebugServerRouter.h"
 #include <Editor/DocumentMessageManager.h>
 #include <Widgets/DesktopHacker.h>
 #include <General/VIApplication.h>
+#include <Editor/VirtualFilePath.h>
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
 
@@ -187,6 +188,9 @@ namespace YSS::Editor {
 			}
 			else {
 				BottomFrame->setEditorInfoEnable(false);
+			}
+			if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
+				Browser->setCurrentSelected(QFileInfo(filePath));
 			}
 		});
 
