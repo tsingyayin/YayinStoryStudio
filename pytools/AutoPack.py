@@ -2,8 +2,8 @@
 """
 AutoPack.py - YSS 自动打包脚本
 
-将 x64/Release 打包为发布版本，流程：
-  1. 复制 x64/Release → x64/YSS_V<版本号>[ <后缀>]
+将 x64/0.16/Release 打包为发布版本，流程：
+  1. 复制 x64/0.16/Release → x64/YSS_V<版本号>[ <后缀>]
        后缀规则（依据 src/Visindigo/General/private/AUTO_VERSION.h 的 Visindigo_VERSION_NICKNAME）：
          - 开发版本：使用完整昵称（如 "EA TP1"、"EA Beta 1"）→ YSS_V0.16.0.193 EA Beta 1
          - EA Release（昵称等于 "EA" 或含 "Release"）：只保留 "EA" → YSS_V0.16.0.193 EA
@@ -34,7 +34,8 @@ import tempfile
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, ".."))
 X64_DIR = os.path.join(REPO_ROOT, "x64")
-RELEASE_DIR = os.path.join(X64_DIR, "Release")
+# 0.16 分支的构建输出在 x64/0.16/Release（见各 vcxproj 的 OutDir）
+RELEASE_DIR = os.path.join(X64_DIR, "0.16", "Release")
 
 AUTO_VERSION_H = os.path.join(
     REPO_ROOT, "src", "Visindigo", "General", "private", "AUTO_VERSION.h"
@@ -127,7 +128,7 @@ def run_bz(args, cwd=None):
 
 # ---------------------------------------------------------------- 各打包步骤
 def step1_copy_release(plan):
-    """复制 x64/Release → 新版本文件夹。"""
+    """复制 x64/0.16/Release → 新版本文件夹。"""
     if os.path.exists(plan["new_folder"]):
         log("删除已存在的文件夹: %s" % plan["new_folder"])
         shutil.rmtree(plan["new_folder"])
