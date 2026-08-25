@@ -112,15 +112,29 @@
     <ClCompile Include="cpp\Plugin_YSSFileExt.cpp" />
     <ClCompile Include="FileServer\cpp\DefaultTextEdit.cpp" />
     <ClCompile Include="FileServer\cpp\YSSPEditor.cpp" />
+    <ClCompile Include="FileTemplate\cpp\SimpleFileTemplate.cpp" />
+    <ClCompile Include="LangServer\cpp\IniLangServer.cpp" />
     <ClCompile Include="LangServer\cpp\JsonDocument.cpp" />
     <ClCompile Include="LangServer\cpp\JsonLangServer.cpp" />
+    <ClCompile Include="LangServer\cpp\TomlLangServer.cpp" />
+    <ClCompile Include="LangServer\cpp\XmlLangServer.cpp" />
+    <ClCompile Include="LangServer\cpp\YamlLangServer.cpp" />
+    <ClCompile Include="LangServer\cpp\YSSLangDocument.cpp" />
+    <ClCompile Include="LangServer\cpp\YSSLangHighlighter.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LangServer\JsonDocument.h" />
     <QtMoc Include="LangServer\JsonLangServer.h" />
+    <QtMoc Include="LangServer\YSSLangDocument.h" />
+    <QtMoc Include="LangServer\YSSLangHighlighter.h" />
     <QtMoc Include="FileServer\YSSPEditor.h" />
+    <QtMoc Include="FileTemplate\SimpleFileTemplate.h" />
     <ClInclude Include="FileServer\DefaultTextEdit.h" />
+    <ClInclude Include="LangServer\IniLangServer.h" />
+    <ClInclude Include="LangServer\TomlLangServer.h" />
+    <ClInclude Include="LangServer\XmlLangServer.h" />
+    <ClInclude Include="LangServer\YamlLangServer.h" />
     <ClInclude Include="Macro.h" />
     <QtMoc Include="Plugin_YSSFileExt.h" />
   </ItemGroup>

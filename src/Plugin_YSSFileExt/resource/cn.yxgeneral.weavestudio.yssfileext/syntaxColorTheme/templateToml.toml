@@ -1,0 +1,25 @@
+# TOML 颜色主题预览样本
+title = "YSS File Extension"
+version = 1.5
+enabled = true
+created = 2026-08-25T10:30:00+08:00
+
+[server]
+host = "127.0.0.1"
+port = 8080
+rate = 4.8
+tags = ["yaml", "xml", "toml", "ini"]
+limits = { max = 100, min = 0 }
+
+[database.connection]
+user = "root"
+password = 'secret'
+timeout = 30
+
+[[items]]
+name = "first"
+weight = 1.2
+
+[[items]]
+name = "second"
+weight = 2.4

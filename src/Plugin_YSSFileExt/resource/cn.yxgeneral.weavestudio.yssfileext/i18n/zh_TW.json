@@ -1,22 +1,62 @@
 {
 	"syntaxColorTheme": {
 		"PlainText": "一般文字",
-		"SelectedTextBackground": "選取文字背景",
-		"LineNumber": "行號",
-		"Function": "函式",
 		"String": "字串",
-		"SpecialString": "特殊字串",
 		"Number": "數字",
-		"Parameter": "參數",
-		"Keyword": "關鍵字",
-		"Vector": "向量",
+		"Boolean": "布林值",
 		"Comment": "註解",
-		"Namespace": "命名空間",
-		"Enum": "列舉",
-		"Macro": "巨集",
-		"MacroParameter": "巨集參數",
-		"ErrorLine": "錯誤線條",
-		"WarningLine": "警告線條",
-		"InfoLine": "資訊線條"
+		"Keyword": "關鍵字",
+		"Key": "鍵",
+		"Anchor": "錨點 / 別名",
+		"YamlTag": "YAML 標籤",
+		"XmlTag": "XML 標籤",
+		"Attribute": "屬性名",
+		"CData": "CDATA 資料",
+		"Entity": "實體",
+		"Header": "表頭",
+		"Section": "節"
+	},
+	"fileProvider": {
+		"window": {
+			"title": "YSS 檔案範本 初始化助手",
+			"create": "建立檔案",
+			"where": "新檔案將被建立為\"%1\"。",
+			"exists": "\"%1\"已存在！無法建立新檔案。"
+		},
+		"failed": {
+			"title": "建立檔案失敗",
+			"text": "無法建立檔案，請檢查目標資料夾是否存在，或是否有權限在該資料夾建立新檔案。"
+		},
+		"file": {
+			"name": {
+				"title": "檔案名稱",
+				"text": "新檔案的名稱（不含副檔名），將自動追加 \".%1\"。"
+			}
+		},
+		"json": {
+			"name": "JSON 資料檔案",
+			"description": "建立一個空的 JSON 資料檔案（.json）。",
+			"tags": "資料; 設定; JSON"
+		},
+		"yaml": {
+			"name": "YAML 資料檔案",
+			"description": "建立一個空的 YAML 資料檔案（.yaml）。",
+			"tags": "資料; 設定; YAML"
+		},
+		"xml": {
+			"name": "XML 標記檔案",
+			"description": "建立一個空的 XML 標記檔案（.xml）。",
+			"tags": "標記; 資料; XML"
+		},
+		"toml": {
+			"name": "TOML 設定檔",
+			"description": "建立一個空的 TOML 設定檔（.toml）。",
+			"tags": "設定; 資料; TOML"
+		},
+		"ini": {
+			"name": "INI 設定檔",
+			"description": "建立一個空的 INI 設定檔（.ini）。",
+			"tags": "設定; 資料; INI"
+		}
 	}
 }

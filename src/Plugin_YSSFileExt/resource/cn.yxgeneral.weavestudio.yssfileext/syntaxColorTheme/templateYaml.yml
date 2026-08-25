@@ -1,0 +1,21 @@
+---
+# YAML 颜色主题预览样本
+name: "YSS File Extension"
+version: 1.5
+enabled: true
+priority: null
+rating: 4.8
+colors: [red, green, blue]
+base: &base
+  key: value
+alias: *base
+nested:
+  object:
+    deep: [1, 2, 3]
+  flags: [true, false, null]
+unicode: "雪豹 · 罗德岛"
+author: !!str Tsing Yayin
+block: |
+  第一行
+  第二行
+...

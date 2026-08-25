@@ -1,22 +1,62 @@
 {
 	"syntaxColorTheme": {
 		"PlainText": "普通文本",
-		"SelectedTextBackground": "选中文本背景",
-		"LineNumber": "行号",
-		"Function": "函数",
 		"String": "字符串",
-		"SpecialString": "特殊字符串",
 		"Number": "数字",
-		"Parameter": "参数",
-		"Keyword": "关键字",
-		"Vector": "向量",
+		"Boolean": "布尔值",
 		"Comment": "注释",
-		"Namespace": "命名空间",
-		"Enum": "枚举",
-		"Macro": "宏",
-		"MacroParameter": "宏参数",
-		"ErrorLine": "错误线条",
-		"WarningLine": "警告线条",
-		"InfoLine": "信息线条"
+		"Keyword": "关键字",
+		"Key": "键",
+		"Anchor": "锚点 / 别名",
+		"YamlTag": "YAML 标签",
+		"XmlTag": "XML 标签",
+		"Attribute": "属性名",
+		"CData": "CDATA 数据",
+		"Entity": "实体",
+		"Header": "表头",
+		"Section": "节"
+	},
+	"fileProvider": {
+		"window": {
+			"title": "YSS 文件模板 初始化助手",
+			"create": "创建文件",
+			"where": "新文件将被创建为\"%1\"。",
+			"exists": "\"%1\"已存在！无法创建新文件。"
+		},
+		"failed": {
+			"title": "创建文件失败",
+			"text": "无法创建文件，请检查目标文件夹是否存在，或是否有权限在该文件夹创建新文件。"
+		},
+		"file": {
+			"name": {
+				"title": "文件名称",
+				"text": "新文件的名称（不含扩展名），将自动追加 \".%1\"。"
+			}
+		},
+		"json": {
+			"name": "JSON 数据文件",
+			"description": "创建一个空的 JSON 数据文件（.json）。",
+			"tags": "数据; 配置; JSON"
+		},
+		"yaml": {
+			"name": "YAML 数据文件",
+			"description": "创建一个空的 YAML 数据文件（.yaml）。",
+			"tags": "数据; 配置; YAML"
+		},
+		"xml": {
+			"name": "XML 标记文件",
+			"description": "创建一个空的 XML 标记文件（.xml）。",
+			"tags": "标记; 数据; XML"
+		},
+		"toml": {
+			"name": "TOML 配置文件",
+			"description": "创建一个空的 TOML 配置文件（.toml）。",
+			"tags": "配置; 数据; TOML"
+		},
+		"ini": {
+			"name": "INI 配置文件",
+			"description": "创建一个空的 INI 配置文件（.ini）。",
+			"tags": "配置; 数据; INI"
+		}
 	}
 }

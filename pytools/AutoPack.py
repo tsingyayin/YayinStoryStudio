@@ -211,6 +211,27 @@ def step4_create_release_zip(plan):
     run_bz(["a", "-r", "-y", plan["rel_zip"], "."], cwd=plan["new_folder"])
 
 
+# 临时例外：Spine 许可证未就绪（许可证就绪后删除本函数及其调用）
+def spine_not_prepared(plan):
+    root = plan["new_folder"]
+
+    # 1) 根部的 SpineWidget 动态库
+    dll = os.path.join(root, "Visindigo-Widgets-SpineWidget.dll")
+    if os.path.isfile(dll):
+        os.remove(dll)
+        log("已删除（Spine 许可证未就绪）: %s" % os.path.relpath(dll, root))
+    else:
+        log("跳过（不存在）: %s" % os.path.relpath(dll, root))
+
+    # 2) 整个 YSSSpineViewer 插件文件夹
+    plugin_dir = os.path.join(root, "user_data", "plugins", "YSSSpineViewer")
+    if os.path.isdir(plugin_dir):
+        shutil.rmtree(plugin_dir)
+        log("已删除（Spine 许可证未就绪）: %s" % os.path.relpath(plugin_dir, root))
+    else:
+        log("跳过（不存在）: %s" % os.path.relpath(plugin_dir, root))
+
+
 # ---------------------------------------------------------------- 入口
 def main():
     args = set(sys.argv[1:])
@@ -262,6 +283,7 @@ def main():
                 os.remove(t)
             log("已删除旧目标: %s" % t)
 
+    spine_not_prepared(plan)  # ⚠️ 临时：Spine 许可证就绪后删除本行
     step1_copy_release(plan)
     step2_clear_user_data(plan)
     step3_strip_debug_files(plan)

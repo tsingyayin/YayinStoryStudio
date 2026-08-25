@@ -1,0 +1,93 @@
+{
+    "name": "Visindigo Light 2024",
+    "datas": {
+        "PlainText": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.PlainText",
+            "identifierType": "Normal",
+            "textColor": "#242424",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "XmlTag": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.XmlTag",
+            "identifierType": "Vector",
+            "textColor": "#4EC9B0",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Attribute": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Attribute",
+            "identifierType": "SpecialString",
+            "textColor": "#D9AC5E",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "String": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.String",
+            "identifierType": "String",
+            "textColor": "#D69D85",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Comment": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Comment",
+            "identifierType": "Comment",
+            "textColor": "#57A64A",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Keyword": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Keyword",
+            "identifierType": "Keyword",
+            "textColor": "#569CD6",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "CData": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.CData",
+            "identifierType": "Macro",
+            "textColor": "#C586C0",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Entity": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Entity",
+            "identifierType": "Parameter",
+            "textColor": "#FFFF37",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        }
+    }
+}

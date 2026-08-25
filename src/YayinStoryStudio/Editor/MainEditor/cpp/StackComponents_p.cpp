@@ -11,6 +11,7 @@
 #include <Editor/FileServerManager.h>
 #include <General/VIApplication.h>
 #include <QtGui/qpainter.h>
+#include <Editor/VirtualFilePath.h>
 namespace YSS::Editor {
 	StackTag::StackTag(QWidget* parent, bool toolWidgetMode, Qt::Orientation orientation) :QFrame(parent){
 		Orientation = orientation;
@@ -105,6 +106,18 @@ namespace YSS::Editor {
 
 	void StackTag::setFilePath(const QString& filePath) {
 		FilePath = filePath;
+		if (YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
+			ActionReload->setEnabled(false);
+			ActionRename->setEnabled(false);
+			ActionSaveAs->setEnabled(false);
+			ActionShowInExplorer->setEnabled(false);
+		}
+		else {
+			ActionReload->setEnabled(true);
+			ActionRename->setEnabled(true);
+			ActionSaveAs->setEnabled(true);
+			ActionShowInExplorer->setEnabled(true);
+		}
 	}
 
 	QString StackTag::getFilePath() const {

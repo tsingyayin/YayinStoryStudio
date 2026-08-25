@@ -1,22 +1,62 @@
 {
 	"syntaxColorTheme": {
 		"PlainText": "Plain Text",
-		"SelectedTextBackground": "Selected Text Background",
-		"LineNumber": "Line Number",
-		"Function": "Function",
 		"String": "String",
-		"SpecialString": "Special String",
 		"Number": "Number",
-		"Parameter": "Parameter",
-		"Keyword": "Keyword",
-		"Vector": "Vector",
+		"Boolean": "Boolean",
 		"Comment": "Comment",
-		"Namespace": "Namespace",
-		"Enum": "Enum",
-		"Macro": "Macro",
-		"MacroParameter": "Macro Parameter",
-		"ErrorLine": "Error Line",
-		"WarningLine": "Warning Line",
-		"InfoLine": "Info Line"
+		"Keyword": "Keyword",
+		"Key": "Key",
+		"Anchor": "Anchor / Alias",
+		"YamlTag": "YAML Tag",
+		"XmlTag": "XML Tag",
+		"Attribute": "Attribute Name",
+		"CData": "CDATA Data",
+		"Entity": "Entity",
+		"Header": "Table Header",
+		"Section": "Section"
+	},
+	"fileProvider": {
+		"window": {
+			"title": "YSS File Template Initialization Assistant",
+			"create": "Create File",
+			"where": "The new file will be created as \"%1\".",
+			"exists": "\"%1\" already exists! Cannot create a new file."
+		},
+		"failed": {
+			"title": "Failed to Create File",
+			"text": "Unable to create the file. Please check whether the target folder exists, or whether you have permission to create a new file in that folder."
+		},
+		"file": {
+			"name": {
+				"title": "File Name",
+				"text": "The name of the new file (without extension); \".%1\" will be appended automatically."
+			}
+		},
+		"json": {
+			"name": "JSON Data File",
+			"description": "Create an empty JSON data file (.json).",
+			"tags": "Data; Config; JSON"
+		},
+		"yaml": {
+			"name": "YAML Data File",
+			"description": "Create an empty YAML data file (.yaml).",
+			"tags": "Data; Config; YAML"
+		},
+		"xml": {
+			"name": "XML Markup File",
+			"description": "Create an empty XML markup file (.xml).",
+			"tags": "Markup; Data; XML"
+		},
+		"toml": {
+			"name": "TOML Configuration File",
+			"description": "Create an empty TOML configuration file (.toml).",
+			"tags": "Config; Data; TOML"
+		},
+		"ini": {
+			"name": "INI Configuration File",
+			"description": "Create an empty INI configuration file (.ini).",
+			"tags": "Config; Data; INI"
+		}
 	}
 }

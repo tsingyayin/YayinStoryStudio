@@ -1,22 +1,62 @@
 {
 	"syntaxColorTheme": {
 		"PlainText": "プレーンテキスト",
-		"SelectedTextBackground": "選択テキストの背景",
-		"LineNumber": "行番号",
-		"Function": "関数",
 		"String": "文字列",
-		"SpecialString": "特殊文字列",
 		"Number": "数字",
-		"Parameter": "パラメータ",
-		"Keyword": "キーワード",
-		"Vector": "ベクトル",
+		"Boolean": "真偽値",
 		"Comment": "コメント",
-		"Namespace": "名前空間",
-		"Enum": "列挙",
-		"Macro": "マクロ",
-		"MacroParameter": "マクロパラメータ",
-		"ErrorLine": "エラー線",
-		"WarningLine": "警告線",
-		"InfoLine": "情報線"
+		"Keyword": "キーワード",
+		"Key": "キー",
+		"Anchor": "アンカー / エイリアス",
+		"YamlTag": "YAML タグ",
+		"XmlTag": "XML タグ",
+		"Attribute": "属性名",
+		"CData": "CDATA データ",
+		"Entity": "実体",
+		"Header": "テーブルヘッダー",
+		"Section": "セクション"
+	},
+	"fileProvider": {
+		"window": {
+			"title": "YSS ファイルテンプレート初期化ウィザード",
+			"create": "ファイルを作成",
+			"where": "新しいファイルは\"%1\"として作成されます。",
+			"exists": "\"%1\"は既に存在します！新しいファイルを作成できません。"
+		},
+		"failed": {
+			"title": "ファイルの作成に失敗",
+			"text": "ファイルを作成できませんでした。対象フォルダーが存在するか、そのフォルダーに新しいファイルを作成する権限があるかを確認してください。"
+		},
+		"file": {
+			"name": {
+				"title": "ファイル名",
+				"text": "新しいファイルの名前（拡張子なし）。\".%1\"が自動的に付加されます。"
+			}
+		},
+		"json": {
+			"name": "JSON データファイル",
+			"description": "空の JSON データファイル（.json）を作成します。",
+			"tags": "データ; 設定; JSON"
+		},
+		"yaml": {
+			"name": "YAML データファイル",
+			"description": "空の YAML データファイル（.yaml）を作成します。",
+			"tags": "データ; 設定; YAML"
+		},
+		"xml": {
+			"name": "XML マークアップファイル",
+			"description": "空の XML マークアップファイル（.xml）を作成します。",
+			"tags": "マークアップ; データ; XML"
+		},
+		"toml": {
+			"name": "TOML 設定ファイル",
+			"description": "空の TOML 設定ファイル（.toml）を作成します。",
+			"tags": "設定; データ; TOML"
+		},
+		"ini": {
+			"name": "INI 設定ファイル",
+			"description": "空の INI 設定ファイル（.ini）を作成します。",
+			"tags": "設定; データ; INI"
+		}
 	}
 }

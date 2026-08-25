@@ -1,22 +1,62 @@
 {
 	"syntaxColorTheme": {
 		"PlainText": "Klartext",
-		"SelectedTextBackground": "Hintergrund des ausgewählten Texts",
-		"LineNumber": "Zeilennummer",
-		"Function": "Funktion",
 		"String": "Zeichenkette",
-		"SpecialString": "Spezielle Zeichenkette",
 		"Number": "Zahl",
-		"Parameter": "Parameter",
-		"Keyword": "Schlüsselwort",
-		"Vector": "Vektor",
+		"Boolean": "Wahrheitswert",
 		"Comment": "Kommentar",
-		"Namespace": "Namespace",
-		"Enum": "Enum",
-		"Macro": "Makro",
-		"MacroParameter": "Makroparameter",
-		"ErrorLine": "Fehlerlinie",
-		"WarningLine": "Warnlinie",
-		"InfoLine": "Infolinie"
+		"Keyword": "Schlüsselwort",
+		"Key": "Schlüssel",
+		"Anchor": "Anker / Alias",
+		"YamlTag": "YAML-Tag",
+		"XmlTag": "XML-Tag",
+		"Attribute": "Attributname",
+		"CData": "CDATA-Daten",
+		"Entity": "Entität",
+		"Header": "Tabellenkopf",
+		"Section": "Abschnitt"
+	},
+	"fileProvider": {
+		"window": {
+			"title": "YSS-Dateivorlagen-Assistent",
+			"create": "Datei erstellen",
+			"where": "Die neue Datei wird als \"%1\" erstellt.",
+			"exists": "\"%1\" ist bereits vorhanden! Es kann keine neue Datei erstellt werden."
+		},
+		"failed": {
+			"title": "Datei konnte nicht erstellt werden",
+			"text": "Die Datei konnte nicht erstellt werden. Prüfen Sie, ob der Zielordner existiert und ob Sie Berechtigung haben, dort eine neue Datei zu erstellen."
+		},
+		"file": {
+			"name": {
+				"title": "Dateiname",
+				"text": "Der Name der neuen Datei (ohne Erweiterung); \".%1\" wird automatisch angehängt."
+			}
+		},
+		"json": {
+			"name": "JSON-Datendatei",
+			"description": "Eine leere JSON-Datendatei (.json) erstellen.",
+			"tags": "Daten; Konfiguration; JSON"
+		},
+		"yaml": {
+			"name": "YAML-Datendatei",
+			"description": "Eine leere YAML-Datendatei (.yaml) erstellen.",
+			"tags": "Daten; Konfiguration; YAML"
+		},
+		"xml": {
+			"name": "XML-Auszeichnungsdatei",
+			"description": "Eine leere XML-Auszeichnungsdatei (.xml) erstellen.",
+			"tags": "Auszeichnung; Daten; XML"
+		},
+		"toml": {
+			"name": "TOML-Konfigurationsdatei",
+			"description": "Eine leere TOML-Konfigurationsdatei (.toml) erstellen.",
+			"tags": "Konfiguration; Daten; TOML"
+		},
+		"ini": {
+			"name": "INI-Konfigurationsdatei",
+			"description": "Eine leere INI-Konfigurationsdatei (.ini) erstellen.",
+			"tags": "Konfiguration; Daten; INI"
+		}
 	}
 }

@@ -1,22 +1,62 @@
 {
 	"syntaxColorTheme": {
 		"PlainText": "素の文章",
-		"SelectedTextBackground": "選択文章の背景",
-		"LineNumber": "行番号",
-		"Function": "関数",
 		"String": "文字列",
-		"SpecialString": "特殊文字列",
 		"Number": "数字",
-		"Parameter": "引数",
-		"Keyword": "キーワード",
-		"Vector": "ベクトル",
+		"Boolean": "真偽値",
 		"Comment": "コメント",
-		"Namespace": "名前空間",
-		"Enum": "列挙",
-		"Macro": "マクロ",
-		"MacroParameter": "マクロ引数",
-		"ErrorLine": "エラー線",
-		"WarningLine": "警告線",
-		"InfoLine": "情報線"
+		"Keyword": "キーワード",
+		"Key": "キー",
+		"Anchor": "錨 / 別名",
+		"YamlTag": "YAML 印",
+		"XmlTag": "XML 印",
+		"Attribute": "属性名",
+		"CData": "CDATA 資料",
+		"Entity": "実体",
+		"Header": "見出し",
+		"Section": "節"
+	},
+	"fileProvider": {
+		"window": {
+			"title": "YSS ファイル雛形 初期化案内",
+			"create": "ファイルを作成",
+			"where": "新しいファイルは\"%1\"として作られます。",
+			"exists": "\"%1\"は既にあります！新しいファイルを作れません。"
+		},
+		"failed": {
+			"title": "ファイルの作成に失敗",
+			"text": "ファイルを作れませんでした。対象の資料入れが存在するか、その資料入れに新しいファイルを作る権限があるかを確認してください。"
+		},
+		"file": {
+			"name": {
+				"title": "ファイル名",
+				"text": "新しいファイルの名前（拡張子なし）。\".%1\"が自動的に付け加えられます。"
+			}
+		},
+		"json": {
+			"name": "JSON 情報ファイル",
+			"description": "空の JSON 情報ファイル（.json）を作ります。",
+			"tags": "情報; 設定; JSON"
+		},
+		"yaml": {
+			"name": "YAML 情報ファイル",
+			"description": "空の YAML 情報ファイル（.yaml）を作ります。",
+			"tags": "情報; 設定; YAML"
+		},
+		"xml": {
+			"name": "XML 標記ファイル",
+			"description": "空の XML 標記ファイル（.xml）を作ります。",
+			"tags": "標記; 情報; XML"
+		},
+		"toml": {
+			"name": "TOML 設定ファイル",
+			"description": "空の TOML 設定ファイル（.toml）を作ります。",
+			"tags": "設定; 情報; TOML"
+		},
+		"ini": {
+			"name": "INI 設定ファイル",
+			"description": "空の INI 設定ファイル（.ini）を作ります。",
+			"tags": "設定; 情報; INI"
+		}
 	}
 }

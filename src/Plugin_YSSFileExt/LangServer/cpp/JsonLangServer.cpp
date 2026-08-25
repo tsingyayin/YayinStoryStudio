@@ -53,10 +53,10 @@ namespace YSSFileExt {
 			});
 		getColorThemeProvider()->parseStaticThemeFrom(
 			Visindigo::Utility::FileUtility::readAll(
-				":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/visindigo_dark_2024.json"));
+				":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/json_dark_2024.json"));
 		getColorThemeProvider()->parseStaticThemeFrom(
 			Visindigo::Utility::FileUtility::readAll(
-				":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/visindigo_light_2024.json"));
+				":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/json_light_2024.json"));
 		// 样式样本：用于颜色主题设置页的预览编辑器展示全部着色元素
 		getColorThemeProvider()->setTemplateTextPath(
 			":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateFile.json");
@@ -153,8 +153,8 @@ namespace YSSFileExt {
 		setFormat(start, count, format);
 	}
 
-	// 着色逻辑：字符串值 -> String，对象键 -> SpecialString，数字 -> Number，true/false/null -> Keyword，
-	// 结构符号（{}[]: 等）保持 PlainText。与 Visindigo 2024 主题的样式键一一对应。
+	// 着色逻辑：字符串值 -> String，对象键 -> Key，数字 -> Number，true/false/null -> Keyword，
+	// 结构符号（{}[]: 等）保持 PlainText。与 JSON 主题的样式键一一对应。
 	static void colorLine(JsonLangHighlighter* highlighter, const QString& text) {
 		if (text.isEmpty()) return;
 		highlighter->setFormatWithColorKey(0, text.length(), "PlainText");
@@ -165,7 +165,7 @@ namespace YSSFileExt {
 			case JsonTokenType::String: {
 				// 键：其后（忽略空白）紧跟 ':' 的字符串视作对象键
 				bool isKey = (i + 1 < tokens.size() && tokens.at(i + 1).type == JsonTokenType::Colon);
-				highlighter->setFormatWithColorKey(t.column, t.length, isKey ? "SpecialString" : "String");
+				highlighter->setFormatWithColorKey(t.column, t.length, isKey ? "Key" : "String");
 				break;
 			}
 			case JsonTokenType::Number:

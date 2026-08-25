@@ -10,8 +10,20 @@
         <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/ru.json</file>
         <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/de.json</file>
         <file>resource/cn.yxgeneral.weavestudio.yssfileext/i18n/fr.json</file>
-        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/visindigo_dark_2024.json</file>
-        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/visindigo_light_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/json_dark_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/json_light_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/yaml_dark_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/yaml_light_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/xml_dark_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/xml_light_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/toml_dark_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/toml_light_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/ini_dark_2024.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/ini_light_2024.json</file>
         <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateFile.json</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateYaml.yml</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateXml.xml</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateToml.toml</file>
+        <file>resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateIni.ini</file>
     </qresource>
 </RCC>

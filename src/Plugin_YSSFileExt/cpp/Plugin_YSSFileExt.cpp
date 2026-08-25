@@ -1,7 +1,13 @@
 #include "Plugin_YSSFileExt.h"
 #include "LangServer/JsonLangServer.h"
+#include "LangServer/YamlLangServer.h"
+#include "LangServer/XmlLangServer.h"
+#include "LangServer/TomlLangServer.h"
+#include "LangServer/IniLangServer.h"
 #include "FileServer/DefaultTextEdit.h"
 #include "FileServer/YSSPEditor.h"
+#include "FileTemplate/SimpleFileTemplate.h"
+#include <General/TranslationHost.h>
 namespace YSSFileExt {
 	YSSFileExtTranslator::YSSFileExtTranslator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "YSSFileExt")
@@ -28,8 +34,48 @@ Plugin_YSSFileExt::Plugin_YSSFileExt() {
 void Plugin_YSSFileExt::onPluginEnable() {
 	registerPluginModule(new YSSFileExt::YSSFileExtTranslator(this));
 	registerLangServer(new YSSFileExt::JsonLangServer(this));
+	registerLangServer(new YSSFileExt::YamlLangServer(this));
+	registerLangServer(new YSSFileExt::XmlLangServer(this));
+	registerLangServer(new YSSFileExt::TomlLangServer(this));
+	registerLangServer(new YSSFileExt::IniLangServer(this));
 	registerFileServer(new YSSFileExt::YSSPFileServer(this));
 	registerFileServer(new YSSFileExt::DefaultTextEdit(this));
+	// 新建文件模板（空文件）
+	registerFileTemplateProvider(new YSSFileExt::SimpleFileTemplateProvider(this,
+		"YSS File Extension JSON File Template Provider", "YSSFileExt_JsonFileTemplate",
+		"YSSFileExtJsonFile",
+		VITR("YSSFileExt::fileProvider.json.name"),
+		VITR("YSSFileExt::fileProvider.json.description"),
+		QStringList({ VITR("YSSFileExt::fileProvider.json.tags") }),
+		"json"));
+	registerFileTemplateProvider(new YSSFileExt::SimpleFileTemplateProvider(this,
+		"YSS File Extension YAML File Template Provider", "YSSFileExt_YamlFileTemplate",
+		"YSSFileExtYamlFile",
+		VITR("YSSFileExt::fileProvider.yaml.name"),
+		VITR("YSSFileExt::fileProvider.yaml.description"),
+		QStringList({ VITR("YSSFileExt::fileProvider.yaml.tags") }),
+		"yaml"));
+	registerFileTemplateProvider(new YSSFileExt::SimpleFileTemplateProvider(this,
+		"YSS File Extension XML File Template Provider", "YSSFileExt_XmlFileTemplate",
+		"YSSFileExtXmlFile",
+		VITR("YSSFileExt::fileProvider.xml.name"),
+		VITR("YSSFileExt::fileProvider.xml.description"),
+		QStringList({ VITR("YSSFileExt::fileProvider.xml.tags") }),
+		"xml"));
+	registerFileTemplateProvider(new YSSFileExt::SimpleFileTemplateProvider(this,
+		"YSS File Extension TOML File Template Provider", "YSSFileExt_TomlFileTemplate",
+		"YSSFileExtTomlFile",
+		VITR("YSSFileExt::fileProvider.toml.name"),
+		VITR("YSSFileExt::fileProvider.toml.description"),
+		QStringList({ VITR("YSSFileExt::fileProvider.toml.tags") }),
+		"toml"));
+	registerFileTemplateProvider(new YSSFileExt::SimpleFileTemplateProvider(this,
+		"YSS File Extension INI File Template Provider", "YSSFileExt_IniFileTemplate",
+		"YSSFileExtIniFile",
+		VITR("YSSFileExt::fileProvider.ini.name"),
+		VITR("YSSFileExt::fileProvider.ini.description"),
+		QStringList({ VITR("YSSFileExt::fileProvider.ini.tags") }),
+		"ini"));
 }
 
 void Plugin_YSSFileExt::onPluginDisable() {

@@ -1,10 +1,10 @@
 {
-    "name": "Visindigo Dark 2024",
+    "name": "Visindigo Light 2024",
     "datas": {
         "PlainText": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.PlainText",
             "identifierType": "Normal",
-            "textColor": "#DCDCDC",
+            "textColor": "#242424",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -12,10 +12,10 @@
             "bold": false,
             "italic": false
         },
-        "Function": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Function",
-            "identifierType": "Function",
-            "textColor": "#FF00FF",
+        "Key": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Key",
+            "identifierType": "SpecialString",
+            "textColor": "#D9AC5E",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -34,54 +34,10 @@
             "bold": false,
             "italic": false
         },
-        "SpecialString": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.SpecialString",
-            "identifierType": "SpecialString",
-            "textColor": "#D9AC5E",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#000000",
-            "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
         "Number": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Number",
             "identifierType": "Number",
-            "textColor": "#B5CEA8",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#000000",
-            "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
-        "Parameter": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Parameter",
-            "identifierType": "Parameter",
-            "textColor": "#FFFF37",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#000000",
-            "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
-        "Keyword": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Keyword",
-            "identifierType": "Keyword",
-            "textColor": "#569CD6",
-            "bgColor": "#000000",
-            "bgColorEnabled": false,
-            "lineColor": "#000000",
-            "underlineType": "NoUnderline",
-            "bold": false,
-            "italic": false
-        },
-        "Vector": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Vector",
-            "identifierType": "Vector",
-            "textColor": "#4EC9B0",
+            "textColor": "#829479",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -100,10 +56,10 @@
             "bold": false,
             "italic": false
         },
-        "Enum": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Enum",
-            "identifierType": "Enum",
-            "textColor": "#B8D7A3",
+        "Keyword": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Keyword",
+            "identifierType": "Keyword",
+            "textColor": "#569CD6",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -111,8 +67,8 @@
             "bold": false,
             "italic": false
         },
-        "Macro": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Macro",
+        "Anchor": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Anchor",
             "identifierType": "Macro",
             "textColor": "#C586C0",
             "bgColor": "#000000",
@@ -122,10 +78,10 @@
             "bold": false,
             "italic": false
         },
-        "MacroParameter": {
-            "styleName": "i18n:YSSFileExt::syntaxColorTheme.MacroParameter",
-            "identifierType": "MacroParameter",
-            "textColor": "#EEEEEE",
+        "YamlTag": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.YamlTag",
+            "identifierType": "Parameter",
+            "textColor": "#FFFF37",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",

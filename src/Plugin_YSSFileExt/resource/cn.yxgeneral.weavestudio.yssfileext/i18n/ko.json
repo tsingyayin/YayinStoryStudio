@@ -1,22 +1,62 @@
 {
 	"syntaxColorTheme": {
 		"PlainText": "일반 텍스트",
-		"SelectedTextBackground": "선택된 텍스트 배경",
-		"LineNumber": "줄 번호",
-		"Function": "함수",
 		"String": "문자열",
-		"SpecialString": "특수 문자열",
 		"Number": "숫자",
-		"Parameter": "매개변수",
-		"Keyword": "키워드",
-		"Vector": "벡터",
+		"Boolean": "부울 값",
 		"Comment": "주석",
-		"Namespace": "네임스페이스",
-		"Enum": "열거형",
-		"Macro": "매크로",
-		"MacroParameter": "매크로 매개변수",
-		"ErrorLine": "오류 선",
-		"WarningLine": "경고 선",
-		"InfoLine": "정보 선"
+		"Keyword": "키워드",
+		"Key": "키",
+		"Anchor": "앵커 / 별칭",
+		"YamlTag": "YAML 태그",
+		"XmlTag": "XML 태그",
+		"Attribute": "속성 이름",
+		"CData": "CDATA 데이터",
+		"Entity": "엔터티",
+		"Header": "테이블 헤더",
+		"Section": "섹션"
+	},
+	"fileProvider": {
+		"window": {
+			"title": "YSS 파일 템플릿 초기화 도우미",
+			"create": "파일 만들기",
+			"where": "새 파일이 \"%1\"(으)로 만들어집니다.",
+			"exists": "\"%1\"(이)가 이미 있습니다! 새 파일을 만들 수 없습니다."
+		},
+		"failed": {
+			"title": "파일 만들기 실패",
+			"text": "파일을 만들 수 없습니다. 대상 폴더가 존재하는지, 또는 해당 폴더에 새 파일을 만들 수 있는 권한이 있는지 확인하세요."
+		},
+		"file": {
+			"name": {
+				"title": "파일 이름",
+				"text": "새 파일의 이름(확장자 제외)입니다. \".%1\"이(가) 자동으로 추가됩니다."
+			}
+		},
+		"json": {
+			"name": "JSON 데이터 파일",
+			"description": "빈 JSON 데이터 파일(.json)을 만듭니다.",
+			"tags": "데이터; 구성; JSON"
+		},
+		"yaml": {
+			"name": "YAML 데이터 파일",
+			"description": "빈 YAML 데이터 파일(.yaml)을 만듭니다.",
+			"tags": "데이터; 구성; YAML"
+		},
+		"xml": {
+			"name": "XML 마크업 파일",
+			"description": "빈 XML 마크업 파일(.xml)을 만듭니다.",
+			"tags": "마크업; 데이터; XML"
+		},
+		"toml": {
+			"name": "TOML 구성 파일",
+			"description": "빈 TOML 구성 파일(.toml)을 만듭니다.",
+			"tags": "구성; 데이터; TOML"
+		},
+		"ini": {
+			"name": "INI 구성 파일",
+			"description": "빈 INI 구성 파일(.ini)을 만듭니다.",
+			"tags": "구성; 데이터; INI"
+		}
 	}
 }

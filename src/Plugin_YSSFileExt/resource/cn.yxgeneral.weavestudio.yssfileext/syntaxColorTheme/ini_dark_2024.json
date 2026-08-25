@@ -1,0 +1,60 @@
+{
+    "name": "Visindigo Dark 2024",
+    "datas": {
+        "PlainText": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.PlainText",
+            "identifierType": "Normal",
+            "textColor": "#DCDCDC",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Key": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Key",
+            "identifierType": "SpecialString",
+            "textColor": "#D9AC5E",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "String": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.String",
+            "identifierType": "String",
+            "textColor": "#D69D85",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Comment": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Comment",
+            "identifierType": "Comment",
+            "textColor": "#57A64A",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        },
+        "Section": {
+            "styleName": "i18n:YSSFileExt::syntaxColorTheme.Section",
+            "identifierType": "Vector",
+            "textColor": "#4EC9B0",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
+        }
+    }
+}

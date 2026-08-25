@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XML 颜色主题预览样本 -->
+<story version="1.5" enabled="true">
+	<character id="char_001" name="雪豹" level="4.8">
+		<skills>
+			<skill type="physical">攻击</skill>
+			<skill type="magic">治疗</skill>
+		</skills>
+		<notes><![CDATA[CDATA 内容 <raw> & 不转义]]></notes>
+		<description>实体测试：&lt;tag&gt; &amp; 引号 &quot; 号</description>
+	</character>
+	<empty/>
+</story>
