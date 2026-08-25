@@ -203,15 +203,6 @@
     <ClCompile Include="General\cpp\VirtualStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="General\cpp\NexusAddress.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="General\cpp\NexusClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="General\cpp\NexusDataPack.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -332,12 +323,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\VirtualStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\NexusService.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\NexusDataPack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -463,12 +448,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\IconFontRouter.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <ClInclude Include="General\NexusAddress.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <QtMoc Include="General\NexusClient.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
