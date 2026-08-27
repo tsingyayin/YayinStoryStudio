@@ -12,8 +12,10 @@
 #include <General/VIApplication.h>
 #include <QtGui/qpainter.h>
 #include <Editor/VirtualFilePath.h>
+#include <QtCore/qmimedata.h>
+#include <QtGui/qdrag.h>
 namespace YSS::Editor {
-	StackTag::StackTag(QWidget* parent, bool toolWidgetMode, Qt::Orientation orientation) :QFrame(parent){
+	StackTag::StackTag(QWidget* parent, bool toolWidgetMode, Qt::Orientation orientation) :QFrame(parent) {
 		Orientation = orientation;
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
@@ -60,6 +62,7 @@ namespace YSS::Editor {
 		this->toolWidgetMode = toolWidgetMode;
 		ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
 		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
+		ActionSave = new QAction(VITR("Visindigo::general.save"), this);
 		ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
 		ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
 		ActionCloseSaved = new QAction(VITR("YSS::menu.file.closeSaved"), this);
@@ -71,6 +74,9 @@ namespace YSS::Editor {
 			});
 		connect(ActionRename, &QAction::triggered, this, [this]() {
 			emit renameRequested(FilePath);
+			});
+		connect(ActionSave, &QAction::triggered, this, [this]() {
+			emit saveRequested(FilePath);
 			});
 		connect(ActionSaveAs, &QAction::triggered, this, [this]() {
 			emit saveAsRequested(FilePath);
@@ -84,13 +90,21 @@ namespace YSS::Editor {
 
 		if (not toolWidgetMode) {
 			this->addActions({ ActionClose, ActionPin, ActionReload,
-				ActionRename, ActionSaveAs, ActionShowInExplorer,
+				ActionRename, ActionSave, ActionSaveAs, ActionShowInExplorer,
 				ActionCloseAll, ActionCloseSaved });
 		}
 		else {
 			this->TitleLabel->setAlignment(Qt::AlignCenter);
 			this->addActions({ ActionClose, ActionPin, ActionCloseAll });
 		}
+	}
+
+	void StackTag::setStayInWidget(StackTagWidget* widget) {
+		StayInWidget = widget; // not parent. StackTag`s parent should be a scrollArea in StackTagWidget, not StackTagWidget itself.
+	}
+
+	StackTagWidget* StackTag::getStayInWidget() const {
+		return StayInWidget;
 	}
 
 	void StackTag::setText(const QString& text) {
@@ -107,13 +121,11 @@ namespace YSS::Editor {
 	void StackTag::setFilePath(const QString& filePath) {
 		FilePath = filePath;
 		if (YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
-			ActionReload->setEnabled(false);
 			ActionRename->setEnabled(false);
-			ActionSaveAs->setEnabled(false);
+			ActionSaveAs->setEnabled(false); // notice: virtual file has virtual save, but no virtual save as.
 			ActionShowInExplorer->setEnabled(false);
 		}
 		else {
-			ActionReload->setEnabled(true);
 			ActionRename->setEnabled(true);
 			ActionSaveAs->setEnabled(true);
 			ActionShowInExplorer->setEnabled(true);
@@ -161,6 +173,7 @@ namespace YSS::Editor {
 		QFrame::mousePressEvent(event);
 		if (event->button() == Qt::LeftButton) {
 			Pressed = true;
+			PressedPos = event->pos();
 		}
 	}
 
@@ -169,6 +182,30 @@ namespace YSS::Editor {
 		if (Pressed && event->button() == Qt::LeftButton) {
 			Pressed = false;
 			emit clicked(FilePath);
+		}
+	}
+	
+	void StackTag::mouseMoveEvent(QMouseEvent* event) {
+		QFrame::mouseMoveEvent(event);
+		if (Pressed) {
+			QPoint currentPos = event->pos();
+			if ((currentPos - PressedPos).manhattanLength() > QApplication::startDragDistance()) {
+				Pressed = false;
+				QDrag* drag = new QDrag(this);
+				QImage dragImage = this->grab().toImage();
+				drag->setPixmap(QPixmap::fromImage(dragImage));
+				QMimeData* mimeData = new QMimeData;
+				quint64 self = reinterpret_cast<quint64>(this);
+				QString selfPtr = QString::number(self, 16);
+				quint64 area = reinterpret_cast<quint64>(StayInWidget);
+				QString areaPtr = QString::number(area, 16);
+				Visindigo::Utility::JsonConfig json;
+				json.setString("self", selfPtr);
+				json.setString("area", areaPtr);
+				mimeData->setData("application/x-yss-stacktag", json.toString().toUtf8());
+				drag->setMimeData(mimeData);
+				drag->exec(Qt::MoveAction);
+			}
 		}
 	}
 
@@ -251,6 +288,9 @@ namespace YSS::Editor {
 	}
 
 	StackTagWidget::StackTagWidget(QWidget* parent, Qt::Orientation orientation) :QFrame(parent) {
+		// NOTE: must use setAcceptDrops(true); acceptDrops() is only a getter
+		// (returns bool) and does NOT enable drop acceptance.
+		this->setAcceptDrops(true);
 		Orientation = orientation;
 		ScrollContent = new QWidget(this);
 		ScrollContent->setObjectName("StackTagScrollContent");
@@ -308,6 +348,7 @@ namespace YSS::Editor {
 		QIcon closeIcon = VIApp->getFontIcon("\uE711", 64, { textColor });
 		QIcon reloadIcon = VIApp->getFontIcon("\uE895", 64, { textColor });
 		QIcon renameIcon = VIApp->getFontIcon("\uE8AC", 64, { textColor });
+		QIcon saveIcon = VIApp->getNamedFontIcon("Save", 64, { textColor });
 		QIcon saveAsIcon = VIApp->getFontIcon("\uE792", 64, { textColor });
 		QIcon showInExplorerIcon = VIApp->getFontIcon("\uE8A7", 64, { textColor });
 		QIcon closeAllIcon = VIApp->getFontIcon("\uEA39", 64, { textColor});
@@ -326,6 +367,7 @@ namespace YSS::Editor {
 			label->ActionPin->setIcon(label->isPinned() ? pinnedIcon : pinIcon);
 			label->ActionReload->setIcon(reloadIcon);
 			label->ActionRename->setIcon(renameIcon);
+			label->ActionSave->setIcon(saveIcon);
 			label->ActionSaveAs->setIcon(saveAsIcon);
 			label->ActionShowInExplorer->setIcon(showInExplorerIcon);
 			label->ActionCloseAll->setIcon(closeAllIcon);
@@ -368,6 +410,9 @@ namespace YSS::Editor {
 			});
 		connect(tagLabel, &StackTag::closeSavedRequested, this, [this]() {
 			emit closeSavedRequested();
+			});
+		connect(tagLabel, &StackTag::saveRequested, this, [this](const QString& filePath) {
+			emit saveRequested(filePath);
 			});
 		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
 		/*tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
@@ -633,6 +678,7 @@ namespace YSS::Editor {
 	void StackTagWidget::onThemeChanged() {
 
 	}
+
 	void StackTagWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		if (Orientation == Qt::Horizontal) {
@@ -641,6 +687,62 @@ namespace YSS::Editor {
 			WidgetSelector->setFixedWidth(this->width());
 		}
 		adjustScrollArea();
+	}
+
+	void StackTagWidget::dragEnterEvent(QDragEnterEvent* event) {
+		if (event->mimeData()->hasFormat("application/x-yss-stacktag")) {
+			event->acceptProposedAction();
+		}
+	}
+
+	void StackTagWidget::dragMoveEvent(QDragMoveEvent* event) {
+		if (event->mimeData()->hasFormat("application/x-yss-stacktag")) {
+			event->acceptProposedAction();
+		}
+	}
+
+	void StackTagWidget::dropEvent(QDropEvent* event) {
+		if (event->mimeData()->hasFormat("application/x-yss-stacktag")) {
+			event->acceptProposedAction();
+			QByteArray data = event->mimeData()->data("application/x-yss-stacktag");
+			Visindigo::Utility::JsonConfig json(QString::fromUtf8(data));
+			QString selfPtr = json.getString("self");
+			StackTag* selfLabel = reinterpret_cast<StackTag*>(selfPtr.toULongLong(nullptr, 16));
+			if (Labels.contains(selfLabel)) {
+				int index = ContentLayout->indexOf(selfLabel);
+				if (index != -1) {
+					// event->position() is relative to this widget; map it into
+					// ScrollContent's coordinate space, where every label's geometry()
+					// lives, so all comparisons below share one consistent system.
+					QPoint dropPos = ScrollContent->mapFrom(this, event->position().toPoint());
+					// Dropped inside the dragged label's own area -> no reorder.
+					if (selfLabel->geometry().contains(dropPos)) {
+						event->accept();
+						return;
+					}
+					ContentLayout->removeWidget(selfLabel);
+					Labels.removeAll(selfLabel);
+					int newIndex = Labels.size();
+					for (int i = 0; i < Labels.size(); ++i) {
+						const QPoint center = Labels[i]->geometry().center();
+						const int dropCoord = Orientation == Qt::Horizontal ? dropPos.x() : dropPos.y();
+						const int centerCoord = Orientation == Qt::Horizontal ? center.x() : center.y();
+						if (dropCoord < centerCoord) {
+							newIndex = i;
+							break;
+						}
+					}
+					StackTag* labelAtNewIndex = Labels.value(newIndex, nullptr);
+					if (labelAtNewIndex->isPinned() != selfLabel->isPinned()) {
+						event->accept();
+						return; // Don't allow moving a pinned label to an unpinned position or vice versa.
+					}
+					ContentLayout->insertWidget(newIndex, selfLabel);
+					Labels.insert(newIndex, selfLabel);
+				}
+			}
+			event->accept();
+		}
 	}
 
 	DefaultStackWidgetCentralArea::DefaultStackWidgetCentralArea(QWidget* parent) :QFrame(parent) {

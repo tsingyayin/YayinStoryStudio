@@ -19,17 +19,37 @@ namespace YSSCore::Editor {
 			CodeEditor,  //builtin code editor
 			BuiltInEditor, //builtin, but not code editor
 		};
+		enum PreferredOrientation {
+			Vertical_Narrow = 0x0001,
+			Vertical_Wide = 0x0002,
+			Vertical = Vertical_Narrow | Vertical_Wide,
+			Horizontal_Narrow = 0x0004,
+			Horizontal_Wide = 0x0008,
+			Horizontal = Horizontal_Narrow | Horizontal_Wide,
+			Any = Vertical | Horizontal
+		};
+	public:
 		FileServer(const QString& name, const QString& id, EditorPlugin* plugin);
 		virtual ~FileServer();
+	public:
 		EditorType getEditorType();
 		QStringList getSupportedFileExts();
+		bool isVirtualFileServer();
+		PreferredOrientation getPreferredOrientation();
+		QIcon getFileServerIcon();
+		bool isListAsTool();
+		QString getToolNickname();
+	public:
 		virtual qint64 especiallyFocusFile(const QString& filePath);
 		virtual FileEditWidget* onCreateFileEditWidget();
-		bool isVirtualFileServer();
 	protected:
 		void setEditorType(EditorType type);
 		void setSupportedFileExts(const QStringList& exts);
 		void setAsVitrualFileServer(bool isVirtual);
+		void setFileServerIcon(const QIcon& icon);
+		void setPreferredOrientation(PreferredOrientation orientation);
+		void setListAsTool(bool  isTool);
+		void setToolNickname(const QString& vi18n_name);
 	private:
 		FileServerPrivate* d;
 	};

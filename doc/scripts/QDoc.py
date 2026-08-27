@@ -30,7 +30,7 @@ if __name__ == "__main__":
     QDocConfig = path + "\\..\\src\\config.qdocconf"
     print("QDocPath: " + QDocPath)
     print("QDocConfig: " + QDocConfig)
-    docPara:str = QDocPath+" "+QDocConfig + " -indexdir D:/Qt/Docs/Qt-6.8.3"
+    docPara:str = QDocPath+" "+QDocConfig + " -indexdir D:/Qt/Docs/Qt-6.10.3"
     os.system(docPara)
     if para["qt"]["translationCN"]:
         QDocToCN.main(path + "\\..\\html")

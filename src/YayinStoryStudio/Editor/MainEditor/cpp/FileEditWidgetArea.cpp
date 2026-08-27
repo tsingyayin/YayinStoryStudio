@@ -18,9 +18,30 @@ namespace YSS::Editor {
 		QVBoxLayout* Layout;
 		//MessageViewer* MsgViewer;
 		DefaultStackWidgetCentralArea* CentralArea;
+		QString areaID;
+	protected:
+		static FileEditWidgetArea* mainArea;
+		static QSet<qint32> usedAreaIDs;
+		static QMap<qint32, FileEditWidgetArea*> areaIDMap;
 	};
 
+	FileEditWidgetArea* FileEditWidgetAreaPrivate::mainArea = nullptr;
+	QSet<qint32> FileEditWidgetAreaPrivate::usedAreaIDs = QSet<qint32>();
+	QMap<qint32, FileEditWidgetArea*> FileEditWidgetAreaPrivate::areaIDMap = QMap<qint32, FileEditWidgetArea*>();
+
 	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
+		if (FileEditWidgetAreaPrivate::mainArea == nullptr) {
+			FileEditWidgetAreaPrivate::mainArea = this;
+		}
+		qint32 size = FileEditWidgetAreaPrivate::usedAreaIDs.size();
+		for (int i = 0; i < size + 1; i++) {
+			if (not FileEditWidgetAreaPrivate::usedAreaIDs.contains(i)) {
+				FileEditWidgetAreaPrivate::usedAreaIDs.insert(i);
+				setAreaID(QString::number(i));
+				break;
+			}
+		}
+
 		d = new FileEditWidgetAreaPrivate;
 		d->Layout = new QVBoxLayout(this);
 		d->Layout->setSpacing(0);
@@ -47,6 +68,12 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackTagWidget::renameRequested, this, [this](const QString& oldPath) {
 			emit renameRequested(oldPath);
 			});
+		connect(d->TagArea, &StackTagWidget::saveRequested, this, [this](const QString& filePath) {
+			YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
+			if (widget) {
+				widget->saveFile();
+			}
+			});
 		connect(d->TagArea, &StackTagWidget::saveAsRequested, this, [this](const QString& filePath) {
 			emit saveAsRequested(filePath);
 			});
@@ -67,7 +94,29 @@ namespace YSS::Editor {
 			widget->setParent(nullptr);
 			widget->closeFile();
 		}
+		if (FileEditWidgetAreaPrivate::mainArea == this) {
+			FileEditWidgetAreaPrivate::mainArea = nullptr;
+		}
+		FileEditWidgetAreaPrivate::areaIDMap.remove(d->areaID.toInt());
+		FileEditWidgetAreaPrivate::usedAreaIDs.remove(d->areaID.toInt());
 		delete d;
+	}
+
+	void FileEditWidgetArea::setAreaID(const QString& areaID) {
+		if (FileEditWidgetAreaPrivate::usedAreaIDs.contains(areaID.toInt())) {
+			return;
+		}
+		if (not d->areaID.isEmpty()) {
+			FileEditWidgetAreaPrivate::areaIDMap.remove(d->areaID.toInt());
+			FileEditWidgetAreaPrivate::usedAreaIDs.remove(d->areaID.toInt());
+		}
+		d->areaID = areaID;
+		FileEditWidgetAreaPrivate::areaIDMap.insert(areaID.toInt(), this);
+		FileEditWidgetAreaPrivate::usedAreaIDs.insert(areaID.toInt());
+	}
+
+	QString FileEditWidgetArea::getAreaID() const {
+		return d->areaID;
 	}
 
 	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -204,6 +253,25 @@ namespace YSS::Editor {
 			return widget->getFilePath();
 		}
 		return QString();
+	}
+
+	void FileEditWidgetArea::moveWidgetTo(const QString& filePath, FileEditWidgetArea* otherArea) {
+		QString absPath = filePath;
+		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
+			absPath = QFileInfo(filePath).absoluteFilePath();
+		}
+		d->TagArea->removeStackLabel(absPath);
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
+		if (widget) {
+			widget->disconnect(this);
+			widget->disconnect(d->TagArea);
+			otherArea->addWidget(widget);
+		}
+	}
+
+	void FileEditWidgetArea::focusInEvent(QFocusEvent* event) {
+		Visindigo::Widgets::BorderFrame::focusInEvent(event);
+		emit areaFocusd(d->areaID);
 	}
 
 	void FileEditWidgetArea::resizeEvent(QResizeEvent* event) {

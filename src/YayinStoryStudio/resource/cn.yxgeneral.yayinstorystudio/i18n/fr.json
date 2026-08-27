@@ -145,6 +145,7 @@
 			"resourceBrowser": "Explorateur de ressources",
 			"messageViewer": "Visionneuse de messages",
 			"pluginTools": "Outils de plugins",
+			"fullScreenToggle": "Basculer en plein écran",
 			"noTools": "Aucun outil à afficher"
 		}
 	},

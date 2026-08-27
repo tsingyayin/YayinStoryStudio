@@ -145,6 +145,7 @@
 			"resourceBrowser": "リソースブラウザー",
 			"messageViewer": "メッセージビューアー",
 			"pluginTools": "プラグインツール",
+			"fullScreenToggle": "全画面切り替え",
 			"noTools": "表示できるツールがありません"
 		}
 	},

@@ -11,6 +11,7 @@
 #include <QtWidgets/qmenu.h>
 #include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
+	class StackTagWidget;
 	class StackTag :public QFrame {
 		friend class StackTagWidget;
 		friend class StackTagWidgetPrivate;
@@ -25,6 +26,8 @@ namespace YSS::Editor {
 		bool Focused = false;
 		bool Pinned = false;
 		bool Pressed = false;
+		QPoint PressedPos;
+		StackTagWidget* StayInWidget = nullptr;
 	protected:
 		QToolButton* PinLabel;
 		QToolButton* CloseLabel;
@@ -32,6 +35,7 @@ namespace YSS::Editor {
 		QAction* ActionPin;
 		QAction* ActionReload;
 		QAction* ActionRename;
+		QAction* ActionSave;
 		QAction* ActionSaveAs;
 		QAction* ActionShowInExplorer;
 		QAction* ActionCloseAll;
@@ -44,8 +48,11 @@ namespace YSS::Editor {
 		void saveAsRequested(const QString& filePath);
 		void closeAllRequested();
 		void closeSavedRequested();
+		void saveRequested(const QString& filePath);
 	public:
 		StackTag(QWidget* parent = nullptr, bool toolWidgetMode = false, Qt::Orientation orientation = Qt::Horizontal);
+		void setStayInWidget(StackTagWidget* widget);
+		StackTagWidget* getStayInWidget() const;
 		void setText(const QString& text);
 		void setFilePath(const QString& filePath);
 		QString getFilePath() const;
@@ -57,6 +64,7 @@ namespace YSS::Editor {
 	public:
 		virtual void mousePressEvent(QMouseEvent* event) override;
 		virtual void mouseReleaseEvent(QMouseEvent* event) override;
+		virtual void mouseMoveEvent(QMouseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 		virtual void enterEvent(QEnterEvent* event) override;
 		virtual void leaveEvent(QEvent* event) override;
@@ -72,6 +80,7 @@ namespace YSS::Editor {
 		void saveAsRequested(const QString& filePath);
 		void closeAllRequested();
 		void closeSavedRequested();
+		void saveRequested(const QString& filePath);
 	private:
 		Qt::Orientation Orientation;
 		QBoxLayout* ContentLayout;
@@ -102,6 +111,9 @@ namespace YSS::Editor {
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;
 		virtual void resizeEvent(QResizeEvent* event) override;
+		virtual void dragEnterEvent(QDragEnterEvent* event) override;
+		virtual void dragMoveEvent(QDragMoveEvent* event) override;
+		virtual void dropEvent(QDropEvent* event) override;
 	private:
 		void applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor);
 	};

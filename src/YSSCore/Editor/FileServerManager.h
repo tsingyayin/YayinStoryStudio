@@ -35,7 +35,6 @@ namespace YSSCore::Editor {
 		bool openFile(const QFileInfo& fileInfo, const QString& preferredServerId = QString(), bool useFallback = true);
 		bool openFile(const QString& filePath, const QString& preferredServerId = QString(), bool useFallback = true);
 		QStringList getSupportedFileExts();
-		QStringList getAvailableFileServerForFileExt(const QString& fileExt);
 		QString getNameOfFileServer(const QString& serverId);
 		void setPriorityForFileExt(const QString& fileExt, const QStringList& serverIds);
 		void setEspeciallyFocusEnable(const QString& fileExt, bool enable);
@@ -44,6 +43,15 @@ namespace YSSCore::Editor {
 		QStringList getAllOpenedFilePaths();
 		FileEditWidget* getFileEditWidget(const QFileInfo& fileInfo);
 		FileEditWidget* getFileEditWidget(const QString& filePath);
+		QList<FileServer*> getRegisteredFileServers() const;
+		QList<FileServer*> getFileServersForFileExt(const QString& fileExt) const;
+		QList<FileServer*> getVirtualFileServers() const;
+		QList<FileServer*> getAsToolFileServers() const;
+		QStringList getSupportedVirtualFileExts() const;
+		FileServer* getFileServerById(const QString& serverId) const;
+		FileServer* getFileEditWidgetSourceServer(const QString& filePath) const;
+		FileServer* getFileEditWidgetSourceServer(const QFileInfo& fileInfo) const;
+		FileServer* getFileEditWidgetSourceServer(FileEditWidget* widget) const;
 	private:
 		FileServerManagerPrivate* d;
 	};

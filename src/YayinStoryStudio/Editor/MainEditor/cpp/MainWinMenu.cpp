@@ -71,6 +71,7 @@ namespace YSS::Editor {
 		QAction* Run_Action_Resume;
 
 		QMenu* ViewMenu;
+		QAction* View_FullScreenToggle;
 		QAction* View_ResourceBrowser;
 		QMap<QString, QString> PluginToolsMap;
 		QMap<QAction*, QString> PluginToolsActionIDMap;
@@ -214,8 +215,14 @@ namespace YSS::Editor {
 			View_ResourceBrowser->setCheckable(true);
 			View_ResourceBrowser->setChecked(true);
 			ViewMenu->addSeparator();
+			View_FullScreenToggle = ViewMenu->addAction(VITR("YSS::menu.view.fullScreenToggle"));
+			View_FullScreenToggle->setObjectName("fullScreenToggle");
+			View_FullScreenToggle->setCheckable(true);
+			View_FullScreenToggle->setChecked(false);
+			ViewMenu->addSeparator();
 
 			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
+			QObject::connect(View_FullScreenToggle, &QAction::triggered, q, &MainWinMenu::view_fullScreenToggle);
 			QObject::connect(ViewMenu, &QMenu::aboutToShow, q, &MainWinMenu::onPluginToolMenuAboutToShow);
 		}
 	};
@@ -465,6 +472,18 @@ namespace YSS::Editor {
 		d->Parent->getResourceBrowser()->setVisible(checked);
 	}
 
+	void MainWinMenu::view_fullScreenToggle(bool checked) {
+		if (d->View_FullScreenToggle->isChecked() != checked) {
+			d->View_FullScreenToggle->setChecked(checked);
+		}
+		if (checked) {
+			d->Parent->showFullScreen();
+		}
+		else {
+			d->Parent->showNormal();
+		}
+	}
+
 	void MainWinMenu::view_pluginTools(const QString& toolID, bool checked) {
 		auto widget = YSSTWM->getToolWidget(toolID);
 		if (widget && not checked) {
@@ -587,6 +606,7 @@ namespace YSS::Editor {
 			d->Run_Action_Suspend->setIcon(VIApp->getFontIcon("\uE769", 64, { d->MenuTextColor }));
 			d->Run_Action_Resume->setIcon(VIApp->getFontIcon("\uE893", 64, { d->MenuTextColor }));
 
+			d->View_FullScreenToggle->setIcon(VIApp->getNamedFontIcon("FullScreen", 64, { d->MenuTextColor }));
 			d->View_ResourceBrowser->setIcon(VIApp->getFontIcon("\uEC50", 64, { d->MenuTextColor }));
 		}
 	}

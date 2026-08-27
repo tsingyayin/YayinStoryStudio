@@ -145,6 +145,7 @@
 			"resourceBrowser": "Resource Browser",
 			"messageViewer": "Message Viewer",
 			"pluginTools": "Plugin Tools",
+			"fullScreenToggle": "Toggle Full Screen",
 			"noTools": "No tools to display"
 		}
 	},

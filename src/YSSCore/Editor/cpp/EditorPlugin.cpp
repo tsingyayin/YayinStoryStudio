@@ -179,6 +179,8 @@ namespace YSSCore::Editor {
 		\since YSS 0.15.0
 		\a widgetID 工具窗口ID
 		\a widgetName 工具窗口名称
+		
+		\warning 自0.17.0起，ToolWidget完全弃用，改用FileServer的listAsTool属性来实现工具窗口功能。
 
 		注册工具窗口。工具窗口是YSS编辑器中可以停靠的窗口，插件可以通过onToolWidgetRequested()提供工具窗口的内容。
 

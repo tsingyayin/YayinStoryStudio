@@ -9,19 +9,27 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
 #include <Utility/FileUtility.h>
-
+#include <General/Exception.h>
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
 	protected:
 		QList<FileServer*> FileServers;
 		QMap<QString, FileServer*> VirtualFileServerMap;
+		QList<FileServer*> AsToolFileServers;
+
 		QMap<QString, QList<FileServer*>> FileServerMap;
 		QMap<QString, QList<FileServer*>> FileServerPriorityMap;
 		QMap<QString, bool> EspeciallyFocusEnableMap;
+
 		QMap<QString, FileEditWidget*> OpenedFileEditWidgets;
+		QMap<FileEditWidget*, FileServer*> FileEditWidgetSourceServerMap;
+
 		static FileServerManager* Instance;
 
+		/*
+			此函数从指定Server获取FileEditWidget并打开指定文件。若成功，则将转入onFileEditWidgetCreated作进一步处理。
+		*/
 		bool openFile(const QString& filePath, FileServer* server) {
 			bool ok = false;
 			if (server != nullptr) {
@@ -29,60 +37,60 @@ namespace YSSCore::Editor {
 				switch (server->getEditorType()) {
 				case FileServer::CodeEditor:
 					feWidget = new TextEdit();
-					ok = feWidget->openFile(filePath);
-					if (ok) {
-						onFileEditWidgetCreated(feWidget);
-						return true;
-					}
-					else {
-						delete feWidget;
-						return false;
-					}
 					break;
 				case FileServer::BuiltInEditor:
 					feWidget = server->onCreateFileEditWidget();
-					if (not feWidget) {
-						return false;
-					}
-					ok = feWidget->openFile(filePath);
-					if (ok) {
-						onFileEditWidgetCreated(feWidget);
-						return true;
-					}
-					else {
-						delete feWidget;
-						return false;
-					}
 					break;
 				}
+				if (not feWidget) {
+					vgWarningF << "FileServer" << server->getModuleID() << "failed to create FileEditWidget for file" << filePath;
+					return false;
+				}
+				bool	ok = feWidget->openFile(filePath);
+				if (not ok) {
+					vgWarningF << "FileEditWidget failed to open file" << filePath << "for FileServer" << server->getModuleID();
+					feWidget->deleteLater();
+					return false;
+				}
+				FileEditWidgetSourceServerMap.insert(feWidget, server);
+				onFileEditWidgetCreated(feWidget);
+				return true;
 			}
-			return ok;
 		}
 
-		void onFileEditWidgetCreated(FileEditWidget* we) {
-			if (not we) { return; }
-			QString path = we->getFilePath();
-			OpenedFileEditWidgets.insert(path, we);
-			QObject::connect(we, &FileEditWidget::fileClosed, Instance, [this, we](const QString& path) {
+		/*
+			此函数将已经实质上打开文件的FileEditWidget的相关信号绑定到本类相关功能。
+		*/
+		void onFileEditWidgetCreated(FileEditWidget* few) {
+			if (not few) {
+				VI_Throw_ST(Visindigo::General::Exception::NullPointer, "This function requires a valid FileEditWidget pointer.");
+			}
+			QString path = few->getFilePath();
+			OpenedFileEditWidgets.insert(path, few);
+			QObject::connect(few, &FileEditWidget::fileClosed, Instance, [this, few](const QString& path) {
 				OpenedFileEditWidgets.remove(path);
+				FileEditWidgetSourceServerMap.remove(few);
 				emit Instance->fileClosed(path);
-				we->deleteLater();
+				few->deleteLater();
 				yDebug << "File closed:" << path;
 				});
-			QObject::connect(we, &FileEditWidget::fileRenamed, Instance, [this, we](const QString& rawPath, const QString& changedPath) {
+			QObject::connect(few, &FileEditWidget::fileRenamed, Instance, [this, few](const QString& rawPath, const QString& changedPath) {
 				if (OpenedFileEditWidgets.contains(rawPath)) {
 					OpenedFileEditWidgets.remove(rawPath);
-					OpenedFileEditWidgets.insert(changedPath, we);
+					OpenedFileEditWidgets.insert(changedPath, few);
 					emit Instance->fileRenamed(rawPath, changedPath);
 				}
+				else {
+					VI_Throw_ST(Visindigo::General::Exception::NotFound, "FileEditWidget emitted fileRenamed signal but the raw path is not found in OpenedFileEditWidgets.");
+				}
 				});
-			QObject::connect(we, &FileEditWidget::fileChanged, Instance, [this](const QString& path) {
+			QObject::connect(few, &FileEditWidget::fileChanged, Instance, [this](const QString& path) {
 				emit Instance->fileChanged(path);
 				});
-			QObject::connect(we, &FileEditWidget::fileChangeCanceled, Instance, [this](const QString& path) {
+			QObject::connect(few, &FileEditWidget::fileChangeCanceled, Instance, [this](const QString& path) {
 				emit Instance->fileChangeCanceled(path);
 				});
-			QObject::connect(we, &FileEditWidget::fileSaved, Instance, [this](const QString& path) {
+			QObject::connect(few, &FileEditWidget::fileSaved, Instance, [this](const QString& path) {
 				emit Instance->fileSaved(path);
 				});
 			emit Instance->fileOpened(path);
@@ -240,6 +248,9 @@ namespace YSSCore::Editor {
 					continue;
 				}
 				d->VirtualFileServerMap.insert(type, server);
+				if (server->isListAsTool()) {
+					d->AsToolFileServers.append(server);
+				}
 			}
 		}
 	}
@@ -410,29 +421,10 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		return 所有已注册的FileServer支持的文件类型列表。
+		return 所有已注册的FileServer支持的文件类型列表。不含虚拟文件类型。
 	*/
 	QStringList FileServerManager::getSupportedFileExts() {
 		return d->FileServerMap.keys();
-	}
-
-	/*!
-		\since YSS 0.13.0
-		return 某种文件类型对应的可用FileServer列表。
-		\a fileExt 文件类型后缀名（不含点号）。
-		return 返回某种文件类型对应的可用FileServer ID列表。
-
-		这个API不返回任何有关虚拟文件服务器的信息。
-	*/
-	QStringList FileServerManager::getAvailableFileServerForFileExt(const QString& fileExt) {
-		QStringList serverIds;
-		if (d->FileServerMap.contains(fileExt)) {
-			QList<FileServer*> servers = d->FileServerMap[fileExt];
-			for (int i = 0; i < servers.size(); i++) {
-				serverIds.append(servers[i]->getModuleID());
-			}
-		}
-		return serverIds;
 	}
 
 	/*!
@@ -524,7 +516,6 @@ namespace YSSCore::Editor {
 		return 指定文件路径对应的文件编辑窗口。
 		\a filePath 文件路径。
 		return 指定文件路径对应的文件编辑窗口指针，如果没有找到则返回nullptr。
-		该返回值应即用即弃，不应被缓存或长期持有，因为FileServerManager会负责在窗口关闭时删除窗口对象。
 
 		委托到getFileEditWidget(const QFileInfo&)版本。
 	*/
@@ -547,6 +538,104 @@ namespace YSSCore::Editor {
 		QString absPath = fileInfo.absoluteFilePath();
 		if (d->OpenedFileEditWidgets.contains(absPath)) {
 			return d->OpenedFileEditWidgets[absPath];
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.17.0
+
+		return 全部已经注册的文件服务器。
+	*/
+	QList<FileServer*> FileServerManager::getRegisteredFileServers() const {
+		return d->FileServers;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 全部已经注册的文件服务器中，支持指定文件类型的服务器。
+
+		\a fileExt 文件类型后缀名（不含点号）。
+
+		请注意，这个返回值不包括对虚拟文件路径中扩展名的搜索。
+	*/
+	QList<FileServer*> FileServerManager::getFileServersForFileExt(const QString& fileExt) const {
+		if (d->FileServerMap.contains(fileExt)) {
+			return d->FileServerMap[fileExt];
+		}
+		return QList<FileServer*>();
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 全部已经注册的文件服务器中，支持虚拟文件路径的服务器。
+	*/
+	QList<FileServer*> FileServerManager::getVirtualFileServers() const {
+		return d->VirtualFileServerMap.values();
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 全部支持的虚拟文件扩展名。
+	*/
+	QStringList FileServerManager::getSupportedVirtualFileExts() const {
+		return d->VirtualFileServerMap.keys();
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 指定ID的FileServer对象。
+	*/
+	FileServer* FileServerManager::getFileServerById(const QString& serverId) const {
+		for (auto server : d->FileServers) {
+			if (server->getModuleID() == serverId) {
+				return server;
+			}
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 指定文件路径对应的FileEditWidget的源FileServer对象。
+	*/
+	FileServer* FileServerManager::getFileEditWidgetSourceServer(const QString& filePath) const {
+		if (VirtualFilePath::isVirtualFilePath(filePath)) {
+			if (d->OpenedFileEditWidgets.contains(filePath)) {
+				auto we = d->OpenedFileEditWidgets[filePath];
+				if (we) {
+					return getFileEditWidgetSourceServer(we);
+				}
+			}
+		}
+		else {
+			return getFileEditWidgetSourceServer(QFileInfo(filePath));
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 指定文件信息对应的FileEditWidget的源FileServer对象。
+	*/
+	FileServer* FileServerManager::getFileEditWidgetSourceServer(const QFileInfo& fileInfo) const {
+		QString absPath = fileInfo.absoluteFilePath();
+		if (d->OpenedFileEditWidgets.contains(absPath)) {
+			auto we = d->OpenedFileEditWidgets[absPath];
+			if (we) {
+				return getFileEditWidgetSourceServer(we);
+			}
+		}
+		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 指定FileEditWidget的源FileServer对象。
+	*/
+	FileServer* FileServerManager::getFileEditWidgetSourceServer(FileEditWidget* few) const {
+		if (d->FileEditWidgetSourceServerMap.contains(few)) {
+			return d->FileEditWidgetSourceServerMap[few];
 		}
 		return nullptr;
 	}

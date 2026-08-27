@@ -145,6 +145,7 @@
 			"resourceBrowser": "資源瀏覽器",
 			"messageViewer": "訊息檢視器",
 			"pluginTools": "外掛程式工具",
+			"fullScreenToggle": "切換全螢幕",
 			"noTools": "沒有工具可顯示"
 		}
 	},

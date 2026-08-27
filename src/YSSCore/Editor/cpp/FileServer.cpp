@@ -9,6 +9,10 @@ namespace YSSCore::Editor {
 		FileServer::EditorType Type = FileServer::EditorType::BuiltInEditor;
 		QStringList SupportedFileExts;
 		bool asVirtualFileServer = false;
+		FileServer::PreferredOrientation PreferredOrientation = FileServer::PreferredOrientation::Any;
+		bool listAsTool = false;
+		QString toolNickname;
+		QIcon fileServerIcon;
 	};
 	/*!
 		\class YSSCore::Editor::FileServer
@@ -30,6 +34,9 @@ namespace YSSCore::Editor {
 
 		FileServer的职责仅限于根据文件扩展名和编辑器类型来路由文件打开请求。
 
+		\note 一旦将FileServer注册到YSSCore::Editor::FileServerManager中，任何对FileServer属性的设置都不再有效。
+		在注册后再通过set函数设置任何属性都为明确的错误行为。
+
 		\section1 编辑器类型
 		\list
 		\li CodeEditor 使用内置代码编辑器打开文件。
@@ -44,6 +51,45 @@ namespace YSSCore::Editor {
 		YSSCore::Editor::VirtualFilePath 类的文档。
 
 		虚拟文件服务器的 \c file_ext 作为ID使用，不能有多个FileServer同时注册同一个 \c file_ext，否则后来者无效。
+
+		\section1 作为工具的文件服务器
+		从0.17.0开始，将原有的ToolWidget概念合并到FileServer中。通过设置FileServer的listAsTool属性为true，可以将其作为工具在顶栏中列出，
+		并与普通文件一样在文件编辑区域显示。
+
+		请注意，如果设置了listAsTool属性为true，则virtualFileServer属性也自动拨到true，但反之不成立。因此，如果一个FileServer被
+		列作工具，则应该使用虚拟文件路径访问它。
+
+		\section1 编辑器的首选方向
+		从0.17.0开始，可以通过setPreferredOrientation设置首选的编辑器方向，以便在文件编辑区域中打开时，能够根据首选方向来决定将
+		FileEditWidget安排在哪一个区域中。如果设置为Any，则会优先考虑将其安排在主区域。这对于一般的文件编辑器来说是合理的。
+		但对于一些工具类的编辑器来说，可能更适合安排在长条状的区域中，这个时候就可以考虑使用Horizontal或Vertical来指定首选方向。
+
+		总的来说，遵循这样的逻辑：
+		\list
+		1. 如果为Any，则优先考虑主区域。
+		2. 如果为Vertical，则优先考虑除了主区域外，其他高度大于宽度的区域。
+		3. 如果为Horizontal，则优先考虑除了主区域外，其他宽度大于高度的区域。
+		4. 如果为Vertical_Wide，则将在所有高度大于宽度的区域中，优先选择长宽比小于2:1的区域。Horizontally_Wide同理。
+		5. 如果为Vertical_Narrow，则将在所有高度大于宽度的区域中，优先选择长宽比大于2:1的区域。Horizontally_Narrow同理。
+		\endlist
+
+		请注意，不要对PreferredOrientation的值进行位运算。YSS会根据上述逻辑来选择合适的区域，而不是根据位运算的结果来选择。
+
+		\section1 主区域与副区域的安排
+		YSS的主区域只有一个。即第一个被创建的编辑区域实例，其他均为副区域。
+
+		如果：
+		\list
+		1. 首选方向不为Any
+		2. 没有任何一个副区域的长宽比符合首选方向的要求
+		3. 该FileServer设置了listAsTool属性为true
+		\endlist
+
+		则YSS会在主区域左侧或下侧，根据首选方向的要求，创建一个新的副区域来安排FileEditWidget。
+
+		上述有关首选方向的逻辑仅仅是YSS在安排FileEditWidget时的首选逻辑，用户可以自由将FileEditWidget在不同区域中
+		拖放。而不同区域的长宽比均可自由设置。因此，即使编辑器具有首选方向，也应当尽可能尝试兼容不同的长宽比和不同的区域，
+		以便在用户拖放时能够正常显示。
 	*/
 
 	/*!
@@ -55,6 +101,21 @@ namespace YSSCore::Editor {
 		请注意，为了实现一些更深入的编辑器功能（如重命名），YSS必须有办法将资源管理器的重命名
 		操作通知到正在打开的文件，因此我们决定从0.15开始，只保留CodeEditor和BuiltInEditor两种编辑器类型，
 		以确保所有的编辑器都必须使用内置的编辑器框架来打开文件。
+	*/
+
+	/*!
+		\enum YSSCore::Editor::FileServer::PreferredOrientation
+		\since YSS 0.17.0
+		\value Vertical_Narrow 首选竖直方向，且长宽比大于2:1。
+		\value Vertical_Wide 首选竖直方向，且长宽比小于2:1。
+		\value Vertical 首选竖直方向。
+		\value Horizontal_Narrow 首选水平方向，且长宽比大于2:1。
+		\value Horizontal_Wide 首选水平方向，且长宽比小于2:1。
+		\value Horizontal 首选水平方向。
+		\value Any 不指定首选方向，优先考虑主区域。
+
+		虽然此枚举中有三个值是按位或得到的，但请不要再进行其他位运算。
+		YSS会根据首选方向的逻辑来选择合适的区域，而不是根据位运算的结果来选择。
 	*/
 
 	/*!
@@ -88,9 +149,45 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		return 此文件服务支持的文件扩展名列表。
+
+		对于虚拟文件，这就是@file_ext!file_name?param中的file_ext部分。对于普通文件，这就是文件的后缀名。
 	*/
 	QStringList FileServer::getSupportedFileExts() {
 		return d->SupportedFileExts;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 此文件服务的首选编辑器方向。
+	*/
+	FileServer::PreferredOrientation FileServer::getPreferredOrientation() {
+		return d->PreferredOrientation;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 此文件服务器的图标
+	*/
+	QIcon FileServer::getFileServerIcon() {
+		return d->fileServerIcon;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 此文件服务是否作为工具列出。
+	*/
+	bool FileServer::isListAsTool() {
+		return d->listAsTool;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 此文件服务器作为工具时的昵称。
+
+		\note 这里可能是VI18N字符串
+	*/
+	QString FileServer::getToolNickname() {
+		return d->toolNickname;
 	}
 
 	/*!
@@ -181,5 +278,51 @@ namespace YSSCore::Editor {
 	*/
 	void FileServer::setAsVitrualFileServer(bool isVirtual) {
 		d->asVirtualFileServer = isVirtual;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a orientation 为新的首选编辑器方向。
+
+		设置此文件服务的首选编辑器方向。
+	*/
+	void FileServer::setPreferredOrientation(FileServer::PreferredOrientation orientation) {
+		d->PreferredOrientation = orientation;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a icon 为新的文件服务器图标。
+
+		设置此文件服务的图标。
+	*/
+	void FileServer::setFileServerIcon(const QIcon& icon) {
+		d->fileServerIcon = icon;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a isTool 是否设置为作为工具列出。
+
+		设置此文件服务是否作为工具列出。作为工具列出的FileSever也被
+		自动视为虚拟文件服务器。
+	*/
+	void FileServer::setListAsTool(bool isTool) {
+		d->listAsTool = isTool;
+		if (isTool) {
+			d->asVirtualFileServer = true;
+		}
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a vi18n_name 为新的工具昵称。
+
+		设置此文件服务作为工具时的昵称。
+
+		\note 这里可以是VI18N字符串
+	*/
+	void FileServer::setToolNickname(const QString& vi18n_name) {
+		d->toolNickname = vi18n_name;
 	}
 }

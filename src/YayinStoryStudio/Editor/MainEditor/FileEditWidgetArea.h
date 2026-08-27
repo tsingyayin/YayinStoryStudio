@@ -13,9 +13,16 @@ namespace YSS::Editor {
 		void saveAsRequested(const QString& rawFilePath);
 		void currentFileChanged(const QString& filePath);
 		void textEditCursorPositionChanged(const QString& filePath, const QTextCursor& cursor);
+		void areaFocusd(const QString& areaID);
+	public:
+		static FileEditWidgetArea* getAreaByID(const QString& areaID);
+		static FileEditWidgetArea* getMainArea();
 	public:
 		FileEditWidgetArea(QWidget* parent = nullptr);
 		virtual ~FileEditWidgetArea();
+	public:
+		void setAreaID(const QString& areaID);
+		QString getAreaID() const;
 		void addWidget(YSSCore::Editor::FileEditWidget* widget);
 		void closeAll(bool autoGiveup = false);
 		void closeSaved();
@@ -27,6 +34,13 @@ namespace YSS::Editor {
 		void setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column);
 		YSSCore::Editor::FileEditWidget* getCurrentWidget() const;
 		QString getCurrentWidgetFilePath() const;
+		void moveWidgetTo(const QString& filePath, FileEditWidgetArea* otherArea);
+	protected:
+		virtual void focusInEvent(QFocusEvent* event) override;
+		virtual void dragEnterEvent(QDragEnterEvent* event) override {};
+		virtual void dragLeaveEvent(QDragLeaveEvent* event) override {};
+		virtual void dragMoveEvent(QDragMoveEvent* event) override {};
+		virtual void dropEvent(QDropEvent* event) override {};
 	public:
 		virtual void resizeEvent(QResizeEvent* event) override;
 	private:

@@ -51,6 +51,7 @@ namespace YSS::Editor {
 		void run_action_resume();
 	public:
 		void view_resourceBrowser(bool checked);
+		void view_fullScreenToggle(bool checked);
 		void view_pluginTools(const QString& toolID, bool checked);
 	public:
 		void onEditMenuAboutToShow();

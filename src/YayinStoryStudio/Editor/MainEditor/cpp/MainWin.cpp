@@ -377,6 +377,7 @@ namespace YSS::Editor {
 			{"edit::paste", "Ctrl+V"},
 			{"edit::selectAll", "Ctrl+A"},
 			{"edit::findAndReplace", "Ctrl+F"},
+			{"view::fullScreenToggle", "F11"},
 			{"run::debug", "F5"},
 			{"run::run", "Ctrl+F5"},
 			{"run::stop", "Shift+F5"},
@@ -493,6 +494,9 @@ namespace YSS::Editor {
 		}
 		else if (event->key() == Qt::Key_F5) {
 			Menu->run_run_debug();
+		}
+		else if (event->key() == Qt::Key_F11) {
+			Menu->view_fullScreenToggle(not isFullScreen());
 		}
 	}
 

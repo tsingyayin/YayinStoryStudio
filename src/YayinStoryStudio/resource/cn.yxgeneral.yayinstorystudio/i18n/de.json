@@ -145,6 +145,7 @@
 			"resourceBrowser": "Ressourcen-Browser",
 			"messageViewer": "Nachrichtenanzeige",
 			"pluginTools": "Plugin-Werkzeuge",
+			"fullScreenToggle": "Vollbild umschalten",
 			"noTools": "Keine Werkzeuge anzeigbar"
 		}
 	},

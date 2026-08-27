@@ -145,6 +145,7 @@
 			"resourceBrowser": "리소스 브라우저",
 			"messageViewer": "메시지 뷰어",
 			"pluginTools": "플러그인 도구",
+			"fullScreenToggle": "전체 화면 전환",
 			"noTools": "표시할 도구가 없습니다"
 		}
 	},

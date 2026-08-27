@@ -193,6 +193,9 @@
     <QtMoc Include="Editor\MainEditor\private\ColorThemeSettings_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">

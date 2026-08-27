@@ -171,6 +171,7 @@
     <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />
+    <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />
