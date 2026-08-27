@@ -9,6 +9,9 @@
 #include <General/TranslationHost.h>
 #include <Editor/VirtualFilePath.h>
 #include "Editor/MainEditor/TextEditConfigOperator.h"
+#include <QtCore/qmimedata.h>
+#include <QtGui/qdrag.h>
+#include <QtGui/qevent.h>
 namespace YSS::Editor {
 	class FileEditWidgetAreaPrivate {
 		friend class FileEditWidgetArea;
@@ -19,6 +22,7 @@ namespace YSS::Editor {
 		//MessageViewer* MsgViewer;
 		DefaultStackWidgetCentralArea* CentralArea;
 		QString areaID;
+		QLabel* DragInMsgLabel;
 	protected:
 		static FileEditWidgetArea* mainArea;
 		static QSet<qint32> usedAreaIDs;
@@ -30,6 +34,10 @@ namespace YSS::Editor {
 	QMap<qint32, FileEditWidgetArea*> FileEditWidgetAreaPrivate::areaIDMap = QMap<qint32, FileEditWidgetArea*>();
 
 	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
+		// NOTE: acceptDrops() is only a getter (returns bool); must use
+		// setAcceptDrops(true) to actually enable accepting drops.
+		this->setAcceptDrops(true);
+
 		if (FileEditWidgetAreaPrivate::mainArea == nullptr) {
 			FileEditWidgetAreaPrivate::mainArea = this;
 		}
@@ -47,6 +55,7 @@ namespace YSS::Editor {
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->TagArea = new StackTagWidget(this);
+		d->TagArea->setArea(this);
 		d->TagArea->setFixedHeight(36);
 
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
@@ -83,6 +92,12 @@ namespace YSS::Editor {
 		connect(d->TagArea, &StackTagWidget::closeSavedRequested, this, [this]() {
 			closeSaved();
 			});
+
+		d->DragInMsgLabel = new QLabel(this);
+		d->DragInMsgLabel->setText(VITR("YSS::editor.stackWidgetArea.dragInFile"));
+		d->DragInMsgLabel->setAlignment(Qt::AlignCenter);
+		d->DragInMsgLabel->setStyleSheet("background-color: rgba(0, 0, 0, 0.5); color: white; font-size: 16px;");
+		d->DragInMsgLabel->hide();
 	}
 
 	FileEditWidgetArea::~FileEditWidgetArea() {
@@ -272,6 +287,45 @@ namespace YSS::Editor {
 	void FileEditWidgetArea::focusInEvent(QFocusEvent* event) {
 		Visindigo::Widgets::BorderFrame::focusInEvent(event);
 		emit areaFocusd(d->areaID);
+	}
+	
+	void FileEditWidgetArea::dragEnterEvent(QDragEnterEvent* event) {
+		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
+			event->acceptProposedAction();
+			d->DragInMsgLabel->show();
+			d->DragInMsgLabel->raise();
+			d->DragInMsgLabel->resize(this->size());
+		}
+	}
+	void FileEditWidgetArea::dragMoveEvent(QDragMoveEvent* event) {
+		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
+			event->acceptProposedAction();
+		}
+	}
+
+	void FileEditWidgetArea::dragLeaveEvent(QDragLeaveEvent* event) {
+		QFrame::dragLeaveEvent(event);
+		d->DragInMsgLabel->hide();
+	}
+
+	void FileEditWidgetArea::dropEvent(QDropEvent* event) {
+		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
+			QByteArray data = event->mimeData()->data(StackTag::stackTagDragMimeType);
+			Visindigo::Utility::JsonConfig json(QString::fromUtf8(data));
+			QString selfPtr = json.getString("self");
+			StackTag* selfLabel = reinterpret_cast<StackTag*>(selfPtr.toULongLong(nullptr, 16));
+			// The drag source serializes the "area" key: the StackTagWidget the dragged
+			// tag stays in (i.e. the SOURCE tag bar), not "parent".
+			QString sourcePtr = json.getString("area");
+			StackTagWidget* sourceTagArea = reinterpret_cast<StackTagWidget*>(sourcePtr.toULongLong(nullptr, 16));
+			if (selfLabel && sourceTagArea && sourceTagArea != d->TagArea) {
+				FileEditWidgetArea* from = sourceTagArea->getArea();
+				if (from && from != this) {
+					from->moveWidgetTo(selfLabel->getFilePath(), this);
+				}
+			}
+		}
+		d->DragInMsgLabel->hide();
 	}
 
 	void FileEditWidgetArea::resizeEvent(QResizeEvent* event) {

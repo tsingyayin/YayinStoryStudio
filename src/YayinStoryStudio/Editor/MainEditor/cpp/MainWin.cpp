@@ -62,6 +62,14 @@ namespace YSS::Editor {
 		Editors = new FileEditWidgetArea(CentralWidget);
 		Tools = new ToolWidgetArea(CentralWidget);
 
+		auto testSecondEditor = new FileEditWidgetArea();
+		testSecondEditor->resize(800, 600);
+		testSecondEditor->show();
+		
+		auto testThirdEditor = new FileEditWidgetArea();
+		testThirdEditor->resize(800, 600);
+		testThirdEditor->show();
+
 		QObject::connect(Browser, &ResourceBrowser::visibilityChanged, Menu, &MainWinMenu::onResourceBrowserVisibilityChanged);
 
 		Browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -363,13 +371,6 @@ namespace YSS::Editor {
 
 	void MainWin::setMenuShortcutTips() {
 		static QMap<QString, QString> currentTips = {
-			{"file::new", "Ctrl+N" },
-			{"file::open", "Ctrl+O"},
-			{"file::save", "Ctrl+S"},
-			{"file::saveAs", "Ctrl+Alt+S"},
-			{"file::saveAll", "Ctrl+Shift+S"},
-			{"file::documentation", "F1"},
-			{"file::exit", "Alt+F4"},
 			{"edit::undo", "Ctrl+Z"},
 			{"edit::redo", "Ctrl+Y"},
 			{"edit::cut", "Ctrl+X"},
@@ -377,11 +378,6 @@ namespace YSS::Editor {
 			{"edit::paste", "Ctrl+V"},
 			{"edit::selectAll", "Ctrl+A"},
 			{"edit::findAndReplace", "Ctrl+F"},
-			{"view::fullScreenToggle", "F11"},
-			{"run::debug", "F5"},
-			{"run::run", "Ctrl+F5"},
-			{"run::stop", "Shift+F5"},
-			{"run::restart", "Ctrl+Shift+F5"},
 		};
 		Menu->setShortcutTips(currentTips);
 	}
@@ -450,54 +446,6 @@ namespace YSS::Editor {
 	void MainWin::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height() - BottomFrame->height());
-	}
-
-	void MainWin::keyPressEvent(QKeyEvent* event) {
-		QFrame::keyPressEvent(event);
-		if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
-			if (event->key() == Qt::Key_S) {
-				saveProject();
-			}
-			else if (event->key() == Qt::Key_F5) {
-				Menu->run_run_restart();
-			}
-		}
-		else if (event->modifiers() == Qt::ControlModifier) {
-			if (event->key() == Qt::Key_S) {
-				auto editor = Editors->getCurrentWidget();
-				if (editor) {
-					editor->saveFile();
-				}
-			}
-			else if (event->key() == Qt::Key_O) {
-				this->openFileDialog();
-			}
-			else if (event->key() == Qt::Key_N) {
-				this->openNewFileWindow();
-			}
-			else if (event->key() == Qt::Key_F5) {
-				Menu->run_run_run();
-			}
-		}
-		else if (event->modifiers() == Qt::ShiftModifier) {
-			if (event->key() == Qt::Key_F5) {
-				Menu->run_run_stop();
-			}
-		}
-		else if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
-			if (event->key() == Qt::Key_S) {
-				saveCurrentFocusedFileAs();
-			}
-		}
-		else if (event->key() == Qt::Key_F1) {
-			help();
-		}
-		else if (event->key() == Qt::Key_F5) {
-			Menu->run_run_debug();
-		}
-		else if (event->key() == Qt::Key_F11) {
-			Menu->view_fullScreenToggle(not isFullScreen());
-		}
 	}
 
 	void MainWin::saveProject() {

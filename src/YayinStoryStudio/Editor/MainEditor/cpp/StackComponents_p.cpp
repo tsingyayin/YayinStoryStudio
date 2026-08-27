@@ -1,4 +1,5 @@
 #include "Editor/MainEditor/private/StackComponents_p.h"
+#include "Editor/MainEditor/FileEditWidgetArea.h"
 #include <QtCore/qfileinfo.h>
 #include <Editor/DocumentMessageManager.h>
 #include <General/TranslationHost.h>
@@ -15,6 +16,8 @@
 #include <QtCore/qmimedata.h>
 #include <QtGui/qdrag.h>
 namespace YSS::Editor {
+	const QString StackTag::stackTagDragMimeType = QString("application/x-yss-stacktag");
+
 	StackTag::StackTag(QWidget* parent, bool toolWidgetMode, Qt::Orientation orientation) :QFrame(parent) {
 		Orientation = orientation;
 		this->setFixedWidth(200);
@@ -120,16 +123,12 @@ namespace YSS::Editor {
 
 	void StackTag::setFilePath(const QString& filePath) {
 		FilePath = filePath;
-		if (YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
-			ActionRename->setEnabled(false);
-			ActionSaveAs->setEnabled(false); // notice: virtual file has virtual save, but no virtual save as.
-			ActionShowInExplorer->setEnabled(false);
-		}
-		else {
-			ActionRename->setEnabled(true);
-			ActionSaveAs->setEnabled(true);
-			ActionShowInExplorer->setEnabled(true);
-		}
+		// Virtual files have a virtual save but no virtual "save as", so disable
+		// the actions that don't apply to them.
+		const bool virtualFile = YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath);
+		ActionRename->setEnabled(!virtualFile);
+		ActionSaveAs->setEnabled(!virtualFile);
+		ActionShowInExplorer->setEnabled(!virtualFile);
 	}
 
 	QString StackTag::getFilePath() const {
@@ -147,6 +146,11 @@ namespace YSS::Editor {
 
 	bool StackTag::isFocusOn() const {
 		return Focused;
+	}
+
+	void StackTag::updateToolTip() {
+		const int textWidth = QFontMetrics(TitleLabel->font()).horizontalAdvance(TitleLabel->text());
+		setToolTip(textWidth > TitleLabel->width() ? TitleLabel->text() : QString());
 	}
 
 	void StackTag::setPinned(bool pinned) {
@@ -202,7 +206,7 @@ namespace YSS::Editor {
 				Visindigo::Utility::JsonConfig json;
 				json.setString("self", selfPtr);
 				json.setString("area", areaPtr);
-				mimeData->setData("application/x-yss-stacktag", json.toString().toUtf8());
+				mimeData->setData(StackTag::stackTagDragMimeType, json.toString().toUtf8());
 				drag->setMimeData(mimeData);
 				drag->exec(Qt::MoveAction);
 			}
@@ -215,14 +219,7 @@ namespace YSS::Editor {
 		CloseLabel->setFixedHeight(this->height() - 2);
 		PinLabel->setFixedWidth(PinLabel->height());
 		CloseLabel->setFixedWidth(CloseLabel->height());
-		QFontMetrics fm(TitleLabel->font());
-		int textWidth = fm.horizontalAdvance(TitleLabel->text());
-		if (textWidth > this->TitleLabel->width()) {
-			this->setToolTip(TitleLabel->text());
-		}
-		else {
-			this->setToolTip(QString());
-		}
+		updateToolTip();
 	}
 
 	void StackTag::enterEvent(QEnterEvent* event) {
@@ -230,14 +227,7 @@ namespace YSS::Editor {
 		Hovering = true;
 		PinLabel->show();
 		CloseLabel->show();
-		QFontMetrics fm(TitleLabel->font());
-		int textWidth = fm.horizontalAdvance(TitleLabel->text());
-		if (textWidth > this->TitleLabel->width()) {
-			this->setToolTip(TitleLabel->text());
-		}
-		else {
-			this->setToolTip(QString());
-		}
+		updateToolTip();
 	}
 
 	void StackTag::leaveEvent(QEvent* event) {
@@ -247,14 +237,7 @@ namespace YSS::Editor {
 			PinLabel->hide();
 		}
 		CloseLabel->hide();
-		QFontMetrics fm(TitleLabel->font());
-		int textWidth = fm.horizontalAdvance(TitleLabel->text());
-		if (textWidth > this->TitleLabel->width()) {
-			this->setToolTip(TitleLabel->text());
-		}
-		else {
-			this->setToolTip(QString());
-		}
+		updateToolTip();
 	}
 
 	void StackTag::paintEvent(QPaintEvent* event) {
@@ -342,6 +325,14 @@ namespace YSS::Editor {
 
 	StackTagWidget::~StackTagWidget() {}
 
+	void StackTagWidget::setArea(FileEditWidgetArea* area) {
+		Area = area;
+	}
+
+	FileEditWidgetArea* StackTagWidget::getArea() const {
+		return Area;
+	}
+
 	void StackTagWidget::applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor) {
 		QIcon pinIcon = VIApp->getFontIcon("\uE840", 64, { textColor });
 		QIcon pinnedIcon = VIApp->getFontIcon("\uE841\uE840", 64, { accentColor, textColor });
@@ -379,14 +370,10 @@ namespace YSS::Editor {
 		QFileInfo fileInfo(filePath);
 		StackTag* tagLabel = new StackTag(ScrollContent, ToolWidgetMode, Orientation);
 		tagLabel->setFilePath(filePath);
-		if (displayName.isEmpty()) {
-			tagLabel->setText(fileInfo.fileName());
-			WidgetSelector->addItem(fileInfo.fileName(), filePath);
-		}
-		else {
-			tagLabel->setText(displayName);
-			WidgetSelector->addItem(displayName, filePath);
-		}
+		tagLabel->setStayInWidget(this);
+		const QString text = displayName.isEmpty() ? fileInfo.fileName() : displayName;
+		tagLabel->setText(text);
+		WidgetSelector->addItem(text, filePath);
 		ContentLayout->addWidget(tagLabel);
 		Labels.append(tagLabel);
 
@@ -426,40 +413,24 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName) {
-		for (StackTag* label : Labels) {
-			if (label->getFilePath() == oldFilePath) {
-				QFileInfo fileInfo(newFilePath);
-				if (newDisplayName.isEmpty()) {
-					label->setText(fileInfo.fileName());
-				}
-				else {
-					label->setText(newDisplayName);
-				}
-				label->setFilePath(newFilePath);
-				for (int i = 0; i < WidgetSelector->count(); ++i) {
-					if (WidgetSelector->itemData(i).toString() == oldFilePath) {
-						if (newDisplayName.isEmpty()) {
-							WidgetSelector->setItemText(i, fileInfo.fileName());
-						}
-						else {
-							WidgetSelector->setItemText(i, newDisplayName);
-						}
-						WidgetSelector->setItemData(i, newFilePath);
-						break;
-					}
-				}
+		StackTag* label = findLabel(oldFilePath);
+		if (not label) {
+			return;
+		}
+		const QString text = newDisplayName.isEmpty() ? QFileInfo(newFilePath).fileName() : newDisplayName;
+		label->setText(text);
+		label->setFilePath(newFilePath);
+		for (int i = 0; i < WidgetSelector->count(); ++i) {
+			if (WidgetSelector->itemData(i).toString() == oldFilePath) {
+				WidgetSelector->setItemText(i, text);
+				WidgetSelector->setItemData(i, newFilePath);
 				break;
 			}
 		}
 	}
 
 	void StackTagWidget::pinStackLabel(const QString& filePath) {
-		StackTag* targetLabel = nullptr;
-		for (StackTag* label : Labels) {
-			if (label->getFilePath() == filePath) {
-				targetLabel = label;
-			}
-		}
+		StackTag* targetLabel = findLabel(filePath);
 		// NOTICE:
 		// This move-afterward operation working in two situations:
 		// 1. When pinning, it will move the label to the leftmost of all unpinned labels,
@@ -484,18 +455,12 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::removeStackLabel(const QString& filePath) {
-		StackTag* targetLabel = nullptr;
-		int index = 0;
+		StackTag* targetLabel = findLabel(filePath);
+		int index = -1;
 		vgDebug << "Attempting to remove stack label with file path: " << filePath;
-		for (int i = 0; i < Labels.size(); ++i) {
-			if (Labels[i]->getFilePath() == filePath) {
-				targetLabel = Labels[i];
-				index = i;
-				break;
-			}
-		}
-		vgDebug << targetLabel;
 		if (targetLabel) {
+			index = Labels.indexOf(targetLabel);
+			vgDebug << targetLabel;
 			Labels.removeAll(targetLabel);
 			ContentLayout->removeWidget(targetLabel);
 			targetLabel->deleteLater();
@@ -507,31 +472,22 @@ namespace YSS::Editor {
 			}
 		}
 		if (CurrentSelected == filePath) {
-			if (index > 1) {
-				if (index - 1 < Labels.size()) {
-					auto label = Labels[index];
-					if (label) {
-						setCurrentStackLabel(label->getFilePath());
-						emit switchToFile(label->getFilePath());
-					}
-				}
-				else {
-					CurrentSelected = "";
-					emit switchToFile("");
-				}
+			// Prefer the label that slid into the removed slot (its successor);
+			// if none exists, fall back to the first remaining label.
+			StackTag* next = nullptr;
+			if (index > 1 && index < Labels.size()) {
+				next = Labels[index];
+			}
+			else if (not Labels.isEmpty()) {
+				next = Labels.first();
+			}
+			if (next) {
+				setCurrentStackLabel(next->getFilePath());
+				emit switchToFile(next->getFilePath());
 			}
 			else {
-				if (Labels.size() > 0) {
-					auto label = Labels[0];
-					if (label) {
-						setCurrentStackLabel(label->getFilePath());
-						emit switchToFile(label->getFilePath());
-					}
-				}
-				else {
-					CurrentSelected = "";
-					emit switchToFile("");
-				}
+				CurrentSelected = "";
+				emit switchToFile("");
 			}
 		}
 		adjustScrollArea();
@@ -606,45 +562,43 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::setFileChanged(const QString& path) {
-		for (auto label : Labels) {
-			if (label->getFilePath() == path) {
-				QString fileName = label->getText();
-				if (not fileName.startsWith("* ")) {
-					label->setText("* " + fileName);
-				}
-				break;
-			}
+		StackTag* label = findLabel(path);
+		if (not label) {
+			return;
+		}
+		const QString fileName = label->getText();
+		if (not fileName.startsWith("* ")) {
+			label->setText("* " + fileName);
 		}
 	}
 
 	void StackTagWidget::cancelFileChanged(const QString& path) {
-		for (auto label : Labels) {
-			if (label->getFilePath() == path) {
-				QString fileName = label->getText();
-				if (fileName.startsWith("* ")) {
-					label->setText(fileName.mid(2));
-				}
-				break;
-			}
+		StackTag* label = findLabel(path);
+		if (not label) {
+			return;
+		}
+		const QString fileName = label->getText();
+		if (fileName.startsWith("* ")) {
+			label->setText(fileName.mid(2));
 		}
 	}
 
 	bool StackTagWidget::containsStackLabel(const QString& filePath) const {
-		for (auto label : Labels) {
-			if (label->getFilePath() == filePath) {
-				return true;
-			}
-		}
-		return false;
+		return findLabel(filePath) != nullptr;
 	}
 
 	bool StackTagWidget::isStackLabelPinned(const QString& filePath) const {
-		for (auto label : Labels) {
+		StackTag* label = findLabel(filePath);
+		return label ? label->isPinned() : false;
+	}
+
+	StackTag* StackTagWidget::findLabel(const QString& filePath) const {
+		for (StackTag* label : Labels) {
 			if (label->getFilePath() == filePath) {
-				return label->isPinned();
+				return label;
 			}
 		}
-		return false;
+		return nullptr;
 	}
 
 	void StackTagWidget::setToolWidgetMode(bool toolWidgetMode) {
@@ -690,21 +644,21 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::dragEnterEvent(QDragEnterEvent* event) {
-		if (event->mimeData()->hasFormat("application/x-yss-stacktag")) {
+		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
 			event->acceptProposedAction();
 		}
 	}
 
 	void StackTagWidget::dragMoveEvent(QDragMoveEvent* event) {
-		if (event->mimeData()->hasFormat("application/x-yss-stacktag")) {
+		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
 			event->acceptProposedAction();
 		}
 	}
 
 	void StackTagWidget::dropEvent(QDropEvent* event) {
-		if (event->mimeData()->hasFormat("application/x-yss-stacktag")) {
+		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
 			event->acceptProposedAction();
-			QByteArray data = event->mimeData()->data("application/x-yss-stacktag");
+			QByteArray data = event->mimeData()->data(StackTag::stackTagDragMimeType);
 			Visindigo::Utility::JsonConfig json(QString::fromUtf8(data));
 			QString selfPtr = json.getString("self");
 			StackTag* selfLabel = reinterpret_cast<StackTag*>(selfPtr.toULongLong(nullptr, 16));
@@ -720,8 +674,7 @@ namespace YSS::Editor {
 						event->accept();
 						return;
 					}
-					ContentLayout->removeWidget(selfLabel);
-					Labels.removeAll(selfLabel);
+					
 					int newIndex = Labels.size();
 					for (int i = 0; i < Labels.size(); ++i) {
 						const QPoint center = Labels[i]->geometry().center();
@@ -733,12 +686,36 @@ namespace YSS::Editor {
 						}
 					}
 					StackTag* labelAtNewIndex = Labels.value(newIndex, nullptr);
-					if (labelAtNewIndex->isPinned() != selfLabel->isPinned()) {
-						event->accept();
-						return; // Don't allow moving a pinned label to an unpinned position or vice versa.
+					if (labelAtNewIndex) {
+						if (labelAtNewIndex->isPinned() != selfLabel->isPinned()) {
+							event->accept();
+							return; // Don't allow moving a pinned label to an unpinned position or vice versa.
+						}
+						ContentLayout->removeWidget(selfLabel);
+						Labels.removeAll(selfLabel);
+						ContentLayout->insertWidget(newIndex, selfLabel);
+						Labels.insert(newIndex, selfLabel);
 					}
-					ContentLayout->insertWidget(newIndex, selfLabel);
-					Labels.insert(newIndex, selfLabel);
+					else {
+						if (Labels.last()->isPinned() != selfLabel->isPinned()) {
+							event->accept();
+							return; // Don't allow moving a pinned label to an unpinned position or vice versa.
+						}
+						ContentLayout->removeWidget(selfLabel);
+						Labels.removeAll(selfLabel);
+						ContentLayout->addWidget(selfLabel);
+						Labels.append(selfLabel);
+					}
+				}
+			}
+			else if (selfLabel) {
+				// Cross-area: a tag dragged from another StackTagWidget is dropped
+				// on this tag bar -> move it from its source area into this area.
+				QString sourcePtr = json.getString("area");
+				StackTagWidget* sourceTagArea = reinterpret_cast<StackTagWidget*>(sourcePtr.toULongLong(nullptr, 16));
+				FileEditWidgetArea* sourceArea = sourceTagArea ? sourceTagArea->getArea() : nullptr;
+				if (sourceArea && Area && sourceArea != Area) {
+					sourceArea->moveWidgetTo(selfLabel->getFilePath(), Area);
 				}
 			}
 			event->accept();

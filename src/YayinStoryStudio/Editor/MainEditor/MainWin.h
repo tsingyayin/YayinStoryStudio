@@ -58,7 +58,6 @@ namespace YSS::Editor {
 		virtual void hideEvent(QHideEvent* event) override;
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
-		virtual void keyPressEvent(QKeyEvent* event) override;
 	};
 }
 #endif // YayinStoryStudio_Editor_MainEditor_MainWin_h

@@ -11,6 +11,7 @@
 #include <QtWidgets/qmenu.h>
 #include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
+	class FileEditWidgetArea;
 	class StackTagWidget;
 	class StackTag :public QFrame {
 		friend class StackTagWidget;
@@ -28,6 +29,7 @@ namespace YSS::Editor {
 		bool Pressed = false;
 		QPoint PressedPos;
 		StackTagWidget* StayInWidget = nullptr;
+		void updateToolTip();
 	protected:
 		QToolButton* PinLabel;
 		QToolButton* CloseLabel;
@@ -49,6 +51,8 @@ namespace YSS::Editor {
 		void closeAllRequested();
 		void closeSavedRequested();
 		void saveRequested(const QString& filePath);
+	public:
+		static const QString stackTagDragMimeType;
 	public:
 		StackTag(QWidget* parent = nullptr, bool toolWidgetMode = false, Qt::Orientation orientation = Qt::Horizontal);
 		void setStayInWidget(StackTagWidget* widget);
@@ -91,9 +95,12 @@ namespace YSS::Editor {
 		QList<StackTag*> Labels;
 		QString CurrentSelected;
 		bool ToolWidgetMode = false;
+		FileEditWidgetArea* Area = nullptr;
 	public:
 		StackTagWidget(QWidget* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 		virtual ~StackTagWidget();
+		void setArea(FileEditWidgetArea* area);
+		FileEditWidgetArea* getArea() const;
 		void addStackLabel(const QString& filePath, const QString& displayName = QString());
 		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName = QString());
 		void pinStackLabel(const QString& filePath);
@@ -116,6 +123,7 @@ namespace YSS::Editor {
 		virtual void dropEvent(QDropEvent* event) override;
 	private:
 		void applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor);
+		StackTag* findLabel(const QString& filePath) const;
 	};
 
 	class DefaultStackWidgetCentralArea :public QFrame {

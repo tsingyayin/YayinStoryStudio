@@ -85,14 +85,19 @@ namespace YSS::Editor {
 			FileMenu->setObjectName("file");
 			File_File_New = FileMenu->addAction(VITR("YSS::menu.file.new"));
 			File_File_New->setObjectName("new");
+			File_File_New->setShortcut(QKeySequence("Ctrl+N"));
 			File_File_Open = FileMenu->addAction(VITR("YSS::menu.file.open"));
 			File_File_Open->setObjectName("open");
+			File_File_Open->setShortcut(QKeySequence("Ctrl+O"));
 			File_File_Save = FileMenu->addAction(VITR("YSS::menu.file.save"));
 			File_File_Save->setObjectName("save");
+			File_File_Save->setShortcut(QKeySequence("Ctrl+S"));
 			File_File_SaveAll = FileMenu->addAction(VITR("YSS::menu.file.saveAll"));
 			File_File_SaveAll->setObjectName("saveAll");
+			File_File_SaveAll->setShortcut(QKeySequence("Ctrl+Shift+S"));
 			File_File_SaveAs = FileMenu->addAction(VITR("YSS::menu.file.saveAs"));
 			File_File_SaveAs->setObjectName("saveAs");
+			File_File_SaveAs->setShortcut(QKeySequence("Ctrl+Alt+S"));
 			FileMenu->addSeparator();
 			File_File_ProjectConfig = FileMenu->addAction(VITR("YSS::menu.file.projectConfig"));
 			File_File_ProjectConfig->setObjectName("projectConfig");
@@ -109,9 +114,11 @@ namespace YSS::Editor {
 			File_Program_About->setObjectName("about");
 			File_Program_Documentation = FileMenu->addAction(VITR("YSS::menu.file.documentation"));
 			File_Program_Documentation->setObjectName("documentation");
+			File_Program_Documentation->setShortcut(QKeySequence("F1"));
 			FileMenu->addSeparator();
 			File_Program_Exit = FileMenu->addAction(VITR("YSS::menu.file.exit"));
 			File_Program_Exit->setObjectName("exit");
+			File_Program_Exit->setShortcut(QKeySequence("Alt+F4"));
 
 			QObject::connect(File_File_New, &QAction::triggered, q, &MainWinMenu::file_file_new);
 			QObject::connect(File_File_Open, &QAction::triggered, q, &MainWinMenu::file_file_open);
@@ -168,12 +175,16 @@ namespace YSS::Editor {
 			RunMenu->setObjectName("run");
 			Run_Run_Debug = RunMenu->addAction(VITR("YSS::menu.run.debug"));
 			Run_Run_Debug->setObjectName("debug");
+			Run_Run_Debug->setShortcut(QKeySequence("F5"));
 			Run_Run_Run = RunMenu->addAction(VITR("YSS::menu.run.run"));
 			Run_Run_Run->setObjectName("run");
+			Run_Run_Run->setShortcut(QKeySequence("Ctrl+F5"));
 			Run_Run_Stop = RunMenu->addAction(VITR("YSS::menu.run.stop"));
 			Run_Run_Stop->setObjectName("stop");
+			Run_Run_Stop->setShortcut(QKeySequence("Shift+F5"));
 			Run_Run_Restart = RunMenu->addAction(VITR("YSS::menu.run.restart"));
 			Run_Run_Restart->setObjectName("restart");
+			Run_Run_Restart->setShortcut(QKeySequence("Ctrl+Shift+F5"));
 			RunMenu->addSeparator();
 			Run_Build_Build = RunMenu->addAction(VITR("YSS::menu.run.build"));
 			Run_Build_Build->setObjectName("build");
@@ -219,6 +230,7 @@ namespace YSS::Editor {
 			View_FullScreenToggle->setObjectName("fullScreenToggle");
 			View_FullScreenToggle->setCheckable(true);
 			View_FullScreenToggle->setChecked(false);
+			View_FullScreenToggle->setShortcut(QKeySequence("F11"));
 			ViewMenu->addSeparator();
 
 			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
@@ -325,7 +337,8 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_file_saveAll() {
-		d->Parent->saveAllFiles();
+		// 「全部保存」的语义即保存项目（saveProject = 保存全部文件 + 项目配置/窗口尺寸等）。
+		d->Parent->saveProject();
 	}
 
 	void MainWinMenu::file_file_projectConfig() {

@@ -37,10 +37,10 @@ namespace YSS::Editor {
 		void moveWidgetTo(const QString& filePath, FileEditWidgetArea* otherArea);
 	protected:
 		virtual void focusInEvent(QFocusEvent* event) override;
-		virtual void dragEnterEvent(QDragEnterEvent* event) override {};
-		virtual void dragLeaveEvent(QDragLeaveEvent* event) override {};
-		virtual void dragMoveEvent(QDragMoveEvent* event) override {};
-		virtual void dropEvent(QDropEvent* event) override {};
+		virtual void dragEnterEvent(QDragEnterEvent* event) override;
+		virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+		virtual void dragMoveEvent(QDragMoveEvent* event) override;
+		virtual void dropEvent(QDropEvent* event) override;
 	public:
 		virtual void resizeEvent(QResizeEvent* event) override;
 	private:
