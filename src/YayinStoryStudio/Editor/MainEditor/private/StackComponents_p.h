@@ -53,6 +53,7 @@ namespace YSS::Editor {
 		void saveRequested(const QString& filePath);
 	public:
 		static const QString stackTagDragMimeType;
+		static bool canAcceptDrag(const QMimeData* mimeData);
 	public:
 		StackTag(QWidget* parent = nullptr, bool toolWidgetMode = false, Qt::Orientation orientation = Qt::Horizontal);
 		void setStayInWidget(StackTagWidget* widget);

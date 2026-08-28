@@ -22,6 +22,7 @@ namespace YSS::Editor {
 		//MessageViewer* MsgViewer;
 		DefaultStackWidgetCentralArea* CentralArea;
 		QString areaID;
+		qint32 OpenFileCount = 0;
 		QLabel* DragInMsgLabel;
 	protected:
 		static FileEditWidgetArea* mainArea;
@@ -37,37 +38,33 @@ namespace YSS::Editor {
 		// NOTE: acceptDrops() is only a getter (returns bool); must use
 		// setAcceptDrops(true) to actually enable accepting drops.
 		this->setAcceptDrops(true);
+		this->setFocusPolicy(Qt::StrongFocus);
 
+		d = new FileEditWidgetAreaPrivate;
 		if (FileEditWidgetAreaPrivate::mainArea == nullptr) {
 			FileEditWidgetAreaPrivate::mainArea = this;
 		}
 		qint32 size = FileEditWidgetAreaPrivate::usedAreaIDs.size();
 		for (int i = 0; i < size + 1; i++) {
 			if (not FileEditWidgetAreaPrivate::usedAreaIDs.contains(i)) {
-				FileEditWidgetAreaPrivate::usedAreaIDs.insert(i);
 				setAreaID(QString::number(i));
 				break;
 			}
 		}
-
-		d = new FileEditWidgetAreaPrivate;
 		d->Layout = new QVBoxLayout(this);
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->TagArea = new StackTagWidget(this);
 		d->TagArea->setArea(this);
-		d->TagArea->setFixedHeight(36);
+		d->TagArea->setFixedHeight(32);
 
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
 		d->CentralArea->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
 		d->ContentArea = d->CentralArea;
 
 		d->Layout->addWidget(d->TagArea);
-		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ContentArea);
-		//d->MsgViewer = new MessageViewer(this);
-		//d->MsgViewer->setFixedHeight(260);
-		//d->Layout->addWidget(d->MsgViewer);
+
 		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const QString& filePath) {
 			setCurrentWidget(filePath);
 			});
@@ -93,6 +90,8 @@ namespace YSS::Editor {
 			closeSaved();
 			});
 
+		connect(this, &FileEditWidgetArea::areaFocusd, MainWin::getInstance(), &MainWin::onFileEditWidgetAreaFocusIn);
+		
 		d->DragInMsgLabel = new QLabel(this);
 		d->DragInMsgLabel->setText(VITR("YSS::editor.stackWidgetArea.dragInFile"));
 		d->DragInMsgLabel->setAlignment(Qt::AlignCenter);
@@ -104,10 +103,18 @@ namespace YSS::Editor {
 		/*
 			IMPORTANT MEMORY TRAP HERE:
 			See the comment in ToolWidgetArea destructor.
+
+			只关闭属于本 Area 的编辑部件：FileEditWidget 在 addWidget() 中
+			会被 setParent(this)，随后 QLayout::insertWidget 也保持其父级为本 Area。
+			若这里关闭所有已打开文件，销毁树状布局中任意一个 Area 都会误关全局文件。
 		*/
 		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
-			widget->setParent(nullptr);
-			widget->closeFile();
+			if (widget->parent() == this) {
+				widget->disconnect(this);
+				widget->disconnect(d->TagArea);
+				widget->setParent(nullptr);
+				widget->closeFile();
+			}
 		}
 		if (FileEditWidgetAreaPrivate::mainArea == this) {
 			FileEditWidgetAreaPrivate::mainArea = nullptr;
@@ -134,6 +141,14 @@ namespace YSS::Editor {
 		return d->areaID;
 	}
 
+	FileEditWidgetArea* FileEditWidgetArea::getAreaByID(const QString& areaID) {
+		return FileEditWidgetAreaPrivate::areaIDMap.value(areaID.toInt(), nullptr);
+	}
+
+	FileEditWidgetArea* FileEditWidgetArea::getMainArea() {
+		return FileEditWidgetAreaPrivate::mainArea;
+	}
+
 	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
 		QString filePath = widget->getFilePath();
 		vgDebug << filePath;
@@ -156,6 +171,11 @@ namespace YSS::Editor {
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileClosed, this, [this, widget]() {
 			d->TagArea->removeStackLabel(widget->getFilePath()); // this function handle re-choice if the closed widget is current one
 			YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFile(widget->getFilePath());
+			d->OpenFileCount--;
+			if (d->OpenFileCount <= 0) {
+				d->OpenFileCount = 0;
+				emit allFileClosed();
+			}
 			});
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileRenamed, this, [this](const QString& oldPath, const QString& newPath) {
 			d->TagArea->changeStackLabel(oldPath, newPath);
@@ -171,6 +191,7 @@ namespace YSS::Editor {
 			YSS::Editor::TextEditConfigOperator::applyTo(textEdit);
 		}
 		YSSCore::General::YSSProject::getCurrentProject()->addEditorOpenedFile(filePath);
+		d->OpenFileCount++;
 		setCurrentWidget(filePath);
 	}
 
@@ -281,6 +302,11 @@ namespace YSS::Editor {
 			widget->disconnect(this);
 			widget->disconnect(d->TagArea);
 			otherArea->addWidget(widget);
+			d->OpenFileCount--;
+			if (d->OpenFileCount <= 0) {
+				d->OpenFileCount = 0;
+				emit allFileClosed();
+			}
 		}
 	}
 

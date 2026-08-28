@@ -18,6 +18,10 @@
 namespace YSS::Editor {
 	const QString StackTag::stackTagDragMimeType = QString("application/x-yss-stacktag");
 
+	bool StackTag::canAcceptDrag(const QMimeData* mimeData) {
+		return mimeData && mimeData->hasFormat(stackTagDragMimeType);
+	}
+
 	StackTag::StackTag(QWidget* parent, bool toolWidgetMode, Qt::Orientation orientation) :QFrame(parent) {
 		Orientation = orientation;
 		this->setFixedWidth(200);
@@ -297,7 +301,7 @@ namespace YSS::Editor {
 		adjustScrollArea();
 		WidgetSelector = new QComboBox(this);
 		if (orientation == Qt::Horizontal) {
-			WidgetSelector->setMinimumWidth(200);
+			WidgetSelector->setMinimumWidth(100);
 			Layout = new QHBoxLayout(this);
 			WidgetSelector->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 		}

@@ -130,6 +130,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\StackComponents_p.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ToolWidgetArea.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\TreeLayoutWidget.cpp" />
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />
@@ -172,6 +173,7 @@
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />
     <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h" />
+    <QtMoc Include="Editor\MainEditor\private\TreeLayoutWidget_p.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

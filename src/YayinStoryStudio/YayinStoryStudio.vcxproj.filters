@@ -74,6 +74,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\ToolWidgetArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\TreeLayoutWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -194,6 +197,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\private\TreeLayoutWidget_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

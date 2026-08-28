@@ -1,28 +1,46 @@
 #ifndef YSS_MainEditor_TreeLayoutWidget_h
 #define YSS_MainEditor_TreeLayoutWidget_h
-#include <QtWidgets/qsplitter.h>
+#include <QtWidgets/qframe.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qnamespace.h>
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include <Utility/JsonConfig.h>
 namespace YSS::Editor {
 	class TreeLayoutWidgetPrivate;
-	class TreeLayoutWidget :public QSplitter {
+	class TreeLayoutWidget :public QFrame {
 		Q_OBJECT;
+		friend class TreeLayoutWidgetPrivate;
 	public:
-		TreeLayoutWidget(Qt::Orientation orientation, QWidget* parent = nullptr) {};
-		virtual ~TreeLayoutWidget() {};
+		TreeLayoutWidget(QWidget* parent = nullptr, FileEditWidgetArea* firstArea = nullptr);
+		virtual ~TreeLayoutWidget();
 	public:
 		FileEditWidgetArea* createFileEditAreaFirst();
 		FileEditWidgetArea* createFileEditAreaLast();
 		FileEditWidgetArea* createFileEditAreaAt(int index);
-		TreeLayoutWidget* replaceFileEdittAt(int index, FileEditWidgetArea* newArea, bool up); // replace raw area with a new layout, include raw one and a new one, up means the new area is above the raw one
-		TreeLayoutWidget* replaceLayoutAt(int index); //replace raw layout with it`s child area. The layout must only have one area left, otherwise it will do nothing and return nullptr.
 		TreeLayoutWidget* createLayoutFirst();
 		TreeLayoutWidget* createLayoutLast();
 		TreeLayoutWidget* createLayoutAt(int index);
+		TreeLayoutWidget* replaceFileEditAt(int index, FileEditWidgetArea* newArea, bool up);
+		TreeLayoutWidget* replaceLayoutAt(int index);
+	public:
+		FileEditWidgetArea* getFileEditAreaAt(int index) const;
+		TreeLayoutWidget* getLayoutAt(int index) const;
+		QList<bool> getIsLayoutList() const;
+		int getChildCount() const;
+		bool isTopLevel() const;
+		Qt::Orientation getOrientation() const;
+		bool isOrientationSelected() const;
 	public:
 		Visindigo::Utility::JsonConfig saveToJson() const;
 		void recoverFromJson(const Visindigo::Utility::JsonConfig& json);
 		QList<FileEditWidgetArea*> getAllFileEditAreas() const;
+	protected:
+		virtual void resizeEvent(QResizeEvent* event) override;
+		virtual void dragEnterEvent(QDragEnterEvent* event) override;
+		virtual void dragMoveEvent(QDragMoveEvent* event) override;
+		virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+		virtual void dropEvent(QDropEvent* event) override;
+		virtual bool eventFilter(QObject* watched, QEvent* event) override;
 	private:
 		TreeLayoutWidgetPrivate* d;
 	};

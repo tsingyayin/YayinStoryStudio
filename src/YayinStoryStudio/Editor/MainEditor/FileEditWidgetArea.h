@@ -14,6 +14,7 @@ namespace YSS::Editor {
 		void currentFileChanged(const QString& filePath);
 		void textEditCursorPositionChanged(const QString& filePath, const QTextCursor& cursor);
 		void areaFocusd(const QString& areaID);
+		void allFileClosed();
 	public:
 		static FileEditWidgetArea* getAreaByID(const QString& areaID);
 		static FileEditWidgetArea* getMainArea();

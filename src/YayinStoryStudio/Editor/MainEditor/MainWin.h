@@ -33,6 +33,7 @@ namespace YSS::Editor {
 		RenameDialog* RenameDlg = nullptr;
 		MainWinMenu* Menu = nullptr;
 		BottomInfoWidget* BottomFrame = nullptr;
+		FileEditWidgetArea* lastFocusedFileEditArea = nullptr;
 		bool closeForBack = false;
 		static MainWin* Instance;
 	public:
@@ -52,6 +53,8 @@ namespace YSS::Editor {
 		void openNewFileWindow();
 		void help();
 		void setMenuShortcutTips();
+	public slots:
+		void onFileEditWidgetAreaFocusIn(const QString& areaID);
 	public:
 		virtual void onThemeChanged() override;
 		virtual void closeEvent(QCloseEvent* event) override;

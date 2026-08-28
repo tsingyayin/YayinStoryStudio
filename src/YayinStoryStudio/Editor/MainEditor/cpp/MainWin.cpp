@@ -23,6 +23,7 @@
 #include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/TreeLayoutWidget.h"
 #include "Editor/MainEditor/ToolWidgetArea.h"
 #include "Editor/MainEditor/SimpleFileDialog.h"
 #include "Editor/MainEditor/BottomInfoWidget.h"
@@ -69,6 +70,10 @@ namespace YSS::Editor {
 		auto testThirdEditor = new FileEditWidgetArea();
 		testThirdEditor->resize(800, 600);
 		testThirdEditor->show();
+
+		auto testTreeLayout = new TreeLayoutWidget();
+		testTreeLayout->resize(800, 600);
+		testTreeLayout->show();
 
 		QObject::connect(Browser, &ResourceBrowser::visibilityChanged, Menu, &MainWinMenu::onResourceBrowserVisibilityChanged);
 
@@ -381,6 +386,29 @@ namespace YSS::Editor {
 		};
 		Menu->setShortcutTips(currentTips);
 	}
+
+	void MainWin::onFileEditWidgetAreaFocusIn(const QString& areaID) {
+		if (not areaID.isEmpty()) {
+			vgDebug << "FileEditWidgetArea focus in:" << areaID;
+			auto area = FileEditWidgetArea::getAreaByID(areaID);
+			if (area) {
+				lastFocusedFileEditArea = area;
+			}
+		}
+		if (lastFocusedFileEditArea){
+			auto currentEditWidget = lastFocusedFileEditArea->getCurrentWidget();
+			auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
+			if (textEdit) {
+				BottomFrame->setEditorInfoEnable(true);
+				BottomFrame->displayEditorInfo(textEdit->getTextCursor());
+			}
+			else {
+				BottomFrame->setEditorInfoEnable(false);
+			}
+		}
+		
+	}
+
 	void MainWin::onThemeChanged() {
 		//this->applyVIStyleTemplate("YSS::MainWin");
 	}
