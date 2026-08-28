@@ -22,10 +22,14 @@
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/SimpleFileDialog.h"
 #include "Editor/MainEditor/FileOperationCommands.h"
-#include "Editor/NewFilePage/NewFileWin.h"
+#include "Editor/MainEditor/MainWin.h"
 #include <QtWidgets/qmessagebox.h>
+#include <Utility/FileUtility.h>
 namespace YSS::Editor {
+	static ResourceBrowser* Instance = nullptr;
 	ResourceBrowser::ResourceBrowser(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
+		Instance = this;
+
 		Layout = new QVBoxLayout(this);
 		Layout->setSpacing(0);
 		Layout->setContentsMargins(0, 0, 0, 0);
@@ -78,7 +82,23 @@ namespace YSS::Editor {
 		FileOptions->addSeparator();
 		FileOptionRefresh = FileOptions->addAction(VITR("Visindigo::general.refresh"));
 		
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+		if (project != nullptr) {
+			ProjectRootDir.setPath(project->getProjectFolder());
+			FileTree->setRootIndex(FileModel->setRootPath(project->getProjectFolder()));
+			for (int i = 1; i < FileModel->columnCount(); i++) {
+				FileTree->setColumnHidden(i, true);
+			}
+		}
+		else {
+			ProjectRootDir.setPath(QDir::currentPath());
+			FileTree->setRootIndex(FileModel->setRootPath(QDir::currentPath()));
+			for (int i = 1; i < FileModel->columnCount(); i++) {
+				FileTree->setColumnHidden(i, true);
+			}
+		}
 		
+
 		connect(FileOptionOpen, &QAction::triggered, this, [this]() {
 			auto fileInfo = QFileInfo(CurrentFilePath);
 			if (fileInfo.isFile()) {
@@ -170,23 +190,65 @@ namespace YSS::Editor {
 			});
 
 		connect(FileModel, &QFileSystemModel::fileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
-			vgDebug << "ResourceBrowser: fileRenamed signal received: " << path << ", " << oldName << ", " << newName; 
+			vgDebug << "ResourceBrowser: otherFileRenamed signal received: " << path << ", " << oldName << ", " << newName; 
 			vgDebug << QFileInfo(path + "/" + newName).isFile();
 			vgDebug << QFileInfo(path + "/" + newName).isDir();
 			if (QFileInfo(path + "/" + newName).isFile()) {
-				emit fileRenamed(path, oldName, newName);
+				emit otherFileRenamed(path, oldName, newName);
 			}
 			else if (QFileInfo(path + "/" + newName).isDir()) {
 				emit directoryRenamed(path, oldName, newName);
 			}
 			});
 
+		connect(this, &ResourceBrowser::otherFileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
+			const QString absOldPath = path + "/" + oldName;
+			if (QFileInfo(absOldPath).isFile()) {
+				auto editor = YSSFSM->getFileEditWidget(absOldPath);
+				if (editor) {
+					const QString absNewPath = path + "/" + newName;
+					editor->saveFile(absNewPath, true);
+				}
+			}
+			});
+		connect(this, &ResourceBrowser::directoryRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
+			const QString absOldPath = path + "/" + oldName;
+			const QString absNewPath = path + "/" + newName;
+			vgDebug << "Directory renamed from" << absOldPath << "to" << absNewPath;
+			if (QFileInfo(absNewPath).isDir()) {
+				auto newFileAbsPaths = Visindigo::Utility::FileUtility::fileFilter(absNewPath, { "*.*" }, true);
+				vgDebug << "Renamed directory" << absOldPath << "to" << absNewPath << ", found" << newFileAbsPaths.size() << "files";
+				for (auto newPath : newFileAbsPaths) {
+					QString newRelativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(absNewPath, newPath);
+					newRelativePath = newRelativePath.mid(2);
+					QString oldFileAbsPath = absOldPath + "/" + newRelativePath;
+					auto editor = YSSFSM->getFileEditWidget(oldFileAbsPath);
+					if (editor) {
+						editor->saveFile(newPath, true);
+					}
+				}
+			}
+			});
+
+		// NOTICE: Bad design here. temporary pointer should never be used in signal-slot connection.
+		// If nobody handle the pointer, it will cause memory leak. And it`s ownership is not clear when
+		// multiple slots are connected to the same signal.
+		// As it`s not a public API, refactoring is not urgent.
+		// SHOULD BE SOLVED in 0.17~0.18 version.
+		connect(this, &ResourceBrowser::fileOperationRequested, this, [this](QUndoCommand* cmd) {
+			cmd->redo();          // execute now
+			// TODO: push to global QUndoStack when ready
+			delete cmd;           // temporary — replace with stack management later
+			this->refresh();
+			});
+
+		refreshFileList();
 		setColorfulEnable(true);
 		onThemeChanged();
 	}
 
-	void ResourceBrowser::openNewFileWindow() {
-		onNewButtonClicked();
+	ResourceBrowser* ResourceBrowser::getInstance() {
+		return Instance;
 	}
 
 	void ResourceBrowser::refresh() {
@@ -207,38 +269,6 @@ namespace YSS::Editor {
 		FileTree->scrollTo(index);
 	}
 
-	void ResourceBrowser::showEvent(QShowEvent* event) {
-		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
-		if (project != nullptr) {
-			ProjectRootDir.setPath(project->getProjectFolder());
-			FileTree->setRootIndex(FileModel->setRootPath(project->getProjectFolder()));
-			for (int i = 1; i < FileModel->columnCount(); i++) {
-				FileTree->setColumnHidden(i, true);
-			}
-		}
-		else {
-			ProjectRootDir.setPath(QDir::currentPath());
-			FileTree->setRootIndex(FileModel->setRootPath(QDir::currentPath()));
-			for (int i = 1; i < FileModel->columnCount(); i++) {
-				FileTree->setColumnHidden(i, true);
-			}
-		}
-		refreshFileList();
-		emit visibilityChanged(true);
-	}
-
-	void ResourceBrowser::hideEvent(QHideEvent* event) {
-		emit visibilityChanged(false);
-	}
-
-	void ResourceBrowser::resizeEvent(QResizeEvent* event) {
-		if (event->size().width() == 0 || event->size().height() == 0) {
-			emit visibilityChanged(false);
-		}
-		else {
-			emit visibilityChanged(true);
-		}
-	}
 	void ResourceBrowser::onNewButtonClicked() {
 		QString currentSelectedPath;
 		QModelIndex currentIndex = FileTree->currentIndex();
@@ -252,16 +282,7 @@ namespace YSS::Editor {
 		else {
 			currentSelectedPath = ProjectRootDir.path();
 		}
-		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(currentSelectedPath);
-		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
-		newFileWin->setWindowModality(Qt::ApplicationModal);
-		newFileWin->setWindowFlags(newFileWin->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
-		connect(newFileWin, &YSS::NewFilePage::NewFileWin::filePrepared, this, [this](const QString& filePath) {
-			if (QFileInfo(filePath).isFile()) {
-				YSSFSM->openFile(filePath);
-			}
-			});
-		newFileWin->show();
+		YSS::Editor::MainWin::getInstance()->openNewFileWindow(currentSelectedPath);
 	}
 
 	void ResourceBrowser::onThemeChanged() {
@@ -301,10 +322,6 @@ namespace YSS::Editor {
 				YSSFSM->openFile(filePath);
 			}
 		}
-	}
-
-	void ResourceBrowser::paintEvent(QPaintEvent* event) {
-		Visindigo::Widgets::BorderFrame::paintEvent(event);
 	}
 
 	void ResourceBrowser::onFileTreeContextMenuRequested(const QPoint& pos) {

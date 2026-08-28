@@ -3,6 +3,7 @@
 #include "Editor/MainEditor/MultiTerminalTool.h"
 #include "Editor/MainEditor/PreferenceEditWidget.h"
 #include "Editor/MainEditor/ColorThemeSettings.h"
+#include "Editor/MainEditor/DebugCommand.h"
 namespace YSS::Editor {
 	MainEditorBuiltinPlugin::MainEditorBuiltinPlugin() {
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
@@ -16,6 +17,7 @@ namespace YSS::Editor {
 		registerToolWidget("cn.yxgeneral.yss.multiTerminal", "i18n:YSS::editor.multiTerminal.title");
 		registerFileServer(new PreferenceVFServer(this));
 		registerFileServer(new ColorThemeSettingsVFServer(this));
+		registerPluginModule(new DebugCommand(this));
 	}
 	QWidget* MainEditorBuiltinPlugin::onToolWidgetRequested(const QString& widgetID) {
 		if (widgetID == "cn.yxgeneral.yss.messageViewer") {

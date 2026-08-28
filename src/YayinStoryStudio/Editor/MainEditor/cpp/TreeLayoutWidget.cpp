@@ -18,6 +18,7 @@ namespace YSS::Editor {
 		friend class TreeLayoutWidget;
 		friend class TreeLayoutDropZone;
 	protected:
+		static QList<TreeLayoutWidget*> AllTopLevelLayouts;
 		TreeLayoutWidget* q;
 		QSplitter* Container = nullptr;
 		QList<QWidget*> Childrens;
@@ -57,6 +58,8 @@ namespace YSS::Editor {
 		void scheduleHideDropIndicators();
 		void handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QDropEvent* event);
 	};
+
+	QList<TreeLayoutWidget*> TreeLayoutWidgetPrivate::AllTopLevelLayouts;
 
 	TreeLayoutDropZone::TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex)
 		:QWidget(owner->q), Owner(owner), Zone(zone), ChildIndex(childIndex) {
@@ -128,8 +131,23 @@ namespace YSS::Editor {
 		update();
 	}
 
-	TreeLayoutWidget::TreeLayoutWidget(QWidget* parent, FileEditWidgetArea* firstArea) :QFrame(parent) {
+	QList<TreeLayoutWidget*> TreeLayoutWidget::getAllTopLevelLayouts() {
+		return TreeLayoutWidgetPrivate::AllTopLevelLayouts;
+	}
+
+	TreeLayoutWidget::TreeLayoutWidget(QWidget* parent, FileEditWidgetArea* firstArea) :QFrame() {
 		d = new TreeLayoutWidgetPrivate(this);
+		if (qobject_cast<TreeLayoutWidget*>(parent)) {
+			d->ParentLayout = static_cast<TreeLayoutWidget*>(parent); 
+			// if parent is a TreeLayoutWidget, parent will be managed by the parent-node.
+			// may change during relayout, so we don't set parent here.
+		}
+		else {
+			d->ParentLayout = nullptr;
+			setParent(parent); // if parent is not a TreeLayoutWidget, set parent to this widget.
+			TreeLayoutWidgetPrivate::AllTopLevelLayouts.append(this);
+		}
+		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setAcceptDrops(true);
 		FileEditWidgetArea* area = firstArea ? firstArea : new FileEditWidgetArea(this);
 		d->Childrens.append(area);
@@ -142,6 +160,7 @@ namespace YSS::Editor {
 			});
 		area->installEventFilter(this);
 		area->show();
+
 	}
 
 	TreeLayoutWidget::~TreeLayoutWidget() {
@@ -151,6 +170,9 @@ namespace YSS::Editor {
 			if (not d->IsLayout[i]) {
 				QObject::disconnect(static_cast<FileEditWidgetArea*>(child), &FileEditWidgetArea::allFileClosed, this, nullptr);
 			}
+		}
+		if (d->ParentLayout == nullptr) {
+			TreeLayoutWidgetPrivate::AllTopLevelLayouts.removeAll(this);
 		}
 		delete d;
 	}
@@ -178,8 +200,7 @@ namespace YSS::Editor {
 	}
 
 	TreeLayoutWidget* TreeLayoutWidget::createLayoutAt(int index) {
-		TreeLayoutWidget* layout = new TreeLayoutWidget();
-		layout->d->ParentLayout = this;
+		TreeLayoutWidget* layout = new TreeLayoutWidget(this);
 		layout->d->Orientation = (d->Orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
 		layout->d->notSelectOrientation = false;
 		d->insertChildAt(index, layout, true);
@@ -499,8 +520,7 @@ namespace YSS::Editor {
 			return nullptr;
 		}
 		removeChildAt(index);
-		TreeLayoutWidget* layout = new TreeLayoutWidget(nullptr, original);
-		layout->d->ParentLayout = q;
+		TreeLayoutWidget* layout = new TreeLayoutWidget(q, original);
 		layout->d->Orientation = (Orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
 		layout->d->notSelectOrientation = false;
 		layout->d->insertChildAt(newFirst ? 0 : 1, newArea, false);
@@ -611,8 +631,7 @@ namespace YSS::Editor {
 		for (const Visindigo::Utility::JsonConfig& childJson : children) {
 			QString type = childJson.getString("type");
 			if (type == "layout") {
-				TreeLayoutWidget* child = new TreeLayoutWidget();
-				child->d->ParentLayout = q;
+				TreeLayoutWidget* child = new TreeLayoutWidget(q);
 				child->d->Orientation = (Orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
 				child->d->notSelectOrientation = false;
 				child->d->clearAllChildren();

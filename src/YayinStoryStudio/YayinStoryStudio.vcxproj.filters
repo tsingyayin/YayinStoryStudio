@@ -113,6 +113,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
@@ -222,6 +225,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\MainEditor\FileOperationCommands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\MainEditor\DebugCommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

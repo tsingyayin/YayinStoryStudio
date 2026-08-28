@@ -38,8 +38,12 @@ namespace YSS::Editor {
 		connect(YSSCore::Editor::DocumentMessageManager::getInstance(),
 			&YSSCore::Editor::DocumentMessageManager::messageChangedForLine, this, &MessageViewer::onMessageChangedForLine);
 		connect(MessageTable, &QTableWidget::cellClicked, this, &MessageViewer::onCellClicked);
-		connect(MainWin::getInstance()->getFileEditWidgetArea(), &FileEditWidgetArea::currentFileChanged, this, &MessageViewer::changeCurrentFile);
-		changeCurrentFile(MainWin::getInstance()->getFileEditWidgetArea()->getCurrentWidgetFilePath());
+		connect(MainWin::getInstance(), &MainWin::currentFileEditWidgetAreaChanged, this, [this](FileEditWidgetArea* area) {
+			if (area) {
+				changeCurrentFile(area->getCurrentWidgetFilePath());
+			}
+		});
+		changeCurrentFile(MainWin::getInstance()->getLastFocusedFileEditArea()->getCurrentWidgetFilePath());
 	}
 
 	void MessageViewer::changeCurrentFile(const QString& filePath) {

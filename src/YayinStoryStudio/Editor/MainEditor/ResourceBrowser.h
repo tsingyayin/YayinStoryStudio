@@ -48,20 +48,17 @@ namespace YSS::Editor {
 		QAction* FileOptionRefresh;
 	signals:
 		void visibilityChanged(bool visible);
-		void fileRenamed(const QString& path, const QString& oldName, const QString& newName);
+		void otherFileRenamed(const QString& path, const QString& oldName, const QString& newName);
 		void directoryRenamed(const QString& path, const QString& oldName, const QString& newName);
 		void fileOperationRequested(QUndoCommand* command);
 	public:
+		static ResourceBrowser* getInstance();
+	public:
 		ResourceBrowser(QWidget* parent = nullptr);
-		void openNewFileWindow();
 		void refresh();
 		void setCurrentSelected(const QFileInfo& path);
 	public:
-		virtual void showEvent(QShowEvent* event) override;
-		virtual void hideEvent(QHideEvent* event) override;
-		virtual void resizeEvent(QResizeEvent* event) override;
 		virtual void onThemeChanged() override;
-		virtual void paintEvent(QPaintEvent* event) override;
 	private:
 		void onNewButtonClicked();
 		void refreshFileList();

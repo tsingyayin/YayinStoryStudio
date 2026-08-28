@@ -597,8 +597,12 @@ namespace YSS::Editor {
 	}
 
 	StackTag* StackTagWidget::findLabel(const QString& filePath) const {
+		QString abs_path = filePath;
+		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
+			abs_path = QFileInfo(filePath).absoluteFilePath();
+		}
 		for (StackTag* label : Labels) {
-			if (label->getFilePath() == filePath) {
+			if (label->getFilePath() == abs_path) {
 				return label;
 			}
 		}

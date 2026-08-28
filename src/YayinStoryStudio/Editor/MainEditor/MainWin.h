@@ -25,8 +25,6 @@ namespace YSS::Editor {
 		Q_OBJECT;
 	private:
 		QWidget* CentralWidget = nullptr;
-		ResourceBrowser* Browser = nullptr;
-		FileEditWidgetArea* Editors = nullptr;
 		ToolWidgetArea* Tools = nullptr;
 		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
@@ -35,13 +33,15 @@ namespace YSS::Editor {
 		BottomInfoWidget* BottomFrame = nullptr;
 		FileEditWidgetArea* lastFocusedFileEditArea = nullptr;
 		bool closeForBack = false;
+		YSSCore::Editor::FileEditWidget* FocusingFileEditWidget = nullptr;
+		YSSCore::Editor::FileEditWidget* FocusingFileEditWidgetNotTool = nullptr;
 		static MainWin* Instance;
+	signals:
+		void currentFileEditWidgetAreaChanged(FileEditWidgetArea* area);
 	public:
 		MainWin();
 		virtual ~MainWin();
 		static MainWin* getInstance();
-		ResourceBrowser* getResourceBrowser();
-		FileEditWidgetArea* getFileEditWidgetArea();
 		void saveAllFiles();
 		void saveProject();
 		void backToHome();
@@ -50,10 +50,12 @@ namespace YSS::Editor {
 		void saveCurrentFocusedFile();
 		void saveCurrentFocusedFileAs(QString rawFilePath = "");
 		void openFileDialog(const QString& startPath = "");
-		void openNewFileWindow();
+		void openNewFileWindow(const QString& startPath = "");
 		void help();
 		void setMenuShortcutTips();
+		FileEditWidgetArea* getLastFocusedFileEditArea() const;
 	public slots:
+		void onFileEditWidgetAreaCreated(FileEditWidgetArea* widget);
 		void onFileEditWidgetAreaFocusIn(const QString& areaID);
 	public:
 		virtual void onThemeChanged() override;

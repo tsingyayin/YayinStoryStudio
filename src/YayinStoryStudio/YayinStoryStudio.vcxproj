@@ -116,6 +116,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings_p.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainEditorBuiltinPlugin.cpp" />
@@ -174,6 +175,7 @@
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />
     <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h" />
     <QtMoc Include="Editor\MainEditor\private\TreeLayoutWidget_p.h" />
+    <ClInclude Include="Editor\MainEditor\DebugCommand.h" />
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />

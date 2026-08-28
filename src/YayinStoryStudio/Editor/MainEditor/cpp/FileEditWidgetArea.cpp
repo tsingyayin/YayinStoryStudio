@@ -12,6 +12,8 @@
 #include <QtCore/qmimedata.h>
 #include <QtGui/qdrag.h>
 #include <QtGui/qevent.h>
+#include <QtWidgets/qapplication.h>
+#include <Utility/QtSSHelper.h>
 namespace YSS::Editor {
 	class FileEditWidgetAreaPrivate {
 		friend class FileEditWidgetArea;
@@ -24,10 +26,14 @@ namespace YSS::Editor {
 		QString areaID;
 		qint32 OpenFileCount = 0;
 		QLabel* DragInMsgLabel;
+		bool focusIn = false;
 	protected:
 		static FileEditWidgetArea* mainArea;
 		static QSet<qint32> usedAreaIDs;
 		static QMap<qint32, FileEditWidgetArea*> areaIDMap;
+		static QList<FileEditWidgetArea*> getAllAreas() {
+			return areaIDMap.values();
+		}
 	};
 
 	FileEditWidgetArea* FileEditWidgetAreaPrivate::mainArea = nullptr;
@@ -90,13 +96,24 @@ namespace YSS::Editor {
 			closeSaved();
 			});
 
-		connect(this, &FileEditWidgetArea::areaFocusd, MainWin::getInstance(), &MainWin::onFileEditWidgetAreaFocusIn);
 		
+		connect(qApp, &QApplication::focusChanged, this, [this](QWidget* old, QWidget* now) {
+			if (now and Visindigo::Utility::QtSSHelper::isDescendantsOf(now, this) and not d->focusIn) {
+				d->focusIn = true;
+				emit areaFocusd(d->areaID);
+			}
+			else {
+				d->focusIn = false;
+			}
+			});
+
 		d->DragInMsgLabel = new QLabel(this);
 		d->DragInMsgLabel->setText(VITR("YSS::editor.stackWidgetArea.dragInFile"));
 		d->DragInMsgLabel->setAlignment(Qt::AlignCenter);
 		d->DragInMsgLabel->setStyleSheet("background-color: rgba(0, 0, 0, 0.5); color: white; font-size: 16px;");
 		d->DragInMsgLabel->hide();
+
+		MainWin::getInstance()->onFileEditWidgetAreaCreated(this);
 	}
 
 	FileEditWidgetArea::~FileEditWidgetArea() {
@@ -149,6 +166,10 @@ namespace YSS::Editor {
 		return FileEditWidgetAreaPrivate::mainArea;
 	}
 
+	QList<FileEditWidgetArea*> FileEditWidgetArea::getAllAreas() {
+		return FileEditWidgetAreaPrivate::getAllAreas();
+	}
+
 	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
 		QString filePath = widget->getFilePath();
 		vgDebug << filePath;
@@ -193,6 +214,10 @@ namespace YSS::Editor {
 		YSSCore::General::YSSProject::getCurrentProject()->addEditorOpenedFile(filePath);
 		d->OpenFileCount++;
 		setCurrentWidget(filePath);
+	}
+
+	bool FileEditWidgetArea::containsWidget(const QString& filePath) const {
+		return d->TagArea->containsStackLabel(filePath);
 	}
 
 	void FileEditWidgetArea::closeAll(bool autoGiveup) {
@@ -310,11 +335,6 @@ namespace YSS::Editor {
 		}
 	}
 
-	void FileEditWidgetArea::focusInEvent(QFocusEvent* event) {
-		Visindigo::Widgets::BorderFrame::focusInEvent(event);
-		emit areaFocusd(d->areaID);
-	}
-	
 	void FileEditWidgetArea::dragEnterEvent(QDragEnterEvent* event) {
 		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
 			event->acceptProposedAction();

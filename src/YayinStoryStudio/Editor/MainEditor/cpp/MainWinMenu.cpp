@@ -379,49 +379,49 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::edit_undo() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->undo();
 		}
 	}
 
 	void MainWinMenu::edit_redo() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->redo();
 		}
 	}
 
 	void MainWinMenu::edit_cut() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->cut();
 		}
 	}
 
 	void MainWinMenu::edit_copy() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->copy();
 		}
 	}
 
 	void MainWinMenu::edit_paste() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->paste();
 		}
 	}
 
 	void MainWinMenu::edit_selectAll() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		if (currentWidget) {
 			currentWidget->selectAll();
 		}
 	}
 
 	void MainWinMenu::edit_findAndReplace() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentWidget);
 		if (textEdit) {
 			textEdit->showFindAndReplace();
@@ -476,13 +476,13 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::view_resourceBrowser(bool checked) {
-		if (checked && d->Parent->getResourceBrowser()->isHidden()) {
-			d->Parent->getResourceBrowser()->show();
-		}else if (checked && d->Parent->getResourceBrowser()->width() == 0) {
-			d->Parent->getResourceBrowser()->show();
-			d->Parent->getResourceBrowser()->resize(300, d->Parent->getResourceBrowser()->height());
-		}
-		d->Parent->getResourceBrowser()->setVisible(checked);
+		//if (checked && d->Parent->getResourceBrowser()->isHidden()) {
+		//	d->Parent->getResourceBrowser()->show();
+		//}else if (checked && d->Parent->getResourceBrowser()->width() == 0) {
+		//	d->Parent->getResourceBrowser()->show();
+		//	d->Parent->getResourceBrowser()->resize(300, d->Parent->getResourceBrowser()->height());
+		//}
+		//d->Parent->getResourceBrowser()->setVisible(checked);
 	}
 
 	void MainWinMenu::view_fullScreenToggle(bool checked) {
@@ -535,7 +535,7 @@ namespace YSS::Editor {
 	}
 	
 	void MainWinMenu::onEditMenuAboutToShow() {
-		auto currentWidget = d->Parent->getFileEditWidgetArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
 		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentWidget);
 		bool hasTextEdit = (textEdit != nullptr);
 		d->Edit_Undo->setEnabled(hasTextEdit && textEdit->getDocument()->isUndoAvailable());

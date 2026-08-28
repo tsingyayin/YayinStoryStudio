@@ -18,6 +18,7 @@ namespace YSS::Editor {
 	public:
 		static FileEditWidgetArea* getAreaByID(const QString& areaID);
 		static FileEditWidgetArea* getMainArea();
+		static QList<FileEditWidgetArea*> getAllAreas();
 	public:
 		FileEditWidgetArea(QWidget* parent = nullptr);
 		virtual ~FileEditWidgetArea();
@@ -25,6 +26,7 @@ namespace YSS::Editor {
 		void setAreaID(const QString& areaID);
 		QString getAreaID() const;
 		void addWidget(YSSCore::Editor::FileEditWidget* widget);
+		bool containsWidget(const QString& filePath) const;
 		void closeAll(bool autoGiveup = false);
 		void closeSaved();
 		void closeWidget(YSSCore::Editor::FileEditWidget* widget);
@@ -37,7 +39,6 @@ namespace YSS::Editor {
 		QString getCurrentWidgetFilePath() const;
 		void moveWidgetTo(const QString& filePath, FileEditWidgetArea* otherArea);
 	protected:
-		virtual void focusInEvent(QFocusEvent* event) override;
 		virtual void dragEnterEvent(QDragEnterEvent* event) override;
 		virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
 		virtual void dragMoveEvent(QDragMoveEvent* event) override;

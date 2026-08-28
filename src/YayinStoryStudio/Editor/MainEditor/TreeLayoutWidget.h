@@ -11,6 +11,8 @@ namespace YSS::Editor {
 		Q_OBJECT;
 		friend class TreeLayoutWidgetPrivate;
 	public:
+		static QList<TreeLayoutWidget*> getAllTopLevelLayouts();
+	public:
 		TreeLayoutWidget(QWidget* parent = nullptr, FileEditWidgetArea* firstArea = nullptr);
 		virtual ~TreeLayoutWidget();
 	public:
