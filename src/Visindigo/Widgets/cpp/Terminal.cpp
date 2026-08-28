@@ -78,9 +78,6 @@ namespace Visindigo::__Private__ {
 	}
 
 	void TerminalPrivate::onANSILineReceived(const QString& line) {
-		QTextDocument* doc = consoleView->document();
-		QTextCursor editBlockCursor(doc);
-		editBlockCursor.beginEditBlock(); // 整行合并为一次文档操作：只重排一次、只发一次信号
 		QString debugLine = line;
 		//qDebug() << debugLine.replace("\r", "\\r").replace("\n", "\\n");
 		qint32 normalTextStart = 0;
@@ -176,15 +173,15 @@ namespace Visindigo::__Private__ {
 		if (normalTextStart < line.length()) {
 			insertPlainText(line.mid(normalTextStart));
 		}
-		if (doc->blockCount() > maxLines) {
-			// 直接定位到要保留的第一块，避免逐行移动光标（O(N) -> O(1)）
-			QTextCursor cursor(doc);
-			cursor.setPosition(0);
-			cursor.setPosition(doc->findBlockByNumber(doc->blockCount() - maxLines).position(), QTextCursor::KeepAnchor);
+		if (consoleView->document()->blockCount() > maxLines) {
+			auto cursor = consoleView->textCursor();
+			cursor.movePosition(QTextCursor::Start);
+			for (int i = 0; i < consoleView->document()->blockCount() - maxLines; ++i) {
+				cursor.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor);
+			}
 			cursor.removeSelectedText();
 			cursor.deleteChar(); // 删除多余的行后会剩下一个空行，这里删除掉
 		}
-		editBlockCursor.endEditBlock();
 	}
 
 	void TerminalPrivate::insertPlainText(const QString& text) {
@@ -192,12 +189,14 @@ namespace Visindigo::__Private__ {
 			return;
 		}
 		auto cursor = consoleView->textCursor();
-		if (not cursor.atBlockEnd()) {
-			// 覆盖语义：选中右侧等长文本后替换（用于进度条等 \r 覆盖场景）
-			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, text.size());
+		if (cursor.atBlockEnd()) {
+			consoleView->insertPlainText(text);
 		}
-		cursor.insertText(text); // 纯文档操作，不滚动视口
-		consoleView->setTextCursor(cursor);
+		else {
+			cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, text.size());
+			cursor.insertText(text);
+			consoleView->setTextCursor(cursor);
+		}
 	}
 
 	void TerminalPrivate::checkUrl(QTextCursor& cursor) {
@@ -832,7 +831,6 @@ namespace Visindigo::Widgets {
 		d->consoleView = new QTextBrowser(this);
 		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
 		d->consoleView->setOpenExternalLinks(true);
-		d->consoleView->document()->setUndoRedoEnabled(false); // 终端滚动区无需撤销，关闭可显著降低每次插入的开销
 		d->inputLine = new QLineEdit(this);
 		d->inputLine->installEventFilter(d);
 		d->consoleView->setFont(font);
