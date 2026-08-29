@@ -26,6 +26,7 @@ namespace YSS::Editor {
 	public:
 		void setAreaID(const QString& areaID);
 		QString getAreaID() const;
+		void setCloseSilently(bool silent);
 		void addWidget(YSSCore::Editor::FileEditWidget* widget);
 		bool containsWidget(const QString& filePath) const;
 		void closeAll(bool autoGiveup = false);

@@ -20,6 +20,7 @@ namespace YSS::Editor {
 	class MainWinMenu;
 	class ToolWidgetArea;
 	class BottomInfoWidget;
+	class TreeLayoutWidget;
 
 	class MainWin : public QFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
@@ -30,6 +31,7 @@ namespace YSS::Editor {
 		QHBoxLayout* Layout = nullptr;
 		RenameDialog* RenameDlg = nullptr;
 		MainWinMenu* Menu = nullptr;
+		TreeLayoutWidget* TreeLayout = nullptr;
 		BottomInfoWidget* BottomFrame = nullptr;
 		FileEditWidgetArea* lastFocusedFileEditArea = nullptr;
 		bool closeForBack = false;
@@ -58,6 +60,7 @@ namespace YSS::Editor {
 		FileEditWidgetArea* getLastFocusedFileEditArea() const;
 		YSSCore::Editor::FileEditWidget* getCurrentFocusedFileEditWidget() const;
 		YSSCore::Editor::FileEditWidget* getCurrentFocusedFileEditWidgetNotTool() const;
+		void initTreeLayout();
 	public slots:
 		void onFileEditWidgetAreaCreated(FileEditWidgetArea* widget);
 		void onFileEditWidgetAreaFocusIn(const QString& areaID);

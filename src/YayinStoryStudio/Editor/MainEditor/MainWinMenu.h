@@ -56,7 +56,6 @@ namespace YSS::Editor {
 		void view_pluginTools(YSSCore::Editor::FileServer* asToolServer, bool checked);
 	public:
 		void onEditMenuAboutToShow();
-		void onResourceBrowserVisibilityChanged(bool visible);
 		void onPluginToolMenuAboutToShow();
 		void onDebugServerChanged();
 	public:

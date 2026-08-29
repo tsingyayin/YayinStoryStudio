@@ -57,7 +57,9 @@ namespace YSS::Editor {
 				changeCurrentFile(widget->getFilePath());
 			}
 		});
-		changeCurrentFile(MainWin::getInstance()->getCurrentFocusedFileEditWidgetNotTool()->getFilePath());
+		if (MainWin::getInstance()->getCurrentFocusedFileEditWidgetNotTool()) {
+			changeCurrentFile(MainWin::getInstance()->getCurrentFocusedFileEditWidgetNotTool()->getFilePath());
+		}
 	}
 
 	void MessageViewer::changeCurrentFile(const QString& filePath) {

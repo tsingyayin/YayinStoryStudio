@@ -3,8 +3,8 @@
 #include <QtCore/qdir.h>
 #include <QtCore/qfileinfo.h>
 #include <QtWidgets/qwidget.h>
-#include <Widgets/ThemeManager.h>
-#include <Widgets/BorderFrame.h>
+#include <Editor/FileEditWidget.h>
+#include <Editor/FileServer.h>
 #include <QtWidgets/qabstractitemdelegate.h>
 class QListWidget;
 class QListWidgetItem;
@@ -18,7 +18,14 @@ class QFileSystemModel;
 class QToolBar;
 class QUndoCommand;
 namespace YSS::Editor {
-	class ResourceBrowser :public Visindigo::Widgets::BorderFrame, public Visindigo::Widgets::ColorfulWidget {
+	class ResourceBrowserVFS :public YSSCore::Editor::FileServer {
+		Q_OBJECT;
+	public:
+		ResourceBrowserVFS(YSSCore::Editor::EditorPlugin* plugin);
+		virtual YSSCore::Editor::FileEditWidget* onCreateFileEditWidget() override;
+	};
+
+	class ResourceBrowser :public YSSCore::Editor::FileEditWidget {
 		Q_OBJECT;
 	private:
 		QTreeView* FileTree;
@@ -55,11 +62,13 @@ namespace YSS::Editor {
 		static ResourceBrowser* getInstance();
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
+		virtual ~ResourceBrowser();
 		void refresh();
 		void setCurrentSelected(const QFileInfo& path);
 	public:
-		virtual void onThemeChanged() override;
+		virtual bool onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) override;
 	private:
+		void onThemeChanged();
 		void onNewButtonClicked();
 		void refreshFileList();
 		void onItemDoubleClicked(const QModelIndex& index);

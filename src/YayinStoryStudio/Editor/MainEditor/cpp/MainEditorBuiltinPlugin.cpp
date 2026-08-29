@@ -2,6 +2,7 @@
 #include "Editor/MainEditor/MessageViewer.h"
 #include "Editor/MainEditor/MultiTerminal.h"
 #include "Editor/MainEditor/PreferenceEditWidget.h"
+#include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/ColorThemeSettings.h"
 #include "Editor/MainEditor/DebugCommand.h"
 namespace YSS::Editor {
@@ -17,6 +18,7 @@ namespace YSS::Editor {
 		//registerToolWidget("cn.yxgeneral.yss.multiTerminal", "i18n:YSS::editor.multiTerminal.title");
 		registerFileServer(new MessageViewerVFS(this));
 		registerFileServer(new MultiTerminalVFS(this));
+		registerFileServer(new ResourceBrowserVFS(this));
 		registerFileServer(new PreferenceVFServer(this));
 		registerFileServer(new ColorThemeSettingsVFServer(this));
 		registerPluginModule(new DebugCommand(this));

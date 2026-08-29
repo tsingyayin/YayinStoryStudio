@@ -1,5 +1,6 @@
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/TreeLayoutWidget.h"
 #include <QtCore/qfileinfo.h>
 #include <Editor/DocumentMessageManager.h>
 #include <General/TranslationHost.h>
@@ -15,6 +16,8 @@
 #include <Editor/VirtualFilePath.h>
 #include <QtCore/qmimedata.h>
 #include <QtGui/qdrag.h>
+#include <QtGui/qcursor.h>
+#include <QtWidgets/qapplication.h>
 namespace YSS::Editor {
 	const QString StackTag::stackTagDragMimeType = QString("application/x-yss-stacktag");
 
@@ -22,7 +25,38 @@ namespace YSS::Editor {
 		return mimeData && mimeData->hasFormat(stackTagDragMimeType);
 	}
 
-	StackTag::StackTag(QWidget* parent, bool toolWidgetMode, Qt::Orientation orientation) :QFrame(parent) {
+	StackTagDrag::StackTagDrag(StackTag* source, QWidget* dragSource) :QDrag(dragSource), Source(source) {
+	}
+
+	StackTagDrag::~StackTagDrag() {
+		if (not Source) {
+			return;
+		}
+		QPoint globalPos = QCursor::pos();
+		bool insideWindow = false;
+		for (QWidget* topLevel : QApplication::topLevelWidgets()) {
+			if (topLevel->isVisible() && topLevel->geometry().contains(globalPos)) {
+				insideWindow = true;
+				break;
+			}
+		}
+		if (insideWindow) {
+			return;
+		}
+		TreeLayoutWidget* newLayout = new TreeLayoutWidget();
+		newLayout->resize(800, 600);
+		newLayout->show();
+		newLayout->raise();
+		newLayout->activateWindow();
+		FileEditWidgetArea* targetArea = newLayout->getFileEditAreaAt(0);
+		StackTagWidget* sourceTagArea = Source->getStayInWidget();
+		FileEditWidgetArea* sourceArea = sourceTagArea ? sourceTagArea->getArea() : nullptr;
+		if (sourceArea && targetArea && sourceArea != targetArea) {
+			sourceArea->moveWidgetTo(Source->getFilePath(), targetArea);
+		}
+	}
+
+	StackTag::StackTag(QWidget* parent, Qt::Orientation orientation) :QFrame(parent) {
 		Orientation = orientation;
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
@@ -66,7 +100,6 @@ namespace YSS::Editor {
 			emit closeAllRequested();
 			});
 
-		this->toolWidgetMode = toolWidgetMode;
 		ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
 		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
 		ActionSave = new QAction(VITR("Visindigo::general.save"), this);
@@ -95,15 +128,9 @@ namespace YSS::Editor {
 			emit closeSavedRequested();
 			});
 
-		if (not toolWidgetMode) {
-			this->addActions({ ActionClose, ActionPin, ActionReload,
-				ActionRename, ActionSave, ActionSaveAs, ActionShowInExplorer,
-				ActionCloseAll, ActionCloseSaved });
-		}
-		else {
-			this->TitleLabel->setAlignment(Qt::AlignCenter);
-			this->addActions({ ActionClose, ActionPin, ActionCloseAll });
-		}
+		this->addActions({ ActionClose, ActionPin, ActionReload,
+			ActionRename, ActionSave, ActionSaveAs, ActionShowInExplorer,
+			ActionCloseAll, ActionCloseSaved });
 	}
 
 	void StackTag::setStayInWidget(StackTagWidget* widget) {
@@ -116,7 +143,7 @@ namespace YSS::Editor {
 
 	void StackTag::setText(const QString& text) {
 		TitleLabel->setText(text);
-		if (toolWidgetMode && Orientation == Qt::Horizontal) {
+		if (Orientation == Qt::Horizontal) {
 			qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(text) + 40;
 			if (fixedWidth < 100) {
 				fixedWidth = 100;
@@ -199,7 +226,7 @@ namespace YSS::Editor {
 			QPoint currentPos = event->pos();
 			if ((currentPos - PressedPos).manhattanLength() > QApplication::startDragDistance()) {
 				Pressed = false;
-				QDrag* drag = new QDrag(this);
+				StackTagDrag* drag = new StackTagDrag(this, this);
 				QImage dragImage = this->grab().toImage();
 				drag->setPixmap(QPixmap::fromImage(dragImage));
 				QMimeData* mimeData = new QMimeData;
@@ -213,6 +240,7 @@ namespace YSS::Editor {
 				mimeData->setData(StackTag::stackTagDragMimeType, json.toString().toUtf8());
 				drag->setMimeData(mimeData);
 				drag->exec(Qt::MoveAction);
+				delete drag;
 			}
 		}
 	}
@@ -299,22 +327,43 @@ namespace YSS::Editor {
 		ScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		ScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		adjustScrollArea();
-		WidgetSelector = new QComboBox(this);
+		WidgetSelector = new QToolButton(this);
+		WidgetSelector->setAutoRaise(true);
+		WidgetSelector->setIcon(VIApp->getNamedFontIcon("More", 64, { VISTM->getPaletteTextColor() }));
+
+		WidgetSelectorPopup = new QFrame(nullptr, Qt::Popup | Qt::FramelessWindowHint);
+		WidgetSelectorPopup->setObjectName("StackTagSelectorPopup");
+		WidgetSelectorModel = new QStandardItemModel(this);
+		WidgetSelectorList = new QListView(WidgetSelectorPopup);
+		WidgetSelectorList->setModel(WidgetSelectorModel);
+		WidgetSelectorList->setFrameShape(QFrame::NoFrame);
+		WidgetSelectorList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+		WidgetSelectorList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		WidgetSelectorList->setSelectionMode(QAbstractItemView::SingleSelection);
+		QVBoxLayout* selectorPopupLayout = new QVBoxLayout(WidgetSelectorPopup);
+		selectorPopupLayout->setContentsMargins(1, 1, 1, 1);
+		selectorPopupLayout->setSpacing(0);
+		selectorPopupLayout->addWidget(WidgetSelectorList);
+
 		if (orientation == Qt::Horizontal) {
-			WidgetSelector->setMinimumWidth(100);
+			WidgetSelector->setFixedWidth(32);
 			Layout = new QHBoxLayout(this);
-			WidgetSelector->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+			WidgetSelector->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 		}
 		else {
-			WidgetSelector->setMinimumHeight(32);
+			WidgetSelector->setFixedHeight(32);
 			Layout = new QVBoxLayout(this);
-			WidgetSelector->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+			WidgetSelector->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 		}
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->addWidget(ScrollArea);
 		Layout->addWidget(WidgetSelector);
-		connect(WidgetSelector, &QComboBox::currentIndexChanged, this, [this](int index) {
-			QString filePath = WidgetSelector->itemData(index).toString();
+		connect(WidgetSelector, &QToolButton::clicked, this, [this]() {
+			showWidgetSelectorPopup();
+			});
+		connect(WidgetSelectorList, &QListView::clicked, this, [this](const QModelIndex& index) {
+			WidgetSelectorPopup->hide();
+			QString filePath = index.data(Qt::UserRole).toString();
 			setCurrentStackLabel(filePath);
 			emit switchToFile(filePath);
 			});
@@ -322,6 +371,7 @@ namespace YSS::Editor {
 			auto textColor = VISTM->getPaletteTextColor();
 			auto accentColor = VISTM->getPaletteAccentColor();
 			applyIcon(nullptr, textColor, accentColor);
+			WidgetSelector->setIcon(VIApp->getNamedFontIcon("More", 64, { textColor }));
 			});
 		setColorfulEnable(true);
 		onThemeChanged();
@@ -372,12 +422,14 @@ namespace YSS::Editor {
 
 	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
 		QFileInfo fileInfo(filePath);
-		StackTag* tagLabel = new StackTag(ScrollContent, ToolWidgetMode, Orientation);
+		StackTag* tagLabel = new StackTag(ScrollContent, Orientation);
 		tagLabel->setFilePath(filePath);
 		tagLabel->setStayInWidget(this);
 		const QString text = displayName.isEmpty() ? fileInfo.fileName() : displayName;
 		tagLabel->setText(text);
-		WidgetSelector->addItem(text, filePath);
+		QStandardItem* selectorItem = new QStandardItem(text);
+		selectorItem->setData(filePath, Qt::UserRole);
+		WidgetSelectorModel->appendRow(selectorItem);
 		ContentLayout->addWidget(tagLabel);
 		Labels.append(tagLabel);
 
@@ -424,10 +476,11 @@ namespace YSS::Editor {
 		const QString text = newDisplayName.isEmpty() ? QFileInfo(newFilePath).fileName() : newDisplayName;
 		label->setText(text);
 		label->setFilePath(newFilePath);
-		for (int i = 0; i < WidgetSelector->count(); ++i) {
-			if (WidgetSelector->itemData(i).toString() == oldFilePath) {
-				WidgetSelector->setItemText(i, text);
-				WidgetSelector->setItemData(i, newFilePath);
+		for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
+			QStandardItem* item = WidgetSelectorModel->item(i);
+			if (item->data(Qt::UserRole).toString() == oldFilePath) {
+				item->setText(text);
+				item->setData(newFilePath, Qt::UserRole);
 				break;
 			}
 		}
@@ -468,9 +521,9 @@ namespace YSS::Editor {
 			Labels.removeAll(targetLabel);
 			ContentLayout->removeWidget(targetLabel);
 			targetLabel->deleteLater();
-			for (int i = 0; i < WidgetSelector->count(); ++i) {
-				if (WidgetSelector->itemData(i).toString() == filePath) {
-					WidgetSelector->removeItem(i);
+			for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
+				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).toString() == filePath) {
+					WidgetSelectorModel->removeRow(i);
 					break;
 				}
 			}
@@ -517,9 +570,9 @@ namespace YSS::Editor {
 			i++;
 		}
 		if (finded) {
-			for (int i = 0; i < WidgetSelector->count(); ++i) {
-				if (WidgetSelector->itemData(i).toString() == filePath) {
-					WidgetSelector->setCurrentIndex(i);
+			for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
+				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).toString() == filePath) {
+					WidgetSelectorList->setCurrentIndex(WidgetSelectorModel->index(i, 0));
 					break;
 				}
 			}
@@ -609,18 +662,33 @@ namespace YSS::Editor {
 		return nullptr;
 	}
 
-	void StackTagWidget::setToolWidgetMode(bool toolWidgetMode) {
-		ToolWidgetMode = toolWidgetMode;
-		if (ToolWidgetMode) {
-			WidgetSelector->hide();
+	void StackTagWidget::showWidgetSelectorPopup() {
+		if (WidgetSelectorModel->rowCount() <= 0) {
+			return;
+		}
+		int itemHeight = WidgetSelectorList->sizeHintForRow(0);
+		if (itemHeight < 20) {
+			itemHeight = 20;
+		}
+		int popupHeight = WidgetSelectorModel->rowCount() * itemHeight + 6;
+		if (popupHeight > 320) {
+			popupHeight = 320;
+		}
+		int popupWidth = 160;
+		WidgetSelectorPopup->setFixedSize(popupWidth, popupHeight);
+		QPoint buttonGlobalPos = WidgetSelector->mapToGlobal(QPoint(0, 0));
+		QPoint popupPos;
+		if (Orientation == Qt::Horizontal) {
+			popupPos = QPoint(buttonGlobalPos.x() + WidgetSelector->width() - popupWidth,
+				buttonGlobalPos.y() + WidgetSelector->height());
 		}
 		else {
-			WidgetSelector->show();
+			popupPos = QPoint(buttonGlobalPos.x(), buttonGlobalPos.y() - popupHeight);
 		}
-	}
-
-	bool StackTagWidget::isToolWidgetMode() const {
-		return ToolWidgetMode;
+		WidgetSelectorPopup->move(popupPos);
+		WidgetSelectorPopup->show();
+		WidgetSelectorPopup->raise();
+		WidgetSelectorPopup->setFocus();
 	}
 
 	void StackTagWidget::wheelEvent(QWheelEvent* event) {
@@ -644,9 +712,9 @@ namespace YSS::Editor {
 	void StackTagWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		if (Orientation == Qt::Horizontal) {
-			WidgetSelector->setFixedHeight(this->height());
+			WidgetSelector->setFixedSize(this->height(), this->height());
 		}else{
-			WidgetSelector->setFixedWidth(this->width());
+			WidgetSelector->setFixedSize(this->width(), this->width());
 		}
 		adjustScrollArea();
 	}

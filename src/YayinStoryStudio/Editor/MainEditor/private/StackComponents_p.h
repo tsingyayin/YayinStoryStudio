@@ -6,13 +6,16 @@
 #include <QtWidgets/qtoolbutton.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollarea.h>
-#include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qtablewidget.h>
-#include <QtWidgets/qmenu.h>
+#include <QtWidgets/qlistview.h>
+#include <QtGui/qstandarditemmodel.h>
+#include <QtGui/qaction.h>
+#include <QtGui/qdrag.h>
 #include <Widgets/ThemeManager.h>
 namespace YSS::Editor {
 	class FileEditWidgetArea;
 	class StackTagWidget;
+	class TreeLayoutWidget;
 	class StackTag :public QFrame {
 		friend class StackTagWidget;
 		friend class StackTagWidgetPrivate;
@@ -22,7 +25,6 @@ namespace YSS::Editor {
 		QLabel* TitleLabel;
 		QHBoxLayout* Layout;
 		QString FilePath;
-		bool toolWidgetMode = false;
 		bool Hovering = false;
 		bool Focused = false;
 		bool Pinned = false;
@@ -55,7 +57,7 @@ namespace YSS::Editor {
 		static const QString stackTagDragMimeType;
 		static bool canAcceptDrag(const QMimeData* mimeData);
 	public:
-		StackTag(QWidget* parent = nullptr, bool toolWidgetMode = false, Qt::Orientation orientation = Qt::Horizontal);
+		StackTag(QWidget* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 		void setStayInWidget(StackTagWidget* widget);
 		StackTagWidget* getStayInWidget() const;
 		void setText(const QString& text);
@@ -91,11 +93,13 @@ namespace YSS::Editor {
 		QBoxLayout* ContentLayout;
 		QWidget* ScrollContent;
 		QScrollArea* ScrollArea;
-		QComboBox* WidgetSelector;
+		QToolButton* WidgetSelector;
+		QFrame* WidgetSelectorPopup;
+		QListView* WidgetSelectorList;
+		QStandardItemModel* WidgetSelectorModel;
 		QBoxLayout* Layout;
 		QList<StackTag*> Labels;
 		QString CurrentSelected;
-		bool ToolWidgetMode = false;
 		FileEditWidgetArea* Area = nullptr;
 	public:
 		StackTagWidget(QWidget* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
@@ -113,8 +117,6 @@ namespace YSS::Editor {
 		void cancelFileChanged(const QString& filePath);
 		bool containsStackLabel(const QString& filePath) const;
 		bool isStackLabelPinned(const QString& filePath) const;
-		void setToolWidgetMode(bool toolWidgetMode);
-		bool isToolWidgetMode() const;
 	public:
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;
@@ -125,6 +127,15 @@ namespace YSS::Editor {
 	private:
 		void applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor);
 		StackTag* findLabel(const QString& filePath) const;
+		void showWidgetSelectorPopup();
+	};
+
+	class StackTagDrag :public QDrag {
+	public:
+		StackTagDrag(StackTag* source, QWidget* dragSource);
+		virtual ~StackTagDrag() override;
+	private:
+		StackTag* Source;
 	};
 
 	class DefaultStackWidgetCentralArea :public QFrame {

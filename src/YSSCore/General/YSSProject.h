@@ -47,6 +47,9 @@ namespace YSSCore::General {
 		Visindigo::General::Version getProjectVersion();
 		Visindigo::Utility::JsonConfig getProjectConfigForPlugin(Visindigo::General::Plugin* plugin);
 		Visindigo::Utility::JsonConfig getProjectConfigForPlugin(const QString& pluginID);
+		Visindigo::Utility::JsonConfig getTreeLayoutConfig();
+		bool hasTreeLayoutConfig();
+		void setTreeLayoutConfig(const Visindigo::Utility::JsonConfig& config);
 		void saveProjectConfigForPlugin(Visindigo::General::Plugin* plugin, const Visindigo::Utility::JsonConfig& config);
 		void saveProjectConfigForPlugin(const QString& pluginID, const Visindigo::Utility::JsonConfig& config);
 		QStringList getEditorOpenedFiles(); // return all in absolute path

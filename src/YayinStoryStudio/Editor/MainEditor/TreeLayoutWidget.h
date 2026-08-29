@@ -2,6 +2,7 @@
 #define YSS_MainEditor_TreeLayoutWidget_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qstring.h>
 #include <QtCore/qnamespace.h>
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include <Utility/JsonConfig.h>
@@ -12,6 +13,7 @@ namespace YSS::Editor {
 		friend class TreeLayoutWidgetPrivate;
 	public:
 		static QList<TreeLayoutWidget*> getAllTopLevelLayouts();
+		static TreeLayoutWidget* getTopLayoutByID(const QString& topLayoutID);
 	public:
 		TreeLayoutWidget(QWidget* parent = nullptr, FileEditWidgetArea* firstArea = nullptr);
 		virtual ~TreeLayoutWidget();
@@ -30,8 +32,12 @@ namespace YSS::Editor {
 		QList<bool> getIsLayoutList() const;
 		int getChildCount() const;
 		bool isTopLevel() const;
+		QString getTopLayoutID() const;
+		void setTopLayoutID(const QString& topLayoutID);
 		Qt::Orientation getOrientation() const;
 		bool isOrientationSelected() const;
+		void setOrientation(Qt::Orientation orientation);
+		void setChildRatios(const QList<int>& ratios);
 	public:
 		Visindigo::Utility::JsonConfig saveToJson() const;
 		void recoverFromJson(const Visindigo::Utility::JsonConfig& json);

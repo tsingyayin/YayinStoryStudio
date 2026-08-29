@@ -37,6 +37,13 @@ namespace YSSCore::__Private__ {
 	}
 
 	bool TextEditPrivate::eventFilter(QObject* obj, QEvent* event) {
+		// 焦点在内层 d->Text 上，失焦事件由 d->Text 触发而非 TextEdit 本体，
+		// 因此放在通用入口处处理，确保编辑器失去焦点时补全提示自动收起。
+		if (event->type() == QEvent::FocusOut) {
+			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+				TabCompleterWidget->hide();
+			}
+		}
 		if (obj == Text) {
 			if (event->type() == QEvent::KeyPress) {
 				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
@@ -1034,21 +1041,13 @@ namespace YSSCore::Editor {
 		因此我们建议您将悬停区域设置为一个更大的区域，如您的组件的主窗口等。
 	*/
 	void TextEdit::setHoverArea(QWidget* area) {
-		if (not area) {
-			d->HoverArea = nullptr;
-			if (d->HoverInfoWidget) {
-				d->HoverInfoWidget->setParent(d->Text);
-			}
-			if (d->TabCompleterWidget) {
-				d->TabCompleterWidget->setParent(d->Text);
-			}
-		}
 		d->HoverArea = area;
+		QWidget* target = area ? area : d->Text;
 		if (d->HoverInfoWidget) {
-			d->HoverInfoWidget->setParent(area);
+			d->HoverInfoWidget->setParent(target);
 		}
 		if (d->TabCompleterWidget) {
-			d->TabCompleterWidget->setParent(area);
+			d->TabCompleterWidget->setParent(target);
 		}
 	}
 

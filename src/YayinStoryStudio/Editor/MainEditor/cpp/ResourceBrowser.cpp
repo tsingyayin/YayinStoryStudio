@@ -20,6 +20,7 @@
 #include <Editor/FileServerManager.h>
 #include <Editor/FileTemplateManager.h>
 #include "Editor/MainEditor/ResourceBrowser.h"
+#include <Widgets/ThemeManager.h>
 #include "Editor/MainEditor/SimpleFileDialog.h"
 #include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/MainEditor/MainWin.h"
@@ -27,7 +28,21 @@
 #include <Utility/FileUtility.h>
 namespace YSS::Editor {
 	static ResourceBrowser* Instance = nullptr;
-	ResourceBrowser::ResourceBrowser(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
+	ResourceBrowserVFS::ResourceBrowserVFS(YSSCore::Editor::EditorPlugin* plugin) :
+		YSSCore::Editor::FileServer("YSS Built-in Resource Browser", "cn.yxgeneral.yss_builtin.resourceBrowserVFS", plugin) {
+		setEditorType(YSSCore::Editor::FileServer::BuiltInEditor);
+		setSupportedFileExts({ "YSS.MainEditor.ResourceBrowser" });
+		setAsVitrualFileServer(true);
+		setPreferredOrientation(YSSCore::Editor::FileServer::Vertical_Narrow);
+		setListAsTool(true);
+		setToolNickname("i18n:YSS::menu.view.resourceBrowser");
+	}
+
+	YSSCore::Editor::FileEditWidget* ResourceBrowserVFS::onCreateFileEditWidget() {
+		return new ResourceBrowser();
+	}
+
+	ResourceBrowser::ResourceBrowser(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		Instance = this;
 
 		Layout = new QVBoxLayout(this);
@@ -243,12 +258,15 @@ namespace YSS::Editor {
 			});
 
 		refreshFileList();
-		setColorfulEnable(true);
 		onThemeChanged();
 	}
 
 	ResourceBrowser* ResourceBrowser::getInstance() {
 		return Instance;
+	}
+
+	ResourceBrowser::~ResourceBrowser() {
+		Instance = nullptr;
 	}
 
 	void ResourceBrowser::refresh() {
@@ -392,5 +410,12 @@ namespace YSS::Editor {
 			}
 			});
 		dialog->show();
+	}
+
+	bool ResourceBrowser::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {
+		if (ext == "YSS.MainEditor.ResourceBrowser") {
+			return true;
+		}
+		return false;
 	}
 }

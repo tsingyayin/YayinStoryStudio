@@ -61,40 +61,21 @@ namespace YSS::Editor {
 		Layout = new QHBoxLayout(CentralWidget);
 		Layout->setContentsMargins(10, 0, 10, 0);
 		
-		new ResourceBrowser(CentralWidget);
-		auto Editors = new FileEditWidgetArea(CentralWidget);
-		Tools = new ToolWidgetArea(CentralWidget);
+		TreeLayout = new TreeLayoutWidget(CentralWidget);
+		TreeLayout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		Layout->addWidget(TreeLayout);
 
-		auto testTreeLayout = new TreeLayoutWidget();
-		testTreeLayout->resize(800, 600);
-		testTreeLayout->show();
-
-		QObject::connect(ResourceBrowser::getInstance(), &ResourceBrowser::visibilityChanged, Menu, &MainWinMenu::onResourceBrowserVisibilityChanged);
-
-		ResourceBrowser::getInstance()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		Editors->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		Tools->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-		QSplitter* hSplitter = new QSplitter(Qt::Vertical, CentralWidget);
-		hSplitter->setContentsMargins(0, 0, 0, 0);
-		hSplitter->addWidget(Editors);
-		hSplitter->addWidget(Tools);
-		hSplitter->setHandleWidth(8);
-		hSplitter->setStretchFactor(0, 3);
-		hSplitter->setStretchFactor(1, 1);
-		QSplitter* splitter = new QSplitter(Qt::Horizontal, CentralWidget);
-		splitter->setContentsMargins(0, 0, 0, 0);
-		splitter->addWidget(ResourceBrowser::getInstance());
-		splitter->addWidget(hSplitter);
-		splitter->setHandleWidth(8);
-		splitter->setStretchFactor(0, 1);
-		splitter->setStretchFactor(1, 4);
-		Layout->addWidget(splitter);
-
+		// BottomFrame 需在 initTreeLayout 之前创建，因为自动打开工具时会同步触发
+		// currentFileChanged 来更新底部信息栏。
 		BottomFrame = new BottomInfoWidget(this);
 		BottomFrame->setFixedHeight(30);
 		BottomFrame->setGitInfoEnable(false);
 		MainLayout->addWidget(BottomFrame);
+
+		// 需在 initTreeLayout 之前连接，确保新建项目时自动打开的工具能进入对应区域。
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
+
+		initTreeLayout();
 
 		connect(YSSDSR, &DebugServerRouter::actionStarted, this, [this](YSSCore::Editor::DebugServer::DebugAction action) {
 			BottomFrame->displayDebugInfo(action, QString());
@@ -121,21 +102,28 @@ namespace YSS::Editor {
 			this->showMaximized();
 		}
 
-		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened, this, &MainWin::onToolWidgetOpened);
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileClosed, this, [this](const QString& filePath) {
+			if (FocusingFileEditWidget && FocusingFileEditWidget->getFilePath() == filePath) {
+				FocusingFileEditWidget = nullptr;
+			}
+			if (FocusingFileEditWidgetNotTool && FocusingFileEditWidgetNotTool->getFilePath() == filePath) {
+				FocusingFileEditWidgetNotTool = nullptr;
+			}
+			});
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 
 		RenameDlg = new RenameDialog();
 		RenameDlg->hide();
-		connect(YSSCore::Editor::FileServerManager::getInstance(), &YSSCore::Editor::FileServerManager::focusOnFile,
-			Editors, qOverload<const QString&, qint32, qint32>(&YSS::Editor::FileEditWidgetArea::setCurrentWidget));
 		
 		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
 			auto editor = YSSFSM->getFileEditWidget(oldName);
 			if (editor) {
 				editor->saveFile(newName, true);
 			}
-			ResourceBrowser::getInstance()->refresh();
+			if (auto browser = ResourceBrowser::getInstance()) {
+				browser->refresh();
+			}
 			});
 
 		connect(BottomFrame, &BottomInfoWidget::requestStatistic, this, [this]() {
@@ -211,10 +199,7 @@ namespace YSS::Editor {
 		if (focusedArea) {
 			focusedArea->setCurrentWidget(focusedFile);
 		}
-		else {
-			Editors->setCurrentWidget(focusedFile);
-		}
-		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
+		saveProject();
 	}
 
 	MainWin::~MainWin() {
@@ -233,7 +218,30 @@ namespace YSS::Editor {
 		QString areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(filePath);
 		yDebug << "File opened in area: " << areaID<< " file: " << filePath;
 		if (areaID.isEmpty()) {
-			lastFocusedFileEditArea->addWidget(widget);
+			auto targetArea = FileEditWidgetArea::getMainArea(); // default.
+			auto sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget);
+			if (sourceServer->isListAsTool()) {
+				if (lastFocusedFileEditArea) {
+					targetArea = lastFocusedFileEditArea;
+				}
+			}
+			else {
+				if (FocusingFileEditWidgetNotTool) {
+					auto areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(FocusingFileEditWidgetNotTool->getFilePath());
+					auto area = FileEditWidgetArea::getAreaByID(areaID);
+					if (area) {
+						targetArea = area;
+					}
+				}
+				else {
+					auto areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(FocusingFileEditWidget->getFilePath());
+					auto area = FileEditWidgetArea::getAreaByID(areaID);
+					if (area) {
+						targetArea = area;
+					}
+				}
+			}
+			targetArea->addWidget(widget);
 		}
 		else {
 			auto area = FileEditWidgetArea::getAreaByID(areaID);
@@ -244,7 +252,9 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::onToolWidgetOpened(const QString& widgetID) {
-		Tools->addWidget(widgetID);
+		if (Tools) {
+			Tools->addWidget(widgetID);
+		}
 	}
 
 	void MainWin::saveCurrentFocusedFile() {
@@ -289,7 +299,9 @@ namespace YSS::Editor {
 		editor = YSSFSM->getFileEditWidget(rawFilePath);
 		if (editor) {
 			editor->saveFile(newfilePath);
-			ResourceBrowser::getInstance()->refresh();
+			if (auto browser = ResourceBrowser::getInstance()) {
+				browser->refresh();
+			}
 		}
 	}
 
@@ -378,6 +390,36 @@ namespace YSS::Editor {
 		return FocusingFileEditWidgetNotTool;
 	}
 
+	void MainWin::initTreeLayout() {
+		if (YSSCore::General::YSSProject::getCurrentProject()->hasTreeLayoutConfig()) {
+			auto treeConfig = YSSCore::General::YSSProject::getCurrentProject()->getTreeLayoutConfig();
+			TreeLayout->recoverFromJson(treeConfig.getObject("default"));
+			for (auto key : treeConfig.keys("extra")) {
+				auto treeLayout = new TreeLayoutWidget();
+				treeLayout->recoverFromJson(treeConfig.getObject("extra." + key));
+				treeLayout->show();
+			}
+		}
+		else {
+			TreeLayout->setOrientation(Qt::Horizontal);
+			FileEditWidgetArea* resourceArea = TreeLayout->createFileEditAreaFirst();
+			lastFocusedFileEditArea = resourceArea;
+			Menu->view_pluginTools(YSSFSM->getFileServerById("cn.yxgeneral.yss_builtin.resourceBrowserVFS"), true);
+			FileEditWidgetArea* messageArea = new FileEditWidgetArea();
+			TreeLayoutWidget* rightLayout = TreeLayout->replaceFileEditAt(1, messageArea, false);
+			lastFocusedFileEditArea = messageArea;
+			Menu->view_pluginTools(YSSFSM->getFileServerById("cn.yxgeneral.yss_builtin.messageViewerVFS"), true);
+			TreeLayout->setChildRatios({ 2, 5 });
+			if (rightLayout) {
+				rightLayout->setChildRatios({ 3, 1 });
+			}
+			lastFocusedFileEditArea = FileEditWidgetArea::getMainArea();
+			if (lastFocusedFileEditArea) {
+				lastFocusedFileEditArea->setFocus();
+			}
+		}
+	}
+
 	void MainWin::onFileEditWidgetAreaCreated(FileEditWidgetArea* area) {
 		if (not lastFocusedFileEditArea) {
 			lastFocusedFileEditArea = area;
@@ -410,7 +452,9 @@ namespace YSS::Editor {
 				BottomFrame->setEditorInfoEnable(false);
 			}
 			if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
-				ResourceBrowser::getInstance()->setCurrentSelected(QFileInfo(filePath));
+				if (auto browser = ResourceBrowser::getInstance()) {
+					browser->setCurrentSelected(QFileInfo(filePath));
+				}
 			}
 			});
 		connect(area, &FileEditWidgetArea::textEditCursorPositionChanged, this, [this](const QString& filePath, const QTextCursor& cursor) {
@@ -447,6 +491,22 @@ namespace YSS::Editor {
 			}
 			else {
 				BottomFrame->setEditorInfoEnable(false);
+			}
+			// 聚焦切换不会触发 currentFileChanged，这里同步聚焦控件与消息查看器。
+			if (currentEditWidget && currentEditWidget != FocusingFileEditWidget) {
+				FocusingFileEditWidget = currentEditWidget;
+				emit currentFileEditWidgetChanged(currentEditWidget);
+				bool isToolWidget = YSSFSM->getFileEditWidgetSourceServer(currentEditWidget)->isListAsTool();
+				if (not isToolWidget) {
+					FocusingFileEditWidgetNotTool = currentEditWidget;
+					emit currentFileEditWidgetChangedNotTool(currentEditWidget);
+				}
+			}
+			else if (not currentEditWidget) {
+				FocusingFileEditWidget = nullptr;
+				FocusingFileEditWidgetNotTool = nullptr;
+				emit currentFileEditWidgetChanged(nullptr);
+				emit currentFileEditWidgetChangedNotTool(nullptr);
 			}
 		}
 		emit currentFileEditWidgetAreaChanged(lastFocusedFileEditArea);
@@ -503,7 +563,9 @@ namespace YSS::Editor {
 		for (auto layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
 			layout->close();
 		}
-		Tools->closeAll(); // this two lines indicates a potential memory trap. see comments in its destructor.
+		if (Tools) {
+			Tools->closeAll(); // this two lines indicates a potential memory trap. see comments in its destructor.
+		}
 		Instance = nullptr;
 		delete YSSCore::General::YSSProject::getCurrentProject();
 		this->deleteLater();
@@ -523,6 +585,16 @@ namespace YSS::Editor {
 
 	void MainWin::saveProject() {
 		saveAllFiles();
+		auto layouts = TreeLayoutWidget::getAllTopLevelLayouts();
+		Visindigo::Utility::JsonConfig treeConfig;
+		treeConfig.setObject("default", TreeLayout->saveToJson());
+		for (auto layout : layouts) {
+			if (layout != TreeLayout) {
+				treeConfig.setObject("extra.s_" + layout->getTopLayoutID(), layout->saveToJson());
+			}
+		}
+		YSSCore::General::YSSProject::getCurrentProject()->setTreeLayoutConfig(treeConfig);
+
 		YSSCore::General::YSSProject::getCurrentProject()->setFocusedFile(FocusingFileEditWidgetNotTool ? FocusingFileEditWidgetNotTool->getFilePath() : "");
 		Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
 		if (this->isMaximized()) {

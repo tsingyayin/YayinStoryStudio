@@ -276,7 +276,7 @@ namespace YSSCore::General {
 		d->ProjectConfig->setString("Project.Name", name);
 		d->ProjectConfig->setString("Project.Description", "");
 		d->ProjectConfig->setString("Project.IconPath", "");
-		d->ProjectConfig->setString("Project.Version", "0.1");
+		d->ProjectConfig->setString("Project.Version", "0.2");
 		d->ProjectConfig->setString("Project.Author", "");
 		d->ProjectConfig->setString("Project.DebugServerID", "");
 		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
@@ -445,6 +445,32 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\since YSS 0.17.0
+
+		return 项目中为树形布局保存的配置数据。这个配置数据是一个JsonConfig对象，包含了树形布局的相关设置。
+	*/
+	Visindigo::Utility::JsonConfig YSSProject::getTreeLayoutConfig() {
+		return d->ProjectConfig->getObject("TreeLayout");
+	}
+
+	/*!
+		\since YSS 0.17.0
+		为树形布局设置配置数据。这个配置数据是一个JsonConfig对象，包含了树形布局的相关设置。
+	*/
+	void YSSProject::setTreeLayoutConfig(const Visindigo::Utility::JsonConfig& config) {
+		d->ProjectConfig->setObject("TreeLayout", config);
+	}
+
+	/*!
+		\since YSS 0.17.0
+
+		return 项目中是否有树形布局的配置数据。
+	*/
+	bool YSSProject::hasTreeLayoutConfig() {
+		return d->ProjectConfig->contains("TreeLayout");
+	}
+
+	/*!
 		\since YSS 0.13.0
 		为指定插件 \a plugin 保存具有 \a config 的数据。
 
@@ -570,7 +596,7 @@ namespace YSSCore::General {
 			if (areaID.isEmpty() || areaID == "0") {
 				d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), relativePath);
 			} else {
-				d->ProjectConfig->setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID).size()), relativePath);
+				d->ProjectConfig->setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig->keys("Editor.OpenedFilesExtra.s_" + areaID).size()), relativePath);
 			}
 		}
 		else {
@@ -578,7 +604,7 @@ namespace YSSCore::General {
 				d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), filePath);
 			}
 			else {
-				d->ProjectConfig->setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID).size()), filePath);
+				d->ProjectConfig->setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig->keys("Editor.OpenedFilesExtra.s_" + areaID).size()), filePath);
 			}
 		}
 	}

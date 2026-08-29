@@ -73,7 +73,6 @@ namespace YSS::Editor {
 
 		QMenu* ViewMenu;
 		QAction* View_FullScreenToggle;
-		QAction* View_ResourceBrowser;
 		QAction* View_NothingToShow;
 		QList<YSSCore::Editor::FileServer*> PluginToolsList;
 		QMap<QAction*, YSSCore::Editor::FileServer*> PluginToolsActionMap;
@@ -224,11 +223,6 @@ namespace YSS::Editor {
 			font.setPointSizeF(font.pointSizeF() * 0.9);
 			ViewMenu->setFont(font);
 			ViewMenu->setObjectName("view");
-			View_ResourceBrowser = ViewMenu->addAction(VITR("YSS::menu.view.resourceBrowser"));
-			View_ResourceBrowser->setObjectName("resourceBrowser");
-			View_ResourceBrowser->setCheckable(true);
-			View_ResourceBrowser->setChecked(true);
-			ViewMenu->addSeparator();
 			View_FullScreenToggle = ViewMenu->addAction(VITR("YSS::menu.view.fullScreenToggle"));
 			View_FullScreenToggle->setObjectName("fullScreenToggle");
 			View_FullScreenToggle->setCheckable(true);
@@ -240,7 +234,6 @@ namespace YSS::Editor {
 			View_NothingToShow->setEnabled(false);
 			View_NothingToShow->setVisible(false);
 
-			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
 			QObject::connect(View_FullScreenToggle, &QAction::triggered, q, &MainWinMenu::view_fullScreenToggle);
 			QObject::connect(ViewMenu, &QMenu::aboutToShow, q, &MainWinMenu::onPluginToolMenuAboutToShow);
 		}
@@ -507,6 +500,12 @@ namespace YSS::Editor {
 			YSSFSM->openFile(vfp.toString());
 			auto widget = YSSFSM->getFileEditWidget(vfp.toString());
 			if (widget) {
+				for (auto action : d->PluginToolsActionMap.keys()) {
+					if (d->PluginToolsActionMap[action] == asToolServer) {
+						action->setChecked(true);
+						break;
+					}
+				}
 				connect(widget, &YSSCore::Editor::FileEditWidget::destroyed, this, [this, asToolServer]() {
 					for (auto action : d->PluginToolsActionMap.keys()) {
 						if (d->PluginToolsActionMap[action] == asToolServer) {
@@ -544,6 +543,9 @@ namespace YSS::Editor {
 				auto action = d->ViewMenu->addAction(VI18N(toolServer->getToolNickname()));
 				action->setCheckable(true);
 				d->PluginToolsActionMap[action] = toolServer;
+				auto vfp = YSSCore::Editor::VirtualFilePath(toolServer->getSupportedFileExts().first(),
+					VI18N(toolServer->getToolNickname()), "");
+				action->setChecked(YSSFSM->getFileEditWidget(vfp.toString()) != nullptr);
 				QObject::connect(action, &QAction::triggered, this, [this, action]() {
 					auto toolServer = d->PluginToolsActionMap[action];
 					bool checked = action->isChecked();
@@ -554,7 +556,7 @@ namespace YSS::Editor {
 	}
 	
 	void MainWinMenu::onEditMenuAboutToShow() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentWidget);
 		bool hasTextEdit = (textEdit != nullptr);
 		d->Edit_Undo->setEnabled(hasTextEdit && textEdit->getDocument()->isUndoAvailable());
@@ -564,10 +566,6 @@ namespace YSS::Editor {
 		d->Edit_Paste->setEnabled(hasTextEdit && QApplication::clipboard()->mimeData()->hasText());
 		d->Edit_SelectAll->setEnabled(hasTextEdit && !textEdit->getDocument()->isEmpty());
 		d->Edit_FindAndReplace->setEnabled(hasTextEdit);
-	}
-
-	void MainWinMenu::onResourceBrowserVisibilityChanged(bool visible) {
-		d->View_ResourceBrowser->setChecked(visible);
 	}
 
 	void MainWinMenu::onDebugServerChanged() {
@@ -622,7 +620,6 @@ namespace YSS::Editor {
 			d->Run_Action_Resume->setIcon(VIApp->getFontIcon("\uE893", 64, { d->MenuTextColor }));
 
 			d->View_FullScreenToggle->setIcon(VIApp->getNamedFontIcon("FullScreen", 64, { d->MenuTextColor }));
-			d->View_ResourceBrowser->setIcon(VIApp->getFontIcon("\uEC50", 64, { d->MenuTextColor }));
 		}
 	}
 }

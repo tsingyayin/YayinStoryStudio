@@ -64,7 +64,6 @@ namespace YSS::Editor {
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->TagArea = new StackTagWidget(this, Qt::Vertical);
-		d->TagArea->setToolWidgetMode(true);
 		d->TagArea->setFixedWidth(160);
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
 		d->CentralArea->setText(VITR("YSS::editor.toolWidgetArea.noToolWidget"));

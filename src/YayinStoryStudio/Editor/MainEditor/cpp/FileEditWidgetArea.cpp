@@ -27,6 +27,7 @@ namespace YSS::Editor {
 		qint32 OpenFileCount = 0;
 		QLabel* DragInMsgLabel;
 		bool focusIn = false;
+		bool closeSilently = false;
 	protected:
 		static FileEditWidgetArea* mainArea;
 		static QSet<QString> usedAreaIDs;
@@ -129,6 +130,11 @@ namespace YSS::Editor {
 			if (widget->parent() == this) {
 				widget->disconnect(this);
 				widget->disconnect(d->TagArea);
+				// HoverInfo/TabCompleter 可能被 setHoverArea 挂到 MainWin 下；
+				// 关闭时先收回，避免 MainWin 先析构后它们变成悬垂指针。
+				if (auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget)) {
+					textEdit->setHoverArea(nullptr);
+				}
 				widget->setParent(nullptr);
 				widget->closeFile();
 			}
@@ -138,9 +144,15 @@ namespace YSS::Editor {
 		}
 		FileEditWidgetAreaPrivate::areaIDMap.remove(d->areaID);
 		FileEditWidgetAreaPrivate::usedAreaIDs.remove(d->areaID);
-		emit areaClosed(d->areaID);
+		if (not d->closeSilently) {
+			emit areaClosed(d->areaID);
+		}
 		vgDebug << "FileEditWidgetArea destroyed: " << d->areaID;
 		delete d;
+	}
+
+	void FileEditWidgetArea::setCloseSilently(bool silent) {
+		d->closeSilently = silent;
 	}
 
 	void FileEditWidgetArea::setAreaID(const QString& areaID) {
@@ -207,7 +219,7 @@ namespace YSS::Editor {
 			});
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {
-			textEdit->setHoverArea(YSS::Editor::MainWin::getInstance());
+			textEdit->setHoverArea(this->window());
 			connect(textEdit, &YSSCore::Editor::TextEdit::cursorPositionChanged, this, [this, textEdit]() {
 				emit textEditCursorPositionChanged(textEdit->getFilePath(), textEdit->getTextCursor());
 				});

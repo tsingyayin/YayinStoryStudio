@@ -4,6 +4,8 @@
 #include <QtCore/qmimedata.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qpair.h>
+#include <QtCore/qset.h>
+#include <QtCore/qmap.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qpoint.h>
 #include <QtGui/qevent.h>
@@ -19,6 +21,8 @@ namespace YSS::Editor {
 		friend class TreeLayoutDropZone;
 	protected:
 		static QList<TreeLayoutWidget*> AllTopLevelLayouts;
+		static QSet<QString> usedTopLayoutIDs;
+		static QMap<QString, TreeLayoutWidget*> topLayoutIDMap;
 		TreeLayoutWidget* q;
 		QSplitter* Container = nullptr;
 		QList<QWidget*> Childrens;
@@ -26,6 +30,7 @@ namespace YSS::Editor {
 		Qt::Orientation Orientation = Qt::Horizontal;
 		bool notSelectOrientation = true;
 		TreeLayoutWidget* ParentLayout = nullptr;
+		QString topLayoutID;
 		QTimer* HideTimer = nullptr;
 		QList<TreeLayoutDropZone*> DropZones;
 	protected:
@@ -39,6 +44,8 @@ namespace YSS::Editor {
 		}
 	protected:
 		void relayout();
+		void applyOrientation(Qt::Orientation orientation);
+		void applyChildRatios(const QList<int>& ratios);
 		void balanceNewChild(int index);
 		void handleAllFileClosed(FileEditWidgetArea* area);
 		void insertChildAt(int index, QWidget* child, bool isLayout);
@@ -60,6 +67,8 @@ namespace YSS::Editor {
 	};
 
 	QList<TreeLayoutWidget*> TreeLayoutWidgetPrivate::AllTopLevelLayouts;
+	QSet<QString> TreeLayoutWidgetPrivate::usedTopLayoutIDs = QSet<QString>();
+	QMap<QString, TreeLayoutWidget*> TreeLayoutWidgetPrivate::topLayoutIDMap = QMap<QString, TreeLayoutWidget*>();
 
 	TreeLayoutDropZone::TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex)
 		:QWidget(owner->q), Owner(owner), Zone(zone), ChildIndex(childIndex) {
@@ -135,6 +144,33 @@ namespace YSS::Editor {
 		return TreeLayoutWidgetPrivate::AllTopLevelLayouts;
 	}
 
+	TreeLayoutWidget* TreeLayoutWidget::getTopLayoutByID(const QString& topLayoutID) {
+		return TreeLayoutWidgetPrivate::topLayoutIDMap.value(topLayoutID, nullptr);
+	}
+
+	QString TreeLayoutWidget::getTopLayoutID() const {
+		if (not isTopLevel()) {
+			return QString();
+		}
+		return d->topLayoutID;
+	}
+
+	void TreeLayoutWidget::setTopLayoutID(const QString& topLayoutID) {
+		if (not isTopLevel()) {
+			return;
+		}
+		if (TreeLayoutWidgetPrivate::usedTopLayoutIDs.contains(topLayoutID)) {
+			return;
+		}
+		if (not d->topLayoutID.isEmpty()) {
+			TreeLayoutWidgetPrivate::topLayoutIDMap.remove(d->topLayoutID);
+			TreeLayoutWidgetPrivate::usedTopLayoutIDs.remove(d->topLayoutID);
+		}
+		d->topLayoutID = topLayoutID;
+		TreeLayoutWidgetPrivate::topLayoutIDMap.insert(topLayoutID, this);
+		TreeLayoutWidgetPrivate::usedTopLayoutIDs.insert(topLayoutID);
+	}
+
 	TreeLayoutWidget::TreeLayoutWidget(QWidget* parent, FileEditWidgetArea* firstArea) :QFrame() {
 		d = new TreeLayoutWidgetPrivate(this);
 		if (qobject_cast<TreeLayoutWidget*>(parent)) {
@@ -146,6 +182,13 @@ namespace YSS::Editor {
 			d->ParentLayout = nullptr;
 			setParent(parent); // if parent is not a TreeLayoutWidget, set parent to this widget.
 			TreeLayoutWidgetPrivate::AllTopLevelLayouts.append(this);
+			qint32 size = TreeLayoutWidgetPrivate::usedTopLayoutIDs.size();
+			for (int i = 0; i < size + 1; i++) {
+				if (not TreeLayoutWidgetPrivate::usedTopLayoutIDs.contains(QString::number(i))) {
+					setTopLayoutID(QString::number(i));
+					break;
+				}
+			}
 		}
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		setAttribute(Qt::WA_DeleteOnClose, true);
@@ -174,6 +217,8 @@ namespace YSS::Editor {
 		}
 		if (d->ParentLayout == nullptr) {
 			TreeLayoutWidgetPrivate::AllTopLevelLayouts.removeAll(this);
+			TreeLayoutWidgetPrivate::topLayoutIDMap.remove(d->topLayoutID);
+			TreeLayoutWidgetPrivate::usedTopLayoutIDs.remove(d->topLayoutID);
 		}
 		delete d;
 	}
@@ -259,17 +304,36 @@ namespace YSS::Editor {
 		return not d->notSelectOrientation;
 	}
 
+	void TreeLayoutWidget::setOrientation(Qt::Orientation orientation) {
+		if (not isTopLevel()) {
+			return;
+		}
+		d->applyOrientation(orientation);
+	}
+
+	void TreeLayoutWidget::setChildRatios(const QList<int>& ratios) {
+		d->applyChildRatios(ratios);
+	}
+
 	Visindigo::Utility::JsonConfig TreeLayoutWidget::saveToJson() const {
 		Visindigo::Utility::JsonConfig json;
 		if (not isTopLevel()) {
 			return json;
 		}
-		json.setInt("x", this->x());
-		json.setInt("y", this->y());
-		json.setInt("w", this->width());
-		json.setInt("h", this->height());
+		if (this->isMaximized()) {
+			json.setBool("maximized", true);
+			QRect normal = this->normalGeometry();
+			json.setInt("w", normal.width());
+			json.setInt("h", normal.height());
+		}
+		else {
+			json.setBool("maximized", false);
+			json.setInt("w", this->width());
+			json.setInt("h", this->height());
+		}
 		QScreen* screen = this->screen();
 		json.setInt("screen", screen ? QApplication::screens().indexOf(screen) : -1);
+		json.setString("topLayoutID", d->topLayoutID);
 		if (d->notSelectOrientation) {
 			json.setString("orientation", "none");
 		}
@@ -299,16 +363,28 @@ namespace YSS::Editor {
 			d->Orientation = Qt::Horizontal;
 			d->notSelectOrientation = true;
 		}
-		int x = int(json.getInt("x"));
-		int y = int(json.getInt("y"));
 		int w = int(json.getInt("w"));
 		int h = int(json.getInt("h"));
-		if (w > 0 && h > 0) {
-			this->setGeometry(x, y, w, h);
-		}
 		int screenIndex = int(json.getInt("screen"));
+		bool maximized = json.getBool("maximized");
+		QScreen* targetScreen = nullptr;
 		if (this->isWindow() && screenIndex >= 0 && screenIndex < QApplication::screens().size()) {
-			this->setScreen(QApplication::screens().at(screenIndex));
+			targetScreen = QApplication::screens().at(screenIndex);
+			this->setScreen(targetScreen);
+		}
+		if (not maximized) {
+			if (w > 0 && h > 0) {
+				this->resize(w, h);
+			}
+			if (this->isWindow() && targetScreen) {
+				QRect avail = targetScreen->availableGeometry();
+				this->move(avail.x() + qMax(0, (avail.width() - w) / 2),
+					avail.y() + qMax(0, (avail.height() - h) / 2));
+			}
+		}
+		QString topLayoutID = json.getString("topLayoutID");
+		if (not topLayoutID.isEmpty()) {
+			setTopLayoutID(topLayoutID);
 		}
 		d->clearAllChildren();
 		QList<QPair<FileEditWidgetArea*, QString>> recovered;
@@ -319,6 +395,22 @@ namespace YSS::Editor {
 		}
 		for (const auto& pair : recovered) {
 			pair.first->setAreaID(pair.second);
+		}
+		if (maximized && this->isWindow()) {
+			// 先按普通状态的长宽居中定位，再最大化；取消最大化后窗口回到屏幕中央。
+			if (targetScreen) {
+				QRect avail = targetScreen->availableGeometry();
+				if (w > 0 && h > 0) {
+					this->resize(w, h);
+					this->move(avail.x() + qMax(0, (avail.width() - w) / 2),
+						avail.y() + qMax(0, (avail.height() - h) / 2));
+				}
+				else {
+					this->move(avail.topLeft());
+				}
+			}
+			this->show();
+			this->setWindowState(Qt::WindowMaximized);
 		}
 	}
 
@@ -397,6 +489,7 @@ namespace YSS::Editor {
 				Container = nullptr;
 			}
 			if (not Childrens.isEmpty()) {
+				Childrens.first()->setParent(q);
 				Childrens.first()->setGeometry(q->rect());
 				Childrens.first()->show();
 			}
@@ -407,6 +500,7 @@ namespace YSS::Editor {
 			Container->setHandleWidth(8);
 			Container->setContentsMargins(0, 0, 0, 0);
 			Container->setAcceptDrops(false);
+			Container->setChildrenCollapsible(false);
 			Container->show();
 		}
 		else {
@@ -417,6 +511,53 @@ namespace YSS::Editor {
 		}
 		Container->resize(q->size());
 		Container->show();
+	}
+
+	void TreeLayoutWidgetPrivate::applyOrientation(Qt::Orientation orientation) {
+		Orientation = orientation;
+		notSelectOrientation = false;
+		for (int i = 0; i < Childrens.size(); ++i) {
+			if (IsLayout[i]) {
+				static_cast<TreeLayoutWidget*>(Childrens[i])->d->applyOrientation(
+					orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+			}
+		}
+		relayout();
+	}
+
+	void TreeLayoutWidgetPrivate::applyChildRatios(const QList<int>& ratios) {
+		if (Childrens.size() <= 1 || ratios.size() != Childrens.size()) {
+			return;
+		}
+		if (not Container) {
+			relayout();
+		}
+		if (not Container) {
+			return;
+		}
+		int total = (Orientation == Qt::Horizontal) ? Container->width() : Container->height();
+		if (total <= 0) {
+			total = (Orientation == Qt::Horizontal) ? q->width() : q->height();
+		}
+		int sum = 0;
+		for (int r : ratios) {
+			sum += r;
+		}
+		if (sum <= 0) {
+			return;
+		}
+		if (total <= 0) {
+			total = 1000;
+		}
+		int minTotal = 40 * Childrens.size();
+		if (total < minTotal) {
+			total = minTotal;
+		}
+		QList<int> sizes;
+		for (int r : ratios) {
+			sizes.append(total * r / sum);
+		}
+		Container->setSizes(sizes);
 	}
 
 	void TreeLayoutWidgetPrivate::balanceNewChild(int index) {
@@ -560,7 +701,10 @@ namespace YSS::Editor {
 			bool isLayout = IsLayout[i];
 			QObject::disconnect(child, &QObject::destroyed, q, nullptr);
 			if (not isLayout) {
-				QObject::disconnect(static_cast<FileEditWidgetArea*>(child), &FileEditWidgetArea::allFileClosed, q, nullptr);
+				FileEditWidgetArea* area = static_cast<FileEditWidgetArea*>(child);
+				QObject::disconnect(area, &FileEditWidgetArea::allFileClosed, q, nullptr);
+				// 布局恢复/重建时销毁的是临时占位区域，不应触发项目文件列表清理。
+				area->setCloseSilently(true);
 			}
 			child->removeEventFilter(q);
 			Childrens.removeAt(i);
