@@ -29,7 +29,7 @@
 #include <QtCore/qmetaobject.h>
 namespace YSS::Editor {
 	ColorThemeSettingsVFServer::ColorThemeSettingsVFServer(YSSCore::Editor::EditorPlugin* plugin) :
-		YSSCore::Editor::FileServer("Color Theme Settings Virtual File Server", "YSS.Editor.ColorThemeSettingsVFServer", plugin) {
+		YSSCore::Editor::FileServer("Color Theme Settings Virtual File Server", "cn.yxgeneral.yss_builtin.colorThemeSettingsVFS", plugin) {
 		setEditorType(EditorType::BuiltInEditor);
 		setSupportedFileExts({ "YSS.MainEditor.ColorThemeSettings" });
 		setAsVitrualFileServer(true);

@@ -12,8 +12,6 @@
 #include <QtWidgets/qboxlayout.h>
 #include <Utility/FileUtility.h>
 #include <General/VIApplication.h>
-#include <Widgets/Terminal.h>
-#include <Widgets/PluginManageWidget.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/Plugin.h>
 #include <Editor/TextEdit.h>
@@ -24,6 +22,9 @@
 #include <QtCore/qmimedata.h>
 #include <QtGui/qtextcursor.h>
 #include <General/Log.h>
+#include <Editor/FileServerManager.h>
+#include <Editor/FileServer.h>
+#include <Editor/VirtualFilePath.h>
 namespace YSS::Editor {
 	class MainWinMenuPrivate {
 		friend class MainWinMenu;
@@ -73,8 +74,10 @@ namespace YSS::Editor {
 		QMenu* ViewMenu;
 		QAction* View_FullScreenToggle;
 		QAction* View_ResourceBrowser;
-		QMap<QString, QString> PluginToolsMap;
-		QMap<QAction*, QString> PluginToolsActionIDMap;
+		QAction* View_NothingToShow;
+		QList<YSSCore::Editor::FileServer*> PluginToolsList;
+		QMap<QAction*, YSSCore::Editor::FileServer*> PluginToolsActionMap;
+		//QMap<QAction*, QString> PluginToolsActionIDMap;
 
 		QColor MenuTextColor;
 		void initFileMenu() {
@@ -232,6 +235,10 @@ namespace YSS::Editor {
 			View_FullScreenToggle->setChecked(false);
 			View_FullScreenToggle->setShortcut(QKeySequence("F11"));
 			ViewMenu->addSeparator();
+			View_NothingToShow = ViewMenu->addAction(VITR("YSS::menu.view.noTools"));
+			View_NothingToShow->setObjectName("noTools");
+			View_NothingToShow->setEnabled(false);
+			View_NothingToShow->setVisible(false);
 
 			QObject::connect(View_ResourceBrowser, &QAction::triggered, q, &MainWinMenu::view_resourceBrowser);
 			QObject::connect(View_FullScreenToggle, &QAction::triggered, q, &MainWinMenu::view_fullScreenToggle);
@@ -260,10 +267,6 @@ namespace YSS::Editor {
 		d->initRunMenu();
 		d->initViewMenu();
 
-		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened,
-			this, &MainWinMenu::onToolWidgetShow);
-		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed,
-			this, &MainWinMenu::onToolWidgetHide);
 		connect(DebugServerRouter::getInstance(), &DebugServerRouter::debugServerChanged,
 			this, &MainWinMenu::onDebugServerChanged);
 		connect(d->EditMenu, &QMenu::aboutToShow, this, &MainWinMenu::onEditMenuAboutToShow);
@@ -497,38 +500,54 @@ namespace YSS::Editor {
 		}
 	}
 
-	void MainWinMenu::view_pluginTools(const QString& toolID, bool checked) {
-		auto widget = YSSTWM->getToolWidget(toolID);
-		if (widget && not checked) {
-			widget->close();
-			return;
+	void MainWinMenu::view_pluginTools(YSSCore::Editor::FileServer* asToolServer, bool checked) {
+		auto vfp = YSSCore::Editor::VirtualFilePath(asToolServer->getSupportedFileExts().first(),
+			VI18N(asToolServer->getToolNickname()), "");
+		if (checked) {
+			YSSFSM->openFile(vfp.toString());
+			auto widget = YSSFSM->getFileEditWidget(vfp.toString());
+			if (widget) {
+				connect(widget, &YSSCore::Editor::FileEditWidget::destroyed, this, [this, asToolServer]() {
+					for (auto action : d->PluginToolsActionMap.keys()) {
+						if (d->PluginToolsActionMap[action] == asToolServer) {
+							action->setChecked(false);
+							break;
+						}
+					}
+					});
+			}
 		}
-		YSSTWM->openToolWidget(toolID);
+		else {
+			auto widget = YSSFSM->getFileEditWidget(vfp.toString());
+			if (widget) {
+				widget->close();
+			}
+		}
 	}
 
 	void MainWinMenu::onPluginToolMenuAboutToShow() {
-		QMap<QString, QString> pluginTools = YSSTWM->getRegisteredToolWidgets();
-		if (pluginTools.isEmpty()) {
-			auto action = d->ViewMenu->addAction(VITR("YSS::menu.view.noTools"));
-			action->setEnabled(false);
-			d->PluginToolsMap = pluginTools;
-			d->PluginToolsActionIDMap.clear();
+		auto asToolServers = YSSFSM->getAsToolFileServers();
+		if (asToolServers.isEmpty()) {
+			d->View_NothingToShow->setVisible(true);
+			d->PluginToolsList.clear();
+			d->PluginToolsActionMap.clear();
 			return;
 		}
-		if (pluginTools != d->PluginToolsMap) {
-			for (auto action : d->PluginToolsActionIDMap.keys()) {
+		if (asToolServers != d->PluginToolsList) {
+			for (auto action : d->PluginToolsActionMap.keys()) {
 				d->ViewMenu->removeAction(action);
 			}
-			d->PluginToolsMap = pluginTools;
-			d->PluginToolsActionIDMap.clear();
-			for (auto key : pluginTools.keys()) {
-				auto action = d->ViewMenu->addAction(VI18N(pluginTools[key]));
+			d->PluginToolsList = asToolServers;
+			d->View_NothingToShow->setVisible(false);
+			d->PluginToolsActionMap.clear();
+			for (auto toolServer : asToolServers) {
+				auto action = d->ViewMenu->addAction(VI18N(toolServer->getToolNickname()));
 				action->setCheckable(true);
-				d->PluginToolsActionIDMap[action] = key;
+				d->PluginToolsActionMap[action] = toolServer;
 				QObject::connect(action, &QAction::triggered, this, [this, action]() {
-					QString toolID = d->PluginToolsActionIDMap[action];
+					auto toolServer = d->PluginToolsActionMap[action];
 					bool checked = action->isChecked();
-					view_pluginTools(toolID, checked);
+					view_pluginTools(toolServer, checked);
 					});
 			}
 		}
@@ -545,23 +564,6 @@ namespace YSS::Editor {
 		d->Edit_Paste->setEnabled(hasTextEdit && QApplication::clipboard()->mimeData()->hasText());
 		d->Edit_SelectAll->setEnabled(hasTextEdit && !textEdit->getDocument()->isEmpty());
 		d->Edit_FindAndReplace->setEnabled(hasTextEdit);
-	}
-
-	void MainWinMenu::onToolWidgetShow(const QString& toolWidgetID) {
-		onToolWidgetToggled(toolWidgetID, true);
-	}
-
-	void MainWinMenu::onToolWidgetHide(const QString& toolWidgetID) {
-		onToolWidgetToggled(toolWidgetID, false);
-	}
-
-	void MainWinMenu::onToolWidgetToggled(const QString& toolWidgetID, bool checked) {
-		for (auto action : d->PluginToolsActionIDMap.keys()) {
-			if (d->PluginToolsActionIDMap[action] == toolWidgetID) {
-				action->setChecked(checked);
-				break;
-			}
-		}
 	}
 
 	void MainWinMenu::onResourceBrowserVisibilityChanged(bool visible) {

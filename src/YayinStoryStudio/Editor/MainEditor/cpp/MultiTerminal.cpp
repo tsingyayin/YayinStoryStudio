@@ -1,4 +1,4 @@
-#include "Editor/MainEditor/MultiTerminalTool.h"
+#include "Editor/MainEditor/MultiTerminal.h"
 #include <Widgets/Terminal.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qcombobox.h>
@@ -7,10 +7,10 @@
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 namespace YSS::Editor {
-	class MultiTerminalToolPrivate {
-		friend class MultiTerminalTool;
+	class MultiTerminalPrivate {
+		friend class MultiTerminal;
 	protected:
-		static MultiTerminalTool* Instance;
+		static MultiTerminal* Instance;
 		static QList<Visindigo::Widgets::Terminal*> Terminals; // terminal resource should not be released when q class deleted.
 		static QStringList TerminalNames;
 		QHBoxLayout* Layout;
@@ -38,14 +38,28 @@ namespace YSS::Editor {
 		}
 	};
 
-	MultiTerminalTool* MultiTerminalToolPrivate::Instance = nullptr;
-	QList<Visindigo::Widgets::Terminal*> MultiTerminalToolPrivate::Terminals = {};
-	QStringList MultiTerminalToolPrivate::TerminalNames = {};
+	MultiTerminal* MultiTerminalPrivate::Instance = nullptr;
+	QList<Visindigo::Widgets::Terminal*> MultiTerminalPrivate::Terminals = {};
+	QStringList MultiTerminalPrivate::TerminalNames = {};
 
-	MultiTerminalTool::MultiTerminalTool(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent), d(new MultiTerminalToolPrivate()) {
-		MultiTerminalToolPrivate::Instance = this;
+	MultiTerminalVFS::MultiTerminalVFS(YSSCore::Editor::EditorPlugin* plugin) :
+		YSSCore::Editor::FileServer("YSS Built-in Multi Terminal", "cn.yxgeneral.yss_builtin.multiTerminalVFS", plugin) {
+		setEditorType(YSSCore::Editor::FileServer::BuiltInEditor);
+		setSupportedFileExts({ "YSS.MainEditor.MultiTerminal" });
+		setAsVitrualFileServer(true);
+		setPreferredOrientation(YSSCore::Editor::FileServer::Horizontal_Wide);
+		setListAsTool(true);
+		setToolNickname("i18n:YSS::editor.multiTerminal.title");
+	}
+
+	YSSCore::Editor::FileEditWidget* MultiTerminalVFS::onCreateFileEditWidget() {
+		return new MultiTerminal();
+	}
+
+	MultiTerminal::MultiTerminal(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
+		MultiTerminalPrivate::Instance = this;
 		this->setContentsMargins(0, 0, 0, 0);
-		d = new MultiTerminalToolPrivate;
+		d = new MultiTerminalPrivate;
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
@@ -59,7 +73,6 @@ namespace YSS::Editor {
 		d->Layout->addWidget(d->CentralArea);
 		d->Layout->addWidget(d->TagArea);
 
-		//this->setMinimumHeight(200);
 		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const QString& widgetID) {
 			setCurrentTerminal(widgetID);
 			});
@@ -75,19 +88,10 @@ namespace YSS::Editor {
 			closeAll();
 			});
 
-		//Notice, if we add close dialog for terminal, this logic will be useful again.
-		//Currently, closeFile signal from stackTagWidget equals to close terminal directly.
-		/*connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetClosed, this, [this](const QString& widgetID) {
-			d->TagArea->removeStackLabel(widgetID);
-			});*/
-
 		d->initData();
-
-		setColorfulEnable(true);
-		onThemeChanged();
 	}
-	MultiTerminalTool::~MultiTerminalTool() {
-		MultiTerminalToolPrivate::Instance = nullptr;
+	MultiTerminal::~MultiTerminal() {
+		MultiTerminalPrivate::Instance = nullptr;
 		// terminal resource should not be released when q class deleted.
 		// final released by plugin onProjectClose.
 		auto builtinTerminal = VIApp->getVirtualTerminal();
@@ -96,64 +100,64 @@ namespace YSS::Editor {
 			builtinTerminal->setParent(nullptr);
 			builtinTerminal->hide();
 		}
-		for (auto terminal : MultiTerminalToolPrivate::Terminals) {
+		for (auto terminal : MultiTerminalPrivate::Terminals) {
 			terminal->setParent(nullptr);
-			terminal->hide(); 
+			terminal->hide();
 		}
 		delete d;
 	}
 	// This function is nullable. This tool widget not have same survival guarantee with program. 
 	// could disappear when it is not used.
-	MultiTerminalTool* MultiTerminalTool::getInstance() {
-		return MultiTerminalToolPrivate::Instance;
+	MultiTerminal* MultiTerminal::getInstance() {
+		return MultiTerminalPrivate::Instance;
 	}
-	void MultiTerminalTool::addTerminal(const QString& name, const QString& command, const QDir& workingDir) {
+	void MultiTerminal::addTerminal(const QString& name, const QString& command, const QDir& workingDir) {
 		if (name == "builtin") {
 			return;
 		}
 		auto terminal = new Visindigo::Widgets::Terminal(this);
 		terminal->launchExternalProcess(command, {}, workingDir.path());
-		MultiTerminalToolPrivate::Terminals.append(terminal);
-		MultiTerminalToolPrivate::TerminalNames.append(name);
+		MultiTerminalPrivate::Terminals.append(terminal);
+		MultiTerminalPrivate::TerminalNames.append(name);
 		d->TagArea->addStackLabel(name, name);
 		setCurrentTerminal(name);
 	}
 
-	void MultiTerminalTool::closeTerminal(const QString& name) {
+	void MultiTerminal::closeTerminal(const QString& name) {
 		if (name == "builtin") {
 			return;
 		}
-		int index = MultiTerminalToolPrivate::TerminalNames.indexOf(name);
+		int index = MultiTerminalPrivate::TerminalNames.indexOf(name);
 		if (index != -1) {
-			auto terminal = MultiTerminalToolPrivate::Terminals[index];
+			auto terminal = MultiTerminalPrivate::Terminals[index];
 			terminal->close();
-			MultiTerminalToolPrivate::Terminals.removeAt(index);
-			MultiTerminalToolPrivate::TerminalNames.removeAt(index);
+			MultiTerminalPrivate::Terminals.removeAt(index);
+			MultiTerminalPrivate::TerminalNames.removeAt(index);
 		}
 	}
 
-	void MultiTerminalTool::closeAll() {
-		for (auto terminal : MultiTerminalToolPrivate::Terminals) {
+	void MultiTerminal::closeAll() {
+		for (auto terminal : MultiTerminalPrivate::Terminals) {
 			terminal->close();
 			terminal->deleteLater();
 		}
-		MultiTerminalToolPrivate::Terminals.clear();
-		MultiTerminalToolPrivate::TerminalNames.clear();
+		MultiTerminalPrivate::Terminals.clear();
+		MultiTerminalPrivate::TerminalNames.clear();
 	}
 
-	bool MultiTerminalTool::containsTerminal(const QString& name) const {
-		return MultiTerminalToolPrivate::TerminalNames.contains(name);
+	bool MultiTerminal::containsTerminal(const QString& name) const {
+		return MultiTerminalPrivate::TerminalNames.contains(name);
 	}
 
-	QStringList MultiTerminalTool::getTerminalNames() const {
-		return MultiTerminalToolPrivate::TerminalNames;
+	QStringList MultiTerminal::getTerminalNames() const {
+		return MultiTerminalPrivate::TerminalNames;
 	}
 
-	QString MultiTerminalTool::getCurrentTerminalName() const {
+	QString MultiTerminal::getCurrentTerminalName() const {
 		return d->TagArea->getCurrentSelected();
 	}
 
-	void MultiTerminalTool::setCurrentTerminal(const QString& name) {
+	void MultiTerminal::setCurrentTerminal(const QString& name) {
 		if (name.isEmpty()) {
 			d->ContentArea->hide();
 			d->Layout->removeWidget(d->ContentArea);
@@ -164,7 +168,7 @@ namespace YSS::Editor {
 		}
 		Visindigo::Widgets::Terminal* terminal = nullptr;
 		if (name != "builtin") {
-			terminal = MultiTerminalToolPrivate::Terminals[MultiTerminalToolPrivate::TerminalNames.indexOf(name)];
+			terminal = MultiTerminalPrivate::Terminals[MultiTerminalPrivate::TerminalNames.indexOf(name)];
 		}
 		else {
 			terminal = VIApp->getVirtualTerminal();
@@ -180,13 +184,11 @@ namespace YSS::Editor {
 		emit currentTerminalChanged(name);
 		d->TagArea->setCurrentStackLabel(name);
 	}
-	void MultiTerminalTool::onThemeChanged() {
 
-	}
-	void MultiTerminalTool::resizeEvent(QResizeEvent* event) {
-
-	}
-	void MultiTerminalTool::closeEvent(QCloseEvent* event) {
-		
+	bool MultiTerminal::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {
+		if (ext == "YSS.MainEditor.MultiTerminal") {
+			return true;
+		}
+		return false;
 	}
 }

@@ -38,6 +38,8 @@ namespace YSS::Editor {
 		static MainWin* Instance;
 	signals:
 		void currentFileEditWidgetAreaChanged(FileEditWidgetArea* area);
+		void currentFileEditWidgetChanged(YSSCore::Editor::FileEditWidget* widget);
+		void currentFileEditWidgetChangedNotTool(YSSCore::Editor::FileEditWidget* widget);
 	public:
 		MainWin();
 		virtual ~MainWin();
@@ -54,6 +56,8 @@ namespace YSS::Editor {
 		void help();
 		void setMenuShortcutTips();
 		FileEditWidgetArea* getLastFocusedFileEditArea() const;
+		YSSCore::Editor::FileEditWidget* getCurrentFocusedFileEditWidget() const;
+		YSSCore::Editor::FileEditWidget* getCurrentFocusedFileEditWidgetNotTool() const;
 	public slots:
 		void onFileEditWidgetAreaCreated(FileEditWidgetArea* widget);
 		void onFileEditWidgetAreaFocusIn(const QString& areaID);

@@ -14,7 +14,21 @@
 #include <QtWidgets/qlabel.h>
 
 namespace YSS::Editor {
-	MessageViewer::MessageViewer(QWidget* parent) :QFrame(parent) {
+	MessageViewerVFS::MessageViewerVFS(YSSCore::Editor::EditorPlugin* plugin) :
+		YSSCore::Editor::FileServer("YSS Built-in Document Message Viewer", "cn.yxgeneral.yss_builtin.messageViewerVFS", plugin) {
+		setEditorType(YSSCore::Editor::FileServer::BuiltInEditor);
+		setSupportedFileExts({ "YSS.MainEditor.MessageViewer" });
+		setAsVitrualFileServer(true);
+		setPreferredOrientation(YSSCore::Editor::FileServer::Horizontal_Narrow);
+		setListAsTool(true);
+		setToolNickname("i18n:YSS::editor.messageViewer.title");
+	}
+
+	YSSCore::Editor::FileEditWidget* MessageViewerVFS::onCreateFileEditWidget() {
+		return new MessageViewer();
+	}
+
+	MessageViewer::MessageViewer(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		MessageTable = new QTableWidget(this);
 		MessageTable->setColumnCount(5); // code, message, file, line, column
 		MessageTable->setHorizontalHeaderLabels({
@@ -38,12 +52,12 @@ namespace YSS::Editor {
 		connect(YSSCore::Editor::DocumentMessageManager::getInstance(),
 			&YSSCore::Editor::DocumentMessageManager::messageChangedForLine, this, &MessageViewer::onMessageChangedForLine);
 		connect(MessageTable, &QTableWidget::cellClicked, this, &MessageViewer::onCellClicked);
-		connect(MainWin::getInstance(), &MainWin::currentFileEditWidgetAreaChanged, this, [this](FileEditWidgetArea* area) {
-			if (area) {
-				changeCurrentFile(area->getCurrentWidgetFilePath());
+		connect(MainWin::getInstance(), &MainWin::currentFileEditWidgetChangedNotTool, this, [this](YSSCore::Editor::FileEditWidget* widget) {
+			if (widget) {
+				changeCurrentFile(widget->getFilePath());
 			}
 		});
-		changeCurrentFile(MainWin::getInstance()->getLastFocusedFileEditArea()->getCurrentWidgetFilePath());
+		changeCurrentFile(MainWin::getInstance()->getCurrentFocusedFileEditWidgetNotTool()->getFilePath());
 	}
 
 	void MessageViewer::changeCurrentFile(const QString& filePath) {
@@ -146,5 +160,12 @@ namespace YSS::Editor {
 		if (msgList.size() != 0) {
 			MessageTable->sortByColumn(3, Qt::AscendingOrder);
 		}
+	}
+
+	bool MessageViewer::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {
+		if (ext == "YSS.MainEditor.MessageViewer") {
+			return true;
+		}
+		return false;
 	}
 }

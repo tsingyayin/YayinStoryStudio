@@ -50,11 +50,16 @@ namespace YSSCore::General {
 		void saveProjectConfigForPlugin(Visindigo::General::Plugin* plugin, const Visindigo::Utility::JsonConfig& config);
 		void saveProjectConfigForPlugin(const QString& pluginID, const Visindigo::Utility::JsonConfig& config);
 		QStringList getEditorOpenedFiles(); // return all in absolute path
-		void addEditorOpenedFile(const QString& abs_filePath);
+		QMap<QString, QStringList> getEditorOpenedFilesInArea(); // return all in absolute path
+		void addEditorOpenedFile(const QString& abs_filePath, const QString& areaID = "");
+		void moveEditorOpenedFile(const QString& abs_filePath, const QString& fromID, const QString& toID);
 		void setEditorOpenedFiles(const QStringList& abs_filePaths);
+		void setEditorOpenedFilesInArea(const QMap<QString, QStringList>& abs_filePathsInArea);
 		void removeEditorOpenedFile(const QString& abs_filePath);
 		void removeAllEditorOpenedFiles();
+		void removeEditorOpenedFilesInArea(const QString& areaID);
 		void setFocusedFile(const QString& abs_filePath);
+		QString getFileAreaID(const QString& abs_filePath);
 		QString getFocusedFile(); // return absolute path
 		QString getFocusedFileName(); // return only file name
 		void refreshLastModifyTime();

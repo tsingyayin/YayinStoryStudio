@@ -92,7 +92,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\MultiTerminalTool.cpp">
+    <ClCompile Include="Editor\MainEditor\cpp\MultiTerminal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp">
@@ -181,7 +181,7 @@
     <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\MainEditor\MultiTerminalTool.h">
+    <QtMoc Include="Editor\MainEditor\MultiTerminal.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h">

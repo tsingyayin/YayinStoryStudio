@@ -148,6 +148,7 @@ namespace YSS::Editor {
 			TreeLayoutWidgetPrivate::AllTopLevelLayouts.append(this);
 		}
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
+		setAttribute(Qt::WA_DeleteOnClose, true);
 		this->setAcceptDrops(true);
 		FileEditWidgetArea* area = firstArea ? firstArea : new FileEditWidgetArea(this);
 		d->Childrens.append(area);

@@ -4,6 +4,7 @@
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qaction.h>
 #include <Widgets/ThemeManager.h>
+#include <Editor/FileServer.h>
 namespace YSS::Editor {
 	class MainWin;
 	class MainWinMenuPrivate;
@@ -52,12 +53,9 @@ namespace YSS::Editor {
 	public:
 		void view_resourceBrowser(bool checked);
 		void view_fullScreenToggle(bool checked);
-		void view_pluginTools(const QString& toolID, bool checked);
+		void view_pluginTools(YSSCore::Editor::FileServer* asToolServer, bool checked);
 	public:
 		void onEditMenuAboutToShow();
-		void onToolWidgetShow(const QString& toolWidgetID);
-		void onToolWidgetHide(const QString& toolWidgetID);
-		void onToolWidgetToggled(const QString& toolWidgetID, bool checked);
 		void onResourceBrowserVisibilityChanged(bool visible);
 		void onPluginToolMenuAboutToShow();
 		void onDebugServerChanged();

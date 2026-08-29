@@ -576,6 +576,14 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.17.0
+		return 全部已经注册的文件服务器中，标记为“作为工具列出”的服务器。
+	*/
+	QList<FileServer*> FileServerManager::getAsToolFileServers() const {
+		return d->AsToolFileServers;
+	}
+
+	/*!
+		\since YSS 0.17.0
 		return 全部支持的虚拟文件扩展名。
 	*/
 	QStringList FileServerManager::getSupportedVirtualFileExts() const {

@@ -479,6 +479,10 @@ namespace YSSCore::General {
 		\since YSS 0.13.0
 
 		return 项目中编辑器当前打开的文件路径列表。对于真实文件路径，永远返回绝对路径；对于虚拟文件路径，返回原始的虚拟文件路径。
+
+		这个函数不区分区域，它会自动检索所有区域的打开文件列表，返回所有文件路径。
+
+		如果需要区分区域的版本，请使用getEditorOpenedFilesInArea函数。
 	*/
 	QStringList YSSProject::getEditorOpenedFiles() {
 		QStringList files;
@@ -490,20 +494,69 @@ namespace YSSCore::General {
 			}
 			files.append(filePath);
 		}
+		QStringList extraKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra");
+		for (const QString& areaID : extraKeys) {
+			QStringList areaFileKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID);
+			for (const QString& key : areaFileKeys) {
+				QString filePath = d->ProjectConfig->getString("Editor.OpenedFilesExtra." + areaID + "." + key);
+				if (filePath.startsWith("./")) {
+					filePath = getProjectFolder() + "/" + filePath.mid(2);
+				}
+				files.append(filePath);
+			}
+		}
 		return files;
 	}
 
 	/*!
-		\since YSS 0.13.0
+		\since YSS 0.17.0
+
+		return 项目中编辑器当前打开的文件路径列表，按区域区分。对于真实文件路径，永远返回绝对路径；对于虚拟文件路径，返回原始的虚拟文件路径。
+	*/
+	QMap<QString, QStringList> YSSProject::getEditorOpenedFilesInArea() {
+		QMap<QString, QStringList> areaFiles;
+		QStringList keys = d->ProjectConfig->keys("Editor.OpenedFiles");
+		areaFiles["0"] = QStringList();
+		for (const QString& key : keys) {
+			QString filePath = d->ProjectConfig->getString("Editor.OpenedFiles." + key);
+			if (filePath.startsWith("./")) {
+				filePath = getProjectFolder() + "/" + filePath.mid(2);
+			}
+			areaFiles["0"].append(filePath);
+		}
+		QStringList extraKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra");
+		for (const QString& areaID : extraKeys) {
+			QString realID = areaID;
+			realID.remove(0, 2); // 去掉前缀 "s_"
+			areaFiles[realID] = QStringList();
+			QStringList areaFileKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID);
+			for (const QString& key : areaFileKeys) {
+				QString filePath = d->ProjectConfig->getString("Editor.OpenedFilesExtra." + areaID + "." + key);
+				if (filePath.startsWith("./")) {
+					filePath = getProjectFolder() + "/" + filePath.mid(2);
+				}
+				areaFiles[realID].append(filePath);
+			}
+		}
+		return areaFiles;
+	}
+
+	/*!
+		\since YSS 0.17.0
 		\a filePath 编辑器打开的文件路径，绝对路径或相对于项目文件夹的相对路径均可。
+		\a areaID 编辑器打开文件所在的区域ID，默认为空字符串。
 
 		向项目中添加一个编辑器打开的文件路径。如果这个路径最终落在项目文件夹内，则
 		转换为相对路径存储，否则以绝对路径存储。
 
 		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
 		它只是单纯地修改项目文件中的数据，告诉项目这个文件被打开了，但它并不会真的使编辑器打开这个文件。
+
+		\note 在0.17.0支持多窗口之前，没有areaID参数。自0.17.0起，编辑器可能有多个窗口，每个窗口都有自己的打开文件列表。
+		为了兼容考虑，如果areaID为空或"0"，则表示默认的主窗口，且继续保存在Editor.OpenedFiles节点下，如果areaID不为空且不为"0"，
+		则表示其他窗口，保存到Editor.OpenedFilesExtra.<areaID>节点下。
 	*/
-	void YSSProject::addEditorOpenedFile(const QString& filePath) {
+	void YSSProject::addEditorOpenedFile(const QString& filePath, const QString& areaID) {
 		QStringList files = getEditorOpenedFiles();
 		QString absInput = filePath;
 		if (absInput.startsWith("./")) {
@@ -514,13 +567,46 @@ namespace YSSCore::General {
 		}
 		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
 			QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), filePath);
-			d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), relativePath);
+			if (areaID.isEmpty() || areaID == "0") {
+				d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), relativePath);
+			} else {
+				d->ProjectConfig->setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID).size()), relativePath);
+			}
 		}
 		else {
-			d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), filePath);
+			if (areaID.isEmpty() || areaID == "0") {
+				d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), filePath);
+			}
+			else {
+				d->ProjectConfig->setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID).size()), filePath);
+			}
 		}
 	}
 
+	/*!
+		\since YSS 0.17.0
+		\a filePath 编辑器打开的文件路径，绝对路径或相对于项目文件夹的相对路径均可。
+		\a fromID 编辑器打开文件所在的原区域ID，默认为空字符串。
+		\a toID 编辑器打开文件所在的新区域ID，默认为空字符串。
+
+		将项目中一个编辑器打开的文件路径从一个区域移动到另一个区域。如果fromID中没有此文件路径，则不会移动。
+		如果fromID和toID相同，不做任何操作。
+	*/
+	void YSSProject::moveEditorOpenedFile(const QString& filePath, const QString& fromID, const QString& toID) {
+		if (fromID == toID) {
+			return;
+		}
+		QStringList files = getEditorOpenedFiles();
+		QString absInput = filePath;
+		if (absInput.startsWith("./")) {
+			absInput = getProjectFolder() + "/" + absInput.mid(2);
+		}
+		if (not files.contains(absInput)) {
+			return;
+		}
+		removeEditorOpenedFile(filePath);
+		addEditorOpenedFile(filePath, toID);
+	}
 	/*!
 		\since YSS 0.13.0
 		\a filePaths 编辑器打开的文件路径列表，绝对路径或相对于项目文件夹的相对路径均可。
@@ -529,11 +615,31 @@ namespace YSSCore::General {
 
 		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
 		它只是单纯地修改项目文件中的数据，告诉项目这些文件被打开了，但它并不会真的使编辑器打开这些文件。
+
+		这个函数将把所有文件都添加到默认区域。这个函数没有区分区域的能力。若要区分区域，请用setEditorOpenedFilesInArea函数。
 	*/
 	void YSSProject::setEditorOpenedFiles(const QStringList& filePaths) {
 		removeAllEditorOpenedFiles();
 		for (const QString& filePath : filePaths) {
 			addEditorOpenedFile(filePath);
+		}
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a filePathsInArea 编辑器打开的文件路径列表，按区域区分。绝对路径或相对于项目文件夹的相对路径均可。
+
+		有关其中每个文件路径的说明，请参见addEditorOpenedFile函数。
+
+		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
+		它只是单纯地修改项目文件中的数据，告诉项目这些文件被打开了，但它并不会真的使编辑器打开这些文件。
+	*/
+	void YSSProject::setEditorOpenedFilesInArea(const QMap<QString, QStringList>& filePathsInArea) {
+		removeAllEditorOpenedFiles();
+		for (auto key : filePathsInArea.keys()) {
+			for (const QString& filePath : filePathsInArea[key]) {
+				addEditorOpenedFile(filePath, key);
+			}
 		}
 	}
 
@@ -545,6 +651,8 @@ namespace YSSCore::General {
 
 		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
 		它只是单纯地修改项目文件中的数据，告诉项目这个文件被关闭了，但它并不会真的使编辑器关闭这个文件。
+
+		这个函数不区分区域，它会自动检索所有区域的打开文件列表，找到匹配的文件路径后移除。
 	*/
 	void YSSProject::removeEditorOpenedFile(const QString& filePath) {
 		QStringList files = getEditorOpenedFiles();
@@ -555,7 +663,33 @@ namespace YSSCore::General {
 		if (not files.contains(absInput)) {
 			return;
 		}
-		d->ProjectConfig->remove("Editor.OpenedFiles." + QString::number(files.indexOf(absInput)));
+		QString areaID = getFileAreaID(filePath);
+		if (areaID.isEmpty() || areaID == "0") {
+			QStringList keys = d->ProjectConfig->keys("Editor.OpenedFiles");
+			for (const QString& key : keys) {
+				QString filePathInConfig = d->ProjectConfig->getString("Editor.OpenedFiles." + key);
+				if (filePathInConfig.startsWith("./")) {
+					filePathInConfig = getProjectFolder() + "/" + filePathInConfig.mid(2);
+				}
+				if (filePathInConfig == absInput) {
+					d->ProjectConfig->remove("Editor.OpenedFiles." + key);
+					break;
+				}
+			}
+		}
+		else {
+			QStringList keys = d->ProjectConfig->keys("Editor.OpenedFilesExtra.s_" + areaID);
+			for (const QString& key : keys) {
+				QString filePathInConfig = d->ProjectConfig->getString("Editor.OpenedFilesExtra.s_" + areaID + "." + key);
+				if (filePathInConfig.startsWith("./")) {
+					filePathInConfig = getProjectFolder() + "/" + filePathInConfig.mid(2);
+				}
+				if (filePathInConfig == absInput) {
+					d->ProjectConfig->remove("Editor.OpenedFilesExtra.s_" + areaID + "." + key);
+					break;
+				}
+			}
+		}
 	}
 
 	/*!
@@ -586,6 +720,48 @@ namespace YSSCore::General {
 			QString relativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(getProjectFolder(), abs_filePath);
 			d->ProjectConfig->setString("Editor.FocusedFile", relativePath);
 		}
+	}
+
+	/*!
+		\since YSS 0.17.0
+
+		return 指定文件所在的区域ID，如果文件不在任何区域中打开，则返回空字符串。
+	*/
+	QString YSSProject::getFileAreaID(const QString& abs_filePath) {
+		QString absInput = abs_filePath;
+		if (absInput.startsWith("./")) {
+			absInput = getProjectFolder() + "/" + absInput.mid(2);
+		}
+		if (d->ProjectConfig->contains("Editor.OpenedFiles")) {
+			QStringList keys = d->ProjectConfig->keys("Editor.OpenedFiles");
+			for (const QString& key : keys) {
+				QString filePath = d->ProjectConfig->getString("Editor.OpenedFiles." + key);
+				if (filePath.startsWith("./")) {
+					filePath = getProjectFolder() + "/" + filePath.mid(2);
+				}
+				if (filePath == absInput) {
+					return "0"; // 默认区域
+				}
+			}
+		}
+		if (d->ProjectConfig->contains("Editor.OpenedFilesExtra")) {
+			QStringList areaKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra");
+			for (const QString& areaID : areaKeys) {
+				QStringList fileKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID);
+				for (const QString& key : fileKeys) {
+					QString filePath = d->ProjectConfig->getString("Editor.OpenedFilesExtra." + areaID + "." + key);
+					if (filePath.startsWith("./")) {
+						filePath = getProjectFolder() + "/" + filePath.mid(2);
+					}
+					if (filePath == absInput) {
+						QString realAreaID = areaID;
+						realAreaID.remove(0, 2); // 去掉前缀 "s_"
+						return realAreaID;
+					}
+				}
+			}
+		}
+		return QString(); // 不在任何区域中
 	}
 
 	/*!
@@ -629,6 +805,22 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::removeAllEditorOpenedFiles() {
 		d->ProjectConfig->remove("Editor.OpenedFiles");
+		d->ProjectConfig->remove("Editor.OpenedFilesExtra");
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a areaID 编辑器打开文件所在的区域ID，默认为空字符串。
+
+		从项目中移除指定区域的所有编辑器打开的文件路径。
+	*/
+	void YSSProject::removeEditorOpenedFilesInArea(const QString& areaID) {
+		if (areaID.isEmpty() || areaID == "0") {
+			d->ProjectConfig->remove("Editor.OpenedFiles");
+		}
+		else {
+			d->ProjectConfig->remove("Editor.OpenedFilesExtra.s_" + areaID);
+		}
 	}
 
 	/*!

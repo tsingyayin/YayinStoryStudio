@@ -187,21 +187,34 @@ namespace YSS::Editor {
 
 		YSSCore::General::YSSProject::getCurrentProject()->refreshLastModifyTime();
 		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
-		QStringList openedFiles = YSSCore::General::YSSProject::getCurrentProject()->getEditorOpenedFiles();
+		QMap<QString, QStringList> openedFilesInArea = YSSCore::General::YSSProject::getCurrentProject()->getEditorOpenedFilesInArea();
 		QString focusedFile = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFile();
-		QStringList stillOKFiles;
-		for (const QString& filePath : openedFiles) {
-			bool ok = YSSFSM->openFile(filePath);
-			if (ok) {
-				stillOKFiles.append(filePath);
+		QMap<QString, QStringList> stillOKFilesInArea;
+		for (auto areaID : openedFilesInArea.keys()) {
+			QStringList stillOKFiles;
+			for (auto filePath : openedFilesInArea[areaID]) {
+				bool okToOpen = YSSFSM->openFile(filePath);
+				if (okToOpen) {
+					stillOKFiles.append(filePath);
+				}
+			}
+			if (not stillOKFiles.isEmpty()) {
+				stillOKFilesInArea[areaID] = stillOKFiles;
 			}
 		}
-		vgDebug << "Opened files" << stillOKFiles;
-		YSSCore::General::YSSProject::getCurrentProject()->setEditorOpenedFiles(stillOKFiles);
-		Editors->setCurrentWidget(focusedFile);
+		YSSCore::General::YSSProject::getCurrentProject()->setEditorOpenedFilesInArea(stillOKFilesInArea);
+		// The focused file may live in a non-main area (e.g. a split window).
+		// Always targeting "Editors" here would reparent that file's FileEditWidget
+		// into the main area and leave the original area with a tag but no content.
+		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(
+			YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(focusedFile));
+		if (focusedArea) {
+			focusedArea->setCurrentWidget(focusedFile);
+		}
+		else {
+			Editors->setCurrentWidget(focusedFile);
+		}
 		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
-
-		YSSTWM->openToolWidget("cn.yxgeneral.yss.messageViewer");
 	}
 
 	MainWin::~MainWin() {
@@ -217,7 +230,17 @@ namespace YSS::Editor {
 				return;
 			}
 		}
-		lastFocusedFileEditArea->addWidget(widget);
+		QString areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(filePath);
+		yDebug << "File opened in area: " << areaID<< " file: " << filePath;
+		if (areaID.isEmpty()) {
+			lastFocusedFileEditArea->addWidget(widget);
+		}
+		else {
+			auto area = FileEditWidgetArea::getAreaByID(areaID);
+			if (area) {
+				area->addWidget(widget);
+			}
+		}
 	}
 
 	void MainWin::onToolWidgetOpened(const QString& widgetID) {
@@ -347,6 +370,14 @@ namespace YSS::Editor {
 		return lastFocusedFileEditArea;
 	}
 
+	YSSCore::Editor::FileEditWidget* MainWin::getCurrentFocusedFileEditWidget() const {
+		return FocusingFileEditWidget;
+	}
+
+	YSSCore::Editor::FileEditWidget* MainWin::getCurrentFocusedFileEditWidgetNotTool() const {
+		return FocusingFileEditWidgetNotTool;
+	}
+
 	void MainWin::onFileEditWidgetAreaCreated(FileEditWidgetArea* area) {
 		if (not lastFocusedFileEditArea) {
 			lastFocusedFileEditArea = area;
@@ -359,13 +390,17 @@ namespace YSS::Editor {
 				FocusingFileEditWidget = nullptr;
 				FocusingFileEditWidgetNotTool = nullptr;
 				BottomFrame->setEditorInfoEnable(false);
+				emit currentFileEditWidgetChanged(nullptr);
+				emit currentFileEditWidgetChangedNotTool(nullptr);
 				return;
 			}
 			bool isToolWidget = YSSFSM->getFileEditWidgetSourceServer(currentEditWidget)->isListAsTool();
 			if (not isToolWidget) {
 				FocusingFileEditWidgetNotTool = currentEditWidget;
+				emit currentFileEditWidgetChangedNotTool(currentEditWidget);
 			}
 			FocusingFileEditWidget = currentEditWidget;
+			emit currentFileEditWidgetChanged(currentEditWidget);
 			auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
 			if (textEdit) {
 				BottomFrame->displayEditorInfo(textEdit->getTextCursor());
@@ -387,6 +422,11 @@ namespace YSS::Editor {
 			});
 		connect(area, &FileEditWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
 			saveCurrentFocusedFileAs(rawFilePath);
+			});
+		connect(area, &FileEditWidgetArea::areaClosed, this, [this, area](const QString& areaID) {
+			if (YSSCore::General::YSSProject::getCurrentProject()) {
+				YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFilesInArea(areaID);
+			}
 			});
 	}
 
@@ -460,8 +500,8 @@ namespace YSS::Editor {
 				}
 			}
 		}
-		for (auto area : FileEditWidgetArea::getAllAreas()) {
-			area->closeAll();
+		for (auto layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
+			layout->close();
 		}
 		Tools->closeAll(); // this two lines indicates a potential memory trap. see comments in its destructor.
 		Instance = nullptr;
