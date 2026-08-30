@@ -186,7 +186,8 @@
 			"matchCount": "Total %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "No files open"
+			"noFileOpened": "No files open",
+			"dragInFile": "Release the tab to move here"
 		},
 		"toolWidgetArea": {
 			"noToolWidget": "No tools to display"

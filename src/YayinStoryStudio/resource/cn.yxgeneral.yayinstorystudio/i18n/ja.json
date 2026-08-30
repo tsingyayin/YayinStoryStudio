@@ -186,7 +186,8 @@
 			"matchCount": "合計 %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "開いているファイルがありません"
+			"noFileOpened": "開いているファイルがありません",
+			"dragInFile": "タブを離してここへ移動します"
 		},
 		"toolWidgetArea": {
 			"noToolWidget": "表示できるツールがありません"

@@ -12,6 +12,9 @@
 #include <QtGui/qaction.h>
 #include <QtGui/qdrag.h>
 #include <Widgets/ThemeManager.h>
+namespace YSSCore::Editor {
+	class FileEditWidget;
+}
 namespace YSS::Editor {
 	class FileEditWidgetArea;
 	class StackTagWidget;
@@ -31,6 +34,7 @@ namespace YSS::Editor {
 		bool Pressed = false;
 		QPoint PressedPos;
 		StackTagWidget* StayInWidget = nullptr;
+		YSSCore::Editor::FileEditWidget* FileEditWidget = nullptr;
 		void updateToolTip();
 	protected:
 		QToolButton* PinLabel;
@@ -64,6 +68,8 @@ namespace YSS::Editor {
 		void setFilePath(const QString& filePath);
 		QString getFilePath() const;
 		QString getText() const;
+		void setFileEditWidget(YSSCore::Editor::FileEditWidget* widget);
+		YSSCore::Editor::FileEditWidget* getFileEditWidget() const;
 		void setFocusOn(bool focus);
 		bool isFocusOn() const;
 		void setPinned(bool pinned);
@@ -106,7 +112,7 @@ namespace YSS::Editor {
 		virtual ~StackTagWidget();
 		void setArea(FileEditWidgetArea* area);
 		FileEditWidgetArea* getArea() const;
-		void addStackLabel(const QString& filePath, const QString& displayName = QString());
+		void addStackLabel(const QString& filePath, const QString& displayName = QString(), YSSCore::Editor::FileEditWidget* widget = nullptr);
 		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName = QString());
 		void pinStackLabel(const QString& filePath);
 		void removeStackLabel(const QString& filePath);
@@ -117,6 +123,7 @@ namespace YSS::Editor {
 		void cancelFileChanged(const QString& filePath);
 		bool containsStackLabel(const QString& filePath) const;
 		bool isStackLabelPinned(const QString& filePath) const;
+		QList<YSSCore::Editor::FileEditWidget*> getFileEditWidgets() const;
 	public:
 		virtual void wheelEvent(QWheelEvent* event) override;
 		virtual void onThemeChanged() override;

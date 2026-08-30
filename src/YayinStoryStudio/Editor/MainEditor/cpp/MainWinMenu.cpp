@@ -524,6 +524,15 @@ namespace YSS::Editor {
 		}
 	}
 
+	void MainWinMenu::syncPluginToolMenu() {
+		for (auto it = d->PluginToolsActionMap.begin(); it != d->PluginToolsActionMap.end(); ++it) {
+			auto toolServer = it.value();
+			auto vfp = YSSCore::Editor::VirtualFilePath(toolServer->getSupportedFileExts().first(),
+				VI18N(toolServer->getToolNickname()), "");
+			it.key()->setChecked(YSSFSM->getFileEditWidget(vfp.toString()) != nullptr);
+		}
+	}
+
 	void MainWinMenu::onPluginToolMenuAboutToShow() {
 		auto asToolServers = YSSFSM->getAsToolFileServers();
 		if (asToolServers.isEmpty()) {
@@ -543,9 +552,6 @@ namespace YSS::Editor {
 				auto action = d->ViewMenu->addAction(VI18N(toolServer->getToolNickname()));
 				action->setCheckable(true);
 				d->PluginToolsActionMap[action] = toolServer;
-				auto vfp = YSSCore::Editor::VirtualFilePath(toolServer->getSupportedFileExts().first(),
-					VI18N(toolServer->getToolNickname()), "");
-				action->setChecked(YSSFSM->getFileEditWidget(vfp.toString()) != nullptr);
 				QObject::connect(action, &QAction::triggered, this, [this, action]() {
 					auto toolServer = d->PluginToolsActionMap[action];
 					bool checked = action->isChecked();
@@ -553,6 +559,7 @@ namespace YSS::Editor {
 					});
 			}
 		}
+		syncPluginToolMenu();
 	}
 	
 	void MainWinMenu::onEditMenuAboutToShow() {

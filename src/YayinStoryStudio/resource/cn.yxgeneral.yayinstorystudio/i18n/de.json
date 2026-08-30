@@ -186,7 +186,8 @@
 			"matchCount": "Gesamt %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "Keine Dateien geöffnet"
+			"noFileOpened": "Keine Dateien geöffnet",
+			"dragInFile": "Registerkarte loslassen, um sie hierher zu verschieben"
 		},
 		"toolWidgetArea": {
 			"noToolWidget": "Keine Werkzeuge anzeigbar"

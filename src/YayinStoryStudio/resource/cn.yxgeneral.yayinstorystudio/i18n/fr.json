@@ -186,7 +186,8 @@
 			"matchCount": "Total %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "Aucun fichier ouvert"
+			"noFileOpened": "Aucun fichier ouvert",
+			"dragInFile": "Relâchez l'onglet pour le déplacer ici"
 		},
 		"toolWidgetArea": {
 			"noToolWidget": "Aucun outil à afficher"

@@ -16,17 +16,65 @@
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/private/TreeLayoutWidget_p.h"
 namespace YSS::Editor {
+	struct TreeLayoutChild {
+		QWidget* widget = nullptr;
+		bool isLayout = false;
+	};
+
+	class LayoutRegistry {
+	protected:
+		QSet<QString> usedIDs;
+		QMap<QString, TreeLayoutWidget*> layouts;
+		QList<TreeLayoutWidget*> topLevels;
+	public:
+		static LayoutRegistry& instance() {
+			static LayoutRegistry registry;
+			return registry;
+		}
+		QString allocateFreeID() const {
+			qint32 size = usedIDs.size();
+			for (int i = 0; i < size + 1; i++) {
+				if (not usedIDs.contains(QString::number(i))) {
+					return QString::number(i);
+				}
+			}
+			return QString::number(size);
+		}
+		bool acquire(const QString& id, TreeLayoutWidget* layout) {
+			if (usedIDs.contains(id)) {
+				return false;
+			}
+			usedIDs.insert(id);
+			layouts.insert(id, layout);
+			return true;
+		}
+		void release(const QString& id) {
+			usedIDs.remove(id);
+			layouts.remove(id);
+		}
+		TreeLayoutWidget* find(const QString& id) const {
+			return layouts.value(id, nullptr);
+		}
+		void registerTopLevel(TreeLayoutWidget* layout) {
+			if (not topLevels.contains(layout)) {
+				topLevels.append(layout);
+			}
+		}
+		void unregisterTopLevel(TreeLayoutWidget* layout) {
+			topLevels.removeAll(layout);
+		}
+		QList<TreeLayoutWidget*> allTopLevels() const {
+			return topLevels;
+		}
+	};
+
 	class TreeLayoutWidgetPrivate {
 		friend class TreeLayoutWidget;
 		friend class TreeLayoutDropZone;
 	protected:
-		static QList<TreeLayoutWidget*> AllTopLevelLayouts;
-		static QSet<QString> usedTopLayoutIDs;
-		static QMap<QString, TreeLayoutWidget*> topLayoutIDMap;
 		TreeLayoutWidget* q;
 		QSplitter* Container = nullptr;
-		QList<QWidget*> Childrens;
-		QList<bool> IsLayout;
+		QList<TreeLayoutChild> Childrens;
 		Qt::Orientation Orientation = Qt::Horizontal;
 		bool notSelectOrientation = true;
 		TreeLayoutWidget* ParentLayout = nullptr;
@@ -56,7 +104,7 @@ namespace YSS::Editor {
 		void onChildClosed(QWidget* child);
 		double computePercent(int index) const;
 		void writeChildrenToList(QList<Visindigo::Utility::JsonConfig>& out) const;
-		void buildStructureFromJson(const QList<Visindigo::Utility::JsonConfig>& children, QList<QPair<FileEditWidgetArea*, QString>>& recovered);
+		void buildStructureFromJson(const QList<Visindigo::Utility::JsonConfig>& children);
 		void applyPercentsTopDown(const QList<Visindigo::Utility::JsonConfig>& children);
 		void applyChildrenPercents(const QList<Visindigo::Utility::JsonConfig>& children);
 		void collectAreas(QList<FileEditWidgetArea*>& out) const;
@@ -65,10 +113,6 @@ namespace YSS::Editor {
 		void scheduleHideDropIndicators();
 		void handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QDropEvent* event);
 	};
-
-	QList<TreeLayoutWidget*> TreeLayoutWidgetPrivate::AllTopLevelLayouts;
-	QSet<QString> TreeLayoutWidgetPrivate::usedTopLayoutIDs = QSet<QString>();
-	QMap<QString, TreeLayoutWidget*> TreeLayoutWidgetPrivate::topLayoutIDMap = QMap<QString, TreeLayoutWidget*>();
 
 	TreeLayoutDropZone::TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex)
 		:QWidget(owner->q), Owner(owner), Zone(zone), ChildIndex(childIndex) {
@@ -141,11 +185,11 @@ namespace YSS::Editor {
 	}
 
 	QList<TreeLayoutWidget*> TreeLayoutWidget::getAllTopLevelLayouts() {
-		return TreeLayoutWidgetPrivate::AllTopLevelLayouts;
+		return LayoutRegistry::instance().allTopLevels();
 	}
 
 	TreeLayoutWidget* TreeLayoutWidget::getTopLayoutByID(const QString& topLayoutID) {
-		return TreeLayoutWidgetPrivate::topLayoutIDMap.value(topLayoutID, nullptr);
+		return LayoutRegistry::instance().find(topLayoutID);
 	}
 
 	QString TreeLayoutWidget::getTopLayoutID() const {
@@ -159,16 +203,14 @@ namespace YSS::Editor {
 		if (not isTopLevel()) {
 			return;
 		}
-		if (TreeLayoutWidgetPrivate::usedTopLayoutIDs.contains(topLayoutID)) {
+		if (LayoutRegistry::instance().find(topLayoutID)) {
 			return;
 		}
 		if (not d->topLayoutID.isEmpty()) {
-			TreeLayoutWidgetPrivate::topLayoutIDMap.remove(d->topLayoutID);
-			TreeLayoutWidgetPrivate::usedTopLayoutIDs.remove(d->topLayoutID);
+			LayoutRegistry::instance().release(d->topLayoutID);
 		}
+		LayoutRegistry::instance().acquire(topLayoutID, this);
 		d->topLayoutID = topLayoutID;
-		TreeLayoutWidgetPrivate::topLayoutIDMap.insert(topLayoutID, this);
-		TreeLayoutWidgetPrivate::usedTopLayoutIDs.insert(topLayoutID);
 	}
 
 	TreeLayoutWidget::TreeLayoutWidget(QWidget* parent, FileEditWidgetArea* firstArea) :QFrame() {
@@ -181,21 +223,16 @@ namespace YSS::Editor {
 		else {
 			d->ParentLayout = nullptr;
 			setParent(parent); // if parent is not a TreeLayoutWidget, set parent to this widget.
-			TreeLayoutWidgetPrivate::AllTopLevelLayouts.append(this);
-			qint32 size = TreeLayoutWidgetPrivate::usedTopLayoutIDs.size();
-			for (int i = 0; i < size + 1; i++) {
-				if (not TreeLayoutWidgetPrivate::usedTopLayoutIDs.contains(QString::number(i))) {
-					setTopLayoutID(QString::number(i));
-					break;
-				}
-			}
+			LayoutRegistry::instance().registerTopLevel(this);
+			QString id = LayoutRegistry::instance().allocateFreeID();
+			LayoutRegistry::instance().acquire(id, this);
+			d->topLayoutID = id;
 		}
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		setAttribute(Qt::WA_DeleteOnClose, true);
 		this->setAcceptDrops(true);
 		FileEditWidgetArea* area = firstArea ? firstArea : new FileEditWidgetArea(this);
-		d->Childrens.append(area);
-		d->IsLayout.append(false);
+		d->Childrens.append({ area, false });
 		QObject::connect(area, &QObject::destroyed, this, [this, area]() {
 			d->onChildClosed(area);
 			});
@@ -209,16 +246,15 @@ namespace YSS::Editor {
 
 	TreeLayoutWidget::~TreeLayoutWidget() {
 		for (int i = 0; i < d->Childrens.size(); ++i) {
-			QWidget* child = d->Childrens[i];
+			QWidget* child = d->Childrens[i].widget;
 			QObject::disconnect(child, &QObject::destroyed, this, nullptr);
-			if (not d->IsLayout[i]) {
+			if (not d->Childrens[i].isLayout) {
 				QObject::disconnect(static_cast<FileEditWidgetArea*>(child), &FileEditWidgetArea::allFileClosed, this, nullptr);
 			}
 		}
 		if (d->ParentLayout == nullptr) {
-			TreeLayoutWidgetPrivate::AllTopLevelLayouts.removeAll(this);
-			TreeLayoutWidgetPrivate::topLayoutIDMap.remove(d->topLayoutID);
-			TreeLayoutWidgetPrivate::usedTopLayoutIDs.remove(d->topLayoutID);
+			LayoutRegistry::instance().unregisterTopLevel(this);
+			LayoutRegistry::instance().release(d->topLayoutID);
 		}
 		delete d;
 	}
@@ -268,24 +304,29 @@ namespace YSS::Editor {
 		if (index < 0 || index >= d->Childrens.size()) {
 			return nullptr;
 		}
-		if (d->IsLayout[index]) {
+		if (d->Childrens[index].isLayout) {
 			return nullptr;
 		}
-		return qobject_cast<FileEditWidgetArea*>(d->Childrens[index]);
+		return qobject_cast<FileEditWidgetArea*>(d->Childrens[index].widget);
 	}
 
 	TreeLayoutWidget* TreeLayoutWidget::getLayoutAt(int index) const {
 		if (index < 0 || index >= d->Childrens.size()) {
 			return nullptr;
 		}
-		if (not d->IsLayout[index]) {
+		if (not d->Childrens[index].isLayout) {
 			return nullptr;
 		}
-		return qobject_cast<TreeLayoutWidget*>(d->Childrens[index]);
+		return qobject_cast<TreeLayoutWidget*>(d->Childrens[index].widget);
 	}
 
 	QList<bool> TreeLayoutWidget::getIsLayoutList() const {
-		return d->IsLayout;
+		QList<bool> result;
+		result.reserve(d->Childrens.size());
+		for (const auto& child : d->Childrens) {
+			result.append(child.isLayout);
+		}
+		return result;
 	}
 
 	int TreeLayoutWidget::getChildCount() const {
@@ -387,15 +428,8 @@ namespace YSS::Editor {
 			setTopLayoutID(topLayoutID);
 		}
 		d->clearAllChildren();
-		QList<QPair<FileEditWidgetArea*, QString>> recovered;
-		d->buildStructureFromJson(json.getArray("children"), recovered);
+		d->buildStructureFromJson(json.getArray("children"));
 		d->applyPercentsTopDown(json.getArray("children"));
-		for (int i = 0; i < recovered.size(); ++i) {
-			recovered[i].first->setAreaID(QString::number(-(i + 1)));
-		}
-		for (const auto& pair : recovered) {
-			pair.first->setAreaID(pair.second);
-		}
 		if (maximized && this->isWindow()) {
 			// 先按普通状态的长宽居中定位，再最大化；取消最大化后窗口回到屏幕中央。
 			if (targetScreen) {
@@ -424,8 +458,8 @@ namespace YSS::Editor {
 		QFrame::resizeEvent(event);
 		if (d->Childrens.size() <= 1) {
 			if (not d->Childrens.isEmpty()) {
-				d->Childrens.first()->setGeometry(this->rect());
-				d->Childrens.first()->show();
+				d->Childrens.first().widget->setGeometry(this->rect());
+				d->Childrens.first().widget->show();
 			}
 		}
 		else if (d->Container) {
@@ -481,17 +515,17 @@ namespace YSS::Editor {
 	void TreeLayoutWidgetPrivate::relayout() {
 		if (Childrens.size() <= 1) {
 			if (Container) {
-				for (QWidget* child : Childrens) {
-					child->setParent(q);
+				for (const auto& child : Childrens) {
+					child.widget->setParent(q);
 				}
 				Container->hide();
 				Container->deleteLater();
 				Container = nullptr;
 			}
 			if (not Childrens.isEmpty()) {
-				Childrens.first()->setParent(q);
-				Childrens.first()->setGeometry(q->rect());
-				Childrens.first()->show();
+				Childrens.first().widget->setParent(q);
+				Childrens.first().widget->setGeometry(q->rect());
+				Childrens.first().widget->show();
 			}
 			return;
 		}
@@ -507,7 +541,7 @@ namespace YSS::Editor {
 			Container->setOrientation(Orientation);
 		}
 		for (int i = 0; i < Childrens.size(); ++i) {
-			Container->insertWidget(i, Childrens[i]);
+			Container->insertWidget(i, Childrens[i].widget);
 		}
 		Container->resize(q->size());
 		Container->show();
@@ -517,8 +551,8 @@ namespace YSS::Editor {
 		Orientation = orientation;
 		notSelectOrientation = false;
 		for (int i = 0; i < Childrens.size(); ++i) {
-			if (IsLayout[i]) {
-				static_cast<TreeLayoutWidget*>(Childrens[i])->d->applyOrientation(
+			if (Childrens[i].isLayout) {
+				static_cast<TreeLayoutWidget*>(Childrens[i].widget)->d->applyOrientation(
 					orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
 			}
 		}
@@ -569,8 +603,8 @@ namespace YSS::Editor {
 		}
 		QList<int> sizes;
 		sizes.reserve(Childrens.size());
-		for (QWidget* child : Childrens) {
-			sizes.append(Orientation == Qt::Horizontal ? child->width() : child->height());
+		for (const auto& child : Childrens) {
+			sizes.append(Orientation == Qt::Horizontal ? child.widget->width() : child.widget->height());
 		}
 		int start = index;
 		int end = index;
@@ -611,8 +645,7 @@ namespace YSS::Editor {
 		if (index > Childrens.size()) {
 			index = Childrens.size();
 		}
-		Childrens.insert(index, child);
-		IsLayout.insert(index, isLayout);
+		Childrens.insert(index, { child, isLayout });
 		if (Childrens.size() > 1 && notSelectOrientation) {
 			Orientation = Qt::Horizontal;
 			notSelectOrientation = false;
@@ -638,9 +671,8 @@ namespace YSS::Editor {
 		if (index < 0 || index >= Childrens.size()) {
 			return nullptr;
 		}
-		bool isLayout = IsLayout[index];
-		QWidget* child = Childrens.takeAt(index);
-		IsLayout.removeAt(index);
+		bool isLayout = Childrens[index].isLayout;
+		QWidget* child = Childrens.takeAt(index).widget;
 		QObject::disconnect(child, &QObject::destroyed, q, nullptr);
 		if (not isLayout) {
 			QObject::disconnect(static_cast<FileEditWidgetArea*>(child), &FileEditWidgetArea::allFileClosed, q, nullptr);
@@ -654,10 +686,10 @@ namespace YSS::Editor {
 		if (index < 0 || index >= Childrens.size()) {
 			return nullptr;
 		}
-		if (IsLayout[index]) {
+		if (Childrens[index].isLayout) {
 			return nullptr;
 		}
-		FileEditWidgetArea* original = qobject_cast<FileEditWidgetArea*>(Childrens[index]);
+		FileEditWidgetArea* original = qobject_cast<FileEditWidgetArea*>(Childrens[index].widget);
 		if (not original) {
 			return nullptr;
 		}
@@ -674,20 +706,20 @@ namespace YSS::Editor {
 		if (index < 0 || index >= Childrens.size()) {
 			return nullptr;
 		}
-		if (not IsLayout[index]) {
+		if (not Childrens[index].isLayout) {
 			return nullptr;
 		}
-		TreeLayoutWidget* layout = qobject_cast<TreeLayoutWidget*>(Childrens[index]);
+		TreeLayoutWidget* layout = qobject_cast<TreeLayoutWidget*>(Childrens[index].widget);
 		if (not layout) {
 			return nullptr;
 		}
 		if (layout->d->Childrens.size() != 1) {
 			return nullptr;
 		}
-		if (layout->d->IsLayout.first()) {
+		if (layout->d->Childrens.first().isLayout) {
 			return nullptr;
 		}
-		QWidget* area = layout->d->Childrens.first();
+		QWidget* area = layout->d->Childrens.first().widget;
 		layout->d->removeChildAt(0);
 		removeChildAt(index);
 		insertChildAt(index, area, false);
@@ -697,8 +729,8 @@ namespace YSS::Editor {
 	void TreeLayoutWidgetPrivate::clearAllChildren() {
 		hideDropIndicators();
 		for (int i = Childrens.size() - 1; i >= 0; --i) {
-			QWidget* child = Childrens[i];
-			bool isLayout = IsLayout[i];
+			QWidget* child = Childrens[i].widget;
+			bool isLayout = Childrens[i].isLayout;
 			QObject::disconnect(child, &QObject::destroyed, q, nullptr);
 			if (not isLayout) {
 				FileEditWidgetArea* area = static_cast<FileEditWidgetArea*>(child);
@@ -708,7 +740,6 @@ namespace YSS::Editor {
 			}
 			child->removeEventFilter(q);
 			Childrens.removeAt(i);
-			IsLayout.removeAt(i);
 			delete child;
 		}
 		if (Container) {
@@ -719,12 +750,17 @@ namespace YSS::Editor {
 	}
 
 	void TreeLayoutWidgetPrivate::onChildClosed(QWidget* child) {
-		int index = Childrens.indexOf(child);
+		int index = -1;
+		for (int i = 0; i < Childrens.size(); ++i) {
+			if (Childrens[i].widget == child) {
+				index = i;
+				break;
+			}
+		}
 		if (index < 0) {
 			return;
 		}
 		Childrens.removeAt(index);
-		IsLayout.removeAt(index);
 		hideDropIndicators();
 		if (Childrens.isEmpty()) {
 			if (ParentLayout != nullptr) {
@@ -756,23 +792,23 @@ namespace YSS::Editor {
 	void TreeLayoutWidgetPrivate::writeChildrenToList(QList<Visindigo::Utility::JsonConfig>& out) const {
 		for (int i = 0; i < Childrens.size(); ++i) {
 			Visindigo::Utility::JsonConfig child;
-			child.setString("type", IsLayout[i] ? "layout" : "area");
+			child.setString("type", Childrens[i].isLayout ? "layout" : "area");
 			child.setDouble("percent", computePercent(i));
-			if (IsLayout[i]) {
-				TreeLayoutWidget* layout = static_cast<TreeLayoutWidget*>(Childrens[i]);
+			if (Childrens[i].isLayout) {
+				TreeLayoutWidget* layout = static_cast<TreeLayoutWidget*>(Childrens[i].widget);
 				QList<Visindigo::Utility::JsonConfig> subChildren;
 				layout->d->writeChildrenToList(subChildren);
 				child.setArray("children", subChildren);
 			}
 			else {
-				FileEditWidgetArea* area = static_cast<FileEditWidgetArea*>(Childrens[i]);
+				FileEditWidgetArea* area = static_cast<FileEditWidgetArea*>(Childrens[i].widget);
 				child.setString("areaID", area->getAreaID());
 			}
 			out.append(child);
 		}
 	}
 
-	void TreeLayoutWidgetPrivate::buildStructureFromJson(const QList<Visindigo::Utility::JsonConfig>& children, QList<QPair<FileEditWidgetArea*, QString>>& recovered) {
+	void TreeLayoutWidgetPrivate::buildStructureFromJson(const QList<Visindigo::Utility::JsonConfig>& children) {
 		for (const Visindigo::Utility::JsonConfig& childJson : children) {
 			QString type = childJson.getString("type");
 			if (type == "layout") {
@@ -781,12 +817,11 @@ namespace YSS::Editor {
 				child->d->notSelectOrientation = false;
 				child->d->clearAllChildren();
 				insertChildAt(Childrens.size(), child, true);
-				child->d->buildStructureFromJson(childJson.getArray("children"), recovered);
+				child->d->buildStructureFromJson(childJson.getArray("children"));
 			}
 			else {
-				FileEditWidgetArea* area = new FileEditWidgetArea();
+				FileEditWidgetArea* area = new FileEditWidgetArea(nullptr, childJson.getString("areaID"));
 				insertChildAt(Childrens.size(), area, false);
-				recovered.append(qMakePair(area, childJson.getString("areaID")));
 			}
 		}
 	}
@@ -795,7 +830,7 @@ namespace YSS::Editor {
 		applyChildrenPercents(children);
 		for (int i = 0; i < children.size() && i < Childrens.size(); ++i) {
 			if (children[i].getString("type") == "layout") {
-				TreeLayoutWidget* layout = static_cast<TreeLayoutWidget*>(Childrens[i]);
+				TreeLayoutWidget* layout = static_cast<TreeLayoutWidget*>(Childrens[i].widget);
 				layout->d->applyPercentsTopDown(children[i].getArray("children"));
 			}
 		}
@@ -831,11 +866,11 @@ namespace YSS::Editor {
 
 	void TreeLayoutWidgetPrivate::collectAreas(QList<FileEditWidgetArea*>& out) const {
 		for (int i = 0; i < Childrens.size(); ++i) {
-			if (IsLayout[i]) {
-				static_cast<TreeLayoutWidget*>(Childrens[i])->d->collectAreas(out);
+			if (Childrens[i].isLayout) {
+				static_cast<TreeLayoutWidget*>(Childrens[i].widget)->d->collectAreas(out);
 			}
 			else {
-				out.append(static_cast<FileEditWidgetArea*>(Childrens[i]));
+				out.append(static_cast<FileEditWidgetArea*>(Childrens[i].widget));
 			}
 		}
 	}
@@ -869,7 +904,7 @@ namespace YSS::Editor {
 				outerZones.append(qMakePair(TreeLayoutDropZone::DropZone::OuterBottom, -1));
 			}
 			for (int i = 0; i < Childrens.size(); ++i) {
-				if (IsLayout[i]) {
+				if (Childrens[i].isLayout) {
 					continue;
 				}
 				innerZones.append(qMakePair(TreeLayoutDropZone::DropZone::ItemTop, i));
@@ -884,7 +919,7 @@ namespace YSS::Editor {
 				outerZones.append(qMakePair(TreeLayoutDropZone::DropZone::OuterRight, -1));
 			}
 			for (int i = 0; i < Childrens.size(); ++i) {
-				if (IsLayout[i]) {
+				if (Childrens[i].isLayout) {
 					continue;
 				}
 				innerZones.append(qMakePair(TreeLayoutDropZone::DropZone::ItemLeft, i));
@@ -906,7 +941,7 @@ namespace YSS::Editor {
 
 		for (const auto& zone : innerZones) {
 			int index = zone.second;
-			QWidget* child = Childrens[index];
+			QWidget* child = Childrens[index].widget;
 			QPoint topLeft = child->mapTo(q, QPoint(0, 0));
 			QRect childRect(topLeft, child->size());
 			QPainterPath shape;
@@ -982,8 +1017,8 @@ namespace YSS::Editor {
 		if (Childrens.size() > 1) {
 			const int seamHalf = 6;
 			for (int i = 0; i + 1 < Childrens.size(); ++i) {
-				QWidget* firstChild = Childrens[i];
-				QWidget* secondChild = Childrens[i + 1];
+				QWidget* firstChild = Childrens[i].widget;
+				QWidget* secondChild = Childrens[i + 1].widget;
 				QPoint firstTop = firstChild->mapTo(q, QPoint(0, 0));
 				QPoint secondTop = secondChild->mapTo(q, QPoint(0, 0));
 				QPainterPath shape;
@@ -1085,7 +1120,13 @@ namespace YSS::Editor {
 			if (not ParentLayout) {
 				return;
 			}
-			int parentIndex = ParentLayout->d->Childrens.indexOf(q);
+			int parentIndex = -1;
+			for (int i = 0; i < ParentLayout->d->Childrens.size(); ++i) {
+				if (ParentLayout->d->Childrens[i].widget == q) {
+					parentIndex = i;
+					break;
+				}
+			}
 			if (parentIndex < 0) {
 				return;
 			}

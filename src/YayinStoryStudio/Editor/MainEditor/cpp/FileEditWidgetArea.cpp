@@ -15,6 +15,51 @@
 #include <QtWidgets/qapplication.h>
 #include <Utility/QtSSHelper.h>
 namespace YSS::Editor {
+	class AreaRegistry {
+	protected:
+		FileEditWidgetArea* mainArea = nullptr;
+		QSet<QString> usedIDs;
+		QMap<QString, FileEditWidgetArea*> areas;
+	public:
+		static AreaRegistry& instance() {
+			static AreaRegistry registry;
+			return registry;
+		}
+		QString allocateFreeID() const {
+			qint32 size = usedIDs.size();
+			for (int i = 0; i < size + 1; i++) {
+				if (not usedIDs.contains(QString::number(i))) {
+					return QString::number(i);
+				}
+			}
+			return QString::number(size);
+		}
+		bool acquire(const QString& id, FileEditWidgetArea* area) {
+			if (usedIDs.contains(id)) {
+				return false;
+			}
+			usedIDs.insert(id);
+			areas.insert(id, area);
+			return true;
+		}
+		void release(const QString& id) {
+			usedIDs.remove(id);
+			areas.remove(id);
+		}
+		FileEditWidgetArea* find(const QString& id) const {
+			return areas.value(id, nullptr);
+		}
+		FileEditWidgetArea* main() const {
+			return mainArea;
+		}
+		void setMain(FileEditWidgetArea* area) {
+			mainArea = area;
+		}
+		QList<FileEditWidgetArea*> allAreas() const {
+			return areas.values();
+		}
+	};
+
 	class FileEditWidgetAreaPrivate {
 		friend class FileEditWidgetArea;
 	protected:
@@ -28,36 +73,24 @@ namespace YSS::Editor {
 		QLabel* DragInMsgLabel;
 		bool focusIn = false;
 		bool closeSilently = false;
-	protected:
-		static FileEditWidgetArea* mainArea;
-		static QSet<QString> usedAreaIDs;
-		static QMap<QString, FileEditWidgetArea*> areaIDMap;
-		static QList<FileEditWidgetArea*> getAllAreas() {
-			return areaIDMap.values();
-		}
 	};
 
-	FileEditWidgetArea* FileEditWidgetAreaPrivate::mainArea = nullptr;
-	QSet<QString> FileEditWidgetAreaPrivate::usedAreaIDs = QSet<QString>();
-	QMap<QString, FileEditWidgetArea*> FileEditWidgetAreaPrivate::areaIDMap = QMap<QString, FileEditWidgetArea*>();
-
-	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
+	FileEditWidgetArea::FileEditWidgetArea(QWidget* parent, const QString& requestedID) :Visindigo::Widgets::BorderFrame(parent) {
 		// NOTE: acceptDrops() is only a getter (returns bool); must use
 		// setAcceptDrops(true) to actually enable accepting drops.
 		this->setAcceptDrops(true);
 		this->setFocusPolicy(Qt::StrongFocus);
 
 		d = new FileEditWidgetAreaPrivate;
-		if (FileEditWidgetAreaPrivate::mainArea == nullptr) {
-			FileEditWidgetAreaPrivate::mainArea = this;
+		if (AreaRegistry::instance().main() == nullptr) {
+			AreaRegistry::instance().setMain(this);
 		}
-		qint32 size = FileEditWidgetAreaPrivate::usedAreaIDs.size();
-		for (int i = 0; i < size + 1; i++) {
-			if (not FileEditWidgetAreaPrivate::usedAreaIDs.contains(QString::number(i))) {
-				setAreaID(QString::number(i));
-				break;
-			}
+		QString id = requestedID.isEmpty() ? AreaRegistry::instance().allocateFreeID() : requestedID;
+		if (not AreaRegistry::instance().acquire(id, this)) {
+			id = AreaRegistry::instance().allocateFreeID();
+			AreaRegistry::instance().acquire(id, this);
 		}
+		d->areaID = id;
 		d->Layout = new QVBoxLayout(this);
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
@@ -126,24 +159,19 @@ namespace YSS::Editor {
 			会被 setParent(this)，随后 QLayout::insertWidget 也保持其父级为本 Area。
 			若这里关闭所有已打开文件，销毁树状布局中任意一个 Area 都会误关全局文件。
 		*/
-		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
-			if (widget->parent() == this) {
-				widget->disconnect(this);
-				widget->disconnect(d->TagArea);
-				// HoverInfo/TabCompleter 可能被 setHoverArea 挂到 MainWin 下；
-				// 关闭时先收回，避免 MainWin 先析构后它们变成悬垂指针。
-				if (auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget)) {
-					textEdit->setHoverArea(nullptr);
-				}
-				widget->setParent(nullptr);
-				widget->closeFile();
+		for (auto widget : d->TagArea->getFileEditWidgets()) {
+			widget->disconnect(this);
+			widget->disconnect(d->TagArea);
+			if (auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget)) {
+				textEdit->setHoverArea(nullptr);
 			}
+			widget->setParent(nullptr);
+			widget->closeFile();
 		}
-		if (FileEditWidgetAreaPrivate::mainArea == this) {
-			FileEditWidgetAreaPrivate::mainArea = nullptr;
+		if (AreaRegistry::instance().main() == this) {
+			AreaRegistry::instance().setMain(nullptr);
 		}
-		FileEditWidgetAreaPrivate::areaIDMap.remove(d->areaID);
-		FileEditWidgetAreaPrivate::usedAreaIDs.remove(d->areaID);
+		AreaRegistry::instance().release(d->areaID);
 		if (not d->closeSilently) {
 			emit areaClosed(d->areaID);
 		}
@@ -156,16 +184,14 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::setAreaID(const QString& areaID) {
-		if (FileEditWidgetAreaPrivate::usedAreaIDs.contains(areaID)) {
+		if (AreaRegistry::instance().find(areaID)) {
 			return;
 		}
 		if (not d->areaID.isEmpty()) {
-			FileEditWidgetAreaPrivate::areaIDMap.remove(d->areaID);
-			FileEditWidgetAreaPrivate::usedAreaIDs.remove(d->areaID);
+			AreaRegistry::instance().release(d->areaID);
 		}
+		AreaRegistry::instance().acquire(areaID, this);
 		d->areaID = areaID;
-		FileEditWidgetAreaPrivate::areaIDMap.insert(areaID, this);
-		FileEditWidgetAreaPrivate::usedAreaIDs.insert(areaID);
 	}
 
 	QString FileEditWidgetArea::getAreaID() const {
@@ -173,15 +199,15 @@ namespace YSS::Editor {
 	}
 
 	FileEditWidgetArea* FileEditWidgetArea::getAreaByID(const QString& areaID) {
-		return FileEditWidgetAreaPrivate::areaIDMap.value(areaID, nullptr);
+		return AreaRegistry::instance().find(areaID);
 	}
 
 	FileEditWidgetArea* FileEditWidgetArea::getMainArea() {
-		return FileEditWidgetAreaPrivate::mainArea;
+		return AreaRegistry::instance().main();
 	}
 
 	QList<FileEditWidgetArea*> FileEditWidgetArea::getAllAreas() {
-		return FileEditWidgetAreaPrivate::getAllAreas();
+		return AreaRegistry::instance().allAreas();
 	}
 
 	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
@@ -194,10 +220,10 @@ namespace YSS::Editor {
 		widget->setParent(this);
 		auto vfp = YSSCore::Editor::VirtualFilePath(filePath);
 		if (vfp.isValid()) {
-			d->TagArea->addStackLabel(filePath, vfp.getFileName());
+			d->TagArea->addStackLabel(filePath, vfp.getFileName(), widget);
 		}
 		else {
-			d->TagArea->addStackLabel(filePath);
+			d->TagArea->addStackLabel(filePath, QString(), widget);
 		}
 	
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackTagWidget::setFileChanged);

@@ -186,7 +186,8 @@
 			"matchCount": "Всего %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "Нет открытых файлов"
+			"noFileOpened": "Нет открытых файлов",
+			"dragInFile": "Отпустите вкладку, чтобы переместить её сюда"
 		},
 		"toolWidgetArea": {
 			"noToolWidget": "Нет доступных инструментов"

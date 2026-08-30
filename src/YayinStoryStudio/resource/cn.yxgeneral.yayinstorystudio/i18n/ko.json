@@ -186,7 +186,8 @@
 			"matchCount": "총 %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "열린 파일이 없습니다"
+			"noFileOpened": "열린 파일이 없습니다",
+			"dragInFile": "탭을 놓아 이 영역으로 이동합니다"
 		},
 		"toolWidgetArea": {
 			"noToolWidget": "표시할 도구가 없습니다"

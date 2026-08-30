@@ -54,6 +54,7 @@ namespace YSS::Editor {
 		void view_resourceBrowser(bool checked);
 		void view_fullScreenToggle(bool checked);
 		void view_pluginTools(YSSCore::Editor::FileServer* asToolServer, bool checked);
+		void syncPluginToolMenu();
 	public:
 		void onEditMenuAboutToShow();
 		void onPluginToolMenuAboutToShow();

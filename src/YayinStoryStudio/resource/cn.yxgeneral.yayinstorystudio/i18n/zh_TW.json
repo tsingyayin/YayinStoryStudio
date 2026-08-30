@@ -186,7 +186,8 @@
 			"matchCount": "共 %1"
 		},
 		"stackWidgetArea": {
-			"noFileOpened": "沒有開啟的檔案"
+			"noFileOpened": "沒有開啟的檔案",
+			"dragInFile": "釋放標籤以轉移到此區域"
 		},
 		"toolWidgetArea": {
 			"noToolWidget": "沒有工具可顯示"

@@ -209,6 +209,15 @@ namespace YSS::Editor {
 
 	void MainWin::onFileEditOpened(const QString& filePath) {
 		auto widget = YSSFSM->getFileEditWidget(filePath);
+		if (not widget) {
+			return;
+		}
+		
+		if (auto sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget)) {
+			if (sourceServer->isListAsTool()) {
+				Menu->syncPluginToolMenu();
+			}
+		}
 		for (auto area : FileEditWidgetArea::getAllAreas()) {
 			if (area->containsWidget(filePath)) {
 				area->addWidget(widget);

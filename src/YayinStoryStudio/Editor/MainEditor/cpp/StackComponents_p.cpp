@@ -170,6 +170,14 @@ namespace YSS::Editor {
 		return TitleLabel->text();
 	}
 
+	void StackTag::setFileEditWidget(YSSCore::Editor::FileEditWidget* widget) {
+		FileEditWidget = widget;
+	}
+
+	YSSCore::Editor::FileEditWidget* StackTag::getFileEditWidget() const {
+		return FileEditWidget;
+	}
+
 	void StackTag::setFocusOn(bool focus) {
 		Focused = focus;
 		repaint();
@@ -387,6 +395,16 @@ namespace YSS::Editor {
 		return Area;
 	}
 
+	QList<YSSCore::Editor::FileEditWidget*> StackTagWidget::getFileEditWidgets() const {
+		QList<YSSCore::Editor::FileEditWidget*> result;
+		for (StackTag* label : Labels) {
+			if (label->getFileEditWidget()) {
+				result.append(label->getFileEditWidget());
+			}
+		}
+		return result;
+	}
+
 	void StackTagWidget::applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor) {
 		QIcon pinIcon = VIApp->getFontIcon("\uE840", 64, { textColor });
 		QIcon pinnedIcon = VIApp->getFontIcon("\uE841\uE840", 64, { accentColor, textColor });
@@ -420,11 +438,12 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName) {
+	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName, YSSCore::Editor::FileEditWidget* widget) {
 		QFileInfo fileInfo(filePath);
 		StackTag* tagLabel = new StackTag(ScrollContent, Orientation);
 		tagLabel->setFilePath(filePath);
 		tagLabel->setStayInWidget(this);
+		tagLabel->setFileEditWidget(widget);
 		const QString text = displayName.isEmpty() ? fileInfo.fileName() : displayName;
 		tagLabel->setText(text);
 		QStandardItem* selectorItem = new QStandardItem(text);
