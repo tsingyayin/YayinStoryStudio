@@ -6,10 +6,31 @@
 ![](https://img.shields.io/badge/Qt-6.10.3%2B-lightgreen)
 ![](https://img.shields.io/badge/LGPL-2.1-green)
 
-# Yayin Story Studio
-Yayin Story Studio 是适用于ASE的故事创作工具，旨在通过可视化、代码补全以及联想等功能，帮助用户更高效地编写故事脚本。
+# Yayin Story Studio 项目简介
+Yayin Story Studio （简称YSS）是一个基于Qt/Visindigo的代码编辑器。目前以支持明日方舟剧情编辑器重制版（Arknights Story Editor Remake）（简称ASE-Remake 或 ASER）的AStoryX脚本为主要开发目标。未来引入Git支持，AI Agent支持后，YSS将成为一个通用的代码编辑器。
 
-Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以通过安装插件来扩展功能。理论上，Yayin Story Studio 经过适当的扩展后也可以用于编写代码。
+## Project Visindigo - 全面的明日方舟剧情二创工具集
+整个Project Visindigo项目自2021年启动以来，先后产出了Yayin Story Player（YSP）、Arknights Story Editor（ASE）、Arknights Story Editor Remake（ASER）和Yayin Story Studio（YSS）四个主要项目。时至今日，它们仍然是整个明日方舟二创社区最好用、最全面的剧情编辑工具集。
+
+| <img width="128" height="128" alt="YSP" src="https://github.com/user-attachments/assets/1161e562-410b-4093-8caa-32423c23c22e" /><br>**YSP** | <img width="128" height="128" alt="ASE" src="https://github.com/user-attachments/assets/b10641f0-29b2-4dd8-ab89-20e4cd4fa3a3" /><br>**ASE** |
+| --- | --- |
+| <img width="128" height="128" alt="ASER" src="https://github.com/user-attachments/assets/9ff66188-0126-4835-8abb-8d050fa90a4b" /><br>**ASER** | <img width="128" height="128" alt="YSS" src="https://github.com/user-attachments/assets/75b619a8-2ee9-4c58-a07a-1ab3e644670a" /><br>**YSS** |
+
+
+YSP从Python脚本和明日方舟官方剧情脚本中汲取灵感，首创了专用于明日方舟二创的SPOL脚本语言，并在SPOL中定义和规范了数种常用的演出功能为“控制器”。YSP的出现让明日方舟二创社区的剧情创作门槛大幅降低，极大地丰富了社区的剧情创作内容。基于这些概念基础，谷雨暮歌的新作ASE则进一步实现了更多的播放功能——其基于Unity而非Qt的技术栈天然兼容来自明日方舟的各种官方资源，并在AStory脚本的自定义Rules设计中实现了对SPOL的兼容。ASER则在ASE基础上进一步发展出AStoryX，虽然没有太多新特性，语法也与AStory本身近似，但ASER在播放功能、性能与素材兼容性上则有十分显著的提升。与此同时，为了解决自ASE时代（2023年以后）以来，AStory/AStoryX编辑体验不佳的问题，Project Visindigo开发了Yayin Story Studio，转为AStoryX编写提供支持。
+
+## 获取Project Visindigo系列软件以及使用教程
+YSP项目已经于2023年底停止维护（Python版本早在2021年中旬就不再更新），但其源代码仍然可以在[cYSP](https://github.com/tsingyayin/cYSP)和[YSP-Yayin_Story_Player](https://github.com/tsingyayin/YSP-Yayin_Story_Player)中获取。Release中也有最新的程序文件。
+
+ASE/ASER项目是闭源项目，且有限授权，要获取相关软件，以及获得使用授权，要求使用者必须有一个本人身份实名认证的社交平台账号在紫靛社区群内，并在多媒体平台有明日方舟的二创投稿。
+
+目前紫靛社区群只在QQ上开设。群号（1群，原2群）563449926、（2群，原3群）1072976010、（水群，原1群）737797713。请注意，考虑到ASE/ASER软件的专业性与专用性，为了避免滥传滥用，紫靛社区群审核极其严格。不满足[关于申请ASER/YSS社区的一些说明](https://www.bilibili.com/opus/1216043483647705089)中提到的条件的用户将无法加入紫靛社区群，也无法获取ASE/ASER软件。如确有明日方舟剧情二创需要，请考虑使用YSP或其他开源工具。
+
+YSP的使用教程在其程序文件包中，以PDF文档的形式提供。
+
+ASE/ASER的使用教程，请参见[Arknight Story Editor 使用教程](https://www.yuque.com/tsingyayin/ase)和[Arknight Story Editor Remake 使用教程](https://www.yuque.com/tsingyayin/aser)。请注意，ASE已经于2026年6月停止维护，请务必不要搞错。
+
+YSS的使用教程请参见[Yayin Story Studio 使用教程](https://www.yuque.com/tsingyayin/yss)、开发文档请参见[Yayin Story Studio 开发文档](http://prts.site)（由于没钱买证书，这是个http页面）。
 
 # COFFEE!
 如果您喜欢这个项目并希望支持它，可以通过以下方式捐赠：
@@ -17,8 +38,11 @@ Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以�
 
 我们坚信开发者是某种将咖啡因转换为代码的生物，您的支持将帮助我们持续从咖啡因中汲取代码之力！
 
-# 运行、部署与编译
-建议非技术用户直接从Release下载已编译的版本。
+# YSS 使用指南
+## 运行程序
+**建议非技术用户直接从Release下载已编译的版本。**，并主要参考[Yayin Story Studio 使用教程](https://www.yuque.com/tsingyayin/yss)进行使用。下面的内容主要面向开发者，介绍如何从源代码构建YSS。
+
+## 构建YSS
 
 若要从源代码构建，当前只支持在Windows上使用Visual Studio 2026进行编译。请确保安装了Qt 6.10.3 及其开发工具，并且在Visual Studio中配置了Qt的路径。
 
@@ -28,18 +52,13 @@ Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以�
 
 本项目目前并未完全遵照Qt的编码标准以进行适配不同编译器和平台的开发，但正尝试努力解决这些问题。请注意，YSS目前并不把全平台支持作为其开发的首要目标，只是为了将来潜在的跨平台需求尽量编写平台无关/编译器无关的代码，并尽可能的降低使用Qt工具将其转换为QtCreator项目后需要进行的修改量。
 
-# 版本：SEA 与 TP
-由于开发代码编辑器的复杂性，当前Yayin Story Studio仍然处于超级早期开发阶段（Super Early Access），直到我们完成了所有核心功能的开发与测试后，SEA阶段才会结束。
+## 版本选择：EA、TP、Beta、Release
+有关 YSS 各版本的固定后缀（SEA/EA）的介绍，以及开发过程中的技术预览版、Beta测试版、Beta RC测试版、发行版的区别，请参见使用教程中的[选择适合你的YSS版本](https://www.yuque.com/tsingyayin/yss/tergn7u16it0sn65)章节。
 
-对于每个Minor版本更新，我们遵循`TP（技术预览）`->`Beta`->`Release`的发布流程。
-* TP版本主要用于开发过程中预览，通常会包含极其粗糙的功能与API变更，有时甚至可能不会提供构建后的二进制文件。
-* Beta版在功能上相对稳定，追求对现有内容的修复与优化，但也可能会出现新内容。
-* Release版本是经过充分测试的稳定版本，通常会包含所有已知问题的修复。Release期间一般不会添加新功能。
-  
-当一个Minor版本进入Release阶段后，一个Fork会被创建，用于维护该版本的稳定性和安全性。之后，主分支会进入下一个Minor版本的开发阶段。
+# 参与 YSS 的开发
+## 编码风格与规范
 
-# 参与开发
-本项目暂时还没准备好接受外部直接代码贡献，但欢迎任何人提出建议或意见。下面的内容有助于您快速了解本项目：
+为了保证代码的可读性和可维护性，YSS项目采用了统一的编码风格和规范。请在提交代码前仔细阅读本仓库中的[编码规范](CONTRIBUTING.md)文档，并遵循其中的要求。
 
 ## 项目结构
 * .vscode - VSCode 配置文件。它可能会在日后被用于创建一个仅用于查看的VSCode工作区，现在其中的内容没有实际用途。
@@ -61,7 +80,7 @@ Yayin Story Studio 被设计为高度插件化的应用程序，因此它可以�
     * YayinStoryStudio - 主程序项目。它是一个纯编辑器，各插件的扩展本质上在扩展此项目。
     * (其他未提及的项目) - 有设想，但暂未投入开发的项目，这里不再赘述。
   
-## 对于每个Visual Studio项目
+### 对于每个Visual Studio项目
 * resource - 存放要参与编译的资源，他们应该都被记录在qrc文件内。请注意，目前所有项目都遵守Visindigo的资源约定，这就需要在resource目录下直接创建一个和该项目ID（比如cn.yxgeneral.aserstudio）相同名称的子目录，然后再在其中放置资源文件。
 * pytools(如果有) - 存放用于辅助开发的Python脚本，它们不参与到最终程序，只在开发和编译过程中使用。
 Yayin Story Studio的cpp与h文件的管理采用相对紧密的模式，即所有的cpp文件都在h文件所在目录的`cpp`子目录下。这样做的目的是为了便于管理和查找相关文件。
