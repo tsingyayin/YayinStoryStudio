@@ -548,12 +548,15 @@ namespace ASERStudio::AStorySyntax {
 		}
 		else if (d->Type == AStoryXController::ControllerType::Character) {
 			if (not content.contains(requiredParameter.getSeparator()) && diagnostic) {
-				AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-					VITR("ASERStudio::diagnostic.parameterFormatError_character.message").arg(requiredParameter.getSeparator()),
-					lineIndex, requiredParameter.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterFormatError,
-					VITR("ASERStudio::diagnostic.parameterFormatError_character.fixAdvice").arg(requiredParameter.getSeparator())
-				);
-				result.d->Diagnostics.append(diagnosticData);
+				static QStringList placeholders = { "none", "无" };
+				if (not placeholders.contains(content)) {
+					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
+						VITR("ASERStudio::diagnostic.parameterFormatError_character.message").arg(requiredParameter.getSeparator()),
+						lineIndex, requiredParameter.getIndex(), AStoryXDiagnosticData::DiagnosticType::ParameterFormatError,
+						VITR("ASERStudio::diagnostic.parameterFormatError_character.fixAdvice").arg(requiredParameter.getSeparator())
+					);
+					result.d->Diagnostics.append(diagnosticData);
+				}
 			}
 		}
 		auto reqResult = requiredParameter.getValue().isTypeMatching(requiredParameter.getContent());

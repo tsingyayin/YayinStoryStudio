@@ -631,9 +631,11 @@ namespace YSS::Editor {
 	}
 
 	void TreeLayoutWidgetPrivate::handleAllFileClosed(FileEditWidgetArea* area) {
-		// 顶级布局必须至少保留一个区域，否则顶级 TreeLayout 将失去功能。
 		if (ParentLayout == nullptr && Childrens.size() <= 1) {
-			return;
+			return; // top layout must keep at least one area.
+		}
+		if (area == FileEditWidgetArea::getMainArea()) {
+			return; // main area must not be closed.
 		}
 		area->deleteLater();
 	}

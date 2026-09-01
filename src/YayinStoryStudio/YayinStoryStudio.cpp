@@ -100,10 +100,7 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
-		auto styleData = YSSCore::Editor::StyleData();
-		auto jsonConfig = Visindigo::Utility::JsonConfig::fromMetable(styleData);
-		QString json = jsonConfig.toString();
-		vgDebug << json;
+
 	}
 
 	void Main::releaseInstaller(){

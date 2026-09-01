@@ -65,14 +65,10 @@ namespace YSS::Editor {
 		TreeLayout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		Layout->addWidget(TreeLayout);
 
-		// BottomFrame 需在 initTreeLayout 之前创建，因为自动打开工具时会同步触发
-		// currentFileChanged 来更新底部信息栏。
 		BottomFrame = new BottomInfoWidget(this);
 		BottomFrame->setFixedHeight(30);
 		BottomFrame->setGitInfoEnable(false);
 		MainLayout->addWidget(BottomFrame);
-
-		// 需在 initTreeLayout 之前连接，确保新建项目时自动打开的工具能进入对应区域。
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 
 		initTreeLayout();
@@ -96,7 +92,6 @@ namespace YSS::Editor {
 
 		qint64 width = VIApp->getMainPlugin()->getPluginConfig()->getInt("Window.Editor.Width");
 		qint64 height = VIApp->getMainPlugin()->getPluginConfig()->getInt("Window.Editor.Height");
-
 		this->resize(width, height);
 		if (VIApp->getMainPlugin()->getPluginConfig()->getBool("Window.Editor.Maximized")) {
 			this->showMaximized();
@@ -435,9 +430,9 @@ namespace YSS::Editor {
 		}
 		connect(area, &FileEditWidgetArea::areaFocusd, this, &MainWin::onFileEditWidgetAreaFocusIn);
 		connect(area, &FileEditWidgetArea::currentFileChanged, this, [this, area](const QString& filePath) {
-			BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
 			auto currentEditWidget = area->getCurrentWidget();
 			if (not currentEditWidget) {
+				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(""));
 				FocusingFileEditWidget = nullptr;
 				FocusingFileEditWidgetNotTool = nullptr;
 				BottomFrame->setEditorInfoEnable(false);
@@ -447,19 +442,20 @@ namespace YSS::Editor {
 			}
 			bool isToolWidget = YSSFSM->getFileEditWidgetSourceServer(currentEditWidget)->isListAsTool();
 			if (not isToolWidget) {
+				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
 				FocusingFileEditWidgetNotTool = currentEditWidget;
+				auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
+				if (textEdit) {
+					BottomFrame->displayEditorInfo(textEdit->getTextCursor());
+					BottomFrame->setEditorInfoEnable(true);
+				}
+				else {
+					BottomFrame->setEditorInfoEnable(false);
+				}
 				emit currentFileEditWidgetChangedNotTool(currentEditWidget);
 			}
 			FocusingFileEditWidget = currentEditWidget;
 			emit currentFileEditWidgetChanged(currentEditWidget);
-			auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
-			if (textEdit) {
-				BottomFrame->displayEditorInfo(textEdit->getTextCursor());
-				BottomFrame->setEditorInfoEnable(true);
-			}
-			else {
-				BottomFrame->setEditorInfoEnable(false);
-			}
 			if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
 				if (auto browser = ResourceBrowser::getInstance()) {
 					browser->setCurrentSelected(QFileInfo(filePath));
@@ -493,21 +489,20 @@ namespace YSS::Editor {
 		}
 		if (lastFocusedFileEditArea){
 			auto currentEditWidget = lastFocusedFileEditArea->getCurrentWidget();
-			auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
-			if (textEdit) {
-				BottomFrame->setEditorInfoEnable(true);
-				BottomFrame->displayEditorInfo(textEdit->getTextCursor());
-			}
-			else {
-				BottomFrame->setEditorInfoEnable(false);
-			}
-			// 聚焦切换不会触发 currentFileChanged，这里同步聚焦控件与消息查看器。
 			if (currentEditWidget && currentEditWidget != FocusingFileEditWidget) {
 				FocusingFileEditWidget = currentEditWidget;
 				emit currentFileEditWidgetChanged(currentEditWidget);
 				bool isToolWidget = YSSFSM->getFileEditWidgetSourceServer(currentEditWidget)->isListAsTool();
 				if (not isToolWidget) {
 					FocusingFileEditWidgetNotTool = currentEditWidget;
+					auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
+					if (textEdit) {
+						BottomFrame->setEditorInfoEnable(true);
+						BottomFrame->displayEditorInfo(textEdit->getTextCursor());
+					}
+					else {
+						BottomFrame->setEditorInfoEnable(false);
+					}
 					emit currentFileEditWidgetChangedNotTool(currentEditWidget);
 				}
 			}
