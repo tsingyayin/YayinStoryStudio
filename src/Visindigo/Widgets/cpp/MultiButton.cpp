@@ -1,9 +1,9 @@
+#include <QtGui/qpainter.h>
+#include <QtWidgets/qstyle.h>
+#include <QtWidgets/qstyleoption.h>
+#include "General/Log.h"
 #include "Widgets/MultiButton.h"
 #include "Widgets/private/MultiButton_p.h"
-#include <QtWidgets/qstyleoption.h>
-#include <QtWidgets/qstyle.h>
-#include <QtGui/qpainter.h>
-#include "General/Log.h"
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::MultiButton

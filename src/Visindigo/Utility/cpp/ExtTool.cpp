@@ -1,6 +1,6 @@
-#include "Utility/ExtTool.h"
 #include <QtCore/qsettings.h>
 #include <QtCore/qstring.h>
+#include "Utility/ExtTool.h"
 namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::ExtTool

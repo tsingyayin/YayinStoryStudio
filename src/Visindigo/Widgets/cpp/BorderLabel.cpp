@@ -1,8 +1,8 @@
-#include "Widgets/BorderLabel.h"
+#include <QtGui/qevent.h>
 #include <QtGui/qpainter.h>
 #include <QtWidgets/qstyle.h>
-#include <QtGui/qevent.h>
 #include <QtWidgets/qstyleoption.h>
+#include "Widgets/BorderLabel.h"
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::BorderLabel

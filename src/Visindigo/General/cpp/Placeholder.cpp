@@ -1,8 +1,8 @@
-#include "General/Placeholder.h"
-#include <QtCore/qstring.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qstring.h>
 #include "General/Log.h"
+#include "General/Placeholder.h"
 #include "General/private//VIGeneral_p.h"
 
 namespace Visindigo::General {

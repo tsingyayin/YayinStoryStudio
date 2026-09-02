@@ -1,6 +1,6 @@
-#include "Editor/private/HoverInfoProvider_p.h"
 #include <QtWidgets/qscrollbar.h>
 #include <Widgets/ThemeManager.h>
+#include "Editor/private/HoverInfoProvider_p.h"
 
 namespace YSSCore::__Private__ {
 	HoverInfoWidget::HoverInfoWidget(QWidget* parent) :QFrame(parent) {

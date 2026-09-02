@@ -1,13 +1,12 @@
-#include "General/TickObject.h"
-#include "General/Log.h"
-#include <QtCore/qmutex.h>
-#include <QtCore/qmap.h>
-#include <QtGui/qevent.h>
 #include <chrono>
-#include <QtCore/qset.h>
-#include <QtCore/qmap.h>
-#include <QtCore/qdatetime.h>
 #include <QtCore/qchronotimer.h>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qmutex.h>
+#include <QtCore/qset.h>
+#include <QtGui/qevent.h>
+#include "General/Log.h"
+#include "General/TickObject.h"
 
 namespace Visindigo::General {
 	class TickObjectPrivate {

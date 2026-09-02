@@ -1,11 +1,11 @@
-#include "Widgets/StyleSheetTemplate.h"
-#include <QtCore/qstring.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qstring.h>
 #include <QtWidgets/qwidget.h>
-#include "Utility/JsonConfig.h"
-#include "Utility/ColorTool.h"
 #include "General/Log.h"
+#include "Utility/ColorTool.h"
+#include "Utility/JsonConfig.h"
+#include "Widgets/StyleSheetTemplate.h"
 #include "Widgets/ThemeManager.h"
 namespace Visindigo::Widgets {
 	class StyleSheetTemplatePrivate {

@@ -1,7 +1,7 @@
-#include "Widgets/MultiLabel.h"
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qapplication.h>
+#include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/qlabel.h>
+#include "Widgets/MultiLabel.h"
 namespace Visindigo::Widgets {
 	class MultiLabelPrivate {
 		friend class MultiLabel;

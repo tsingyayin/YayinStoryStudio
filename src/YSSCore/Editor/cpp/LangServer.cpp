@@ -1,12 +1,12 @@
-#include <QtCore/qstring.h>
-#include <QtCore/qobject.h>
-#include <QtGui/qsyntaxhighlighter.h>
-#include "Editor/LangServer.h"
-#include <General/Plugin.h>
-#include "Editor/EditorPlugin.h"
-#include "Editor/ColorThemeProvider.h"
 #include <QtCore/qdir.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qsyntaxhighlighter.h>
+#include <General/Plugin.h>
 #include <Utility/FileUtility.h>
+#include "Editor/ColorThemeProvider.h"
+#include "Editor/EditorPlugin.h"
+#include "Editor/LangServer.h"
 namespace YSSCore::Editor {
 	class LangServerPrivate
 	{

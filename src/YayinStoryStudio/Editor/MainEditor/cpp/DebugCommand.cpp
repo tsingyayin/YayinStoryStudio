@@ -1,6 +1,6 @@
+#include <General/Log.h>
 #include "Editor/MainEditor/DebugCommand.h"
 #include "Editor/MainEditor/TreeLayoutWidget.h"
-#include <General/Log.h>
 namespace YSS::Editor {
 	DebugCommand::DebugCommand(Visindigo::General::Plugin* parent) :
 		Visindigo::General::CommandHandler(parent, "DebugCommand", "yss_me") {}

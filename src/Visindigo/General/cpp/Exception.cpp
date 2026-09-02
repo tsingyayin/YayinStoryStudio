@@ -1,5 +1,5 @@
-#include "General/Exception.h"
 #include <string.h>
+#include "General/Exception.h"
 namespace Visindigo::General {
 	class ExceptionPrivate {
 	public:

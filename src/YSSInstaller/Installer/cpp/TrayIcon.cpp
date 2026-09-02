@@ -1,7 +1,7 @@
-#include "Installer/TrayIcon.h"
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/TranslationHost.h>
+#include "Installer/TrayIcon.h"
 namespace YSS::Installer {
 	class TrayIconPrivate {
 		friend class TrayIcon;

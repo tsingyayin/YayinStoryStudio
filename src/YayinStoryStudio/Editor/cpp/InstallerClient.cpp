@@ -1,15 +1,15 @@
-#include "Editor/InstallerClient.h"
-#include "General/Log.h"
-#include <QtCore/qtimer.h>
+#include <QtCore/qprocess.h>
 #include <QtCore/qstandardpaths.h>
 #include <QtCore/qstringlist.h>
-#include <General/VIApplication.h>
+#include <QtCore/qtimer.h>
+#include <QtWidgets/qmessagebox.h>
+#include <General/Log.h>
 #include <General/Plugin.h>
 #include <General/TranslationHost.h>
+#include <General/VIApplication.h>
+#include <Utility/Console.h>
 #include <Utility/FileUtility.h>
-#include <QtWidgets/qmessagebox.h>
-#include <QtCore/qprocess.h>
-#include "Utility/Console.h"
+#include "Editor/InstallerClient.h"
 namespace YSS::Editor {
 	class InstallerClientPrivate {
 		friend class InstallerClient;

@@ -1,12 +1,12 @@
-#include "Editor/MainEditor/BottomInfoWidget.h"
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qprogressbar.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qprogressbar.h>
 #include <QtWidgets/qtoolbutton.h>
+#include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 #include <Widgets/ThemeManager.h>
-#include <General/TranslationHost.h>
+#include "Editor/MainEditor/BottomInfoWidget.h"
 namespace YSS::Editor {
 	class BottomInfoWidgetPrivate {
 		friend class BottomInfoWidget;

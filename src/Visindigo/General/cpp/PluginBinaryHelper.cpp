@@ -1,7 +1,7 @@
-#include  "General/PluginBinaryHelper.h"
-#include <QtCore/qmap.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qmap.h>
+#include "General/PluginBinaryHelper.h"
 namespace Visindigo::General {
 	class PluginBinaryHelperPrivate {
 	protected:

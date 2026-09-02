@@ -1,14 +1,14 @@
-#include "YSS/LS_AStoryXTabCompleter.h"
-#include "AStorySyntax/AStoryXDocument.h"
-#include "AStorySyntax/AStoryXRule.h"
-#include "AStorySyntax/AStoryXController.h"
-#include "AStorySyntax/AStoryXValueMeta.h"
-#include "YSS/LangServer_AStoryX.h"
-#include "ASEREnv/ASERResourceMoniter.h"
-#include <General/Log.h>
 #include <Editor/TextEdit.h>
+#include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <Utility/StringUtility.h>
+#include "ASEREnv/ASERResourceMoniter.h"
+#include "AStorySyntax/AStoryXController.h"
+#include "AStorySyntax/AStoryXDocument.h"
+#include "AStorySyntax/AStoryXRule.h"
+#include "AStorySyntax/AStoryXValueMeta.h"
+#include "YSS/LangServer_AStoryX.h"
+#include "YSS/LS_AStoryXTabCompleter.h"
 namespace ASERStudio::YSS {
 	class LS_AStoryXTabCompleterPrivate {
 		friend class LS_AStoryXTabCompleter;

@@ -1,27 +1,27 @@
-#include "Widgets/ConfigWidget.h"
 #include <QtCore/qfile.h>
-#include "Utility/JsonConfig.h"
-#include "Utility/FileUtility.h"
-#include "General/TranslationHost.h"
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qradiobutton.h>
-#include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qframe.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qfiledialog.h>
-#include "Widgets/private/ConfigWidget_p.h"
-#include "Widgets/MultiLabel.h"
-#include "General/Log.h"
-#include "Widgets/ThemeManager.h"
-#include <QtWidgets/qtextedit.h>
 #include <QtGui/qcolor.h>
+#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qcolordialog.h>
-#include "General/Placeholder.h"
+#include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qframe.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qradiobutton.h>
+#include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qtoolbutton.h>
+#include "General/Log.h"
+#include "General/Placeholder.h"
+#include "General/TranslationHost.h"
 #include "General/VIApplication.h"
+#include "Utility/FileUtility.h"
+#include "Utility/JsonConfig.h"
+#include "Widgets/ConfigWidget.h"
+#include "Widgets/MultiLabel.h"
+#include "Widgets/private/ConfigWidget_p.h"
+#include "Widgets/ThemeManager.h"
 
 namespace Visindigo::__Private__ {
 	ConfigWidgetPrivate::ConfigWidgetPrivate(Visindigo::Widgets::ConfigWidget* self) {

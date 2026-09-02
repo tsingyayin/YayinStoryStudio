@@ -1,11 +1,11 @@
-#include "Editor/SyntaxHighlighter.h"
-#include "Editor/TextEdit.h"
+#include <QtCore/qtimer.h>
+#include <General/Log.h>
+#include <Widgets/ThemeManager.h>
 #include "Editor/DocumentMessageManager.h"
 #include "Editor/private/DocumentMessageManager_p.h"
-#include <Widgets/ThemeManager.h>
-#include <General/Log.h>
 #include "Editor/private/TextEdit_p.h"
-#include <QtCore/qtimer.h>
+#include "Editor/SyntaxHighlighter.h"
+#include "Editor/TextEdit.h"
 namespace YSSCore::Editor {
 	class SyntaxHighlighterPrivate {
 		friend class SyntaxHighlighter;

@@ -1,11 +1,11 @@
-#include "Widgets/DragWidget.h"
 #include <QtCore/qlist.h>
-#include <QtWidgets/qlayout.h>
-#include <QtWidgets/qboxlayout.h>
 #include <QtGui/qevent.h>
-#include "Widgets/private/DragWidget_p.h"
 #include <QtWidgets/qapplication.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qlayout.h>
 #include "General/Log.h"
+#include "Widgets/DragWidget.h"
+#include "Widgets/private/DragWidget_p.h"
 namespace Visindigo::__Private__ {
 	bool DragWidgetPrivate::eventFilter(QObject* watched, QEvent* event) {
 		if (event->type() == QEvent::MouseButtonPress) {

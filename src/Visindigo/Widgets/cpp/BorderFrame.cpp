@@ -1,9 +1,9 @@
-#include "Widgets/BorderFrame.h"
+#include <QtGui/qevent.h>
 #include <QtGui/qpainter.h>
 #include <QtWidgets/qstyle.h>
-#include <QtGui/qevent.h>
 #include <QtWidgets/qstyleoption.h>
-#include <General/Log.h>
+#include "General/Log.h"
+#include "Widgets/BorderFrame.h"
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::BorderFrame

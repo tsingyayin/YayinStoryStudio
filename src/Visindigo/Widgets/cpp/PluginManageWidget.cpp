@@ -1,19 +1,19 @@
-#include "Widgets/private/PluginManageWidget_p.h"
-#include "Widgets/PluginManageWidget.h"
-#include "General/TranslationHost.h"
-#include "General/Plugin.h"
-#include "General/PluginManager.h"
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qcheckbox.h>
-#include <QtWidgets/qlayout.h>
-#include <QtWidgets/qscrollarea.h>
-#include "General/VIApplication.h"
-#include "Utility/FileUtility.h"
-#include "General/Log.h"
 #include <QtCore/qdir.h>
+#include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlayout.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qtoolbutton.h>
+#include "General/Log.h"
+#include "General/Plugin.h"
+#include "General/PluginManager.h"
+#include "General/TranslationHost.h"
+#include "General/VIApplication.h"
+#include "Utility/FileUtility.h"
+#include "Widgets/PluginManageWidget.h"
+#include "Widgets/private/PluginManageWidget_p.h"
 #include "Widgets/ThemeManager.h"
 namespace Visindigo::__Private__ {
 	Divider::Divider(const QString& title, const QString& description, QWidget* parent) : QFrame(parent)

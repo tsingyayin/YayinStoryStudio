@@ -1,6 +1,6 @@
-#include "General/StacktraceHelper.h"
 #include <QtCore/qregularexpression.h>
 #include "General/Log.h"
+#include "General/StacktraceHelper.h"
 
 #ifdef VI_HAS_STD_STACKTRACE
 #include <stacktrace>

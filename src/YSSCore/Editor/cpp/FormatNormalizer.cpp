@@ -1,5 +1,5 @@
-#include "Editor/FormatNormalizer.h"
 #include <QtGui/qtextdocument.h>
+#include "Editor/FormatNormalizer.h"
 #include "Editor/TextEdit.h"
 
 namespace YSSCore::Editor {

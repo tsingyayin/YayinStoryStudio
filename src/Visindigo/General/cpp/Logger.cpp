@@ -1,5 +1,5 @@
-#include "General/Logger.h"
 #include <QtCore/qstring.h>
+#include "General/Logger.h"
 #include "General/LoggerMsgHandler.h"
 namespace Visindigo::General {
 	class LoggerPrivate {

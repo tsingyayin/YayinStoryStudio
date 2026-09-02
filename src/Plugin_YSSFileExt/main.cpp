@@ -1,5 +1,5 @@
-#include "Macro.h"
 #include <General/Plugin.h>
+#include "Macro.h"
 #include "Plugin_YSSFileExt.h"
 #ifdef YSSFileExt_EXPORT
 extern "C" YSSFileExtAPI Visindigo::General::Plugin* VisindigoPluginMain(void)

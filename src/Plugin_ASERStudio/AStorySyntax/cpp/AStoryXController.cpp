@@ -1,12 +1,12 @@
-#include "AStorySyntax/AStoryXController.h"
 #include <QtCore/qmap.h>
-#include "AStorySyntax/AStoryXControllerParseData.h"
-#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
-#include "AStorySyntax/AStoryXDiagnosticData.h"
+#include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <Utility/StringUtility.h>
+#include "AStorySyntax/AStoryXController.h"
+#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "AStorySyntax/AStoryXDiagnosticData.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
-#include <General/Log.h>
+#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 namespace ASERStudio::AStorySyntax {
 	class AStoryXControllerPrivate {
 		friend class AStoryXController;

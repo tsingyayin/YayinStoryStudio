@@ -1,17 +1,17 @@
-#include "Editor/MainEditor/MessageViewer.h"
-#include "Editor/MainEditor/MainWin.h"
-#include "Editor/MainEditor/FileEditWidgetArea.h"
 #include <QtCore/qfileinfo.h>
-#include <Editor/DocumentMessageManager.h>
-#include <General/TranslationHost.h>
-#include <Editor/SyntaxHighlighter.h>
-#include <General/Log.h>
 #include <QtWidgets/qheaderview.h>
+#include <QtWidgets/qlabel.h>
 #include <QtWidgets/qscrollbar.h>
-#include <Utility/FileUtility.h>
+#include <Editor/DocumentMessageManager.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
-#include <QtWidgets/qlabel.h>
+#include <Editor/SyntaxHighlighter.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <Utility/FileUtility.h>
+#include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/MainWin.h"
+#include "Editor/MainEditor/MessageViewer.h"
 
 namespace YSS::Editor {
 	MessageViewerVFS::MessageViewerVFS(YSSCore::Editor::EditorPlugin* plugin) :

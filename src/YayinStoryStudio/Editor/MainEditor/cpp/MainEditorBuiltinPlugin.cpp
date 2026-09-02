@@ -1,10 +1,10 @@
+#include "Editor/MainEditor/ColorThemeSettings.h"
+#include "Editor/MainEditor/DebugCommand.h"
 #include "Editor/MainEditor/MainEditorBuiltinPlugin.h"
 #include "Editor/MainEditor/MessageViewer.h"
 #include "Editor/MainEditor/MultiTerminal.h"
 #include "Editor/MainEditor/PreferenceEditWidget.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
-#include "Editor/MainEditor/ColorThemeSettings.h"
-#include "Editor/MainEditor/DebugCommand.h"
 namespace YSS::Editor {
 	MainEditorBuiltinPlugin::MainEditorBuiltinPlugin() {
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version

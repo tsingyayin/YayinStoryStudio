@@ -1,20 +1,20 @@
-#include "Utility/FileUtility.h"
+#include <functional>
 #include <QtCore/qbytearray.h>
-#include <QtCore/qstring.h>
-#include <QtCore/qlist.h>
-#include <QtCore/qstringlist.h>
+#include <QtCore/qcoreapplication.h>
+#include <QtCore/qdir.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qprocess.h>
-#include <QtCore/qdir.h>
-#include <QtCore/qset.h>
-#include <QtCore/qtextstream.h>
-#include <functional>
-#include <QtGui/qdesktopservices.h>
-#include <QtCore/qurl.h>
 #include <QtCore/qregularexpression.h>
-#include <QtCore/qcoreapplication.h>
+#include <QtCore/qset.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qtextstream.h>
+#include <QtCore/qurl.h>
+#include <QtGui/qdesktopservices.h>
 #include "General/Log.h"
+#include "Utility/FileUtility.h"
 #define VI_ENUMSTR(enumName, enumValue) case enumName::enumValue: return #enumValue;
 
 namespace Visindigo::Utility {

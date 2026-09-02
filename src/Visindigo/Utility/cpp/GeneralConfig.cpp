@@ -1,6 +1,6 @@
+#include "General/Log.h"
 #include "Utility/GeneralConfig.h"
 #include "Utility/private/GeneralConfig_p.h"
-#include "General/Log.h"
 
 namespace Visindigo::__Private__ {
 	GeneralConfigPrivate::GeneralConfigPrivate(Visindigo::Utility::GeneralConfig* q) {

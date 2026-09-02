@@ -1,6 +1,6 @@
+#include "General/Log.h"
 #include "Widgets/private/VIWidgets_p.h"
 #include "Widgets/ThemeManager.h"
-#include "General/Log.h"
 namespace Visindigo::__Private__ {
 	VisindigoWidgets::VisindigoWidgets()
 		:General::Plugin() {}

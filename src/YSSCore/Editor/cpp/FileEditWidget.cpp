@@ -1,13 +1,13 @@
-#include <QtGui/qevent.h>
+#include <QtCore/qdir.h>
 #include <QtCore/qfileinfo.h>
+#include <QtGui/qevent.h>
+#include <QtWidgets/qmessagebox.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <Utility/FileUtility.h>
 #include "Editor/FileEditWidget.h"
 #include "Editor/VirtualFilePath.h"
-#include <General/Log.h>
 #include "General/YSSLogger.h"
-#include <Utility/FileUtility.h>
-#include <QtWidgets/qmessagebox.h>
-#include <General/TranslationHost.h>
-#include <QtCore/qdir.h>
 namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);

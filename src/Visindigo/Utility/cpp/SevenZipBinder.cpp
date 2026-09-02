@@ -1,8 +1,8 @@
-#include "Utility/SevenZipBinder.h"
 #include <QtCore/qprocess.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qstringlist.h>
 #include "General/Log.h"
+#include "Utility/SevenZipBinder.h"
 
 namespace Visindigo::Utility {
 	class SevenZipBinderPrivate {

@@ -1,23 +1,23 @@
+#include <chrono>
 #include <QtCore/qdir.h>
 #include <QtCore/qthread.h>
-#include <chrono>
-#include "General/VIApplication.h"
-#include "General/private/AUTO_VERSION.h"
-#include "General/private/VIApplication_p.h"
-#include "General/PluginManager.h"
-#include "General/TranslationHost.h"
-#include "General/Plugin.h"
-#include "General/Log.h"
-#include "Utility/Console.h"
 #include <QtGui/qfontdatabase.h>
 #include <QtGui/qpainter.h>
+#include "General/CommandHost.h"
+#include "General/Log.h"
+#include "General/Plugin.h"
+#include "General/PluginManager.h"
+#include "General/private/AUTO_VERSION.h"
+#include "General/private/Plugin_p.h"
+#include "General/private/VIApplication_p.h"
+#include "General/private/VIGeneral_p.h"
+#include "General/TranslationHost.h"
+#include "General/VIApplication.h"
+#include "Utility/Console.h"
+#include "Widgets/IconFontRouter.h"
+#include "Widgets/private/VIWidgets_p.h"
 #include "Widgets/Terminal.h"
 #include "Widgets/ThemeManager.h"
-#include "Widgets/private/VIWidgets_p.h"
-#include "General/private/VIGeneral_p.h"
-#include "General/private/Plugin_p.h"
-#include "General/CommandHost.h"
-#include "Widgets/IconFontRouter.h"
 namespace Visindigo::__Private__ {
 	void ApplicationLoadingMessageHandlerDefaultConsoleImpl::onLoadingMessage(const QString& message) {
 		vgNoticeF << "[Loading Message Handler] " << message;

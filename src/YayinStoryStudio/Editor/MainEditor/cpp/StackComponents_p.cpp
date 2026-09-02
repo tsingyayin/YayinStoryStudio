@@ -1,23 +1,23 @@
-#include "Editor/MainEditor/private/StackComponents_p.h"
-#include "Editor/MainEditor/FileEditWidgetArea.h"
-#include "Editor/MainEditor/TreeLayoutWidget.h"
 #include <QtCore/qfileinfo.h>
-#include <Editor/DocumentMessageManager.h>
-#include <General/TranslationHost.h>
-#include <Editor/SyntaxHighlighter.h>
-#include <General/Log.h>
+#include <QtCore/qmimedata.h>
+#include <QtGui/qcursor.h>
+#include <QtGui/qdrag.h>
+#include <QtGui/qpainter.h>
+#include <QtWidgets/qapplication.h>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qscrollbar.h>
-#include <Utility/FileUtility.h>
+#include <Editor/DocumentMessageManager.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
-#include <General/VIApplication.h>
-#include <QtGui/qpainter.h>
+#include <Editor/SyntaxHighlighter.h>
 #include <Editor/VirtualFilePath.h>
-#include <QtCore/qmimedata.h>
-#include <QtGui/qdrag.h>
-#include <QtGui/qcursor.h>
-#include <QtWidgets/qapplication.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <General/VIApplication.h>
+#include <Utility/FileUtility.h>
+#include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/private/StackComponents_p.h"
+#include "Editor/MainEditor/TreeLayoutWidget.h"
 namespace YSS::Editor {
 	const QString StackTag::stackTagDragMimeType = QString("application/x-yss-stacktag");
 

@@ -1,13 +1,13 @@
-#include "YSS/LS_AStoryXHoverInfoProvider.h"
-#include "AStorySyntax/AStoryXDocument.h"
-#include "YSS/LangServer_AStoryX.h"
-#include "AStorySyntax/AStoryXControllerParseData.h"
-#include <General/Log.h>
-#include <Widgets/ThemeManager.h>
-#include <Utility/ColorTool.h>
-#include "AStorySyntax/AStoryXValueMeta.h"
 #include <Editor/TextEdit.h>
+#include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <Utility/ColorTool.h>
+#include <Widgets/ThemeManager.h>
+#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "AStorySyntax/AStoryXDocument.h"
+#include "AStorySyntax/AStoryXValueMeta.h"
+#include "YSS/LangServer_AStoryX.h"
+#include "YSS/LS_AStoryXHoverInfoProvider.h"
 namespace ASERStudio::YSS {
 	class LS_AStoryXHoverInfoProviderPrivate {
 		friend class LS_AStoryXHoverInfoProvider;

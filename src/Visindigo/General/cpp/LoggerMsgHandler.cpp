@@ -1,8 +1,8 @@
-#include "General/LoggerMsgHandler.h"
-#include "General/LoggerManager.h"
 #include <QtCore/qobject.h>
-#include "Utility/Console.h"
 #include <QtGui/qregion.h>
+#include "General/LoggerManager.h"
+#include "General/LoggerMsgHandler.h"
+#include "Utility/Console.h"
 namespace Visindigo::General {
 	/*!
 		\class Visindigo::General::LoggerMsgHandler

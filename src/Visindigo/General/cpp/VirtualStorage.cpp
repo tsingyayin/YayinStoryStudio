@@ -1,11 +1,11 @@
-#include "General/VirtualStorage.h"
-#include <QtSql/qsqldatabase.h>
-#include <QtSql/qsqlquery.h>
-#include <QtSql/qsqlerror.h>
 #include <QtCore/qcryptographichash.h>
-#include <QtCore/qstringlist.h>
 #include <QtCore/qmap.h>
+#include <QtCore/qstringlist.h>
+#include <QtSql/qsqldatabase.h>
+#include <QtSql/qsqlerror.h>
+#include <QtSql/qsqlquery.h>
 #include "General/Log.h"
+#include "General/VirtualStorage.h"
 
 namespace Visindigo::Utility {
 

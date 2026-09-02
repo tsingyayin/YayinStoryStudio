@@ -1,20 +1,20 @@
-#include "General/YSSProject.h"
-#include <QtCore/qstring.h>
-#include <QtCore/qfile.h>
-#include <QtCore/qdir.h>
-#include <QtCore/qfileinfo.h>
-#include <QtCore/qdatetime.h>
 #include <algorithm>
 #include <functional>
-#include <General/Version.h>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qstring.h>
 #include <General/Log.h>
-#include <Utility/JsonConfig.h>
-#include <Utility/FileUtility.h>
-#include <General/VirtualStorage.h>
-#include "General/YSSLogger.h"
 #include <General/Plugin.h>
+#include <General/Version.h>
+#include <General/VirtualStorage.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
 #include "Editor/DebugServerManager.h"
 #include "Editor/VirtualFilePath.h"
+#include "General/YSSLogger.h"
+#include "General/YSSProject.h"
 namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;

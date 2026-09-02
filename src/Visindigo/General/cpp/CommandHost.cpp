@@ -1,5 +1,5 @@
-#include "General/CommandHost.h"
 #include "General/CommandHandler.h"
+#include "General/CommandHost.h"
 #include "General/Log.h"
 #include "General/VIApplication.h"
 #include "Utility/FileUtility.h"

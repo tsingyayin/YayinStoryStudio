@@ -1,10 +1,10 @@
-#include "YSS/LangServer_AStoryX.h"
-#include "YSS/LS_AStoryXSyntaxHighlighter.h"
-#include "YSS/LS_AStoryXTabCompleter.h"
-#include "YSS/LS_AStoryXHoverInfoProvider.h"
-#include <Widgets/ThemeManager.h>
 #include <Editor/ColorThemeProvider.h>
 #include <Utility/FileUtility.h>
+#include <Widgets/ThemeManager.h>
+#include "YSS/LangServer_AStoryX.h"
+#include "YSS/LS_AStoryXHoverInfoProvider.h"
+#include "YSS/LS_AStoryXSyntaxHighlighter.h"
+#include "YSS/LS_AStoryXTabCompleter.h"
 namespace ASERStudio::YSS {
 	class AStoryXLanguageServerPrivate {
 		friend class AStoryXLanguageServer;

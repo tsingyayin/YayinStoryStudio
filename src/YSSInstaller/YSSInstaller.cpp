@@ -1,13 +1,13 @@
-#include "YSSInstaller.h"
-#include <General/VIApplication.h>
 #include <General/Log.h>
+#include <General/TranslationHost.h>
 #include <General/Version.h>
-#include <Widgets/ConfigWidget.h>
+#include <General/VIApplication.h>
 #include <Utility/FileUtility.h>
-#include "Installer/TrayIcon.h"
+#include <Widgets/ConfigWidget.h>
 #include "Installer/InstallerServer.h"
-#include "General/TranslationHost.h"
 #include "Installer/LocalUpdateWizard.h"
+#include "Installer/TrayIcon.h"
+#include "YSSInstaller.h"
 YSSInstallerTranslator::YSSInstallerTranslator(Visindigo::General::Plugin* parent) :
 	Visindigo::General::Translator(parent, "YSSInstaller")
 {

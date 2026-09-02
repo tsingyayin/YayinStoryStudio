@@ -1,8 +1,8 @@
+#include "General/Log.h"
 #include "Widgets/MultiButton.h"
 #include "Widgets/MultiButtonGroup.h"
-#include "Widgets/private/MultiButtonGroup_p.h"
 #include "Widgets/private/MultiButton_p.h"
-#include "General/Log.h"
+#include "Widgets/private/MultiButtonGroup_p.h"
 namespace Visindigo::__Private__ {
 	MultiButtonGroupPrivate::MultiButtonGroupPrivate(Visindigo::Widgets::MultiButtonGroup* q)
 		: QObject(q), q(q) {}

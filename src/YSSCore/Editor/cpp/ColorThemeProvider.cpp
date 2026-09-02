@@ -1,7 +1,7 @@
-#include "Editor/ColorThemeProvider.h"
-#include "Editor/LangServer.h"
 #include <QtCore/qmap.h>
 #include <QtCore/qstringlist.h>
+#include "Editor/ColorThemeProvider.h"
+#include "Editor/LangServer.h"
 
 namespace YSSCore::Editor {
 	class ColorThemeProviderPrivate {

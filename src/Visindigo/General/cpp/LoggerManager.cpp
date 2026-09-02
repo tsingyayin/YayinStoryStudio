@@ -1,17 +1,17 @@
-#include "General/LoggerManager.h"
-#include "General/LoggerMsgHandler.h"
 #include <QtCore/qdatetime.h>
+#include <QtCore/qdir.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qmetaobject.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qtimer.h>
-#include <QtCore/qdir.h>
-#include "Utility/Console.h"
-#include "General/VIApplication.h"
-#include "General/Exception.h"
-#include <QtNetwork/qnetworkinterface.h>
-#include <QtNetwork/qnetworkaccessmanager.h>
 #include <QtNetwork/qhostaddress.h>
-#include <QtCore/qmetaobject.h>
+#include <QtNetwork/qnetworkaccessmanager.h>
+#include <QtNetwork/qnetworkinterface.h>
+#include "General/Exception.h"
+#include "General/LoggerManager.h"
+#include "General/LoggerMsgHandler.h"
+#include "General/VIApplication.h"
+#include "Utility/Console.h"
 namespace Visindigo::General {
 	class LoggerManagerPrivate {
 		friend LoggerManager;

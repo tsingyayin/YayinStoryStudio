@@ -1,9 +1,9 @@
-#include "Widgets/TitleWidget.h"
-#include "Widgets/private/TitleWidget_p.h"
-#include <QtGui/qpainter.h>
 #include <QtGui/qevent.h>
-#include "Utility/ColorTool.h"
+#include <QtGui/qpainter.h>
 #include "General/Log.h"
+#include "Utility/ColorTool.h"
+#include "Widgets/private/TitleWidget_p.h"
+#include "Widgets/TitleWidget.h"
 Visindigo::General::LoggerMsgHandler& operator<<(Visindigo::General::LoggerMsgHandler& handler, const QSize& pos) {
 	return handler << "QSize(" + QString::number(pos.width()) + ", " + QString::number(pos.height()) + ")";
 }

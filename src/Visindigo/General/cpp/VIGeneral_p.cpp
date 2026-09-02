@@ -1,10 +1,10 @@
-#include "General/private//VIGeneral_p.h"
-#include "General/Placeholder.h"
-#include "General/Log.h"
-#include "General/Version.h"
 #include <QtCore/qdir.h>
-#include "Utility/SevenZipBinder.h"
 #include "General/Exception.h"
+#include "General/Log.h"
+#include "General/Placeholder.h"
+#include "General/private//VIGeneral_p.h"
+#include "General/Version.h"
+#include "Utility/SevenZipBinder.h"
 
 namespace Visindigo::__Private__ {
 	class VisindigoCorePrivate {

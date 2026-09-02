@@ -1,5 +1,5 @@
-#include "Editor/YSSCommandHandler.h"
 #include <General/Log.h>
+#include "Editor/YSSCommandHandler.h"
 namespace YSS::Editor {
 	YSSCommandHandler::YSSCommandHandler(Visindigo::General::Plugin* parent)
 		: Visindigo::General::CommandHandler(parent, "yss") {

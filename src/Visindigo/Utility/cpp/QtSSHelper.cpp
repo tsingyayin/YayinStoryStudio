@@ -1,8 +1,8 @@
-#include "Utility/QtSSHelper.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qstringlist.h>
 #include "General/Log.h"
+#include "Utility/QtSSHelper.h"
 #ifndef QT_NO_DEBUG
 #define VI_VAR_SIGNAL(name) qFlagLocation(QString(QString::number(QSIGNAL_CODE)+name+QString(QLOCATION)).toUtf8().constData())
 #define VI_VAR_SLOT(name) qFlagLocation(QString(QString::number(QSLOT_CODE)+name+QString(QLOCATION)).toUtf8().constData())

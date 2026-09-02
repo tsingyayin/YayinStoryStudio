@@ -1,13 +1,13 @@
-#include "ASEREnv/ASERWarpper.h"
-#include "Plugin_ASERStudio.h"
+#include <QtCore/qtimer.h>
+#include <QtGui/qevent.h>
+#include <QtGui/qwindow.h>
+#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtGui/qevent.h>
-#include <General/TranslationHost.h>
-#include <QtGui/qwindow.h>
 #include <General/Log.h>
-#include <QtCore/qtimer.h>
+#include <General/TranslationHost.h>
+#include "ASEREnv/ASERWarpper.h"
+#include "Plugin_ASERStudio.h"
 namespace ASERStudio::ASEREnv {
 	class ASERWarpperPrivate {
 		friend class ASERWarpper;

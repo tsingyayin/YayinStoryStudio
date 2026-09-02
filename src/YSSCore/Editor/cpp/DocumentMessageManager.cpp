@@ -1,7 +1,7 @@
+#include <General/Log.h>
+#include "Editor/DocumentMessage.h"
 #include "Editor/DocumentMessageManager.h"
 #include "Editor/private/DocumentMessageManager_p.h"
-#include "Editor/DocumentMessage.h"
-#include <General/Log.h>
 namespace YSSCore::__Private__ {
 	YSSCore::Editor::DocumentMessageManager* DocumentMessageManagerPrivate::Instance = nullptr;
 

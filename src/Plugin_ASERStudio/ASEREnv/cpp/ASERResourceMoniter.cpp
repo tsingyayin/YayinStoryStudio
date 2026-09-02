@@ -1,12 +1,12 @@
-#include "ASEREnv/ASERResourceMoniter.h"
-#include <Utility/FileUtility.h>
-#include <QtCore/qmap.h>
-#include <QtCore/qfilesystemwatcher.h>
-#include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
-#include <General/Log.h>
-#include <Utility/JsonConfig.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qfilesystemwatcher.h>
+#include <QtCore/qmap.h>
 #include <QtCore/qset.h>
+#include <General/Log.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
+#include "ASEREnv/ASERResourceMoniter.h"
 namespace ASERStudio::ASEREnv {
 	class ASERResourceMoniterPrivate {
 		friend class ASERResourceMoniter;

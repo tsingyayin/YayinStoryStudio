@@ -1,20 +1,20 @@
-#include "Editor/private/TextEdit_p.h"
-#include "Editor/TextEdit.h"
-#include "Editor/DocumentMessage.h"
-#include "Editor/DocumentMessageManager.h"
-#include <QtWidgets/qcheckbox.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/qlineedit.h>
-#include <General/TranslationHost.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qmessagebox.h>
+#include <QtCore/qtimer.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qtextlayout.h>
 #include <QtGui/qtextobject.h>
+#include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qstyleoption.h>
-#include <QtCore/qtimer.h>
+#include <General/TranslationHost.h>
+#include "Editor/DocumentMessage.h"
+#include "Editor/DocumentMessageManager.h"
+#include "Editor/private/TextEdit_p.h"
+#include "Editor/TextEdit.h"
 
 namespace YSSCore::__Private__ {
 	TextEditFindAndReplace::TextEditFindAndReplace(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {

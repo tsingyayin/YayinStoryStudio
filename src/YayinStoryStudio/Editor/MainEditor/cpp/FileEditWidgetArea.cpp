@@ -1,19 +1,19 @@
-#include "Editor/MainEditor/FileEditWidgetArea.h"
-#include "Editor/MainEditor/private/StackComponents_p.h"
-#include "Editor/MainEditor/MainWin.h"
-#include <General/YSSProject.h>
-#include <Editor/TextEdit.h>
-#include <General/Log.h>
-#include <Editor/FileServerManager.h>
 #include <QtCore/qfileinfo.h>
-#include <General/TranslationHost.h>
-#include <Editor/VirtualFilePath.h>
-#include "Editor/MainEditor/TextEditConfigOperator.h"
 #include <QtCore/qmimedata.h>
 #include <QtGui/qdrag.h>
 #include <QtGui/qevent.h>
 #include <QtWidgets/qapplication.h>
+#include <Editor/FileServerManager.h>
+#include <Editor/TextEdit.h>
+#include <Editor/VirtualFilePath.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <General/YSSProject.h>
 #include <Utility/QtSSHelper.h>
+#include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/MainWin.h"
+#include "Editor/MainEditor/private/StackComponents_p.h"
+#include "Editor/MainEditor/TextEditConfigOperator.h"
 namespace YSS::Editor {
 	class AreaRegistry {
 	protected:

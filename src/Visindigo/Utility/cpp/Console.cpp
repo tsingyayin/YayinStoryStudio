@@ -1,9 +1,9 @@
-#include "Utility/Console.h"
-#include <QtCore/qstring.h>
-#include <QtGui/qcolor.h>
 #include <iostream>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qstring.h>
 #include <QtCore/qsystemdetection.h>
+#include <QtGui/qcolor.h>
+#include "Utility/Console.h"
 
 namespace Visindigo::Utility {
 	/*!

@@ -1,11 +1,11 @@
-#include "Editor/MainEditor/MultiTerminal.h"
-#include <Widgets/Terminal.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qpushbutton.h>
-#include "Editor/MainEditor/private/StackComponents_p.h"
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
+#include <Widgets/Terminal.h>
+#include "Editor/MainEditor/MultiTerminal.h"
+#include "Editor/MainEditor/private/StackComponents_p.h"
 namespace YSS::Editor {
 	class MultiTerminalPrivate {
 		friend class MultiTerminal;

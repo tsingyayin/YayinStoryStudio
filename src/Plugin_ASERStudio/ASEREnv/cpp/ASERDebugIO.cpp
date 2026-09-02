@@ -1,7 +1,7 @@
-#include "ASEREnv/ASERDebugIO.h"
-#include "ASEREnv/private/ASERDebugIO_p.h"
-#include "ASEREnv/ASERProgram.h"
 #include <QtCore/qmetaobject.h>
+#include "ASEREnv/ASERDebugIO.h"
+#include "ASEREnv/ASERProgram.h"
+#include "ASEREnv/private/ASERDebugIO_p.h"
 namespace ASERStudio::ASEREnv {
 	void  ASERDebugIOPrivate::handleNamedPipeReadable(const QString& context) {
 		if (context.startsWith("OfficialBundleManagerInitialization:")) {

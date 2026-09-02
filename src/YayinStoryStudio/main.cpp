@@ -1,14 +1,14 @@
 #include <QtWidgets/QApplication>
-#include "Editor/TitlePage/TitlePage.h"
-#include "YayinStoryStudio.h"
-#include <General/Log.h>
-#include <General/Version.h>
-#include <Utility/FileUtility.h>
 #include <QtWidgets/qmessagebox.h>
+#include <General/Log.h>
+#include <General/LoggerMsgHandler.h>
+#include <General/Version.h>
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
-#include <General/LoggerMsgHandler.h>
+#include <Utility/FileUtility.h>
 #include "Editor/MainEditor/MainEditorBuiltinPlugin.h"
+#include "Editor/TitlePage/TitlePage.h"
+#include "YayinStoryStudio.h"
 int main(int argc, char* argv[])
 {
 	VISetEnv(Visindigo::General::VIApplication::MinimumLoadingTimeMS, 1500);

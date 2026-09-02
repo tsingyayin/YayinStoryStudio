@@ -1,21 +1,21 @@
-#include "YSS/ASERFileServer.h"
-#include "YSS/private/ASERFileServer_p.h"
-#include <General/YSSProject.h>
+#include <QtGui/qfont.h>
+#include <QtGui/qpainter.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlayout.h>
-#include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qlistwidget.h>
-#include <QtGui/qfont.h>
-#include <Utility/JsonConfig.h>
-#include <Utility/FileUtility.h>
+#include <QtWidgets/qscrollarea.h>
+#include <QtWidgets/qstyleoption.h>
 #include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <General/YSSProject.h>
+#include <Utility/ColorTool.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
+#include <Widgets/BorderFrame.h>
 #include "AStorySyntax/AStoryXRule.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
-#include <Widgets/BorderFrame.h>
-#include <General/TranslationHost.h>
-#include <Utility/ColorTool.h>
-#include <QtWidgets/qstyleoption.h>
-#include <QtGui/qpainter.h>
+#include "YSS/ASERFileServer.h"
+#include "YSS/private/ASERFileServer_p.h"
 namespace ASERStudio::YSS {
 	FileServer_AStoryX::FileServer_AStoryX(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::FileServer("AStory Script File Server", "ASERStudio.FileServer.AStoryX", plugin) {

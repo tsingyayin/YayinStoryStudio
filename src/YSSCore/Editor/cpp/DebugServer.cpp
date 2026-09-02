@@ -1,6 +1,6 @@
+#include <QtCore//qmetaobject.h>
 #include "Editor/DebugServer.h"
 #include "Editor/EditorPlugin.h"
-#include <QtCore//qmetaobject.h>
 namespace YSSCore::Editor {
 	class DebugServerPrivate {
 		friend class DebugServer;

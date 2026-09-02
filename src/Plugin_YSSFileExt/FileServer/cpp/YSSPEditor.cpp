@@ -1,17 +1,17 @@
-#include "FileServer/YSSPEditor.h"
 #include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qframe.h>
-#include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qframe.h>
+#include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
-#include <Editor/DebugServerManager.h>
-#include <Utility/JsonConfig.h>
-#include <Utility/FileUtility.h>
-#include <General/YSSProject.h>
-#include <General/TranslationHost.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qtextedit.h>
+#include <Editor/DebugServerManager.h>
+#include <General/TranslationHost.h>
+#include <General/YSSProject.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
+#include "FileServer/YSSPEditor.h"
 namespace YSSFileExt {
 	class YSSPEditorPrivate {
 		friend class YSSPEditor;

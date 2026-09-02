@@ -1,20 +1,20 @@
-#include "Editor/MainEditor/TreeLayoutWidget.h"
-#include <QtWidgets/qsplitter.h>
-#include <QtWidgets/qapplication.h>
-#include <QtCore/qmimedata.h>
-#include <QtCore/qtimer.h>
-#include <QtCore/qpair.h>
-#include <QtCore/qset.h>
 #include <QtCore/qmap.h>
-#include <QtCore/qrect.h>
+#include <QtCore/qmimedata.h>
+#include <QtCore/qpair.h>
 #include <QtCore/qpoint.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qset.h>
+#include <QtCore/qtimer.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qpolygon.h>
 #include <QtGui/qscreen.h>
+#include <QtWidgets/qapplication.h>
+#include <QtWidgets/qsplitter.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/private/TreeLayoutWidget_p.h"
+#include "Editor/MainEditor/TreeLayoutWidget.h"
 namespace YSS::Editor {
 	struct TreeLayoutChild {
 		QWidget* widget = nullptr;

@@ -1,9 +1,9 @@
-#include "Editor/MainEditor/SimpleFileDialog.h"
-#include <QtCore/qfileinfo.h>
-#include <General/TranslationHost.h>
-#include <QtCore/qregularexpression.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qregularexpression.h>
 #include <QtWidgets/qmessagebox.h>
+#include <General/TranslationHost.h>
+#include "Editor/MainEditor/SimpleFileDialog.h"
 namespace YSS::Editor {
 	RenameDialog::RenameDialog() :QFrame() {
 		this->setWindowFlags(Qt::Dialog);

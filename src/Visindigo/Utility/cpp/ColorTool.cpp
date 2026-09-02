@@ -1,5 +1,5 @@
-#include "Utility/ColorTool.h"
 #include <QtCore/qstring.h>
+#include "Utility/ColorTool.h"
 namespace Visindigo::Utility {
 	/*!
 		\class Visindigo::Utility::ColorTool

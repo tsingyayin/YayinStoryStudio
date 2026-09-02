@@ -1,10 +1,10 @@
-#include "AStorySyntax/AStoryXDocument.h"
-#include "AStorySyntax/AStoryXControllerParseData.h"
-#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 #include <QtCore/qtimer.h>
 #include <QtGui/qtextdocument.h>
-#include <General/TranslationHost.h>
 #include <General/Log.h>
+#include <General/TranslationHost.h>
+#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "AStorySyntax/AStoryXDocument.h"
+#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 
 namespace ASERStudio::AStorySyntax {
 	class AStoryXDocumentPrivate {

@@ -1,16 +1,15 @@
-#include "YSS/LS_AStoryXSyntaxHighlighter.h"
-#include "AStorySyntax/AStoryXDocument.h"
-#include "YSS/LangServer_AStoryX.h"
-#include "AStorySyntax/AStoryXControllerParseData.h"
-#include <General/Log.h>
-#include <Widgets/ThemeManager.h>
-#include <Utility/ColorTool.h>
-#include "AStorySyntax/AStoryXValueMeta.h"
-#include <Widgets/ThemeManager.h>
-#include <Editor/ColorThemeProvider.h>
-#include <QtGui/qfont.h>
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qset.h>
+#include <QtGui/qfont.h>
+#include <Editor/ColorThemeProvider.h>
+#include <General/Log.h>
+#include <Utility/ColorTool.h>
+#include <Widgets/ThemeManager.h>
+#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "AStorySyntax/AStoryXDocument.h"
+#include "AStorySyntax/AStoryXValueMeta.h"
+#include "YSS/LangServer_AStoryX.h"
+#include "YSS/LS_AStoryXSyntaxHighlighter.h"
 namespace ASERStudio::YSS {
 	static bool isControllerStyleKey(const QString& key) {
 		static QSet<QString> controllerNames;

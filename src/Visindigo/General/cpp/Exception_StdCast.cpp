@@ -1,12 +1,12 @@
-#include "General/Exception.h"
-#include <stdexcept>
+#include <any>
+#include <chrono>
+#include <expected>
+#include <filesystem>
 #include <future>
 #include <regex>
-#include <any>
-#include <expected>
-#include <chrono>
-#include <filesystem>
+#include <stdexcept>
 #include <QtCore/qmetaobject.h>
+#include "General/Exception.h"
 #define isTypeOf(exceptionType) dynamic_cast<const exceptionType*>(&e) != nullptr
 namespace Visindigo::General {
 	/*!

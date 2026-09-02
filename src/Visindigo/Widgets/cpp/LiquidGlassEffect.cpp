@@ -1,10 +1,10 @@
-#include "Widgets/LiquidGlassEffect.h"
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qlabel.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpainterpath.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qwidget.h>
 #include "General/Log.h"
+#include "Widgets/LiquidGlassEffect.h"
 namespace Visindigo::Widgets {
 	class LiquidGlassEffectPrivate {
 		friend class LiquidGlassEffect;

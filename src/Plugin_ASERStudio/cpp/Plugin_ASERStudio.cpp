@@ -1,22 +1,22 @@
-#include "Plugin_ASERStudio.h"
-#include "YSS/ASERProjectTemplate.h"
-#include "YSS/ASERFIleServer.h"
-#include "YSS/ASERFileTemplate.h"
-#include "YSS/LangServer_AStoryX.h"
-#include "YSS/DS_AStoryXDebugger.h"
-#include <Utility/FileUtility.h>
-#include <General/Log.h>
-#include <QtCore/qfileinfo.h>
-#include <Widgets/ThemeManager.h>
-#include <Widgets/ConfigWidget.h>
 #include <QtCore/qdir.h>
-#include "ASEREnv/ASERProgram.h"
+#include <QtCore/qfileinfo.h>
+#include <QtWidgets/qmessagebox.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <Utility/FileUtility.h>
+#include <Utility/StringUtility.h>
+#include <Widgets/ConfigWidget.h>
+#include <Widgets/ThemeManager.h>
 #include "ASEREnv/ASERDebugIO.h"
+#include "ASEREnv/ASERProgram.h"
 #include "ASEREnv/ASERResourceMoniter.h"
 #include "ASEREnv/ASERWarpper.h"
-#include <QtWidgets/qmessagebox.h>
-#include <General/TranslationHost.h>
-#include "Utility/StringUtility.h"
+#include "Plugin_ASERStudio.h"
+#include "YSS/ASERFIleServer.h"
+#include "YSS/ASERFileTemplate.h"
+#include "YSS/ASERProjectTemplate.h"
+#include "YSS/DS_AStoryXDebugger.h"
+#include "YSS/LangServer_AStoryX.h"
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "ASERStudio")

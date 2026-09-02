@@ -1,7 +1,7 @@
 #include <chrono>
 #include <QtGui/qfontdatabase.h>
-#include <QtWidgets/qgraphicseffect.h>
 #include <QtWidgets/qapplication.h>
+#include <QtWidgets/qgraphicseffect.h>
 #include "Editor/TitlePage/TitlePage.h"
 
 namespace YSS::TitlePage {

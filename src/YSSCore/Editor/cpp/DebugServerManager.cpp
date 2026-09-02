@@ -1,7 +1,7 @@
-#include "Editor/DebugServerManager.h"
-#include "Editor/DebugServer.h"
-#include <QtCore/qstring.h>
 #include <QtCore/qmap.h>
+#include <QtCore/qstring.h>
+#include "Editor/DebugServer.h"
+#include "Editor/DebugServerManager.h"
 namespace YSSCore::Editor {
 	class DebugServerManagerPrivate {
 		friend class DebugServerManager;

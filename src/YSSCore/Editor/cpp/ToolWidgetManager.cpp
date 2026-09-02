@@ -1,9 +1,9 @@
-#include "Editor/ToolWidgetManager.h"
-#include "Editor/EditorPlugin.h"
 #include <QtCore/qmap.h>
 #include <QtWidgets/qwidget.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include "Editor/EditorPlugin.h"
+#include "Editor/ToolWidgetManager.h"
 namespace YSSCore::Editor {
 	class ToolWidgetManagerPrivate {
 		friend class ToolWidgetManager;

@@ -1,5 +1,5 @@
-#include "Utility/JsonValueRef.h"
 #include "Utility/JsonConfig.h"
+#include "Utility/JsonValueRef.h"
 
 namespace Visindigo::Utility {
 	class VIJsonValueRefPrivate {

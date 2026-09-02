@@ -1,9 +1,9 @@
-#include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
+#include <QtCore/qstring.h>
 #include <General/Log.h>
-#include "Editor/LangServerManager.h"
 #include "Editor/LangServer.h"
+#include "Editor/LangServerManager.h"
 #include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	class LangServerManagerPrivate {

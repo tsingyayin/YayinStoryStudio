@@ -1,7 +1,7 @@
 #include <QtCore/qmap.h>
 #include <General/Log.h>
-#include "Editor/ProjectTemplateProvider.h"
 #include "Editor/ProjectTemplateManager.h"
+#include "Editor/ProjectTemplateProvider.h"
 #include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	class ProjectTemplateManagerPrivate {

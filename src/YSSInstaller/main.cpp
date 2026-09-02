@@ -1,8 +1,8 @@
-#include "YSSInstaller.h"
-#include "Installer/InstallerServer.h"
-#include <General/VIApplication.h>
 #include <General/Log.h>
 #include <General/Version.h>
+#include <General/VIApplication.h>
+#include "Installer/InstallerServer.h"
+#include "YSSInstaller.h"
 
 int main(int argc, char* argv[])
 {

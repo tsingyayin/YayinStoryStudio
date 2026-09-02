@@ -1,6 +1,6 @@
-#include "Editor/FileTemplateProvider.h"
 #include <General/Plugin.h>
 #include "Editor/EditorPlugin.h"
+#include "Editor/FileTemplateProvider.h"
 namespace YSSCore::Editor {
 	class FileTemplateInitWidgetPrivate
 	{

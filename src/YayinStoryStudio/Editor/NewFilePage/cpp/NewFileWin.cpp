@@ -1,20 +1,19 @@
-#include "Editor/NewFilePage/NewFileWin.h"
+#include <QtCore/qlist.h>
+#include <QtGui/qicon.h>
+#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qscrollarea.h>
-#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
-
-#include <Widgets/ThemeManager.h>
-#include <Widgets/BorderLabel.h>
-#include <General/TranslationHost.h>
 #include <Editor/FileTemplateManager.h>
 #include <Editor/FileTemplateProvider.h>
-#include <Widgets/MultiButton.h>
-#include <QtCore/qlist.h>
-#include <QtGui/qicon.h>
 #include <General/Log.h>
+#include <General/TranslationHost.h>
 #include <General/YSSLogger.h>
+#include <Widgets/BorderLabel.h>
+#include <Widgets/MultiButton.h>
+#include <Widgets/ThemeManager.h>
+#include "Editor/NewFilePage/NewFileWin.h"
 
 namespace YSS::NewFilePage {
 	NewFileWin::NewFileWin(const QString& initPath) :QWidget() {

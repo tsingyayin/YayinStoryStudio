@@ -1,14 +1,14 @@
-#include "YSS/ASERFileTemplate.h"
-#include <QtWidgets/qboxlayout.h>
-#include <General/TranslationHost.h>
-#include <Widgets/ConfigWidget.h>
-#include <Utility/FileUtility.h>
-#include <QtWidgets/qpushbutton.h>
-#include <Utility/JsonConfig.h>
-#include <QtWidgets/qlabel.h>
-#include <General/YSSProject.h>
-#include <QtWidgets/qmessagebox.h>
 #include <QtCore/qfile.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
+#include <General/TranslationHost.h>
+#include <General/YSSProject.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
+#include <Widgets/ConfigWidget.h>
+#include "YSS/ASERFileTemplate.h"
 
 namespace ASERStudio::YSS {
 	class FileTemplateInitWidget_AStoryXPrivate {

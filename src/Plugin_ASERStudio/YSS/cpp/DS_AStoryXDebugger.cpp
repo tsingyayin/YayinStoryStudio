@@ -1,14 +1,14 @@
-#include "YSS/DS_AStoryXDebugger.h"
+#include <QtGui/qwindow.h>
+#include <QtWidgets/qmessagebox.h>
 #include <General/Log.h>
-#include "Plugin_ASERStudio.h"
+#include <General/TranslationHost.h>
+#include <General/YSSProject.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
 #include "ASEREnv/ASERDebugIO.h"
 #include "ASEREnv/ASERProgram.h"
-#include <General/YSSProject.h>
-#include <Utility/JsonConfig.h>
-#include <Utility/FileUtility.h>
-#include <QtWidgets/qmessagebox.h>
-#include <General/TranslationHost.h>
-#include <QtGui/qwindow.h>
+#include "Plugin_ASERStudio.h"
+#include "YSS/DS_AStoryXDebugger.h"
 namespace ASERStudio::YSS {
 	class DS_AStoryXDebuggerPrivate {
 		friend class DS_AStoryXDebugger;

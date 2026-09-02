@@ -1,7 +1,7 @@
-#include "Editor/SimpleWidget/EAWarningWidget.h"
+#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qboxlayout.h>
+#include "Editor/SimpleWidget/EAWarningWidget.h"
 
 namespace YSS::SimpleWidget {
 	EAWarningWidget::EAWarningWidget() :QWidget() {

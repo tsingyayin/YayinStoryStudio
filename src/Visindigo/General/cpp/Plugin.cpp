@@ -1,19 +1,18 @@
-#include <QtCore/qstring.h>
 #include <QtCore/qdir.h>
-#include "General/TranslationHost.h"
-#include "General/private/Plugin_p.h"
+#include <QtCore/qstring.h>
+#include "General/CommandHandler.h"
+#include "General/CommandHost.h"
+#include "General/Log.h"
+#include "General/Logger.h"
+#include "General/Placeholder.h"
 #include "General/Plugin.h"
 #include "General/PluginManager.h"
 #include "General/PluginModule.h"
-#include "General/Version.h"
-#include "General/Logger.h"
-#include "Widgets/ThemeManager.h"
-#include "Utility/FileUtility.h"
-#include "General/Placeholder.h"
-#include "General/CommandHost.h"
-#include "General/CommandHandler.h"
+#include "General/private/Plugin_p.h"
 #include "General/TranslationHost.h"
-#include "General/Log.h"
+#include "General/Version.h"
+#include "Utility/FileUtility.h"
+#include "Widgets/ThemeManager.h"
 
 namespace Visindigo::__Private__ {
 	void PluginPrivate::initializePluginFolder(const QDir& baseDir) {

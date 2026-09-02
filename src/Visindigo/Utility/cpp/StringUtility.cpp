@@ -1,6 +1,6 @@
-#include "Utility/StringUtility.h"
 #include <QtCore/qlist.h>
 #include <QtCore/qset>
+#include "Utility/StringUtility.h"
 
 namespace Visindigo::Utility {
 	/*!

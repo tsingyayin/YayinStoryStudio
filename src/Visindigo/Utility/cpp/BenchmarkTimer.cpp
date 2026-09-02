@@ -1,6 +1,6 @@
-#include "Utility/BenchmarkTimer.h"
-#include "General/Log.h"
 #include <chrono>
+#include "General/Log.h"
+#include "Utility/BenchmarkTimer.h"
 namespace Visindigo::Utility {
 	class BenchmarkTimerPrivate {
 		friend BenchmarkTimer;

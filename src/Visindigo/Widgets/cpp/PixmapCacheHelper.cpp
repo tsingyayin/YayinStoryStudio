@@ -1,12 +1,12 @@
-#include "Widgets/PixmapCacheHelper.h"
-#include <QtCore/qmap.h>
-#include <QtCore/qrect.h>
 #include <QtCore/qdatetime.h>
-#include <QtGui/qpixmap.h>
+#include <QtCore/qmap.h>
 #include <QtCore/qqueue.h>
+#include <QtCore/qrect.h>
 #include <QtGui/qpainter.h>
-#include "Utility/JsonConfig.h"
+#include <QtGui/qpixmap.h>
 #include "Utility/FileUtility.h"
+#include "Utility/JsonConfig.h"
+#include "Widgets/PixmapCacheHelper.h"
 namespace Visindigo::Widgets {
 	struct PixmapTileData {
 		QPixmap Pixmap;

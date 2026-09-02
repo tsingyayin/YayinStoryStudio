@@ -1,8 +1,8 @@
-#include "AStorySyntax/AStoryXPreprocessor.h"
-#include "AStorySyntax/AStoryXDiagnosticData.h"
-#include "AStorySyntax/AStoryXControllerParseData.h"
-#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 #include <QtCore/qstringlist.h>
+#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "AStorySyntax/AStoryXDiagnosticData.h"
+#include "AStorySyntax/AStoryXPreprocessor.h"
+#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 namespace ASERStudio::AStorySyntax {
 	class AStoryXPreprocessorPrivate {
 		friend class AStoryXPreprocessor;

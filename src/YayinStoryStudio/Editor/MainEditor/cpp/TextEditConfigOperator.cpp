@@ -1,9 +1,9 @@
+#include <QtCore/qmetaobject.h>
+#include <QtWidgets/qapplication.h>
+#include <Editor/FileServerManager.h>
+#include <General/Log.h>
 #include "Editor/MainEditor/TextEditConfigOperator.h"
 #include "YayinStoryStudio.h"
-#include <Editor/FileServerManager.h>
-#include <QtWidgets/qapplication.h>
-#include <QtCore/qmetaobject.h>
-#include <General/Log.h>
 
 namespace YSS::Editor {
 	qint32 TextEditConfigOperator::getTabWidth() {

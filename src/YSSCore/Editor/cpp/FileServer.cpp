@@ -1,7 +1,7 @@
 #include <QtWidgets/qwidget.h>
-#include "Editor/FileServer.h"
 #include <General/Plugin.h>
 #include "Editor/EditorPlugin.h"
+#include "Editor/FileServer.h"
 namespace YSSCore::Editor {
 	class FileServerPrivate {
 		friend class FileServer;

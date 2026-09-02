@@ -1,20 +1,19 @@
-#include "Editor/NewProjectPage/NewProjectWin.h"
+#include <QtCore/qlist.h>
+#include <QtGui/qicon.h>
+#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qscrollarea.h>
-#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qscrollbar.h>
-
-#include <Widgets/ThemeManager.h>
-#include <Widgets/BorderLabel.h>
-#include <General/TranslationHost.h>
 #include <Editor/ProjectTemplateManager.h>
 #include <Editor/ProjectTemplateProvider.h>
-#include <Widgets/MultiButton.h>
-#include <QtCore/qlist.h>
-#include <QtGui/qicon.h>
 #include <General/Log.h>
+#include <General/TranslationHost.h>
 #include <General/YSSLogger.h>
+#include <Widgets/BorderLabel.h>
+#include <Widgets/MultiButton.h>
+#include <Widgets/ThemeManager.h>
+#include "Editor/NewProjectPage/NewProjectWin.h"
 
 namespace YSS::NewProjectPage {
 	NewProjectWin::NewProjectWin() :QWidget() {

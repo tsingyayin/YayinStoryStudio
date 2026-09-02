@@ -1,20 +1,20 @@
-#include "YSS/ASERProjectTemplate.h"
-#include <QtWidgets/qboxlayout.h>
-#include <General/TranslationHost.h>
-#include <Widgets/ConfigWidget.h>
-#include <Utility/FileUtility.h>
-#include <QtWidgets/qpushbutton.h>
-#include <Utility/JsonConfig.h>
-#include <QtWidgets/qlabel.h>
-#include <General/YSSProject.h>
-#include <QtWidgets/qmessagebox.h>
-#include <Editor/EditorPlugin.h>
-#include <QtCore/qfile.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qfile.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qresource.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
+#include <Editor/EditorPlugin.h>
 #include <General/Log.h>
 #include <General/PluginManager.h>
+#include <General/TranslationHost.h>
+#include <General/YSSProject.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
+#include <Widgets/ConfigWidget.h>
+#include "YSS/ASERProjectTemplate.h"
 #include "YSS/DS_AStoryXDebugger.h"
 namespace ASERStudio::YSS {
 	static const QString ASERStudioPluginID = QStringLiteral("cn.yxgeneral.aserstudio");

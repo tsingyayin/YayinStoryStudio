@@ -1,7 +1,7 @@
-#include "Widgets/WidgetResizeTool.h"
-#include <QtGui/qevent.h>
 #include <QtCore/qtimer.h>
+#include <QtGui/qevent.h>
 #include "General/Log.h"
+#include "Widgets/WidgetResizeTool.h"
 namespace Visindigo::Widgets {
 	class WidgetResizeToolPrivate :public QObject {
 		friend class Visindigo::Widgets::WidgetResizeTool;

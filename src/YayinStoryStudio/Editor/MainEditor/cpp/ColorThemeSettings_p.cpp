@@ -1,5 +1,5 @@
-#include "Editor/MainEditor/private/ColorThemeSettings_p.h"
 #include <General/TranslationHost.h>
+#include "Editor/MainEditor/private/ColorThemeSettings_p.h"
 namespace YSS::Editor {
 	ColorThemeSettingsCopyDialog::ColorThemeSettingsCopyDialog(QWidget* parent) :QWidget(parent) {
 		this->setWindowFlags(Qt::Dialog);

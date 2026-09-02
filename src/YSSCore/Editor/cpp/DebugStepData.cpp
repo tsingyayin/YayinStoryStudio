@@ -1,5 +1,5 @@
-#include "Editor/DebugStepData.h"
 #include <QtCore/qstring.h>
+#include "Editor/DebugStepData.h"
 
 namespace YSSCore::Editor {
 	class DebugStepDataPrivate {

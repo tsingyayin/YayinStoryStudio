@@ -1,15 +1,15 @@
-#include <QtCore/qstring.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qstring.h>
+#include <QtWidgets/qmessagebox.h>
+#include <General/Exception.h>
 #include <General/Log.h>
-#include "Editor/FileServerManager.h"
+#include <General/TranslationHost.h>
+#include <Utility/FileUtility.h>
 #include "Editor/FileServer.h"
+#include "Editor/FileServerManager.h"
 #include "Editor/TextEdit.h"
 #include "Editor/VirtualFilePath.h"
 #include "General/YSSLogger.h"
-#include <QtWidgets/qmessagebox.h>
-#include <General/TranslationHost.h>
-#include <Utility/FileUtility.h>
-#include <General/Exception.h>
 namespace YSSCore::Editor {
 	class FileServerManagerPrivate {
 		friend class FileServerManager;

@@ -1,27 +1,27 @@
-#include "Installer/LocalUpdateWizard.h"
-#include "Installer/VersionManager.h"
-#include "General/TranslationHost.h"
-#include "General/Version.h"
-#include "General/Log.h"
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qcheckbox.h>
-#include <QtWidgets/qradiobutton.h>
-#include <QtWidgets/qlistwidget.h>
-#include <QtWidgets/qtablewidget.h>
-#include <QtWidgets/qstackedwidget.h>
-#include <QtWidgets/qheaderview.h>
-#include <QtWidgets/qabstractitemview.h>
-#include <QtWidgets/qlayout.h>
-#include <QtGui/qpainter.h>
-#include <QtGui/qevent.h>
 #include <QtCore/qalgorithms.h>
-#include <QtCore/qstring.h>
-#include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qevent.h>
+#include <QtGui/qpainter.h>
+#include <QtWidgets/qabstractitemview.h>
+#include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qheaderview.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlayout.h>
+#include <QtWidgets/qlistwidget.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qradiobutton.h>
+#include <QtWidgets/qstackedwidget.h>
+#include <QtWidgets/qtablewidget.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <General/Version.h>
+#include <Utility/Console.h>
 #include <Utility/FileUtility.h>
 #include "Installer/InstallerServer.h"
-#include <Utility/Console.h>
+#include "Installer/LocalUpdateWizard.h"
+#include "Installer/VersionManager.h"
 namespace YSS::Installer {
 	class StepIndicator :public QWidget {
 	public:

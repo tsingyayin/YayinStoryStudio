@@ -1,5 +1,5 @@
-#include "Utility/CodeDiff.h"
 #include <QtCore/qstringlist.h>
+#include "Utility/CodeDiff.h"
 #include "Utility/Console.h"
 
 namespace Visindigo::Utility {

@@ -1,16 +1,11 @@
-#include "YSS/ImageViewer.h"
-
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QVBoxLayout>
-#include <QWheelEvent>
-#include <QMouseEvent>
-#include <QResizeEvent>
-#include <QShowEvent>
+#include <QtGui/qevent.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qgraphicsitem.h>
+#include <QtWidgets/qgraphicsscene.h>
+#include <QtWidgets/qgraphicsview.h>
 #include <QtMath>
-
 #include <Utility/FileUtility.h>
+#include "YSS/ImageViewer.h"
 
 namespace YSS::ImageViewer {
 	class ImageViewerPrivate {

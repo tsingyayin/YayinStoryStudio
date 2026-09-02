@@ -1,6 +1,6 @@
-#include "Editor/VirtualFilePath.h"
-#include <QtCore/qregularexpression.h>
 #include <QtCore/qjsondocument.h>
+#include <QtCore/qregularexpression.h>
+#include "Editor/VirtualFilePath.h"
 
 namespace YSSCore::Editor {
 	class VirtualFilePathPrivate {

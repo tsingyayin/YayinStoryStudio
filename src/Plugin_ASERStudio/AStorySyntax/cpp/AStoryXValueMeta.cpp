@@ -1,6 +1,6 @@
-#include "AStorySyntax/AStoryXValueMeta.h"
-#include "AStorySyntax/AStoryXDiagnosticData.h"
 #include <QtCore/qregularexpression.h>
+#include "AStorySyntax/AStoryXDiagnosticData.h"
+#include "AStorySyntax/AStoryXValueMeta.h"
 namespace ASERStudio::AStorySyntax {
 	class AStoryXValueMetaPrivate {
 		friend class AStoryXValueMeta;

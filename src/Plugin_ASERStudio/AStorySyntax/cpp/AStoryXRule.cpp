@@ -1,13 +1,13 @@
-#include "AStorySyntax/AStoryXRule.h"
-#include "AStorySyntax/AStoryXValueMeta.h"
-#include "AStorySyntax/AStoryXPreprocessor.h"
-#include "AStorySyntax/AStoryXController.h"
-#include "AStorySyntax/AStoryXControllerParseData.h"
-#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
-#include <Utility/JsonConfig.h>
-#include <Utility/FileUtility.h>
 #include <QtCore/qjsondocument.h>
 #include <General/Log.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
+#include "AStorySyntax/AStoryXController.h"
+#include "AStorySyntax/AStoryXControllerParseData.h"
+#include "AStorySyntax/AStoryXPreprocessor.h"
+#include "AStorySyntax/AStoryXRule.h"
+#include "AStorySyntax/AStoryXValueMeta.h"
+#include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 namespace ASERStudio::AStorySyntax {
 	class AStoryXRulePrivate {
 		friend class AStoryXRule;

@@ -1,13 +1,13 @@
-#include "Installer/InstallerServer.h"
-#include "Installer/InstallerClientData.h"
 #include <QtCore/qmap.h>
-#include <General/Log.h>
-#include <Utility/JsonConfig.h>
 #include <QtCore/qset.h>
 #include <QtWidgets/qapplication.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <Utility/JsonConfig.h>
+#include "Installer/InstallerClientData.h"
+#include "Installer/InstallerServer.h"
 #include "Installer/TrayIcon.h"
 #include "Installer/VersionManager.h"
-#include <General/TranslationHost.h>
 
 namespace YSS::Installer {
 	struct InstallerClientSocket {

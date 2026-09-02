@@ -1,13 +1,13 @@
-#include "Plugin_YSSFileExt.h"
-#include "LangServer/JsonLangServer.h"
-#include "LangServer/YamlLangServer.h"
-#include "LangServer/XmlLangServer.h"
-#include "LangServer/TomlLangServer.h"
-#include "LangServer/IniLangServer.h"
+#include <General/TranslationHost.h>
 #include "FileServer/DefaultTextEdit.h"
 #include "FileServer/YSSPEditor.h"
 #include "FileTemplate/SimpleFileTemplate.h"
-#include <General/TranslationHost.h>
+#include "LangServer/IniLangServer.h"
+#include "LangServer/JsonLangServer.h"
+#include "LangServer/TomlLangServer.h"
+#include "LangServer/XmlLangServer.h"
+#include "LangServer/YamlLangServer.h"
+#include "Plugin_YSSFileExt.h"
 namespace YSSFileExt {
 	YSSFileExtTranslator::YSSFileExtTranslator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "YSSFileExt")

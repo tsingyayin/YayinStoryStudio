@@ -1,7 +1,7 @@
-#include "Widgets/DesktopHacker.h"
+#include <QtGui/qguiapplication.h>
 #include <QtGui/qwindow.h>
 #include <QtWidgets/qwidget.h>
-#include <QtGui/qguiapplication.h>
+#include "Widgets/DesktopHacker.h"
 #ifdef Q_OS_WIN
 #include <Windows.h>
 #endif

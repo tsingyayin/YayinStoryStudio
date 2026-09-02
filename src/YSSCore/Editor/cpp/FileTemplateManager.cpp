@@ -1,7 +1,7 @@
 #include <QtCore/qmap.h>
 #include <General/Log.h>
-#include "Editor/FileTemplateProvider.h"
 #include "Editor/FileTemplateManager.h"
+#include "Editor/FileTemplateProvider.h"
 #include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	class FileTemplateManagerPrivate {

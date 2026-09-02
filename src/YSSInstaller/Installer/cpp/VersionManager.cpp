@@ -1,13 +1,13 @@
-#include "Installer/VersionManager.h"
-#include <General/VIApplication.h>
-#include <Utility/JsonConfig.h>
-#include <Utility/FileUtility.h>
-#include <General/Plugin.h>
-#include "Installer/LocalUpdateWizard.h"
-#include "Installer/InstallerServer.h"
-#include <QtCore/qfileinfo.h>
 #include <QtCore/qdatetime.h>
+#include <QtCore/qfileinfo.h>
 #include <General/Log.h>
+#include <General/Plugin.h>
+#include <General/VIApplication.h>
+#include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
+#include "Installer/InstallerServer.h"
+#include "Installer/LocalUpdateWizard.h"
+#include "Installer/VersionManager.h"
 namespace YSS::Installer {
 	class VersionManagerPrivate {
 		friend class VersionManager;

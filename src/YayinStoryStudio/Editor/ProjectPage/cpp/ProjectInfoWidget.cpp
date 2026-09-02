@@ -1,16 +1,16 @@
-#include "Editor/ProjectPage/ProjectInfoWidget.h"
-#include <Utility/FileUtility.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qgridlayout.h>
-#include <General/YSSProject.h>
-#include <General/TranslationHost.h>
-#include <Utility/AsyncFunction.h>
 #include <QtCore/qdatetime.h>
-#include <General/Log.h>
-#include <QtWidgets/qmessagebox.h>
-#include <General/YSSLogger.h>
 #include <QtWidgets/qApplication.h>
+#include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
+#include <General/Log.h>
+#include <General/TranslationHost.h>
+#include <General/YSSLogger.h>
+#include <General/YSSProject.h>
+#include <Utility/AsyncFunction.h>
+#include <Utility/FileUtility.h>
+#include "Editor/ProjectPage/ProjectInfoWidget.h"
 namespace YSS::ProjectPage {
 	ProjectInfoWidget::ProjectInfoWidget(QWidget* parent) :Visindigo::Widgets::BorderFrame(parent) {
 		this->setObjectName("ProjectInfoWidget");

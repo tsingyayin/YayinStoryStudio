@@ -1,5 +1,5 @@
-#include "Utility/DiffSequence.h"
 #include <QtCore/qlist.h>
+#include "Utility/DiffSequence.h"
 namespace Visindigo::Utility {
 	class DiffUnitPrivate {
 		friend class DiffUnit;

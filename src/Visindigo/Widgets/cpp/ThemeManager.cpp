@@ -1,21 +1,21 @@
-#include "Widgets/ThemeManager.h"
-#include <QtGui/qcolor.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
 #include <QtCore/qiodevice.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
-#include "Utility/JsonConfig.h"
-#include "Widgets/StyleSheetTemplate.h"
-#include "Utility/FileUtility.h"
-#include "General/Log.h"
-#include "General/VIApplication.h"
-#include "General/Plugin.h"
-#include <QtWidgets/qapplication.h>
 #include <QtCore/qtimer.h>
-#include <QtGui/qpalette.h>
-#include <QtCore/qfileinfo.h>
+#include <QtGui/qcolor.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qfontdatabase.h>
+#include <QtGui/qpalette.h>
+#include <QtWidgets/qapplication.h>
+#include "General/Log.h"
+#include "General/Plugin.h"
+#include "General/VIApplication.h"
+#include "Utility/FileUtility.h"
+#include "Utility/JsonConfig.h"
+#include "Widgets/StyleSheetTemplate.h"
+#include "Widgets/ThemeManager.h"
 
 namespace Visindigo::Widgets {
 	class ThemeManagerPrivate {

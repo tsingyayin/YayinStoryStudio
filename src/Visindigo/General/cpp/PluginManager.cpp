@@ -1,16 +1,16 @@
-#include <QtCore/qstring.h>
-#include <QtCore/qlibrary.h>
-#include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
-#include "General/Log.h"
-#include "Utility/JsonConfig.h"
-#include "Utility/FileUtility.h"
-#include "General/private/Plugin_p.h"
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qlibrary.h>
 #include <QtCore/qmap.h>
-#include "General/PluginManager.h"
+#include <QtCore/qstring.h>
+#include "General/Log.h"
 #include "General/Plugin.h"
-#include "General/VIApplication.h"
+#include "General/PluginManager.h"
 #include "General/PluginModule.h"
+#include "General/private/Plugin_p.h"
+#include "General/VIApplication.h"
+#include "Utility/FileUtility.h"
+#include "Utility/JsonConfig.h"
 
 using IDString = QString;
 using NameString = QString;

@@ -1,8 +1,8 @@
-#include "General/TranslationHost.h"
-#include "General/private/Translator_p.h"
+#include <QtCore/qcoreapplication.h>
+#include <QtCore/qtranslator.h>
 #include "General/Log.h"
-#include "QtCore/qtranslator.h"
-#include "QtCore/qcoreapplication.h"
+#include "General/private/Translator_p.h"
+#include "General/TranslationHost.h"
 namespace Visindigo::General {
 	class TranslationHostPrivate {
 		friend class TranslationHost;

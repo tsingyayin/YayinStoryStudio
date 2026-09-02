@@ -1,9 +1,9 @@
-#include "Editor/MainEditor/DebugServerRouter.h"
-#include <General/YSSProject.h>
 #include <QtWidgets/qmessagebox.h>
-#include "Editor/MainEditor/MainWin.h"
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <General/YSSProject.h>
+#include "Editor/MainEditor/DebugServerRouter.h"
+#include "Editor/MainEditor/MainWin.h"
 
 namespace YSS::Editor {
 	class DebugServerRouterPrivate {

@@ -1,17 +1,17 @@
+#include <QtGui/qevent.h>
 #include <QtGui/qtextcursor.h>
-#include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qtextedit.h>
-#include <QtGui/qevent.h>
 #include <General/Log.h>
+#include <General/TranslationHost.h>
 #include <Widgets/MultiButton.h>
 #include <Widgets/MultiButtonGroup.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/private/TabCompleterProvider_p.h"
 #include "Editor/TabCompleterProvider.h"
 #include "General/YSSLogger.h"
-#include <General/TranslationHost.h>
 namespace YSSCore::__Private__ {
 	TabCompleterWidget::TabCompleterWidget(YSSCore::Editor::TextEdit* textEdit)
 		: Visindigo::Widgets::BorderFrame(textEdit) {
