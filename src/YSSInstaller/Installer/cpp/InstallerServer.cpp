@@ -68,7 +68,7 @@ namespace YSS::Installer {
 					vgDebug << "Received client data from socket:" << socket << 
 						"Program Path:" << clientData.getProgramPath() << "Version:" << clientData.getProgramVersion() 
 						<< "Auto Update Enabled:" << clientData.getAutoUpdateEnabled();
-					TrayIcon::getInstance()->showMessage(VITR("YSSInstaller::Monitor.Title"),  VITR("YSSInstaller::Monitor.Launched").arg(clientData.getProgramVersion()));
+					TrayIcon::getInstance()->showMessage(VITRL("YSSInstaller::Monitor.Title"),  VITRL("YSSInstaller::Monitor.Launched").arg(clientData.getProgramVersion()));
 				}
 				else if (type == "program_close") {
 					// 收到 program_close 命令时，关闭 YSSInstaller 自身。

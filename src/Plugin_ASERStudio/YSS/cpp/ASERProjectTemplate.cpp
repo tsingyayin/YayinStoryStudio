@@ -78,7 +78,7 @@ namespace ASERStudio::YSS {
 		d = new ProjectTemplateInitWidget_AStoryXPrivate();
 		ProjectTemplateAssets::registerAssets();
 		this->setMinimumWidth(800);
-		this->setWindowTitle(VITR("ASERStudio::provider.window.title"));
+		this->setWindowTitle(VITRL("ASERStudio::provider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP.json"));
 		d->Layout = new QVBoxLayout(this);
@@ -90,7 +90,7 @@ namespace ASERStudio::YSS {
 		d->WhereLabel = new QLabel(this);
 		d->WhereLabel->setWordWrap(true);
 		d->ButtonLayout->addWidget(d->WhereLabel);
-		d->CreateButton = new QPushButton(VITR("ASERStudio::provider.window.create"), this);
+		d->CreateButton = new QPushButton(VITRL("ASERStudio::provider.window.create"), this);
 		d->CreateButton->setObjectName("CreateButton");
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setMaximumWidth(160);
@@ -140,8 +140,8 @@ namespace ASERStudio::YSS {
 			}
 			else {
 				QMessageBox msgBox;
-				msgBox.setWindowTitle(VITR("ASERStudio::provider.version.unsupported.title"));
-				msgBox.setText(VITR("ASERStudio::provider.version.unsupported.text").arg(config->getString("Project.Version")));
+				msgBox.setWindowTitle(VITRL("ASERStudio::provider.version.unsupported.title"));
+				msgBox.setText(VITRL("ASERStudio::provider.version.unsupported.text").arg(config->getString("Project.Version")));
 				msgBox.setStandardButtons(QMessageBox::Ok);
 				int ret = msgBox.exec();
 				return;
@@ -151,7 +151,7 @@ namespace ASERStudio::YSS {
 		}
 		else {
 			QMessageBox msgBox;
-			msgBox.setWindowTitle(VITR("ASERStudio::provider.failed.title"));
+			msgBox.setWindowTitle(VITRL("ASERStudio::provider.failed.title"));
 			msgBox.setText("ASERStudio::provider.failed.text");
 			msgBox.setStandardButtons(QMessageBox::Ok);
 			int ret = msgBox.exec();
@@ -191,11 +191,11 @@ namespace ASERStudio::YSS {
 	void ProjectTemplateInitWidget_AStoryX::refreshWhereLabel() {
 		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegalFileName(d->ProjectName);
 		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
-			d->WhereLabel->setText(VITR("ASERStudio::provider.window.where").arg(completePath));
+			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);
 		}
 		else {
-			d->WhereLabel->setText(VITR("ASERStudio::provider.window.exists").arg(completePath));
+			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.exists").arg(completePath));
 			d->CreateButton->setEnabled(false);
 		}
 	}
@@ -204,14 +204,14 @@ namespace ASERStudio::YSS {
 		ProjectTemplateProvider("ASE AStory Project Template Provider", "ProjectTemplate_AStoryX", plugin) {
 		setTemplateIconPath(":/resource/cn.yxgeneral.aserstudio/icon/ASEA_Dark.png");
 		setTemplateID("ASEAStoryXProject");
-		setTemplateName(VITR("ASERStudio::provider.astory.name"));
-		setTemplateDescription(VITR("ASERStudio::provider.astory.description"));
+		setTemplateName(VITRL("ASERStudio::provider.astory.name"));
+		setTemplateDescription(VITRL("ASERStudio::provider.astory.description"));
 		setTemplateTags(QStringList({
-				VITR("ASERStudio::provider.astory.tags.ase"),
-				VITR("ASERStudio::provider.astory.tags.astory"),
-				VITR("ASERStudio::provider.astory.tags.engine-native"),
-				VITR("ASERStudio::provider.astory.tags.script"),
-				VITR("ASERStudio::provider.astory.tags.arknights")
+				VITRL("ASERStudio::provider.astory.tags.ase"),
+				VITRL("ASERStudio::provider.astory.tags.astory"),
+				VITRL("ASERStudio::provider.astory.tags.engine-native"),
+				VITRL("ASERStudio::provider.astory.tags.script"),
+				VITRL("ASERStudio::provider.astory.tags.arknights")
 			}));
 		// Constructor implementation
 	}
@@ -241,7 +241,7 @@ namespace ASERStudio::YSS {
 		d = new ProjectTemplateInitWidget_AStoryX_3_6_7Private();
 		ProjectTemplateAssets::registerAssets();
 		this->setMinimumWidth(800);
-		this->setWindowTitle(VITR("ASERStudio::provider.window.title"));
+		this->setWindowTitle(VITRL("ASERStudio::provider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP_3_6_7.json"));
 		d->Layout = new QVBoxLayout(this);
@@ -252,7 +252,7 @@ namespace ASERStudio::YSS {
 		d->WhereLabel = new QLabel(this);
 		d->WhereLabel->setWordWrap(true);
 		d->ButtonLayout->addWidget(d->WhereLabel);
-		d->CreateButton = new QPushButton(VITR("ASERStudio::provider.window.create"), this);
+		d->CreateButton = new QPushButton(VITRL("ASERStudio::provider.window.create"), this);
 		d->CreateButton->setObjectName("CreateButton");
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setMaximumWidth(160);
@@ -298,8 +298,8 @@ namespace ASERStudio::YSS {
 		}
 		else {
 			QMessageBox msgBox;
-			msgBox.setWindowTitle(VITR("ASERStudio::provider.failed.title"));
-			msgBox.setText(VITR("ASERStudio::provider.failed.text"));
+			msgBox.setWindowTitle(VITRL("ASERStudio::provider.failed.title"));
+			msgBox.setText(VITRL("ASERStudio::provider.failed.text"));
 			msgBox.setStandardButtons(QMessageBox::Ok);
 			int ret = msgBox.exec();
 		}
@@ -348,11 +348,11 @@ namespace ASERStudio::YSS {
 	void ProjectTemplateInitWidget_AStoryX_3_6_7::refreshWhereLabel() {
 		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegalFileName(d->ProjectName);
 		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
-			d->WhereLabel->setText(VITR("ASERStudio::provider.window.where").arg(completePath));
+			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);
 		}
 		else {
-			d->WhereLabel->setText(VITR("ASERStudio::provider.window.exists").arg(completePath));
+			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.exists").arg(completePath));
 			d->CreateButton->setEnabled(false);
 		}
 	}
@@ -361,14 +361,14 @@ namespace ASERStudio::YSS {
 		ProjectTemplateProvider("ASE AStory 3.6.7 Project Template Provider", "ProjectTemplate_AStoryX_3_6_7", plugin) {
 		setTemplateIconPath(":/resource/cn.yxgeneral.aserstudio/icon/ASEA_Dark.png");
 		setTemplateID("ASEAStoryXProject367");
-		setTemplateName(VITR("ASERStudio::provider.astory367.name"));
-		setTemplateDescription(VITR("ASERStudio::provider.astory367.description"));
+		setTemplateName(VITRL("ASERStudio::provider.astory367.name"));
+		setTemplateDescription(VITRL("ASERStudio::provider.astory367.description"));
 		setTemplateTags(QStringList({
-				VITR("ASERStudio::provider.astory.tags.ase"),
-				VITR("ASERStudio::provider.astory.tags.astory"),
-				VITR("ASERStudio::provider.astory.tags.engine-native"),
-				VITR("ASERStudio::provider.astory.tags.script"),
-				VITR("ASERStudio::provider.astory.tags.arknights")
+				VITRL("ASERStudio::provider.astory.tags.ase"),
+				VITRL("ASERStudio::provider.astory.tags.astory"),
+				VITRL("ASERStudio::provider.astory.tags.engine-native"),
+				VITRL("ASERStudio::provider.astory.tags.script"),
+				VITRL("ASERStudio::provider.astory.tags.arknights")
 			}));
 	}
 

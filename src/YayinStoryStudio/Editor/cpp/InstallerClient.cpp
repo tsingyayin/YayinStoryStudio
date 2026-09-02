@@ -152,8 +152,8 @@ namespace YSS::Editor {
 	void InstallerClient::releaseInstaller(bool autoLaunch, bool showNotification) {
 		if (showNotification) {
 			QMessageBox::information(nullptr,
-				VITR("YSS::update.installerUpdating"),
-				VITR("YSS::update.installerUpdatingDesc"));
+				VITRL("YSS::update.installerUpdating"),
+				VITRL("YSS::update.installerUpdatingDesc"));
 		}
 		QString installerFolder = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
 			"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";

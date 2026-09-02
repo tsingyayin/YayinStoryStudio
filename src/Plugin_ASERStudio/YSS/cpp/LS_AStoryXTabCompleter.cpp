@@ -42,15 +42,15 @@ namespace ASERStudio::YSS {
 			switch (valueMeta.getType()) {
 			case ASERStudio::AStorySyntax::AStoryXValueMeta::Bool: {// just bool now.
 				if (paramContent != "true" && paramContent != "false") {
-					items.append(YSSCore::Editor::TabCompleterItem("true", "true", VITR("ASERStudio::value.bool"), YSSCore::Editor::TabCompleterItem::ItemType::Value));
-					items.append(YSSCore::Editor::TabCompleterItem("false", "false", VITR("ASERStudio::value.bool"), YSSCore::Editor::TabCompleterItem::ItemType::Value));
+					items.append(YSSCore::Editor::TabCompleterItem("true", "true", VITRL("ASERStudio::value.bool"), YSSCore::Editor::TabCompleterItem::ItemType::Value));
+					items.append(YSSCore::Editor::TabCompleterItem("false", "false", VITRL("ASERStudio::value.bool"), YSSCore::Editor::TabCompleterItem::ItemType::Value));
 				}
 				break;
 			}
 			case ASERStudio::AStorySyntax::AStoryXValueMeta::Enum: {
 				QStringList enumValues = valueMeta.getEnumCheckList();
 				for (auto enumValue : enumValues) {
-					items.append(YSSCore::Editor::TabCompleterItem(enumValue, enumValue, VITR("ASERStudio::value.enum"), YSSCore::Editor::TabCompleterItem::ItemType::Enum));
+					items.append(YSSCore::Editor::TabCompleterItem(enumValue, enumValue, VITRL("ASERStudio::value.enum"), YSSCore::Editor::TabCompleterItem::ItemType::Enum));
 				}
 				break;
 			}
@@ -60,14 +60,14 @@ namespace ASERStudio::YSS {
 		optPrefixes = Visindigo::Utility::StringUtility::deduplicate(optPrefixes);
 		if (rule->isMonotonicity(parseData.getControllerType())) {
 			for (auto s : optPrefixes) {
-				items.append(YSSCore::Editor::TabCompleterItem(s, s, VITR("ASERStudio::value.other.optional_para_prefix"), YSSCore::Editor::TabCompleterItem::ItemType::Operator, false));
+				items.append(YSSCore::Editor::TabCompleterItem(s, s, VITRL("ASERStudio::value.other.optional_para_prefix"), YSSCore::Editor::TabCompleterItem::ItemType::Operator, false));
 			}
 		}
 		else {
 			QStringList optNames = rule->getOptionalParameterNames(parseData.getControllerType());
 			if (not optNames.isEmpty() && optNames.last() != parameter.getName()) {
 				for (auto s : optPrefixes) {
-					items.append(YSSCore::Editor::TabCompleterItem(s, s, VITR("ASERStudio::value.other.optional_para_prefix"), YSSCore::Editor::TabCompleterItem::ItemType::Operator, false));
+					items.append(YSSCore::Editor::TabCompleterItem(s, s, VITRL("ASERStudio::value.other.optional_para_prefix"), YSSCore::Editor::TabCompleterItem::ItemType::Operator, false));
 				}
 			}
 		}
@@ -84,7 +84,7 @@ namespace ASERStudio::YSS {
 		if (content.isEmpty() || content.startsWith("#") && content.size() <= 1) {
 			QStringList preprocessors = rule->getSupportedPreprocessors();
 			for (auto preprocessor : preprocessors) {
-				items.append(YSSCore::Editor::TabCompleterItem(preprocessor, preprocessor, VITR("ASERStudio::controller.Preprocessor"), YSSCore::Editor::TabCompleterItem::ItemType::Operator));
+				items.append(YSSCore::Editor::TabCompleterItem(preprocessor, preprocessor, VITRL("ASERStudio::controller.Preprocessor"), YSSCore::Editor::TabCompleterItem::ItemType::Operator));
 			}
 		}
 		return items;
@@ -97,11 +97,11 @@ namespace ASERStudio::YSS {
 				QString separator = data->getRequiredParameter().getSeparator();
 				if (not paramContent.contains(separator)) {
 					if (separator == "\t") {
-						items->append(YSSCore::Editor::TabCompleterItem("[ TAB ]", "\t", VITR("ASERStudio::value.other.parameter_separator"), YSSCore::Editor::TabCompleterItem::ItemType::Operator,
+						items->append(YSSCore::Editor::TabCompleterItem("[ TAB ]", "\t", VITRL("ASERStudio::value.other.parameter_separator"), YSSCore::Editor::TabCompleterItem::ItemType::Operator,
 							true, YSSCore::Editor::TabCompleterItem::CompleterLevel::Few, YSSCore::Editor::TabCompleterItem::CompleterPriority::Top));
 					}
 					else {
-						items->append(YSSCore::Editor::TabCompleterItem(separator, separator, VITR("ASERStudio::value.other.parameter_separator"), YSSCore::Editor::TabCompleterItem::ItemType::Operator));
+						items->append(YSSCore::Editor::TabCompleterItem(separator, separator, VITRL("ASERStudio::value.other.parameter_separator"), YSSCore::Editor::TabCompleterItem::ItemType::Operator));
 					}
 				}
 			}
@@ -118,7 +118,7 @@ namespace ASERStudio::YSS {
 					//vgDebug << charas;
 
 					for (auto chara : charas) {
-						items->append(YSSCore::Editor::TabCompleterItem(chara, chara, VITR("ASERStudio::value.other.scanned_character"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
+						items->append(YSSCore::Editor::TabCompleterItem(chara, chara, VITRL("ASERStudio::value.other.scanned_character"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
 					}
 				}
 				else {
@@ -127,7 +127,7 @@ namespace ASERStudio::YSS {
 					diffs = Visindigo::Utility::StringUtility::getStartWith(paramContent.split(data->getRequiredParameter().getSeparator()).last(), diffs);
 					//vgDebug << diffs;
 					for (auto diff : diffs) {
-						items->append(YSSCore::Editor::TabCompleterItem(chara + data->getRequiredParameter().getSeparator() + diff, diff, VITR("ASERStudio::value.other.scanned_chara_diff"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
+						items->append(YSSCore::Editor::TabCompleterItem(chara + data->getRequiredParameter().getSeparator() + diff, diff, VITRL("ASERStudio::value.other.scanned_chara_diff"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
 					}
 				}
 			}
@@ -137,7 +137,7 @@ namespace ASERStudio::YSS {
 				auto bgs = ASERRM->getBackground();
 				bgs = Visindigo::Utility::StringUtility::getStartWith(data->getRequiredParameter().getContent(), bgs);
 				for (auto bg : bgs) {
-					items->append(YSSCore::Editor::TabCompleterItem(bg, bg, VITR("ASERStudio::value.other.scanned_background"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
+					items->append(YSSCore::Editor::TabCompleterItem(bg, bg, VITRL("ASERStudio::value.other.scanned_background"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
 				}
 			}
 		}
@@ -146,7 +146,7 @@ namespace ASERStudio::YSS {
 				auto musics = ASERRM->getMusic();
 				musics = Visindigo::Utility::StringUtility::getStartWith(data->getRequiredParameter().getContent(), musics);
 				for (auto music : musics) {
-					items->append(YSSCore::Editor::TabCompleterItem(music, music, VITR("ASERStudio::value.other.scanned_music"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
+					items->append(YSSCore::Editor::TabCompleterItem(music, music, VITRL("ASERStudio::value.other.scanned_music"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
 				}
 			}
 		}
@@ -155,7 +155,7 @@ namespace ASERStudio::YSS {
 				auto sfxs = ASERRM->getSoundEffect();
 				sfxs = Visindigo::Utility::StringUtility::getStartWith(data->getRequiredParameter().getContent(), sfxs);
 				for (auto sfx : sfxs) {
-					items->append(YSSCore::Editor::TabCompleterItem(sfx, sfx, VITR("ASERStudio::value.other.scanned_sound_effect"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
+					items->append(YSSCore::Editor::TabCompleterItem(sfx, sfx, VITRL("ASERStudio::value.other.scanned_sound_effect"), YSSCore::Editor::TabCompleterItem::ItemType::Object));
 				}
 			}
 		}

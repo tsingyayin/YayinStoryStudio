@@ -48,13 +48,13 @@ namespace Visindigo::__Private__ {
 		CheckBoxLabel = new QLabel(this);
 		OpenFolderButton = new QToolButton(this);
 		OpenFolderButton->setFixedWidth(140);
-		OpenFolderButton->setToolTip(VITR("Visindigo::general.openFolder"));
+		OpenFolderButton->setToolTip(VITRL("Visindigo::general.openFolder"));
 		OpenFolderButton->setIcon(VIApp->getFontIcon("\uE838", 40, { VISTM->getPaletteTextColor() }));
 		OpenFolderButton->setFixedSize(50, 50);
 		OpenFolderButton->setIconSize(QSize(40, 40));
 		OpenConfigButton = new QToolButton(this);
 		OpenConfigButton->setFixedWidth(140);
-		OpenConfigButton->setToolTip(VITR("Visindigo::general.openConfig"));
+		OpenConfigButton->setToolTip(VITRL("Visindigo::general.openConfig"));
 		OpenConfigButton->setIcon(VIApp->getFontIcon("\uE713", 40, { VISTM->getPaletteTextColor() }));
 		OpenConfigButton->setFixedSize(50, 50);
 		OpenConfigButton->setIconSize(QSize(40, 40));
@@ -90,7 +90,7 @@ namespace Visindigo::__Private__ {
 		VersionLabel->setText(plugin->getPluginVersion().toString());
 		DescriptionLabel->setText(plugin->getPluginDescription());
 		bool deactivate = Visindigo::General::PluginManager::getInstance()->isPluginDeactivate(plugin->getPluginID());
-		CheckBoxLabel->setText(deactivate ? VITR("Visindigo::general.deactive") : VITR("Visindigo::general.active"));
+		CheckBoxLabel->setText(deactivate ? VITRL("Visindigo::general.deactive") : VITRL("Visindigo::general.active"));
 		ActiveCheckBox->setChecked(not deactivate);
 		vgDebug << ":/resource/" + plugin->getPluginID() + "/icon.png";
 		QPixmap icon(":/resource/" + plugin->getPluginID() + "/icon.png");
@@ -104,7 +104,7 @@ namespace Visindigo::__Private__ {
 		if (not configWidget) {
 			OpenConfigButton->setEnabled(false);
 			OpenConfigButton->setIcon(VIApp->getFontIcon("\uE713\uE871", 40, { VISTM->getPaletteTextColor(), QColor::fromString("#E8E64D")}));
-			OpenConfigButton->setToolTip(VITR("Visindigo::general.configNotSupported"));
+			OpenConfigButton->setToolTip(VITRL("Visindigo::general.configNotSupported"));
 		}
 		else {
 			OpenConfigButton->setEnabled(true);
@@ -122,7 +122,7 @@ namespace Visindigo::__Private__ {
 	void PluginInfoPanel::onActiveStateChanged(bool checked) {
 		if (not Plugin) { return; }
 		Visindigo::General::PluginManager::getInstance()->setPluginDeactivate(Plugin->getPluginID(), not checked);
-		CheckBoxLabel->setText(checked ? VITR("Visindigo::general.active") : VITR("Visindigo::general.deactive"));
+		CheckBoxLabel->setText(checked ? VITRL("Visindigo::general.active") : VITRL("Visindigo::general.deactive"));
 	}
 
 	void PluginInfoPanel::onOpenFolderButtonClicked() {
@@ -143,7 +143,7 @@ namespace Visindigo::__Private__ {
 		this->setFixedHeight(60);
 		IDLabel = new QLabel(this);
 		RemoveButton = new QPushButton(this);
-		RemoveButton->setText(VITR("Visindigo::general.remove"));
+		RemoveButton->setText(VITRL("Visindigo::general.remove"));
 		Layout = new QHBoxLayout(this);
 		Layout->addWidget(IDLabel);
 		Layout->addWidget(RemoveButton);
@@ -239,7 +239,7 @@ namespace Visindigo::Widgets {
 		}
 		d->PluginInfoPanels.clear();
 
-		auto mainDivider = new __Private__::Divider(VITR("Visindigo::widgets.pluginManager.program"), VITR("Visindigo::widgets.pluginManager.programDesc"));
+		auto mainDivider = new __Private__::Divider(VITRL("Visindigo::widgets.pluginManager.program"), VITRL("Visindigo::widgets.pluginManager.programDesc"));
 		d->Dividers.append(mainDivider);
 		d->ScrollAreaLayout->addWidget(mainDivider);
 
@@ -248,7 +248,7 @@ namespace Visindigo::Widgets {
 		d->MainPluginInfoPanel = mainPanel;
 		d->ScrollAreaLayout->addWidget(mainPanel);
 
-		auto dependencyDivider = new __Private__::Divider(VITR("Visindigo::widgets.pluginManager.dependency"), VITR("Visindigo::widgets.pluginManager.dependencyDesc"));
+		auto dependencyDivider = new __Private__::Divider(VITRL("Visindigo::widgets.pluginManager.dependency"), VITRL("Visindigo::widgets.pluginManager.dependencyDesc"));
 		d->Dividers.append(dependencyDivider);
 		d->ScrollAreaLayout->addWidget(dependencyDivider);
 
@@ -263,13 +263,13 @@ namespace Visindigo::Widgets {
 			}
 		}
 		else {
-			auto emptyLabel = new QLabel(VITR("Visindigo::widgets.pluginManager.nothing"), d->ScrollAreaWidget);
+			auto emptyLabel = new QLabel(VITRL("Visindigo::widgets.pluginManager.nothing"), d->ScrollAreaWidget);
 			emptyLabel->setAlignment(Qt::AlignCenter);
 			d->EmptyLabels.append(emptyLabel);
 			d->ScrollAreaLayout->addWidget(emptyLabel);
 		}
 
-		auto pluginDivider = new __Private__::Divider(VITR("Visindigo::widgets.pluginManager.plugin"), VITR("Visindigo::widgets.pluginManager.pluginDesc"));
+		auto pluginDivider = new __Private__::Divider(VITRL("Visindigo::widgets.pluginManager.plugin"), VITRL("Visindigo::widgets.pluginManager.pluginDesc"));
 		d->Dividers.append(pluginDivider);
 		d->ScrollAreaLayout->addWidget(pluginDivider);
 
@@ -283,13 +283,13 @@ namespace Visindigo::Widgets {
 			}
 		}
 		else {
-			auto emptyLabel = new QLabel(VITR("Visindigo::widgets.pluginManager.nothing"), d->ScrollAreaWidget);
+			auto emptyLabel = new QLabel(VITRL("Visindigo::widgets.pluginManager.nothing"), d->ScrollAreaWidget);
 			emptyLabel->setAlignment(Qt::AlignCenter);
 			d->EmptyLabels.append(emptyLabel);
 			d->ScrollAreaLayout->addWidget(emptyLabel);
 		}
 
-		auto deactivateDivider = new __Private__::Divider(VITR("Visindigo::widgets.pluginManager.deactivated"), VITR("Visindigo::widgets.pluginManager.deactivatedDesc"));
+		auto deactivateDivider = new __Private__::Divider(VITRL("Visindigo::widgets.pluginManager.deactivated"), VITRL("Visindigo::widgets.pluginManager.deactivatedDesc"));
 		d->Dividers.append(deactivateDivider);
 		d->ScrollAreaLayout->addWidget(deactivateDivider);
 
@@ -311,7 +311,7 @@ namespace Visindigo::Widgets {
 			}
 		}
 		else {
-			auto emptyLabel = new QLabel(VITR("Visindigo::widgets.pluginManager.nothing"), d->ScrollAreaWidget);
+			auto emptyLabel = new QLabel(VITRL("Visindigo::widgets.pluginManager.nothing"), d->ScrollAreaWidget);
 			emptyLabel->setAlignment(Qt::AlignCenter);
 			d->EmptyLabels.append(emptyLabel);
 			d->ScrollAreaLayout->addWidget(emptyLabel);

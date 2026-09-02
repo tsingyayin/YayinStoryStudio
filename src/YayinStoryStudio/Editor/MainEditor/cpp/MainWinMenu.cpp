@@ -80,45 +80,45 @@ namespace YSS::Editor {
 
 		QColor MenuTextColor;
 		void initFileMenu() {
-			FileMenu = MenuBar->addMenu(VITR("YSS::menu.file.title"));
+			FileMenu = MenuBar->addMenu(VITRL("YSS::menu.file.title"));
 			auto font = FileMenu->font();
 			font.setPointSizeF(font.pointSizeF() * 0.9);
 			FileMenu->setFont(font);
 			FileMenu->setObjectName("file");
-			File_File_New = FileMenu->addAction(VITR("YSS::menu.file.new"));
+			File_File_New = FileMenu->addAction(VITRL("YSS::menu.file.new"));
 			File_File_New->setObjectName("new");
 			File_File_New->setShortcut(QKeySequence("Ctrl+N"));
-			File_File_Open = FileMenu->addAction(VITR("YSS::menu.file.open"));
+			File_File_Open = FileMenu->addAction(VITRL("YSS::menu.file.open"));
 			File_File_Open->setObjectName("open");
 			File_File_Open->setShortcut(QKeySequence("Ctrl+O"));
-			File_File_Save = FileMenu->addAction(VITR("YSS::menu.file.save"));
+			File_File_Save = FileMenu->addAction(VITRL("YSS::menu.file.save"));
 			File_File_Save->setObjectName("save");
 			File_File_Save->setShortcut(QKeySequence("Ctrl+S"));
-			File_File_SaveAll = FileMenu->addAction(VITR("YSS::menu.file.saveAll"));
+			File_File_SaveAll = FileMenu->addAction(VITRL("YSS::menu.file.saveAll"));
 			File_File_SaveAll->setObjectName("saveAll");
 			File_File_SaveAll->setShortcut(QKeySequence("Ctrl+Shift+S"));
-			File_File_SaveAs = FileMenu->addAction(VITR("YSS::menu.file.saveAs"));
+			File_File_SaveAs = FileMenu->addAction(VITRL("YSS::menu.file.saveAs"));
 			File_File_SaveAs->setObjectName("saveAs");
 			File_File_SaveAs->setShortcut(QKeySequence("Ctrl+Alt+S"));
 			FileMenu->addSeparator();
-			File_File_ProjectConfig = FileMenu->addAction(VITR("YSS::menu.file.projectConfig"));
+			File_File_ProjectConfig = FileMenu->addAction(VITRL("YSS::menu.file.projectConfig"));
 			File_File_ProjectConfig->setObjectName("projectConfig");
-			File_File_ShowInExplorer = FileMenu->addAction(VITR("YSS::menu.file.showInExplorer"));
+			File_File_ShowInExplorer = FileMenu->addAction(VITRL("YSS::menu.file.showInExplorer"));
 			File_File_ShowInExplorer->setObjectName("showInExplorer");
 			FileMenu->addSeparator();
-			File_Program_BackToHome = FileMenu->addAction(VITR("YSS::menu.file.backToHome"));
+			File_Program_BackToHome = FileMenu->addAction(VITRL("YSS::menu.file.backToHome"));
 			File_Program_BackToHome->setObjectName("backToHome");
-			File_Program_PluginAndPreferences = FileMenu->addAction(VITR("YSS::menu.file.pluginAndPreferences"));
+			File_Program_PluginAndPreferences = FileMenu->addAction(VITRL("YSS::menu.file.pluginAndPreferences"));
 			File_Program_PluginAndPreferences->setObjectName("pluginAndPreferences");
-			File_Program_ColorThemeSettings = FileMenu->addAction(VITR("YSS::menu.file.colorThemeSettings"));
+			File_Program_ColorThemeSettings = FileMenu->addAction(VITRL("YSS::menu.file.colorThemeSettings"));
 			File_Program_ColorThemeSettings->setObjectName("colorThemeSettings");
-			File_Program_About = FileMenu->addAction(VITR("YSS::menu.file.about"));
+			File_Program_About = FileMenu->addAction(VITRL("YSS::menu.file.about"));
 			File_Program_About->setObjectName("about");
-			File_Program_Documentation = FileMenu->addAction(VITR("YSS::menu.file.documentation"));
+			File_Program_Documentation = FileMenu->addAction(VITRL("YSS::menu.file.documentation"));
 			File_Program_Documentation->setObjectName("documentation");
 			File_Program_Documentation->setShortcut(QKeySequence("F1"));
 			FileMenu->addSeparator();
-			File_Program_Exit = FileMenu->addAction(VITR("YSS::menu.file.exit"));
+			File_Program_Exit = FileMenu->addAction(VITRL("YSS::menu.file.exit"));
 			File_Program_Exit->setObjectName("exit");
 			File_Program_Exit->setShortcut(QKeySequence("Alt+F4"));
 
@@ -138,26 +138,26 @@ namespace YSS::Editor {
 		}
 
 		void initEditMenu() {
-			EditMenu = MenuBar->addMenu(VITR("YSS::menu.edit.title"));
+			EditMenu = MenuBar->addMenu(VITRL("YSS::menu.edit.title"));
 			auto font = EditMenu->font();
 			font.setPointSizeF(font.pointSizeF() * 0.9);
 			EditMenu->setFont(font);
 			EditMenu->setObjectName("edit");
-			Edit_Undo = EditMenu->addAction(VITR("YSS::menu.edit.undo"));
+			Edit_Undo = EditMenu->addAction(VITRL("YSS::menu.edit.undo"));
 			Edit_Undo->setObjectName("undo");
-			Edit_Redo = EditMenu->addAction(VITR("YSS::menu.edit.redo"));
+			Edit_Redo = EditMenu->addAction(VITRL("YSS::menu.edit.redo"));
 			Edit_Redo->setObjectName("redo");
 			EditMenu->addSeparator();
-			Edit_Cut = EditMenu->addAction(VITR("YSS::menu.edit.cut"));
+			Edit_Cut = EditMenu->addAction(VITRL("YSS::menu.edit.cut"));
 			Edit_Cut->setObjectName("cut");
-			Edit_Copy = EditMenu->addAction(VITR("YSS::menu.edit.copy"));
+			Edit_Copy = EditMenu->addAction(VITRL("YSS::menu.edit.copy"));
 			Edit_Copy->setObjectName("copy");
-			Edit_Paste = EditMenu->addAction(VITR("YSS::menu.edit.paste"));
+			Edit_Paste = EditMenu->addAction(VITRL("YSS::menu.edit.paste"));
 			Edit_Paste->setObjectName("paste");
-			Edit_SelectAll = EditMenu->addAction(VITR("YSS::menu.edit.selectAll"));
+			Edit_SelectAll = EditMenu->addAction(VITRL("YSS::menu.edit.selectAll"));
 			Edit_SelectAll->setObjectName("selectAll");
 			EditMenu->addSeparator();
-			Edit_FindAndReplace = EditMenu->addAction(VITR("YSS::menu.edit.findAndReplace"));
+			Edit_FindAndReplace = EditMenu->addAction(VITRL("YSS::menu.edit.findAndReplace"));
 			Edit_FindAndReplace->setObjectName("findAndReplace");
 
 			QObject::connect(Edit_Undo, &QAction::triggered, q, &MainWinMenu::edit_undo);
@@ -170,38 +170,38 @@ namespace YSS::Editor {
 		}
 
 		void initRunMenu() {
-			RunMenu = MenuBar->addMenu(VITR("YSS::menu.run.title"));
+			RunMenu = MenuBar->addMenu(VITRL("YSS::menu.run.title"));
 			auto font = RunMenu->font();
 			font.setPointSizeF(font.pointSizeF() * 0.9);
 			RunMenu->setFont(font);
 			RunMenu->setObjectName("run");
-			Run_Run_Debug = RunMenu->addAction(VITR("YSS::menu.run.debug"));
+			Run_Run_Debug = RunMenu->addAction(VITRL("YSS::menu.run.debug"));
 			Run_Run_Debug->setObjectName("debug");
 			Run_Run_Debug->setShortcut(QKeySequence("F5"));
-			Run_Run_Run = RunMenu->addAction(VITR("YSS::menu.run.run"));
+			Run_Run_Run = RunMenu->addAction(VITRL("YSS::menu.run.run"));
 			Run_Run_Run->setObjectName("run");
 			Run_Run_Run->setShortcut(QKeySequence("Ctrl+F5"));
-			Run_Run_Stop = RunMenu->addAction(VITR("YSS::menu.run.stop"));
+			Run_Run_Stop = RunMenu->addAction(VITRL("YSS::menu.run.stop"));
 			Run_Run_Stop->setObjectName("stop");
 			Run_Run_Stop->setShortcut(QKeySequence("Shift+F5"));
-			Run_Run_Restart = RunMenu->addAction(VITR("YSS::menu.run.restart"));
+			Run_Run_Restart = RunMenu->addAction(VITRL("YSS::menu.run.restart"));
 			Run_Run_Restart->setObjectName("restart");
 			Run_Run_Restart->setShortcut(QKeySequence("Ctrl+Shift+F5"));
 			RunMenu->addSeparator();
-			Run_Build_Build = RunMenu->addAction(VITR("YSS::menu.run.build"));
+			Run_Build_Build = RunMenu->addAction(VITRL("YSS::menu.run.build"));
 			Run_Build_Build->setObjectName("build");
-			Run_Build_Rebuild = RunMenu->addAction(VITR("YSS::menu.run.rebuild"));
+			Run_Build_Rebuild = RunMenu->addAction(VITRL("YSS::menu.run.rebuild"));
 			Run_Build_Rebuild->setObjectName("rebuild");
-			Run_Build_Clean = RunMenu->addAction(VITR("YSS::menu.run.clean"));
+			Run_Build_Clean = RunMenu->addAction(VITRL("YSS::menu.run.clean"));
 			Run_Build_Clean->setObjectName("clean");
 			RunMenu->addSeparator();
-			Run_Action_StepInto = RunMenu->addAction(VITR("YSS::menu.run.stepInto"));
+			Run_Action_StepInto = RunMenu->addAction(VITRL("YSS::menu.run.stepInto"));
 			Run_Action_StepInto->setObjectName("stepInto");
-			Run_Action_StepOver = RunMenu->addAction(VITR("YSS::menu.run.stepOver"));
+			Run_Action_StepOver = RunMenu->addAction(VITRL("YSS::menu.run.stepOver"));
 			Run_Action_StepOver->setObjectName("stepOver");
-			Run_Action_Suspend = RunMenu->addAction(VITR("YSS::menu.run.suspend"));
+			Run_Action_Suspend = RunMenu->addAction(VITRL("YSS::menu.run.suspend"));
 			Run_Action_Suspend->setObjectName("suspend");
-			Run_Action_Resume = RunMenu->addAction(VITR("YSS::menu.run.resume"));
+			Run_Action_Resume = RunMenu->addAction(VITRL("YSS::menu.run.resume"));
 			Run_Action_Resume->setObjectName("resume");
 
 			QObject::connect(Run_Run_Debug, &QAction::triggered, q, &MainWinMenu::run_run_debug);
@@ -218,18 +218,18 @@ namespace YSS::Editor {
 		}
 
 		void initViewMenu() {
-			ViewMenu = MenuBar->addMenu(VITR("YSS::menu.view.title"));
+			ViewMenu = MenuBar->addMenu(VITRL("YSS::menu.view.title"));
 			auto font = ViewMenu->font();
 			font.setPointSizeF(font.pointSizeF() * 0.9);
 			ViewMenu->setFont(font);
 			ViewMenu->setObjectName("view");
-			View_FullScreenToggle = ViewMenu->addAction(VITR("YSS::menu.view.fullScreenToggle"));
+			View_FullScreenToggle = ViewMenu->addAction(VITRL("YSS::menu.view.fullScreenToggle"));
 			View_FullScreenToggle->setObjectName("fullScreenToggle");
 			View_FullScreenToggle->setCheckable(true);
 			View_FullScreenToggle->setChecked(false);
 			View_FullScreenToggle->setShortcut(QKeySequence("F11"));
 			ViewMenu->addSeparator();
-			View_NothingToShow = ViewMenu->addAction(VITR("YSS::menu.view.noTools"));
+			View_NothingToShow = ViewMenu->addAction(VITRL("YSS::menu.view.noTools"));
 			View_NothingToShow->setObjectName("noTools");
 			View_NothingToShow->setEnabled(false);
 			View_NothingToShow->setVisible(false);
@@ -353,17 +353,17 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_program_pluginAndPreferences() {
-		YSSFSM->openFile(QString("@YSS.MainEditor.Preferences!%1?").arg(VITR("YSS::menu.file.pluginAndPreferences")));
+		YSSFSM->openFile(QString("@YSS.MainEditor.Preferences!%1?").arg(VITRL("YSS::menu.file.pluginAndPreferences")));
 	}
 
 	void MainWinMenu::file_program_colorThemeSettings() {
-		YSSFSM->openFile(QString("@YSS.MainEditor.ColorThemeSettings!%1?").arg(VITR("YSS::menu.file.colorThemeSettings")));
+		YSSFSM->openFile(QString("@YSS.MainEditor.ColorThemeSettings!%1?").arg(VITRL("YSS::menu.file.colorThemeSettings")));
 	}
 
 	void MainWinMenu::file_program_about() {
 		QMessageBox::about(YSS::Editor::MainWin::getInstance(),
-			VITR("YSS::editor.about.title"),
-			VITR("YSS::editor.about.message").arg(VIApp->getMainPlugin()->getPluginVersion().toString()));
+			VITRL("YSS::editor.about.title"),
+			VITRL("YSS::editor.about.message").arg(VIApp->getMainPlugin()->getPluginVersion().toString()));
 	}
 
 	void MainWinMenu::file_program_documentation() {

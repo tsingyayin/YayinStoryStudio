@@ -36,5 +36,5 @@ namespace Visindigo::General {
 #define VITRH Visindigo::General::TranslationHost::getInstance()
 #define VITR Visindigo::General::TranslationHost::getInstance()->tra
 #define VI18N Visindigo::General::TranslationHost::getInstance()->i18n
-
+#define VITRL(str) Visindigo::General::TranslationHost::getInstance()->tra(QStringLiteral(str))
 #endif // Visindigo_General_TranslationHost_h

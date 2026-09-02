@@ -400,8 +400,8 @@ namespace YSSCore::Editor {
 		if (useFallback) { // use builtin editor
 			// create a warning dialog
 			int ret = QMessageBox::warning(
-				nullptr, VITR("YSS::editor.textEdit.notSuitable.title"),
-				VITR("YSS::editor.textEdit.notSuitable.message").arg(ext),
+				nullptr, VITRL("YSS::editor.textEdit.notSuitable.title"),
+				VITRL("YSS::editor.textEdit.notSuitable.message").arg(ext),
 				QMessageBox::Yes | QMessageBox::No);
 			if (ret == QMessageBox::Yes) {
 				FileEditWidget* feWidget = new TextEdit();

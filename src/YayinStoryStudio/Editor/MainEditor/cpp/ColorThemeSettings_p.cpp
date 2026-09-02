@@ -4,7 +4,7 @@ namespace YSS::Editor {
 	ColorThemeSettingsCopyDialog::ColorThemeSettingsCopyDialog(QWidget* parent) :QWidget(parent) {
 		this->setWindowFlags(Qt::Dialog);
 		this->setFixedWidth(420);
-		this->setWindowTitle(VITR("YSS::colorThemeSettings.duplicateDialog.title"));
+		this->setWindowTitle(VITRL("YSS::colorThemeSettings.duplicateDialog.title"));
 
 		MainLayout = new QVBoxLayout(this);
 		this->setLayout(MainLayout);
@@ -21,8 +21,8 @@ namespace YSS::Editor {
 		MainLayout->addWidget(CheckLabel);
 
 		QHBoxLayout* buttonLayout = new QHBoxLayout();
-		ConfirmButton = new QPushButton(VITR("Visindigo::general.confirm"), this);
-		CancelButton = new QPushButton(VITR("Visindigo::general.cancel"), this);
+		ConfirmButton = new QPushButton(VITRL("Visindigo::general.confirm"), this);
+		CancelButton = new QPushButton(VITRL("Visindigo::general.cancel"), this);
 		buttonLayout->addStretch(1);
 		buttonLayout->addWidget(ConfirmButton);
 		buttonLayout->addWidget(CancelButton);
@@ -47,7 +47,7 @@ namespace YSS::Editor {
 
 	void ColorThemeSettingsCopyDialog::setFromThemeName(const QString& name) {
 		FromThemeName = name;
-		DescriptionLabel->setText(VITR("YSS::colorThemeSettings.duplicateDialog.desc").arg(name));
+		DescriptionLabel->setText(VITRL("YSS::colorThemeSettings.duplicateDialog.desc").arg(name));
 		validateName();
 	}
 
@@ -55,17 +55,17 @@ namespace YSS::Editor {
 		ValidName = false;
 		QString newName = NameEdit->text().trimmed();
 		if (newName.isEmpty()) {
-			CheckLabel->setText(VITR("YSS::colorThemeSettings.duplicateDialog.warning.empty"));
+			CheckLabel->setText(VITRL("YSS::colorThemeSettings.duplicateDialog.warning.empty"));
 			CheckLabel->setStyleSheet("QLabel{color: red;}");
 			return;
 		}
 		if (newName == FromThemeName) {
-			CheckLabel->setText(VITR("YSS::colorThemeSettings.duplicateDialog.warning.same"));
+			CheckLabel->setText(VITRL("YSS::colorThemeSettings.duplicateDialog.warning.same"));
 			CheckLabel->setStyleSheet("QLabel{color: red;}");
 			return;
 		}
 		if (CurrentThemes.contains(newName)) {
-			CheckLabel->setText(VITR("YSS::colorThemeSettings.duplicateDialog.warning.exists"));
+			CheckLabel->setText(VITRL("YSS::colorThemeSettings.duplicateDialog.warning.exists"));
 			CheckLabel->setStyleSheet("QLabel{color: red;}");
 			return;
 		}

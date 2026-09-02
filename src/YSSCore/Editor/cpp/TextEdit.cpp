@@ -1555,7 +1555,7 @@ namespace YSSCore::Editor {
 		QFileInfo fileInfo(path);
 		if (fileInfo.exists() && not fileInfo.isWritable()) {
 			QMessageBox::warning(this,
-				VITR("YSS::editor.textEdit.readOnly.title"), VITR("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
+				VITRL("YSS::editor.textEdit.readOnly.title"), VITRL("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
 				QMessageBox::Ok);
 			vgWarning << "File is read-only:" << path << ",";
 			return false;
@@ -1595,8 +1595,8 @@ namespace YSSCore::Editor {
 	bool TextEdit::onReload() {
 		if (isFileChanged()) {
 			QMessageBox msgBox;
-			msgBox.setWindowTitle(VITR("YSS::editor.reloadWarning.title"));
-			msgBox.setText(VITR("YSS::editor.reloadWarning.message").arg(getFileName()));
+			msgBox.setWindowTitle(VITRL("YSS::editor.reloadWarning.title"));
+			msgBox.setText(VITRL("YSS::editor.reloadWarning.message").arg(getFileName()));
 			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
 			msgBox.setDefaultButton(QMessageBox::Yes);
 			int ret = msgBox.exec();

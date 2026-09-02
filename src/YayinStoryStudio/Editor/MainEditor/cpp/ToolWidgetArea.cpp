@@ -21,7 +21,7 @@ namespace YSS::Editor {
 		d->TagArea = new StackTagWidget(this);
 		d->TagArea->setFixedHeight(32);
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
-		d->CentralArea->setText(VITR("YSS::editor.toolWidgetArea.noToolWidget"));
+		d->CentralArea->setText(VITRL("YSS::editor.toolWidgetArea.noToolWidget"));
 		d->ContentArea = d->CentralArea;
 
 		d->Layout->addWidget(d->CentralArea);

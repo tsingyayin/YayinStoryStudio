@@ -23,21 +23,21 @@ namespace YSSCore::__Private__ {
 		font.setPointSizeF(font.pointSizeF() * 0.85);
 		this->setFont(font);
 		layout = new QGridLayout(this);
-		titleLabel = new QLabel(VITR("YSS::editor.far.title"), this);
-		closeButton = new QPushButton(VITR("Visindigo::general.close"), this);
-		sourceAsReCheckBox = new QCheckBox(VITR("YSS::editor.far.useRegExp"), this);
-		caseSensitiveCheckBox = new QCheckBox(VITR("YSS::editor.far.matchCase"), this);
-		wholeWordCheckBox = new QCheckBox(VITR("YSS::editor.far.wholeWord"), this);
+		titleLabel = new QLabel(VITRL("YSS::editor.far.title"), this);
+		closeButton = new QPushButton(VITRL("Visindigo::general.close"), this);
+		sourceAsReCheckBox = new QCheckBox(VITRL("YSS::editor.far.useRegExp"), this);
+		caseSensitiveCheckBox = new QCheckBox(VITRL("YSS::editor.far.matchCase"), this);
+		wholeWordCheckBox = new QCheckBox(VITRL("YSS::editor.far.wholeWord"), this);
 
-		rawInputLabel = new QLabel(VITR("YSS::editor.far.find"), this);
+		rawInputLabel = new QLabel(VITRL("YSS::editor.far.find"), this);
 		rawInput = new QLineEdit(this);
-		replaceInputLabel = new QLabel(VITR("YSS::editor.far.replace"), this);
+		replaceInputLabel = new QLabel(VITRL("YSS::editor.far.replace"), this);
 		replaceInput = new QLineEdit(this);
 
 		matchCountLabel = new QLabel(this);
-		findNextButton = new QPushButton(VITR("YSS::editor.far.findNext"), this);
-		replaceNextButton = new QPushButton(VITR("YSS::editor.far.replaceNext"), this);
-		replaceAllButton = new QPushButton(VITR("YSS::editor.far.replaceAll"), this);
+		findNextButton = new QPushButton(VITRL("YSS::editor.far.findNext"), this);
+		replaceNextButton = new QPushButton(VITRL("YSS::editor.far.replaceNext"), this);
+		replaceAllButton = new QPushButton(VITRL("YSS::editor.far.replaceAll"), this);
 
 		layout->addWidget(titleLabel, 0, 0, 1, 3);
 		layout->addWidget(closeButton, 0, 3);
@@ -78,7 +78,7 @@ namespace YSSCore::__Private__ {
 				(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) |
 				(wholeWordCheckBox->isChecked() ? QTextDocument::FindWholeWords : QTextDocument::FindFlags()), true);
 			if (rtn.isNull()) {
-				QMessageBox::information(this, VITR("YSS::editor.far.notFound"), VITR("YSS::editor.far.notFoundDesc").arg(rawInput->text()));
+				QMessageBox::information(this, VITRL("YSS::editor.far.notFound"), VITRL("YSS::editor.far.notFoundDesc").arg(rawInput->text()));
 			}
 			});
 
@@ -87,7 +87,7 @@ namespace YSSCore::__Private__ {
 				(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) |
 				(wholeWordCheckBox->isChecked() ? QTextDocument::FindWholeWords : QTextDocument::FindFlags()), true);
 			if (not rtn) {
-				QMessageBox::information(this, VITR("YSS::editor.far.notFound"), VITR("YSS::editor.far.notFoundDesc").arg(rawInput->text()));
+				QMessageBox::information(this, VITRL("YSS::editor.far.notFound"), VITRL("YSS::editor.far.notFoundDesc").arg(rawInput->text()));
 			}
 			});
 
@@ -95,7 +95,7 @@ namespace YSSCore::__Private__ {
 			qint32 rtn = this->parent->replaceAll(rawInput->text(), replaceInput->text(), sourceAsReCheckBox->isChecked(),
 				(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) |
 				(wholeWordCheckBox->isChecked() ? QTextDocument::FindWholeWords : QTextDocument::FindFlags()));
-			QMessageBox::information(this, VITR("YSS::editor.far.replaced"), VITR("YSS::editor.far.replacedDesc").arg(rtn));
+			QMessageBox::information(this, VITRL("YSS::editor.far.replaced"), VITRL("YSS::editor.far.replacedDesc").arg(rtn));
 			});
 	}
 
@@ -105,7 +105,7 @@ namespace YSSCore::__Private__ {
 		auto cursors = this->parent->findAll(rawInput->text(), sourceAsReCheckBox->isChecked(),
 			(caseSensitiveCheckBox->isChecked() ? QTextDocument::FindCaseSensitively : QTextDocument::FindFlags()) |
 			(wholeWordCheckBox->isChecked() ? QTextDocument::FindWholeWords : QTextDocument::FindFlags()), true);
-		matchCountLabel->setText(VITR("YSS::editor.far.matchCount").arg(cursors.size()));
+		matchCountLabel->setText(VITRL("YSS::editor.far.matchCount").arg(cursors.size()));
 	}
 
 	void TextEditFindAndReplace::setFindText(const QString& text) {

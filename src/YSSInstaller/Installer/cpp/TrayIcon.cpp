@@ -18,9 +18,9 @@ namespace YSS::Installer {
 		setIcon(QIcon(":/resource/cn.yxgeneral.yss_installer/icon.png"));
 		d = new TrayIconPrivate();
 		d->menu = new QMenu();
-		d->aboutAction = d->menu->addAction(VITR("YSSInstaller::TrayIcon.About"));
+		d->aboutAction = d->menu->addAction(VITRL("YSSInstaller::TrayIcon.About"));
 		connect(d->aboutAction, &QAction::triggered, this, [this]() {
-			QMessageBox::about(nullptr, VITR("YSSInstaller::About.Title"), VITR("YSSInstaller::About.Desc"));
+			QMessageBox::about(nullptr, VITRL("YSSInstaller::About.Title"), VITRL("YSSInstaller::About.Desc"));
 			});
 		setContextMenu(d->menu);
 		setToolTip("YSS Installer");

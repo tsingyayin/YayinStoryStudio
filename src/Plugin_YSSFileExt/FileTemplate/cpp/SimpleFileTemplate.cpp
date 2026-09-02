@@ -36,17 +36,17 @@ namespace YSSFileExt {
 		d->Extension = extension;
 		d->InitFolder = initFolder;
 		setMinimumWidth(480);
-		setWindowTitle(VITR("YSSFileExt::fileProvider.window.title"));
+		setWindowTitle(VITRL("YSSFileExt::fileProvider.window.title"));
 
 		auto* layout = new QVBoxLayout(this);
 		layout->setContentsMargins(12, 12, 12, 12);
 		layout->setSpacing(8);
 
 		// 文件名输入
-		auto* nameTitleLabel = new QLabel(VITR("YSSFileExt::fileProvider.file.name.title"), this);
-		nameTitleLabel->setToolTip(VITR("YSSFileExt::fileProvider.file.name.text").arg(d->Extension));
+		auto* nameTitleLabel = new QLabel(VITRL("YSSFileExt::fileProvider.file.name.title"), this);
+		nameTitleLabel->setToolTip(VITRL("YSSFileExt::fileProvider.file.name.text").arg(d->Extension));
 		d->NameLineEdit = new QLineEdit(this);
-		d->NameLineEdit->setPlaceholderText(VITR("YSSFileExt::fileProvider.file.name.title"));
+		d->NameLineEdit->setPlaceholderText(VITRL("YSSFileExt::fileProvider.file.name.title"));
 		layout->addWidget(nameTitleLabel);
 		layout->addWidget(d->NameLineEdit);
 
@@ -58,7 +58,7 @@ namespace YSSFileExt {
 		// 创建按钮
 		auto* buttonLayout = new QHBoxLayout();
 		buttonLayout->addStretch(1);
-		d->CreateButton = new QPushButton(VITR("YSSFileExt::fileProvider.window.create"), this);
+		d->CreateButton = new QPushButton(VITRL("YSSFileExt::fileProvider.window.create"), this);
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setEnabled(false);
 		buttonLayout->addWidget(d->CreateButton);
@@ -69,15 +69,15 @@ namespace YSSFileExt {
 			const QString completePath = d->InitFolder + "/" +
 				Visindigo::Utility::FileUtility::toLegalFileName(name) + "." + d->Extension;
 			if (name.isEmpty()) {
-				d->WhereLabel->setText(VITR("YSSFileExt::fileProvider.window.where").arg(completePath));
+				d->WhereLabel->setText(VITRL("YSSFileExt::fileProvider.window.where").arg(completePath));
 				d->CreateButton->setEnabled(false);
 			}
 			else if (!Visindigo::Utility::FileUtility::isFileExist(completePath)) {
-				d->WhereLabel->setText(VITR("YSSFileExt::fileProvider.window.where").arg(completePath));
+				d->WhereLabel->setText(VITRL("YSSFileExt::fileProvider.window.where").arg(completePath));
 				d->CreateButton->setEnabled(true);
 			}
 			else {
-				d->WhereLabel->setText(VITR("YSSFileExt::fileProvider.window.exists").arg(completePath));
+				d->WhereLabel->setText(VITRL("YSSFileExt::fileProvider.window.exists").arg(completePath));
 				d->CreateButton->setEnabled(false);
 			}
 		};
@@ -87,8 +87,8 @@ namespace YSSFileExt {
 			const QString completePath = d->InitFolder + "/" +
 				Visindigo::Utility::FileUtility::toLegalFileName(name) + "." + d->Extension;
 			if (name.isEmpty() || Visindigo::Utility::FileUtility::isFileExist(completePath)) {
-				QMessageBox::warning(this, VITR("YSSFileExt::fileProvider.failed.title"),
-					VITR("YSSFileExt::fileProvider.failed.text"));
+				QMessageBox::warning(this, VITRL("YSSFileExt::fileProvider.failed.title"),
+					VITRL("YSSFileExt::fileProvider.failed.text"));
 				return;
 			}
 			// 创建空文件

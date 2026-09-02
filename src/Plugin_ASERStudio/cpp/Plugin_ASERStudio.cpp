@@ -149,7 +149,7 @@ namespace ASERStudio {
 	bool Main::onProjectAboutToClose(YSSCore::General::YSSProject* project) {
 		if (d->ASERProgram->isRunning()) {
 			QMessageBox::StandardButton result = 
-				QMessageBox::question(nullptr, VITR("ASERStudio::project.close.stillRunning.title"), VITR("ASERStudio::project.close.stillRunning.message"),
+				QMessageBox::question(nullptr, VITRL("ASERStudio::project.close.stillRunning.title"), VITRL("ASERStudio::project.close.stillRunning.message"),
 					QMessageBox::Yes | QMessageBox::No);
 			if (result == QMessageBox::Yes) {
 				return true; // allow to close, ASER program will be stopped in onProjectClose.

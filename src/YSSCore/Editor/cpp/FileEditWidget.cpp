@@ -596,8 +596,8 @@ protected:
 	*/
 	bool FileEditWidget::onClose() {
 		if (isFileChanged() && not isAutoAbandon()) {
-			int ret = QMessageBox::warning(this, VITR("YSS::editor.saveWarning.title"),
-				VITR("YSS::editor.saveWarning.message").arg(getFileName()),
+			int ret = QMessageBox::warning(this, VITRL("YSS::editor.saveWarning.title"),
+				VITRL("YSS::editor.saveWarning.message").arg(getFileName()),
 				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
 				QMessageBox::Save);
 			switch (ret) {

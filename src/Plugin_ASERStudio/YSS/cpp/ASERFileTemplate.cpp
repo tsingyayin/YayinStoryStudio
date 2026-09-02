@@ -28,7 +28,7 @@ namespace ASERStudio::YSS {
 	{
 		d = new FileTemplateInitWidget_AStoryXPrivate;
 		this->setMinimumWidth(800);
-		this->setWindowTitle(VITR("ASERStudio::fileProvider.window.title"));
+		this->setWindowTitle(VITRL("ASERStudio::fileProvider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
 		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/FTP.json"));
 		d->ConfigWidget->setLineEditText("File.Path", getInitFolder());
@@ -41,7 +41,7 @@ namespace ASERStudio::YSS {
 		d->WhereLabel = new QLabel(this);
 		d->WhereLabel->setWordWrap(true);
 		d->ButtonLayout->addWidget(d->WhereLabel);
-		d->CreateButton = new QPushButton(VITR("ASERStudio::fileProvider.window.create"), this);
+		d->CreateButton = new QPushButton(VITRL("ASERStudio::fileProvider.window.create"), this);
 		d->CreateButton->setObjectName("CreateButton");
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setMaximumWidth(160);
@@ -84,8 +84,8 @@ namespace ASERStudio::YSS {
 			}
 			else {
 				QMessageBox msgBox;
-				msgBox.setWindowTitle(VITR("ASERStudio::fileProvider.version.unsupported.title"));
-				msgBox.setText(VITR("ASERStudio::fileProvider.version.unsupported.text").arg(config->getString("File.Version")));
+				msgBox.setWindowTitle(VITRL("ASERStudio::fileProvider.version.unsupported.title"));
+				msgBox.setText(VITRL("ASERStudio::fileProvider.version.unsupported.text").arg(config->getString("File.Version")));
 				msgBox.setStandardButtons(QMessageBox::Ok);
 				int ret = msgBox.exec();
 				return;
@@ -96,7 +96,7 @@ namespace ASERStudio::YSS {
 		}
 		else {
 			QMessageBox msgBox;
-			msgBox.setWindowTitle(VITR("ASERStudio::fileProvider.failed.title"));
+			msgBox.setWindowTitle(VITRL("ASERStudio::fileProvider.failed.title"));
 			msgBox.setText("ASERStudio::fileProvider.failed.text");
 			msgBox.setStandardButtons(QMessageBox::Ok);
 			int ret = msgBox.exec();
@@ -112,11 +112,11 @@ namespace ASERStudio::YSS {
 		QString completePath = d->FilePath + "/" +
 			Visindigo::Utility::FileUtility::toLegalFileName(d->FileName) + ".astoryx";
 		if (!Visindigo::Utility::FileUtility::isFileExist(completePath)) {
-			d->WhereLabel->setText(VITR("ASERStudio::fileProvider.window.where").arg(completePath));
+			d->WhereLabel->setText(VITRL("ASERStudio::fileProvider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);
 		}
 		else {
-			d->WhereLabel->setText(VITR("ASERStudio::fileProvider.window.exists").arg(completePath));
+			d->WhereLabel->setText(VITRL("ASERStudio::fileProvider.window.exists").arg(completePath));
 			d->CreateButton->setEnabled(false);
 		}
 	}
@@ -125,14 +125,14 @@ namespace ASERStudio::YSS {
 	{
 		setTemplateIconPath(":/resource/cn.yxgeneral.aserstudio/icon/ASEA_Dark.png");
 		setTemplateID("ASEAStoryXFile");
-		setTemplateName(VITR("ASERStudio::fileProvider.astory.name"));
-		setTemplateDescription(VITR("ASERStudio::fileProvider.astory.description"));
+		setTemplateName(VITRL("ASERStudio::fileProvider.astory.name"));
+		setTemplateDescription(VITRL("ASERStudio::fileProvider.astory.description"));
 		setTemplateTags(QStringList({
-				VITR("ASERStudio::fileProvider.astory.tags.ase"),
-				VITR("ASERStudio::fileProvider.astory.tags.astory"),
-				VITR("ASERStudio::fileProvider.astory.tags.engine-native"),
-				VITR("ASERStudio::fileProvider.astory.tags.script"),
-				VITR("ASERStudio::fileProvider.astory.tags.arknights")
+				VITRL("ASERStudio::fileProvider.astory.tags.ase"),
+				VITRL("ASERStudio::fileProvider.astory.tags.astory"),
+				VITRL("ASERStudio::fileProvider.astory.tags.engine-native"),
+				VITRL("ASERStudio::fileProvider.astory.tags.script"),
+				VITRL("ASERStudio::fileProvider.astory.tags.arknights")
 			}));
 		// Constructor implementation
 	}

@@ -123,8 +123,8 @@ namespace YSS::Installer {
 
 			QHBoxLayout* buttonLayout = new QHBoxLayout();
 			buttonLayout->addStretch();
-			cancelButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_Cancel"), this);
-			nextButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_Next"), this);
+			cancelButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_Cancel"), this);
+			nextButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_Next"), this);
 			nextButton->setDefault(true);
 			buttonLayout->addWidget(cancelButton);
 			buttonLayout->addWidget(nextButton);
@@ -147,13 +147,13 @@ namespace YSS::Installer {
 			QVBoxLayout* layout = new QVBoxLayout(this);
 			layout->setSpacing(12);
 
-			descriptionLabel = new QLabel(VITR("YSSInstaller::AutoUpdate.Desc_MultiOldVersion"), this);
+			descriptionLabel = new QLabel(VITRL("YSSInstaller::AutoUpdate.Desc_MultiOldVersion"), this);
 			descriptionLabel->setWordWrap(true);
 			layout->addWidget(descriptionLabel);
 
 			table = new QTableWidget(0, 3, this);
-			table->setHorizontalHeaderLabels({ VITR("YSSInstaller::AutoUpdate.IWantToUpdate"), 
-				VITR("YSSInstaller::AutoUpdate.Version"), VITR("YSSInstaller::AutoUpdate.Path") });
+			table->setHorizontalHeaderLabels({ VITRL("YSSInstaller::AutoUpdate.IWantToUpdate"), 
+				VITRL("YSSInstaller::AutoUpdate.Version"), VITRL("YSSInstaller::AutoUpdate.Path") });
 			table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 			table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 			table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
@@ -169,8 +169,8 @@ namespace YSS::Installer {
 
 			QHBoxLayout* buttonLayout = new QHBoxLayout();
 			buttonLayout->addStretch();
-			backButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.BackwardStep"), this);
-			nextButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_Next"), this);
+			backButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.BackwardStep"), this);
+			nextButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_Next"), this);
 			nextButton->setDefault(true);
 			nextButton->setEnabled(false);   // must select at least one old version to update
 			buttonLayout->addWidget(backButton);
@@ -228,12 +228,12 @@ namespace YSS::Installer {
 			QVBoxLayout* layout = new QVBoxLayout(this);
 			layout->setSpacing(12);
 
-			descriptionLabel = new QLabel(VITR("YSSInstaller::AutoUpdate.Desc_UpdateOption"), this);
+			descriptionLabel = new QLabel(VITRL("YSSInstaller::AutoUpdate.Desc_UpdateOption"), this);
 			descriptionLabel->setWordWrap(true);
 			layout->addWidget(descriptionLabel);
 
-			autoDeleteCheck = new QCheckBox(VITR("YSSInstaller::AutoUpdate.Option_AutoDelete"), this);
-			autoLaunchCheck = new QCheckBox(VITR("YSSInstaller::AutoUpdate.Option_AutoLaunch"), this);
+			autoDeleteCheck = new QCheckBox(VITRL("YSSInstaller::AutoUpdate.Option_AutoDelete"), this);
+			autoLaunchCheck = new QCheckBox(VITRL("YSSInstaller::AutoUpdate.Option_AutoLaunch"), this);
 			autoDeleteCheck->setChecked(false);
 			autoLaunchCheck->setChecked(true);
 			layout->addWidget(autoDeleteCheck);
@@ -242,8 +242,8 @@ namespace YSS::Installer {
 
 			QHBoxLayout* buttonLayout = new QHBoxLayout();
 			buttonLayout->addStretch();
-			backButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.BackwardStep"), this);
-			nextButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_Next"), this);
+			backButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.BackwardStep"), this);
+			nextButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_Next"), this);
 			nextButton->setDefault(true);
 			buttonLayout->addWidget(backButton);
 			buttonLayout->addWidget(nextButton);
@@ -263,11 +263,11 @@ namespace YSS::Installer {
 			QVBoxLayout* layout = new QVBoxLayout(this);
 			layout->setSpacing(12);
 
-			descriptionLabel = new QLabel(VITR("YSSInstaller::AutoUpdate.Desc_CloseProgram"), this);
+			descriptionLabel = new QLabel(VITRL("YSSInstaller::AutoUpdate.Desc_CloseProgram"), this);
 			descriptionLabel->setWordWrap(true);
 			layout->addWidget(descriptionLabel);
 
-			runningTitleLabel = new QLabel(VITR("YSSInstaller::AutoUpdate.StillRunning"), this);
+			runningTitleLabel = new QLabel(VITRL("YSSInstaller::AutoUpdate.StillRunning"), this);
 			layout->addWidget(runningTitleLabel);
 
 			runningList = new QListWidget(this);
@@ -276,8 +276,8 @@ namespace YSS::Installer {
 
 			QHBoxLayout* buttonLayout = new QHBoxLayout();
 			buttonLayout->addStretch();
-			backButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.BackwardStep"), this);
-			retryButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_Retry"), this);
+			backButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.BackwardStep"), this);
+			retryButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_Retry"), this);
 			retryButton->setDefault(true);
 			buttonLayout->addWidget(backButton);
 			buttonLayout->addWidget(retryButton);
@@ -302,15 +302,15 @@ namespace YSS::Installer {
 			QVBoxLayout* layout = new QVBoxLayout(this);
 			layout->setSpacing(12);
 
-			descriptionLabel = new QLabel(VITR("YSSInstaller::AutoUpdate.Desc_Ready"), this);
+			descriptionLabel = new QLabel(VITRL("YSSInstaller::AutoUpdate.Desc_Ready"), this);
 			descriptionLabel->setWordWrap(true);
 			layout->addWidget(descriptionLabel);
 			layout->addStretch();
 
 			QHBoxLayout* buttonLayout = new QHBoxLayout();
 			buttonLayout->addStretch();
-			cancelButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_Cancel"), this);
-			okButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_OK"), this);
+			cancelButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_Cancel"), this);
+			okButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_OK"), this);
 			okButton->setDefault(true);
 			buttonLayout->addWidget(cancelButton);
 			buttonLayout->addWidget(okButton);
@@ -333,7 +333,7 @@ namespace YSS::Installer {
 			QVBoxLayout* layout = new QVBoxLayout(this);
 			layout->setSpacing(12);
 
-			titleLabel = new QLabel(VITR("YSSInstaller::AutoUpdate.Desc_Finished"), this);
+			titleLabel = new QLabel(VITRL("YSSInstaller::AutoUpdate.Desc_Finished"), this);
 			QFont titleFont = titleLabel->font();
 			titleFont.setPointSize(titleFont.pointSize() + 5);
 			titleFont.setBold(true);
@@ -342,7 +342,7 @@ namespace YSS::Installer {
 			layout->addWidget(titleLabel);
 			layout->addSpacing(8);
 
-			autoLaunchGroupLabel = new QLabel(VITR("YSSInstaller::AutoUpdate.Desc_ChooseAutoLaunch"), this);
+			autoLaunchGroupLabel = new QLabel(VITRL("YSSInstaller::AutoUpdate.Desc_ChooseAutoLaunch"), this);
 			autoLaunchGroupLabel->setWordWrap(true);
 			autoLaunchGroupLabel->setVisible(false);
 			layout->addWidget(autoLaunchGroupLabel);
@@ -357,7 +357,7 @@ namespace YSS::Installer {
 
 			QHBoxLayout* buttonLayout = new QHBoxLayout();
 			buttonLayout->addStretch();
-			confirmButton = new QPushButton(VITR("YSSInstaller::AutoUpdate.Option_Confirm"), this);
+			confirmButton = new QPushButton(VITRL("YSSInstaller::AutoUpdate.Option_Confirm"), this);
 			confirmButton->setDefault(true);
 			buttonLayout->addWidget(confirmButton);
 			layout->addLayout(buttonLayout);
@@ -421,7 +421,7 @@ namespace YSS::Installer {
 	LocalUpdateWizard::LocalUpdateWizard(const InstallerClientData& clientData, QWidget* parent) : QWidget(parent) {
 		d = new LocalUpdateWizardPrivate();
 		d->clientData = clientData;
-		setWindowTitle(VITR("YSSInstaller::AutoUpdate.Title"));
+		setWindowTitle(VITRL("YSSInstaller::AutoUpdate.Title"));
 		setMinimumSize(560, 420);
 
 		QList<InstallerClientData> records = VersionManager::getInstance()->getClientRecords();
@@ -449,11 +449,11 @@ namespace YSS::Installer {
 		d->stack->addWidget(d->finishedPage);
 
 		d->stepIndicator = new StepIndicator({
-			VITR("YSSInstaller::AutoUpdate.Step_Confirm"),
-			VITR("YSSInstaller::AutoUpdate.Step_Select"),
-			VITR("YSSInstaller::AutoUpdate.Step_Option"),
-			VITR("YSSInstaller::AutoUpdate.Step_Check"),
-			VITR("YSSInstaller::AutoUpdate.Step_Update")
+			VITRL("YSSInstaller::AutoUpdate.Step_Confirm"),
+			VITRL("YSSInstaller::AutoUpdate.Step_Select"),
+			VITRL("YSSInstaller::AutoUpdate.Step_Option"),
+			VITRL("YSSInstaller::AutoUpdate.Step_Check"),
+			VITRL("YSSInstaller::AutoUpdate.Step_Update")
 			}, this);
 
 		QWidget* rightPanel = new QWidget(this);
@@ -472,9 +472,9 @@ namespace YSS::Installer {
 		});
 
 		d->askPage->descriptionLabel->setText(
-			VITR("YSSInstaller::AutoUpdate.Desc_CanUpdate").arg(newVersion, newPath));
-		d->askPage->autoUpdateRadio->setText(VITR("YSSInstaller::AutoUpdate.Option_AutoUpdate").arg(newVersion));
-		d->askPage->keepRadio->setText(VITR("YSSInstaller::AutoUpdate.Option_Keep").arg(newVersion));
+			VITRL("YSSInstaller::AutoUpdate.Desc_CanUpdate").arg(newVersion, newPath));
+		d->askPage->autoUpdateRadio->setText(VITRL("YSSInstaller::AutoUpdate.Option_AutoUpdate").arg(newVersion));
+		d->askPage->keepRadio->setText(VITRL("YSSInstaller::AutoUpdate.Option_Keep").arg(newVersion));
 
 		connect(d->askPage->nextButton, &QPushButton::clicked, this, [this]() {
 			if (d->askPage->autoUpdateRadio->isChecked()) {

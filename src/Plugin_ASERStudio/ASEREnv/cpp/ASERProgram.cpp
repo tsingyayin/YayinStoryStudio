@@ -343,7 +343,7 @@ namespace ASERStudio::ASEREnv {
 #ifdef Q_OS_WIN
 		// 注意，由于某种缺陷，ASE-Remake可能会丢失窗口句柄，成为后台进程，因此只通过进程名判断
 		if (IsProcessRunning(L"ASE-Remake.exe")) {
-			QMessageBox::warning(nullptr, VITR("ASERStudio::debugger.isRunning.title"), VITR("ASERStudio::debugger.isRunning.message"), QMessageBox::Ok);
+			QMessageBox::warning(nullptr, VITRL("ASERStudio::debugger.isRunning.title"), VITRL("ASERStudio::debugger.isRunning.message"), QMessageBox::Ok);
 			return true;
 		}
 		return false;

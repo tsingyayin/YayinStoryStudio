@@ -131,20 +131,20 @@ namespace YSS::Editor {
 			box.setIcon(QMessageBox::NoIcon); // 不显示程序 Logo
 			if (textEdit) {
 				const QString fileName = QFileInfo(currentEditWidget->getFilePath()).fileName();
-				box.setWindowTitle(VITR("YSS::editor.bottomInfoWidget.statistic.titleWithName").arg(fileName));
+				box.setWindowTitle(VITRL("YSS::editor.bottomInfoWidget.statistic.titleWithName").arg(fileName));
 				auto stat = Visindigo::Utility::StringUtility::getStatistic(textEdit->getPlainText());
 				QString message;
-				message += VITR("YSS::editor.bottomInfoWidget.statistic.wordCount").arg(stat.WordCount) + "\n";
-				message += VITR("YSS::editor.bottomInfoWidget.statistic.charCountIncludeWhitespace").arg(stat.CharCountIncludeWhitespace) + "\n";
-				message += VITR("YSS::editor.bottomInfoWidget.statistic.charCountExcludeWhitespace").arg(stat.CharCountExcludeWhitespace) + "\n";
-				message += VITR("YSS::editor.bottomInfoWidget.statistic.cjkvCharCount").arg(stat.CJKVCharCount) + "\n";
-				message += VITR("YSS::editor.bottomInfoWidget.statistic.nonCJKVCharCount").arg(stat.NonCJKVCharCount) + "\n";
-				message += VITR("YSS::editor.bottomInfoWidget.statistic.paragraphCount").arg(stat.ParagraphCount);
+				message += VITRL("YSS::editor.bottomInfoWidget.statistic.wordCount").arg(stat.WordCount) + "\n";
+				message += VITRL("YSS::editor.bottomInfoWidget.statistic.charCountIncludeWhitespace").arg(stat.CharCountIncludeWhitespace) + "\n";
+				message += VITRL("YSS::editor.bottomInfoWidget.statistic.charCountExcludeWhitespace").arg(stat.CharCountExcludeWhitespace) + "\n";
+				message += VITRL("YSS::editor.bottomInfoWidget.statistic.cjkvCharCount").arg(stat.CJKVCharCount) + "\n";
+				message += VITRL("YSS::editor.bottomInfoWidget.statistic.nonCJKVCharCount").arg(stat.NonCJKVCharCount) + "\n";
+				message += VITRL("YSS::editor.bottomInfoWidget.statistic.paragraphCount").arg(stat.ParagraphCount);
 				box.setText(message);
 			}
 			else {
-				box.setWindowTitle(VITR("YSS::editor.bottomInfoWidget.statistic.title"));
-				box.setText(VITR("YSS::editor.bottomInfoWidget.statistic.noEditor"));
+				box.setWindowTitle(VITRL("YSS::editor.bottomInfoWidget.statistic.title"));
+				box.setText(VITRL("YSS::editor.bottomInfoWidget.statistic.noEditor"));
 			}
 			box.exec();
 			});
@@ -288,14 +288,14 @@ namespace YSS::Editor {
 
 		QString ext = QFileInfo(rawFilePath).suffix();
 		QString newfilePath = QFileDialog::getSaveFileName(this,
-			VITR("YSS::menu.file.saveAs"), rawFilePath, "(*." + ext + ")");
+			VITRL("YSS::menu.file.saveAs"), rawFilePath, "(*." + ext + ")");
 		if (newfilePath.isEmpty()) {
 			return;
 		}
 		auto editor = YSSFSM->getFileEditWidget(newfilePath);
 		if (editor) {
 			if (editor->isFileChanged()) {
-				QMessageBox::warning(this, VITR("YSS::editor.saveAsConflict.title"), VITR("YSS::editor.saveAsConflict.message").arg(newfilePath));
+				QMessageBox::warning(this, VITRL("YSS::editor.saveAsConflict.title"), VITRL("YSS::editor.saveAsConflict.message").arg(newfilePath));
 				return;
 			}
 			editor->closeFile();
@@ -323,7 +323,7 @@ namespace YSS::Editor {
 		}
 		QString filePath = QFileDialog::getOpenFileName(
 			nullptr,
-			VITR("YSS::menu.file.open"),
+			VITRL("YSS::menu.file.open"),
 			CurrentDir.absolutePath(),
 			"All Files (*)");
 		if (not filePath.isEmpty()) {
@@ -543,8 +543,8 @@ namespace YSS::Editor {
 			}
 		}
 
-		QMessageBox::StandardButton result = QMessageBox::question(this, VITR("YSS::project.saveQuestion.title"),
-			VITR("YSS::project.saveQuestion.text").arg(project->getProjectName()),
+		QMessageBox::StandardButton result = QMessageBox::question(this, VITRL("YSS::project.saveQuestion.title"),
+			VITRL("YSS::project.saveQuestion.text").arg(project->getProjectName()),
 			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
 			QMessageBox::Yes);
 		if (result == QMessageBox::Cancel) {

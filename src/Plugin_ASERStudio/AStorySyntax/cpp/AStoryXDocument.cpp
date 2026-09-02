@@ -113,9 +113,9 @@ namespace ASERStudio::AStorySyntax {
 							QString("#useRule:").length());
 						data.d->OptionalParameters.append(optionalParameter);
 						AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-							VITR("ASERStudio::diagnostic.noSuchRule.message"),
+							VITRL("ASERStudio::diagnostic.noSuchRule.message"),
 							lineNumber, QString("#useRule:").length(), AStoryXDiagnosticData::DiagnosticType::NoSuchRule,
-							VITR("ASERStudio::diagnostic.noSuchRule.fixAdvice")
+							VITRL("ASERStudio::diagnostic.noSuchRule.fixAdvice")
 						);
 					}
 				}
@@ -195,9 +195,9 @@ namespace ASERStudio::AStorySyntax {
 	AStoryXDocument::AStoryXDocument() :d(new AStoryXDocumentPrivate()) {
 		d->q = this;
 		d->RuleNotSelectedDiagnostic = AStoryXDiagnosticData(
-			VITR("ASERStudio::diagnostic.ruleNotSelected.message"),
+			VITRL("ASERStudio::diagnostic.ruleNotSelected.message"),
 			-1, 0, AStoryXDiagnosticData::DiagnosticType::RuleNotSelected,
-			VITR("ASERStudio::diagnostic.ruleNotSelected.fixAdvice")
+			VITRL("ASERStudio::diagnostic.ruleNotSelected.fixAdvice")
 		);
 	}
 

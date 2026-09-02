@@ -22,8 +22,8 @@ namespace ASERStudio::ASEREnv {
 		d = new ASERWarpperPrivate;
 		d->Program = ASERStudio::Main::getInstance()->getASERProgram();
 		d->ASERWindow = nullptr;
-		d->StartButton = new QPushButton(VITR("ASERStudio::ASEREnv.startButton"), this);
-		d->StatusLabel = new QLabel(VITR("ASERStudio::ASEREnv.noProgram"), this);
+		d->StartButton = new QPushButton(VITRL("ASERStudio::ASEREnv.startButton"), this);
+		d->StatusLabel = new QLabel(VITRL("ASERStudio::ASEREnv.noProgram"), this);
 		d->Layout = new QVBoxLayout(this);
 		d->Layout->addWidget(d->StatusLabel);
 		d->Layout->addWidget(d->StartButton);

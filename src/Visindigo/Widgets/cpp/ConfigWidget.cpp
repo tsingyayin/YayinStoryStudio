@@ -29,8 +29,8 @@ namespace Visindigo::__Private__ {
 		self->installEventFilter(this);
 		this->Layout = new QVBoxLayout(self);
 		ButtonWidget = new QWidget(self);
-		ResetButton = new QPushButton(VITR("Visindigo::general.reset"), ButtonWidget);
-		SaveButton = new QPushButton(VITR("Visindigo::general.save"), ButtonWidget);
+		ResetButton = new QPushButton(VITRL("Visindigo::general.reset"), ButtonWidget);
+		SaveButton = new QPushButton(VITRL("Visindigo::general.save"), ButtonWidget);
 		connect(ResetButton, &QPushButton::clicked, self, [this]() {
 			this->resetConfig();
 			emit this->self->reseted();
@@ -39,8 +39,8 @@ namespace Visindigo::__Private__ {
 			this->saveConfig();
 			emit this->self->saved();
 			if (this->saveNeedRestart) {
-				QMessageBox::information(this->self, VITR("Visindigo::widgets.configWidget.restartRequired"),
-					VITR("Visindigo::widgets.configWidget.restartRequiredDesc"));
+				QMessageBox::information(this->self, VITRL("Visindigo::widgets.configWidget.restartRequired"),
+					VITRL("Visindigo::widgets.configWidget.restartRequiredDesc"));
 			}
 			});
 		ButtonLayout = new QHBoxLayout(ButtonWidget);
@@ -372,7 +372,7 @@ namespace Visindigo::__Private__ {
 		QToolButton* selectButton = new QToolButton(container);
 		FileButtons.append(selectButton);
 		selectButton->setIcon(VIApp->getFontIcon("\uE721", 64, { VISTM->getPaletteTextColor() }));
-		selectButton->setToolTip(VITR("Visindigo::general.preview"));
+		selectButton->setToolTip(VITRL("Visindigo::general.preview"));
 		selectButton->setFixedSize(30, 30);
 		selectButton->setIconSize(QSize(22, 22));
 		selectButton->hide();
@@ -414,7 +414,7 @@ namespace Visindigo::__Private__ {
 			if (config.contains("isFolder")) {
 				connect(selectButton, &QAbstractButton::clicked, [=]() {
 					QString folder = QFileDialog::getExistingDirectory(container,
-						VITR("Visindigo::general.selectFolder"),
+						VITRL("Visindigo::general.selectFolder"),
 						VIPlaceholder(defaultValue),
 						QFileDialog::ShowDirsOnly
 						);
@@ -426,7 +426,7 @@ namespace Visindigo::__Private__ {
 			else {
 				connect(selectButton, &QAbstractButton::clicked, [=]() {
 					QString file = QFileDialog::getOpenFileName(container,
-						VITR("Visindigo::general.selectFile"),
+						VITRL("Visindigo::general.selectFile"),
 						VIPlaceholder(defaultValue)
 						);
 					if (!file.isEmpty()) {

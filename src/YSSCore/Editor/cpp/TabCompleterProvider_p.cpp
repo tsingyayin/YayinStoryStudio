@@ -24,7 +24,7 @@ namespace YSSCore::__Private__ {
 		this->setFont(font);
 		this->DescriptionLabel = new Visindigo::Widgets::BorderLabel(this);
 		this->DescriptionLabel->setMinimumHeight(32);
-		this->DescriptionLabel->setText(VITR("YSS::editor.textEdit.tabCompleter.viewDescription"));
+		this->DescriptionLabel->setText(VITRL("YSS::editor.textEdit.tabCompleter.viewDescription"));
 
 		Layout = new QVBoxLayout(this);
 		Layout->setContentsMargins(0, 0, 0, 0);
@@ -66,7 +66,7 @@ namespace YSSCore::__Private__ {
 					this->DescriptionLabel->setText(Items[index].getDescription());
 				}
 				else {
-					this->DescriptionLabel->setText(VITR("YSS::editor.textEdit.tabCompleter.viewDescription"));
+					this->DescriptionLabel->setText(VITRL("YSS::editor.textEdit.tabCompleter.viewDescription"));
 				}
 				});
 			connect(button, &Visindigo::Widgets::MultiButton::leave, this, [this]() {
@@ -85,17 +85,17 @@ namespace YSSCore::__Private__ {
 		TypeToolBar = new QToolBar(this);
 		Layout->addWidget(TypeToolBar);
 		Layout->addWidget(DescriptionLabel);
-		ValueFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.value"), this);
+		ValueFilter = new QAction(VITRL("YSS::editor.textEdit.tabCompleter.value"), this);
 		ValueFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Value)));
-		ConstFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.const"), this);
+		ConstFilter = new QAction(VITRL("YSS::editor.textEdit.tabCompleter.const"), this);
 		ConstFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Const)));
-		EnumFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.enum"), this);
+		EnumFilter = new QAction(VITRL("YSS::editor.textEdit.tabCompleter.enum"), this);
 		EnumFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Enum)));
-		FunctionFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.function"), this);
+		FunctionFilter = new QAction(VITRL("YSS::editor.textEdit.tabCompleter.function"), this);
 		FunctionFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Function)));
-		ObjectFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.object"), this);
+		ObjectFilter = new QAction(VITRL("YSS::editor.textEdit.tabCompleter.object"), this);
 		ObjectFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Object)));
-		OperatorFilter = new QAction(VITR("YSS::editor.textEdit.tabCompleter.operator"), this);
+		OperatorFilter = new QAction(VITRL("YSS::editor.textEdit.tabCompleter.operator"), this);
 		OperatorFilter->setIcon(QIcon(Editor::TabCompleterItem::getTypeIconPath(YSSCore::Editor::TabCompleterItem::Operator)));
 		ValueFilter->setCheckable(true);
 		ConstFilter->setCheckable(true);
@@ -164,7 +164,7 @@ namespace YSSCore::__Private__ {
 			this->DescriptionLabel->setText(Items[currentSelectedIndex].getDescription());
 		}
 		else {
-			this->DescriptionLabel->setText(VITR("YSS::editor.textEdit.tabCompleter.viewDescription"));
+			this->DescriptionLabel->setText(VITRL("YSS::editor.textEdit.tabCompleter.viewDescription"));
 		}
 	}
 

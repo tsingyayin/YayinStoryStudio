@@ -191,7 +191,7 @@ namespace ASERStudio::YSS {
 
 			QString requiredName = controller.getRequiredParameterName();
 			if (!requiredName.isEmpty()) {
-				QLabel* requiredHeader = new QLabel(VITR("ASERStudio::ruleEditor.requiredParameters"), frame);
+				QLabel* requiredHeader = new QLabel(VITRL("ASERStudio::ruleEditor.requiredParameters"), frame);
 				QFont headerFont = requiredHeader->font();
 				headerFont.setBold(true);
 				requiredHeader->setFont(headerFont);
@@ -204,7 +204,7 @@ namespace ASERStudio::YSS {
 					QString displaySeparator = requiredSeparator;
 					displaySeparator.replace("\t", "\\t");
 					separatorTag = displaySeparator;
-					separatorToolTip = VITR("ASERStudio::ruleEditor.internalSeparator");
+					separatorToolTip = VITRL("ASERStudio::ruleEditor.internalSeparator");
 				}
 				frameLayout->addWidget(createParameterRowWidget(typeString, requiredName,
 					controller.getRequiredParameterValue(), separatorTag, separatorToolTip));
@@ -213,7 +213,7 @@ namespace ASERStudio::YSS {
 			QStringList optionalNames = controller.getOptionalParameterNames();
 			QStringList optionalPrefixes = controller.getOptionalParameterPrefixes();
 			if (!optionalNames.isEmpty()) {
-				QLabel* optionalHeader = new QLabel(VITR("ASERStudio::ruleEditor.optionalParameters"), frame);
+				QLabel* optionalHeader = new QLabel(VITRL("ASERStudio::ruleEditor.optionalParameters"), frame);
 				QFont headerFont = optionalHeader->font();
 				headerFont.setBold(true);
 				optionalHeader->setFont(headerFont);
@@ -225,7 +225,7 @@ namespace ASERStudio::YSS {
 					const QString prefix = optionalPrefixes.value(i);
 					if (!prefix.isEmpty()) {
 						prefixTag = prefix;
-						prefixToolTip = VITR("ASERStudio::ruleEditor.prefix");
+						prefixToolTip = VITRL("ASERStudio::ruleEditor.prefix");
 					}
 					frameLayout->addWidget(createParameterRowWidget(typeString, optionalNames[i],
 						optionalValues.value(optionalNames[i]), prefixTag, prefixToolTip));

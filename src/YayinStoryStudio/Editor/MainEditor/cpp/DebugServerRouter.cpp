@@ -18,7 +18,7 @@ namespace YSS::Editor {
 				QString debugServerID = YSSCore::General::YSSProject::getCurrentProject()->getProjectDebugServerID();
 				if (debugServerID.isEmpty()) {
 					QMessageBox::warning(YSS::Editor::MainWin::getInstance(),
-						VITR("YSS::editor.debug.notSelected.title"), VITR("YSS::editor.debug.notSelected.message"));
+						VITRL("YSS::editor.debug.notSelected.title"), VITRL("YSS::editor.debug.notSelected.message"));
 					vgErrorF << "No debug server set for current project!";
 					return nullptr;
 				}
@@ -50,7 +50,7 @@ namespace YSS::Editor {
 				else {
 					if (not notFoundWarned) {
 						QMessageBox::warning(YSS::Editor::MainWin::getInstance(),
-							VITR("YSS::editor.debug.notFound.title"), VITR("YSS::editor.debug.notFound.message").arg(debugServerID));
+							VITRL("YSS::editor.debug.notFound.title"), VITRL("YSS::editor.debug.notFound.message").arg(debugServerID));
 						vgErrorF << "Debug server" << debugServerID << "not found!";
 						notFoundWarned = true;
 					}

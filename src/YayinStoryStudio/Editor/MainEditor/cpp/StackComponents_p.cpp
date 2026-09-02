@@ -85,9 +85,9 @@ namespace YSS::Editor {
 			});
 
 		setContextMenuPolicy(Qt::ActionsContextMenu);
-		ActionClose = new QAction(VITR("Visindigo::general.close"), this);
-		ActionPin = new QAction(VITR("Visindigo::general.pin"), this);
-		ActionCloseAll = new QAction(VITR("YSS::menu.file.closeAll"), this);
+		ActionClose = new QAction(VITRL("Visindigo::general.close"), this);
+		ActionPin = new QAction(VITRL("Visindigo::general.pin"), this);
+		ActionCloseAll = new QAction(VITRL("YSS::menu.file.closeAll"), this);
 
 		connect(ActionClose, &QAction::triggered, this, [this]() {
 			emit closeClicked(FilePath);
@@ -100,12 +100,12 @@ namespace YSS::Editor {
 			emit closeAllRequested();
 			});
 
-		ActionReload = new QAction(VITR("Visindigo::general.reload"), this);
-		ActionRename = new QAction(VITR("Visindigo::general.rename"), this);
-		ActionSave = new QAction(VITR("Visindigo::general.save"), this);
-		ActionSaveAs = new QAction(VITR("Visindigo::general.saveAs"), this);
-		ActionShowInExplorer = new QAction(VITR("YSS::menu.file.showInExplorer"), this);
-		ActionCloseSaved = new QAction(VITR("YSS::menu.file.closeSaved"), this);
+		ActionReload = new QAction(VITRL("Visindigo::general.reload"), this);
+		ActionRename = new QAction(VITRL("Visindigo::general.rename"), this);
+		ActionSave = new QAction(VITRL("Visindigo::general.save"), this);
+		ActionSaveAs = new QAction(VITRL("Visindigo::general.saveAs"), this);
+		ActionShowInExplorer = new QAction(VITRL("YSS::menu.file.showInExplorer"), this);
+		ActionCloseSaved = new QAction(VITRL("YSS::menu.file.closeSaved"), this);
 		connect(ActionReload, &QAction::triggered, this, [this]() {
 			YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(FilePath);
 			if (editor) {

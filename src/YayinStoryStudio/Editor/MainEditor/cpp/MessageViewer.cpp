@@ -32,11 +32,11 @@ namespace YSS::Editor {
 		MessageTable = new QTableWidget(this);
 		MessageTable->setColumnCount(5); // code, message, file, line, column
 		MessageTable->setHorizontalHeaderLabels({
-				VITR("YSS::editor.messageViewer.code"),
-				VITR("YSS::editor.messageViewer.message"),
-				VITR("YSS::editor.messageViewer.file"),
-				VITR("YSS::editor.messageViewer.line"),
-				VITR("YSS::editor.messageViewer.column")
+				VITRL("YSS::editor.messageViewer.code"),
+				VITRL("YSS::editor.messageViewer.message"),
+				VITRL("YSS::editor.messageViewer.file"),
+				VITRL("YSS::editor.messageViewer.line"),
+				VITRL("YSS::editor.messageViewer.column")
 			});
 		Layout = new QVBoxLayout(this);
 		Layout->setContentsMargins(0, 0, 0, 0);

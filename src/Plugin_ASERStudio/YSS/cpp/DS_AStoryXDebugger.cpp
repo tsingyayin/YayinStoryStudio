@@ -31,8 +31,8 @@ namespace ASERStudio::YSS {
 	void DS_AStoryXDebugger::onRun(bool debug) {
 		auto launchFileName = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFileName();
 		if (not launchFileName.endsWith(".astoryx", Qt::CaseInsensitive)) {
-			QMessageBox::critical(nullptr, VITR("ASERStudio::debugger.notLegalFile.title"),
-				VITR("ASERStudio::debugger.notLegalFile.message").arg(launchFileName));
+			QMessageBox::critical(nullptr, VITRL("ASERStudio::debugger.notLegalFile.title"),
+				VITRL("ASERStudio::debugger.notLegalFile.message").arg(launchFileName));
 			return;
 		}
 		d->launchFileName = launchFileName.left(launchFileName.length() - 8);
@@ -46,13 +46,13 @@ namespace ASERStudio::YSS {
 				});
 			connect(ASERStudio::Main::getInstance()->getASERProgram(), &ASERStudio::ASEREnv::ASERProgram::programStarted, this, [this]() {
 				if (d->isRunning) {
-					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForPipe"));
+					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.waitingForPipe"));
 					emit actionPercent(d->isDebugMode ? DebugRun : Run, 1, 5);
 				}
 				});
 			connect(ASERStudio::Main::getInstance()->getASERProgram(), &ASERStudio::ASEREnv::ASERProgram::namedPipeConnected, this, [this]() {
 				if (d->isRunning) {
-					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForOBMI"));
+					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.waitingForOBMI"));
 					emit actionPercent(d->isDebugMode ? DebugRun : Run, 2, 5);
 					ASERStudio::Main::getInstance()->getASERProgram()->getProcessWindow()->setFlags(Qt::WindowStaysOnTopHint);
 				}
@@ -60,7 +60,7 @@ namespace ASERStudio::YSS {
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::officialBundleManagerInitializeChanged,
 				this, [this](ASERStudio::ASEREnv::ASERDebugIO::OfficialBundleManagerInitializeState state) {
 					if (d->isRunning) {
-						emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForPlay"));
+						emit actionMessage(d->isDebugMode ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.waitingForPlay"));
 						emit actionPercent(d->isDebugMode ? DebugRun : Run, 3, 5);
 						if (d->isDebugMode) {
 							ASERStudio::Main::getInstance()->getASERDebugIO()->play(d->launchFileName);
@@ -69,19 +69,19 @@ namespace ASERStudio::YSS {
 				});
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyLoading, this, [this](const QString& name) {
 				if (d->isRunning) {
-					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.loading").arg(name));
+					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.loading").arg(name));
 					emit actionPercent(d->isDebugMode ? DebugRun : Run, 4, 5);
 				}
 				});
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyStarted, this, [this](const QString& name) {
 				if (d->isRunning) {
-					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.started").arg(name));
+					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.started").arg(name));
 					emit actionPercent(d->isDebugMode ? DebugRun : Run, -1, -1);
 				}
 				});
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyExited, this, [this](const QString& name) {
 				if (d->isRunning) {
-					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITR("ASERStudio::debugger.executing.exited").arg(name));
+					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.exited").arg(name));
 					if (d->isDebugMode) {
 						ASERStudio::Main::getInstance()->getASERProgram()->waitStop(3000);
 					}
@@ -95,9 +95,9 @@ namespace ASERStudio::YSS {
 		auto program = ASERStudio::Main::getInstance()->getASERProgram();
 		bool exists = Visindigo::Utility::FileUtility::isFileExist(program->getExecutablePath());
 		if (not exists) {
-			QMessageBox::critical(nullptr, VITR("ASERStudio::debugger.executableNotFound.title"),
-				VITR("ASERStudio::debugger.executableNotFound.message").arg(program->getExecutablePath()));
-			emit actionMessage(debug ? DebugRun : Run, VITR("ASERStudio::debugger.executableNotFound.message").arg(program->getExecutablePath()));
+			QMessageBox::critical(nullptr, VITRL("ASERStudio::debugger.executableNotFound.title"),
+				VITRL("ASERStudio::debugger.executableNotFound.message").arg(program->getExecutablePath()));
+			emit actionMessage(debug ? DebugRun : Run, VITRL("ASERStudio::debugger.executableNotFound.message").arg(program->getExecutablePath()));
 			emit actionFinished(debug ? DebugRun : Run, false);
 			return;
 		}
@@ -109,7 +109,7 @@ namespace ASERStudio::YSS {
 		param.setProjectPath(path);
 		auto sizeMode = ASERStudio::Main::getInstance()->getPluginConfig()->getString("ASERExeSettings.WindowSize");
 		param.setSizeMode((ASERStudio::ASEREnv::ASERProgramLaunchParameter::SizeMode)sizeMode.toInt());
-		emit actionMessage(debug ? DebugRun : Run, VITR("ASERStudio::debugger.executing.waitingForLaunch"));
+		emit actionMessage(debug ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.waitingForLaunch"));
 		emit actionPercent(debug ? DebugRun : Run, 0, 0);
 		if (not program->start(param)) {
 			emit actionFinished(debug ? DebugRun : Run, false);

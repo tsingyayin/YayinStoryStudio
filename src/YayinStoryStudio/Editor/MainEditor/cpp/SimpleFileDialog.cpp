@@ -8,13 +8,13 @@ namespace YSS::Editor {
 	RenameDialog::RenameDialog() :QFrame() {
 		this->setWindowFlags(Qt::Dialog);
 		this->setFixedWidth(600);
-		this->setWindowTitle(VITR("YSS::editor.renameDialog.title"));
+		this->setWindowTitle(VITRL("YSS::editor.renameDialog.title"));
 		TitleLabel = new QLabel(this);
 		TitleLabel->setWordWrap(true);
 		Edit = new QLineEdit(this);
 		WarningLabel = new QLabel(this);
-		ConfirmButton = new QPushButton(VITR("Visindigo::general.confirm"), this);
-		CancelButton = new QPushButton(VITR("Visindigo::general.cancel"), this);
+		ConfirmButton = new QPushButton(VITRL("Visindigo::general.confirm"), this);
+		CancelButton = new QPushButton(VITRL("Visindigo::general.cancel"), this);
 		Layout = new QVBoxLayout(this);
 		this->setLayout(Layout);
 		Layout->addWidget(TitleLabel);
@@ -32,8 +32,8 @@ namespace YSS::Editor {
 				QFileInfo fileInfo(AbsOldPath);
 				QString newName = Edit->text();
 				if (fileInfo.suffix() != QFileInfo(newName).suffix() && !QFileInfo(newName).suffix().isEmpty()) {
-					bool ok = QMessageBox::question(this, VITR("YSS::editor.renameDialog.warning.extNotSame.title"),
-						VITR("YSS::editor.renameDialog.warning.extNotSame.message").arg(QFileInfo(newName).suffix()).arg(fileInfo.suffix()),
+					bool ok = QMessageBox::question(this, VITRL("YSS::editor.renameDialog.warning.extNotSame.title"),
+						VITRL("YSS::editor.renameDialog.warning.extNotSame.message").arg(QFileInfo(newName).suffix()).arg(fileInfo.suffix()),
 						QMessageBox::Yes | QMessageBox::No,
 						QMessageBox::No) == QMessageBox::Yes;
 					if (not ok) {
@@ -67,7 +67,7 @@ namespace YSS::Editor {
 		if (QFileInfo(absOldPath).isDir()) {
 			dirMode = true;
 		}
-		this->TitleLabel->setText(VITR("YSS::editor.renameDialog.rename").arg(absOldPath) + "\n\n" + VITR("YSS::editor.renameDialog.request"));
+		this->TitleLabel->setText(VITRL("YSS::editor.renameDialog.rename").arg(absOldPath) + "\n\n" + VITRL("YSS::editor.renameDialog.request"));
 		if (not dirMode) {
 			if (newName.isEmpty()) {
 				QFileInfo fileInfo(absOldPath);
@@ -95,26 +95,26 @@ namespace YSS::Editor {
 			QFileInfo fileInfo(AbsOldPath);
 			QString newAbsPath = fileInfo.absoluteDir().filePath(newName);
 			if (newName.isEmpty()) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.empty"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.empty"));
 				return;
 			}
 			QRegularExpression invalidCharsPattern(R"([\/:*?"<>|])");
 			if (newName.contains(invalidCharsPattern)) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.invalid"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.invalid"));
 				return;
 			}
 			QFileInfo newFileInfo(newAbsPath);
 			if (AbsOldPath == newAbsPath) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.same"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.same"));
 				return;
 			}
 			if (newFileInfo.exists()) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.exists"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.exists"));
 				return;
 			}
 			this->WarningLabel->setText("");
 			if (fileInfo.suffix() != newFileInfo.suffix() && !newFileInfo.suffix().isEmpty()) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.extNotSame.normal"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.extNotSame.normal"));
 				// notice: just warning, still valid
 			}
 		}
@@ -124,21 +124,21 @@ namespace YSS::Editor {
 			QString newAbsPath = dir.absoluteFilePath(QString("..") + QDir::separator() + newName);
 			newAbsPath = QDir(newAbsPath).absolutePath();
 			if (newName.isEmpty()) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.empty"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.empty"));
 				return;
 			}
 			QRegularExpression invalidCharsPattern(R"([\/:*?"<>|])");
 			if (newName.contains(invalidCharsPattern)) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.invalid"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.invalid"));
 				return;
 			}
 			QDir newDir(newAbsPath);
 			if (AbsOldPath == newAbsPath) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.same"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.same"));
 				return;
 			}
 			if (newDir.exists()) {
-				this->WarningLabel->setText(VITR("YSS::editor.renameDialog.warning.exists"));
+				this->WarningLabel->setText(VITRL("YSS::editor.renameDialog.warning.exists"));
 				return;
 			}
 			this->WarningLabel->setText("");
@@ -149,7 +149,7 @@ namespace YSS::Editor {
 	NewFolderDialog::NewFolderDialog() :QFrame() {
 		this->setWindowFlags(Qt::Dialog);
 		this->setFixedWidth(420);
-		this->setWindowTitle(VITR("YSS::editor.newFolderDialog.title"));
+		this->setWindowTitle(VITRL("YSS::editor.newFolderDialog.title"));
 
 		MainLayout = new QVBoxLayout(this);
 		this->setLayout(MainLayout);
@@ -166,8 +166,8 @@ namespace YSS::Editor {
 		MainLayout->addWidget(CheckLabel);
 
 		QHBoxLayout* buttonLayout = new QHBoxLayout();
-		ConfirmButton = new QPushButton(VITR("Visindigo::general.confirm"), this);
-		CancelButton = new QPushButton(VITR("Visindigo::general.cancel"), this);
+		ConfirmButton = new QPushButton(VITRL("Visindigo::general.confirm"), this);
+		CancelButton = new QPushButton(VITRL("Visindigo::general.cancel"), this);
 		buttonLayout->addStretch(1);
 		buttonLayout->addWidget(ConfirmButton);
 		buttonLayout->addWidget(CancelButton);
@@ -187,7 +187,7 @@ namespace YSS::Editor {
 	void NewFolderDialog::setContext(const QString& parentPath, const QStringList& existingNames) {
 		this->ParentPath = parentPath;
 		this->ExistingNames = existingNames;
-		this->DescriptionLabel->setText(VITR("YSS::editor.newFolderDialog.desc").arg(parentPath));
+		this->DescriptionLabel->setText(VITRL("YSS::editor.newFolderDialog.desc").arg(parentPath));
 		this->NameEdit->clear();
 		this->validateName();
 	}
@@ -196,18 +196,18 @@ namespace YSS::Editor {
 		ValidName = false;
 		QString newName = NameEdit->text().trimmed();
 		if (newName.isEmpty()) {
-			CheckLabel->setText(VITR("YSS::editor.newFolderDialog.warning.empty"));
+			CheckLabel->setText(VITRL("YSS::editor.newFolderDialog.warning.empty"));
 			CheckLabel->setStyleSheet("QLabel{color: red;}");
 			return;
 		}
 		QRegularExpression invalidCharsPattern(R"([\/:*?"<>|])");
 		if (newName.contains(invalidCharsPattern)) {
-			CheckLabel->setText(VITR("YSS::editor.newFolderDialog.warning.invalid"));
+			CheckLabel->setText(VITRL("YSS::editor.newFolderDialog.warning.invalid"));
 			CheckLabel->setStyleSheet("QLabel{color: red;}");
 			return;
 		}
 		if (ExistingNames.contains(newName) || QFileInfo(ParentPath + QDir::separator() + newName).exists()) {
-			CheckLabel->setText(VITR("YSS::editor.newFolderDialog.warning.exists"));
+			CheckLabel->setText(VITRL("YSS::editor.newFolderDialog.warning.exists"));
 			CheckLabel->setStyleSheet("QLabel{color: red;}");
 			return;
 		}

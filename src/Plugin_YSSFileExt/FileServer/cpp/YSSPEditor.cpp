@@ -38,16 +38,16 @@ namespace YSSFileExt {
 		d->CoverLabel->setFixedSize(160, 90);
 		d->ProjectNameLabel = new QLabel(d->Content);
 		d->AuthorLabel = new QLabel(d->Content);
-		d->AuthorLabel->setText(VITR("YSS::project.author"));
+		d->AuthorLabel->setText(VITRL("YSS::project.author"));
 		d->AuthorLineEdit = new QLineEdit(d->Content);
 		d->DescriptionLabel = new QLabel(d->Content);
-		d->DescriptionLabel->setText(VITR("YSS::project.description"));
+		d->DescriptionLabel->setText(VITRL("YSS::project.description"));
 		d->DescriptionEdit = new QTextEdit(d->Content);
 		d->DebugServerLabel = new QLabel(d->Content);
-		d->DebugServerLabel->setText(VITR("YSS::project.debugServer"));
+		d->DebugServerLabel->setText(VITRL("YSS::project.debugServer"));
 		d->DebugServerComboBox = new QComboBox(d->Content);
 		d->SaveButton = new QPushButton(d->Content);
-		d->SaveButton->setText(VITR("Visindigo::general.save"));
+		d->SaveButton->setText(VITRL("Visindigo::general.save"));
 		d->Layout->addWidget(d->CoverLabel, 0, 0, 3, 1);
 		d->Layout->addWidget(d->ProjectNameLabel, 0, 1, 2, 2);
 		d->Layout->addWidget(d->AuthorLabel, 2, 1);
@@ -76,7 +76,7 @@ namespace YSSFileExt {
 			d->CoverLabel->setPixmap(pixmap.scaled(d->CoverLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 		}
 		else {
-			d->CoverLabel->setText(VITR("YSS::project.noCover"));
+			d->CoverLabel->setText(VITRL("YSS::project.noCover"));
 		}
 		d->ProjectNameLabel->setText(project->getProjectName());
 		d->AuthorLineEdit->setText(project->getProjectAuthor());
@@ -96,8 +96,8 @@ namespace YSSFileExt {
 	}
 	bool YSSPEditor::onClose() {
 		if (isFileChanged()) {
-			int ret = QMessageBox::warning(this, VITR("YSS::editor.saveWarning.title"),
-				VITR("YSS::editor.saveWarning.message").arg(getFileName()),
+			int ret = QMessageBox::warning(this, VITRL("YSS::editor.saveWarning.title"),
+				VITRL("YSS::editor.saveWarning.message").arg(getFileName()),
 				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
 				QMessageBox::Save);
 			switch (ret) {

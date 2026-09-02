@@ -99,7 +99,7 @@ namespace YSS::Editor {
 		d->TagArea->setFixedHeight(32);
 
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
-		d->CentralArea->setText(VITR("YSS::editor.stackWidgetArea.noFileOpened"));
+		d->CentralArea->setText(VITRL("YSS::editor.stackWidgetArea.noFileOpened"));
 		d->ContentArea = d->CentralArea;
 
 		d->Layout->addWidget(d->TagArea);
@@ -142,7 +142,7 @@ namespace YSS::Editor {
 			});
 
 		d->DragInMsgLabel = new QLabel(this);
-		d->DragInMsgLabel->setText(VITR("YSS::editor.stackWidgetArea.dragInFile"));
+		d->DragInMsgLabel->setText(VITRL("YSS::editor.stackWidgetArea.dragInFile"));
 		d->DragInMsgLabel->setAlignment(Qt::AlignCenter);
 		d->DragInMsgLabel->setStyleSheet("background-color: rgba(0, 0, 0, 0.5); color: white; font-size: 16px;");
 		d->DragInMsgLabel->hide();

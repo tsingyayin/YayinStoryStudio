@@ -50,11 +50,11 @@ namespace YSS::Editor {
 		Layout->setContentsMargins(0, 0, 0, 0);
 
 		ToolBar = new QToolBar(this);
-		ToolActionRefresh = ToolBar->addAction(VITR("Visindigo::general.refresh"));
-		ToolActionShrink = ToolBar->addAction(VITR("Visindigo::general.shrink"));
-		ToolActionExpand = ToolBar->addAction(VITR("Visindigo::general.expand"));
-		ToolActionNewFile = ToolBar->addAction(VITR("Visindigo::general.new"));
-		ToolActionNewFolder = ToolBar->addAction(VITR("YSS::menu.file.newFolder"));
+		ToolActionRefresh = ToolBar->addAction(VITRL("Visindigo::general.refresh"));
+		ToolActionShrink = ToolBar->addAction(VITRL("Visindigo::general.shrink"));
+		ToolActionExpand = ToolBar->addAction(VITRL("Visindigo::general.expand"));
+		ToolActionNewFile = ToolBar->addAction(VITRL("Visindigo::general.new"));
+		ToolActionNewFolder = ToolBar->addAction(VITRL("YSS::menu.file.newFolder"));
 		ToolBar->setMaximumHeight(40);
 		Layout->addWidget(ToolBar);
 
@@ -82,20 +82,20 @@ namespace YSS::Editor {
 		connect(FileTree, &QTreeView::customContextMenuRequested, this, &ResourceBrowser::onFileTreeContextMenuRequested);
 
 		FileOptions = new QMenu(this);
-		FileOptionOpen = FileOptions->addAction(VITR("Visindigo::general.open"));
-		FileOptionRename = FileOptions->addAction(VITR("Visindigo::general.rename"));
-		FileOptionDelete = FileOptions->addAction(VITR("Visindigo::general.delete"));
-		FileOptionNewFile = FileOptions->addAction(VITR("YSS::menu.file.newFile"));
-		FileOptionNewFolder = FileOptions->addAction(VITR("YSS::menu.file.newFolder"));
+		FileOptionOpen = FileOptions->addAction(VITRL("Visindigo::general.open"));
+		FileOptionRename = FileOptions->addAction(VITRL("Visindigo::general.rename"));
+		FileOptionDelete = FileOptions->addAction(VITRL("Visindigo::general.delete"));
+		FileOptionNewFile = FileOptions->addAction(VITRL("YSS::menu.file.newFile"));
+		FileOptionNewFolder = FileOptions->addAction(VITRL("YSS::menu.file.newFolder"));
 		FileOptions->addSeparator();
-		FileOptionCopyPath = FileOptions->addAction(VITR("YSS::menu.edit.copyPath"));
-		FileOptionCopyName = FileOptions->addAction(VITR("YSS::menu.edit.copyName"));
+		FileOptionCopyPath = FileOptions->addAction(VITRL("YSS::menu.edit.copyPath"));
+		FileOptionCopyName = FileOptions->addAction(VITRL("YSS::menu.edit.copyName"));
 		FileOptions->addSeparator();
-		FileOptionCopy = FileOptions->addAction(VITR("YSS::menu.edit.copy"));
-		FileOptionPaste = FileOptions->addAction(VITR("YSS::menu.edit.paste"));
-		FileOptionCut = FileOptions->addAction(VITR("YSS::menu.edit.cut"));
+		FileOptionCopy = FileOptions->addAction(VITRL("YSS::menu.edit.copy"));
+		FileOptionPaste = FileOptions->addAction(VITRL("YSS::menu.edit.paste"));
+		FileOptionCut = FileOptions->addAction(VITRL("YSS::menu.edit.cut"));
 		FileOptions->addSeparator();
-		FileOptionRefresh = FileOptions->addAction(VITR("Visindigo::general.refresh"));
+		FileOptionRefresh = FileOptions->addAction(VITRL("Visindigo::general.refresh"));
 		
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		if (project != nullptr) {
@@ -195,10 +195,10 @@ namespace YSS::Editor {
 			if (CurrentFilePath.isEmpty()) return;
 			auto projectFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder() + "/project.yssp";
 			if (QFileInfo(CurrentFilePath).absoluteFilePath() == QFileInfo(projectFilePath).absoluteFilePath()) {
-				QMessageBox::warning(this, VITR("YSS::editor.deleteProjectFile.title"), VITR("YSS::editor.deleteProjectFile.message"));
+				QMessageBox::warning(this, VITRL("YSS::editor.deleteProjectFile.title"), VITRL("YSS::editor.deleteProjectFile.message"));
 				return;
 			}
-			auto rtn = QMessageBox::question(this, VITR("YSS::editor.deleteFile.title"), VITR("YSS::editor.deleteFile.message").arg(CurrentFilePath), QMessageBox::Yes | QMessageBox::No);
+			auto rtn = QMessageBox::question(this, VITRL("YSS::editor.deleteFile.title"), VITRL("YSS::editor.deleteFile.message").arg(CurrentFilePath), QMessageBox::Yes | QMessageBox::No);
 			if (rtn == QMessageBox::Yes) {
 				emit fileOperationRequested(new FileDeleteCommand(CurrentFilePath));
 			}

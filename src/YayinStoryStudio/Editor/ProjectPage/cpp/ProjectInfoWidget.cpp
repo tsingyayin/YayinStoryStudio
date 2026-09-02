@@ -27,9 +27,9 @@ namespace YSS::ProjectPage {
 		LastModifiedTimeLabel = new QLabel(this);
 		SizeLabel = new QLabel(this);
 		ShowInBrowserButton = new QPushButton(this);
-		ShowInBrowserButton->setToolTip(VITR("YSS::tooltips.projectWin.showInBrowser"));
+		ShowInBrowserButton->setToolTip(VITRL("YSS::tooltips.projectWin.showInBrowser"));
 		DeleteButton = new QPushButton(this);
-		DeleteButton->setToolTip(VITR("YSS::tooltips.projectWin.delete"));
+		DeleteButton->setToolTip(VITRL("YSS::tooltips.projectWin.delete"));
 		Layout = new QGridLayout(this);
 		DeleteButton->setObjectName("DeleteButton");
 		this->setLayout(Layout);
@@ -50,14 +50,14 @@ namespace YSS::ProjectPage {
 
 	void ProjectInfoWidget::initWidget() {
 		Project = nullptr;
-		CoverLabel->setText(VITR("YSS::project.noCover"));
+		CoverLabel->setText(VITRL("YSS::project.noCover"));
 		CoverLabel->setStyleSheet("QLabel{border-image:url()}");
-		TitleLabel->setText(VITR("YSS::project.selectToShow"));
-		CreateTimeLabel->setText(VITR("YSS::project.createTime") + ": ");
-		LastModifiedTimeLabel->setText(VITR("YSS::project.lastModifiedTime") + ": ");
-		SizeLabel->setText(VITR("YSS::project.size") + ": ");
-		ShowInBrowserButton->setText(VITR("YSS::project.showInBrowser"));
-		DeleteButton->setText(VITR("YSS::project.delete"));
+		TitleLabel->setText(VITRL("YSS::project.selectToShow"));
+		CreateTimeLabel->setText(VITRL("YSS::project.createTime") + ": ");
+		LastModifiedTimeLabel->setText(VITRL("YSS::project.lastModifiedTime") + ": ");
+		SizeLabel->setText(VITRL("YSS::project.size") + ": ");
+		ShowInBrowserButton->setText(VITRL("YSS::project.showInBrowser"));
+		DeleteButton->setText(VITRL("YSS::project.delete"));
 	}
 
 	void ProjectInfoWidget::showProject(YSSCore::General::YSSProject* project) {
@@ -75,16 +75,16 @@ namespace YSS::ProjectPage {
 			},
 			[this](qint64 size) {
 				QString readable = Visindigo::Utility::FileUtility::readableSize(size);
-				SizeLabel->setText(VITR("YSS::project.size") + ": " + readable);
+				SizeLabel->setText(VITRL("YSS::project.size") + ": " + readable);
 			}
 		);
-		SizeLabel->setText(VITR("YSS::project.size") + ": " + VITR("YSS::project.calculating"));
+		SizeLabel->setText(VITRL("YSS::project.size") + ": " + VITRL("YSS::project.calculating"));
 		CoverLabel->setText("");
 		CoverLabel->setStyleSheet("QLabel{border-image:url(" + project->getProjectFolder() + "/" + project->getProjectIconPath() + ")}");
 		//yDebugF << project->getProjectFolder() + "/" + project->getProjectIconPath();
 		TitleLabel->setText(project->getProjectName());
-		CreateTimeLabel->setText(VITR("YSS::project.createTime") + ": " + project->getProjectCreateTime().toString("yyyy-MM-dd hh:mm:ss"));
-		LastModifiedTimeLabel->setText(VITR("YSS::project.lastModifiedTime") + ": " + project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss"));
+		CreateTimeLabel->setText(VITRL("YSS::project.createTime") + ": " + project->getProjectCreateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		LastModifiedTimeLabel->setText(VITRL("YSS::project.lastModifiedTime") + ": " + project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss"));
 	}
 
 	void ProjectInfoWidget::onDeleteButtonClicked() {
@@ -92,8 +92,8 @@ namespace YSS::ProjectPage {
 			return;
 		}
 		QMessageBox msgBox;
-		msgBox.setWindowTitle(VITR("YSS::project.delete"));
-		msgBox.setText(VITR("YSS::project.deleteConfirm"));
+		msgBox.setWindowTitle(VITRL("YSS::project.delete"));
+		msgBox.setText(VITRL("YSS::project.deleteConfirm"));
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		int ret = msgBox.exec();
@@ -111,8 +111,8 @@ namespace YSS::ProjectPage {
 			return;
 		}
 		QMessageBox msgBox;
-		msgBox.setWindowTitle(VITR("YSS::project.delete"));
-		msgBox.setText(VITR("YSS::project.deleteConfirm"));
+		msgBox.setWindowTitle(VITRL("YSS::project.delete"));
+		msgBox.setText(VITRL("YSS::project.deleteConfirm"));
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		int ret = msgBox.exec();

@@ -101,11 +101,11 @@ namespace YSS::Editor {
 		}
 
 		void initTabCompleterLevelComboBox() {
-			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.none"), YSSCore::Editor::TabCompleterItem::CompleterLevel::None);
-			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.few"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Few);
-			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.some"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Some);
-			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.many"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Many);
-			EditorTabCompleterLevelComboBox->addItem(VITR("YSS::editor.textEdit.tabCompleterLevel.all"), YSSCore::Editor::TabCompleterItem::CompleterLevel::All);
+			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.none"), YSSCore::Editor::TabCompleterItem::CompleterLevel::None);
+			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.few"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Few);
+			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.some"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Some);
+			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.many"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Many);
+			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.all"), YSSCore::Editor::TabCompleterItem::CompleterLevel::All);
 			qint32 index = -1;
 			auto configLevel = YSS::Editor::TextEditConfigOperator::getCompleterLevel();
 			for (qint32 i = 0; i < EditorTabCompleterLevelComboBox->count(); i++) {
@@ -139,7 +139,7 @@ namespace YSS::Editor {
 		d->DebugInfoIcon->setFixedSize(d->iconSize, d->iconSize);
 		d->DebugInfoText = new QLabel(d->DebugInfoWidget);
 		d->DebugInfoText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-		d->DebugInfoText->setText(VITR("YSS::editor.bottomInfoWidget.debugMessage.prepared"));
+		d->DebugInfoText->setText(VITRL("YSS::editor.bottomInfoWidget.debugMessage.prepared"));
 		d->DebugProgressBar = new QProgressBar(d->DebugInfoWidget);
 		d->DebugProgressBar->setTextVisible(false);
 		d->DebugProgressBar->setMinimum(0);
@@ -169,7 +169,7 @@ namespace YSS::Editor {
 		d->EditorInfoText = new QToolButton(d->EditorInfoWidget);
 		d->EditorInfoText->setAutoRaise(true); // borderless, only shows frame on hover
 		d->EditorInfoText->setText("");
-		d->EditorInfoText->setToolTip(VITR("YSS::editor.bottomInfoWidget.statistic.tooltip"));
+		d->EditorInfoText->setToolTip(VITRL("YSS::editor.bottomInfoWidget.statistic.tooltip"));
 		connect(d->EditorInfoText, &QToolButton::clicked, this, [this]() {
 			emit requestStatistic();
 			});
@@ -265,7 +265,7 @@ namespace YSS::Editor {
 	void BottomInfoWidget::clearDebugInfo() {
 		d->DebugAction = YSSCore::Editor::DebugServer::DebugAction::Unknown;
 		d->applyIcon();
-		d->DebugInfoText->setText(VITR("YSS::editor.bottomInfoWidget.debugMessage.prepared"));
+		d->DebugInfoText->setText(VITRL("YSS::editor.bottomInfoWidget.debugMessage.prepared"));
 	}
 
 	void BottomInfoWidget::displayDebugProgress(YSSCore::Editor::DebugServer::DebugAction action, qint32 finished, qint32 total) {
@@ -300,11 +300,11 @@ namespace YSS::Editor {
 	}
 
 	void BottomInfoWidget::displayEditorInfo(qint32 totalLine, qint32 currentLine, qint32 currentColumn, qint32 selected) {
-		QString totalLines = VITR("YSS::editor.bottomInfoWidget.totalLines").arg(totalLine) + ". ";
+		QString totalLines = VITRL("YSS::editor.bottomInfoWidget.totalLines").arg(totalLine) + ". ";
 		if (selected > 0) {
-			totalLines += VITR("YSS::editor.bottomInfoWidget.cursorInfo_s").arg(currentLine).arg(currentColumn).arg(selected);
+			totalLines += VITRL("YSS::editor.bottomInfoWidget.cursorInfo_s").arg(currentLine).arg(currentColumn).arg(selected);
 		}else{
-			totalLines += VITR("YSS::editor.bottomInfoWidget.cursorInfo").arg(currentLine).arg(currentColumn);
+			totalLines += VITRL("YSS::editor.bottomInfoWidget.cursorInfo").arg(currentLine).arg(currentColumn);
 		}
 		d->EditorInfoText->setText(totalLines);
 	}

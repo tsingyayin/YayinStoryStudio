@@ -52,8 +52,8 @@ namespace YSS::ProjectPage {
 					QString latestVersion = VIApp->getMainPlugin()->getPluginConfig()->getString("Update.LatestVersion");
 					if (needUpdate) {
 						QString currentVersion = VIApp->getMainPlugin()->getPluginVersion().toString();
-						QMessageBox::information(this, VITR("YSS::update.newVersionAvailable"), 
-							VITR("YSS::update.newVersionAvailableDesc").arg(latestVersion).arg(currentVersion));
+						QMessageBox::information(this, VITRL("YSS::update.newVersionAvailable"), 
+							VITRL("YSS::update.newVersionAvailableDesc").arg(latestVersion).arg(currentVersion));
 					}
 					reply->deleteLater();
 					return;
@@ -65,7 +65,7 @@ namespace YSS::ProjectPage {
 				}
 			}
 			else {
-				NewsWidget->setMarkdown(VITR("YSS::update.newsLoadFailed"));
+				NewsWidget->setMarkdown(VITRL("YSS::update.newsLoadFailed"));
 				NewsWidget->setAlignment(Qt::AlignCenter);
 			}
 			reply->deleteLater();
@@ -73,7 +73,7 @@ namespace YSS::ProjectPage {
 
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setMinimumSize(1024, 576);
-		this->setWindowTitle(VITR("YSS::project.projectManager"));
+		this->setWindowTitle(VITRL("YSS::project.projectManager"));
 		//this->setWindowFlags(Qt::ExpandedClientAreaHint | Qt::NoTitleBarBackgroundHint);
 		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
 		TitleLabel->setContentsMargins(10, 0, 10, 0);
@@ -102,14 +102,14 @@ namespace YSS::ProjectPage {
 
 		OptionWidget = new Visindigo::Widgets::BorderFrame(this);
 		CreateProjectButton = new QPushButton(OptionWidget);
-		CreateProjectButton->setText(VITR("YSS::project.createNewProject"));
-		CreateProjectButton->setToolTip(VITR("YSS::tooltips.projectWin.createNewProject"));
+		CreateProjectButton->setText(VITRL("YSS::project.createNewProject"));
+		CreateProjectButton->setToolTip(VITRL("YSS::tooltips.projectWin.createNewProject"));
 		OpenFolderButton = new QPushButton(OptionWidget);
-		OpenFolderButton->setText(VITR("YSS::project.openFolder"));
-		OpenFolderButton->setToolTip(VITR("YSS::tooltips.projectWin.openFolder"));
+		OpenFolderButton->setText(VITRL("YSS::project.openFolder"));
+		OpenFolderButton->setToolTip(VITRL("YSS::tooltips.projectWin.openFolder"));
 		CloneGitButton = new QPushButton(OptionWidget);
-		CloneGitButton->setText(VITR("YSS::project.cloneFromGit"));
-		CloneGitButton->setToolTip(VITR("YSS::tooltips.projectWin.cloneFromGit"));
+		CloneGitButton->setText(VITRL("YSS::project.cloneFromGit"));
+		CloneGitButton->setToolTip(VITRL("YSS::tooltips.projectWin.cloneFromGit"));
 		CloneGitButton->hide();
 		ButtonLayout = new QVBoxLayout(OptionWidget);
 		OptionWidget->setLayout(ButtonLayout);
@@ -235,7 +235,7 @@ namespace YSS::ProjectPage {
 	}
 	void ProjectWin::onOpenProject(QString filePath) {
 		if (filePath.isEmpty()) {
-			filePath = QFileDialog::getOpenFileName(this, VITR("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
+			filePath = QFileDialog::getOpenFileName(this, VITRL("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		}
 		filePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(), filePath);
 		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
@@ -257,16 +257,16 @@ namespace YSS::ProjectPage {
 		else {
 			QMessageBox msgBox;
 			msgBox.setIcon(QMessageBox::Critical);
-			msgBox.setText(VITR("YSS::project.openProjectFailed.message"));
+			msgBox.setText(VITRL("YSS::project.openProjectFailed.message"));
 			switch (res) {
 			case YSSCore::General::YSSProject::ParseError:
-				msgBox.setInformativeText(VITR("YSS::project.openProjectFailed.ParseError"));
+				msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.ParseError"));
 				break;
 			case YSSCore::General::YSSProject::InvalidConfig:
-				msgBox.setInformativeText(VITR("YSS::project.openProjectFailed.InvalidConfig"));
+				msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.InvalidConfig"));
 				break;
 			default:
-				msgBox.setInformativeText(VITR("YSS::project.openProjectFailed.UnknownError"));
+				msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.UnknownError"));
 				break;
 			}
 			msgBox.setStandardButtons(QMessageBox::Ok);
@@ -330,7 +330,7 @@ namespace YSS::ProjectPage {
 			HistoryProjectLayout->addWidget(label);
 			//label->setSpacing(5);
 			//label->setContentsMargins(10, 10, 10, 10);
-			label->setToolTip(VITR("YSS::tooltips.projectWin.project"));
+			label->setToolTip(VITRL("YSS::tooltips.projectWin.project"));
 			label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 			//label->setFixedHeight(50);
 			label->show();
@@ -391,8 +391,8 @@ namespace YSS::ProjectPage {
 					VIApp->getMainPlugin()->getPluginConfig()->setString("Update.LatestVersion", metaVersion.toString());
 					if (isUpdate) {
 						auto version = YSS::Main::getInstance()->getPluginVersion().toString();
-						QMessageBox::information(this, VITR("YSS::update.newVersionAvailable"), 
-							VITR("YSS::update.newVersionAvailableDesc").arg(metaVersion.toString()).arg(version));
+						QMessageBox::information(this, VITRL("YSS::update.newVersionAvailable"), 
+							VITRL("YSS::update.newVersionAvailableDesc").arg(metaVersion.toString()).arg(version));
 					}
 				}
 				reply->deleteLater();

@@ -125,7 +125,7 @@ namespace YSS::Editor {
 					themeStyleDataEditingChanged = false;
 					return;
 				}
-				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges.title"), VITR("YSS::colorThemeSettings.unsavedChanges.message"), QMessageBox::Yes | QMessageBox::No);
+				int ret = QMessageBox::question(nullptr, VITRL("YSS::colorThemeSettings.unsavedChanges.title"), VITRL("YSS::colorThemeSettings.unsavedChanges.message"), QMessageBox::Yes | QMessageBox::No);
 				if (ret == QMessageBox::Yes) {
 					auto server = langServerList[index];
 					currentLangServer->getColorThemeProvider()->setThemeStyleData(currentThemeName, themeStyleDataEditing);
@@ -160,7 +160,7 @@ namespace YSS::Editor {
 					themeStyleDataEditingChanged = false;
 					return;
 				}
-				int ret = QMessageBox::question(nullptr, VITR("YSS::colorThemeSettings.unsavedChanges.title"), VITR("YSS::colorThemeSettings.unsavedChanges.message"), QMessageBox::Yes | QMessageBox::No);
+				int ret = QMessageBox::question(nullptr, VITRL("YSS::colorThemeSettings.unsavedChanges.title"), VITRL("YSS::colorThemeSettings.unsavedChanges.message"), QMessageBox::Yes | QMessageBox::No);
 				if (ret == QMessageBox::Yes) {
 					currentLangServer->getColorThemeProvider()->setThemeStyleData(currentThemeName, themeStyleDataEditing);
 				}
@@ -327,7 +327,7 @@ namespace YSS::Editor {
 		d->styleFrame = new Visindigo::Widgets::BorderFrame(this);
 		d->styleLayout = new QGridLayout(d->styleFrame);
 		d->styleLayout->setContentsMargins(8, 4, 8, 4);
-		d->fontTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.font"), d->styleFrame);
+		d->fontTitleLabel = new QLabel(VITRL("YSS::colorThemeSettings.font"), d->styleFrame);
 		d->fontComboBox = new QFontComboBox(d->styleFrame);
 		d->fontComboBox->setCurrentFont(TextEditConfigOperator::getTextFont());
 		d->styleLayout->addWidget(d->fontTitleLabel, 0, 0);
@@ -343,7 +343,7 @@ namespace YSS::Editor {
 		d->langServerFrame = new Visindigo::Widgets::BorderFrame(this);
 		d->langServerLayout = new QGridLayout(d->langServerFrame);
 		d->langServerLayout->setContentsMargins(8, 4, 8, 4);
-		d->langServerTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.langServer"), d->langServerFrame);
+		d->langServerTitleLabel = new QLabel(VITRL("YSS::colorThemeSettings.langServer"), d->langServerFrame);
 		d->langServerComboBox = new QComboBox(d->langServerFrame);
 		d->langServerLayout->addWidget(d->langServerTitleLabel, 0, 0);
 		d->langServerLayout->addWidget(d->langServerComboBox, 0, 1);
@@ -353,10 +353,10 @@ namespace YSS::Editor {
 		d->themeFrame = new Visindigo::Widgets::BorderFrame(this);
 		d->themeLayout = new QGridLayout(d->themeFrame);
 		d->themeLayout->setContentsMargins(8, 4, 8, 4);
-		d->themeTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.theme"), d->themeFrame);
+		d->themeTitleLabel = new QLabel(VITRL("YSS::colorThemeSettings.theme"), d->themeFrame);
 		d->themeComboBox = new QComboBox(d->themeFrame);
-		d->duplicateButton = new QPushButton(VITR("YSS::colorThemeSettings.duplicate"), d->themeFrame);
-		d->deleteButton = new QPushButton(VITR("YSS::colorThemeSettings.delete"), d->themeFrame);
+		d->duplicateButton = new QPushButton(VITRL("YSS::colorThemeSettings.duplicate"), d->themeFrame);
+		d->deleteButton = new QPushButton(VITRL("YSS::colorThemeSettings.delete"), d->themeFrame);
 		d->themeLayout->addWidget(d->themeTitleLabel, 0, 0);
 		d->themeLayout->addWidget(d->themeComboBox, 0, 1);
 		d->themeLayout->addWidget(d->duplicateButton, 0, 2);
@@ -389,13 +389,13 @@ namespace YSS::Editor {
 		d->configNodeView = new QListView(d->editFrame);
 		d->configNodeView->setSelectionMode(QAbstractItemView::SingleSelection);
 		d->configNodeView->setModel(new QStandardItemModel(d->configNodeView));
-		d->textColorTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.textColor"), d->editFrame);
+		d->textColorTitleLabel = new QLabel(VITRL("YSS::colorThemeSettings.textColor"), d->editFrame);
 		d->textColorButton = new QPushButton(d->editFrame);
-		d->bgColorTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.bgColor"), d->editFrame);
+		d->bgColorTitleLabel = new QLabel(VITRL("YSS::colorThemeSettings.bgColor"), d->editFrame);
 		d->bgColorButton = new QPushButton(d->editFrame);
-		d->lineColorTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.lineColor"), d->editFrame);
+		d->lineColorTitleLabel = new QLabel(VITRL("YSS::colorThemeSettings.lineColor"), d->editFrame);
 		d->lineColorButton = new QPushButton(d->editFrame);
-		d->lineTypeTitleLabel = new QLabel(VITR("YSS::colorThemeSettings.lineType"), d->editFrame);
+		d->lineTypeTitleLabel = new QLabel(VITRL("YSS::colorThemeSettings.lineType"), d->editFrame);
 		d->lineTypeComboBox = new QComboBox(d->editFrame);
 
 		QMetaEnum underlineMeta = QMetaEnum::fromType<YSSCore::Editor::StyleData::UnderlineType>();
@@ -403,9 +403,9 @@ namespace YSS::Editor {
 			d->lineTypeComboBox->addItem(VITR("YSS::colorThemeSettings.underlineType." + QString::fromUtf8(underlineMeta.key(i))));
 		}
 		
-		d->useBoldCheckBox = new QCheckBox(VITR("YSS::colorThemeSettings.bold"), d->editFrame);
-		d->useItalicCheckBox = new QCheckBox(VITR("YSS::colorThemeSettings.italic"), d->editFrame);
-		d->useBgColorCheckBox = new QCheckBox(VITR("YSS::colorThemeSettings.bgColorEnabled"), d->editFrame);
+		d->useBoldCheckBox = new QCheckBox(VITRL("YSS::colorThemeSettings.bold"), d->editFrame);
+		d->useItalicCheckBox = new QCheckBox(VITRL("YSS::colorThemeSettings.italic"), d->editFrame);
+		d->useBgColorCheckBox = new QCheckBox(VITRL("YSS::colorThemeSettings.bgColorEnabled"), d->editFrame);
 		// row 0: configNodeView (full row)
 		d->editLayout->addWidget(d->configNodeView, 0, 0, 1, -1);
 		// row 1: per-style preview (single line, full row)
@@ -427,9 +427,9 @@ namespace YSS::Editor {
 		d->editLayout->setColumnStretch(1, 1);
 
 		// save / reset buttons
-		d->staticWarningLabel = new QLabel(VITR("YSS::colorThemeSettings.staticThemeWarning"), this);
-		d->saveButton = new QPushButton(VITR("YSS::colorThemeSettings.save"), this);
-		d->resetButton = new QPushButton(VITR("YSS::colorThemeSettings.reset"), this);
+		d->staticWarningLabel = new QLabel(VITRL("YSS::colorThemeSettings.staticThemeWarning"), this);
+		d->saveButton = new QPushButton(VITRL("YSS::colorThemeSettings.save"), this);
+		d->resetButton = new QPushButton(VITRL("YSS::colorThemeSettings.reset"), this);
 
 		// mainLayout arrangement
 		d->mainLayout->addWidget(d->styleFrame, 0, 0, 1, -1);
@@ -519,8 +519,8 @@ namespace YSS::Editor {
 			if (provider->isStaticTheme(d->currentThemeName)) {
 				return; // 静态主题不允许删除
 			}
-			int ret = QMessageBox::question(this, VITR("YSS::colorThemeSettings.deleteConfirm.title"),
-				VITR("YSS::colorThemeSettings.deleteConfirm.message").arg(d->currentThemeName),
+			int ret = QMessageBox::question(this, VITRL("YSS::colorThemeSettings.deleteConfirm.title"),
+				VITRL("YSS::colorThemeSettings.deleteConfirm.message").arg(d->currentThemeName),
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 			if (ret != QMessageBox::Yes) {
 				return;
@@ -534,7 +534,7 @@ namespace YSS::Editor {
 			});
 		bool success = d->initLangServer();
 
-		d->nothingToEditLabel = new QLabel(VITR("YSS::colorThemeSettings.nothingToEdit"), this);
+		d->nothingToEditLabel = new QLabel(VITRL("YSS::colorThemeSettings.nothingToEdit"), this);
 		d->nothingToEditLabel->setAlignment(Qt::AlignCenter);
 		d->nothingToEditLabel->setStyleSheet("QLabel{color: gray; font-size: 16px;}");
 		if (not success) {

@@ -20,7 +20,7 @@ namespace YSS::NewProjectPage {
 	NewProjectWin::NewProjectWin() :QWidget() {
 		this->setMinimumSize(900, 600);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
-		this->setWindowTitle(VITR("YSS::project.createNewProject"));
+		this->setWindowTitle(VITRL("YSS::project.createNewProject"));
 		TitleLabel = new Visindigo::Widgets::BorderLabel(this);
 		TitleLabel->setObjectName("ProgramTitleLabel");
 		TitleLabel->setFixedHeight(80);
@@ -61,10 +61,10 @@ namespace YSS::NewProjectPage {
 		Layout->setColumnStretch(0, 3);
 		Layout->setColumnStretch(1, 2);
 
-		TitleLabel->setText(" " + VITR("YSS::project.createFromTemplate"));
-		SearchLineEdit->setPlaceholderText(VITR("YSS::project.searchWithTags"));
+		TitleLabel->setText(" " + VITRL("YSS::project.createFromTemplate"));
+		SearchLineEdit->setPlaceholderText(VITRL("YSS::project.searchWithTags"));
 		SearchLineEdit->setFixedHeight(30);
-		RecentTemplateTitle->setText(VITR("YSS::project.recentUsed"));
+		RecentTemplateTitle->setText(VITRL("YSS::project.recentUsed"));
 
 		setColorfulEnable(true);
 		onThemeChanged();
