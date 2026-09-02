@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_VIGeneral_p_h
-#define Visindigo_General_VIGeneral_p_h
+#ifndef Visindigo_General_private_VIGeneral_p_h
+#define Visindigo_General_private_VIGeneral_p_h
 #include "General/CommandHandler.h"
 #include "General/Placeholder.h"
 #include "General/Plugin.h"
@@ -48,4 +48,4 @@ namespace Visindigo::__Private__ {
 		};
 	}
 }
-#endif // Visindigo_General_VIGeneral_p_h
+#endif // Visindigo_General_private_VIGeneral_p_h

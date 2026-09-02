@@ -1,5 +1,5 @@
-#ifndef ASERStudio_Plugin_ASERStudio_h
-#define ASERStudio_Plugin_ASERStudio_h
+#ifndef Plugin_ASERStudio_Plugin_ASERStudio_h
+#define Plugin_ASERStudio_Plugin_ASERStudio_h
 #include <Editor/EditorPlugin.h>
 #include <General/Translator.h>
 namespace ASERStudio::ASEREnv {
@@ -35,4 +35,4 @@ namespace ASERStudio {
 		MainPrivate* d;
 	};
 }
-#endif // ASERStudio_Plugin_ASERStudio_h
+#endif // Plugin_ASERStudio_Plugin_ASERStudio_h

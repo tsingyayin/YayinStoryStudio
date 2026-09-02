@@ -12,4 +12,4 @@ namespace Visindigo::Widgets {
 		virtual void paintEvent(QPaintEvent* event) override;
 	};
 }
-#endif Visindigo_Widgets_BorderLabel_h
+#endif // Visindigo_Widgets_BorderLabel_h

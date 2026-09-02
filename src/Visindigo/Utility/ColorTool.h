@@ -24,4 +24,4 @@ namespace Visindigo::Utility {
 		static QString toColorString(const QColor& color, ColorStrFormat format = rgbHex) noexcept;
 	};
 }
-#endif
+#endif // Visindigo_Utility_ColorTool_h

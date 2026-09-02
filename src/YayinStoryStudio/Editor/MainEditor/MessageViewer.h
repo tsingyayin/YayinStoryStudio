@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_MainWin_MessageViewer_h
-#define YSS_Editor_MainWin_MessageViewer_h
+#ifndef YayinStoryStudio_Editor_MainEditor_MessageViewer_h
+#define YayinStoryStudio_Editor_MainEditor_MessageViewer_h
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qtablewidget.h>
@@ -30,4 +30,4 @@ namespace YSS::Editor {
 		virtual bool onVirtualOpen(const QString& ext, const QString& fileName, const QString& param);
 	};
 }
-#endif // YSS_Editor_MainWin_MessageViewer_h
+#endif // YayinStoryStudio_Editor_MainEditor_MessageViewer_h

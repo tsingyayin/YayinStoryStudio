@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_TreeLayoutWidget_h
-#define YSS_MainEditor_TreeLayoutWidget_h
+#ifndef YayinStoryStudio_Editor_MainEditor_TreeLayoutWidget_h
+#define YayinStoryStudio_Editor_MainEditor_TreeLayoutWidget_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
@@ -53,4 +53,4 @@ namespace YSS::Editor {
 		TreeLayoutWidgetPrivate* d;
 	};
 }
-#endif // YSS_MainEditor_TreeLayoutWidget_h
+#endif // YayinStoryStudio_Editor_MainEditor_TreeLayoutWidget_h

@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_ASERProjectTemplate_h
-#define ASERStudio_YSS_ASERProjectTemplate_h
+#ifndef Plugin_ASERStudio_YSS_ASERProjectTemplate_h
+#define Plugin_ASERStudio_YSS_ASERProjectTemplate_h
 #include "ASERStudioCompileMacro.h"
 #include <Editor/ProjectTemplateProvider.h>
 #include <General/YSSProject.h>
@@ -52,4 +52,4 @@ namespace ASERStudio::YSS {
 		virtual YSSCore::Editor::ProjectTemplateInitWidget* projectInitWidget() override;
 	};
 }
-#endif // ASERStudio_YSS_ASERProjectTemplate_h
+#endif // Plugin_ASERStudio_YSS_ASERProjectTemplate_h

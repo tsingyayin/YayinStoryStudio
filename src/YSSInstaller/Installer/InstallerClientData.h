@@ -1,5 +1,5 @@
-#ifndef YSS_Installer_InstallerClientData_h
-#define YSS_Installer_InstallerClientData_h
+#ifndef YSSInstaller_Installer_InstallerClientData_h
+#define YSSInstaller_Installer_InstallerClientData_h
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <General/Version.h>
@@ -34,4 +34,4 @@ namespace YSS::Installer {
 		bool autoUpdateEnabled;
 	};
 }
-#endif // YSS_Installer_InstallerClientData_h
+#endif // YSSInstaller_Installer_InstallerClientData_h

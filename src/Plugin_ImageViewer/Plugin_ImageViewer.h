@@ -1,5 +1,5 @@
-#ifndef YSS_Plugin_ImageViewer_H
-#define  YSS_Plugin_ImageViewer_H
+#ifndef Plugin_ImageViewer_Plugin_ImageViewer_h
+#define  Plugin_ImageViewer_Plugin_ImageViewer_h
 #include <Editor/EditorPlugin.h>
 #include <General/Translator.h>
 namespace YSS::ImageViewer {
@@ -21,4 +21,4 @@ namespace YSS::ImageViewer {
 		virtual void onTest() override;
 	};
 }
-#endif
+#endif // Plugin_ImageViewer_Plugin_ImageViewer_h

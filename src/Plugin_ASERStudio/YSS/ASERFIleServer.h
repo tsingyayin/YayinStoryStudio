@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_ASERFileServer_h
-#define ASERStudio_YSS_ASERFileServer_h
+#ifndef Plugin_ASERStudio_YSS_ASERFileServer_h
+#define Plugin_ASERStudio_YSS_ASERFileServer_h
 #include "ASERStudioCompileMacro.h"
 #include <Editor/FileServer.h>
 #include <Editor/EditorPlugin.h>
@@ -41,4 +41,4 @@ namespace ASERStudio::YSS {
 		virtual YSSCore::Editor::FileEditWidget* onCreateFileEditWidget() override;
 	};
 }
-#endif // ASERStudio_YSS_ASERFileServer_h
+#endif // Plugin_ASERStudio_YSS_ASERFileServer_h

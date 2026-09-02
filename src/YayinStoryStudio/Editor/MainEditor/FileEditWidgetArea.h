@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_MainWin_StackWidgetArea_h
-#define YSS_Editor_MainWin_StackWidgetArea_h
+#ifndef YayinStoryStudio_Editor_MainEditor_FileEditWidgetArea_h
+#define YayinStoryStudio_Editor_MainEditor_FileEditWidgetArea_h
 #include <QtWidgets/qframe.h>
 #include <QtGui/qtextcursor.h>
 #include <Editor/FileEditWidget.h>
@@ -51,4 +51,4 @@ namespace YSS::Editor {
 		FileEditWidgetAreaPrivate* d;
 	};
 }
-#endif // YSS_Editor_MainWin_StackWidgetArea_h
+#endif // YayinStoryStudio_Editor_MainEditor_FileEditWidgetArea_h

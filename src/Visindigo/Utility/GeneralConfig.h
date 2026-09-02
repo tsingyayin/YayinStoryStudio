@@ -79,4 +79,4 @@ namespace Visindigo::Utility {
 	};
 }
 
-#endif
+#endif // Visindigo_Utility_GeneralConfig_h

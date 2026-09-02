@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_LS_AStoryXSyntaxHighlighter_h
-#define ASERStudio_YSS_LS_AStoryXSyntaxHighlighter_h
+#ifndef Plugin_ASERStudio_YSS_LS_AStoryXSyntaxHighlighter_h
+#define Plugin_ASERStudio_YSS_LS_AStoryXSyntaxHighlighter_h
 #include "ASERStudioCompileMacro.h"
 #include <Editor/SyntaxHighlighter.h>
 #include "AStorySyntax/AStoryXDiagnosticData.h"
@@ -21,4 +21,4 @@ namespace ASERStudio::YSS {
 		LS_AStoryXSyntaxHighlighterPrivate* d;
 	};
 }
-#endif //ASERStudio_YSS_LS_AStoryXSyntaxHighlighter_h
+#endif // Plugin_ASERStudio_YSS_LS_AStoryXSyntaxHighlighter_h

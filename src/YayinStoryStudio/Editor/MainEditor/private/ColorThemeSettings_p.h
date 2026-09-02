@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_MainWin_ColorThemeSettings_p_h
-#define YSS_Editor_MainWin_ColorThemeSettings_p_h
+#ifndef YayinStoryStudio_Editor_MainEditor_private_ColorThemeSettings_p_h
+#define YayinStoryStudio_Editor_MainEditor_private_ColorThemeSettings_p_h
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
@@ -31,4 +31,4 @@ namespace YSS::Editor {
 		void onConfirmClicked();
 	};
 }
-#endif // YSS_Editor_MainWin_ColorThemeSettings_p_h
+#endif // YayinStoryStudio_Editor_MainEditor_private_ColorThemeSettings_p_h

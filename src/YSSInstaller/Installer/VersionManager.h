@@ -1,5 +1,5 @@
-#ifndef YSS_Installer_VersionManager_h
-#define YSS_Installer_VersionManager_h
+#ifndef YSSInstaller_Installer_VersionManager_h
+#define YSSInstaller_Installer_VersionManager_h
 #include "Installer/InstallerClientData.h"
 #include <QtCore/qobject.h>
 namespace YSS::Installer {
@@ -23,4 +23,4 @@ namespace YSS::Installer {
 		VersionManagerPrivate* d;
 	};
 }
-#endif // YSS_Installer_VersionManager_h
+#endif // YSSInstaller_Installer_VersionManager_h

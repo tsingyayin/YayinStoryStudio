@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_InstallerClient_h
-#define YSS_Editor_InstallerClient_h
+#ifndef YayinStoryStudio_Editor_InstallerClient_h
+#define YayinStoryStudio_Editor_InstallerClient_h
 #include <QtCore/qobject.h>
 #include <QtNetwork/qlocalsocket.h>
 #include <Utility/JsonConfig.h>
@@ -26,4 +26,4 @@ namespace YSS::Editor {
 		InstallerClientPrivate* d;
 	};
 }
-#endif // YSS_Editor_InstallerClient_h
+#endif // YayinStoryStudio_Editor_InstallerClient_h

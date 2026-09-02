@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXPreprocessor_h
-#define ASERStudio_AStorySyntax_AStoryXPreprocessor_h
+#ifndef Plugin_ASERStudio_AStorySyntax_AStoryXPreprocessor_h
+#define Plugin_ASERStudio_AStorySyntax_AStoryXPreprocessor_h
 #include "ASERStudioCompileMacro.h"
 #include <VIMacro.h>
 #include <QtCore/qtypes.h>
@@ -22,4 +22,4 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXPreprocessorPrivate* d;
 	};
 }
-#endif // ASERStudio_AStorySyntax_AStoryXPreprocessor_h
+#endif // Plugin_ASERStudio_AStorySyntax_AStoryXPreprocessor_h

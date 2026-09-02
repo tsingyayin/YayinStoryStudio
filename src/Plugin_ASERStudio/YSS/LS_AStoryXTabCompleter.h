@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_LS_AStoryXTabCompleter_h
-#define ASERStudio_YSS_LS_AStoryXTabCompleter_h
+#ifndef Plugin_ASERStudio_YSS_LS_AStoryXTabCompleter_h
+#define Plugin_ASERStudio_YSS_LS_AStoryXTabCompleter_h
 #include "ASERStudioCompileMacro.h"
 #include "AStorySyntax/AStoryXControllerParseData.h"
 #include <Editor/TabCompleterProvider.h>
@@ -16,4 +16,4 @@ namespace ASERStudio::YSS {
 		LS_AStoryXTabCompleterPrivate* d;
 	};
 }
-#endif // ASERStudio_YSS_LS_AStoryXTabCompleter_h
+#endif // Plugin_ASERStudio_YSS_LS_AStoryXTabCompleter_h

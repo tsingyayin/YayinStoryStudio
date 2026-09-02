@@ -10,8 +10,8 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef YSSFileExt_LangServer_YSSLangHighlighter_h
-#define YSSFileExt_LangServer_YSSLangHighlighter_h
+#ifndef Plugin_YSSFileExt_LangServer_YSSLangHighlighter_h
+#define Plugin_YSSFileExt_LangServer_YSSLangHighlighter_h
 #include <Editor/SyntaxHighlighter.h>
 #include "LangServer/YSSLangDocument.h"
 #include <QtCore/qmap.h>
@@ -59,4 +59,4 @@ namespace YSSFileExt {
 		YSSLangHighlighterPrivate* d;
 	};
 }
-#endif // YSSFileExt_LangServer_YSSLangHighlighter_h
+#endif // Plugin_YSSFileExt_LangServer_YSSLangHighlighter_h

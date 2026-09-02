@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_ASERFileServer_p_h
-#define ASERStudio_YSS_ASERFileServer_p_h
+#ifndef Plugin_ASERStudio_YSS_private_ASERFileServer_p_h
+#define Plugin_ASERStudio_YSS_private_ASERFileServer_p_h
 #include <QtWidgets/qlabel.h>
 #include <QtGui/qpalette.h>
 #include <QtCore/qmargins.h>
@@ -19,4 +19,4 @@ namespace ASERStudio::YSS {
 		QPalette::ColorRole m_fillRole = QPalette::Base;
 	};
 }
-#endif // ASERStudio_YSS_ASERFileServer_p_h
+#endif // Plugin_ASERStudio_YSS_private_ASERFileServer_p_h

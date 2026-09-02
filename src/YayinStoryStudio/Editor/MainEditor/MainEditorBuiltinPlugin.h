@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_MainWin_MainEditorBuiltinPlugin_h
-#define YSS_Editor_MainWin_MainEditorBuiltinPlugin_h
+#ifndef YayinStoryStudio_Editor_MainEditor_MainEditorBuiltinPlugin_h
+#define YayinStoryStudio_Editor_MainEditor_MainEditorBuiltinPlugin_h
 #include <Editor/EditorPlugin.h>
 namespace YSS::Editor {
 	class MainEditorBuiltinPlugin :public YSSCore::Editor::EditorPlugin {
@@ -11,4 +11,4 @@ namespace YSS::Editor {
 		virtual QWidget* onToolWidgetRequested(const QString& widgetID) override;
 	};
 }
-#endif // YSS_Editor_MainWin_MainEditorBuiltinPlugin_h
+#endif // YayinStoryStudio_Editor_MainEditor_MainEditorBuiltinPlugin_h

@@ -10,8 +10,8 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef YSSFileExt_LangServer_IniLangServer_h
-#define YSSFileExt_LangServer_IniLangServer_h
+#ifndef Plugin_YSSFileExt_LangServer_IniLangServer_h
+#define Plugin_YSSFileExt_LangServer_IniLangServer_h
 #include <Editor/LangServer.h>
 #include <Editor/EditorPlugin.h>
 #include "LangServer/YSSLangHighlighter.h"
@@ -42,4 +42,4 @@ namespace YSSFileExt {
 		virtual void colorLine(const QString& text) override;
 	};
 }
-#endif // YSSFileExt_LangServer_IniLangServer_h
+#endif // Plugin_YSSFileExt_LangServer_IniLangServer_h

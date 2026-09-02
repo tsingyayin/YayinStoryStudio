@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_MultiTerminal_h
-#define YSS_MainEditor_MultiTerminal_h
+#ifndef YayinStoryStudio_Editor_MainEditor_MultiTerminal_h
+#define YayinStoryStudio_Editor_MainEditor_MultiTerminal_h
 #include <QtCore/qdir.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServer.h>
@@ -34,4 +34,4 @@ namespace YSS::Editor {
 		MultiTerminalPrivate* d;
 	};
 }
-#endif // YSS_MainEditor_MultiTerminal_h
+#endif // YayinStoryStudio_Editor_MainEditor_MultiTerminal_h

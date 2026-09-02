@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_ASERFileTemplate_h
-#define ASERStudio_YSS_ASERFileTemplate_h
+#ifndef Plugin_ASERStudio_YSS_ASERFileTemplate_h
+#define Plugin_ASERStudio_YSS_ASERFileTemplate_h
 #include "ASERStudioCompileMacro.h"
 #include <Editor/FileTemplateProvider.h>
 #include <Widgets/ConfigWidget.h>
@@ -40,4 +40,4 @@ namespace ASERStudio::YSS {
 		virtual YSSCore::Editor::FileTemplateInitWidget* fileInitWidget(const QString& initPath) override;
 	};
 }
-#endif // ASERStudio_YSS_ASERFileTemplate_h
+#endif // Plugin_ASERStudio_YSS_ASERFileTemplate_h

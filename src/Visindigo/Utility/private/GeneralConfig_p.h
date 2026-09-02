@@ -1,5 +1,5 @@
-#ifndef Visindigo_Utility_GeneralConfig_p_h
-#define Visindigo_Utility_GeneralConfig_p_h
+#ifndef Visindigo_Utility_private_GeneralConfig_p_h
+#define Visindigo_Utility_private_GeneralConfig_p_h
 #include "Utility/GeneralConfig.h"
 #include <QtCore/qstack.h>
 namespace Visindigo::__Private__ {
@@ -27,4 +27,4 @@ namespace Visindigo::__Private__ {
 		void clear();
 	};
 }
-#endif // Visindigo_Utility_GeneralConfig_p_h
+#endif // Visindigo_Utility_private_GeneralConfig_p_h

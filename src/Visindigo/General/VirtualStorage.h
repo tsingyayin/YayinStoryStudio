@@ -1,5 +1,5 @@
-#ifndef Visindigo_Utility_VirtualStorage_h
-#define Visindigo_Utility_VirtualStorage_h
+#ifndef Visindigo_General_VirtualStorage_h
+#define Visindigo_General_VirtualStorage_h
 #include "VICompileMacro.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qbytearray.h>
@@ -24,4 +24,4 @@ namespace Visindigo::Utility {
 		VirtualStoragePrivate* d;
 	};
 }
-#endif // Visindigo_Utility_VirtualStorage_h
+#endif // Visindigo_General_VirtualStorage_h

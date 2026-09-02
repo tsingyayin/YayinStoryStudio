@@ -1,5 +1,5 @@
-#ifndef YSSCore_Editor_ColorThemeSettings_h
-#define YSSCore_Editor_ColorThemeSettings_h
+#ifndef YayinStoryStudio_Editor_MainEditor_ColorThemeSettings_h
+#define YayinStoryStudio_Editor_MainEditor_ColorThemeSettings_h
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServer.h>
 #include <Widgets/PluginManageWidget.h>
@@ -26,4 +26,4 @@ namespace YSS::Editor {
 		virtual bool onVirtualSave() override;
 	};
 }
-#endif // YSSCore_Editor_ColorThemeSettings_h
+#endif // YayinStoryStudio_Editor_MainEditor_ColorThemeSettings_h

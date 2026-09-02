@@ -40,4 +40,4 @@ namespace YSSCore::Editor {
 		ProjectTemplateProviderPrivate* d;
 	};
 }
-#endif
+#endif // YSSCore_Editor_ProjectTemplateProvider_h

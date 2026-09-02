@@ -1,5 +1,5 @@
-#ifndef ASERStudio_ASEREnv_ASERWarpper_h
-#define ASERStudio_ASEREnv_ASERWarpper_h
+#ifndef Plugin_ASERStudio_ASEREnv_ASERWarpper_h
+#define Plugin_ASERStudio_ASEREnv_ASERWarpper_h
 #include "ASEREnv/ASERProgram.h"
 #include <QtWidgets/qframe.h>
 
@@ -16,4 +16,4 @@ namespace ASERStudio::ASEREnv {
 		ASERWarpperPrivate* d;
 	};
 }
-#endif // ASERStudio_ASEREnv_ASERWarpper_h
+#endif // Plugin_ASERStudio_ASEREnv_ASERWarpper_h

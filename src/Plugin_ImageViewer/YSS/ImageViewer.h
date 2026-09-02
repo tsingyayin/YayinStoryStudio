@@ -1,5 +1,5 @@
-#ifndef ImageViewer_YSS_ImageViewer_H
-#define ImageViewer_YSS_ImageViewer_H
+#ifndef Plugin_ImageViewer_YSS_ImageViewer_h
+#define Plugin_ImageViewer_YSS_ImageViewer_h
 #include <Editor/FileEditWidget.h>
 
 namespace YSS::ImageViewer {
@@ -32,4 +32,4 @@ namespace YSS::ImageViewer {
 	};
 
 } // namespace YSS::ImageViewer
-#endif // ImageViewer_YSS_ImageViewer_H
+#endif // Plugin_ImageViewer_YSS_ImageViewer_h

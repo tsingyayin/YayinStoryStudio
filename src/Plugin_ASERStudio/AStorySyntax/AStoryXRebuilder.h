@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXRebuilder_h
-#define ASERStudio_AStorySyntax_AStoryXRebuilder_h
+#ifndef Plugin_ASERStudio_AStorySyntax_AStoryXRebuilder_h
+#define Plugin_ASERStudio_AStorySyntax_AStoryXRebuilder_h
 #include "ASERStudioCompileMacro.h"
 #include <QtCore/qstring.h>
 #include <QtCore/qmap.h>
@@ -29,4 +29,4 @@ namespace ASERStudio::AStorySyntax {
 			RebuildErrorCode* errorCode = nullptr);
 	};
 }
-#endif // ASERStudio_AStorySyntax_AStoryXRebuilder_h
+#endif // Plugin_ASERStudio_AStorySyntax_AStoryXRebuilder_h

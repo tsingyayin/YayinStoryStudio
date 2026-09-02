@@ -1,5 +1,5 @@
-#ifndef ASERStudio_ASEREnv_ASERResourceMoniter_h
-#define ASERStudio_ASEREnv_ASERResourceMoniter_h
+#ifndef Plugin_ASERStudio_ASEREnv_ASERResourceMoniter_h
+#define Plugin_ASERStudio_ASEREnv_ASERResourceMoniter_h
 #include "ASERStudioCompileMacro.h"
 #include <QtCore/qobject.h>
 namespace ASERStudio::ASEREnv {
@@ -35,4 +35,4 @@ namespace ASERStudio::ASEREnv {
 	Q_DECLARE_OPERATORS_FOR_FLAGS(ASERResourceMoniter::ResourceTypes)
 }
 #define ASERRM ASERStudio::ASEREnv::ASERResourceMoniter::getInstance()
-#endif ASERStudio_ASEREnv_ASERResourceMoniter_h
+#endif // Plugin_ASERStudio_ASEREnv_ASERResourceMoniter_h

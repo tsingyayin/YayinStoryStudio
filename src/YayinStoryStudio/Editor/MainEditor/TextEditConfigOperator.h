@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_TextEditConfigOperator_h
-#define YSS_Editor_TextEditConfigOperator_h
+#ifndef YayinStoryStudio_Editor_MainEditor_TextEditConfigOperator_h
+#define YayinStoryStudio_Editor_MainEditor_TextEditConfigOperator_h
 #include <Utility/JsonConfig.h>
 #include <Editor/TextEdit.h>
 #include <Editor/TabCompleterProvider.h>
@@ -28,4 +28,4 @@ namespace YSS::Editor {
 		static void applyTextFont();
 	};
 }
-#endif YSS_Editor_TextEditConfigOperator_h
+#endif // YayinStoryStudio_Editor_MainEditor_TextEditConfigOperator_h

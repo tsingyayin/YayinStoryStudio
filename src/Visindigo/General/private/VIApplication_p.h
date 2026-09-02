@@ -1,5 +1,5 @@
-#ifndef VISINDIGO_GENERAL_VIAPPLICATION_P_H
-#define VISINDIGO_GENERAL_VIAPPLICATION_P_H
+#ifndef Visindigo_General_private_VIApplication_p_h
+#define Visindigo_General_private_VIApplication_p_h
 #include "General/VIApplication.h"
 
 namespace Visindigo::__Private__ {
@@ -30,4 +30,4 @@ namespace Visindigo::__Private__ {
 		virtual void disableHandler() override;
 	};
 }
-#endif
+#endif // Visindigo_General_private_VIApplication_p_h

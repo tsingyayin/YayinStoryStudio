@@ -64,4 +64,4 @@ namespace YSSCore::Editor {
 
 typedef YSSCore::Editor::EditorPlugin* (*__YSSPluginDllMain)(void);
 
-#endif // EditorPlugin_h
+#endif // YSSCore_Editor_EditorPlugin_h

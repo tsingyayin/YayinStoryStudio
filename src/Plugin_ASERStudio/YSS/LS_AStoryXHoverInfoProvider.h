@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_LS_AStoryXHoverInfoProvider_h
-#define ASERStudio_YSS_LS_AStoryXHoverInfoProvider_h
+#ifndef Plugin_ASERStudio_YSS_LS_AStoryXHoverInfoProvider_h
+#define Plugin_ASERStudio_YSS_LS_AStoryXHoverInfoProvider_h
 #include "ASERStudioCompileMacro.h"
 #include <Editor/HoverInfoProvider.h>
 
@@ -14,4 +14,4 @@ namespace ASERStudio::YSS {
 		LS_AStoryXHoverInfoProviderPrivate* d;
 	};
 }
-#endif // ASERStudio_YSS_LS_AStoryXHoverInfoProvider_h
+#endif // Plugin_ASERStudio_YSS_LS_AStoryXHoverInfoProvider_h

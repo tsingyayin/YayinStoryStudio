@@ -1,5 +1,5 @@
-#ifndef YSSCore_Editor_FormatNormalizer_H
-#define YSSCore_Editor_FormatNormalizer_H
+#ifndef YSSCore_Editor_FormatNormalizer_h
+#define YSSCore_Editor_FormatNormalizer_h
 #include <QtCore/qobject.h>
 #include "YSSCoreCompileMacro.h"
 
@@ -17,4 +17,4 @@ namespace YSSCore::Editor {
 		FormatNormalizerPrivate* d;
 	};
 }
-#endif // YSSCore_Editor_FormatNormalizer_H
+#endif // YSSCore_Editor_FormatNormalizer_h

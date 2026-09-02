@@ -1,5 +1,5 @@
-#ifndef YSS_General_YSSLoger_H
-#define YSS_General_YSSLoger_H
+#ifndef YSSCore_General_YSSLogger_h
+#define YSSCore_General_YSSLogger_h
 #include <General/Log.h>
 #include "YSSCoreCompileMacro.h"
 namespace YSSCore::General {
@@ -30,4 +30,4 @@ namespace YSSCore::General {
 #define ySuccessF vSuccessF(YSSLoggerInstance)
 #define yWarningF vWarningF(YSSLoggerInstance)
 #define yErrorF vErrorF(YSSLoggerInstance)
-#endif // !YSS_General_YSSLoger_H
+#endif // YSSCore_General_YSSLogger_h

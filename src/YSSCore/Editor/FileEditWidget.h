@@ -1,5 +1,5 @@
-#ifndef Visindigo_Editor_FileEditWidget_h
-#define Visindigo_Editor_FileEditWidget_h
+#ifndef YSSCore_Editor_FileEditWidget_h
+#define YSSCore_Editor_FileEditWidget_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qfileinfo.h>
 #include "YSSCoreCompileMacro.h"
@@ -76,4 +76,4 @@ namespace YSSCore::Editor {
 	};
 }
 
-#endif // Visindigo_Editor_FileEditWidget_h
+#endif // YSSCore_Editor_FileEditWidget_h

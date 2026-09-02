@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_MainWin_StackWidgetArea_p_H
-#define YSS_Editor_MainWin_StackWidgetArea_p_H
+#ifndef YayinStoryStudio_Editor_MainEditor_private_StackComponents_p_h
+#define YayinStoryStudio_Editor_MainEditor_private_StackComponents_p_h
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
@@ -155,4 +155,4 @@ namespace YSS::Editor {
 		void setText(const QString& text);
 	};
 }
-#endif // YSS_Editor_MainWin_StackWidgetArea_p_H
+#endif // YayinStoryStudio_Editor_MainEditor_private_StackComponents_p_h

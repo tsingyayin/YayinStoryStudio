@@ -1,4 +1,5 @@
-#pragma once
+#ifndef YSSInstaller_YSSInstaller_h
+#define YSSInstaller_YSSInstaller_h
 #include <General/Package.h>
 #include <QtWidgets/qwidget.h>
 #include <General/Translator.h>
@@ -29,3 +30,4 @@ private:
 
 #define YSSInstallerApp YSSInstaller::getInstance()
 
+#endif // YSSInstaller_YSSInstaller_h

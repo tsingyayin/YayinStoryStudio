@@ -1,5 +1,5 @@
-#ifndef YSSFileExt_LangServer_DefaultTextEdit_H
-#define YSSFileExt_LangServer_DefaultTextEdit_H
+#ifndef Plugin_YSSFileExt_FileServer_DefaultTextEdit_h
+#define Plugin_YSSFileExt_FileServer_DefaultTextEdit_h
 #include <Editor/FileServer.h>
 #include <Editor/EditorPlugin.h>
 #include <Editor/FileEditWidget.h>
@@ -12,4 +12,4 @@ namespace YSSFileExt {
 	};
 }
 
-#endif // YSSFileExt_LangServer_DefaultTextEdit_H
+#endif // Plugin_YSSFileExt_FileServer_DefaultTextEdit_h

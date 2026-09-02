@@ -1,5 +1,5 @@
-#ifndef YSSCore_Editor_HoverInfoProvider_p_h
-#define YSSCore_Editor_HoverInfoProvider_p_h
+#ifndef YSSCore_Editor_private_HoverInfoProvider_p_h
+#define YSSCore_Editor_private_HoverInfoProvider_p_h
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qtextbrowser.h>
@@ -38,4 +38,4 @@ namespace YSSCore::__Private__ {
 		void scrollBy(qint32 deltaY);
 	};
 }
-#endif
+#endif // YSSCore_Editor_private_HoverInfoProvider_p_h

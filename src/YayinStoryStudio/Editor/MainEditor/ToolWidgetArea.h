@@ -1,5 +1,5 @@
-#ifndef YSS_Editor_MainWin_ToolWidgetArea_h
-#define YSS_Editor_MainWin_ToolWidgetArea_h
+#ifndef YayinStoryStudio_Editor_MainEditor_ToolWidgetArea_h
+#define YayinStoryStudio_Editor_MainEditor_ToolWidgetArea_h
 #include <QtCore/qobject.h>
 #include <QtWidgets/qframe.h>
 #include <Editor/ToolWidgetManager.h>
@@ -24,4 +24,4 @@ namespace YSS::Editor {
 		ToolWidgetAreaPrivate* d;
 	};
 }
-#endif //YSS_Editor_MainWin_ToolWidgetArea_h
+#endif // YayinStoryStudio_Editor_MainEditor_ToolWidgetArea_h

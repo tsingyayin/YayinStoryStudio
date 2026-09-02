@@ -1,5 +1,5 @@
-#ifndef YSSCore_Editor_SimpleFileDialog_h
-#define YSSCore_Editor_SimpleFileDialog_h
+#ifndef YayinStoryStudio_Editor_MainEditor_SimpleFileDialog_h
+#define YayinStoryStudio_Editor_MainEditor_SimpleFileDialog_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qstring.h>
 #include <QtWidgets/qlabel.h>
@@ -52,4 +52,4 @@ namespace YSS::Editor {
 		bool ValidName = false;
 	};
 }
-#endif // YSSCore_Editor_SimpleFileDialog_h
+#endif // YayinStoryStudio_Editor_MainEditor_SimpleFileDialog_h

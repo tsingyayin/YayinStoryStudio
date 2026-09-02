@@ -1,5 +1,5 @@
-#ifndef Visindigo_Widgets_TitleWidget_p_h
-#define Visindigo_Widgets_TitleWidget_p_h
+#ifndef Visindigo_Widgets_private_TitleWidget_p_h
+#define Visindigo_Widgets_private_TitleWidget_p_h
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qboxlayout.h>
@@ -58,4 +58,4 @@ namespace Visindigo::__Private__ {
 		virtual bool eventFilter(QObject* target, QEvent* event) override;
 	};
 }
-#endif // Visindigo_Widgets_TitleWidget_p_h
+#endif // Visindigo_Widgets_private_TitleWidget_p_h

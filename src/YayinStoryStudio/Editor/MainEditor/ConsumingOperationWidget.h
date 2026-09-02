@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_ConsumingOperationWidget_h
-#define YSS_MainEditor_ConsumingOperationWidget_h
+#ifndef YayinStoryStudio_Editor_MainEditor_ConsumingOperationWidget_h
+#define YayinStoryStudio_Editor_MainEditor_ConsumingOperationWidget_h
 #include <Widgets/BorderFrame.h>
 namespace YSS::Editor {
 	class ConsumingOperationWidgetPrivate;
@@ -15,4 +15,4 @@ namespace YSS::Editor {
 		void setCancelButtonVisible(bool visible);
 	};
 }
-#endif // YSS_MainEditor_ConsumingOperationWidget_h
+#endif // YayinStoryStudio_Editor_MainEditor_ConsumingOperationWidget_h

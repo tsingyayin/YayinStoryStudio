@@ -1,5 +1,5 @@
-#ifndef Visindigo_Utility_NJsonConfig_h
-#define Visindigo_Utility_NJsonConfig_h
+#ifndef Visindigo_Utility_GeneralConfigParser_h
+#define Visindigo_Utility_GeneralConfigParser_h
 #include "Utility/GeneralConfig.h"
 
 namespace Visindigo::Utility {
@@ -16,4 +16,4 @@ namespace Visindigo::Utility {
 		static QByteArray serializeToVBC(GeneralConfig* config);
 	};
 }
-#endif // Visindigo_Utility_NJsonConfig_h
+#endif // Visindigo_Utility_GeneralConfigParser_h

@@ -1,5 +1,5 @@
-#ifndef Visindigo_Widgets_VIWidgets_p_h
-#define Visindigo_Widgets_VIWidgets_p_h
+#ifndef Visindigo_Widgets_private_VIWidgets_p_h
+#define Visindigo_Widgets_private_VIWidgets_p_h
 #include "General/CommandHandler.h"
 #include "General/Plugin.h"
 namespace Visindigo::__Private__ {
@@ -22,4 +22,4 @@ namespace Visindigo::__Private__ {
 	};
 }
 
-#endif // Visindigo_Widgets_VIWidgets_p_h
+#endif // Visindigo_Widgets_private_VIWidgets_p_h

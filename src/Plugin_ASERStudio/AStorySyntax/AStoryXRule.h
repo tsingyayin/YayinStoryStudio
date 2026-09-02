@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXRule_h
-#define ASERStudio_AStorySyntax_AStoryXRule_h
+#ifndef Plugin_ASERStudio_AStorySyntax_AStoryXRule_h
+#define Plugin_ASERStudio_AStorySyntax_AStoryXRule_h
 #include "ASERStudioCompileMacro.h"
 #include "AStorySyntax/AStoryXControllerParseData.h"
 #include "AStorySyntax/AStoryXController.h"
@@ -45,4 +45,4 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXRulePrivate* d;
 	};
 }
-#endif // ASERStudio_AStorySyntax_AStoryXRule_h
+#endif // Plugin_ASERStudio_AStorySyntax_AStoryXRule_h

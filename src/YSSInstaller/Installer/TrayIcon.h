@@ -1,5 +1,5 @@
-#ifndef YSS_Installer_TrayIcon_h
-#define YSS_Installer_TrayIcon_h
+#ifndef YSSInstaller_Installer_TrayIcon_h
+#define YSSInstaller_Installer_TrayIcon_h
 #include <QtCore/qobject.h>
 #include <QtWidgets/qsystemtrayicon.h>
 namespace YSS::Installer {
@@ -14,4 +14,4 @@ namespace YSS::Installer {
 		TrayIconPrivate* d;
 	};
 }
-#endif // YSS_Installer_TrayIcon_h
+#endif // YSSInstaller_Installer_TrayIcon_h

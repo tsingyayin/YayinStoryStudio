@@ -1,5 +1,5 @@
-#ifndef YSSFileExt_LangServer_YSSPEditor_H
-#define YSSFileExt_LangServer_YSSPEditor_H
+#ifndef Plugin_YSSFileExt_FileServer_YSSPEditor_h
+#define Plugin_YSSFileExt_FileServer_YSSPEditor_h
 #include <Editor/FileServer.h>
 #include <Editor/EditorPlugin.h>
 #include <Editor/FileEditWidget.h>
@@ -25,4 +25,4 @@ namespace YSSFileExt {
 		virtual YSSCore::Editor::FileEditWidget* onCreateFileEditWidget() override;
 	};
 }
-#endif // YSSFileExt_LangServer_YSSPEditor_H
+#endif // Plugin_YSSFileExt_FileServer_YSSPEditor_h

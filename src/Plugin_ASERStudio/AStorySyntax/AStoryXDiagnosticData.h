@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXDiagnosticData_h
-#define ASERStudio_AStorySyntax_AStoryXDiagnosticData_h
+#ifndef Plugin_ASERStudio_AStorySyntax_AStoryXDiagnosticData_h
+#define Plugin_ASERStudio_AStorySyntax_AStoryXDiagnosticData_h
 #include "ASERStudioCompileMacro.h"
 #include "AStorySyntax/AStoryXController.h"
 #include <VIMacro.h>
@@ -55,4 +55,4 @@ namespace ASERStudio::AStorySyntax {
 	};
 }
 
-#endif 
+#endif // Plugin_ASERStudio_AStorySyntax_AStoryXDiagnosticData_h

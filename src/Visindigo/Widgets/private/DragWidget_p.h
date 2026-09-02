@@ -1,5 +1,5 @@
-#ifndef Visindigo_Widgets_DragWidget_p_h
-#define Visindigo_Widgets_DragWidget_p_h
+#ifndef Visindigo_Widgets_private_DragWidget_p_h
+#define Visindigo_Widgets_private_DragWidget_p_h
 
 #include "Widgets/DragWidget.h"
 #include <QtCore/qlist.h>
@@ -30,4 +30,4 @@ namespace Visindigo::__Private__ {
 		QWidget* getWidgetInLayout(QPoint localPos);
 	};
 }
-#endif // Visindigo_Widgets_DragWidget_p_h
+#endif // Visindigo_Widgets_private_DragWidget_p_h

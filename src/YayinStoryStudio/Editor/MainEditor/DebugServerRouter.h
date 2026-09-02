@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_DebugServerRouter_h
-#define YSS_MainEditor_DebugServerRouter_h
+#ifndef YayinStoryStudio_Editor_MainEditor_DebugServerRouter_h
+#define YayinStoryStudio_Editor_MainEditor_DebugServerRouter_h
 #include <Editor/DebugServer.h>
 #include <Editor/DebugServerManager.h>
 namespace YSS::Editor {
@@ -43,4 +43,4 @@ namespace YSS::Editor {
 }
 #define YSSDSR YSS::Editor::DebugServerRouter::getInstance()
 
-#endif // YSS_MainEditor_DebugServerRouter_h
+#endif // YayinStoryStudio_Editor_MainEditor_DebugServerRouter_h

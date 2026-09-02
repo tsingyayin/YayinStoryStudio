@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_LangServer_AStoryX_h
-#define ASERStudio_YSS_LangServer_AStoryX_h
+#ifndef Plugin_ASERStudio_YSS_LangServer_AStoryX_h
+#define Plugin_ASERStudio_YSS_LangServer_AStoryX_h
 #include <Editor/LangServer.h>
 #include <Editor/EditorPlugin.h>
 #include "AStorySyntax/AStoryXDocument.h"
@@ -17,4 +17,4 @@ namespace ASERStudio::YSS {
 	};
 }
 
-#endif // ASERStudio_YSS_LangServer_AStoryX_h
+#endif // Plugin_ASERStudio_YSS_LangServer_AStoryX_h

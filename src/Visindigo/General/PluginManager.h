@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_PluginManager_H
-#define Visindigo_General_PluginManager_H
+#ifndef Visindigo_General_PluginManager_h
+#define Visindigo_General_PluginManager_h
 #include <QObject>
 #include "VICompileMacro.h"
 // Forward declarations
@@ -72,6 +72,6 @@ namespace Visindigo::General {
 		PluginManagerPrivate* d;
 	};
 }
-#endif // Visindigo_General_PluginManager_H
+#endif // Visindigo_General_PluginManager_h
 
 #define VIPLM Visindigo::General::PluginManager::getInstance()

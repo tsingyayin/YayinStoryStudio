@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_LogMetaData_H
-#define Visindigo_General_LogMetaData_H
+#ifndef Visindigo_General_LogMetaData_h
+#define Visindigo_General_LogMetaData_h
 #include "VICompileMacro.h"
 #include <QtCore/qtypes.h>
 #include <QtCore/qstring.h>
@@ -21,4 +21,4 @@ namespace Visindigo::General {
 	};
 }
 
-#endif // Visindigo_General_LogMetaData_H
+#endif // Visindigo_General_LogMetaData_h

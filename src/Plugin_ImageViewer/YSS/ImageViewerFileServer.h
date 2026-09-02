@@ -1,5 +1,5 @@
-#ifndef ImageViewer_YSS_ImageViewerFileServer_H
-#define ImageViewer_YSS_ImageViewerFileServer_H
+#ifndef Plugin_ImageViewer_YSS_ImageViewerFileServer_h
+#define Plugin_ImageViewer_YSS_ImageViewerFileServer_h
 #include <Editor/FileServer.h>
 #include "ImageViewerCompileMacro.h"
 namespace YSS::ImageViewer {
@@ -10,4 +10,4 @@ namespace YSS::ImageViewer {
 		virtual YSSCore::Editor::FileEditWidget* onCreateFileEditWidget() override;
 	};
 }
-#endif // ImageViewer_YSS_ImageViewerFileServer_H
+#endif // Plugin_ImageViewer_YSS_ImageViewerFileServer_h

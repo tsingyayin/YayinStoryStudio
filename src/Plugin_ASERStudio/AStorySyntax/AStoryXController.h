@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXController_h
-#define ASERStudio_AStorySyntax_AStoryXController_h
+#ifndef Plugin_ASERStudio_AStorySyntax_AStoryXController_h
+#define Plugin_ASERStudio_AStorySyntax_AStoryXController_h
 #include "ASERStudioCompileMacro.h"
 #include <Utility/JsonConfig.h>
 #include <VIMacro.h>
@@ -67,4 +67,4 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXControllerPrivate* d;
 	};
 }
-#endif // ASERStudio_AStorySyntax_AStoryXController_h
+#endif // Plugin_ASERStudio_AStorySyntax_AStoryXController_h

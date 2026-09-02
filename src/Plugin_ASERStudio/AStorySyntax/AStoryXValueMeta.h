@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXValue_h
-#define ASERStudio_AStorySyntax_AStoryXValue_h
+#ifndef Plugin_ASERStudio_AStorySyntax_AStoryXValueMeta_h
+#define Plugin_ASERStudio_AStorySyntax_AStoryXValueMeta_h
 #include "ASERStudioCompileMacro.h"
 #include "AStorySyntax/AStoryXDiagnosticData.h"
 #include <VIMacro.h>
@@ -69,4 +69,4 @@ namespace ASERStudio::AStorySyntax {
 		AStoryXValueMetaPrivate* d;
 	};
 }
-#endif // ASERStudio_AStorySyntax_AStoryXValue_h
+#endif // Plugin_ASERStudio_AStorySyntax_AStoryXValueMeta_h

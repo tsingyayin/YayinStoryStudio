@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_DebugCommand_h
-#define YSS_MainEditor_DebugCommand_h
+#ifndef YayinStoryStudio_Editor_MainEditor_DebugCommand_h
+#define YayinStoryStudio_Editor_MainEditor_DebugCommand_h
 #include <General/CommandHandler.h>
 namespace YSS::Editor {
 	class DebugCommand :public Visindigo::General::CommandHandler {
@@ -9,4 +9,4 @@ namespace YSS::Editor {
 		virtual QStringList onComplete(const QString& entryName, const QStringList& unnamedArgs, const QMap<QString, QString>& namedArgs) override;
 	};
 }
-#endif // YSS_MainEditor_DebugCommand_h
+#endif // YayinStoryStudio_Editor_MainEditor_DebugCommand_h

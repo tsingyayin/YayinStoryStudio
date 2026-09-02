@@ -10,8 +10,8 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef YSSFileExt_LangServer_YSSLangDocument_h
-#define YSSFileExt_LangServer_YSSLangDocument_h
+#ifndef Plugin_YSSFileExt_LangServer_YSSLangDocument_h
+#define Plugin_YSSFileExt_LangServer_YSSLangDocument_h
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
@@ -98,4 +98,4 @@ namespace YSSFileExt {
 		YSSLangDocumentPrivate* d;
 	};
 }
-#endif // YSSFileExt_LangServer_YSSLangDocument_h
+#endif // Plugin_YSSFileExt_LangServer_YSSLangDocument_h

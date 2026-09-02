@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_TreeLayoutWidget_p_h
-#define YSS_MainEditor_TreeLayoutWidget_p_h
+#ifndef YayinStoryStudio_Editor_MainEditor_private_TreeLayoutWidget_p_h
+#define YayinStoryStudio_Editor_MainEditor_private_TreeLayoutWidget_p_h
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qcolor.h>
@@ -41,4 +41,4 @@ namespace YSS::Editor {
 		bool Hovered = false;
 	};
 }
-#endif // YSS_MainEditor_TreeLayoutWidget_p_h
+#endif // YayinStoryStudio_Editor_MainEditor_private_TreeLayoutWidget_p_h

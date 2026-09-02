@@ -1,5 +1,5 @@
-#ifndef ASERStudio_ASEREnv_ASERProgram_h
-#define ASERStudio_ASEREnv_ASERProgram_h
+#ifndef Plugin_ASERStudio_ASEREnv_ASERProgram_h
+#define Plugin_ASERStudio_ASEREnv_ASERProgram_h
 #include "ASERStudioCompileMacro.h"
 #include <QtCore/qstringlist.h>
 #include <QtCore/qobject.h>
@@ -69,4 +69,4 @@ namespace ASERStudio::ASEREnv {
 		ASERProgramPrivate* d;
 	};
 }
-#endif // ASERStudio_ASEREnv_ASERProgram_h
+#endif // Plugin_ASERStudio_ASEREnv_ASERProgram_h

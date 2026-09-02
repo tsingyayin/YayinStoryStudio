@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_BottomInfoWidget_h
-#define YSS_MainEditor_BottomInfoWidget_h
+#ifndef YayinStoryStudio_Editor_MainEditor_BottomInfoWidget_h
+#define YayinStoryStudio_Editor_MainEditor_BottomInfoWidget_h
 #include <Widgets/BorderFrame.h>
 #include <Editor/DebugServer.h>
 #include <Widgets/ThemeManager.h>
@@ -36,4 +36,4 @@ namespace YSS::Editor{
 		BottomInfoWidgetPrivate* d;
 	};
 }
-#endif // YSS_MainEditor_BottomInfoWidget_h
+#endif // YayinStoryStudio_Editor_MainEditor_BottomInfoWidget_h

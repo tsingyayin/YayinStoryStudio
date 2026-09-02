@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_StacktraceHelper_H
-#define Visindigo_General_StacktraceHelper_H
+#ifndef Visindigo_General_StacktraceHelper_h
+#define Visindigo_General_StacktraceHelper_h
 #include "VICompileMacro.h"
 #include <QtCore/qlist.h>
 class QString;
@@ -27,4 +27,4 @@ namespace Visindigo::General {
 		static QList<StacktraceFrame> getStacktrace(qint32 maxFrames = 63, qint32 skipFrames = 0);
 	};
 }
-#endif // Visindigo_General_StacktraceHelper_H
+#endif // Visindigo_General_StacktraceHelper_h

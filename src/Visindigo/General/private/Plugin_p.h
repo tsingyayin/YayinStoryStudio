@@ -1,5 +1,5 @@
-#ifndef Visinidgo_General_Plugin_p_H
-#define Visinidgo_General_Plugin_p_H
+#ifndef Visindigo_General_private_Plugin_p_h
+#define Visindigo_General_private_Plugin_p_h
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qdir.h>
@@ -44,4 +44,4 @@ namespace Visindigo::__Private__ {
 		bool disablePlugin();
 	};
 }
-#endif // Visinidgo_General_Plugin_p_H
+#endif // Visindigo_General_private_Plugin_p_h

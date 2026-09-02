@@ -10,8 +10,8 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef YSSFileExt_LangServer_JsonLangServer_h
-#define YSSFileExt_LangServer_JsonLangServer_h
+#ifndef Plugin_YSSFileExt_LangServer_JsonLangServer_h
+#define Plugin_YSSFileExt_LangServer_JsonLangServer_h
 #include <Editor/LangServer.h>
 #include <Editor/EditorPlugin.h>
 #include <Editor/SyntaxHighlighter.h>
@@ -64,4 +64,4 @@ namespace YSSFileExt {
 		JsonLangHighlighterPrivate* d;
 	};
 }
-#endif // YSSFileExt_LangServer_JsonLangServer_h
+#endif // Plugin_YSSFileExt_LangServer_JsonLangServer_h

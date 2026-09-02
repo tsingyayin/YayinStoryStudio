@@ -1,5 +1,5 @@
-#ifndef YSSCore_Editor_DocumentMessageManager_p_H
-#define YSSCore_Editor_DocumentMessageManager_p_H
+#ifndef YSSCore_Editor_private_DocumentMessageManager_p_h
+#define YSSCore_Editor_private_DocumentMessageManager_p_h
 #include "Editor/SyntaxHighlighter.h"
 #include <tuple>
 namespace YSSCore::Editor {
@@ -43,4 +43,4 @@ namespace YSSCore::__Private__ {
 		std::tuple<qint32, qint32, qint32> getMessageCount(const QString& filePath);
 	};
 }
-#endif // YSSCore_Editor_DocumentMessageManager_p_H
+#endif // YSSCore_Editor_private_DocumentMessageManager_p_h

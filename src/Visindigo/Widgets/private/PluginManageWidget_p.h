@@ -1,5 +1,5 @@
-#ifndef Visindigo_Widgets_PluginManageWidget_p_h
-#define Visindigo_Widgets_PluginManageWidget_p_h
+#ifndef Visindigo_Widgets_private_PluginManageWidget_p_h
+#define Visindigo_Widgets_private_PluginManageWidget_p_h
 #include <QtWidgets/qframe.h>
 #include <QtCore/qlist.h>
 #include "Widgets/BorderFrame.h"
@@ -67,4 +67,4 @@ namespace Visindigo::__Private__ {
 		void setPluginID(const QString& pluginID);
 	};
 }
-#endif // Visindigo_Widgets_PluginManageWidget_p_h
+#endif // Visindigo_Widgets_private_PluginManageWidget_p_h

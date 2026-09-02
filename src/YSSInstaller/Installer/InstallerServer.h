@@ -1,5 +1,5 @@
-#ifndef YSS_Installer_InstallerServer_h
-#define YSS_Installer_InstallerServer_h
+#ifndef YSSInstaller_Installer_InstallerServer_h
+#define YSSInstaller_Installer_InstallerServer_h
 #include <QtCore/qobject.h>
 #include <QtNetwork/qlocalserver.h>
 #include <QtNetwork/qlocalsocket.h>
@@ -32,4 +32,4 @@ namespace YSS::Installer {
 	};
 }
 
-#endif // YSS_Installer_InstallerServer_h
+#endif // YSSInstaller_Installer_InstallerServer_h

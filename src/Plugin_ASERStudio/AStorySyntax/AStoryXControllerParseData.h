@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXControllerParseData_h
-#define ASERStudio_AStorySyntax_AStoryXControllerParseData_h
+#ifndef Plugin_ASERStudio_AStorySyntax_AStoryXControllerParseData_h
+#define Plugin_ASERStudio_AStorySyntax_AStoryXControllerParseData_h
 #include "ASERStudioCompileMacro.h"
 #include "AStorySyntax/AStoryXController.h"
 #include "AStorySyntax/AStoryXDiagnosticData.h"
@@ -68,4 +68,4 @@ namespace ASERStudio::AStorySyntax {
 	};
 }
 
-#endif
+#endif // Plugin_ASERStudio_AStorySyntax_AStoryXControllerParseData_h

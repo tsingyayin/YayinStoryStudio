@@ -1,5 +1,5 @@
-#ifndef YSS_MainEditor_MainWinMenu_h
-#define YSS_MainEditor_MainWinMenu_h
+#ifndef YayinStoryStudio_Editor_MainEditor_MainWinMenu_h
+#define YayinStoryStudio_Editor_MainEditor_MainWinMenu_h
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qaction.h>
@@ -65,4 +65,4 @@ namespace YSS::Editor {
 		MainWinMenuPrivate* d;
 	};
 }
-#endif // YSS_MainEditor_MainWinMenu_h
+#endif // YayinStoryStudio_Editor_MainEditor_MainWinMenu_h

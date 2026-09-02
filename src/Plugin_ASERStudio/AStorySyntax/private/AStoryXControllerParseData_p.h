@@ -1,5 +1,5 @@
-#ifndef ASERStudio_AStorySyntax_AStoryXControllerParseDataPrivate_h
-#define ASERStudio_AStorySyntax_AStoryXControllerParseDataPrivate_h
+#ifndef Plugin_ASERStudio_AStorySyntax_private_AStoryXControllerParseData_p_h
+#define Plugin_ASERStudio_AStorySyntax_private_AStoryXControllerParseData_p_h
 #include <QtCore/qstring.h>
 #include "AStorySyntax/AStoryXController.h"
 #include "AStorySyntax/AStoryXDiagnosticData.h"
@@ -63,4 +63,4 @@ namespace ASERStudio::AStorySyntax {
 	};
 }
 
-#endif // ASERStudio_AStorySyntax_AStoryXControllerParseDataPrivate_h
+#endif // Plugin_ASERStudio_AStorySyntax_private_AStoryXControllerParseData_p_h

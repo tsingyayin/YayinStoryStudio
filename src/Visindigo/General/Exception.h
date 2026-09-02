@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_Exception_H
-#define Visindigo_General_Exception_H
+#ifndef Visindigo_General_Exception_h
+#define Visindigo_General_Exception_h
 #include "VICompileMacro.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
@@ -100,4 +100,4 @@ LONG WINAPI VisindigoWindowsExceptionCapture(EXCEPTION_POINTERS* p_excetion);
 #undef interface
 #endif // Q_OS_WIN
 
-#endif // Visindigo_General_Exception_H
+#endif // Visindigo_General_Exception_h

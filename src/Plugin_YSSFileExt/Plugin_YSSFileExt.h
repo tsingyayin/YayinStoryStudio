@@ -1,5 +1,5 @@
-#ifndef YSSFileExt_Plugin_YSSFileExt_h
-#define YSSFileExt_Plugin_YSSFileExt_h
+#ifndef Plugin_YSSFileExt_Plugin_YSSFileExt_h
+#define Plugin_YSSFileExt_Plugin_YSSFileExt_h
 #include <Editor/EditorPlugin.h>
 #include <General/Translator.h>
 
@@ -18,4 +18,4 @@ public:
 	virtual void onPluginEnable() override;
 	virtual void onPluginDisable() override;
 };
-#endif // YSSFileExt_Plugin_YSSFileExt_h
+#endif // Plugin_YSSFileExt_Plugin_YSSFileExt_h

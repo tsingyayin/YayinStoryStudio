@@ -99,4 +99,4 @@ namespace YSSCore::Editor {
 		ColorThemeProviderPrivate* d;
 	};
 }
-#endif //YSSCore_Editor_ColorThemeProvider_h
+#endif // YSSCore_Editor_ColorThemeProvider_h

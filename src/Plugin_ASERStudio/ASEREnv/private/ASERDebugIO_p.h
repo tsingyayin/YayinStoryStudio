@@ -1,5 +1,5 @@
-#ifndef ASERStudio_ASEREnv_ASEDebugIO_p_h
-#define ASERStudio_ASEREnv_ASEDebugIO_p_h
+#ifndef Plugin_ASERStudio_ASEREnv_private_ASERDebugIO_p_h
+#define Plugin_ASERStudio_ASEREnv_private_ASERDebugIO_p_h
 #include <QtCore/qobject.h>
 #include "ASEREnv/ASERDebugIO.h"
 namespace ASERStudio::ASEREnv {
@@ -21,4 +21,4 @@ namespace ASERStudio::ASEREnv {
 	};
 }
 
-#endif // ASERStudio_ASEREnv_ASEDebugIO_p_h
+#endif // Plugin_ASERStudio_ASEREnv_private_ASERDebugIO_p_h

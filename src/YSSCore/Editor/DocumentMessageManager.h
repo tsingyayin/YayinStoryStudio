@@ -29,4 +29,4 @@ namespace YSSCore::Editor {
 		YSSCore::__Private__::DocumentMessageManagerPrivate* d;
 	};
 }
-#endif //DocumentMessageManager_h
+#endif // YSSCore_Editor_DocumentMessageManager_h

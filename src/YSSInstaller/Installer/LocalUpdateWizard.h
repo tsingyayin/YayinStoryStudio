@@ -1,5 +1,5 @@
-#ifndef YSS_Installer_LocalUpdateWizard_h
-#define YSS_Installer_LocalUpdateWizard_h
+#ifndef YSSInstaller_Installer_LocalUpdateWizard_h
+#define YSSInstaller_Installer_LocalUpdateWizard_h
 #include <QtWidgets/qwidget.h>
 #include <QtCore/qlist.h>
 #include <Installer/InstallerClientData.h>
@@ -21,4 +21,4 @@ namespace YSS::Installer {
 		LocalUpdateWizardPrivate* d;
 	};
 }
-#endif // YSS_Installer_LocalUpdateWizard_h
+#endif // YSSInstaller_Installer_LocalUpdateWizard_h

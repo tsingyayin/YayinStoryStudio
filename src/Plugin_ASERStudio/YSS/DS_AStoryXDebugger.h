@@ -1,5 +1,5 @@
-#ifndef ASERStudio_YSS_DS_AStoryXDebugger_h
-#define ASERStudio_YSS_DS_AStoryXDebugger_h
+#ifndef Plugin_ASERStudio_YSS_DS_AStoryXDebugger_h
+#define Plugin_ASERStudio_YSS_DS_AStoryXDebugger_h
 #include "ASERStudioCompileMacro.h"
 #include <Editor/DebugServer.h>
 #define ASERStudio_AStoryXDebuggerID "cn.yxgeneral.aserstudio.astoryxdebugger"
@@ -15,4 +15,4 @@ namespace ASERStudio::YSS {
 		DS_AStoryXDebuggerPrivate* d;
 	};
 }
-#endif // ASERStudio_YSS_DS_AStoryXDebugger_h
+#endif // Plugin_ASERStudio_YSS_DS_AStoryXDebugger_h

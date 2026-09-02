@@ -10,8 +10,8 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef YSSFileExt_FileTemplate_SimpleFileTemplate_h
-#define YSSFileExt_FileTemplate_SimpleFileTemplate_h
+#ifndef Plugin_YSSFileExt_FileTemplate_SimpleFileTemplate_h
+#define Plugin_YSSFileExt_FileTemplate_SimpleFileTemplate_h
 #include <Editor/FileTemplateProvider.h>
 #include <QtCore/qstringlist.h>
 
@@ -50,4 +50,4 @@ namespace YSSFileExt {
 		QString Extension;
 	};
 }
-#endif // YSSFileExt_FileTemplate_SimpleFileTemplate_h
+#endif // Plugin_YSSFileExt_FileTemplate_SimpleFileTemplate_h

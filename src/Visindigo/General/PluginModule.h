@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_PluginModule_H
-#define Visindigo_General_PluginModule_H
+#ifndef Visindigo_General_PluginModule_h
+#define Visindigo_General_PluginModule_h
 #include "VICompileMacro.h"
 #include <QtCore/qobject.h>
 
@@ -34,4 +34,4 @@ namespace Visindigo::General {
 	};
 }
 
-#endif // Visindigo_General_PluginModule_H
+#endif // Visindigo_General_PluginModule_h

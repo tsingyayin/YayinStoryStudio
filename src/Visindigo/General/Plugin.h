@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_Plugin_H
-#define Visindigo_General_Plugin_H
+#ifndef Visindigo_General_Plugin_h
+#define Visindigo_General_Plugin_h
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
 #include "VICompileMacro.h"
@@ -90,4 +90,4 @@ public:\
 	static PluginClass* getInstance();
 #define VIPluginInstance(PluginClass) PluginClass::getInstance()
 
-#endif // Visindigo_General_Plugin_H
+#endif // Visindigo_General_Plugin_h

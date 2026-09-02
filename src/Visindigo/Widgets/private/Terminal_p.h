@@ -1,5 +1,5 @@
-#ifndef Visindigo_Widgets_Terminal_p_h
-#define Visindigo_Widgets_Terminal_p_h
+#ifndef Visindigo_Widgets_private_Terminal_p_h
+#define Visindigo_Widgets_private_Terminal_p_h
 #include "VICompileMacro.h"
 #include "Widgets/Terminal.h"
 #include <QtCore/qobject.h>
@@ -54,4 +54,4 @@ namespace Visindigo::__Private__ {
 		virtual bool eventFilter(QObject* watched, QEvent* event) override;
 	};
 }
-#endif // Visindigo_Widgets_Terminal_p_h
+#endif // Visindigo_Widgets_private_Terminal_p_h
