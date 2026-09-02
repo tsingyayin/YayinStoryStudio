@@ -35,10 +35,10 @@ namespace YSSCore::Editor {
 				return;
 			}
 			Visindigo::Utility::FileUtility::saveAll(
-				userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegelFileName(themeName) + ".theme.json", json);
+				userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegalFileName(themeName) + ".theme.json", json);
 		}
 		void deleteUserTheme(const QString& themeName) {
-			QString filePath = userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegelFileName(themeName) + ".theme.json";
+			QString filePath = userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegalFileName(themeName) + ".theme.json";
 			Visindigo::Utility::FileUtility::deleteFile(filePath, false);
 		}
 		void setupUserThemeAutoSave() {

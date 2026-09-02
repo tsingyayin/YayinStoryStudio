@@ -74,7 +74,7 @@ namespace ASERStudio::YSS {
 	void FileTemplateInitWidget_AStoryX::onCreateButtonClicked() {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
 		QString completePath = config->getString("File.Path") + "/" +
-			Visindigo::Utility::FileUtility::toLegelFileName(config->getString("File.Name")) + ".astoryx";
+			Visindigo::Utility::FileUtility::toLegalFileName(config->getString("File.Name")) + ".astoryx";
 		QFile file(completePath);
 		bool ok = !file.exists();
 		if (ok) {
@@ -110,7 +110,7 @@ namespace ASERStudio::YSS {
 
 	void FileTemplateInitWidget_AStoryX::refreshWhereLabel() {
 		QString completePath = d->FilePath + "/" +
-			Visindigo::Utility::FileUtility::toLegelFileName(d->FileName) + ".astoryx";
+			Visindigo::Utility::FileUtility::toLegalFileName(d->FileName) + ".astoryx";
 		if (!Visindigo::Utility::FileUtility::isFileExist(completePath)) {
 			d->WhereLabel->setText(VITR("ASERStudio::fileProvider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);

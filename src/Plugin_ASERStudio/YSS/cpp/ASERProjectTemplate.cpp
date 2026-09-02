@@ -10,9 +10,57 @@
 #include <QtWidgets/qmessagebox.h>
 #include <Editor/EditorPlugin.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qdir.h>
 #include <QtCore/qmap.h>
+#include <QtCore/qresource.h>
+#include <General/Log.h>
+#include <General/PluginManager.h>
 #include "YSS/DS_AStoryXDebugger.h"
 namespace ASERStudio::YSS {
+	static const QString ASERStudioPluginID = QStringLiteral("cn.yxgeneral.aserstudio");
+	static const QString ASERStudioAssets1Rcc = QStringLiteral("ASERStudio_assets1.rcc");
+
+	// ASERStudio_assets1.rcc 的"现场加载、现场使用、现场卸载"生命周期管理。
+	// 项目模板文件(template/3.0、3.6.7)不再嵌入插件二进制，而是编译为独立的 .rcc 文件，
+	// 与插件 .vpl 一起放在插件二进制目录中。创建项目窗口时加载，窗口销毁后卸载，
+	// 避免大体积模板资源常驻内存。使用引用计数，多个模板窗口同时存在时只注册一次。
+	class ProjectTemplateAssets {
+	public:
+		static void registerAssets() {
+			++InstanceCount;
+			if (InstanceCount == 1) {
+				Visindigo::General::Plugin* plugin = Visindigo::General::PluginManager::getInstance()->getPluginByID(ASERStudioPluginID);
+				if (plugin) {
+					RccFilePath = plugin->getPluginBinaryFolder().filePath(ASERStudioAssets1Rcc);
+					Registered = QResource::registerResource(RccFilePath);
+					if (!Registered) {
+						vgWarning << "Failed to register resource:" << RccFilePath;
+					}
+				}
+				else {
+					vgWarning << "ASERStudio plugin instance not found, cannot locate" << ASERStudioAssets1Rcc;
+				}
+			}
+		}
+		static void unregisterAssets() {
+			if (InstanceCount > 0) {
+				--InstanceCount;
+			}
+			if (InstanceCount == 0 && Registered) {
+				QResource::unregisterResource(RccFilePath);
+				Registered = false;
+				RccFilePath.clear();
+			}
+		}
+	private:
+		static int InstanceCount;
+		static QString RccFilePath;
+		static bool Registered;
+	};
+	int ProjectTemplateAssets::InstanceCount = 0;
+	QString ProjectTemplateAssets::RccFilePath;
+	bool ProjectTemplateAssets::Registered = false;
+
 	class ProjectTemplateInitWidget_AStoryXPrivate {
 		friend class ProjectTemplateInitWidget_AStoryX;
 	protected:
@@ -28,6 +76,7 @@ namespace ASERStudio::YSS {
 		: YSSCore::Editor::ProjectTemplateInitWidget(parent)
 	{
 		d = new ProjectTemplateInitWidget_AStoryXPrivate();
+		ProjectTemplateAssets::registerAssets();
 		this->setMinimumWidth(800);
 		this->setWindowTitle(VITR("ASERStudio::provider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
@@ -55,6 +104,7 @@ namespace ASERStudio::YSS {
 	}
 
 	ProjectTemplateInitWidget_AStoryX::~ProjectTemplateInitWidget_AStoryX() {
+		ProjectTemplateAssets::unregisterAssets();
 		delete d;
 	}
 
@@ -75,7 +125,7 @@ namespace ASERStudio::YSS {
 	void ProjectTemplateInitWidget_AStoryX::onCreateButtonClicked() {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
 		YSSCore::General::YSSProject project;
-		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
+		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegalFileName(config->getString("Project.Name"));
 		bool ok = project.initProject(completePath, config->getString("Project.Name"));
 		if (ok) {
 			project.setProjectIconPath("cover.png");
@@ -139,7 +189,7 @@ namespace ASERStudio::YSS {
 	}
 
 	void ProjectTemplateInitWidget_AStoryX::refreshWhereLabel() {
-		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegelFileName(d->ProjectName);
+		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegalFileName(d->ProjectName);
 		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
 			d->WhereLabel->setText(VITR("ASERStudio::provider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);
@@ -189,6 +239,7 @@ namespace ASERStudio::YSS {
 		: YSSCore::Editor::ProjectTemplateInitWidget(parent)
 	{
 		d = new ProjectTemplateInitWidget_AStoryX_3_6_7Private();
+		ProjectTemplateAssets::registerAssets();
 		this->setMinimumWidth(800);
 		this->setWindowTitle(VITR("ASERStudio::provider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
@@ -214,6 +265,7 @@ namespace ASERStudio::YSS {
 	}
 
 	ProjectTemplateInitWidget_AStoryX_3_6_7::~ProjectTemplateInitWidget_AStoryX_3_6_7() {
+		ProjectTemplateAssets::unregisterAssets();
 		delete d;
 	}
 
@@ -234,7 +286,7 @@ namespace ASERStudio::YSS {
 	void ProjectTemplateInitWidget_AStoryX_3_6_7::onCreateButtonClicked() {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
 		YSSCore::General::YSSProject project;
-		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegelFileName(config->getString("Project.Name"));
+		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegalFileName(config->getString("Project.Name"));
 		bool ok = project.initProject(completePath, config->getString("Project.Name"));
 		if (ok) {
 			project.setProjectIconPath("cover.png");
@@ -294,7 +346,7 @@ namespace ASERStudio::YSS {
 	}
 
 	void ProjectTemplateInitWidget_AStoryX_3_6_7::refreshWhereLabel() {
-		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegelFileName(d->ProjectName);
+		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegalFileName(d->ProjectName);
 		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
 			d->WhereLabel->setText(VITR("ASERStudio::provider.window.where").arg(completePath));
 			d->CreateButton->setEnabled(true);

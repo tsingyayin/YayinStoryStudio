@@ -67,7 +67,7 @@ namespace YSSFileExt {
 		auto refresh = [this]() {
 			const QString name = d->NameLineEdit->text().trimmed();
 			const QString completePath = d->InitFolder + "/" +
-				Visindigo::Utility::FileUtility::toLegelFileName(name) + "." + d->Extension;
+				Visindigo::Utility::FileUtility::toLegalFileName(name) + "." + d->Extension;
 			if (name.isEmpty()) {
 				d->WhereLabel->setText(VITR("YSSFileExt::fileProvider.window.where").arg(completePath));
 				d->CreateButton->setEnabled(false);
@@ -85,7 +85,7 @@ namespace YSSFileExt {
 		connect(d->CreateButton, &QPushButton::clicked, this, [this]() {
 			const QString name = d->NameLineEdit->text().trimmed();
 			const QString completePath = d->InitFolder + "/" +
-				Visindigo::Utility::FileUtility::toLegelFileName(name) + "." + d->Extension;
+				Visindigo::Utility::FileUtility::toLegalFileName(name) + "." + d->Extension;
 			if (name.isEmpty() || Visindigo::Utility::FileUtility::isFileExist(completePath)) {
 				QMessageBox::warning(this, VITR("YSSFileExt::fileProvider.failed.title"),
 					VITR("YSSFileExt::fileProvider.failed.text"));

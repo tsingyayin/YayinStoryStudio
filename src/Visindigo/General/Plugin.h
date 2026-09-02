@@ -50,6 +50,7 @@ namespace Visindigo::General {
 		QString getPluginDescription() const;
 		QString getPluginDescriptionI18N() const;
 		QDir getPluginFolder() const;
+		QDir getPluginBinaryFolder() const;
 		Visindigo::Utility::JsonConfig* getPluginConfig();
 		void savePluginConfig();
 		void reloadPluginConfig();

@@ -4,6 +4,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qprocess.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qset.h>
 #include <QtCore/qtextstream.h>
@@ -351,8 +353,8 @@ namespace Visindigo::Utility {
 		else if (fileInfo.isFile()) {
 			QString absPath = fileInfo.absoluteFilePath().replace("/", "\\");
 			QString cmd = "explorer /select,\"" + absPath + "\"";
-			vgDebug << cmd;
-			system(("explorer /select,\"" + absPath + "\"").toStdString().c_str());
+			QProcess::startDetached("explorer.exe", {"/select,\"" + absPath + "\""});
+			// system(("explorer /select,\"" + absPath + "\"").toStdString().c_str());
 		}
 #endif
 	}
@@ -377,11 +379,22 @@ namespace Visindigo::Utility {
 
 		这个函数不验证用于替换的字符是否合法，请务必保证它合法，否则可能会得到一个仍然非法的文件名。
 
-		\warning 这个函数的名称存在拼写错误，预备于0.17.0之后修正，且不保留旧名称的兼容性。
+		从0.17.0开始，此函数统一按最严格的规则（Windows）过滤字符，
+		以保证产出在任何平台（Windows/Linux/macOS）上都是合法文件名；
+		同时额外处理了Windows的保留设备名（CON/PRN/AUX/NUL/COM1-9/LPT1-9）
+		以及不允许以空格或点结尾的规则。
+
+		\note 0.17.0之前，此函数错误地命名为toLegelFileName。
 	*/
-	QString FileUtility::toLegelFileName(const QString& name, const QString& replace) {
+	QString FileUtility::toLegalFileName(const QString& name, const QString& replace) {
 		QString legalName = name;
-		legalName.replace(QRegularExpression("[\\\\/:*?\"<>|\\s!@$]"), replace);
+		legalName.replace(QRegularExpression(R"([\\/:*?"<>|\s!@$\x00-\x1f])"), replace);
+		legalName.replace(QRegularExpression(R"([. ]+$)"), "");
+		const QString stem = QFileInfo(legalName).completeBaseName();
+		static const QRegularExpression deviceNameRe(R"(^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$)", QRegularExpression::CaseInsensitiveOption);
+		if (deviceNameRe.match(stem).hasMatch()) {
+			legalName = (replace.isEmpty() ? QStringLiteral("_") : replace) + legalName;
+		}
 		return legalName;
 	}
 

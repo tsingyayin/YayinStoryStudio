@@ -60,6 +60,7 @@
 	} \
 	name& name::operator=(name&& other) noexcept { \
 		if (this != &other) { \
+			delete d; \
 			d = other.d; \
 			other.d = nullptr; \
 		} \

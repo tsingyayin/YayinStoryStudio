@@ -173,8 +173,13 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Plugin_ASERStudio.qrc" />
-    <QtRcc Include="Plugin_ASERStudio_367.qrc" />
-    <QtRcc Include="Plugin_ASERStudio_367_music.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Plugin_ASERStudio_assets1.qrc">
+      <Message>Building binary resource: ASERStudio_assets1.rcc</Message>
+      <Command>"$(QtToolsPath)\rcc.exe" -binary "%(FullPath)" -o "$(OutDir)ASERStudio_assets1.rcc"</Command>
+      <Outputs>$(OutDir)ASERStudio_assets1.rcc</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\cn.yxgeneral.aserstudio\astoryxMeta\default.json" />

@@ -1,7 +1,9 @@
 #include <QtCore/qstring.h>
+#include <QtCore/qdir.h>
 #include "General/TranslationHost.h"
 #include "General/private/Plugin_p.h"
 #include "General/Plugin.h"
+#include "General/PluginManager.h"
 #include "General/PluginModule.h"
 #include "General/Version.h"
 #include "General/Logger.h"
@@ -331,6 +333,19 @@ namespace Visindigo::General {
 	*/
 	QDir Plugin::getPluginFolder() const {
 		return d->PluginFolder;
+	}
+
+	/*!
+		\since Visindigo 0.16.0
+		return 插件二进制文件(.vpl)所在的目录。
+
+		注意与 getPluginFolder() 的区别：getPluginFolder() 返回插件的配置/数据目录，
+		而 getPluginBinaryFolder() 返回插件动态库实际存放的目录。
+
+		主插件(MainPlugin)没有对应的二进制文件，此时返回空的QDir。
+	*/
+	QDir Plugin::getPluginBinaryFolder() const {
+		return PluginManager::getInstance()->getPluginBinaryFolder(getPluginID());
 	}
 
 	/*!

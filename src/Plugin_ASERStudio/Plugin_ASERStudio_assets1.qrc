@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/classic.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Configs/override_aliases.json</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Configs/override_userConfigs.json</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Background/bg_amb2026.png</file>
@@ -9,6 +15,7 @@
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Spine/Amiya(furnace_finale)/Amiya(furnace_finale).png</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Spine/Amiya(furnace_finale)/Amiya(furnace_finale).skel</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Char_Spine/Amiya(furnace_finale)/Amiya(furnace_finale)_config.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/Music/immutable_ins.wav</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/SoundEffect/MagneticBurst.wav</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/VisualEffect/manifest.json</file>
         <file>resource/cn.yxgeneral.aserstudio/template/3.6.7/Resources/VisualEffect/prefab/furnace_finale.ab</file>

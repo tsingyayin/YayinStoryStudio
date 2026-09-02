@@ -87,7 +87,7 @@ namespace Visindigo::__Private__ {
 				if (normalTextStart < i) {
 					insertPlainText(line.mid(normalTextStart, i - normalTextStart));
 				}
-				auto rBegin = line.at(i + 1 > line.size() ? line.size() - 1 : i + 1);
+				auto rBegin = line.at(i + 1 >= line.size() ? i : i + 1);
 				if (rBegin != '[') { // simple control sequence, start with \033 and followed by a single character
 					switch (rBegin.toLatin1()) {
 					case 'M':

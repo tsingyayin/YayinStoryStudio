@@ -173,12 +173,9 @@
     <QtRcc Include="Plugin_ASERStudio.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <QtRcc Include="Plugin_ASERStudio_367.qrc">
+    <CustomBuild Include="Plugin_ASERStudio_assets1.qrc">
       <Filter>Resource Files</Filter>
-    </QtRcc>
-    <QtRcc Include="Plugin_ASERStudio_367_music.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\cn.yxgeneral.aserstudio\astoryxMeta\default.json" />

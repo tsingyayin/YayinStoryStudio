@@ -533,6 +533,22 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.16.0
+		根据 \a id 获取插件二进制文件(.vpl)所在的目录。
+
+		这个目录是插件动态库实际存放的目录，与插件的配置目录(getPluginFolder())不同。
+		如果插件ID不存在或未被加载，返回空的QDir。
+
+		\sa Plugin::getPluginBinaryFolder()
+	*/
+	QDir PluginManager::getPluginBinaryFolder(const QString& id) const {
+		if (d->PluginPathMap.contains(id)) {
+			return QDir(QFileInfo(d->PluginPathMap.value(id)).absolutePath());
+		}
+		return QDir();
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		根据插件名称 \a name 获取插件对象指针。如果插件名称不存在或未被正确加载，则返回nullptr。
 	*/

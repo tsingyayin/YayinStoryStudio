@@ -4,6 +4,7 @@
 #include "VICompileMacro.h"
 // Forward declarations
 class QString;
+class QDir;
 namespace Visindigo::General {
 	class Plugin;
 	class PluginManagerPrivate;
@@ -54,6 +55,7 @@ namespace Visindigo::General {
 		qint32 getEnabledPluginCount() const;
 		Plugin* getPluginByID(const QString& id) const;
 		Plugin* getPluginByName(const QString& name) const;
+		QDir getPluginBinaryFolder(const QString& id) const;
 		LoadPluginResult getPluginLoadResultByID(const QString& id) const;
 		QList<Plugin*> getLoadedPlugins() const;
 		QList<Plugin*> getEnabledPlugins() const;

@@ -25,9 +25,11 @@ namespace Visindigo::Utility {
 		enum ErrorCode {
 			Success = 0,
 			FileNotFound = 1,
-			DirNotFound = 2,
-			PermissionDenied = 3,
-			UnknownError = 4
+			DirNotFound,
+			NameConflict,
+			PermissionDenied,
+			DiskFull,
+			UnknownError
 		};
 	public:
 		static QStringList readLines(const QString& filePath);
@@ -42,7 +44,7 @@ namespace Visindigo::Utility {
 		static QString readableSize(qint64 bytes, BinarySizeUnit u = Byte, BinarySizeFormat f = IEC);
 		static void openExplorer(const QString& path);
 		static void openBrowser(const QString& url);
-		static QString toLegelFileName(const QString& name, const QString& replace = "_");
+		static QString toLegalFileName(const QString& name, const QString& replace = "_");
 		static bool isFileExist(const QString& filePath);
 		static bool isDirExist(const QString& dirPath);
 		static bool isDirEmpty(const QString& dirPath);
