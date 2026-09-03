@@ -53,10 +53,7 @@ namespace Visindigo::General {
 			}
 		};
 		friend class PluginManager;
-	protected:
-		// setPluginLoadPath / setPluginEntryPoint 注入的"随应用分发/打包"插件源：
-		// 可用库路径 dlopen(EntryPoint 为空)，或已随进程加载的入口函数指针(LibPath 为空)
-		
+	protected:		
 		static PluginManager* Instance;
 		bool loaded = false;
 		QMap<IDString, PluginManageData> PluginManage;
@@ -134,8 +131,9 @@ namespace Visindigo::General {
 			std::sort(LoadPriorityList.begin(), LoadPriorityList.end(), [this](const IDString& a, const IDString& b) {
 				return PluginManage[a].priority > PluginManage[b].priority;
 				});
+			auto i = 1;
 			for (auto id : LoadPriorityList) {
-				VIPM->notice() << "Plugin \"" << id << "\" priority: " << PluginManage[id].priority;
+				VIPM->notice() << "Plugin" << id << ", used:" << PluginManage[id].priority << "times, load priority: " << i++;
 			}
 		}
 
@@ -238,14 +236,14 @@ namespace Visindigo::General {
 					if (not PluginManage.contains(dep)) {
 						manageData.loadResult = PluginManager::LoadPluginResult::DependencyNotFound;
 						manageData.state = PluginManager::PluginState::Deactivated;
-						VIPM->error() << "Plugin \"" << pluginID << "\" dependency \"" << dep << "\" not found. IGNORE this plugin.";
+						VIPM->error() << "Plugin" << pluginID << "dependency" << dep << "not found. IGNORE this plugin.";
 						dependencyFailed = true;
 					}
 					auto& depData = PluginManage[dep];
 					if (depData.loadResult != PluginManager::LoadPluginResult::Success) {
 						manageData.loadResult = PluginManager::LoadPluginResult::DependencyDeactivated;
 						manageData.state = PluginManager::PluginState::Deactivated;
-						VIPM->error() << "Plugin \"" << pluginID << "\" dependency \"" << dep << "\" load failed or deactivated. IGNORE this plugin.";
+						VIPM->error() << "Plugin" << pluginID << "dependency" << dep << "load failed or deactivated. IGNORE this plugin.";
 						dependencyFailed = true;
 					}
 				}
@@ -284,7 +282,7 @@ namespace Visindigo::General {
 					continue;
 				}
 				if (not Version::isCompatibleABIVersion(Version::getABIVersion(), instance->getPluginABIVersion())) {
-					VIPM->error() << "Plugin \"" << pluginID << "\" ABI version " << instance->getPluginABIVersion().toString() <<
+					VIPM->error() << "Plugin" << pluginID << " ABI version " << instance->getPluginABIVersion().toString() <<
 						" is not compatible with application ABI version " << Version::getABIVersion().toString() << ". IGNORE this plugin.";
 					manageData.loadResult = PluginManager::LoadPluginResult::IncompatibleABI;
 					manageData.state = PluginManager::PluginState::Deactivated;
@@ -292,7 +290,7 @@ namespace Visindigo::General {
 					continue;
 				}
 				if (not Version::isCompatibleAPIVersion(VIApplication::getInstance()->getMainPlugin()->getPluginAPIVersion(), instance->getPluginAPIVersion())) {
-					VIPM->error() << "Plugin \"" << pluginID << "\" API version " << instance->getPluginAPIVersion().toString() <<
+					VIPM->error() << "Plugin" << pluginID << " API version " << instance->getPluginAPIVersion().toString() <<
 						" is not compatible with application API version " << VIApplication::getInstance()->getMainPlugin()->getPluginAPIVersion().toString() << ". IGNORE this plugin.";
 					manageData.loadResult = PluginManager::LoadPluginResult::IncompatibleAPI;
 					manageData.state = PluginManager::PluginState::Deactivated;
@@ -302,7 +300,7 @@ namespace Visindigo::General {
 				manageData.loadResult = PluginManager::LoadPluginResult::Success;
 				manageData.state = PluginManager::PluginState::InstanceCreated;
 				manageData.plugin = instance;
-				VIPM->success() << "Plugin \"" << pluginID << "\" loaded successfully, will be enabled later.";
+				VIPM->success() << "Plugin" << pluginID << "loaded successfully, will be enabled later.";
 			}
 		}
 	};
@@ -501,9 +499,18 @@ namespace Visindigo::General {
 			auto& manageData = d->PluginManage[pluginID];
 			if (manageData.state == PluginManager::PluginState::Enabled) {
 				VIPM->notice() << "Disabling plugin: " << pluginID;
-				manageData.plugin->onPluginDisable();
+				try {
+					auto modules = manageData.plugin->getModules();
+					for (auto rit = modules.rbegin(); rit != modules.rend(); ++rit) {
+						(*rit)->onModuleDisable();
+					}
+					manageData.plugin->onPluginDisable();
+				}
+				catch (...) {
+					VIPM->error() << "Plugin" << pluginID << "onPluginDisable() threw an exception, but will continue to disable it.";
+				}
 				manageData.state = PluginManager::PluginState::Disabled;
-				VIPM->success() << "Plugin \"" << pluginID << "\" disabled successfully.";
+				VIPM->success() << "Plugin" << pluginID << " disabled successfully.";
 			}
 		}
 	}
@@ -521,7 +528,7 @@ namespace Visindigo::General {
 				delete manageData.plugin;
 				manageData.plugin = nullptr;
 				manageData.state = PluginManager::PluginState::Unknown;
-				VIPM->success() << "Plugin \"" << pluginID << "\" unloaded successfully.";
+				VIPM->success() << "Plugin" << pluginID << " unloaded successfully.";
 			}
 			if (manageData.dll != nullptr) {
 				manageData.dll->unload();
@@ -684,9 +691,38 @@ namespace Visindigo::General {
 			if (manageData.loadResult == PluginManager::LoadPluginResult::Success) {
 				if (manageData.state == PluginManager::PluginState::InstanceCreated) {
 					VIPM->notice() << "Enabling plugin: " << id;
-					manageData.plugin->onPluginEnable();
+					manageData.plugin->d->setPluginLoadType(Plugin::LoadType::FromDisk);
+					manageData.plugin->d->initializePluginFolder(VIApp->getEnvConfig(VIApplication::ConfigPath).toString() + "/plugins");
+					try {
+						manageData.plugin->onPluginEnable();
+						auto modules = manageData.plugin->getModules();
+						VIPM->info() << "Plugin" << manageData.plugin->getPluginName() << "has" << modules.size() << "modules:";
+						for (auto m : modules) {
+							VIPM->info() << "├┬ [" + m->getModuleName() + "]";
+							VIPM->info() << "│├ ID: " + m->getModuleID();
+							VIPM->info() << "│└ Type: " + m->getModuleTypeID();
+						}
+						for (auto m : modules) {
+							m->onModuleEnable();
+						}
+					}
+					catch (...) {
+						VIPM->error() << "Plugin" << id << " enable failed! Disabling...";
+						try {
+							auto modules = manageData.plugin->getModules();
+							for (auto rit = modules.rbegin(); rit != modules.rend(); ++rit) {
+								(*rit)->onModuleDisable();
+							}
+							manageData.plugin->onPluginDisable();
+						}
+						catch (...) {
+							VIPM->error() << "Plugin " << id << " disable failed! This plugin may be in an unstable state.";
+						}
+						manageData.state = PluginManager::PluginState::Disabled;
+						continue;
+					}
 					manageData.state = PluginManager::PluginState::Enabled;
-					VIPM->success() << "Plugin \"" << id << "\" enabled successfully.";
+					VIPM->success() << "Plugin" << id << " enabled successfully.";
 				}
 			}
 		}
@@ -698,8 +734,8 @@ namespace Visindigo::General {
 	*/
 	Plugin* PluginManager::getPluginByID(const QString& id) const {
 		if (d->PluginManage.contains(id) && 
-			d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
-			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled){
+			(d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
+			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled)){
 			return d->PluginManage.value(id).plugin;
 		}
 		return nullptr;
@@ -715,8 +751,9 @@ namespace Visindigo::General {
 		\sa Plugin::getPluginBinaryFolder()
 	*/
 	QDir PluginManager::getPluginBinaryFolder(const QString& id) const {
-		if (d->PluginManage.contains(id) && d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
-			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled) {
+		if (d->PluginManage.contains(id) && (
+			d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
+			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled)) {
 			return d->PluginManage.value(id).binaryFolder;
 		}
 		return QDir();
