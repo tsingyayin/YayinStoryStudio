@@ -220,10 +220,6 @@ namespace Visindigo::General {
 		return StacktraceFrame("<unkown>", "<unkown>", "<unkown>", 0x00, 0);
 	}
 #endif
-#else
-	static StacktraceFrame std_stacktrace_entryToStacktraceData(const std::stacktrace_entry& frame) {
-		return StacktraceFrame("<unkown>", "<unkown>", "<unkown>", 0x00, 0);
-	}
 #endif
 
 	/*!

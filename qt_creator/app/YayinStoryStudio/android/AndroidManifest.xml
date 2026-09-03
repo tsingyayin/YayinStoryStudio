@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+  YayinStoryStudio — Android 清单（覆盖 Qt 默认模板）。
+  相对 Qt 默认模板新增：
+    * MANAGE_EXTERNAL_STORAGE   : Android 11+ "管理全部文件"访问（程序在共享存储
+                                   /storage/emulated/0/YayinStoryStudio 下读写日志/
+                                   config/主题/插件，需要该授权；见 main.cpp 引导逻辑）
+    * README/WRITE_EXTERNAL_STORAGE : API 29 及以下(配合 requestLegacyExternalStorage)
+    * INTERNET                   : 新闻抓取 / 崩溃上报等网络功能
+  注意：%%INSERT_*%% 占位符由 androiddeployqt 填充，请勿删除。
+  Launcher 图标：application 的 android:icon 固定为 @drawable/icon，图像来自
+  android/res/drawable/icon.png（由程序窗口图标 icon.png 复制而来）；换图标直接替换该文件。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cn.yxgeneral.yayinstorystudio"
+    android:installLocation="auto"
+    android:versionCode="-- %%INSERT_VERSION_CODE%% --"
+    android:versionName="-- %%INSERT_VERSION_NAME%% --">
+    <!-- %%INSERT_PERMISSIONS -->
+    <!-- %%INSERT_FEATURES -->
+
+    <!-- 全部文件访问(Android 11+，"Files and media" > "All files access") -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <!-- API 29 及以下的外部存储读写(配合 application 的 requestLegacyExternalStorage) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- 网络：ProjectWin 抓取新闻 / LoggerManager 崩溃硬件上报 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
+    <application
+        android:name="org.qtproject.qt.android.bindings.QtApplication"
+        android:hardwareAccelerated="true"
+        android:label="-- %%INSERT_APP_NAME%% --"
+        android:icon="@drawable/icon"
+        android:requestLegacyExternalStorage="true"
+        android:enableOnBackInvokedCallback="false"
+        android:allowBackup="true"
+        android:fullBackupOnly="false">
+        <activity
+            android:name="org.qtproject.qt.android.bindings.QtActivity"
+            android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
+            android:label="-- %%INSERT_APP_NAME%% --"
+            android:launchMode="singleTop"
+            android:screenOrientation="unspecified"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="-- %%INSERT_APP_LIB_NAME%% --" />
+
+            <meta-data
+                android:name="android.app.arguments"
+                android:value="-- %%INSERT_APP_ARGUMENTS%% --" />
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.qtprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/qtprovider_paths"/>
+        </provider>
+    </application>
+</manifest>

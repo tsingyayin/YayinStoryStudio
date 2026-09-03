@@ -6,6 +6,12 @@ extern "C" YSSFileExtAPI Visindigo::General::Plugin* VisindigoPluginMain(void)
 {
 	return new Plugin_YSSFileExt();
 }
+#ifdef Q_OS_ANDROID
+extern "C" YSSFileExtAPI Visindigo::General::Plugin* VisindigoPluginMain_YSSFileExt(void)
+{
+	return VisindigoPluginMain();
+}
+#endif
 #endif
 
 #ifdef YSSFileExt_DEVELOPMENT

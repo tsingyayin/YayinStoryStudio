@@ -31,20 +31,28 @@ namespace YSS {
 	};
 	Main* MainPrivate::Instance = nullptr;
 
-	Main::Main() {
+	Main::Main(): Visindigo::General::Plugin("cn.yxgeneral.yayinstorystudio") {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
 		setTestEnable();
 		setPluginVersion(getPluginAPIVersion()); // YSS uses the same version as Visindigo API version
-		setPluginID("cn.yxgeneral.yayinstorystudio");
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
 		registerColorScheme(":/resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json");
-		VIApp->setGlobalFont(":/resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf");
-		VIApp->setIconFont(":/resource/cn.yxgeneral.visindigo/Segoe Fluent Icons.ttf");
+#ifdef Q_OS_ANDROID
+		try {
+#endif
+			VIApp->setGlobalFont(":/resource/cn.yxgeneral.yayinstorystudio/HarmonyOS_Sans_SC_Regular.ttf");
+			VIApp->setIconFont(":/resource/cn.yxgeneral.visindigo/Segoe Fluent Icons.ttf");
+#ifdef Q_OS_ANDROID
+		} catch (...) {
+			vgWarningF << "Bundled fonts unavailable on Android; falling back to system font.";
+		}
+#endif
 	}
 
 	void Main::onPluginEnable() {
+#ifndef Q_OS_ANDROID
 		releaseInstaller();
 		YSS::Editor::InstallerClient* installerClient = new YSS::Editor::InstallerClient();
 		connect(installerClient, &YSS::Editor::InstallerClient::installerRequestProgramClose, this, []() {
@@ -54,6 +62,7 @@ namespace YSS {
 			vgDebug << "Connected to installer.";
 			});
 		YSS::Editor::InstallerClient::getInstance()->connectToInstaller();
+#endif
 		auto LangID = Visindigo::General::Translator::stringToLangID(getPluginConfig()->getString("Settings.General.Language"));
 		VITRH->setLangID(LangID);
 		VISTM->setAnimationDuration(500);
@@ -61,12 +70,14 @@ namespace YSS {
 		YSSCore::Editor::ProjectTemplateManager::getInstance();
 		YSSCore::Editor::FileTemplateManager::getInstance();
 		YSSCore::Editor::LangServerManager::getInstance();
+#ifndef Q_OS_ANDROID
 		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("vst", "Visindigo StyleSheet Template",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,0");
 		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("vpl", "Visindigo Plugin Library",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,1");
 		Visindigo::Utility::ExtTool::registerFileExtMetaInfo("yssp", "YayinStoryStudio Project",
 			Visindigo::Utility::FileUtility::getProgramPath() + "/YayinStoryStudio.exe,2");
+#endif
 		
 		registerPluginModule(new YSS::Editor::YSSCommandHandler(this));
 		registerPluginModule(new YSS::Editor::YSSTranslator(this));

@@ -9,9 +9,8 @@ namespace YSS::ImageViewer {
 		addLangFilePath(en, ":/resource/cn.yxgeneral.imageviewer/i18n/en.json");
 	}
 
-	Main::Main() : YSSCore::Editor::EditorPlugin() {
+	Main::Main() : YSSCore::Editor::EditorPlugin("cn.yxgeneral.yayinstorystudio.plugin.imageviewer") {
 		setPluginVersion(Compiled_VIAPI_Version);
-		setPluginID("cn.yxgeneral.imageviewer");
 		setPluginName("Image Viewer");
 		setPluginAuthor({ "Tsing Yayin" });
 	}

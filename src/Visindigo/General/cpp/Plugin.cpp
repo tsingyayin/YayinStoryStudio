@@ -11,6 +11,7 @@
 #include "General/private/Plugin_p.h"
 #include "General/TranslationHost.h"
 #include "General/Version.h"
+#include "General/Exception.h"
 #include "Utility/FileUtility.h"
 #include "Widgets/ThemeManager.h"
 
@@ -97,6 +98,13 @@ namespace Visindigo::General {
 		\li 析构函数：不推荐实现这个函数，保留为编译器默认值即可。如果您确实需要实现它，请确保在析构函数中不与Visindigo或其他插件交互。
 		\endlist
 
+		\section1 ID的设置
+		自0.17.0起，Visindigo要求插件的id必须严格符合逆序域名规则，且只允许使用大小写字母，数字（且数字不能在每段的开头）和下划线。即插件id必须符合正则表达式：
+		\code
+			^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*$
+		\endcode
+		如果不符合此规则，插件会在构造时抛出异常，导致插件无法被加载。
+
 		\section1 作为应用程序主插件（主应用程序包）
 
 		需要事先说明的是，如果您不习惯用“插件”称呼您的应用程序，您也可以使用我们在Package.h中提供的别名：
@@ -136,7 +144,7 @@ namespace Visindigo::General {
 		\badcode
 			{
 				"ID": "YourPluginID",
-				"Depend": [
+				"Dependencies": [
 					“PluginID1",
 					“PluginID2"
 				]
@@ -144,16 +152,58 @@ namespace Visindigo::General {
 		\endcode
 
 		Visindigo在加载插件时会首先搜索所有vpl文件，并且依赖这个与其同名的JSON文件分析插件的依赖信息并决定加载顺序。
-		json文件中的ID必须和代码中实际设置的ID一致，否则Visindigo将无法找到您的插件。Depend字段是一个字符串数组，
+		json文件中的ID必须和代码中实际设置的ID一致，否则Visindigo将无法找到您的插件。Dependencies字段是一个字符串数组，
 		表示您的插件依赖的其他插件的ID。Visindigo会据此调整加载顺序，即在加载插件时，先加载这些依赖的插件，然后再加载您的插件。
 
 		请注意，Visindigo无法处理循环依赖。当两个插件相互依赖时，将具有相同的优先等级，Visindigo无法确定其加载顺序。
 		从源码实现的角度来看，应该会先加载首字母较小的那个插件，但这属于未定义行为，因此请避免出现循环依赖。
 
-		\note 如果您的插件不依赖其他插件，可以将Depend字段省略。
+		\note 如果您的插件不依赖其他插件，可以将Dependencies字段省略。
 
-		考虑到C++的内存使用极其自由，用户编写代码也极其自由，因此Visindigo不保证任何插件
-		逻辑的异常安全。任何执行插件函数过程中遭遇的异常都会导致Visindigo直接崩溃。
+		\section1 独立外部依赖
+		如果您的插件依赖于其他外部库，您需要确保这些库在Visindigo运行时能够被找到。在0.17.0以前，只能将这些库直接塞进Visindigo
+		应用程序的运行目录下，或将它们放在系统的PATH环境变量中。自0.17.0起，作为外部依赖的库可以直接放在插件的文件夹中，并在
+		插件的json文件中指定它们的路径，例如：
+		\badcode
+			{
+				"ID": "YourPluginID",
+				"Dependencies": [
+					“PluginID1",
+					“PluginID2"
+				],
+				"DependLibs": [
+					"libYourExternalDependency"
+				]
+			}
+		\endcode
+		这里的路径是插件所在文件夹开始的相对路径，您可以指定子文件夹。此外，不必指定后缀名，Visindigo会根据当前平台自动寻找对应的后缀名。
+
+		此外，由于动态链接库加载依赖操作系统行为，因此可能会造成潜在冲突。例如在Windows上，只能依赖dll文件名称区分动态链接库，
+		如果插件A和插件B都依赖同一个完全一样的dll，则不会发生问题，但如果两个同名dll版本不一致，或者只是撞名的两个完全不同的dll，
+		则可能会导致Visindigo崩溃。虽然在macOS和Linux上允许从不同路径加载同名动态链接库，但这种情况下如果是同名不同版本的动态链接库，
+		则也可能因为符号冲突而导致Visindigo崩溃。
+
+		因此，Visindigo采取一个简单粗暴的方案：记录所有已加载外部依赖的名称和依赖库的哈希值，如果发现同名的外部依赖具有相同哈希，
+		则不会发生冲突，但如果发现同名的外部依赖具有不同哈希，则会直接终止对第二个尝试加载该外部依赖的插件的加载，并且在日志中记录错误信息。
+		
+		请尽量避免这种情况发生——如果您的外部依赖是自己编译的，请尽量使用类似于“libYourExternalDependency_v1.0.0.dll"的命名方式，
+		以避免与其他插件的外部依赖发生冲突。
+
+		\section1 插件文件夹和插件二进制文件夹
+		插件文件夹是指插件用于存放用户数据的文件夹，是VIApplication::EnvKey::ConfigPath中指定的配置存放目录下，以插件ID命名的文件夹。
+		插件文件夹则是扫描到插件时，其二进制文件所在的文件夹。
+
+		值得指出的是，在PluginManager中，除了程序内部依赖加载插件、设置主插件、扫描磁盘上的外部插件外，还允许通过
+		PluginManager::addPluginLoadPath和PluginManager::addPluginEntryPoint函数进行一些特殊的插件加载操作，这些操作
+		中的插件二进制文件夹行为较为特殊，请参见相关函数的说明。
+
+		\section1 插件侧异常后的处理
+		考虑到C++的内存使用极其自由，用户编写代码也极其自由，因此Visindigo不尝试实现
+		任何隔离机制，也不保证任何插件逻辑的异常安全。
+		
+		任何执行插件函数过程中遭遇的异常都会导致Visindigo直接崩溃。
+
+
 	*/
 
 	/*!
@@ -191,6 +241,7 @@ namespace Visindigo::General {
 	*/
 
 	/*!
+		\a id 插件的ID
 		\a apiVersion 插件的API版本
 		\a abiVersion 插件的ABI版本
 		\a extID 插件的扩展ID
@@ -213,12 +264,18 @@ namespace Visindigo::General {
 		\warning 请尤其注意，abiVersion并不是该插件的版本号，也不是Visindigo的API版本。它是Visindigo的ABI版本，它已经
 		被默认填充了。
 	*/
-	Plugin::Plugin(Visindigo::General::Version apiVersion, Visindigo::General::Version abiVersion, QString extID, QObject* parent) : QObject(parent) {
+	Plugin::Plugin(const QString& id, Visindigo::General::Version apiVersion, Visindigo::General::Version abiVersion, QString extID, QObject* parent) : QObject(parent) {
+		auto regex = QRegularExpression(R"(^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*$)");
+		if (not regex.match(id).hasMatch()) {
+			VI_Throw(Exception::InvalidArgument, "Plugin ID \"" % id % "\" is invalid. It must follow the reverse domain name convention " 
+				"and only contain letters, numbers (not at the beginning of each segment), and underscores.");
+		}
 		d = new Visindigo::__Private__::PluginPrivate();
+		d->PluginID = id;
 		d->APIVersion = apiVersion;
 		d->ABIVersion = abiVersion;
 		d->PluginExtensionID = extID;
-		d->Logger = new Logger("UnnamedPlugin");
+		d->Logger = new Logger(d->PluginID);
 		d->q = this;
 	}
 	/*!
@@ -510,14 +567,7 @@ namespace Visindigo::General {
 	QWidget* Plugin::getConfigWidget() {
 		return nullptr;
 	}
-	/*!
-		\since Visindigo 0.13.0
-		\a id 插件的ID
-		设置插件的ID
-	*/
-	void Plugin::setPluginID(const QString& id) {
-		d->PluginID = id;
-	}
+
 	/*!
 		\since Visindigo 0.13.0
 		\a name 插件的名称

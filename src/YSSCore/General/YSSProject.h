@@ -10,6 +10,8 @@ namespace Visindigo::Utility {
 namespace Visindigo::General {
 	class Plugin;
 	class Version;
+}
+namespace YSSCore::General {
 	class YSSProjectPrivate;
 }
 // Main

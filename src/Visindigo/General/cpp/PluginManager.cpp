@@ -1,5 +1,6 @@
 #include <QtCore/qdir.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qlibrary.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qstring.h>
@@ -19,37 +20,290 @@ VI_DECLARE_LOGGER(VIPluginManager, VIPM, Visindigo::General);
 
 namespace Visindigo::General {
 	class PluginManagerPrivate {
+		struct ExternalLibrary{
+			QString libPath;
+			QString libName;
+			QLibrary* lib = nullptr;
+			QString md5;
+		};
+
+		struct PluginManageData {
+			IDString id;
+			QString libPath;
+			QDir binaryFolder;
+
+			QString metaPath;
+			QLibrary* dll = nullptr;
+			Visindigo::Utility::JsonConfig meta;
+			__VisindigoPluginMain entryPoint = nullptr;
+			Plugin* plugin = nullptr;
+
+			quint32 priority = 0;
+
+			PluginManager::LoadPluginResult loadResult = PluginManager::LoadPluginResult::Unknown;
+			PluginManager::PluginState state = PluginManager::PluginState::Unknown;
+
+			QStringList getDependencies() const {
+				if (meta.isEmpty("Dependencies")) return {};
+				return meta.getStringList("Dependencies");
+			}
+			QStringList getDependLibs() const {
+				if (meta.isEmpty("DependLibs")) return {};
+				return meta.getStringList("DependLibs");
+			}
+		};
 		friend class PluginManager;
 	protected:
+		// setPluginLoadPath / setPluginEntryPoint 注入的"随应用分发/打包"插件源：
+		// 可用库路径 dlopen(EntryPoint 为空)，或已随进程加载的入口函数指针(LibPath 为空)
+		
 		static PluginManager* Instance;
 		bool loaded = false;
-		QStringList DeactivatedPluginIDList;
-		QList<Plugin*> Plugins;
-		QList<Plugin*> EnabledPlugins;
-		QMap<IDString, Plugin*> PluginIDMap;
-		QMap<IDString, quint32> PriorityMap;
-		QList<IDString> PriorityPlugins;
-		QMap<IDString, QString> PluginPathMap;
-		QMap<IDString, QLibrary*> Dlls;
-		QMap<IDString, QStringList> Dependencies;
-		QMap<IDString, Visindigo::General::PluginManager::LoadPluginResult> LoadResults;
+		QMap<IDString, PluginManageData> PluginManage;
+		QMap<QString, ExternalLibrary> ExternalLibs;
+
+		QList<IDString> LoadPriorityList;
+		QList<IDString> DeactivatedList;
+		
 		QMap<IDString, QString> PluginTypeDescriptions;
 		QMap<IDString, QString> PluginTypeNames;
 		QMap<IDString, QString> PluginModuleTypeDescriptions;
 		QMap<IDString, QString> PluginModuleTypeNames;
 
-		static QFileInfoList recursionGetAllDll(const QString& path) {
-			QDir dir(path);
-			QStringList filters;
-			filters << "*.vpl";
-			dir.setNameFilters(filters);
-			QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
-			dir = QDir(path);
-			QFileInfoList subList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-			for (int i = 0; i < subList.size(); i++) {
-				list.append(recursionGetAllDll(subList[i].absoluteFilePath()));
+		static QStringList recursionGetAllDll(const QString& path) {
+			return Visindigo::Utility::FileUtility::fileFilter(path, { "*.vpl" }, true);
+		}
+
+		void parseMetaInfo(PluginManageData data, const QString& metaJsonPath, const QString& binaryPath) {
+			auto jsonStr = Visindigo::Utility::FileUtility::readAll(metaJsonPath);
+			if (jsonStr.isEmpty()) {
+				VIPM->error() << "Failed to read plugin meta json file: " << metaJsonPath << ", IGNORE this plugin.";
+				return;
 			}
-			return list;
+			auto json = Visindigo::Utility::JsonConfig();
+			if (json.parse(jsonStr).error != QJsonParseError::NoError) {
+				VIPM->error() << "Failed to parse plugin meta json file: " << metaJsonPath << ", IGNORE this plugin.";
+				return;
+			}
+			auto id = json.getString("ID");
+			if (id.isEmpty()) {
+				VIPM->error() << "Plugin meta json file: " << metaJsonPath << " has no ID, IGNORE this plugin.";
+				return;
+			}
+			auto regex = QRegularExpression(R"(^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*$)");
+			if (not regex.match(id).hasMatch()) {
+				VIPM->error() << "Plugin ID \"" << id << "\" is invalid. It must follow the reverse domain name convention "
+					"and only contain letters, numbers (not at the beginning of each segment), and underscores.";
+				return;
+			}
+			if (PluginManage.contains(id)) {
+				VIPM->error() << "Plugin ID \"" << id << "\" is already loaded. IGNORE this plugin.";
+				return;
+			}
+			data.id = id;
+			data.metaPath = metaJsonPath;
+			data.meta = json;
+			data.binaryFolder = QDir(binaryPath);
+			PluginManage.insert(id, data);
+		}
+
+		void autoScanPlugins() {
+			VIPM->notice() << "Auto scanning plugins in folder: " << VIApplication::getInstance()->getEnvConfig(VIApplication::PluginFolderPath).toString();
+			auto pluginPaths = recursionGetAllDll(VIApplication::getInstance()->getEnvConfig(VIApplication::PluginFolderPath).toString());
+			for (auto path : pluginPaths) {
+				auto data = PluginManageData();
+				data.libPath = path;
+				auto binaryFolder = QFileInfo(path).absolutePath();
+				auto jsonPath = path + ".json";
+				parseMetaInfo(data, jsonPath, binaryFolder);
+			}
+		}
+
+		void derivePriorityList() {
+			// NOTICE: this step does not care about whether the dependencies are all present.
+			for (auto id : PluginManage.keys()) {
+				auto deps = PluginManage[id].getDependencies();
+				for (auto dep : deps) {
+					if (PluginManage.contains(dep)) {
+						PluginManage[dep].priority++;
+					}
+				}
+			}
+			// Sort by priority (descending, higher priority first)
+			LoadPriorityList = PluginManage.keys();
+			std::sort(LoadPriorityList.begin(), LoadPriorityList.end(), [this](const IDString& a, const IDString& b) {
+				return PluginManage[a].priority > PluginManage[b].priority;
+				});
+			for (auto id : LoadPriorityList) {
+				VIPM->notice() << "Plugin \"" << id << "\" priority: " << PluginManage[id].priority;
+			}
+		}
+
+		PluginManager::LoadPluginResult loadExternalLibs(PluginManageData& data) {
+			auto dependLibs = data.getDependLibs();
+			QList<QLibrary*> loadedLibs;
+			QStringList newLibs;
+			for (auto lib : dependLibs) {
+				QString absLibPath = data.binaryFolder.absoluteFilePath(lib);
+				QString fileName = QFileInfo(absLibPath).fileName();
+				if (not ExternalLibs.contains(fileName)) {
+					ExternalLibrary extLib;
+					extLib.libPath = absLibPath;
+					extLib.libName = fileName;
+					extLib.lib = new QLibrary(extLib.libPath);
+					extLib.md5 = Visindigo::Utility::FileUtility::getFileMD5(absLibPath);
+					if (not extLib.lib->load()) {
+						VIPM->error() << "Failed to load external library: " << extLib.libPath << ", IGNORE this plugin.";
+						data.loadResult = PluginManager::LoadPluginResult::InvalidDependLib;
+						data.state = PluginManager::PluginState::Deactivated;
+						VIPM->error() << "Unloading all previously loaded external libraries for this plugin.";
+						for (auto lib : loadedLibs) {
+							lib->unload();
+							lib->deleteLater();
+						}
+						for (auto libName : newLibs) {
+							ExternalLibs.remove(libName);
+						}
+						return PluginManager::LoadPluginResult::InvalidDependLib;
+					}
+					loadedLibs.append(extLib.lib);
+					newLibs.append(extLib.libName);
+					ExternalLibs.insert(fileName, extLib);
+					VIPM->notice() << "Loaded external library: " << extLib.libPath;
+				}
+				else {
+					auto previousLib = ExternalLibs[fileName];
+					if (previousLib.libPath == absLibPath) {
+						VIPM->notice() << "External library: " << previousLib.libPath << " already loaded, skip.";
+						continue;
+					}
+					if (previousLib.md5 == Visindigo::Utility::FileUtility::getFileMD5(absLibPath)) {
+						VIPM->notice() << "External library: " << absLibPath << " already loaded, previous path: " << previousLib.libPath <<
+							" Although have different path, but the MD5 is the same.";
+						continue;
+					}
+					VIPM->error() << "External library: " << absLibPath << " already loaded, previous path: " << previousLib.libPath <<
+						" and the MD5 is different. This may cause conflict. IGNORE this plugin.";
+					data.loadResult = PluginManager::LoadPluginResult::DependLibConflict;
+					data.state = PluginManager::PluginState::Deactivated;
+					VIPM->error() << "Unloading all previously loaded external libraries for this plugin.";
+					for (auto lib : loadedLibs) {
+						lib->unload();
+						lib->deleteLater();
+					}
+					for (auto libName : newLibs) {
+						ExternalLibs.remove(libName);
+					}
+					return PluginManager::LoadPluginResult::DependLibConflict;
+				}
+			}
+			return PluginManager::LoadPluginResult::Success;
+		}
+
+		__VisindigoPluginMain getPluginEntryPoint(PluginManageData& data) {
+			if (data.entryPoint != nullptr) {
+				return data.entryPoint;
+			}
+			data.dll = new QLibrary(data.libPath);
+			VIPM->debug() << "Loading plugin library: " << data.libPath;
+			if (not data.dll->load()) {
+				VIPM->error() << "Failed to load plugin library: " << data.libPath << ", IGNORE this plugin.";
+				data.loadResult = PluginManager::LoadPluginResult::InvalidPluginBinary;
+				data.state = PluginManager::PluginState::Deactivated;
+				return nullptr;
+			}
+			auto entryPoint = (__VisindigoPluginMain)data.dll->resolve(Visindigo_PluginMain_Function_Name);
+			if (entryPoint == nullptr) {
+				VIPM->error() << "Failed to find entry point \"__visindigo_plugin_main\" in plugin library: " << data.libPath << ", IGNORE this plugin.";
+				data.loadResult = PluginManager::LoadPluginResult::EntryPointNotFound;
+				data.state = PluginManager::PluginState::Deactivated;
+				return nullptr;
+			}
+			data.entryPoint = entryPoint;
+			return entryPoint;
+		}
+
+		void loadAllPlugin() {
+			for (auto pluginID : LoadPriorityList) {
+				auto& manageData = PluginManage[pluginID]; // re-check contains is not necessary, (i think)
+				VIPM->notice() << "Loading plugin: " << pluginID;
+				if (DeactivatedList.contains(pluginID)) {
+					manageData.loadResult = PluginManager::LoadPluginResult::Deactivated;
+					manageData.state = PluginManager::PluginState::Deactivated;
+					VIPM->notice() << "Plugin: " << pluginID << " is deactivated manually, skip.";
+					continue;
+				}
+				bool dependencyFailed = false;
+				for (auto dep : manageData.getDependencies()) {
+					if (not PluginManage.contains(dep)) {
+						manageData.loadResult = PluginManager::LoadPluginResult::DependencyNotFound;
+						manageData.state = PluginManager::PluginState::Deactivated;
+						VIPM->error() << "Plugin \"" << pluginID << "\" dependency \"" << dep << "\" not found. IGNORE this plugin.";
+						dependencyFailed = true;
+					}
+					auto& depData = PluginManage[dep];
+					if (depData.loadResult != PluginManager::LoadPluginResult::Success) {
+						manageData.loadResult = PluginManager::LoadPluginResult::DependencyDeactivated;
+						manageData.state = PluginManager::PluginState::Deactivated;
+						VIPM->error() << "Plugin \"" << pluginID << "\" dependency \"" << dep << "\" load failed or deactivated. IGNORE this plugin.";
+						dependencyFailed = true;
+					}
+				}
+				if (dependencyFailed) {
+					continue;
+				}
+				if (loadExternalLibs(manageData) != PluginManager::LoadPluginResult::Success) {
+					continue;
+				}
+				auto entryPoint = getPluginEntryPoint(manageData);
+				if (entryPoint == nullptr) {
+					VIPM->error() << "Failed to get plugin entry point for plugin: " << pluginID << ", IGNORE this plugin.";
+					manageData.loadResult = PluginManager::LoadPluginResult::EntryPointNotFound;
+					manageData.state = PluginManager::PluginState::Deactivated;
+					continue;
+				}
+				Plugin* instance = nullptr;
+				try {
+					instance = entryPoint();
+				} catch (...) {
+					VIPM->error() << "Failed to create plugin instance for plugin: " << pluginID << ", IGNORE this plugin.";
+					manageData.loadResult = PluginManager::LoadPluginResult::ConstructorError;
+					manageData.state = PluginManager::PluginState::Deactivated;
+				}
+				if (instance == nullptr) {
+					VIPM->error() << "Plugin entry point returned nullptr for plugin: " << pluginID << ", IGNORE this plugin.";
+					manageData.loadResult = PluginManager::LoadPluginResult::ConstructorError;
+					manageData.state = PluginManager::PluginState::Deactivated;
+					continue;
+				}
+				if (instance->getPluginID() != pluginID) {
+					VIPM->error() << "Plugin ID mismatch for plugin: " << pluginID << ". The plugin instance reports ID: " << instance->getPluginID() << ". IGNORE this plugin.";
+					manageData.loadResult = PluginManager::LoadPluginResult::MetadataNotSame;
+					manageData.state = PluginManager::PluginState::Deactivated;
+					delete instance;
+					continue;
+				}
+				if (not Version::isCompatibleABIVersion(Version::getABIVersion(), instance->getPluginABIVersion())) {
+					VIPM->error() << "Plugin \"" << pluginID << "\" ABI version " << instance->getPluginABIVersion().toString() <<
+						" is not compatible with application ABI version " << Version::getABIVersion().toString() << ". IGNORE this plugin.";
+					manageData.loadResult = PluginManager::LoadPluginResult::IncompatibleABI;
+					manageData.state = PluginManager::PluginState::Deactivated;
+					delete instance;
+					continue;
+				}
+				if (not Version::isCompatibleAPIVersion(VIApplication::getInstance()->getMainPlugin()->getPluginAPIVersion(), instance->getPluginAPIVersion())) {
+					VIPM->error() << "Plugin \"" << pluginID << "\" API version " << instance->getPluginAPIVersion().toString() <<
+						" is not compatible with application API version " << VIApplication::getInstance()->getMainPlugin()->getPluginAPIVersion().toString() << ". IGNORE this plugin.";
+					manageData.loadResult = PluginManager::LoadPluginResult::IncompatibleAPI;
+					manageData.state = PluginManager::PluginState::Deactivated;
+					delete instance;
+					continue;
+				}
+				manageData.loadResult = PluginManager::LoadPluginResult::Success;
+				manageData.state = PluginManager::PluginState::InstanceCreated;
+				manageData.plugin = instance;
+				VIPM->success() << "Plugin \"" << pluginID << "\" loaded successfully, will be enabled later.";
+			}
 		}
 	};
 
@@ -102,10 +356,7 @@ namespace Visindigo::General {
 		析构PluginManager对象，卸载所有插件。一般来说，没有任何情况需要手动析构此对象。PluginManager应该与使用它的应用程序有一致的生命周期。
 	*/
 	PluginManager::~PluginManager() {
-		for (int i = 0; i < d->Plugins.size(); i++) {
-			delete d->Plugins[i];
-		}
-		d->Plugins.clear();
+		unloadAllPlugin();
 		delete d;
 	}
 
@@ -124,6 +375,61 @@ namespace Visindigo::General {
 	}
 
 	/*!
+			\since Visindigo 0.17.0
+			\a libFilePath 插件库文件（绝对路径）。
+			\a metaJsonFilePath 该插件的元数据 json（含 "ID"、"Dependencies"；可为文件路径或 qrc ":/…"）。
+			\a pluginBinaryFolderPath 插件二进制文件夹路径（可选，若为空则使用 libFilePath 所在目录）。
+
+			手动指定一个插件库文件和其元数据json文件的路径，供PluginManager在loadAllPlugin()时加载。此函数必须在loadAllPlugin()之前调用，否则会被忽略。
+
+			如果这个路径最终会落到插件将自动扫描的目录内，则对此函数的调用无效。请参见VIApplication::EnvKey::PluginFolderPath。
+	*/
+	void PluginManager::addPluginLoadPath(const QString& libFilePath, const QString& metaJsonFilePath, const QString& pluginBinaryFolderPath) {
+		if (d->loaded) {
+			VIPM->warning() << "setPluginLoadPath() must be called before loadAllPlugin(); This call is ignored.";
+			return;
+		}
+		if (Utility::FileUtility::isPathInDir(libFilePath, VIApplication::getInstance()->getEnvConfig(VIApplication::PluginFolderPath).toString())) {
+			VIPM->warning() << "The plugin library path" << libFilePath << "is in the auto-scanned plugin folder. This call is ignored.";
+			return;
+		}
+		auto data = PluginManagerPrivate::PluginManageData();
+		data.libPath = libFilePath;
+		auto binaryFolder = pluginBinaryFolderPath;
+		if (binaryFolder.isEmpty()) {
+			binaryFolder = QFileInfo(libFilePath).absolutePath();
+		}
+		d->parseMetaInfo(data, metaJsonFilePath, binaryFolder);
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		\a entryPoint 插件入口函数指针(等价于磁盘插件经 resolve("VisindigoPluginMain") 得到的入口)。
+		       用于插件库已随进程加载(如 Android 随 APK lib/<abi> 由主程序 DT_NEEDED 载入)、无法再 dlopen 的场景。
+		\a metaJsonFilePath 该插件的元数据 json(含 ID/Dependencies；可为文件路径或 qrc ":/…")。
+		\a pluginBinaryFolderPath 插件二进制文件夹路径(可选，若为空则使用 程序文件 所在目录）
+
+		手动指定一个插件入口函数指针和其元数据json文件的路径，供PluginManager在loadAllPlugin()时加载。此函数必须在loadAllPlugin()之前调用，否则会被忽略。
+	*/
+	void PluginManager::addPluginEntryPoint(__VisindigoPluginMain entryPoint, const QString& metaJsonFilePath, const QString& pluginBinaryFolderPath) {
+		if (d->loaded) {
+			VIPM->warning() << "setPluginEntryPoint() must be called before loadAllPlugin(); This call is ignored.";
+			return;
+		}
+		if (entryPoint == nullptr) {
+			VIPM->warning() << "setPluginEntryPoint() called with nullptr entryPoint; This call is ignored.";
+			return;
+		}
+		auto data = PluginManagerPrivate::PluginManageData();
+		data.entryPoint = entryPoint;
+		auto binaryFolder = pluginBinaryFolderPath;
+		if (binaryFolder.isEmpty()) {
+			binaryFolder = QFileInfo(QCoreApplication::applicationFilePath()).absolutePath();
+		}
+		d->parseMetaInfo(data, metaJsonFilePath, binaryFolder);
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		扫描并加载插件到内存里，但不启用它们。
 
@@ -139,173 +445,11 @@ namespace Visindigo::General {
 			VIPM->warning() << "Plugins have already been loaded, this operation will be ignored.";
 			return;
 		}
-		QString pluginFolder = VIApplication::getInstance()->getEnvConfig(VIApplication::PluginFolderPath).toString();
-		VIPM->notice() << "Scanning plugins in" << pluginFolder;
-
-		QFileInfoList Plugins = PluginManagerPrivate::recursionGetAllDll(pluginFolder);
-		for (QFileInfo info : Plugins) {
-			QString path = info.absoluteFilePath() + ".json";
-			QString jsonStr = Visindigo::Utility::FileUtility::readAll(path);
-			Utility::JsonConfig jsonConfig(jsonStr);
-			IDString id = jsonConfig.getString("ID");
-			if (id.isEmpty()) {
-				VIPM->warning() << "The json file in " << info.path() << "does not contain \"ID\" key. IGNORED";
-				continue;
-			}
-			if (d->PluginPathMap.contains(id)) {
-				VIPM->warning() << "Plugin with meta-id" << id << "has already exist. The plugin in" << info.path() << "will be ignored.";
-				continue;
-			}
-			d->PluginPathMap.insert(id, info.absoluteFilePath());
-			if (!d->PriorityMap.contains(id)) {
-				d->PriorityMap.insert(id, 0);
-			}
-			VIPM->message() << "Plugin with meta-id" << id << "finded";
-			if (!jsonConfig.contains("Dependencies")) {
-				continue;
-			}
-			QStringList dependIndex = jsonConfig.keys("Dependencies");
-			for (QString de : dependIndex) {
-				IDString dependID = jsonConfig.getString("Dependencies." + de);
-				if (!d->PriorityMap.contains(dependID)) {
-					d->PriorityMap.insert(dependID, 1);
-					d->Dependencies.insert(id, QStringList() << dependID);
-				}
-				else {
-					d->PriorityMap[dependID] += 1;
-					d->Dependencies[id].append(dependID);
-				}
-			}
-		}
-
-		VIPM->message() << "Determining loading order based on priority";
-		d->PriorityPlugins = d->PriorityMap.keys();
-		std::sort(d->PriorityPlugins.begin(), d->PriorityPlugins.end(), [this](const QString& a, const QString& b) {
-			return d->PriorityMap[a] > d->PriorityMap[b];
-			});
-		for (int i = 0; i < d->PriorityPlugins.length(); i++) {
-			VIPM->message() << "Load order:" << d->PriorityPlugins[i] << "[" << i << "]";
-		}
-		for (QString key : d->PriorityPlugins) {
-			d->LoadResults[key] = PluginManager::LoadPluginResult::Unknown;
-			if (d->DeactivatedPluginIDList.contains(key)) {
-				VIPM->warning() << "Plugin with id" << key << "is in deactivated list, the plugin in will be ignored.";
-				d->LoadResults[key] = PluginManager::LoadPluginResult::Deactivated;
-				continue;
-			}
-			QStringList dependList = d->Dependencies.value(key);
-			bool dependFailed = false;
-			for (IDString depend : dependList) {
-				if (!d->PluginIDMap.contains(depend)) {
-					VIPM->error() << "Failed when load plugin" << key << ", dependency" << depend << "not found!";
-					d->LoadResults[key] = PluginManager::LoadPluginResult::DependencyNotFound;
-					dependFailed = true;
-				}
-				else {
-					if (d->LoadResults[depend] != PluginManager::LoadPluginResult::Success) {
-						if (d->LoadResults[depend] == PluginManager::LoadPluginResult::Deactivated) {
-							VIPM->error() << "Failed when load plugin" << key << ", dependency" << depend << "is deactivated!";
-							d->LoadResults[key] = PluginManager::LoadPluginResult::Deactivated;
-						}
-						else {
-							VIPM->error() << "Failed when load plugin" << key << ", as dependency" << depend << "failed to load!";
-							d->LoadResults[key] = PluginManager::LoadPluginResult::DependencyLoadFailed;
-						}
-						dependFailed = true;
-					}
-					else {
-						VIPM->message() << "Dependency" << depend << "for plugin" << key << "is loaded successfully.";
-					}
-				}
-			}
-			if (dependFailed) {
-				continue;
-			}
-			QString path = d->PluginPathMap.value(key);
-			QLibrary* hLibrary = new QLibrary(path);
-			if (hLibrary->load() == false) {
-				VIPM->error() << "Failed when load plugin" << key << ", cannot load plugin file into memory!";
-				d->LoadResults[key] = PluginManager::LoadPluginResult::InvalidPluginBinary;
-				hLibrary->deleteLater();
-				continue;
-			}
-			__VisindigoPluginMain PluginDllMain = (__VisindigoPluginMain)hLibrary->resolve(Visindigo_PluginMain_Function_Name);
-			if (PluginDllMain == nullptr) {
-				VIPM->error() << "Failed when load plugin" << key << ", cannot find entry point VisindigoPluginMain!";
-				hLibrary->unload();
-				d->LoadResults[key] = PluginManager::LoadPluginResult::EntryPointNotFound;
-				hLibrary->deleteLater();
-				continue;
-			}
-			Plugin* plugin = nullptr;
-			try {
-				plugin = PluginDllMain();
-			}
-			catch (...) {
-				VIPM->error() << "Exception occured when load plugin" << key << ", exception has been catched, but may have other impace. RESTART is RECOMMENDED! ";
-				hLibrary->unload();
-				d->LoadResults[key] = PluginManager::LoadPluginResult::ConstructorError;
-				hLibrary->deleteLater();
-				return;
-			}
-			if (plugin == nullptr) {
-				VIPM->error() << "Failed when init plugin" << key << ", cannot create EditorPlugin Instance!";
-				hLibrary->unload();
-				d->LoadResults[key] = PluginManager::LoadPluginResult::ConstructorError;
-				hLibrary->deleteLater();
-				continue;
-			}
-			QString pluginID = plugin->getPluginID();
-			if (pluginID != key) {
-				VIPM->error() << "Failed when init plugin" << key << ", the ID from plugin instance is different from the ID from meta file.";
-				delete plugin;
-				hLibrary->unload();
-				d->LoadResults[key] = PluginManager::LoadPluginResult::MetadataNotSame;
-				hLibrary->deleteLater();
-				continue;
-			}
-			bool apiCompatible = Visindigo::General::Version::isCompatibleAPIVersion(
-				Visindigo::General::Version::getAPIVersion(), plugin->getPluginAPIVersion()
-			);
-			if (!apiCompatible) {
-				VIPM->error() << "Failed when init plugin" << key << ", API incompatible. This plugin use api " << plugin->getPluginAPIVersion()
-					<< ", but program is" << Visindigo::General::Version::getAPIVersion();
-				delete plugin;
-				hLibrary->unload();
-				d->LoadResults[key] = PluginManager::LoadPluginResult::IncompatibleAPI;
-				hLibrary->deleteLater();
-				continue;
-			}
-			bool abiCompatible = Visindigo::General::Version::isCompatibleABIVersion(
-				Visindigo::General::Version::getABIVersion(), plugin->getPluginABIVersion()
-			);
-			if (!abiCompatible) {
-				VIPM->error() << "Failed when init plugin" << key << ", ABI incompatible. This plugin use abi " << plugin->getPluginABIVersion()
-					<< ", but program is" << Visindigo::General::Version::getABIVersion();
-				delete plugin;
-				hLibrary->unload();
-				d->LoadResults[key] = PluginManager::LoadPluginResult::IncompatibleABI;
-				hLibrary->deleteLater();
-				continue;
-			}
-			d->Plugins.append(plugin);
-			d->Dlls.insert(plugin->getPluginID(), hLibrary);
-			d->PluginIDMap.insert(plugin->getPluginID(), plugin);
-			plugin->d->PluginFolder = path;
-			d->LoadResults[key] = PluginManager::LoadPluginResult::Success;
-			emit pluginLoaded(plugin);
-			VIPM->success() << "Plugin" << key << "create instance successfully. Will be enable later";
-		}
-		for (int i = 0; i < d->PriorityPlugins.size();) {
-			IDString id = d->PriorityPlugins.at(i);
-			if (d->LoadResults[id] == PluginManager::LoadPluginResult::Success) {
-				i++;
-			}
-			else {
-				d->PriorityPlugins.removeAt(i);
-			}
-		}
 		d->loaded = true;
+		d->autoScanPlugins();
+		d->derivePriorityList();
+		d->DeactivatedList = VIApp->getMainPlugin()->getPluginConfig()->getStringList("Plugins.Deactivated");
+		d->loadAllPlugin();
 	}
 
 	/*!
@@ -318,11 +462,14 @@ namespace Visindigo::General {
 		如果需要手动调用，请安排在applicationInitAllPlugin()之后调用此函数。
 	*/
 	void PluginManager::testAllPlugin() {
-		for (int i = 0; i < d->Plugins.size(); i++) {
-			Plugin* plugin = d->Plugins[i];
+		for (auto plugin : getEnabledPlugins()) {
 			if (plugin->isTestEnable()) {
 				VIPM->notice() << "Testing plugin" << plugin->getPluginName();
 				plugin->onTest();
+				LoggerManager::getInstance()->finalSave();
+			}
+			else {
+				VIPM->notice() << "Plugin" << plugin->getPluginName() << "test is disabled, skip.";
 			}
 		}
 	}
@@ -335,11 +482,9 @@ namespace Visindigo::General {
 		如果需要手动调用，请安排在enableAllPlugin()之后调用此函数。
 	*/
 	void PluginManager::applicationInitAllPlugin() {
-		for (int i = 0; i < d->Plugins.size(); i++) {
-			Plugin* plugin = d->Plugins[i];
-			VIPM->notice() << plugin->getPluginName() << " is handling application init";
+		for (auto plugin : getEnabledPlugins()) {
+			VIPM->notice() << "Plugin" << plugin->getPluginName() << "handling application init";
 			plugin->onApplicationInit();
-			LoggerManager::getInstance()->finalSave();
 		}
 	}
 
@@ -351,24 +496,51 @@ namespace Visindigo::General {
 		如果在没有启用插件的情况下调用此函数，则不会有任何效果。
 	*/
 	void PluginManager::disableAllPlugin() {
-		// disable in reverse order
-		for (int i = d->PriorityPlugins.size() - 1; i >= 0; i--) {
-			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
-			if (isPluginEnable(plugin)) {
-				try {
-					VIPM->notice() << "Trying to disable plugin" << plugin->getPluginName();
-					plugin->onPluginDisable();
-				}
-				catch (...) {
-					VIPM->error() << "Failed when disable plugin" << plugin->getPluginName() << ", disable function may not have completed properly. RESTART is RECOMMENDED!";
-					continue;
-				}
-				VIPM->success() << "Plugin" << plugin->getPluginName() << "disabled";
-				d->EnabledPlugins.removeAll(plugin);
+		for (auto rit = d->LoadPriorityList.rbegin(); rit != d->LoadPriorityList.rend(); ++rit) {
+			auto pluginID = *rit;
+			auto& manageData = d->PluginManage[pluginID];
+			if (manageData.state == PluginManager::PluginState::Enabled) {
+				VIPM->notice() << "Disabling plugin: " << pluginID;
+				manageData.plugin->onPluginDisable();
+				manageData.state = PluginManager::PluginState::Disabled;
+				VIPM->success() << "Plugin \"" << pluginID << "\" disabled successfully.";
 			}
 		}
 	}
 
+	/*!
+		\since Visindigo 0.17.0
+		卸载所有插件，释放所有插件占用的资源。请在调用disableAllPlugin()之后调用此函数。
+	*/
+	void PluginManager::unloadAllPlugin() {
+		for (auto rit = d->LoadPriorityList.rbegin(); rit != d->LoadPriorityList.rend(); ++rit) {
+			auto pluginID = *rit;
+			auto& manageData = d->PluginManage[pluginID];
+			if (manageData.plugin != nullptr) {
+				VIPM->notice() << "Unloading plugin: " << pluginID;
+				delete manageData.plugin;
+				manageData.plugin = nullptr;
+				manageData.state = PluginManager::PluginState::Unknown;
+				VIPM->success() << "Plugin \"" << pluginID << "\" unloaded successfully.";
+			}
+			if (manageData.dll != nullptr) {
+				manageData.dll->unload();
+				delete manageData.dll;
+				manageData.dll = nullptr;
+			}
+		}
+		for (auto& extLib : d->ExternalLibs) {
+			if (extLib.lib != nullptr) {
+				extLib.lib->unload();
+				delete extLib.lib;
+				extLib.lib = nullptr;
+			}
+		}
+		d->ExternalLibs.clear();
+		d->PluginManage.clear();
+		d->LoadPriorityList.clear();
+		d->DeactivatedList.clear();
+	}
 	/*!
 		\since Visindigo 0.13.0
 
@@ -385,7 +557,14 @@ namespace Visindigo::General {
 		\sa getEnabledPluginCount()
 	*/
 	qint32 PluginManager::getLoadedPluginCount() const {
-		return d->Plugins.size();
+		auto rtn = 0;
+		for (auto pluginID : d->LoadPriorityList) {
+			auto& manageData = d->PluginManage[pluginID];
+			if (manageData.loadResult == PluginManager::LoadPluginResult::Success) {
+				rtn++;
+			}
+		}
+		return rtn;
 	}
 
 	/*!
@@ -396,7 +575,14 @@ namespace Visindigo::General {
 		\sa getLoadedPluginCount()
 	*/
 	qint32 PluginManager::getEnabledPluginCount() const {
-		return d->EnabledPlugins.size();
+		auto rtn = 0;
+		for (auto pluginID : d->LoadPriorityList) {
+			auto& manageData = d->PluginManage[pluginID];
+			if (manageData.state == PluginManager::PluginState::Enabled) {
+				rtn++;
+			}
+		}
+		return rtn;
 	}
 
 	/*!
@@ -405,10 +591,10 @@ namespace Visindigo::General {
 		return ID为 \a id 的插件是否被启用。
 	*/
 	bool PluginManager::isPluginEnable(const QString& id) const {
-		if (d->PluginIDMap.contains(id)) {
-			return isPluginEnable(d->PluginIDMap.value(id));
+		if (not d->PluginManage.contains(id)) {
+			return false;
 		}
-		return false;
+		return d->PluginManage.value(id).state == PluginManager::PluginState::Enabled;
 	}
 
 	/*!
@@ -417,7 +603,7 @@ namespace Visindigo::General {
 		return \a plugin 插件是否被启用。
 	*/
 	bool PluginManager::isPluginEnable(Plugin* plugin) const {
-		return d->EnabledPlugins.contains(plugin);
+		return isPluginEnable(plugin->getPluginID());
 	}
 
 	/*!
@@ -432,15 +618,15 @@ namespace Visindigo::General {
 
 	*/
 	void PluginManager::setPluginDeactivate(const QString& id, bool deactivate) {
-		if (!deactivate) {
-			d->DeactivatedPluginIDList.removeAll(id);
+		if (not deactivate) {
+			d->DeactivatedList.removeAll(id);
 		}
 		else {
-			if (!d->DeactivatedPluginIDList.contains(id)) {
-				d->DeactivatedPluginIDList.append(id);
+			if (not d->DeactivatedList.contains(id)) {
+				d->DeactivatedList.append(id);
 			}
 		}
-		VIApp->getMainPlugin()->getPluginConfig()->setStringList("Plugins.Deactivated", d->DeactivatedPluginIDList);
+		VIApp->getMainPlugin()->getPluginConfig()->setStringList("Plugins.Deactivated", d->DeactivatedList);
 	}
 
 	/*!
@@ -460,30 +646,29 @@ namespace Visindigo::General {
 		可以使用getPluginLoadResultByID()函数来判断插件的加载结果是否为Deactivated。
 	*/
 	bool PluginManager::isPluginDeactivate(const QString& id) const {
-		return d->DeactivatedPluginIDList.contains(id);
+		return d->DeactivatedList.contains(id);
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		从配置文件中加载被设置为未激活状态的插件ID列表。这个函数会在用户通过
-		VIApplication::setMainPlugin()设置主插件时被自动调用，
-		以确保在加载插件之前就正确地识别出哪些插件被设置为未激活状态。
+		\a deactivatedList 被设置为禁用状态的插件ID列表。
+		设置禁用状态的插件ID列表。这个列表只包含被手动设置为禁用状态的插件ID，而不包括那些因为依赖关系而被自动禁用的插件ID。
 
-		这个配置会自动寄生到主插件的配置文件中，路径为"Plugins.Deactivated"，
-		因此你也可以直接编辑配置文件来修改这个列表。
+		这个设置会自动进入主插件配置文件的"Plugins.Deactivated"项，以确保这个设置在下次启动时仍然有效。
 	*/
-	void PluginManager::loadDeactivatePluginList() {
-		d->DeactivatedPluginIDList = VIApp->getMainPlugin()->getPluginConfig()->getStringList("Plugins.Deactivated");
+	void PluginManager::setDeactivatePluginList(const QStringList& deactivatedList) {
+		d->DeactivatedList = deactivatedList;
+		VIApp->getMainPlugin()->getPluginConfig()->setStringList("Plugins.Deactivated", d->DeactivatedList);
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		return 所有被设置为未激活状态的插件ID列表。
+		return 所有被设置为禁用状态的插件ID列表。
 
-		请注意，这只包括被手动设置为未激活状态的插件ID，而不包括那些因为依赖关系而被自动禁用的插件ID。
+		请注意，这只包括被手动设置为禁用状态的插件ID，而不包括那些因为依赖关系而被自动禁用的插件ID。
 	*/
 	QStringList PluginManager::getDeactivatedPluginIDList() const {
-		return d->DeactivatedPluginIDList;
+		return d->DeactivatedList;
 	}
 
 	/*!
@@ -494,29 +679,15 @@ namespace Visindigo::General {
 		如果需要手动调用，请安排在loadAllPlugin()之后调用此函数。
 	*/
 	void PluginManager::enableAllPlugin() {
-		for (int i = 0; i < d->PriorityPlugins.size(); i++) {
-			Plugin* plugin = d->PluginIDMap[d->PriorityPlugins[i]];
-			if (!isPluginEnable(plugin)) {
-				try {
-					plugin->d->initializePluginFolder(VIApp->getEnvConfig(VIApplication::ConfigPath).toString() + "/plugins");
-					plugin->d->setPluginLoadType(Plugin::LoadType::FromDisk);
-					VIPM->notice() << "Trying to enable plugin" << plugin->getPluginName();
-					plugin->onPluginEnable();
+		for (auto id : d->LoadPriorityList) {
+			auto& manageData = d->PluginManage[id];
+			if (manageData.loadResult == PluginManager::LoadPluginResult::Success) {
+				if (manageData.state == PluginManager::PluginState::InstanceCreated) {
+					VIPM->notice() << "Enabling plugin: " << id;
+					manageData.plugin->onPluginEnable();
+					manageData.state = PluginManager::PluginState::Enabled;
+					VIPM->success() << "Plugin \"" << id << "\" enabled successfully.";
 				}
-				catch (...) {
-					VIPM->error() << "Failed when enable plugin" << plugin->getPluginName() << ", disable function will be called. RESTART is RECOMMENDED!";
-					plugin->onPluginDisable();
-					continue;
-				}
-				QList<PluginModule*> modules = plugin->getModules();
-				VIPM->info() << "Plugin" << plugin->getPluginName() << "has" << modules.size() << "modules:";
-				for (auto module : modules) {
-					VIPM->info() << "  - " + module->getModuleName();
-					VIPM->info() << "    - ID: " + module->getModuleID() + ", Type: " + module->getModuleTypeID();
-				}
-				emit pluginEnabled(plugin);
-				VIPM->success() << "Plugin" << plugin->getPluginName() << "enabled";
-				d->EnabledPlugins.append(plugin);
 			}
 		}
 	}
@@ -526,8 +697,10 @@ namespace Visindigo::General {
 		根据 \a id 获取插件对象指针。如果插件ID不存在或未被正确加载，则返回nullptr。
 	*/
 	Plugin* PluginManager::getPluginByID(const QString& id) const {
-		if (d->PluginIDMap.contains(id)) {
-			return d->PluginIDMap.value(id);
+		if (d->PluginManage.contains(id) && 
+			d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
+			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled){
+			return d->PluginManage.value(id).plugin;
 		}
 		return nullptr;
 	}
@@ -542,23 +715,29 @@ namespace Visindigo::General {
 		\sa Plugin::getPluginBinaryFolder()
 	*/
 	QDir PluginManager::getPluginBinaryFolder(const QString& id) const {
-		if (d->PluginPathMap.contains(id)) {
-			return QDir(QFileInfo(d->PluginPathMap.value(id)).absolutePath());
+		if (d->PluginManage.contains(id) && d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
+			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled) {
+			return d->PluginManage.value(id).binaryFolder;
 		}
 		return QDir();
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		根据插件名称 \a name 获取插件对象指针。如果插件名称不存在或未被正确加载，则返回nullptr。
+		根据插件名称 \a name 获取插件对象指针列表，其中包括全部具有此名称的插件对象指针。对象必须已经被加载到内存中，无论它们是否被启用。
 	*/
-	Plugin* PluginManager::getPluginByName(const QString& name) const {
-		for (int i = 0; i < d->Plugins.size(); i++) {
-			if (d->Plugins[i]->getPluginName() == name) {
-				return d->Plugins[i];
+	QList<Plugin*> PluginManager::getPluginByName(const QString& name) const {
+		QList<Plugin*> plugins;
+		for (auto pluginID : d->LoadPriorityList) {
+			auto& manageData = d->PluginManage[pluginID];
+			if (manageData.state == PluginManager::PluginState::InstanceCreated ||
+				manageData.state == PluginManager::PluginState::Enabled) {
+				if (manageData.plugin->getPluginName() == name) {
+					plugins.append(manageData.plugin);
+				}
 			}
 		}
-		return nullptr;
+		return plugins;
 	}
 
 	/*!
@@ -568,8 +747,8 @@ namespace Visindigo::General {
 		如果插件ID不存在，则返回LoadPluginResult::Unknown。
 	*/
 	PluginManager::LoadPluginResult PluginManager::getPluginLoadResultByID(const QString& id) const {
-		if (d->LoadResults.contains(id)) {
-			return d->LoadResults.value(id);
+		if (d->PluginManage.contains(id)) {
+			return d->PluginManage.value(id).loadResult;
 		}
 		return LoadPluginResult::Unknown;
 	}
@@ -579,7 +758,15 @@ namespace Visindigo::General {
 		return 已加载的插件对象列表。这个列表包含所有被正确识别并加载到内存中的插件对象指针，无论它们是否被启用。
 	*/
 	QList<Plugin*> PluginManager::getLoadedPlugins() const {
-		return d->Plugins;
+		auto rtn = QList<Plugin*>();
+		for (auto id : d->LoadPriorityList) {
+			auto& manageData = d->PluginManage[id];
+			if (manageData.state == PluginManager::PluginState::InstanceCreated ||
+				manageData.state == PluginManager::PluginState::Enabled) {
+				rtn.append(manageData.plugin);
+			}
+		}
+		return  rtn;
 	}
 
 	/*!
@@ -587,7 +774,14 @@ namespace Visindigo::General {
 		return 已启用的插件对象列表。这个列表包含所有被启用并可以使用的插件对象指针。
 	*/
 	QList<Plugin*> PluginManager::getEnabledPlugins() const {
-		return d->EnabledPlugins;
+		auto rtn = QList<Plugin*>();
+		for (auto id : d->LoadPriorityList) {
+			auto& manageData = d->PluginManage[id];
+			if (manageData.state == PluginManager::PluginState::Enabled) {
+				rtn.append(manageData.plugin);
+			}
+		}
+		return rtn;
 	}
 
 	/*!
@@ -595,7 +789,15 @@ namespace Visindigo::General {
 		return 所有插件的加载结果映射。这个映射包含所有已加载插件的ID和对应的加载结果。
 	*/
 	QMap<QString, PluginManager::LoadPluginResult> PluginManager::getAllPluginLoadResults() const {
-		return d->LoadResults;
+		auto rtn = QMap<QString, PluginManager::LoadPluginResult>();
+		for (auto id : d->LoadPriorityList) {
+			auto& manageData = d->PluginManage[id];
+			if (manageData.state == PluginManager::PluginState::InstanceCreated ||
+				manageData.state == PluginManager::PluginState::Enabled) {
+				rtn[id] = manageData.loadResult;
+			}
+		}
+		return rtn;
 	}
 
 	/*!

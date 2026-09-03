@@ -432,7 +432,7 @@ namespace Visindigo::General {
 			d->MainPlugin = plugin;
 			d->MainPlugin->d->setPluginLoadType(Plugin::LoadType::MainPlugin);
 			d->MainPlugin->d->initializePluginFolder(getEnvConfig(ConfigPath).toString() + "/program");
-			PluginManager::getInstance()->loadDeactivatePluginList();
+			PluginManager::getInstance()->setDeactivatePluginList(plugin->getPluginConfig()->getStringList("Plugins.Deactivated"));
 		}
 	}
 

@@ -35,7 +35,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, ".."))
 X64_DIR = os.path.join(REPO_ROOT, "x64")
 # 0.16 分支的构建输出在 x64/0.16/Release（见各 vcxproj 的 OutDir）
-RELEASE_DIR = os.path.join(X64_DIR, "0.16", "Release")
+RELEASE_DIR = os.path.join(X64_DIR, "Release")
 
 AUTO_VERSION_H = os.path.join(
     REPO_ROOT, "src", "Visindigo", "General", "private", "AUTO_VERSION.h"

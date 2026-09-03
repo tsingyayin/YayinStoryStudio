@@ -3,7 +3,7 @@
 #include "Widgets/ThemeManager.h"
 namespace Visindigo::__Private__ {
 	VisindigoWidgets::VisindigoWidgets()
-		:General::Plugin() {}
+		:General::Plugin("cn.yxgeneral.visindigo.builtin.widgets") {}
 	VisindigoWidgets::~VisindigoWidgets() {
 	}
 	void VisindigoWidgets::onPluginEnable() {

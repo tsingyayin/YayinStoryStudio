@@ -5,6 +5,9 @@
 ![](https://img.shields.io/badge/Python-3.12%2B-blue)
 ![](https://img.shields.io/badge/Qt-6.10.3%2B-lightgreen)
 ![](https://img.shields.io/badge/LGPL-2.1-green)
+![](https://img.shields.io/badge/Support-CMake-yellow)
+![](https://img.shields.io/badge/Support-Visual_Studio_2026-purple)
+![](https://img.shields.io/badge/Support-Qt_Creator-green)
 
 # Yayin Story Studio 项目简介
 Yayin Story Studio （简称YSS）是一个基于Qt/Visindigo的代码编辑器。目前以支持明日方舟剧情编辑器重制版（Arknights Story Editor Remake）（简称ASE-Remake 或 ASER）的AStoryX脚本为主要开发目标。未来引入Git支持，AI Agent支持后，YSS将成为一个通用的代码编辑器。
@@ -44,13 +47,20 @@ YSS的使用教程请参见[Yayin Story Studio 使用教程](https://www.yuque.c
 
 ## 构建YSS
 
-若要从源代码构建，当前只支持在Windows上使用Visual Studio 2026进行编译。请确保安装了Qt 6.10.3 及其开发工具，并且在Visual Studio中配置了Qt的路径。
+若要从源代码构建，有两种环境方案：
 
-除此之外，用户还应有一个安装了PySide6的Python3.12或更高版本的Python环境。Yayin Story Studio使用Python作为辅助编译工具。
+### Visual Studio 2026
+在Windows上，推荐使用Visual Studio 2026进行编译。请确保安装了Qt 6.10.3 及其开发工具，并且在Visual Studio中配置了Qt的路径。
 
+除此之外，用户还应有一个安装了PySide6的Python3.12或更高版本的Python环境。Yayin Story Studio的Visual Studio解决方案使用Python作为辅助编译工具。
+
+### Qt Creator (CMake)
+从0.17.0开始，YSS初步提供CMake构建支持，用户可以在Qt Creator中使用任何支持CMake的编译器，向任何Qt兼容的目标平台构建YSS。不过目前只针对Android平台进行了部分调整，没有在其他平台上进行过测试。请注意，CMake构建方式目前仍处于实验阶段，可能存在一些问题。
+
+### 所有方案都要注意的事情
 请注意，本项目的Qt版本和C++版本都非常新，因此需要支持C++23或更高版本的编译器。
 
-本项目目前并未完全遵照Qt的编码标准以进行适配不同编译器和平台的开发，但正尝试努力解决这些问题。请注意，YSS目前并不把全平台支持作为其开发的首要目标，只是为了将来潜在的跨平台需求尽量编写平台无关/编译器无关的代码，并尽可能的降低使用Qt工具将其转换为QtCreator项目后需要进行的修改量。
+此外，部分Py脚本的驱动还未从Visual Studio解决方案迁移到CMake构建系统中，因此在使用CMake构建时，可能需要手动运行部分Python脚本来生成必要的文件。
 
 ## 版本选择：EA、TP、Beta、Release
 有关 YSS 各版本的固定后缀（SEA/EA）的介绍，以及开发过程中的技术预览版、Beta测试版、Beta RC测试版、发行版的区别，请参见使用教程中的[选择适合你的YSS版本](https://www.yuque.com/tsingyayin/yss/tergn7u16it0sn65)章节。

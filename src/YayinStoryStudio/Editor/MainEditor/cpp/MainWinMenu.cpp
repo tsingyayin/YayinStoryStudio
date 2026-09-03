@@ -1,4 +1,8 @@
 #include <QtCore/qmimedata.h>
+#ifdef Q_OS_ANDROID
+#include <QtCore/qcoreapplication.h>
+#include <QtCore/qjniobject.h>
+#endif
 #include <QtGui/qclipboard.h>
 #include <QtGui/qtextcursor.h>
 #include <QtWidgets/qapplication.h>
@@ -26,6 +30,31 @@
 #include "Editor/MainEditor/MainWinMenu.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
 namespace YSS::Editor {
+#ifdef Q_OS_ANDROID
+	// Android 顶部安全区高度(px)：取系统状态栏(含刘海)高度。Qt for Android 默认让窗口
+	// 内容延伸到系统栏之下，若不垫高/下移，最顶部的交互(如本顶栏的菜单条)会被状态栏遮住、
+	// 点不到。此函数只在 Android 构建存在，桌面构建为零影响。
+	static int androidTopSafeInsetPx() {
+		QJniObject context = QNativeInterface::QAndroidApplication::context();
+		if (!context.isValid()) {
+			return 0;
+		}
+		QJniObject resources = context.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+		if (!resources.isValid()) {
+			return 0;
+		}
+		const jint id = resources.callMethod<jint>("getIdentifier",
+			"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
+			QJniObject::fromString("status_bar_height").object(),
+			QJniObject::fromString("dimen").object(),
+			QJniObject::fromString("android").object());
+		if (id <= 0) {
+			return 0;
+		}
+		return static_cast<int>(resources.callMethod<jint>("getDimensionPixelSize", "(I)I", id));
+	}
+#endif
+
 	class MainWinMenuPrivate {
 		friend class MainWinMenu;
 	protected:
@@ -247,7 +276,19 @@ namespace YSS::Editor {
 
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->setContentsMargins(10, 0, 10, 0);
+#ifdef Q_OS_ANDROID
+		// 安卓：把状态栏高度并入本栏高度并把内容整体下移到安全区之下；
+		// 本栏背景会填满安全区，菜单条不再被系统状态栏遮住。
+		const int topInset = androidTopSafeInsetPx();
+		if (topInset > 0) {
+			this->setFixedHeight(38 + topInset);
+			d->Layout->setContentsMargins(10, topInset, 10, 0);
+		}
+#endif
 		d->MenuBar = new QMenuBar(this);
+#ifdef Q_OS_ANDROID
+		d->MenuBar->setNativeMenuBar(false);
+#endif
 		d->Layout->addWidget(d->MenuBar);
 		d->ProjectNameLabel = new QLabel(this);
 		d->ProjectNameLabel->setContentsMargins(10, 0, 10, 0);

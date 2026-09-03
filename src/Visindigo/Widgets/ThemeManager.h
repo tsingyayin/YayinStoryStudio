@@ -30,9 +30,9 @@ namespace Visindigo::Widgets {
 	public:
 		enum ThemeID {
 			__InAnimation__ = -1,
-			Unknown = Qt::ColorScheme::Unknown,
-			Light = Qt::ColorScheme::Light,
-			Dark = Qt::ColorScheme::Dark,
+			Unknown = 0,
+			Light = 1,
+			Dark = 2,
 			White, Black,
 			__UserMin__ = 1000
 		};

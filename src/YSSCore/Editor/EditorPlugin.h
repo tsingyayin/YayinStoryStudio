@@ -42,7 +42,7 @@ namespace YSSCore::Editor {
 		friend class YSSCore::__Private__::EditorPluginPrivate;
 		Q_OBJECT;
 	public:
-		EditorPlugin(Visindigo::General::Version apiVersion = Compiled_VIAPI_Version, Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QObject* parent = nullptr);
+		EditorPlugin(const QString& id, Visindigo::General::Version apiVersion = Compiled_VIAPI_Version, Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QObject* parent = nullptr);
 		virtual ~EditorPlugin();
 	public:
 		virtual void onProjectOpen(YSSCore::General::YSSProject* project) {};

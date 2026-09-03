@@ -1,0 +1,6 @@
+{
+	"ID": "cn.yxgeneral.yayinstorystudio.plugin.imageviewer",
+	"Dependencies": [
+		"cn.yxgeneral.yayinstorystudio.plugin.yssfileext"
+	]
+}

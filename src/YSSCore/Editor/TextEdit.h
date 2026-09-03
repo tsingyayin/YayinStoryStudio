@@ -16,6 +16,7 @@ namespace YSSCore::__Private__ {
 namespace YSSCore::Editor {
 	class TabCompleterProvider;
 	class HoverInfoProvider;
+	class SyntaxHighlighter;
 }
 // Main
 namespace YSSCore::Editor {

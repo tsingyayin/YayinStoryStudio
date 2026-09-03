@@ -1,4 +1,7 @@
 #include <QtCore/qdir.h>
+#ifdef Q_OS_ANDROID
+#include <QtCore/qjniobject.h>
+#endif
 #include "General/Exception.h"
 #include "General/Log.h"
 #include "General/Placeholder.h"
@@ -13,7 +16,7 @@ namespace Visindigo::__Private__ {
 		// nothing for now
 	};
 
-	VisindigoCore::VisindigoCore() :Visindigo::General::Plugin() {
+	VisindigoCore::VisindigoCore() :Visindigo::General::Plugin("cn.yxgeneral.visindigo.builtin.core") {
 	}
 
 	VisindigoCore::~VisindigoCore() {
@@ -96,6 +99,24 @@ namespace Visindigo::__Private__ {
 			}
 			else if (name == "programPath") {
 				return QDir::currentPath();
+			}
+			else if (name == "userDataPath") {
+#ifdef Q_OS_ANDROID
+				// Android：用户共享存储的 YayinStoryStudio 目录(与 logs/config/plugins/themes 同级)。
+				// 模板等默认路径经 $(visindigo::userDataPath)/… 落到这里，用户文件管理器可见、可管理。
+				QJniObject file = QJniObject::callStaticObjectMethod("android/os/Environment",
+					"getExternalStorageDirectory", "()Ljava/io/File;");
+				if (file.isValid()) {
+					const QString path = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;").toString();
+					if (!path.isEmpty()) {
+						return path + QStringLiteral("/YayinStoryStudio");
+					}
+				}
+				return QStringLiteral("/storage/emulated/0/YayinStoryStudio");
+#else
+				// 桌面：维持既有语义 <当前目录>/user_data，使 $(visindigo::userDataPath)/repos == 原 $(visindigo::programPath)/user_data/repos。
+				return QDir::currentPath() + QStringLiteral("/user_data");
+#endif
 			}
 			else if (name == "unixEpoch") {
 				return QString::number(QDateTime::currentSecsSinceEpoch());

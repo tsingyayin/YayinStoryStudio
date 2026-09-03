@@ -3,3 +3,8 @@
 extern "C" ASERAPI Visindigo::General::Plugin* VisindigoPluginMain() {
 	return new ASERStudio::Main();
 }
+#ifdef Q_OS_ANDROID
+extern "C" ASERAPI Visindigo::General::Plugin* VisindigoPluginMain_ASERStudio() {
+	return VisindigoPluginMain();
+}
+#endif

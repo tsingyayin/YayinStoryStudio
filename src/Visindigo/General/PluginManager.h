@@ -24,6 +24,8 @@ namespace Visindigo::General {
 			Deactivated,
 			PlatformNotSupported,
 			InvalidPluginBinary,
+			InvalidDependLib,
+			DependLibConflict,
 			EntryPointNotFound,
 			ConstructorError,
 			IncompatibleABI,
@@ -31,30 +33,43 @@ namespace Visindigo::General {
 			AlreadyLoaded,
 			DependencyNotFound,
 			DependencyLoadFailed,
+			DependencyDeactivated,
 			MetadataNotFound,
 			MetadataNotSame,
 		};
 		Q_ENUM(LoadPluginResult);
+		enum class PluginState {
+			Unknown = 0,
+			Deactivated,
+			MetadataLoaded,
+			InstanceCreated,
+			Enabled,
+			Disabled,
+		};
+		Q_ENUM(PluginState);
 	private:
 		PluginManager(QObject* parent = nullptr);
 	public:
 		static PluginManager* getInstance();
 		~PluginManager();
+		void addPluginLoadPath(const QString& libFilePath, const QString& metaJsonFilePath, const QString& pluginBinaryFolderPath = "");
+		void addPluginEntryPoint(Plugin* (*entryPoint)(void), const QString& metaJsonFilePath, const QString& pluginBinaryFolderPath = "");
 		void loadAllPlugin();
 		void enableAllPlugin();
 		void testAllPlugin();
 		void applicationInitAllPlugin();
 		void disableAllPlugin();
+		void unloadAllPlugin();
 		bool isPluginEnable(const QString& id) const;
 		bool isPluginEnable(Plugin* plugin) const;
 		void setPluginDeactivate(const QString& id, bool deactivate);
 		bool isPluginDeactivate(const QString& id) const;
-		void loadDeactivatePluginList();
+		void setDeactivatePluginList(const QStringList& deactivatedList);
 		QStringList getDeactivatedPluginIDList() const;
 		qint32 getLoadedPluginCount() const;
 		qint32 getEnabledPluginCount() const;
 		Plugin* getPluginByID(const QString& id) const;
-		Plugin* getPluginByName(const QString& name) const;
+		QList<Plugin*> getPluginByName(const QString& name) const;
 		QDir getPluginBinaryFolder(const QString& id) const;
 		LoadPluginResult getPluginLoadResultByID(const QString& id) const;
 		QList<Plugin*> getLoadedPlugins() const;

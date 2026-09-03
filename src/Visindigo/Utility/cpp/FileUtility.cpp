@@ -12,6 +12,7 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qtextstream.h>
 #include <QtCore/qurl.h>
+#include <QtCore/qcryptographichash.h>
 #include <QtGui/qdesktopservices.h>
 #include "General/Log.h"
 #include "Utility/FileUtility.h"
@@ -759,4 +760,44 @@ namespace Visindigo::Utility {
 		srcDir.removeRecursively();
 	}
 
+	/*!
+		\since Visindigo 0.17.0
+		\a path 文件或目录路径
+		\a dir 目录路径
+
+		return path是否在dir目录下（包括子目录）。如果path或dir不存在，则返回false。
+	*/
+	bool FileUtility::isPathInDir(const QString& path, const QString& dir) {
+		QFileInfo pathInfo(path);
+		QFileInfo dirInfo(dir);
+		if (not pathInfo.exists() || not dirInfo.exists() || not dirInfo.isDir()) {
+			return false;
+		}
+		QString absPath = QDir::cleanPath(pathInfo.absoluteFilePath());
+		QString absDir = QDir::cleanPath(dirInfo.absoluteFilePath());
+		return absPath.startsWith(absDir + QDir::separator());
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		\a path 文件路径
+		
+		return 指定文件的MD5值，如果文件不存在，则返回空字符串。
+	*/
+	QString FileUtility::getFileMD5(const QString& filePath) {
+		QFile file(filePath);
+		if (!file.exists()) {
+			return QString();
+		}
+		if (!file.open(QIODevice::ReadOnly)) {
+			return QString();
+		}
+		QCryptographicHash hash(QCryptographicHash::Md5);
+		if (hash.addData(&file)) {
+			return hash.result().toHex();
+		}
+		else {
+			return QString();
+		}
+	}
 }

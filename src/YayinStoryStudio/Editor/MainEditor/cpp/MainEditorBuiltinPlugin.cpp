@@ -6,9 +6,8 @@
 #include "Editor/MainEditor/PreferenceEditWidget.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
 namespace YSS::Editor {
-	MainEditorBuiltinPlugin::MainEditorBuiltinPlugin() {
+	MainEditorBuiltinPlugin::MainEditorBuiltinPlugin():YSSCore::Editor::EditorPlugin("cn.yxgeneral.yayinstorystudio.builtin.maineditor") {
 		setPluginVersion(Visindigo::General::Version::getAPIVersion()); // YSS uses the same version as Visindigo API version
-		setPluginID("cn.yxgeneral.yss_builtin");
 		setPluginName("YSS MainEditor Builtin");
 		setPluginAuthor({ "Tsing Yayin" });
 	}

@@ -31,11 +31,10 @@ protected:
 };
 YSSInstaller* YSSInstallerPrivate::Instance = nullptr;
 
-YSSInstaller::YSSInstaller() {
+YSSInstaller::YSSInstaller() : Visindigo::General::Plugin("cn.yxgeneral.yayinstorystudio.installer") {
     d = new YSSInstallerPrivate;
     YSSInstallerPrivate::Instance = this;
     setPluginVersion(getPluginAPIVersion());
-    setPluginID("cn.yxgeneral.yss_installer");
     setPluginName("YSS Installer");
     setPluginAuthor({ "Tsing Yayin" });
 }

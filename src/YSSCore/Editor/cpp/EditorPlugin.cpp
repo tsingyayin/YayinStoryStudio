@@ -1,5 +1,5 @@
 #include <QtCore/qstring.h>
-#include <General/TranslationHost.h.>
+#include <General/TranslationHost.h>
 #include "Editor/ColorThemeProvider.h"
 #include "Editor/DebugServer.h"
 #include "Editor/DebugServerManager.h"
@@ -38,8 +38,8 @@ namespace YSSCore::Editor {
 		在派生此类时，不需要实际传递任何参数。
 		\warning 请注意，abiVersion并不是插件的版本号，也不是YSS的程序版本。它是YSS的二进制兼容版本。
 	*/
-	EditorPlugin::EditorPlugin(Visindigo::General::Version apiVersion, Visindigo::General::Version abiVersion, QObject* parent) :
-		Visindigo::General::Plugin(apiVersion, abiVersion, YSSPluginTypeID, parent) {
+	EditorPlugin::EditorPlugin(const QString& id, Visindigo::General::Version apiVersion, Visindigo::General::Version abiVersion, QObject* parent) :
+		Visindigo::General::Plugin(id, apiVersion, abiVersion, YSSPluginTypeID, parent) {
 		d = new YSSCore::__Private__::EditorPluginPrivate();
 	}
 	/*!

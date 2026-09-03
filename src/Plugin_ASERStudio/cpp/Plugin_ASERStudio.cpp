@@ -12,7 +12,7 @@
 #include "ASEREnv/ASERResourceMoniter.h"
 #include "ASEREnv/ASERWarpper.h"
 #include "Plugin_ASERStudio.h"
-#include "YSS/ASERFIleServer.h"
+#include "YSS/ASERFileServer.h"
 #include "YSS/ASERFileTemplate.h"
 #include "YSS/ASERProjectTemplate.h"
 #include "YSS/DS_AStoryXDebugger.h"
@@ -44,11 +44,10 @@ namespace ASERStudio {
 
 	Main* MainPrivate::Instance = nullptr;
 
-	Main::Main() : YSSCore::Editor::EditorPlugin() {
+	Main::Main() : YSSCore::Editor::EditorPlugin("cn.yxgeneral.aserstudio") {
 		d = new MainPrivate;
 		MainPrivate::Instance = this;
 		setPluginVersion(Visindigo::General::Version(Visindigo_VERSION_MAJOR + 2, Visindigo_VERSION_MINOR - 13, Visindigo_VERSION_PATCH));
-		setPluginID("cn.yxgeneral.aserstudio");
 		setPluginName("ASER Studio");
 		setPluginAuthor({ "Gra_dus", "Tsing Yayin" });
 	}

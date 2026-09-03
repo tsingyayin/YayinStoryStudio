@@ -61,6 +61,8 @@ namespace Visindigo::Utility {
 		static QString moveToTrash(const QString& path);
 		static void copyDir(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
 		static void moveDir(const QString& srcPath, const QString& dstPath, bool rinse = true, bool overwrite = false);
+		static bool isPathInDir(const QString& path, const QString& dir);
+		static QString getFileMD5(const QString& filePath);
 	};
 }
 

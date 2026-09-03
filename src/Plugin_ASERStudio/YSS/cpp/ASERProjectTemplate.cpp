@@ -27,6 +27,9 @@ namespace ASERStudio::YSS {
 	class ProjectTemplateAssets {
 	public:
 		static void registerAssets() {
+#ifdef Q_OS_ANDROID
+			return;
+#else
 			++InstanceCount;
 			if (InstanceCount == 1) {
 				Visindigo::General::Plugin* plugin = Visindigo::General::PluginManager::getInstance()->getPluginByID(ASERStudioPluginID);
@@ -41,8 +44,12 @@ namespace ASERStudio::YSS {
 					vgWarning << "ASERStudio plugin instance not found, cannot locate" << ASERStudioAssets1Rcc;
 				}
 			}
+#endif
 		}
 		static void unregisterAssets() {
+#ifdef Q_OS_ANDROID
+			return;
+#else
 			if (InstanceCount > 0) {
 				--InstanceCount;
 			}
@@ -51,6 +58,7 @@ namespace ASERStudio::YSS {
 				Registered = false;
 				RccFilePath.clear();
 			}
+#endif
 		}
 	private:
 		static int InstanceCount;
@@ -183,8 +191,12 @@ namespace ASERStudio::YSS {
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/1.png", true);
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png", true);
 		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png", true);
-		project->addEditorOpenedFile(projectFolder + "/Stories/main.astoryx");
-		project->setFocusedFile(projectFolder + "/Stories/main.astoryx");
+		// 只把实际生成成功的示例故事记入打开列表/焦点，避免记录不存在的文件导致打开后恢复报错。
+		const QString mainStoryPath = projectFolder + "/Stories/main.astoryx";
+		if (Visindigo::Utility::FileUtility::isFileExist(mainStoryPath)) {
+			project->addEditorOpenedFile(mainStoryPath);
+			project->setFocusedFile(mainStoryPath);
+		}
 		project->saveProject();
 	}
 
@@ -338,10 +350,20 @@ namespace ASERStudio::YSS {
 			Visindigo::Utility::FileUtility::copyFile(templatePath + "/" + key, projectFolder + "/" + fileMap.value(key), true, true);
 		}
 		Visindigo::Utility::FileUtility::copyFile(templatePath + "/Resources/Background/bg_amb2026.png", projectFolder + "/cover.png", true);
-		project->addEditorOpenedFile(projectFolder + "/Stories/00_基础示例上.astoryx");
-		project->addEditorOpenedFile(projectFolder + "/Stories/01_基础示例下.astoryx");
-		project->addEditorOpenedFile(projectFolder + "/Stories/02_基础？？？.astoryx");
-		project->setFocusedFile(projectFolder + "/Stories/00_基础示例上.astoryx");
+		// 只把实际生成成功的示例故事记入打开列表/焦点，避免记录不存在的文件导致打开后恢复报错。
+		const QList<QString> exampleStories = {
+			projectFolder + "/Stories/00_基础示例上.astoryx",
+			projectFolder + "/Stories/01_基础示例下.astoryx",
+			projectFolder + "/Stories/02_基础？？？.astoryx"
+		};
+		for (const QString& storyPath : exampleStories) {
+			if (Visindigo::Utility::FileUtility::isFileExist(storyPath)) {
+				project->addEditorOpenedFile(storyPath);
+			}
+		}
+		if (Visindigo::Utility::FileUtility::isFileExist(exampleStories.first())) {
+			project->setFocusedFile(exampleStories.first());
+		}
 		project->saveProject();
 	}
 

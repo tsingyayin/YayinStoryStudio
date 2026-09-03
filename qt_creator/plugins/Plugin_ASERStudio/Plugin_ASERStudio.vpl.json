@@ -1,0 +1,6 @@
+{
+	"ID": "cn.yxgeneral.aserstudio",
+	"Dependencies": [
+		"cn.yxgeneral.yayinstorystudio.plugin.yssfileext"
+	]
+}

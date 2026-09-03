@@ -24,9 +24,8 @@ namespace YSSFileExt {
 		addLangFilePath(fr, ":/resource/cn.yxgeneral.weavestudio.yssfileext/i18n/fr.json");
 	}
 }
-Plugin_YSSFileExt::Plugin_YSSFileExt() {
+Plugin_YSSFileExt::Plugin_YSSFileExt() : YSSCore::Editor::EditorPlugin("cn.yxgeneral.yayinstorystudio.plugin.yssfileext") {
 	setPluginVersion(Compiled_VIAPI_Version); // YSSFileExt uses the same version as Visindigo API version
-	setPluginID("cn.yxgeneral.weavestudio.yssfileext");
 	setPluginName("YSS File Extensions");
 	setPluginAuthor({ "Tsing Yayin" });
 }

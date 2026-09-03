@@ -1,0 +1,12 @@
+# CMake 构建产物（建议在仓库外或独立 build 目录中构建）
+build*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.ninja
+.vscode/
+*.user
+
+# 插件发布包（plugin_build/ 由构建自动生成，含 .vpl 二进制，不入库）
+plugin_build/
