@@ -1475,20 +1475,28 @@ namespace YSSCore::Editor {
 	*/
 	bool TextEdit::onOpen(const QString& path) {
 		QString ext = QFileInfo(path).suffix();
-		YSSCore::Editor::LangServer* server = YSSLSM->routeExt(ext);
+		if (d->LangServer) {
+			auto themeProvider = d->LangServer->getColorThemeProvider();
+			disconnect(themeProvider, &YSSCore::Editor::ColorThemeProvider::themeModified,
+				this, nullptr); // disconnect all slots connected to this signal
+			disconnect(themeProvider, &YSSCore::Editor::ColorThemeProvider::currentThemeChanged,
+				this, nullptr); // disconnect all slots connected to this signal
+			d->LangServer = nullptr;
+		}
+		d->LangServer = YSSLSM->routeExt(ext);
 		if (d->HoverInfoProvider) {
 			d->HoverInfoProvider->setParent(nullptr);
-			delete d->HoverInfoProvider;
+			d->HoverInfoProvider->deleteLater();
 			d->HoverInfoProvider = nullptr;
 		}
 		if (d->TabCompleter) {
 			d->TabCompleter->setParent(nullptr);
-			delete d->TabCompleter;
+			d->TabCompleter->deleteLater();
 			d->TabCompleter = nullptr;
 		}
 		if (d->Highlighter) {
 			d->Highlighter->setParent(nullptr);
-			delete d->Highlighter;
+			d->Highlighter->deleteLater();
 			d->Highlighter = nullptr;
 		}
 		if (d->TabCompleterWidget) {
@@ -1501,23 +1509,32 @@ namespace YSSCore::Editor {
 			d->HoverInfoWidget->deleteLater();
 			d->HoverInfoWidget = nullptr;
 		}
-		if (server) {
-			d->Highlighter = server->createHighlighter(this);
+		if (d->LangServer) {
+			d->Highlighter = d->LangServer->createHighlighter(this);
 			if (d->Highlighter) {
-				auto themeProvider = server->getColorThemeProvider();
+				auto themeProvider = d->LangServer->getColorThemeProvider();
 				d->Highlighter->onThemeChanged(themeProvider->getCurrentThemeStyleData());
 				connect(themeProvider, &YSSCore::Editor::ColorThemeProvider::themeModified,
-					d->Highlighter, [this, themeProvider](const QString& themeName) {
-						d->Highlighter->onThemeChanged(themeProvider->getCurrentThemeStyleData());
-						d->Highlighter->rehighlight_s();
+					this, [this, themeProvider](const QString& themeName) {
+						if (d->Highlighter) {
+							d->Highlighter->onThemeChanged(themeProvider->getCurrentThemeStyleData());
+							d->Highlighter->rehighlight_s();
+						}
+					});
+				connect(themeProvider, &YSSCore::Editor::ColorThemeProvider::currentThemeChanged,
+					this, [this, themeProvider](const QString& themeName) {
+						if (d->Highlighter) {
+							d->Highlighter->onThemeChanged(themeProvider->getCurrentThemeStyleData());
+							d->Highlighter->rehighlight_s();
+						}
 					});
 			}
-			d->TabCompleter = server->createTabCompleter(this);
+			d->TabCompleter = d->LangServer->createTabCompleter(this);
 			if (d->TabCompleter) {
 				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(this);
 				d->TabCompleterWidget->hide();
 			}
-			d->HoverInfoProvider = server->createHoverInfoProvider(this);
+			d->HoverInfoProvider = d->LangServer->createHoverInfoProvider(this);
 			if (d->HoverInfoProvider) {
 				d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
 				d->HoverInfoWidget->hide();

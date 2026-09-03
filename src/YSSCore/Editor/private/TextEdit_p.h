@@ -17,6 +17,7 @@ namespace YSSCore::Editor {
 	class TabCompleterProvider;
 	class HoverInfoProvider;
 	class SyntaxHighlighter;
+	class LangServer;
 }
 class QVBoxLayout;
 class QComboBox;
@@ -137,6 +138,7 @@ namespace YSSCore::__Private__ {
 		QTextEdit::ExtraSelection CurrentLineSelection;
 		TextEditFindAndReplace* FindAndReplaceWidget = nullptr;
 		YSSCore::Editor::TabCompleterItem::ItemTypes CompleterTypeFilter = YSSCore::Editor::TabCompleterItem::ItemType::AllType;
+		YSSCore::Editor::LangServer* LangServer = nullptr;
 		TextEditPrivate() {};
 		~TextEditPrivate();
 	public:

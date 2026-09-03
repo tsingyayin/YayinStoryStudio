@@ -4,7 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Yayin Story Studio Release Resources
-
+qt_creator
+doc/scan_report
 # User-specific files
 *.rsuser
 *.suo
