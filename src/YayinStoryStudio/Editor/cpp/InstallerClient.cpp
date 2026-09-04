@@ -159,7 +159,7 @@ namespace YSS::Editor {
 			"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";
 		QStringList files = {
 			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
-			"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe", "dbgeng.dll"
+			"Qt6Svg.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
 		};
 		QStringList folders = {
 			"iconengiens", "imageformats", "networkinformation", "platforms", "styles", "translations",
