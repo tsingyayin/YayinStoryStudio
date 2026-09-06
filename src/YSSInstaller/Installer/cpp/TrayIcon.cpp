@@ -15,7 +15,7 @@ namespace YSS::Installer {
 
 	TrayIcon::TrayIcon() {
 		TrayIconPrivate::instance = this;
-		setIcon(QIcon(":/resource/cn.yxgeneral.yss_installer/icon.png"));
+		setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio.installer/icon.png"));
 		d = new TrayIconPrivate();
 		d->menu = new QMenu();
 		d->aboutAction = d->menu->addAction(VITRL("YSSInstaller::TrayIcon.About"));

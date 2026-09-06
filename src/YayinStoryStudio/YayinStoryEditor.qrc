@@ -32,7 +32,7 @@
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/up_to_win11.jpg</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/yssicon_alpha.png</file>
-        <file>resource/cn.yxgeneral.yss_builtin/icon.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio.builtin.maineditor/icon.png</file>
         <file>resource/cn.yxgeneral.yayinstorystudio/icon/empty.png</file>
     </qresource>
 </RCC>

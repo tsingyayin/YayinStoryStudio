@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>resource/cn.yxgeneral.imageviewer/icon.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio.plugin.imageviewer/icon.png</file>
     </qresource>
 </RCC>

@@ -416,49 +416,49 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::edit_undo() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		if (currentWidget) {
 			currentWidget->undo();
 		}
 	}
 
 	void MainWinMenu::edit_redo() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		if (currentWidget) {
 			currentWidget->redo();
 		}
 	}
 
 	void MainWinMenu::edit_cut() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		if (currentWidget) {
 			currentWidget->cut();
 		}
 	}
 
 	void MainWinMenu::edit_copy() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		if (currentWidget) {
 			currentWidget->copy();
 		}
 	}
 
 	void MainWinMenu::edit_paste() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		if (currentWidget) {
 			currentWidget->paste();
 		}
 	}
 
 	void MainWinMenu::edit_selectAll() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		if (currentWidget) {
 			currentWidget->selectAll();
 		}
 	}
 
 	void MainWinMenu::edit_findAndReplace() {
-		auto currentWidget = d->Parent->getLastFocusedFileEditArea()->getCurrentWidget();
+		auto currentWidget = d->Parent->getCurrentFocusedFileEditWidget();
 		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentWidget);
 		if (textEdit) {
 			textEdit->showFindAndReplace();

@@ -427,13 +427,13 @@ namespace YSSFileExt {
 			});
 		getColorThemeProvider()->parseStaticThemeFrom(
 			Visindigo::Utility::FileUtility::readAll(
-				":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/yaml_dark_2024.json"));
+				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/yaml_dark_2024.json"));
 		getColorThemeProvider()->parseStaticThemeFrom(
 			Visindigo::Utility::FileUtility::readAll(
-				":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/yaml_light_2024.json"));
+				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/yaml_light_2024.json"));
 		// 样式样本：用于颜色主题设置页的预览编辑器展示全部着色元素
 		getColorThemeProvider()->setTemplateTextPath(
-			":/resource/cn.yxgeneral.weavestudio.yssfileext/syntaxColorTheme/templateYaml.yml");
+			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/templateYaml.yml");
 		if (getPlugin()->getPluginConfig()->getString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme").isEmpty()) {
 			getPlugin()->getPluginConfig()->setString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme",
 				VISTM->getCurrentColorTheme() == "Light" ? "Visindigo Light 2024" : "Visindigo Dark 2024");

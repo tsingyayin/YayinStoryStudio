@@ -107,7 +107,7 @@ namespace YSSFileExt {
 		const QString& name, const QString& id, const QString& templateID,
 		const QString& templateName, const QString& description, const QStringList& tags, const QString& extension) :
 		FileTemplateProvider(name, id, plugin), Extension(extension) {
-		setTemplateIconPath(":/resource/cn.yxgeneral.weavestudio.yssfileext/icon.png");
+		setTemplateIconPath(":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/icon.png");
 		setTemplateID(templateID);
 		setTemplateName(templateName);
 		setTemplateDescription(description);

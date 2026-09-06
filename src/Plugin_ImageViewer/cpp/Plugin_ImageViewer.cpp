@@ -5,8 +5,8 @@ namespace YSS::ImageViewer {
 		Visindigo::General::Translator(parent, "ImageViewer")
 	{
 		setDefaultLang(zh_CN);
-		addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.imageviewer/i18n/zh_CN.json");
-		addLangFilePath(en, ":/resource/cn.yxgeneral.imageviewer/i18n/en.json");
+		addLangFilePath(zh_CN, ":/resource/cn.yxgeneral.yayinstorystudio.plugin.imageviewer/i18n/zh_CN.json");
+		addLangFilePath(en, ":/resource/cn.yxgeneral.yayinstorystudio.plugin.imageviewer/i18n/en.json");
 	}
 
 	Main::Main() : YSSCore::Editor::EditorPlugin("cn.yxgeneral.yayinstorystudio.plugin.imageviewer") {
