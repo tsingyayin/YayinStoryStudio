@@ -23,11 +23,7 @@ namespace Visindigo::General {
 			Error = 6000,
 		};
 	public:
-#ifdef QT_DEBUG
 		explicit Logger(const QString& nameSpace, Level threshold = Debug);
-#else
-		explicit Logger(const QString& nameSpace, Level threshold = Message);
-#endif
 		Logger(const Logger& other) = delete;
 		Logger(Logger&& other) = delete;
 		~Logger();
@@ -80,12 +76,14 @@ namespace Visindigo::General {
 
 #define vWarningF(getInstnaceFunction) getInstnaceFunction->warning()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)
 #define vErrorF(getInstnaceFunction) getInstnaceFunction->error()<<Visindigo::General::LogMetaData(__FUNCTION__, (qint32)__LINE__)
-#define VDebugST(getInstnaceFunction) vDebugF(getInstnaceFunction)
-#define VMessageST(getInstnaceFunction) vMessageF(getInstnaceFunction)
-#define VInfoST(getInstnaceFunction) vInfoF(getInstnaceFunction)
-#define VLogST(getInstnaceFunction) vLogF(getInstnaceFunction)
-#define VNoticeST(getInstnaceFunction) vNoticeF(getInstnaceFunction)
-#define VSuccessST(getInstnaceFunction) vSuccessF(getInstnaceFunction)
+// 无 VI_HAS_STD_STACKTRACE 时，*ST 系列退化为对应的 *F（不含栈采集）。
+// 命名与上方 #ifdef 分支保持一致的小写形式，使 vg*ST 宏在两种构建下都可用。
+#define vDebugST(getInstnaceFunction) vDebugF(getInstnaceFunction)
+#define vMessageST(getInstnaceFunction) vMessageF(getInstnaceFunction)
+#define vInfoST(getInstnaceFunction) vInfoF(getInstnaceFunction)
+#define vLogST(getInstnaceFunction) vLogF(getInstnaceFunction)
+#define vNoticeST(getInstnaceFunction) vNoticeF(getInstnaceFunction)
+#define vSuccessST(getInstnaceFunction) vSuccessF(getInstnaceFunction)
 #endif
 
 #define VILoggerGlobal Visindigo::General::Logger::global()

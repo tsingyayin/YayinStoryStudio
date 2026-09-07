@@ -55,11 +55,10 @@ namespace Visindigo::General {
 		\a nameSpace 日志记录器的命名空间。
 		\a threshold 日志级别阈值。只有级别高于或等于此阈值的日志消息才会被记录。
 
-		在QT_DEBUG模式下，默认阈值为Debug级别；否则默认为Message级别。
+		默认阈值为Debug级别，即默认记录所有级别（含调试信息）。
 
-		这很重要，因为在发布版本中，调试级别的日志消息通常是不需要的。
-
-		如果您在发行版本缺少日志输出，应考虑调整阈值。
+		如需在发布版本中过滤调试信息，请在构造时显式传入更高的阈值，
+		或调用setThreshold()动态调整。
 	*/
 	Logger::Logger(const QString& nameSpace, Level threshold) {
 		d = new LoggerPrivate;

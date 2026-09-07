@@ -17,11 +17,7 @@ namespace Visindigo::General {
 	signals:
 		void logReceived(const QString& handlerName, Logger::Level level, const QString& message, const QString& consoleStr, const LogMetaData& metaData);
 	private:
-#ifdef DEBUG
 		LoggerManager(Logger::Level threshold = Logger::Debug);
-#else
-		LoggerManager(Logger::Level threshold = Logger::Info);
-#endif
 	public:
 		~LoggerManager();
 		static LoggerManager* getInstance();

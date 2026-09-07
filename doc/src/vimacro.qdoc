@@ -219,6 +219,42 @@
 */
 
 /*!
+    \macro VImplPooled(name)
+    \relates <VIMacro.h>
+    \brief 池化 PIMPL 的 d 指针声明宏
+
+    \a name API类的名称
+
+    与 \c VImpl 类似，但 \c d 的类型为
+    \c Visindigo::Utility::PooledPtr<name##Private>，即从对象池借出的私有实现对象。
+    使用前需包含 \c Visindigo/Utility/ObjectPool.h；\c name##Private 只需前向声明即可。
+*/
+
+/*!
+    \macro VICopyablePooled_Impl(name)
+    \relates <VIMacro.h>
+    \brief 池化 d 指针的”可复制“实现宏
+
+    \a name API类的名称
+
+    配合 \c VICopyable(name) 声明与 \c VImplPooled(name) 使用，实现池化 d 指针的
+    深拷贝：从源句柄所在池再 acquire 一个对象并 \c *d = *other.d。
+    要求 name##Private 可复制（与 \c VICopyable_Impl 相同）且满足 ObjectPool 的
+    \c Reusable 概念（具备 \c reset()）。声明用 \c VICopyable(name)。
+*/
+
+/*!
+    \macro VIMoveablePooled_Impl(name)
+    \relates <VIMacro.h>
+    \brief 池化 d 指针的”可移动“实现宏
+
+    \a name API类的名称
+
+    配合 \c VIMoveable(name) 声明与 \c VImplPooled(name) 使用，移动即转移句柄所有权，
+    原对象归还池。声明用 \c VIMoveable(name)。
+*/
+
+/*!
     \macro VI_Singleton(name)
     \relates <VIMacro.h>
     \brief 用于声明一个单例类

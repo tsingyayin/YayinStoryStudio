@@ -8,8 +8,8 @@
 // Do not modify this file manually
 #define Visindigo_VERSION_BUILD 217
 #define Visindigo_VERSION_STRING "0.17.0.217"
-#define Visindigo_VERSION_BUILD_DATE "2026-09-06"
-#define Visindigo_VERSION_BUILD_TIME "22:29:40"
+#define Visindigo_VERSION_BUILD_DATE "2026-09-07"
+#define Visindigo_VERSION_BUILD_TIME "18:26:06"
 #define Visindigo_VERSION_NICKNAME "EA TP1"
 
 #endif // Visindigo_General_private_AUTO_VERSION_h

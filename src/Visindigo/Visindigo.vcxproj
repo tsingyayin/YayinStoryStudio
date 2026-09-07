@@ -226,6 +226,7 @@
     <ClCompile Include="General\cpp\VIApplication.cpp" />
     <ClCompile Include="General\cpp\VIGeneral_p.cpp" />
     <ClCompile Include="General\cpp\VirtualStorage.cpp" />
+    <ClCompile Include="Utility\cpp\ConsoleFormat.cpp" />
     <ClCompile Include="Utility\cpp\SevenZipBinder.cpp" />
     <ClCompile Include="Utility\cpp\BenchmarkTimer.cpp" />
     <ClCompile Include="Utility\cpp\ColorTool.cpp" />
@@ -303,8 +304,11 @@
     <QtMoc Include="General\TickObject.h" />
     <ClInclude Include="General\VirtualStorage.h" />
     <ClInclude Include="Utility\ColorTool.h" />
+    <ClInclude Include="Utility\ConsoleFormat.h" />
     <ClInclude Include="Utility\GeneralConfigParser.h" />
+    <ClInclude Include="Utility\ObjectPool.h" />
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />
+    <ClInclude Include="Utility\private\ObjectPool_impl.hpp" />
     <ClInclude Include="Utility\QtSSHelper.h" />
     <ClInclude Include="Utility\BenchmarkTimer.h" />
     <ClInclude Include="Utility\StringUtility.h" />

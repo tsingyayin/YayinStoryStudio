@@ -203,6 +203,9 @@
     <ClCompile Include="General\cpp\VirtualStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\cpp\ConsoleFormat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -323,6 +326,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\VirtualStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\ConsoleFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\ObjectPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\private\ObjectPool_impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

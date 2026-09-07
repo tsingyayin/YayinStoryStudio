@@ -17,7 +17,7 @@ namespace Visindigo::General {
 		friend LoggerManager;
 	protected:
 		static LoggerManager* Instance;
-		Logger::Level threshold;
+		Logger::Level threshold = Logger::Info;
 		QFile LogFile;
 		QTextStream* Stream = nullptr;
 		quint16 cache = 30;
@@ -38,8 +38,12 @@ namespace Visindigo::General {
 				logDir.mkpath(".");
 			}
 			if (!LogFile.open(QIODevice::NewOnly | QIODevice::Text)) {
+				const QString openFailMessage = QStringLiteral(
+					"LoggerManager: failed to open log file \"%1\" (it may already exist). File logging is disabled.")
+					.arg(LogFile.fileName());
+				qt_message_output(QtMsgType::QtWarningMsg, QMessageLogContext(), openFailMessage);
 				return;
-			};
+			}
 			Stream = new QTextStream(&LogFile);
 			Stream->setEncoding(QStringConverter::Utf8);
 			Timer.setInterval(10000);
@@ -67,7 +71,9 @@ namespace Visindigo::General {
 			}
 		}
 		void save() {
-			Stream->flush();
+			if (Stream != nullptr) {
+				Stream->flush();
+			}
 		}
 	};
 	LoggerManager* LoggerManagerPrivate::Instance = nullptr;
@@ -107,7 +113,7 @@ namespace Visindigo::General {
 
 		这是一个私有构造函数，用户无法直接调用此函数创建LoggerManager实例。
 		要获取LoggerManager实例，请使用静态函数LoggerManager::getInstance()。
-		在QT_DEBUG定义时，默认阈值为Logger::Debug，否则为Logger::Info。
+		默认阈值为Logger::Debug，即默认输出所有级别（含调试信息），Debug与Release构建行为一致。
 	*/
 	LoggerManager::LoggerManager(Logger::Level threshold) {
 		if (LoggerManagerPrivate::Instance != nullptr) {
@@ -177,9 +183,18 @@ namespace Visindigo::General {
 		强烈不推荐用户手动调用此函数。
 	*/
 	void LoggerManager::msgHandlerLog(LoggerMsgHandler* handler) {
-		// TODO:
-		// This implementation does not check the log level threshold.
-		// It will log all messages regardless of the threshold.
+		// 阈值过滤：一条消息须同时不低于“所属 Logger 的阈值”与“全局阈值”才会被输出，
+		// 即有效阈值 = max(Logger::Threshold, LoggerManager::threshold)。
+		// 低于任一阈值的消息直接丢弃，不进入格式化、文件写入与 logReceived 分发。
+		// 注：栈采集仍发生在宏展开阶段（见 Logger.h 的 v*ST 宏），调用点前置过滤属后续优化。
+		const Logger::Level handlerLevel = handler->getLevel();
+		Logger* logger = handler->getLogger();
+		if (logger != nullptr && (int)handlerLevel < (int)logger->getThreshold()) {
+			return;
+		}
+		if ((int)handlerLevel < (int)d->threshold) {
+			return;
+		}
 		d->currentEpoch = QDateTime::currentMSecsSinceEpoch();
 		QString logStr = QString("[%1]").arg(QDateTime::fromMSecsSinceEpoch(d->currentEpoch).toString(d->LogTimeFormat));
 		switch (handler->getLevel()) {

@@ -5,53 +5,67 @@
 namespace Visindigo::General {
 	template<Printable T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(T t) {
-		Msg += t.toString();
+		LogUnits.append(Utility::ConsoleFormat(t.toString()));
 		return *this;
 	}
 	template<typename T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, T> pointer_map) {
-		QString temp = "QMap{";
-		for (QString key : pointer_map) {
-			void* ptr = &pointer_map[key];
-			temp += " \"" % key % "\": [Object at " % QString::number((quint64)ptr, 16) % "],";
+		QStringList parts;
+		parts.reserve(pointer_map.size()+2);
+		parts << QStringLiteral("QMap{");
+		for (auto it = pointer_map.constBegin(); it != pointer_map.constEnd(); ++it) {
+			parts << QStringLiteral("\"") % it.key() % QStringLiteral("\": [Object at ") % QString::number((quint64)(T*)(&it.value()), 16) % QStringLiteral("],");
 		}
-		temp.removeLast();
-		temp += "}";
-		Msg += temp;
+		if (not pointer_map.isEmpty()) {
+			parts.last().removeLast();
+		}
+		parts << QStringLiteral("}");
+		LogUnits.append(Utility::ConsoleFormat(parts.join("")));
 		return *this;
 	}
 	template<Printable T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, T> pointer_map) {
-		QString temp = "QMap{";
-		for (QString key : pointer_map) {
-			temp += " \"" % key % "\": " % pointer_map[key].toString() % ",";
+		QStringList parts;
+		parts.reserve(pointer_map.size() + 2);
+		parts << QStringLiteral("QMap{");
+		for (const QString& key : pointer_map.keys()) {
+			parts << QStringLiteral(" \"") % key % QStringLiteral("\": ") % pointer_map.value(key).toString() % QStringLiteral(",");
 		}
-		temp.removeLast();
-		temp += "}";
-		Msg += temp;
+		if (not pointer_map.isEmpty()) {
+			parts.last().removeLast();
+		}
+		parts << QStringLiteral(" }");
+		LogUnits.append(Utility::ConsoleFormat(parts.join("")));
 		return *this;
 	}
 	template<typename T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QList<T> list) {
-		QString temp = "QList[";
-		for (int i = 0; i < list.size(); i++) {
-			void* ptr = &list[i];
-			temp += " [Object at " % QString::number((quint64)ptr, 16) % "],";
+		QStringList parts;
+		parts.reserve(list.size() + 2);
+		parts << QStringLiteral("QList[");
+		for (const T& item : list) {
+			parts << QStringLiteral(" [Object at ") % QString::number((quint64)&item, 16) % QStringLiteral("],");
 		}
-		temp.removeLast();
-		temp += "}";
-		Msg += temp;
+		if (not list.isEmpty()) {
+			parts.last().removeLast();
+		}
+		parts << QStringLiteral(" ]");
+		LogUnits.append(Utility::ConsoleFormat(parts.join("")));
 		return *this;
 	}
 	template<Printable T>
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QList<T> list) {
-		QString temp = "QList[";
-		for (int i = 0; i < list.size(); i++) {
-			temp += " " % list[i].toString() % ",";
+		QStringList parts;
+		parts.reserve(list.size() + 2);
+		parts << QStringLiteral("QList[");
+		for (const T& item : list) {
+			parts << QStringLiteral(" ") % item.toString() % QStringLiteral(",");
 		}
-		temp.removeLast();
-		temp += "}";
-		Msg += temp;
+		if (not list.isEmpty()) {
+			parts.last().removeLast();
+		}
+		parts << QStringLiteral(" ]");
+		LogUnits.append(Utility::ConsoleFormat(parts.join("")));
 		return *this;
 	}
 }

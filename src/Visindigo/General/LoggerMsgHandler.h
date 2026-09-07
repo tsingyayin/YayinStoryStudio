@@ -6,6 +6,7 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
 #include "VICompileMacro.h"
+#include "Utility/ConsoleFormat.h"
 #include "General/Logger.h"
 #include "General/LogMetaData.h"
 #include "General/StacktraceHelper.h"
@@ -31,24 +32,25 @@ namespace Visindigo::General {
 		requires std::is_same_v<const QMetaObject*, decltype(qt_getEnumMetaObject<T>(t))>;
 	};
 }
+// Main
 namespace Visindigo::General {
-	// Main
 	class VisindigoAPI LoggerMsgHandler final {
 		friend class Logger;
-	private:
-		Logger* Who;
-		QString Msg;
-		Logger::Level Level;
-		LogMetaData MetaData;
-		QList<StacktraceFrame> Stacktrace;
 	protected:
 		LoggerMsgHandler(Logger* who, Logger::Level level);
+	public:
+		enum FormatOption {
+			NoQuotes = 0x01,
+			NoSpaces = 0x02,
+			NoReturn = 0x04,
+		};
 	public:
 		LoggerMsgHandler(const LoggerMsgHandler& other) = delete;
 		LoggerMsgHandler(LoggerMsgHandler&& other) = delete;
 		LoggerMsgHandler& operator=(const LoggerMsgHandler& other) = delete;
 		LoggerMsgHandler& operator=(LoggerMsgHandler&& other) = delete;
 		~LoggerMsgHandler();
+	public:
 		void fromString(const QString& str);
 		LoggerMsgHandler& operator<<(const QString& str);
 		LoggerMsgHandler& operator<<(float num);
@@ -68,7 +70,7 @@ namespace Visindigo::General {
 		LoggerMsgHandler& operator<<(QObject* pointer);
 		LoggerMsgHandler& operator<<(const LogMetaData& metaData);
 		LoggerMsgHandler& operator<<(const QList<StacktraceFrame>& stacktrace);
-
+		LoggerMsgHandler& operator<<(const Utility::ConsoleFormat& format);
 		template<Printable T> LoggerMsgHandler& operator<<(T type); // for any type with toString() method
 
 		template<typename T> LoggerMsgHandler& operator<<(QMap<QString, T> any_map);
@@ -90,6 +92,13 @@ namespace Visindigo::General {
 		Logger::Level getLevel();
 		LogMetaData getMetaData();
 		QList<StacktraceFrame> getStacktrace();
+	private:
+		Logger* Who;
+		Logger::Level Level;
+		LogMetaData MetaData;
+		FormatOption FormatOptions;
+		QList<Utility::ConsoleFormat> LogUnits;
+		QList<StacktraceFrame> Stacktrace;
 	};
 }
 

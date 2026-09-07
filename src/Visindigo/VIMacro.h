@@ -67,6 +67,46 @@
 		return *this; \
 	} \
 
+#define VImplPooled(name)\
+	friend class name##Private; \
+	private: Visindigo::Utility::PooledPtr<name##Private> d; \
+
+#define VICopyablePooled_Impl(name)\
+	name::name(const name& other) {\
+		if (other.d) {\
+			Visindigo::Utility::ObjectPool<name##Private>* pool = static_cast<Visindigo::Utility::ObjectPool<name##Private>*>(other.d.get_deleter().pool());\
+			if (pool) {\
+				d = pool->acquire();\
+				*d = *other.d;\
+			}\
+		}\
+	}\
+	name& name::operator=(const name& other) {\
+		if (this != &other) {\
+			if (other.d) {\
+				Visindigo::Utility::ObjectPool<name##Private>* pool = static_cast<Visindigo::Utility::ObjectPool<name##Private>*>(other.d.get_deleter().pool());\
+				if (pool) {\
+					if (!d)\
+						d = pool->acquire();\
+					*d = *other.d;\
+				}\
+			} else {\
+				d.reset();\
+			}\
+		}\
+		return *this;\
+	}\
+
+#define VIMoveablePooled_Impl(name)\
+	name::name(name&& other) noexcept : d(std::move(other.d)) {\
+	}\
+	name& name::operator=(name&& other) noexcept {\
+		if (this != &other) {\
+			d = std::move(other.d);\
+		}\
+		return *this;\
+	}\
+
 #define VI_Delete(ptr)\
 	if (ptr) { \
 		delete ptr; \
