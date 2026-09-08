@@ -8,15 +8,15 @@
 #include <QtNetwork/qnetworkaccessmanager.h>
 #include <QtNetwork/qnetworkinterface.h>
 #include "General/Exception.h"
-#include "General/LoggerManager.h"
+#include "General/LogCenter.h"
 #include "General/LoggerMsgHandler.h"
 #include "General/VIApplication.h"
 #include "Utility/Console.h"
 namespace Visindigo::General {
-	class LoggerManagerPrivate {
-		friend LoggerManager;
+	class LogCenterPrivate {
+		friend LogCenter;
 	protected:
-		static LoggerManager* Instance;
+		static LogCenter* Instance;
 		Logger::Level threshold = Logger::Info;
 		QFile LogFile;
 		QTextStream* Stream = nullptr;
@@ -27,7 +27,7 @@ namespace Visindigo::General {
 		QString LogFileNameTimeFormat;
 		QString LogTimeFormat;
 		qint64 currentEpoch = 0;
-		LoggerManagerPrivate() {
+		LogCenterPrivate() {
 			LogFileNameTimeFormat = VIApp->getEnvConfig(VIApplication::LogFileNameTimeFormat).toString();
 			LogTimeFormat = VIApp->getEnvConfig(VIApplication::LogTimeFormat).toString();
 			QString birthTime = QDateTime::currentDateTime().toString(LogFileNameTimeFormat);
@@ -39,7 +39,7 @@ namespace Visindigo::General {
 			}
 			if (!LogFile.open(QIODevice::NewOnly | QIODevice::Text)) {
 				const QString openFailMessage = QStringLiteral(
-					"LoggerManager: failed to open log file \"%1\" (it may already exist). File logging is disabled.")
+					"LogCenter: failed to open log file \"%1\" (it may already exist). File logging is disabled.")
 					.arg(LogFile.fileName());
 				qt_message_output(QtMsgType::QtWarningMsg, QMessageLogContext(), openFailMessage);
 				return;
@@ -76,12 +76,12 @@ namespace Visindigo::General {
 			}
 		}
 	};
-	LoggerManager* LoggerManagerPrivate::Instance = nullptr;
+	LogCenter* LogCenterPrivate::Instance = nullptr;
 
 	/*!
-		\class Visindigo::General::LoggerManager
-		\inheaderfile General/LoggerManager.h
-		\brief LoggerManager是日志记录器管理器，用于管理全局日志对象并处理日志消息.
+		\class Visindigo::General::LogCenter
+		\inheaderfile General/LogCenter.h
+		\brief LogCenter是日志记录器管理器，用于管理全局日志对象并处理日志消息.
 		\inmodule Visindigo
 		\ingroup VIDebug
 		\since Visindigo 0.13.0
@@ -108,39 +108,39 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		构造LoggerManager实例。
+		构造LogCenter实例。
 		\a threshold 全局日志级别阈值，低于此级别的日志将不会被输出。
 
-		这是一个私有构造函数，用户无法直接调用此函数创建LoggerManager实例。
-		要获取LoggerManager实例，请使用静态函数LoggerManager::getInstance()。
+		这是一个私有构造函数，用户无法直接调用此函数创建LogCenter实例。
+		要获取LogCenter实例，请使用静态函数LogCenter::getInstance()。
 		默认阈值为Logger::Debug，即默认输出所有级别（含调试信息），Debug与Release构建行为一致。
 	*/
-	LoggerManager::LoggerManager(Logger::Level threshold) {
-		if (LoggerManagerPrivate::Instance != nullptr) {
-			d = LoggerManagerPrivate::Instance->d;
-			LoggerManagerPrivate::Instance->d = nullptr;
-			delete LoggerManagerPrivate::Instance;
-			LoggerManagerPrivate::Instance = this;
+	LogCenter::LogCenter(Logger::Level threshold) {
+		if (LogCenterPrivate::Instance != nullptr) {
+			d = LogCenterPrivate::Instance->d;
+			LogCenterPrivate::Instance->d = nullptr;
+			delete LogCenterPrivate::Instance;
+			LogCenterPrivate::Instance = this;
 		}
 		else {
-			d = new LoggerManagerPrivate;
-			LoggerManagerPrivate::Instance = this;
+			d = new LogCenterPrivate;
+			LogCenterPrivate::Instance = this;
 		}
-		LoggerManagerPrivate::Instance->setGlobalLogLevel(threshold);
+		LogCenterPrivate::Instance->setGlobalLogLevel(threshold);
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		return LoggerManager单例对象的指针。
+		return LogCenter单例对象的指针。
 
 		这是Visindigo单例类getInstance()函数的一个特例。其他单例类的getInstance()函数均会在实例不存在时创建它们。请注意区分。
 	*/
-	LoggerManager* LoggerManager::getInstance() {
-		if (LoggerManagerPrivate::Instance == nullptr) {
-			return new LoggerManager();
+	LogCenter* LogCenter::getInstance() {
+		if (LogCenterPrivate::Instance == nullptr) {
+			return new LogCenter();
 		}
 		else {
-			return LoggerManagerPrivate::Instance;
+			return LogCenterPrivate::Instance;
 		}
 	}
 
@@ -148,27 +148,36 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		析构函数
 	*/
-	LoggerManager::~LoggerManager() {
+	LogCenter::~LogCenter() {
 		delete d;
 	}
 
-	static inline QString getHandlerMsg(LoggerMsgHandler* handler) {
+	QString LogCenter::getFormattedLogStr(LoggerMsgHandler* handler) {
 		QString result = (handler->getMetaData().isValid() ? QString("[") % handler->getMetaData().toString() % QString("]: ") : QString(""))
 			% handler->getMessage();
-		if ((int)handler->getLevel() >= (int)Logger::Level::Warning) {
-			if (!handler->getStacktrace().isEmpty()) {
-				result += "\n\tStacktrace:\n";
-				quint32 index = 0;
-				for (const StacktraceFrame& frame : handler->getStacktrace()) {
-					result += QString("\t%1\t%2 ! %3 (+%4) in %5 at %6\n")
-						.arg(QString::number(index))
-						.arg(frame.getBinaryFileName())
-						.arg(frame.getFunctionName())
-						.arg(QString::number(frame.getAddress(), 16).toUpper())
-						.arg(frame.getSourceFileName())
-						.arg(QString::number(frame.getLineNumber()));
-					index++;
-				}
+		return result;
+	}
+
+	QString LogCenter::getPlainLogStr(LoggerMsgHandler* handler) {
+		QString result = (handler->getMetaData().isValid() ? QString("[") % handler->getMetaData().toString() % QString("]: ") : QString(""))
+			% handler->getMessage();
+		return result;
+	}
+
+	QString LogCenter::getStacktraceStr(LoggerMsgHandler* handler) {
+		QString result;
+		if (not handler->getStacktrace().isEmpty()) {
+			result += "\n\tStacktrace:\n";
+			quint32 index = 0;
+			for (const StacktraceFrame& frame : handler->getStacktrace()) {
+				result += QString("\t%1\t%2 ! %3 (+%4) in %5 at %6\n")
+					.arg(QString::number(index))
+					.arg(frame.getBinaryFileName())
+					.arg(frame.getFunctionName())
+					.arg(QString::number(frame.getAddress(), 16).toUpper())
+					.arg(frame.getSourceFileName())
+					.arg(QString::number(frame.getLineNumber()));
+				index++;
 			}
 		}
 		return result;
@@ -182,12 +191,8 @@ namespace Visindigo::General {
 
 		强烈不推荐用户手动调用此函数。
 	*/
-	void LoggerManager::msgHandlerLog(LoggerMsgHandler* handler) {
-		// 阈值过滤：一条消息须同时不低于“所属 Logger 的阈值”与“全局阈值”才会被输出，
-		// 即有效阈值 = max(Logger::Threshold, LoggerManager::threshold)。
-		// 低于任一阈值的消息直接丢弃，不进入格式化、文件写入与 logReceived 分发。
-		// 注：栈采集仍发生在宏展开阶段（见 Logger.h 的 v*ST 宏），调用点前置过滤属后续优化。
-		const Logger::Level handlerLevel = handler->getLevel();
+	void LogCenter::msgHandlerLog(LoggerMsgHandler* handler) {
+		Logger::Level handlerLevel = handler->getLevel();
 		Logger* logger = handler->getLogger();
 		if (logger != nullptr && (int)handlerLevel < (int)logger->getThreshold()) {
 			return;
@@ -196,39 +201,53 @@ namespace Visindigo::General {
 			return;
 		}
 		d->currentEpoch = QDateTime::currentMSecsSinceEpoch();
-		QString logStr = QString("[%1]").arg(QDateTime::fromMSecsSinceEpoch(d->currentEpoch).toString(d->LogTimeFormat));
+		QString timeStr = QString("[%1]").arg(QDateTime::fromMSecsSinceEpoch(d->currentEpoch).toString(d->LogTimeFormat));
+		QString consoleStr; // 本条日志的控制台（可能含 ANSI 样式）整行，同时作为 logReceived 的 consoleStr 参数
 		switch (handler->getLevel()) {
 		case Logger::Level::Debug:
-			logStr += "[Debug]   (" % handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler);
-			qt_message_output(QtMsgType::QtDebugMsg, QMessageLogContext(), logStr);
+			consoleStr = timeStr % QStringLiteral("[Debug]   (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getFormattedLogStr(handler);
+			qt_message_output(QtMsgType::QtDebugMsg, QMessageLogContext(), consoleStr);
+			d->log(timeStr % QStringLiteral("[Debug]   (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Message:
-			logStr += "[Message] (" % handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler);
-			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), logStr);
+			consoleStr = timeStr % QStringLiteral("[Message] (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getFormattedLogStr(handler);
+			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), consoleStr);
+			d->log(timeStr % QStringLiteral("[Message] (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Notice:
-			logStr += Visindigo::Utility::Console::inNoticeStyle("[NOTICE]  (" %
-				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
-			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), logStr);
+			consoleStr = timeStr % Visindigo::Utility::Console::inNoticeStyle(QStringLiteral("[NOTICE]  (") %
+				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler));
+			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), consoleStr);
+			d->log(timeStr % QStringLiteral("[NOTICE]  (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Success:
-			logStr += Visindigo::Utility::Console::inSuccessStyle("[Success] (" % 
-				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
-			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), logStr);
+			consoleStr = timeStr % Visindigo::Utility::Console::inSuccessStyle(QStringLiteral("[Success] (") %
+				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler));
+			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), consoleStr);
+			d->log(timeStr % QStringLiteral("[Success] (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Warning:
-			logStr += Visindigo::Utility::Console::inWarningStyle("[WARNING] (" % 
-				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
-			qt_message_output(QtMsgType::QtWarningMsg, QMessageLogContext(), logStr);
+			consoleStr = timeStr % Visindigo::Utility::Console::inWarningStyle(QStringLiteral("[WARNING] (") %
+				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler) % getStacktraceStr(handler));
+			qt_message_output(QtMsgType::QtWarningMsg, QMessageLogContext(), consoleStr);
+			d->log(timeStr % QStringLiteral("[WARNING] (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getPlainLogStr(handler) % getStacktraceStr(handler));
 			break;
 		case Logger::Level::Error:
-			logStr += Visindigo::Utility::Console::inErrorStyle("[ERROR]   (" % 
-				handler->getLogger()->getNamespace() % ") " % getHandlerMsg(handler));
-			qt_message_output(QtMsgType::QtCriticalMsg, QMessageLogContext(), logStr);
+			consoleStr = timeStr % Visindigo::Utility::Console::inErrorStyle(QStringLiteral("[ERROR]   (") %
+				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler) % getStacktraceStr(handler));
+			qt_message_output(QtMsgType::QtCriticalMsg, QMessageLogContext(), consoleStr);
+			d->log(timeStr % QStringLiteral("[ERROR]   (") % handler->getLogger()->getNamespace() %
+				QStringLiteral(") ") % getPlainLogStr(handler) % getStacktraceStr(handler));
 			break;
 		}
-		d->log(Visindigo::Utility::Console::getRawText(logStr));
-		emit logReceived(handler->getLogger()->getNamespace(), handler->getLevel(), handler->getMessage(), logStr, handler->getMetaData());
+		emit logReceived(handler->getLogger()->getNamespace(), handler->getLevel(), handler->getMessage(), consoleStr, handler->getMetaData());
 	}
 
 	/*!
@@ -238,7 +257,7 @@ namespace Visindigo::General {
 
 		此函数允许用户动态调整全局日志级别阈值。
 	*/
-	void LoggerManager::setGlobalLogLevel(Logger::Level level) {
+	void LogCenter::setGlobalLogLevel(Logger::Level level) {
 		d->threshold = level;
 	}
 
@@ -249,7 +268,7 @@ namespace Visindigo::General {
 		此函数强制将日志缓冲区的内容写入日志文件中。
 		通常情况下，日志会自动定期保存，但用户也可以手动调用此函数以确保日志被保存。
 	*/
-	void LoggerManager::finalSave() {
+	void LogCenter::finalSave() {
 		d->save();
 	}
 
@@ -263,7 +282,7 @@ namespace Visindigo::General {
 		这个函数在所有平台上可用，但只能处理Visindigo::General::Exception类型的异常，以及
 		已经被充分转换为该类型的std异常。
 	*/
-	void LoggerManager::generateCrashReport(const Exception& ex) {
+	void LogCenter::generateCrashReport(const Exception& ex) {
 		QString crashReportFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString() + "/crashreports";
 		QDir crashReportDir(crashReportFolderPath);
 		if (not crashReportDir.exists()) {
@@ -326,7 +345,7 @@ namespace Visindigo::General {
 		这可能会暴露用户的隐私信息（如MAC地址、IP地址等）。请谨慎使用此选项。
 		在生成崩溃日志时，会启用 \a containsNetworkInfo 选项以提供更全面的系统信息，但在其他情况下默认不启用以保护用户隐私。
 	*/
-	QString LoggerManager::generateHardwareInfo(bool debugOutput, bool containsNetworkInfo) {
+	QString LogCenter::generateHardwareInfo(bool debugOutput, bool containsNetworkInfo) {
 		Logger logger("HardwareInfoReport");
 		QStringList content;
 		content << "Operating System: " % QSysInfo::productType();

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -86,7 +86,7 @@
     <ClCompile Include="General\cpp\LoggerMsgHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="General\cpp\LoggerManager.cpp">
+    <ClCompile Include="General\cpp\LogCenter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utility\cpp\StringUtility.cpp">
@@ -381,7 +381,7 @@
     <QtMoc Include="General\VIApplication.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="General\LoggerManager.h">
+    <QtMoc Include="General\LogCenter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\DragWidget.h">

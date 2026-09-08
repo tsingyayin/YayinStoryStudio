@@ -1,5 +1,5 @@
-#ifndef Visindigo_General_LoggerManager_h
-#define Visindigo_General_LoggerManager_h
+#ifndef Visindigo_General_LogCenter_h
+#define Visindigo_General_LogCenter_h
 #include "VICompileMacro.h"
 #include "General/Logger.h"
 #include <QtCore/qobject.h>
@@ -8,26 +8,29 @@
 namespace Visindigo::General {
 	class Exception;
 	class LoggerMsgHandler;
-	class LoggerManagerPrivate;
+	class LogCenterPrivate;
 }
 // Main
 namespace Visindigo::General {
-	class VisindigoAPI LoggerManager :public QObject {
+	class VisindigoAPI LogCenter :public QObject {
 		Q_OBJECT
 	signals:
 		void logReceived(const QString& handlerName, Logger::Level level, const QString& message, const QString& consoleStr, const LogMetaData& metaData);
 	private:
-		LoggerManager(Logger::Level threshold = Logger::Debug);
+		LogCenter(Logger::Level threshold = Logger::Debug);
 	public:
-		~LoggerManager();
-		static LoggerManager* getInstance();
+		~LogCenter();
+		static LogCenter* getInstance();
 		void msgHandlerLog(LoggerMsgHandler* handler);
 		void setGlobalLogLevel(Logger::Level level);
 		void finalSave();
 		void generateCrashReport(const Exception& ex);
 		QString generateHardwareInfo(bool debugOutput = true, bool containsNetworkInfo = false);
+		QString getFormattedLogStr(LoggerMsgHandler* handler);
+		QString getPlainLogStr(LoggerMsgHandler* handler);
+		QString getStacktraceStr(LoggerMsgHandler* handler);
 	private:
-		LoggerManagerPrivate* d;
+		LogCenterPrivate* d;
 	};
 };
-#endif // Visindigo_General_LoggerManager_h
+#endif // Visindigo_General_LogCenter_h

@@ -340,7 +340,7 @@ namespace Visindigo::General {
 		}
 		if (VIApplication::getEnvConfig(VIApplication::UseVirtualTerminal).toBool()) {
 			d->VirtualTerminal = new Widgets::Terminal();
-			connect(LoggerManager::getInstance(), &LoggerManager::logReceived, this,
+			connect(LogCenter::getInstance(), &LogCenter::logReceived, this,
 				[this](const QString& handlerName, Logger::Level level, const QString& message, const QString& consoleStr, const LogMetaData& metaData) {
 				if (d->VirtualTerminal) {
 					d->VirtualTerminal->addLine(consoleStr+"\n");
@@ -370,7 +370,7 @@ namespace Visindigo::General {
 		vgMessage << Utility::Console::inWarningStyle("Working Path: ") << Utility::Console::inNoticeStyle(QDir::currentPath());
 		vgDebug << "Hello," << QDir::home().dirName() << "! Welcome to Visindigo!";
 
-		LoggerManager::getInstance()->generateHardwareInfo();
+		LogCenter::getInstance()->generateHardwareInfo();
 
 		PluginManager::getInstance(); // Initialize PluginManager
 		TranslationHost::getInstance(); // Initialize TranslationHost
@@ -697,10 +697,10 @@ namespace Visindigo::General {
 		else {
 			vgError << "No exception message handler set, exception message:" << ex.getMessage();
 		}
-		Visindigo::General::LoggerManager::getInstance()->generateCrashReport(ex);
+		Visindigo::General::LogCenter::getInstance()->generateCrashReport(ex);
 		if (ex.isCritical() && d->started) {
 			vgError << "Critical exception caught, exiting application.";
-			Visindigo::General::LoggerManager::getInstance()->finalSave();
+			Visindigo::General::LogCenter::getInstance()->finalSave();
 			switch (d->AppType) {
 			case CoreApp:
 				static_cast<Visindigo::__Private__::CoreApplication*>(d->AppInstance)->exit(-1);
@@ -755,13 +755,13 @@ namespace Visindigo::General {
 				dp->onPluginEnable();
 				d->LoadingMessageHandler->onLoadingMessage(QString("Dependency plugin %1 enabled").arg(dp->getPluginName()));
 			}
-			LoggerManager::getInstance()->finalSave(); 
+			LogCenter::getInstance()->finalSave(); 
 
 			d->MainPlugin->onPluginEnable();
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage(QString("Main plugin %1 enabled").arg(d->MainPlugin->getPluginName()));
 			}
-			LoggerManager::getInstance()->finalSave();
+			LogCenter::getInstance()->finalSave();
 
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Loading all plugins...");
@@ -769,7 +769,7 @@ namespace Visindigo::General {
 			}
 
 			PluginManager::getInstance()->loadAllPlugin();
-			LoggerManager::getInstance()->finalSave();
+			LogCenter::getInstance()->finalSave();
 			if (d->AppType == WidgetApp) {
 				if (d->LoadingMessageHandler) {
 					d->LoadingMessageHandler->onLoadingMessage("Merging themes...");
@@ -782,19 +782,19 @@ namespace Visindigo::General {
 				qApp->processEvents();
 			}
 			PluginManager::getInstance()->enableAllPlugin();
-			LoggerManager::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
+			LogCenter::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Initializing application...");
 				qApp->processEvents();
 			}
 			PluginManager::getInstance()->applicationInitAllPlugin();
-			LoggerManager::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
+			LogCenter::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
 			if (d->LoadingMessageHandler) {
 				d->LoadingMessageHandler->onLoadingMessage("Running tests...");
 				qApp->processEvents();
 			}
 			PluginManager::getInstance()->testAllPlugin();
-			LoggerManager::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
+			LogCenter::getInstance()->finalSave(); // 诊断：阶段边界强制落盘
 			auto end = std::chrono::high_resolution_clock::now();
 			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 			qint32 minLoadingTime = d->EnvConfig.value(MinimumLoadingTimeMS, 3000).toInt();
@@ -856,7 +856,7 @@ namespace Visindigo::General {
 			d->started = false;
 			vgNoticeF << "Application exited with code" << ret;
 
-			Visindigo::General::LoggerManager::getInstance()->finalSave();
+			Visindigo::General::LogCenter::getInstance()->finalSave();
 			return ret;
 		}
 		catch (const Exception& ex) {

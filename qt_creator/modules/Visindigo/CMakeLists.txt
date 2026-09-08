@@ -4,7 +4,7 @@
 #  生产(Windows DllRelease)形态为 DLL；本工程在 Android 下产出 libVisindigo.so，
 #  目录结构与依赖全部沿用真实源码 src/Visindigo/。
 #
-#  Qt 依赖: Core / Gui / Widgets / Network(LoggerManager 硬件上报) / Sql(VirtualStorage)
+#  Qt 依赖: Core / Gui / Widgets / Network(LogCenter 硬件上报) / Sql(VirtualStorage)
 #  导出宏:  Visindigo_EXPORT (MSVC 下 = __declspec(dllexport)；非 MSVC 为空)
 # ============================================================================
 set(_mod_dir "${YSS_SRC_ROOT}/Visindigo")

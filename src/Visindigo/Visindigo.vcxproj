@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -250,7 +250,7 @@
     <ClCompile Include="Widgets\cpp\StyleSheetTemplate.cpp" />
     <ClCompile Include="Widgets\cpp\ThemeManager.cpp" />
     <ClCompile Include="General\cpp\Logger.cpp" />
-    <ClCompile Include="General\cpp\LoggerManager.cpp">
+    <ClCompile Include="General\cpp\LogCenter.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='DllDebug|x64'">input</DynamicSource>
@@ -341,7 +341,7 @@
     <ClInclude Include="General\Log.h" />
     <ClInclude Include="General\private\LoggerMsgHandler_impl.hpp" />
     <ClInclude Include="General\Logger.h" />
-    <QtMoc Include="General\LoggerManager.h" />
+    <QtMoc Include="General\LogCenter.h" />
     <ClInclude Include="General\LoggerMsgHandler.h" />
     <ClInclude Include="Utility\GeneralConfig.h" />
     <QtMoc Include="Widgets\private\ConfigWidget_p.h" />

@@ -1,6 +1,6 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qregion.h>
-#include "General/LoggerManager.h"
+#include "General/LogCenter.h"
 #include "General/LoggerMsgHandler.h"
 #include "Utility/Console.h"
 namespace Visindigo::General {
@@ -8,15 +8,15 @@ namespace Visindigo::General {
 		\class Visindigo::General::LoggerMsgHandler
 		\inheaderfile General/LoggerMsgHandler.h
 		\inmodule Visindigo
-		\brief LoggerMsgHandler是日志消息处理器，用于承接日志消息并将其传递给LoggerManager进行处理.
+		\brief LoggerMsgHandler是日志消息处理器，用于承接日志消息并将其传递给LogCenter进行处理.
 		\since Visindigo 0.13.0
 		\ingroup VIDebug
 		\inmodule Visindigo
 
-		LoggerMsgHandler类用于承接日志消息，并在析构时将其传递给LoggerManager进行处理。
+		LoggerMsgHandler类用于承接日志消息，并在析构时将其传递给LogCenter进行处理。
 		这个设计是因为，LoggerMsgHandler的大部分使用场景下，应该被创建为一个纯右值（或叫它将亡值），
 		即一行内没有将被赋给左值的临时对象。因此，我们可以利用其析构函数在对象生命周期结束时
-		自动将日志消息传递给LoggerManager进行处理。如果用户有什么延迟输出日志的需求，可以
+		自动将日志消息传递给LogCenter进行处理。如果用户有什么延迟输出日志的需求，可以
 		自行保存到左值中并在适当的时候销毁它。（不推荐这么做，但可能会很有意思。）
 
 		用户无需直接创建LoggerMsgHandler对象，而是通过Logger类提供的宏来间接创建它们。
@@ -58,10 +58,10 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		析构函数
 
-		此析构函数会在LoggerMsgHandler对象销毁时自动调用，用于将日志消息传递给LoggerManager进行处理。
+		此析构函数会在LoggerMsgHandler对象销毁时自动调用，用于将日志消息传递给LogCenter进行处理。
 	*/
 	LoggerMsgHandler::~LoggerMsgHandler() {
-		LoggerManager::getInstance()->msgHandlerLog(this);
+		LogCenter::getInstance()->msgHandlerLog(this);
 	}
 
 	/*!
@@ -72,17 +72,7 @@ namespace Visindigo::General {
 		此函数用于将字符串追加到日志消息中，用户可以通过重载的<<运算符间接调用它。
 	*/
 	void LoggerMsgHandler::fromString(const QString& str) {
-		LogUnits.append(Utility::ConsoleFormat(str));
-	}
-
-	/*!
-		\since Visindigo 0.17.0
-		重载<<运算符以承接一段已带格式（颜色/样式）的控制台文本。
-		该单元会被原样存入日志消息，保留其格式信息。
-	*/
-	LoggerMsgHandler& LoggerMsgHandler::operator<<(const Utility::ConsoleFormat& format) {
-		LogUnits.append(format);
-		return *this;
+		Msg += str % " ";
 	}
 
 	/*!
@@ -90,12 +80,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QString类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QString& str) {
-		if (FormatOptions & NoQuotes) {
-			fromString(str);
-		}
-		else {
-			fromString(QStringLiteral("\"") + str + QStringLiteral("\""));
-		}
+		fromString("\"" % str % "\"");
 		return *this;
 	}
 
@@ -194,7 +179,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是bool类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(bool b) {
-		fromString(b ? QStringLiteral("true") : QStringLiteral("false"));
+		fromString(b ? "true" : "false");
 		return *this;
 	}
 
@@ -212,7 +197,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QStringList类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QStringList& strList) {
-		fromString(QStringLiteral("[%1]").arg(strList.join(", ")));
+		fromString(QString("[%1]").arg(strList.join(", ")));
 		return *this;
 	}
 
@@ -221,7 +206,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QByteArray类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QByteArray& byteArray) {
-		fromString(QStringLiteral("\n") + Visindigo::Utility::Console::binaryToString(byteArray));
+		fromString("\n" + Visindigo::Utility::Console::binaryToString(byteArray));
 		return *this;
 	}
 
@@ -234,7 +219,7 @@ namespace Visindigo::General {
 		for (qint64 num : num_list) {
 			list.append(QString::number(num));
 		}
-		fromString(QStringLiteral("[" ) % list.join(", ") % QStringLiteral("]"));
+		fromString("[" % list.join(", ") % "]");
 		return *this;
 	}
 	/*!
@@ -246,7 +231,7 @@ namespace Visindigo::General {
 			fromString("nullptr");
 		}
 		else {
-			fromString(QStringLiteral("%1(%2)").arg(pointer->metaObject()->className()).arg((quint64)(void*)pointer, 0, 16));
+			fromString(QString("%1(%2)").arg(pointer->metaObject()->className()).arg((quint64)(void*)pointer, 0, 16));
 		}
 		return *this;
 	}
@@ -276,16 +261,15 @@ namespace Visindigo::General {
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QMap<QString, QObject*> pointer_map) {
 		QStringList list;
-		for (auto it = pointer_map.constBegin(); it != pointer_map.constEnd(); ++it) {
+		for (auto it = pointer_map.begin(); it != pointer_map.end(); ++it) {
 			if (it.value() == nullptr) {
-				list.append(it.key() % QStringLiteral(": nullptr"));
+				list.append(it.key() % ": nullptr");
 			}
 			else {
-				list.append(it.key() % QStringLiteral(": ") % it.value()->metaObject()->className() % QStringLiteral("(") % 
-					QString::number((quint64)(void*)it.value(), 16) % QStringLiteral(")"));
+				list.append(it.key() % ": " % it.value()->metaObject()->className() % "(" % QString::number((quint64)(void*)it.value(), 16) % ")");
 			}
 		}
-		fromString(QStringLiteral("{" ) % list.join(", ") % QStringLiteral("}"));
+		fromString("{" % list.join(", ") % "}");
 		return *this;
 	}
 
@@ -295,10 +279,10 @@ namespace Visindigo::General {
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QMap<QString, QString>& string_map) {
 		QStringList list;
-		for (auto it = string_map.constBegin(); it != string_map.constEnd(); ++it) {
-			list.append(it.key() % QStringLiteral(": \"") % it.value() % QStringLiteral("\""));
+		for (auto it = string_map.begin(); it != string_map.end(); ++it) {
+			list.append(it.key() % ": \"" % it.value() % "\"");
 		}
-		fromString(QStringLiteral("{" ) % list.join(", ") % QStringLiteral("}"));
+		fromString("{" % list.join(", ") % "}");
 		return *this;
 	}
 
@@ -313,13 +297,13 @@ namespace Visindigo::General {
 		QStringList list;
 		for (QObject* obj : qobject_list) {
 			if (obj == nullptr) {
-				list.append(QStringLiteral("nullptr"));
+				list.append("nullptr");
 			}
 			else {
-				list.append(QString(obj->metaObject()->className()) % QStringLiteral("(") % QString::number((quint64)(void*)obj, 16) % QStringLiteral(")"));
+				list.append(QString(obj->metaObject()->className()) % "(" % QString::number((quint64)(void*)obj, 16) % ")");
 			}
 		}
-		fromString(QStringLiteral("[" ) % list.join(", ") % QStringLiteral("]"));
+		fromString("[" % list.join(", ") % "]");
 		return *this;
 	}
 
@@ -328,7 +312,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QSize类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QSize& size) {
-		fromString(QStringLiteral("QSize(%1, %2)").arg(size.width()).arg(size.height()));
+		fromString(QString("QSize(%1, %2)").arg(size.width()).arg(size.height()));
 		return *this;
 	}
 
@@ -337,7 +321,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QRect类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QRect& rect) {
-		fromString(QStringLiteral("QRect(%1, %2, %3, %4)").arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height()));
+		fromString(QString("QRect(%1, %2, %3, %4)").arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height()));
 		return *this;
 	}
 	/*!
@@ -348,12 +332,6 @@ namespace Visindigo::General {
 		此函数用于获取当前LoggerMsgHandler对象承接的日志消息内容。
 	*/
 	QString LoggerMsgHandler::getMessage() {
-		QStringList list;
-		list.resize(LogUnits.size());
-		for (int i = 0; i < LogUnits.size(); ++i) {
-			list[i] = LogUnits[i].toString();
-		}
-		QString Msg = list.join((FormatOptions & NoSpaces) ? "" : " ");
 		return Msg;
 	}
 

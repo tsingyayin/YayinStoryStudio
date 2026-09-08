@@ -464,7 +464,7 @@ namespace Visindigo::General {
 			if (plugin->isTestEnable()) {
 				VIPM->notice() << "Testing plugin" << plugin->getPluginName();
 				plugin->onTest();
-				LoggerManager::getInstance()->finalSave();
+				LogCenter::getInstance()->finalSave();
 			}
 			else {
 				VIPM->notice() << "Plugin" << plugin->getPluginName() << "test is disabled, skip.";
