@@ -3,6 +3,7 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qtypes.h>
 #include <QtCore/qlist.h>
+#include <QtCore/qstringlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qobject.h>
 #include "VICompileMacro.h"
@@ -46,7 +47,9 @@ namespace Visindigo::General {
 		friend class Logger;
 	private:
 		Logger* Who;
-		QString Msg;
+		QStringList Msg;
+		QString JoinedCache;   // getMessage() 的 join 缓存：首次拼接后复用
+		bool JoinedDirty = true; // Msg 有新片段时置真，getMessage 下次重建缓存
 		Logger::Level Level;
 		LogMetaData MetaData;
 		QList<StacktraceFrame> Stacktrace;

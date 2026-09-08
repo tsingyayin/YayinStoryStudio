@@ -72,7 +72,8 @@ namespace Visindigo::General {
 		此函数用于将字符串追加到日志消息中，用户可以通过重载的<<运算符间接调用它。
 	*/
 	void LoggerMsgHandler::fromString(const QString& str) {
-		Msg += str % " ";
+		Msg << str;
+		JoinedDirty = true;
 	}
 
 	/*!
@@ -80,7 +81,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QString类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QString& str) {
-		fromString("\"" % str % "\"");
+		fromString(QStringLiteral("\"") % str % QStringLiteral("\""));
 		return *this;
 	}
 
@@ -179,7 +180,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是bool类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(bool b) {
-		fromString(b ? "true" : "false");
+		fromString(b ? QStringLiteral("true") : QStringLiteral("false"));
 		return *this;
 	}
 
@@ -197,7 +198,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QStringList类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QStringList& strList) {
-		fromString(QString("[%1]").arg(strList.join(", ")));
+		fromString(QStringLiteral("[%1]").arg(strList.join(QStringLiteral(", "))));
 		return *this;
 	}
 
@@ -206,7 +207,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QByteArray类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QByteArray& byteArray) {
-		fromString("\n" + Visindigo::Utility::Console::binaryToString(byteArray));
+		fromString(QStringLiteral("\n") % Visindigo::Utility::Console::binaryToString(byteArray));
 		return *this;
 	}
 
@@ -228,10 +229,10 @@ namespace Visindigo::General {
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(QObject* pointer) {
 		if (pointer == nullptr) {
-			fromString("nullptr");
+			fromString(QStringLiteral("nullptr"));
 		}
 		else {
-			fromString(QString("%1(%2)").arg(pointer->metaObject()->className()).arg((quint64)(void*)pointer, 0, 16));
+			fromString(QStringLiteral("%1(%2)").arg(pointer->metaObject()->className()).arg((quint64)(void*)pointer, 0, 16));
 		}
 		return *this;
 	}
@@ -312,7 +313,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QSize类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QSize& size) {
-		fromString(QString("QSize(%1, %2)").arg(size.width()).arg(size.height()));
+		fromString(QStringLiteral("QSize(%1, %2)").arg(size.width()).arg(size.height()));
 		return *this;
 	}
 
@@ -321,7 +322,7 @@ namespace Visindigo::General {
 		重载<<运算符以承接各种类型的日志消息。这是QRect类型的实现。
 	*/
 	LoggerMsgHandler& LoggerMsgHandler::operator<<(const QRect& rect) {
-		fromString(QString("QRect(%1, %2, %3, %4)").arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height()));
+		fromString(QStringLiteral("QRect(%1, %2, %3, %4)").arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height()));
 		return *this;
 	}
 	/*!
@@ -332,7 +333,11 @@ namespace Visindigo::General {
 		此函数用于获取当前LoggerMsgHandler对象承接的日志消息内容。
 	*/
 	QString LoggerMsgHandler::getMessage() {
-		return Msg;
+		if (JoinedDirty) {
+			JoinedCache = Msg.join(QStringLiteral(" "));
+			JoinedDirty = false;
+		}
+		return JoinedCache;
 	}
 
 	/*!

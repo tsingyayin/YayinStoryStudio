@@ -1,0 +1,141 @@
+/*
+ * ============================================================================
+ * LogPerf —— 日志系统性能计时测试（0.16 与 master/0.17 通用）
+ * ============================================================================
+ * 用法：
+ *   把下方 Main::onTest() 函数体整体粘贴到对应分支的
+ *   src/YayinStoryStudio/YayinStoryStudio.cpp 的 Main::onTest() 中，
+ *   重新编译后触发 onTest 运行，读取末尾统一输出的 [LogPerf] 汇总行。
+ *
+ * 需要包含的头（两分支通常已直接/间接包含，缺失时显式补）：
+ *   #include <QtCore/qdebug.h>
+ *   #include <QtCore/qlist.h>
+ *   #include <General/Log.h>
+ *   #include <Utility/BenchmarkTimer.h>
+ *
+ * 场景与读法：
+ *   0) stacktrace raw(cold)  — 最先跑，纯符号化（不进日志）。若远慢于 7)，
+ *                              表示“符号(PDB)首次加载”的冷启动开销，与日志框架无关。
+ *   1)~5)                    — 各常规日志场景（纯文本 / 元数据 / 过滤 / 数值 / 长串）。
+ *                              0.16 无阈值过滤时场景 3 会与 1) 相当，作对照。
+ *   6) error() +stacktrace   — 暖符号下框架完整消费 63 帧栈的耗时（跨分支对比看这行）。
+ *   7) stacktrace raw(warm)  — 与 0) 同款，最后跑（符号已暖）。冷/暖对比定位 30x 类差异。
+ *
+ * 对比建议：两分支同一构建配置（Release）、是否挂调试器保持一致再测。
+ * ============================================================================
+ */
+void Main::onTest() {
+	using VLogger = Visindigo::General::Logger;
+	using VLogMetaData = Visindigo::General::LogMetaData;
+#ifdef VI_HAS_STD_STACKTRACE
+	using VStacktraceHelper = Visindigo::General::StacktraceHelper;
+#endif
+
+	// ─── 日志系统性能测试（手动触发）────────────────────────────────
+	// 每次运行会真实写出 N 条日志（operator<< 拼装 + msgHandlerLog 的
+	// 格式化 + qt_message_output + 写文件 + logReceived 分发）。
+	// 若启用了虚拟终端，每条还会追加到 UI，计时会变慢，属正常现象。
+	// 条数与文本可按需调整；被测期间不触碰全局阈值，只调独立 Logger 的阈值。
+	// ──────────────────────────────────────────────────────────────
+	constexpr int N = 5000;        // 常规场景日志条数
+	constexpr int NStack = 100;    // 栈采集开销大，单独用小样本
+	const QString shortText = QStringLiteral("a short perf log line.");
+	const QString longText = QString(500, QLatin1Char('x'));
+
+	VLogger perfLogger(QStringLiteral("LogPerf"), VLogger::Level::Debug);
+	Visindigo::Utility::BenchmarkTimer bench(false, QStringLiteral("LogPerf"), false);
+	quint64 sinkTotal = 0; // 防止编译器把纯符号化微基准中的帧遍历优化掉
+
+	// 结果先收集，等所有场景跑完后在末尾统一输出，
+	// 避免测试过程自身的日志刷屏把中间结果顶出可视区。
+	QList<QString> resultLines;
+	auto report = [&resultLines](const QString& label, int count, double ms) {
+		const double avgUs = count > 0 ? ms * 1000.0 / count : 0.0;
+		const double perSec = ms > 0.0 ? count * 1000.0 / ms : 0.0;
+		resultLines << QStringLiteral("[LogPerf] %1: %2 ms for %3 msgs | avg %4 us/msg | %5 msg/s")
+			.arg(label, -22)
+			.arg(ms, 0, 'f', 1)
+			.arg(count)
+			.arg(avgUs, 0, 'f', 2)
+			.arg(perSec, 0, 'f', 0);
+	};
+
+#ifdef VI_HAS_STD_STACKTRACE
+	// 0) 符号化本体微基准（不进日志、最先跑 = 冷符号）：采集 63 帧并遍历全部字段。
+	//    若此处极慢而后面 error() 快，说明慢在“符号首次加载”，并非框架开销。
+	bench.start();
+	for (int i = 0; i < NStack; ++i) {
+		const auto frames = VStacktraceHelper::getStacktrace();
+		for (const auto& frame : frames) {
+			sinkTotal += frame.getAddress() + frame.getLineNumber();
+		}
+	}
+	report(QStringLiteral("stacktrace raw(cold)"), NStack, bench.stop());
+#endif
+
+	// 1) 纯文本 message()，无元数据
+	bench.start();
+	for (int i = 0; i < N; ++i) {
+		perfLogger.message() << shortText;
+	}
+	report(QStringLiteral("message() no-meta"), N, bench.stop());
+
+	// 2) message() + LogMetaData(函数名/行号)，等价于 vMessageF
+	bench.start();
+	for (int i = 0; i < N; ++i) {
+		perfLogger.message() << VLogMetaData(__FUNCTION__, __LINE__) << shortText;
+	}
+	report(QStringLiteral("message() +meta"), N, bench.stop());
+
+	// 3) 同一调用，但提升该 Logger 阈值 → 被 msgHandlerLog 前置过滤丢弃
+	perfLogger.setThreshold(VLogger::Level::Error);
+	bench.start();
+	for (int i = 0; i < N; ++i) {
+		perfLogger.message() << shortText;
+	}
+	report(QStringLiteral("message() filtered"), N, bench.stop());
+	perfLogger.setThreshold(VLogger::Level::Debug);
+
+	// 4) 数值混合（int / const char* / double）
+	bench.start();
+	for (int i = 0; i < N; ++i) {
+		perfLogger.debug() << i << " * " << (i * 1.5) << (i % 2 == 0 ? " even" : " odd");
+	}
+	report(QStringLiteral("debug() numeric-mix"), N, bench.stop());
+
+	// 5) 长字符串（500 字符）
+	bench.start();
+	for (int i = 0; i < N; ++i) {
+		perfLogger.info() << longText;
+	}
+	report(QStringLiteral("info() long-string"), N, bench.stop());
+
+#ifdef VI_HAS_STD_STACKTRACE
+	// 6) error() + 栈采集（63 帧），最昂贵路径
+	bench.start();
+	for (int i = 0; i < NStack; ++i) {
+		perfLogger.error() << VLogMetaData(__FUNCTION__, __LINE__) << VStacktraceHelper::getStacktrace();
+	}
+	report(QStringLiteral("error() +stacktrace"), NStack, bench.stop());
+
+	// 7) 与 0) 同款，但此时符号已“暖”：若 7) 远快于 0)，
+	//    即证明 0) 的慢是符号首次加载的冷启动，并非日志框架开销。
+	bench.start();
+	for (int i = 0; i < NStack; ++i) {
+		const auto frames = VStacktraceHelper::getStacktrace();
+		for (const auto& frame : frames) {
+			sinkTotal += frame.getAddress() + frame.getLineNumber();
+		}
+	}
+	report(QStringLiteral("stacktrace raw(warm)"), NStack, bench.stop());
+#endif
+
+	// 所有场景结束后的统一输出（位于被测日志刷屏之后，固定在末尾）
+	qDebug().noquote() << QStringLiteral("[LogPerf] sinkTotal(防优化)=%1").arg(sinkTotal);
+	qDebug().noquote() << QStringLiteral("==== LogPerf benchmark results (N=%1, NStack=%2) ====")
+		.arg(N).arg(NStack);
+	for (const QString& line : resultLines) {
+		qDebug().noquote() << line;
+	}
+	qDebug().noquote() << QStringLiteral("==== end ====");
+}

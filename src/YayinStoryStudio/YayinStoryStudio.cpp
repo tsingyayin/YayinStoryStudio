@@ -1,5 +1,7 @@
+#include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qstandardpaths.h>
+#include <QtCore/qstringlist.h>
 #include <QtCore/qtimer.h>
 #include <Editor/ColorThemeProvider.h>
 #include <Editor/FileServerManager.h>
@@ -110,7 +112,84 @@ namespace YSS {
 	}
 
 	void Main::onTest() {
+		using VLogger = Visindigo::General::Logger;
 
+		constexpr int NMsg = 10000;   // 短消息 / 多段拼接次数
+		constexpr int NBig = 2000;    // 大容器打印次数
+		const QString shortText = QStringLiteral("a short perf log line.");
+
+		QStringList bigList;
+		QMap<QString, int> bigMap;
+		QList<int> bigIntList;
+		for (int i = 0; i < 200; ++i) {
+			bigList << QStringLiteral("item-%1").arg(i);
+			bigMap.insert(QStringLiteral("key-%1").arg(i), i);
+			bigIntList.append(i);
+		}
+
+		VLogger perfLogger(QStringLiteral("LogPerf"), VLogger::Level::Debug);
+		Visindigo::Utility::BenchmarkTimer bench(false, QStringLiteral("LogPerf"), false);
+
+		QList<QString> resultLines;
+		auto report = [&resultLines](const QString& label, int count, double ms) {
+			const double avgUs = count > 0 ? ms * 1000.0 / count : 0.0;
+			const double perSec = ms > 0.0 ? count * 1000.0 / ms : 0.0;
+			resultLines << QStringLiteral("[LogPerf] %1: %2 ms for %3 msgs | avg %4 us/msg | %5 msg/s")
+				.arg(label, -24)
+				.arg(ms, 0, 'f', 1)
+				.arg(count)
+				.arg(avgUs, 0, 'f', 2)
+				.arg(perSec, 0, 'f', 0);
+		};
+
+		auto runCase = [&](const QString& label, int count, const auto& body) {
+			double bestMs = -1.0;
+			for (int r = 0; r < 3; ++r) {
+				bench.start();
+				body();
+				const double ms = bench.stop();
+				if (bestMs < 0.0 || ms < bestMs) {
+					bestMs = ms;
+				}
+			}
+			report(label, count, bestMs);
+		};
+
+		runCase(QStringLiteral("message no-meta"), NMsg, [&] {
+			for (int i = 0; i < NMsg; ++i) {
+				perfLogger.message() << shortText;
+			}
+		});
+
+		runCase(QStringLiteral("message QStringList(200)"), NBig, [&] {
+			for (int i = 0; i < NBig; ++i) {
+				perfLogger.message() << bigList;
+			}
+		});
+
+		runCase(QStringLiteral("debug QMap(200)"), NBig, [&] {
+			for (int i = 0; i < NBig; ++i) {
+				perfLogger.debug() << bigMap;
+			}
+		});
+
+		runCase(QStringLiteral("debug QList<int>(200)"), NBig, [&] {
+			for (int i = 0; i < NBig; ++i) {
+				perfLogger.debug() << bigIntList;
+			}
+		});
+
+		runCase(QStringLiteral("info multi-piece"), NMsg, [&] {
+			for (int i = 0; i < NMsg; ++i) {
+				perfLogger.info() << QStringLiteral("p0 ") << shortText << QStringLiteral(" mid ") << i << QStringLiteral(" tail");
+			}
+		});
+
+		qDebug().noquote() << QStringLiteral("==== LogPerf baseline (string/container concat) ====");
+		for (const QString& line : resultLines) {
+			qDebug().noquote() << line;
+		}
+		qDebug().noquote() << QStringLiteral("==== end ====");
 	}
 
 	void Main::releaseInstaller(){

@@ -208,45 +208,34 @@ namespace Visindigo::General {
 			consoleStr = timeStr % QStringLiteral("[Debug]   (") % handler->getLogger()->getNamespace() %
 				QStringLiteral(") ") % getFormattedLogStr(handler);
 			qt_message_output(QtMsgType::QtDebugMsg, QMessageLogContext(), consoleStr);
-			d->log(timeStr % QStringLiteral("[Debug]   (") % handler->getLogger()->getNamespace() %
-				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Message:
 			consoleStr = timeStr % QStringLiteral("[Message] (") % handler->getLogger()->getNamespace() %
 				QStringLiteral(") ") % getFormattedLogStr(handler);
 			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), consoleStr);
-			d->log(timeStr % QStringLiteral("[Message] (") % handler->getLogger()->getNamespace() %
-				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Notice:
 			consoleStr = timeStr % Visindigo::Utility::Console::inNoticeStyle(QStringLiteral("[NOTICE]  (") %
 				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler));
 			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), consoleStr);
-			d->log(timeStr % QStringLiteral("[NOTICE]  (") % handler->getLogger()->getNamespace() %
-				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Success:
 			consoleStr = timeStr % Visindigo::Utility::Console::inSuccessStyle(QStringLiteral("[Success] (") %
 				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler));
 			qt_message_output(QtMsgType::QtInfoMsg, QMessageLogContext(), consoleStr);
-			d->log(timeStr % QStringLiteral("[Success] (") % handler->getLogger()->getNamespace() %
-				QStringLiteral(") ") % getPlainLogStr(handler));
 			break;
 		case Logger::Level::Warning:
 			consoleStr = timeStr % Visindigo::Utility::Console::inWarningStyle(QStringLiteral("[WARNING] (") %
 				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler) % getStacktraceStr(handler));
 			qt_message_output(QtMsgType::QtWarningMsg, QMessageLogContext(), consoleStr);
-			d->log(timeStr % QStringLiteral("[WARNING] (") % handler->getLogger()->getNamespace() %
-				QStringLiteral(") ") % getPlainLogStr(handler) % getStacktraceStr(handler));
 			break;
 		case Logger::Level::Error:
 			consoleStr = timeStr % Visindigo::Utility::Console::inErrorStyle(QStringLiteral("[ERROR]   (") %
 				handler->getLogger()->getNamespace() % QStringLiteral(") ") % getFormattedLogStr(handler) % getStacktraceStr(handler));
 			qt_message_output(QtMsgType::QtCriticalMsg, QMessageLogContext(), consoleStr);
-			d->log(timeStr % QStringLiteral("[ERROR]   (") % handler->getLogger()->getNamespace() %
-				QStringLiteral(") ") % getPlainLogStr(handler) % getStacktraceStr(handler));
 			break;
 		}
+		d->log(Visindigo::Utility::Console::getRawText(consoleStr));
 		emit logReceived(handler->getLogger()->getNamespace(), handler->getLevel(), handler->getMessage(), consoleStr, handler->getMetaData());
 	}
 
