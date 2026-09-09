@@ -9,6 +9,7 @@ namespace Visindigo::__Private__ {
 	bool TranslatorPrivate::loadDefault() {
 		return loadTranslationFile(DefaultID, true);
 	}
+
 	bool TranslatorPrivate::loadTranslationFile(Visindigo::General::Translator::LangID id, bool asDefault) {
 		//vgDebug << FilePath.size();
 		QString filePath = FilePath[id];

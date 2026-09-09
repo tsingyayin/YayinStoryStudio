@@ -4,11 +4,12 @@
 #include "Widgets/Terminal.h"
 #include <QtCore/qobject.h>
 #include <QtGui/qtextcursor.h>
+#include <QtCore/qstringlist.h>
 #include <QtCore/qtypes.h>
 #include <QtCore/qtimer.h>
 #include "General/TickObject.h"
-class QTextBrowser;
 class QLineEdit;
+class QPlainTextEdit;
 class QPushButton;
 class QVBoxLayout;
 class QTextStream;
@@ -22,7 +23,7 @@ namespace Visindigo::__Private__ {
 		Q_OBJECT;
 	protected:
 		Widgets::Terminal* q;
-		QTextBrowser* consoleView;
+		QPlainTextEdit* consoleView;
 		QLineEdit* inputLine;
 		QVBoxLayout* layout;
 		qint32 savedCursorLine = -1;
@@ -37,12 +38,13 @@ namespace Visindigo::__Private__ {
 		QTextStream* stdInStream = nullptr;
 		QStringList commandHistory;
 		QString commandStartWith;
-		QString cacheANSILine;
+		QStringList CacheLines;
 		QProcess* ExternalProcess = nullptr;
 		bool detachWhenTerminalClosed = false;
 		bool externalProcessUTF8 = true;
 	protected:
 		void appendANSICache(const QString& line, bool forceFlush);
+		void processCachedLines();
 		void onANSILineReceived(const QString& line);
 		void onComplexControlDetected(const QChar& command, const QString& content);
 		qint32 getFirstLineInViewport() const;

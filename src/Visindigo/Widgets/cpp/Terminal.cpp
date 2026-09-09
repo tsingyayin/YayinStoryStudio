@@ -1,16 +1,19 @@
 #include <QtCore/qdatetime.h>
 #include <QtCore/qdir.h>
+#include <QtCore/qelapsedtimer.h>
 #include <QtCore/qiodevice.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qtextstream.h>
+#include <QtCore/qurl.h>
+#include <QtGui/qdesktopservices.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qtextobject.h>
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qplaintextedit.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
-#include <QtWidgets/qtextbrowser.h>
 #include "General/CommandHost.h"
 #include "General/Log.h"
 #include "General/TranslationHost.h"
@@ -69,12 +72,69 @@ u: 恢复光标位置
 >: 小键盘数字模式
 */
 namespace Visindigo::__Private__ {
-	void TerminalPrivate::appendANSICache(const QString& line, bool forceFlush) {
-		cacheANSILine += line;
-		if (forceFlush) {
-			onANSILineReceived(cacheANSILine);
-			cacheANSILine.clear();
+	// QPlainTextEdit 子类：自行处理 anchor 点击（QPlainTextEdit 无 setOpenExternalLinks）。
+	class TerminalConsoleView : public QPlainTextEdit {
+	public:
+		using QPlainTextEdit::QPlainTextEdit;
+	protected:
+		virtual void mouseReleaseEvent(QMouseEvent* event) override {
+			if (event->button() == Qt::LeftButton) {
+				const QString href = anchorAt(event->pos());
+				if (!href.isEmpty()) {
+					QDesktopServices::openUrl(QUrl(href));
+				}
+			}
+			QPlainTextEdit::mouseReleaseEvent(event);
 		}
+	};
+
+	void TerminalPrivate::appendANSICache(const QString& line, bool forceFlush) {
+		CacheLines << line;
+		if (forceFlush) {
+			processCachedLines();
+		}
+	}
+
+	void TerminalPrivate::processCachedLines() {
+		// 分片刷新：缓存为逐段追加（每次 addLine 一段），消费时按"完整行"切分、段内剩余放回队头。
+		// 累计处理约 45ms 即返回，剩余留待下一次 onFixUpdate 继续，避免一次性 flush 海量日志导致界面长时间无响应。
+		// 按行切分可保证行内 ANSI/光标控制序列不被截断，输出与一次性整批处理一致。
+		if (CacheLines.isEmpty()) {
+			return;
+		}
+		consoleView->setUpdatesEnabled(false);
+		QElapsedTimer budget;
+		budget.start();
+		bool processedAny = false;
+		while (!CacheLines.isEmpty()) {
+			if (processedAny && budget.elapsed() >= 45) {
+				break;
+			}
+			QString pending = CacheLines.takeFirst();
+			int start = 0;
+			while (start < pending.size()) {
+				const qint32 newlineIndex = pending.indexOf(QLatin1Char('\n'), start);
+				QString segment;
+				if (newlineIndex >= 0) {
+					segment = pending.mid(start, newlineIndex + 1 - start);
+					start = newlineIndex + 1;
+				}
+				else {
+					segment = pending.mid(start);
+					start = pending.size();
+				}
+				onANSILineReceived(segment);
+				processedAny = true;
+				if (budget.elapsed() >= 45) {
+					if (start < pending.size()) {
+						CacheLines.prepend(pending.mid(start)); // 段内未处理完的剩余行放回队头，等下次继续
+					}
+					break;
+				}
+			}
+		}
+		consoleView->setUpdatesEnabled(true);
+		consoleView->viewport()->update();
 	}
 
 	void TerminalPrivate::onANSILineReceived(const QString& line) {
@@ -173,15 +233,6 @@ namespace Visindigo::__Private__ {
 		if (normalTextStart < line.length()) {
 			insertPlainText(line.mid(normalTextStart));
 		}
-		if (consoleView->document()->blockCount() > maxLines) {
-			auto cursor = consoleView->textCursor();
-			cursor.movePosition(QTextCursor::Start);
-			for (int i = 0; i < consoleView->document()->blockCount() - maxLines; ++i) {
-				cursor.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor);
-			}
-			cursor.removeSelectedText();
-			cursor.deleteChar(); // 删除多余的行后会剩下一个空行，这里删除掉
-		}
 	}
 
 	void TerminalPrivate::insertPlainText(const QString& text) {
@@ -203,8 +254,12 @@ namespace Visindigo::__Private__ {
 		QTextBlock block = cursor.block();
 		QString lineText = block.text();
 		if (lineText.isEmpty()) return;
+		// Fast pre-check: the regex requires "http", so lines without it can skip regex construction/scan entirely.
+		if (lineText.indexOf(QStringLiteral("http")) < 0) {
+			return;
+		}
 
-		QRegularExpression urlrx(R"(https?://\S+)");
+		static const QRegularExpression urlrx(QStringLiteral(R"(https?://\S+)"));
 		QRegularExpressionMatchIterator it = urlrx.globalMatch(lineText);
 		if (!it.hasNext()) return;
 
@@ -240,9 +295,8 @@ namespace Visindigo::__Private__ {
 
 
 	void TerminalPrivate::onFixUpdate(double elapsedTime_ms) {
-		if (not cacheANSILine.isEmpty()) {
-			onANSILineReceived(cacheANSILine);
-			cacheANSILine.clear();
+		if (not CacheLines.isEmpty()) {
+			processCachedLines();
 		}
 		if (ExternalProcess && ExternalProcess->state() == QProcess::Running) {
 			QByteArray output = ExternalProcess->readAllStandardOutput();
@@ -828,9 +882,11 @@ namespace Visindigo::Widgets {
 		QFont font("Cascadia Mono");
 		font.setPointSizeF(qApp->font().pointSizeF() * 0.8);
 		this->setContentsMargins(10, 10, 10, 10);
-		d->consoleView = new QTextBrowser(this);
-		d->consoleView->setLineWrapMode(QTextEdit::NoWrap);
-		d->consoleView->setOpenExternalLinks(true);
+		d->consoleView = new Visindigo::__Private__::TerminalConsoleView(this);
+		d->consoleView->setLineWrapMode(QPlainTextEdit::NoWrap);
+		// 链接点击由 TerminalConsoleView 自行处理（QPlainTextEdit 无 setOpenExternalLinks）
+		d->consoleView->setUndoRedoEnabled(false); // console output has no undo need; avoids unbounded undo stack growth
+		d->consoleView->document()->setMaximumBlockCount(d->maxLines); // trim old blocks at document level, keeps most recent maxLines
 		d->inputLine = new QLineEdit(this);
 		d->inputLine->installEventFilter(d);
 		d->consoleView->setFont(font);
@@ -968,6 +1024,7 @@ namespace Visindigo::Widgets {
 	*/
 	void Terminal::setMaxLines(qint32 lineCount) {
 		d->maxLines = lineCount;
+		d->consoleView->document()->setMaximumBlockCount(lineCount);
 	}
 
 	/*!
@@ -1017,7 +1074,7 @@ namespace Visindigo::Widgets {
 	void Terminal::addLine(const QString& line, bool forceFlush ) {
 		QString processedLine = line;
 		if (d->workMode == WorkMode::PureText) {
-			d->consoleView->append(processedLine);
+			d->consoleView->appendPlainText(processedLine);
 		}
 		else {
 			d->appendANSICache(line, forceFlush);
