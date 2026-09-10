@@ -28,6 +28,17 @@ namespace YSSFileExt {
 	};
 	QMap<QString, YSSLangDocument*> YSSLangHighlighterPrivate::DocumentMap;
 
+	/*!
+		\class YSSFileExt::YSSLangHighlighter
+		\brief 通用语法高亮器基类：缓存当前主题、按样式键着色并渲染文档诊断。
+		\since YSS 0.16.0
+
+		参考 ASERStudio::YSS::LS_AStoryXSyntaxHighlighter 与 JsonLangHighlighter：
+		- 通过 onThemeChanged 缓存当前主题，用 setFormatWithColorKey 按样式键着色；
+		- 按文件路径维护共享的 YSSLangDocument，经 createError/Warning/InfoMessage 渲染诊断；
+		- 各语言派生类仅需实现 colorLine()（一行文本的着色逻辑）与传入各自的
+		  YSSLangAnalyzeFn 分析函数，即可获得完整的高亮 + 诊断能力。
+	*/
 	YSSLangHighlighter::YSSLangHighlighter(YSSCore::Editor::TextEdit* parent, YSSLangAnalyzeFn analyzeFn) :
 		SyntaxHighlighter(parent) {
 		d = new YSSLangHighlighterPrivate();

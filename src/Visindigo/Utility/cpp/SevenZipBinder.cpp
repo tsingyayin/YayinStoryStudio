@@ -1,3 +1,4 @@
+#include <QtCore/qfile.h>
 #include <QtCore/qprocess.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qstringlist.h>
@@ -218,5 +219,16 @@ namespace Visindigo::Utility {
 	*/
 	bool SevenZipBinder::isBusy() const {
 		return d->exeProcess->state() == QProcess::Running;
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		检查压缩功能是否可用。
+
+		请注意，这个函数只是单纯检查目标文件是否存在，如果设置的是无效的7za.exe路径，或者7za.exe无法正常运行，
+		这个函数也不会检测到。请确保7za.exe是可执行的，并且在调用压缩或解压函数之前已经绑定了正确的路径。
+	*/
+	bool SevenZipBinder::isValid() const {
+		return QFile::exists(d->exePath);
 	}
 }

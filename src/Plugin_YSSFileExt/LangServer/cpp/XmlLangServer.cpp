@@ -278,6 +278,11 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	// XmlLangHighlighter
 	// ---------------------------------------------------------------------------
+	/*!
+		\class YSSFileExt::XmlLangHighlighter
+		\brief XML 语法高亮器：按主题样式着色 XML 单元（标签、属性、注释、CDATA 等）。
+		\since YSS 0.16.0
+	*/
 	XmlLangHighlighter::XmlLangHighlighter(YSSCore::Editor::TextEdit* parent) :
 		YSSLangHighlighter(parent, &analyzeXmlLines) {}
 
@@ -432,6 +437,14 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	// XmlLangServer
 	// ---------------------------------------------------------------------------
+	/*!
+		\class YSSFileExt::XmlLangServer
+		\brief XML 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 XML 语法诊断。
+		\since YSS 0.16.0
+
+		参考 JsonLangServer：加载 Visindigo 2024 静态颜色主题并跟随程序主题切换；
+		通过共享的 YSSLangHighlighter / YSSLangDocument 提供高亮与诊断。
+	*/
 	XmlLangServer::XmlLangServer(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::LangServer("YSS File Extension XML Language Server",
 			"YSSFileExt_Xml", plugin, "Xml", { "xml" }) {

@@ -34,15 +34,34 @@ namespace Visindigo::General {
 			FromMemory,
 			MainPlugin
 		};
+		enum class Permission : quint64{
+			Unknown = 0x00000000,
+			FileRead = 0x00000001,
+			FileWrite = 0x00000002,
+			NetworkLocal = 0x00000004,
+			Network = 0x00000008,
+			NetworkCellular = 0x00000010,
+			Bluetooth = 0x00000020,
+			Audio = 0x00000040,
+			Location = 0x00000080,
+			LaunchExternal = 0x00000100,
+			ModifySystemSettings = 0x00000200,
+			RunAnyCommand = 0x00000400,
+			ScreenCapture = 0x00000800,
+			BackgroundService = 0x00001000,
+			Camera = 0x00002000,
+			Microphone = 0x00004000,
+			Clipboard = 0x00008000,
+			CrossPluginAccess = 0x00010000,
+			ProcessAccess = 0x00020000,
+		};
+		Q_ENUM(Permission);
+		Q_DECLARE_FLAGS(Permissions, Permission)
 	public:
 		Plugin(const QString& id, Visindigo::General::Version apiVersion = Compiled_VIAPI_Version, Visindigo::General::Version abiVersion = Compiled_VIABI_Version, QString extensionID = "Visindigo_Base", QObject* parent = nullptr);
 		virtual ~Plugin();
 		void setTestEnable();
 		bool isTestEnable() const;
-		virtual void onPluginEnable() {};
-		virtual void onTest() {};
-		virtual void onApplicationInit() {};
-		virtual void onPluginDisable() {};
 		QString getPluginID() const;
 		QString getPluginName() const;
 		QString getPluginNameI18N() const;
@@ -63,9 +82,17 @@ namespace Visindigo::General {
 		Visindigo::General::Version getPluginABIVersion() const;
 		Visindigo::General::Version getPluginAPIVersion() const;
 		QString getPluginExtensionID() const;
-		Logger* getLogger() const;
+		bool hasPermission(Permission perm);
+		Logger* getLogger() const; 
+		Permissions getRequiredPermissions();
+	public:
+		virtual void onPluginEnable() {};
+		virtual void onTest() {};
+		virtual void onApplicationInit() {};
+		virtual void onPluginDisable() {};
 		virtual QWidget* getConfigWidget();
 	protected:
+		void setRequiredPermissions(Permissions perms);
 		void setPluginVersion(const Visindigo::General::Version& version);
 		void setPluginName(const QString& name);
 		void setPluginAuthor(const QStringList& author);
@@ -74,11 +101,10 @@ namespace Visindigo::General {
 		void unregisterPluginModule(PluginModule* module);
 		void registerColorScheme(const QString& schemeFilePath);
 		void registerStyleTemplate(const QString& templateFilePath);
-	public:
-		virtual QWidget* getPluginSettingsWidget(QWidget* parent = nullptr) { return nullptr; };
 	protected:
 		Visindigo::__Private__::PluginPrivate* d;
 	};
+	Q_DECLARE_OPERATORS_FOR_FLAGS(Plugin::Permissions)
 }
 
 #define Visindigo_PluginMain_Function_Name "VisindigoPluginMain"

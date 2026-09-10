@@ -155,14 +155,15 @@ namespace Visindigo::Utility {
 	}
 
 	// 空闲不足时批量新建 count 个对象加入空闲池（不超过 MaxSize 上限）。
+	// 注意：对象一律以 new 创建，因此回收侧统一用 delete 释放（不可改成 malloc + placement new，
+	// 否则对 malloc 块内部的元素调用 delete 会破坏堆）。
 	template <Reusable T>
 	void ObjectPool<T>::grow(qint32 count) {
 		const qint32 total = (qint32)(Available.size() + Borrowed.size());
 		const qint32 room = qMax<qint32>(0, MaxSize - total);
 		count = qMin<qint32>(count, room);
-		T* dummy = malloc(sizeof(T) * count);
 		for (qint32 i = 0; i < count; ++i) {
-			Available.enqueue(new(dummy[i]) T());
+			Available.enqueue(new T());
 		}
 	}
 

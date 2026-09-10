@@ -18,6 +18,13 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	// JsonLangDiagnosticData
 	// ---------------------------------------------------------------------------
+	/*!
+		\class YSSFileExt::JsonLangDiagnosticData
+		\brief 一条 JSON 语法诊断信息（行、列、长度、类型、消息与修复建议）。
+		\since YSS 0.16.0
+
+		模仿 ASERStudio::AStorySyntax::AStoryXDiagnosticData 的简单值类型。
+	*/
 	JsonLangDiagnosticData::JsonLangDiagnosticData() {}
 	JsonLangDiagnosticData::JsonLangDiagnosticData(const QString& message, qint32 line, qint32 column, qint32 length,
 		DiagnosticType type, const QString& fixAdvice) :
@@ -39,6 +46,27 @@ namespace YSSFileExt {
 			|| (c >= QLatin1Char('A') && c <= QLatin1Char('F'));
 	}
 
+	/*!
+		\enum YSSFileExt::JsonTokenType
+		\brief JSON 词法单元类型。
+		\since YSS 0.16.0
+	*/
+
+	/*!
+		\struct YSSFileExt::JsonToken
+		\brief 一个 JSON 词法单元，含类型、文本及（行、列、长度）位置。
+		\since YSS 0.16.0
+	*/
+
+	/*!
+		\fn QList<JsonToken> YSSFileExt::lexJsonLine(const QString& line, qint32 baseLine, QList<JsonLangDiagnosticData>* diagnostics)
+		\brief 对一行 JSON 文本进行词法分析。
+		\since YSS 0.16.0
+
+		\a line 待分析的单行文本；\a baseLine 该行在文档中的 0-based 行号。
+		\a diagnostics 非空时，将词法级错误（未闭合字符串、无效数字等）追加到其中。
+		\return 该行的词法单元列表（不含 EndOfFile）。
+	*/
 	QList<JsonToken> lexJsonLine(const QString& line, qint32 baseLine, QList<JsonLangDiagnosticData>* diagnostics) {
 		QList<JsonToken> tokens;
 		auto addDiag = [&](const QString& msg, qint32 col, qint32 len, JsonLangDiagnosticData::DiagnosticType type) {
@@ -489,6 +517,16 @@ namespace YSSFileExt {
 					QStringLiteral("多余的内容：%1").arg(describeToken(t)), t,
 					QStringLiteral("JSON 顶层只能有一个值"));
 			}
+	/*!
+		\class YSSFileExt::JsonLangDocument
+		\brief 对整个 JSON 文档的封装：维护行内容、进行全文档语法分析并存储逐行诊断。
+		\since YSS 0.16.0
+
+		参考 ASERStudio::AStorySyntax::AStoryXDocument：由 SyntaxHighlighter 在
+		onBlockChanged 中调用 onSyntaxHighlighter 更新行内容，解析采用防抖定时器
+		延迟到事件循环，完成后发出 contentChanged 信号，供 Highlighter 重新着色并
+		渲染诊断消息。
+	*/
 			checkBracketBalance(tokens, diagnostics);
 		}
 	}

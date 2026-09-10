@@ -30,6 +30,7 @@ namespace Visindigo::Utility {
 		bool compressFilesToZip(const QStringList& filePaths, const QString& arcPath, CompressFormat format = zip, const QString& password = ""); // filePaths could be one folder, will compress the whole folder
 		bool decompressFile(const QString& arcPath, const QString& outputPath, CompressFormat format = zip, const QString& password = "");
 		bool isBusy() const;
+		bool isValid() const;
 	private:
 		SevenZipBinderPrivate* d;
 	};

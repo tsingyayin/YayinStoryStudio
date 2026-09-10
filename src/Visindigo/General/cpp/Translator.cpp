@@ -3,7 +3,6 @@
 #include <QtCore/qtextstream.h>
 #include "General/Log.h"
 #include "General/private/Translator_p.h"
-#include "Utility/JsonDocument.h"
 
 namespace Visindigo::__Private__ {
 	bool TranslatorPrivate::loadDefault() {

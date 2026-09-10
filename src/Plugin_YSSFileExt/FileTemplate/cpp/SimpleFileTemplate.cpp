@@ -30,6 +30,14 @@ namespace YSSFileExt {
 		QPushButton* CreateButton = nullptr;
 	};
 
+	/*!
+		\class YSSFileExt::SimpleFileTemplateInitWidget
+		\brief 极简新建文件初始化控件：输入文件名，在目标文件夹创建指定扩展名的空文件。
+		\since YSS 0.16.0
+
+		参考 ASERStudio::YSS::FileTemplateInitWidget_AStoryX，但不使用 ConfigWidget，
+		仅提供一个文件名输入框与创建按钮。创建成功后发出 filePrepared 信号。
+	*/
 	SimpleFileTemplateInitWidget::SimpleFileTemplateInitWidget(const QString& initFolder, const QString& extension, QWidget* parent)
 		: YSSCore::Editor::FileTemplateInitWidget(initFolder, parent) {
 		d = new SimpleFileTemplateInitWidgetPrivate;
@@ -103,6 +111,11 @@ namespace YSSFileExt {
 		delete d;
 	}
 
+	/*!
+		\class YSSFileExt::SimpleFileTemplateProvider
+		\brief 基于 SimpleFileTemplateInitWidget 的通用空文件模板提供者。
+		\since YSS 0.16.0
+	*/
 	SimpleFileTemplateProvider::SimpleFileTemplateProvider(YSSCore::Editor::EditorPlugin* plugin,
 		const QString& name, const QString& id, const QString& templateID,
 		const QString& templateName, const QString& description, const QStringList& tags, const QString& extension) :

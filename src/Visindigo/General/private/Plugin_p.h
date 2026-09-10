@@ -34,6 +34,7 @@ namespace Visindigo::__Private__ {
 		Visindigo::Utility::JsonConfig Config;
 		QList<Visindigo::General::PluginModule*> Modules;
 		Visindigo::General::Logger* Logger = nullptr;
+		Visindigo::General::Plugin::Permissions RequiredPermissions;
 		QMap<QString, Visindigo::General::PluginModule*> ModuleIDMap;
 		QMap<QString, QList<Visindigo::General::PluginModule*>> ModuleTypeIDMap;
 	protected:

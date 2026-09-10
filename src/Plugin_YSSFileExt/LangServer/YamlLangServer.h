@@ -17,25 +17,12 @@
 #include "LangServer/YSSLangHighlighter.h"
 
 namespace YSSFileExt {
-	/*!
-		\class YSSFileExt::YamlLangServer
-		\brief YAML 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 YAML 语法诊断。
-		\since YSS 0.16.0
-
-		参考 JsonLangServer：加载 Visindigo 2024 静态颜色主题并跟随程序主题切换；
-		通过共享的 YSSLangHighlighter / YSSLangDocument 提供高亮与诊断。
-	*/
 	class YamlLangServer :public YSSCore::Editor::LangServer {
 	public:
 		YamlLangServer(YSSCore::Editor::EditorPlugin* plugin);
 		virtual YSSCore::Editor::SyntaxHighlighter* createHighlighter(YSSCore::Editor::TextEdit* doc) override;
 	};
 
-	/*!
-		\class YSSFileExt::YamlLangHighlighter
-		\brief YAML 语法高亮器：按主题样式着色 YAML 单元（键、字符串、注释、锚点等）。
-		\since YSS 0.16.0
-	*/
 	class YamlLangHighlighter :public YSSLangHighlighter {
 	public:
 		YamlLangHighlighter(YSSCore::Editor::TextEdit* parent);

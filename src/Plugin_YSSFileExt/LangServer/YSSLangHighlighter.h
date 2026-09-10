@@ -18,37 +18,26 @@
 
 namespace YSSFileExt {
 	class YSSLangHighlighterPrivate;
-	/*!
-		\class YSSFileExt::YSSLangHighlighter
-		\brief 通用语法高亮器基类：缓存当前主题、按样式键着色并渲染文档诊断。
-		\since YSS 0.16.0
-
-		参考 ASERStudio::YSS::LS_AStoryXSyntaxHighlighter 与 JsonLangHighlighter：
-		- 通过 onThemeChanged 缓存当前主题，用 setFormatWithColorKey 按样式键着色；
-		- 按文件路径维护共享的 YSSLangDocument，经 createError/Warning/InfoMessage 渲染诊断；
-		- 各语言派生类仅需实现 colorLine()（一行文本的着色逻辑）与传入各自的
-		  YSSLangAnalyzeFn 分析函数，即可获得完整的高亮 + 诊断能力。
-	*/
 	class YSSLangHighlighter :public YSSCore::Editor::SyntaxHighlighter {
 		Q_OBJECT;
 	public:
 		YSSLangHighlighter(YSSCore::Editor::TextEdit* parent, YSSLangAnalyzeFn analyzeFn);
 		virtual ~YSSLangHighlighter();
-		/*! 各语言实现：按样式键为一行文本着色。 */
+		// 各语言实现：按样式键为一行文本着色。
 		virtual void colorLine(const QString& text) = 0;
-		/*! 用当前主题的指定样式键对 [start, start+count) 着色。 */
+		// 用当前主题的指定样式键对 [start, start+count) 着色。
 		void setFormatWithColorKey(int start, int count, const QString& styleKey);
-		/*! 渲染指定行（0-based）的文档诊断。 */
+		// 渲染指定行（0-based）的文档诊断。
 		void renderDiagnostics(qint32 blockNumber);
-		/*! 渲染单条诊断（按严重级别转为错误/警告/信息消息）。 */
+		// 渲染单条诊断（按严重级别转为错误/警告/信息消息）。
 		void renderDiagnostic(const YSSLangDiagnosticData& diagnostic);
-		/*! 按文件路径设置共享文档（Highlighter 构造时调用）。 */
+		// 按文件路径设置共享文档（Highlighter 构造时调用）。
 		static void setDocument(const QString& filePath, YSSLangDocument* doc);
-		/*! 删除文件路径对应的共享文档（Highlighter 析构时调用）。 */
+		// 删除文件路径对应的共享文档（Highlighter 析构时调用）。
 		static void deleteDocument(const QString& filePath);
-		/*! 文件重命名时迁移共享文档。 */
+		// 文件重命名时迁移共享文档。
 		static void renameDocument(const QString& oldFilePath, const QString& newFilePath);
-		/*! 获取文件路径对应的共享文档，不存在时返回 nullptr。 */
+		// 获取文件路径对应的共享文档，不存在时返回 nullptr。
 		static YSSLangDocument* getDocument(const QString& filePath);
 	protected:
 		virtual void onBlockChanged(const QString& text, int blockNumber) override;

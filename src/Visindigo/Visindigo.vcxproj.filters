@@ -29,9 +29,6 @@
     <ClCompile Include="Utility\cpp\JsonConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\JsonDocument.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -206,12 +203,12 @@
     <ClCompile Include="Utility\cpp\ConsoleFormat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\PluginPermission.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\JsonDocument.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\JsonValueRef.h">
@@ -460,6 +457,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\IconFontRouter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\PluginPermission.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

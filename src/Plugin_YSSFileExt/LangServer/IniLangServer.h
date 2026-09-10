@@ -17,25 +17,12 @@
 #include "LangServer/YSSLangHighlighter.h"
 
 namespace YSSFileExt {
-	/*!
-		\class YSSFileExt::IniLangServer
-		\brief INI 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 INI 语法诊断。
-		\since YSS 0.16.0
-
-		参考 JsonLangServer：加载 Visindigo 2024 静态颜色主题并跟随程序主题切换；
-		通过共享的 YSSLangHighlighter / YSSLangDocument 提供高亮与诊断。
-	*/
 	class IniLangServer :public YSSCore::Editor::LangServer {
 	public:
 		IniLangServer(YSSCore::Editor::EditorPlugin* plugin);
 		virtual YSSCore::Editor::SyntaxHighlighter* createHighlighter(YSSCore::Editor::TextEdit* doc) override;
 	};
 
-	/*!
-		\class YSSFileExt::IniLangHighlighter
-		\brief INI 语法高亮器：按主题样式着色 INI 单元（节、键、值、注释）。
-		\since YSS 0.16.0
-	*/
 	class IniLangHighlighter :public YSSLangHighlighter {
 	public:
 		IniLangHighlighter(YSSCore::Editor::TextEdit* parent);

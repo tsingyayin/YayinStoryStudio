@@ -13,9 +13,23 @@
 #include "LangServer/YSSLangDocument.h"
 
 namespace YSSFileExt {
+	/*!
+		\typedef YSSFileExt::YSSLangAnalyzeFn
+		\brief 全文档分析函数：输入文档全部行，产出诊断列表，由各语言提供。
+		\since YSS 0.16.0
+	*/
+
 	// ---------------------------------------------------------------------------
 	// YSSLangDiagnosticData
 	// ---------------------------------------------------------------------------
+	/*!
+		\class YSSFileExt::YSSLangDiagnosticData
+		\brief 一条通用语法诊断信息（行、列、长度、严重级别、代码与修复建议）。
+		\since YSS 0.16.0
+
+		供 YAMLLangServer / XMLLangServer / TOMLLangServer / iniLangServer
+		共同使用的简单值类型，模仿 ASERStudio::AStorySyntax::AStoryXDiagnosticData。
+	*/
 	YSSLangDiagnosticData::YSSLangDiagnosticData() {}
 	YSSLangDiagnosticData::YSSLangDiagnosticData(const QString& message, qint32 line, qint32 column, qint32 length,
 		Severity severity, const QString& code, const QString& fixAdvice) :
@@ -46,6 +60,16 @@ namespace YSSFileExt {
 		}
 	};
 
+	/*!
+		\class YSSFileExt::YSSLangDocument
+		\brief 通用语言文档：维护行内容、防抖全文档分析并存储逐行诊断。
+		\since YSS 0.16.0
+
+		参考 JsonLangDocument：由 SyntaxHighlighter 在 onBlockChanged 中调用
+		onSyntaxHighlighter 更新行内容，解析采用防抖定时器延迟到事件循环，
+		完成后发出 contentChanged 信号，供 Highlighter 重新着色并渲染诊断消息。
+		各语言通过构造函数传入的 YSSLangAnalyzeFn 提供自己的分析逻辑。
+	*/
 	YSSLangDocument::YSSLangDocument(YSSLangAnalyzeFn analyzeFn, QObject* parent) : QObject(parent) {
 		d = new YSSLangDocumentPrivate();
 		d->q = this;

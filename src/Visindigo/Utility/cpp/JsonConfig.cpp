@@ -552,7 +552,7 @@ namespace Visindigo::Utility {
 		if (ok != nullptr) {
 			*ok = d->contains(key);
 		}
-		return d->getValue(key).toInt();
+		return d->getValue(key).toInteger();
 	}
 
 	/*!

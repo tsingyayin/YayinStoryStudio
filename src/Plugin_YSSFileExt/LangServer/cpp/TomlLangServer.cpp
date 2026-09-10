@@ -348,6 +348,11 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	// TomlLangHighlighter
 	// ---------------------------------------------------------------------------
+	/*!
+		\class YSSFileExt::TomlLangHighlighter
+		\brief TOML 语法高亮器：按主题样式着色 TOML 单元（表头、键、字符串、数字等）。
+		\since YSS 0.16.0
+	*/
 	TomlLangHighlighter::TomlLangHighlighter(YSSCore::Editor::TextEdit* parent) :
 		YSSLangHighlighter(parent, &analyzeTomlLines) {}
 
@@ -392,6 +397,14 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	// TomlLangServer
 	// ---------------------------------------------------------------------------
+	/*!
+		\class YSSFileExt::TomlLangServer
+		\brief TOML 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 TOML 语法诊断。
+		\since YSS 0.16.0
+
+		参考 JsonLangServer：加载 Visindigo 2024 静态颜色主题并跟随程序主题切换；
+		通过共享的 YSSLangHighlighter / YSSLangDocument 提供高亮与诊断。
+	*/
 	TomlLangServer::TomlLangServer(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::LangServer("YSS File Extension TOML Language Server",
 			"YSSFileExt_Toml", plugin, "Toml", { "toml" }) {

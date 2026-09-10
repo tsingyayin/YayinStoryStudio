@@ -128,6 +128,7 @@
     <ClCompile Include="General\cpp\PluginBinaryHelper.cpp" />
     <ClCompile Include="General\cpp\PluginManager.cpp" />
     <ClCompile Include="General\cpp\PluginModule.cpp" />
+    <ClCompile Include="General\cpp\PluginPermission.cpp" />
     <ClCompile Include="General\cpp\StacktraceHelper.cpp" />
     <ClCompile Include="General\cpp\TickObject.cpp" />
     <ClCompile Include="General\cpp\VIApplication.cpp" />
@@ -176,7 +177,6 @@
     <ClCompile Include="Utility\cpp\ExtTool.cpp" />
     <ClCompile Include="Utility\cpp\FileUtility.cpp" />
     <ClCompile Include="Utility\cpp\JsonConfig.cpp" />
-    <ClCompile Include="Utility\cpp\JsonDocument.cpp" />
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
@@ -196,6 +196,7 @@
     <QtMoc Include="General\Placeholder.h" />
     <ClInclude Include="General\Package.h" />
     <QtMoc Include="General\PluginBinaryHelper.h" />
+    <QtMoc Include="General\PluginPermission.h" />
     <ClInclude Include="General\private\Plugin_p.h" />
     <ClInclude Include="General\private\VIApplication_p.h" />
     <QtMoc Include="General\private\VIGeneral_p.h" />
@@ -268,7 +269,6 @@
     <ClInclude Include="Utility\Console.h" />
     <ClInclude Include="Utility\ExtTool.h" />
     <QtMoc Include="Utility\JsonConfig.h" />
-    <ClInclude Include="Utility\JsonDocument.h" />
     <ClInclude Include="Utility\JsonValueRef.h" />
   </ItemGroup>
   <ItemGroup>

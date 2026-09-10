@@ -8,6 +8,7 @@
 #include "General/Plugin.h"
 #include "General/PluginManager.h"
 #include "General/PluginModule.h"
+#include "General/PluginPermission.h"
 #include "General/private/Plugin_p.h"
 #include "General/TranslationHost.h"
 #include "General/Version.h"
@@ -203,6 +204,14 @@ namespace Visindigo::General {
 		
 		任何执行插件函数过程中遭遇的异常都会导致Visindigo直接崩溃。
 
+		\section1 约定权限系统
+		Visindigo的插件系统约定了一个权限系统，以便为部分敏感操作的权限设置统一控制接口。不过我们必须指出，
+		由于Visindigo/Qt开发是开放且自由的，因此Visindigo无法保证任何插件都严格遵循其声明的权限来规范自身行为，
+		也无法保证任何插件都不会绕过Visindigo的权限系统执行敏感操作——本质上，只要插件愿意，它们可以干任何事情。
+
+		因此，Visindigo的权限系统仅仅是一个约定，旨在为插件开发者提供一个统一的接口来声明和检查权限，以给予用户
+		更多的控制权。我们提倡所有插件开发者都遵循这个约定，以便为用户提供一个更安全的插件生态环境。如果Visindigo
+		后期开放在线插件市场或其他类似的软件源平台，则不遵守此约定的插件将无法在这些平台上发布。
 
 	*/
 
@@ -214,6 +223,29 @@ namespace Visindigo::General {
 		\value FromMemory 插件是从内存加载的，即应用程序在编译时直接链接的插件，这些插件在
 			VIApplication::getPackages()中可用。这个函数不会返回主插件。
 		\value MainPlugin 插件是作为应用程序的主插件加载的，这插件在VIApplication::getMainPlugin()中可用
+	*/
+
+	/*!
+		\enum Visindigo::General::Plugin::Permission
+		\since Visindigo 0.17.0
+		\value FileRead 读取外部文件。相对的，内部指的是插件配置文件夹、插件二进制文件夹和当前项目目录。
+		\value FileWrite 写入外部文件。相对的，内部指的是插件配置文件夹、插件二进制文件夹和当前项目目录。
+		\value NetworkLocal 访问本地网络资源，严格指localhost，以及所在局域网的内部资源。
+		\value Network 访问网络资源，包括互联网和本地网络资源。
+		\value NetworkCellular 允许通过蜂窝网络访问网络资源。
+		\value Bluetooth 访问蓝牙资源。
+		\value Audio 在设备上播放音频。
+		\value Location 访问设备的位置信息。
+		\value LaunchExternal 启动任何外部应用，这里主要指启动带有GUI的可执行文件。
+		\value ModifySystemSettings 修改系统设置，包括以任何方式改动系统配置文件、注册表、系统服务等。
+		\value RunAnyCommand 启动任何外部命令，主要指非GUI的命令行程序或脚本。
+		\value ScreenCapture 尝试截取屏幕内容或任何窗口的内容。
+		\value BackgroundService 在后台运行与插件本体生命周期不同步的服务或线程，泛指一切后台进程、系统服务或其他可能脱离Visindigo生命周期的程序。
+		\value Camera 访问设备的摄像头。
+		\value Microphone 访问设备的麦克风。
+		\value Clipboard 访问设备的剪贴板。
+		\value CrossPluginAccess 访问其他插件的资源或数据。这是FileRead/FileWrite的特例。没有此权限，即使有FileRead/FileWrite权限，也不应访问其他插件的资源或数据。
+		\value ProcessAccess 以任何手段访问非应用进程的资源或数据。
 	*/
 
 	/*!
@@ -545,6 +577,41 @@ namespace Visindigo::General {
 	*/
 	Visindigo::General::Logger* Plugin::getLogger() const {
 		return d->Logger;
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		\a perm 被查询的权限。
+		return 本插件当前是否拥有该权限。
+
+		该函数是PluginPermissionManager::hasPermission的转发，且默认在未决定权限时
+		向用户发起询问。
+	*/
+	bool Plugin::hasPermission(Permission perm) {
+		return PluginPermissionManager::getInstance()->hasPermission(this, perm, true);
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		return 本插件声明的全部所需权限。
+
+		只有在这里声明过的权限才会被PluginPermissionManager检查，
+		因此插件应当在构造函数（或更早）通过setRequiredPermissions完整声明自己所需的权限，
+		以便用户在授权时能掌握插件的全部敏感行为。
+	*/
+	Plugin::Permissions Plugin::getRequiredPermissions() {
+		return d->RequiredPermissions;
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		\a perms 本插件所需的全部权限。
+
+		声明插件所需的全部权限。插件应当在启用前调用此函数，
+		对于未在此声明的权限，hasPermission一律返回false。
+	*/
+	void Plugin::setRequiredPermissions(Permissions perms) {
+		d->RequiredPermissions = perms;
 	}
 
 	/*!

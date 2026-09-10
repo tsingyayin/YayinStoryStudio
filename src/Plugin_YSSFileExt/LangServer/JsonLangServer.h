@@ -20,15 +20,6 @@
 
 namespace YSSFileExt {
 	class JsonLangServerPrivate;
-	/*!
-		\class YSSFileExt::JsonLangServer
-		\brief JSON 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 JSON 语法错误诊断。
-		\since YSS 0.16.0
-
-		参考 ASERStudio::YSS::AStoryXLanguageServer：
-		- 构造函数加载 Visindigo 2024 静态颜色主题，并跟随程序主题在 Light/Dark 间自动切换；
-		- 为每个文件路径维护一个共享的 JsonLangDocument，供 SyntaxHighlighter 使用。
-	*/
 	class JsonLangServer :public YSSCore::Editor::LangServer {
 	public:
 		JsonLangServer(YSSCore::Editor::EditorPlugin* plugin);
@@ -40,15 +31,6 @@ namespace YSSFileExt {
 	};
 
 	class JsonLangHighlighterPrivate;
-	/*!
-		\class YSSFileExt::JsonLangHighlighter
-		\brief JSON 语法高亮器：按主题样式着色 JSON 单元，并渲染 JsonLangDocument 产出的诊断消息。
-		\since YSS 0.16.0
-
-		参考 ASERStudio::YSS::LS_AStoryXSyntaxHighlighter：
-		- 通过 onThemeChanged 缓存当前主题，用 setFormatWithColorKey 按样式键着色；
-		- 通过 createError/Warning/InfoMessage 渲染诊断。
-	*/
 	class JsonLangHighlighter :public YSSCore::Editor::SyntaxHighlighter {
 		Q_OBJECT;
 	public:
