@@ -11,7 +11,9 @@
 	   features remain basically stable.
 */
 #include "FileTemplate/SimpleFileTemplate.h"
+#include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlineedit.h>
@@ -100,7 +102,14 @@ namespace YSSFileExt {
 				return;
 			}
 			// 创建空文件
-			Visindigo::Utility::FileUtility::saveLines(completePath, QStringList());
+			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveLines(completePath, QStringList());
+			if (saveResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to create file: " << completePath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+				QMessageBox::warning(this, VITRL("YSSFileExt::fileProvider.failed.title"),
+					VITRL("YSSFileExt::fileProvider.failed.text"));
+				return;
+			}
 			emit filePrepared(completePath);
 			close();
 		});

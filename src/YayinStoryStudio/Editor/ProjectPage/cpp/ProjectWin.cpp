@@ -18,6 +18,7 @@
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
 #include <General/YSSProject.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/MultiButton.h>
@@ -40,11 +41,20 @@ namespace YSS::ProjectPage {
 				QByteArray responseData = reply->readAll();
 				QString jsonStr = QString::fromUtf8(responseData);
 				jsonStr = jsonStr.replace("\r", "");
-				QString cacheStr = Visindigo::Utility::FileUtility::readAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache"));
-				if (jsonStr == cacheStr) {
-					QString content = Visindigo::Utility::FileUtility::readAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_content"));
-					if (not content.isEmpty()) {
-						NewsWidget->setMarkdown(content);
+				Visindigo::Utility::FileOperation::Errorable<QString> cacheResult = Visindigo::Utility::FileOperation::readAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache"));
+				if (not cacheResult) {
+					// 缓存不存在时视为与远端不一致，走下面的更新流程
+					if (cacheResult.error() != Visindigo::Utility::FileOperation::FileNotFound) {
+						yErrorF << "Failed to read news meta cache, error: " << Visindigo::Utility::FileOperation::errorCodeName(cacheResult.error());
+					}
+				}
+				else if (jsonStr == cacheResult.value()) {
+					Visindigo::Utility::FileOperation::Errorable<QString> contentResult = Visindigo::Utility::FileOperation::readAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_content"));
+					if (not contentResult) {
+						yErrorF << "Failed to read news content cache, error: " << Visindigo::Utility::FileOperation::errorCodeName(contentResult.error());
+					}
+					else if (not contentResult.value().isEmpty()) {
+						NewsWidget->setMarkdown(contentResult.value());
 					}
 					bool needUpdate = VIApp->getMainPlugin()->getPluginConfig()->getBool("Update.Needed");
 					QString latestVersion = VIApp->getMainPlugin()->getPluginConfig()->getString("Update.LatestVersion");
@@ -56,7 +66,10 @@ namespace YSS::ProjectPage {
 					reply->deleteLater();
 					return;
 				}
-				Visindigo::Utility::FileUtility::saveAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache"), jsonStr);
+				Visindigo::Utility::FileOperation::ErrorCode cacheSaveResult = Visindigo::Utility::FileOperation::saveAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache"), jsonStr);
+				if (cacheSaveResult != Visindigo::Utility::FileOperation::Success) {
+					yErrorF << "Failed to save news meta cache, error: " << Visindigo::Utility::FileOperation::errorCodeName(cacheSaveResult);
+				}
 				Visindigo::Utility::JsonConfig jsonConfig;
 				if (jsonConfig.parse(jsonStr).error == QJsonParseError::NoError) {
 					onNewsMetaGot(jsonConfig);
@@ -384,7 +397,10 @@ namespace YSS::ProjectPage {
 					QByteArray responseData = reply->readAll();
 					QString newsStr = QString::fromUtf8(responseData);
 					NewsWidget->setMarkdown(newsStr);
-					Visindigo::Utility::FileUtility::saveAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_content"), newsStr);
+					Visindigo::Utility::FileOperation::ErrorCode contentSaveResult = Visindigo::Utility::FileOperation::saveAll(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_content"), newsStr);
+					if (contentSaveResult != Visindigo::Utility::FileOperation::Success) {
+						yErrorF << "Failed to save news content cache, error: " << Visindigo::Utility::FileOperation::errorCodeName(contentSaveResult);
+					}
 					VIApp->getMainPlugin()->getPluginConfig()->setBool("Update.Needed", isUpdate);
 					VIApp->getMainPlugin()->getPluginConfig()->setString("Update.LatestVersion", metaVersion.toString());
 					if (isUpdate) {

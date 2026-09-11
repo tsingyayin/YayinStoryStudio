@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -176,6 +176,7 @@
     <ClCompile Include="Utility\cpp\DiffSequence.cpp" />
     <ClCompile Include="Utility\cpp\ExtTool.cpp" />
     <ClCompile Include="Utility\cpp\FileUtility.cpp" />
+    <ClCompile Include="Utility\cpp\FileOperation.cpp" />
     <ClCompile Include="Utility\cpp\JsonConfig.cpp" />
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="General\VirtualStorage.h" />
     <ClInclude Include="Utility\ColorTool.h" />
     <ClInclude Include="Utility\ConsoleFormat.h" />
+    <ClInclude Include="Utility\FileOperation.h" />
     <ClInclude Include="Utility\GeneralConfigParser.h" />
     <ClInclude Include="Utility\ObjectPool.h" />
     <ClInclude Include="Utility\private\GeneralConfig_p.h" />

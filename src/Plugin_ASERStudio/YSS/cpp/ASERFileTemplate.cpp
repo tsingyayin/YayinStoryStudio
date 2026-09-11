@@ -3,8 +3,10 @@
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qpushbutton.h>
+#include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <General/YSSProject.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/ConfigWidget.h>
@@ -30,7 +32,13 @@ namespace ASERStudio::YSS {
 		this->setMinimumWidth(800);
 		this->setWindowTitle(VITRL("ASERStudio::fileProvider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
-		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/FTP.json"));
+		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/FTP.json");
+		if (cwJsonResult) {
+			d->ConfigWidget->loadCWJson(cwJsonResult.value());
+		}
+		else {
+			vgErrorF << "Failed to read file template config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
+		}
 		d->ConfigWidget->setLineEditText("File.Path", getInitFolder());
 		d->Layout = new QVBoxLayout(this);
 		//d->Layout->setContentsMargins(0, 0, 0, 0);
@@ -90,7 +98,13 @@ namespace ASERStudio::YSS {
 				int ret = msgBox.exec();
 				return;
 			}
-			Visindigo::Utility::FileUtility::saveLines(completePath, fileContent);
+			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveLines(completePath, fileContent);
+			if (saveResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to create AStoryX file: " << completePath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+				QMessageBox::warning(this, VITRL("ASERStudio::fileProvider.failed.title"), VITRL("ASERStudio::fileProvider.failed.text"));
+				return;
+			}
 			emit filePrepared(completePath);
 			close();
 		}
@@ -104,8 +118,12 @@ namespace ASERStudio::YSS {
 	}
 
 	QStringList FileTemplateInitWidget_AStoryX::initFileV3() {
-		QStringList fileContent = Visindigo::Utility::FileUtility::readLines(":/resource/cn.yxgeneral.aserstudio/template/3.0/newFile.astoryx");
-		return fileContent;
+		Visindigo::Utility::FileOperation::Errorable<QStringList> contentResult = Visindigo::Utility::FileOperation::readLines(":/resource/cn.yxgeneral.aserstudio/template/3.0/newFile.astoryx");
+		if (not contentResult) {
+			vgErrorF << "Failed to read AStoryX template file, error: " << Visindigo::Utility::FileOperation::errorCodeName(contentResult.error());
+			return QStringList();
+		}
+		return contentResult.value();
 	}
 
 	void FileTemplateInitWidget_AStoryX::refreshWhereLabel() {

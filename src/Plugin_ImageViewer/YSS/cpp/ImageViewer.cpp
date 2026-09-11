@@ -4,7 +4,8 @@
 #include <QtWidgets/qgraphicsscene.h>
 #include <QtWidgets/qgraphicsview.h>
 #include <QtMath>
-#include <Utility/FileUtility.h>
+#include <General/Log.h>
+#include <Utility/FileOperation.h>
 #include "YSS/ImageViewer.h"
 
 namespace YSS::ImageViewer {
@@ -74,7 +75,13 @@ namespace YSS::ImageViewer {
 	}
 
 	bool ImageViewer::onOpen(const QString& filePath) {
-		d->RawContent = Visindigo::Utility::FileUtility::readByteArray(filePath);
+		Visindigo::Utility::FileOperation::Errorable<QByteArray> contentResult = Visindigo::Utility::FileOperation::readBinary(filePath);
+		if (not contentResult) {
+			vgErrorF << "Failed to read image file: " << filePath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(contentResult.error());
+			return false;
+		}
+		d->RawContent = contentResult.value();
 		d->Pixmap = QPixmap();
 		if (!d->Pixmap.loadFromData(d->RawContent)) {
 			return false;
@@ -99,7 +106,12 @@ namespace YSS::ImageViewer {
 	}
 
 	bool ImageViewer::onSave(const QString& filePath) {
-		Visindigo::Utility::FileUtility::saveByteArray(filePath, d->RawContent);
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveBinary(filePath, d->RawContent);
+		if (saveResult != Visindigo::Utility::FileOperation::Success) {
+			vgErrorF << "Failed to save image file: " << filePath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			return false;
+		}
 		return true;
 	}
 

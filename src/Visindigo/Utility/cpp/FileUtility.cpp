@@ -15,6 +15,7 @@
 #include <QtCore/qcryptographichash.h>
 #include <QtGui/qdesktopservices.h>
 #include "General/Log.h"
+#include "Utility/FileOperation.h"
 #include "Utility/FileUtility.h"
 #define VI_ENUMSTR(enumName, enumValue) case enumName::enumValue: return #enumValue;
 
@@ -22,6 +23,14 @@ namespace Visindigo::Utility {
 	class FileUtilityPrivate {
 		friend class FileUtility;
 	protected:
+		// 这些函数自0.17.0起只是转发到FileOperation，而旧API并不返回错误码，
+		// 因此在这里统一把失败记录到日志里。quietCodes中的错误码属于旧实现中本就静默的情形，不记录。
+		static void logIfFailed(const QString& action, const QString& path, FileOperation::ErrorCode code, const QList<FileOperation::ErrorCode>& quietCodes = {}) {
+			if (code == FileOperation::Success || quietCodes.contains(code)) {
+				return;
+			}
+			vgErrorF << "Failed to " << action << ": " << path << ", error: " << FileOperation::errorCodeName(code);
+		}
 		static QString getCountingUnitStr(FileUtility::CountingUnit c) {
 			switch (c)
 			{
@@ -71,6 +80,10 @@ namespace Visindigo::Utility {
 
 		总的来说，这里都是一些仅通过QDir、QFile、QFileInfo等文件系统相关类
 		实现的函数。
+
+		\warning 自0.17.0起，本类中涉及到实际读写、复制、移动和删除的函数已经废弃，
+		它们只是转发到 Visindigo::Utility::FileOperation 中对应的实现上。
+		FileOperation 通过 ErrorCode 报告错误，请优先使用那边的新函数。
 	*/
 
 	/*!
@@ -115,23 +128,17 @@ namespace Visindigo::Utility {
 		\a filePath 文件路径
 
 		return 以行列表的形式读取文件的内容。如果文件不存在或无法打开，则返回一个空列表。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::readLines()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只把错误记录到日志并返回空值。
 	*/
 	QStringList FileUtility::readLines(const QString& filePath) {
-		QFile file(filePath);
-		if (!file.exists()) {
+		FileOperation::Errorable<QStringList> result = FileOperation::readLines(filePath);
+		if (!result) {
+			FileUtilityPrivate::logIfFailed("read lines from", filePath, result.error(), { FileOperation::FileNotFound });
 			return QStringList();
 		}
-		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			return QStringList();
-		}
-		QTextStream ts(&file);
-		ts.setEncoding(QStringConverter::Utf8);
-		QStringList rtn;
-		while (!ts.atEnd()) {
-			rtn.append(ts.readLine());
-		}
-		file.close();
-		return rtn;
+		return result.value();
 	}
 
 	/*!
@@ -140,20 +147,17 @@ namespace Visindigo::Utility {
 
 		读取文件的所有内容。如果文件不存在或无法打开，则返回一个空字符串。
 		return 包含所有文本内容的QString。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::readAll()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只把错误记录到日志并返回空值。
 	*/
 	QString FileUtility::readAll(const QString& filePath) {
-		QFile file(filePath);
-		if (!file.exists()) {
+		FileOperation::Errorable<QString> result = FileOperation::readAll(filePath);
+		if (!result) {
+			FileUtilityPrivate::logIfFailed("read file", filePath, result.error(), { FileOperation::FileNotFound });
 			return QString();
 		}
-		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			return QString();
-		}
-		QTextStream ts(&file);
-		ts.setEncoding(QStringConverter::Utf8);
-		QString rtn = ts.readAll();
-		file.close();
-		return rtn;
+		return result.value();
 	}
 
 	/*!
@@ -162,18 +166,17 @@ namespace Visindigo::Utility {
 
 		读取文件的所有内容。如果文件不存在或无法打开，则返回一个空QByteArray。
 		return 包含所有内容的QByteArray。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::readBinary()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只把错误记录到日志并返回空值。
 	*/
 	QByteArray FileUtility::readByteArray(const QString& filePath) {
-		QFile file(filePath);
-		if (!file.exists()) {
+		FileOperation::Errorable<QByteArray> result = FileOperation::readBinary(filePath);
+		if (!result) {
+			FileUtilityPrivate::logIfFailed("read binary file", filePath, result.error(), { FileOperation::FileNotFound });
 			return QByteArray();
 		}
-		if (!file.open(QIODevice::ReadOnly)) {
-			return QByteArray();
-		}
-		QByteArray rtn = file.readAll();
-		file.close();
-		return rtn;
+		return result.value();
 	}
 
 	/*!
@@ -183,30 +186,12 @@ namespace Visindigo::Utility {
 		\a joinLine 行连接符
 
 		将QStringList保存到文件中
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::saveLines()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只把错误记录到日志。
 	*/
 	void FileUtility::saveLines(const QString& filePath, const QStringList& lines, const QString& joinLine) {
-		QFile file(filePath);
-		if (!file.exists()) {
-			QFileInfo fileInfo(file);
-			QString folder = fileInfo.absolutePath();
-			QDir dir;
-			if (!dir.exists(folder)) {
-				dir.mkpath(folder);
-			}
-			if (!file.open(QIODevice::NewOnly | QIODevice::Text)) {
-				vgErrorF << "Failed to open file, nothing saved: " << filePath;
-			}
-		}
-		else {
-			if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-				vgErrorF << "Failed to open file, nothing saved: " << filePath;
-			}
-		}
-		QString content = lines.join(joinLine);
-		QTextStream ts(&file);
-		ts.setEncoding(QStringConverter::Utf8);
-		ts << content;
-		file.close();
+		FileUtilityPrivate::logIfFailed("save lines to", filePath, FileOperation::saveLines(filePath, lines, joinLine));
 	}
 
 	/*!
@@ -215,57 +200,26 @@ namespace Visindigo::Utility {
 		\a data 需要保存的数据
 
 		将QString保存到文件中
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::saveAll()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只把错误记录到日志。
 	*/
 	void FileUtility::saveAll(const QString& filePath, const QString& data) {
-		QFile file(filePath);
-		if (!file.exists()) {
-			QFileInfo fileInfo(file);
-			QString folder = fileInfo.absolutePath();
-			QDir dir;
-			if (!dir.exists(folder)) {
-				dir.mkpath(folder);
-			}
-			if (!file.open(QIODevice::NewOnly | QIODevice::Text)) {
-				vgErrorF << "Failed to open file, nothing saved: " << filePath;
-			}
-		}
-		else {
-			if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-				vgErrorF << "Failed to open file, nothing saved: " << filePath;
-			}
-		}
-		QTextStream ts(&file);
-		ts.setEncoding(QStringConverter::Utf8);
-		ts << data;
-		file.close();
+		FileUtilityPrivate::logIfFailed("save file", filePath, FileOperation::saveAll(filePath, data));
 	}
+
 	/*!
 		\since Visindigo 0.13.0
 		\a filePath 文件路径
 		\a data 需要保存的数据
 
 		将QByteArray保存到文件中
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::saveBinary()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只把错误记录到日志。
 	*/
 	void FileUtility::saveByteArray(const QString& filePath, const QByteArray& data) {
-		QFile file(filePath);
-		if (!file.exists()) {
-			QFileInfo fileInfo(file);
-			QString folder = fileInfo.absolutePath();
-			QDir dir;
-			if (!dir.exists(folder)) {
-				dir.mkpath(folder);
-			}
-			if (!file.open(QIODevice::NewOnly)) {
-				vgErrorF << "Failed to open file, nothing saved: " << filePath;
-			}
-		}
-		else {
-			if (!file.open(QIODevice::WriteOnly)) {
-				vgErrorF << "Failed to open file, nothing saved: " << filePath;
-			}
-		}
-		file.write(data);
-		file.close();
+		FileUtilityPrivate::logIfFailed("save binary file", filePath, FileOperation::saveBinary(filePath, data));
 	}
 
 	/*!
@@ -533,18 +487,13 @@ namespace Visindigo::Utility {
 		\a moveToTrash 是否移动到回收站
 
 		删除指定文件，如果moveToTrash为true，则移动到回收站，否则直接删除。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::deleteFile()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只在失败时记录日志。
 	*/
 	void FileUtility::deleteFile(const QString& filePath, bool moveToTrash) {
-		QFile file(filePath);
-		if (!file.exists()) {
-			return;
-		}
-		if (moveToTrash) {
-			file.moveToTrash();
-		}
-		else {
-			file.remove();
-		}
+		FileUtilityPrivate::logIfFailed("delete file", filePath,
+			FileOperation::deleteFile(filePath, moveToTrash), { FileOperation::FileNotFound });
 	}
 
 	/*!
@@ -562,40 +511,14 @@ namespace Visindigo::Utility {
 
 		这对于从qrc编译到二进制文件内的资源文件向外部复制时很有用，因为qrc资源文件会自动设为只读，
 		并且具有特殊的权限和属性，使用漂洗模式复制可以得到一个正常的可读写文件。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::copyFile()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只在失败时记录日志。
 	*/
 	void FileUtility::copyFile(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
-		QFile srcFile(srcPath);
-		if (!srcFile.exists()) {
-			return;
-		}
-		QFile dstFile(dstPath);
-		QFileInfo dstFileInfo(dstFile);
-		if (not dstFileInfo.absoluteDir().exists()) {
-			dstFileInfo.absoluteDir().mkpath(".");
-		}
-		if (dstFile.exists()) {
-			if (overwrite) {
-				dstFile.remove();
-			}
-			else {
-				return;
-			}
-		}
-		if (not rinse) {
-			srcFile.copy(dstPath);
-		}
-		else {
-			if (srcFile.open(QIODevice::ReadOnly)) {
-				QByteArray data = srcFile.readAll();
-				srcFile.close();
-				if (dstFile.open(QIODevice::WriteOnly)) {
-					dstFile.write(data);
-					dstFile.close();
-					return;
-				}
-			}
-			vgErrorF << "Failed to copy file: " << srcPath << " to " << dstPath;
-		}
+		FileUtilityPrivate::logIfFailed("copy file " + srcPath + " to", dstPath,
+			FileOperation::copyFile(srcPath, dstPath, rinse, overwrite),
+			{ FileOperation::FileNotFound, FileOperation::NameConflict });
 	}
 
 	/*!
@@ -609,38 +532,14 @@ namespace Visindigo::Utility {
 
 		当rinse为false时，使用QFile::rename()直接重命名移动；当rinse为true时，
 		先漂洗复制再删除源文件，适用于跨卷移动或需要剥离元数据的场景。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::moveFile()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只在失败时记录日志。
 	*/
 	void FileUtility::moveFile(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
-		QFile srcFile(srcPath);
-		if (!srcFile.exists()) {
-			return;
-		}
-		QFile dstFile(dstPath);
-		if (dstFile.exists()) {
-			if (overwrite) {
-				dstFile.remove();
-			}
-			else {
-				return;
-			}
-		}
-		if (not rinse) {
-			srcFile.rename(dstPath);
-		}
-		else {
-			// Rinse mode: copy then remove source
-			if (srcFile.open(QIODevice::ReadOnly)) {
-				QByteArray data = srcFile.readAll();
-				srcFile.close();
-				if (dstFile.open(QIODevice::WriteOnly)) {
-					dstFile.write(data);
-					dstFile.close();
-					srcFile.remove();
-					return;
-				}
-			}
-			vgErrorF << "Failed to move file: " << srcPath << " to " << dstPath;
-		}
+		FileUtilityPrivate::logIfFailed("move file " + srcPath + " to", dstPath,
+			FileOperation::moveFile(srcPath, dstPath, rinse, overwrite),
+			{ FileOperation::FileNotFound, FileOperation::NameConflict });
 	}
 
 	/*!
@@ -653,6 +552,9 @@ namespace Visindigo::Utility {
 		对于dirPath中的文件或目录，如果它们在exclude列表中，则不会被删除。
 
 		\note 此函数会递归删除目录中的所有文件和子目录，请谨慎使用。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::deleteDir()。
+		不过新函数没有exclude参数，所以这个函数仍然保留自己的实现，并没有重定向到FileOperation。
 	*/
 	void FileUtility::deleteDir(const QString& dirPath, const QStringList& exclude) {
 		QDir root(dirPath);
@@ -715,21 +617,14 @@ namespace Visindigo::Utility {
 		\a overwrite 是否覆盖已存在的目标文件
 
 		复制整个目录。此函数会遍历源目录中的所有文件，并对每个文件调用copyFile()。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::copyDir()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只在失败时记录日志。
 	*/
 	void FileUtility::copyDir(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
-		QDir srcDir(srcPath);
-		if (!srcDir.exists()) {
-			return;
-		}
-		QStringList files = fileFilter(srcPath, QStringList() << "*", true);
-		for (const QString& srcFilePath : files) {
-			QString relativePath = srcDir.relativeFilePath(srcFilePath);
-			QString dstFilePath = QDir(dstPath).absoluteFilePath(relativePath);
-			// Ensure destination subdirectory exists
-			QFileInfo dstFileInfo(dstFilePath);
-			createDir(dstFileInfo.absolutePath());
-			copyFile(srcFilePath, dstFilePath, rinse, overwrite);
-		}
+		FileUtilityPrivate::logIfFailed("copy directory " + srcPath + " to", dstPath,
+			FileOperation::copyDir(srcPath, dstPath, rinse, overwrite),
+			{ FileOperation::FileNotFound, FileOperation::DirNotFound, FileOperation::NameConflict });
 	}
 
 	/*!
@@ -741,23 +636,14 @@ namespace Visindigo::Utility {
 
 		移动整个目录。此函数会遍历源目录中的所有文件，并对每个文件调用moveFile()。
 		移动完成后会删除空的源目录结构。
+
+		\warning 自0.17.0起，此函数已废弃，改用 Visindigo::Utility::FileOperation::moveDir()。
+		新函数通过返回值报告错误，而这个函数为了兼容旧行为，只在失败时记录日志。
 	*/
 	void FileUtility::moveDir(const QString& srcPath, const QString& dstPath, bool rinse, bool overwrite) {
-		QDir srcDir(srcPath);
-		if (!srcDir.exists()) {
-			return;
-		}
-		QStringList files = fileFilter(srcPath, QStringList() << "*", true);
-		for (const QString& srcFilePath : files) {
-			QString relativePath = srcDir.relativeFilePath(srcFilePath);
-			QString dstFilePath = QDir(dstPath).absoluteFilePath(relativePath);
-			// Ensure destination subdirectory exists
-			QFileInfo dstFileInfo(dstFilePath);
-			createDir(dstFileInfo.absolutePath());
-			moveFile(srcFilePath, dstFilePath, rinse, overwrite);
-		}
-		// Remove the now-empty source directory tree
-		srcDir.removeRecursively();
+		FileUtilityPrivate::logIfFailed("move directory " + srcPath + " to", dstPath,
+			FileOperation::moveDir(srcPath, dstPath, rinse, overwrite),
+			{ FileOperation::FileNotFound, FileOperation::DirNotFound, FileOperation::NameConflict });
 	}
 
 	/*!

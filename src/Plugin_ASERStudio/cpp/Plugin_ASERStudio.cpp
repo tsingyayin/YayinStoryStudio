@@ -3,6 +3,7 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/StringUtility.h>
 #include <Widgets/ConfigWidget.h>
@@ -76,7 +77,13 @@ namespace ASERStudio {
 		registerFileServer(new YSS::FileServer_ASRuleJson(this));
 		registerDebugServer(new YSS::DS_AStoryXDebugger(this));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
-		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json"));
+		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json");
+		if (cwJsonResult) {
+			d->ConfigWidget->loadCWJson(cwJsonResult.value());
+		}
+		else {
+			vgErrorF << "Failed to read plugin config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
+		}
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
 		vgDebug << getPluginFolder().filePath("config.json");
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, [this]() {
@@ -112,9 +119,14 @@ namespace ASERStudio {
 		vgDebug << paths;
 		for (auto path : paths) {
 			vgDebug << path;
-			QString content = Visindigo::Utility::FileUtility::readAll(path);
+			Visindigo::Utility::FileOperation::Errorable<QString> contentResult = Visindigo::Utility::FileOperation::readAll(path);
+			if (not contentResult) {
+				vgError << "Failed to read rule file:" << path
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(contentResult.error());
+				continue;
+			}
 			ASERStudio::AStorySyntax::AStoryXRule rule("default");
-			if (!rule.parseJson(content)) {
+			if (!rule.parseJson(contentResult.value())) {
 				vgError << "Failed to parse rule file:" << path;
 				continue;
 			}

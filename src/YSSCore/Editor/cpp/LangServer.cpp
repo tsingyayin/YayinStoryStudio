@@ -2,7 +2,9 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtGui/qsyntaxhighlighter.h>
+#include <General/Log.h>
 #include <General/Plugin.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include "Editor/ColorThemeProvider.h"
 #include "Editor/EditorPlugin.h"
@@ -23,7 +25,13 @@ namespace YSSCore::Editor {
 		void loadUserTheme() {
 			QStringList files = Visindigo::Utility::FileUtility::fileFilter(userThemeDir(), {"*.theme.json"}, false);
 			for (auto f : files) {
-				colorThemeProvider->parseUserThemeFrom(Visindigo::Utility::FileUtility::readAll(f));
+				Visindigo::Utility::FileOperation::Errorable<QString> themeResult = Visindigo::Utility::FileOperation::readAll(f);
+				if (not themeResult) {
+					vgWarningF << "Failed to read user color theme: " << f
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(themeResult.error());
+					continue;
+				}
+				colorThemeProvider->parseUserThemeFrom(themeResult.value());
 			}
 		}
 		void saveUserTheme(const QString& themeName) {
@@ -34,12 +42,20 @@ namespace YSSCore::Editor {
 			if (json.isEmpty()) {
 				return;
 			}
-			Visindigo::Utility::FileUtility::saveAll(
+			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(
 				userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegalFileName(themeName) + ".theme.json", json);
+			if (saveResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to save user color theme " << themeName
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			}
 		}
 		void deleteUserTheme(const QString& themeName) {
 			QString filePath = userThemeDir() + "/" + Visindigo::Utility::FileUtility::toLegalFileName(themeName) + ".theme.json";
-			Visindigo::Utility::FileUtility::deleteFile(filePath, false);
+			Visindigo::Utility::FileOperation::ErrorCode deleteResult = Visindigo::Utility::FileOperation::deleteFile(filePath, false);
+			if (deleteResult != Visindigo::Utility::FileOperation::Success && deleteResult != Visindigo::Utility::FileOperation::FileNotFound) {
+				vgErrorF << "Failed to delete user color theme: " << filePath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(deleteResult);
+			}
 		}
 		void setupUserThemeAutoSave() {
 			QObject::connect(colorThemeProvider, &ColorThemeProvider::themeAdded, q, [this](const QString& themeName) {

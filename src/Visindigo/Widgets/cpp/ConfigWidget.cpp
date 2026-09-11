@@ -16,7 +16,7 @@
 #include "General/Placeholder.h"
 #include "General/TranslationHost.h"
 #include "General/VIApplication.h"
-#include "Utility/FileUtility.h"
+#include "Utility/FileOperation.h"
 #include "Utility/JsonConfig.h"
 #include "Widgets/ConfigWidget.h"
 #include "Widgets/MultiLabel.h"
@@ -97,10 +97,17 @@ namespace Visindigo::__Private__ {
 	}
 
 	void ConfigWidgetPrivate::initConfig() {
-		QString config = Visindigo::Utility::FileUtility::readAll(TargetConfigPath);
 		Config = Visindigo::Utility::JsonConfig();
-		if (not config.isEmpty()) {
-			Config.parse(config);
+		Visindigo::Utility::FileOperation::Errorable<QString> configResult = Visindigo::Utility::FileOperation::readAll(TargetConfigPath);
+		if (not configResult) {
+			// 还没有配置文件属于正常情况，此时使用默认配置
+			if (configResult.error() != Visindigo::Utility::FileOperation::FileNotFound) {
+				vgErrorF << "Failed to read config: " << TargetConfigPath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(configResult.error());
+			}
+		}
+		else if (not configResult.value().isEmpty()) {
+			Config.parse(configResult.value());
 		}
 		if (not TargetConfigNode.isEmpty()) {
 			vgDebugF << "Loading config from" << TargetConfigPath << "node:" << TargetConfigNode;
@@ -206,18 +213,37 @@ namespace Visindigo::__Private__ {
 			if (config.isEmpty()) {
 				return;
 			}
-			Visindigo::Utility::FileUtility::saveAll(TargetConfigPath, config);
+			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(TargetConfigPath, config);
+			if (saveResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to save config: " << TargetConfigPath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			}
 		}
 		else {
 			vgDebugF << "Saving config to" << TargetConfigPath << "node:" << TargetConfigNode;
 			Visindigo::Utility::JsonConfig rawConfig;
-			rawConfig.parse(Visindigo::Utility::FileUtility::readAll(TargetConfigPath));
+			Visindigo::Utility::FileOperation::Errorable<QString> rawResult = Visindigo::Utility::FileOperation::readAll(TargetConfigPath);
+			if (not rawResult) {
+				// 文件不存在时视为空配置继续写入，其余情况为了不覆盖读取失败的文件而直接返回
+				if (rawResult.error() != Visindigo::Utility::FileOperation::FileNotFound) {
+					vgErrorF << "Failed to read config: " << TargetConfigPath
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(rawResult.error());
+					return;
+				}
+			}
+			else {
+				rawConfig.parse(rawResult.value());
+			}
 			rawConfig.setObject(TargetConfigNode, Config);
 			QString config = rawConfig.toString();
 			if (config.isEmpty()) {
 				return;
 			}
-			Visindigo::Utility::FileUtility::saveAll(TargetConfigPath, config);
+			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(TargetConfigPath, config);
+			if (saveResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to save config: " << TargetConfigPath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			}
 		}
 	}
 

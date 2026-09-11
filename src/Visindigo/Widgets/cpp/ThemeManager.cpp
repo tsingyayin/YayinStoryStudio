@@ -12,6 +12,7 @@
 #include "General/Log.h"
 #include "General/Plugin.h"
 #include "General/VIApplication.h"
+#include "Utility/FileOperation.h"
 #include "Utility/FileUtility.h"
 #include "Utility/JsonConfig.h"
 #include "Widgets/StyleSheetTemplate.h"
@@ -488,7 +489,13 @@ namespace Visindigo::Widgets {
 		vgNoticeF << "Initializing";
 		d = new ThemeManagerPrivate();
 		d->DefaultColorScheme = new Visindigo::Utility::JsonConfig();
-		d->DefaultColorScheme->parse(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.visindigo/default/defaultTheme.json"));
+		Visindigo::Utility::FileOperation::Errorable<QString> defaultThemeResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.visindigo/default/defaultTheme.json");
+		if (defaultThemeResult) {
+			d->DefaultColorScheme->parse(defaultThemeResult.value());
+		}
+		else {
+			vgErrorF << "Failed to read default color scheme, error: " << Visindigo::Utility::FileOperation::errorCodeName(defaultThemeResult.error());
+		}
 		
 		QFontDatabase::addApplicationFont(":/resource/cn.yxgeneral.visindigo/Segoe Fluent Icons.ttf");
 		//d->ColorSchemes["#Default"] = d->DefaultColorScheme;
@@ -500,9 +507,20 @@ namespace Visindigo::Widgets {
 			d->Config->setArray("Templates", QStringList());
 			d->Config->setString("Theme", "Dark");
 			vgDebugF << d->Config->toString();
-			Visindigo::Utility::FileUtility::saveAll(d->ConfigPath + "/config.json", d->Config->toString());
+			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(d->ConfigPath + "/config.json", d->Config->toString());
+			if (saveResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to save theme config: " << d->ConfigPath + "/config.json"
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			}
 		}
-		d->Config->parse(Visindigo::Utility::FileUtility::readAll(d->ConfigPath + "/config.json"));
+		Visindigo::Utility::FileOperation::Errorable<QString> themeConfigResult = Visindigo::Utility::FileOperation::readAll(d->ConfigPath + "/config.json");
+		if (themeConfigResult) {
+			d->Config->parse(themeConfigResult.value());
+		}
+		else {
+			vgErrorF << "Failed to read theme config: " << d->ConfigPath + "/config.json"
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(themeConfigResult.error());
+		}
 		if (d->Config->contains("Schemes")) {
 			QStringList schemes = d->Config->getStringList("Schemes");
 			setColorSchemePriority(schemes);
@@ -671,9 +689,14 @@ namespace Visindigo::Widgets {
 		QStringList schemes = Visindigo::Utility::FileUtility::fileFilter(d->ConfigPath, { "*.json" }, true);
 
 		for (auto& name : templates) {
-			QString all = Visindigo::Utility::FileUtility::readAll(name);
+			Visindigo::Utility::FileOperation::Errorable<QString> templateResult = Visindigo::Utility::FileOperation::readAll(name);
+			if (not templateResult) {
+				vgWarningF << "Failed to read style template at path:" << name
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(templateResult.error());
+				continue;
+			}
 			StyleSheetTemplate templateSS;
-			if (templateSS.parse(all)) {
+			if (templateSS.parse(templateResult.value())) {
 				vgSuccess << "Loaded style template at path:" << name;
 				d->Templates[templateSS.getTemplateID()] = templateSS;
 			}
@@ -686,9 +709,14 @@ namespace Visindigo::Widgets {
 			if (name == info.absoluteFilePath()) {
 				continue; // skip config file
 			}
-			QString all = Visindigo::Utility::FileUtility::readAll(name);
+			Visindigo::Utility::FileOperation::Errorable<QString> schemeResult = Visindigo::Utility::FileOperation::readAll(name);
+			if (not schemeResult) {
+				vgWarningF << "Failed to read color scheme at path:" << name
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(schemeResult.error());
+				continue;
+			}
 			Visindigo::Utility::JsonConfig* json = new Visindigo::Utility::JsonConfig();
-			if (json->parse(all).error == QJsonParseError::NoError) {
+			if (json->parse(schemeResult.value()).error == QJsonParseError::NoError) {
 				if (!json->contains("SchemeID")) {
 					vgWarningF << "Color scheme at path:" << name << "does not contain SchemeID.";
 					delete json;
@@ -915,7 +943,11 @@ namespace Visindigo::Widgets {
 			d->CurrentThemeID = "Auto";
 		}
 		d->Config->setString("Theme", d->CurrentThemeID);
-		Visindigo::Utility::FileUtility::saveAll(d->ConfigPath + "/config.json", d->Config->toString());
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(d->ConfigPath + "/config.json", d->Config->toString());
+		if (saveResult != Visindigo::Utility::FileOperation::Success) {
+			vgErrorF << "Failed to save theme config: " << d->ConfigPath + "/config.json"
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+		}
 		this->changeColorTheme(d->CurrentThemeID);
 	}
 

@@ -65,6 +65,9 @@
     <ClCompile Include="Utility\cpp\FileUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Utility\cpp\FileOperation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -239,6 +242,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\FileUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\FileOperation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\AsyncFunction.h">

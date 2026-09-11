@@ -4,6 +4,7 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qset.h>
 #include <General/Log.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include "ASEREnv/ASERResourceMoniter.h"
@@ -34,36 +35,36 @@ namespace ASERStudio::ASEREnv {
 
 		static ASERResourceMoniter* Instance;
 
+		// 读取并解析一个json配置，返回解析是否成功。
+		// allowNotExist为true时，文件不存在属于正常情况，不记录日志，只返回false让调用方走降级分支。
+		bool tryParseJson(Visindigo::Utility::JsonConfig& config, const QString& path, bool allowNotExist = false) {
+			Visindigo::Utility::FileOperation::Errorable<QString> result = Visindigo::Utility::FileOperation::readAll(path);
+			if (not result) {
+				if (not (allowNotExist && result.error() == Visindigo::Utility::FileOperation::FileNotFound)) {
+					vgErrorF << "Failed to read config: " << path
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(result.error());
+				}
+				return false;
+			}
+			return config.parse(result.value()).error == QJsonParseError::NoError;
+		}
+
 		void refreshASERConfig() {
-			ASERConfig.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/userData.json"));
+			tryParseJson(ASERConfig, ASERResourceMoniter::getASERStandardConfigPath() + "/userData.json", true);
 		}
 
 		void refreshOfficial() {
 			auto collections = Visindigo::Utility::JsonConfig();
-			collections.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json"));
+			tryParseJson(collections, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json", true);
 
 			auto aliases = Visindigo::Utility::JsonConfig();
-			if (Visindigo::Utility::FileUtility::isFileExist(ProjectPath + "/Configs/officialAssets_aliases.json")) {
-				QString content = Visindigo::Utility::FileUtility::readAll(ProjectPath + "/Configs/officialAssets_aliases.json");
-				auto rtn = aliases.parse(content);
-				if (rtn.error != QJsonParseError::NoError) {
-					aliases.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
-				}
-			}
-			else {
-				aliases.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json"));
+			if (not tryParseJson(aliases, ProjectPath + "/Configs/officialAssets_aliases.json", true)) {
+				tryParseJson(aliases, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json", true);
 			}
 
 			auto character = Visindigo::Utility::JsonConfig();
-			if (Visindigo::Utility::FileUtility::isFileExist(ProjectPath + "/Configs/officialAssets_userConfigs.json")) {
-				QString content = Visindigo::Utility::FileUtility::readAll(ProjectPath + "/Configs/officialAssets_userConfigs.json");
-				auto rtn = character.parse(content);
-				if (rtn.error != QJsonParseError::NoError) {
-					character.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
-				}
-			}
-			else {
-				character.parse(Visindigo::Utility::FileUtility::readAll(ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json"));
+			if (not tryParseJson(character, ProjectPath + "/Configs/officialAssets_userConfigs.json", true)) {
+				tryParseJson(character, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json", true);
 			}
 
 			QStringList rawCharaKeysTachies = collections.keys("characterTachies");

@@ -1,5 +1,6 @@
 #include <Editor/ColorThemeProvider.h>
-#include <Utility/FileUtility.h>
+#include <General/Log.h>
+#include <Utility/FileOperation.h>
 #include <Widgets/ThemeManager.h>
 #include "YSS/LangServer_AStoryX.h"
 #include "YSS/LS_AStoryXHoverInfoProvider.h"
@@ -35,14 +36,21 @@ namespace ASERStudio::YSS {
 				}
 			}
 			});
-		getColorThemeProvider()->parseStaticThemeFrom(
-			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_dark_2024.json"));
-		getColorThemeProvider()->parseStaticThemeFrom(
-			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_light_2024.json"));
-		getColorThemeProvider()->parseStaticThemeFrom(
-			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_dark.json"));
-		getColorThemeProvider()->parseStaticThemeFrom(
-			Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_light.json"));
+		const QStringList syntaxThemeFiles = {
+			":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_dark_2024.json",
+			":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/visindigo_light_2024.json",
+			":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_dark.json",
+			":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/gradus_vscode_light.json"
+		};
+		for (const QString& themeFile : syntaxThemeFiles) {
+			Visindigo::Utility::FileOperation::Errorable<QString> themeResult = Visindigo::Utility::FileOperation::readAll(themeFile);
+			if (not themeResult) {
+				vgErrorF << "Failed to read syntax color theme: " << themeFile
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(themeResult.error());
+				continue;
+			}
+			getColorThemeProvider()->parseStaticThemeFrom(themeResult.value());
+		}
 		getColorThemeProvider()->setTemplateTextPath(
 			":/resource/cn.yxgeneral.aserstudio/syntaxColorTheme/templateFile.astoryx");
 		if (getPlugin()->getPluginConfig()->getString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme").isEmpty()) {

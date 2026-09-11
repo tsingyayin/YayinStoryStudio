@@ -18,6 +18,7 @@
 #include <General/TranslationHost.h>
 #include <General/Version.h>
 #include <Utility/Console.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include "Installer/InstallerServer.h"
 #include "Installer/LocalUpdateWizard.h"
@@ -626,12 +627,20 @@ namespace YSS::Installer {
 		qint32 i = 0;
 		for (auto t : toPath) {
 			for (auto f : files) {
-				Visindigo::Utility::FileUtility::copyFile(fromPath.absolutePath() + "/" + f,
+				Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyFile(fromPath.absolutePath() + "/" + f,
 					t.absolutePath() + "/" + f, false, true);
+				if (copyResult != Visindigo::Utility::FileOperation::Success) {
+					vgErrorF << "Failed to copy update file: " << f
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+				}
 			}
 			for (auto f : folders) {
-				Visindigo::Utility::FileUtility::copyDir(fromPath.absolutePath() + "/" + f,
+				Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyDir(fromPath.absolutePath() + "/" + f,
 					t.absolutePath() + "/" + f, false, true);
+				if (copyResult != Visindigo::Utility::FileOperation::Success) {
+					vgErrorF << "Failed to copy update folder: " << f
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+				}
 			}
 			targetList[i].setProgramVersion(from.getProgramVersion());
 			VersionManager::getInstance()->updateClientRecord(targetList[i]);

@@ -4,6 +4,8 @@
 #include <QtCore/qrect.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpixmap.h>
+#include "General/Log.h"
+#include "Utility/FileOperation.h"
 #include "Utility/FileUtility.h"
 #include "Utility/JsonConfig.h"
 #include "Widgets/PixmapCacheHelper.h"
@@ -36,7 +38,14 @@ namespace Visindigo::Widgets {
 			}
 			CacheMap.clear();
 			CachePixmaps.clear();
-			CacheMetaData.parse(Utility::FileUtility::readAll(CachePath + "/metaData.json"));
+			Utility::FileOperation::Errorable<QString> metaResult = Utility::FileOperation::readAll(CachePath + "/metaData.json");
+			if (metaResult) {
+				CacheMetaData.parse(metaResult.value());
+			}
+			else if (metaResult.error() != Utility::FileOperation::FileNotFound) {
+				vgErrorF << "Failed to read pixmap cache metadata: " << CachePath + "/metaData.json"
+					<< ", error: " << Utility::FileOperation::errorCodeName(metaResult.error());
+			}
 			for (auto index : CacheMetaData.keys("Tiles")) {
 				PixmapTileData tileData;
 				QString fileName = CacheMetaData.getString("Tiles." % index % ".fileName");
@@ -95,14 +104,22 @@ namespace Visindigo::Widgets {
 				CacheMetaData.setString("Files." % QString::number(fileIndex) % ".data", dataStr.join(";"));
 				fileIndex++;
 			}
-			Utility::FileUtility::saveAll(CachePath + "/metaData.json", CacheMetaData.toString());
+			Utility::FileOperation::ErrorCode saveResult = Utility::FileOperation::saveAll(CachePath + "/metaData.json", CacheMetaData.toString());
+			if (saveResult != Utility::FileOperation::Success) {
+				vgErrorF << "Failed to save pixmap cache metadata: " << CachePath + "/metaData.json"
+					<< ", error: " << Utility::FileOperation::errorCodeName(saveResult);
+			}
 		}
 		void removeCachePixmap(int pixmapIndex) {
 			if (pixmapIndex >= CachePixmaps.size()) {
 				return;
 			}
 			QString fileName = "tile_" % QString::number(pixmapIndex) % ".png";
-			Utility::FileUtility::deleteFile(CachePath + "/" + fileName);
+			Utility::FileOperation::ErrorCode deleteResult = Utility::FileOperation::deleteFile(CachePath + "/" + fileName);
+			if (deleteResult != Utility::FileOperation::Success && deleteResult != Utility::FileOperation::FileNotFound) {
+				vgErrorF << "Failed to delete pixmap cache file: " << CachePath + "/" + fileName
+					<< ", error: " << Utility::FileOperation::errorCodeName(deleteResult);
+			}
 			CachePixmaps.removeAt(pixmapIndex);
 			for (auto it = CacheMap.begin(); it != CacheMap.end();) {
 				if (it.value().PixmapIndex == pixmapIndex) {
@@ -119,12 +136,20 @@ namespace Visindigo::Widgets {
 		void clearCache() {
 			for (int i = 0; i < CachePixmaps.size(); i++) {
 				QString fileName = "tile_" % QString::number(i) % ".png";
-				Utility::FileUtility::deleteFile(CachePath + "/" + fileName);
+				Utility::FileOperation::ErrorCode deleteResult = Utility::FileOperation::deleteFile(CachePath + "/" + fileName);
+				if (deleteResult != Utility::FileOperation::Success && deleteResult != Utility::FileOperation::FileNotFound) {
+					vgErrorF << "Failed to delete pixmap cache file: " << CachePath + "/" + fileName
+						<< ", error: " << Utility::FileOperation::errorCodeName(deleteResult);
+				}
 			}
 			CachePixmaps.clear();
 			CacheMap.clear();
 			CacheMetaData = Visindigo::Utility::JsonConfig();
-			Utility::FileUtility::deleteFile(CachePath + "/metaData.json");
+			Utility::FileOperation::ErrorCode deleteMetaResult = Utility::FileOperation::deleteFile(CachePath + "/metaData.json");
+			if (deleteMetaResult != Utility::FileOperation::Success && deleteMetaResult != Utility::FileOperation::FileNotFound) {
+				vgErrorF << "Failed to delete pixmap cache metadata: " << CachePath + "/metaData.json"
+					<< ", error: " << Utility::FileOperation::errorCodeName(deleteMetaResult);
+			}
 		}
 		QPixmap getPixmap(const QString& path, const QSize& size = QSize(), bool keepAspectRatio = true) {
 			if (size == QSize()) {

@@ -11,6 +11,7 @@
 #include <General/PluginManager.h>
 #include <General/TranslationHost.h>
 #include <General/YSSProject.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/ConfigWidget.h>
@@ -19,6 +20,16 @@
 namespace ASERStudio::YSS {
 	static const QString ASERStudioPluginID = QStringLiteral("cn.yxgeneral.aserstudio");
 	static const QString ASERStudioAssets1Rcc = QStringLiteral("ASERStudio_assets1.rcc");
+
+	// 把项目模板中的资源复制到新项目中，失败时记录日志。
+	// 模板复制是一个整体流程，这里不因为单个文件失败而中断，保持与旧实现一致的行为。
+	static void copyTemplateFile(const QString& srcPath, const QString& dstPath, bool overwrite = false) {
+		Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyFile(srcPath, dstPath, true, overwrite);
+		if (copyResult != Visindigo::Utility::FileOperation::Success) {
+			vgErrorF << "Failed to copy project template file " << srcPath << " to " << dstPath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+		}
+	}
 
 	// ASERStudio_assets1.rcc 的"现场加载、现场使用、现场卸载"生命周期管理。
 	// 项目模板文件(template/3.0、3.6.7)不再嵌入插件二进制，而是编译为独立的 .rcc 文件，
@@ -88,7 +99,13 @@ namespace ASERStudio::YSS {
 		this->setMinimumWidth(800);
 		this->setWindowTitle(VITRL("ASERStudio::provider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
-		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP.json"));
+		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP.json");
+		if (cwJsonResult) {
+			d->ConfigWidget->loadCWJson(cwJsonResult.value());
+		}
+		else {
+			vgErrorF << "Failed to read project template config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
+		}
 		d->Layout = new QVBoxLayout(this);
 		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ConfigWidget);
@@ -184,13 +201,13 @@ namespace ASERStudio::YSS {
 		for (const QString& folder : folders) {
 			Visindigo::Utility::FileUtility::createDir(projectFolder + folder);
 		}
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json", projectFolder + "/Rules/BaseRule.json", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json", projectFolder + "/Rules/AdvanceRule.json", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx", projectFolder + "/Stories/main.astoryx", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/0.png", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/1.png", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png", true);
-		Visindigo::Utility::FileUtility::copyFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png", true);
+		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json", projectFolder + "/Rules/BaseRule.json");
+		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json", projectFolder + "/Rules/AdvanceRule.json");
+		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx", projectFolder + "/Stories/main.astoryx");
+		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/0.png");
+		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/1.png");
+		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png");
+		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png");
 		// 只把实际生成成功的示例故事记入打开列表/焦点，避免记录不存在的文件导致打开后恢复报错。
 		const QString mainStoryPath = projectFolder + "/Stories/main.astoryx";
 		if (Visindigo::Utility::FileUtility::isFileExist(mainStoryPath)) {
@@ -255,7 +272,13 @@ namespace ASERStudio::YSS {
 		this->setMinimumWidth(800);
 		this->setWindowTitle(VITRL("ASERStudio::provider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
-		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP_3_6_7.json"));
+		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP_3_6_7.json");
+		if (cwJsonResult) {
+			d->ConfigWidget->loadCWJson(cwJsonResult.value());
+		}
+		else {
+			vgErrorF << "Failed to read project template config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
+		}
 		d->Layout = new QVBoxLayout(this);
 		d->Layout->addWidget(d->ConfigWidget);
 		d->ButtonLayout = new QHBoxLayout();
@@ -347,9 +370,9 @@ namespace ASERStudio::YSS {
 			{ "Stories/02_BasicExample_3.astoryx", "Stories/02_基础？？？.astoryx" }
 		};
 		for (const QString& key : fileMap.keys()) {
-			Visindigo::Utility::FileUtility::copyFile(templatePath + "/" + key, projectFolder + "/" + fileMap.value(key), true, true);
+			copyTemplateFile(templatePath + "/" + key, projectFolder + "/" + fileMap.value(key), true);
 		}
-		Visindigo::Utility::FileUtility::copyFile(templatePath + "/Resources/Background/bg_amb2026.png", projectFolder + "/cover.png", true);
+		copyTemplateFile(templatePath + "/Resources/Background/bg_amb2026.png", projectFolder + "/cover.png");
 		// 只把实际生成成功的示例故事记入打开列表/焦点，避免记录不存在的文件导致打开后恢复报错。
 		const QList<QString> exampleStories = {
 			projectFolder + "/Stories/00_基础示例上.astoryx",

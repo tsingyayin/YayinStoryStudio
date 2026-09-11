@@ -14,7 +14,8 @@
 #include <Editor/TextEdit.h>
 #include <Editor/ColorThemeProvider.h>
 #include <Widgets/ThemeManager.h>
-#include <Utility/FileUtility.h>
+#include <General/Log.h>
+#include <Utility/FileOperation.h>
 #include <QtCore/qset.h>
 #include <QtCore/qlist.h>
 
@@ -221,12 +222,19 @@ namespace YSSFileExt {
 				}
 			}
 			});
-		getColorThemeProvider()->parseStaticThemeFrom(
-			Visindigo::Utility::FileUtility::readAll(
-				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/ini_dark_2024.json"));
-		getColorThemeProvider()->parseStaticThemeFrom(
-			Visindigo::Utility::FileUtility::readAll(
-				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/ini_light_2024.json"));
+		const QStringList syntaxThemeFiles = {
+			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/ini_dark_2024.json",
+			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/ini_light_2024.json"
+		};
+		for (const QString& themeFile : syntaxThemeFiles) {
+			Visindigo::Utility::FileOperation::Errorable<QString> themeResult = Visindigo::Utility::FileOperation::readAll(themeFile);
+			if (not themeResult) {
+				vgErrorF << "Failed to read syntax color theme: " << themeFile
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(themeResult.error());
+				continue;
+			}
+			getColorThemeProvider()->parseStaticThemeFrom(themeResult.value());
+		}
 		// 样式样本：用于颜色主题设置页的预览编辑器展示全部着色元素
 		getColorThemeProvider()->setTemplateTextPath(
 			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/templateIni.ini");

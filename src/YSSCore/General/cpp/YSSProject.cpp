@@ -9,6 +9,7 @@
 #include <General/Plugin.h>
 #include <General/Version.h>
 #include <General/VirtualStorage.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include "Editor/DebugServerManager.h"
@@ -188,9 +189,14 @@ namespace YSSCore::General {
 		从 \a configPath 加载YSS项目
 	*/
 	YSSProject::LoadProjectResult YSSProject::loadProject(const QString& configPath) {
-		QString config = Visindigo::Utility::FileUtility::readAll(configPath);
 		d->ConfigPath = configPath;
-		bool ok = d->ProjectConfig->parse(config).error == QJsonParseError::NoError;
+		Visindigo::Utility::FileOperation::Errorable<QString> configResult = Visindigo::Utility::FileOperation::readAll(configPath);
+		if (not configResult) {
+			yErrorF << "Failed to read project config: " << configPath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(configResult.error());
+			return LoadProjectResult::ParseError;
+		}
+		bool ok = d->ProjectConfig->parse(configResult.value()).error == QJsonParseError::NoError;
 		if (not ok) {
 			return LoadProjectResult::ParseError;
 		}
@@ -242,7 +248,12 @@ namespace YSSCore::General {
 			d->ConfigPath = configPath;
 		}
 		QString config = d->ProjectConfig->toString();
-		Visindigo::Utility::FileUtility::saveAll(d->ConfigPath, config);
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(d->ConfigPath, config);
+		if (saveResult != Visindigo::Utility::FileOperation::Success) {
+			yErrorF << "Failed to save project config: " << d->ConfigPath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			return false;
+		}
 		return true;
 	}
 

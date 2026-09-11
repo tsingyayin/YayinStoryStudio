@@ -6,6 +6,7 @@
 #include <General/Version.h>
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include "Editor/MainEditor/MainEditorBuiltinPlugin.h"
 #include "Editor/TitlePage/TitlePage.h"
@@ -90,9 +91,14 @@ int main(int argc, char* argv[])
 	VISetEnv(Visindigo::General::VIApplication::UseVirtualTerminal, true);
 	VISetEnv(Visindigo::General::VIApplication::SaveCommandHistory, true);
 	Visindigo::General::VIApplication app(argc, argv, Visindigo::General::VIApplication::WidgetApp);
-	QStringList prts = Visindigo::Utility::FileUtility::readLines(":/resource/cn.yxgeneral.visindigo/IWillFindU.txt");
-	for (auto p : prts) {
-		yMessage << p;
+	Visindigo::Utility::FileOperation::Errorable<QStringList> prtsResult = Visindigo::Utility::FileOperation::readLines(":/resource/cn.yxgeneral.visindigo/IWillFindU.txt");
+	if (not prtsResult) {
+		yErrorF << "Failed to read IWillFindU.txt, error: " << Visindigo::Utility::FileOperation::errorCodeName(prtsResult.error());
+	}
+	else {
+		for (auto p : prtsResult.value()) {
+			yMessage << p;
+		}
 	}
 	yInfo << "Yayin Story Studio " << Visindigo::General::Version::getAPIVersion();
 	/*

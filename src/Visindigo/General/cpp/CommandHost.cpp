@@ -2,6 +2,7 @@
 #include "General/CommandHost.h"
 #include "General/Log.h"
 #include "General/VIApplication.h"
+#include "Utility/FileOperation.h"
 #include "Utility/FileUtility.h"
 
 namespace Visindigo::General {
@@ -165,7 +166,15 @@ namespace Visindigo::General {
 		d->saveCommandHistory = VIApp->getEnvConfig(VIApplication::SaveCommandHistory).toBool();
 		d->savedPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString() + "/command_history.log";
 		if (d->saveCommandHistory) {
-			d->CommandHistory = Visindigo::Utility::FileUtility::readLines(d->savedPath);
+			Visindigo::Utility::FileOperation::Errorable<QStringList> historyResult = Visindigo::Utility::FileOperation::readLines(d->savedPath);
+			if (historyResult) {
+				d->CommandHistory = historyResult.value();
+			}
+			else if (historyResult.error() != Visindigo::Utility::FileOperation::FileNotFound) {
+				// 没有历史记录文件属于正常情况，不算错误
+				vgErrorF << "Failed to read command history: " << d->savedPath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(historyResult.error());
+			}
 		}
 	}
 
@@ -176,7 +185,11 @@ namespace Visindigo::General {
 	*/
 	CommandHost::~CommandHost() {
 		if (d->saveCommandHistory) {
-			Visindigo::Utility::FileUtility::saveLines(d->savedPath, d->CommandHistory);
+			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveLines(d->savedPath, d->CommandHistory);
+			if (saveResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to save command history: " << d->savedPath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			}
 		}
 		delete d;
 	}

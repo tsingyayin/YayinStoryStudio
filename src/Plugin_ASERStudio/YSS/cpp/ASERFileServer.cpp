@@ -9,6 +9,7 @@
 #include <General/TranslationHost.h>
 #include <General/YSSProject.h>
 #include <Utility/ColorTool.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/BorderFrame.h>
@@ -272,7 +273,13 @@ namespace ASERStudio::YSS {
 	}
 
 	bool EditorWidget_ASRuleJson::onOpen(const QString& path) {
-		d->rawContent = Visindigo::Utility::FileUtility::readAll(path);
+		Visindigo::Utility::FileOperation::Errorable<QString> contentResult = Visindigo::Utility::FileOperation::readAll(path);
+		if (not contentResult) {
+			vgErrorF << "Failed to read ASRule JSON: " << path
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(contentResult.error());
+			return false;
+		}
+		d->rawContent = contentResult.value();
 
 		for (auto frame : d->controllerFrames) {
 			d->contentLayout->removeWidget(frame);
@@ -308,7 +315,12 @@ namespace ASERStudio::YSS {
 	}
 
 	bool EditorWidget_ASRuleJson::onSave(const QString& path) {
-		Visindigo::Utility::FileUtility::saveAll(path, d->rawContent);
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(path, d->rawContent);
+		if (saveResult != Visindigo::Utility::FileOperation::Success) {
+			vgErrorF << "Failed to save ASRule JSON: " << path
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			return false;
+		}
 		return true;
 	}
 

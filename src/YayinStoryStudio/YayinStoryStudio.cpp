@@ -14,6 +14,7 @@
 #include <Utility/BenchmarkTimer.h>
 #include <Utility/Console.h>
 #include <Utility/ExtTool.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/SevenZipBinder.h>
 #include <Widgets/ConfigWidget.h>
@@ -84,7 +85,13 @@ namespace YSS {
 		registerPluginModule(new YSS::Editor::YSSCommandHandler(this));
 		registerPluginModule(new YSS::Editor::YSSTranslator(this));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
-		d->ConfigWidget->loadCWJson(Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json"));
+		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json");
+		if (cwJsonResult) {
+			d->ConfigWidget->loadCWJson(cwJsonResult.value());
+		}
+		else {
+			vgErrorF << "Failed to read program config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
+		}
 		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged, this, [](const QString& node, int index, QString data) {
 			vgDebug << node;
@@ -92,7 +99,12 @@ namespace YSS {
 				VISTM->changeColorTheme(data);
 			}
 			else if (node == "General.UpdateChannel") {
-				Visindigo::Utility::FileUtility::deleteFile(VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache"));
+				const QString metaCachePath = VIApp->getMainPlugin()->getPluginFolder().filePath("meta_cache");
+				Visindigo::Utility::FileOperation::ErrorCode deleteResult = Visindigo::Utility::FileOperation::deleteFile(metaCachePath);
+				if (deleteResult != Visindigo::Utility::FileOperation::Success && deleteResult != Visindigo::Utility::FileOperation::FileNotFound) {
+					vgErrorF << "Failed to delete project meta cache: " << metaCachePath
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(deleteResult);
+				}
 			}
 			});
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, this, &Visindigo::General::Plugin::reloadPluginConfig);

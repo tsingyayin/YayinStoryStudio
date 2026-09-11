@@ -1,5 +1,6 @@
 #include <QtCore/qjsondocument.h>
 #include <General/Log.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include "AStorySyntax/AStoryXController.h"
@@ -21,12 +22,20 @@ namespace ASERStudio::AStorySyntax {
 		static QMap<QString, AStoryXRule*> RegisteredRules;
 	public:
 		void loadMetaJson() {
-			QString jsonStr = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/astoryxMeta/" + Version.replace(".", "_") + ".json");
-			if (jsonStr.isEmpty()) {
-				jsonStr = Visindigo::Utility::FileUtility::readAll(":/resource/cn.yxgeneral.aserstudio/astoryxMeta/default.json");
+			Visindigo::Utility::FileOperation::Errorable<QString> jsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/astoryxMeta/" + Version.replace(".", "_") + ".json");
+			if (not jsonResult || jsonResult.value().isEmpty()) {
+				if (not jsonResult && jsonResult.error() != Visindigo::Utility::FileOperation::FileNotFound) {
+					vgWarningF << "Failed to read AStoryX meta json for version " << Version
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(jsonResult.error());
+				}
+
+				Visindigo::Utility::FileOperation::Errorable<QString> defaultResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/astoryxMeta/default.json");
+				if (not defaultResult) {
+					vgErrorF << "Failed to read default AStoryX meta json, error: " << Visindigo::Utility::FileOperation::errorCodeName(defaultResult.error());
+				}
 				return;
 			}
-			MetaConfig.parse(jsonStr);
+			MetaConfig.parse(jsonResult.value());
 		}
 	};
 

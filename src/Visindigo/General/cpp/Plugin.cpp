@@ -13,6 +13,7 @@
 #include "General/TranslationHost.h"
 #include "General/Version.h"
 #include "General/Exception.h"
+#include "Utility/FileOperation.h"
 #include "Utility/FileUtility.h"
 #include "Widgets/ThemeManager.h"
 
@@ -30,16 +31,32 @@ namespace Visindigo::__Private__ {
 	}
 
 	void PluginPrivate::loadConfig() {
-		if (not Visindigo::Utility::FileUtility::isFileExist(PluginFolder.filePath("config.json"))) {
-			if (Visindigo::Utility::FileUtility::isFileExist(":/resource/" % PluginID % "/config.json")) {
-				Visindigo::Utility::FileUtility::copyFile(":/resource/" % PluginID % "/config.json", PluginFolder.filePath("config.json"));
+		const QString configPath = PluginFolder.filePath("config.json");
+		if (not Visindigo::Utility::FileUtility::isFileExist(configPath)) {
+			const QString defaultConfigPath = ":/resource/" % PluginID % "/config.json";
+			if (Visindigo::Utility::FileUtility::isFileExist(defaultConfigPath)) {
+				Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyFile(defaultConfigPath, configPath);
+				if (copyResult != Visindigo::Utility::FileOperation::Success) {
+					vgErrorF << "Failed to copy default config for plugin " << PluginID
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+				}
 			}
 			else {
 				vgWarning << "No default config found for plugin " << PluginID << ", creating an empty config.";
-				Visindigo::Utility::FileUtility::saveAll(PluginFolder.filePath("config.json"), "{}");
+				Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(configPath, "{}");
+				if (saveResult != Visindigo::Utility::FileOperation::Success) {
+					vgErrorF << "Failed to create empty config for plugin " << PluginID
+						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+				}
 			}
 		}
-		Config.parse(Visindigo::Utility::FileUtility::readAll(PluginFolder.filePath("config.json")));
+		Visindigo::Utility::FileOperation::Errorable<QString> configResult = Visindigo::Utility::FileOperation::readAll(configPath);
+		if (not configResult) {
+			vgErrorF << "Failed to read config for plugin " << PluginID << ": " << configPath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(configResult.error());
+			return;
+		}
+		Config.parse(configResult.value());
 	}
 
 	bool PluginPrivate::enablePlugin() {
@@ -449,7 +466,12 @@ namespace Visindigo::General {
 		保存插件的设置到磁盘
 	*/
 	void Plugin::savePluginConfig() {
-		Visindigo::Utility::FileUtility::saveAll(d->PluginFolder.filePath("config.json"), d->Config.toString());
+		const QString configPath = d->PluginFolder.filePath("config.json");
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(configPath, d->Config.toString());
+		if (saveResult != Visindigo::Utility::FileOperation::Success) {
+			vgErrorF << "Failed to save config for plugin " << d->PluginID << ": " << configPath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+		}
 	}
 
 	/*!
@@ -756,7 +778,13 @@ namespace Visindigo::General {
 		注册一个颜色方案
 	*/
 	void Plugin::registerColorScheme(const QString& schemeFilePath) {
-		VISTM->pluginRegisterColorScheme(this, Visindigo::Utility::FileUtility::readAll(schemeFilePath));
+		Visindigo::Utility::FileOperation::Errorable<QString> schemeResult = Visindigo::Utility::FileOperation::readAll(schemeFilePath);
+		if (not schemeResult) {
+			vgErrorF << "Failed to read color scheme: " << schemeFilePath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(schemeResult.error());
+			return;
+		}
+		VISTM->pluginRegisterColorScheme(this, schemeResult.value());
 	}
 
 	/*!
@@ -765,6 +793,12 @@ namespace Visindigo::General {
 		注册一个样式模板
 	*/
 	void Plugin::registerStyleTemplate(const QString& templateFilePath) {
-		VISTM->pluginRegisterStyleTemplate(this, Visindigo::Utility::FileUtility::readAll(templateFilePath));
+		Visindigo::Utility::FileOperation::Errorable<QString> templateResult = Visindigo::Utility::FileOperation::readAll(templateFilePath);
+		if (not templateResult) {
+			vgErrorF << "Failed to read style template: " << templateFilePath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(templateResult.error());
+			return;
+		}
+		VISTM->pluginRegisterStyleTemplate(this, templateResult.value());
 	}
 }

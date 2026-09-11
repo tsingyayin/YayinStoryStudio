@@ -8,6 +8,7 @@
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 #include <Utility/Console.h>
+#include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include "Editor/InstallerClient.h"
 namespace YSS::Editor {
@@ -159,21 +160,28 @@ namespace YSS::Editor {
 			"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";
 		QStringList files = {
 			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
-			"Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe",
-			"dbgeng.dll"
+			"Qt6Svg.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
 		};
 		QStringList folders = {
-			"iconengiens", "imageformats", "networkinformation", "platforms", "styles", "translations",
+			"iconengines", "imageformats", "networkinformation", "platforms", "styles", "translations",
 			"sqldrivers", "generic", "tls"
 		};
 		Visindigo::Utility::FileUtility::createDir(installerFolder);
 		for (const QString& file : files) {
-			Visindigo::Utility::FileUtility::copyFile(Visindigo::Utility::FileUtility::getProgramPath() +
+			Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyFile(Visindigo::Utility::FileUtility::getProgramPath() +
 				"/" + file, installerFolder + "/" + file, false, true);
+			if (copyResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to copy installer file: " << file
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+			}
 		}
 		for (const QString& folder : folders) {
-			Visindigo::Utility::FileUtility::copyDir(Visindigo::Utility::FileUtility::getProgramPath() +
+			Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyDir(Visindigo::Utility::FileUtility::getProgramPath() +
 				"/" + folder, installerFolder + "/" + folder, false, true);
+			if (copyResult != Visindigo::Utility::FileOperation::Success) {
+				vgErrorF << "Failed to copy installer folder: " << folder
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+			}
 		}
 		if (autoLaunch) {
 			getInstance()->connectToInstaller();

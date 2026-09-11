@@ -10,6 +10,7 @@
 #include "General/PluginModule.h"
 #include "General/private/Plugin_p.h"
 #include "General/VIApplication.h"
+#include "Utility/FileOperation.h"
 #include "Utility/FileUtility.h"
 #include "Utility/JsonConfig.h"
 
@@ -72,11 +73,14 @@ namespace Visindigo::General {
 		}
 
 		void parseMetaInfo(PluginManageData data, const QString& metaJsonPath, const QString& binaryPath) {
-			auto jsonStr = Visindigo::Utility::FileUtility::readAll(metaJsonPath);
-			if (jsonStr.isEmpty()) {
-				VIPM->error() << "Failed to read plugin meta json file: " << metaJsonPath << ", IGNORE this plugin.";
+			Visindigo::Utility::FileOperation::Errorable<QString> jsonResult = Visindigo::Utility::FileOperation::readAll(metaJsonPath);
+			if (not jsonResult) {
+				VIPM->error() << "Failed to read plugin meta json file: " << metaJsonPath
+					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(jsonResult.error())
+					<< ", IGNORE this plugin.";
 				return;
 			}
+			auto jsonStr = jsonResult.value();
 			auto json = Visindigo::Utility::JsonConfig();
 			if (json.parse(jsonStr).error != QJsonParseError::NoError) {
 				VIPM->error() << "Failed to parse plugin meta json file: " << metaJsonPath << ", IGNORE this plugin.";
