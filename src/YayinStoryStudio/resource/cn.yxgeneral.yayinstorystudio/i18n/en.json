@@ -344,5 +344,15 @@
 			"message": "You have unsaved changes. Do you want to save them? If you do not save, all changes will be lost."
 		},
 		"staticThemeWarning": "! Note: This is a built-in theme. Changes to it will never take effect. Please duplicate it before modifying."
+	},
+	"agent": {
+		"title": "Visindigo Agent Chat",
+		"placeholder": "Type a message. Enter to send, Shift+Enter for a new line",
+		"send": "Send",
+		"ready": "Ready. Current model: %1",
+		"generating": "Generating…",
+		"reasoning": "Reasoning",
+		"runError": "Run failed: %1",
+		"configError": "Failed to load the model config on your desktop: %1"
 	}
 }

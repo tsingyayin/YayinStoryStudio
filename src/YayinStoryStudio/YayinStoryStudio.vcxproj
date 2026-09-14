@@ -133,6 +133,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ToolWidgetArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\TreeLayoutWidget.cpp" />
+    <ClCompile Include="Editor\AgentPage\cpp\AgentWin.cpp" />
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="YayinStoryStudio.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="Editor\AgentPage\AgentWin.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h" />
     <QtMoc Include="Editor\MainEditor\MainWin.h" />
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />

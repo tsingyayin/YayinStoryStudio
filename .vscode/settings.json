@@ -63,5 +63,6 @@
 		"xstring": "cpp",
 		"xtr1common": "cpp",
 		"xutility": "cpp"
-	}
+	},
+	"cmake.sourceDirectory": "E:/repos/VisindigoProject/YayinStoryStudio/qt_creator"
 }

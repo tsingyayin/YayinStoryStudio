@@ -344,5 +344,15 @@
 			"message": "您有未保存的更改，是否要保存？如果不保存，所有更改将会丢失。"
 		},
 		"staticThemeWarning": "！注意：这是个固有主题，对其的更改永远不会生效。请复制后再修改。"
+	},
+	"agent": {
+		"title": "Visindigo Agent 对话",
+		"placeholder": "输入消息，Enter 发送，Shift+Enter 换行",
+		"send": "发送",
+		"ready": "已就绪，当前模型：%1",
+		"generating": "正在生成…",
+		"reasoning": "思考过程",
+		"runError": "执行失败：%1",
+		"configError": "无法加载桌面上的模型配置：%1"
 	}
 }

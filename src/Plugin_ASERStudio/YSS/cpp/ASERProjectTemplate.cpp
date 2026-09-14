@@ -21,8 +21,6 @@ namespace ASERStudio::YSS {
 	static const QString ASERStudioPluginID = QStringLiteral("cn.yxgeneral.aserstudio");
 	static const QString ASERStudioAssets1Rcc = QStringLiteral("ASERStudio_assets1.rcc");
 
-	// 把项目模板中的资源复制到新项目中，失败时记录日志。
-	// 模板复制是一个整体流程，这里不因为单个文件失败而中断，保持与旧实现一致的行为。
 	static void copyTemplateFile(const QString& srcPath, const QString& dstPath, bool overwrite = false) {
 		Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyFile(srcPath, dstPath, true, overwrite);
 		if (copyResult != Visindigo::Utility::FileOperation::Success) {

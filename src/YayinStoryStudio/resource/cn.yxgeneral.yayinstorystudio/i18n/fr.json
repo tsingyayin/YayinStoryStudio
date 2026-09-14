@@ -344,5 +344,15 @@
 			"message": "Vous avez des modifications non enregistrées. Voulez-vous les enregistrer ? Si vous ne les enregistrez pas, toutes les modifications seront perdues."
 		},
 		"staticThemeWarning": "! Remarque : il s'agit d'un thème intégré. Toute modification n'aura jamais d'effet. Veuillez le dupliquer avant de modifier."
+	},
+	"agent": {
+		"title": "Discussion Visindigo Agent",
+		"placeholder": "Saisissez un message. Entrée pour envoyer, Maj+Entrée pour un saut de ligne",
+		"send": "Envoyer",
+		"ready": "Prêt. Modèle actuel : %1",
+		"generating": "Génération…",
+		"reasoning": "Raisonnement",
+		"runError": "Échec de l'exécution : %1",
+		"configError": "Impossible de charger la configuration du modèle sur le bureau : %1"
 	}
 }

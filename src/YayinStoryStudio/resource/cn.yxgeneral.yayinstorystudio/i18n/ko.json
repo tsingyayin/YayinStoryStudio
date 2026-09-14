@@ -344,5 +344,15 @@
 			"message": "저장되지 않은 변경 사항이 있습니다. 저장하시겠습니까? 저장하지 않으면 모든 변경 사항이 손실됩니다."
 		},
 		"staticThemeWarning": "！주의: 이것은 기본 제공 테마입니다. 이 테마에 대한 변경은 적용되지 않습니다. 복사한 후 수정하세요."
+	},
+	"agent": {
+		"title": "Visindigo Agent 대화",
+		"placeholder": "메시지를 입력하세요. Enter로 전송, Shift+Enter로 줄바꿈",
+		"send": "전송",
+		"ready": "준비 완료. 현재 모델: %1",
+		"generating": "생성 중…",
+		"reasoning": "사고 과정",
+		"runError": "실행 실패: %1",
+		"configError": "바탕 화면의 모델 설정을 불러오지 못했습니다: %1"
 	}
 }

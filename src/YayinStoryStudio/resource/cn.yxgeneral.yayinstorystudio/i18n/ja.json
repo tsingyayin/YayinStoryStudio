@@ -344,5 +344,15 @@
 			"message": "未保存の変更があります。保存しますか？保存しない場合、すべての変更が失われます。"
 		},
 		"staticThemeWarning": "！注意：これは組み込みテーマです。このテーマへの変更は反映されません。コピーしてから編集してください。"
+	},
+	"agent": {
+		"title": "Visindigo Agent 対話",
+		"placeholder": "メッセージを入力。Enter で送信、Shift+Enter で改行",
+		"send": "送信",
+		"ready": "準備完了。現在のモデル：%1",
+		"generating": "生成中…",
+		"reasoning": "思考過程",
+		"runError": "実行に失敗しました：%1",
+		"configError": "デスクトップ上のモデル設定を読み込めませんでした：%1"
 	}
 }

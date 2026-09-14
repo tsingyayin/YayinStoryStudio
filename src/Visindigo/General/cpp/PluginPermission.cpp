@@ -60,6 +60,19 @@ namespace Visindigo::General {
 		return app->getMainPlugin();
 	}
 
+	// 主插件与依赖插件（含FromMemory）是应用程序自身的可信组成部分，不受权限系统约束。
+	// 判定依据取自VIApplication，而非插件自己声明的LoadType，以免插件谎报加载类型绕过权限检查。
+	static bool isPermissionExempt(Plugin* who) {
+		VIApplication* app = VIApplication::getInstance();
+		if (app == nullptr || who == nullptr) {
+			return false;
+		}
+		if (app->getMainPlugin() == who) {
+			return true;
+		}
+		return app->getDependencyPlugins().contains(who);
+	}
+
 	/*!
 		\class Visindigo::General::PluginPermissionRequestHandler
 		\since Visindigo 0.17.0
@@ -236,6 +249,11 @@ namespace Visindigo::General {
 		只有插件在自身通过setRequiredPermissions声明的权限范围内才会被审计，
 		未声明的权限一律返回false，以免插件申请用户完全不了解的权限。
 
+		作为例外，主插件与依赖插件不受权限系统约束：若 \a who 是VIApplication::getMainPlugin()返回的插件，
+		或包含在VIApplication::getDependencyPlugins()中，则无论其是否声明过权限，本函数一律返回true。
+		它们本身就是应用程序的可信组成部分，其能力边界由应用程序自行负责。
+		请注意，这一判定依据取自VIApplication的登记结果，而非插件自己声明的Plugin::getLoadType()。
+
 		结论的优先级为：已拒绝 &gt; 已允许 &gt; 询问用户。被拒绝的权限不会再次询问用户，
 		如需撤销结论，请修改主程序插件配置中的对应数组。
 		当 \a autoRequest 为false时，未决的权限不会打扰用户，直接返回false；
@@ -244,6 +262,9 @@ namespace Visindigo::General {
 	bool PluginPermissionManager::hasPermission(Plugin* who, Plugin::Permission perm, bool autoRequest) {
 		if (who == nullptr || perm == Plugin::Permission::Unknown) {
 			return false;
+		}
+		if (isPermissionExempt(who)) {
+			return true;
 		}
 		if (not who->getRequiredPermissions().testAnyFlag(perm)) {
 			vgWarningF << "The permission" << perm << "for inspection is not included in the known required permissions."

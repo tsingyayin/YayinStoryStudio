@@ -19,6 +19,7 @@
 #include <Utility/SevenZipBinder.h>
 #include <Widgets/ConfigWidget.h>
 #include <Widgets/Terminal.h>
+#include "Editor/AgentPage/AgentWin.h"
 #include "Editor/InstallerClient.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/ProjectPage/ProjectWin.h"
@@ -115,8 +116,10 @@ namespace YSS {
 
 	void Main::onApplicationInit() {
 		VISTM->changeColorTheme(getPluginConfig()->getString("Settings.General.Theme"));
-		YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
-		win->show();
+		YSS::ProjectPage::ProjectWin* projectWin = new YSS::ProjectPage::ProjectWin();
+		projectWin->show();
+		YSS::AgentPage::AgentWin* agentWin = new YSS::AgentPage::AgentWin();
+		agentWin->show();
 	}
 
 	void Main::onPluginDisable() {

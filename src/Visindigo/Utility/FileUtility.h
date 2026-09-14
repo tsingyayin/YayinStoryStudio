@@ -22,15 +22,6 @@ namespace Visindigo::Utility {
 		enum CountingUnit { // The number of this enum can't be changed, as it is used in calculation directly
 			_0 = 1, K, M, G, T, P, E, Z, Y
 		};
-		enum ErrorCode {
-			Success = 0,
-			FileNotFound = 1,
-			DirNotFound,
-			NameConflict,
-			PermissionDenied,
-			DiskFull,
-			UnknownError
-		};
 	public:
 		static QStringList readLines(const QString& filePath);
 		static QString readAll(const QString& filePath);

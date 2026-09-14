@@ -344,5 +344,15 @@
 			"message": "未保存の変更があります。保存しますか？保存しない場合、すべての変更が失われます。"
 		},
 		"staticThemeWarning": "！注意：これは組み込みの配色です。この配色への変更は反映されません。複製してから編集してください。"
+	},
+	"agent": {
+		"title": "Visindigo Agent 会話",
+		"placeholder": "文を書き入れ、Enter で送り、Shift+Enter で改行",
+		"send": "送る",
+		"ready": "使える状態です。いまの機種：%1",
+		"generating": "生成中…",
+		"reasoning": "考えの道筋",
+		"runError": "実行に失敗しました：%1",
+		"configError": "机の上（デスクトップ）の機種設定を読めませんでした：%1"
 	}
 }

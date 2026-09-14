@@ -59,6 +59,7 @@ namespace Visindigo::General {
 		bool loaded = false;
 		QMap<IDString, PluginManageData> PluginManage;
 		QMap<QString, ExternalLibrary> ExternalLibs;
+		QStringList ExternalLibsLoadPriority;
 
 		QList<IDString> LoadPriorityList;
 		QList<IDString> DeactivatedList;
@@ -171,6 +172,7 @@ namespace Visindigo::General {
 					loadedLibs.append(extLib.lib);
 					newLibs.append(extLib.libName);
 					ExternalLibs.insert(fileName, extLib);
+					ExternalLibsLoadPriority.append(fileName);
 					VIPM->notice() << "Loaded external library: " << extLib.libPath;
 				}
 				else {
@@ -540,7 +542,8 @@ namespace Visindigo::General {
 				manageData.dll = nullptr;
 			}
 		}
-		for (auto& extLib : d->ExternalLibs) {
+		for (auto rit = d->ExternalLibsLoadPriority.rbegin(); rit != d->ExternalLibsLoadPriority.rend(); ++rit){
+			auto& extLib = d->ExternalLibs[*rit];
 			if (extLib.lib != nullptr) {
 				extLib.lib->unload();
 				delete extLib.lib;

@@ -344,5 +344,15 @@
 			"message": "Sie haben nicht gespeicherte Änderungen. Möchten Sie sie speichern? Wenn Sie nicht speichern, gehen alle Änderungen verloren."
 		},
 		"staticThemeWarning": "! Hinweis: Dies ist ein integriertes Design. Änderungen daran werden nie wirksam. Bitte duplizieren Sie es, bevor Sie es ändern."
+	},
+	"agent": {
+		"title": "Visindigo Agent Chat",
+		"placeholder": "Nachricht eingeben. Enter zum Senden, Shift+Enter für eine neue Zeile",
+		"send": "Senden",
+		"ready": "Bereit. Aktuelles Modell: %1",
+		"generating": "Wird generiert…",
+		"reasoning": "Gedankengang",
+		"runError": "Ausführung fehlgeschlagen: %1",
+		"configError": "Die Modellkonfiguration auf dem Desktop konnte nicht geladen werden: %1"
 	}
 }

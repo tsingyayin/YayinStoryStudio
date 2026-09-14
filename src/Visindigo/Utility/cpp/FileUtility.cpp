@@ -23,8 +23,6 @@ namespace Visindigo::Utility {
 	class FileUtilityPrivate {
 		friend class FileUtility;
 	protected:
-		// 这些函数自0.17.0起只是转发到FileOperation，而旧API并不返回错误码，
-		// 因此在这里统一把失败记录到日志里。quietCodes中的错误码属于旧实现中本就静默的情形，不记录。
 		static void logIfFailed(const QString& action, const QString& path, FileOperation::ErrorCode code, const QList<FileOperation::ErrorCode>& quietCodes = {}) {
 			if (code == FileOperation::Success || quietCodes.contains(code)) {
 				return;
@@ -83,7 +81,7 @@ namespace Visindigo::Utility {
 
 		\warning 自0.17.0起，本类中涉及到实际读写、复制、移动和删除的函数已经废弃，
 		它们只是转发到 Visindigo::Utility::FileOperation 中对应的实现上。
-		FileOperation 通过 ErrorCode 报告错误，请优先使用那边的新函数。
+		FileOperation 通过 ErrorCode 报告错误，请优先使用新函数。
 	*/
 
 	/*!
