@@ -31,20 +31,21 @@ namespace YSSFileExt {
 	QMap<QString, JsonLangDocument*> JsonLangServerPrivate::DocumentMap;
 
 	/*!
+		\class YSSFileExt::JsonLangServer
+		\brief JSON 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 JSON 语法错误诊断.
+		\since YSS 0.16.0
+		\inmodule YSSFileExt
+
+		参考 ASERStudio::YSS::AStoryXLanguageServer：
+		- 构造函数加载 Visindigo 2024 静态颜色主题，并跟随程序主题在 Light/Dark 间自动切换；
+		- 为每个文件路径维护一个共享的 JsonLangDocument，供 SyntaxHighlighter 使用。
+	*/
+	/*!
 		\since YSS 0.16.0
 		\a plugin 所属编辑器插件。
 
 		构造函数：注册 Visindigo 2024（Dark/Light）静态颜色主题，并跟随程序主题自动切换；
 		设置默认当前主题（浅色程序主题 -> Visindigo Light 2024，否则 Dark）。
-	*/
-	/*!
-		\class YSSFileExt::JsonLangServer
-		\brief JSON 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 JSON 语法错误诊断。
-		\since YSS 0.16.0
-
-		参考 ASERStudio::YSS::AStoryXLanguageServer：
-		- 构造函数加载 Visindigo 2024 静态颜色主题，并跟随程序主题在 Light/Dark 间自动切换；
-		- 为每个文件路径维护一个共享的 JsonLangDocument，供 SyntaxHighlighter 使用。
 	*/
 	JsonLangServer::JsonLangServer(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::LangServer("YSS File Extension Json Language Server",
@@ -122,8 +123,9 @@ namespace YSSFileExt {
 
 	/*!
 		\class YSSFileExt::JsonLangHighlighter
-		\brief JSON 语法高亮器：按主题样式着色 JSON 单元，并渲染 JsonLangDocument 产出的诊断消息。
+		\brief JSON 语法高亮器：按主题样式着色 JSON 单元，并渲染 JsonLangDocument 产出的诊断消息.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		参考 ASERStudio::YSS::LS_AStoryXSyntaxHighlighter：
 		- 通过 onThemeChanged 缓存当前主题，用 setFormatWithColorKey 按样式键着色；

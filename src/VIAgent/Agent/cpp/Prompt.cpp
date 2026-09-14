@@ -14,10 +14,10 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qregularexpression.h>
+#include <Utility/JsonConfig.h>
 #include "Agent/Dialog.h"
 #include "Agent/Prompt.h"
 #include "Agent/private/Prompt_p.h"
-#include "Utility/JsonConfig.h"
 
 namespace Visindigo::Agent {
 	/*!
@@ -25,7 +25,7 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Prompt.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 可复用的提示模板。
+		\brief 可复用的提示模板.
 
 		Prompt 是一段带有待填占位符的文本。占位符由双花括号包裹变量名构成，例如：
 
@@ -34,7 +34,7 @@ namespace Visindigo::Agent {
 			{{text}}
 		\endcode
 
-		调用 \l render() 时传入同名变量即可得到填好的 \l Message。把常用的提问
+		调用 \l render() 时传入同名变量即可得到填好的 \l{Message}。把常用的提问
 		方式固化成模板，比每次重新打一遍更不容易漏掉约束条件。
 
 		Prompt 与 \l Skill 的分工：Prompt 由用户在需要时显式插入对话，渲染结果
@@ -75,8 +75,10 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置名称。名称是模板在 Center 与 Dialog 中的索引键，\l appendPrompt()
+		设置名称。名称是模板在 Center 与 Dialog 中的索引键，\c{Dialog::appendPrompt()}
 		也通过它查找模板。
+
+		\a name 模板名称。
 	*/
 	Prompt& Prompt::setName(const QString& name) {
 		d->Name = name;
@@ -87,6 +89,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置描述，用于在模板列表里说明用途。
+
+		\a description 描述文本。
 	*/
 	Prompt& Prompt::setDescription(const QString& description) {
 		d->Description = description;
@@ -97,6 +101,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置模板正文。其中的双花括号占位符会被 \l getVariables() 与 \l render() 识别。
+
+		\a content 模板正文。
 	*/
 	Prompt& Prompt::setContent(const QString& content) {
 		d->Content = content;
@@ -107,6 +113,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置标签，供调用方分类。Visindigo 不解释标签的含义。
+
+		\a tags 标签列表。
 	*/
 	Prompt& Prompt::setTags(const QStringList& tags) {
 		d->Tags = tags;
@@ -173,6 +181,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		判断模板是否可用：名称与正文都不能为空。
+
+		return 名称与正文都非空时返回 true。
 	*/
 	bool Prompt::isValid() const {
 		return not d->Name.isEmpty() and not d->Content.isEmpty();
@@ -187,7 +197,7 @@ namespace Visindigo::Agent {
 		就发出去，模型多半会自行猜测缺失的内容，而把占位符摆在明面上至少
 		能让人一眼看出哪儿漏了。
 
-		\note 渲染结果的角色是 \l Message::Role::Prompt 而不是 \l Message::Role::User，
+		\note 渲染结果的角色是 \l Message::Role::Prompt 而不是 \l{Message::Role::User}，
 		以便在会话记录里区分"用户手打的"和"模板生成的"。发往服务端时两者都会被
 		当作 \c user 角色。
 	*/
@@ -231,7 +241,11 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		从 JSON 对象恢复。返回恢复后模板是否有效。
+		从 JSON 对象恢复。
+
+		\a json 已解析的 JSON 对象。
+
+		return 恢复后的模板是否有效，判定规则与 \c isValid() 相同。
 	*/
 	bool Prompt::fromJson(const Visindigo::Utility::JsonConfig& json) {
 		d->Name = json.getString("name");

@@ -18,7 +18,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::BenchmarkTimer
-		\brief 一个用于测量代码执行时间的计时器类，支持自动记录日志、暂停和恢复计时等功能。
+		\brief 一个用于测量代码执行时间的计时器类，支持自动记录日志、暂停和恢复计时等功能.
 		\since Visindigo 0.16.0
 		\inmodule Visindigo
 

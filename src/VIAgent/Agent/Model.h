@@ -3,7 +3,7 @@
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qurl.h>
-#include "VICompileMacro.h"
+#include "VIAgentCompileMacro.h"
 // Forward declarations
 class QJsonValue;
 namespace Visindigo::Utility {
@@ -14,7 +14,7 @@ namespace Visindigo::Agent {
 }
 // Main
 namespace Visindigo::Agent {
-	class VisindigoAPI Model {
+	class VIAgentAPI Model {
 		Q_GADGET;
 	public:
 		enum class Capability {

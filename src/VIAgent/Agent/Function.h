@@ -2,14 +2,14 @@
 #define Visindigo_Agent_Function_h
 #include <functional>
 #include <QtCore/qstring.h>
-#include "VICompileMacro.h"
+#include "VIAgentCompileMacro.h"
 // Forward declarations
 namespace Visindigo::Utility {
 	class JsonConfig;
 }
 // Main
 namespace Visindigo::Agent {
-	class VisindigoAPI Function {
+	class VIAgentAPI Function {
 	public:
 		virtual ~Function();
 	public:

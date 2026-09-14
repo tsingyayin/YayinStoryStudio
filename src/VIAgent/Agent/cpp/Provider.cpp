@@ -17,11 +17,11 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/quuid.h>
+#include <Utility/JsonConfig.h>
 #include "Agent/Center.h"
 #include "Agent/Model.h"
 #include "Agent/Provider.h"
 #include "Agent/private/Provider_p.h"
-#include "Utility/JsonConfig.h"
 
 namespace Visindigo::Agent {
 	/*!
@@ -29,7 +29,7 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Provider.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 一组模型的集合，用于在实际执行时挑选一个可用的模型。
+		\brief 一组模型的集合，用于在实际执行时挑选一个可用的模型.
 
 		Provider 回答的是"该用哪个模型"：它按优先级持有一批模型 id，并提供
 		\l pickFirst() / \l pickNext() 两个挑选入口。前者用于正常发起一次对话，
@@ -77,6 +77,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置供展示的名称，例如服务商名。
+
+		\a name 展示名称。
 	*/
 	Provider& Provider::setName(const QString& name) {
 		d->Name = name;
@@ -94,6 +96,8 @@ namespace Visindigo::Agent {
 		\note 这里不检查 \a modelId 是否已在 Center 的模型池中存在。允许先建
 		Provider 后补模型，可以让配置的读取顺序不受限制；代价是写错 id 时
 		只会在挑选阶段表现为"挑不到模型"。
+
+		\a priority 优先级，数值越大越先被 \l pickFirst() 选中。
 	*/
 	Provider& Provider::addModel(const QString& modelId, qint32 priority) {
 		if (not modelId.isEmpty()) {
@@ -106,6 +110,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除一个模型 id。id 不存在时什么也不做。
+
+		\a modelId 模型 id。
 	*/
 	Provider& Provider::removeModel(const QString& modelId) {
 		d->ModelPriorities.remove(modelId);
@@ -146,7 +152,7 @@ namespace Visindigo::Agent {
 		返回全部模型 id。
 
 		\note 返回顺序是 id 的字典序，不是优先级顺序。需要按优先级遍历请使用
-		\l pickFirst() 与 \l pickNext()。
+		\l{pickFirst()} 与 \l{pickNext()}。
 	*/
 	QStringList Provider::getModelIds() const {
 		return d->ModelPriorities.keys();
@@ -156,6 +162,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		返回指定模型的优先级；该 id 不在本 Provider 中时返回 \c 0。
+
+		\a modelId 模型 id。
 	*/
 	qint32 Provider::getModelPriority(const QString& modelId) const {
 		return d->ModelPriorities.value(modelId, 0);
@@ -210,7 +218,7 @@ namespace Visindigo::Agent {
 		\a required 的模型 id。
 
 		这是"降级重试"的入口：当前模型超时或被限流时换下一个继续，而不是直接
-		把失败抛给用户。\a afterModelId 不在本 Provider 中时，等价于 \l pickFirst()。
+		把失败抛给用户。\a afterModelId 不在本 Provider 中时，等价于 \l{pickFirst()}。
 
 		\note 它不会回绕到序列开头。若 \a afterModelId 已是最后一个候选，返回空串；
 		调用方需要自行判断要不要从头再来一次，而不是让本函数悄悄循环——那样在
@@ -258,6 +266,8 @@ namespace Visindigo::Agent {
 
 		\note 它不检查这些 id 是否真的能在模型池里解析出来——那需要查询 Center，
 		而本函数在 Provider 的拷贝上也会被调用。
+
+		return 至少持有一个模型 id 时返回 true。
 	*/
 	bool Provider::isValid() const {
 		return not d->ModelPriorities.isEmpty();
@@ -288,13 +298,17 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		从 JSON 对象恢复。返回是否恢复了 id。
+		从 JSON 对象恢复。
 
 		存档里带有 id 时会一并恢复；没有 id 字段时保留当前（新生成的）id，
 		因而可以把手写的服务商片段直接读进来。
 
 		\note 恢复只影响 id 与优先级，模型本身仍由 Center 的模型池提供。若模型池
 		里没有对应 id，该候选项会在挑选阶段被跳过，而不是在这里报错。
+
+		\a json 已解析的 JSON 对象。
+
+		return 读到了非空的 id 时返回 true。
 	*/
 	bool Provider::fromJson(const Visindigo::Utility::JsonConfig& json) {
 		bool ok = false;

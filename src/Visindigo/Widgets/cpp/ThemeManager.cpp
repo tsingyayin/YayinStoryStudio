@@ -851,7 +851,7 @@ namespace Visindigo::Widgets {
 
 		设置动画时间，单位为毫秒。
 	*/
-	void ThemeManager::setAnimationDuration(int ms) {
+	void ThemeManager::setAnimationDuration(qint32 ms) {
 		d->AnimationDurationMS = ms;
 	}
 
@@ -861,7 +861,7 @@ namespace Visindigo::Widgets {
 
 		设置动画帧率，单位为每秒帧数。
 	*/
-	void ThemeManager::setAnimationFrameRate(int fps) {
+	void ThemeManager::setAnimationFrameRate(qint32 fps) {
 		d->AnimationFrameRate = fps;
 	}
 

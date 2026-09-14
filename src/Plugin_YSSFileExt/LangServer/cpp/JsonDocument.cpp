@@ -20,8 +20,9 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	/*!
 		\class YSSFileExt::JsonLangDiagnosticData
-		\brief 一条 JSON 语法诊断信息（行、列、长度、类型、消息与修复建议）。
+		\brief 一条 JSON 语法诊断信息（行、列、长度、类型、消息与修复建议）.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		模仿 ASERStudio::AStorySyntax::AStoryXDiagnosticData 的简单值类型。
 	*/
@@ -50,12 +51,29 @@ namespace YSSFileExt {
 		\enum YSSFileExt::JsonTokenType
 		\brief JSON 词法单元类型。
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
+
+		\value Invalid 无效单元，用于默认初始化，分析过程中不应出现。
+		\value EndOfFile 文件结束标记，不会出现在 lexJsonLine() 的返回列表中。
+		\value LBrace 左花括号。
+		\value RBrace 右花括号。
+		\value LBracket 左方括号。
+		\value RBracket 右方括号。
+		\value Colon 冒号。
+		\value Comma 逗号。
+		\value String 字符串字面量，含首尾引号。
+		\value Number 数字字面量，含整数、小数与指数形式。
+		\value True 布尔值 true。
+		\value False 布尔值 false。
+		\value Null 空值 null。
+		\value Unexpected 其它意外字符或单元，属于词法错误，会附带诊断信息。
 	*/
 
 	/*!
 		\struct YSSFileExt::JsonToken
-		\brief 一个 JSON 词法单元，含类型、文本及（行、列、长度）位置。
+		\brief 一个 JSON 词法单元，含类型、文本及（行、列、长度）位置.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 	*/
 
 	/*!
@@ -65,7 +83,7 @@ namespace YSSFileExt {
 
 		\a line 待分析的单行文本；\a baseLine 该行在文档中的 0-based 行号。
 		\a diagnostics 非空时，将词法级错误（未闭合字符串、无效数字等）追加到其中。
-		\return 该行的词法单元列表（不含 EndOfFile）。
+		return 该行的词法单元列表（不含 EndOfFile）。
 	*/
 	QList<JsonToken> lexJsonLine(const QString& line, qint32 baseLine, QList<JsonLangDiagnosticData>* diagnostics) {
 		QList<JsonToken> tokens;
@@ -519,8 +537,9 @@ namespace YSSFileExt {
 			}
 	/*!
 		\class YSSFileExt::JsonLangDocument
-		\brief 对整个 JSON 文档的封装：维护行内容、进行全文档语法分析并存储逐行诊断。
+		\brief 对整个 JSON 文档的封装：维护行内容、进行全文档语法分析并存储逐行诊断.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		参考 ASERStudio::AStorySyntax::AStoryXDocument：由 SyntaxHighlighter 在
 		onBlockChanged 中调用 onSyntaxHighlighter 更新行内容，解析采用防抖定时器

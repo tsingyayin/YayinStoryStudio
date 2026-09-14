@@ -11,7 +11,7 @@
 #include "Agent/Prompt.h"
 #include "Agent/Provider.h"
 #include "Agent/Skill.h"
-#include "VICompileMacro.h"
+#include "VIAgentCompileMacro.h"
 // Forward declarations
 namespace Visindigo::Utility {
 	class JsonConfig;
@@ -21,7 +21,7 @@ namespace Visindigo::Agent {
 }
 // Main
 namespace Visindigo::Agent {
-	class VisindigoAPI Center : public QObject {
+	class VIAgentAPI Center : public QObject {
 		Q_OBJECT;
 	public:
 		static Center* getInstance();

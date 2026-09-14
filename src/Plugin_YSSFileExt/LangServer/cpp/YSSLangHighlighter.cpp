@@ -30,8 +30,9 @@ namespace YSSFileExt {
 
 	/*!
 		\class YSSFileExt::YSSLangHighlighter
-		\brief 通用语法高亮器基类：缓存当前主题、按样式键着色并渲染文档诊断。
+		\brief 通用语法高亮器基类：缓存当前主题、按样式键着色并渲染文档诊断.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		参考 ASERStudio::YSS::LS_AStoryXSyntaxHighlighter 与 JsonLangHighlighter：
 		- 通过 onThemeChanged 缓存当前主题，用 setFormatWithColorKey 按样式键着色；

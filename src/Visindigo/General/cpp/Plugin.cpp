@@ -92,7 +92,7 @@ namespace Visindigo::General {
 		\inheaderfile General/Plugin.h
 		\inmodule Visindigo
 		\ingroup VIPlugin
-		\brief 插件的基类，同时也是应用程序的基类。
+		\brief 插件的基类，同时也是应用程序的基类.
 		\since Visindigo 0.13.0
 
 		Visindigo::General::Plugin 是Visindigo插件系统中最核心的类型。无论您要编写一个可以被他人加载的插件，
@@ -519,6 +519,7 @@ namespace Visindigo::General {
 
 		插件可以声明的权限。这个枚举被用于声明和检查敏感操作的使用权，它只是一个约定，详见Plugin类的文档。
 
+		\value Unknown 未知权限，仅作为零值使用，正常情况下不应出现。
 		\value FileRead 读取外部文件。相对的，内部指的是插件配置文件夹、插件二进制文件夹和当前项目目录。
 		\value FileWrite 写入外部文件。相对的，内部指的是插件配置文件夹、插件二进制文件夹和当前项目目录。
 		\value NetworkLocal 访问本地网络资源，严格指localhost，以及所在局域网的内部资源。
@@ -772,7 +773,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.16.0
-		\a node 键
+		\a key 键名。
 
 		一个便捷函数，用于获取配置中的一个布尔量。如果该键不存在或无法转换为布尔值，则返回false。
 
@@ -1146,5 +1147,5 @@ namespace Visindigo::General {
 	\since Visindigo 0.13.0
 	\relates Visindigo::General::Plugin
 
-	等同于 \a PluginClass::getInstance()，用于快速访问该插件类的单例对象。
+	等同于 \a PluginClass 的 \c{getInstance()}，用于快速访问该插件类的单例对象。
 */

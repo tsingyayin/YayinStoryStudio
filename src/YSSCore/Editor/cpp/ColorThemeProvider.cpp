@@ -41,7 +41,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::ColorThemeProvider
-		\brief 颜色主题提供者，负责维护一组颜色主题及其样式数据。
+		\brief 颜色主题提供者，负责维护一组颜色主题及其样式数据.
 		\since YSS 0.16.0
 		\inmodule YSSCore
 		\ingroup LangService
@@ -140,15 +140,6 @@ namespace YSSCore::Editor {
 	ColorThemeProvider::~ColorThemeProvider() {
 		delete d;
 	}
-
-	/*!
-		\fn void ColorThemeProvider::currentThemeChanged(const QString& themeName)
-		\since YSS 0.16.0
-		\a themeName 新的当前主题的主题名。如果当前主题被删除导致没有当前主题，则为空字符串。
-
-		当当前主题发生变化时发出此信号。当前主题发生变化的情况包括：通过setCurrentTheme切换当前主题，
-		或通过removeTheme删除当前主题。
-	*/
 
 	/*!
 		\since YSS 0.16.0
@@ -263,7 +254,7 @@ namespace YSSCore::Editor {
 		\a themeName 要派生为JSON的主题名。
 		return 表示指定主题的JSON字符串。如果主题不存在，则返回空字符串。
 
-		将指定主题派生为JSON字符串。JSON的结构与加载时的结构一致："name"为 \a themeName，
+		将指定主题派生为JSON字符串。JSON的结构与加载时的结构一致："name" 字段取 \a themeName 的值，
 		"datas"下的每个键为配置节点键，对应的子对象通过Visindigo::Utility::JsonConfig::fromMetable
 		从YSSCore::Editor::StyleData生成。此函数不接触文件系统，由调用方自行决定如何保存返回的字符串。
 	*/
@@ -383,7 +374,7 @@ namespace YSSCore::Editor {
 	
 	/*!
 		\class YSSCore::Editor::StyleData
-		\brief 样式数据，表示一个配置节点的样式信息，与YSSCore::Editor::ColorThemeProvider配合使用。
+		\brief 样式数据，表示一个配置节点的样式信息，与YSSCore::Editor::ColorThemeProvider配合使用.
 		\since YSS 0.16.0
 		\inmodule YSSCore
 		\ingroup LangService

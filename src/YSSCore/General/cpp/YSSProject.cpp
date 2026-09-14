@@ -63,7 +63,7 @@ namespace YSSCore::General {
 			return BackupStorage;
 		}
 
-		/*!
+		/*
 			关闭并销毁 \a storage，删除对应数据库文件，然后重建新的空库。
 		*/
 		void resetStorage(Visindigo::Utility::VirtualStorage*& storage,
@@ -77,7 +77,7 @@ namespace YSSCore::General {
 			storage = new Visindigo::Utility::VirtualStorage(dbPath);
 		}
 
-		/*!
+		/*
 			将路径中的 "." 替换为 "|"（Windows 路径非法字符），
 			避免 JsonConfig 的 "." 键分隔符误切路径段。
 			由于 "|" 不会出现在任何合法项目路径中，转换完全可逆。
@@ -88,7 +88,7 @@ namespace YSSCore::General {
 			return result;
 		}
 
-		/*!
+		/*
 			构造备份虚拟路径：
 			escapedPath/yyyyMMdd_hh_mm_ss.ext
 		*/
@@ -100,7 +100,7 @@ namespace YSSCore::General {
 			return folder + "/" + ts + "." + extension;
 		}
 
-		/*!
+		/*
 			构造回收站虚拟路径：同备份路径规则。
 		*/
 		static QString trashVirtualPath(const QString& inProjRelativePth,
@@ -109,7 +109,7 @@ namespace YSSCore::General {
 			return backupVirtualPath(inProjRelativePth, time, extension);
 		}
 
-		/*!
+		/*
 			从备份虚拟路径的文件名中解析出 QDateTime。
 			文件名格式：yyyyMMdd_hh_mm_ss.ext
 		*/
@@ -120,7 +120,7 @@ namespace YSSCore::General {
 			return QDateTime::fromString(tsPart, "yyyyMMdd_hh_mm_ss");
 		}
 
-		/*!
+		/*
 			获取给定路径的原始扩展名（不含点）。
 		*/
 		static QString fileExtension(const QString& path) {
@@ -467,6 +467,8 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.17.0
 		为树形布局设置配置数据。这个配置数据是一个JsonConfig对象，包含了树形布局的相关设置。
+
+		\a config 树形布局配置数据。
 	*/
 	void YSSProject::setTreeLayoutConfig(const Visindigo::Utility::JsonConfig& config) {
 		d->ProjectConfig->setObject("TreeLayout", config);
@@ -762,6 +764,8 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.17.0
 
+		\a abs_filePath 文件的绝对路径。
+
 		return 指定文件所在的区域ID，如果文件不在任何区域中打开，则返回空字符串。
 	*/
 	QString YSSProject::getFileAreaID(const QString& abs_filePath) {
@@ -967,6 +971,8 @@ namespace YSSCore::General {
 		将 \a inProjRelativePth 在 \a backupTime 的备份还原到磁盘。
 		若 \a restoreToPath 非空，则还原到指定路径；
 		若 \a overwrite 为 false 且目标已存在，则不覆盖返回 false。
+
+		return 还原成功返回 true；目标已存在且不覆盖时返回 false。
 	*/
 	bool YSSProject::restoreFileBackup(const QString& inProjRelativePth,
 	                                    const QDateTime& backupTime,
@@ -1028,6 +1034,8 @@ namespace YSSCore::General {
 
 	/*!
 		设置每个文件保留的最大备份数量。超过上限时，最旧的备份会被自动清理。
+
+		\a count 保留的最大备份数量。
 	*/
 	void YSSProject::setFileBackupMaxCount(qint32 count) {
 		d->BackupMaxCount = (count > 0) ? count : 1;

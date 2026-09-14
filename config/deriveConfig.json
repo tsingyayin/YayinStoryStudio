@@ -20,6 +20,16 @@
             "platforms": ["x64"],
             "release_build_paths": ["./x64/Release"],
             "debug_build_paths": ["./x64/Debug"]
+        },
+        "VIAgent": {
+            "proj_path": "./src/VIAgent",
+            "modules": [ "Agent" ],
+            "bin_main_name": "VIAgent",
+            "bin_ext_names": ["dll", "exp", "lib", "pdb", "ilk", "map"],
+            "ignore_header_suffixes": ["_p"],
+            "platforms": ["x64"],
+            "release_build_paths": ["./x64/Release"],
+            "debug_build_paths": ["./x64/Debug"]
         }
     }
 }

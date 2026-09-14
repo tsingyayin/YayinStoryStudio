@@ -11,8 +11,8 @@
 	   features remain basically stable.
 */
 #include <functional>
+#include <Utility/JsonConfig.h>
 #include "Agent/Function.h"
-#include "Utility/JsonConfig.h"
 
 namespace Visindigo::Agent {
 	/*!
@@ -20,18 +20,18 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Function.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 可供模型调用的工具接口。
+		\brief 可供模型调用的工具接口.
 
 		继承本类并实现五个纯虚函数，即可把一个本地能力暴露给模型。Visindigo
 		会把 \l getParameterSchema() 转换成请求里的工具声明，模型决定调用后
-		再把参数交回 \l invoke()。
+		再把参数交回 \l{invoke()}。
 
 		\l getId() 同时充当"发给模型的工具名"，因此它必须满足模型对函数名的
 		字符集限制（字母、数字、下划线、连字符，长度不超过 64），并且不含空格
 		与点号。用人类可读的中文名做 id 会导致请求被服务端直接拒绝，所以
 		\l getName() 与 \l getId() 是两个独立的概念：前者用于展示，后者用于协议。
 
-		所有函数对象的所有权归 \l Center 或 \l Dialog，二者按 id 索引，因此一份
+		所有函数对象的所有权归 \l{Center} 或 \l{Dialog}，二者按 id 索引，因此一份
 		对话不会因为函数被复制而重复执行。实现者不需要自己做单例或缓存。
 	*/
 
@@ -97,6 +97,9 @@ namespace Visindigo::Agent {
 		\note 默认实现是在调用线程上完成的，因此回调会在 \l invokeAsync() 返回
 		之前就被触发。需要在回调里发起新请求的实现必须覆写本函数把工作交给
 		事件循环，否则会在同一个调用栈里层层嵌套。
+
+		\a arguments 模型给出的参数对象。
+		\a callback 执行完成后调用的回调。
 	*/
 	void Function::invokeAsync(const Visindigo::Utility::JsonConfig& arguments,
 		std::function<void(const Visindigo::Utility::JsonConfig&)> callback) {

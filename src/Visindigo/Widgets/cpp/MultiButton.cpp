@@ -135,7 +135,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.15.6
-		\a 设置是否启用选中状态功能。
+		\a enable 设置是否启用选中状态功能。
 
 		设置按钮是否启用选中状态功能。启用后，按钮可以通过setChecked(bool)函数设置为选中或非选中状态，
 		并且在被点击时会自动切换选中状态。选中状态与被按下状态使用相同的样式。

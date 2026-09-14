@@ -34,8 +34,9 @@ namespace YSSFileExt {
 
 	/*!
 		\class YSSFileExt::SimpleFileTemplateInitWidget
-		\brief 极简新建文件初始化控件：输入文件名，在目标文件夹创建指定扩展名的空文件。
+		\brief 极简新建文件初始化控件：输入文件名，在目标文件夹创建指定扩展名的空文件.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		参考 ASERStudio::YSS::FileTemplateInitWidget_AStoryX，但不使用 ConfigWidget，
 		仅提供一个文件名输入框与创建按钮。创建成功后发出 filePrepared 信号。
@@ -122,8 +123,9 @@ namespace YSSFileExt {
 
 	/*!
 		\class YSSFileExt::SimpleFileTemplateProvider
-		\brief 基于 SimpleFileTemplateInitWidget 的通用空文件模板提供者。
+		\brief 基于 SimpleFileTemplateInitWidget 的通用空文件模板提供者.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 	*/
 	SimpleFileTemplateProvider::SimpleFileTemplateProvider(YSSCore::Editor::EditorPlugin* plugin,
 		const QString& name, const QString& id, const QString& templateID,

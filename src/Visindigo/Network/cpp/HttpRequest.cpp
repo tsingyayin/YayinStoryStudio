@@ -105,7 +105,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpRequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 普通 HTTP(S) 请求的描述对象。
+		\brief 普通 HTTP(S) 请求的描述对象.
 
 		HttpRequest 是纯值类型（pimpl 实现），可以自由拷贝与传递。它的职责只有一个：
 		描述"要发什么样的请求"，不承担任何传输行为。真正发起请求需要把本对象交给
@@ -209,11 +209,13 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置请求方法。默认是 \l Method::Get。
+		设置请求方法。默认是 \l{Method::Get}。
 
-		需要注意的是：把方法改为非幂等方法（如 POST）后，\l RetryPolicy 中
-		默认开启的 \l RetryPolicy::RetryIdempotentOnly 会导致该请求不再被重试。
+		需要注意的是：把方法改为非幂等方法（如 POST）后，\l{RetryPolicy} 中
+		默认开启的 \c{RetryPolicy::RetryIdempotentOnly} 会导致该请求不再被重试。
 		这是刻意设计，避免重复提交造成服务端重复处理。
+
+		\a method 请求方法。
 	*/
 	HttpRequest& HttpRequest::setMethod(Method method) {
 		d->MethodName = method;
@@ -228,6 +230,8 @@ namespace Visindigo::Network {
 
 		方法名必须是合法的 HTTP token（RFC 7230），即只允许字母、数字与
 		! # $ % & ' * + - . ^ _ ` | ~ 这些字符。
+
+		\a verb 自定义方法名。
 	*/
 	HttpRequest& HttpRequest::setCustomMethod(const QByteArray& verb) {
 		d->CustomMethod = verb;
@@ -247,6 +251,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置目标地址。若传入的是绝对地址，则中心配置的 BaseUrl 不参与拼接。
+
+		\a url 目标地址。
 	*/
 	HttpRequest& HttpRequest::setUrl(const QUrl& url) {
 		d->Url = url;
@@ -257,6 +263,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置目标地址的字符串重载，内部转为 QUrl。
+
+		\a url 目标地址字符串。
 	*/
 	HttpRequest& HttpRequest::setUrl(const QString& url) {
 		d->Url = QUrl(url);
@@ -270,6 +278,8 @@ namespace Visindigo::Network {
 
 		之所以提供这个入口，是为了让调用方不必到处拼接基础地址，从而避免升级域名或
 		切换测试环境时遗漏某个硬编码的完整 URL。
+
+		\a relativePath 相对于中心 BaseUrl 的路径。
 	*/
 	HttpRequest& HttpRequest::setPath(const QString& relativePath) {
 		d->Url = QUrl(relativePath);
@@ -291,6 +301,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		批量追加查询参数，同样是追加而非覆盖。
+
+		\a params 查询参数表。
 	*/
 	HttpRequest& HttpRequest::setQuery(const QMap<QString, QString>& params) {
 		for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
@@ -313,6 +325,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		批量设置请求头。
+
+		\a headers 请求头表。
 	*/
 	HttpRequest& HttpRequest::setHeader(const QMap<QString, QString>& headers) {
 		for (auto it = headers.constBegin(); it != headers.constEnd(); ++it) {
@@ -325,6 +339,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置 Content-Type 请求头。
+
+		\a mime MIME 类型名，例如 \c "application/json"。
 	*/
 	HttpRequest& HttpRequest::setContentType(const QString& mime) {
 		d->Headers.insert(QStringLiteral("Content-Type"), mime);
@@ -335,6 +351,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		QMimeType 重载，直接采用该 MIME 类型的名称。
+
+		\a mime MIME 类型。
 	*/
 	HttpRequest& HttpRequest::setContentType(const QMimeType& mime) {
 		d->Headers.insert(QStringLiteral("Content-Type"), mime.name());
@@ -345,6 +363,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置 Accept 请求头，声明期望的响应类型。
+
+		\a mime MIME 类型名。
 	*/
 	HttpRequest& HttpRequest::setAccept(const QString& mime) {
 		d->Headers.insert(QStringLiteral("Accept"), mime);
@@ -355,6 +375,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		QMimeType 重载，直接采用该 MIME 类型的名称。
+
+		\a mime MIME 类型。
 	*/
 	HttpRequest& HttpRequest::setAccept(const QMimeType& mime) {
 		d->Headers.insert(QStringLiteral("Accept"), mime.name());
@@ -365,6 +387,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置 User-Agent。未设置时使用中心配置的默认值。
+
+		\a userAgent User-Agent 取值。
 	*/
 	HttpRequest& HttpRequest::setUserAgent(const QString& userAgent) {
 		d->Headers.insert(QStringLiteral("User-Agent"), userAgent);
@@ -379,6 +403,8 @@ namespace Visindigo::Network {
 		若本函数未被调用，且中心通过 setAuthProvider() 配置了凭据提供者，
 		则由该提供者按目标地址生成凭据。这样可以让令牌刷新逻辑集中在一处，
 		而不必在每个发起请求的地方重复实现。
+
+		\a token 访问令牌。
 	*/
 	HttpRequest& HttpRequest::setBearerToken(const QString& token) {
 		d->Headers.insert(QStringLiteral("Authorization"), QStringLiteral("Bearer ") + token);
@@ -392,6 +418,9 @@ namespace Visindigo::Network {
 
 		\note Basic 认证只做 Base64 编码，不含任何加密。若目标地址不是 https，
 		凭据在链路上等同于明文，因此中心默认开启的证书校验不应被关闭。
+
+		\a user 用户名。
+		\a password 密码。
 	*/
 	HttpRequest& HttpRequest::setBasicAuth(const QString& user, const QString& password) {
 		const QByteArray raw = user.toUtf8() + ':' + password.toUtf8();
@@ -420,6 +449,7 @@ namespace Visindigo::Network {
 		以已序列化好的 JSON 字节作为请求体。不做合法性校验，原样发出。
 
         本函数也自动设置 Content-Type 为 application/json（若调用方此前已显式设置过 Content-Type，则保留先前的设置）。
+		\a rawJson 已序列化的 JSON 字节。
 	*/
 	HttpRequest& HttpRequest::setJsonBody(const QByteArray& rawJson) {
 		d->Body = rawJson;
@@ -433,6 +463,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		直接设置原始请求体，不自动附加任何 Content-Type。
+
+		\a body 原始请求体字节。
 	*/
 	HttpRequest& HttpRequest::setRawBody(const QByteArray& body) {
 		d->Body = body;
@@ -443,6 +475,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		以 application/x-www-form-urlencoded 形式提交表单字段。
+
+		\a fields 表单字段表。
 	*/
 	HttpRequest& HttpRequest::setFormBody(const QMap<QString, QString>& fields) {
 		QUrlQuery query;
@@ -462,6 +496,9 @@ namespace Visindigo::Network {
 		按 multipart/form-data 组装，Content-Type 中会带上自动生成的 boundary。
 
 		\note 字段名中的换行符会被剔除，避免通过名称伪造额外的头行。
+
+		\a name 字段名。
+		\a value 字段值。
 	*/
 	HttpRequest& HttpRequest::addMultipartField(const QString& name, const QString& value) {
 		d->MultipartFields.append(qMakePair(name, value));
@@ -473,6 +510,9 @@ namespace Visindigo::Network {
 
 		向多部分表单追加一个文件字段。文件在发送时读取，因此若文件在提交请求与
 		真正发送之间被删除，请求会以错误结束。
+
+		\a name 字段名。
+		\a filePath 待上传文件的路径。
 	*/
 	HttpRequest& HttpRequest::addMultipartFile(const QString& name, const QString& filePath) {
 		d->MultipartFiles.append(qMakePair(name, filePath));
@@ -483,6 +523,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置响应体的消费方式。详见 \l BodySink 的说明。
+
+		\a sink 响应体消费方式。
 	*/
 	HttpRequest& HttpRequest::setBodySink(BodySink sink) {
 		d->SinkKind = sink;
@@ -492,13 +534,15 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		指定下载文件的落盘路径，并隐含地把消费方式设为 \l BodySink::ToFile。
+		指定下载文件的落盘路径，并隐含地把消费方式设为 \l{BodySink::ToFile}。
 
 		落盘采用原子替换语义：数据先写入同目录下的临时文件，全部成功后才覆盖目标，
 		因此不会出现"看起来完整但实际残缺"的文件。失败或中止时目标路径保持原样。
 
 		落盘只针对最终响应的消息体。重定向途中的 3xx 响应体不会写入文件，
 		非 2xx 响应也不会写入——避免把错误页当成下载结果保存下来。
+
+		\a filePath 落盘目标路径。
 	*/
 	HttpRequest& HttpRequest::setDownloadFilePath(const QString& filePath) {
 		d->DownloadFilePath = filePath;
@@ -514,6 +558,8 @@ namespace Visindigo::Network {
 
 		这个上限存在的意义是防御：若不加限制，一个恶意的或错误的超长响应
 		可以直接把进程的内存吃光。
+
+		\a bytes 内存缓存上限，单位为字节。
 	*/
 	HttpRequest& HttpRequest::setMaxBufferBytes(qint64 bytes) {
 		d->MaxBufferBytes = bytes;
@@ -525,8 +571,10 @@ namespace Visindigo::Network {
 
 		设置落盘总字节上限，0 表示不限，默认不限。
 
-		它作用于 \l BodySink::ToFile，用于避免下载任务被一个无限增长的服务端响应
+		它作用于 \l{BodySink::ToFile}，用于避免下载任务被一个无限增长的服务端响应
 		拖垮磁盘。
+
+		\a bytes 落盘总字节上限；0 表示不限。
 	*/
 	HttpRequest& HttpRequest::setMaxResponseBytes(qint64 bytes) {
 		d->MaxResponseBytes = bytes;
@@ -543,6 +591,7 @@ namespace Visindigo::Network {
 		对于 SSE 通常不必手动设置，\l SSERequest 会自动挂载 SseDecoder。
 
         请注意，被挂载的decoder其所有权由调用方负责，HttpRequest不会对其进行管理。
+		\a decoder 解码器实例，所有权由调用方持有。
 	*/
 	HttpRequest& HttpRequest::setStreamDecoder(std::shared_ptr<IStreamDecoder> decoder) {
 		d->Decoder = decoder;
@@ -556,6 +605,8 @@ namespace Visindigo::Network {
 		视图以 \l HttpError::ErrorType::ParseError 失败。
 
 		它防的是"服务端迟迟不发换行"这一种情况：此时解码器的内部缓冲会无限增长。
+
+		\a bytes 单帧上限，单位为字节。
 	*/
 	HttpRequest& HttpRequest::setMaxFrameBytes(qint64 bytes) {
 		d->MaxFrameBytes = bytes;
@@ -569,6 +620,8 @@ namespace Visindigo::Network {
 
 		\note 总超时对长连接是有害的：流式响应可能在总超时到达时被强行掐断。
 		流式请求应当使用 setIdleTimeoutMs() 而非本函数。
+
+		\a ms 总超时毫秒数；0 表示采用中心配置的默认值。
 	*/
 	HttpRequest& HttpRequest::setTimeoutMs(qint32 ms) {
 		d->TimeoutMs = ms;
@@ -583,6 +636,8 @@ namespace Visindigo::Network {
 
 		这个超时比总超时更能表达"连接还活着吗"：只要服务端持续推送数据，
 		连接就不会被判定为超时，而一旦长时间没有任何字节到达，就说明链路已经出问题。
+
+		\a ms 空闲超时毫秒数；0 采用中心默认值，小于 0 关闭空闲超时。
 	*/
 	HttpRequest& HttpRequest::setIdleTimeoutMs(qint32 ms) {
 		d->IdleTimeoutMs = ms;
@@ -593,6 +648,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置重试策略。默认策略对幂等方法重试 3 次（含首次），采用带抖动的指数退避。
+
+		\a policy 重试策略。
 	*/
 	HttpRequest& HttpRequest::setRetryPolicy(const RetryPolicy& policy) {
 		d->Retry = policy;
@@ -603,7 +660,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置重定向跟随策略，默认 \l RedirectPolicy::Safe。
+		设置重定向跟随策略，默认 \l{RedirectPolicy::Safe}。
+
+		\a policy 重定向跟随策略。
 	*/
 	HttpRequest& HttpRequest::setRedirectPolicy(RedirectPolicy policy) {
 		d->RedirectMode = policy;
@@ -618,6 +677,8 @@ namespace Visindigo::Network {
 
 		这个上限同时也是一个安全边界：没有它，两个互相指向对方的地址可以构成
 		无限跳转，从而把请求永久卡死。
+
+		\a count 最大跟随跳数。
 	*/
 	HttpRequest& HttpRequest::setFollowRedirectsMax(qint32 count) {
 		d->FollowRedirectsMax = count;
@@ -627,7 +688,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置调度优先级，默认 \l Priority::Normal。
+		设置调度优先级，默认 \l{Priority::Normal}。
+
+		\a priority 调度优先级。
 	*/
 	HttpRequest& HttpRequest::setPriority(Priority priority) {
 		d->PriorityLevel = priority;
@@ -642,6 +705,8 @@ namespace Visindigo::Network {
 		典型用法是给同一个界面发起的全部请求打同一个标签，界面关闭时调用
 		Visindigo::Network::HttpCenter::abortByTag() 一次性取消，避免界面销毁后
 		仍在接收回调。
+
+		\a tag 标签文本。
 	*/
 	HttpRequest& HttpRequest::setTag(const QString& tag) {
 		d->Tag = tag;
@@ -653,6 +718,8 @@ namespace Visindigo::Network {
 
 		为本次请求单独指定代理，覆盖中心配置的全局代理。传入空的 QUrl 表示
 		"本请求直连"，即便全局配置了代理。
+
+		\a proxy 代理地址；传空的 QUrl 表示本请求直连。
 	*/
 	HttpRequest& HttpRequest::setProxyOverride(const QUrl& proxy) {
 		d->ProxyOverride = proxy;
@@ -666,6 +733,8 @@ namespace Visindigo::Network {
 
 		\warning 关闭证书校验等同于放弃中间人防护，链路内容可被任意篡改与窃听。
 		仅在连接自签名的本地服务等明确受控的场景下使用，且不应成为默认行为。
+
+		\a verify 是否校验证书。
 	*/
 	HttpRequest& HttpRequest::setVerifyTls(bool verify) {
 		d->VerifyTls = verify;
@@ -783,17 +852,17 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpRequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief HTTP 响应描述对象。
+		\brief HTTP 响应描述对象.
 
 		HttpResponse 是值类型，可以自由拷贝与传递。它同时承担两个角色：在请求
 		进行中作为"已到达的元数据"载体（由 \l HttpReply::headersReceived 交付），
 		在请求结束后作为"最终结果"载体（由 \l HttpReply::finished 交付）。
 
-		消息体在何时可用，取决于请求设置的 \l HttpRequest::BodySink：
+		消息体在何时可用，取决于请求设置的 \l{HttpRequest::BodySink}：
 		\list
-		\li \l HttpRequest::BodySink::Auto、\l HttpRequest::BodySink::Buffer：
+		\li \l{HttpRequest::BodySink::Auto}、\l{HttpRequest::BodySink::Buffer}：
 			请求结束后可通过 getBody() 取得。
-		\li \l HttpRequest::BodySink::ToFile：getBody() 始终为空，消息体的载体是文件，
+		\li \l{HttpRequest::BodySink::ToFile}：getBody() 始终为空，消息体的载体是文件，
 			路径由 getDownloadFilePath() 给出。
 		\endlist
 		流式请求在结束前消息体也尚未收齐，应通过 \l HttpReply::bodyChunkReceived
@@ -826,6 +895,8 @@ namespace Visindigo::Network {
 		\l HttpReply::headersReceived 交付的对象其 isValid() 为 \c true ，
 		此时消息体可能还没有任何数据。若想知道请求整体是否结束，应查看
 		Visindigo::Network::HttpReply::getState()。
+
+		return 响应头已经到达时返回 true。
 	*/
 	bool HttpResponse::isValid() const {
 		return d->Valid;
@@ -854,6 +925,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		判断状态码是否在 2xx 区间，即请求是否被服务端正常受理。
+
+		return 状态码在 2xx 区间时返回 true。
 	*/
 	bool HttpResponse::isSuccess() const {
 		return d->StatusCode >= 200 && d->StatusCode < 300;
@@ -866,6 +939,8 @@ namespace Visindigo::Network {
 
 		\note HTTP 允许同名头出现多次。本函数只返回其中之一，若确实需要拿到全部
 		同名值，请使用 getHeaders() 并自行处理合并规则。
+
+		\a key 头名，不区分大小写。
 	*/
 	QString HttpResponse::getHeader(const QString& key) const {
 		return d->Headers.value(key.toLower());
@@ -1012,6 +1087,8 @@ namespace Visindigo::Network {
 
 		判断 Content-Disposition 是否声明的 disposition 类型为 \c attachment，
 		即服务端明确把响应当作"下载"而非"就地展示"。该头缺失时返回 \c false。
+
+		return 该头声明的类型为 attachment 时返回 true。
 	*/
 	bool HttpResponse::isAttachment() const {
 		const QString disposition = d->Headers.value(QStringLiteral("content-disposition"));

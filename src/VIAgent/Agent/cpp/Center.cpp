@@ -15,6 +15,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
+#include <Utility/JsonConfig.h>
 #include "Agent/Center.h"
 #include "Agent/Dialog.h"
 #include "Agent/Function.h"
@@ -24,7 +25,6 @@
 #include "Agent/Provider.h"
 #include "Agent/Skill.h"
 #include "Agent/private/Center_p.h"
-#include "Utility/JsonConfig.h"
 
 namespace Visindigo::Agent {
 	Center* CenterPrivate::Instance = nullptr;
@@ -34,7 +34,7 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Center.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 智能体配置与对话的全局注册表。
+		\brief 智能体配置与对话的全局注册表.
 
 		Center 集中保存模型池、服务商、技能、工具服务器、函数、提示模板以及
 		全部对话，并提供唯一的进程级实例。它是一个单例，但不是一个"什么都干"
@@ -45,7 +45,7 @@ namespace Visindigo::Agent {
 		而 id 一旦生成就稳定。凭据也都集中在模型池里，Provider 与 Dialog 只保存
 		id，于是轮换一次密钥只需要改一处。
 
-		\warning 传入指针的接口（\l addFunction()、\l createDialog() 等）转移所有权。
+		\warning 传入指针的接口（\l{addFunction()}、\l{createDialog()} 等）转移所有权。
 		销毁必须走对应的 \c remove 接口，直接 \c delete 会让注册表留下悬空指针。
 	*/
 
@@ -68,6 +68,8 @@ namespace Visindigo::Agent {
 
 		\note 注册时会保留传入对象原有的 id，因此"先取出、改一改、再放回"是可用的
 		更新方式。
+
+		\a model 要注册的模型；其 id 为空时会被忽略。
 	*/
 	Center& Center::addModel(const Model& model) {
 		if (not model.getId().isEmpty()) {
@@ -81,6 +83,8 @@ namespace Visindigo::Agent {
 
 		移除一个模型。已经引用该 id 的 Provider 与 Dialog 不会因此报错，只是
 		在挑选模型时挑不到它。
+
+		\a id 模型 id。
 	*/
 	Center& Center::removeModel(const QString& id) {
 		d->Models.remove(id);
@@ -92,6 +96,8 @@ namespace Visindigo::Agent {
 
 		按 id 返回模型。不存在时返回一个 \l Model::isValid() 为 \c false 的空模型，
 		因此判断"有没有"请用 \c isValid() 而不是别的字段。
+
+		\a id 模型 id。
 	*/
 	Model Center::getModel(const QString& id) const {
 		return d->Models.value(id);
@@ -119,6 +125,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		注册一个服务商，以 \l Provider::getId() 为键。同 id 会覆盖旧项。
+
+		\a provider 要注册的服务商；其 id 为空时会被忽略。
 	*/
 	Center& Center::addProvider(const Provider& provider) {
 		if (not provider.getId().isEmpty()) {
@@ -132,6 +140,8 @@ namespace Visindigo::Agent {
 
 		移除一个服务商。若它正是默认服务商，默认项会被一并清空——留着指向一个
 		不存在的服务商，只会在下次执行时得到一句莫名其妙的失败。
+
+		\a id 服务商 id。
 	*/
 	Center& Center::removeProvider(const QString& id) {
 		d->Providers.remove(id);
@@ -146,7 +156,7 @@ namespace Visindigo::Agent {
 
 		按 id 返回服务商。不存在时返回一个 \l Provider::isValid() 为 \c false
 		的空对象。
-	*/
+		\a id 服务商 id。	*/
 	Provider Center::getProvider(const QString& id) const {
 		return d->Providers.value(id);
 	}
@@ -164,6 +174,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		注册一个全局技能，以名称为键。同名会覆盖旧项。
+
+		\a skill 要注册的技能；其名称为空时会被忽略。
 	*/
 	Center& Center::addSkill(const Skill& skill) {
 		if (not skill.getName().isEmpty()) {
@@ -176,6 +188,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除一个全局技能。挂载了同名技能的对话不受影响：它们保存的是自己的副本。
+
+		\a name 技能名称。
 	*/
 	Center& Center::removeSkill(const QString& name) {
 		d->Skills.remove(name);
@@ -186,6 +200,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		按名称返回全局技能。不存在时返回一个 \l Skill::isValid() 为 \c false 的空对象。
+
+		\a name 技能名称。
 	*/
 	Skill Center::getSkill(const QString& name) const {
 		return d->Skills.value(name);
@@ -204,6 +220,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		注册一个全局工具服务器配置，以名称为键。同名会覆盖旧项。
+
+		\a server 要注册的工具服务器配置；其名称为空时会被忽略。
 	*/
 	Center& Center::addMCP(const MCP& server) {
 		if (not server.getName().isEmpty()) {
@@ -216,6 +234,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除一个全局工具服务器配置。
+
+		\a name 工具服务器名称。
 	*/
 	Center& Center::removeMCP(const QString& name) {
 		d->MCPs.remove(name);
@@ -227,6 +247,8 @@ namespace Visindigo::Agent {
 
 		按名称返回全局工具服务器配置。不存在时返回一个 \l MCP::isValid() 为
 		\c false 的空对象。
+
+		\a name 工具服务器名称。
 	*/
 	MCP Center::getMCP(const QString& name) const {
 		return d->MCPs.value(name);
@@ -251,6 +273,8 @@ namespace Visindigo::Agent {
 		\note 只接受 id 为空的函数是不会成功的——id 既是索引键也是发给模型的工具名，
 		没有它这个函数就无法被调用。传入 \c nullptr 与空 id 都不会改变现有注册，
 		因此不需要在调用前先判断一次。
+
+		\a function 要注册的函数对象，所有权随之转移给 Center。
 	*/
 	Center& Center::addFunction(Function* function) {
 		if (function == nullptr or function->getId().isEmpty()) {
@@ -266,6 +290,8 @@ namespace Visindigo::Agent {
 
 		移除并释放一个全局函数。挂载了同 id 函数的对话会重新解析到这个空位，
 		它们自己的副本不受影响。
+
+		\a id 函数 id。
 	*/
 	Center& Center::removeFunction(const QString& id) {
 		auto it = d->Functions.find(id);
@@ -282,6 +308,8 @@ namespace Visindigo::Agent {
 		按 id 返回全局函数。不存在时返回 \c nullptr。
 
 		\note 返回的是借用指针，所有权仍在 Center；调用方不得删除它。
+
+		\a id 函数 id。
 	*/
 	Function* Center::getFunction(const QString& id) const {
 		return d->Functions.value(id, nullptr);
@@ -300,6 +328,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		注册一个全局提示模板，以名称为键。同名会覆盖旧项。
+
+		\a prompt 要注册的提示模板；其名称为空时会被忽略。
 	*/
 	Center& Center::addPrompt(const Prompt& prompt) {
 		if (not prompt.getName().isEmpty()) {
@@ -312,6 +342,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除一个全局提示模板。
+
+		\a name 模板名称。
 	*/
 	Center& Center::removePrompt(const QString& name) {
 		d->Prompts.remove(name);
@@ -323,6 +355,8 @@ namespace Visindigo::Agent {
 
 		按名称返回全局提示模板。不存在时返回一个 \l Prompt::isValid() 为 \c false
 		的空对象。
+
+		\a name 模板名称。
 	*/
 	Prompt Center::getPrompt(const QString& name) const {
 		return d->Prompts.value(name);
@@ -377,6 +411,8 @@ namespace Visindigo::Agent {
 
 		先恢复内容再注册，这样注册用的就是存档里的 id，而不是新建时临时生成的那个；
 		否则恢复出来的对话会与存档里的引用对不上。
+
+		\a json 对话存档。
 	*/
 	Dialog* Center::restoreDialog(const Visindigo::Utility::JsonConfig& json) {
 		Dialog* dialog = new Dialog();
@@ -403,6 +439,8 @@ namespace Visindigo::Agent {
 		移除并销毁一条对话。id 不存在时什么也不做。
 
 		这是销毁对话的正确方式；直接 \c delete 会让注册表留下悬空指针。
+
+		\a id 对话 id。
 	*/
 	void Center::removeDialog(const QString& id) {
 		auto it = d->Dialogs.find(id);
@@ -419,6 +457,8 @@ namespace Visindigo::Agent {
 		按 id 返回对话。不存在时返回 \c nullptr。
 
 		\note 返回的是借用指针，所有权仍在 Center。
+
+		\a id 对话 id。
 	*/
 	Dialog* Center::getDialog(const QString& id) const {
 		return d->Dialogs.value(id, nullptr);
@@ -529,11 +569,15 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		用存档整体替换当前注册表，返回是否成功处理。
+		用存档整体替换当前注册表。
 
 		\note 这是替换而不是合并：已经存在的对话会被销毁。合并两份存档看起来更
 		友好，但同名项该保留谁的、对话 id 撞了该听谁的，都无法给出一个不需要
 		调用方补充规则的回答，因此不如让调用方自己决定怎么拼。
+
+		\a json 注册表存档。
+
+		return 存档为空时返回 false，否则返回 true。
 	*/
 	bool Center::fromJson(const Visindigo::Utility::JsonConfig& json) {
 		if (json.isEmpty()) {

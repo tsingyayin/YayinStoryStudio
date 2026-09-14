@@ -3,7 +3,7 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
-#include "VICompileMacro.h"
+#include "VIAgentCompileMacro.h"
 // Forward declarations
 namespace Visindigo::Utility {
 	class JsonConfig;
@@ -14,7 +14,7 @@ namespace Visindigo::Agent {
 }
 // Main
 namespace Visindigo::Agent {
-	class VisindigoAPI Prompt {
+	class VIAgentAPI Prompt {
 	public:
 		Prompt();
 		Prompt(const QString& name, const QString& content);

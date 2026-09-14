@@ -300,6 +300,7 @@ namespace Visindigo::General {
 	*/
 
 	/*!
+		\fn Visindigo::General::VIApplication::VIApplication(int& argc, char** argv, AppType appType, bool changeWorkingDirToExeDir)
 		\since Visindigo 0.13.0
 		创建VIApplication类的新实例。
 		\a argc 和 \a argv 参数与Qt的QCoreApplication、QGuiApplication和QApplication类的构造函数参数相同。
@@ -568,7 +569,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.16.0
-		\a iconFontRouter 字体命名路由
+		\a router 字体命名路由
 		
 		设置图标字体的命名路由。
 	*/

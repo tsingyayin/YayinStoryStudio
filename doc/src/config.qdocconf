@@ -16,8 +16,10 @@ includepaths += .\
 	.. \
 	../../src/Visindigo \
 	../../src/YSSCore \
+	../../src/VIAgent \
 	../../src/YayinStoryStudio \
 	../../src/Plugin_ASERStudio \
+	../../src/Plugin_YSSFileExt \
 	D:/Qt/6.10.3/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.3/msvc2022_64/include/QtGui \
 	D:/Qt/6.10.3/msvc2022_64/include/QtWidgets \
@@ -28,8 +30,10 @@ headerdirs += .\
 	.. \
 	../../src/Visindigo \
 	../../src/YSSCore \
+	../../src/VIAgent \
 	../../src/YayinStoryStudio \
 	../../src/Plugin_ASERStudio \
+	../../src/Plugin_YSSFileExt \
 	D:/Qt/6.10.3/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.3/msvc2022_64/include/QtGui \
 	D:/Qt/6.10.3/msvc2022_64/include/QtWidgets \
@@ -41,8 +45,10 @@ sourcedirs +=.\
 	../../src \
 	../../src/Visindigo \
 	../../src/YSSCore \
+	../../src/VIAgent \
 	../../src/YayinStoryStudio \
-	../../src/Plugin_ASERStudio
+	../../src/Plugin_ASERStudio \
+	../../src/Plugin_YSSFileExt
 
 headers.fileextensions  = "*.h *.hpp"
 sources.fileextensions  = "*.cpp *.qml *.qdoc"

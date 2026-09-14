@@ -24,8 +24,9 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	/*!
 		\class YSSFileExt::YSSLangDiagnosticData
-		\brief 一条通用语法诊断信息（行、列、长度、严重级别、代码与修复建议）。
+		\brief 一条通用语法诊断信息（行、列、长度、严重级别、代码与修复建议）.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		供 YAMLLangServer / XMLLangServer / TOMLLangServer / iniLangServer
 		共同使用的简单值类型，模仿 ASERStudio::AStorySyntax::AStoryXDiagnosticData。
@@ -62,8 +63,9 @@ namespace YSSFileExt {
 
 	/*!
 		\class YSSFileExt::YSSLangDocument
-		\brief 通用语言文档：维护行内容、防抖全文档分析并存储逐行诊断。
+		\brief 通用语言文档：维护行内容、防抖全文档分析并存储逐行诊断.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		参考 JsonLangDocument：由 SyntaxHighlighter 在 onBlockChanged 中调用
 		onSyntaxHighlighter 更新行内容，解析采用防抖定时器延迟到事件循环，

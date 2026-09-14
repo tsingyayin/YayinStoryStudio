@@ -199,7 +199,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpCenter.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 通用 HTTP / HTTPS / WebSocket 请求中心。
+		\brief 通用 HTTP / HTTPS / WebSocket 请求中心.
 
 		HttpCenter 是进程内单例，是本模块唯一的入口。它只补齐 Qt 没有提供的那一层，
 		并不重复实现 Qt 已有的能力：代理、Cookie、TLS 配置、网络可达性判断依旧由
@@ -228,6 +228,8 @@ namespace Visindigo::Network {
 
 		请求已提交。\a request 是中心补齐解码器、凭据与超时之后的最终形态，
 		而不是调用方传进来的那一份；排查问题时应当以它为准。
+
+		\a id 请求编号。
 	*/
 
 	/*!
@@ -235,13 +237,19 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		请求成功结束。
+
+		\a id 请求编号。
+		\a response 最终响应。
 	*/
 
 	/*!
 		\fn void Visindigo::Network::HttpCenter::requestFailed(quint64 id, const HttpError& error)
 		\since Visindigo 0.17.0
 
-		请求失败。被中止的请求不计入其中，它们只走 \l HttpReply::aborted。
+		请求失败。被中止的请求不计入其中，它们只走 \l{HttpReply::aborted}。
+
+		\a id 请求编号。
+		\a error 失败原因。
 	*/
 
 	/*!
@@ -249,6 +257,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		网络可达性发生变化。界面上的离线提示可以挂在这里，不必自己轮询。
+
+		\a online 网络是否可达。
 	*/
 
 	/*!
@@ -297,6 +307,8 @@ namespace Visindigo::Network {
 
 		设置默认基础地址。使用 Visindigo::Network::HttpRequest::setPath() 指定相对
 		路径的请求会基于它解析。
+
+		\a baseUrl 默认基础地址。
 	*/
 	void HttpCenter::setDefaultBaseUrl(const QUrl& baseUrl) {
 		d->DefaultBaseUrl = baseUrl;
@@ -315,6 +327,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置默认 User-Agent，请求未单独指定时使用。
+
+		\a userAgent 默认 User-Agent 取值。
 	*/
 	void HttpCenter::setDefaultUserAgent(const QString& userAgent) {
 		d->DefaultUserAgent = userAgent;
@@ -328,6 +342,8 @@ namespace Visindigo::Network {
 
 		\note 总超时对长连接是有害的：流式响应会在时间到达后被强行掰断。
 		流式请求应当改用 Visindigo::Network::HttpRequest::setIdleTimeoutMs()。
+
+		\a ms 默认总超时毫秒数。
 	*/
 	void HttpCenter::setDefaultTimeoutMs(qint32 ms) {
 		d->DefaultTimeoutMs = ms;
@@ -341,6 +357,8 @@ namespace Visindigo::Network {
 
 		这是长连接唯一合适的超时形式：只要服务端持续推送数据，连接就不会被判
 		超时，而长时间没有字节到达则说明链路确实出了问题。
+
+		\a ms 默认空闲超时毫秒数。
 	*/
 	void HttpCenter::setDefaultIdleTimeoutMs(qint32 ms) {
 		d->DefaultIdleTimeoutMs = ms;
@@ -352,6 +370,8 @@ namespace Visindigo::Network {
 		设置默认重试策略，作为模板应用于未自行设置过策略的请求。
 		请求一旦调用过 Visindigo::Network::HttpRequest::setRetryPolicy()，
 		就完全以它自己的设置为准，本项不再参与。
+
+		\a policy 默认重试策略。
 	*/
 	void HttpCenter::setDefaultRetryPolicy(const RetryPolicy& policy) {
 		d->DefaultRetryPolicy = policy;
@@ -361,6 +381,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置同时进行的请求数上限，默认 6。超出的请求会排队等待。
+
+		\a count 并发请求数上限，最小为 1。
 	*/
 	void HttpCenter::setMaxConcurrentRequests(qint32 count) {
 		d->MaxConcurrentRequests = qMax(1, count);
@@ -373,6 +395,8 @@ namespace Visindigo::Network {
 		设置等待队列长度上限，默认 128。队满时新请求会立即以
 		Visindigo::Network::HttpError::ErrorType::QueueRejected 失败，
 		而不是无限堆积。
+
+		\a count 等待队列长度上限。
 	*/
 	void HttpCenter::setMaxQueuedRequests(qint32 count) {
 		d->MaxQueuedRequests = qMax(0, count);
@@ -387,6 +411,8 @@ namespace Visindigo::Network {
 		Visindigo::Network::HttpError::ErrorType::UrlSchemeRejected 失败，而不是
 		交给传输层去尝试。这可以防止调用方把用户可控的字符串直接当地址使用，
 		例如 \c file: 或 \c ftp: 这类会绕过 HTTP 栈语义的协议。
+
+		\a schemes 允许的协议白名单。
 	*/
 	void HttpCenter::setAllowedUrlSchemes(const QStringList& schemes) {
 		d->AllowedUrlSchemes = schemes;
@@ -401,6 +427,8 @@ namespace Visindigo::Network {
 		\note 代理在传输层是按主机名匹配的，因此同一个主机在同一时刻只能
 		对应一个覆盖值：两个请求即使路径不同，只要是同一个主机名，就无法使用
 		不同的代理。这是 Qt 的 QNetworkProxyFactory 接口本身的限制。
+
+		\a proxy 代理地址；传空的 QUrl 表示不使用代理。
 	*/
 	void HttpCenter::setProxy(const QUrl& proxy) {
 		d->Proxy = proxy;
@@ -427,6 +455,8 @@ namespace Visindigo::Network {
 		默认关闭是刻意的：Cookie 是全局共享状态，一旦自动携带，不同业务之间的
 		登录态会互相污染，而且很难在事后定位“为什么这个请求带上了别人的身份”。
 		需要维持会话的调用方应当显式开启，或自行管理 Cookie 头。
+
+		\a enabled 是否启用全局 Cookie 存储。
 	*/
 	void HttpCenter::setCookieJarEnabled(bool enabled) {
 		if (d->CookieJarEnabled == enabled) {
@@ -446,6 +476,8 @@ namespace Visindigo::Network {
 		而单个请求的关闭不会反过来影响其它请求。
 
 		\warning 关闭它等同于放弃中间人防护，应仅在明确受控的场景下使用。
+
+		\a enabled 全局是否校验证书。
 	*/
 	void HttpCenter::setCertificateVerificationEnabled(bool enabled) {
 		d->CertificateVerificationEnabled = enabled;
@@ -459,6 +491,8 @@ namespace Visindigo::Network {
 		关闭时（默认）日志只记录方法与地址；打开后会额外输出完整请求头，
 		其中可能包含 Authorization 与 Cookie。因此本项只应在排查问题等临时场景下
 		打开，且不应随正式构建默认启用。
+
+		\a enabled 是否在日志中输出敏感头部。
 	*/
 	void HttpCenter::setLogSensitiveHeaders(bool enabled) {
 		d->LogSensitiveHeaders = enabled;
@@ -473,6 +507,8 @@ namespace Visindigo::Network {
 		而不必在每个发起请求的地方重复实现，也不会出现“某个调用点忘了带令牌”。
 
 		传入的地址是请求的目标地址，使提供者可以按域名返回不同服务商的凭据。
+
+		\a provider 凭据提供者。
 	*/
 	void HttpCenter::setAuthProvider(AuthProvider provider) {
 		d->AuthProviderHook = provider;
@@ -487,6 +523,8 @@ namespace Visindigo::Network {
 		\note 拦截器只在提交时执行一次，不会在重试时重复执行。重试的语义是“把
 		同一个请求再发一次”，若拦截器每次都追加内容，重试发送的内容就与首次
 		不再相同，重试也就失去了可复现性。
+
+		\a interceptor 请求拦截器。
 	*/
 	void HttpCenter::addRequestInterceptor(RequestInterceptor interceptor) {
 		if (interceptor) {
@@ -503,6 +541,8 @@ namespace Visindigo::Network {
 
 		典型用途是埋点与统一日志：把状态码、耗时、错误分类记录到一处，
 		而不必在每个调用点重复写。
+
+		\a interceptor 响应拦截器。
 	*/
 	void HttpCenter::addResponseInterceptor(ResponseInterceptor interceptor) {
 		if (interceptor) {
@@ -531,6 +571,8 @@ namespace Visindigo::Network {
 
 		返回的句柄默认在结束后自动销毁；若希望持有它以便稍后查询结果，
 		请先调用 Visindigo::Network::HttpReply::setAutoDelete()。
+
+		\a request 要提交的请求描述。
 	*/
 	HttpReply* HttpCenter::request(const HttpRequest& request) {
 		if (d->Queue.size() >= d->MaxQueuedRequests) {
@@ -553,6 +595,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		以 GET 方法提交请求的便利入口。
+
+		\a url 目标地址。
 	*/
 	HttpReply* HttpCenter::get(const QUrl& url) {
 		HttpRequest plainRequest;
@@ -564,6 +608,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		以 POST 方法提交 JSON 请求体的便利入口。
+
+		\a url 目标地址。
+		\a body 请求体 JSON。
 	*/
 	HttpReply* HttpCenter::postJson(const QUrl& url, const Visindigo::Utility::JsonConfig& body) {
 		HttpRequest plainRequest;
@@ -581,6 +628,8 @@ namespace Visindigo::Network {
 		\note 本重载与 request(const HttpRequest&) 的区分不是可有可无的：请求入队
 		必须拷贝调用方的对象，而拷贝一个 SSERequest 到 HttpRequest 必然丢失
 		SSE 专属配置，所以类型必须在提交时就是明确的。
+
+		\a request 要提交的 SSE 请求描述。
 	*/
 	SSEReply* HttpCenter::request(const SSERequest& request) {
 		HttpRequest prepared = request.getRequest();
@@ -619,6 +668,8 @@ namespace Visindigo::Network {
 
 		建立一个 WebSocket 会话。会话与 HTTP 句柄不同，默认不会自动销毁，
 		请在不再需要时明确关闭。
+
+		\a request WebSocket 连接描述。
 	*/
 	WebSocketSession* HttpCenter::openWebSocket(const WebSocketRequest& request) {
 		WebSocketSession* session = new WebSocketSession();
@@ -632,6 +683,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		按下发时取得的编号中止请求，无论它正在排队还是已经发出。
+
+		\a id 请求编号。
 	*/
 	void HttpCenter::abort(quint64 id) {
 		for (HttpReply* reply : d->Queue) {
@@ -651,6 +704,8 @@ namespace Visindigo::Network {
 
 		中止所有带指定标签的请求。典型场景是某个界面关闭时，把该界面发起的全部
 		请求一并撤销，避免回调打到已经销毁的对象上。
+
+		\a tag 请求标签。
 	*/
 	void HttpCenter::abortByTag(const QString& tag) {
 		if (tag.isEmpty()) {
@@ -694,6 +749,8 @@ namespace Visindigo::Network {
 
 		暂停或恢复队列出队。暂停只影响尚未发出的请求，已经在传输中的请求会
 		继续完成——中途掐断它们既没有必要，也会让状态更难推理。
+
+		\a paused 是否暂停出队。
 	*/
 	void HttpCenter::setPaused(bool paused) {
 		d->Paused = paused;
@@ -706,6 +763,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		返回队列是否处于暂停状态。
+
+		return 暂停时返回 true。
 	*/
 	bool HttpCenter::isPaused() const {
 		return d->Paused;
@@ -734,6 +793,8 @@ namespace Visindigo::Network {
 
 		判断当前是否具备网络可达性。该判断来自系统的网络状态通告，
 		它只说明"链路可达"，不保证目标服务一定可用。
+
+		return 系统通告网络可达时返回 true。
 	*/
 	bool HttpCenter::isOnline() const {
 		return d->Online;

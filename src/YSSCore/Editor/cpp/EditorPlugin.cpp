@@ -30,6 +30,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
+		\a id 插件的ID
 		\a apiVersion 插件的API版本
 		\a abiVersion 插件的ABI版本
 		\a parent 插件的父对象
@@ -90,9 +91,11 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\fn YSSCore::Editor::EditorPlugin::onProjectAboutToClose(YSSCore::General::YSSProject* project)
+		\fn bool YSSCore::Editor::EditorPlugin::onProjectAboutToClose(YSSCore::General::YSSProject* project)
 		\since YSSCore 0.16.0
 		\a project 即将关闭的项目对象
+
+		return 同意关闭项目时返回 true，否则返回 false。
 		当项目即将被关闭时调用此函数。参数project是即将被关闭的项目对象。
 		YSS会在关闭项目之前调用此函数，询问插件是否同意关闭项目。如果所有插件都同意，则项目正常关闭；
 		如果有任何一个插件不同意，则取消关闭项目的操作。因此，如果您的插件需要在项目关闭前进行一些检查，

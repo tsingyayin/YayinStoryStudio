@@ -219,7 +219,7 @@ namespace Visindigo::General {
 
 		return 返回翻译后的字符串，或 \a raw 本身。
 	*/
-	QString TranslationHost::i18n(const QString& raw) {
+	QString TranslationHost::i18n(const VI18NStr& raw) {
 		if (raw.startsWith("i18n:")) {
 			QStringList keys = raw.mid(5).split("::");
 			if (keys.length() != 2) {

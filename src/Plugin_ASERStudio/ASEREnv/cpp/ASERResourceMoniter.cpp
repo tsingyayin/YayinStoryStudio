@@ -159,7 +159,7 @@ namespace ASERStudio::ASEREnv {
 	/*!
 		\class ASERStudio::ASEREnv::ASERResourceMoniter
 		\since ASERStudio 2.4.0
-		\brief ASERResourceMonitor提供对ASER官方资源和项目资源的实时监视
+		\brief ASERResourceMonitor提供对ASER官方资源和项目资源的实时监视.
 		\inmodule ASERStudio
 
 		ASERResourceMoniter是一个单例类，提供对ASER官方资源和项目资源的实时监视功能。

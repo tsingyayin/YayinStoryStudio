@@ -45,7 +45,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/SSERequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief SSE（W3C text/event-stream）流解码器。
+		\brief SSE（W3C text/event-stream）流解码器.
 
 		按 W3C 的 Server-Sent Events 规范把字节流切成事件帧：
 
@@ -94,6 +94,8 @@ namespace Visindigo::Network {
 
 		送入新增字节并返回本次能够完整切出的事件帧。跨包的半个事件会被保留到
 		后续调用，因此调用方不必关心网络分包边界。
+
+		\a chunk 新到达的字节，其边界没有任何语义。
 	*/
 	QList<StreamFrame> SseDecoder::feed(const QByteArray& chunk) {
 		QList<StreamFrame> frames;
@@ -222,6 +224,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置单帧缓冲上限，默认 1 MiB。
+
+		\a bytes 单帧缓冲上限，单位为字节。
 	*/
 	void SseDecoder::setMaxFrameBytes(qint64 bytes) {
 		d->MaxFrameBytes = bytes;
@@ -241,7 +245,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/SSERequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief SSE 请求描述对象。
+		\brief SSE 请求描述对象.
 
 		SSERequest 与 Visindigo::Network::HttpRequest 是组合关系而非继承关系：
 		内层持有一个 HttpRequest，本类把它对外的接口逐项转发一遍，并额外提供
@@ -262,8 +266,8 @@ namespace Visindigo::Network {
 		出处，避免两边描述日久失配。
 
 		其中三个方法的语义与 HttpRequest 上的同名者并不完全一致，已在本类上
-		单独说明：\l setTimeoutMs（长连接不应使用）、\l setStreamDecoder
-		（默认已挂载 SseDecoder）与 \l setMaxFrameBytes。
+		单独说明：\l{setTimeoutMs}（长连接不应使用）、\l{setStreamDecoder}
+		（默认已挂载 SseDecoder）与 \l{setMaxFrameBytes}。
 
 		\sa Visindigo::Network::SSEReply
 	*/
@@ -313,6 +317,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		整体替换内层请求配置。
+
+		\a request 新的内层请求。
 	*/
 	SSERequest& SSERequest::setRequest(const HttpRequest& request) {
 		d->Inner = request;
@@ -442,6 +448,8 @@ namespace Visindigo::Network {
 		通常不需要调用本函数。只有在服务端发的并不是标准 SSE、需要自定切分规则时
 		才用得上；此时务必确认自定解码器能处理 \c event / \c data 字段，
 		否则 \l SSEReply::when() 就无从匹配。
+
+		\a decoder 自定义解码器。
 	*/
 	SSERequest& SSERequest::setStreamDecoder(std::shared_ptr<IStreamDecoder> decoder) {
 		d->Inner.setStreamDecoder(decoder);
@@ -454,6 +462,8 @@ namespace Visindigo::Network {
 		设置单帧上限，默认 1 MiB。语义与 HttpRequest 上的同名方法一致，
 		无需单独说明；这里把它列出来只是为了提醒：服务端如果持续发送空白行
 		（保活心跳），帧长度会保持在很低的水平，本项对它是无效的防御。
+
+		\a bytes 单帧上限，单位为字节。
 	*/
 	SSERequest& SSERequest::setMaxFrameBytes(qint64 bytes) {
 		d->Inner.setMaxFrameBytes(bytes);
@@ -467,8 +477,10 @@ namespace Visindigo::Network {
 
 		\warning 本项对 SSE 是危险的。流式连接本来就会持续很久，总超时到达后
 		中心会直接掰断连接，表现为“流每隔一段时间就断”。应当使用
-		\l setIdleTimeoutMs() 控制空闲超时，它能在“对端确实挂了”与“对端只是
+		\c{setIdleTimeoutMs()} 控制空闲超时，它能在“对端确实挂了”与“对端只是
 		暂时没话说”之间做出正确区分。
+
+		\a ms 总超时毫秒数。
 	*/
 	SSERequest& SSERequest::setTimeoutMs(qint32 ms) {
 		d->Inner.setTimeoutMs(ms);
@@ -532,6 +544,8 @@ namespace Visindigo::Network {
 
 		设置断线续传的起点。提交后它会以 Last-Event-ID 请求头发送，服务端据此
 		从该标识之后继续推送，从而避免重连时重复收到已经处理过的事件。
+
+		\a id 续传起点的事件标识。
 	*/
 	SSERequest& SSERequest::setLastEventId(const QString& id) {
 		d->LastEventId = id;
@@ -545,6 +559,9 @@ namespace Visindigo::Network {
 
 		重连时会自动带上最近一次收到的事件标识，因此上层逻辑通常无需关心重连
 		过程，只有确实断线时才会感知到。
+
+		\a enabled 是否自动重连。
+		\a maxAttempts 最多重连次数。
 	*/
 	SSERequest& SSERequest::setAutoReconnect(bool enabled, qint32 maxAttempts) {
 		d->AutoReconnect = enabled;
@@ -565,6 +582,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		返回是否启用了自动重连。
+
+		return 启用时返回 true。
 	*/
 	bool SSERequest::isAutoReconnectEnabled() const {
 		return d->AutoReconnect;

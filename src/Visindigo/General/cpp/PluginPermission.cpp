@@ -77,7 +77,7 @@ namespace Visindigo::General {
 		\class Visindigo::General::PluginPermissionRequestHandler
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 插件权限请求的审计处理器接口。
+		\brief 插件权限请求的审计处理器接口.
 
 		当插件申请一个尚无结论的权限时，PluginPermissionManager会调用此接口，
 		由应用程序（通常是主程序插件）决定允许、仅本次允许或拒绝。
@@ -102,7 +102,7 @@ namespace Visindigo::General {
 		\class Visindigo::General::PluginPermissionRequestDefaultHandler
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 以控制台问答方式实现的默认权限处理器。
+		\brief 以控制台问答方式实现的默认权限处理器.
 
 		以 \c Y 批准、\c YN 仅本次批准、\c N 拒绝，其余输入一律视为拒绝。
 		这个处理器需要由应用程序通过
@@ -199,7 +199,7 @@ namespace Visindigo::General {
 		\class Visindigo::General::PluginPermissionManager
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 插件权限的审计与记录中心。
+		\brief 插件权限的审计与记录中心.
 
 		权限记录寄存在主程序插件的配置中，形式为下面两个字符串数组：
 
@@ -338,7 +338,7 @@ namespace Visindigo::General {
 		\a perm 被申请的权限。
 		return 申请是否被批准。
 
-		等价于以 \a autoRequest 为true调用hasPermission，即允许向用户发起询问。
+		等价于以 \c{autoRequest} 为 true 调用 \c{hasPermission}，即允许向用户发起询问。
 	*/
 	bool PluginPermissionManager::requestPermission(Plugin* who, Plugin::Permission perm) {
 		return hasPermission(who, perm, true);

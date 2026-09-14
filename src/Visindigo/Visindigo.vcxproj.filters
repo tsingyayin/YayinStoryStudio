@@ -233,30 +233,6 @@
     <ClCompile Include="Network\cpp\WebSocketRequest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Agent\cpp\Center.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Agent\cpp\Dialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Agent\cpp\Function.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Agent\cpp\MCP.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Agent\cpp\Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Agent\cpp\Prompt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Agent\cpp\Provider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Agent\cpp\Skill.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility\Console.h">
@@ -400,39 +376,6 @@
     <ClInclude Include="Network\private\WebSocketRequest_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Agent\private\Center_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\private\Dialog_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\private\MCP_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\private\Model_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\private\Prompt_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\private\Provider_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\private\Skill_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\Function.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\Prompt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\Provider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Agent\Skill.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Widgets\ThemeManager.h">
@@ -574,18 +517,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Network\HttpCenter.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Agent\Model.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Agent\MCP.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Agent\Dialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Agent\Center.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

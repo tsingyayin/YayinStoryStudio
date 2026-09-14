@@ -12,9 +12,9 @@
 */
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
+#include <Utility/JsonConfig.h>
 #include "Agent/Skill.h"
 #include "Agent/private/Skill_p.h"
-#include "Utility/JsonConfig.h"
 
 namespace Visindigo::Agent {
 	/*!
@@ -22,10 +22,10 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Skill.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 一段可复用的行为说明，用于给对话注入领域知识。
+		\brief 一段可复用的行为说明，用于给对话注入领域知识.
 
 		一个 Skill 就是"当用户提出这类问题时应遵守的规则"的载体：它由一段说明
-		文本（\l setInstruction()）加上若干可选的能力声明组成，在构造请求时被
+		文本（\l{setInstruction()}）加上若干可选的能力声明组成，在构造请求时被
 		拼进系统提示。
 
 		它和 \l Prompt 的区别在于谁决定内容：Prompt 由用户显式触发，模板里有
@@ -70,6 +70,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置名称。名称是 Skill 在 Center 与 Dialog 中的索引键，同名会互相覆盖。
+
+		\a name 技能名称。
 	*/
 	Skill& Skill::setName(const QString& name) {
 		d->Name = name;
@@ -82,6 +84,8 @@ namespace Visindigo::Agent {
 		设置一句话描述，用于在界面或日志里说明这个技能是做什么的。
 
 		\note 描述不会进入系统提示；进入提示的是 \l setInstruction() 的内容。
+
+		\a description 一句话描述。
 	*/
 	Skill& Skill::setDescription(const QString& description) {
 		d->Description = description;
@@ -95,6 +99,8 @@ namespace Visindigo::Agent {
 
 		写成祈使句比写成陈述句有效得多：「回答前先确认单位」比「用户可能会省略
 		单位」更容易被遵守。说明里也不适合放大段背景资料，那会稀释规则本身。
+
+		\a instruction 技能正文，即拼进系统提示的规则文本。
 	*/
 	Skill& Skill::setInstruction(const QString& instruction) {
 		d->Instruction = instruction;
@@ -105,6 +111,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置是否启用，默认启用。被禁用的技能不会参与系统提示拼装。
+
+		\a enabled 是否启用。
 	*/
 	Skill& Skill::setEnabled(bool enabled) {
 		d->Enabled = enabled;
@@ -115,6 +123,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置标签，供调用方按主题批量筛选技能。Visindigo 不解释标签的含义。
+
+		\a tags 标签列表。
 	*/
 	Skill& Skill::setTags(const QStringList& tags) {
 		d->Tags = tags;
@@ -126,7 +136,7 @@ namespace Visindigo::Agent {
 
 		关联一个函数 id，表示"这个技能用到的工具"。重复添加同一个 id 不会产生重复项。
 
-		\a functionId 由 \l Visindigo::Agent::Function::getId() 定义，实际对象在
+		\a functionId 由 \c{Function::getId()} 定义，实际对象在
 		执行时由 Center 或 Dialog 的函数表解析。
 	*/
 	Skill& Skill::addFunction(const QString& functionId) {
@@ -140,6 +150,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		解除一个函数 id 的关联。id 不存在时什么也不做。
+
+		\a id 函数 id。
 	*/
 	Skill& Skill::removeFunction(const QString& id) {
 		d->FunctionIds.removeAll(id);
@@ -150,6 +162,10 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		判断是否关联了指定函数。
+
+		\a id 函数 id。
+
+		return 关联了该函数时返回 true。
 	*/
 	bool Skill::hasFunction(const QString& id) const {
 		return d->FunctionIds.contains(id);
@@ -195,6 +211,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		返回是否启用。
+
+		return 启用时返回 true。
 	*/
 	bool Skill::isEnabled() const {
 		return d->Enabled;
@@ -216,6 +234,8 @@ namespace Visindigo::Agent {
 
 		\note 只有名称没有正文的技能是无效的——它拼进系统提示后不产生任何内容，
 		留着只会让配置看起来比实际更丰富。
+
+		return 名称与正文都非空时返回 true。
 	*/
 	bool Skill::isValid() const {
 		return not d->Name.isEmpty() and not d->Instruction.isEmpty();
@@ -240,10 +260,14 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		从 JSON 对象恢复。返回恢复后技能是否有效。
+		从 JSON 对象恢复。
 
 		\note 缺失的字段保留默认值；\c enabled 缺失时按启用处理，这样手写的精简
 		配置不必每次都写一遍开关。
+
+		\a json 已解析的 JSON 对象。
+
+		return 恢复后的技能是否有效，判定规则与 \c isValid() 相同。
 	*/
 	bool Skill::fromJson(const Visindigo::Utility::JsonConfig& json) {
 		d->Name = json.getString("name");

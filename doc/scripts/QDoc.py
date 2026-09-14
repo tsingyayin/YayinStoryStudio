@@ -1,6 +1,7 @@
 import yaml
 import os
 import sys
+import shutil
 import QDocToCN
 import datetime
 def copyFolder(src:str, dest:str):
@@ -28,16 +29,20 @@ if __name__ == "__main__":
     QtInstallPath = para["qt"]["installPath"]
     QDocPath = QtInstallPath + "\\bin\\qdoc.exe"
     QDocConfig = path + "\\..\\src\\config.qdocconf"
+    htmlPath = path + "\\..\\html"
+    if os.path.exists(htmlPath):
+        # qdoc 不会清理输出目录，残留的旧页面会一直留在文档里，因此在生成前先整个删除。
+        shutil.rmtree(htmlPath)
     print("QDocPath: " + QDocPath)
     print("QDocConfig: " + QDocConfig)
     docPara:str = QDocPath+" "+QDocConfig + " -indexdir D:/Qt/Docs/Qt-6.10.3"
     os.system(docPara)
     if para["qt"]["translationCN"]:
-        QDocToCN.main(path + "\\..\\html")
+        QDocToCN.main(htmlPath)
     else:
         print("跳过中文翻译步骤。")
-    copyFolder(path + "\\..\\src\\template\\images", path + "\\..\\html\\images")
-    copyFolder(path + "\\..\\src\\template\\style", path + "\\..\\html\\style")
-    copyFolder(path + "\\..\\src\\template\\scripts", path + "\\..\\html\\scripts")
+    copyFolder(path + "\\..\\src\\template\\images", htmlPath + "\\images")
+    copyFolder(path + "\\..\\src\\template\\style", htmlPath + "\\style")
+    copyFolder(path + "\\..\\src\\template\\scripts", htmlPath + "\\scripts")
     end = datetime.datetime.now()
     print("完成于 " + end.strftime("%Y-%m-%d %H:%M:%S") + "，耗时 " + str((end - start).seconds) + " 秒。")

@@ -15,10 +15,10 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpRequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief NDJSON（JSON Lines）流解码器。
+		\brief NDJSON（JSON Lines）流解码器.
 
-		以换行符分帧，每一行构成一个完整帧，帧的 \l StreamFrame::Data 即该行内容
-		（不含换行），\l StreamFrame::Event 与 \l StreamFrame::Id 恒为空。
+		以换行符分帧，每一行构成一个完整帧，帧的 \c{StreamFrame::Data} 即该行内容
+		（不含换行），\c{StreamFrame::Event} 与 \c{StreamFrame::Id} 恒为空。
 		空行被跳过，行尾的 \c \\r 会被剥除，因此 Windows 与 Unix 换行都能正确处理。
 
 		这一格式常见于本地推理服务与事件推送接口，典型用法是把它挂到请求上：
@@ -60,6 +60,8 @@ namespace Visindigo::Network {
 
 		送入新增字节，返回本次能够完整切出的所有帧。未以换行结尾的残余部分
 		会被保留到下次调用，因此调用方无需关心网络分包的位置。
+
+		\a chunk 新到达的字节，其边界没有任何语义。
 	*/
 	QList<StreamFrame> JsonLinesDecoder::feed(const QByteArray& chunk) {
 		QList<StreamFrame> frames;
@@ -121,6 +123,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置单帧缓冲上限，默认 1 MiB。请参阅类说明中关于超限行为的解释。
+
+		\a bytes 单帧缓冲上限，单位为字节。
 	*/
 	void JsonLinesDecoder::setMaxFrameBytes(qint64 bytes) {
 		d->MaxFrameBytes = bytes;

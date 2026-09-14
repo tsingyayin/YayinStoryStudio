@@ -592,6 +592,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.17.0
+		\a serverId 文件服务器ID。
+
 		return 指定ID的FileServer对象。
 	*/
 	FileServer* FileServerManager::getFileServerById(const QString& serverId) const {
@@ -639,6 +641,8 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.17.0
+		\a few 文件编辑控件。
+
 		return 指定FileEditWidget的源FileServer对象。
 	*/
 	FileServer* FileServerManager::getFileEditWidgetSourceServer(FileEditWidget* few) const {

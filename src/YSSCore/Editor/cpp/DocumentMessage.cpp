@@ -4,7 +4,7 @@
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::DocumentMessage
-		\brief DocumentMessage代表文档特定位置的消息，如错误、警告或信息提示。
+		\brief DocumentMessage代表文档特定位置的消息，如错误、警告或信息提示.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 
@@ -61,6 +61,8 @@ namespace YSSCore::Editor {
 	/*!
 		\fn YSSCore::Editor::DocumentMessage& YSSCore::Editor::DocumentMessage::operator=(DocumentMessage&& other) noexcept
 		移动赋值运算符
+
+		\a other 要移动的源对象。
 	*/
 
 	/*!

@@ -146,7 +146,7 @@ namespace YSSCore::__Private__ {
 namespace YSSCore::Editor {
 	/*!
 		\class YSSCore::Editor::DocumentMessageManager
-		\brief 此类负责收集TextEdit在SyntaxHighligher着色过程中产生的DocumentMessage，并提供接口供外部查询这些消息。
+		\brief 此类负责收集TextEdit在SyntaxHighligher着色过程中产生的DocumentMessage，并提供接口供外部查询这些消息.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 

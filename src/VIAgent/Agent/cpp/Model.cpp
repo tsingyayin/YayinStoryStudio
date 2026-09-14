@@ -15,9 +15,9 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qurl.h>
 #include <QtCore/quuid.h>
+#include <Utility/JsonConfig.h>
 #include "Agent/Model.h"
 #include "Agent/private/Model_p.h"
-#include "Utility/JsonConfig.h"
 
 namespace Visindigo::Agent {
 	/*!
@@ -25,10 +25,10 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Model.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 一个可被请求的模型端点。
+		\brief 一个可被请求的模型端点.
 
 		Model 描述"请求该发到哪里、用哪个凭据、默认参数是什么"，它不持有任何会话
-		状态。会话状态属于 \l Dialog。
+		状态。会话状态属于 \l{Dialog}。
 
 		模型用 \l getId() 返回的 UUID 作为唯一标识，并注册在
 		Visindigo::Agent::Center 的模型池里；\l Provider 与 \l Dialog 都只持有
@@ -93,6 +93,8 @@ namespace Visindigo::Agent {
 		让配置与错误提示对不上。
 
 		\note 名称不参与索引，索引一律走 id；同名模型可以共存。
+
+		\a name 模型名，即请求体里 \c model 字段的值。
 	*/
 	Model& Model::setName(const QString& name) {
 		d->Name = name;
@@ -107,6 +109,8 @@ namespace Visindigo::Agent {
 		这里应当填基地址而不是完整的对话端点：具体的 \c /chat/completions 由
 		执行层在拼装请求时追加，这样同一个 Model 描述就还能用于列出模型、
 		计数 token 之类的旁路请求。
+
+		\a url 服务基地址，不带具体端点路径。
 	*/
 	Model& Model::setUrl(const QUrl& url) {
 		d->Url = url;
@@ -121,6 +125,8 @@ namespace Visindigo::Agent {
 		\warning 凭据是明文保存在 Model 里的，而 Model 会被序列化。把带凭据的
 		配置写进版本库或随程序分发都会直接泄露它；正确做法是让配置停留在用户
 		自己机器的目录下。
+
+		\a token 访问凭据。
 	*/
 	Model& Model::setToken(const QString& token) {
 		d->Token = token;
@@ -135,6 +141,8 @@ namespace Visindigo::Agent {
 		\warning 对话请求通常是流式的，总时长上限会随模型输出长度自然增长。
 		对流式请求应当依赖 \l setIdleTimeoutMs() 而不是这个值，否则一段较长的
 		回答会在中途被整体掐断。
+
+		\a ms 总时长上限，单位毫秒；\c 0 表示不限。
 	*/
 	Model& Model::setTimeoutMs(qint32 ms) {
 		d->TimeoutMs = ms;
@@ -148,6 +156,8 @@ namespace Visindigo::Agent {
 
 		这是流式请求真正需要的超时：模型思考时可能长时间不吐字，但只要连接还活着
 		就不该判定失败，而连接真断了又必须尽快发现。
+
+		\a ms 空闲超时，单位毫秒；\c 0 表示使用执行层的默认值。
 	*/
 	Model& Model::setIdleTimeoutMs(qint32 ms) {
 		d->IdleTimeoutMs = ms;
@@ -159,6 +169,8 @@ namespace Visindigo::Agent {
 
 		整体替换能力声明。传入 \l Capability::None 相当于声明"什么都不能做"，
 		该模型将无法被任何 \l Provider::pickFirst() 选中。
+
+		\a capabilities 完整的能力位组合。
 	*/
 	Model& Model::setCapabilities(Capabilities capabilities) {
 		d->Capabilities = capabilities;
@@ -169,6 +181,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		追加一个能力位，不影响已声明的能力。
+
+		\a capability 要追加的能力位。
 	*/
 	Model& Model::addCapability(Capability capability) {
 		d->Capabilities |= capability;
@@ -185,6 +199,8 @@ namespace Visindigo::Agent {
 		这类参数不做任何校验与改名，因此当服务端新增某个采样参数时不需要改动
 		Visindigo，直接在配置里写出来即可。代价是拼错的键不会被发现——服务端
 		多半会静默忽略它。
+
+		\a value 参数值，原样写入请求体。
 	*/
 	Model& Model::setParameter(const QString& key, const QJsonValue& value) {
 		d->Parameters.insert(key, value);
@@ -197,6 +213,8 @@ namespace Visindigo::Agent {
 		设置 \c temperature。等价于 \l setParameter() 写入 \c "temperature"。
 
 		这是常用的采样参数，因此单独给一个入口，省得调用方自己拼 JSON 值。
+
+		\a value 采样温度。
 	*/
 	Model& Model::setTemperature(qreal value) {
 		d->Parameters.insert("temperature", QJsonValue(value));
@@ -207,6 +225,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置 \c top_p。等价于 \l setParameter() 写入 \c "top_p"。
+
+		\a value top_p 取值。
 	*/
 	Model& Model::setTopP(qreal value) {
 		d->Parameters.insert("top_p", QJsonValue(value));
@@ -220,6 +240,8 @@ namespace Visindigo::Agent {
 
 		\note 这是输出上限，不是上下文上限；两者的字段名在不同服务端并不统一，
 		因此这里只提供最常见的一种写法。
+
+		\a value 输出上限（token 数）。
 	*/
 	Model& Model::setMaxTokens(qint32 value) {
 		d->Parameters.insert("max_tokens", QJsonValue(value));
@@ -240,7 +262,7 @@ namespace Visindigo::Agent {
 
 		返回模型名。
 
-		\note 它是服务端的模型标识，不是本地别名。见 \l setName()。
+		\note 它是服务端的模型标识，不是本地别名。见 \l{setName()}。
 	*/
 	QString Model::getName() const {
 		return d->Name;
@@ -298,6 +320,10 @@ namespace Visindigo::Agent {
 
 		判断是否声明了指定能力。多个位需要同时满足时，调用方应当自行用
 		\c Capabilities 做整体比较，本函数只检查单个位。
+
+		\a capability 要检查的能力位。
+
+		return 声明了该能力位时返回 true。
 	*/
 	bool Model::hasCapability(Capability capability) const {
 		return d->Capabilities.testFlag(capability);
@@ -323,6 +349,8 @@ namespace Visindigo::Agent {
 		以及非空凭据。
 
 		\note 这里不检查 URL 是否真的可达——那属于运行期的事，配置阶段无从得知。
+
+		return 模型名、URL 与凭据都齐全时返回 true。
 	*/
 	bool Model::isValid() const {
 		return not d->Name.isEmpty() and d->Url.isValid() and not d->Url.scheme().isEmpty()
@@ -352,13 +380,15 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		从 JSON 对象恢复。返回是否恢复了 id。
+		从 JSON 对象恢复。
 
 		存档里带有 id 时会一并恢复，这是 id 唯一的赋值入口；没有 id 字段时保留
 		当前（新生成的）id，因而把一个只写了连接信息的手写配置文件读进来也能得到
 		一个可用的模型。
 
 		\a json 应当是 \l toJson() 的输出，或者结构相同的手写配置。
+
+		return 读到了非空的 id 时返回 true。
 	*/
 	bool Model::fromJson(const Visindigo::Utility::JsonConfig& json) {
 		bool ok = false;

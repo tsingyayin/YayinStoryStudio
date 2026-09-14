@@ -93,7 +93,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpRequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 普通 HTTP 请求的句柄。
+		\brief 普通 HTTP 请求的句柄.
 
 		HttpReply 是调用方与一次请求交互的窗口。它由
 		Visindigo::Network::HttpCenter 在提交请求时创建并返回，调用方只持有指针，
@@ -104,15 +104,15 @@ namespace Visindigo::Network {
 		Visindigo::Network::HttpRequest::setStreamDecoder()：
 
 		\list
-		\li \l HttpRequest::BodySink::Auto、\l HttpRequest::BodySink::Buffer：
+		\li \l{HttpRequest::BodySink::Auto}、\l{HttpRequest::BodySink::Buffer}：
 			请求结束后从 \l getResponse() 的 \l HttpResponse::getBody() 取走内容。
-		\li \l HttpRequest::BodySink::ToFile：内容增量写入磁盘，
+		\li \l{HttpRequest::BodySink::ToFile}：内容增量写入磁盘，
 			\l downloadProgress 可作为进度显示，文件路径见
 			Visindigo::Network::HttpResponse::getDownloadFilePath()。
 		\li 挂了解码器时：字节按帧切分，经 \l frameReceived 交付。
 		\endlist
 
-		除信号之外还提供一组回调糖（\l then、\l onError、\l onFrame 等），
+		除信号之外还提供一组回调糖（\l{then}、\l{onError}、\l{onFrame} 等），
 		它们等价于连接对应信号，只是为了链式书写与集中阅读：
 		\code
 			center->request(request)
@@ -125,7 +125,7 @@ namespace Visindigo::Network {
 
 		\note 请求结束时若 \l isAutoDelete() 为 \c true （默认值），句柄会自动
 		deleteLater，因此不要在提交后长期保存这个指针；需要事后查询结果时，
-		应先调用 \l setAutoDelete(false) 并自行负责释放。
+		应先调用 \c{setAutoDelete(false)} 并自行负责释放。
 
 		\note 对设置了流式解码器的请求，\l then 的语义是"流正常结束"，而不是
 		"已经拿到了全部内容"——内容是在 \l frameReceived 中陆续交付的。
@@ -148,6 +148,8 @@ namespace Visindigo::Network {
 
 		请求真正被送出。排队中的请求不会发这个信号，因此"已排队"与"已发出"
 		是两个可以区分的状态。
+
+		\a id 句柄编号。
 	*/
 
 	/*!
@@ -165,6 +167,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		上传进度。\a total 为 \c -1 表示长度未知。
+
+		\a sent 已发送字节数。
 	*/
 
 	/*!
@@ -172,6 +176,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		下载进度。\a total 为 \c -1 表示长度未知，分块传输与流式响应都属此列。
+
+		\a received 已接收字节数。
 	*/
 
 	/*!
@@ -191,7 +197,7 @@ namespace Visindigo::Network {
 		未被缓存到内存的原始增量字节。
 
 		\note \a chunk 的切分位置没有任何语义，不能假定它与协议边界对齐；
-		需要按帧处理时请使用 \l frameReceived。
+		需要按帧处理时请使用 \l{frameReceived}。
 	*/
 
 	/*!
@@ -199,6 +205,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		解码器切出的完整帧。仅在请求挂了 \l Visindigo::Network::IStreamDecoder 时发出。
+
+		\a frame 已切出的完整帧。
 	*/
 
 	/*!
@@ -223,6 +231,8 @@ namespace Visindigo::Network {
 
 		请求结束，成功与失败都会发出。"无论如何都要收尾"的逻辑（例如解除加载状态）
 		挂在这里，比同时连接 \l succeeded 与 \l failed 更不容易漏掉分支。
+
+		\a response 最终响应。
 	*/
 
 	/*!
@@ -231,7 +241,7 @@ namespace Visindigo::Network {
 
 		请求被中止。主动 \l abort() 与上下文销毁导致的自动中止都会发出它。
 
-		\note 中止之后不会再发出 \l succeeded 或 \l failed。
+		\note 中止之后不会再发出 \l{succeeded} 或 \l{failed}。
 	*/
 
 	HttpReply::HttpReply() : d(nullptr) {
@@ -1047,6 +1057,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		判断请求是否仍在进行中。
+
+		return 请求仍在进行中时返回 true。
 	*/
 	bool HttpReply::isRunning() const {
 		return d->State == State::Queued || d->State == State::Running
@@ -1058,7 +1070,7 @@ namespace Visindigo::Network {
 
 		中止请求。若请求尚在队列中则直接出队，若已发出则关闭底层传输。
 
-		中止后句柄会依次发出 \l aborted 与 \l finished 信号，但不会发出 \l failed，
+		中止后句柄会依次发出 \l{aborted} 与 \l{finished} 信号，但不会发出 \l{failed}，
 		因为"被调用方主动放弃"与"请求失败"是两件事，用同一个信号表达会让错误处理
 		逻辑无法区分二者。
 	*/
@@ -1077,6 +1089,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		返回句柄是否会在结束后自动销毁，默认 \c true。
+
+		return 会自动销毁时返回 true。
 	*/
 	bool HttpReply::isAutoDelete() const {
 		return d->AutoDelete;
@@ -1089,6 +1103,8 @@ namespace Visindigo::Network {
 
 		\note 把默认值改为 \c false 之后，释放句柄的责任就转移到调用方，
 		必须自行在适当的时机 delete，否则每次请求都会泄漏一个句柄。
+
+		\a autoDelete 是否在结束后自动销毁。
 	*/
 	void HttpReply::setAutoDelete(bool autoDelete) {
 		d->AutoDelete = autoDelete;
@@ -1098,6 +1114,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		注册请求开始发出的回调，等价于连接 \l started 信号。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onStarted(QObject* context, std::function<void(quint64 id)> fn) {
 		QObject::connect(this, &HttpReply::started, effectiveContext(context, this), fn);
@@ -1111,6 +1130,9 @@ namespace Visindigo::Network {
 
 		这是校验状态码的最佳时机：对下载任务而言，此刻一个字节都还没有写入目标文件，
 		发现状态码不对就直接 abort()，不会留下任何残缺文件。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onHeaders(QObject* context, std::function<void(const HttpResponse&)> fn) {
 		QObject::connect(this, &HttpReply::headersReceived, effectiveContext(context, this), fn);
@@ -1121,6 +1143,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		注册上传进度回调。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onUploadProgress(QObject* context, std::function<void(qint64 sent, qint64 total)> fn) {
 		QObject::connect(this, &HttpReply::uploadProgress, effectiveContext(context, this), fn);
@@ -1131,6 +1156,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		注册下载进度回调。\c total 为 -1 表示服务端未给出长度，此时只能显示已接收字节数。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onProgress(QObject* context, std::function<void(qint64 received, qint64 total)> fn) {
 		QObject::connect(this, &HttpReply::downloadProgress, effectiveContext(context, this), fn);
@@ -1141,6 +1169,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		注册即将重试的回调。可用于向用户提示"网络不稳定，正在重试"。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onRetrying(QObject* context,
 		std::function<void(qint32 attempt, qint32 delayMs, const HttpError& lastError)> fn) {
@@ -1152,6 +1183,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		注册失败回调，等价于连接 \l failed 信号。主动 abort() 不会触发本回调。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onError(QObject* context, std::function<void(const HttpError&)> fn) {
 		QObject::connect(this, &HttpReply::failed, effectiveContext(context, this), fn);
@@ -1162,6 +1196,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		注册被中止的回调。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onAborted(QObject* context, std::function<void()> fn) {
 		QObject::connect(this, &HttpReply::aborted, effectiveContext(context, this), fn);
@@ -1173,6 +1210,9 @@ namespace Visindigo::Network {
 
 		注册结束回调，无论成功、失败还是被中止都会触发。适合放置"关闭进度条"这类
 		必须执行的收尾动作。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::onFinally(QObject* context, std::function<void()> fn) {
 		QObject::connect(this, &HttpReply::finished, effectiveContext(context, this),
@@ -1186,7 +1226,10 @@ namespace Visindigo::Network {
 		注册成功回调。
 
 		\note 对流式请求而言，本回调表示"流正常结束"，而不是"一次性拿到了全部内容"。
-		流中的每个事件应当通过 \l onFrame 或 \l when 消费。
+		流中的每个事件应当通过 \l{onFrame} 或 \c{when()} 消费。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数。
 	*/
 	HttpReply& HttpReply::then(QObject* context, std::function<void(const HttpResponse&)> fn) {
 		QObject::connect(this, &HttpReply::succeeded, effectiveContext(context, this), fn);
@@ -1201,6 +1244,9 @@ namespace Visindigo::Network {
 
 		\note 只有字节未被完整缓存时才逐块交付，即落盘或流式场景。若响应走内存缓存，
 		用 \l then 一次性取走即可，逐块回调反而是多余的拷贝。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数，返回 \c false 表示立即中止请求。
 	*/
 	HttpReply& HttpReply::onRawChunk(QObject* context, std::function<bool(const QByteArray&)> fn) {
 		QObject::connect(this, &HttpReply::bodyChunkReceived, effectiveContext(context, this),
@@ -1219,6 +1265,9 @@ namespace Visindigo::Network {
 
 		未配置解码器时本回调不会被触发，因此它通常与
 		Visindigo::Network::HttpRequest::setStreamDecoder() 配合使用。
+
+		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
+		\a fn 回调函数，返回 \c false 表示立即中止请求。
 	*/
 	HttpReply& HttpReply::onFrame(QObject* context, std::function<bool(const StreamFrame&)> fn) {
 		QObject::connect(this, &HttpReply::frameReceived, effectiveContext(context, this),
@@ -1254,6 +1303,8 @@ namespace Visindigo::Network {
 		这与回调糖的 context 参数解决的并不是同一个问题。回调的 context 只能保证
 		"对象销毁后不再回调"，但底层连接仍在继续传输，对长连接而言这意味着持续的
 		流量与资源占用。本函数会真正把连接关掉，因此流式请求应当调用它。
+
+		\a context 要绑定到的对象；传 \c nullptr 表示不绑定。
 	*/
 	HttpReply& HttpReply::bindLifecycleTo(QObject* context) {
 		if (context != nullptr) {

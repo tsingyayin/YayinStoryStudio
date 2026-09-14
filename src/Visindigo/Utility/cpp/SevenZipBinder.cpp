@@ -39,7 +39,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::SevenZipBinder
-		\brief SevenZipBinder提供对7za.exe的简单绑定，以便压缩和解压文件。
+		\brief SevenZipBinder提供对7za.exe的简单绑定，以便压缩和解压文件.
 		\since Visindigo 0.16.0
 		\inmodule Visindigo
 
@@ -66,11 +66,37 @@ namespace Visindigo::Utility {
 		\value wim wim格式。
 		\value __DecompOnly__ 仅支持解压的格式的起始符，不应直接使用。
 
-		我们实在没有兴趣为仅解压格式完整编写表格，因此直接列出枚举值如下：
+		下列取值由7za支持但只能用于解压，因此不单独编写格式化说明：
 
-		ar, arj, cab, chm, cpio, cramfs, dmg, ext, fat, gpt,
-		hfs, ihex, iso, lzh, lzma, mbr, msi, nsis, ntfs, qcow2, rar, rpm,
-		squashfs, udf, vhd, vmdk, xar, z, zstd
+		\value ar ar格式，仅支持解压。
+		\value arj arj格式，仅支持解压。
+		\value cab cab格式，仅支持解压。
+		\value chm chm格式，仅支持解压。
+		\value cpio cpio格式，仅支持解压。
+		\value cramfs cramfs格式，仅支持解压。
+		\value dmg dmg格式，仅支持解压。
+		\value ext ext格式，仅支持解压。
+		\value fat fat格式，仅支持解压。
+		\value gpt gpt格式，仅支持解压。
+		\value hfs hfs格式，仅支持解压。
+		\value ihex ihex格式，仅支持解压。
+		\value iso iso格式，仅支持解压。
+		\value lzh lzh格式，仅支持解压。
+		\value lzma lzma格式，仅支持解压。
+		\value mbr mbr格式，仅支持解压。
+		\value msi msi格式，仅支持解压。
+		\value nsis nsis格式，仅支持解压。
+		\value ntfs ntfs格式，仅支持解压。
+		\value qcow2 qcow2格式，仅支持解压。
+		\value rar rar格式，仅支持解压。
+		\value rpm rpm格式，仅支持解压。
+		\value squashfs squashfs格式，仅支持解压。
+		\value udf udf格式，仅支持解压。
+		\value vhd vhd格式，仅支持解压。
+		\value vmdk vmdk格式，仅支持解压。
+		\value xar xar格式，仅支持解压。
+		\value z z格式，仅支持解压。
+		\value zstd zstd格式，仅支持解压。
 	*/
 
 	/*!
@@ -81,6 +107,9 @@ namespace Visindigo::Utility {
 
 		由于7za.exe的压缩逻辑，文件名的提示进度远远快于实际的压缩进度，譬如如果有100个文件，则可能会出现
 		从50%开始就只显示第100个文件的名字，因此请依赖百分比来判断实际的处理进度。fileName仅供显示参考。
+
+		\a fileName 当前正在处理的文件名，仅供显示参考。
+		\a percent 处理进度的百分比。
 	*/
 
 	/*!
@@ -88,6 +117,8 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.16.0
 
 		当7za.exe完成处理时发出此信号，success表示处理是否成功。
+
+		\a success 处理是否成功。
 	*/
 
 	/*!
@@ -149,6 +180,8 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.16.0
 
 		绑定7za.exe的路径，如果不设置，则默认为"./7za.exe"，即软件执行目录下的7za.exe。
+
+		\a exePath 7za.exe的路径。
 	*/
 	void SevenZipBinder::bind7zaBinary(const QString& exePath) {
 		d->exePath = exePath;
@@ -167,6 +200,13 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.16.0
 
 		压缩文件到指定的压缩包路径，支持多种压缩格式。filePaths可以是多个文件或一个文件夹（会压缩整个文件夹）。如果正在处理其他任务，则返回false。
+
+		\a filePaths 待压缩的文件或文件夹路径列表。
+		\a arcPath 输出压缩包的路径。
+		\a format 压缩格式，不能是仅支持解压的格式。
+		\a password 压缩包密码，为空表示不加密。
+
+		return 任务已开始返回true；正在处理其他任务或格式不支持压缩时返回false。
 	*/
 	bool SevenZipBinder::compressFilesToZip(const QStringList& filePaths, const QString& arcPath, CompressFormat format, const QString& password) {
 		if (isBusy()) {
@@ -193,6 +233,13 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.16.0
 
 		解压压缩包到指定的输出路径，支持多种压缩格式。如果正在处理其他任务，则返回false。
+
+		\a arcPath 待解压的压缩包路径。
+		\a outputPath 解压输出目录。
+		\a format 压缩包格式。
+		\a password 压缩包密码，为空表示未加密。
+
+		return 任务已开始返回true；正在处理其他任务时返回false。
 	*/
 	bool SevenZipBinder::decompressFile(const QString& arcPath, const QString& outputPath, CompressFormat format, const QString& password) {
 		if (isBusy()) {
@@ -216,6 +263,8 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.16.0
 
 		检查7za.exe是否正在处理任务。
+
+		return 正在处理任务时返回true。
 	*/
 	bool SevenZipBinder::isBusy() const {
 		return d->exeProcess->state() == QProcess::Running;
@@ -227,6 +276,8 @@ namespace Visindigo::Utility {
 
 		请注意，这个函数只是单纯检查目标文件是否存在，如果设置的是无效的7za.exe路径，或者7za.exe无法正常运行，
 		这个函数也不会检测到。请确保7za.exe是可执行的，并且在调用压缩或解压函数之前已经绑定了正确的路径。
+
+		return 已绑定的7za.exe文件存在时返回true。
 	*/
 	bool SevenZipBinder::isValid() const {
 		return QFile::exists(d->exePath);

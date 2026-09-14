@@ -105,7 +105,8 @@ namespace Visindigo::General
 		\value Unknown 未知语言
 		\value zh_CN 简体中文
 		\value zh_SC 简体中文（同zh_CN）
-		\value zh_TC 繁体中文
+		\value zh_TW 繁体中文
+		\value zh_TC 繁体中文（同zh_TW）
 		\value en 英文
 		\value ja 日文
 		\value jp_less_loanword 日文（减少外来语版本）

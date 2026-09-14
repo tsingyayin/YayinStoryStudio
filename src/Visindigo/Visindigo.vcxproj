@@ -193,14 +193,6 @@
     <ClCompile Include="Network\cpp\SSERequest.cpp" />
     <ClCompile Include="Network\cpp\SSEReply.cpp" />
     <ClCompile Include="Network\cpp\WebSocketRequest.cpp" />
-    <ClCompile Include="Agent\cpp\Center.cpp" />
-    <ClCompile Include="Agent\cpp\Dialog.cpp" />
-    <ClCompile Include="Agent\cpp\Function.cpp" />
-    <ClCompile Include="Agent\cpp\MCP.cpp" />
-    <ClCompile Include="Agent\cpp\Model.cpp" />
-    <ClCompile Include="Agent\cpp\Prompt.cpp" />
-    <ClCompile Include="Agent\cpp\Provider.cpp" />
-    <ClCompile Include="Agent\cpp\Skill.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="General\CommandHost.h" />
@@ -209,10 +201,6 @@
     <QtMoc Include="General\Exception.h" />
     <QtMoc Include="General\PluginManager.h" />
     <QtMoc Include="General\PluginModule.h" />
-    <ClInclude Include="Agent\Function.h" />
-    <ClInclude Include="Agent\Prompt.h" />
-    <ClInclude Include="Agent\Provider.h" />
-    <ClInclude Include="Agent\Skill.h" />
     <ClInclude Include="General\LogMetaData.h" />
     <QtMoc Include="General\Placeholder.h" />
     <ClInclude Include="General\Package.h" />
@@ -301,17 +289,6 @@
     <ClInclude Include="Network\private\HttpReply_p.h" />
     <ClInclude Include="Network\private\HttpCenter_p.h" />
     <ClInclude Include="Network\private\WebSocketRequest_p.h" />
-    <QtMoc Include="Agent\Model.h" />
-    <QtMoc Include="Agent\MCP.h" />
-    <QtMoc Include="Agent\Dialog.h" />
-    <QtMoc Include="Agent\Center.h" />
-    <ClInclude Include="Agent\private\Center_p.h" />
-    <ClInclude Include="Agent\private\Dialog_p.h" />
-    <ClInclude Include="Agent\private\MCP_p.h" />
-    <ClInclude Include="Agent\private\Model_p.h" />
-    <ClInclude Include="Agent\private\Prompt_p.h" />
-    <ClInclude Include="Agent\private\Provider_p.h" />
-    <ClInclude Include="Agent\private\Skill_p.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Visindigo.qrc" />

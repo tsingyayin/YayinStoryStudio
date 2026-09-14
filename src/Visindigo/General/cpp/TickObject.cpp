@@ -24,7 +24,7 @@ namespace Visindigo::General {
 
 	/*!
 		\class Visindigo::General::TickObject
-		\brief TickObject提供了一个基于时间的更新机制，允许用户在每个Tick周期执行特定的逻辑。
+		\brief TickObject提供了一个基于时间的更新机制，允许用户在每个Tick周期执行特定的逻辑.
 		\inmodule Visindigo
 		\since Visindigo 0.16.0
 
@@ -453,7 +453,7 @@ namespace Visindigo::General {
 
 	/*!
 		\class Visindigo::General::TickLoop
-		\brief TickLoop是一个基于Qt事件循环的时间驱动器。
+		\brief TickLoop是一个基于Qt事件循环的时间驱动器.
 		\inmodule Visindigo
 		\since Visindigo 0.16.0
 
@@ -504,6 +504,7 @@ namespace Visindigo::General {
 		
 		话虽如此，这里的安全指的也仅仅是TickLoop不会发生递归调用，
 		但新增事件循环层级仍然可能破坏一些逻辑设计，因此还是应当慎用exec()
+		\endlist
 
 	*/
 
@@ -629,6 +630,8 @@ namespace Visindigo::General {
 		中重写事件处理函数，请务必调用基类的实现以确保TickLoop的正常工作。
 
 		显然，此函数不应被用户调用。
+
+		return 事件是否已被处理；返回 true 表示该事件不再继续传递。
 	*/
 	bool TickLoop::event(QEvent* event) {
 		if (event->type() == TickLoopPrivate::TickEventType) {

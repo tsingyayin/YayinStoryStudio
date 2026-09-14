@@ -9,27 +9,29 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpTypes.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 请求重试策略。
+		\brief 请求重试策略.
 
 		RetryPolicy 描述一次请求在失败后是否可以重试、重试几次、以及退避方式。
 		它属于纯值类型，可以随意拷贝与修改。
 
 		默认策略只对幂等方法（GET / HEAD / PUT / DELETE / OPTIONS）生效，
-		这是 \l RetryIdempotentOnly 的默认值。之所以这样设定，是因为 POST
+		这是 \c{RetryIdempotentOnly} 的默认值。之所以这样设定，是因为 POST
 		重试可能造成服务端重复处理（例如重复下单、重复扣费），而这在传输层
 		无法自动判断安全性，因此必须由调用方显式关闭该开关才允许重试。
 
-		\variable MaxAttempts 总尝试次数（含首次），为 1 表示不重试。
-		\variable InitialDelayMs 首次重试前的等待毫秒数。
-		\variable MaxDelayMs 退避延迟的上限，避免因指数增长而等待过久。
-		\variable BackoffMultiplier 退避倍数，每次重试后延迟乘以此值。
-		\variable UseJitter 是否在延迟上叠加随机抖动，用于避免大量客户端同时重连造成的惊群。
-		\variable RespectRetryAfter 是否优先采纳服务端返回的 Retry-After 头（多见于 429 / 503）。
-		\variable RetryOnTimeout 超时是否可重试。
-		\variable RetryOnConnectionError 连接类错误（拒绝、DNS 失败、TLS 失败等）是否可重试。
-		\variable RetryOnStatusError 命中 \l RetryableStatusCodes 的状态码是否可重试。
-		\variable RetryIdempotentOnly 是否只对幂等方法重试。
-		\variable RetryableStatusCodes 允许重试的 HTTP 状态码集合。
+		\list
+		\li \b{MaxAttempts} 总尝试次数（含首次），为 1 表示不重试。
+		\li \b{InitialDelayMs} 首次重试前的等待毫秒数。
+		\li \b{MaxDelayMs} 退避延迟的上限，避免因指数增长而等待过久。
+		\li \b{BackoffMultiplier} 退避倍数，每次重试后延迟乘以此值。
+		\li \b{UseJitter} 是否在延迟上叠加随机抖动，用于避免大量客户端同时重连造成的惊群。
+		\li \b{RespectRetryAfter} 是否优先采纳服务端返回的 Retry-After 头（多见于 429 / 503）。
+		\li \b{RetryOnTimeout} 超时是否可重试。
+		\li \b{RetryOnConnectionError} 连接类错误（拒绝、DNS 失败、TLS 失败等）是否可重试。
+		\li \b{RetryOnStatusError} 命中 \c{RetryableStatusCodes} 的状态码是否可重试。
+		\li \b{RetryIdempotentOnly} 是否只对幂等方法重试。
+		\li \b{RetryableStatusCodes} 允许重试的 HTTP 状态码集合。
+		\endlist
 	*/
 
 	/*!
@@ -37,7 +39,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpTypes.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 网络层统一错误信息。
+		\brief 网络层统一错误信息.
 
 		网络失败属于可预期结果，而非异常情况，因此 Visindigo 的网络模块不使用
 		异常表达错误，而是在结果类型（std::expected）或信号中传递本结构。
@@ -45,12 +47,14 @@ namespace Visindigo::Network {
 		这样做的另一个好处是：错误信息可以跨线程、跨信号槽安全传递，且不会被
 		栈展开意外绕过——异常在 Qt 的信号槽中传播本身就是不推荐的用法。
 
-		\variable Type 错误分类，取值见 \l ErrorType。
-		\variable HttpStatus 有 HTTP 响应时为状态码，否则为 0。
-		\variable Message 面向用户的简短错误描述。
-		\variable Detail 服务端返回的原始错误体（已按上限截断），常用于展示 4xx/5xx 的具体原因。
-		\variable Retryable 该错误是否可按重试策略重试。
-		\variable SuggestedRetryDelayMs 服务端建议的等待毫秒数，来自 Retry-After；无建议时为 -1。
+		\list
+		\li \b{Type} 错误分类，取值见 \l{HttpError::ErrorType}。
+		\li \b{HttpStatus} 有 HTTP 响应时为状态码，否则为 0。
+		\li \b{Message} 面向用户的简短错误描述。
+		\li \b{Detail} 服务端返回的原始错误体（已按上限截断），常用于展示 4xx/5xx 的具体原因。
+		\li \b{Retryable} 该错误是否可按重试策略重试。
+		\li \b{SuggestedRetryDelayMs} 服务端建议的等待毫秒数，来自 Retry-After；无建议时为 -1。
+		\endlist
 	*/
 
 	/*!
@@ -90,6 +94,8 @@ namespace Visindigo::Network {
 		收益：枚举名只有一个来源（即声明本身），将来往 ErrorType 里增加取值时
 		不必记得同步修改映射表，也就不存在"新增了错误类型但日志里显示 Unknown"
 		这类遗漏。同时它对调用方是公开的，日志与界面可以直接拿它做展示。
+
+		\a type 错误类型取值。
 	*/
 	QString HttpError::errorTypeName(ErrorType type) {
 		const QMetaEnum metaEnum = QMetaEnum::fromType<ErrorType>();
@@ -100,7 +106,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		判断本结构是否真的表示一个错误，即 \l Type 不等于 \l ErrorType::NoError。
+		判断本结构是否真的表示一个错误，即 \c{Type} 不等于 \l{ErrorType::NoError}。
+
+		return 不是 NoError 时返回 true。
 	*/
 	bool HttpError::isError() const {
 		return Type != ErrorType::NoError;
@@ -113,7 +121,7 @@ namespace Visindigo::Network {
 		\code
 			[Timeout] Connection timed out (HTTP 504)
 		\endcode
-		仅在 \l HttpStatus 不为 0 时附加状态码部分。若 \l Detail 非空，
+		仅在 \c{HttpStatus} 不为 0 时附加状态码部分。若 \c{Detail} 非空，
 		调用方可自行决定是否展示，本函数不将其包含在内，以免日志被超长文本淹没。
 	*/
 	QString HttpError::toString() const {
@@ -129,29 +137,31 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpTypes.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 与具体协议无关的流帧。
+		\brief 与具体协议无关的流帧.
 
 		请求中心不关心帧来自哪种文本流格式，只负责把字节流切成帧，
-		切分规则由 \l IStreamDecoder 的实现决定：
+		切分规则由 \l{IStreamDecoder} 的实现决定：
 
 		\list
-		\li SSE（W3C text/event-stream）：\l Event 为 \c event: 字段（可能为空），
-			\l Data 为多行 \c data: 字段拼接后的结果，\l Id 与 \l RetryMs 对应
-			\c id: 与 \c retry: 字段。
-		\li NDJSON（JSON Lines）：\l Event、\l Id、\l RetryMs 均为空，\l Data 为整行内容。
+		\li SSE（W3C text/event-stream）：\c{Event} 为 \c{event:} 字段（可能为空），
+			\c{Data} 为多行 \c{data:} 字段拼接后的结果，\c{Id} 与 \c{RetryMs} 对应
+			\c{id:} 与 \c{retry:} 字段。
+		\li NDJSON（JSON Lines）：\c{Event}、\c{Id}、\c{RetryMs} 均为空，\c{Data} 为整行内容。
 		\endlist
 
-		\note 本结构不含任何厂商语义。诸如 \c "data: [DONE]" 这类结束约定由上层协议
+		\note 本结构不含任何厂商语义。诸如 \c{"data: [DONE]"} 这类结束约定由上层协议
 		实现自行判断，中心与解码器均不关心，这是为了保证本模块对各家服务保持中立。
 	*/
 
 	/*!
 		\since Visindigo 0.17.0
 
-		判断本帧是否携带了有效内容，即 \l Event 或 \l Data 至少有一个非空。
+		判断本帧是否携带了有效内容，即 \c{Event} 或 \c{Data} 至少有一个非空。
 
-		之所以两者都算，是因为标准允许只带事件名的帧（例如 \c "event: ping"），
+		之所以两者都算，是因为标准允许只带事件名的帧（例如 \c{"event: ping"}），
 		这种帧没有数据体但依然是有意义的心跳信号，不应被当作空帧丢弃。
+
+		return 本帧是否携带有效内容。
 	*/
 	bool StreamFrame::isValid() const {
 		return !Event.isEmpty() || !Data.isEmpty();
@@ -162,7 +172,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpTypes.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 流帧解码器接口。
+		\brief 流帧解码器接口.
 
 		IStreamDecoder 把"持续到达的字节流"切成一个个完整的 Visindigo::Network::StreamFrame。
 		请求中心只依赖本接口，对具体文本格式（SSE、NDJSON，或调用方自定义的格式）
@@ -172,12 +182,12 @@ namespace Visindigo::Network {
 
 		\list
 		\li \b{必须能处理任意切分点}。TCP 是字节流协议，分包边界与帧边界毫无关系，
-			一个帧可能被拆到任意多次 \l feed() 中到达，也可能一次到达包含多个帧。
+			一个帧可能被拆到任意多次 \l{feed()} 中到达，也可能一次到达包含多个帧。
 			实现必须自行缓存不完整的尾部，而不能假设"每次调用恰好是一个完整帧"。
-		\li \b{状态必须可重置}。请求因重试或重定向需要重发时，中心会调用 \l reset()
+		\li \b{状态必须可重置}。请求因重试或重定向需要重发时，中心会调用 \l{reset()}
 			让解码器丢掉上一跳的残留缓冲，因此实现不能把"第一次调用"作为初始状态
 			的来源。
-		\li \b{必须尊重单帧上限}。当缓存超过 \l setMaxFrameBytes() 设定的长度仍未
+		\li \b{必须尊重单帧上限}。当缓存超过 \l{setMaxFrameBytes()} 设定的长度仍未
 			出现分帧符时，实现应当丢弃该部分而不是继续累积——否则一个始终不发换行
 			的恶意响应就能把进程内存吃光。本模块自带的两个实现都采用"清空缓冲"的
 			策略。
@@ -185,7 +195,7 @@ namespace Visindigo::Network {
 
 		\note 同一实例不会被两个请求同时使用，因此实现无需考虑并发访问；但也不应
 		依赖"只会被一个请求用到底"，重试会复用同一个 shared_ptr 实例，这也是要求
-		实现支持 \l reset() 的原因。
+		实现支持 \l{reset()} 的原因。
 
 		内置实现见 Visindigo::Network::SseDecoder（W3C text/event-stream）与
 		Visindigo::Network::JsonLinesDecoder（NDJSON）。
@@ -235,7 +245,7 @@ namespace Visindigo::Network {
 		在流结束时调用一次，返回缓冲中剩余内容所能构成的帧。
 
 		之所以需要这个独立的入口，是因为不少服务端在发出最后一个事件后直接断开
-		连接，而不补上作为结束标记的空行（SSE）或换行（NDJSON）。若只靠 \l feed()
+		连接，而不补上作为结束标记的空行（SSE）或换行（NDJSON）。若只靠 \l{feed()}
 		分帧，这最后一份数据就会被永远留在缓冲区里。
 	*/
 
@@ -252,6 +262,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置内部缓冲的长度上限，单位为字节。详见类说明中关于超限处理的约定。
+
+		\a bytes 缓冲长度上限，单位为字节。
 	*/
 
 	/*!
@@ -266,22 +278,24 @@ namespace Visindigo::Network {
 		\inheaderfile Network/HttpTypes.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 请求耗时统计。
+		\brief 请求耗时统计.
 
 		各字段的单位均为毫秒。字段为 -1 表示该项无法观测，而不是"耗时为负"——
 		调用方在计算与展示前应当先判断取值是否有效。
 
-		\note 目前只有 \l TotalMs 与 \l TtfbMs 能被稳定填充，其余细分项需要拿到
+		\note 目前只有 \c{TotalMs} 与 \c{TtfbMs} 能被稳定填充，其余细分项需要拿到
 		连接复用、DNS、TLS 握手的独立时刻，而 Qt 的公开接口并不暴露它们。
 		本结构保留这些字段是为了让将来替换传输后端时不必改动调用方代码，
 		因此现在读到 -1 属于预期行为，不应视作缺陷。
 
-		\variable TotalMs 从请求发出到结束的总耗时。
-		\variable TtfbMs 首字节到达时刻（Time To First Byte），是判断服务端响应快慢
+		\list
+		\li \b{TotalMs} 从请求发出到结束的总耗时。
+		\li \b{TtfbMs} 首字节到达时刻（Time To First Byte），是判断服务端响应快慢
 			的关键指标，它排除了下载大响应体所消耗的时间。
-		\variable DnsMs 域名解析耗时。
-		\variable ConnectMs TCP 建连耗时。
-		\variable TlsMs TLS 握手耗时。
-		\variable UploadMs 请求体上传耗时。
+		\li \b{DnsMs} 域名解析耗时。
+		\li \b{ConnectMs} TCP 建连耗时。
+		\li \b{TlsMs} TLS 握手耗时。
+		\li \b{UploadMs} 请求体上传耗时。
+		\endlist
 	*/
 }

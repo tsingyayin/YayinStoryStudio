@@ -7,12 +7,12 @@ namespace Visindigo::Utility {
 		\class Visindigo::Utility::ConsoleFormat
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief ConsoleFormat是一个以非PIMPL值类形式表示控制台文本格式的类。
+		\brief ConsoleFormat是一个以非PIMPL值类形式表示控制台文本格式的类.
 
 		ConsoleFormat用一段文本及其前景色、背景色与样式表示一段控制台内容。
 		颜色统一以真彩QColor保存；通过Color枚举设置时，会映射为近似的真彩。
-		toString()输出带ANSI控制字符的文本（\033[38;2;r;g;b前景、
-		\033[48;2;r;g;b背景、样式码，结尾 \033[0m 复位），输出格式与
+		toString()输出带ANSI控制字符的文本（以 ESC 字符开头，形如 ESC[38;2;r;g;b
+		的前景色、ESC[48;2;r;g;b 的背景色与样式码，结尾用 ESC[0m 复位），输出格式与
 		Console::getColorString(rgb, styleList) 一致，并可由
 		Console::cmdColorToHtmlString() 正确解析为HTML。
 

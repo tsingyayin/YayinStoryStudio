@@ -166,8 +166,9 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	/*!
 		\class YSSFileExt::IniLangHighlighter
-		\brief INI 语法高亮器：按主题样式着色 INI 单元（节、键、值、注释）。
+		\brief INI 语法高亮器：按主题样式着色 INI 单元（节、键、值、注释）.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 	*/
 	IniLangHighlighter::IniLangHighlighter(YSSCore::Editor::TextEdit* parent) :
 		YSSLangHighlighter(parent, &analyzeIniLines) {}
@@ -201,8 +202,9 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	/*!
 		\class YSSFileExt::IniLangServer
-		\brief INI 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 INI 语法诊断。
+		\brief INI 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 INI 语法诊断.
 		\since YSS 0.16.0
+		\inmodule YSSFileExt
 
 		参考 JsonLangServer：加载 Visindigo 2024 静态颜色主题并跟随程序主题切换；
 		通过共享的 YSSLangHighlighter / YSSLangDocument 提供高亮与诊断。

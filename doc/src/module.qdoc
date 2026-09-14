@@ -75,3 +75,17 @@
 	\l {aserstudio-astoryx-diagnostic.html}{ASERStudio 诊断信息}
 
 */
+
+/*!
+	\module YSSFileExt
+	\title YSS File Extensions 模块
+	\brief Yayin Story Studio 的文件扩展插件模块，提供多种文本格式的语言服务与文件模板.
+	\since Yayin Story Studio 0.16.0
+
+	YSS File Extensions（YSSFileExt）模块是 Yayin Story Studio 的文件扩展插件，
+	为编辑器提供 JSON、TOML、XML、YAML 与 INI 等文本格式的语法高亮与语法诊断，
+	并在此基础上提供文件服务器、文件模板与新建文件初始化控件。
+
+	模块内的通用基类（YSSFileExt::YSSLangDocument、YSSFileExt::YSSLangHighlighter）
+	可被其他插件重复使用，新增一种语言只需继承它们并提供相应的分析函数与样式映射。
+*/

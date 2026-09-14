@@ -225,7 +225,7 @@ namespace YSSCore::Editor {
 		\a ok 可选的输出参数，指示是否成功获取。
 		return 参数键对应的QVariant值。
 
-		以JSON方式获取单个参数键值。如果参数不存在，则 \a ok（如果提供）会被设为false，
+		以JSON方式获取单个参数键值。如果参数不存在，则把 \a ok 设为 false，
 		并返回空的QVariant。
 	*/
 	QVariant VirtualFilePath::getParam(const QString& key, bool* ok) const {

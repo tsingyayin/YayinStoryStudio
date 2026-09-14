@@ -219,7 +219,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\class Visindigo::Utility::VirtualStorage
-		\brief 基于SQLite的虚拟文件存储，以MD5去重并按虚拟路径索引。
+		\brief 基于SQLite的虚拟文件存储，以MD5去重并按虚拟路径索引.
 		\inmodule Visindigo
 		\since Visindigo 0.16.0
 
@@ -254,6 +254,9 @@ namespace Visindigo::Utility {
 		保存（或覆盖）虚拟路径 \a path 对应的文件数据。
 		若数据内容与已有文件完全相同，将仅建立新的虚拟路径映射而不再存储一份数据。
 		若该虚拟路径先前已绑定其他内容，则自动解除旧的绑定并适时清理不再引用的数据条目。
+
+		\a path 虚拟路径。
+		\a data 文件数据。
 	*/
 	void VirtualStorage::saveFile(const QString& path, const QByteArray& data) {
 		if (!d->db.isOpen()) {
@@ -355,6 +358,8 @@ namespace Visindigo::Utility {
 
 	/*!
 		通过 VID 读取文件数据。VID 格式为 "MD5-XXXX"，其中 XXXX 为四位十六进制碰撞序号。
+
+		\a vid 文件数据标识，格式为 "MD5-XXXX"。
 	*/
 	QByteArray VirtualStorage::readFileByVID(const QString& vid) {
 		if (!d->db.isOpen()) {
@@ -472,6 +477,8 @@ namespace Visindigo::Utility {
 	/*!
 		删除指定 VID 对应的数据条目及其所有虚拟路径映射。
 		返回被删除的 VID；若 VID 无效或不存在则返回空字符串。
+
+		\a vid 要删除的文件数据标识。
 	*/
 	QString VirtualStorage::removeFileByVID(const QString& vid) {
 		if (!d->db.isOpen()) {

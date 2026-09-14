@@ -43,7 +43,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/SSERequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief SSE 请求的句柄。
+		\brief SSE 请求的句柄.
 
 		本类继承自 Visindigo::Network::HttpReply，因此状态机、进度、错误、中止与
 		生命周期绑定等能力全部复用，只额外提供按事件名或谓词分派的帧路由。
@@ -68,11 +68,15 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		按事件名注册处理器：只有 \l StreamFrame::Event 与之相等的事件才会进入
-		\a handler。同名事件会多次触发，处理器返回 \c false 表示中止整个流。
+		按事件名注册处理器：只有 \c{Event} 与该名字相等的事件才会进入处理器。
+		同名事件会多次触发，处理器返回 \c false 表示中止整个流。
 
 		按事件名分派是 SSE 最自然的用法，因为服务端通常用它区分
 		\c message、\c ping、\c error 等不同种类的推送。
+
+		\a eventName 要监听的事件名。
+		\a context 接收回调的对象；传 \c nullptr 表示使用本对象。
+		\a handler 处理器，返回 \c false 表示中止整个流。
 	*/
 	SSEReply& SSEReply::when(const QString& eventName, QObject* context,
 		std::function<bool(const StreamFrame&)> handler) {
@@ -94,7 +98,11 @@ namespace Visindigo::Network {
 
 		按谓词注册处理器，适用于不带 \c event 字段的流——很多服务端只发
 		\c data，此时无法按事件名分派，只能按内容特征判断。谓词返回 \c true
-		表示命中，随后调用 \a handler。
+		表示命中，随后调用处理器。
+
+		\a predicate 命中判定谓词，返回 \c true 表示该帧需要交给处理器。
+		\a context 接收回调的对象；传 \c nullptr 表示使用本对象。
+		\a handler 处理器，返回 \c false 表示中止整个流。
 	*/
 	SSEReply& SSEReply::when(std::function<bool(const StreamFrame&)> predicate, QObject* context,
 		std::function<bool(const StreamFrame&)> handler) {
@@ -116,6 +124,10 @@ namespace Visindigo::Network {
 
 		与 \l when 相同，但只在首次命中时触发一次。适用于"只关心第一次出现的
 		某个事件"的场景，例如服务端在流开始时推送的一次性元信息。
+
+		\a eventName 要监听的事件名。
+		\a context 接收回调的对象；传 \c nullptr 表示使用本对象。
+		\a handler 处理器，返回 \c false 表示中止整个流。
 	*/
 	SSEReply& SSEReply::whenOnce(const QString& eventName, QObject* context,
 		std::function<bool(const StreamFrame&)> handler) {
@@ -142,6 +154,10 @@ namespace Visindigo::Network {
 
 		\note “只触发一次”的判定建立在谓词命中之上，而不是建立在处理器返回 true 之上。
 		即使处理器返回 \c false（要求中止流），本处理器也不会再次被调用。
+
+		\a predicate 命中判定谓词。
+		\a context 接收回调的对象；传 \c nullptr 表示使用本对象。
+		\a handler 处理器，返回 \c false 表示中止整个流。
 	*/
 	SSEReply& SSEReply::whenOnce(std::function<bool(const StreamFrame&)> predicate, QObject* context,
 		std::function<bool(const StreamFrame&)> handler) {
@@ -168,6 +184,9 @@ namespace Visindigo::Network {
 		\note 此时连接的生命周期跟随句柄本身：句柄销毁时连接自动断开，因此不会
 		造成悬垂指针；但反过来说，句柄存活期间连接也一直存在。带捕获的表达式
 		建议改用带 context 的重载，以便宿主对象销毁时及时断开。
+
+		\a eventName 要监听的事件名。
+		\a handler 处理器，返回 \c false 表示中止整个流。
 	*/
 	SSEReply& SSEReply::when(const QString& eventName, std::function<bool(const StreamFrame&)> handler) {
 		return when(eventName, nullptr, handler);

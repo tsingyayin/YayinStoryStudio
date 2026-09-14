@@ -33,7 +33,7 @@
 
     \section1 Visindigo中的PIMPL宏
     为了简化PIMPL设计模式的使用，Visindigo提供了一些宏来帮助开发人员更轻松地实现PIMPL设计模式。参见
-    \l {<Visindigo/VIMacro.h>}{VIMacro.h} 文档中的相关宏说明。
+    \l {<VIMacro.h>}{VIMacro.h} 文档中的相关宏说明。
 
     如果要为Visindigo贡献代码，则必须完全遵守PIMPL设计模式的使用规范。如果只是开发基于Visindigo的应用程序或插件，
     则无需了解PIMPL设计模式的细节，也不强制要求使用PIMPL设计模式。

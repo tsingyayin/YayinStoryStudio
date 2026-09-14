@@ -22,6 +22,11 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/quuid.h>
 #include <QtCore/qurl.h>
+#include <Network/HttpCenter.h>
+#include <Network/HttpRequest.h>
+#include <Network/HttpTypes.h>
+#include <Network/SSERequest.h>
+#include <Utility/JsonConfig.h>
 #include "Agent/Center.h"
 #include "Agent/Dialog.h"
 #include "Agent/Function.h"
@@ -32,11 +37,6 @@
 #include "Agent/Skill.h"
 #include "Agent/private/Center_p.h"
 #include "Agent/private/Dialog_p.h"
-#include "Network/HttpCenter.h"
-#include "Network/HttpRequest.h"
-#include "Network/HttpTypes.h"
-#include "Network/SSERequest.h"
-#include "Utility/JsonConfig.h"
 
 namespace Visindigo::Agent {
 	/*!
@@ -48,7 +48,7 @@ namespace Visindigo::Agent {
 		\value System 系统提示。通常由 \l Dialog::run() 自动生成，不需要手工添加。
 		\value User 用户输入。
 		\value Assistant 模型输出。
-		\value Tool 工具执行结果。必须同时设置 \l Message::setToolCallID()，
+		\value Tool 工具执行结果。必须同时设置 \l{Message::setToolCallID()}，
 			否则服务端无法把它对应回某次调用。
 		\value Prompt 由 \l Prompt::render() 生成的模板消息。
 		\note \l Role::Prompt 只在本地区分"用户手打的"与"模板生成的"，发往服务端时
@@ -60,18 +60,18 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Dialog.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 对话中的一条消息。
+		\brief 对话中的一条消息.
 
 		Message 是纯值类型，可以自由拷贝与序列化。它同时承担两种用途：一是请求体
 		里的 \c messages 数组元素，二是本地会话记录。两者字段基本重合，唯一的
-		差别是 \l getToolCalls()——它保存的是原始 JSON 数组文本，只在请求体重
+		差别是 \l{getToolCalls()}——它保存的是原始 JSON 数组文本，只在请求体重
 		逐字回传，本地展示时不使用。
 	*/
 
 	/*!
 		\since Visindigo 0.17.0
 
-		构造一条空消息，角色默认为 \l Role::User。
+		构造一条空消息，角色默认为 \l{Role::User}。
 	*/
 	Message::Message() {
 		d = new MessagePrivate();
@@ -81,6 +81,9 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		以角色与内容构造消息。
+
+		\a role 消息角色。
+		\a content 消息正文。
 	*/
 	Message::Message(Role role, const QString& content) {
 		d = new MessagePrivate();
@@ -102,6 +105,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置角色。
+
+		\a role 新的角色。
 	*/
 	Message& Message::setRole(Role role) {
 		d->RoleName = role;
@@ -112,6 +117,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		设置正文。
+
+		\a content 新的正文文本。
 	*/
 	Message& Message::setContent(const QString& content) {
 		d->Content = content;
@@ -124,7 +131,9 @@ namespace Visindigo::Agent {
 		设置发送者名称。
 
 		\note 这个字段在标准协议里是可选的，多数服务端会忽略它。它在本模块中的
-		实际用途是记录模板消息来自哪个 \l Prompt，以及工具结果来自哪个工具。
+		实际用途是记录模板消息来自哪个 \l{Prompt}，以及工具结果来自哪个工具。
+
+		\a name 发送者名称；模板消息可填模板名，工具结果可填工具名。
 	*/
 	Message& Message::setName(const QString& name) {
 		d->Name = name;
@@ -154,6 +163,8 @@ namespace Visindigo::Agent {
 
 		\warning 这段文本会被原样放进请求体。构造它的人应当确保它来自服务端响应，
 		而不是用户输入。
+
+		\a rawJsonArray 服务端给出的工具调用数组的原始 JSON 文本。
 	*/
 	Message& Message::setToolCalls(const QString& rawJsonArray) {
 		d->ToolCalls = rawJsonArray;
@@ -172,6 +183,8 @@ namespace Visindigo::Agent {
 		\note 它永远不会被发回服务端。思考是模型的中间产物，不是它已经说出口的话，
 		把上一轮的思考当作助手内容回传，会让模型以为自己已经给出过那个结论，
 		从而在下一轮里跳过论证直接引用它。
+
+		\a reasoning 本轮的思考内容。
 	*/
 	Message& Message::setReasoning(const QString& reasoning) {
 		d->Reasoning = reasoning;
@@ -239,6 +252,8 @@ namespace Visindigo::Agent {
 
 		\note 一条只有工具调用的助手消息不算空：它的正文可能为空，但携带的调用
 		信息才是重点，把它当作空消息丢掉会让下一轮的请求缺一条必要的前置消息。
+
+		return 消息是否既没有正文也没有工具调用。
 	*/
 	bool Message::isEmpty() const {
 		return d->Content.isEmpty() and d->ToolCalls.isEmpty();
@@ -277,10 +292,14 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		从 JSON 对象恢复。返回是否读到了可识别的角色。
+		从 JSON 对象恢复。
 
-		无法识别的角色字符串会退回 \l Role::User，因为把一条消息当作用户输入
+		无法识别的角色字符串会退回 \l{Role::User}，因为把一条消息当作用户输入
 		与模型继续对话，比丢掉它造成的破坏更小。
+
+		\a json 已解析的 JSON 对象。
+
+		return 是否读到了可识别的角色。
 	*/
 	bool Message::fromJson(const Visindigo::Utility::JsonConfig& json) {
 		const QString role = json.getString("role");
@@ -317,7 +336,7 @@ namespace Visindigo::Agent {
 		\inheaderfile Agent/Dialog.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief 一次完整的对话及其执行入口。
+		\brief 一次完整的对话及其执行入口.
 
 		Dialog 持有消息列表、这次对话可用的 Skill / MCP / Function / Prompt，
 		以及要用哪个 Provider 的哪个模型。\l run() 会把当前消息发出去，把流式
@@ -333,7 +352,7 @@ namespace Visindigo::Agent {
 		覆盖 Center 上的同名全局配置。这让人可以给某次特殊对话临时挂一个技能，
 		而不必先去全局配置里删掉同名项。
 
-		\note Dialog 的所有权属于 \l Center。请通过 \l Center::removeDialog() 销毁，
+		\note Dialog 的所有权属于 \l{Center}。请通过 \l{Center::removeDialog()} 销毁，
 		直接 \c delete 会让 Center 的表里留下一个悬空指针。
 	*/
 
@@ -341,7 +360,7 @@ namespace Visindigo::Agent {
 		\fn void Visindigo::Agent::Dialog::messageAppended(qint32 index)
 		\since Visindigo 0.17.0
 
-		新增了一条消息。\a index 是它在 \l getMessages() 中的下标。
+		新增了一条消息。\a index 是它在 \l{getMessages()} 中的下标。
 
 		\note 只报下标不报内容，是为了让监听方自己去取：同一条消息在发出信号之后
 		仍可能被继续改写，传一份副本出去反而会造成"界面上的和实际存的不一样"。
@@ -359,6 +378,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		回答正文的增量。
+
+		\a delta 本次新增的正文片段。
 	*/
 
 	/*!
@@ -367,8 +388,10 @@ namespace Visindigo::Agent {
 
 		思考内容的增量。仅推理模型会发出。
 
-		\note 它与 \l streamDelta 是两条独立的通道：思考不属于回答，不会进入下一轮
-		请求，但会随 \l Message::setReasoning() 存进对应的助手消息。
+		\note 它与 \l{streamDelta} 是两条独立的通道：思考不属于回答，不会进入下一轮
+		请求，但会随 \l{Message::setReasoning()} 存进对应的助手消息。
+
+		\a delta 本次新增的思考片段。
 	*/
 
 	/*!
@@ -378,7 +401,7 @@ namespace Visindigo::Agent {
 		这一轮生成结束。\a fullContent 是完整的回答正文。
 
 		出现工具调用时，一轮结束后会立刻开始下一轮，因此一次 \l run() 可能触发
-		多次 \l streamBegan 与 \l streamEnded。
+		多次 \l{streamBegan} 与 \l{streamEnded}。
 	*/
 
 	/*!
@@ -387,7 +410,7 @@ namespace Visindigo::Agent {
 
 		执行失败。\a message 是可以直接展示给用户的原因描述。
 
-		\note 失败之后不会再有 \l streamEnded，因此界面上必须两个信号都接，否则
+		\note 失败之后不会再有 \l{streamEnded}，因此界面上必须两个信号都接，否则
 		"正在生成"的状态会一直挂着消不掉。
 	*/
 
@@ -408,7 +431,7 @@ namespace Visindigo::Agent {
 		中止仍在进行的请求，并释放本对话独占的函数对象。
 
 		\warning 这里不会把自己从 Center 的表中摘除。销毁对话请调用
-		\l Center::removeDialog()。
+		\l{Center::removeDialog()}。
 	*/
 	Dialog::~Dialog() {
 		d->abortPendingReply();
@@ -422,7 +445,9 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		追加一条消息，并发出 \l messageAppended()。
+		追加一条消息，并发出 \l{messageAppended()}。
+
+		\a message 要追加的消息。
 	*/
 	Dialog& Dialog::appendMessage(const Message& message) {
 		d->Messages.append(message);
@@ -502,7 +527,7 @@ namespace Visindigo::Agent {
 
 		返回最后一条助手消息的下标；没有助手消息时返回 \c -1。
 
-		下标可以直接交给 \l truncateTo()：保留到这个下标为止，就恰好丢掉了那次
+		下标可以直接交给 \l{truncateTo()}：保留到这个下标为止，就恰好丢掉了那次
 		回答以及之后的所有内容，这正是"重新生成"需要的前置状态。
 	*/
 	qint32 Dialog::findLastAssistantMessage() const {
@@ -517,15 +542,19 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		把消息与配置复制到 \a target，返回是否成功。
+		把消息与配置复制到另一条对话。
 
 		复制的内容包括消息列表、Skill / MCP / Prompt、Provider 与模型选择、
-		能力要求。\a target 保留自己的 id，这样可以先看一份草稿再决定是否让它
+		能力要求。目标对话保留自己的 id，这样可以先看一份草稿再决定是否让它
 		取代原对话。
 
 		\note 函数对象不会被复制。\l Function 是带有独占所有权的接口，无法深拷贝，
 		共享指针又会在两边析构时重复释放；需要跨对话复用的工具请注册到 Center 上，
-		那里本来就是通过 id 解析的。\a target 自己原有的函数保持不变。
+		那里本来就是通过 id 解析的。目标对话自己原有的函数保持不变。
+
+		\a target 复制目标对话。
+
+		return 复制是否成功；目标为空或就是自身时返回 false。
 	*/
 	bool Dialog::copyTo(Dialog* target) const {
 		if (target == nullptr or target == this) {
@@ -544,7 +573,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		开始接收一条助手消息：清空流式缓冲并发出 \l streamBegan()。
+		开始接收一条助手消息：清空流式缓冲并发出 \l{streamBegan()}。
 
 		流式接收由 \l run() 自行驱动，手工调用它只适用于自己实现了传输、
 		想复用本对话渲染逻辑的场景。
@@ -559,10 +588,12 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		追加一段流式增量，并发出 \l streamDelta()。
+		追加一段流式增量，并发出 \l{streamDelta()}。
 
 		\note 增量是模型输出的碎片，可能从多字节字符或 Markdown 语法的中途切开，
 		因此不要对单个增量做解析，只能对累积结果做。
+
+		\a delta 本次新增的正文片段。
 	*/
 	void Dialog::appendDelta(const QString& delta) {
 		if (not d->Streaming) {
@@ -576,12 +607,12 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		结束流式接收：把缓冲内容作为一条助手消息追加到对话末尾，发出
-		\l messageAppended() 与 \l streamEnded()。
+		\l{messageAppended()} 与 \l{streamEnded()}。
 
-		缓冲为空时不追加消息，但仍会发出 \l streamEnded()，以便界面上把"正在
+		缓冲为空时不追加消息，但仍会发出 \l{streamEnded()}，以便界面上把"正在
 		生成"的状态收回去。
 
-		思考内容会被一并写进这条消息（见 \l Message::setReasoning()），因此历史
+		思考内容会被一并写进这条消息（见 \l{Message::setReasoning()}），因此历史
 		记录里每一轮都能看到当时是怎么想的，而不只是最后说了什么。这一步必须在
 		清空缓冲之前完成：思考原本只活在缓冲区里，一旦漏掉，界面上那一段就会
 		随着流式状态一起消失，留下的答复看不出为什么是那个结论。
@@ -603,7 +634,9 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		返回是否正在接收流式响应。
+		判断本对话是否正在接收流式响应。
+
+		return 正在接收流式响应时返回 true。
 	*/
 	bool Dialog::isStreaming() const {
 		return d->Streaming;
@@ -625,7 +658,7 @@ namespace Visindigo::Agent {
 
 		推理模型的思考过程从 \l streamDelta() 之外的通道到达，它不属于回答，
 		因此不会在下一轮被重新发回服务端。生成结束后，这段内容会被写进对应的
-		助手消息（见 \l Message::getReasoning()），历史记录里仍能查到；
+		助手消息（见 \l{Message::getReasoning()}），历史记录里仍能查到；
 		本函数只反映“当前这一次”的缓冲，在每次 \l beginAssistantMessage() 时清空。
 	*/
 	QString Dialog::getReasoningContent() const {
@@ -636,6 +669,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		给本对话挂一个技能。同名技能会覆盖 Center 上的全局同名项。
+
+		\a skill 要挂载的技能。
 	*/
 	Dialog& Dialog::addSkill(const Skill& skill) {
 		removeSkill(skill.getName());
@@ -647,6 +682,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除本对话上的同名技能。移除之后，Center 上的全局同名技能会重新生效。
+
+		\a name 技能名称。
 	*/
 	Dialog& Dialog::removeSkill(const QString& name) {
 		for (qsizetype i = d->Skills.size() - 1; i >= 0; --i) {
@@ -670,6 +707,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		给本对话挂一个工具服务器配置，同名会覆盖 Center 上的全局同名项。
+
+		\a server 要挂载的工具服务器配置。
 	*/
 	Dialog& Dialog::addMCP(const MCP& server) {
 		removeMCP(server.getName());
@@ -681,6 +720,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除本对话上的同名工具服务器配置。
+
+		\a name 工具服务器名称。
 	*/
 	Dialog& Dialog::removeMCP(const QString& name) {
 		for (qsizetype i = d->MCPs.size() - 1; i >= 0; --i) {
@@ -706,6 +747,8 @@ namespace Visindigo::Agent {
 		给本对话挂一个函数，所有权随之转移给本对话。
 
 		同一个 id 重复添加会替换旧项，旧对象被释放。传入 \c nullptr 什么也不做。
+
+		\a function 要挂载的函数对象，所有权随之转移给本对话。
 	*/
 	Dialog& Dialog::addFunction(Function* function) {
 		if (function == nullptr) {
@@ -720,6 +763,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除并释放本对话上的函数。移除之后，Center 上的全局同名函数会重新生效。
+
+		\a id 函数 id。
 	*/
 	Dialog& Dialog::removeFunction(const QString& id) {
 		auto it = d->Functions.find(id);
@@ -734,6 +779,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		按 id 查找函数，先查本对话再查 Center。找不到时返回 \c nullptr。
+
+		\a id 函数 id。
 	*/
 	Function* Dialog::getFunction(const QString& id) const {
 		return d->resolveFunction(id);
@@ -752,6 +799,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		给本对话挂一个提示模板，同名会覆盖 Center 上的全局同名项。
+
+		\a prompt 要挂载的提示模板。
 	*/
 	Dialog& Dialog::addPrompt(const Prompt& prompt) {
 		removePrompt(prompt.getName());
@@ -763,6 +812,8 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		移除本对话上的同名提示模板。
+
+		\a name 模板名称。
 	*/
 	Dialog& Dialog::removePrompt(const QString& name) {
 		for (qsizetype i = d->Prompts.size() - 1; i >= 0; --i) {
@@ -788,6 +839,9 @@ namespace Visindigo::Agent {
 		查找模板、渲染并追加为一条消息。模板名不存在时什么也不做。
 
 		查找顺序是先本对话后 Center，与 \l run() 的覆盖规则一致。
+
+		\a name 模板名称。
+		\a variables 模板变量表。
 	*/
 	Dialog& Dialog::appendPrompt(const QString& name, const QMap<QString, QString>& variables) {
 		for (const Prompt& prompt : d->Prompts) {
@@ -818,6 +872,8 @@ namespace Visindigo::Agent {
 
 		它表达的是"这条对话取代了哪一条"，因此重新生成回答时，新对话指向被它
 		取代的那条，分支关系就自然形成了，不需要额外的树结构。
+
+		\a id 被本条对话取代的对话 id；全新对话传空串。
 	*/
 	Dialog& Dialog::setBranchFromID(const QString& id) {
 		d->BranchFromId = id;
@@ -836,7 +892,9 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		指定本次对话使用的 Provider。留空时使用 \l Center::getDefaultProvider()。
+		指定本次对话使用的 Provider。留空时使用 \l{Center::getDefaultProvider()}。
+
+		\a id Provider 的 id；留空表示使用 Center 的默认 Provider。
 	*/
 	Dialog& Dialog::setProviderId(const QString& id) {
 		d->ProviderId = id;
@@ -857,6 +915,8 @@ namespace Visindigo::Agent {
 
 		指定本次对话使用的模型。留空或指定的模型不可用时，由 Provider 按能力
 		要求自行挑选。
+
+		\a id 模型 id；留空表示由 Provider 挑选。
 	*/
 	Dialog& Dialog::setModelId(const QString& id) {
 		d->ModelId = id;
@@ -879,6 +939,8 @@ namespace Visindigo::Agent {
 
 		当一次对话需要图片输入时把它设为文本与图片的按位或，模型挑选就会自动
 		跳过不支持图片的端点，而不是把图片发过去等一个 400 回来。
+
+		\a required 最低能力要求，多个能力按位或。
 	*/
 	Dialog& Dialog::setCapabilityRequirement(Model::Capabilities required) {
 		d->CapabilityRequirement = required;
@@ -905,10 +967,10 @@ namespace Visindigo::Agent {
 		\l Message::Role::Tool 消息追加，然后自动再发一轮，直到模型给出不含工具
 		调用的最终答复。
 
-		结果是异步的，本函数在请求发出后就返回。流程结束会发出 \l streamEnded()，
-		失败则发出 \l runFailed()。
+		结果是异步的，本函数在请求发出后就返回。流程结束会发出 \l{streamEnded()}，
+		失败则发出 \l{runFailed()}。
 
-		\note 同一时刻只允许一次执行。正在执行时再次调用会直接发出 \l runFailed()，
+		\note 同一时刻只允许一次执行。正在执行时再次调用会直接发出 \l{runFailed()}，
 		而不会排队——把两次生成叠在一起只会让会话记录变成一堆无法解释的片段。
 	*/
 	void Dialog::run() {
@@ -961,13 +1023,17 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		从 JSON 对象恢复。返回是否恢复了 id。
+		从 JSON 对象恢复。
 
 		存档里的 id 会被恢复，这是 Dialog 的 id 唯一的赋值入口。没有 id 字段时
 		保留当前（新生成的）id。
 
-		\warning 函数对象不在存档里，恢复后需要重新用 \l addFunction() 挂上；
+		\warning 函数对象不在存档里，恢复后需要重新用 \l{addFunction()} 挂上；
 		否则模型请求调用工具时会收到"未知工具"的答复。
+
+		\a json 已解析的 JSON 对象。
+
+		return 是否恢复了存档里的 id。
 	*/
 	bool Dialog::fromJson(const Visindigo::Utility::JsonConfig& json) {
 		bool ok = false;

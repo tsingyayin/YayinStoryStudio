@@ -1,10 +1,11 @@
-#ifndef YayinStoryStudio_Editor_AgentPage_AgentWin_h
-#define YayinStoryStudio_Editor_AgentPage_AgentWin_h
+#ifndef VIAgent_AgentPage_AgentWin_h
+#define VIAgent_AgentPage_AgentWin_h
 #include <QtCore/qstring.h>
 #include <QtGui/qcolor.h>
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qtextedit.h>
 #include <Widgets/ThemeManager.h>
+#include "VIAgentCompileMacro.h"
 class QKeyEvent;
 class QLabel;
 class QPushButton;
@@ -18,8 +19,8 @@ namespace Visindigo::Agent {
 	class Dialog;
 	class Message;
 }
-namespace YSS::AgentPage {
-	class ChatInput : public QTextEdit {
+namespace Visindigo::AgentPage {
+	class VIAgentAPI ChatInput : public QTextEdit {
 		Q_OBJECT;
 	public:
 		ChatInput(QWidget* parent = nullptr);
@@ -29,7 +30,7 @@ namespace YSS::AgentPage {
 		virtual void keyPressEvent(QKeyEvent* event) override;
 	};
 
-	class AgentWin : public QFrame, public Visindigo::Widgets::ColorfulWidget {
+	class VIAgentAPI AgentWin : public QFrame, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	private:
 		Visindigo::Widgets::BorderLabel* TitleLabel;
@@ -62,4 +63,4 @@ namespace YSS::AgentPage {
 		void writeMessage(QTextCursor& cursor, const Visindigo::Agent::Message& message);
 	};
 }
-#endif // YayinStoryStudio_Editor_AgentPage_AgentWin_h
+#endif // VIAgent_AgentPage_AgentWin_h

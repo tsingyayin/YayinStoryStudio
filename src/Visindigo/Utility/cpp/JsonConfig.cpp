@@ -220,7 +220,7 @@ namespace Visindigo::Utility {
 		\inmodule Visindigo
 		\brief JsonConfig定义了对Json配置的操作.
 		\since Visindigo 0.10.0
-		\sa Visindigo::Utility::JsonDocument, QJsonObject, QJsonValue
+		\sa QJsonObject, QJsonValue
 
 		JsonConfig提供对Json配置的读写操作，可以通过此类构建基于Json的配置。
 		JsonConfig主体上提供的是一套纯动态方式的接口，允许你在运行时动态地访问和修改Json对象的内容，

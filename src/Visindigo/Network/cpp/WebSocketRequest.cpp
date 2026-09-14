@@ -39,7 +39,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/WebSocketRequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief WebSocket 连接描述对象。
+		\brief WebSocket 连接描述对象.
 
 		协议栈仍然由 Qt 的 QWebSocket 承担，本类只承载连接参数与重连策略，
 		因此它和 HTTP 请求一样是纯值类型，可以自由拷贝。
@@ -69,6 +69,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置连接地址。scheme 应为 ws 或 wss，wss 表示加密连接。
+
+		\a url 连接地址。
 	*/
 	WebSocketRequest& WebSocketRequest::setUrl(const QUrl& url) {
 		d->Url = url;
@@ -79,6 +81,9 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置握手请求携带的头部，常用于传递认证信息。
+
+		\a key 头名。
+		\a value 头值。
 	*/
 	WebSocketRequest& WebSocketRequest::setHeader(const QString& key, const QString& value) {
 		d->Headers.insert(key, value);
@@ -89,6 +94,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置子协议名，会在握手时以 Sec-WebSocket-Protocol 发送。
+
+		\a protocol 子协议名。
 	*/
 	WebSocketRequest& WebSocketRequest::setSubProtocol(const QString& protocol) {
 		d->SubProtocol = protocol;
@@ -103,6 +110,8 @@ namespace Visindigo::Network {
 		心跳的价值在于让中间设备保持连接：很多反向代理会静默回收长时间没有数据
 		的 TCP 连接，而 WebSocket 空闲时并不产生任何流量。定期发送 ping 可以让
 		连接在链路上始终表现为"活跃"。
+
+		\a ms 心跳间隔毫秒数；0 表示不发送心跳。
 	*/
 	WebSocketRequest& WebSocketRequest::setHeartbeatMs(qint32 ms) {
 		d->HeartbeatMs = ms;
@@ -114,6 +123,9 @@ namespace Visindigo::Network {
 
 		设置意外断开后是否自动重连，以及最多尝试次数。
 		调用 close() 主动关闭不会触发重连。
+
+		\a enabled 是否自动重连。
+		\a maxAttempts 最多尝试次数。
 	*/
 	WebSocketRequest& WebSocketRequest::setAutoReconnect(bool enabled, qint32 maxAttempts) {
 		d->AutoReconnect = enabled;
@@ -126,6 +138,8 @@ namespace Visindigo::Network {
 
 		设置单条消息的字节上限，0 表示不限。超限的消息会被丢弃并触发错误，
 		避免单个恶意帧耗尽内存。
+
+		\a bytes 单条消息字节上限；0 表示不限。
 	*/
 	WebSocketRequest& WebSocketRequest::setMaxMessageBytes(qint64 bytes) {
 		d->MaxMessageBytes = bytes;
@@ -138,6 +152,8 @@ namespace Visindigo::Network {
 		设置是否校验证书，默认 \c true。
 
 		\warning 关闭校验等同于放弃中间人防护，仅在明确受控的场景下使用。
+
+		\a verify 是否校验证书。
 	*/
 	WebSocketRequest& WebSocketRequest::setVerifyTls(bool verify) {
 		d->VerifyTls = verify;
@@ -149,7 +165,7 @@ namespace Visindigo::Network {
 		\inheaderfile Network/WebSocketRequest.h
 		\since Visindigo 0.17.0
 		\inmodule Visindigo
-		\brief WebSocket 会话句柄。
+		\brief WebSocket 会话句柄.
 
 		相对裸用 QWebSocket，本类补齐的是工程上真正需要的部分：心跳保活、
 		指数退避重连、统一的错误类型、消息大小限制，以及把会话纳入请求中心的
@@ -179,6 +195,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		收到二进制消息，原样交付、不做任何解释。
+
+		\a message 二进制消息内容。
 	*/
 
 	/*!
@@ -186,6 +204,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		收到对端心跳帧。底层会自动回应 pong，这里只是通知，一般不需要处理。
+
+		\a payload 心跳帧载荷，可能为空。
 	*/
 
 	/*!
@@ -208,10 +228,12 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::WebSocketSession::errorOccurred(const HttpError& error)
 		\since Visindigo 0.17.0
 
-		发生错误。错误分类与 HTTP 侧共用同一套 \l HttpError，处理逻辑可以直接复用。
+		发生错误。错误分类与 HTTP 侧共用同一套 \l{HttpError}，处理逻辑可以直接复用。
 
 		\note 它不表示会话已经结束：开启了自动重连时会话会继续尝试，最终的结局仍然
 		由 \l disconnected 或 \l connected 给出。
+
+		\a error 错误分类与描述。
 	*/
 
 	WebSocketSession::WebSocketSession() {
@@ -240,6 +262,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		判断当前是否处于已连接状态。
+
+		return 处于已连接状态时返回 true。
 	*/
 	bool WebSocketSession::isConnected() const {
 		return d->Socket != nullptr
@@ -251,6 +275,8 @@ namespace Visindigo::Network {
 
 		发送文本消息。未连接时调用不会有任何效果，也不会缓存待发——
 		重连后自动补发会带来语义上的不确定性，应交由上层决定。
+
+		\a text 文本消息内容。
 	*/
 	void WebSocketSession::sendText(const QString& text) {
 		if (isConnected()) {
@@ -262,6 +288,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		发送二进制消息。
+
+		\a data 二进制消息内容。
 	*/
 	void WebSocketSession::sendBinary(const QByteArray& data) {
 		if (isConnected()) {
@@ -273,6 +301,8 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		发送 ping 帧。对端应当回以 pong，后者经 \l pingReceived 信号通知。
+
+		\a payload 心跳帧载荷，可为空。
 	*/
 	void WebSocketSession::sendPing(const QByteArray& payload) {
 		if (isConnected()) {
@@ -285,6 +315,9 @@ namespace Visindigo::Network {
 
 		正常关闭连接。主动关闭会抑制自动重连，因为"调用方想关"与"连接掉了"
 		是两种完全不同的情况。
+
+		\a code 关闭码。
+		\a reason 关闭原因文本。
 	*/
 	void WebSocketSession::close(quint16 code, const QString& reason) {
 		d->ManualClose = true;
@@ -324,6 +357,8 @@ namespace Visindigo::Network {
 
 		这对 WebSocket 尤其必要——长连接不会自己结束，若界面已经销毁而会话仍在，
 		就会持续占用连接并接收无人处理的消息。
+
+		\a context 要绑定到的对象；传 \c nullptr 表示不绑定。
 	*/
 	WebSocketSession& WebSocketSession::bindLifecycleTo(QObject* context) {
 		if (context != nullptr) {

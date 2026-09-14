@@ -664,7 +664,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\since Visindigo 0.17.0
-		\a path 文件路径
+		\a filePath 文件路径
 		
 		return 指定文件的MD5值，如果文件不存在，则返回空字符串。
 	*/

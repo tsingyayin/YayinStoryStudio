@@ -2,7 +2,7 @@
 #define Visindigo_Agent_Skill_h
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
-#include "VICompileMacro.h"
+#include "VIAgentCompileMacro.h"
 // Forward declarations
 namespace Visindigo::Utility {
 	class JsonConfig;
@@ -12,7 +12,7 @@ namespace Visindigo::Agent {
 }
 // Main
 namespace Visindigo::Agent {
-	class VisindigoAPI Skill {
+	class VIAgentAPI Skill {
 	public:
 		Skill();
 		Skill(const QString& name);

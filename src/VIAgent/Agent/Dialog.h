@@ -8,7 +8,7 @@
 #include <QtCore/qstringlist.h>
 #include "Agent/Model.h"
 #include "Agent/Prompt.h"
-#include "VICompileMacro.h"
+#include "VIAgentCompileMacro.h"
 // Forward declarations
 namespace Visindigo::Utility {
 	class JsonConfig;
@@ -22,7 +22,7 @@ namespace Visindigo::Agent {
 }
 // Main
 namespace Visindigo::Agent {
-	class VisindigoAPI Message {
+	class VIAgentAPI Message {
 		Q_GADGET;
 	public:
 		enum class Role {
@@ -63,7 +63,7 @@ namespace Visindigo::Agent {
 		MessagePrivate* d;
 	};
 
-	class VisindigoAPI Dialog : public QObject {
+	class VIAgentAPI Dialog : public QObject {
 		Q_OBJECT;
 		friend class DialogPrivate;
 	public:

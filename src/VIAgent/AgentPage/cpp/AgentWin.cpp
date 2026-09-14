@@ -22,14 +22,14 @@
 #include <Agent/Dialog.h>
 #include <Agent/Model.h>
 #include <Agent/Provider.h>
+#include <General/Log.h>
 #include <General/TranslationHost.h>
-#include <General/YSSLogger.h>
 #include <Utility/FileOperation.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/BorderLabel.h>
-#include "Editor/AgentPage/AgentWin.h"
+#include "AgentPage/AgentWin.h"
 
-namespace YSS::AgentPage {
+namespace Visindigo::AgentPage {
 	namespace {
 		// 流式增量按帧到达，逐帧重排整篇会让长对话彻底卡死；
 		// 攒到刷新间隔再画一次，人眼分辨不出与逐帧刷新的差别
@@ -134,21 +134,21 @@ namespace YSS::AgentPage {
 		const QString configPath = modelConfigPath();
 		Visindigo::Utility::FileOperation::Errorable<QString> readResult = Visindigo::Utility::FileOperation::readAll(configPath);
 		if (not readResult) {
-			yError << "Failed to read agent model config:" << configPath
+			vgError << "Failed to read agent model config:" << configPath
 				<< Visindigo::Utility::FileOperation::errorCodeName(readResult.error());
 			StatusLabel->setText(VITRL("YSS::agent.configError").arg(configPath));
 			return;
 		}
 		Visindigo::Utility::JsonConfig config;
 		if (config.parse(readResult.value()).error != QJsonParseError::NoError) {
-			yError << "Agent model config is not a valid JSON object:" << configPath;
+			vgError << "Agent model config is not a valid JSON object:" << configPath;
 			StatusLabel->setText(VITRL("YSS::agent.configError").arg(configPath));
 			return;
 		}
 		Visindigo::Agent::Model model;
 		model.fromJson(config);
 		if (not model.isValid()) {
-			yError << "Agent model config is incomplete:" << configPath;
+			vgError << "Agent model config is incomplete:" << configPath;
 			StatusLabel->setText(VITRL("YSS::agent.configError").arg(configPath));
 			return;
 		}
