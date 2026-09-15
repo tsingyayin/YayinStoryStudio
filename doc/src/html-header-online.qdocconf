@@ -1,92 +1,85 @@
-# HTML Header with qt.io branding and online links
+# HTML Header：Yayin Story Studio 项目文档的现代主题
+#
+# 这份模板不依赖 Qt 官方在线模板：那些资源会引入跨域字体、jQuery 依赖，
+# 以及 /style/qt-footer.html 的 404。样式与脚本都放在 template/ 下自带，
+# 由 QDoc（HTML.stylesheets / HTML.scripts）与 QDoc.py 一起复制到输出目录。
+#
+# 注意：QDoc 的 qdocconf 解析器会把字符串里的 $ 吃掉，因此模板内联脚本中
+# 不要使用 $（本项目不使用 jQuery，脚本都在 scripts/yss.js 里）。
 
-HTML.stylesheets = template/style/online.css \
-                   template/style/cookie-confirm.css \
-                   template/style/gsc.css \
-                   template/style/list_arrow.png \
-                   template/style/list_expand.png \
-                   template/style/icomoon.eot \
-                   template/style/icomoon.svg \
-                   template/style/icomoon.ttf \
-                   template/style/icomoon.woff \
-                   template/style/cookiebar-x.png \
-                   template/style/doc_search.png \
-                   template/style/tech_preview.svg \
-                   template/style/theqtcompany.png
+# 需要复制到输出目录的静态资源
+# （logo.png 由 QDoc.py 的 copyFolder 复制到 images/，不必放这里，
+#   否则会在输出目录的 style/ 下多出一份副本）
+HTML.stylesheets = template/style/yss.css
 
+qhp.extraFiles += style/yss.css \
+                  images/logo.png
 
-#for including files into the qch file. Relative to the outputdir of a QDoc build.
-qhp.extraFiles += style/online.css \
-                  style/cookie-confirm.css \
-                  style/gsc.css \
-                  style/list_arrow.png \
-                  style/list_expand.png \
-                  style/icomoon.eot \
-                  style/icomoon.svg \
-                  style/icomoon.ttf \
-                  style/icomoon.woff \
-                  style/cookiebar-x.png \
-                  style/doc_search.png \
-                  style/tech_preview.svg \
-                  style/theqtcompany.png
-
+# <head> 中的样式与脚本。深浅色选择必须在样式表生效前应用，避免闪白；
+# 入场动效的开关类同理，必须在首帧之前挂上，否则正文会先完整显示再闪一下。
 HTML.headerstyles = \
-    "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/online.css\" />\n" \
-    "  <link rel=\"shortcut icon\" href=\"//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/assets/images/favicon.ico.gzip\" />\n"
+    "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n" \
+    "  <link rel=\"stylesheet\" type=\"text/css\" href=\"style/yss.css\" />\n" \
+    "  <link rel=\"icon\" type=\"image/png\" href=\"images/logo.png\" />\n" \
+    "  <script type=\"text/javascript\">\n" \
+    "    try {\n" \
+    "      var yssTheme = localStorage.getItem(\"yss-doc-theme\");\n" \
+    "      if (yssTheme === \"dark\" || yssTheme === \"light\") {\n" \
+    "        document.documentElement.setAttribute(\"data-theme\", yssTheme);\n" \
+    "      }\n" \
+    "    } catch (e) {}\n" \
+    "    // 入场动效：系统没要求减少动态效果时，先挂上动效类；\n" \
+    "    // 万一副脚本没跑起来（被拦、加载失败），2 秒后自动解除，内容始终可见。\n" \
+    "    try {\n" \
+    "      if (!window.matchMedia || !window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches) {\n" \
+    "        document.documentElement.classList.add(\"yss-motion\");\n" \
+    "        window.setTimeout(function () {\n" \
+    "          if (!window.__yssMotionReady) {\n" \
+    "            document.documentElement.classList.remove(\"yss-motion\");\n" \
+    "          }\n" \
+    "        }, 2000);\n" \
+    "      }\n" \
+    "    } catch (e) {}\n" \
+    "  </script>\n"
 
 HTML.headerscripts = \
-    "  <script type=\"text/javascript\"> wpThemeFolder = \'http://qt.io/wp-content/themes/oneqt\'; </script>\n" \
-    "  <script type=\"text/javascript\" src=\"//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery.js.gzip\"></script>\n" \
-    "  <script type=\"text/javascript\" src=\"//d33sqmjvzgs8hq.cloudfront.net/wp-includes/js/jquery/jquery-migrate.min.js.gzip\"></script>\n" \
-    "  <script type=\"text/javascript\" src=\"//d33sqmjvzgs8hq.cloudfront.net/wp-content/themes/oneqt/js/combo.js.gzip\"></script>\n" \
-    "  <script type=\"text/javascript\" src=\"scripts/main.js\"></script>\n" \
-    "  <script type=\"text/javascript\" src=\"scripts/extras.js\"></script>\n" \
-    "  <script type=\"text/javascript\">\n" \
-    "  \$(function(){\n" \
-    "     \$(\"#footer\").load(\"/style/qt-footer.html\");\n" \
-    "     \$(\"#sidebar-content\").load(\"style/qt5-sidebar.html\");\n" \
-    "  });\n" \
-    "  </script>\n" 
+    "  <script type=\"text/javascript\" src=\"scripts/yss.js\" defer></script>\n"
 
-HTML.scripts = template/scripts/extras.js \
-               template/scripts/main.js
+HTML.scripts = template/scripts/yss.js
 
 HTML.endheader = \
     "</head>\n"
 
-# minimal header
+# 顶栏：品牌 + 模块导航 + 深浅色/目录按钮。
+#
+# 导航里的模块入口由 QDoc.py 在构建时按 doc/src/module.qdoc 里的 \module 声明
+# 重新生成（模块页文件名 = 模块名小写 + "-module.html"），下面这份只是没跑到
+# 那一步时的兼底，两者内容应当一致。普通文档页（如 Python 工具、插件开发）
+# 不是模块，不列在这里，它们放在页脚和各页正文的链接里。
+# 顶栏之后紧接 QDoc 注入的面包屑（navigationbar 里的 li 由 QDoc 生成）。
 HTML.postheader = \
     "<body>\n" \
-    "<style>\n" \
-    "  .yss-topbar { position: fixed; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #0b1a2b; color: #fff; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }\n" \
-    "  .yss-topbar .brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; }\n" \
-    "  .yss-topbar .brand img { height: 32px; width: auto; display: block; }\n" \
-    "  .yss-topbar .actions { display: flex; align-items: center; gap: 10px; }\n" \
-    "  .yss-topbar .actions a { padding: 8px 12px; color: #fff; text-decoration: none; font-size: 14px; transition: background 0.2s ease, transform 0.2s ease; }\n" \
-    "  .yss-topbar .actions a:hover { background: #1576c5; transform: translateY(-1px); }\n" \
-    "  .main { padding-top: 80px; }\n" \
-    "</style>\n" \
-    "<div class=\"header\" id=\"tmpl_header\">\n" \
-    "<header class=\"\" id=\"navbar\"><div id=\"cookie-confirmation\" style=\"display:none\"><div id=\"cookie-confirmation-inner\"><p>We bake cookies in your browser for a better experience.  Using this site means that you consent.\n" \
-    "<a href=\"https://www1.qt.io/terms-conditions/ \">Read more</a></p><div id=\"cookie-confirmation-buttons-area\"><a href=\"#\" id=\"confirmation-button\">Continue »</a>\n" \
-    "</div></div>\n" \
-    "<script>\n" \
-    "    $('#confirmation-button').on('click', function() { $('#cookie-confirmation').fadeOut(); createCookie(\"cookies_nom\", \"yum\", 180); });\n" \
-    "    if (!(readCookie('cookies_nom') == 'yum')) { $('#cookie-confirmation').fadeIn(); }\n" \
-    "</script>\n" \
-    "</div>\n" \
+    "<a class=\"yss-skip\" href=\"#maincontent\">跳到正文</a>\n" \
+    "<header class=\"yss-topbar\">\n" \
+    "  <div class=\"yss-topbar__inner\">\n" \
+    "    <a class=\"yss-brand\" href=\"index.html\">\n" \
+    "      <img src=\"images/logo.png\" alt=\"Yayin Story Studio\" />\n" \
+    "      <span>Yayin Story Studio 项目文档</span>\n" \
+    "    </a>\n" \
+    "    <nav class=\"yss-nav\">\n" \
+    "      <a href=\"index.html\">主页</a>\n" \
+    "      <a href=\"visindigo-module.html\">Visindigo</a>\n" \
+    "      <a href=\"ysscore-module.html\">YSSCore</a>\n" \
+    "      <a href=\"yayinstorystudio-module.html\">YayinStoryStudio</a>\n" \
+    "      <a href=\"aserstudio-module.html\">ASERStudio</a>\n" \
+    "      <a href=\"yssfileext-module.html\">YSSFileExt</a>\n" \
+    "    </nav>\n" \
+    "    <div class=\"yss-tools\">\n" \
+    "      <button id=\"yss-theme-toggle\" class=\"yss-iconbtn\" type=\"button\" title=\"切换深浅色\" aria-label=\"切换深浅色\">☾</button>\n" \
+    "      <button id=\"yss-menu-toggle\" class=\"yss-iconbtn yss-menu-toggle\" type=\"button\" title=\"目录\" aria-label=\"目录\" aria-expanded=\"false\">☰</button>\n" \
+    "    </div>\n" \
+    "  </div>\n" \
     "</header>\n" \
-    "</div>\n" \
-    "<div class=\"yss-topbar\">\n" \
-    "  <div class=\"brand\">\n" \
-    "    <img src=\"images/logo.png\" alt=\"Yayin Story Studio logo\" />\n" \
-    "    <span>Yayin Story Studio 项目文档</span>\n" \
-    "  </div>\n" \
-    "  <div class=\"actions\">\n" \
-    "    <a href=\"index.html\">回到主页</a>\n" \
-    "    <a href=\"https://yuque.com/tsingyayin/yss\" target=\"_blank\" rel=\"noopener\">用户手册</a>\n" \
-    "  </div>\n" \
-    "</div>\n" \
     "<div class=\"main\">\n" \
     "<div class=\"main-rounded\">\n" \
     "<div class=\"navigationbar\">\n" \
@@ -100,4 +93,4 @@ HTML.postpostheader = \
     "        <div class=\"content mainContent\">\n"
 
 HTML.prologue = \
-    "<div class=\"context\">\n"
+    "<div class=\"context\" id=\"maincontent\">\n"

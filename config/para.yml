@@ -2,3 +2,7 @@ qt:
   installPath: "D:\\Qt\\6.10.3\\msvc2022_64"
   docIndexPath: "D:\\Qt\\Docs\\Qt-6.10.3\\qtdoc\\qtdoc.index"
   translationCN: true
+site:
+  # 文档站对外地址。用于生成 robots.txt / sitemap.xml 里的绝对链接，
+  # 换成 https 或换域名时改这里就行。
+  baseUrl: "http://prts.site"

@@ -1,4 +1,7 @@
-# HTML footer for qt.io
+# HTML Footer：页脚 + 关闭 QDoc 版式所需的容器
+#
+# 前面 5 个 </div> 依次关闭 content.mainContent、line、content、main-rounded、main，
+# 与 html-header-online.qdocconf 里打开的层级一一对应，数量不要改动。
 
 HTML.footer += \
     "</div>\n" \
@@ -6,14 +9,16 @@ HTML.footer += \
     "</div>\n" \
     "</div>\n" \
     "</div>\n" \
-    "<div id=\"footer\">\n" \
-        "<footer id=\"footerbar\">\n" \
-        "<div class=\"disclaimer\">\n" \
-        "<div class=\"container clearfix no_discs\">\n" \
-        "    <ul id=\"menu-footer-submenu\" class=\"right clearfix\">" \
-        "      <li id=\"menu-item-4472\" class=\"menu-item menu-item-type-custom menu-item-object-custom menu-item-4472\"><a href=\"https://github.com/tsingyayin\">Created by Tsing Yayin</a></li>\n" \
-        "    </ul>\n" \
-        "</div>\n" \
-        "</div>\n" \
-    "</footer>\n" \
-    "</div>\n"
+    "<footer id=\"footer\">\n" \
+    "  <div id=\"footerbar\">\n" \
+    "    <ul>\n" \
+    "      <li><a href=\"index.html\">文档首页</a></li>\n" \
+    "      <li><a href=\"pytools.html\">Python 工具</a></li>\n" \
+    "      <li><a href=\"yssplugindev.html\">插件开发</a></li>\n" \
+    "      <li><a href=\"https://github.com/tsingyayin/YayinStoryStudio\" target=\"_blank\" rel=\"noopener\">GitHub 仓库</a></li>\n" \
+    "      <li><a href=\"https://www.yuque.com/tsingyayin/yss/\" target=\"_blank\" rel=\"noopener\">用户手册</a></li>\n" \
+    "      <li><a href=\"https://www.yuque.com/tsingyayin/aser\" target=\"_blank\" rel=\"noopener\">ASER 官方文档</a></li>\n" \
+    "    </ul>\n" \
+    "    <p class=\"yss-footer-note\">本页由 QDoc 生成；许可证以仓库根目录 LICENSE.txt 与各子项目声明为准。</p>\n" \
+    "  </div>\n" \
+    "</footer>\n"

@@ -814,7 +814,7 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.16.0
 		\enum Visindigo::Widgets::Terminal::WorkMode
 		\value PureText 纯文本模式，终端将不解析任何ANSI控制序列，所有输入都将被视为普通文本直接显示。这种模式适用于只需要简单日志输出而不需要格式控制的场景。
-		\value ANSIControl ANSI控制序列模式，终端将解析输入中的ANSI控制序列以实现丰富的文本格式和控制效果。这是默认模式，适用于需要完整终端功能的场景。
+		\value VirtualTerminal 虚拟终端模式，终端将解析输入中的ANSI控制序列以实现丰富的文本格式和控制效果。这是默认模式，适用于需要完整终端功能的场景。
 
 		如果你确定输出的内容不会有任何ANSI序列控制，则PureText模式会有更好的性能表现。
 		与此同时，PureText下，每次addLine时都直接将文本添加到终端中，而不需要等待定时刷新。
@@ -827,6 +827,8 @@ namespace Visindigo::Widgets {
 		当用户在输入框中输入命令并按下回车键时，inputPrepared信号将被触发，携带用户输入的命令文本，供外部处理。
 		
 		input函数也会触发此信号。
+
+		参数 \a command 是用户输入的命令文本。
 	*/
 
 	/*!
@@ -834,6 +836,8 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.16.0
 		
 		当通过launchExternalProcess启动的外部进程结束时，externalProcessFinished信号将被触发，携带外部进程的退出代码和退出状态。
+
+		参数 \a exitCode 是外部进程的退出代码，参数 \a exitStatus 是该进程的退出状态。
 	*/
 
 	/*!
@@ -841,6 +845,8 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.16.0
 
 		当通过launchExternalProcess启动的外部进程有新的标准输出内容时，stdoutReceived信号将被触发，携带新输出的文本内容。
+
+		参数 \a text 是新接收到的标准输出文本。
 	*/
 
 	/*!
@@ -848,6 +854,8 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.16.0
 
 		当通过launchExternalProcess启动的外部进程有新的标准错误输出内容时，stderrReceived信号将被触发，携带新输出的文本内容。
+
+		参数 \a text 是新接收到的标准错误文本。
 	*/
 
 	/*!

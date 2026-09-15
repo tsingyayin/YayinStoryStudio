@@ -1,0 +1,1705 @@
+/*!
+	Yayin Story Studio 项目文档主题
+
+	这份样式表完全自包含：不引用任何外部字体、脚本或图片，也不依赖 Qt 官方在线模板，
+	因此在离线、内网、file:// 等环境下都能得到一致的外观。
+
+	配色分为浅色与深色两套，通过 :root 上的 CSS 变量切换：
+	- 默认跟随系统的 prefers-color-scheme；
+	- 页面右上角的按钮会把选择写入 localStorage，并用 <html data-theme="..."> 固定下来。
+
+	深色变量集中在下面 [data-theme="dark"] 与 prefers-color-scheme 两个块里，
+	新增组件时只需要引用变量，不要写死颜色。
+*/
+
+/* ============================================================
+	1. 设计变量
+	============================================================ */
+
+:root {
+	--yss-font: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+	--yss-mono: "Cascadia Mono", "Cascadia Code", "JetBrains Mono", "Fira Code", "IBM Plex Mono", "Source Code Pro", Menlo, "SF Mono", SFMono-Regular, Consolas, "Sarasa Mono SC", "Noto Sans Mono CJK SC", "Microsoft YaHei UI", "Microsoft YaHei", monospace;
+
+	--yss-bg: #ffffff;
+	--yss-bg-soft: #f6f8fa;
+	--yss-bg-inset: #eef1f5;
+	--yss-bg-header: rgba(255, 255, 255, 0.86);
+	--yss-border: #d8dee4;
+	--yss-border-soft: #e7ebf0;
+	--yss-text: #1f2328;
+	--yss-text-soft: #59636e;
+	--yss-text-faint: #818b98;
+
+	/* ── 品牌色：全站颜色只从 logo 上取 ──
+		logo（images/logo.png）是一个深灰底上的字形：字形本身就是一道从
+		#6389F3 到 #8987D8 的蓝 → 紫渐变，底色是中性深灰 #202020。
+		正文/链接用的深色是 logo 蓝压暗到够对比度的版本（#6389F3 在白底上只有 3.3:1，做不了正文色）。
+		logo 上没有的颜色一律不用 —— 之前那团暖橙色斑就是这么去掉的。
+		注：note/warning/important 的琥珀/红是语义色（提示等级），跟着代码高亮走，不属品牌色。 */
+	--yss-brand-blue: #6389f3;
+	--yss-brand-violet: #8987d8;
+	--yss-brand-ink: #202020;
+
+	/* 浅底上的 logo 蓝压暗版：#3b5ccc 5.9:1（按钮/焦点环）、#2f52c9 6.6:1（正文链接） */
+	--yss-accent: #3b5ccc;
+	--yss-accent-strong: #2c47a8;
+	--yss-accent-soft: rgba(59, 92, 204, 0.10);
+	--yss-on-accent: #ffffff;
+	--yss-link: #2f52c9;
+	--yss-link-hover: #2c47a8;
+
+	/* 顶栏用 logo 的中性深灰（原来是深藏青，不在 logo 上）。
+		底色比原先更透：模糊加重之后，透出来的内容才会化成会动的色雾 */
+	--yss-topbar-bg: rgba(32, 32, 32, 0.78);
+	/* 窄屏不跑毛玻璃，底色必须接近不透明：否则底下的正文会清清楚楚地透上来，像重影（见窄屏段落） */
+	--yss-topbar-bg-solid: rgba(32, 32, 32, 0.95);
+	--yss-topbar-fg: #eaeff5;
+	--yss-topbar-fg-soft: #b3b9c4;
+	--yss-topbar-hover: rgba(255, 255, 255, 0.12);
+	--yss-topbar-active: rgba(99, 137, 243, 0.24);
+
+	--yss-code-bg: #f6f8fa;
+	--yss-code-border: #dfe4ea;
+	/* 代码块的玻璃底：行内的 <code> 仍用上面的实底（一页几百个，不能每一个都做玻璃），
+		块级的 <pre> 才用这层半透底 */
+	--yss-code-glass: rgba(238, 242, 248, 0.55);
+	--yss-hl-comment: #6e7781;
+	--yss-hl-keyword: #cf222e;
+	--yss-hl-type: #953800;
+	--yss-hl-string: #0a3069;
+	--yss-hl-number: #0550ae;
+	--yss-hl-func: #8250df;
+	--yss-hl-operator: #57606a;
+
+	--yss-note: #a17400;
+	--yss-warning: #c0392b;
+	--yss-important: #a40e26;
+
+	/* 提示框的着色玻璃：半透色底 + 描边（顶部那片高光走下面通用的玻璃变量） */
+	--yss-note-glass: rgba(255, 214, 102, 0.26);
+	--yss-note-border: rgba(186, 142, 20, 0.35);
+	--yss-warning-glass: rgba(255, 118, 118, 0.20);
+	--yss-warning-border: rgba(192, 57, 43, 0.32);
+	--yss-important-glass: rgba(164, 14, 38, 0.12);
+	--yss-important-border: rgba(164, 14, 38, 0.28);
+
+	/* ── 液态玻璃 ──
+		tint = 面板底色。这里是一个略偏冷的半透灰纱，而不是白纱也不是实底：
+		白纱盖在白底上等于没盖（会“看起来不透明”），灰纱才能看出是片玻璃。
+		line = 上沿 1px 镜面高光；sheen = 顶部那片柔光（自上而下衰减）；
+		edge = 外描边；shade = 下沿一丝暗边（厚度感）。
+		th-bg 必须也是半透的，否则表头会把表格那块毛玻璃整个挡掉。
+		【模糊量级】内容层只用 2px：20px 间距的小点直径才 2.7px，
+		模糊一过 3px 就只剩 15% 对比度（实测过），隔着面板就什么都看不见了 ——
+		「不透明」的观感就是这么来的。重模糊（24px）只用在顶栏/标题栏，
+		那里背后有真正的高对比内容可糊，厚重的毛玻璃才是对的。 */
+	--yss-glass-tint: rgba(237, 241, 247, 0.55);
+	--yss-glass-line: rgba(255, 255, 255, 0.92);
+	--yss-glass-sheen: rgba(255, 255, 255, 0.50);
+	--yss-glass-edge: rgba(24, 44, 74, 0.12);
+	--yss-glass-shade: rgba(24, 44, 74, 0.06);
+	--yss-th-bg: rgba(228, 233, 241, 0.55);
+
+	/* 顶部那片柔光的通用写法：把椭圆压扁成一条带，从上沿之外照进来。
+		高度写死 6rem，与面板实际高度无关 —— 长列表也不会被整片洗白。 */
+	--yss-glass-sheen-bg: radial-gradient(120% 6rem at 50% -2.5rem, var(--yss-glass-sheen), rgba(0, 0, 0, 0));
+
+	/* 点阵涟漪只靠「点被推一下 + 稍微变深一点」表现，不画波前同心圆
+		（用户明确否掉过那圈描边：圈一出来看着就不像水波、像示意图）。
+		浅色下「变深」本来就是高对比，所以 --yss-grid-bright 只比底色深一点点。 */
+
+	/* 极淡的噪点（内联 SVG，不引外部文件）。用途见 .yss-dots：
+		又大又淡的渐变在 8 位色深下一定会分带，铺一层噪点把带打碎。 */
+	--yss-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+
+	/* 页面背景：四团很大的色晕（点阵由 canvas 画，见 scripts/yss.js 的 initDotField）。
+		颜色就是 logo 那两个：上半页面用 logo 蓝、下半页面用 logo 紫 ——
+		和 logo 字形自己是同一道蓝→紫渐变。
+		它们的强度不只是装饰 —— 玻璃面板要「看起来半透明」，背面就必须有**大尺度**的东西可看：
+		20px 间距的小点在毛玻璃后面物理上留不下来（模糊半径一过 3px 就全糊没了），
+		能穿透模糊的只有这种几十 rem 量级的渐变。 */
+	--yss-glow-a: rgba(99, 137, 243, 0.17);
+	--yss-glow-b: rgba(99, 137, 243, 0.12);
+	--yss-glow-c: rgba(137, 135, 216, 0.17);
+	--yss-glow-d: rgba(137, 135, 216, 0.12);
+	--yss-grid: rgba(31, 35, 40, 0.125);
+	--yss-grid-bright: rgba(31, 35, 40, 0.165);
+
+	--yss-shadow-sm: 0 1px 2px rgba(31, 35, 40, 0.07);
+	--yss-shadow: 0 1px 3px rgba(31, 35, 40, 0.09), 0 8px 24px rgba(31, 35, 40, 0.07);
+
+	--yss-radius-sm: 6px;
+	--yss-radius: 10px;
+	--yss-topbar-h: 3.5rem;
+	--yss-sidebar-w: 17rem;
+	--yss-content-max: 62rem;
+}
+
+/* 深色：手动切换（data-theme="dark"） */
+[data-theme="dark"] {
+	--yss-bg: #0d1117;
+	--yss-bg-soft: #161b22;
+	--yss-bg-inset: #1c2128;
+	--yss-bg-header: rgba(13, 17, 23, 0.88);
+	--yss-border: #30363d;
+	--yss-border-soft: #242a31;
+	--yss-text: #e6edf3;
+	--yss-text-soft: #9ea7b3;
+	--yss-text-faint: #7d8590;
+
+	--yss-accent: #6389f3;
+	--yss-accent-strong: #8aa5f8;
+	--yss-accent-soft: rgba(99, 137, 243, 0.16);
+	--yss-on-accent: #202020;
+	--yss-link: #6389f3;
+	--yss-link-hover: #8aa5f8;
+
+	--yss-topbar-bg: rgba(24, 24, 26, 0.72);
+	--yss-topbar-bg-solid: rgba(24, 24, 26, 0.95);
+	--yss-topbar-fg: #e6edf3;
+	--yss-topbar-fg-soft: #98a3b0;
+
+	--yss-code-bg: #161b22;
+	--yss-code-border: #30363d;
+	--yss-code-glass: rgba(32, 39, 48, 0.42);
+	--yss-hl-comment: #8b949e;
+	--yss-hl-keyword: #ff7b72;
+	--yss-hl-type: #ffa657;
+	--yss-hl-string: #a5d6ff;
+	--yss-hl-number: #79c0ff;
+	--yss-hl-func: #d2a8ff;
+	--yss-hl-operator: #ff7b72;
+
+	--yss-note: #f2cc63;
+	--yss-warning: #ff8f85;
+	--yss-important: #ff7b72;
+
+	--yss-note-glass: rgba(255, 214, 102, 0.12);
+	--yss-note-border: rgba(255, 214, 102, 0.24);
+	--yss-warning-glass: rgba(255, 118, 118, 0.12);
+	--yss-warning-border: rgba(255, 118, 118, 0.24);
+	--yss-important-glass: rgba(255, 123, 114, 0.12);
+	--yss-important-border: rgba(255, 123, 114, 0.26);
+	--yss-glass-sheen: rgba(255, 255, 255, 0.08);
+
+	--yss-glass-tint: rgba(38, 45, 56, 0.40);
+	--yss-glass-line: rgba(255, 255, 255, 0.15);
+	--yss-glass-edge: rgba(255, 255, 255, 0.09);
+	--yss-glass-shade: rgba(0, 0, 0, 0.40);
+	--yss-th-bg: rgba(52, 60, 72, 0.40);
+
+	--yss-glow-a: rgba(99, 137, 243, 0.14);
+	--yss-glow-b: rgba(99, 137, 243, 0.09);
+	--yss-glow-c: rgba(137, 135, 216, 0.14);
+	--yss-glow-d: rgba(137, 135, 216, 0.09);
+	--yss-grid: rgba(255, 255, 255, 0.07);
+	--yss-grid-bright: rgba(255, 255, 255, 0.20);
+
+	--yss-shadow-sm: 0 1px 2px rgba(1, 4, 9, 0.6);
+	--yss-shadow: 0 1px 3px rgba(1, 4, 9, 0.7), 0 8px 24px rgba(1, 4, 9, 0.5);
+}
+
+/* 深色：系统偏好（未手动指定浅色时生效） */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--yss-bg: #0d1117;
+		--yss-bg-soft: #161b22;
+		--yss-bg-inset: #1c2128;
+		--yss-bg-header: rgba(13, 17, 23, 0.88);
+		--yss-border: #30363d;
+		--yss-border-soft: #242a31;
+		--yss-text: #e6edf3;
+		--yss-text-soft: #9ea7b3;
+		--yss-text-faint: #7d8590;
+
+		--yss-accent: #6389f3;
+		--yss-accent-strong: #8aa5f8;
+		--yss-accent-soft: rgba(99, 137, 243, 0.16);
+		--yss-on-accent: #202020;
+		--yss-link: #6389f3;
+		--yss-link-hover: #8aa5f8;
+
+		--yss-topbar-bg: rgba(24, 24, 26, 0.72);
+		--yss-topbar-bg-solid: rgba(24, 24, 26, 0.95);
+		--yss-topbar-fg: #e6edf3;
+		--yss-topbar-fg-soft: #98a3b0;
+
+		--yss-code-bg: #161b22;
+		--yss-code-border: #30363d;
+		--yss-code-glass: rgba(32, 39, 48, 0.42);
+		--yss-hl-comment: #8b949e;
+		--yss-hl-keyword: #ff7b72;
+		--yss-hl-type: #ffa657;
+		--yss-hl-string: #a5d6ff;
+		--yss-hl-number: #79c0ff;
+		--yss-hl-func: #d2a8ff;
+		--yss-hl-operator: #ff7b72;
+
+		--yss-note: #f2cc63;
+		--yss-warning: #ff8f85;
+		--yss-important: #ff7b72;
+
+		--yss-note-glass: rgba(255, 214, 102, 0.12);
+		--yss-note-border: rgba(255, 214, 102, 0.24);
+		--yss-warning-glass: rgba(255, 118, 118, 0.12);
+		--yss-warning-border: rgba(255, 118, 118, 0.24);
+		--yss-important-glass: rgba(255, 123, 114, 0.12);
+		--yss-important-border: rgba(255, 123, 114, 0.26);
+		--yss-glass-sheen: rgba(255, 255, 255, 0.08);
+
+		--yss-glass-tint: rgba(38, 45, 56, 0.40);
+		--yss-glass-line: rgba(255, 255, 255, 0.15);
+		--yss-glass-edge: rgba(255, 255, 255, 0.09);
+		--yss-glass-shade: rgba(0, 0, 0, 0.40);
+		--yss-th-bg: rgba(52, 60, 72, 0.40);
+
+		--yss-glow-a: rgba(99, 137, 243, 0.14);
+		--yss-glow-b: rgba(99, 137, 243, 0.09);
+		--yss-glow-c: rgba(137, 135, 216, 0.14);
+		--yss-glow-d: rgba(137, 135, 216, 0.09);
+		--yss-grid: rgba(255, 255, 255, 0.07);
+		--yss-grid-bright: rgba(255, 255, 255, 0.20);
+
+		--yss-shadow-sm: 0 1px 2px rgba(1, 4, 9, 0.6);
+		--yss-shadow: 0 1px 3px rgba(1, 4, 9, 0.7), 0 8px 24px rgba(1, 4, 9, 0.5);
+	}
+}
+
+/* ============================================================
+	2. 基础排版
+	============================================================ */
+
+* {
+	box-sizing: border-box;
+}
+
+/* 纯 CSS 页面背景：一层固定不动的淡底。
+	成分 = 底色 + 四团很大的色晕 + 一层噪点（噪点贴在点阵画布上，见 .yss-dots），
+	点阵由 canvas 画（见 scripts/yss.js 的 initDotField，因为涟漪要逐点位移，CSS 做不到）。
+	它不跑任何动画：文档页要的是安静，而且静止层也不会有持续合成的开销。
+	【位置】色晕的中心必须落在视口**内部**：之前把它们放在视口外（at 6% -8% 这种），
+	最亮的那一块永远在屏幕外，页面上只剩渐变的尾巴 —— 于是「根本看不到光斑」。
+	它存在的另一个意义：让顶栏、卡片面板的 backdrop-filter 有大尺度的东西可糊。 */
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background-color: var(--yss-bg);
+	background-image:
+		radial-gradient(38rem 28rem at 15% 7%, var(--yss-glow-a), rgba(0, 0, 0, 0) 66%),
+		radial-gradient(34rem 26rem at 85% 3%, var(--yss-glow-b), rgba(0, 0, 0, 0) 68%),
+		radial-gradient(40rem 30rem at 76% 93%, var(--yss-glow-c), rgba(0, 0, 0, 0) 68%),
+		radial-gradient(34rem 26rem at 5% 90%, var(--yss-glow-d), rgba(0, 0, 0, 0) 70%);
+	background-repeat: no-repeat;
+}
+
+/* 点阵画布：与背景同层，但在它之后绘制（DOM 顺序），所以点在色晕之上。
+	它自己还垫着一层噪点（--yss-noise）：canvas 清空后是透明的，
+	那层噪点就刚好落在色晕之上、点阵之下 —— 不占额外图层，也不用多一次重绘。
+	噪点的作用是把大而淡的渐变色带打碎（8 位色深下必然分带）。 */
+.yss-dots {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	background-image: var(--yss-noise);
+	background-repeat: repeat;
+	background-size: 160px 160px;
+}
+
+html {
+	scroll-behavior: smooth;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--yss-bg);
+	color: var(--yss-text);
+	font-family: var(--yss-font);
+	font-size: 15px;
+	line-height: 1.75;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+a {
+	color: var(--yss-link);
+	text-decoration: none;
+}
+
+a:hover {
+	color: var(--yss-link-hover);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+:focus-visible {
+	outline: 2px solid var(--yss-accent);
+	outline-offset: 2px;
+	border-radius: 3px;
+}
+
+p {
+	margin: 0 0 0.9em;
+}
+
+ul,
+ol {
+	margin: 0 0 0.9em;
+	padding-left: 1.5em;
+}
+
+li {
+	margin: 0.25em 0;
+}
+
+li > ul,
+li > ol {
+	margin: 0.25em 0;
+}
+
+hr {
+	border: 0;
+	border-top: 1px solid var(--yss-border-soft);
+	margin: 1.75rem 0;
+}
+
+/* 正文里的可锚定标题：给固定顶栏留出偏移 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	position: relative;
+	color: var(--yss-text);
+	font-weight: 650;
+	line-height: 1.35;
+}
+
+h2[id],
+h3[id],
+h4[id] {
+	scroll-margin-top: calc(var(--yss-topbar-h) + 1.25rem);
+}
+
+h1.title {
+	margin: 0 0 0.35em;
+	padding-bottom: 0.5em;
+	border-bottom: 1px solid var(--yss-border-soft);
+	font-size: 1.95rem;
+	letter-spacing: -0.01em;
+	/* 标题里常见 Visindigo::Widgets::Xxx 这种长标识符，不能断行的话
+	   在窄屏会把整个文档撑宽（手机就会缩放页面、能左右拖） */
+	overflow-wrap: anywhere;
+}
+
+h2 {
+	margin: 2.25rem 0 0.9rem;
+	padding-bottom: 0.4em;
+	border-bottom: 1px solid var(--yss-border-soft);
+	font-size: 1.35rem;
+}
+
+h3 {
+	margin: 1.75rem 0 0.65rem;
+	font-size: 1.12rem;
+}
+
+h4,
+h5,
+h6 {
+	margin: 1.4rem 0 0.5rem;
+	font-size: 1rem;
+}
+
+/* 标题旁悬停出现的锚点 */
+.yss-anchor {
+	position: absolute;
+	left: -1.05em;
+	padding-right: 0.35em;
+	color: var(--yss-text-faint);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	text-decoration: none;
+}
+
+h2:hover > .yss-anchor,
+h3:hover > .yss-anchor,
+h4:hover > .yss-anchor,
+.yss-anchor:focus-visible {
+	opacity: 1;
+}
+
+/* ============================================================
+	3. 顶栏与导航
+	============================================================ */
+
+.yss-skip {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 100;
+	padding: 0.5rem 1rem;
+	background: var(--yss-bg);
+	border: 1px solid var(--yss-border);
+	border-radius: 0 0 var(--yss-radius-sm) 0;
+}
+
+.yss-skip:focus {
+	left: 0;
+}
+
+/* 顶栏：液态玻璃。模糊给得重、底色给得淡，栏下的内容才会化成一片会动的色雾 ——
+	这是「玻璃」和「半透明塑料」的分界。区分上的玻璃面不同，这里的两条高光
+	（上沿 1px 镜面线 + 下沿一丝暗边）都是写死的白色系：顶栏在两种主题下都是深色底。 */
+.yss-topbar {
+	position: fixed;
+	inset: 0 0 auto 0;
+	z-index: 50;
+	height: var(--yss-topbar-h);
+	background: var(--yss-topbar-bg);
+	color: var(--yss-topbar-fg);
+	backdrop-filter: blur(24px) saturate(190%) brightness(1.06);
+	-webkit-backdrop-filter: blur(24px) saturate(190%) brightness(1.06);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 0 rgba(0, 0, 0, 0.2),
+		0 2px 14px rgba(0, 0, 0, 0.3);
+}
+
+.yss-topbar__inner {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	height: 100%;
+	max-width: 96rem;
+	margin: 0 auto;
+	padding: 0 1.25rem;
+}
+
+.yss-brand {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	flex: 0 0 auto;
+	color: var(--yss-topbar-fg);
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+.yss-brand:hover {
+	color: #fff;
+	text-decoration: none;
+}
+
+.yss-brand img {
+	height: 1.85rem;
+	width: auto;
+	display: block;
+	border-radius: 4px;
+}
+
+.yss-nav {
+	display: flex;
+	align-items: center;
+	gap: 0.15rem;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.yss-nav::-webkit-scrollbar {
+	display: none;
+}
+
+.yss-nav a {
+	flex: 0 0 auto;
+	padding: 0.35rem 0.7rem;
+	border-radius: 999px;
+	color: var(--yss-topbar-fg-soft);
+	font-size: 0.875rem;
+	white-space: nowrap;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.yss-nav a:hover {
+	background: var(--yss-topbar-hover);
+	color: var(--yss-topbar-fg);
+	text-decoration: none;
+}
+
+.yss-nav a.is-current {
+	background: var(--yss-topbar-active);
+	color: #fff;
+}
+
+.yss-tools {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex: 0 0 auto;
+}
+
+.yss-iconbtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	border: 1px solid transparent;
+	border-radius: 50%;
+	background-color: transparent;
+	color: var(--yss-topbar-fg-soft);
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease, transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.yss-iconbtn:hover {
+	background-color: var(--yss-topbar-hover);
+	color: var(--yss-topbar-fg);
+}
+
+/* 按下时缩一下，手感上「按得动」 */
+.yss-iconbtn:active {
+	transform: scale(0.9);
+}
+
+/* 窄屏下的“目录”按钮，默认隐藏 */
+.yss-tools .yss-menu-toggle {
+	display: none;
+}
+
+/* 面包屑 */
+.navigationbar {
+	max-width: 96rem;
+	margin: 0 auto;
+	padding: 0 1.25rem;
+}
+
+.navigationbar ul {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0.9rem 0 0;
+	list-style: none;
+	color: var(--yss-text-soft);
+	font-size: 0.85rem;
+}
+
+.navigationbar li {
+	display: flex;
+	align-items: center;
+	margin: 0;
+}
+
+.navigationbar li + li::before {
+	content: "/";
+	margin-right: 0.5rem;
+	color: var(--yss-text-faint);
+}
+
+.naviSeparator {
+	margin: 0 0.35rem;
+	color: var(--yss-text-faint);
+}
+
+/* ============================================================
+	4. 版式骨架（顶栏下方的两栏布局）
+	============================================================ */
+
+.main,
+.main-rounded {
+	display: block;
+}
+
+.main {
+	padding-top: var(--yss-topbar-h);
+}
+
+.content {
+	display: block;
+}
+
+.line {
+	display: block;
+}
+
+.content.mainContent {
+	display: block;
+	max-width: 96rem;
+	margin: 0 auto;
+	padding: 0 1.25rem 3rem;
+}
+
+/* 有侧边栏时切成两栏；不用 :has 的浏览器退化为单栏（侧栏在上方），内容依然可读 */
+@supports selector(:has(*)) {
+	.content.mainContent:has(> .sidebar) {
+		display: grid;
+		grid-template-columns: var(--yss-sidebar-w) minmax(0, 1fr);
+		gap: 2.5rem;
+		align-items: start;
+	}
+}
+
+.context {
+	min-width: 0;
+	max-width: var(--yss-content-max);
+}
+
+/* ============================================================
+	5. 侧边栏目录
+	============================================================ */
+
+.sidebar {
+	position: sticky;
+	top: calc(var(--yss-topbar-h) + 1rem);
+	align-self: start;
+	max-height: calc(100vh - var(--yss-topbar-h) - 2rem);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding-right: 0.35rem;
+	font-size: 0.875rem;
+}
+
+/* QDoc 预留的空容器（原本由 Qt 在线模板异步填充），这里不再使用 */
+.sidebar-content {
+	display: none;
+}
+
+/* 侧边目录：这里是个导航元素，按 Apple 的说法正是玻璃该用的地方，
+	而且它 sticky 在自己的栏里，背后没有东西在滚 —— backdrop-filter 几乎不花钱。 */
+.toc {
+	padding: 0.85rem 0.95rem;
+	border: 1px solid var(--yss-glass-edge);
+	border-radius: var(--yss-radius);
+	background-color: var(--yss-glass-tint);
+	background-image: var(--yss-glass-sheen-bg);
+	backdrop-filter: blur(1px) saturate(130%);
+	-webkit-backdrop-filter: blur(1px) saturate(130%);
+	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
+		var(--yss-shadow-sm);
+}
+
+.toc h3 {
+	margin: 0 0 0.5rem;
+	color: var(--yss-text-faint);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.toc ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.toc li {
+	margin: 0.1rem 0;
+}
+
+.toc a {
+	display: block;
+	padding: 0.2rem 0.5rem;
+	margin-left: -0.5rem;
+	border-radius: var(--yss-radius-sm);
+	color: var(--yss-text-soft);
+	line-height: 1.5;
+}
+
+.toc a:hover {
+	background: var(--yss-bg-soft);
+	color: var(--yss-text);
+	text-decoration: none;
+}
+
+.toc a.is-active {
+	background: var(--yss-accent-soft);
+	color: var(--yss-accent-strong);
+	font-weight: 600;
+}
+
+.toc .level2 a {
+	padding-left: 1.4rem;
+	font-size: 0.84rem;
+}
+
+.toc .level3 a {
+	padding-left: 2.3rem;
+	font-size: 0.82rem;
+}
+
+/* ============================================================
+	6. 正文组件
+	============================================================ */
+
+.small-subtitle {
+	display: block;
+	margin-bottom: 1.35rem;
+	color: var(--yss-text-soft);
+	font-family: var(--yss-mono);
+	font-size: 0.82rem;
+	overflow-wrap: anywhere;
+}
+
+.descr {
+	margin-top: 1.1rem;
+}
+
+/* 正文里的项目列表：和表格同一档的内容层玻璃。
+	选择器只命中「最外层」的列表 —— 嵌套列表、提示框里的列表、表格里的列表都不再套一层卡片
+	（注意 :not() 里的 `*` 是后代选择器，靠它把嵌在 ul/ol 里的 ul/ol 排除掉）。
+	顶部那片柔光靠 --yss-glass-sheen-bg，高度写死 6rem，长列表不会被整片洗白。 */
+.context :where(ul, ol):not(:where(ul, ol, .table, .admonition) *) {
+	margin: 0 0 1.1rem;
+	padding: 0.8rem 1.1rem 0.8rem 2.2rem;
+	border: 1px solid var(--yss-glass-edge);
+	border-radius: var(--yss-radius);
+	background-color: var(--yss-glass-tint);
+	background-image: var(--yss-glass-sheen-bg);
+	backdrop-filter: blur(1px) saturate(130%);
+	-webkit-backdrop-filter: blur(1px) saturate(130%);
+	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
+		var(--yss-shadow-sm);
+}
+
+/* 卡片自带内边距，最后一项的下外边距会把卡片撑高 */
+.context :where(ul, ol) > li:last-child {
+	margin-bottom: 0;
+}
+
+/* 成员摘要表 / 详细说明表：内容层的玻璃。
+	表头另用一层底色（--yss-th-bg）——它必须也是半透的，否则表头会把整块毛玻璃挡掉。
+	表格不画描边环/反射面之类的装饰，就淡底 + 毛玻璃 + 上沿镜面线。 */
+.table {
+	margin: 1rem 0 1.5rem;
+	overflow-x: auto;
+	border: 1px solid var(--yss-glass-edge);
+	border-radius: var(--yss-radius);
+	background-color: var(--yss-glass-tint);
+	background-image: var(--yss-glass-sheen-bg);
+	backdrop-filter: blur(1px) saturate(130%);
+	-webkit-backdrop-filter: blur(1px) saturate(130%);
+	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
+		var(--yss-shadow-sm);
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9rem;
+}
+
+table th,
+table td {
+	padding: 0.55rem 0.85rem;
+	text-align: left;
+	vertical-align: top;
+	border-bottom: 1px solid var(--yss-border-soft);
+}
+
+table tr:last-child > th,
+table tr:last-child > td {
+	border-bottom: 0;
+}
+
+table th {
+	background: var(--yss-th-bg);
+	color: var(--yss-text-soft);
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+table tbody tr:hover,
+table tr:hover {
+	background: var(--yss-accent-soft);
+}
+
+.alignedsummary tr > td:first-child,
+.alignedsummary tr > th:first-child {
+	width: 11rem;
+}
+
+.rightAlign {
+	text-align: right;
+}
+
+.memItemLeft {
+	color: var(--yss-text-soft);
+	font-weight: 400;
+}
+
+.alignedsummary .memItemRight {
+	font-family: var(--yss-mono);
+	font-size: 0.86rem;
+}
+
+/* 成员列表里的“[since …]”“静态”等小标记 */
+.summary.extra,
+.details.extra {
+	display: inline-block;
+	margin-right: 0.4rem;
+	padding: 0.05rem 0.45rem;
+	border: 1px solid var(--yss-border-soft);
+	border-radius: 999px;
+	background: var(--yss-bg-soft);
+	color: var(--yss-text-soft);
+	font-family: var(--yss-font);
+	font-size: 0.72rem;
+	line-height: 1.6;
+	white-space: nowrap;
+}
+
+/* 详细说明里的函数/类型签名。
+	注意：左侧色条 + 浅底那种“提示框”样式只留给 note/warning 用，
+	函数签名改用代码风格标题：等宽字体 + 底部细线，正文走默认黑/白前景色。
+	字体比正文大一号，作为每个函数的视觉锚点。 */
+h3.fn {
+	margin: 2.25rem 0 0.95rem;
+	padding: 0 0 0.65rem;
+	border: 0;
+	border-bottom: 1px solid var(--yss-border);
+	font-family: var(--yss-mono);
+	font-size: 1.2rem;
+	font-weight: 600;
+	line-height: 1.6;
+	color: var(--yss-text);
+	overflow-wrap: anywhere;
+	transition: border-color 0.15s ease;
+}
+
+h3.fn:hover {
+	border-bottom-color: var(--yss-accent);
+}
+
+h3.fn .type,
+h3.fn .name {
+	font-family: var(--yss-mono);
+	color: inherit;
+}
+
+/* [since …]、[virtual]、[static] 这类标记：
+	和原版 Qt 文档一样右浮动，视觉上落在函数声明之后，而不是挡在签名前面 */
+h3.fn > code.details.extra,
+h3.fn > code.summary.extra,
+h3.flags > code {
+	float: right;
+	margin: 0.3rem 0 0 1rem;
+	font-family: var(--yss-font);
+	font-weight: 400;
+}
+
+/* 详细说明里的参数说明（QDoc 用 <i> 表示参数名） */
+.descr i,
+.yss-param {
+	font-style: normal;
+	font-family: var(--yss-mono);
+	font-size: 0.86em;
+	padding: 0.05rem 0.3rem;
+	border-radius: 4px;
+	background: var(--yss-accent-soft);
+	color: var(--yss-accent-strong);
+}
+
+/* 行内代码 */
+code {
+	padding: 0.12rem 0.35rem;
+	border: 1px solid var(--yss-border-soft);
+	border-radius: 4px;
+	background: var(--yss-code-bg);
+	font-family: var(--yss-mono);
+	font-size: 0.86em;
+	overflow-wrap: anywhere;
+}
+
+a > code {
+	color: inherit;
+}
+
+/* 代码块。和表格/列表同一档的玻璃（浅模糊 + 半透底 + 上沿镜面线）。
+	注意几何：这里只用了 inset box-shadow 做高光，没有伪元素 ——
+	pre 本身是横向滚动容器，绝对定位的装饰会跟着内容滚走。
+	行内 <code> 不做玻璃（一页几百个，每个一份 backdrop 太浪费），保留实底。
+	font-family 必须显式写：<pre> 不写就会落到浏览器默认的 monospace
+	（Windows 上是 Consolas，中文还会退到宋体），看起来会很古董。 */
+pre {
+	position: relative;
+	margin: 1.1rem 0;
+	padding: 0.9rem 1rem;
+	border: 1px solid var(--yss-glass-edge);
+	border-radius: var(--yss-radius);
+	background-color: var(--yss-code-glass);
+	background-image: var(--yss-glass-sheen-bg);
+	backdrop-filter: blur(1px) saturate(130%);
+	-webkit-backdrop-filter: blur(1px) saturate(130%);
+	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
+		var(--yss-shadow-sm);
+	font-family: var(--yss-mono);
+	overflow-x: auto;
+	line-height: 1.6;
+}
+
+pre > code,
+pre code {
+	padding: 0;
+	border: 0;
+	background: none;
+	font-size: 0.845rem;
+	white-space: pre;
+}
+
+/* 语法高亮（QDoc 输出的 span class）
+	一律限定在代码块内：.func、.type 这类类名在正文里也会出现
+	（div.func 是“成员函数文档”的容器），不限定就会把正文染成紫色。 */
+pre .comment,
+pre .hl-comment {
+	color: var(--yss-hl-comment);
+	font-style: italic;
+}
+
+pre .keyword,
+pre .preprocessor,
+pre .operator,
+pre .punctuation {
+	color: var(--yss-hl-keyword);
+}
+
+pre .type,
+pre .type-const,
+pre .typedef,
+pre .label {
+	color: var(--yss-hl-type);
+}
+
+pre .string,
+pre .char,
+pre .literal,
+pre .regexp {
+	color: var(--yss-hl-string);
+}
+
+pre .number,
+pre .dec,
+pre .bool,
+pre .atom,
+pre .value {
+	color: var(--yss-hl-number);
+}
+
+pre .func,
+pre .method,
+pre .identifier {
+	color: var(--yss-hl-func);
+}
+
+/* 代码复制按钮 */
+.yss-copy {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	padding: 0.15rem 0.5rem;
+	border: 1px solid var(--yss-code-border);
+	border-radius: 999px;
+	background: var(--yss-bg);
+	color: var(--yss-text-soft);
+	font-family: var(--yss-font);
+	font-size: 0.72rem;
+	line-height: 1.6;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+pre:hover .yss-copy,
+.yss-copy:focus-visible {
+	opacity: 1;
+}
+
+/* 触屏设备没有 hover，复制按钮常驻显示 */
+@media (hover: none) {
+	.yss-copy {
+		opacity: 1;
+	}
+}
+
+.yss-copy:hover {
+	color: var(--yss-accent-strong);
+}
+
+/* 提示框（内容层的玻璃，所以比顶栏克制：没有跟随光标的高光）。
+	继承下来的四层高光见上面「关于高光的做法」那段。
+	左侧色条仍然只属于 note / warning / important 这三种提示。 */
+.admonition {
+	position: relative;
+	margin: 1.15rem 0;
+	padding: 0.85rem 1.05rem;
+	border: 1px solid var(--yss-adm-border, var(--yss-glass-edge));
+	border-left: 3px solid var(--yss-adm-accent, var(--yss-text-faint));
+	border-radius: var(--yss-radius);
+	background-color: var(--yss-adm-bg, var(--yss-bg-soft));
+	background-image: var(--yss-glass-sheen-bg);
+	backdrop-filter: blur(1px) saturate(140%);
+	-webkit-backdrop-filter: blur(1px) saturate(140%);
+	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
+		0 2px 4px rgba(16, 22, 30, 0.05), 0 16px 34px -20px rgba(16, 22, 30, 0.45);
+}
+
+.admonition p {
+	margin: 0;
+}
+
+.admonition p + p {
+	margin-top: 0.5rem;
+}
+
+.admonition b {
+	font-weight: 600;
+}
+
+/* 首行那个 “Note: / Warning:” 标签用强调色，和左侧色条呼应 */
+.admonition > p:first-child > b {
+	color: var(--yss-adm-accent);
+}
+
+.admonition.note {
+	--yss-adm-accent: var(--yss-note);
+	--yss-adm-bg: var(--yss-note-glass);
+	--yss-adm-border: var(--yss-note-border);
+}
+
+.admonition.warning {
+	--yss-adm-accent: var(--yss-warning);
+	--yss-adm-bg: var(--yss-warning-glass);
+	--yss-adm-border: var(--yss-warning-border);
+}
+
+.admonition.important {
+	--yss-adm-accent: var(--yss-important);
+	--yss-adm-bg: var(--yss-important-glass);
+	--yss-adm-border: var(--yss-important-border);
+}
+
+/* 代码高亮里的行号/可点击片段不额外装饰 */
+.yss-offset {
+	margin-top: 0.35rem;
+}
+
+/* “详情…”这类跳转链接 */
+a.yss-more {
+	white-space: nowrap;
+}
+
+/* ============================================================
+	7. 页脚
+	============================================================ */
+
+#footer {
+	margin-top: 2rem;
+	border-top: 1px solid var(--yss-border-soft);
+	background: var(--yss-bg-soft);
+}
+
+#footerbar {
+	max-width: 96rem;
+	margin: 0 auto;
+	padding: 1.25rem;
+	color: var(--yss-text-soft);
+	font-size: 0.85rem;
+}
+
+#footer ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#footer li {
+	margin: 0;
+}
+
+#footer .yss-footer-note {
+	margin-top: 0.5rem;
+	color: var(--yss-text-faint);
+	font-size: 0.8rem;
+}
+
+/* ============================================================
+	8. 窄屏适配
+	============================================================ */
+
+@media (max-width: 60rem) {
+	/* 正文里的长限定名（Visindigo::General::Exception::Xxx）必须允许断行，
+		否则会把文档撑得比屏幕宽 —— 手机于是缩放页面、能左右拖、
+		固定定位的按钮还会跑到屏幕外。 */
+	.context :where(p, li, dd, td, h1, h2, h3, h4) {
+		overflow-wrap: anywhere;
+	}
+
+	/* ‼ 这里（60rem）**不要**关毛玻璃、也不要给 .table 换实底。
+		60rem = 960px，这个宽度不只是手机 —— 编辑器里的半屏预览、小笔记本窗口都会命中，
+		一旦写进来，居桌面就永远看不到玻璃（踩过：浏览器面板是 941px，
+		于是所有玻璃面板都退化成不透明的白板，怎么调 tint 都没用）。
+		真正的降级放到 40rem 那档。 */
+
+	/* 目录在窄屏变成抽屉里的裸列表：它已经在抽屉那块玻璃板里了，卡片套卡片很难看。
+		backdrop-filter 必须一并关掉 —— 元素透明之后它照样每帧都要算一次。 */
+	.toc {
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+		box-shadow: none;
+	}
+
+	.yss-totop {
+		right: 1rem;
+		bottom: 1rem;
+	}
+
+	.yss-brand span {
+		display: none;
+	}
+
+	.yss-topbar__inner {
+		gap: 0.5rem;
+		padding: 0 0.75rem;
+	}
+
+	.yss-nav {
+		gap: 0;
+		-webkit-overflow-scrolling: touch;
+		/* 滚动时给两端留出呼吸空间，避免首尾项贴着边缘 */
+		padding: 0 0.15rem;
+	}
+
+	.yss-nav a {
+		padding: 0.3rem 0.55rem;
+		font-size: 0.8125rem;
+	}
+
+	.yss-tools .yss-menu-toggle {
+		display: inline-flex;
+	}
+
+	@supports selector(:has(*)) {
+		.content.mainContent:has(> .sidebar) {
+			display: block;
+		}
+	}
+
+	.sidebar {
+		position: static;
+		max-height: none;
+		margin-bottom: 1.5rem;
+		padding: 0.75rem 0.9rem;
+		border: 1px solid var(--yss-glass-edge);
+		border-radius: var(--yss-radius);
+		/* 抽屉展开时就是一块玻璃板（只在它是打开状态时存在，开销可接受） */
+		background-color: var(--yss-glass-tint);
+		background-image: var(--yss-glass-sheen-bg);
+		backdrop-filter: blur(18px) saturate(170%);
+		-webkit-backdrop-filter: blur(18px) saturate(170%);
+		box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
+			var(--yss-shadow-sm);
+		display: none;
+	}
+
+	.sidebar.is-open {
+		display: block;
+	}
+
+	.content.mainContent {
+		padding: 0 1rem 2.5rem;
+	}
+
+	.alignedsummary tr > td:first-child,
+	.alignedsummary tr > th:first-child {
+		width: auto;
+	}
+
+	/* 成员列表里的签名允许任意位置换行：
+	   窄屏下长签名（Visindigo::Utility::XXX 这类）否则会把表格撑宽，
+	   只能在卡片内部横向滚动才能看全 */
+	.alignedsummary .memItemRight {
+		overflow-wrap: anywhere;
+	}
+
+	/* 模块页/摘要页的“命名空间、类、函数”一览表：窄屏下改成上下堆叠，
+	   否则最长的那条名字会独占整行宽度，把描述列整体挤出可视区域 */
+	table.annotated tr,
+	table.annotated th,
+	table.annotated td {
+		display: block;
+		width: auto;
+	}
+
+	table.annotated tr {
+		padding: 0.6rem 0.85rem;
+		border-bottom: 1px solid var(--yss-border-soft);
+	}
+
+	table.annotated tr:last-child {
+		border-bottom: 0;
+	}
+
+	table.annotated th,
+	table.annotated td,
+	table.annotated td.tblName,
+	table.annotated td.tblDescr {
+		padding: 0;
+		border-bottom: 0;
+		overflow-wrap: anywhere;
+	}
+
+	table.annotated td.tblDescr {
+		margin-top: 0.1rem;
+		color: var(--yss-text-soft);
+		font-size: 0.86rem;
+	}
+}
+
+/* 手机宽度：成员表也改成上下堆叠。
+	640px 以下签名列只剩两百来像素，等宽字体会被断成每行两三个字符 */
+@media (max-width: 40rem) {
+	/* 真正的手机才砍毛玻璃：滚动时每帧重算每块玻璃，是移动端卡顿/发抖的主要开销。
+		只砍模糊、保留半透底 —— 面板依旧是半透明的，只是没有雾化。 */
+	.yss-topbar,
+	.yss-titlebar,
+	.admonition,
+	.table,
+	pre,
+	.context :where(ul, ol):not(:where(ul, ol, .table, .admonition) *) {
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+
+	/* 顶栏没有毛玻璃兜底，底色必须更实：
+		否则滚到正文时，底下的字会清清楚楚透上来，看着像重影 */
+	.yss-topbar,
+	.yss-titlebar {
+		background: var(--yss-topbar-bg-solid);
+	}
+
+	table.alignedsummary tr,
+	table.alignedsummary th,
+	table.alignedsummary td {
+		display: block;
+		width: auto;
+		text-align: left;
+	}
+
+	table.alignedsummary th,
+	table.alignedsummary td {
+		padding: 0 0.85rem;
+		border-bottom: 0;
+	}
+
+	table.alignedsummary td.memItemLeft,
+	table.alignedsummary th.memItemLeft {
+		padding-top: 0.55rem;
+		font-size: 0.8rem;
+	}
+
+	table.alignedsummary td.memItemRight,
+	table.alignedsummary th.memItemRight {
+		padding-bottom: 0.55rem;
+		border-bottom: 1px solid var(--yss-border-soft);
+	}
+
+	table.alignedsummary tr:last-child > td:last-child,
+	table.alignedsummary tr:last-child > th:last-child {
+		border-bottom: 0;
+	}
+
+	/* 堆叠后签名能用整行宽度，只有超长单个 token（长返回类型名等）才会断行 */
+	.alignedsummary .memItemLeft,
+	.alignedsummary .memItemRight {
+		overflow-wrap: anywhere;
+	}
+
+	/* 枚举常量表（Constant / Value / Description）：
+	   常量名与值排一行，描述另起一行；表头在堆叠后没有意义，直接隐藏 */
+	table.valuelist tr:first-child {
+		display: none;
+	}
+
+	table.valuelist tr,
+	table.valuelist th,
+	table.valuelist td {
+		display: block;
+		width: auto;
+	}
+
+	table.valuelist tr {
+		padding: 0.6rem 0.85rem;
+		border-bottom: 1px solid var(--yss-border-soft);
+	}
+
+	table.valuelist tr:last-child {
+		border-bottom: 0;
+	}
+
+	table.valuelist td {
+		padding: 0;
+		border-bottom: 0;
+		overflow-wrap: anywhere;
+	}
+
+	table.valuelist td:first-child,
+	table.valuelist td.tblval {
+		display: inline;
+	}
+
+	table.valuelist td.tblval::before {
+		content: "= ";
+		color: var(--yss-text-faint);
+	}
+
+	table.valuelist td:last-child {
+		margin-top: 0.15rem;
+		color: var(--yss-text-soft);
+		font-size: 0.86rem;
+	}
+
+	/* “所有成员列表”页面里的长名字（Visindigo::Xxx::Yyy）允许断行，别撑宽表格 */
+	table.propsummary td,
+	table.propsummary li {
+		overflow-wrap: anywhere;
+	}
+}
+
+/* ============================================================
+	10. 动效
+
+	全部是渐进增强：脚本没跑、或系统开了“减少动态效果”时，
+	页面保持静态可读，不会有内容藏在动画里。
+	============================================================ */
+
+/* 顶栏：滚动后加重投影，向下滚动时收起，向上滚动时滑出 */
+.yss-topbar {
+	transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.yss-topbar.is-scrolled {
+	/* 这里的 box-shadow 会整体覆盖上面那条，所以上沿的镜面线必须重写一遍，
+		否则一滚动高光就没了 */
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 0 rgba(0, 0, 0, 0.2),
+		0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
+.yss-topbar.is-hidden {
+	transform: translateY(-100%);
+}
+
+/* 顶栏收起后，页面大标题接替它固定在顶部，随时告诉你当前在看哪个类/页面。
+	与顶栏同高、同配色，滑入滑出都用同一个缓动。z-index 略低于顶栏，
+	顶栏滑回时能盖住它。 */
+.yss-titlebar {
+	position: fixed;
+	inset: 0 0 auto 0;
+	z-index: 49;
+	height: var(--yss-topbar-h);
+	display: flex;
+	align-items: center;
+	background: var(--yss-topbar-bg);
+	color: var(--yss-topbar-fg);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 0 rgba(0, 0, 0, 0.2),
+		0 2px 14px rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(24px) saturate(190%) brightness(1.06);
+	-webkit-backdrop-filter: blur(24px) saturate(190%) brightness(1.06);
+	cursor: pointer;
+	opacity: 0;
+	transform: translateY(-100%);
+	pointer-events: none;
+	transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.25s ease;
+}
+
+.yss-titlebar.is-visible {
+	opacity: 1;
+	transform: none;
+	pointer-events: auto;
+}
+
+.yss-titlebar__inner {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	max-width: 96rem;
+	margin: 0 auto;
+	padding: 0 1.25rem;
+}
+
+.yss-titlebar__text {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+/* 关于「高光」的做法（重要，别改回描边环）：
+	iOS 的玻璃高光集中在上沿，而且带衰减 —— 因为它模拟的是从上方来的光。
+	一圈均匀的亮描边不会有这个效果，只会看起来像给卡片加了个描边框。
+	所以这里用四层：上沿 1px 镜面线 + 顶部一片向下衰减的柔光（--yss-glass-sheen-bg）
+	+ 下沿一丝暗边（厚度）+ 外描边（--yss-glass-edge）+ 一层柔和的投形。
+	这套能用 inset box-shadow 完整表达，所以玻璃面不再需要任何 ::before 伪元素。 */
+
+/* 顶栏下沿的阅读进度条（末端带一点辉光，像灯管） */
+.yss-progress {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -2px;
+	height: 2px;
+	background: linear-gradient(90deg, var(--yss-accent), var(--yss-brand-blue) 55%, var(--yss-brand-violet));
+	box-shadow: 0 0 2px var(--yss-accent), 0 0 10px var(--yss-accent);
+	transform: scaleX(0);
+	transform-origin: 0 50%;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none;
+}
+
+.yss-progress.is-active {
+	opacity: 1;
+}
+
+/* 回到顶部：实心强调色（比浅色圆底明显），但按玻璃的方式处理过 ——
+	上沿一道内高光、下沿一道暗边 + 一层投影，按下时整体缩一下。 */
+.yss-totop {
+	position: fixed;
+	right: 1.25rem;
+	bottom: 1.25rem;
+	z-index: 55;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.75rem;
+	height: 2.75rem;
+	border: 1px solid var(--yss-accent);
+	border-radius: 50%;
+	background: var(--yss-accent);
+	color: var(--yss-on-accent);
+	font-size: 1.2rem;
+	font-weight: 700;
+	line-height: 1;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.16),
+		0 2px 6px rgba(0, 0, 0, 0.22), 0 10px 24px rgba(0, 0, 0, 0.18);
+	cursor: pointer;
+	opacity: 0;
+	transform: translateY(10px) scale(0.9);
+	pointer-events: none;
+	transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1), background 0.2s ease, border-color 0.2s ease;
+}
+
+.yss-totop.is-visible {
+	opacity: 1;
+	transform: none;
+	pointer-events: auto;
+}
+
+.yss-totop:hover {
+	background: var(--yss-accent-strong);
+	border-color: var(--yss-accent-strong);
+	transform: translateY(-2px);
+}
+
+/* 按下时给一下弹性回缩，手感上「按得动」 */
+.yss-totop:active {
+	transform: translateY(0) scale(0.92);
+	transition-duration: 0.12s;
+}
+
+/* 目录里的活动指示块：跟随当前章节滑动，而不是直接换背景色 */
+.toc {
+	position: relative;
+}
+
+.toc-marker {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	border-radius: var(--yss-radius-sm);
+	background: var(--yss-accent-soft);
+	opacity: 0;
+	pointer-events: none;
+	transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1), width 0.28s ease, height 0.28s ease, opacity 0.2s ease;
+}
+
+.toc-marker.is-ready {
+	opacity: 1;
+}
+
+.toc a {
+	position: relative;
+	z-index: 1;
+	transition: color 0.18s ease;
+}
+
+.toc a.is-active {
+	background: none;
+}
+
+/* 入场动效。
+	html.yss-motion 由 <head> 里的内联脚本在首帧之前挂上，因此正文不会
+	“先完整显示、再闪一下”；脚本没跑起来时这个类根本不存在，正文照常显示。
+	元素列表与 :not() 都包在 :where() 里（特异性为 0），否则这条“隐藏”规则
+	会盖过下面那条 .is-in 的“显示”规则，元素就永远停在透明状态了。
+	表格内部不单独动，由表格整体带动一个动画，否则嵌套渐显会看起来一顿一顿。 */
+html.yss-motion .context :where(h1, h2, h3, p, ul, ol, pre, .table, .admonition, .small-subtitle):where(:not(.table *, .admonition *)) {
+	opacity: var(--yss-reveal-hidden, 0);
+	transform: translateY(var(--yss-reveal-y, 18px));
+}
+
+html.yss-motion .context .is-in {
+	opacity: 1;
+	transform: none;
+	transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+	transition-delay: var(--yss-reveal-delay, 0ms);
+}
+
+/* 表格行 hover 的过渡 */
+table tbody tr,
+table tr {
+	transition: background 0.15s ease;
+}
+
+/* 窄屏目录抽屉的展开 */
+@media (max-width: 60rem) {
+	.sidebar.is-open {
+		animation: yss-drawer-in 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+	}
+
+	@keyframes yss-drawer-in {
+		from {
+			opacity: 0;
+			transform: translateY(-8px);
+		}
+
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+}
+
+/* 深浅色切换：以按钮为圆心的圆形扩散（支持 View Transition 的浏览器） */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+	animation: yss-theme-reveal 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes yss-theme-reveal {
+	from {
+		clip-path: circle(0 at var(--yss-vt-x, 50%) var(--yss-vt-y, 0));
+	}
+
+	to {
+		clip-path: circle(150% at var(--yss-vt-x, 50%) var(--yss-vt-y, 0));
+	}
+}
+
+/* 系统开了“减少动态效果”：全部关掉，元素直接到位 */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+		/* 兼作入场动效的“直接显示”开关 */
+		--yss-reveal-hidden: 1;
+		--yss-reveal-y: 0px;
+	}
+
+	.yss-topbar,
+	.yss-progress,
+	.yss-totop,
+	.yss-titlebar,
+	.toc-marker,
+	.toc a,
+	h3.fn,
+	.yss-copy,
+	.yss-iconbtn,
+	table tr,
+	html.yss-motion .context .is-in {
+		transition: none !important;
+	}
+
+	/* 背景本来就是静止的，不需要额外关动画（它里面一个 animation 都没有） */
+	.yss-topbar {
+		transform: none !important;
+	}
+
+	.sidebar.is-open {
+		animation: none !important;
+	}
+
+	::view-transition-new(root) {
+		animation: none !important;
+	}
+}
+
+@media print {
+	.yss-topbar,
+	.sidebar,
+	#footer,
+	.yss-totop,
+	.yss-titlebar,
+	.yss-copy {
+		display: none !important;
+	}
+
+	/* 打印不要带装饰背景 */
+	body::before,
+	.yss-dots {
+		display: none;
+	}
+
+	/* 玻璃面全部退回白底黑字的平面 */
+	.table,
+	.admonition,
+	.toc,
+	pre,
+	.context :where(ul, ol) {
+		background: none !important;
+		border-color: var(--yss-border-soft) !important;
+		box-shadow: none !important;
+	}
+
+	/* 打印时不管动画进度，全部直接显示 */
+	html {
+		--yss-reveal-hidden: 1;
+		--yss-reveal-y: 0px;
+	}
+
+	.main {
+		padding-top: 0;
+	}
+
+	body {
+		font-size: 11pt;
+	}
+}
