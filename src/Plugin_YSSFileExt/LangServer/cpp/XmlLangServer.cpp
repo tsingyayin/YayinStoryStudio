@@ -277,28 +277,20 @@ namespace YSSFileExt {
 	}
 
 	// ---------------------------------------------------------------------------
-	// XmlLangHighlighter
+	// 着色
 	// ---------------------------------------------------------------------------
-	/*!
-		\class YSSFileExt::XmlLangHighlighter
-		\brief XML 语法高亮器：按主题样式着色 XML 单元（标签、属性、注释、CDATA 等）.
-		\since YSS 0.16.0
-		\inmodule YSSFileExt
-	*/
-	XmlLangHighlighter::XmlLangHighlighter(YSSCore::Editor::TextEdit* parent) :
-		YSSLangHighlighter(parent, &analyzeXmlLines) {}
-
-	void XmlLangHighlighter::colorLine(const QString& text) {
+	static void colorXmlLine(YSSConfigLangHighlighter* highlighter, const QString& text) {
 		if (text.isEmpty()) {
-			setCurrentBlockState(previousBlockState() < 0 ? (int)XmlColorState::Normal : previousBlockState());
+			const int previous = highlighter->getPreviousBlockState();
+			highlighter->applyBlockState(previous < 0 ? (int)XmlColorState::Normal : previous);
 			return;
 		}
-		setFormatWithColorKey(0, text.length(), "PlainText");
-		int state = previousBlockState();
+		highlighter->setFormatWithColorKey(0, text.length(), "PlainText");
+		int state = highlighter->getPreviousBlockState();
 		if (state < 0) state = (int)XmlColorState::Normal;
 
 		auto apply = [&](qint32 start, qint32 len, const QString& key) {
-			if (len > 0) setFormatWithColorKey(start, len, key);
+			if (len > 0) highlighter->setFormatWithColorKey(start, len, key);
 		};
 
 		const qint32 n = text.length();
@@ -433,7 +425,7 @@ namespace YSSFileExt {
 			}
 			}
 		}
-		setCurrentBlockState(state);
+		highlighter->applyBlockState(state);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -441,52 +433,21 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	/*!
 		\class YSSFileExt::XmlLangServer
-		\brief XML 语言服务器：提供 Visindigo 2024（Light/Dark）主题着色与 XML 语法诊断.
-		\since YSS 0.16.0
+		\brief XML 语言服务器.
+		\since YSS 0.17.0
 		\inmodule YSSFileExt
 
-		参考 JsonLangServer：加载 Visindigo 2024 静态颜色主题并跟随程序主题切换；
-		通过共享的 YSSLangHighlighter / YSSLangDocument 提供高亮与诊断。
+		主题加载、跟随程序主题、样式样本与高亮器创建都由 YSSConfigLangServer 完成，
+		这里只给出本语言的分析函数与着色函数。
 	*/
 	XmlLangServer::XmlLangServer(YSSCore::Editor::EditorPlugin* plugin) :
-		YSSCore::Editor::LangServer("YSS File Extension XML Language Server",
-			"YSSFileExt_Xml", plugin, "Xml", { "xml" }) {
-		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged, this, [this]() {
-			if (VISTM->getCurrentColorTheme() == "Dark") {
-				if (getColorThemeProvider()->getCurrentTheme() == "Visindigo Light 2024") {
-					getColorThemeProvider()->setCurrentTheme("Visindigo Dark 2024");
-				}
-			}
-			else if (VISTM->getCurrentColorTheme() == "Light") {
-				if (getColorThemeProvider()->getCurrentTheme() == "Visindigo Dark 2024") {
-					getColorThemeProvider()->setCurrentTheme("Visindigo Light 2024");
-				}
-			}
-			});
-		const QStringList syntaxThemeFiles = {
-			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/xml_dark_2024.json",
-			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/xml_light_2024.json"
-		};
-		for (const QString& themeFile : syntaxThemeFiles) {
-			Visindigo::Utility::FileOperation::Errorable<QString> themeResult = Visindigo::Utility::FileOperation::readAll(themeFile);
-			if (not themeResult) {
-				vgErrorF << "Failed to read syntax color theme: " << themeFile
-					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(themeResult.error());
-				continue;
-			}
-			getColorThemeProvider()->parseStaticThemeFrom(themeResult.value());
-		}
-		// 样式样本：用于颜色主题设置页的预览编辑器展示全部着色元素
-		getColorThemeProvider()->setTemplateTextPath(
-			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/templateXml.xml");
-		if (getPlugin()->getPluginConfig()->getString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme").isEmpty()) {
-			getPlugin()->getPluginConfig()->setString("_yss_auto_.LangServer." + getModuleID() + ".CurrentTheme",
-				VISTM->getCurrentColorTheme() == "Light" ? "Visindigo Light 2024" : "Visindigo Dark 2024");
-			getPlugin()->savePluginConfig();
-		}
-	}
-
-	YSSCore::Editor::SyntaxHighlighter* XmlLangServer::createHighlighter(YSSCore::Editor::TextEdit* doc) {
-		return new XmlLangHighlighter(doc);
+		YSSConfigLangServer(plugin,
+			"YSS File Extension XML Language Server", "YSSFileExt_Xml", "Xml", { "xml" },
+			{
+				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/xml_dark_2024.json",
+				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/xml_light_2024.json"
+			},
+			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/templateXml.xml",
+			&analyzeXmlLines, &colorXmlLine) {
 	}
 }

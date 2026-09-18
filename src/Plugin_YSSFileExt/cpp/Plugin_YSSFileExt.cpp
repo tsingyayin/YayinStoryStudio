@@ -3,7 +3,7 @@
 #include "FileServer/YSSPEditor.h"
 #include "FileTemplate/SimpleFileTemplate.h"
 #include "LangServer/IniLangServer.h"
-#include "LangServer/JsonLangServer.h"
+#include "LangServer/JsonLang.h"
 #include "LangServer/TomlLangServer.h"
 #include "LangServer/XmlLangServer.h"
 #include "LangServer/YamlLangServer.h"

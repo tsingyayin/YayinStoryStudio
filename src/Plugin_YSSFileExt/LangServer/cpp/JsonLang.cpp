@@ -10,7 +10,7 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#include "LangServer/JsonDocument.h"
+#include "LangServer/JsonLang.h"
 #include <QtCore/qhash.h>
 #include <QtCore/qset.h>
 
@@ -535,133 +535,103 @@ namespace YSSFileExt {
 					QStringLiteral("多余的内容：%1").arg(describeToken(t)), t,
 					QStringLiteral("JSON 顶层只能有一个值"));
 			}
-	/*!
-		\class YSSFileExt::JsonLangDocument
-		\brief 对整个 JSON 文档的封装：维护行内容、进行全文档语法分析并存储逐行诊断.
-		\since YSS 0.16.0
-		\inmodule YSSFileExt
-
-		参考 ASERStudio::AStorySyntax::AStoryXDocument：由 SyntaxHighlighter 在
-		onBlockChanged 中调用 onSyntaxHighlighter 更新行内容，解析采用防抖定时器
-		延迟到事件循环，完成后发出 contentChanged 信号，供 Highlighter 重新着色并
-		渲染诊断消息。
-	*/
-			checkBracketBalance(tokens, diagnostics);
+				checkBracketBalance(tokens, diagnostics);
 		}
 	}
 
 	// ---------------------------------------------------------------------------
-	// JsonLangDocument
+	// 分析与着色
 	// ---------------------------------------------------------------------------
-	class JsonLangDocumentPrivate {
-		friend class JsonLangDocument;
-	protected:
-		JsonLangDocument* q;
-		QTimer DebounceTimer;
-		QStringList Lines;
-		QList<QList<JsonLangDiagnosticData>> DiagnosticsCache;
-		bool Analyzed = false;
-
-		void scheduleAnalyze() {
-			DebounceTimer.start(0);
+	// JSON 诊断（JsonLangDiagnosticData）转成通用诊断：严重级别按类型所在区间判定，
+	// 代码沿用 "JSON-XXXX"（类型枚举值的十六进制、大写）与 JsonLangServer 以前的行为一致。
+	static YSSLangDiagnosticData::Severity jsonSeverity(JsonLangDiagnosticData::DiagnosticType type) {
+		if (type >= JsonLangDiagnosticData::UnknownWarning) {
+			return YSSLangDiagnosticData::Severity::Warning;
 		}
-	};
-
-	JsonLangDocument::JsonLangDocument(QObject* parent) : QObject(parent) {
-		d = new JsonLangDocumentPrivate();
-		d->q = this;
-		d->DebounceTimer.setSingleShot(true);
-		connect(&d->DebounceTimer, &QTimer::timeout, this, &JsonLangDocument::analyze);
+		if (type >= JsonLangDiagnosticData::UnknownError) {
+			return YSSLangDiagnosticData::Severity::Error;
+		}
+		return YSSLangDiagnosticData::Severity::Info;
 	}
 
-	JsonLangDocument::~JsonLangDocument() {
-		delete d;
+	static QString jsonCode(JsonLangDiagnosticData::DiagnosticType type) {
+		return QString("JSON-%1").arg(QString::number((qint32)type, 16).toUpper());
 	}
 
-	void JsonLangDocument::onSyntaxHighlighter(const QString& text, qint32 lineIndex) {
-		if (lineIndex < 0) return;
-		while (d->Lines.size() <= lineIndex) {
-			d->Lines.append(QString());
+	static void analyzeJsonLines(const QStringList& lines, QList<YSSLangDiagnosticData>* diags) {
+		if (diags == nullptr) {
+			return;
 		}
-		if (d->Lines[lineIndex] == text && d->Analyzed) {
-			return; // 内容未变，无需重新分析
-		}
-		d->Lines[lineIndex] = text;
-		d->scheduleAnalyze();
-	}
-
-	void JsonLangDocument::onLinesAdded(qint32 startLine, qint32 count) {
-		if (startLine < 0 || count <= 0) return;
-		// 补齐起始行之前的缺口（理论上不应出现）
-		while (d->Lines.size() < startLine) {
-			d->Lines.append(QString());
-		}
-		for (qint32 i = 0; i < count; ++i) {
-			if (startLine >= d->Lines.size()) {
-				d->Lines.append(QString());
-			}
-			else {
-				d->Lines.insert(startLine, QString());
-			}
-		}
-		d->Analyzed = false;
-		d->scheduleAnalyze();
-	}
-
-	void JsonLangDocument::onLinesRemoved(qint32 startLine, qint32 count) {
-		if (startLine < 0 || count <= 0) return;
-		for (qint32 i = 0; i < count; ++i) {
-			if (startLine < d->Lines.size()) {
-				d->Lines.removeAt(startLine);
-			}
-		}
-		d->Analyzed = false;
-		d->scheduleAnalyze();
-	}
-
-	void JsonLangDocument::analyze() {
-		QList<JsonLangDiagnosticData> allDiags;
+		QList<JsonLangDiagnosticData> rawDiags;
 		QList<JsonToken> allTokens;
-		const qint32 lineCount = d->Lines.size();
+		const qint32 lineCount = lines.size();
 		for (qint32 i = 0; i < lineCount; ++i) {
-			allTokens += lexJsonLine(d->Lines.at(i), i, &allDiags);
+			allTokens += lexJsonLine(lines.at(i), i, &rawDiags);
 		}
 		// 追加文档结束标记
 		JsonToken eof;
 		eof.type = JsonTokenType::EndOfFile;
 		eof.line = qMax<qint32>(lineCount - 1, 0);
-		eof.column = lineCount > 0 ? d->Lines.last().length() : 0;
+		eof.column = lineCount > 0 ? lines.last().length() : 0;
 		eof.length = 0;
 		allTokens.append(eof);
-
-		parseJsonTokens(allTokens, allDiags);
-
-		d->DiagnosticsCache.clear();
-		for (qint32 i = 0; i < lineCount; ++i) {
-			d->DiagnosticsCache.append(QList<JsonLangDiagnosticData>());
+		parseJsonTokens(allTokens, rawDiags);
+		for (const JsonLangDiagnosticData& diagnostic : rawDiags) {
+			diags->append(YSSLangDiagnosticData(diagnostic.getMessage(), diagnostic.getLine(), diagnostic.getColumn(),
+				diagnostic.getLength(), jsonSeverity(diagnostic.getType()), jsonCode(diagnostic.getType()),
+				diagnostic.getFixAdvice()));
 		}
-		for (const JsonLangDiagnosticData& diag : allDiags) {
-			const qint32 l = diag.getLine();
-			if (l >= 0 && l < d->DiagnosticsCache.size()) {
-				d->DiagnosticsCache[l].append(diag);
+	}
+
+	// 着色逻辑：字符串值 -> String，对象键 -> Key，数字 -> Number，true/false/null -> Keyword；
+	// 结构符号（{}[]: 等）保持 PlainText。与 JSON 主题的样式键一一对应。
+	static void colorJsonLine(YSSConfigLangHighlighter* highlighter, const QString& text) {
+		if (text.isEmpty()) return;
+		highlighter->setFormatWithColorKey(0, text.length(), "PlainText");
+		const QList<JsonToken> tokens = lexJsonLine(text, 0, nullptr);
+		for (qint32 i = 0; i < tokens.size(); ++i) {
+			const JsonToken& t = tokens.at(i);
+			switch (t.type) {
+			case JsonTokenType::String: {
+				// 键：其后（忽略空白）紧跟 ':' 的字符串视作对象键
+				const bool isKey = (i + 1 < tokens.size() && tokens.at(i + 1).type == JsonTokenType::Colon);
+				highlighter->setFormatWithColorKey(t.column, t.length, isKey ? "Key" : "String");
+				break;
+			}
+			case JsonTokenType::Number:
+				highlighter->setFormatWithColorKey(t.column, t.length, "Number");
+				break;
+			case JsonTokenType::True:
+			case JsonTokenType::False:
+			case JsonTokenType::Null:
+				highlighter->setFormatWithColorKey(t.column, t.length, "Keyword");
+				break;
+			default:
+				break; // 结构符号保持 PlainText
 			}
 		}
-		d->Analyzed = true;
-		emit contentChanged();
 	}
 
-	QList<JsonLangDiagnosticData> JsonLangDocument::getDiagnostics(qint32 lineNumber) const {
-		if (lineNumber < 0 || lineNumber >= d->DiagnosticsCache.size()) {
-			return QList<JsonLangDiagnosticData>();
-		}
-		return d->DiagnosticsCache[lineNumber];
-	}
+	// ---------------------------------------------------------------------------
+	// JsonLangServer
+	// ---------------------------------------------------------------------------
+	/*!
+		\class YSSFileExt::JsonLangServer
+		\brief JSON 语言服务器.
+		\since YSS 0.17.0
+		\inmodule YSSFileExt
 
-	QList<JsonLangDiagnosticData> JsonLangDocument::getAllDiagnostics() const {
-		QList<JsonLangDiagnosticData> result;
-		for (const QList<JsonLangDiagnosticData>& list : d->DiagnosticsCache) {
-			result += list;
-		}
-		return result;
+		主题加载、跟随程序主题、样式样本与高亮器创建都由 YSSConfigLangServer 完成，
+		这里只给出本语言的分析函数与着色函数。
+	*/
+	JsonLangServer::JsonLangServer(YSSCore::Editor::EditorPlugin* plugin) :
+		YSSConfigLangServer(plugin,
+			"YSS File Extension Json Language Server", "YSSFileExt_Json", "Json", { "json", "yssp" },
+			{
+				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/json_dark_2024.json",
+				":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/json_light_2024.json"
+			},
+			":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/syntaxColorTheme/templateFile.json",
+			&analyzeJsonLines, &colorJsonLine) {
 	}
 }

@@ -29,16 +29,16 @@
     <ClCompile Include="cpp\Plugin_YSSFileExt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LangServer\cpp\JsonDocument.cpp">
+    <ClCompile Include="LangServer\cpp\JsonLang.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LangServer\cpp\JsonLangServer.cpp">
+    <ClCompile Include="LangServer\cpp\YSSConfigLangDocument.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LangServer\cpp\YSSLangDocument.cpp">
+    <ClCompile Include="LangServer\cpp\YSSConfigLangHighlighter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LangServer\cpp\YSSLangHighlighter.cpp">
+    <ClCompile Include="LangServer\cpp\YSSConfigLangServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LangServer\cpp\YamlLangServer.cpp">
@@ -73,6 +73,9 @@
     <ClInclude Include="LangServer\YamlLangServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LangServer\YSSConfigLangServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="LangServer\XmlLangServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -82,21 +85,18 @@
     <ClInclude Include="LangServer\IniLangServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LangServer\JsonLang.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Plugin_YSSFileExt.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="LangServer\JsonDocument.h">
+    <QtMoc Include="LangServer\YSSConfigLangDocument.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="LangServer\JsonLangServer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="LangServer\YSSLangDocument.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="LangServer\YSSLangHighlighter.h">
+    <QtMoc Include="LangServer\YSSConfigLangHighlighter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="FileTemplate\SimpleFileTemplate.h">

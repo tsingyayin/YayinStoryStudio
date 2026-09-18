@@ -142,6 +142,7 @@
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp" />
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Test\cpp\LiquidGlassDragTestWidget.cpp" />
     <ClCompile Include="Widgets\cpp\UpToWin11.cpp" />
     <ClCompile Include="YayinStoryStudio.cpp" />
   </ItemGroup>
@@ -158,6 +159,7 @@
   <ItemGroup>
     <QtMoc Include="Widgets\UpToWin11.h" />
     <QtMoc Include="YayinStoryStudio.h" />
+    <QtMoc Include="Test\LiquidGlassDragTestWidget.h" />
     <QtMoc Include="Editor\NewProjectPage\NewProjectWin.h" />
     <QtMoc Include="Editor\ProjectPage\NewsArea.h" />
     <QtMoc Include="Editor\MainEditor\FileEditWidgetArea.h" />

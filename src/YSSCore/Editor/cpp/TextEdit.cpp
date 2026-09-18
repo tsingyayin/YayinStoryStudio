@@ -2,6 +2,7 @@
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qtimer.h>
 #include <QtGui/qsyntaxhighlighter.h>
+#include <QtWidgets/qapplication.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qscrollbar.h>
@@ -39,7 +40,7 @@ namespace YSSCore::__Private__ {
 		// 焦点在内层 d->Text 上，失焦事件由 d->Text 触发而非 TextEdit 本体，
 		// 因此放在通用入口处处理，确保编辑器失去焦点时补全提示自动收起。
 		if (event->type() == QEvent::FocusOut) {
-			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+			if (TabCompleterWidget->isVisible()) {
 				TabCompleterWidget->hide();
 			}
 		}
@@ -71,7 +72,7 @@ namespace YSSCore::__Private__ {
 					}
 					else {
 						clearAltMultiSelection();
-						if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+						if (TabCompleterWidget->isVisible()) {
 							if (keyEvent->modifiers() == Qt::NoModifier && (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down)) {
 								onDirectionClicked(keyEvent);
 								return true;
@@ -121,10 +122,10 @@ namespace YSSCore::__Private__ {
 				auto mouseEvent = static_cast<QMouseEvent*>(event);
 				useKeyboardToMoveCursor = false;
 				if (mouseEvent->button() == Qt::LeftButton) {
-					if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+					if (TabCompleterWidget->isVisible()) {
 						TabCompleterWidget->hide();
 					}
-					if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+					if (HoverInfoWidget->isVisible()) {
 						HoverInfoWidget->hide();
 					}
 				}
@@ -133,19 +134,19 @@ namespace YSSCore::__Private__ {
 		}
 		else if (obj == q) {
 			if (event->type() == QEvent::Hide || event->type() == QEvent::HideToParent) {
-				if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+				if (HoverInfoWidget->isVisible()) {
 					HoverInfoWidget->hide();
 				}
-				if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+				if (TabCompleterWidget->isVisible()) {
 					TabCompleterWidget->hide();
 				}
 				return false;
 			}
 			else if (event->type() == QEvent::Show || event->type() == QEvent::ShowToParent) {
-				if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+				if (HoverInfoWidget->isVisible()) {
 					HoverInfoWidget->hide();
 				}
-				if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+				if (TabCompleterWidget->isVisible()) {
 					TabCompleterWidget->hide();
 				}
 				return false;
@@ -220,10 +221,10 @@ namespace YSSCore::__Private__ {
 			onBlockCountChanged(index + 1);
 		}
 		if (useKeyboardToMoveCursor) {
-			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+			if (TabCompleterWidget->isVisible()) {
 				TabCompleterWidget->hide();
 			}
-			if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+			if (HoverInfoWidget->isVisible()) {
 				HoverInfoWidget->hide();
 			}
 			useKeyboardToMoveCursor = false;
@@ -231,10 +232,10 @@ namespace YSSCore::__Private__ {
 			return;
 		}
 		if (selection != 0) {
-			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+			if (TabCompleterWidget->isVisible()) {
 				TabCompleterWidget->hide();
 			}
-			if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+			if (HoverInfoWidget->isVisible()) {
 				HoverInfoWidget->hide();
 			}
 			CurrentLineSelection.format.setBackground(Qt::transparent);
@@ -337,7 +338,7 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onTabClicked(QKeyEvent* event) {
-		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+		if (TabCompleterWidget->isVisible()) {
 			if (event->key() == Qt::Key_Tab) {
 				onTabClicked_TabCompleter(event);
 			}
@@ -514,10 +515,10 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onEscapeClicked(QKeyEvent* event) {
-		if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
+		if (TabCompleterWidget->isVisible()) {
 			TabCompleterWidget->hide();
 		}
-		if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
+		if (HoverInfoWidget->isVisible()) {
 			HoverInfoWidget->hide();
 		}
 		if (FindAndReplaceWidget != nullptr && FindAndReplaceWidget->isVisible()) {
@@ -530,44 +531,95 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onDirectionClicked(QKeyEvent* event) {
 		if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down) {
-			if (TabCompleterWidget != nullptr && TabCompleterWidget->isVisible()) {
-				if (event->key() == Qt::Key_Up) {
-					TabCompleterWidget->selectPrevious();
-				}
-				else {
-					TabCompleterWidget->selectNext();
-				}
+			if (event->key() == Qt::Key_Up) {
+				TabCompleterWidget->selectPrevious();
+			}
+			else {
+				TabCompleterWidget->selectNext();
 			}
 		}
 	}
 
-	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
-		float dist = std::sqrt(std::pow(LastMousePos.x() - event->pos().x(), 2) + std::pow(LastMousePos.y() - event->pos().y(), 2));
-		if (dist > 10.0f) { // only reset timer when mouse moved enough distance
-			HoverTimer->start(HoverTimeout);
-			LastMousePos = event->pos();
-		}
-		else {
-			return;
-		}
-		HoverTimer->start(HoverTimeout);
-		if (HoverInfoWidget != nullptr && HoverInfoWidget->isVisible()) {
-			HoverInfoWidget->hide();
-		}
+	// 判定"鼠标靠近目标控件"时，向控件外扩的像素数，nearArea 与 moveVectorPointTo 共用。
+	// 两个函数的光标坐标都是全局坐标。
+	constexpr int ApproachingBorder = 20;
+
+	static bool nearArea(QWidget* target, QPointF mousePos, int border = ApproachingBorder) {
+		QRect area = target->geometry();
+		area.adjust(-border, -border, border, border);
+		QPoint pos = target->parentWidget()->mapFromGlobal(mousePos.toPoint());
+		return area.contains(pos);
 	}
 
+	// whether the mouse is trying to move close to the target widget, if so, return true, otherwise return false.
+	// if nearArea ,directly return true.
+	// startPos 与 endPos 都是全局坐标，startPos 是上一次采样的光标位置，endPos 是当前光标位置。
+	static bool moveVectorPointTo(QPointF startPos, QPointF endPos, QWidget* target) {
+		if (nearArea(target, endPos)) {
+			return true;
+		}
+		QPointF moveVector = endPos - startPos;
+		if (qFuzzyIsNull(moveVector.x()) and qFuzzyIsNull(moveVector.y())) {
+			return false;
+		}
+		// 目标控件在全局坐标下的范围，与 nearArea 一样外扩一圈
+		QRectF area(target->mapToGlobal(QPoint(0, 0)), QSizeF(target->size()));
+		area.adjust(-ApproachingBorder, -ApproachingBorder, ApproachingBorder, ApproachingBorder);
+		// 光标到该范围的最近点：把光标坐标分别钳进水平、垂直范围即可
+		QPointF nearestTarget(
+			qBound(area.left(), startPos.x(), area.right()),
+			qBound(area.top(), startPos.y(), area.bottom()));
+		// 移动方向与"光标指向最近点"的方向夹角小于 90 度，即认为鼠标正在朝目标靠过来。
+		// 区域是凸的，沿这个方向移动距离必然减小，不会出现擦边平移时误判的情况。
+		return QPointF::dotProduct(nearestTarget - startPos, moveVector) > 0.0;
+	}
+
+	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
+		QPoint currentPos = event->globalPosition().toPoint();
+		float dist = std::sqrt(std::pow(LastMousePos.x() - currentPos.x(), 2) + std::pow(LastMousePos.y() - currentPos.y(), 2));
+		if (dist <= qApp->startDragDistance()) {
+			return;
+		}
+		QPoint lastPos = LastMousePos;
+		LastMousePos = currentPos;
+		if (not HoverInfoWidget->isVisible()) {
+			HoverTimer->start(HoverTimeout);
+			return;
+		}
+		if (moveVectorPointTo(lastPos, currentPos, HoverInfoWidget)) {
+			return;
+		}
+		HoverInfoWidget->hide();
+	}
+
+	
+
 	bool TextEditPrivate::onMouseScroll(QWheelEvent* event) {
-		if (Text->isReadOnly() && (event->modifiers() & Qt::ControlModifier)) {
+		if (HoverTimer->isActive()) {
+			HoverTimer->stop();
+		}
+		if (Text->isReadOnly() && (event->modifiers() & Qt::ControlModifier)) {	
 			return true;
 		}
-		if (HoverInfoWidget && HoverInfoWidget->isVisible()) {
-			// scroll the hover info widget
-			HoverInfoWidget->scrollBy(-event->angleDelta().y());
-			return true;
+		if (HoverInfoWidget->isVisible()) {
+			if (nearArea(HoverInfoWidget, event->globalPosition())) {
+				HoverInfoWidget->scrollBy(-event->angleDelta().y());
+				return true;
+			}
+			else {
+				HoverInfoWidget->hide();
+				return false;
+			}
 		}
-		else if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
-			TabCompleterWidget->scrollBy(-event->angleDelta().y());
-			return true;
+		else if (TabCompleterWidget->isVisible()) {
+			if (nearArea(TabCompleterWidget, event->globalPosition())) {
+				TabCompleterWidget->scrollBy(-event->angleDelta().y());
+				return true;
+			}
+			else {
+				TabCompleterWidget->hide();
+				return false;
+			}
 		}
 		else {
 			return false;
@@ -626,6 +678,8 @@ namespace YSSCore::__Private__ {
 					break;
 				}
 				adjustHoverInfoPosition(cursor);
+				// 记录提示弹出时的光标位置：之后鼠标是否"正在朝提示移动"就以它为起点判定
+				LastMousePos = QCursor::pos();
 				HoverInfoWidget->show();
 			}
 			HoverTimer->stop();
@@ -772,9 +826,6 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::adjustTabCompleterPosition() {
-		if (not TabCompleterWidget) {
-			return;
-		}
 		TabCompleterWidget->adjustHeight(TabCompleterWidget->getMaxAllowedHeight());
 		QRect pos = Text->cursorRect();
 		if (not HoverArea) {
@@ -842,7 +893,7 @@ namespace YSSCore::__Private__ {
 		if (not HoverInfoProvider) {
 			return;
 		}
-		if (TabCompleterWidget && TabCompleterWidget->isVisible()) {
+		if (TabCompleterWidget->isVisible()) {
 			QRect tpos = TabCompleterWidget->geometry();
 			if (not HoverArea) {
 				bool rightOut = tpos.x() + tpos.width() + HoverInfoWidget->width() > Text->viewport()->width();
@@ -992,6 +1043,10 @@ namespace YSSCore::Editor {
 		d->Text = new QTextEdit(this);
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
 		d->Text->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(this);
+		d->TabCompleterWidget->hide();
+		d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
+		d->HoverInfoWidget->hide();
 		d->Text->installEventFilter(d);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
@@ -1055,12 +1110,8 @@ namespace YSSCore::Editor {
 		// IF SyntaxHighlighter wants to access some of this object's members in its destructor,
 		// it will cause a crash as our d pointer is already deleted.
 		// So, Delete d->Text first to make sure SyntaxHighlighter is deleted before we delete d.
-		if (d->HoverInfoWidget) {
-			d->HoverInfoWidget->setParent(d->Text);
-		}
-		if (d->TabCompleterWidget) {
-			d->TabCompleterWidget->setParent(d->Text);
-		}
+		d->HoverInfoWidget->setParent(d->Text);
+		d->TabCompleterWidget->setParent(d->Text);
 		delete d->Text;
 		delete d;
 	}
@@ -1076,12 +1127,8 @@ namespace YSSCore::Editor {
 	void TextEdit::setHoverArea(QWidget* area) {
 		d->HoverArea = area;
 		QWidget* target = area ? area : d->Text;
-		if (d->HoverInfoWidget) {
-			d->HoverInfoWidget->setParent(target);
-		}
-		if (d->TabCompleterWidget) {
-			d->TabCompleterWidget->setParent(target);
-		}
+		d->HoverInfoWidget->setParent(target);
+		d->TabCompleterWidget->setParent(target);
 	}
 
 	/*!
@@ -1431,7 +1478,7 @@ namespace YSSCore::Editor {
 	void TextEdit::setCompleterTypeFilter(TabCompleterItem::ItemTypes filter) {
 		bool equal = (d->CompleterTypeFilter == filter);
 		d->CompleterTypeFilter = filter;
-		if (not equal && d->TabCompleterWidget && d->TabCompleterWidget->isVisible()) {
+		if (not equal && d->TabCompleterWidget->isVisible()) {
 			d->TabCompleterWidget->reApplyFilter();
 		}
 	}
@@ -1524,16 +1571,8 @@ namespace YSSCore::Editor {
 			delete d->Highlighter;
 			d->Highlighter = nullptr;
 		}
-		if (d->TabCompleterWidget) {
-			d->TabCompleterWidget->setParent(nullptr);
-			d->TabCompleterWidget->deleteLater();
-			d->TabCompleterWidget = nullptr;
-		}
-		if (d->HoverInfoWidget) {
-			d->HoverInfoWidget->setParent(nullptr);
-			d->HoverInfoWidget->deleteLater();
-			d->HoverInfoWidget = nullptr;
-		}
+		d->TabCompleterWidget->hide();
+		d->HoverInfoWidget->hide();
 		if (server) {
 			d->Highlighter = server->createHighlighter(this);
 			if (d->Highlighter) {
@@ -1546,15 +1585,7 @@ namespace YSSCore::Editor {
 					});
 			}
 			d->TabCompleter = server->createTabCompleter(this);
-			if (d->TabCompleter) {
-				d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(this);
-				d->TabCompleterWidget->hide();
-			}
 			d->HoverInfoProvider = server->createHoverInfoProvider(this);
-			if (d->HoverInfoProvider) {
-				d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
-				d->HoverInfoWidget->hide();
-			}
 		}
 		else {
 			yInfoF << "No Language server found for extension:" << ext;

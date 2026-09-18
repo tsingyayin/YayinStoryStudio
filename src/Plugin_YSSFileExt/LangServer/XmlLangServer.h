@@ -12,21 +12,12 @@
 */
 #ifndef Plugin_YSSFileExt_LangServer_XmlLangServer_h
 #define Plugin_YSSFileExt_LangServer_XmlLangServer_h
-#include <Editor/LangServer.h>
-#include <Editor/EditorPlugin.h>
-#include "LangServer/YSSLangHighlighter.h"
+#include "LangServer/YSSConfigLangServer.h"
 
 namespace YSSFileExt {
-	class XmlLangServer :public YSSCore::Editor::LangServer {
+	class XmlLangServer :public YSSConfigLangServer {
 	public:
 		XmlLangServer(YSSCore::Editor::EditorPlugin* plugin);
-		virtual YSSCore::Editor::SyntaxHighlighter* createHighlighter(YSSCore::Editor::TextEdit* doc) override;
-	};
-
-	class XmlLangHighlighter :public YSSLangHighlighter {
-	public:
-		XmlLangHighlighter(YSSCore::Editor::TextEdit* parent);
-		virtual void colorLine(const QString& text) override;
 	};
 }
 #endif // Plugin_YSSFileExt_LangServer_XmlLangServer_h

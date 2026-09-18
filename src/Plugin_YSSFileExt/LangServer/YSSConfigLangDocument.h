@@ -10,22 +10,23 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef Plugin_YSSFileExt_LangServer_YSSLangDocument_h
-#define Plugin_YSSFileExt_LangServer_YSSLangDocument_h
+#ifndef Plugin_YSSFileExt_LangServer_YSSConfigLangDocument_h
+#define Plugin_YSSFileExt_LangServer_YSSConfigLangDocument_h
+#include <functional>
 #include <QtCore/qobject.h>
-#include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qtimer.h>
-#include <functional>
+#include <Editor/CustomDocumentData.h>
+#include <Editor/TextEdit.h>
 
 namespace YSSFileExt {
 	class YSSLangDiagnosticData {
 	public:
-		enum class Severity {
-			Info,
-			Warning,
-			Error,
+		enum Severity {
+			Error = 0,
+			Warning = 1,
+			Info = 2
 		};
 	public:
 		YSSLangDiagnosticData();
@@ -49,33 +50,34 @@ namespace YSSFileExt {
 		QString fixAdvice;
 	};
 
-	class YSSLangDocumentPrivate;
-
 	// 全文档分析函数：输入文档全部行，产出诊断列表，由各语言提供。
-	using YSSLangAnalyzeFn = std::function<void(const QStringList& lines, QList<YSSLangDiagnosticData>* diags)>;
+	using YSSConfigAnalyzeFn = std::function<void(const QStringList& lines, QList<YSSLangDiagnosticData>* diags)>;
 
-	class YSSLangDocument :public QObject {
+	// 一行上挂着的诊断数据。
+	class YSSConfigLineData :public YSSCore::Editor::ICustomDocumentData {
+	public:
+		QList<YSSLangDiagnosticData> Diagnostics;
+	};
+
+	class YSSConfigLangDocumentPrivate;
+	class YSSConfigLangDocument :public QObject {
 		Q_OBJECT;
 	signals:
-		// 全文档重新分析完成，诊断缓存已刷新。
+		// 全文档重新分析完成，行上的诊断已刷新。
 		void contentChanged();
 	public:
-		YSSLangDocument(YSSLangAnalyzeFn analyzeFn, QObject* parent = nullptr);
-		~YSSLangDocument();
-		// 由 Highlighter 在 onBlockChanged 中调用，更新一行的内容并安排重新分析。
+		YSSConfigLangDocument(YSSCore::Editor::TextEdit* hostEdit, YSSConfigAnalyzeFn analyzeFn);
+		~YSSConfigLangDocument();
+		// 由 Highlighter 在 onBlockChanged 中调用，安排一次防抖重新分析。
 		void onSyntaxHighlighter(const QString& text, qint32 lineIndex);
-		// 行被添加时通知文档（Highlighter 的 onBlockAdded）。
-		void onLinesAdded(qint32 startLine, qint32 count);
-		// 行被删除时通知文档（Highlighter 的 onBlockRemoved）。
-		void onLinesRemoved(qint32 startLine, qint32 count);
-		// 立即（同步）重新分析整个文档并刷新诊断缓存。
+		// 立即（同步）重新分析整个文档并把诊断写到行上。
 		void analyze();
 		// 获取指定行（0-based）的诊断信息。
 		QList<YSSLangDiagnosticData> getDiagnostics(qint32 lineNumber) const;
 		// 获取全部诊断信息。
 		QList<YSSLangDiagnosticData> getAllDiagnostics() const;
 	private:
-		YSSLangDocumentPrivate* d;
+		YSSConfigLangDocumentPrivate* d;
 	};
 }
-#endif // Plugin_YSSFileExt_LangServer_YSSLangDocument_h
+#endif // Plugin_YSSFileExt_LangServer_YSSConfigLangDocument_h

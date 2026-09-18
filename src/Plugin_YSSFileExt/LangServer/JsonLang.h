@@ -10,13 +10,12 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef Plugin_YSSFileExt_LangServer_JsonDocument_h
-#define Plugin_YSSFileExt_LangServer_JsonDocument_h
-#include <QtCore/qobject.h>
+#ifndef Plugin_YSSFileExt_LangServer_JsonLang_h
+#define Plugin_YSSFileExt_LangServer_JsonLang_h
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qlist.h>
-#include <QtCore/qtimer.h>
+#include "LangServer/YSSConfigLangServer.h"
 
 namespace YSSFileExt {
 	class JsonLangDiagnosticData {
@@ -85,29 +84,9 @@ namespace YSSFileExt {
 
 	QList<JsonToken> lexJsonLine(const QString& line, qint32 baseLine, QList<JsonLangDiagnosticData>* diagnostics = nullptr);
 
-	class JsonLangDocumentPrivate;
-	class JsonLangDocument :public QObject {
-		Q_OBJECT;
-	signals:
-		// 全文档重新分析完成，诊断缓存已刷新。
-		void contentChanged();
+	class JsonLangServer :public YSSConfigLangServer {
 	public:
-		JsonLangDocument(QObject* parent = nullptr);
-		~JsonLangDocument();
-		// 由 Highlighter 在 onBlockChanged 中调用，更新一行的内容并安排重新分析。
-		void onSyntaxHighlighter(const QString& text, qint32 lineIndex);
-		// 行被添加时通知文档（Highlighter 的 onBlockAdded）。
-		void onLinesAdded(qint32 startLine, qint32 count);
-		// 行被删除时通知文档（Highlighter 的 onBlockRemoved）。
-		void onLinesRemoved(qint32 startLine, qint32 count);
-		// 立即（同步）重新分析整个文档并刷新诊断缓存。
-		void analyze();
-		// 获取指定行（0-based）的诊断信息。
-		QList<JsonLangDiagnosticData> getDiagnostics(qint32 lineNumber) const;
-		// 获取全部诊断信息。
-		QList<JsonLangDiagnosticData> getAllDiagnostics() const;
-	private:
-		JsonLangDocumentPrivate* d;
+		JsonLangServer(YSSCore::Editor::EditorPlugin* plugin);
 	};
 }
-#endif // Plugin_YSSFileExt_LangServer_JsonDocument_h
+#endif // Plugin_YSSFileExt_LangServer_JsonLang_h

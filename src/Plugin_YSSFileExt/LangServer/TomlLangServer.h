@@ -12,21 +12,12 @@
 */
 #ifndef Plugin_YSSFileExt_LangServer_TomlLangServer_h
 #define Plugin_YSSFileExt_LangServer_TomlLangServer_h
-#include <Editor/LangServer.h>
-#include <Editor/EditorPlugin.h>
-#include "LangServer/YSSLangHighlighter.h"
+#include "LangServer/YSSConfigLangServer.h"
 
 namespace YSSFileExt {
-	class TomlLangServer :public YSSCore::Editor::LangServer {
+	class TomlLangServer :public YSSConfigLangServer {
 	public:
 		TomlLangServer(YSSCore::Editor::EditorPlugin* plugin);
-		virtual YSSCore::Editor::SyntaxHighlighter* createHighlighter(YSSCore::Editor::TextEdit* doc) override;
-	};
-
-	class TomlLangHighlighter :public YSSLangHighlighter {
-	public:
-		TomlLangHighlighter(YSSCore::Editor::TextEdit* parent);
-		virtual void colorLine(const QString& text) override;
 	};
 }
 #endif // Plugin_YSSFileExt_LangServer_TomlLangServer_h
