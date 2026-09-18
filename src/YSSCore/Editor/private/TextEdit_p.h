@@ -95,8 +95,8 @@ namespace YSSCore::__Private__ {
 		int dragStartScrollValue = 0;
 
 		void onContentsChange(int position, int charsRemoved, int charsAdded);
-		void onMessageChanged(const QString& filePath);
-		void onMessageChangedForLine(const QString& filePath, qint32 lineNumber);
+		void onMessageChanged();
+		void onMessageChangedForLine(qint32 lineNumber);
 		void recalculateAll();
 		void recalculateBlock(int blockNumber);
 		void rebuildErrorLines();

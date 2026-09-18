@@ -2,15 +2,14 @@
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qscrollbar.h>
-#include <Editor/DocumentMessageManager.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
 #include <Editor/SyntaxHighlighter.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <Utility/FileUtility.h>
-#include "Editor/MainEditor/FileEditWidgetArea.h"
-#include "Editor/MainEditor/MainWin.h"
+#include "Editor/MainEditor/DocumentMessageTracer.h"
+#include "Editor/MainEditor/MessageCenter.h"
 #include "Editor/MainEditor/MessageViewer.h"
 
 namespace YSS::Editor {
@@ -47,35 +46,22 @@ namespace YSS::Editor {
 		MessageTable->setColumnWidth(3, 100);
 		MessageTable->setColumnWidth(4, 100);
 		MessageTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(),
-			&YSSCore::Editor::DocumentMessageManager::messageChanged, this, &MessageViewer::onMessageChanged);
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(),
-			&YSSCore::Editor::DocumentMessageManager::messageChangedForLine, this, &MessageViewer::onMessageChangedForLine);
 		connect(MessageTable, &QTableWidget::cellClicked, this, &MessageViewer::onCellClicked);
-		connect(MainWin::getInstance(), &MainWin::currentFileEditWidgetChangedNotTool, this, [this](YSSCore::Editor::FileEditWidget* widget) {
-			if (widget) {
-				changeCurrentFile(widget->getFilePath());
-			}
-		});
-		if (MainWin::getInstance()->getCurrentFocusedFileEditWidgetNotTool()) {
-			changeCurrentFile(MainWin::getInstance()->getCurrentFocusedFileEditWidgetNotTool()->getFilePath());
-		}
+		connect(MessageCenter::getInstance(), &MessageCenter::currentEditChanged, this, &MessageViewer::changeCurrentFile);
+		connect(MessageCenter::getInstance(), &MessageCenter::messageChangedForLine, this, &MessageViewer::onMessageChangedForLine);
+		connect(MessageCenter::getInstance(), &MessageCenter::tracerLineChanged, this, &MessageViewer::onTracerLineChanged);
+		connect(MessageCenter::getInstance(), &MessageCenter::tracerDestroyed, this, &MessageViewer::onTracerDestroyed);
+		changeCurrentFile(MessageCenter::getInstance()->getCurrentEdit());
 	}
 
-	void MessageViewer::changeCurrentFile(const QString& filePath) {
-		if (filePath.isEmpty()) {
-			MessageTable->clearContents();
-			MessageTable->setRowCount(0);
-			CurrentFilePath = "";
+	void MessageViewer::changeCurrentFile(YSSCore::Editor::TextEdit* edit) {
+		if (CurrentEdit == edit) {
 			return;
 		}
-		if (CurrentFilePath == filePath) {
-			return;
-		}
-		CurrentFilePath = filePath;
+		CurrentEdit = edit;
 		MessageTable->clearContents();
 		MessageTable->setRowCount(0);
-		onMessageChanged(filePath);
+		syncMessageRows();
 	}
 
 	void MessageViewer::onCellClicked(int row, int column) {
@@ -86,58 +72,76 @@ namespace YSS::Editor {
 		emit YSSCore::Editor::FileServerManager::getInstance()->focusOnFile(filePath, lineNumber, columnNumber);
 	}
 
-	void MessageViewer::onMessageChanged(const QString& filePath) {
-		//vgDebug << "Message changed for file: " << filePath;
-		if (filePath == CurrentFilePath) {
-			MessageTable->clearContents();
-			MessageTable->setRowCount(0);
-			auto messages = YSSCore::Editor::DocumentMessageManager::getInstance()->getAllMessages(filePath);
-			qint32 totalLines = 0;
-			for (auto msgList : messages.values()) {
-				totalLines += msgList.size();
+	void MessageViewer::onMessageChangedForLine(qint32 lineNumber) {
+		if (!CurrentEdit || lineNumber < 0) {
+			return;
+		}
+		QString filePath = CurrentEdit->getFilePath();
+		// search all line == lineNumber, remove it
+		for (int i = 0; i < MessageTable->rowCount(); ++i) {
+			if (MessageTable->item(i, 2)->toolTip() == filePath && MessageTable->item(i, 3)->text().toInt() == lineNumber + 1) {
+				MessageTable->removeRow(i);
+				--i;
 			}
-			MessageTable->setRowCount(totalLines);
-			qint32 row = 0;
-			for (auto msgList : messages.values()) {
-				for (auto msg : msgList) {
-					auto msgCode = new QLabel();
-					msgCode->setText(QString("<a href=\"%1\">%2</a>").arg(msg.getHelpUrl().toString()).arg(msg.getCode()));
-					msgCode->setOpenExternalLinks(true);
-					msgCode->setAlignment(Qt::AlignCenter);
-					MessageTable->setCellWidget(row, 0, msgCode);
-					auto messageItem = new QTableWidgetItem(msg.getMessage());
-					messageItem->setToolTip(msg.getFixAdvice());
-					MessageTable->setItem(row, 1, messageItem);
-					auto filePathItem = new QTableWidgetItem(QFileInfo(filePath).fileName());
-					filePathItem->setToolTip(filePath);
-					MessageTable->setItem(row, 2, filePathItem);
-					auto lineItem = new QTableWidgetItem(QString::number(msg.getLineNumber() + 1));
-					lineItem->setTextAlignment(Qt::AlignCenter);
-					MessageTable->setItem(row, 3, lineItem);
-					auto columnItem = new QTableWidgetItem(QString::number(msg.getColumnNumber()));
-					columnItem->setTextAlignment(Qt::AlignCenter);
-					MessageTable->setItem(row, 4, columnItem);
-					row++;
+		}
+		insertMessagesForLine(lineNumber);
+	}
+
+	void MessageViewer::onTracerLineChanged(DocumentMessageTracer* tracer, qint32 oldLine, qint32 newLine) {
+		if (tracer == nullptr || newLine < 0) {
+			return;
+		}
+		for (int i = 0; i < MessageTable->rowCount(); ++i) {
+			if (rowTracer(i) == reinterpret_cast<quintptr>(tracer)) {
+				QTableWidgetItem* lineItem = MessageTable->item(i, 3);
+				if (lineItem != nullptr) {
+					lineItem->setText(QString::number(newLine + 1));
 				}
 			}
 		}
 	}
 
-	void MessageViewer::onMessageChangedForLine(const QString& filePath, qint32 lineNumber) {
-		// search all line == lineNumber, remove it
-		//vgDebug << filePath << CurrentFilePath;
-		if (filePath != CurrentFilePath) {
+	void MessageViewer::removeRowsForTracer(DocumentMessageTracer* tracer) {
+		if (tracer == nullptr) {
 			return;
 		}
-		for (int i = 0; i < MessageTable->rowCount(); ++i) {
-			if (MessageTable->item(i, 2)->toolTip() == filePath && MessageTable->item(i, 3)->text().toInt() == lineNumber + 1) {
+		for (int i = MessageTable->rowCount() - 1; i >= 0; --i) {
+			if (rowTracer(i) == reinterpret_cast<quintptr>(tracer)) {
 				MessageTable->removeRow(i);
-				//vgDebug << "Removed message for line " << lineNumber << " at row " << i;
-				--i;
 			}
 		}
-		auto msgList = YSSCore::Editor::DocumentMessageManager::getInstance()->getMessages(filePath, lineNumber);
-		//vgDebug << "Line " << lineNumber << " has " << msgList.size() << " messages.";
+	}
+
+	void MessageViewer::onTracerDestroyed(DocumentMessageTracer* tracer) {
+		removeRowsForTracer(tracer);
+	}
+
+	quintptr MessageViewer::rowTracer(int row) const {
+		QTableWidgetItem* item = MessageTable->item(row, 3);
+		if (item == nullptr) {
+			return 0;
+		}
+		return item->data(Qt::UserRole).value<quintptr>();
+	}
+
+	void MessageViewer::setRowTracer(int row, DocumentMessageTracer* tracer) {
+		QTableWidgetItem* item = MessageTable->item(row, 3);
+		if (item == nullptr) {
+			return;
+		}
+		item->setData(Qt::UserRole, QVariant::fromValue(reinterpret_cast<quintptr>(tracer)));
+	}
+
+	void MessageViewer::insertMessagesForLine(qint32 lineNumber) {
+		if (!CurrentEdit || lineNumber < 0) {
+			return;
+		}
+		auto msgList = CurrentEdit->getMessages(lineNumber);
+		if (msgList.isEmpty()) {
+			return;
+		}
+		QString filePath = CurrentEdit->getFilePath();
+		DocumentMessageTracer* tracer = MessageCenter::getInstance()->getTracer(lineNumber);
 		for (auto msg : msgList) {
 			int row = MessageTable->rowCount();
 			MessageTable->insertRow(row);
@@ -158,9 +162,45 @@ namespace YSS::Editor {
 			auto columnItem = new QTableWidgetItem(QString::number(msg.getColumnNumber()));
 			columnItem->setTextAlignment(Qt::AlignCenter);
 			MessageTable->setItem(row, 4, columnItem);
+			setRowTracer(row, tracer);
 		}
-		if (msgList.size() != 0) {
-			MessageTable->sortByColumn(3, Qt::AscendingOrder);
+		MessageTable->sortByColumn(3, Qt::AscendingOrder);
+	}
+
+	// 整个列表重建一次：按层里现有的追踪器补行、删掉追踪器已经不在的行。换文件或面板刚打开时用。
+	void MessageViewer::syncMessageRows() {
+		if (!CurrentEdit) {
+			return;
+		}
+		const QList<DocumentMessageTracer*> tracers = MessageCenter::getInstance()->getTracers();
+		for (int i = MessageTable->rowCount() - 1; i >= 0; --i) {
+			quintptr rowTracerValue = rowTracer(i);
+			bool alive = false;
+			for (DocumentMessageTracer* tracer : tracers) {
+				if (reinterpret_cast<quintptr>(tracer) == rowTracerValue) {
+					alive = true;
+					break;
+				}
+			}
+			if (not alive) {
+				MessageTable->removeRow(i);
+			}
+		}
+		for (DocumentMessageTracer* tracer : tracers) {
+			qint32 lineNumber = tracer->getBlockNumber();
+			bool found = false;
+			for (int i = 0; i < MessageTable->rowCount(); ++i) {
+				if (rowTracer(i) == reinterpret_cast<quintptr>(tracer)) {
+					QTableWidgetItem* lineItem = MessageTable->item(i, 3);
+					if (lineItem != nullptr) {
+						lineItem->setText(QString::number(lineNumber + 1));
+					}
+					found = true;
+				}
+			}
+			if (not found) {
+				insertMessagesForLine(lineNumber);
+			}
 		}
 	}
 

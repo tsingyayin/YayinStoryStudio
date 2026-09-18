@@ -50,7 +50,7 @@ HTML.scripts = template/scripts/yss.js
 HTML.endheader = \
     "</head>\n"
 
-# 顶栏：品牌 + 模块导航 + 深浅色/目录按钮。
+# 顶栏：品牌 + 模块导航 + 深浅色/背景/目录按钮。
 #
 # 导航里的模块入口由 QDoc.py 在构建时按 doc/src/module.qdoc 里的 \module 声明
 # 重新生成（模块页文件名 = 模块名小写 + "-module.html"），下面这份只是没跑到
@@ -76,6 +76,7 @@ HTML.postheader = \
     "    </nav>\n" \
     "    <div class=\"yss-tools\">\n" \
     "      <button id=\"yss-theme-toggle\" class=\"yss-iconbtn\" type=\"button\" title=\"切换深浅色\" aria-label=\"切换深浅色\">☾</button>\n" \
+    "      <button id=\"yss-bg-toggle\" class=\"yss-bgbtn\" type=\"button\" title=\"背景设置\" aria-label=\"背景设置\" aria-haspopup=\"dialog\" aria-expanded=\"false\"><span class=\"yss-bgbtn__label\">背景设置</span></button>\n" \
     "      <button id=\"yss-menu-toggle\" class=\"yss-iconbtn yss-menu-toggle\" type=\"button\" title=\"目录\" aria-label=\"目录\" aria-expanded=\"false\">☰</button>\n" \
     "    </div>\n" \
     "  </div>\n" \

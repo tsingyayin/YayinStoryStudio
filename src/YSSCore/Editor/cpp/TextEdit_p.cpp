@@ -12,7 +12,6 @@
 #include <QtWidgets/qstyleoption.h>
 #include <General/TranslationHost.h>
 #include "Editor/DocumentMessage.h"
-#include "Editor/DocumentMessageManager.h"
 #include "Editor/private/TextEdit_p.h"
 #include "Editor/TextEdit.h"
 
@@ -120,9 +119,9 @@ namespace YSSCore::__Private__ {
 		this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
 		connect(this->document, &QTextDocument::contentsChange, this, &DocumentOverviewLabel::onContentsChange);
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), &YSSCore::Editor::DocumentMessageManager::messageChanged,
+		connect(editor, &YSSCore::Editor::TextEdit::messageChanged,
 			this, &DocumentOverviewLabel::onMessageChanged);
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), &YSSCore::Editor::DocumentMessageManager::messageChangedForLine,
+		connect(editor, &YSSCore::Editor::TextEdit::messageChangedForLine,
 			this, &DocumentOverviewLabel::onMessageChangedForLine);
 
 		if (this->document->blockCount() > 0) {
@@ -274,17 +273,14 @@ namespace YSSCore::__Private__ {
 		}
 	}
 
-	void DocumentOverviewLabel::onMessageChanged(const QString& filePath) {
-		if (this->editor && this->editor->getFilePath() == filePath) {
-			rebuildErrorLines();
-		}
+	void DocumentOverviewLabel::onMessageChanged() {
+		rebuildErrorLines();
 	}
 
-	void DocumentOverviewLabel::onMessageChangedForLine(const QString& filePath, qint32 lineNumber) {
-		if (!this->editor || this->editor->getFilePath() != filePath) return;
+	void DocumentOverviewLabel::onMessageChangedForLine(qint32 lineNumber) {
+		if (!this->editor) return;
 
-		auto messages = YSSCore::Editor::DocumentMessageManager::getInstance()->getMessages(filePath, lineNumber);
-		if (!messages.isEmpty()) {
+		if (this->editor->hasMessage(lineNumber)) {
 			if (!this->errorLines.contains(lineNumber)) {
 				this->errorLines.append(lineNumber);
 			}
@@ -298,7 +294,7 @@ namespace YSSCore::__Private__ {
 		this->errorLines.clear();
 		if (this->editor == nullptr) return;
 
-		auto allMessages = YSSCore::Editor::DocumentMessageManager::getInstance()->getAllMessages(this->editor->getFilePath());
+		auto allMessages = this->editor->getAllMessages();
 		for (auto it = allMessages.begin(); it != allMessages.end(); ++it) {
 			if (!it.value().isEmpty()) {
 				this->errorLines.append(it.key());

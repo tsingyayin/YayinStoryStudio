@@ -6,7 +6,6 @@
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qscrollbar.h>
-#include <Editor/DocumentMessageManager.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
 #include <Editor/SyntaxHighlighter.h>

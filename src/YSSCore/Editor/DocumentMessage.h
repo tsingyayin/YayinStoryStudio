@@ -1,19 +1,15 @@
 #ifndef YSSCore_Editor_DocumentMessage_h
 #define YSSCore_Editor_DocumentMessage_h
 #include "YSSCoreCompileMacro.h"
+#include <QtCore/qlist.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qurl.h>
-namespace YSSCore::__Private__ {
-	class DocumentMessageManagerPrivate;
-}
 namespace YSSCore::Editor {
 	class TextEdit;
-	class DocumentMessageManager;
 	class DocumentMessagePrivate;
 
 	class YSSCoreAPI DocumentMessage {
-		friend class DocumentMessageManager;
-		friend class YSSCore::__Private__::DocumentMessageManagerPrivate;
+		friend class TextEdit;
 	public:
 		enum MessageType {
 			Error = 0,

@@ -62,7 +62,7 @@
 	--yss-code-border: #dfe4ea;
 	/* 代码块的玻璃底：行内的 <code> 仍用上面的实底（一页几百个，不能每一个都做玻璃），
 		块级的 <pre> 才用这层半透底 */
-	--yss-code-glass: rgba(238, 242, 248, 0.55);
+	--yss-code-glass: rgba(36, 56, 94, 0.17);
 	--yss-hl-comment: #6e7781;
 	--yss-hl-keyword: #cf222e;
 	--yss-hl-type: #953800;
@@ -84,29 +84,75 @@
 	--yss-important-border: rgba(164, 14, 38, 0.28);
 
 	/* ── 液态玻璃 ──
-		tint = 面板底色。这里是一个略偏冷的半透灰纱，而不是白纱也不是实底：
-		白纱盖在白底上等于没盖（会“看起来不透明”），灰纱才能看出是片玻璃。
-		line = 上沿 1px 镜面高光；sheen = 顶部那片柔光（自上而下衰减）；
-		edge = 外描边；shade = 下沿一丝暗边（厚度感）。
+		【底色】非常透明的一层深灰蓝纱（不是白纱、也不是实底）：
+		白纱盖在白底上等于没盖（会“看起来完全不透明”），而 55% 的灰纱又太实 ——
+		现在 10% 的黑蓝纱正好：面板比页面暗十几级、明显偏冷，
+		同时背后的点阵还能透过来（点/底对比度仍有 ~25/255），这才是「玻璃板通透」的来源。
 		th-bg 必须也是半透的，否则表头会把表格那块毛玻璃整个挡掉。
-		【模糊量级】内容层只用 2px：20px 间距的小点直径才 2.7px，
-		模糊一过 3px 就只剩 15% 对比度（实测过），隔着面板就什么都看不见了 ——
-		「不透明」的观感就是这么来的。重模糊（24px）只用在顶栏/标题栏，
+		【打光 = 鼠标边缘光 + 全局光两段】鼠标边缘光是动态的（见 --yss-rim-bg）；
+		全局光是静态的，照 LiquidGlassEffect 的 GlobalRim 算：沿边界求外法线 n，
+		与光方向 L = (-0.5, -0.866)（左上、与竖直成 30°）点乘，取 (n·L)² 当该点受光强度
+		（正对光源最亮、与光垂直处归零），迎光面画 globalRimLightColor = rgba(255,255,255,90)、
+		背光面画 globalRimShadowColor = rgba(0,0,0,60)，厚度 1px / 2px，都贴在玻璃内侧。
+		四条边的权重：上 0.75、左 0.25、下 0.75、右 0.25 —— 四个 alpha 就是下面四行。
+		关键在“薄薄一条”：他们原实现也是 thickness 1~2 的勾边，不是上下两大块渐变
+		（那种上亮下暗是 Win7 Aero，用户明确否过）；而且四条线的亮度必须按权重拉开，
+		左沿只有上沿的 1/3，对称了就变成“给卡片描了一圈边”。
+		四条线由 --yss-glass-bevel 拼好，面板直接 box-shadow: var(--yss-glass-bevel), ... 接入。
+		【模糊量级】内容层只留 0.5px（他们默认 blurRadius = 13）：20px 间距的小点直径才 2.7px，
+		模糊一过 3px 就只剩 15% 对比度（实测过），隔着面板就什么都看不见了。
+		重模糊（24px）只用在顶栏/标题栏，
 		那里背后有真正的高对比内容可糊，厚重的毛玻璃才是对的。 */
-	--yss-glass-tint: rgba(237, 241, 247, 0.55);
-	--yss-glass-line: rgba(255, 255, 255, 0.92);
-	--yss-glass-sheen: rgba(255, 255, 255, 0.50);
-	--yss-glass-edge: rgba(24, 44, 74, 0.12);
-	--yss-glass-shade: rgba(24, 44, 74, 0.06);
-	--yss-th-bg: rgba(228, 233, 241, 0.55);
-
-	/* 顶部那片柔光的通用写法：把椭圆压扁成一条带，从上沿之外照进来。
-		高度写死 6rem，与面板实际高度无关 —— 长列表也不会被整片洗白。 */
-	--yss-glass-sheen-bg: radial-gradient(120% 6rem at 50% -2.5rem, var(--yss-glass-sheen), rgba(0, 0, 0, 0));
+	--yss-glass-tint: rgba(36, 56, 94, 0.13);
+	--yss-glass-line: rgba(255, 255, 255, 0.26);      /* 上沿 (0.866)²×90/255 */
+	--yss-glass-line-side: rgba(255, 255, 255, 0.09); /* 左沿 (0.500)²×90/255 */
+	--yss-glass-shade: rgba(20, 34, 56, 0.18);        /* 下沿 (0.866)²×60/255 */
+	--yss-glass-shade-side: rgba(20, 34, 56, 0.06);   /* 右沿 (0.500)²×60/255 */
+	--yss-glass-edge: rgba(20, 34, 56, 0.10);         /* 外描边：默认不接（接了像卡片框） */
+	/* 全局光四条边，厚度照他们的 globalRimLightThickness=1 / globalRimShadowThickness=2 */
+	--yss-glass-bevel: inset 0 1px 0 var(--yss-glass-line),
+		inset 1px 0 0 var(--yss-glass-line-side),
+		inset 0 -2px 0 var(--yss-glass-shade),
+		inset -1px 0 0 var(--yss-glass-shade-side);
+	--yss-th-bg: rgba(36, 56, 94, 0.10);
+	/* 手机端关掉模糊后用的同色底：10% 太透，背后的点阵会和正文打架 */
+	--yss-glass-tint-solid: rgba(243, 246, 251, 0.82);
 
 	/* 点阵涟漪只靠「点被推一下 + 稍微变深一点」表现，不画波前同心圆
 		（用户明确否掉过那圈描边：圈一出来看着就不像水波、像示意图）。
 		浅色下「变深」本来就是高对比，所以 --yss-grid-bright 只比底色深一点点。 */
+
+	/* 折射带宽度。他们 C++ 的语义是：R 先夹到 min(宽,高)/2 —— 也就是说带最大能铺满
+		半个形状。他的 Demo（正圆）用的就是这个上限：整条带盖住整个形状，而映射恰好把
+		「中间那一半」放大 2 倍（x、y 查同一张表，所以各向同性），看起来就是凸透镜。
+		我们默认按同样的比例走：R = 最短边 × --yss-glass-lens-ratio（上限仍是它的一半），
+		--yss-glass-lens 只当"最小带宽"用（小卡片别扭得太碎）。
+		带内的东西会被拉开约一倍，所以面板背面看起来会比页面"稀"——这正是透镜的观感。
+		0.5 就是他 Demo 那个上限（整块形状都在带内），实际放在文档里太强；
+		0.25 又嫌深了一点，现在 0.18：只扭到「从边往内不到五分之一」。
+		把 ratio 设成 0 就退回旧的「只按 px 取、边上一小条」的行为。 */
+	--yss-glass-lens: 40;
+	--yss-glass-lens-ratio: 0.18;
+	/* 色散：三个通道的映射距离差（对应他们的 liquidDistortDispersion，默认 0.2）。
+		注意色散偏移是跟着带宽 R 一起放大的（贴边处最大 = R/2 × 这个值），
+		所以带宽改了要跟着调它：0.08 在 R≈53 时约 2.1px 的通道错位，
+		刚好是「边上有彩，但不至于散成重复」。 */
+	--yss-glass-dispersion: 0.08;
+
+	/* 鼠标边缘光（对应 LiquidGlassEffect 的 RimLight）：鼠标靠近面板时，边界上离鼠标
+		最近的那一段亮起来，沿边界向两侧衰减 --yss-glass-rim-range，鼠标离开面板超过
+		--yss-glass-rim-activate 就完全熄灭（权重都取平方，与他们的公式一致）。
+		这里只放参数与颜色；四层渐变（--yss-rim-bg）写在面板自己的规则里，见下面。
+		【颜色】浅色下不能用白：浅色玻璃本身已经在 245/255 附近，再叠白最多只能加 +10，
+		而背景层是直接盖上去的（不像他们那样做乘法提亮），所以白线等于看不见 ——
+		改用 logo 蓝：亮度基本不变，色相明显，一眼能看出玻璃在回应鼠标。
+		他们那边 rimLightColor 也是可配的，这不算跑题。 */
+	/* 鼠标边缘光的颜色：底色现在是冷灰蓝（≈226），所以白光有 ~29 级的提亮空间，
+		能真的当“高光”用；之前底色是 55% 白纱（≈245）时白光只能 +10，等于看不见。 */
+	--yss-glass-rim-color: 255, 255, 255;
+	--yss-glass-rim: 0.70;               /* 峰值强度 */
+	--yss-glass-rim-range: 80px;    /* 对应 rimLightRange */
+	--yss-glass-rim-activate: 40px; /* 对应 rimLightActivationDistance；改成 0 即关闭 */
 
 	/* 极淡的噪点（内联 SVG，不引外部文件）。用途见 .yss-dots：
 		又大又淡的渐变在 8 位色深下一定会分带，铺一层噪点把带打碎。 */
@@ -118,14 +164,21 @@
 		它们的强度不只是装饰 —— 玻璃面板要「看起来半透明」，背面就必须有**大尺度**的东西可看：
 		20px 间距的小点在毛玻璃后面物理上留不下来（模糊半径一过 3px 就全糊没了），
 		能穿透模糊的只有这种几十 rem 量级的渐变。 */
-	--yss-glow-a: rgba(99, 137, 243, 0.17);
-	--yss-glow-b: rgba(99, 137, 243, 0.12);
-	--yss-glow-c: rgba(137, 135, 216, 0.17);
-	--yss-glow-d: rgba(137, 135, 216, 0.12);
+	--yss-glow-a: rgba(99, 137, 243, 0.24);
+	--yss-glow-b: rgba(99, 137, 243, 0.17);
+	--yss-glow-c: rgba(137, 135, 216, 0.24);
+	--yss-glow-d: rgba(137, 135, 216, 0.17);
 	--yss-grid: rgba(31, 35, 40, 0.125);
 	--yss-grid-bright: rgba(31, 35, 40, 0.165);
 
-	--yss-shadow-sm: 0 1px 2px rgba(31, 35, 40, 0.07);
+	/* 用户自己上传的背景图（右上角设置区，见 scripts/yss.js 的 initUserBackground）：
+		图片铺满视口，上面盖一层同色薄纱 —— 照片的明暗不可控，正文直接压在照片上
+		有一半概率读不清，所以先垫一层。alpha 由设置区的“透明度”滑块控制
+		（100% = 完全看不见图），颜色跟着主题走。 */
+	--yss-userbg-veil-rgb: 255, 255, 255;
+	--yss-userbg-veil-alpha: 0.5;
+
+	--yss-shadow-sm: 0 1px 2px rgba(31, 35, 40, 0.05);
 	--yss-shadow: 0 1px 3px rgba(31, 35, 40, 0.09), 0 8px 24px rgba(31, 35, 40, 0.07);
 
 	--yss-radius-sm: 6px;
@@ -161,7 +214,7 @@
 
 	--yss-code-bg: #161b22;
 	--yss-code-border: #30363d;
-	--yss-code-glass: rgba(32, 39, 48, 0.42);
+	--yss-code-glass: rgba(62, 84, 126, 0.32);
 	--yss-hl-comment: #8b949e;
 	--yss-hl-keyword: #ff7b72;
 	--yss-hl-type: #ffa657;
@@ -180,22 +233,32 @@
 	--yss-warning-border: rgba(255, 118, 118, 0.24);
 	--yss-important-glass: rgba(255, 123, 114, 0.12);
 	--yss-important-border: rgba(255, 123, 114, 0.26);
-	--yss-glass-sheen: rgba(255, 255, 255, 0.08);
 
-	--yss-glass-tint: rgba(38, 45, 56, 0.40);
-	--yss-glass-line: rgba(255, 255, 255, 0.15);
-	--yss-glass-edge: rgba(255, 255, 255, 0.09);
-	--yss-glass-shade: rgba(0, 0, 0, 0.40);
-	--yss-th-bg: rgba(52, 60, 72, 0.40);
+	--yss-glass-tint: rgba(62, 84, 126, 0.30);
+	--yss-glass-line: rgba(255, 255, 255, 0.10);
+	--yss-glass-line-side: rgba(255, 255, 255, 0.03);
+	--yss-glass-edge: rgba(255, 255, 255, 0.07);
+	--yss-glass-shade: rgba(0, 0, 0, 0.34);
+	--yss-glass-shade-side: rgba(0, 0, 0, 0.11);
+	--yss-th-bg: rgba(62, 84, 126, 0.20);
+	--yss-glass-tint-solid: rgba(26, 31, 40, 0.86);
+	--yss-glass-bevel: inset 0 1px 0 var(--yss-glass-line),
+		inset 1px 0 0 var(--yss-glass-line-side),
+		inset 0 -2px 0 var(--yss-glass-shade),
+		inset -1px 0 0 var(--yss-glass-shade-side);
+	/* 深底上白线提亮一个数量级很容易过曝，所以基准比浅色低得多 */
+	--yss-glass-rim-color: 255, 255, 255;
+	--yss-glass-rim: 0.18;
 
-	--yss-glow-a: rgba(99, 137, 243, 0.14);
-	--yss-glow-b: rgba(99, 137, 243, 0.09);
-	--yss-glow-c: rgba(137, 135, 216, 0.14);
-	--yss-glow-d: rgba(137, 135, 216, 0.09);
+	--yss-glow-a: rgba(99, 137, 243, 0.19);
+	--yss-glow-b: rgba(99, 137, 243, 0.13);
+	--yss-glow-c: rgba(137, 135, 216, 0.19);
+	--yss-glow-d: rgba(137, 135, 216, 0.13);
 	--yss-grid: rgba(255, 255, 255, 0.07);
 	--yss-grid-bright: rgba(255, 255, 255, 0.20);
+	--yss-userbg-veil-rgb: 13, 17, 23;
 
-	--yss-shadow-sm: 0 1px 2px rgba(1, 4, 9, 0.6);
+	--yss-shadow-sm: 0 1px 2px rgba(1, 4, 9, 0.22);
 	--yss-shadow: 0 1px 3px rgba(1, 4, 9, 0.7), 0 8px 24px rgba(1, 4, 9, 0.5);
 }
 
@@ -226,7 +289,7 @@
 
 		--yss-code-bg: #161b22;
 		--yss-code-border: #30363d;
-		--yss-code-glass: rgba(32, 39, 48, 0.42);
+		--yss-code-glass: rgba(62, 84, 126, 0.32);
 		--yss-hl-comment: #8b949e;
 		--yss-hl-keyword: #ff7b72;
 		--yss-hl-type: #ffa657;
@@ -245,22 +308,31 @@
 		--yss-warning-border: rgba(255, 118, 118, 0.24);
 		--yss-important-glass: rgba(255, 123, 114, 0.12);
 		--yss-important-border: rgba(255, 123, 114, 0.26);
-		--yss-glass-sheen: rgba(255, 255, 255, 0.08);
 
-		--yss-glass-tint: rgba(38, 45, 56, 0.40);
-		--yss-glass-line: rgba(255, 255, 255, 0.15);
-		--yss-glass-edge: rgba(255, 255, 255, 0.09);
-		--yss-glass-shade: rgba(0, 0, 0, 0.40);
-		--yss-th-bg: rgba(52, 60, 72, 0.40);
+		--yss-glass-tint: rgba(62, 84, 126, 0.30);
+		--yss-glass-line: rgba(255, 255, 255, 0.10);
+		--yss-glass-line-side: rgba(255, 255, 255, 0.03);
+		--yss-glass-edge: rgba(255, 255, 255, 0.07);
+		--yss-glass-shade: rgba(0, 0, 0, 0.34);
+		--yss-glass-shade-side: rgba(0, 0, 0, 0.11);
+		--yss-th-bg: rgba(62, 84, 126, 0.20);
+		--yss-glass-tint-solid: rgba(26, 31, 40, 0.86);
+		--yss-glass-bevel: inset 0 1px 0 var(--yss-glass-line),
+			inset 1px 0 0 var(--yss-glass-line-side),
+			inset 0 -2px 0 var(--yss-glass-shade),
+			inset -1px 0 0 var(--yss-glass-shade-side);
+		--yss-glass-rim-color: 255, 255, 255;
+		--yss-glass-rim: 0.18;
 
-		--yss-glow-a: rgba(99, 137, 243, 0.14);
-		--yss-glow-b: rgba(99, 137, 243, 0.09);
-		--yss-glow-c: rgba(137, 135, 216, 0.14);
-		--yss-glow-d: rgba(137, 135, 216, 0.09);
+		--yss-glow-a: rgba(99, 137, 243, 0.19);
+		--yss-glow-b: rgba(99, 137, 243, 0.13);
+		--yss-glow-c: rgba(137, 135, 216, 0.19);
+		--yss-glow-d: rgba(137, 135, 216, 0.13);
 		--yss-grid: rgba(255, 255, 255, 0.07);
 		--yss-grid-bright: rgba(255, 255, 255, 0.20);
+		--yss-userbg-veil-rgb: 13, 17, 23;
 
-		--yss-shadow-sm: 0 1px 2px rgba(1, 4, 9, 0.6);
+		--yss-shadow-sm: 0 1px 2px rgba(1, 4, 9, 0.22);
 		--yss-shadow: 0 1px 3px rgba(1, 4, 9, 0.7), 0 8px 24px rgba(1, 4, 9, 0.5);
 	}
 }
@@ -288,17 +360,45 @@ body::before {
 	pointer-events: none;
 	background-color: var(--yss-bg);
 	background-image:
-		radial-gradient(38rem 28rem at 15% 7%, var(--yss-glow-a), rgba(0, 0, 0, 0) 66%),
-		radial-gradient(34rem 26rem at 85% 3%, var(--yss-glow-b), rgba(0, 0, 0, 0) 68%),
-		radial-gradient(40rem 30rem at 76% 93%, var(--yss-glow-c), rgba(0, 0, 0, 0) 68%),
-		radial-gradient(34rem 26rem at 5% 90%, var(--yss-glow-d), rgba(0, 0, 0, 0) 70%);
+		radial-gradient(46rem 36rem at 15% 7%, var(--yss-glow-a), rgba(0, 0, 0, 0) 66%),
+		radial-gradient(42rem 34rem at 85% 3%, var(--yss-glow-b), rgba(0, 0, 0, 0) 68%),
+		radial-gradient(48rem 38rem at 76% 93%, var(--yss-glow-c), rgba(0, 0, 0, 0) 68%),
+		radial-gradient(42rem 34rem at 5% 90%, var(--yss-glow-d), rgba(0, 0, 0, 0) 70%);
 	background-repeat: no-repeat;
+}
+
+/* 用户上传的背景图（右上角设置区，见 scripts/yss.js 的 initUserBackground）。
+	独立一层固定层，压在 body::before 的色晕之上、点阵画布之下 ——
+	三者同为 z-index:-1，绘制顺序就是 DOM 树顺序，脚本把这一层插在画布前面即可。
+	::after 那层薄纱是它自己的子层，透明度与颜色都是 CSS 变量，切主题、拖滑块
+	都不需要脚本重画（模糊由脚本内联，因为要在 0 时彻底不设 filter）。
+	没上传过、或已经清掉之后，这一层连元素都不存在，没设背景的页面上零开销。 */
+.yss-userbg {
+	position: fixed;
+	/* 比视口大一圈：模糊半径一大，图层边缘会因为采样到“外面”的透明而棱掉一圈，
+		把棱掉的部分挪到视口外就看不见了（cover 会因此把图放大几个百分点，无所谓）。 */
+	inset: -3rem;
+	z-index: -1;
+	pointer-events: none;
+	background-position: center center;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+.yss-userbg::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: rgba(var(--yss-userbg-veil-rgb), var(--yss-userbg-veil-alpha));
 }
 
 /* 点阵画布：与背景同层，但在它之后绘制（DOM 顺序），所以点在色晕之上。
 	它自己还垫着一层噪点（--yss-noise）：canvas 清空后是透明的，
 	那层噪点就刚好落在色晕之上、点阵之下 —— 不占额外图层，也不用多一次重绘。
-	噪点的作用是把大而淡的渐变色带打碎（8 位色深下必然分带）。 */
+	噪点的作用是把大而淡的渐变色带打碎（8 位色深下必然分带）。
+	注意：width/height 只是脚本生效前的占位，运行时会被 yss.js 用内联尺寸覆盖 ——
+	画布的坐标空间必须和它实际占的尺寸 1:1，而 100% 在这里解析到的是不含垂直滚动条的
+	初始包含块，直接用会让整张图被水平压扁（详见 yss.js 的 resize()）。 */
 .yss-dots {
 	position: fixed;
 	inset: 0;
@@ -574,6 +674,143 @@ h4:hover > .yss-anchor,
 	transform: scale(0.9);
 }
 
+/* “背景设置”按钮（打开右上角的设置面板，见 .yss-bgset）。
+	它和旁边两个纯图标按钮不是一类东西（那两个是开关 / 抽屉），所以做成胶囊 + 文字，
+	与导航项同一套观感；已经设了背景时右边多一个小亮点，不靠悬停也知道当前状态。
+	图标由 CSS 出（窄屏要把它留下、把文字藏掉，写死在 DOM 里就藏不干净了）。 */
+.yss-bgbtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	height: 2.1rem;
+	padding: 0 0.7rem;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	background-color: transparent;
+	color: var(--yss-topbar-fg-soft);
+	font: inherit;
+	font-size: 0.8125rem;
+	line-height: 1;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.yss-bgbtn::before {
+	content: "▣";
+	font-size: 0.95rem;
+}
+
+.yss-bgbtn:hover,
+.yss-bgbtn[aria-expanded="true"] {
+	background-color: var(--yss-topbar-hover);
+	color: var(--yss-topbar-fg);
+}
+
+/* 已自定义背景：一个 accent 小点，不抢戏但一眼能看出“当前不是默认背景” */
+.yss-bgbtn.is-on::after {
+	content: "";
+	width: 0.35rem;
+	height: 0.35rem;
+	border-radius: 50%;
+	background: var(--yss-accent-strong);
+}
+
+.yss-bgbtn.is-on {
+	color: var(--yss-topbar-fg);
+}
+
+/* 背景设置面板。它挂在 body 上而不是顶栏里：顶栏自己有 backdrop-filter，
+	就是一个 backdrop root，挂在里面的面板再怎么 blur 也只能糊到顶栏那一层背板，
+	出了顶栏的范围就什么都没有了（位置每次打开时按按钮的矩形算，见 yss.js）。 */
+.yss-bgset {
+	position: fixed;
+	z-index: 60;
+	width: 15.5rem;
+	padding: 0.8rem 0.9rem 0.75rem;
+	border-radius: var(--yss-radius);
+	background-color: var(--yss-glass-tint);
+	backdrop-filter: blur(20px) saturate(170%);
+	-webkit-backdrop-filter: blur(20px) saturate(170%);
+	box-shadow: var(--yss-shadow), var(--yss-glass-bevel);
+}
+
+.yss-bgset__row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+}
+
+/* 面板里的圆形按钮（深浅色 / 上传图片 / 清除图片）。
+	顶栏那两个是 .yss-iconbtn，用的是顶栏自己的前景色，搬进面板里就看不见了 ——
+	所以面板里另起一套：底色、描边、悬停都走正文那套变量。 */
+.yss-roundbtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border: 1px solid var(--yss-border);
+	border-radius: 50%;
+	background-color: var(--yss-bg-soft);
+	color: var(--yss-text);
+	font: inherit;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.yss-roundbtn:hover:not(:disabled) {
+	border-color: var(--yss-accent);
+	color: var(--yss-accent);
+}
+
+.yss-roundbtn:active:not(:disabled) {
+	transform: scale(0.94);
+}
+
+.yss-roundbtn:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.yss-bgset__field {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	margin-top: 0.7rem;
+	font-size: 0.8125rem;
+	color: var(--yss-text-soft);
+}
+
+.yss-bgset__field > span {
+	flex: 0 0 3.6rem;
+}
+
+.yss-bgset__field input[type="range"] {
+	flex: 1 1 auto;
+	min-width: 0;
+	margin: 0;
+	accent-color: var(--yss-accent);
+}
+
+.yss-bgset__field output {
+	flex: 0 0 2.6rem;
+	text-align: right;
+	color: var(--yss-text);
+	font-variant-numeric: tabular-nums;
+}
+
+/* 兼作报错行：出错时脚本把这行文字换成提示，几秒后再换回来 */
+.yss-bgset__note {
+	margin: 0.7rem 0 0;
+	font-size: 0.75rem;
+	line-height: 1.45;
+	color: var(--yss-text-faint);
+}
+
 /* 窄屏下的“目录”按钮，默认隐藏 */
 .yss-tools .yss-menu-toggle {
 	display: none;
@@ -678,18 +915,55 @@ h4:hover > .yss-anchor,
 	display: none;
 }
 
+/* 边缘光的四层渐变（形状在这里写一遍，各面板只引用）。
+	【为什么不能写在 :root】自定义属性里的 var() 是在**声明它的那个元素**上就替换掉的，
+	值随着继承传下去 —— 写在 :root 的话，里面的 var(--rl-x) 在 html 上就被解析成回退值了，
+	面板自己设的 --rl-* 根本轮不到。所以这段必须落在面板选择器上。
+	--rl-t/--rl-b/--rl-l/--rl-r 是四条边各自的强度（0~1，JS 写），
+	--rl-x/--rl-y 是「边界上离鼠标最近的那个点」在本面板里的位置。 */
+.table,
+pre,
+.admonition,
+.toc,
+.context ul,
+.context ol,
+.sidebar {
+	/* background-size 这一条不是可选的：radial-gradient 一旦写了显式半径，就有了
+		「固有尺寸」（= 2×半径，这里是 160×6），background-size: auto 会拿这个尺寸当
+		图片大小并平铺 —— 于是 at 300px 100% 是在一张 160×6 的小图上定位，
+		光斑会碎成一片网格，看着几乎不存在（实测峰值只有 +2/255）。
+		强制图片铺满整块面板，坐标才是面板自己的坐标。 */
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+	--yss-rim-bg:
+		radial-gradient(var(--yss-glass-rim-range) 4px at var(--rl-x, 50%) 0,
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-t, 0) * var(--yss-glass-rim))) 0%,
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-t, 0) * var(--yss-glass-rim) * 0.4)) 50%,
+			rgba(255, 255, 255, 0) 100%),
+		radial-gradient(var(--yss-glass-rim-range) 4px at var(--rl-x, 50%) 100%,
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-b, 0) * var(--yss-glass-rim))) 0%,
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-b, 0) * var(--yss-glass-rim) * 0.4)) 50%,
+			rgba(255, 255, 255, 0) 100%),
+		radial-gradient(4px var(--yss-glass-rim-range) at 0 var(--rl-y, 50%),
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-l, 0) * var(--yss-glass-rim))) 0%,
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-l, 0) * var(--yss-glass-rim) * 0.4)) 50%,
+			rgba(255, 255, 255, 0) 100%),
+		radial-gradient(4px var(--yss-glass-rim-range) at 100% var(--rl-y, 50%),
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-r, 0) * var(--yss-glass-rim))) 0%,
+			rgba(var(--yss-glass-rim-color), calc(var(--rl-r, 0) * var(--yss-glass-rim) * 0.4)) 50%,
+			rgba(255, 255, 255, 0) 100%);
+}
+
 /* 侧边目录：这里是个导航元素，按 Apple 的说法正是玻璃该用的地方，
 	而且它 sticky 在自己的栏里，背后没有东西在滚 —— backdrop-filter 几乎不花钱。 */
 .toc {
 	padding: 0.85rem 0.95rem;
-	border: 1px solid var(--yss-glass-edge);
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-glass-tint);
-	background-image: var(--yss-glass-sheen-bg);
-	backdrop-filter: blur(1px) saturate(130%);
-	-webkit-backdrop-filter: blur(1px) saturate(130%);
-	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
-		var(--yss-shadow-sm);
+	background-image: var(--yss-rim-bg);
+	backdrop-filter: blur(0.5px) saturate(145%);
+	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 
 .toc h3 {
@@ -762,18 +1036,16 @@ h4:hover > .yss-anchor,
 /* 正文里的项目列表：和表格同一档的内容层玻璃。
 	选择器只命中「最外层」的列表 —— 嵌套列表、提示框里的列表、表格里的列表都不再套一层卡片
 	（注意 :not() 里的 `*` 是后代选择器，靠它把嵌在 ul/ol 里的 ul/ol 排除掉）。
-	顶部那片柔光靠 --yss-glass-sheen-bg，高度写死 6rem，长列表不会被整片洗白。 */
+	注意：面板上不再叠任何「顶部柔光」，只在边缘勾勒（见 :root 里液态玻璃那段说明）。 */
 .context :where(ul, ol):not(:where(ul, ol, .table, .admonition) *) {
 	margin: 0 0 1.1rem;
 	padding: 0.8rem 1.1rem 0.8rem 2.2rem;
-	border: 1px solid var(--yss-glass-edge);
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-glass-tint);
-	background-image: var(--yss-glass-sheen-bg);
-	backdrop-filter: blur(1px) saturate(130%);
-	-webkit-backdrop-filter: blur(1px) saturate(130%);
-	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
-		var(--yss-shadow-sm);
+	background-image: var(--yss-rim-bg);
+	backdrop-filter: blur(0.5px) saturate(145%);
+	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 
 /* 卡片自带内边距，最后一项的下外边距会把卡片撑高 */
@@ -787,14 +1059,12 @@ h4:hover > .yss-anchor,
 .table {
 	margin: 1rem 0 1.5rem;
 	overflow-x: auto;
-	border: 1px solid var(--yss-glass-edge);
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-glass-tint);
-	background-image: var(--yss-glass-sheen-bg);
-	backdrop-filter: blur(1px) saturate(130%);
-	-webkit-backdrop-filter: blur(1px) saturate(130%);
-	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
-		var(--yss-shadow-sm);
+	background-image: var(--yss-rim-bg);
+	backdrop-filter: blur(0.5px) saturate(145%);
+	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 
 table {
@@ -939,14 +1209,12 @@ pre {
 	position: relative;
 	margin: 1.1rem 0;
 	padding: 0.9rem 1rem;
-	border: 1px solid var(--yss-glass-edge);
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-code-glass);
-	background-image: var(--yss-glass-sheen-bg);
-	backdrop-filter: blur(1px) saturate(130%);
-	-webkit-backdrop-filter: blur(1px) saturate(130%);
-	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
-		var(--yss-shadow-sm);
+	background-image: var(--yss-rim-bg);
+	backdrop-filter: blur(0.5px) saturate(145%);
+	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 	font-family: var(--yss-mono);
 	overflow-x: auto;
 	line-height: 1.6;
@@ -1050,11 +1318,10 @@ pre:hover .yss-copy,
 	border-left: 3px solid var(--yss-adm-accent, var(--yss-text-faint));
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-adm-bg, var(--yss-bg-soft));
-	background-image: var(--yss-glass-sheen-bg);
-	backdrop-filter: blur(1px) saturate(140%);
-	-webkit-backdrop-filter: blur(1px) saturate(140%);
-	box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
-		0 2px 4px rgba(16, 22, 30, 0.05), 0 16px 34px -20px rgba(16, 22, 30, 0.45);
+	background-image: var(--yss-rim-bg);
+	backdrop-filter: blur(0.5px) saturate(150%);
+	-webkit-backdrop-filter: blur(0.5px) saturate(150%);
+	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 
 .admonition p {
@@ -1199,6 +1466,16 @@ a.yss-more {
 		display: inline-flex;
 	}
 
+	/* 顶栏本来就挤，背景按钮只留图标（title / aria-label 里仍有完整说法） */
+	.yss-bgbtn {
+		gap: 0;
+		padding: 0 0.55rem;
+	}
+
+	.yss-bgbtn__label {
+		display: none;
+	}
+
 	@supports selector(:has(*)) {
 		.content.mainContent:has(> .sidebar) {
 			display: block;
@@ -1210,15 +1487,13 @@ a.yss-more {
 		max-height: none;
 		margin-bottom: 1.5rem;
 		padding: 0.75rem 0.9rem;
-		border: 1px solid var(--yss-glass-edge);
 		border-radius: var(--yss-radius);
 		/* 抽屉展开时就是一块玻璃板（只在它是打开状态时存在，开销可接受） */
 		background-color: var(--yss-glass-tint);
-		background-image: var(--yss-glass-sheen-bg);
+		background-image: var(--yss-rim-bg);
 		backdrop-filter: blur(18px) saturate(170%);
 		-webkit-backdrop-filter: blur(18px) saturate(170%);
-		box-shadow: inset 0 1px 0 var(--yss-glass-line), inset 0 -1px 0 var(--yss-glass-shade),
-			var(--yss-shadow-sm);
+		box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 		display: none;
 	}
 
@@ -1289,6 +1564,15 @@ a.yss-more {
 	.context :where(ul, ol):not(:where(ul, ol, .table, .admonition) *) {
 		backdrop-filter: none;
 		-webkit-backdrop-filter: none;
+	}
+
+	/* 不要模糊时，10% 的底太透：背后的点阵会直接和正文文字叠在一起，看着发脏。
+		换同色但更实的底，保持“半透”但不至于和正文打架。 */
+	.table,
+	pre,
+	.admonition,
+	.context :where(ul, ol):not(:where(ul, ol, .table, .admonition) *) {
+		background-color: var(--yss-glass-tint-solid);
 	}
 
 	/* 顶栏没有毛玻璃兜底，底色必须更实：
@@ -1456,12 +1740,14 @@ a.yss-more {
 	letter-spacing: 0.01em;
 }
 
-/* 关于「高光」的做法（重要，别改回描边环）：
-	iOS 的玻璃高光集中在上沿，而且带衰减 —— 因为它模拟的是从上方来的光。
-	一圈均匀的亮描边不会有这个效果，只会看起来像给卡片加了个描边框。
-	所以这里用四层：上沿 1px 镜面线 + 顶部一片向下衰减的柔光（--yss-glass-sheen-bg）
-	+ 下沿一丝暗边（厚度）+ 外描边（--yss-glass-edge）+ 一层柔和的投形。
-	这套能用 inset box-shadow 完整表达，所以玻璃面不再需要任何 ::before 伪元素。 */
+/* 关于「高光」的做法（重要，别改回描边环或顶部大光斑）：
+	对应 LiquidGlassEffect 的 GlobalRim：沿边界求外法线，亮度取「法线·光方向」的平方决定明暗，
+	只在边缘勾勒、厚度 1px，不做任何大面积渐变。
+	一圈均匀的亮描边会像描边框；而「顶部一片柔光 + 下沿一条暗边」就是 Win7 Aero 的塑料感
+	（用户明确否掉）。现在用四层表达：上沿/左沿的迎光 1px 线 + 下沿/右沿的背光 1px 线
+	+ 外描边（--yss-glass-edge）+ 一层柔和投影，全部能用 inset box-shadow 写完，
+	所以玻璃面不需要任何 ::before 伪元素。
+	鼠标靠近时的那段边缘光另算（见 --yss-rim-bg，对应他们的 RimLight）。 */
 
 /* 顶栏下沿的阅读进度条（末端带一点辉光，像灯管） */
 .yss-progress {
@@ -1643,6 +1929,8 @@ table tr {
 	h3.fn,
 	.yss-copy,
 	.yss-iconbtn,
+	.yss-bgbtn,
+	.yss-roundbtn,
 	table tr,
 	html.yss-motion .context .is-in {
 		transition: none !important;
@@ -1674,7 +1962,9 @@ table tr {
 
 	/* 打印不要带装饰背景 */
 	body::before,
-	.yss-dots {
+	.yss-dots,
+	.yss-userbg,
+	.yss-bgset {
 		display: none;
 	}
 

@@ -3,8 +3,11 @@
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qtablewidget.h>
+#include <QtCore/qpointer.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServer.h>
+#include <Editor/TextEdit.h>
+#include "Editor/MainEditor/DocumentMessageTracer.h"
 namespace YSS::Editor {
 	class MessageViewerVFS :public YSSCore::Editor::FileServer {
 		Q_OBJECT;
@@ -18,14 +21,21 @@ namespace YSS::Editor {
 	private:
 		QVBoxLayout* Layout;
 		QTableWidget* MessageTable;
-		QString CurrentFilePath;
+		QPointer<YSSCore::Editor::TextEdit> CurrentEdit;
+	private:
+		quintptr rowTracer(int row) const;
+		void setRowTracer(int row, DocumentMessageTracer* tracer);
+		void removeRowsForTracer(DocumentMessageTracer* tracer);
+		void insertMessagesForLine(qint32 lineNumber);
+		void syncMessageRows();
 	public:
 		MessageViewer(QWidget* parent = nullptr);
-		void changeCurrentFile(const QString& filePath);
+		void changeCurrentFile(YSSCore::Editor::TextEdit* edit);
 	public slots:
 		void onCellClicked(int row, int column);
-		void onMessageChanged(const QString& filePath);
-		void onMessageChangedForLine(const QString& filePath, qint32 lineNumber);
+		void onMessageChangedForLine(qint32 lineNumber);
+		void onTracerLineChanged(DocumentMessageTracer* tracer, qint32 oldLine, qint32 newLine);
+		void onTracerDestroyed(DocumentMessageTracer* tracer);
 	public:
 		virtual bool onVirtualOpen(const QString& ext, const QString& fileName, const QString& param);
 	};

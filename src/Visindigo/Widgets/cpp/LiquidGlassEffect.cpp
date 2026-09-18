@@ -127,7 +127,7 @@ namespace Visindigo::Widgets {
 		static QImage splatBoundaryGlow(const QSize& size, const QVector<QPoint>& points, const QVector<qreal>& weights, int thickness, const QColor& color, QRect* dirtyRect = nullptr);
 		static QImage buildGlobalRimSide(const QSize& size, int borderRadius, const QPointF& lightDirection, int thickness, qreal polarity, const QColor& color, QRect* dirtyRect = nullptr);
 		static QImage rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color, QRect* dirtyRect = nullptr);
-		static void modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten, qreal strength = 1.0);
+		static void modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten, qreal strength = 1.0, bool additive = false);
 		static void buildGaussKernel(int radius, QVector<int>& kernel);
 		static void blurAccumulate(const quint32* sourceRow, int x, int width, int halfRadius, const int* kernel, int* sums);
 		static void blurAccumulateInner(const quint32* sourceRow, int x, int halfRadius, const int* kernel, int* sums);
@@ -170,9 +170,8 @@ namespace Visindigo::Widgets {
 		\list
 		\li 1. LiquidGlassEffect::BackgroundPolicy::Render：把控件所在的父控件渲染一遍来取被模糊源。这种方法在大多数情况下效果不错，但在某些特定情况下可能会丢失下层窗口的内容。
 		尤其在下层窗口本身就含有透明要素时，这种方法可能会导致模糊效果不正确。
-		此外，Qt渲染子控件时用的是它们未经QGraphicsEffect处理的原始内容，
-		因此，如过压在玻璃下面的其他控件如果自身也带QGraphicsEffect，则它们的Effect后处理结果不会出现在采样里，
-		只会以未经效果的原始样子被采进来。因此不可能实现玻璃套玻璃。
+		压在玻璃下面的玻璃是能透出来的（模糊、色散都能叠上去），但那只在下层用的是BackgroundPolicy::CustomImage时成立；
+		下层若也用BackgroundPolicy::Render，上层看到的只是它未经效果的原始样子——看得见字和图形，看不见它的模糊。
 		\li 2. LiquidGlassEffect::BackgroundPolicy::CustomImage：允许用户直接设置一个自定义的图像作为被模糊源。这种方法可以确保模糊效果的正确性，但需要用户自己提供一个合适的图像。
 		一般来说，如果用户的窗体含有透明要素并存在多级层叠，这是唯一可能可以正确显示模糊效果的方法。
 		\endlist
@@ -188,16 +187,15 @@ namespace Visindigo::Widgets {
 
 		\section1 效果类型
 		默认情况下，LiquidGlassEffect会同时应用色散扭曲、模糊、边缘光和全局打光四种效果，但用户也可以通过setEffectTypes()方法选择只应用其中一部分效果。这提供了更多的定制选项，允许用户根据自己的需求调整效果的外观。
-		当扭曲和模糊同时应用时，扭曲效果会先应用于被模糊源的图像，然后模糊效果会应用于已经被扭曲的图像。这种顺序可以确保模糊效果能够正确地模仿液态玻璃的外观。
+		扭曲总是先于模糊应用。
 		边缘光比较特殊，它不是一直存在的效果，只在鼠标靠近控件时才会出现；而全局打光是一直存在的，它的光来自一个固定的方向，不需要鼠标参与。
 
 		\section1 扭曲与色散
-		扭曲模仿的是玻璃边缘对光的折射：函数在图像的边缘区域做基于正弦的坐标偏移，图像中心保持不变，
-		半径越大，边缘区域的宽度越大，扭曲越明显。扭曲有两种：
+		扭曲模仿的是玻璃边缘对光的折射：只有边缘区域会被扭曲，图像中心保持不变；半径越大，被扭曲的边缘越宽、越明显。扭曲有两种：
 		\list
 		\li EffectType::NormalDistort：三个颜色通道用同一套映射，就是普通的扭曲效果。
-		\li EffectType::DispersionDistort：给三个通道不同的映射距离（绿光不动，红光偏折得少一点、蓝光多一点），也是默认的扭曲。
-		于是边缘会出现彩色镶边，模仿真实玻璃的色散。它需要为每个像素多采样两个通道，因此性能会略差，对于不追求极致效果的场景可以改用普通扭曲
+		\li EffectType::DispersionDistort：三个通道的偏折程度略有不同（绿光不动，红光偏折得少一点、蓝光多一点），
+		于是边缘会出现彩色镶边，模仿真实玻璃的色散；它比普通扭曲略贵一点，不追求这个效果时用普通扭曲即可
 		\endlist
 		色散强度通过setLiquidDistortDispersion()调整，取值 0 到 0.5，为 0 时退化成普通扭曲。
 
@@ -207,8 +205,9 @@ namespace Visindigo::Widgets {
 		鼠标沿着边界移动时，边缘光会跟着在边界上滑动，看上去就像是控件边缘在反射鼠标位置的光。
 
 		边缘光的颜色、厚度、沿边界延伸的距离以及激活距离分别通过setRimLightColor()、setRimLightThickness()、setRimLightRange()和setRimLightActivationDistance()调整。
-		其中激活距离决定了鼠标离控件边界多远时边缘光开始出现，超过这个距离时边缘光完全消失，控件也不会因此而被重绘。
-		与全局打光的操作一样，边缘光也是按乘法调制把画面提亮（而不是叠一层白），所以不会把玻璃的颜色洗淡。
+		其中激活距离决定了鼠标离控件边界多远时边缘光开始出现，超过这个距离时边缘光完全消失。
+		边缘光是叠加提亮的，不像全局打光那样与画面相乘，因此它不会被阴影压暗，背光侧的边缘光同样清晰；
+		代价是边缘一带会带出一点偏白的亮部。
 
 		\section1 全局打光
 		全局打光模仿的是真实世界里的光源：控件不再是均匀发亮的，而是有一个固定的来光方向，
@@ -222,30 +221,17 @@ namespace Visindigo::Widgets {
 		阴影的颜色和厚度分别通过setGlobalRimShadowColor()和setGlobalRimShadowThickness()设置。
 		两者的默认强度刻意压得比较淡（亮面alpha值90、阴影alpha值60）：全局光只是一个效果元素，
 		做满了会盖过玻璃本身的颜色，喧宾夺主。
-		阴影与亮面一样是按乘法调制压暗画面的（见上一节），所以它是“吸掉一部分光”而不是直接盖一层黑：
-		纯黑阴影按比例压暗三个通道，彩色阴影只会吸掉它的补色。
+		阴影是“吸掉一部分光”而不是盖一层黑：纯黑阴影把画面整体压暗，彩色阴影则只吸掉它的补色。
 
 		\section1 性能考虑
-		由于模糊和扭曲效果都可能比较耗费性能，尤其是在较大的半径设置下，因此建议用户在使用这个类时注意性能问题。特别是在需要频繁更新效果的情况下，过大的半径设置可能会导致界面卡顿。
+		模糊是这类效果里最贵的操作，半径越大越明显，建议不要设置过大的模糊半径，尤其是在较大的控件上。
+		扭曲比模糊便宜得多，色散会让扭曲略微变慢，但仍然远低于模糊；全局打光只处理边界附近，开销可以忽略。
 
-		从实现代码的角度来看，模糊的性能永远且一定差于扭曲，因此用户在设置模糊半径时应该谨慎考虑是否应该使用过大的模糊半径，以避免性能问题。
+		边缘光本身开销很小，但它会跟着鼠标持续重绘；实现内部为此做了缓存，鼠标移动时的开销只与边缘光的范围有关、与控件面积无关，
+		代价是每个实例会多占几张同尺寸图像的内存。
 
-		边缘光本身的开销很小（它只处理边界附近的像素，且只需要处理离鼠标较近的那一段边界），
-		但它在鼠标移动时会被持续重绘。为此实现在内部缓存了“扭曲+全局光之后”的图像及其模糊结果：
-		鼠标移动时只有边缘光那一小块会被重新模糊（分块卷积的结果与整张卷积逐像素相同，不会留下接缝），
-		因此每帧的开销只与边缘光的范围有关，与控件面积无关。
-		代价是每个实例会多占三张同尺寸图像的内存（扭曲结果、模糊结果、分块卷积的临时缓冲）。
-
-		BackgroundPolicy::Render的被模糊源是现渲染出来的，本来随时可能变，但它同样能利用上面这个缓存。
-		启用这种策略时，这个类会监听采样矩形内所有控件的重绘，有人重绘就把缓存作废，没人重绘就一直用缓存。
-		于是鼠标在玻璃上移动时，“取一次被模糊源”和“整张模糊”这两件最贵的事都不会发生。
-		反过来说，采样矩形内的控件如果一直在动（比如里面有个循环动画），缓存就会一直失效，此时开销和没有缓存时一样。
-		因此总的来说，虽然已经使用各种缓存机制，但Render策略还是相对只适合内容静止的场景；
-		像拖动这种内容一直在变的场景，用BackgroundPolicy::CustomImage便宜得多（只做一次图像裁剪）。
-
-		全局打光的图像会被缓存，只在控件尺寸、圆角或打光参数变化时重算，因此它不会带来持续的开销。
-
-		此类的模糊采用的是X-Y分解和整形计算的高斯模糊，虽然性能相较于直接卷积的高斯模糊有了很大的提升，但仍然是相当重的操作。
+		总的来说，BackgroundPolicy::Render适合内容相对静止的场景；像拖动这种内容一直在变的场景，
+		用BackgroundPolicy::CustomImage便宜得多。
 	*/
 
 	/*!
@@ -346,7 +332,7 @@ namespace Visindigo::Widgets {
 		\a dispersion 色散强度，取值会被夹到 0 到 0.5 之间，默认0.2。
 		色散就是让红绿蓝三个通道的映射距离略有不同（绿光不动，红光偏折得少一点、蓝光多一点），
 		于是边缘会出现彩色镶边，看起来就像真实玻璃把光拆开了；0表示三个通道完全一致（等同于NormalDistort），越大彩色镶边越明显。
-		色散需要为每个像素多采样两个通道，因此会略微增加扭曲的开销。
+		色散会让扭曲略微变慢。
 	*/
 	void LiquidGlassEffect::setLiquidDistortDispersion(qreal dispersion) {
 		d->liquidDistortDispersion = std::clamp(dispersion, 0.0, 0.5);
@@ -554,10 +540,9 @@ namespace Visindigo::Widgets {
 
 		\a dispersion 色散强度，取值 0 到 0.5，默认0（不做色散）。
 		色散通过给红绿蓝三个通道不同的映射距离实现：绿光不动，红光偏折得少一点、蓝光多一点，于是边缘会出现彩色镶边。
-		它需要为每个像素多采样两个通道，因此会让扭曲的开销明显上升（仍然远低于模糊）；为0时三通道共用同一套映射，开销与普通扭曲一致。
+		它会让扭曲略微变慢，但仍然远低于模糊；为0时与普通扭曲一样。
 
-		由于液态玻璃通常需要模糊效果，本质上算是一种平滑处理，因此考虑到综合性能，
-		这个扭曲实现在采样的时候没有单独进行插值计算，因此单独使用时可能会出现锯齿状的边缘。
+		单独使用（不配套模糊）时，边缘可能出现锯齿。
 	*/
 	QImage LiquidGlassEffect::distortImage(const QImage& coverdArea, int liquidDistortRadius, qreal dispersion) {
 		if (coverdArea.isNull()) {
@@ -698,6 +683,10 @@ namespace Visindigo::Widgets {
 		for (int x = -height; x < width; x += 48) {
 			painter.drawLine(x, height, x + height, 0);
 		}
+		// 另一个方向，两组交叉成网格
+		for (int x = -height; x < width; x += 48) {
+			painter.drawLine(x, 0, x + height, height);
+		}
 		painter.end();
 		return background;
 	}
@@ -723,7 +712,7 @@ namespace Visindigo::Widgets {
 		QImage result = image.convertToFormat(QImage::Format_ARGB32);
 		QRect glowRect;
 		const QImage glow = LiquidGlassEffectPrivate::rimLightGlow(result.size(), borderRadius, mousePosition, thickness, range, color, &glowRect);
-		LiquidGlassEffectPrivate::modulateByLightMap(result, glow, glowRect, true, intensity);
+		LiquidGlassEffectPrivate::modulateByLightMap(result, glow, glowRect, true, intensity, true);
 		if (changedRect) {
 			*changedRect = glowRect;
 		}
@@ -1223,8 +1212,13 @@ namespace Visindigo::Widgets {
 		亮面把现有颜色按比例提亮（dst *= 1 + 光色 * 强度），阴影按比例压暗（dst *= 1 - 补色 * 强度，纯黑阴影即 dst *= 1 - 强度）。
 		因为只是在原有颜色上做缩放，色相不会像直接叠白/叠黑那样被冲淡，阴影也等价于“吸掉一部分光”而不是糊一层灰。
 		计算用 256 倍定点，避免逐像素浮点。
+
+		additive 为 true 时改用叠加提亮（dst += 光色 * 强度），给鼠标边缘光用：
+		边缘光落在哪里是由鼠标决定的，可能正落在全局打光的阴影那一侧，而乘法提亮会被那片已经压暗的画面一起压掉，
+		看上去就像边缘光被阴影挡住了；叠加提亮与底色无关，加多少就亮多少。代价是边缘一带会偏白一点，
+		不再像乘法那样保留原有色相，所以只用在边缘光这种面积很小的局部高光上。
 	*/
-	void LiquidGlassEffectPrivate::modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten, qreal strength) {
+	void LiquidGlassEffectPrivate::modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten, qreal strength, bool additive) {
 		const QRect rect = area.intersected(QRect(QPoint(0, 0), target.size()));
 		if (rect.isEmpty() || lightMap.isNull() || lightMap.size() != target.size() || strength <= 0.0) {
 			return;
@@ -1246,6 +1240,19 @@ namespace Visindigo::Widgets {
 				const int lightG = int(mapPixel >> 8) & 0xFF;
 				const int lightB = int(mapPixel) & 0xFF;
 				const int denominator = 255 * 255;
+				const quint32 pixel = targetLine[x];
+				if (additive) {
+					// 叠加提亮：加多少就亮多少，与目标像素原本多暗无关。
+					// 分母是 255*256：alpha 归一到 0~1 后乘颜色分量，scale 把强度也折成定点
+					const int amountR = (lightR * alpha * scale) / (255 * 256);
+					const int amountG = (lightG * alpha * scale) / (255 * 256);
+					const int amountB = (lightB * alpha * scale) / (255 * 256);
+					const int r = std::clamp(int((pixel >> 16) & 0xFF) + amountR, 0, 255);
+					const int g = std::clamp(int((pixel >> 8) & 0xFF) + amountG, 0, 255);
+					const int b = std::clamp(int(pixel & 0xFF) + amountB, 0, 255);
+					targetLine[x] = (pixel & 0xFF000000) | (quint32(r) << 16) | (quint32(g) << 8) | quint32(b);
+					continue;
+				}
 				int factorR = 0;
 				int factorG = 0;
 				int factorB = 0;
@@ -1259,7 +1266,6 @@ namespace Visindigo::Widgets {
 					factorG = -((255 - lightG) * alpha * scale) / denominator;
 					factorB = -((255 - lightB) * alpha * scale) / denominator;
 				}
-				const quint32 pixel = targetLine[x];
 				const int r = std::clamp(((int(pixel >> 16) & 0xFF) * (256 + factorR)) >> 8, 0, 255);
 				const int g = std::clamp(((int(pixel >> 8) & 0xFF) * (256 + factorG)) >> 8, 0, 255);
 				const int b = std::clamp(((int(pixel) & 0xFF) * (256 + factorB)) >> 8, 0, 255);
@@ -1585,15 +1591,19 @@ namespace Visindigo::Widgets {
 
 	/*
 		Render策略下取被模糊源：把玻璃所在的那个父控件渲染一遍，同时要把玻璃自己摘出去。
-		Qt 在渲染子控件时用的是它们**未经QGraphicsEffect处理的原始内容**（这条路径不会进本效果的draw()），
-		所以不摘的话，“玻璃没有应用效果时的样子”会被一并采进被模糊源里，等于玻璃把自己叠了一层。
-		实测确认过：采样缓冲里出现的就是玻璃自己子控件的颜色。
+		Qt 渲染子控件时会照常应用它们的QGraphicsEffect（也就是会再进本效果的draw()），
+		所以不摘的话，“玻璃自己应用效果之后的样子”会被一并采进被模糊源里，等于玻璃把自己叠了一层。
+		摘自己顺带也避免了“在渲染父控件的中途又去渲染父控件”这种自反递归。
 
 		摘的办法是把玻璃自己的Qt::WA_WState_Hidden临时置上：Qt渲染子控件时看的正是这个属性（isHidden()），
 		它会连同子控件一起跳过，而且只改标志位、不请求重绘。这里**不能**用hide()或setUpdatesEnabled()：
 		那两者都会顺手请求重绘，于是“重绘→采样→再请求重绘”会变成自持的循环（实测能把一个CPU核心跑满）。
 
-		压在玻璃下面的兄弟控件和父控件自己的背景都照常被渲染，层次也和直接渲染父控件时一致。
+		压在玻璃下面的兄弟控件和父控件自己的背景都照常被渲染，层次也和直接渲染父控件时一致；
+		其中带QGraphicsEffect的兄弟控件是能透出来的（模糊、色散都能叠），因为Qt会照常应用它的效果。
+		但它得能自己完成绘制：CustomImage策略的玻璃不需要再渲染父控件，所以能正常参与合成；
+		Render策略的玻璃在被上层采样、而它自己也正好需要重新采样时，会一头撞进“渲染父控件的中途再渲染父控件”，
+		那次采样拿不到东西，采样里就只剩它未经效果的原始内容（看得见字和图形，看不见它自己的模糊）。
 
 		摘出去和恢复都由SamplingScope负责（采样会嵌套，掩细节见SamplingScope的说明）。
 	*/

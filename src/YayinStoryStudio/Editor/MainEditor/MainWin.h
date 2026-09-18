@@ -38,6 +38,8 @@ namespace YSS::Editor {
 		YSSCore::Editor::FileEditWidget* FocusingFileEditWidget = nullptr;
 		YSSCore::Editor::FileEditWidget* FocusingFileEditWidgetNotTool = nullptr;
 		static MainWin* Instance;
+	private:
+		void applyFocusedFileEditWidget(YSSCore::Editor::FileEditWidget* widget);
 	signals:
 		void currentFileEditWidgetAreaChanged(FileEditWidgetArea* area);
 		void currentFileEditWidgetChanged(YSSCore::Editor::FileEditWidget* widget);

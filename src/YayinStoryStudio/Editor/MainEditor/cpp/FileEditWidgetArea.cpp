@@ -289,7 +289,9 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget) {
-		setCurrentWidget(widget->getFilePath());
+		if (widget) {
+			setCurrentWidget(widget->getFilePath());
+		}
 	}
 
 	void FileEditWidgetArea::setCurrentWidget(const QString& filePath) {
@@ -302,10 +304,13 @@ namespace YSS::Editor {
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(1, d->ContentArea);
 			d->ContentArea->show();
+			emit currentFileChanged(QString());
+			return;
 		}
 		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
 		vgDebug << "setCurrentWidget: " << filePath << " widget: " << widget;
 		if (not widget) {
+			vgErrorF << "File path not found in FileServerManager: " << filePath;
 			return;
 		}
 		if (d->ContentArea != widget) {

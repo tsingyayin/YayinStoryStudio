@@ -80,7 +80,13 @@
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\DocumentMessageTracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\MessageCenter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\MessageViewer.cpp">
@@ -118,6 +124,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="Editor\MainEditor\DocumentMessageTracer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="Editor\MainEditor\MainWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -173,6 +182,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\MessageViewer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\MessageCenter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\BottomInfoWidget.h">

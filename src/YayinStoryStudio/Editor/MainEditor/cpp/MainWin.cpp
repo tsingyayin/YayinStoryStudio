@@ -3,7 +3,6 @@
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qsplitter.h>
-#include <Editor/DocumentMessageManager.h>
 #include <Editor/EditorPlugin.h>
 #include <Editor/FileServer.h>
 #include <Editor/FileServerManager.h>
@@ -27,6 +26,7 @@
 #include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/MainWinMenu.h"
+#include "Editor/MainEditor/MessageCenter.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/SimpleFileDialog.h"
@@ -69,6 +69,9 @@ namespace YSS::Editor {
 		BottomFrame->setFixedHeight(30);
 		BottomFrame->setGitInfoEnable(false);
 		MainLayout->addWidget(BottomFrame);
+		connect(MessageCenter::getInstance(), &MessageCenter::messageCountChanged, this, [this]() {
+			BottomFrame->displayFileMessageCount(MessageCenter::getInstance()->getMessageCount());
+			});
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 
 		initTreeLayout();
@@ -149,15 +152,6 @@ namespace YSS::Editor {
 			box.exec();
 			});
 
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), &YSSCore::Editor::DocumentMessageManager::messageChanged, 
-			this, [this](const QString& filePath) {
-				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
-			});
-
-		connect(YSSCore::Editor::DocumentMessageManager::getInstance(), &YSSCore::Editor::DocumentMessageManager::messageChangedForLine,
-			this, [this](const QString& filePath, qint32 lineNumber) {
-				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
-			});
 
 		for (Visindigo::General::Plugin* plugin : VIPLM->getEnabledPlugins()) {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
@@ -192,7 +186,11 @@ namespace YSS::Editor {
 		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(
 			YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(focusedFile));
 		if (focusedArea) {
+			lastFocusedFileEditArea = focusedArea;
 			focusedArea->setCurrentWidget(focusedFile);
+			if (auto focusedWidget = YSSFSM->getFileEditWidget(focusedFile)) {
+				applyFocusedFileEditWidget(focusedWidget);
+			}
 		}
 		saveProject();
 	}
@@ -216,6 +214,7 @@ namespace YSS::Editor {
 		for (auto area : FileEditWidgetArea::getAllAreas()) {
 			if (area->containsWidget(filePath)) {
 				area->addWidget(widget);
+				applyFocusedFileEditWidget(widget);
 				return;
 			}
 		}
@@ -237,7 +236,7 @@ namespace YSS::Editor {
 						targetArea = area;
 					}
 				}
-				else {
+				else if (FocusingFileEditWidget) {
 					auto areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(FocusingFileEditWidget->getFilePath());
 					auto area = FileEditWidgetArea::getAreaByID(areaID);
 					if (area) {
@@ -246,11 +245,13 @@ namespace YSS::Editor {
 				}
 			}
 			targetArea->addWidget(widget);
+			applyFocusedFileEditWidget(widget);
 		}
 		else {
 			auto area = FileEditWidgetArea::getAreaByID(areaID);
 			if (area) {
 				area->addWidget(widget);
+				applyFocusedFileEditWidget(widget);
 			}
 		}
 	}
@@ -429,38 +430,12 @@ namespace YSS::Editor {
 			lastFocusedFileEditArea = area;
 		}
 		connect(area, &FileEditWidgetArea::areaFocusd, this, &MainWin::onFileEditWidgetAreaFocusIn);
-		connect(area, &FileEditWidgetArea::currentFileChanged, this, [this, area](const QString& filePath) {
-			auto currentEditWidget = area->getCurrentWidget();
-			if (not currentEditWidget) {
-				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(""));
-				FocusingFileEditWidget = nullptr;
-				FocusingFileEditWidgetNotTool = nullptr;
-				BottomFrame->setEditorInfoEnable(false);
-				emit currentFileEditWidgetChanged(nullptr);
-				emit currentFileEditWidgetChangedNotTool(nullptr);
+		connect(area, &FileEditWidgetArea::currentFileChanged, this, [this, area](const QString&) {
+			// 后台区域换文件不算“当前文件”变了，只有当前聚焦的那个区域才跟。
+			if (area != lastFocusedFileEditArea) {
 				return;
 			}
-			bool isToolWidget = YSSFSM->getFileEditWidgetSourceServer(currentEditWidget)->isListAsTool();
-			if (not isToolWidget) {
-				BottomFrame->displayFileMessageCount(YSSCore::Editor::DocumentMessageManager::getInstance()->getMessageCount(filePath));
-				FocusingFileEditWidgetNotTool = currentEditWidget;
-				auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
-				if (textEdit) {
-					BottomFrame->displayEditorInfo(textEdit->getTextCursor());
-					BottomFrame->setEditorInfoEnable(true);
-				}
-				else {
-					BottomFrame->setEditorInfoEnable(false);
-				}
-				emit currentFileEditWidgetChangedNotTool(currentEditWidget);
-			}
-			FocusingFileEditWidget = currentEditWidget;
-			emit currentFileEditWidgetChanged(currentEditWidget);
-			if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
-				if (auto browser = ResourceBrowser::getInstance()) {
-					browser->setCurrentSelected(QFileInfo(filePath));
-				}
-			}
+			applyFocusedFileEditWidget(area->getCurrentWidget());
 			});
 		connect(area, &FileEditWidgetArea::textEditCursorPositionChanged, this, [this](const QString& filePath, const QTextCursor& cursor) {
 			BottomFrame->displayEditorInfo(cursor);
@@ -479,6 +454,40 @@ namespace YSS::Editor {
 			});
 	}
 
+	void MainWin::applyFocusedFileEditWidget(YSSCore::Editor::FileEditWidget* widget) {
+		if (widget == FocusingFileEditWidget) {
+			return;
+		}
+		FocusingFileEditWidget = widget;
+		emit currentFileEditWidgetChanged(widget);
+		if (widget == nullptr) {
+			FocusingFileEditWidgetNotTool = nullptr;
+			BottomFrame->setEditorInfoEnable(false);
+			emit currentFileEditWidgetChangedNotTool(nullptr);
+			return;
+		}
+		// 当前文件要在资源浏览器里跟着选中（虚拟文件不在资源浏览器里，跳过）。
+		const QString filePath = widget->getFilePath();
+		if (not filePath.isEmpty() and not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
+			if (auto browser = ResourceBrowser::getInstance()) {
+				browser->setCurrentSelected(QFileInfo(filePath));
+			}
+		}
+		if (YSSFSM->getFileEditWidgetSourceServer(widget)->isListAsTool()) {
+			return;
+		}
+		FocusingFileEditWidgetNotTool = widget;
+		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
+		if (textEdit) {
+			BottomFrame->displayEditorInfo(textEdit->getTextCursor());
+			BottomFrame->setEditorInfoEnable(true);
+		}
+		else {
+			BottomFrame->setEditorInfoEnable(false);
+		}
+		emit currentFileEditWidgetChangedNotTool(widget);
+	}
+
 	void MainWin::onFileEditWidgetAreaFocusIn(const QString& areaID) {
 		if (not areaID.isEmpty()) {
 			vgDebug << "FileEditWidgetArea focus in:" << areaID;
@@ -486,32 +495,12 @@ namespace YSS::Editor {
 			if (area) {
 				lastFocusedFileEditArea = area;
 			}
+			else {
+				lastFocusedFileEditArea = nullptr;
+			}
 		}
-		if (lastFocusedFileEditArea){
-			auto currentEditWidget = lastFocusedFileEditArea->getCurrentWidget();
-			if (currentEditWidget && currentEditWidget != FocusingFileEditWidget) {
-				FocusingFileEditWidget = currentEditWidget;
-				emit currentFileEditWidgetChanged(currentEditWidget);
-				bool isToolWidget = YSSFSM->getFileEditWidgetSourceServer(currentEditWidget)->isListAsTool();
-				if (not isToolWidget) {
-					FocusingFileEditWidgetNotTool = currentEditWidget;
-					auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
-					if (textEdit) {
-						BottomFrame->setEditorInfoEnable(true);
-						BottomFrame->displayEditorInfo(textEdit->getTextCursor());
-					}
-					else {
-						BottomFrame->setEditorInfoEnable(false);
-					}
-					emit currentFileEditWidgetChangedNotTool(currentEditWidget);
-				}
-			}
-			else if (not currentEditWidget) {
-				FocusingFileEditWidget = nullptr;
-				FocusingFileEditWidgetNotTool = nullptr;
-				emit currentFileEditWidgetChanged(nullptr);
-				emit currentFileEditWidgetChangedNotTool(nullptr);
-			}
+		if (lastFocusedFileEditArea) {
+			applyFocusedFileEditWidget(lastFocusedFileEditArea->getCurrentWidget());
 		}
 		emit currentFileEditWidgetAreaChanged(lastFocusedFileEditArea);
 	}

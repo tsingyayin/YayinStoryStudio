@@ -119,10 +119,12 @@
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings_p.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\DocumentMessageTracer.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainEditorBuiltinPlugin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\MessageCenter.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MessageViewer.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MultiTerminal.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\PreferenceEditWidget.cpp" />
@@ -145,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h" />
+    <QtMoc Include="Editor\MainEditor\DocumentMessageTracer.h" />
     <QtMoc Include="Editor\MainEditor\MainWin.h" />
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />
     <QtMoc Include="Editor\TitlePage\TitlePage.h" />
@@ -165,6 +168,7 @@
     <QtMoc Include="Editor\MainEditor\DebugServerRouter.h" />
     <QtMoc Include="Editor\MainEditor\MainEditorBuiltinPlugin.h" />
     <QtMoc Include="Editor\MainEditor\MessageViewer.h" />
+    <QtMoc Include="Editor\MainEditor\MessageCenter.h" />
     <QtMoc Include="Editor\MainEditor\BottomInfoWidget.h" />
     <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h" />
     <QtMoc Include="Editor\MainEditor\MultiTerminal.h" />

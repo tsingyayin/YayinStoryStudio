@@ -9,6 +9,9 @@
 #include <QtGui/qtextobject.h>
 
 class QTextDocument;
+namespace YSSCore::Editor {
+	class TextEdit;
+}
 namespace ASERStudio::AStorySyntax {
 	class AStoryXDocumentPrivate;
 	class ASERAPI AStoryXDocument :public QObject {
@@ -21,7 +24,7 @@ namespace ASERStudio::AStorySyntax {
 			Manual,
 		};
 	public:
-		AStoryXDocument();
+		AStoryXDocument(YSSCore::Editor::TextEdit* edit = nullptr);
 		~AStoryXDocument();
 		QStringList getLines() const;
 		QList<AStoryXDiagnosticData> getDiagnostics(qint32 lineNumber) const;

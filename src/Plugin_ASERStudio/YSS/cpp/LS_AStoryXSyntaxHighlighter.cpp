@@ -31,7 +31,7 @@ namespace ASERStudio::YSS {
 	LS_AStoryXSyntaxHighlighter::LS_AStoryXSyntaxHighlighter(YSSCore::Editor::TextEdit* parent) : SyntaxHighlighter(parent) {
 		d = new LS_AStoryXSyntaxHighlighterPrivate();
 		d->FilePath = parent->getFilePath();
-		ASERStudio::AStorySyntax::AStoryXDocument* doc = new ASERStudio::AStorySyntax::AStoryXDocument();
+		ASERStudio::AStorySyntax::AStoryXDocument* doc = new ASERStudio::AStorySyntax::AStoryXDocument(parent);
 		doc->setEnableDiagnostic(true);
 		AStoryXLanguageServer::setAStoryXDocument(parent->getFilePath(), doc);
 		d->Document = AStoryXLanguageServer::getAStoryXDocument(d->FilePath);

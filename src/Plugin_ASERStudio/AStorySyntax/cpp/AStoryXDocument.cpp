@@ -1,9 +1,12 @@
+#include <QtCore/qmap.h>
 #include <QtCore/qtimer.h>
 #include <QtGui/qtextdocument.h>
+#include <Editor/TextEdit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include "AStorySyntax/AStoryXControllerParseData.h"
 #include "AStorySyntax/AStoryXDocument.h"
+#include "AStorySyntax/AStoryXLineData.h"
 #include "AStorySyntax/private/AStoryXControllerParseData_p.h"
 
 namespace ASERStudio::AStorySyntax {
@@ -12,15 +15,69 @@ namespace ASERStudio::AStorySyntax {
 	protected:
 		AStoryXDocument* q;
 		QString FilePath;
+		YSSCore::Editor::TextEdit* HostEdit = nullptr;
 		QStringList Lines; // only used in manual mode.
 		QList<qint32> LineUserStates;  // only used in manual mode.
 		AStoryXDocument::WorkMode Mode = AStoryXDocument::WorkMode::SyntaxHighlighter;
 		AStoryXRule CurrentRule;
 		bool EnableDiagnostic = false;
-		QList<AStoryXControllerParseData> ParseDataCache;
+		QList<AStoryXControllerParseData> ParseDataCache;   // only used in manual mode.
 		QList<AStoryXDiagnosticData> GlobalDiagnostics;
 		AStoryXDiagnosticData RuleNotSelectedDiagnostic;
+
+		// 语法高亮模式下，每一行的解析数据是挂在对应文本块上的一个 AStoryXLineData，
+		// 行被增删时不需要任何人搬运它，因此下面的取用都要求 HostEdit 有效。
+		AStoryXLineData* findLineData(qint32 lineNumber) const {
+			if (HostEdit == nullptr || lineNumber < 0) {
+				return nullptr;
+			}
+			return HostEdit->getBlockData<AStoryXLineData>(lineNumber);
+		}
+
+		AStoryXLineData* ensureLineData(qint32 lineNumber) {
+			AStoryXLineData* lineData = findLineData(lineNumber);
+			if (lineData != nullptr || HostEdit == nullptr || lineNumber < 0) {
+				return lineData;
+			}
+			lineData = new AStoryXLineData();
+			HostEdit->setBlockData<AStoryXLineData>(lineNumber, lineData);
+			return lineData;
+		}
+
+		void clearLineData() {
+			if (HostEdit != nullptr) {
+				HostEdit->removeAllBlockData<AStoryXLineData>();
+			}
+		}
+
+		// 取得该行可写的解析数据。语法高亮模式下数据挂在文本块上，手动模式下存在本类的列表里。
+		AStoryXControllerParseData& mutableParseData(qint32 lineNumber) {
+			if (Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
+				AStoryXLineData* lineData = ensureLineData(lineNumber);
+				if (lineData != nullptr) {
+					return lineData->ParseData;
+				}
+			}
+			else {
+				if (lineNumber >= ParseDataCache.size()) {
+					for (qint32 i = ParseDataCache.size(); i <= lineNumber; ++i) {
+						ParseDataCache.append(AStoryXControllerParseData());
+					}
+				}
+				return ParseDataCache[lineNumber];
+			}
+			static AStoryXControllerParseData Dummy;
+			return Dummy;
+		}
+
 		void onParsed(const AStoryXControllerParseData& data, qint32 lineNumber) {
+			if (Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
+				AStoryXLineData* lineData = ensureLineData(lineNumber);
+				if (lineData != nullptr) {
+					lineData->ParseData = data;
+				}
+				return;
+			}
 			if (lineNumber >= ParseDataCache.size()) {
 				for (qint32 i = ParseDataCache.size(); i <= lineNumber; ++i) {
 					ParseDataCache.append(AStoryXControllerParseData());
@@ -101,7 +158,7 @@ namespace ASERStudio::AStorySyntax {
 				}
 				else {
 					CurrentRule = AStoryXRule();
-					AStoryXControllerParseData& data = ParseDataCache[lineNumber];
+					AStoryXControllerParseData& data = mutableParseData(lineNumber);
 					if (data.isValid()) {
 						data.d->ControllerType = AStoryXController::ControllerType::Preprocessor;
 						AStoryXParameter parameter;
@@ -167,10 +224,9 @@ namespace ASERStudio::AStorySyntax {
 
 		你可以在你的SyntaxHighlighter中调用AStoryXDocument的onSyntaxHighlighter方法来解析每一行的内容，并获取相应的诊断信息
 
-		请注意，这个类获取信息依赖于通过setTextDocument方法设置的QTextDocument，
-		以及通过setSyntaxHighlighter方法设置的QSyntaxHighlighter。确保在使用这些功能之前正确设置这些组件。
-		这个类通过QTextDocument获取静态信息，通过QSyntaxHighlighter感知文档的动态变化，
-		从而实时刷新解析结果。
+		请注意，语法高亮模式下这个类需要宿主编辑器：构造时把YSSCore::Editor::TextEdit对象传进来，
+		它会把每一行的解析数据挂在对应的文本块上，因此行被插入、删除或合并时数据会随文本块自动调整，
+		调用方不需要关心行号的搬运。不传宿主编辑器时，这个类只能在手动模式下使用。
 
 		请注意，即使设置了QSyntaxHighlighter，AStoryXDocument也不会自动解析文档内容。它只用于在必须情况下
 		触发你设置的QSyntaxHighlighter的QSyntaxHighlighter::rehighlight方法刷新全文档信息。
@@ -180,6 +236,8 @@ namespace ASERStudio::AStorySyntax {
 		值得一提的是，大部分与QTextDocument相关的类的生命周期都被设计为受到QTextDocument控制，
 		例如QTextBlock、QSyntaxHighlighter等。但此类没有遵循这个设计原则，它的生命周期完全由用户控制，
 		以便用户在QTextDocument的生命周期之外也能使用它来存储和管理解析结果和诊断信息。
+		需要注意的是，语法高亮模式下的行数据是挂在宿主编辑器的文档上的，因此宿主编辑器销毁后
+		这些数据也会随之消失，此时只有手动模式下的数据仍然可用。
 
 		但如果你确定你的AStoryXDocument的生命周期完全可以由QTextDocument控制，那么你只需要在
 		你的SyntaxHighlighter析构时顺手析构此类即可。
@@ -189,11 +247,25 @@ namespace ASERStudio::AStorySyntax {
 	*/
 
 	/*!
+		\class ASERStudio::AStorySyntax::AStoryXLineData
+		\brief 挂在AStoryX文档某一行上的解析数据。
+		\since ASERStudio 2.2
+		\inmodule ASERStudio
+
+		AStoryXDocument在语法高亮模式下会把每一行解析出的AStoryXControllerParseData存放在这里，
+		并把它挂在对应的文本块上。这样当行被插入、删除或合并时，数据会随文本块一起调整，
+		不需要额外的搬运逻辑。
+	*/
+
+	/*!
 		\since ASERStudio 2.0
+		\a edit 宿主编辑器。语法高亮模式下必须传入，手动模式下可以不传。
+
 		构造函数。
 	*/
-	AStoryXDocument::AStoryXDocument() :d(new AStoryXDocumentPrivate()) {
+	AStoryXDocument::AStoryXDocument(YSSCore::Editor::TextEdit* edit) :d(new AStoryXDocumentPrivate()) {
 		d->q = this;
+		d->HostEdit = edit;
 		d->RuleNotSelectedDiagnostic = AStoryXDiagnosticData(
 			VITRL("ASERStudio::diagnostic.ruleNotSelected.message"),
 			-1, 0, AStoryXDiagnosticData::DiagnosticType::RuleNotSelected,
@@ -224,6 +296,7 @@ namespace ASERStudio::AStorySyntax {
 			d->LineUserStates.clear();
 			d->GlobalDiagnostics.clear();
 			d->ParseDataCache.clear();
+			d->clearLineData();
 		}
 		d->onGeneralParse(currentBlock.blockNumber(), text, &currentBlock);
 	}
@@ -258,19 +331,19 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.2
 		当行被添加时调用此方法，\a startLine 为添加的起始行号，\a count 为添加的行数。
 
-		这个方法在两种模式下都需要调用，用于为新添加的行初始化内容和用户状态，以及更新诊断信息等。
+		这个方法只在手动模式下需要调用：该模式下行内容和解析数据都由本类自己保存，需要在这里同步。
+		语法高亮模式下解析数据挂在文本块上，会随文档自动调整，因此调用它不会有任何效果。
 	*/
 	void AStoryXDocument::onLinesAdded(qint32 startLine, qint32 count) {
+		if (d->Mode != AStoryXDocument::WorkMode::Manual) {
+			return;
+		}
 		if (startLine >= d->ParseDataCache.size()) {
 			return;
 		}
-		if (d->Mode == AStoryXDocument::WorkMode::Manual) {
-			for (int i = 0; i < count; ++i) {
-				d->Lines.insert(startLine, "");
-				d->LineUserStates.insert(startLine, 0);
-			}
-		}
 		for (qint32 i = 0; i < count; ++i) {
+			d->Lines.insert(startLine, "");
+			d->LineUserStates.insert(startLine, 0);
 			d->ParseDataCache.insert(startLine, AStoryXControllerParseData());
 		}
 	}
@@ -278,21 +351,20 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.2
 		当行被删除时调用此方法，\a startLine 为删除的起始行号，\a count 为删除的行数。
 
-		这个方法在两种模式下都需要调用，用于清除多余的行内容和用户状态，以及更新诊断信息等。
+		这个方法只在手动模式下需要调用：该模式下行内容和解析数据都由本类自己保存，需要在这里同步。
+		语法高亮模式下解析数据挂在文本块上，会随文档自动删除，因此调用它不会有任何效果。
 	*/
 	void AStoryXDocument::onLinesRemoved(qint32 startLine, qint32 count) {
-		if (d->Mode == AStoryXDocument::WorkMode::Manual) {
-			for (int i = 0; i < count; ++i) {
-				if (startLine < d->Lines.size()) {
-					d->Lines.removeAt(startLine);
-				}
-				if (startLine < d->LineUserStates.size()) {
-					d->LineUserStates.removeAt(startLine);
-				}
-			}
+		if (d->Mode != AStoryXDocument::WorkMode::Manual) {
+			return;
 		}
-
 		for (qint32 i = 0; i < count; ++i) {
+			if (startLine < d->Lines.size()) {
+				d->Lines.removeAt(startLine);
+			}
+			if (startLine < d->LineUserStates.size()) {
+				d->LineUserStates.removeAt(startLine);
+			}
 			if (startLine >= d->ParseDataCache.size()) {
 				break;
 			}
@@ -336,9 +408,7 @@ namespace ASERStudio::AStorySyntax {
 			diagnostics.append(d->GlobalDiagnostics);
 		}
 		else {
-			if (lineNumber >= 0 && lineNumber < d->ParseDataCache.size()) {
-				diagnostics.append(d->ParseDataCache[lineNumber].d->Diagnostics);
-			}
+			diagnostics.append(getParseData(lineNumber).getDiagnostics());
 		}
 		return diagnostics;
 	}
@@ -352,8 +422,8 @@ namespace ASERStudio::AStorySyntax {
 	QList<AStoryXDiagnosticData> AStoryXDocument::getAllDiagnostics() const {
 		QList<AStoryXDiagnosticData> diagnostics;
 		diagnostics.append(d->GlobalDiagnostics);
-		for (auto data : d->ParseDataCache) {
-			diagnostics.append(data.d->Diagnostics);
+		for (auto data : getAllParseData()) {
+			diagnostics.append(data.getDiagnostics());
 		}
 		return diagnostics;
 	}
@@ -376,12 +446,17 @@ namespace ASERStudio::AStorySyntax {
 		如果\a lineNumber 对应的行没有解析数据，则返回一个无效的AStoryXControllerParseData对象。
 	*/
 	AStoryXControllerParseData AStoryXDocument::getParseData(qint32 lineNumber) const {
-		if (lineNumber >= 0 && lineNumber < d->ParseDataCache.size()) {
-			return d->ParseDataCache[lineNumber];
-		}
-		else {
+		if (lineNumber < 0) {
 			return AStoryXControllerParseData();
 		}
+		if (d->Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
+			AStoryXLineData* lineData = d->findLineData(lineNumber);
+			return lineData != nullptr ? lineData->ParseData : AStoryXControllerParseData();
+		}
+		if (lineNumber < d->ParseDataCache.size()) {
+			return d->ParseDataCache[lineNumber];
+		}
+		return AStoryXControllerParseData();
 	}
 
 	/*!
@@ -390,7 +465,22 @@ namespace ASERStudio::AStorySyntax {
 		如果某行没有解析数据，则对应的元素将是一个无效的AStoryXControllerParseData对象。
 	*/
 	QList<AStoryXControllerParseData> AStoryXDocument::getAllParseData() const {
-		return d->ParseDataCache;
+		if (d->Mode == AStoryXDocument::WorkMode::Manual || d->HostEdit == nullptr) {
+			return d->ParseDataCache;
+		}
+		QList<AStoryXControllerParseData> result;
+		const QMap<qint32, AStoryXLineData*> allData = d->HostEdit->getAllBlockData<AStoryXLineData>();
+		qint32 blockCount = d->HostEdit->getDocument()->blockCount();
+		for (qint32 i = 0; i < blockCount; ++i) {
+			auto it = allData.constFind(i);
+			if (it == allData.constEnd()) {
+				result.append(AStoryXControllerParseData());
+			}
+			else {
+				result.append(it.value()->ParseData);
+			}
+		}
+		return result;
 	}
 
 	/*!

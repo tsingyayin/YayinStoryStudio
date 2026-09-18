@@ -2,10 +2,6 @@
 #define YSSCore_Editor_SyntaxHighlighter_h
 #include "YSSCoreCompileMacro.h"
 #include <QtGui/qsyntaxhighlighter.h>
-namespace YSSCore::__Private__ {
-	class DocumentMessageManagerPrivate;
-}
-
 namespace YSSCore::Editor {
 	class StyleData;
 	class TextEdit;

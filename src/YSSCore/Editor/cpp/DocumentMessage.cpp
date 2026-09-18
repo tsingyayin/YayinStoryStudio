@@ -1,5 +1,7 @@
 #include "Editor/DocumentMessage.h"
-#include "Editor/private/DocumentMessageManager_p.h"
+#include "Editor/TextEdit.h"
+#include "Editor/private/DocumentMessage_p.h"
+#include "Editor/private/TextEdit_p.h"
 
 namespace YSSCore::Editor {
 	/*!
@@ -9,8 +11,8 @@ namespace YSSCore::Editor {
 		\inmodule YSSCore
 
 		DocumentMessage是个数据类，包含消息类型、文本、位置（行号、列号和长度）、
-		代码标识符、帮助链接和修复建议等信息。它被SyntaxHighlighter用于表示语法分析过程中发现的问题，并自动
-		收集到YSSCore::Editor::DocumentMessageManager中，供编辑器界面显示和用户交互使用。
+		代码标识符、帮助链接和修复建议等信息。它被SyntaxHighlighter用于表示语法分析过程中发现的问题，
+		并按行存放在所属的YSSCore::Editor::TextEdit上，供编辑器界面显示和用户交互使用。
 	*/
 
 	/*!
@@ -154,5 +156,140 @@ namespace YSSCore::Editor {
 			.arg(d->Message)
 			.arg(d->Code)
 			.arg(d->HelpUrl.toString());
+	}
+
+	/*!
+		\fn void TextEdit::clearMessages(qint32 lineNumber)
+		\since YSS 0.17.0
+		\a lineNumber 行号，从 0 开始。
+
+		清空指定行上的消息。语法高亮器会在重新着色一行之前调用它，因此一行上的消息总是当前这次解析的结果。
+	*/
+	void TextEdit::clearMessages(qint32 lineNumber) {
+		__Private__::DocumentMessageList* list = getBlockData<__Private__::DocumentMessageList>(lineNumber);
+		if (list == nullptr) {
+			return;
+		}
+		list->Messages.clear();
+		emit messageChangedForLine(lineNumber);
+	}
+
+	/*!
+		\fn void TextEdit::addMessage(qint32 lineNumber, const DocumentMessage& message)
+		\since YSS 0.17.0
+		\a lineNumber 行号，从 0 开始。
+		\a message 要添加的消息。
+
+		给指定行添加一条消息。它一般由语法高亮器在着色过程中调用，消息会随该行的文本块一起移动。
+	*/
+	void TextEdit::addMessage(qint32 lineNumber, const DocumentMessage& message) {
+		if (lineNumber < 0) {
+			return;
+		}
+		__Private__::DocumentMessageList* list = getBlockData<__Private__::DocumentMessageList>(lineNumber);
+		if (list == nullptr) {
+			list = new __Private__::DocumentMessageList();
+			setBlockData<__Private__::DocumentMessageList>(lineNumber, list);
+		}
+		list->Messages.append(message);
+		emit messageChangedForLine(lineNumber);
+	}
+
+	/*!
+		\fn bool TextEdit::hasMessage() const
+		\since YSS 0.17.0
+		\return 文档中是否有消息。
+	*/
+	bool TextEdit::hasMessage() const {
+		return not getAllMessages().isEmpty();
+	}
+
+	/*!
+		\fn bool TextEdit::hasMessage(qint32 lineNumber) const
+		\since YSS 0.17.0
+		\a lineNumber 行号，从 0 开始。
+
+		\return 该行上是否有消息。
+	*/
+	bool TextEdit::hasMessage(qint32 lineNumber) const {
+		__Private__::DocumentMessageList* list = getBlockData<__Private__::DocumentMessageList>(lineNumber);
+		return list != nullptr && not list->Messages.isEmpty();
+	}
+
+	/*!
+		\fn QList<DocumentMessage> TextEdit::getMessages(qint32 lineNumber) const
+		\since YSS 0.17.0
+		\a lineNumber 行号，从 0 开始。
+
+		\return 该行上的消息。该行没有消息时返回空列表。
+
+		返回的消息里的行号总是当前的行号，可以直接用于显示。
+	*/
+	QList<DocumentMessage> TextEdit::getMessages(qint32 lineNumber) const {
+		__Private__::DocumentMessageList* list = getBlockData<__Private__::DocumentMessageList>(lineNumber);
+		if (list == nullptr) {
+			return QList<DocumentMessage>();
+		}
+		QList<DocumentMessage> result;
+		for (DocumentMessage message : list->Messages) {
+			message.d->LineNumber = lineNumber;
+			result.append(message);
+		}
+		return result;
+	}
+
+	/*!
+		\fn QMap<qint32, QList<DocumentMessage>> TextEdit::getAllMessages() const
+		\since YSS 0.17.0
+		\return 文档中所有需要显示的消息，以行号为键。
+
+		只有确实带有消息的行才会出现在结果里。
+	*/
+	QMap<qint32, QList<DocumentMessage>> TextEdit::getAllMessages() const {
+		QMap<qint32, QList<DocumentMessage>> result;
+		const QMap<qint32, __Private__::DocumentMessageList*> allData = getAllBlockData<__Private__::DocumentMessageList>();
+		for (auto it = allData.begin(); it != allData.end(); ++it) {
+			__Private__::DocumentMessageList* list = it.value();
+			if (list->Messages.isEmpty()) {
+				continue;
+			}
+			QList<DocumentMessage> messages;
+			for (DocumentMessage message : list->Messages) {
+				message.d->LineNumber = it.key();
+				messages.append(message);
+			}
+			result.insert(it.key(), messages);
+		}
+		return result;
+	}
+
+	/*!
+		\fn std::tuple<qint32, qint32, qint32> TextEdit::getMessageCount()
+		\since YSS 0.17.0
+		\return 文档中错误、警告、信息三类消息的数量，顺序为错误、警告、信息。
+
+		每次调用都会遍历整个文档，频繁取值时请调用方自行缓存。
+	*/
+	std::tuple<qint32, qint32, qint32> TextEdit::getMessageCount() {
+		qint32 errorCount = 0;
+		qint32 warningCount = 0;
+		qint32 infoCount = 0;
+		const QMap<qint32, QList<DocumentMessage>> all = getAllMessages();
+		for (auto it = all.begin(); it != all.end(); ++it) {
+			for (const DocumentMessage& message : it.value()) {
+				switch (message.getType()) {
+				case DocumentMessage::MessageType::Error:
+					errorCount++;
+					break;
+				case DocumentMessage::MessageType::Warning:
+					warningCount++;
+					break;
+				case DocumentMessage::MessageType::Info:
+					infoCount++;
+					break;
+				}
+			}
+		}
+		return { errorCount, warningCount, infoCount };
 	}
 }

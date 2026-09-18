@@ -120,11 +120,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Editor\cpp\ColorThemeProvider.cpp" />
+    <ClCompile Include="Editor\cpp\CustomDocumentData.cpp" />
     <ClCompile Include="Editor\cpp\DebugServer.cpp" />
     <ClCompile Include="Editor\cpp\DebugServerManager.cpp" />
     <ClCompile Include="Editor\cpp\DebugStepData.cpp" />
     <ClCompile Include="Editor\cpp\DocumentMessage.cpp" />
-    <ClCompile Include="Editor\cpp\DocumentMessageManager.cpp" />
     <ClCompile Include="Editor\cpp\EditorPlugin.cpp" />
     <ClCompile Include="Editor\cpp\FileEditWidget.cpp" />
     <ClCompile Include="Editor\cpp\FileServer.cpp" />
@@ -153,8 +153,8 @@
     <QtMoc Include="Editor\DebugServerManager.h" />
     <QtMoc Include="Editor\ColorThemeProvider.h" />
     <ClInclude Include="Editor\DebugStepData.h" />
-    <QtMoc Include="Editor\DocumentMessageManager.h" />
     <ClInclude Include="Editor\DocumentMessage.h" />
+    <ClInclude Include="Editor\private\DocumentMessage_p.h" />
     <ClInclude Include="Editor\EditorProjectHelper.h" />
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />
@@ -167,6 +167,7 @@
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <QtMoc Include="Editor\SyntaxHighlighter.h" />
     <QtMoc Include="Editor\ToolWidgetManager.h" />
+    <ClInclude Include="Editor\CustomDocumentData.h" />
     <ClInclude Include="Editor\VirtualFilePath.h" />
     <ClInclude Include="General\YSSLogger.h" />
     <ClInclude Include="General\YSSProject.h" />

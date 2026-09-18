@@ -1,8 +1,7 @@
 #include <QtCore/qtimer.h>
 #include <General/Log.h>
 #include <Widgets/ThemeManager.h>
-#include "Editor/DocumentMessageManager.h"
-#include "Editor/private/DocumentMessageManager_p.h"
+#include "Editor/DocumentMessage.h"
 #include "Editor/private/TextEdit_p.h"
 #include "Editor/SyntaxHighlighter.h"
 #include "Editor/TextEdit.h"
@@ -11,7 +10,6 @@ namespace YSSCore::Editor {
 		friend class SyntaxHighlighter;
 	protected:
 		TextEdit* Parent;
-		QString FilePath;
 		bool AutoRenderMessageWaveLine = true;
 		qint32 LastTotalBlockNumber = 0;
 	};
@@ -24,7 +22,7 @@ namespace YSSCore::Editor {
 		\ingroup LangService
 
 		SyntaxHighlighter是在YSS语言服务架构理念下强化的QSyntaxHighlighter，提供了与编辑器文本块关联的错误、
-		警告和信息消息的创建和管理功能。它通过DocumentMessageManager将这些消息与文档和文本块关联起来，供编辑器界面显示和用户交互使用。
+		警告和信息消息的创建和管理功能。它把这些消息按行存放在宿主编辑器的文本块上，供编辑器界面显示和用户交互使用。
 
 		你在这类里面仍然可以使用继承自QSyntaxHighlighter的函数，但你不能使用
 		QSyntaxHighlighter::highlightBlock()，这函数已经为此类重写了，你需要重写onBlockChanged()来实现你的语法高亮和消息创建逻辑。
@@ -37,15 +35,13 @@ namespace YSSCore::Editor {
 	SyntaxHighlighter::SyntaxHighlighter(TextEdit* parent) : QSyntaxHighlighter(parent->getDocument()) {
 		d = new SyntaxHighlighterPrivate();
 		d->Parent = parent;
-		d->FilePath = parent->getFilePath();
 	}
 
 	/*!
 		\since YSS 0.13.0
-		析构函数，清除与当前文件相关的所有消息。
+		析构函数。
 	*/
 	SyntaxHighlighter::~SyntaxHighlighter() {
-		DocumentMessageManager::getInstance()->d->clearMessagesForFile(d->FilePath);
 		delete d;
 	}
 
@@ -109,21 +105,18 @@ namespace YSSCore::Editor {
 			qint32 removedCount = d->LastTotalBlockNumber - totalNumber;
 			qint32 startBlockNumber = currentBlock().blockNumber();
 			//vgDebug << "Blocks removed: " << removedCount << ", from " << startBlockNumber << " to " << startBlockNumber + removedCount - 1;
-			DocumentMessageManager::getInstance()->d->moveMessageForward(d->Parent->getFilePath(), startBlockNumber, removedCount);
 			onBlockRemoved(startBlockNumber, removedCount);
 		}
 		else if (totalNumber > d->LastTotalBlockNumber) {
 			qint32 addedCount = totalNumber - d->LastTotalBlockNumber;
 			qint32 startBlockNumber = currentBlock().blockNumber();
 			//vgDebug << "Blocks added: " << addedCount << ", from " << startBlockNumber << " to " << startBlockNumber + addedCount - 1;
-			DocumentMessageManager::getInstance()->d->moveMessageBackward(d->Parent->getFilePath(), startBlockNumber, addedCount);
 			onBlockAdded(startBlockNumber, addedCount);
 		}
 		d->LastTotalBlockNumber = totalNumber;
 		int blockNumber = currentBlock().blockNumber();
-		DocumentMessageManager::getInstance()->d->clearMessagesForBlock(d->Parent->getFilePath(), blockNumber);
+		d->Parent->clearMessages(blockNumber);
 		onBlockChanged(text, blockNumber);
-		DocumentMessageManager::getInstance()->d->flushMessages(d->FilePath, blockNumber);
 	}
 
 	/*!
@@ -179,7 +172,7 @@ namespace YSSCore::Editor {
 			format.setUnderlineColor(VISTM->getColor("ErrorLine"));
 			setFormat(columnNumber, length, format);
 		}
-		DocumentMessageManager::getInstance()->d->addMessage(d->Parent->getFilePath(), currentBlock().blockNumber(),
+		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Error, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
 	}
 
@@ -201,7 +194,7 @@ namespace YSSCore::Editor {
 			format.setUnderlineColor(VISTM->getColor("WarningLine"));
 			setFormat(columnNumber, length, format);
 		}
-		DocumentMessageManager::getInstance()->d->addMessage(d->Parent->getFilePath(), currentBlock().blockNumber(),
+		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Warning, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
 	}
 
@@ -223,7 +216,7 @@ namespace YSSCore::Editor {
 			format.setUnderlineColor(VISTM->getColor("InfoLine"));
 			setFormat(columnNumber, length, format);
 		}
-		DocumentMessageManager::getInstance()->d->addMessage(d->Parent->getFilePath(), currentBlock().blockNumber(),
+		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Info, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
 	}
 }

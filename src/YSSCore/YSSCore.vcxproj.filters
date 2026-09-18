@@ -86,9 +86,6 @@
     <ClCompile Include="Editor\cpp\DebugStepData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\DocumentMessageManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\cpp\SyntaxHighlighter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\cpp\ColorThemeProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\CustomDocumentData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -145,7 +145,7 @@
     <ClInclude Include="Editor\DebugStepData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\private\DocumentMessageManager_p.h">
+    <ClInclude Include="Editor\private\DocumentMessage_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\FormatNormalizer.h">
@@ -207,9 +207,6 @@
     <QtMoc Include="Editor\SyntaxHighlighter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Editor\DocumentMessageManager.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\ToolWidgetManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -219,5 +216,8 @@
     <QtMoc Include="Editor\ColorThemeProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <ClInclude Include="Editor\CustomDocumentData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

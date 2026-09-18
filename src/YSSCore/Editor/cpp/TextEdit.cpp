@@ -928,9 +928,40 @@ namespace YSSCore::Editor {
 		为了统一Yayin Story Studio中全部的打开文件->路由合适的打开方式->编辑->保存的留存，该类
 		继承自YSSCore::Editor::FileEditWidget。并在YSSCore::Editor::FileServerManager中作为默认的通用文件打开方式使用。
 
+		\section1 自定义文档数据
+		TextEdit允许把任意数据挂到某一行上，用来缓存这一行解析出来的信息。让数据类继承
+		YSSCore::Editor::ICustomDocumentData，然后交给编辑器即可：
+
+		\code
+		MyLineData* data = new MyLineData();
+		textEdit->setBlockData(3, data);
+
+		MyLineData* got = textEdit->getBlockData<MyLineData>(3);
+		\endcode
+
+		这组带类型参数的重载会自己给出类型标识，返回值也已经是对应的指针类型，日常使用它们就够了。
+		只有在类型要等到运行时才能确定时，才需要用带std::type_index参数的重载：
+
+		\code
+		textEdit->setBlockData(3, std::type_index(typeid(MyLineData)), data);
+		\endcode
+
+		同一行上可以同时挂载多种不同类型的数据，它们互不干扰；同一行同一种类型只会保存一个对象，重复设置会先释放旧对象。
+		行号对应的行不存在、或者该行没挂这种类型的数据时，读取会返回空指针，调用方需要判空。
+
+		数据交给编辑器之后，生命周期就由编辑器管理：行被删除、行被合并、或整个文档被替换时数据会被释放，
+		因此不要手动删除数据对象，也不要把同一个对象挂到多行上。
+
+		数据可以感知自己被移动到了别的行：当编辑器读取数据、发现行号与上次记录的不同时，会调用
+		ICustomDocumentData::onBlockNumberChanged，派生类可以借此修正自身缓存的、与行号有关的信息。
+
+		\warning 请注意，一旦决定使用自定义文档数据，就不要再使用QTextBlock::setUserData()，因为它们会互相干扰，导致数据丢失。
+
 		\note 一般来说，TextEdit单独使用或组合使用，不应该继承此类，但考虑到潜在需求，因此也未设置final。
 
 		\warning 这类在0.14.0版本调整过虚函数，ABI完全不兼容。
+
+		\note 部分API不是在TextEdit.cpp中实现的：自定义文档数据的相关方法位于CustomDocumentData.cpp，消息相关的方法位于DocumentMessage.cpp。
 	*/
 
 	/*!
@@ -994,6 +1025,9 @@ namespace YSSCore::Editor {
 		d->FindAndReplaceWidget->move(this->width() - 352, 0);
 		d->FindAndReplaceWidget->hide();
 		connect(d->Text->document(), &QTextDocument::blockCountChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onBlockCountChanged);
+		connect(d->Text->document(), &QTextDocument::blockCountChanged, this, [this](qint32 count) {
+			emit messageChanged();
+			});
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
@@ -1059,6 +1093,7 @@ namespace YSSCore::Editor {
 	void TextEdit::setPlainText(const QString& text) {
 		d->Text->setPlainText(text);
 		this->setFileChanged();
+		emit messageChanged();
 	}
 
 	/*!
@@ -1535,6 +1570,7 @@ namespace YSSCore::Editor {
 		d->Text->setPlainText(in.readAll());
 		file.close();
 		cancelFileChanged();
+		emit messageChanged();
 		
 		return true;
 	}
