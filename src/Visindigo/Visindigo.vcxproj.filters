@@ -155,6 +155,9 @@
     <ClCompile Include="General\cpp\CommandHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\CrashGateway.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Widgets\cpp\VIWidgets_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -314,6 +317,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\VIApplication_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\CrashGateway.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\LogMetaData.h">

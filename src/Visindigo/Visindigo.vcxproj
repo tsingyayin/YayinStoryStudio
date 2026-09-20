@@ -120,6 +120,7 @@
   <ItemGroup>
     <ClCompile Include="General\cpp\CommandHandler.cpp" />
     <ClCompile Include="General\cpp\CommandHost.cpp" />
+    <ClCompile Include="General\cpp\CrashGateway.cpp" />
     <ClCompile Include="General\cpp\Exception.cpp" />
     <ClCompile Include="General\cpp\Exception_StdCast.cpp" />
     <ClCompile Include="General\cpp\LogMetaData.cpp" />
@@ -201,6 +202,7 @@
     <QtMoc Include="General\Exception.h" />
     <QtMoc Include="General\PluginManager.h" />
     <QtMoc Include="General\PluginModule.h" />
+    <ClInclude Include="General\CrashGateway.h" />
     <ClInclude Include="General\LogMetaData.h" />
     <QtMoc Include="General\Placeholder.h" />
     <ClInclude Include="General\Package.h" />

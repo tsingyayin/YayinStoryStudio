@@ -148,6 +148,7 @@
     <ClCompile Include="General\cpp\YSSLogger.cpp" />
     <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mystery.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\DebugServerManager.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Editor\VirtualFilePath.h" />
     <ClInclude Include="General\YSSLogger.h" />
     <ClInclude Include="General\YSSProject.h" />
+    <ClInclude Include="Mystery.h" />
     <ClInclude Include="YSSCoreCompileMacro.h" />
     <QtMoc Include="Scripts\ES6Executer.h" />
     <QtMoc Include="Editor\TextEdit.h" />

@@ -74,6 +74,10 @@
       <LanguageStandard>stdcpp23</LanguageStandard>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);DEBUG</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>python.exe "$(SolutionDir)pytools\deriveLib.py"</Command>
+      <Message>派生 Visindigo/YSSCore/VIAgent 的二进制与头文件到 binary 目录</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -85,6 +89,10 @@
       <MapExports>true</MapExports>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
+    <PostBuildEvent>
+      <Command>python.exe "$(SolutionDir)pytools\deriveLib.py"</Command>
+      <Message>派生 Visindigo/YSSCore/VIAgent 的二进制与头文件到 binary 目录</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>

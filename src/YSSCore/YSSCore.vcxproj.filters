@@ -110,6 +110,9 @@
     <ClCompile Include="Editor\cpp\CustomDocumentData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mystery.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\private\EditorPlugin_p.h">
@@ -158,6 +161,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\DocumentMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\private\DocumentMessageManager_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mystery.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

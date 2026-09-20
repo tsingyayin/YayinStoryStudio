@@ -7,6 +7,7 @@
 #include <QtNetwork/qhostaddress.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
 #include <QtNetwork/qnetworkinterface.h>
+#include "General/CrashGateway.h"
 #include "General/Exception.h"
 #include "General/LogCenter.h"
 #include "General/LoggerMsgHandler.h"
@@ -32,7 +33,10 @@ namespace Visindigo::General {
 			LogTimeFormat = VIApp->getEnvConfig(VIApplication::LogTimeFormat).toString();
 			QString birthTime = QDateTime::currentDateTime().toString(LogFileNameTimeFormat);
 			QString LogFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString();
-			LogFile.setFileName(LogFolderPath % "/" % birthTime % ".log");
+			QString LogFileName = birthTime % ".log";
+			LogFile.setFileName(LogFolderPath % "/" % LogFileName);
+			CrashGateway::setLogFolder(LogFolderPath);
+			CrashGateway::setLogFileName(LogFileName);
 			QDir logDir(LogFolderPath);
 			if (!logDir.exists()) {
 				logDir.mkpath(".");
@@ -259,53 +263,6 @@ namespace Visindigo::General {
 	*/
 	void LogCenter::finalSave() {
 		d->save();
-	}
-
-	/*!
-		\since Visindigo 0.13.0
-		生成崩溃报告。
-		\a ex 指向Exception对象的引用，包含了崩溃的相关信息。
-		此函数用于生成崩溃报告文件，包含了崩溃时的堆栈信息和其他相关数据。
-		这个函数由VIApplication在捕获到会导致程序崩溃的异常时自动调用。
-
-		这个函数在所有平台上可用，但只能处理Visindigo::General::Exception类型的异常，以及
-		已经被充分转换为该类型的std异常。
-	*/
-	void LogCenter::generateCrashReport(const Exception& ex) {
-		QString crashReportFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString() + "/crashreports";
-		QDir crashReportDir(crashReportFolderPath);
-		if (not crashReportDir.exists()) {
-			crashReportDir.mkpath(".");
-		}
-		QString crashReportFileName = QDateTime::currentDateTime().toString(d->LogFileNameTimeFormat) % "_crashreport.log";
-		QFile crashReportFile(crashReportFolderPath % "/" % crashReportFileName);
-		if (crashReportFile.open(QIODevice::NewOnly | QIODevice::Text)) {
-			QTextStream stream(&crashReportFile);
-			stream.setEncoding(QStringConverter::Utf8);
-			stream << "Visindigo Crash Report\n";
-			stream << "Generated on " % QDateTime::currentDateTime().toString(Qt::ISODate) % "\n\n";
-			stream << "When executing function:\n";
-			stream << ex.getFunction() % " (" % ex.getFile() % ":" % QString::number(ex.getLine()) % ")\n\n";
-			stream << "The following exception was thrown:\n";
-			stream << "Exception Type: " % Exception::typeToString(ex.getType()) % "\n";
-			stream << "Exception Message: " % ex.getMessage() % "\n\n";
-			stream << "Stacktrace:\n";
-			stream << "Index\tBinary File ! Function (+Address) in Source File at Line Number\n";
-			quint32 index = 0;
-			for (const StacktraceFrame& frame : ex.getStacktrace()) {
-				stream << QString("%1\t%2 ! %3 (+%4) in %5 at %6\n")
-					.arg(QString::number(index))
-					.arg(frame.getBinaryFileName())
-					.arg(frame.getFunctionName())
-					.arg(QString::number(frame.getAddress(), 16).toUpper())
-					.arg(frame.getSourceFileName())
-					.arg(QString::number(frame.getLineNumber()));
-				index++;
-			}
-			stream << "=========================================\n";
-			stream << generateHardwareInfo(false, true) << "\n";
-			crashReportFile.close();
-		}
 	}
 
 	static inline bool isValidInterface(const QNetworkInterface& interface) {

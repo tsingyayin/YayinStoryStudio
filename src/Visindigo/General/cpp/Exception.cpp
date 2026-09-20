@@ -1,3 +1,4 @@
+#include <string>
 #include <string.h>
 #include "General/Exception.h"
 namespace Visindigo::General {
@@ -252,62 +253,3 @@ namespace Visindigo::General {
 			.arg(stacktraceStr);
 	}
 }
-
-
-
-#ifdef Q_OS_WIN
-#include <DbgHelp.h>
-#include <time.h>
-#include <strsafe.h>
-LONG WINAPI VisindigoWindowsExceptionCapture(EXCEPTION_POINTERS* pExceptionInfo) {
-	SYSTEMTIME st;
-	GetLocalTime(&st);
-	WCHAR fileName[MAX_PATH];
-	HRESULT hr = StringCchPrintfW(
-		fileName,
-		MAX_PATH,
-		L"Exception_%04d%02d%02d_%02d%02d%02d.dmp",
-		st.wYear, st.wMonth, st.wDay,
-		st.wHour, st.wMinute, st.wSecond
-	);
-	if (FAILED(hr)) {
-		wcscpy_s(fileName, MAX_PATH, L"Exception.dmp");
-	}
-
-	HANDLE hDumpFile = CreateFileW(
-		fileName,
-		GENERIC_WRITE,
-		0,
-		NULL,
-		CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL
-	);
-
-	if (hDumpFile != INVALID_HANDLE_VALUE) {
-		MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
-		dumpInfo.ThreadId = GetCurrentThreadId();
-		dumpInfo.ExceptionPointers = pExceptionInfo;
-		dumpInfo.ClientPointers = FALSE;
-
-		BOOL bResult = MiniDumpWriteDump(
-			GetCurrentProcess(),
-			GetCurrentProcessId(),
-			hDumpFile,
-			(MINIDUMP_TYPE)(
-				MiniDumpWithDataSegs |
-				MiniDumpWithProcessThreadData |
-				MiniDumpWithHandleData |
-				MiniDumpWithUnloadedModules |
-				MiniDumpWithFullMemoryInfo |
-				MiniDumpWithThreadInfo
-				),
-			&dumpInfo,
-			NULL,
-			NULL
-		);
-		CloseHandle(hDumpFile);
-	}
-	return EXCEPTION_EXECUTE_HANDLER;
-}
-#endif // Q_OS_WIN

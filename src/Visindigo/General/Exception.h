@@ -93,11 +93,4 @@ namespace Visindigo::General {
 #define VI_Throw_ST(type, message) throw Visindigo::General::Exception(type, message, true, __FILE__, __LINE__, Q_FUNC_INFO, Visindigo::General::StacktraceHelper::getStacktrace())
 #define VI_SafeThrow_ST(type, message) throw Visindigo::General::Exception(type, message, false, __FILE__, __LINE__, Q_FUNC_INFO, Visindigo::General::StacktraceHelper::getStacktrace())
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#include <winnt.h>
-LONG WINAPI VisindigoWindowsExceptionCapture(EXCEPTION_POINTERS* p_excetion);
-#undef interface
-#endif // Q_OS_WIN
-
 #endif // Visindigo_General_Exception_h

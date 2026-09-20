@@ -4,6 +4,7 @@
 #include <QtGui/qfontdatabase.h>
 #include <QtGui/qpainter.h>
 #include "General/CommandHost.h"
+#include "General/CrashGateway.h"
 #include "General/Log.h"
 #include "General/Plugin.h"
 #include "General/PluginManager.h"
@@ -312,9 +313,6 @@ namespace Visindigo::General {
 #include <winnt.h>
 #endif // Q_OS_WIN
 	VIApplication::VIApplication(int& argc, char** argv, AppType appType, bool changeWorkingDirToExeDir) :QObject(nullptr) {
-#ifdef Q_OS_WIN
-		SetUnhandledExceptionFilter(VisindigoWindowsExceptionCapture);
-#endif // Q_OS_WIN
 		if (VIApplicationPrivate::Instance != nullptr) {
 			vgWarningF << "VIApplication instance already exists.";
 			throw Exception(Exception::UnsupportedOperation, "VIApplication instance already exists");
@@ -324,6 +322,7 @@ namespace Visindigo::General {
 		if (changeWorkingDirToExeDir) {
 			QDir::setCurrent(QFileInfo(argv[0]).absolutePath());
 		}
+		CrashGateway::install();
 		d->AppType = appType;
 		d->MainPlugin = nullptr;
 		switch (appType) {
@@ -371,7 +370,10 @@ namespace Visindigo::General {
 		vgMessage << Utility::Console::inWarningStyle("Working Path: ") << Utility::Console::inNoticeStyle(QDir::currentPath());
 		vgDebug << "Hello," << QDir::home().dirName() << "! Welcome to Visindigo!";
 
-		LogCenter::getInstance()->generateHardwareInfo();
+		CrashGateway::setProductInfo(QStringLiteral("Visindigo %1 (ABI %2)")
+			.arg(General::Version::getAPIVersion().toString())
+			.arg(General::Version::getABIVersion().toString()));
+		CrashGateway::setHardwareInfo(LogCenter::getInstance()->generateHardwareInfo(true, true));
 
 		PluginManager::getInstance(); // Initialize PluginManager
 		TranslationHost::getInstance(); // Initialize TranslationHost
@@ -689,6 +691,12 @@ namespace Visindigo::General {
 		如果用户有需要，也可以手动塞入一个异常对象来调用此函数，以便使用VIApplication的异常处理机制。
 	*/
 	void VIApplication::onException(const Exception& ex) {
+		// for critical exception, generate report first, 
+		// then show message box, in case the message box destroys 
+		// stack and heap.
+		if (ex.isCritical()){
+			CrashGateway::onCaughtException(ex);
+		}
 		if (d->ExceptionMessageHandler) {
 			d->ExceptionMessageHandler->enableHandler();
 			d->ExceptionMessageHandler->onExceptionMessage(ex);
@@ -698,7 +706,9 @@ namespace Visindigo::General {
 		else {
 			vgError << "No exception message handler set, exception message:" << ex.getMessage();
 		}
-		Visindigo::General::LogCenter::getInstance()->generateCrashReport(ex);
+		if (not ex.isCritical()) {
+			CrashGateway::onCaughtException(ex);
+		}
 		if (ex.isCritical() && d->started) {
 			vgError << "Critical exception caught, exiting application.";
 			Visindigo::General::LogCenter::getInstance()->finalSave();
