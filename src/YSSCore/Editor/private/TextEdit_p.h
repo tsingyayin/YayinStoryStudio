@@ -17,6 +17,7 @@ namespace YSSCore::Editor {
 	class TabCompleterProvider;
 	class HoverInfoProvider;
 	class SyntaxHighlighter;
+	class LangServer;
 }
 class QVBoxLayout;
 class QComboBox;
@@ -123,6 +124,7 @@ namespace YSSCore::__Private__ {
 		bool Rehighlighting = false;
 		QFontMetricsF* FontMetrics = nullptr;
 		YSSCore::Editor::SyntaxHighlighter* Highlighter = nullptr;
+		YSSCore::Editor::LangServer* LangServer = nullptr;
 		YSSCore::Editor::TabCompleterProvider* TabCompleter = nullptr;
 		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
 		YSSCore::Editor::HoverInfoProvider* HoverInfoProvider = nullptr;

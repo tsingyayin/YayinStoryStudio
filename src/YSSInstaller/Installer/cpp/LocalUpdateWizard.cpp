@@ -611,7 +611,7 @@ namespace YSS::Installer {
 	bool LocalUpdateWizard::updateProgram(const InstallerClientData& from, const QList<InstallerClientData>& targets) {
 		QStringList files = {
 			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
-			"Qt6WebSockets.dll", "Qt6Svg.dll", "dbghelp.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe",
+			"Qt6WebSockets.dll", "Qt6Svg.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe",
 			"YayinStoryStudio.exe", "YSSCore.dll",
 			"user_data/themes/template/yss.vst",
 		};
@@ -641,6 +641,9 @@ namespace YSS::Installer {
 					vgErrorF << "Failed to copy update folder: " << f
 						<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
 				}
+			}
+			if (Visindigo::Utility::FileUtility::isFileExist(t.absolutePath() + "/dbghelp.dll")) {
+				Visindigo::Utility::FileUtility::deleteFile(t.absolutePath() + "/dbghelp.dll"); // not used.
 			}
 			targetList[i].setProgramVersion(from.getProgramVersion());
 			VersionManager::getInstance()->updateClientRecord(targetList[i]);
