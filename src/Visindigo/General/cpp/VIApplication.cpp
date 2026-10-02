@@ -158,6 +158,22 @@ namespace Visindigo::General {
 		禁用异常消息处理器时调用此函数。用户可以实现此函数以执行禁用处理器时的操作。
 	*/
 
+	/*!
+		\fn Visindigo::General::ApplicationLoadingMessageHandler::~ApplicationLoadingMessageHandler()
+		\since Visindigo 0.17.0
+
+		析构函数。处理器由VIApplication通过基类指针释放，因此析构函数必须是虚函数。
+	*/
+	ApplicationLoadingMessageHandler::~ApplicationLoadingMessageHandler() {}
+
+	/*!
+		\fn Visindigo::General::ApplicationExceptionMessageHandler::~ApplicationExceptionMessageHandler()
+		\since Visindigo 0.17.0
+
+		析构函数。处理器由VIApplication通过基类指针释放，因此析构函数必须是虚函数。
+	*/
+	ApplicationExceptionMessageHandler::~ApplicationExceptionMessageHandler() {}
+
 	class VIApplicationPrivate {
 		friend class VIApplication;
 	protected:
@@ -513,10 +529,13 @@ namespace Visindigo::General {
 	*/
 	void VIApplication::setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler) {
 		if (not d->started) {
+			// 原生崩溃路径也会通知同一个处理器，因此在释放旧对象之前先让网关忘掉它。
+			CrashGateway::setExceptionMessageHandler(nullptr);
 			if (d->ExceptionMessageHandler) {
 				delete d->ExceptionMessageHandler;
 			}
 			d->ExceptionMessageHandler = handler;
+			CrashGateway::setExceptionMessageHandler(handler);
 		}
 	}
 
@@ -691,12 +710,9 @@ namespace Visindigo::General {
 		如果用户有需要，也可以手动塞入一个异常对象来调用此函数，以便使用VIApplication的异常处理机制。
 	*/
 	void VIApplication::onException(const Exception& ex) {
-		// for critical exception, generate report first, 
-		// then show message box, in case the message box destroys 
-		// stack and heap.
-		if (ex.isCritical()){
-			CrashGateway::onCaughtException(ex);
-		}
+		// 统一先存证再通知：处理器多半要弹模态框、转事件循环，
+		// 先把现场落到磁盘上，免得界面代码破坏栈或堆之后再也拿不到可信的现场。
+		CrashGateway::onCaughtException(ex);
 		if (d->ExceptionMessageHandler) {
 			d->ExceptionMessageHandler->enableHandler();
 			d->ExceptionMessageHandler->onExceptionMessage(ex);
@@ -705,9 +721,6 @@ namespace Visindigo::General {
 		}
 		else {
 			vgError << "No exception message handler set, exception message:" << ex.getMessage();
-		}
-		if (not ex.isCritical()) {
-			CrashGateway::onCaughtException(ex);
 		}
 		if (ex.isCritical() && d->started) {
 			vgError << "Critical exception caught, exiting application.";

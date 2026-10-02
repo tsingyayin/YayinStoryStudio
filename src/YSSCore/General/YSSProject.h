@@ -26,10 +26,13 @@ namespace YSSCore::General {
 			InvalidConfig
 		};
 	public:
+		static YSSProject* getCurrentProject();
+		static void setCurrentProject(YSSProject* project);
+	public:
 		YSSProject();
 		virtual ~YSSProject();
+	public:
 		LoadProjectResult loadProject(const QString& configPath);
-		QString getProjectConfigPath();
 		bool saveProject(const QString& configPath = "");
 		bool initProject(const QString& folder, const QString& name);
 		QString getProjectName();
@@ -78,8 +81,10 @@ namespace YSSCore::General {
 		QStringList getAllFileBackups();
 		void setFileBackupMaxCount(qint32 count);
 		qint32 getFileBackupMaxCount();
-		static YSSProject* getCurrentProject();
-		static void setCurrentProject(YSSProject* project);
+		void addRequiredPlugin(const QString& pluginID);
+		void removeRequiredPlugin(const QString& pluginID);
+		void setRequiredPlugins(const QStringList& pluginIDs);
+		QStringList getRequiredPlugins();
 	private:
 		YSSProjectPrivate* d;
 	};

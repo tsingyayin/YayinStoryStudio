@@ -379,7 +379,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_file_projectConfig() {
-		QString ysspFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectConfigPath();
+		QString ysspFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectPath();
 		QDir projectDir(ysspFilePath);
 		YSSFSM->openFile(projectDir.absoluteFilePath(""));
 	}

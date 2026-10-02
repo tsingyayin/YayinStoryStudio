@@ -1,6 +1,15 @@
+#include <QtGui/qimagereader.h>
 #include "Plugin_ImageViewer.h"
 #include "YSS/ImageViewerFileServer.h"
 namespace YSS::ImageViewer {
+	static constexpr int MinImageAllocationLimitMB = 512;
+
+	static void ensureImageAllocationLimit() {
+		if (QImageReader::allocationLimit() < MinImageAllocationLimitMB) {
+			QImageReader::setAllocationLimit(MinImageAllocationLimitMB);
+		}
+	}
+
 	Translator::Translator(Visindigo::General::Plugin* parent) :
 		Visindigo::General::Translator(parent, "ImageViewer")
 	{
@@ -16,6 +25,7 @@ namespace YSS::ImageViewer {
 	}
 	Main::~Main() {}
 	void Main::onPluginEnable() {
+		ensureImageAllocationLimit();
 		registerPluginModule(new Translator(this));
 		registerFileServer(new YSS::ImageViewer::FS_ImageViewer(this));
 	}

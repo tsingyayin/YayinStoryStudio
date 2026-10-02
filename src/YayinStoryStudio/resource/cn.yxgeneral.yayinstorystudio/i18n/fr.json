@@ -354,5 +354,16 @@
 		"reasoning": "Raisonnement",
 		"runError": "Échec de l'exécution : %1",
 		"configError": "Impossible de charger la configuration du modèle sur le bureau : %1"
+	},
+	"crashScreen":{
+		"headline":"Un problème grave est survenu dans le programme, qui doit être fermé immédiatement. Nous avons collecté quelques informations sur l'erreur.",
+		"headlineNonCritical":"Un problème est survenu dans le programme, mais pas assez grave pour provoquer un plantage. Les informations sur l'erreur figurent ci-dessous.",
+		"progress":"100% terminé",
+		"stopCode":"Code d'arrêt : %1",
+		"location":"Emplacement de l'erreur : %1",
+		"stacktrace":"Pile d'appels",
+		"reportFolder":"Dossier des rapports de plantage : %1",
+		"reportHint":"Les détails ont été enregistrés dans last_crash.zip. Vous pouvez envoyer ce fichier à d'autres personnes pour obtenir de l'aide.",
+		"dismiss":"OK"
 	}
 }

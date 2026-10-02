@@ -354,5 +354,16 @@
 		"reasoning": "思考过程",
 		"runError": "执行失败：%1",
 		"configError": "无法加载桌面上的模型配置：%1"
+	},
+	"crashScreen":{
+		"headline":"程序遇到严重错误，需要立即关闭。我们收集了一些错误信息。",
+		"headlineNonCritical":"程序遇到问题，但不足以导致崩溃。以下是相关错误信息。",
+		"progress":"100% 完成",
+		"stopCode":"停止代码：%1",
+		"location":"出错位置：%1",
+		"stacktrace":"调用堆栈",
+		"reportFolder":"崩溃报告目录：%1",
+		"reportHint":"详细信息已经保存到last_crash.zip文件中，可以向他人发送此文件以寻求帮助。",
+		"dismiss":"确定"
 	}
 }

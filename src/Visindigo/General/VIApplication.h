@@ -17,6 +17,7 @@ namespace Visindigo::General {
 
 	class VisindigoAPI ApplicationLoadingMessageHandler {
 	public:
+		virtual ~ApplicationLoadingMessageHandler();
 		virtual void onLoadingMessage(const QString& msg) = 0;
 		virtual void enableHandler() = 0;
 		virtual void disableHandler() = 0;
@@ -24,6 +25,7 @@ namespace Visindigo::General {
 
 	class VisindigoAPI ApplicationExceptionMessageHandler {
 	public:
+		virtual ~ApplicationExceptionMessageHandler();
 		virtual void onExceptionMessage(const Exception& ex) = 0;
 		virtual void enableHandler() = 0;
 		virtual void exec() = 0;

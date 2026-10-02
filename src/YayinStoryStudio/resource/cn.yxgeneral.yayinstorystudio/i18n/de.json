@@ -354,5 +354,16 @@
 		"reasoning": "Gedankengang",
 		"runError": "Ausführung fehlgeschlagen: %1",
 		"configError": "Die Modellkonfiguration auf dem Desktop konnte nicht geladen werden: %1"
+	},
+	"crashScreen":{
+		"headline":"Im Programm ist ein schwerwiegender Fehler aufgetreten, es muss sofort geschlossen werden. Wir haben einige Fehlerinformationen gesammelt.",
+		"headlineNonCritical":"Im Programm ist ein Problem aufgetreten, das jedoch nicht zu einem Absturz geführt hat. Die zugehörigen Fehlerinformationen finden Sie unten.",
+		"progress":"100% abgeschlossen",
+		"stopCode":"Abbruchcode: %1",
+		"location":"Fehlerstelle: %1",
+		"stacktrace":"Aufrufliste",
+		"reportFolder":"Ordner für Absturzberichte: %1",
+		"reportHint":"Die Details wurden in last_crash.zip gespeichert. Sie können diese Datei an andere senden, um Hilfe zu erhalten.",
+		"dismiss":"OK"
 	}
 }

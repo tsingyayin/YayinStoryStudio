@@ -1,9 +1,17 @@
+#include <QtCore/qdir.h>
+#include <QtCore/qeventloop.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qset.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qtimer.h>
 #include <QtWidgets/qapplication.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
+#include <Utility/SevenZipBinder.h>
 #include "Installer/InstallerClientData.h"
 #include "Installer/InstallerServer.h"
 #include "Installer/TrayIcon.h"
@@ -23,6 +31,9 @@ namespace YSS::Installer {
 		QLocalSocket* probeSocket = nullptr;
 		QMap<QLocalSocket*, InstallerClientSocket> clientSockets;
 		QSet<QLocalSocket*> activeSockets;
+		// 该 YSS 正在打包时不能退出安装程序
+		bool isArchiving = false;
+		static constexpr int CompressTimeoutMS = 60000;
 		static InstallerServer* Instance;
 
 		void onSocketReadyRead(QLocalSocket* socket) {
@@ -74,6 +85,119 @@ namespace YSS::Installer {
 					// 收到 program_close 命令时，关闭 YSSInstaller 自身。
 					qApp->quit();
 				}
+				else if (type == "program_crashed") {
+					// YSS 写完崩溃存证后发出，由安装程序负责把相关文件打包到该 YSS 的根目录
+					archiveCrashFiles(socket);
+				}
+			}
+		}
+
+		void sendCommandTo(QLocalSocket* socket, const Visindigo::Utility::JsonConfig& command) {
+			if (socket == nullptr || socket->state() != QLocalSocket::ConnectedState) {
+				return;
+			}
+			// 与 InstallerClient::sendCommand 相同的二进制报文：0x03 起始 + 4 字节长度 + JSON 数据 + 0x02 结束。
+			QByteArray jsonData = command.toString().toUtf8();
+			QByteArray dataPacket;
+			dataPacket.append(0x03); // Start of packet
+			quint32 size = jsonData.size();
+			dataPacket.append(reinterpret_cast<const char*>(&size), sizeof(size));
+			dataPacket.append(jsonData);
+			dataPacket.append(0x02); // End of packet
+			socket->write(dataPacket);
+		}
+
+		QStringList readCrashManifest(const QString& programDir) const {
+			QStringList files;
+			QFile manifest(programDir + "/last_crash.txt");
+			if (not manifest.open(QIODevice::ReadOnly)) {
+				return files;
+			}
+			QString content = QString::fromUtf8(manifest.readAll());
+			// 用记事本改过的话文件开头会多一个 BOM，先去掉
+			if (content.startsWith(QChar(0xFEFF))) {
+				content.remove(0, 1);
+			}
+			const QStringList lines = content.split(QLatin1Char('\n'));
+			manifest.close();
+			for (const QString& rawLine : lines) {
+				const QString line = rawLine.trimmed();
+				if (line.isEmpty()) {
+					continue;
+				}
+				// last_crash.txt 里的路径相对该 YSS 的根目录，取不到相对路径时写入的则是绝对路径
+				const QString path = QDir::isAbsolutePath(line) ? line : programDir + "/" + line;
+				if (Visindigo::Utility::FileUtility::isFileExist(path)) {
+					files << path;
+				}
+				else {
+					vgWarning << "Crash file recorded in last_crash.txt does not exist:" << path;
+				}
+			}
+			return files;
+		}
+
+		// 启动 7za 并等它结束。7za 有文件没能处理时会返回非0，这里把真实结果报出来。
+		bool runSevenZip(const QStringList& files, const QString& zipPath) {
+			Visindigo::Utility::SevenZipBinder* binder = Visindigo::Utility::SevenZipBinder::getInstance();
+			binder->bind7zaBinary(QCoreApplication::applicationDirPath() + "/7za.exe");
+			if (not binder->isValid()) {
+				vgErrorF << "7za.exe is not available, cannot archive crash files. Path:" << binder->get7zaBinaryPath();
+				return false;
+			}
+			if (not binder->compressFilesToZip(files, zipPath, Visindigo::Utility::SevenZipBinder::zip)) {
+				return false;
+			}
+			isArchiving = true;
+			bool success = false;
+			QEventLoop loop;
+			QTimer timeoutTimer;
+			timeoutTimer.setSingleShot(true);
+			QMetaObject::Connection connection = QObject::connect(binder,
+				&Visindigo::Utility::SevenZipBinder::processed, &loop, [&loop, &success](bool result) {
+					success = result;
+					loop.quit();
+				});
+			QObject::connect(&timeoutTimer, &QTimer::timeout, &loop, &QEventLoop::quit);
+			timeoutTimer.start(CompressTimeoutMS);
+			loop.exec();
+			QObject::disconnect(connection);
+			isArchiving = false;
+			if (not success) {
+				vgWarning << "7za did not finish successfully for" << zipPath;
+			}
+			return success;
+		}
+
+		void archiveCrashFiles(QLocalSocket* socket) {
+			const QString programPath = clientSockets.value(socket).clientData.getProgramPath();
+			if (programPath.isEmpty()) {
+				vgErrorF << "Received program_crashed from a socket without client data.";
+				return;
+			}
+			const QString programDir = QFileInfo(programPath).absolutePath();
+			const QString zipPath = programDir + "/last_crash.zip";
+			// 日志此刻还被 YSS 自己占着，靠 SevenZipBinder 里那个 -ssw 才能压进去
+			// （不加 -ssw 时 7za 会跳过被占用的文件，而且默认不报错）
+			const QStringList files = readCrashManifest(programDir);
+			if (files.isEmpty()) {
+				vgWarning << "No crash file to archive for" << programPath;
+			}
+			else {
+				// 7za 是往已有包里追加成员，先删掉上一次的包，避免新旧文件混在一起
+				QFile::remove(zipPath);
+				if (runSevenZip(files, zipPath)) {
+					vgNotice << "Crash files of" << programPath << "archived to" << zipPath
+						<< "(" << files.size() << "files)";
+				}
+			}
+			quitIfIdle();
+		}
+
+		void quitIfIdle() {
+			if (activeSockets.isEmpty() and not isArchiving
+				and not VersionManager::getInstance()->inUpdateProgress()) {
+				qApp->quit();
 			}
 		}
 	};
@@ -119,7 +243,8 @@ namespace YSS::Installer {
 					if (d->activeSockets.contains(clientSocket)) {
 						d->activeSockets.remove(clientSocket);
 						if (d->activeSockets.isEmpty()) {
-							if (not VersionManager::getInstance()->inUpdateProgress()) {
+							// 正在打包时先把退出推后，等包完成再退
+							if (not VersionManager::getInstance()->inUpdateProgress() and not d->isArchiving) {
 								qApp->quit();
 							}
 							else {
@@ -162,15 +287,7 @@ namespace YSS::Installer {
 			vgErrorF << "YSS Installer Server cannot send command: client socket not found or not connected.";
 			return;
 		}
-		// 与 InstallerClient::sendCommand 相同的二进制报文：0x03 起始 + 4 字节长度 + JSON 数据 + 0x02 结束。
-		QByteArray jsonData = command.toString().toUtf8();
-		QByteArray dataPacket;
-		dataPacket.append(0x03); // Start of packet
-		quint32 size = jsonData.size();
-		dataPacket.append(reinterpret_cast<const char*>(&size), sizeof(size));
-		dataPacket.append(jsonData);
-		dataPacket.append(0x02); // End of packet
-		socket->write(dataPacket);
+		d->sendCommandTo(socket, command);
 	}
 
 	void InstallerServer::sendUpdateYSSInstallerRequest(const InstallerClientData& clientData) {

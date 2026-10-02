@@ -124,4 +124,19 @@
 		ptr->deleteLater(); \
 		ptr = nullptr; \
 	}
+
+#define VI_DeclareReadWrite(type, name) \
+	type get##name() const; \
+	void set##name(const type& value);
+
+#define VI_DeclareReadWriteBool(name) \
+	bool is##name() const; \
+	void set##name(bool value);
+
+#define VI_DeclareReadWriteList(type, singular, plural) \
+	QList<type> get##plural() const; \
+	void set##plural(const QList<type>& value); \
+	void set##singular(const type& value); \
+	void remove##singular(const type& value); \
+	bool is##plural##Contains(const type& value) const;
 #endif // Visindigo_VIMacro_h

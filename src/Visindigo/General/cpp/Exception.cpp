@@ -1,19 +1,8 @@
 #include <string>
 #include <string.h>
+#include <utility>
 #include "General/Exception.h"
 namespace Visindigo::General {
-	class ExceptionPrivate {
-	public:
-		Exception::Type Type;
-		QString Message;
-		bool Critical;
-		QString File;
-		int Line;
-		QString Function;
-		QList<StacktraceFrame> Stacktrace;
-		std::string messageStd;
-	};
-
 	/*!
 		\class Visindigo::General::Exception
 		\inheaderfile General/Exception.h
@@ -92,15 +81,9 @@ namespace Visindigo::General {
 		\a func 函数名称。
 	*/
 	Exception::Exception(Type type, QString message, bool critical, QString file, int line, QString func,
-		QList<StacktraceFrame> stacktrace) {
-		d = new ExceptionPrivate();
-		d->Type = type;
-		d->Message = message;
-		d->Critical = critical;
-		d->File = file;
-		d->Line = line;
-		d->Function = func;
-		d->Stacktrace = stacktrace;
+		QList<StacktraceFrame> stacktrace)
+		: TypeValue(type), Message(std::move(message)), Critical(critical),
+		File(std::move(file)), Line(line), Function(std::move(func)), Stacktrace(std::move(stacktrace)) {
 	}
 
 	/*!
@@ -134,8 +117,10 @@ namespace Visindigo::General {
 
 		移动赋值运算符
 	*/
-	VIMoveable_Impl(Exception);
-	VICopyable_Impl(Exception);
+	Exception::Exception(const Exception& other) = default;
+	Exception::Exception(Exception&& other) noexcept = default;
+	Exception& Exception::operator=(const Exception& other) = default;
+	Exception& Exception::operator=(Exception&& other) noexcept = default;
 
 	/*!
 		\since Visindigo 0.13.0
@@ -143,9 +128,6 @@ namespace Visindigo::General {
 		析构函数，销毁异常对象。
 	*/
 	Exception::~Exception() {
-		if (d != nullptr) {
-			delete d;
-		}
 	}
 
 	/*!
@@ -159,7 +141,7 @@ namespace Visindigo::General {
 		\sa what(), toString()
 	*/
 	QString Exception::getMessage() const {
-		return d->Message;
+		return Message;
 	}
 
 	/*!
@@ -167,7 +149,7 @@ namespace Visindigo::General {
 		return 异常类型
 	*/
 	Exception::Type Exception::getType() const {
-		return d->Type;
+		return TypeValue;
 	}
 
 	/*!
@@ -181,7 +163,7 @@ namespace Visindigo::General {
 		由于C++的灵活性，完整的异常安全性几乎无法保证，因此建议将大部分异常都视为严重异常，以确保程序的稳定性。
 	*/
 	bool Exception::isCritical() const {
-		return d->Critical;
+		return Critical;
 	}
 
 	/*!
@@ -189,7 +171,7 @@ namespace Visindigo::General {
 		return 发生异常的源文件名
 	*/
 	QString Exception::getFile() const {
-		return d->File;
+		return File;
 	}
 
 	/*!
@@ -197,7 +179,7 @@ namespace Visindigo::General {
 		return 发生异常的行号
 	*/
 	int Exception::getLine() const {
-		return d->Line;
+		return Line;
 	}
 
 	/*!
@@ -205,7 +187,7 @@ namespace Visindigo::General {
 		return 发生异常的函数名称
 	*/
 	QString Exception::getFunction() const {
-		return d->Function;
+		return Function;
 	}
 
 	/*!
@@ -213,7 +195,7 @@ namespace Visindigo::General {
 		return 异常的堆栈跟踪信息
 	*/
 	QList<StacktraceFrame> Exception::getStacktrace() const {
-		return d->Stacktrace;
+		return Stacktrace;
 	}
 
 	/*!
@@ -225,8 +207,8 @@ namespace Visindigo::General {
 		\sa getMessage()
 	*/
 	const char* Exception::what() const noexcept {
-		d->messageStd = d->Message.toStdString();
-		return d->messageStd.c_str();
+		messageStd = Message.toStdString();
+		return messageStd.c_str();
 	}
 
 	/*!
@@ -237,19 +219,19 @@ namespace Visindigo::General {
 		输出的结果和在日志上看到的结果有所不同。
 	*/
 	QString Exception::toString() const {
-		QString typeStr = QString::number(static_cast<int>(d->Type));
-		QString criticalStr = d->Critical ? "Yes" : "No";
+		QString typeStr = QString::number(static_cast<int>(TypeValue));
+		QString criticalStr = Critical ? "Yes" : "No";
 		QString stacktraceStr = "";
-		for (const StacktraceFrame& frame : d->Stacktrace) {
+		for (const StacktraceFrame& frame : Stacktrace) {
 			stacktraceStr += "\n" + frame.toString();
 		}
 		return QString("Exception Type: %1\nMessage: %2\nCritical: %3\nFile: %4\nLine: %5\nFunction: %6\nStacktrace:%7")
 			.arg(typeStr)
-			.arg(d->Message)
+			.arg(Message)
 			.arg(criticalStr)
-			.arg(d->File)
-			.arg(d->Line)
-			.arg(d->Function)
+			.arg(File)
+			.arg(Line)
+			.arg(Function)
 			.arg(stacktraceStr);
 	}
 }

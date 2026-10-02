@@ -20,6 +20,8 @@ namespace YSS::Editor {
 		static FileEditWidgetArea* getAreaByID(const QString& areaID);
 		static FileEditWidgetArea* getMainArea();
 		static QList<FileEditWidgetArea*> getAllAreas();
+		static void changeMainArea(FileEditWidgetArea* newMainArea);
+		static void compressAreaID();
 	public:
 		FileEditWidgetArea(QWidget* parent = nullptr, const QString& requestedID = QString());
 		virtual ~FileEditWidgetArea();

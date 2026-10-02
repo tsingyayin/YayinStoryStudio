@@ -12,7 +12,6 @@ namespace Visindigo::Utility {
 		QString exePath = "./7za.exe";
 		QProcess* exeProcess = nullptr;
 		static SevenZipBinder* Instance;
-		bool isCompressing = false;
 		QString targetName = "";
 		SevenZipBinderPrivate() {
 			exeProcess = new QProcess();
@@ -117,6 +116,7 @@ namespace Visindigo::Utility {
 		\since Visindigo 0.16.0
 
 		当7za.exe完成处理时发出此信号，success表示处理是否成功。
+		success根据7za.exe的退出码判定：只要有文件被跳过（例如被其它进程占用、目标不可写），就是false。
 
 		\a success 处理是否成功。
 	*/
@@ -142,14 +142,12 @@ namespace Visindigo::Utility {
 			}
 			});
 			
-		connect(d->exeProcess, &QProcess::stateChanged, this, [this](QProcess::ProcessState newState) {
-			if (newState == QProcess::NotRunning) {
-				if (d->isCompressing) {
-					emit processed(true);
-				}
-				else {
-					emit processed(true);
-				}
+		connect(d->exeProcess, &QProcess::finished, this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
+			emit processed(exitStatus == QProcess::NormalExit && exitCode == 0);
+			});
+		connect(d->exeProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
+			if (error == QProcess::FailedToStart) {
+				emit processed(false);
 			}
 			});
 	}
@@ -217,13 +215,15 @@ namespace Visindigo::Utility {
 		}
 		QStringList arguments;
 		arguments << "a" << "-bsp1";
+		// -ssw：允许压缩正在被写入的文件。不加这个，7za 会先以读写方式试探打开目标文件，
+		// 一旦文件被其它进程占用就直接跳过它（退出码1），调用方会得到一个静默少文件的包。
+		arguments << "-ssw";
 		arguments << QString("-t%1").arg(SevenZipBinderPrivate::enumToString(format));
 		if (!password.isEmpty()) {
 			arguments << QString("-p%1").arg(password);
 		}
 		arguments << arcPath;
 		arguments.append(filePaths);
-		d->isCompressing = true;
 		d->targetName = arcPath;
 		d->exeProcess->start(d->exePath, arguments);
 		return true;
@@ -253,7 +253,6 @@ namespace Visindigo::Utility {
 		}
 		arguments << arcPath;
 		arguments << QString("-o%1").arg(outputPath);
-		d->isCompressing = false;
 		d->targetName = outputPath;
 		d->exeProcess->start(d->exePath, arguments);
 		return true;

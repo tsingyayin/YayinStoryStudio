@@ -60,15 +60,16 @@ namespace YSSCore::Editor {
 		列作工具，则应该使用虚拟文件路径访问它。
 
 		\section1 编辑器的首选方向
+		\note 此属性仅对标记为工具的FileServer有效。
+
 		从0.17.0开始，可以通过setPreferredOrientation设置首选的编辑器方向，以便在文件编辑区域中打开时，能够根据首选方向来决定将
-		FileEditWidget安排在哪一个区域中。如果设置为Any，则会优先考虑将其安排在主区域。这对于一般的文件编辑器来说是合理的。
-		但对于一些工具类的编辑器来说，可能更适合安排在长条状的区域中，这个时候就可以考虑使用Horizontal或Vertical来指定首选方向。
+		FileEditWidget安排在哪一个区域中。
 
 		总的来说，遵循这样的逻辑：
 		\list
-		1. 如果为Any，则优先考虑主区域。
-		2. 如果为Vertical，则优先考虑除了主区域外，其他高度大于宽度的区域。
-		3. 如果为Horizontal，则优先考虑除了主区域外，其他宽度大于高度的区域。
+		1. 如果为Any，则安排在任意区域中。
+		2. 如果为Vertical，则优先考虑高度大于宽度的区域。
+		3. 如果为Horizontal，则优先考虑宽度大于高度的区域。
 		4. 如果为Vertical_Wide，则将在所有高度大于宽度的区域中，优先选择长宽比小于2:1的区域。Horizontally_Wide同理。
 		5. 如果为Vertical_Narrow，则将在所有高度大于宽度的区域中，优先选择长宽比大于2:1的区域。Horizontally_Narrow同理。
 		\endlist
@@ -76,16 +77,10 @@ namespace YSSCore::Editor {
 		请注意，不要对PreferredOrientation的值进行位运算。YSS会根据上述逻辑来选择合适的区域，而不是根据位运算的结果来选择。
 
 		\section1 主区域与副区域的安排
-		YSS的主区域只有一个。即第一个被创建的编辑区域实例，其他均为副区域。
+		YSS的主区域只有一个。即第一个被创建的编辑区域实例，其他均为副区域。所有不作为工具的FileServer都永远直接安排在主区域
+		（且不考虑用户当前的焦点区域），而作为工具的FileServer永远不会安排在主区域中，而是从副区域中选择一个合适的区域来安排FileEditWidget。
 
-		如果：
-		\list
-		1. 首选方向不为Any
-		2. 没有任何一个副区域的长宽比符合首选方向的要求
-		3. 该FileServer设置了listAsTool属性为true
-		\endlist
-
-		则YSS会在主区域左侧或下侧，根据首选方向的要求，创建一个新的副区域来安排FileEditWidget。
+		如果不存在合适的副区域，将尝试在主区域的左侧或下侧创建一个新的副区域来安排FileEditWidget。
 
 		上述有关首选方向的逻辑仅仅是YSS在安排FileEditWidget时的首选逻辑，用户可以自由将FileEditWidget在不同区域中
 		拖放。而不同区域的长宽比均可自由设置。因此，即使编辑器具有首选方向，也应当尽可能尝试兼容不同的长宽比和不同的区域，

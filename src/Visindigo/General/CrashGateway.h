@@ -5,6 +5,7 @@
 
 // Forward declarations
 namespace Visindigo::General {
+	class ApplicationExceptionMessageHandler;
 	class Exception;
 }
 
@@ -29,6 +30,7 @@ namespace Visindigo::General {
 		static bool isSymbolResolutionEnabled();
 		static void setProductInfo(const QString& info);
 		static void setHardwareInfo(const QString& info);
+		static void setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler);
 	public:
 		static void onCaughtException(const Exception& ex);
 	};

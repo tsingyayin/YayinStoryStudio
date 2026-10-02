@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qmimedata.h>
 #include <QtGui/qdrag.h>
@@ -208,6 +209,65 @@ namespace YSS::Editor {
 
 	QList<FileEditWidgetArea*> FileEditWidgetArea::getAllAreas() {
 		return AreaRegistry::instance().allAreas();
+	}
+
+	void FileEditWidgetArea::changeMainArea(FileEditWidgetArea* newMainArea) {
+		AreaRegistry::instance().setMain(newMainArea);
+	}
+
+	void FileEditWidgetArea::compressAreaID() {
+		QList<FileEditWidgetArea*> areas = getAllAreas();
+		if (areas.isEmpty()) {
+			return;
+		}
+
+		QList<int> ids;
+		for (FileEditWidgetArea* area : areas) {
+			bool ok = false;
+			int id = area->getAreaID().toInt(&ok);
+			if (ok and not ids.contains(id)) {
+				ids.append(id);
+			}
+		}
+		std::sort(ids.begin(), ids.end());
+		QMap<QString, QString> remap;
+		bool changed = false;
+		for (int i = 0; i < ids.size(); i++) {
+			QString oldID = QString::number(ids.at(i));
+			QString newID = QString::number(i);
+			if (oldID != newID) {
+				changed = true;
+			}
+			remap.insert(oldID, newID);
+		}
+		if (not changed) {
+			return;
+		}
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+		QMap<QString, QStringList> filesInArea;
+		if (project) {
+			filesInArea = project->getEditorOpenedFilesInArea();
+		}
+
+		for (FileEditWidgetArea* area : areas) {
+			area->setAreaID("_tmp_" + area->getAreaID());
+		}
+		for (FileEditWidgetArea* area : areas) {
+			QString oldID = area->getAreaID().mid(5);
+			area->setAreaID(remap.value(oldID, oldID));
+		}
+
+		if (project) {
+			QMap<QString, QStringList> newFilesInArea;
+			for (auto it = filesInArea.constBegin(); it != filesInArea.constEnd(); ++it) {
+				QString key = it.key();
+				if (remap.contains(key)) {
+					key = remap.value(key);
+				}
+				newFilesInArea[key] = it.value();
+			}
+			project->setEditorOpenedFilesInArea(newFilesInArea);
+		}
 	}
 
 	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {

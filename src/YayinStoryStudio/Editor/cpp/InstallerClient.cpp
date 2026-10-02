@@ -150,6 +150,24 @@ namespace YSS::Editor {
 		d->socket->write(dataPacket);
 	}
 
+	/*!
+		\since YayinStoryStudio 0.17.0
+		通知正在运行的安装程序把本次崩溃的相关文件打包到程序根目录下的 last_crash.zip。
+
+		只管发命令，不等回执：安装程序会读程序根目录下的 last_crash.txt，把其中记录且当前能读到的文件压进包里。
+		日志文件此刻还被本进程独占占用，安装程序读不到，会在本进程退出后再把它补进包里。
+		安装程序未运行时不发任何命令。
+	*/
+	void InstallerClient::requestCrashArchive() {
+		if (d->socket->state() != QLocalSocket::ConnectedState) {
+			vgWarning << "Installer is not connected, crash archive request is skipped.";
+			return;
+		}
+		Visindigo::Utility::JsonConfig command;
+		command.setString("type", "program_crashed");
+		sendCommand(command);
+	}
+
 	void InstallerClient::releaseInstaller(bool autoLaunch, bool showNotification) {
 		if (showNotification) {
 			QMessageBox::information(nullptr,
@@ -160,7 +178,7 @@ namespace YSS::Editor {
 			"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";
 		QStringList files = {
 			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
-			"Qt6Svg.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
+			"Qt6WebSockets.dll", "Qt6Svg.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"
 		};
 		QStringList folders = {
 			"iconengines", "imageformats", "networkinformation", "platforms", "styles", "translations",

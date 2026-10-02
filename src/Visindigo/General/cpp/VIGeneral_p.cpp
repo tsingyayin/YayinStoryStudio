@@ -78,11 +78,11 @@ namespace Visindigo::__Private__ {
 			vgInfo << "Parsed placeholder: " << result;
 		}
 		else if (unnamedArgs.first() == "craSHvi") {
-			VI_Throw(General::Exception::InternalError, "This is a test crash triggered by the craSHvi command.");
-				}
+			VI_Throw_ST(General::Exception::InternalError, "This is a test crash triggered by the craSHvi command.");
+		}
 		else if (unnamedArgs.first() == "craSHc") {
 			throw;
-				}
+		}
 		return true;
 	}
 

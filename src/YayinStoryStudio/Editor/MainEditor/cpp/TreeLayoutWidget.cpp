@@ -431,7 +431,6 @@ namespace YSS::Editor {
 		d->buildStructureFromJson(json.getArray("children"));
 		d->applyPercentsTopDown(json.getArray("children"));
 		if (maximized && this->isWindow()) {
-			// 先按普通状态的长宽居中定位，再最大化；取消最大化后窗口回到屏幕中央。
 			if (targetScreen) {
 				QRect avail = targetScreen->availableGeometry();
 				if (w > 0 && h > 0) {

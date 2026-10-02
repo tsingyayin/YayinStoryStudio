@@ -1,15 +1,15 @@
 #ifndef Visindigo_General_Exception_h
 #define Visindigo_General_Exception_h
+#include <string>
 #include "VICompileMacro.h"
-#include <QtCore/qobject.h>
+#include <QtCore/qobjectdefs.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 #include "General/StacktraceHelper.h"
 namespace Visindigo::General {
 	class StacktraceFrame;
-	class ExceptionPrivate;
-	class VisindigoAPI Exception :public QObject {
-		Q_OBJECT;
+	class VisindigoAPI Exception {
+		Q_GADGET;
 	public:
 		enum Type : qint32 {
 			Unknown = 0x0000000,
@@ -83,7 +83,14 @@ namespace Visindigo::General {
 		const char* what() const noexcept;
 		QString toString() const;
 	private:
-		ExceptionPrivate* d;
+		Type TypeValue;
+		QString Message;
+		bool Critical;
+		QString File;
+		int Line;
+		QString Function;
+		QList<StacktraceFrame> Stacktrace;
+		mutable std::string messageStd;
 	};
 }
 

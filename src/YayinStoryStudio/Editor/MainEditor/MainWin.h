@@ -33,13 +33,14 @@ namespace YSS::Editor {
 		MainWinMenu* Menu = nullptr;
 		TreeLayoutWidget* TreeLayout = nullptr;
 		BottomInfoWidget* BottomFrame = nullptr;
-		FileEditWidgetArea* lastFocusedFileEditArea = nullptr;
-		bool closeForBack = false;
+		FileEditWidgetArea* LastFocusedFileEditArea = nullptr;
+		bool CloseForBack = false;
 		YSSCore::Editor::FileEditWidget* FocusingFileEditWidget = nullptr;
 		YSSCore::Editor::FileEditWidget* FocusingFileEditWidgetNotTool = nullptr;
 		static MainWin* Instance;
 	private:
 		void applyFocusedFileEditWidget(YSSCore::Editor::FileEditWidget* widget);
+		YSS::Editor::FileEditWidgetArea* selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget);
 	signals:
 		void currentFileEditWidgetAreaChanged(FileEditWidgetArea* area);
 		void currentFileEditWidgetChanged(YSSCore::Editor::FileEditWidget* widget);

@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cwchar>
-// 平台头必须在 Qt 头之前包含：此处只能用编译器提供 _WIN32，不能用 Qt 的 Q_OS_WIN。
+
 #ifdef _WIN32
 #define NOMINMAX
 #include <windows.h>
@@ -20,16 +20,15 @@
 #include <QtCore/qstring.h>
 #include "General/CrashGateway.h"
 #include "General/Exception.h"
+#include "General/VIApplication.h"
 
 namespace Visindigo::__Private__ {
 	using namespace Visindigo::General;
 
-	// 崩溃现场的公共表达：两条路径（事件循环里捕获的异常、原生未处理异常）都先填好它，
-	// 再由同一套流程落盘。全为 POD 与定长缓冲，崩溃期间不做任何内存分配。
 	struct CrashStackFrame {
 		enum Limits {
-			FunctionLength = 256,
-			BinaryLength = 96,
+			FunctionLength = 512,
+			BinaryLength = 128,
 			SourceLength = 260,
 		};
 		quintptr Address = 0;
@@ -45,7 +44,7 @@ namespace Visindigo::__Private__ {
 		enum Limits {
 			PathLength = 260,
 			MessageLength = 512,
-			FunctionLength = 256,
+			FunctionLength = 512,
 			MaxFrames = 64,
 		};
 		bool Native = false;
@@ -77,8 +76,6 @@ namespace Visindigo::__Private__ {
 		int Millisecond = 0;
 	};
 
-	// 崩溃期状态：全部放在静态存储里，只允许 POD 与 atomic。
-	// 理由：SEH 之后堆与锁都不可信，任何一次 new / QString / QFile 都可能二次崩溃或死锁。
 	struct CrashGatewayState {
 		std::atomic<bool> Installed = false;
 		std::atomic<bool> Handling = false;
@@ -87,6 +84,7 @@ namespace Visindigo::__Private__ {
 		std::atomic<bool> SymbolsReady = false;
 		std::atomic<quint32> MiniDumpType = 0;
 		std::atomic<quint32> MainThreadId = 0;
+		std::atomic<ApplicationExceptionMessageHandler*> MessageHandler = nullptr;
 		wchar_t ReportFolder[CrashSnapshot::PathLength] = {};
 		wchar_t LogFolder[CrashSnapshot::PathLength] = {};
 		wchar_t LogFileName[CrashSnapshot::PathLength] = {};
@@ -95,7 +93,6 @@ namespace Visindigo::__Private__ {
 	};
 	static CrashGatewayState state;
 
-	// 崩溃处理闸门：同一时刻只允许一次处理，二次崩溃直接快死，避免递归刷屏。
 	struct HandlingGate {
 		bool Acquired = false;
 		HandlingGate() {
@@ -241,7 +238,6 @@ namespace Visindigo::__Private__ {
 	// ---------- 快照 ----------
 
 	static CrashSnapshot& snapshotStorage() {
-		// 数十 KB 的静态缓冲：绝不放栈上，也绝不放堆上。
 		static CrashSnapshot buffer;
 		return buffer;
 	}
@@ -906,6 +902,59 @@ namespace Visindigo::__Private__ {
 	// 因此过滤器本身只收集现场，真正的工作放到一个新线程上做。
 	static DWORD WINAPI crashWorker(LPVOID parameter);
 
+	// 把快照升级成语义异常对象：会分配内存，只在环境可控时调用。
+	static Exception exceptionFromSnapshot(const CrashSnapshot& snapshot, const wchar_t* messageOverride = nullptr) {
+		QList<StacktraceFrame> frames;
+		for (quint32 i = 0; i < snapshot.FrameCount; ++i) {
+			const CrashStackFrame& frame = snapshot.Frames[i];
+			frames.append(StacktraceFrame(QString::fromWCharArray(frame.Function),
+				QString::fromWCharArray(frame.SourceFile),
+				QString::fromWCharArray(frame.BinaryFile),
+				static_cast<quint64>(frame.Address),
+				frame.Line));
+		}
+		return Exception(static_cast<Exception::Type>(snapshot.Type),
+			messageOverride != nullptr ? QString::fromWCharArray(messageOverride) : QString::fromWCharArray(snapshot.Message),
+			snapshot.Critical,
+			QString::fromWCharArray(snapshot.File),
+			snapshot.Line,
+			QString::fromWCharArray(snapshot.Function),
+			frames);
+	}
+
+	// 与捕获路径同一套回调序列。原生崩溃在故障线程也就是主线程上执行它：
+	// 处理器几乎必然要建 Qt 界面，放到工作线程上不成立。
+	static void showNativeCrashDialog(const CrashSnapshot& snapshot) {
+		ApplicationExceptionMessageHandler* handler = state.MessageHandler.load();
+		if (handler == nullptr) {
+			return;
+		}
+		wchar_t message[CrashSnapshot::MessageLength];
+		formatW(message, CrashSnapshot::MessageLength, L"Native fault: %s (0x%08lX) at 0x%016llX",
+			exceptionCodeName(snapshot.NativeCode), static_cast<unsigned long>(snapshot.NativeCode),
+			static_cast<unsigned long long>(snapshot.FaultAddress));
+		if (snapshot.ReportPath[0] != 0) {
+			size_t offset = wcslen(message);
+			if (offset + 2 < CrashSnapshot::MessageLength) {
+				formatW(message + offset, CrashSnapshot::MessageLength - offset, L"\r\n%s", snapshot.ReportPath);
+			}
+		}
+		Exception ex = exceptionFromSnapshot(snapshot, message);
+		handler->enableHandler();
+		handler->onExceptionMessage(ex);
+		handler->exec();
+		handler->disableHandler();
+	}
+
+	// 处理器跑在堆可能已经损坏的进程里，它自己再崩一次也属正常，兜住即可。
+	static void showNativeCrashDialogGuarded(const CrashSnapshot& snapshot) {
+		__try {
+			showNativeCrashDialog(snapshot);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+		}
+	}
+
 	static LONG WINAPI unhandledExceptionFilter(EXCEPTION_POINTERS* pointers) {
 		CrashSnapshot& snapshot = snapshotStorage();
 		resetSnapshot(snapshot, true, true);
@@ -921,6 +970,11 @@ namespace Visindigo::__Private__ {
 			if (worker != nullptr) {
 				WaitForSingleObject(worker, 60000);
 				CloseHandle(worker);
+			}
+			// 存证已经落盘，再通知界面：处理器只在主线程上调用，栈溢出时跳过。
+			if (GetCurrentThreadId() == state.MainThreadId.load()
+				&& snapshot.NativeCode != EXCEPTION_STACK_OVERFLOW) {
+				showNativeCrashDialogGuarded(snapshot);
 			}
 		}
 		return EXCEPTION_EXECUTE_HANDLER;
@@ -952,6 +1006,8 @@ namespace Visindigo::General {
 
 		\note 网关只负责存证，不决定进程的去向：捕获到的异常由调用方决定是否退出，
 		原生未处理异常交回操作系统处理。
+		\note 原生崩溃在存证完成后也会调用异常消息处理器，但仅当崩溃发生在主线程、
+		且故障线程的栈仍然可用时；未设置处理器时不弹任何界面。
 		\note 转储开关、产品信息与硬件信息均随存证一起生效，可在任意时刻设置；
 		崩溃产物目录固定为日志目录下的 \c{crashreports}，由 LogCenter 在创建日志文件时告知。
 	*/
@@ -1155,6 +1211,22 @@ namespace Visindigo::General {
 	*/
 	void CrashGateway::setHardwareInfo(const QString& info) {
 		__Private__::copyW(__Private__::state.HardwareInfo, 8192, info);
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		\a handler 异常消息处理器
+
+		设置原生崩溃发生后要通知的异常消息处理器。网关不接管它的生命周期，
+		调用方需要保证它在进程结束前一直有效。
+
+		处理器几乎必然要建 Qt 界面，因此只有崩溃发生在主线程、且故障线程的栈仍然可用时
+		才会调用它。未设置处理器时，原生崩溃只存证，不弹任何界面。
+
+		\sa VIApplication::setExceptionMessageHandler
+	*/
+	void CrashGateway::setExceptionMessageHandler(ApplicationExceptionMessageHandler* handler) {
+		__Private__::state.MessageHandler.store(handler);
 	}
 
 	/*!

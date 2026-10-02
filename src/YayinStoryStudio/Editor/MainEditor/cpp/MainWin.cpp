@@ -186,7 +186,7 @@ namespace YSS::Editor {
 		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(
 			YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(focusedFile));
 		if (focusedArea) {
-			lastFocusedFileEditArea = focusedArea;
+			LastFocusedFileEditArea = focusedArea;
 			focusedArea->setCurrentWidget(focusedFile);
 			if (auto focusedWidget = YSSFSM->getFileEditWidget(focusedFile)) {
 				applyFocusedFileEditWidget(focusedWidget);
@@ -200,12 +200,168 @@ namespace YSS::Editor {
 		Instance = nullptr;
 	}
 
+	// 在树形布局中查找直接包含 \a area 的布局，并把该区域在其中的下标写入 \a index。
+	static TreeLayoutWidget* FindLayoutOfArea(TreeLayoutWidget* layout, FileEditWidgetArea* area, int& index) {
+		for (int i = 0; i < layout->getChildCount(); i++) {
+			if (layout->getFileEditAreaAt(i) == area) {
+				index = i;
+				return layout;
+			}
+			if (TreeLayoutWidget* childLayout = layout->getLayoutAt(i)) {
+				if (TreeLayoutWidget* found = FindLayoutOfArea(childLayout, area, index)) {
+					return found;
+				}
+			}
+		}
+		return nullptr;
+	}
+
+	// 在主区域的左侧或下侧就地创建一个新的副区域并返回它，创建失败时返回 nullptr。
+	static FileEditWidgetArea* CreateSubAreaBesideMainArea() {
+		FileEditWidgetArea* mainArea = FileEditWidgetArea::getMainArea();
+		if (not mainArea) {
+			return nullptr;
+		}
+		for (TreeLayoutWidget* topLevel : TreeLayoutWidget::getAllTopLevelLayouts()) {
+			int index = -1;
+			TreeLayoutWidget* host = FindLayoutOfArea(topLevel, mainArea, index);
+			if (not host) {
+				continue;
+			}
+			// 包裹主区域的新子布局方向与父布局相反：父布局为竖直方向时新布局为水平方向，
+			// 新区域落在主区域左侧；父布局为水平方向时新区域落在主区域下侧。
+			bool newFirst = (host->getOrientation() == Qt::Vertical);
+			TreeLayoutWidget* newLayout = host->replaceFileEditAt(index, nullptr, newFirst);
+			if (not newLayout) {
+				continue;
+			}
+			return newLayout->getFileEditAreaAt(newFirst ? 0 : 1);
+		}
+		return nullptr;
+	}
+
+	YSS::Editor::FileEditWidgetArea* MainWin::selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget) {
+		const QString filePath = widget->getFilePath();
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+		// 项目中已记录了此文件所在的区域（例如上次退出时未关闭的文件），直接回到原区域。
+		if (project) {
+			QString recordedAreaID = project->getFileAreaID(filePath);
+			if (not recordedAreaID.isEmpty()) {
+				if (FileEditWidgetArea* recordedArea = FileEditWidgetArea::getAreaByID(recordedAreaID)) {
+					yDebug << "File opened in recorded area: " << recordedAreaID << " file: " << filePath;
+					return recordedArea;
+				}
+			}
+		}
+
+		FileEditWidgetArea* mainArea = FileEditWidgetArea::getMainArea();
+		yDebug << "Main area id" << (mainArea ? mainArea->getAreaID() : QString("none"));
+		YSSCore::Editor::FileServer* sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget);
+
+		// 不作为工具的文件永远直接安排在主区域，且不考虑用户当前聚焦在哪个区域。
+		if (not sourceServer or not sourceServer->isListAsTool()) {
+			if (mainArea) {
+				yDebug << "File opened as document, arrange in main area: " << filePath;
+				return mainArea;
+			}
+		}
+		else {
+			// 作为工具的文件永远不安排在主区域，而是从副区域中选择一个与首选方向最匹配的区域。
+			using PreferredOrientation = YSSCore::Editor::FileServer::PreferredOrientation;
+			PreferredOrientation preferred = sourceServer->getPreferredOrientation();
+			// 界面尚未真正显示时，各区域还没有可用的宽高，无法判断方向。此时一律按“任意区域”
+			// 处理，避免程序启动、去恢复默认布局时误判长宽比而多创建一个副区域。
+			bool geometryReady = this->isVisible();
+			auto matchScore = [geometryReady, preferred](FileEditWidgetArea* area) -> int {
+				// 分数越高越合适；-1 表示该区域不符合首选方向，不应选中。
+				if (not geometryReady or area->width() <= 0 or area->height() <= 0) {
+					return 0;
+				}
+				const double w = area->width();
+				const double h = area->height();
+				const bool tall = h > w;
+				const bool wide = w > h;
+				switch (preferred) {
+				case PreferredOrientation::Any:
+					return 0;
+				case PreferredOrientation::Vertical:
+					return tall ? 2 : -1;
+				case PreferredOrientation::Vertical_Wide:
+					if (not tall) {
+						return -1;
+					}
+					return (h / w < 2.0) ? 2 : 1;
+				case PreferredOrientation::Vertical_Narrow:
+					if (not tall) {
+						return -1;
+					}
+					return (h / w > 2.0) ? 2 : 1;
+				case PreferredOrientation::Horizontal:
+					return wide ? 2 : -1;
+				case PreferredOrientation::Horizontal_Wide:
+					if (not wide) {
+						return -1;
+					}
+					return (w / h < 2.0) ? 2 : 1;
+				case PreferredOrientation::Horizontal_Narrow:
+					if (not wide) {
+						return -1;
+					}
+					return (w / h > 2.0) ? 2 : 1;
+				default:
+					return 0;
+				}
+			};
+
+			FileEditWidgetArea* best = nullptr;
+			int bestScore = -1;
+			for (FileEditWidgetArea* area : FileEditWidgetArea::getAllAreas()) {
+				if (area == mainArea) {
+					continue; // 工具永远不安排在主区域。
+				}
+				int score = matchScore(area);
+				if (score < 0) {
+					continue;
+				}
+				if (score > bestScore) {
+					best = area;
+					bestScore = score;
+				}
+				else if (score == bestScore and area == LastFocusedFileEditArea) {
+					// 同等条件下优先使用用户最后聚焦的那个副区域。
+					best = area;
+				}
+			}
+			if (best) {
+				yDebug << "Tool file arranged in area: " << best->getAreaID() << " file: " << filePath;
+				return best;
+			}
+			// 不存在合适的副区域，在主区域的左侧或下侧创建一个新的副区域来安排它。
+			if (FileEditWidgetArea* newArea = CreateSubAreaBesideMainArea()) {
+				yDebug << "Tool file arranged in new area: " << newArea->getAreaID() << " file: " << filePath;
+				return newArea;
+			}
+		}
+
+		// 兜底：最后聚焦的区域 -> 编号最小且不是主区域的区域 -> 主区域。
+		yDebug << "Fallback area for file: " << filePath;
+		if (LastFocusedFileEditArea) {
+			return LastFocusedFileEditArea;
+		}
+		for (FileEditWidgetArea* area : FileEditWidgetArea::getAllAreas()) {
+			if (area != mainArea) {
+				return area;
+			}
+		}
+		return mainArea;
+	}
+
 	void MainWin::onFileEditOpened(const QString& filePath) {
 		auto widget = YSSFSM->getFileEditWidget(filePath);
 		if (not widget) {
 			return;
 		}
-		
+
 		if (auto sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget)) {
 			if (sourceServer->isListAsTool()) {
 				Menu->syncPluginToolMenu();
@@ -218,42 +374,9 @@ namespace YSS::Editor {
 				return;
 			}
 		}
-		QString areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(filePath);
-		yDebug << "File opened in area: " << areaID<< " file: " << filePath;
-		if (areaID.isEmpty()) {
-			auto targetArea = FileEditWidgetArea::getMainArea(); // default.
-			auto sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget);
-			if (sourceServer->isListAsTool()) {
-				if (lastFocusedFileEditArea) {
-					targetArea = lastFocusedFileEditArea;
-				}
-			}
-			else {
-				if (FocusingFileEditWidgetNotTool) {
-					auto areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(FocusingFileEditWidgetNotTool->getFilePath());
-					auto area = FileEditWidgetArea::getAreaByID(areaID);
-					if (area) {
-						targetArea = area;
-					}
-				}
-				else if (FocusingFileEditWidget) {
-					auto areaID = YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(FocusingFileEditWidget->getFilePath());
-					auto area = FileEditWidgetArea::getAreaByID(areaID);
-					if (area) {
-						targetArea = area;
-					}
-				}
-			}
-			targetArea->addWidget(widget);
-			applyFocusedFileEditWidget(widget);
-		}
-		else {
-			auto area = FileEditWidgetArea::getAreaByID(areaID);
-			if (area) {
-				area->addWidget(widget);
-				applyFocusedFileEditWidget(widget);
-			}
-		}
+		auto area = selectFileEditWidgetAreaForNewFile(widget);
+		area->addWidget(widget);
+		applyFocusedFileEditWidget(widget);
 	}
 
 	void MainWin::onToolWidgetOpened(const QString& widgetID) {
@@ -366,7 +489,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::backToHome() {
-		closeForBack = true;
+		CloseForBack = true;
 		this->close();
 	}
 
@@ -384,7 +507,7 @@ namespace YSS::Editor {
 	}
 
 	FileEditWidgetArea* MainWin::getLastFocusedFileEditArea() const {
-		return lastFocusedFileEditArea;
+		return LastFocusedFileEditArea;
 	}
 
 	YSSCore::Editor::FileEditWidget* MainWin::getCurrentFocusedFileEditWidget() const {
@@ -408,31 +531,48 @@ namespace YSS::Editor {
 		else {
 			TreeLayout->setOrientation(Qt::Horizontal);
 			FileEditWidgetArea* resourceArea = TreeLayout->createFileEditAreaFirst();
-			lastFocusedFileEditArea = resourceArea;
+			LastFocusedFileEditArea = resourceArea;
 			Menu->view_pluginTools(YSSFSM->getFileServerById("cn.yxgeneral.yss_builtin.resourceBrowserVFS"), true);
 			FileEditWidgetArea* messageArea = new FileEditWidgetArea();
 			TreeLayoutWidget* rightLayout = TreeLayout->replaceFileEditAt(1, messageArea, false);
-			lastFocusedFileEditArea = messageArea;
+			LastFocusedFileEditArea = messageArea;
 			Menu->view_pluginTools(YSSFSM->getFileServerById("cn.yxgeneral.yss_builtin.messageViewerVFS"), true);
 			TreeLayout->setChildRatios({ 2, 5 });
 			if (rightLayout) {
 				rightLayout->setChildRatios({ 3, 1 });
 			}
-			lastFocusedFileEditArea = FileEditWidgetArea::getMainArea();
-			if (lastFocusedFileEditArea) {
-				lastFocusedFileEditArea->setFocus();
+			LastFocusedFileEditArea = FileEditWidgetArea::getMainArea();
+			if (LastFocusedFileEditArea) {
+				LastFocusedFileEditArea->setFocus();
 			}
+		}
+		// 确保主区域始终是编号最小的那个区域（恢复布局时创建顺序与编号顺序未必一致）。
+		FileEditWidgetArea* smallestArea = nullptr;
+		int smallestID = 0;
+		for (FileEditWidgetArea* area : FileEditWidgetArea::getAllAreas()) {
+			bool ok = false;
+			int id = area->getAreaID().toInt(&ok);
+			if (not ok) {
+				continue;
+			}
+			if (not smallestArea or id < smallestID) {
+				smallestArea = area;
+				smallestID = id;
+			}
+		}
+		if (smallestArea) {
+			FileEditWidgetArea::changeMainArea(smallestArea);
 		}
 	}
 
 	void MainWin::onFileEditWidgetAreaCreated(FileEditWidgetArea* area) {
-		if (not lastFocusedFileEditArea) {
-			lastFocusedFileEditArea = area;
+		if (not LastFocusedFileEditArea) {
+			LastFocusedFileEditArea = area;
 		}
 		connect(area, &FileEditWidgetArea::areaFocusd, this, &MainWin::onFileEditWidgetAreaFocusIn);
 		connect(area, &FileEditWidgetArea::currentFileChanged, this, [this, area](const QString&) {
 			// 后台区域换文件不算“当前文件”变了，只有当前聚焦的那个区域才跟。
-			if (area != lastFocusedFileEditArea) {
+			if (area != LastFocusedFileEditArea) {
 				return;
 			}
 			applyFocusedFileEditWidget(area->getCurrentWidget());
@@ -493,16 +633,16 @@ namespace YSS::Editor {
 			vgDebug << "FileEditWidgetArea focus in:" << areaID;
 			auto area = FileEditWidgetArea::getAreaByID(areaID);
 			if (area) {
-				lastFocusedFileEditArea = area;
+				LastFocusedFileEditArea = area;
 			}
 			else {
-				lastFocusedFileEditArea = nullptr;
+				LastFocusedFileEditArea = nullptr;
 			}
 		}
-		if (lastFocusedFileEditArea) {
-			applyFocusedFileEditWidget(lastFocusedFileEditArea->getCurrentWidget());
+		if (LastFocusedFileEditArea) {
+			applyFocusedFileEditWidget(LastFocusedFileEditArea->getCurrentWidget());
 		}
-		emit currentFileEditWidgetAreaChanged(lastFocusedFileEditArea);
+		emit currentFileEditWidgetAreaChanged(LastFocusedFileEditArea);
 	}
 
 	void MainWin::onThemeChanged() {
@@ -525,7 +665,7 @@ namespace YSS::Editor {
 					bool okToClose = editorPlugin->onProjectAboutToClose(YSSCore::General::YSSProject::getCurrentProject());
 					if (not okToClose) {
 						event->ignore();
-						closeForBack = false;
+						CloseForBack = false;
 						return;
 					}
 				}
@@ -538,7 +678,7 @@ namespace YSS::Editor {
 			QMessageBox::Yes);
 		if (result == QMessageBox::Cancel) {
 			event->ignore();
-			closeForBack = false;
+			CloseForBack = false;
 			return;
 		}
 		else if (result == QMessageBox::Yes) {
@@ -562,7 +702,7 @@ namespace YSS::Editor {
 		Instance = nullptr;
 		delete YSSCore::General::YSSProject::getCurrentProject();
 		this->deleteLater();
-		if (closeForBack) {
+		if (CloseForBack) {
 			YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 			win->show();
 		}
@@ -578,6 +718,7 @@ namespace YSS::Editor {
 
 	void MainWin::saveProject() {
 		saveAllFiles();
+		FileEditWidgetArea::compressAreaID();
 		auto layouts = TreeLayoutWidget::getAllTopLevelLayouts();
 		Visindigo::Utility::JsonConfig treeConfig;
 		treeConfig.setObject("default", TreeLayout->saveToJson());

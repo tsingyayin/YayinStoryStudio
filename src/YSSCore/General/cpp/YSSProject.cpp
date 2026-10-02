@@ -22,7 +22,7 @@ namespace YSSCore::General {
 	protected:
 		static YSSProject* CurrentProject;
 		Visindigo::Utility::JsonConfig* ProjectConfig = nullptr;
-		QString ConfigPath;
+		QFileInfo ConfigPath;
 		Visindigo::Utility::VirtualStorage* BackupStorage = nullptr;
 		qint32 BackupMaxCount = 50;
 
@@ -189,7 +189,6 @@ namespace YSSCore::General {
 		从 \a configPath 加载YSS项目
 	*/
 	YSSProject::LoadProjectResult YSSProject::loadProject(const QString& configPath) {
-		d->ConfigPath = configPath;
 		Visindigo::Utility::FileOperation::Errorable<QString> configResult = Visindigo::Utility::FileOperation::readAll(configPath);
 		if (not configResult) {
 			yErrorF << "Failed to read project config: " << configPath
@@ -215,19 +214,8 @@ namespace YSSCore::General {
 				return LoadProjectResult::InvalidConfig;
 			}
 		}
+		d->ConfigPath = QFileInfo(configPath);
 		return LoadProjectResult::Success;
-	}
-
-	/*!
-		\since YSS 0.13.0
-		return 当前项目的配置文件路径。
-		如果项目加载时是有效的，那这个返回值就等同于设置值。
-		即，它是绝对路径还是相对路径取决于设置时的原样。
-
-		\warning 这个函数从0.17开始弃用，因为功能与getProjectPath()重复。
-	*/
-	QString YSSProject::getProjectConfigPath() {
-		return d->ConfigPath;
 	}
 
 	/*!
@@ -240,17 +228,19 @@ namespace YSSCore::General {
 	bool YSSProject::saveProject(const QString& configPath) {
 		d->updateLastModifyTime();
 		if (configPath.isEmpty()) {
-			if (d->ConfigPath.isEmpty()) {
+			// 这里要判断的是“是否已经设置过保存位置”，而不是“文件是否存在”：
+			// 新建项目时 project.yssp 尚未落盘，用 exists() 会把首次保存直接挡掉。
+			if (d->ConfigPath.filePath().isEmpty()) {
 				return false;
 			}
 		}
 		else {
-			d->ConfigPath = configPath;
+			d->ConfigPath = QFileInfo(configPath);
 		}
 		QString config = d->ProjectConfig->toString();
-		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(d->ConfigPath, config);
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(getProjectPath(), config);
 		if (saveResult != Visindigo::Utility::FileOperation::Success) {
-			yErrorF << "Failed to save project config: " << d->ConfigPath
+			yErrorF << "Failed to save project config: " << getProjectPath()
 				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
 			return false;
 		}
@@ -274,7 +264,7 @@ namespace YSSCore::General {
 	*/
 	bool YSSProject::initProject(const QString& folder, const QString& name) {
 		QDir dir(folder);
-		if (!Visindigo::Utility::FileUtility::isDirExist(folder)) {
+		if (not Visindigo::Utility::FileUtility::isDirExist(folder)) {
 			Visindigo::Utility::FileUtility::createDir(folder);
 		}
 		else {
@@ -283,7 +273,7 @@ namespace YSSCore::General {
 				return false;
 			}
 		}
-		d->ConfigPath = folder + "/project.yssp";
+		d->ConfigPath = QFileInfo(folder + "/project.yssp");
 		d->ProjectConfig->setString("Project.Name", name);
 		d->ProjectConfig->setString("Project.Description", "");
 		d->ProjectConfig->setString("Project.IconPath", "");
@@ -291,9 +281,12 @@ namespace YSSCore::General {
 		d->ProjectConfig->setString("Project.Author", "");
 		d->ProjectConfig->setString("Project.DebugServerID", "");
 		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		d->ProjectConfig->setStringList("Project.RequiredPlugins", QStringList());
 		refreshLastModifyTime();
-		saveProject();
-		return true;
+		// 首次保存失败（磁盘不可写等）时不应谎报成功，否则调用方会拿一个不存在的
+		// project.yssp 路径继续往下走，最终报出莫名其妙的 FileNotFound。
+		return saveProject();
 	}
 
 	/*!
@@ -320,8 +313,7 @@ namespace YSSCore::General {
 		绝对路径返回。
 	*/
 	QString YSSProject::getProjectFolder() {
-		QFileInfo info(d->ConfigPath);
-		return info.absolutePath();
+		return d->ConfigPath.absolutePath();
 	}
 
 	/*!
@@ -332,7 +324,7 @@ namespace YSSCore::General {
 		即，它是绝对路径还是相对路径取决于设置时的原样。
 	*/
 	QString YSSProject::getProjectPath() {
-		return d->ConfigPath;
+		return d->ConfigPath.absoluteFilePath();
 	}
 
 	/*!
@@ -888,6 +880,7 @@ namespace YSSCore::General {
 	// ============================================================
 
 	/*!
+		\since YSS 0.16.0
 		为项目内相对路径 \a inProjRelativePth 指向的文件创建一份备份。
 		文件内容从磁盘按原路径读取，存入备份虚拟存储中。
 	*/
@@ -937,6 +930,7 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\since YSS 0.16.0
 		返回 \a inProjRelativePth 的所有备份时间列表。
 	*/
 	QList<QDateTime> YSSProject::getFileBackupList(const QString& inProjRelativePth) {
@@ -958,6 +952,7 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\since YSS 0.16.0
 		获取 \a inProjRelativePth 在 \a backupTime 时的备份内容。
 	*/
 	QByteArray YSSProject::getFileBackupContent(const QString& inProjRelativePth,
@@ -968,6 +963,7 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\since YSS 0.16.0
 		将 \a inProjRelativePth 在 \a backupTime 的备份还原到磁盘。
 		若 \a restoreToPath 非空，则还原到指定路径；
 		若 \a overwrite 为 false 且目标已存在，则不覆盖返回 false。
@@ -1002,6 +998,7 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\since YSS 0.16.0
 		删除 \a inProjRelativePth 在 \a backupTime 的单份备份。
 	*/
 	void YSSProject::removeFileBackup(const QString& inProjRelativePth,
@@ -1012,6 +1009,7 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\since YSS 0.16.0
 		删除 \a inProjRelativePth 的所有备份。
 	*/
 	void YSSProject::removeFileBackup(const QString& inProjRelativePth) {
@@ -1025,6 +1023,7 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\since YSS 0.16.0
 		删除项目中所有文件的全部备份。
 		直接销毁数据库文件并重建空库，避免逐条 SQL DELETE 的开销。
 	*/
@@ -1033,22 +1032,7 @@ namespace YSSCore::General {
 	}
 
 	/*!
-		设置每个文件保留的最大备份数量。超过上限时，最旧的备份会被自动清理。
-
-		\a count 保留的最大备份数量。
-	*/
-	void YSSProject::setFileBackupMaxCount(qint32 count) {
-		d->BackupMaxCount = (count > 0) ? count : 1;
-	}
-
-	/*!
-		return 当前设置的每文件最大备份数量。
-	*/
-	qint32 YSSProject::getFileBackupMaxCount() {
-		return d->BackupMaxCount;
-	}
-
-	/*!
+		\since YSS 0.16.0
 		return 所有已备份文件的原始项目内相对路径列表。
 	*/
 	QStringList YSSProject::getAllFileBackups() {
@@ -1063,5 +1047,65 @@ namespace YSSCore::General {
 			result.append(origPath);
 		}
 		return result;
+	}
+
+	/*!
+		\since YSS 0.16.0
+		设置每个文件保留的最大备份数量。超过上限时，最旧的备份会被自动清理。
+
+		\a count 保留的最大备份数量。
+	*/
+	void YSSProject::setFileBackupMaxCount(qint32 count) {
+		d->BackupMaxCount = (count > 0) ? count : 1;
+	}
+
+	/*!
+		\since YSS 0.16.0
+
+		return 当前设置的每文件最大备份数量。
+	*/
+	qint32 YSSProject::getFileBackupMaxCount() {
+		return d->BackupMaxCount;
+	}
+
+	/*!
+		\since YSS 0.17.0
+
+		添加一个项目所需的插件ID到项目配置中。如果插件ID已存在，则不会重复添加。
+	*/
+	void YSSProject::addRequiredPlugin(const QString& pluginID) {
+		QStringList requiredPlugins = d->ProjectConfig->getStringList("Project.RequiredPlugins");
+		if (not requiredPlugins.contains(pluginID)) {
+			requiredPlugins.append(pluginID);
+			d->ProjectConfig->setStringList("Project.RequiredPlugins", requiredPlugins);
+		}
+	}
+
+	/*!
+		\since YSS 0.17.0
+		移除一个项目所需的插件ID从项目配置中。如果插件ID不存在，则不会有任何操作。
+	*/
+	void YSSProject::removeRequiredPlugin(const QString& pluginID) {
+		QStringList requiredPlugins = d->ProjectConfig->getStringList("Project.RequiredPlugins");
+		if (requiredPlugins.contains(pluginID)) {
+			requiredPlugins.removeAll(pluginID);
+			d->ProjectConfig->setStringList("Project.RequiredPlugins", requiredPlugins);
+		}
+	}
+	
+	/*!
+		\since YSS 0.17.0
+		设置项目所需的插件ID列表到项目配置中。这个函数会覆盖原有的列表。
+	*/
+	void YSSProject::setRequiredPlugins(const QStringList& pluginIDs) {
+		d->ProjectConfig->setStringList("Project.RequiredPlugins", pluginIDs);
+	}
+
+	/*!
+		\since YSS 0.17.0
+		return 当前项目所需的插件ID列表。
+	*/
+	QStringList YSSProject::getRequiredPlugins() {
+		return d->ProjectConfig->getStringList("Project.RequiredPlugins");
 	}
 }

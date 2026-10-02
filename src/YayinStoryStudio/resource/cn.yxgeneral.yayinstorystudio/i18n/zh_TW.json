@@ -354,5 +354,16 @@
 		"reasoning": "思考過程",
 		"runError": "執行失敗：%1",
 		"configError": "無法載入桌面上的模型設定：%1"
+	},
+	"crashScreen":{
+		"headline":"程式發生嚴重錯誤，必須立即關閉。我們收集了一些錯誤資訊。",
+		"headlineNonCritical":"程式發生問題，但不足以導致當機。以下是相關錯誤資訊。",
+		"progress":"100% 完成",
+		"stopCode":"停止代碼：%1",
+		"location":"發生錯誤的位置：%1",
+		"stacktrace":"呼叫堆疊",
+		"reportFolder":"當機報告資料夾：%1",
+		"reportHint":"詳細資訊已經儲存到last_crash.zip檔案中，可以向他人傳送此檔案以尋求協助。",
+		"dismiss":"確定"
 	}
 }

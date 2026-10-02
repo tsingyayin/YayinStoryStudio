@@ -354,5 +354,16 @@
 		"reasoning": "Reasoning",
 		"runError": "Run failed: %1",
 		"configError": "Failed to load the model config on your desktop: %1"
+	},
+	"crashScreen":{
+		"headline":"The program ran into a serious error and must be closed immediately. We collected some error information.",
+		"headlineNonCritical":"The program ran into a problem, but not serious enough to crash it. The related error information is below.",
+		"progress":"100% complete",
+		"stopCode":"Stop code: %1",
+		"location":"Location: %1",
+		"stacktrace":"Call stack",
+		"reportFolder":"Crash report folder: %1",
+		"reportHint":"The details have been saved to last_crash.zip. You can send that file to others to ask for help.",
+		"dismiss":"OK"
 	}
 }

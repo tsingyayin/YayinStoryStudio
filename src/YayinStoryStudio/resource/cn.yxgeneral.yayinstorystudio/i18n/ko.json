@@ -354,5 +354,16 @@
 		"reasoning": "사고 과정",
 		"runError": "실행 실패: %1",
 		"configError": "바탕 화면의 모델 설정을 불러오지 못했습니다: %1"
+	},
+	"crashScreen":{
+		"headline":"프로그램에 심각한 오류가 발생하여 즉시 닫아야 합니다. 오류 정보를 일부 수집했습니다.",
+		"headlineNonCritical":"프로그램에 문제가 발생했지만 충돌로 이어지지는 않았습니다. 관련 오류 정보는 다음과 같습니다.",
+		"progress":"100% 완료",
+		"stopCode":"중지 코드: %1",
+		"location":"오류 위치: %1",
+		"stacktrace":"호출 스택",
+		"reportFolder":"충돌 보고서 폴더: %1",
+		"reportHint":"자세한 내용은 last_crash.zip에 저장되었습니다. 이 파일을 다른 사람에게 보내 도움을 요청할 수 있습니다.",
+		"dismiss":"확인"
 	}
 }
