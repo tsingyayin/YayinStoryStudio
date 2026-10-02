@@ -126,8 +126,9 @@ namespace Visindigo::Utility {
 					}
 					else {
 						QJsonArray arr = val.toArray();
-						if (arr.size() <= (*it)->toInt()) {
-							arr.append(QJsonValue());
+						const int idx = (*it)->toInt();
+						while (arr.size() <= idx) {
+							arr.append(QJsonValue(QJsonValue::Null));
 						}
 						val = arr;
 					}
@@ -136,12 +137,11 @@ namespace Visindigo::Utility {
 			if (*it == nameList->end() - 1) {
 				if (val.isArray()) {
 					QJsonArray arr = val.toArray();
-					if (arr.size() <= (*it)->toInt()) {
-						arr.append(var);
+					const int idx = (*it)->toInt();
+					while (arr.size() <= idx) {
+						arr.append(QJsonValue(QJsonValue::Null));
 					}
-					else {
-						arr.replace((*it)->toInt(), var);
-					}
+					arr.replace(idx, var);
 					return arr;
 				}
 				else {
@@ -201,7 +201,9 @@ namespace Visindigo::Utility {
 				QStringList::iterator it2 = *it + 1;
 				if (val.isArray()) {
 					QJsonArray arr = val.toArray();
-					arr.replace((*it)->toInt(), remove(nameList, &it2, arr.at((*it)->toInt()), haveValue));
+					if ((*it)->toInt() < arr.size()) {
+						arr.replace((*it)->toInt(), remove(nameList, &it2, arr.at((*it)->toInt()), haveValue));
+					}
 					return arr;
 				}
 				else {
