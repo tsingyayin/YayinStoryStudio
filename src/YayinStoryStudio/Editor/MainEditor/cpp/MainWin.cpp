@@ -102,8 +102,8 @@ namespace YSS::Editor {
 
 		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened, this, &MainWin::onToolWidgetOpened);
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileClosed, this, [this](const QString& filePath) {
-			if (FocusingFileEditWidget && FocusingFileEditWidget->getFilePath() == filePath) {
-				FocusingFileEditWidget = nullptr;
+			if (auto* current = FileEditWidgetArea::getCurrentFocusedWidget(); current && current->getFilePath() == filePath) {
+				FileEditWidgetArea::setCurrentFocusedWidget(FileEditWidgetArea::getCurrentArea(), nullptr);
 			}
 			if (FocusingFileEditWidgetNotTool && FocusingFileEditWidgetNotTool->getFilePath() == filePath) {
 				FocusingFileEditWidgetNotTool = nullptr;
@@ -186,11 +186,8 @@ namespace YSS::Editor {
 		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(
 			YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(focusedFile));
 		if (focusedArea) {
-			LastFocusedFileEditArea = focusedArea;
 			focusedArea->setCurrentWidget(focusedFile);
-			if (auto focusedWidget = YSSFSM->getFileEditWidget(focusedFile)) {
-				applyFocusedFileEditWidget(focusedWidget);
-			}
+			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, YSSFSM->getFileEditWidget(focusedFile));
 		}
 		saveProject();
 	}
@@ -327,7 +324,7 @@ namespace YSS::Editor {
 					best = area;
 					bestScore = score;
 				}
-				else if (score == bestScore and area == LastFocusedFileEditArea) {
+				else if (score == bestScore and area == FileEditWidgetArea::getCurrentArea()) {
 					// 同等条件下优先使用用户最后聚焦的那个副区域。
 					best = area;
 				}
@@ -345,8 +342,8 @@ namespace YSS::Editor {
 
 		// 兜底：最后聚焦的区域 -> 编号最小且不是主区域的区域 -> 主区域。
 		yDebug << "Fallback area for file: " << filePath;
-		if (LastFocusedFileEditArea) {
-			return LastFocusedFileEditArea;
+		if (FileEditWidgetArea* currentArea = FileEditWidgetArea::getCurrentArea()) {
+			return currentArea;
 		}
 		for (FileEditWidgetArea* area : FileEditWidgetArea::getAllAreas()) {
 			if (area != mainArea) {
@@ -370,13 +367,14 @@ namespace YSS::Editor {
 		for (auto area : FileEditWidgetArea::getAllAreas()) {
 			if (area->containsWidget(filePath)) {
 				area->addWidget(widget);
-				applyFocusedFileEditWidget(widget);
+				FileEditWidgetArea::setCurrentFocusedWidget(area, widget);
 				return;
 			}
 		}
-		auto area = selectFileEditWidgetAreaForNewFile(widget);
-		area->addWidget(widget);
-		applyFocusedFileEditWidget(widget);
+		if (auto area = selectFileEditWidgetAreaForNewFile(widget)) {
+			area->addWidget(widget);
+			FileEditWidgetArea::setCurrentFocusedWidget(area, widget);
+		}
 	}
 
 	void MainWin::onToolWidgetOpened(const QString& widgetID) {
@@ -389,8 +387,8 @@ namespace YSS::Editor {
 		if (FocusingFileEditWidgetNotTool) {
 			FocusingFileEditWidgetNotTool->saveFile();
 		}
-		else if (FocusingFileEditWidget) {
-			FocusingFileEditWidget->saveFile();
+		else if (YSSCore::Editor::FileEditWidget* current = FileEditWidgetArea::getCurrentFocusedWidget()) {
+			current->saveFile();
 		}
 		else {
 			yDebugF << "No file to save";
@@ -507,11 +505,11 @@ namespace YSS::Editor {
 	}
 
 	FileEditWidgetArea* MainWin::getLastFocusedFileEditArea() const {
-		return LastFocusedFileEditArea;
+		return FileEditWidgetArea::getCurrentArea();
 	}
 
 	YSSCore::Editor::FileEditWidget* MainWin::getCurrentFocusedFileEditWidget() const {
-		return FocusingFileEditWidget;
+		return FileEditWidgetArea::getCurrentFocusedWidget();
 	}
 
 	YSSCore::Editor::FileEditWidget* MainWin::getCurrentFocusedFileEditWidgetNotTool() const {
@@ -531,19 +529,20 @@ namespace YSS::Editor {
 		else {
 			TreeLayout->setOrientation(Qt::Horizontal);
 			FileEditWidgetArea* resourceArea = TreeLayout->createFileEditAreaFirst();
-			LastFocusedFileEditArea = resourceArea;
+			FileEditWidgetArea::setCurrentFocusedWidget(resourceArea, resourceArea ? resourceArea->getCurrentWidget() : nullptr);
 			Menu->view_pluginTools(YSSFSM->getFileServerById("cn.yxgeneral.yss_builtin.resourceBrowserVFS"), true);
 			FileEditWidgetArea* messageArea = new FileEditWidgetArea();
 			TreeLayoutWidget* rightLayout = TreeLayout->replaceFileEditAt(1, messageArea, false);
-			LastFocusedFileEditArea = messageArea;
+			FileEditWidgetArea::setCurrentFocusedWidget(messageArea, messageArea->getCurrentWidget());
 			Menu->view_pluginTools(YSSFSM->getFileServerById("cn.yxgeneral.yss_builtin.messageViewerVFS"), true);
 			TreeLayout->setChildRatios({ 2, 5 });
 			if (rightLayout) {
 				rightLayout->setChildRatios({ 3, 1 });
 			}
-			LastFocusedFileEditArea = FileEditWidgetArea::getMainArea();
-			if (LastFocusedFileEditArea) {
-				LastFocusedFileEditArea->setFocus();
+			FileEditWidgetArea* mainArea = FileEditWidgetArea::getMainArea();
+			FileEditWidgetArea::setCurrentFocusedWidget(mainArea, mainArea ? mainArea->getCurrentWidget() : nullptr);
+			if (mainArea) {
+				mainArea->setFocus();
 			}
 		}
 		// 确保主区域始终是编号最小的那个区域（恢复布局时创建顺序与编号顺序未必一致）。
@@ -566,16 +565,13 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::onFileEditWidgetAreaCreated(FileEditWidgetArea* area) {
-		if (not LastFocusedFileEditArea) {
-			LastFocusedFileEditArea = area;
-		}
 		connect(area, &FileEditWidgetArea::areaFocusd, this, &MainWin::onFileEditWidgetAreaFocusIn);
 		connect(area, &FileEditWidgetArea::currentFileChanged, this, [this, area](const QString&) {
 			// 后台区域换文件不算“当前文件”变了，只有当前聚焦的那个区域才跟。
-			if (area != LastFocusedFileEditArea) {
+			if (area != FileEditWidgetArea::getCurrentArea()) {
 				return;
 			}
-			applyFocusedFileEditWidget(area->getCurrentWidget());
+			FileEditWidgetArea::setCurrentFocusedWidget(area, area->getCurrentWidget());
 			});
 		connect(area, &FileEditWidgetArea::textEditCursorPositionChanged, this, [this](const QString& filePath, const QTextCursor& cursor) {
 			BottomFrame->displayEditorInfo(cursor);
@@ -594,12 +590,9 @@ namespace YSS::Editor {
 			});
 	}
 
-	void MainWin::applyFocusedFileEditWidget(YSSCore::Editor::FileEditWidget* widget) {
-		if (widget == FocusingFileEditWidget) {
-			return;
-		}
-		FocusingFileEditWidget = widget;
+	void MainWin::onGlobalCurrentChanged(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget) {
 		emit currentFileEditWidgetChanged(widget);
+		emit currentFileEditWidgetAreaChanged(area);
 		if (widget == nullptr) {
 			FocusingFileEditWidgetNotTool = nullptr;
 			BottomFrame->setEditorInfoEnable(false);
@@ -629,20 +622,12 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::onFileEditWidgetAreaFocusIn(const QString& areaID) {
-		if (not areaID.isEmpty()) {
-			vgDebug << "FileEditWidgetArea focus in:" << areaID;
-			auto area = FileEditWidgetArea::getAreaByID(areaID);
-			if (area) {
-				LastFocusedFileEditArea = area;
-			}
-			else {
-				LastFocusedFileEditArea = nullptr;
-			}
+		if (areaID.isEmpty()) {
+			return;
 		}
-		if (LastFocusedFileEditArea) {
-			applyFocusedFileEditWidget(LastFocusedFileEditArea->getCurrentWidget());
-		}
-		emit currentFileEditWidgetAreaChanged(LastFocusedFileEditArea);
+		vgDebug << "FileEditWidgetArea focus in:" << areaID;
+		FileEditWidgetArea* area = FileEditWidgetArea::getAreaByID(areaID);
+		FileEditWidgetArea::setCurrentFocusedWidget(area, area ? area->getCurrentWidget() : nullptr);
 	}
 
 	void MainWin::onThemeChanged() {

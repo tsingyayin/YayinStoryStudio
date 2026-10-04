@@ -6,6 +6,7 @@
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qheaderview.h>
 #include <QtWidgets/qscrollbar.h>
+#include <QtWidgets/qstyle.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServerManager.h>
 #include <Editor/SyntaxHighlighter.h>
@@ -60,6 +61,10 @@ namespace YSS::Editor {
 		this->setFixedWidth(200);
 		TitleLabel = new QLabel(this);
 		TitleLabel->setContentsMargins(5, 0, 5, 0);
+		ModifiedLabel = new QLabel(this);
+		ModifiedLabel->setAlignment(Qt::AlignCenter);
+		ModifiedLabel->setFixedSize(0, 0);
+		ModifiedLabel->hide();
 		PinLabel = new QToolButton(this);
 		//PinLabel->setIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon/pin.png"));
 		CloseLabel = new QToolButton(this);
@@ -68,6 +73,7 @@ namespace YSS::Editor {
 		Layout = new QHBoxLayout(this);
 		Layout->setContentsMargins(0, 0, 0, 0);
 		Layout->setSpacing(0);
+		Layout->addWidget(ModifiedLabel);
 		Layout->addWidget(TitleLabel);
 		Layout->addWidget(PinLabel);
 		Layout->addWidget(CloseLabel);
@@ -142,13 +148,63 @@ namespace YSS::Editor {
 
 	void StackTag::setText(const QString& text) {
 		TitleLabel->setText(text);
-		if (Orientation == Qt::Horizontal) {
-			qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(text) + 40;
-			if (fixedWidth < 100) {
-				fixedWidth = 100;
-			}
-			this->setFixedWidth(fixedWidth);
+		updateFixedWidth();
+	}
+
+	void StackTag::setModified(bool modified) {
+		if (Modified == modified) {
+			return;
 		}
+		Modified = modified;
+		ModifiedLabel->setVisible(modified);
+		updateModifiedIndicator();
+		updateFixedWidth();
+	}
+
+	bool StackTag::isModified() const {
+		return Modified;
+	}
+
+	void StackTag::updateFixedWidth() {
+		if (Orientation != Qt::Horizontal) {
+			return;
+		}
+		qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(TitleLabel->text()) + 40;
+		if (Modified) {
+			fixedWidth += ModifiedLabel->width() + Layout->spacing();
+		}
+		if (fixedWidth < 100) {
+			fixedWidth = 100;
+		}
+		if (fixedWidth == AppliedFixedWidth) {
+			return;
+		}
+		AppliedFixedWidth = fixedWidth;
+		this->setFixedWidth(fixedWidth);
+		if (StayInWidget) {
+			StayInWidget->adjustScrollArea();
+		}
+	}
+
+	void StackTag::updateModifiedIndicator() {
+		if (ModifiedIcon.isNull()) {
+			return;
+		}
+		QSize iconSize = PinLabel->iconSize();
+		if (not iconSize.isValid()) {
+			const qint32 metric = PinLabel->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+			iconSize = QSize(metric, metric);
+		}
+		// The title label carries its own left padding, so the icon only needs
+		// padding on the top, bottom and left to match its vertical gaps.
+		const qint32 height = this->height();
+		qint32 margin = 0;
+		if (height > iconSize.height()) {
+			margin = (height - iconSize.height()) / 2;
+		}
+		ModifiedLabel->setContentsMargins(margin, margin, 0, margin);
+		ModifiedLabel->setFixedSize(iconSize.width() + margin, iconSize.height() + 2 * margin);
+		ModifiedLabel->setPixmap(ModifiedIcon.pixmap(iconSize));
 	}
 
 	void StackTag::setFilePath(const QString& filePath) {
@@ -179,6 +235,7 @@ namespace YSS::Editor {
 
 	void StackTag::setFocusOn(bool focus) {
 		Focused = focus;
+		updateButtonVisibility();
 		repaint();
 	}
 
@@ -191,20 +248,26 @@ namespace YSS::Editor {
 		setToolTip(textWidth > TitleLabel->width() ? TitleLabel->text() : QString());
 	}
 
+	void StackTag::updateButtonVisibility() {
+		// The current tag always shows its close button; the pin button only
+		// appears while hovering, or stays visible while the tag is pinned.
+		CloseLabel->setVisible(Focused || Hovering);
+		PinLabel->setVisible(Hovering || Pinned);
+	}
+
 	void StackTag::setPinned(bool pinned) {
 		if (Pinned == pinned) {
 			return;
 		}
 		Pinned = pinned;
 		if (Pinned) {
-			//PinLabel->show();
 			PinLabel->setIcon(VIApp->getFontIcon("\uE841\uE840", 64, { VISTM->getPaletteAccentColor(), 
 				VISTM->getPaletteTextColor() }));
 		}
 		else {
-			//PinLabel->hide();
 			PinLabel->setIcon(VIApp->getFontIcon("\uE840", 64, { VISTM->getPaletteTextColor() }));
 		}
+		updateButtonVisibility();
 	}
 
 	bool StackTag::isPinned() const {
@@ -258,24 +321,22 @@ namespace YSS::Editor {
 		CloseLabel->setFixedHeight(this->height() - 2);
 		PinLabel->setFixedWidth(PinLabel->height());
 		CloseLabel->setFixedWidth(CloseLabel->height());
+		updateModifiedIndicator();
+		updateFixedWidth();
 		updateToolTip();
 	}
 
 	void StackTag::enterEvent(QEnterEvent* event) {
 		QFrame::enterEvent(event);
 		Hovering = true;
-		PinLabel->show();
-		CloseLabel->show();
+		updateButtonVisibility();
 		updateToolTip();
 	}
 
 	void StackTag::leaveEvent(QEvent* event) {
 		QFrame::leaveEvent(event);
 		Hovering = false;
-		if (not Pinned) {
-			PinLabel->hide();
-		}
-		CloseLabel->hide();
+		updateButtonVisibility();
 		updateToolTip();
 	}
 
@@ -415,6 +476,7 @@ namespace YSS::Editor {
 		QIcon showInExplorerIcon = VIApp->getFontIcon("\uE8A7", 64, { textColor });
 		QIcon closeAllIcon = VIApp->getFontIcon("\uEA39", 64, { textColor});
 		QIcon closeSavedIcon = VIApp->getFontIcon("\uE711", 64, { textColor });
+		QIcon modifiedIcon = VIApp->getNamedFontIcon("Edit", 64, { accentColor });
 		QList<StackTag*> targets;
 		if (not label) {
 			targets = Labels;
@@ -434,6 +496,8 @@ namespace YSS::Editor {
 			label->ActionShowInExplorer->setIcon(showInExplorerIcon);
 			label->ActionCloseAll->setIcon(closeAllIcon);
 			label->ActionCloseSaved->setIcon(closeSavedIcon); 
+			label->ModifiedIcon = modifiedIcon;
+			label->updateModifiedIndicator();
 		}
 	}
 
@@ -450,6 +514,9 @@ namespace YSS::Editor {
 		WidgetSelectorModel->appendRow(selectorItem);
 		ContentLayout->addWidget(tagLabel);
 		Labels.append(tagLabel);
+		if (UseGlobalFocus) {
+			tagLabel->setFocusOn(tagLabel->getFilePath() == GlobalCurrentPath);
+		}
 
 		connect(tagLabel, &StackTag::pinClicked, this, [this](const QString& filePath) {
 			pinStackLabel(filePath);
@@ -494,6 +561,9 @@ namespace YSS::Editor {
 		const QString text = newDisplayName.isEmpty() ? QFileInfo(newFilePath).fileName() : newDisplayName;
 		label->setText(text);
 		label->setFilePath(newFilePath);
+		if (GlobalCurrentPath == oldFilePath) {
+			GlobalCurrentPath = newFilePath;
+		}
 		for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
 			QStandardItem* item = WidgetSelectorModel->item(i);
 			if (item->data(Qt::UserRole).toString() == oldFilePath) {
@@ -576,14 +646,14 @@ namespace YSS::Editor {
 		int i = 0;
 		int cache = i;
 		for (StackTag* label : Labels) {
-			if (label->getFilePath() == filePath) {
-				label->setFocusOn(true);
+			const bool isCurrent = (label->getFilePath() == filePath);
+			if (not UseGlobalFocus) {
+				label->setFocusOn(isCurrent);
+			}
+			if (isCurrent) {
 				finded = true;
 				CurrentSelected = filePath;
 				cache = i;
-			}
-			else {
-				label->setFocusOn(false);
 			}
 			i++;
 		}
@@ -600,6 +670,17 @@ namespace YSS::Editor {
 			else {
 				ScrollArea->verticalScrollBar()->setValue(cache * Labels.last()->height());
 			}
+		}
+	}
+
+	void StackTagWidget::setUseGlobalFocus(bool use) {
+		UseGlobalFocus = use;
+	}
+
+	void StackTagWidget::setGlobalCurrentPath(const QString& filePath) {
+		GlobalCurrentPath = filePath;
+		for (StackTag* label : Labels) {
+			label->setFocusOn(label->getFilePath() == filePath);
 		}
 	}
 
@@ -641,10 +722,7 @@ namespace YSS::Editor {
 		if (not label) {
 			return;
 		}
-		const QString fileName = label->getText();
-		if (not fileName.startsWith("* ")) {
-			label->setText("* " + fileName);
-		}
+		label->setModified(true);
 	}
 
 	void StackTagWidget::cancelFileChanged(const QString& path) {
@@ -652,10 +730,7 @@ namespace YSS::Editor {
 		if (not label) {
 			return;
 		}
-		const QString fileName = label->getText();
-		if (fileName.startsWith("* ")) {
-			label->setText(fileName.mid(2));
-		}
+		label->setModified(false);
 	}
 
 	bool StackTagWidget::containsStackLabel(const QString& filePath) const {

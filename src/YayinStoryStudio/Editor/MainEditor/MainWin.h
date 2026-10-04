@@ -33,13 +33,10 @@ namespace YSS::Editor {
 		MainWinMenu* Menu = nullptr;
 		TreeLayoutWidget* TreeLayout = nullptr;
 		BottomInfoWidget* BottomFrame = nullptr;
-		FileEditWidgetArea* LastFocusedFileEditArea = nullptr;
 		bool CloseForBack = false;
-		YSSCore::Editor::FileEditWidget* FocusingFileEditWidget = nullptr;
 		YSSCore::Editor::FileEditWidget* FocusingFileEditWidgetNotTool = nullptr;
 		static MainWin* Instance;
 	private:
-		void applyFocusedFileEditWidget(YSSCore::Editor::FileEditWidget* widget);
 		YSS::Editor::FileEditWidgetArea* selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget);
 	signals:
 		void currentFileEditWidgetAreaChanged(FileEditWidgetArea* area);
@@ -67,6 +64,7 @@ namespace YSS::Editor {
 	public slots:
 		void onFileEditWidgetAreaCreated(FileEditWidgetArea* widget);
 		void onFileEditWidgetAreaFocusIn(const QString& areaID);
+		void onGlobalCurrentChanged(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget);
 	public:
 		virtual void onThemeChanged() override;
 		virtual void closeEvent(QCloseEvent* event) override;

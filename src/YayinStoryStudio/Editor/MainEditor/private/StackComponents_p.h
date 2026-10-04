@@ -11,6 +11,7 @@
 #include <QtGui/qstandarditemmodel.h>
 #include <QtGui/qaction.h>
 #include <QtGui/qdrag.h>
+#include <QtGui/qicon.h>
 #include <Widgets/ThemeManager.h>
 namespace YSSCore::Editor {
 	class FileEditWidget;
@@ -26,16 +27,23 @@ namespace YSS::Editor {
 	private:
 		Qt::Orientation Orientation;
 		QLabel* TitleLabel;
+		QLabel* ModifiedLabel;
 		QHBoxLayout* Layout;
 		QString FilePath;
 		bool Hovering = false;
 		bool Focused = false;
 		bool Pinned = false;
 		bool Pressed = false;
+		bool Modified = false;
+		qint32 AppliedFixedWidth = -1;
 		QPoint PressedPos;
 		StackTagWidget* StayInWidget = nullptr;
 		YSSCore::Editor::FileEditWidget* FileEditWidget = nullptr;
+		QIcon ModifiedIcon;
 		void updateToolTip();
+		void updateFixedWidth();
+		void updateModifiedIndicator();
+		void updateButtonVisibility();
 	protected:
 		QToolButton* PinLabel;
 		QToolButton* CloseLabel;
@@ -65,6 +73,8 @@ namespace YSS::Editor {
 		void setStayInWidget(StackTagWidget* widget);
 		StackTagWidget* getStayInWidget() const;
 		void setText(const QString& text);
+		void setModified(bool modified);
+		bool isModified() const;
 		void setFilePath(const QString& filePath);
 		QString getFilePath() const;
 		QString getText() const;
@@ -107,6 +117,8 @@ namespace YSS::Editor {
 		QList<StackTag*> Labels;
 		QString CurrentSelected;
 		FileEditWidgetArea* Area = nullptr;
+		bool UseGlobalFocus = false;
+		QString GlobalCurrentPath;
 	public:
 		StackTagWidget(QWidget* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 		virtual ~StackTagWidget();
@@ -117,6 +129,8 @@ namespace YSS::Editor {
 		void pinStackLabel(const QString& filePath);
 		void removeStackLabel(const QString& filePath);
 		void setCurrentStackLabel(const QString& filePath);
+		void setUseGlobalFocus(bool use);
+		void setGlobalCurrentPath(const QString& filePath);
 		QString getCurrentSelected() const;
 		void adjustScrollArea();
 		void setFileChanged(const QString& filePath);

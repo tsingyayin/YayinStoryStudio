@@ -19,6 +19,8 @@ namespace YSS::Editor {
 	class AreaRegistry {
 	protected:
 		FileEditWidgetArea* mainArea = nullptr;
+		FileEditWidgetArea* currentArea = nullptr;
+		YSSCore::Editor::FileEditWidget* currentFocusedWidget = nullptr;
 		QSet<QString> usedIDs;
 		QMap<QString, FileEditWidgetArea*> areas;
 	public:
@@ -55,6 +57,16 @@ namespace YSS::Editor {
 		}
 		void setMain(FileEditWidgetArea* area) {
 			mainArea = area;
+		}
+		FileEditWidgetArea* current() const {
+			return currentArea;
+		}
+		YSSCore::Editor::FileEditWidget* currentWidget() const {
+			return currentFocusedWidget;
+		}
+		void setCurrent(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget) {
+			currentArea = area;
+			currentFocusedWidget = widget;
 		}
 		QList<FileEditWidgetArea*> allAreas() const {
 			return areas.values();
@@ -97,6 +109,7 @@ namespace YSS::Editor {
 		d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->TagArea = new StackTagWidget(this);
 		d->TagArea->setArea(this);
+		d->TagArea->setUseGlobalFocus(true);
 		d->TagArea->setFixedHeight(32);
 
 		d->CentralArea = new DefaultStackWidgetCentralArea(this);
@@ -172,6 +185,11 @@ namespace YSS::Editor {
 		if (AreaRegistry::instance().main() == this) {
 			AreaRegistry::instance().setMain(nullptr);
 		}
+		if (AreaRegistry::instance().current() == this) {
+			// This area owned the global current; hand it back so no stale widget
+			// keeps the highlight or the bottom info alive.
+			setCurrentFocusedWidget(nullptr, nullptr);
+		}
 		AreaRegistry::instance().release(d->areaID);
 		if (not d->closeSilently) {
 			emit areaClosed(d->areaID);
@@ -213,6 +231,31 @@ namespace YSS::Editor {
 
 	void FileEditWidgetArea::changeMainArea(FileEditWidgetArea* newMainArea) {
 		AreaRegistry::instance().setMain(newMainArea);
+	}
+
+	FileEditWidgetArea* FileEditWidgetArea::getCurrentArea() {
+		return AreaRegistry::instance().current();
+	}
+
+	YSSCore::Editor::FileEditWidget* FileEditWidgetArea::getCurrentFocusedWidget() {
+		return AreaRegistry::instance().currentWidget();
+	}
+
+	void FileEditWidgetArea::setCurrentFocusedWidget(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget) {
+		AreaRegistry& registry = AreaRegistry::instance();
+		if (registry.current() == area and registry.currentWidget() == widget) {
+			return;
+		}
+		registry.setCurrent(area, widget);
+		// The "current" tag highlight is global: only the tag matching the globally
+		// focused widget keeps the close button and bottom accent line.
+		const QString currentPath = widget ? widget->getFilePath() : QString();
+		for (FileEditWidgetArea* target : registry.allAreas()) {
+			target->d->TagArea->setGlobalCurrentPath(currentPath);
+		}
+		if (MainWin* win = MainWin::getInstance()) {
+			win->onGlobalCurrentChanged(area, widget);
+		}
 	}
 
 	void FileEditWidgetArea::compressAreaID() {

@@ -22,6 +22,9 @@ namespace YSS::Editor {
 		static QList<FileEditWidgetArea*> getAllAreas();
 		static void changeMainArea(FileEditWidgetArea* newMainArea);
 		static void compressAreaID();
+		static FileEditWidgetArea* getCurrentArea();
+		static YSSCore::Editor::FileEditWidget* getCurrentFocusedWidget();
+		static void setCurrentFocusedWidget(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget);
 	public:
 		FileEditWidgetArea(QWidget* parent = nullptr, const QString& requestedID = QString());
 		virtual ~FileEditWidgetArea();
