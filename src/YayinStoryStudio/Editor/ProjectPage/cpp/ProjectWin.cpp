@@ -235,8 +235,19 @@ namespace YSS::ProjectPage {
 
 	void ProjectWin::onProjectDoubleClicked() {
 		Visindigo::Widgets::MultiButton* label = qobject_cast<Visindigo::Widgets::MultiButton*>(sender());
-		YSSCore::General::YSSProject* project = HistoryProjectMap[label];
+		YSSCore::General::YSSProject* project = HistoryProjectMap.value(label);
+		if (project == nullptr) {
+			return;
+		}
+		if (not preCheckProject(project)) {
+			return;
+		}
+		// 所有权移交给“当前项目”，必须先摘出历史列表，否则closeEvent会把它一起删掉。
 		HistoryProjectList.removeAll(project);
+		HistoryProjectMap.remove(label);
+		HistoryProjectLabelList.removeAll(label);
+		HistoryProjectLayout->removeWidget(label);
+		label->deleteLater();
 		YSSCore::General::YSSProject::setCurrentProject(project);
 		this->close();
 	}
@@ -258,9 +269,13 @@ namespace YSS::ProjectPage {
 				QString projectPath = Config->getString("RecentProjects." + key);
 				if (projectPath == filePath) { inList = true; break; }
 			}
-			if (!inList) {
+			if (not inList) {
 				yMessageF << "Add" << filePath << "to project list.";
 				Config->setString("RecentProjects." + QString::number(Config->keys("RecentProjects").size()), filePath);
+			}
+			if (not preCheckProject(project)) {
+				delete project;
+				return;
 			}
 			YSSCore::General::YSSProject::setCurrentProject(project);
 			this->close();
@@ -286,6 +301,68 @@ namespace YSS::ProjectPage {
 		}
 	}
 
+	/*
+		检查 \a project 是否满足打开条件：所需插件是否齐全、项目版本是否兼容。
+
+		本函数只检查和询问，不接管 \a project 的所有权。
+		return 用户选择继续打开返回true，选择取消返回false。
+	*/
+	bool ProjectWin::preCheckProject(YSSCore::General::YSSProject* project) {
+		auto requiredPlugins = project->getRequiredPlugins();
+		bool allPluginsAvailable = true;
+		QStringList missingPlugins;
+		for (auto& pluginID : requiredPlugins) {
+			if (not VIPLM->isPluginEnable(pluginID)) {
+				allPluginsAvailable = false;
+				missingPlugins << pluginID;
+			}
+		}
+		if (not allPluginsAvailable) {
+			QMessageBox msgBox;
+			msgBox.setIcon(QMessageBox::Warning);
+			msgBox.setWindowTitle(VITRL("YSS::project.requiredPluginsNotAvailable.title"));
+			msgBox.setText(VITRL("YSS::project.requiredPluginsNotAvailable.message").arg(project->getProjectName()) +
+				"\n" + missingPlugins.join("\n"));
+			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+			msgBox.setDefaultButton(QMessageBox::No);
+			auto rtn = msgBox.exec();
+			if (rtn == QMessageBox::No) {
+				return false;
+			}
+		}
+		auto projectVersion = project->getProjectVersion();
+		yDebug << "Project version:" << projectVersion.toString() << ", Current version:" << YSSCore::General::YSSProject::getCurrentProjectVersion().toString();
+		if (projectVersion != YSSCore::General::YSSProject::getCurrentProjectVersion()) {
+			if (projectVersion < YSSCore::General::YSSProject::getCurrentProjectVersion()) {
+				QMessageBox msgBox;
+				msgBox.setIcon(QMessageBox::Warning);
+				msgBox.setWindowTitle(VITRL("YSS::project.projectVersionTooOld.title"));
+				auto versionRange = YSSCore::General::YSSProject::getProjectVersionRange();
+				auto leftVersion = std::get<0>(versionRange.value(projectVersion));
+				auto rightVersion = std::get<1>(versionRange.value(projectVersion));
+				msgBox.setText(VITRL("YSS::project.projectVersionTooOld.message").arg(project->getProjectName()).arg(projectVersion.toString()).arg(leftVersion.toString()).arg(rightVersion.toString()));
+				msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+				msgBox.setDefaultButton(QMessageBox::No);
+				auto rtn = msgBox.exec();
+				if (rtn == QMessageBox::No) {
+					return false;
+				}
+				project->updateProject();
+			}
+			else {
+				QMessageBox msgBox;
+				msgBox.setIcon(QMessageBox::Warning);
+				msgBox.setWindowTitle(VITRL("YSS::project.projectVersionTooNew.title"));
+				msgBox.setText(VITRL("YSS::project.projectVersionTooNew.message").arg(project->getProjectName()));
+				msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+				auto rtn = msgBox.exec();
+				if (rtn == QMessageBox::No) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	void ProjectWin::onCreateProject() {
 		NewProjectPage::NewProjectWin* win = new NewProjectPage::NewProjectWin();
 		win->setAttribute(Qt::WA_DeleteOnClose);

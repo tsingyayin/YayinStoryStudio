@@ -174,7 +174,6 @@
     <ClInclude Include="General\YSSProject.h" />
     <ClInclude Include="Mystery.h" />
     <ClInclude Include="YSSCoreCompileMacro.h" />
-    <QtMoc Include="Scripts\ES6Executer.h" />
     <QtMoc Include="Editor\TextEdit.h" />
     <QtMoc Include="Editor\TabCompleterProvider.h" />
     <QtMoc Include="Editor\ProjectTemplateProvider.h" />

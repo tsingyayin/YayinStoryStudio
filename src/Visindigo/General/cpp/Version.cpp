@@ -9,12 +9,12 @@ namespace Visindigo::General {
 	{
 		friend class Version;
 	protected:
-		quint32 major;
-		quint32 minor;
-		quint32 patch;
-		bool useBuild;
-		quint32 build;
-		QString nickName;
+		quint32 major = 0;
+		quint32 minor = 0;
+		quint32 patch = 0;
+		bool useBuild = false;
+		quint32 build = 0;
+		QString nickName = "";
 		static Version APIVersion;
 		static Version ABIVersion;
 	};
@@ -31,6 +31,17 @@ namespace Visindigo::General {
 		版本号类，表示软件的版本信息。版本号由主版本号、次版本号、修订号、可选的构建号和可选的昵称组成。
 
 		这个类支持复制和移动，并且提供了比较运算符来比较不同版本号的大小关系。
+
+		\section1 版本号格式
+		版本号的字符串表示格式为 "major.minor[.patch[.build]] [[nickname]]"。其中：
+		major：主版本号，必须存在。
+		minor：次版本号，必须存在。
+		patch：修订号，可选，默认为0。
+		build：构建号，可选，默认为未使用。
+		nickname：昵称，可选，默认为空字符串。
+
+		Visindigo Version版本号不支持 短杠 或 下划线 作为后缀补充部分，如需使用，请使用昵称字段，例如：
+		1.0.0-beta1 应表示为 1.0.0 [beta1]
 	*/
 
 	/*!
@@ -40,12 +51,6 @@ namespace Visindigo::General {
 	Version::Version()
 	{
 		d = new VersionPrivate;
-		d->major = 0;
-		d->minor = 0;
-		d->patch = 0;
-		d->useBuild = false;
-		d->build = 0;
-		d->nickName = "";
 	}
 
 	/*!
@@ -67,7 +72,7 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a version 版本号字符串，格式为 "major.minor.patch[.build] [nickName]"。
+		\a version 版本号字符串，格式为 "major.minor[.patch[.build]] [[nickname]]"。major、minor 为必需，patch 与 build 依次可选，缺省时分别视为 0 和未使用。
 
 		如果字符串格式不正确，则版本号保持为默认值0.0.0。
 	*/
@@ -277,7 +282,7 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		return 将版本号转换为字符串表示
 
-		格式为 "major.minor.patch[.build] [nickName]"。
+		格式为 "major.minor.patch[.build] [[nickname]]"。
 	*/
 	QString Version::toString() const {
 		QString version = QString("%1.%2.%3").arg(d->major).arg(d->minor).arg(d->patch);
@@ -292,13 +297,13 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		\a version 版本号字符串，格式为 "major.minor.patch[.build] [nickName]"。
+		\a version 版本号字符串，格式为 "major.minor[.patch[.build]] [[nickname]]"。major、minor 为必需，patch 与 build 依次可选，缺省时分别视为 0 和未使用。
 
 		如果字符串格式不正确，则版本号保持不变。
 	*/
 	void Version::setVersion(const QString& version)
 	{
-		QRegularExpression nickNameRE(R"((\d+)\.(\d+)\.(\d+)(?:\.(\d+))?(?:\s?\[([^\]]+)\])?)");
+		QRegularExpression nickNameRE(R"((\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:\s?\[([^\]]+)\])?)");
 		QRegularExpressionMatch match = nickNameRE.match(version);
 		QString majorStr = match.captured(1);
 		QString minorStr = match.captured(2);
@@ -310,8 +315,9 @@ namespace Visindigo::General {
 		if (not ok) return;
 		quint32 minor = minorStr.toUInt(&ok);
 		if (not ok) return;
-		quint32 patch = patchStr.toUInt(&ok);
-		if (not ok) return;
+		bool hasPatch = not patchStr.isEmpty();
+		quint32 patch = hasPatch ? patchStr.toUInt(&ok) : 0;
+		if (hasPatch and not ok) return;
 		bool useBuild = not buildStr.isEmpty();
 		quint32 build = useBuild ? buildStr.toUInt(&ok) : 0;
 		if (useBuild and not ok) return;

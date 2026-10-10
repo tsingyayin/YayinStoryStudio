@@ -20,6 +20,8 @@ namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
 	protected:
+		static const Visindigo::General::Version ProjectVersion;
+		static const QMap<Visindigo::General::Version, std::tuple<Visindigo::General::Version, Visindigo::General::Version>> ProjectVersionRange;
 		static YSSProject* CurrentProject;
 		Visindigo::Utility::JsonConfig* ProjectConfig = nullptr;
 		QFileInfo ConfigPath;
@@ -134,6 +136,11 @@ namespace YSSCore::General {
 
 	YSSProject* YSSProjectPrivate::CurrentProject = nullptr;
 
+	const Visindigo::General::Version YSSProjectPrivate::ProjectVersion = Visindigo::General::Version(0, 2, 0);
+	const QMap<Visindigo::General::Version, std::tuple<Visindigo::General::Version, Visindigo::General::Version>> YSSProjectPrivate::ProjectVersionRange = {
+		{ Visindigo::General::Version(0, 1, 0), { Visindigo::General::Version(0, 13, 0), Visindigo::General::Version(0, 16, 3) } },
+		{ Visindigo::General::Version(0, 2, 0), { Visindigo::General::Version(0, 17, 0), Visindigo::General::Version(0, 0, 0) } }
+	};
 	/*!
 		\class YSSCore::General::YSSProject
 		\brief 这个类代表YSS项目数据.
@@ -164,6 +171,25 @@ namespace YSSCore::General {
 		\value ParseError 项目的JSON格式有误
 		\value InvalidConfig 项目的JSON格式无误，但配置无效
 	*/
+
+	/*!
+		\since YSS 0.17.0
+
+		返回当前YSS版本下，预设的项目版本号。
+	*/
+	Visindigo::General::Version YSSProject::getCurrentProjectVersion() {
+		return YSSProjectPrivate::ProjectVersion;
+	}
+
+	/*!
+		\since YSS 0.17.0
+		返回YSS项目版本兼容范围。
+
+		如果返回的tuple中，第二个Version为0.0.0，代表没有上限。
+	*/
+	QMap<Visindigo::General::Version, std::tuple<Visindigo::General::Version, Visindigo::General::Version>> YSSProject::getProjectVersionRange() {
+		return YSSProjectPrivate::ProjectVersionRange;
+	}
 
 	/*!
 		\since YSS 0.13.0
@@ -228,8 +254,6 @@ namespace YSSCore::General {
 	bool YSSProject::saveProject(const QString& configPath) {
 		d->updateLastModifyTime();
 		if (configPath.isEmpty()) {
-			// 这里要判断的是“是否已经设置过保存位置”，而不是“文件是否存在”：
-			// 新建项目时 project.yssp 尚未落盘，用 exists() 会把首次保存直接挡掉。
 			if (d->ConfigPath.filePath().isEmpty()) {
 				return false;
 			}
@@ -277,7 +301,7 @@ namespace YSSCore::General {
 		d->ProjectConfig->setString("Project.Name", name);
 		d->ProjectConfig->setString("Project.Description", "");
 		d->ProjectConfig->setString("Project.IconPath", "");
-		d->ProjectConfig->setString("Project.Version", "0.2");
+		d->ProjectConfig->setString("Project.Version", getCurrentProjectVersion().toString());
 		d->ProjectConfig->setString("Project.Author", "");
 		d->ProjectConfig->setString("Project.DebugServerID", "");
 		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
@@ -320,8 +344,7 @@ namespace YSSCore::General {
 		\since YSS 0.13.0
 		return 当前项目的配置文件路径。
 
-		如果项目加载时是有效的，那这个返回值就等同于设置值。
-		即，它是绝对路径还是相对路径取决于设置时的原样。
+		如果项目加载时是有效的，则返回项目配置文件的绝对路径，否则返回空字符串。
 	*/
 	QString YSSProject::getProjectPath() {
 		return d->ConfigPath.absoluteFilePath();
@@ -1107,5 +1130,24 @@ namespace YSSCore::General {
 	*/
 	QStringList YSSProject::getRequiredPlugins() {
 		return d->ProjectConfig->getStringList("Project.RequiredPlugins");
+	}
+
+	/*!
+		\since YSS 0.17.0
+		升级项目。这个函数会将项目配置文件升级到最新版本，并在必要时进行数据迁移。
+		它会根据当前项目的版本号，逐步应用升级步骤，直到达到最新版本。
+
+		return 是否成功升级。
+
+		请注意，在部分极端情况下，升级可能中途失败，此时项目可能处于不完整状态。建议在升级前备份项目文件。
+		
+	*/
+	bool YSSProject::updateProject() {
+		bool rtn = true;
+		if (getProjectVersion() == Visindigo::General::Version("0.1")) {
+			d->ProjectConfig->setString("Project.Version", "0.2");
+			// nothing special to do for 0.2
+		}
+		return rtn;
 	}
 }

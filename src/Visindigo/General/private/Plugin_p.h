@@ -38,7 +38,7 @@ namespace Visindigo::__Private__ {
 		QMap<QString, Visindigo::General::PluginModule*> ModuleIDMap;
 		QMap<QString, QList<Visindigo::General::PluginModule*>> ModuleTypeIDMap;
 	protected:
-		void initializePluginFolder(const QDir& baseDir);
+		void initializePluginFolder(const QDir& folder);
 		void setPluginLoadType(Visindigo::General::Plugin::LoadType loadType);
 		void loadConfig();
 		bool enablePlugin();

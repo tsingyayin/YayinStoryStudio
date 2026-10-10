@@ -116,6 +116,9 @@
     <ClCompile Include="Editor\cpp\InstallerClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\PluginLoadFaultDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -209,6 +212,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\InstallerClient.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\PluginLoadFaultDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\ColorThemeSettings.h">

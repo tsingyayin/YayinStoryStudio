@@ -244,6 +244,9 @@ namespace Visindigo::General {
 						manageData.state = PluginManager::PluginState::Deactivated;
 						VIPM->error() << "Plugin" << pluginID << "dependency" << dep << "not found. IGNORE this plugin.";
 						dependencyFailed = true;
+						// Do not look up a dependency that does not exist: PluginManage[dep] would insert
+						// a phantom entry whose load result would then overwrite DependencyNotFound.
+						continue;
 					}
 					auto& depData = PluginManage[dep];
 					if (depData.loadResult != PluginManager::LoadPluginResult::Success) {
@@ -261,9 +264,8 @@ namespace Visindigo::General {
 				}
 				auto entryPoint = getPluginEntryPoint(manageData);
 				if (entryPoint == nullptr) {
-					VIPM->error() << "Failed to get plugin entry point for plugin: " << pluginID << ", IGNORE this plugin.";
-					manageData.loadResult = PluginManager::LoadPluginResult::EntryPointNotFound;
-					manageData.state = PluginManager::PluginState::Deactivated;
+					// getPluginEntryPoint() already recorded the precise load result
+					// (InvalidPluginBinary or EntryPointNotFound), do not overwrite it here.
 					continue;
 				}
 				Plugin* instance = nullptr;
@@ -273,6 +275,7 @@ namespace Visindigo::General {
 					VIPM->error() << "Failed to create plugin instance for plugin: " << pluginID << ", IGNORE this plugin.";
 					manageData.loadResult = PluginManager::LoadPluginResult::ConstructorError;
 					manageData.state = PluginManager::PluginState::Deactivated;
+					continue;
 				}
 				if (instance == nullptr) {
 					VIPM->error() << "Plugin entry point returned nullptr for plugin: " << pluginID << ", IGNORE this plugin.";
@@ -699,7 +702,7 @@ namespace Visindigo::General {
 				if (manageData.state == PluginManager::PluginState::InstanceCreated) {
 					VIPM->notice() << "Enabling plugin: " << id;
 					manageData.plugin->d->setPluginLoadType(Plugin::LoadType::FromDisk);
-					manageData.plugin->d->initializePluginFolder(VIApp->getEnvConfig(VIApplication::ConfigPath).toString() + "/plugins");
+					manageData.plugin->d->initializePluginFolder(getPluginFolder(id, Plugin::LoadType::FromDisk));
 					try {
 						manageData.plugin->onPluginEnable();
 						auto modules = manageData.plugin->getModules();
@@ -767,6 +770,49 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\since Visindigo 0.17.0
+		获取插件 \a plugin 的配置/数据文件夹。
+
+		这是 Plugin::getPluginFolder() 的便捷包装。
+
+		\sa PluginManager::getPluginFolder(const QString&, Plugin::LoadType)
+	*/
+	QDir PluginManager::getPluginFolder(Plugin* plugin) const {
+		return plugin->getPluginFolder();
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		根据插件ID \a pluginID 和加载类型 \a type 获取插件的配置/数据文件夹。
+
+		返回值与对应插件自身的 Plugin::getPluginFolder() 一致：
+		当 \a type 为 FromDisk 时返回配置目录下的 plugins/<pluginID>，
+		为 FromMemory 时返回配置目录下的 depends/<pluginID>，
+		为 MainPlugin 时返回配置目录下的 program/<pluginID>。
+		其他加载类型返回空的QDir。
+
+		\sa Plugin::getPluginFolder()
+	*/
+	QDir PluginManager::getPluginFolder(const QString& pluginID, Plugin::LoadType type) const {
+		const QString configPath = VIApp->getEnvConfig(VIApplication::ConfigPath).toString();
+		QString baseDir;
+		switch (type) {
+		case Plugin::LoadType::FromDisk:
+			baseDir = configPath + "/plugins";
+			break;
+		case Plugin::LoadType::FromMemory:
+			baseDir = configPath + "/depends";
+			break;
+		case Plugin::LoadType::MainPlugin:
+			baseDir = configPath + "/program";
+			break;
+		default:
+			return QDir();
+		}
+		return QDir(QDir(baseDir).filePath(pluginID));
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		根据插件名称 \a name 获取插件对象指针列表，其中包括全部具有此名称的插件对象指针。对象必须已经被加载到内存中，无论它们是否被启用。
 	*/
@@ -830,14 +876,16 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		return 所有插件的加载结果映射。这个映射包含所有已加载插件的ID和对应的加载结果。
+		return 所有被扫描到的插件的加载结果映射。这个映射包含每个插件的ID和对应的加载结果，无论插件是否加载成功。
+
+		因此可以通过它找出那些加载失败或被禁用的插件：加载成功的插件其结果一定为Success，
+		其余结果请参考LoadPluginResult的说明。
 	*/
 	QMap<QString, PluginManager::LoadPluginResult> PluginManager::getAllPluginLoadResults() const {
 		auto rtn = QMap<QString, PluginManager::LoadPluginResult>();
 		for (auto id : d->LoadPriorityList) {
 			auto& manageData = d->PluginManage[id];
-			if (manageData.state == PluginManager::PluginState::InstanceCreated ||
-				manageData.state == PluginManager::PluginState::Enabled) {
+			if (manageData.state != PluginManager::PluginState::Unknown) {
 				rtn[id] = manageData.loadResult;
 			}
 		}

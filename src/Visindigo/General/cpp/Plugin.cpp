@@ -18,9 +18,9 @@
 #include "Widgets/ThemeManager.h"
 
 namespace Visindigo::__Private__ {
-	void PluginPrivate::initializePluginFolder(const QDir& baseDir) {
-		PluginFolder = QDir(baseDir.filePath(PluginID));
-		if (!PluginFolder.exists()) {
+	void PluginPrivate::initializePluginFolder(const QDir& folder) {
+		PluginFolder = folder;
+		if (not PluginFolder.exists()) {
 			PluginFolder.mkpath(".");
 		}
 		loadConfig();
@@ -288,7 +288,8 @@ namespace Visindigo::General {
 		\endlist
 
 		插件文件夹由Visindigo在插件被启用前创建，插件的配置文件config.json也位于其中，
-		因此请通过getPluginFolder()获取该路径，不要自行拼接。
+		因此请通过getPluginFolder()获取该路径，不要自行拼接。若需要在不持有插件对象时获取该路径，
+		可改用PluginManager::getPluginFolder()。
 
 		\section2 插件二进制文件夹
 		插件二进制文件夹是扫描到插件时，其二进制文件所在的文件夹，可通过getPluginBinaryFolder()获取，

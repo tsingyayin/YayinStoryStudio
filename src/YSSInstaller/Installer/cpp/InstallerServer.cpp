@@ -44,27 +44,39 @@ namespace YSS::Installer {
 			if (not clientSockets.contains(socket)) {
 				return;
 			}
-			if (clientSockets[socket].buffer.constData()[0] != 0x03) {
-				socket->disconnectFromServer();
-				vgErrorF << "YSS Installer Server received unknown data packet. Disconnecting...";
-				return;
+			// One readyRead() may deliver several packets, and handling a command can run a nested event
+			// loop (archiving crash files waits on 7za), so keep draining the buffer until no complete
+			// packet is left. The buffer is looked up again every round because handling a command may
+			// disconnect and remove the socket.
+			while (clientSockets.contains(socket)) {
+				QByteArray& buffer = clientSockets[socket].buffer;
+				if (buffer.size() < 6) { // start marker + 4-byte length + end marker
+					return;
+				}
+				if (buffer.constData()[0] != 0x03) {
+					socket->disconnectFromServer();
+					vgErrorF << "YSS Installer Server received unknown data packet. Disconnecting...";
+					return;
+				}
+				quint32 size = 0;
+				memcpy(&size, buffer.constData() + 1, sizeof(size));
+				const qsizetype packetSize = static_cast<qsizetype>(size) + 6;
+				if (packetSize > buffer.size()) {
+					return; // wait for the rest of the packet
+				}
+				if (buffer.constData()[packetSize - 1] != 0x02) { // End of packet
+					socket->disconnectFromServer();
+					vgErrorF << "YSS Installer Server received unknown data packet. Disconnecting...";
+					return;
+				}
+				// Take the packet out of the buffer before dispatching it, so a nested readyRead that
+				// runs during handling cannot consume the buffer underneath us.
+				const QByteArray packet = buffer.left(packetSize);
+				buffer.remove(0, packetSize);
+				QString jsonData = QString::fromUtf8(packet.constData() + 5, size);
+				Visindigo::Utility::JsonConfig command = Visindigo::Utility::JsonConfig::fromJson(jsonData);
+				handleCommand(socket, command);
 			}
-			if (clientSockets[socket].buffer.size() < 6) {
-				return;
-			}
-			quint32 size = 0;
-			memcpy(&size, clientSockets[socket].buffer.constData() + 1, sizeof(size));
-			if (clientSockets[socket].buffer.size() < 6 + size) {
-				return;
-			}
-			QString jsonData = QString::fromUtf8(clientSockets[socket].buffer.constData() + 5, size);
-			Visindigo::Utility::JsonConfig command = Visindigo::Utility::JsonConfig::fromJson(jsonData);
-			handleCommand(socket, command);
-			if (clientSockets[socket].buffer.constData()[size + 5] != 0x02) { // End of packet
-				socket->disconnectFromServer();
-				vgErrorF << "YSS Installer Server received unknown data packet. Disconnecting...";
-			}
-			clientSockets[socket].buffer.remove(0, 6 + size);
 		}
 
 		void handleCommand(QLocalSocket* socket, const Visindigo::Utility::JsonConfig& command) {

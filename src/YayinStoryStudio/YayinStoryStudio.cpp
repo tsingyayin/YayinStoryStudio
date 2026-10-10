@@ -1,9 +1,11 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qstandardpaths.h>
+#include <QtCore/qtimer.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qguiapplication.h>
 #include <QtGui/qscreen.h>
+#include <QtWidgets/qdialog.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qwidget.h>
 #include <AgentPage/AgentWin.h>
@@ -13,6 +15,7 @@
 #include <Editor/LangServerManager.h>
 #include <Editor/ProjectTemplateManager.h>
 #include <General/Log.h>
+#include <General/PluginManager.h>
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 #include <Utility/BenchmarkTimer.h>
@@ -26,6 +29,7 @@
 #include <Widgets/Terminal.h>
 #include "Editor/InstallerClient.h"
 #include "Editor/MainEditor/MainWin.h"
+#include "Editor/PluginLoadFaultDialog.h"
 #include "Editor/ProjectPage/ProjectWin.h"
 #include "Editor/YSSCommandHandler.h"
 #include "Editor/YSSTranslator.h"
@@ -121,6 +125,16 @@ namespace YSS {
 
 	void Main::onApplicationInit() {
 		VISTM->changeColorTheme(getPluginConfig()->getString("Settings.General.Theme"));
+		const QMap<QString, Visindigo::General::PluginManager::LoadPluginResult> loadResults = VIPLM->getAllPluginLoadResults();
+		if (YSS::Editor::PluginLoadFaultDialog::hasLoadFault(loadResults)) {
+			YSS::Editor::PluginLoadFaultDialog dialog(loadResults);
+			if (dialog.exec() != QDialog::Accepted) {
+				// onApplicationInit() runs before the event loop starts, so quit() has no effect here.
+				// Defer the quit until the event loop is running to shut down gracefully.
+				QTimer::singleShot(0, qApp, []() { QCoreApplication::quit(); });
+				return;
+			}
+		}
 		YSS::ProjectPage::ProjectWin* projectWin = new YSS::ProjectPage::ProjectWin();
 		projectWin->show();
 	}

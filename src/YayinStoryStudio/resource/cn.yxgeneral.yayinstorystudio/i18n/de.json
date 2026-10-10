@@ -365,5 +365,83 @@
 		"reportFolder":"Ordner für Absturzberichte: %1",
 		"reportHint":"Die Details wurden in last_crash.zip gespeichert. Sie können diese Datei an andere senden, um Hilfe zu erhalten.",
 		"dismiss":"OK"
+	},
+	"pluginLoadFaultDialog": {
+		"title": "Plugin-Ladefehler",
+		"message": "Die folgenden Plugins konnten nicht korrekt geladen werden. Ihre IDs und die Gründe sind unten aufgeführt. Möchten Sie das Programm weiterhin verwenden?",
+		"pluginID": "Plugin-ID",
+		"reason": "Grund",
+		"continue": "Weiterverwenden",
+		"quit": "Programm beenden"
+	},
+	"pluginLoadResult": {
+		"Unknown": {
+			"title": "Unbekannter Fehler",
+			"message": "Beim Laden des Plugins ist ein unerwarteter Fehler aufgetreten. Starten Sie das Programm neu; besteht das Problem weiterhin, wenden Sie sich an den Plugin-Autor."
+		},
+		"Success": {
+			"title": "Erfolgreich geladen",
+			"message": "Das Plugin wurde erfolgreich geladen."
+		},
+		"Deactivated": {
+			"title": "Deaktiviert",
+			"message": "Dieses Plugin wurde in den Plugin-Einstellungen deaktiviert und daher nicht geladen. Aktivieren Sie es in den Plugin-Einstellungen, um es zu verwenden."
+		},
+		"PlatformNotSupported": {
+			"title": "Nicht unterstützte Plattform",
+			"message": "Dieses Plugin unterstützt das aktuelle Betriebssystem oder die aktuelle CPU-Architektur nicht. Bitten Sie den Plugin-Autor um eine Version für diese Plattform."
+		},
+		"InvalidPluginBinary": {
+			"title": "Ungültige Plugin-Datei",
+			"message": "Die Plugin-Datei kann nicht als Visindigo-Plugin erkannt werden. Möglicherweise ist sie zu alt, um überhaupt geladen zu werden, oder aus anderen Gründen beschädigt. Installieren Sie dieses Plugin neu."
+		},
+		"InvalidDependLib": {
+			"title": "Ungültige Abhängigkeitsbibliothek",
+			"message": "Eine von diesem Plugin benötigte Bibliothek fehlt oder ist beschädigt. Installieren Sie das Plugin samt Abhängigkeiten neu."
+		},
+		"DependLibConflict": {
+			"title": "Konflikt bei Abhängigkeitsbibliothek",
+			"message": "Eine von diesem Plugin benötigte Bibliothek steht im Konflikt mit einer bereits geladenen anderen Version. Entfernen oder aktualisieren Sie das Konflikt verursachende Plugin."
+		},
+		"EntryPointNotFound": {
+			"title": "Einstiegspunkt nicht gefunden",
+			"message": "Im Plugin wurde keine gültige Einstiegsfunktion gefunden; möglicherweise ist es kein gültiges Visindigo-Plugin."
+		},
+		"ConstructorError": {
+			"title": "Konstruktorfehler",
+			"message": "Beim Erstellen des Plugins ist eine Ausnahme aufgetreten oder es wurde ein leeres Objekt zurückgegeben. Wenden Sie sich an den Plugin-Autor."
+		},
+		"IncompatibleABI": {
+			"title": "Inkompatible ABI",
+			"message": "Das Plugin ist mit der ABI-Version des Programmkerns nicht kompatibel. Aktualisieren Sie das Plugin oder das Programm."
+		},
+		"IncompatibleAPI": {
+			"title": "Inkompatible API",
+			"message": "Das Plugin ist mit der API-Version dieses Programms nicht kompatibel. Aktualisieren Sie das Plugin oder das Programm."
+		},
+		"AlreadyLoaded": {
+			"title": "Bereits geladen",
+			"message": "Ein Plugin mit derselben ID ist bereits geladen, daher wurde dieses übersprungen. Prüfen Sie auf doppelte Plugin-Dateien."
+		},
+		"DependencyNotFound": {
+			"title": "Abhängigkeit nicht gefunden",
+			"message": "Ein anderes Plugin, von dem dieses Plugin abhängt, ist nicht vorhanden. Installieren Sie das fehlende Plugin und versuchen Sie es erneut."
+		},
+		"DependencyLoadFailed": {
+			"title": "Abhängigkeit konnte nicht geladen werden",
+			"message": "Ein anderes Plugin, von dem dieses Plugin abhängt, konnte nicht geladen werden. Beheben Sie zuerst das Ladeproblem jenes Plugins."
+		},
+		"DependencyDeactivated": {
+			"title": "Abhängigkeit deaktiviert",
+			"message": "Ein anderes Plugin, von dem dieses Plugin abhängt, ist deaktiviert. Aktivieren Sie die Abhängigkeit oder deaktivieren Sie auch dieses Plugin."
+		},
+		"MetadataNotFound": {
+			"title": "Metadaten nicht gefunden",
+			"message": "Die Metadatendatei des Plugins wurde nicht gefunden, daher kann das Plugin nicht erkannt werden. Installieren Sie das Plugin neu."
+		},
+		"MetadataNotSame": {
+			"title": "Metadaten stimmen nicht überein",
+			"message": "Die Metadaten des Plugins stimmen nicht mit der tatsächlichen Datei überein. Installieren Sie das Plugin neu."
+		}
 	}
 }

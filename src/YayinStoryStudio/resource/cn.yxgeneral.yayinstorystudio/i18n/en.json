@@ -365,5 +365,83 @@
 		"reportFolder":"Crash report folder: %1",
 		"reportHint":"The details have been saved to last_crash.zip. You can send that file to others to ask for help.",
 		"dismiss":"OK"
+	},
+	"pluginLoadFaultDialog": {
+		"title": "Plugin load failure",
+		"message": "The following plugins could not be loaded correctly. Their IDs and the reasons are listed below. Do you want to continue using the program?",
+		"pluginID": "Plugin ID",
+		"reason": "Reason",
+		"continue": "Continue",
+		"quit": "Exit"
+	},
+	"pluginLoadResult": {
+		"Unknown": {
+			"title": "Unknown error",
+			"message": "An unexpected error occurred while loading the plugin. Try restarting the program; if the problem persists, contact the plugin author."
+		},
+		"Success": {
+			"title": "Loaded successfully",
+			"message": "The plugin was loaded successfully."
+		},
+		"Deactivated": {
+			"title": "Deactivated",
+			"message": "This plugin was disabled in your plugin settings and was therefore not loaded. Enable it again in the plugin settings to use it."
+		},
+		"PlatformNotSupported": {
+			"title": "Unsupported platform",
+			"message": "This plugin does not support the current operating system or CPU architecture. Ask the plugin author for a build for this platform."
+		},
+		"InvalidPluginBinary": {
+			"title": "Invalid plugin binary",
+			"message": "The plugin file cannot be recognized as a Visindigo plugin; it may be too old to load at all, or corrupted for other reasons. Reinstall this plugin."
+		},
+		"InvalidDependLib": {
+			"title": "Invalid dependency library",
+			"message": "A library required by this plugin is missing or corrupted. Reinstall the plugin together with its dependencies."
+		},
+		"DependLibConflict": {
+			"title": "Dependency library conflict",
+			"message": "A library required by this plugin conflicts with a different version that is already loaded. Remove or update the conflicting plugin."
+		},
+		"EntryPointNotFound": {
+			"title": "Entry point not found",
+			"message": "The plugin does not contain a valid entry function and may not be a valid Visindigo plugin."
+		},
+		"ConstructorError": {
+			"title": "Constructor error",
+			"message": "The plugin threw an exception while being created or returned a null object. Contact the plugin author."
+		},
+		"IncompatibleABI": {
+			"title": "Incompatible ABI",
+			"message": "The plugin is not compatible with the core binary interface version of this program. Update the plugin or the program."
+		},
+		"IncompatibleAPI": {
+			"title": "Incompatible API",
+			"message": "The plugin is not compatible with the interface version of this program. Update the plugin or the program."
+		},
+		"AlreadyLoaded": {
+			"title": "Already loaded",
+			"message": "A plugin with the same ID is already loaded, so this one was skipped. Check for duplicate plugin files."
+		},
+		"DependencyNotFound": {
+			"title": "Dependency not found",
+			"message": "Another plugin that this plugin depends on does not exist. Install the missing plugin and try again."
+		},
+		"DependencyLoadFailed": {
+			"title": "Dependency failed to load",
+			"message": "Another plugin that this plugin depends on failed to load. Resolve that plugin's loading problem first."
+		},
+		"DependencyDeactivated": {
+			"title": "Dependency deactivated",
+			"message": "A plugin that this plugin depends on is deactivated. Enable the dependency, or disable this plugin as well."
+		},
+		"MetadataNotFound": {
+			"title": "Metadata not found",
+			"message": "The plugin's metadata file was not found, so the plugin cannot be recognized. Reinstall the plugin."
+		},
+		"MetadataNotSame": {
+			"title": "Metadata mismatch",
+			"message": "The plugin's metadata does not match the actual binary file. Reinstall the plugin."
+		}
 	}
 }

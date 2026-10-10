@@ -168,7 +168,6 @@
     <ClCompile Include="General\cpp\LoggerMsgHandler.cpp" />
     <ClCompile Include="General\cpp\TranslationHost.cpp" />
     <ClCompile Include="General\cpp\Translator.cpp" />
-    <ClCompile Include="General\cpp\UpdateChain.cpp" />
     <ClCompile Include="General\cpp\Version.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\cpp\AsyncFunction.cpp" />
@@ -263,9 +262,7 @@
     <QtMoc Include="Widgets\private\ConfigWidget_p.h" />
     <ClInclude Include="General\private\Translator_p.h" />
     <QtMoc Include="General\Translator.h" />
-    <QtMoc Include="General\UpdateChain.h" />
     <QtMoc Include="Widgets\ConfigWidget.h" />
-    <ClInclude Include="General\private\UpdateChainSyntaxTest.h" />
     <QtMoc Include="General\TranslationHost.h" />
     <ClInclude Include="Utility\AsyncFunction.h" />
     <ClInclude Include="Utility\DiffSequence.h" />

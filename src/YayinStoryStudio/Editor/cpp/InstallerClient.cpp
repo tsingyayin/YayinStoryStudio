@@ -1,6 +1,9 @@
+#include <QtCore/qelapsedtimer.h>
+#include <QtCore/qfile.h>
 #include <QtCore/qprocess.h>
 #include <QtCore/qstandardpaths.h>
 #include <QtCore/qstringlist.h>
+#include <QtCore/qthread.h>
 #include <QtCore/qtimer.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/Log.h>
@@ -12,6 +15,9 @@
 #include <Utility/FileUtility.h>
 #include "Editor/InstallerClient.h"
 namespace YSS::Editor {
+	// How long to wait for a running installer to exit and release its files before updating it.
+	static constexpr int InstallerCloseTimeoutMS = 10000;
+
 	class InstallerClientPrivate {
 		friend class InstallerClient;
 	protected:
@@ -22,27 +28,64 @@ namespace YSS::Editor {
 		QByteArray buffer;
 		static InstallerClient* Instance;
 
+		// A running installer holds its own executable, its loaded libraries and its plugin folders
+		// open, so replacing them would fail (and would leave a mix of old and new files behind).
+		static bool isFileInUse(const QString& filePath) {
+			if (not QFile::exists(filePath)) {
+				return false;
+			}
+			QFile probe(filePath);
+			if (probe.open(QIODevice::ReadWrite)) {
+				probe.close();
+				return false;
+			}
+			return true;
+		}
+
+		static bool waitForFileRelease(const QString& filePath, int timeoutMS) {
+			QElapsedTimer timer;
+			timer.start();
+			while (isFileInUse(filePath)) {
+				if (timer.elapsed() >= timeoutMS) {
+					return false;
+				}
+				QThread::msleep(50);
+			}
+			return true;
+		}
+
 		void handleReceivedData() {
-			if (buffer.constData()[0] != 0x03) {
-				socket->disconnectFromServer();
-				vgErrorF << "YSS Installer Client received unknown data packet. Disconnecting...";
+			// One readyRead() may deliver several packets, and handling a command can run a nested event
+			// loop (the installer update notification is a modal dialog), so keep draining the buffer
+			// until no complete packet is left.
+			while (true) {
+				if (buffer.size() < 6) { // start marker + 4-byte length + end marker
+					return;
+				}
+				if (buffer.constData()[0] != 0x03) {
+					socket->disconnectFromServer();
+					vgErrorF << "YSS Installer Client received unknown data packet. Disconnecting...";
+					return;
+				}
+				quint32 size = 0;
+				memcpy(&size, buffer.constData() + 1, sizeof(size));
+				const qsizetype packetSize = static_cast<qsizetype>(size) + 6;
+				if (packetSize > buffer.size()) {
+					return; // wait for the rest of the packet
+				}
+				if (buffer.constData()[packetSize - 1] != 0x02) { // End of packet
+					socket->disconnectFromServer();
+					vgErrorF << "YSS Installer Client received unknown data packet. Disconnecting...";
+					return;
+				}
+				// Take the packet out of the buffer before dispatching it: handleCommand() can spin a
+				// nested event loop in which a nested call would otherwise consume the buffer underneath us.
+				const QByteArray packet = buffer.left(packetSize);
+				buffer.remove(0, packetSize);
+				QString jsonData = QString::fromUtf8(packet.constData() + 5, size);
+				Visindigo::Utility::JsonConfig command = Visindigo::Utility::JsonConfig::fromJson(jsonData);
+				handleCommand(command);
 			}
-			if (buffer.size() < 6) {
-				return;
-			}
-			quint32 size = 0;
-			memcpy(&size, buffer.constData() + 1, sizeof(size));
-			if (buffer.size() < 6 + size) {
-				return;
-			}
-			QString jsonData = QString::fromUtf8(buffer.constData() + 5, size);
-			Visindigo::Utility::JsonConfig command = Visindigo::Utility::JsonConfig::fromJson(jsonData);
-			handleCommand(command);
-			if (buffer.constData()[size + 5] != 0x02) { // End of packet
-				socket->disconnectFromServer();
-				vgErrorF << "YSS Installer Client received unknown data packet. Disconnecting...";
-			}
-			buffer.remove(0, 6 + size);
 		}
 
 		void handleCommand(const Visindigo::Utility::JsonConfig& command) {
@@ -52,9 +95,8 @@ namespace YSS::Editor {
 					emit InstallerClientPrivate::Instance->installerRequestProgramClose();
 				}
 				else if (type == "update_yss_installer") {
-					Visindigo::Utility::JsonConfig closeCommand;
-					closeCommand.setString("type", "program_close");
-					InstallerClientPrivate::Instance->sendCommand(closeCommand);
+					// releaseInstaller() asks the installer to close and waits for it to exit
+					// before replacing its files.
 					InstallerClient::releaseInstaller(true, true);
 				}
 			}
@@ -135,6 +177,16 @@ namespace YSS::Editor {
 		d->socket->connectToServer("YSSInstaller");
 	}
 
+	void InstallerClient::requestInstallerClose() {
+		if (d->socket->state() != QLocalSocket::ConnectedState) {
+			return;
+		}
+		Visindigo::Utility::JsonConfig closeCommand;
+		closeCommand.setString("type", "program_close");
+		sendCommand(closeCommand);
+		d->socket->flush();
+	}
+
 	void InstallerClient::sendCommand(const Visindigo::Utility::JsonConfig& command) {
 		if (d->socket->state() != QLocalSocket::ConnectedState) {
 			vgErrorF << "YSS Installer Client is not connected to the installer. Cannot send command.";
@@ -176,6 +228,24 @@ namespace YSS::Editor {
 		}
 		QString installerFolder = QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
 			"/AppData/Local/TsingYayin/YayinStoryStudio/Installer";
+		// A running installer keeps its own executable, its loaded libraries and its plugin folders
+		// locked. Copying over them would fail for exactly those files and leave a mix of old and new
+		// files behind, so the installed installer would never look up to date.
+		// Ask an installer we are connected to close, then wait until it has released its files.
+		const QString installerExePath = installerFolder + "/YSSInstaller.exe";
+		if (InstallerClientPrivate::isFileInUse(installerExePath)) {
+			InstallerClient* client = getInstance();
+			bool released = false;
+			if (client != nullptr) {
+				client->requestInstallerClose();
+				released = InstallerClientPrivate::waitForFileRelease(installerExePath, InstallerCloseTimeoutMS);
+			}
+			if (not released) {
+				vgWarning << "YSS Installer is still running and holds its files open, skip releasing the installer."
+					<< "The running installer will request the update itself.";
+				return;
+			}
+		}
 		QStringList files = {
 			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
 			"Qt6WebSockets.dll", "Qt6Svg.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe"

@@ -28,6 +28,8 @@ namespace YSSCore::General {
 	public:
 		static YSSProject* getCurrentProject();
 		static void setCurrentProject(YSSProject* project);
+		static Visindigo::General::Version getCurrentProjectVersion();
+		static QMap<Visindigo::General::Version, std::tuple<Visindigo::General::Version, Visindigo::General::Version>> getProjectVersionRange();
 	public:
 		YSSProject();
 		virtual ~YSSProject();
@@ -85,6 +87,7 @@ namespace YSSCore::General {
 		void removeRequiredPlugin(const QString& pluginID);
 		void setRequiredPlugins(const QStringList& pluginIDs);
 		QStringList getRequiredPlugins();
+		bool updateProject();
 	private:
 		YSSProjectPrivate* d;
 	};

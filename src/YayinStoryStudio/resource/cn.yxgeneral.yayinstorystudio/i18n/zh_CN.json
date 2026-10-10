@@ -87,6 +87,18 @@
 			"InvaildConfig":"项目配置无效，缺少必要的字段或字段类型不正确。",
 			"UnknownError":"发生未知错误，无法打开项目。"
 		},
+		"requiredPluginsNotAvailable":{
+			"title":"缺少必要的插件",
+			"message":"项目\"%1\"需要具有以下ID的各插件才能正常运行。推荐补齐这些插件后再尝试打开项目。您仍然可以继续强制打开项目，但可能造成数据丢失。\n\n您确定要继续强制打开项目吗？"
+		},
+		"projectVersionTooOld": {
+			"title": "项目需要升级",
+			"message": "项目\"%1\"是来自旧的兼容版本的项目（项目版本 %2，兼容 %3 至 %4），如果在新版本中打开，则将永久向新版本升级，并且无法再在旧版本中打开。请确认您已经备份了项目数据。\n\n您确定要继续打开项目吗？"
+		},
+		"projectVersionTooNew": {
+			"title": "项目太新",
+			"message": "项目\"%1\"是来自未知的新版本的项目，如果在当前版本中打开，可能导致数据丢失或无法正常使用。请确认您已经备份了项目数据。\n\n您确定要继续打开项目吗？"
+		},
 		"saveQuestion": {
 			"title": "要关闭程序吗？",
 			"text": "您的项目\"%1\"已经发生修改，且还未保存。是否要保存项目？"
@@ -365,5 +377,83 @@
 		"reportFolder":"崩溃报告目录：%1",
 		"reportHint":"详细信息已经保存到last_crash.zip文件中，可以向他人发送此文件以寻求帮助。",
 		"dismiss":"确定"
+	},
+	"pluginLoadFaultDialog": {
+		"title": "有插件加载失败",
+		"message": "以下插件未能正确加载，其ID和错误原因已罗列如下。您要继续使用程序吗？",
+		"pluginID": "插件ID",
+		"reason": "失败原因",
+		"continue": "继续使用",
+		"quit": "退出程序"
+	},
+	"pluginLoadResult": {
+		"Unknown": {
+			"title": "未知错误",
+			"message": "插件加载时发生了未预期的错误。请尝试重新启动程序，如果问题持续存在，请联系插件作者。"
+		},
+		"Success": {
+			"title": "加载成功",
+			"message": "插件已正确加载。"
+		},
+		"Deactivated": {
+			"title": "已被禁用",
+			"message": "该插件已被您在插件设置中禁用，因此不会加载。如需使用，请在插件设置中重新启用它。"
+		},
+		"PlatformNotSupported": {
+			"title": "平台不受支持",
+			"message": "该插件不支持当前的操作系统或处理器架构。请联系插件作者获取适用于当前平台的版本。"
+		},
+		"InvalidPluginBinary": {
+			"title": "插件二进制无效",
+			"message": "插件文件无法正确识别为 Visindigo 插件，可能是太旧导致完全无法加载，或因其他原因损坏。请重新安装此插件。"
+		},
+		"InvalidDependLib": {
+			"title": "依赖库无效",
+			"message": "该插件所需的依赖库缺失或已损坏。请重新安装该插件及其依赖。"
+		},
+		"DependLibConflict": {
+			"title": "依赖库冲突",
+			"message": "该插件所需的依赖库与已加载的其他版本冲突。请移除或更新引发冲突的插件。"
+		},
+		"EntryPointNotFound": {
+			"title": "找不到入口点",
+			"message": "该插件中找不到正确的入口函数，可能不是有效的 Visindigo 插件。"
+		},
+		"ConstructorError": {
+			"title": "构造函数错误",
+			"message": "该插件在创建时发生异常或返回了空对象。请联系插件作者。"
+		},
+		"IncompatibleABI": {
+			"title": "ABI 不兼容",
+			"message": "该插件与当前程序的核心二进制接口版本不兼容，需要更新插件或程序。"
+		},
+		"IncompatibleAPI": {
+			"title": "API 不兼容",
+			"message": "该插件与当前程序的接口版本不兼容，需要更新插件或程序。"
+		},
+		"AlreadyLoaded": {
+			"title": "插件重复加载",
+			"message": "已经加载了具有相同ID的插件，本次加载被跳过。请检查是否存在重复的插件文件。"
+		},
+		"DependencyNotFound": {
+			"title": "找不到依赖插件",
+			"message": "该插件依赖的其他插件不存在。请安装缺少的插件后重试。"
+		},
+		"DependencyLoadFailed": {
+			"title": "依赖插件加载失败",
+			"message": "该插件依赖的其他插件加载失败。请先解决被依赖插件的加载问题。"
+		},
+		"DependencyDeactivated": {
+			"title": "依赖插件已被禁用",
+			"message": "该插件依赖的其他插件已被禁用。请启用被依赖的插件，或同时禁用本插件。"
+		},
+		"MetadataNotFound": {
+			"title": "找不到元数据",
+			"message": "没有找到该插件的元数据文件，插件无法被识别。请重新安装该插件。"
+		},
+		"MetadataNotSame": {
+			"title": "元数据不一致",
+			"message": "该插件的元数据与实际二进制文件不匹配。请重新安装该插件。"
+		}
 	}
 }

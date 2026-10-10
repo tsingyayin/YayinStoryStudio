@@ -365,5 +365,83 @@
 		"reportFolder":"Dossier des rapports de plantage : %1",
 		"reportHint":"Les détails ont été enregistrés dans last_crash.zip. Vous pouvez envoyer ce fichier à d'autres personnes pour obtenir de l'aide.",
 		"dismiss":"OK"
+	},
+	"pluginLoadFaultDialog": {
+		"title": "Échec du chargement de plugins",
+		"message": "Les plugins suivants n'ont pas pu être chargés correctement. Leurs ID et les raisons sont indiqués ci-dessous. Voulez-vous continuer à utiliser le programme ?",
+		"pluginID": "ID du plugin",
+		"reason": "Raison de l'échec",
+		"continue": "Continuer",
+		"quit": "Quitter le programme"
+	},
+	"pluginLoadResult": {
+		"Unknown": {
+			"title": "Erreur inconnue",
+			"message": "Une erreur inattendue s'est produite lors du chargement du plugin. Redémarrez le programme ; si le problème persiste, contactez l'auteur du plugin."
+		},
+		"Success": {
+			"title": "Chargé avec succès",
+			"message": "Le plugin a été chargé correctement."
+		},
+		"Deactivated": {
+			"title": "Désactivé",
+			"message": "Ce plugin a été désactivé dans les paramètres des plugins et n'a donc pas été chargé. Réactivez-le dans les paramètres des plugins pour l'utiliser."
+		},
+		"PlatformNotSupported": {
+			"title": "Plateforme non prise en charge",
+			"message": "Ce plugin ne prend pas en charge le système d'exploitation ou l'architecture du processeur actuel. Demandez à l'auteur du plugin une version pour cette plateforme."
+		},
+		"InvalidPluginBinary": {
+			"title": "Fichier de plugin invalide",
+			"message": "Le fichier du plugin ne peut pas être reconnu comme un plugin Visindigo : il est peut-être trop ancien pour être chargé du tout, ou corrompu pour une autre raison. Réinstallez ce plugin."
+		},
+		"InvalidDependLib": {
+			"title": "Bibliothèque de dépendance invalide",
+			"message": "Une bibliothèque requise par ce plugin est manquante ou corrompue. Réinstallez le plugin avec ses dépendances."
+		},
+		"DependLibConflict": {
+			"title": "Conflit de bibliothèque de dépendance",
+			"message": "Une bibliothèque requise par ce plugin entre en conflit avec une autre version déjà chargée. Supprimez ou mettez à jour le plugin en conflit."
+		},
+		"EntryPointNotFound": {
+			"title": "Point d'entrée introuvable",
+			"message": "Aucune fonction d'entrée valide n'a été trouvée dans le plugin ; il ne s'agit peut-être pas d'un plugin Visindigo valide."
+		},
+		"ConstructorError": {
+			"title": "Erreur de constructeur",
+			"message": "Le plugin a levé une exception lors de sa création ou a renvoyé un objet vide. Contactez l'auteur du plugin."
+		},
+		"IncompatibleABI": {
+			"title": "ABI incompatible",
+			"message": "Le plugin n'est pas compatible avec la version d'ABI du cœur du programme. Mettez à jour le plugin ou le programme."
+		},
+		"IncompatibleAPI": {
+			"title": "API incompatible",
+			"message": "Le plugin n'est pas compatible avec la version d'API de ce programme. Mettez à jour le plugin ou le programme."
+		},
+		"AlreadyLoaded": {
+			"title": "Déjà chargé",
+			"message": "Un plugin avec le même ID est déjà chargé ; celui-ci a donc été ignoré. Vérifiez la présence de fichiers de plugin en double."
+		},
+		"DependencyNotFound": {
+			"title": "Dépendance introuvable",
+			"message": "Un autre plugin dont dépend ce plugin est absent. Installez le plugin manquant puis réessayez."
+		},
+		"DependencyLoadFailed": {
+			"title": "Échec du chargement d'une dépendance",
+			"message": "Un autre plugin dont dépend ce plugin n'a pas pu être chargé. Résolvez d'abord le problème de chargement de ce plugin."
+		},
+		"DependencyDeactivated": {
+			"title": "Dépendance désactivée",
+			"message": "Un autre plugin dont dépend ce plugin est désactivé. Activez cette dépendance ou désactivez aussi ce plugin."
+		},
+		"MetadataNotFound": {
+			"title": "Métadonnées introuvables",
+			"message": "Le fichier de métadonnées du plugin est introuvable ; le plugin ne peut donc pas être reconnu. Réinstallez le plugin."
+		},
+		"MetadataNotSame": {
+			"title": "Métadonnées incohérentes",
+			"message": "Les métadonnées du plugin ne correspondent pas au fichier réel. Réinstallez le plugin."
+		}
 	}
 }

@@ -365,5 +365,83 @@
 		"reportFolder":"當機報告資料夾：%1",
 		"reportHint":"詳細資訊已經儲存到last_crash.zip檔案中，可以向他人傳送此檔案以尋求協助。",
 		"dismiss":"確定"
+	},
+	"pluginLoadFaultDialog": {
+		"title": "有外掛程式載入失敗",
+		"message": "以下外掛程式未能正確載入，其ID與錯誤原因已羅列如下。您要繼續使用程式嗎？",
+		"pluginID": "外掛程式ID",
+		"reason": "失敗原因",
+		"continue": "繼續使用",
+		"quit": "結束程式"
+	},
+	"pluginLoadResult": {
+		"Unknown": {
+			"title": "未知錯誤",
+			"message": "載入外掛程式時發生了未預期的錯誤。請嘗試重新啟動程式，若問題持續存在，請聯絡外掛程式作者。"
+		},
+		"Success": {
+			"title": "載入成功",
+			"message": "外掛程式已正確載入。"
+		},
+		"Deactivated": {
+			"title": "已被停用",
+			"message": "此外掛程式已被您在外掛程式設定中停用，因此不會載入。如需使用，請在外掛程式設定中重新啟用它。"
+		},
+		"PlatformNotSupported": {
+			"title": "平台不受支援",
+			"message": "此外掛程式不支援目前的作業系統或處理器架構。請向外掛程式作者索取適用於目前平台的版本。"
+		},
+		"InvalidPluginBinary": {
+			"title": "外掛程式二進位檔無效",
+			"message": "外掛程式檔案無法正確辨識為 Visindigo 外掛程式，可能是過舊導致完全無法載入，或因其他原因損毀。請重新安裝此外掛程式。"
+		},
+		"InvalidDependLib": {
+			"title": "相依程式庫無效",
+			"message": "此外掛程式所需的相依程式庫缺少或已損毀。請重新安裝此外掛程式及其相依項目。"
+		},
+		"DependLibConflict": {
+			"title": "相依程式庫衝突",
+			"message": "此外掛程式所需的相依程式庫與已載入的其他版本衝突。請移除或更新造成衝突的外掛程式。"
+		},
+		"EntryPointNotFound": {
+			"title": "找不到進入點",
+			"message": "此外掛程式中找不到正確的進入函式，可能不是有效的 Visindigo 外掛程式。"
+		},
+		"ConstructorError": {
+			"title": "建構函式錯誤",
+			"message": "此外掛程式在建立時發生例外或傳回了空物件。請聯絡外掛程式作者。"
+		},
+		"IncompatibleABI": {
+			"title": "ABI 不相容",
+			"message": "此外掛程式與目前程式的核心二進位介面版本不相容，需要更新外掛程式或程式。"
+		},
+		"IncompatibleAPI": {
+			"title": "API 不相容",
+			"message": "此外掛程式與目前程式的介面版本不相容，需要更新外掛程式或程式。"
+		},
+		"AlreadyLoaded": {
+			"title": "外掛程式重複載入",
+			"message": "已載入具有相同ID的外掛程式，本次載入已略過。請檢查是否有重複的外掛程式檔案。"
+		},
+		"DependencyNotFound": {
+			"title": "找不到相依外掛程式",
+			"message": "此外掛程式相依的其他外掛程式不存在。請安裝缺少的外掛程式後再試。"
+		},
+		"DependencyLoadFailed": {
+			"title": "相依外掛程式載入失敗",
+			"message": "此外掛程式相依的其他外掛程式載入失敗。請先解決被相依外掛程式的載入問題。"
+		},
+		"DependencyDeactivated": {
+			"title": "相依外掛程式已被停用",
+			"message": "此外掛程式相依的其他外掛程式已被停用。請啟用被相依的外掛程式，或同時停用此外掛程式。"
+		},
+		"MetadataNotFound": {
+			"title": "找不到中繼資料",
+			"message": "找不到此外掛程式的資訊檔，因此無法辨識此外掛程式。請重新安裝此外掛程式。"
+		},
+		"MetadataNotSame": {
+			"title": "中繼資料不一致",
+			"message": "此外掛程式的資訊與實際二進位檔不符。請重新安裝此外掛程式。"
+		}
 	}
 }

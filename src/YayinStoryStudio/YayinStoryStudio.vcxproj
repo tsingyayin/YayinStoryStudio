@@ -120,6 +120,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Editor\cpp\InstallerClient.cpp" />
+    <ClCompile Include="Editor\cpp\PluginLoadFaultDialog.cpp" />
     <ClCompile Include="Editor\cpp\YSSCommandHandler.cpp" />
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp" />
@@ -185,6 +186,7 @@
     <QtMoc Include="Editor\MainEditor\ConsumingOperationWidget.h" />
     <QtMoc Include="Editor\MainEditor\MultiTerminal.h" />
     <QtMoc Include="Editor\InstallerClient.h" />
+    <QtMoc Include="Editor\PluginLoadFaultDialog.h" />
     <QtMoc Include="Editor\MainEditor\ColorThemeSettings.h" />
     <QtMoc Include="Editor\MainEditor\private\ColorThemeSettings_p.h" />
     <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />

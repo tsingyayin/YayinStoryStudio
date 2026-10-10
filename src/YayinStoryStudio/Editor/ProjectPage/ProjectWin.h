@@ -65,6 +65,8 @@ namespace YSS::ProjectPage {
 		virtual void onThemeChanged() override;
 		void onNewsMetaGot(const Visindigo::Utility::JsonConfig& jsonConfig);
 	private:
+		// 只做检查与询问，不接管 prepareToOpen 的所有权；返回true表示可以继续打开。
+		bool preCheckProject(YSSCore::General::YSSProject* prepareToOpen);
 		void loadProject();
 	};
 }

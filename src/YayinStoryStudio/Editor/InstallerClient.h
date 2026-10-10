@@ -24,6 +24,8 @@ namespace YSS::Editor {
 	public:
 		void syncProgramVersion();
 	private:
+		void requestInstallerClose();
+	private:
 		InstallerClientPrivate* d;
 	};
 }

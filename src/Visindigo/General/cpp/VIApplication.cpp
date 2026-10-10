@@ -450,7 +450,7 @@ namespace Visindigo::General {
 		if (not d->started) {
 			d->MainPlugin = plugin;
 			d->MainPlugin->d->setPluginLoadType(Plugin::LoadType::MainPlugin);
-			d->MainPlugin->d->initializePluginFolder(getEnvConfig(ConfigPath).toString() + "/program");
+			d->MainPlugin->d->initializePluginFolder(PluginManager::getInstance()->getPluginFolder(d->MainPlugin->getPluginID(), Plugin::LoadType::MainPlugin));
 			PluginManager::getInstance()->setDeactivatePluginList(plugin->getPluginConfig()->getStringList("Plugins.Deactivated"));
 		}
 	}
@@ -775,7 +775,7 @@ namespace Visindigo::General {
 
 			for (auto dp : d->DependencyPlugins) {
 				dp->d->setPluginLoadType(Plugin::LoadType::FromMemory);
-				dp->d->initializePluginFolder(getEnvConfig(ConfigPath).toString() + "/depends");
+				dp->d->initializePluginFolder(PluginManager::getInstance()->getPluginFolder(dp->getPluginID(), Plugin::LoadType::FromMemory));
 				dp->onPluginEnable();
 				d->LoadingMessageHandler->onLoadingMessage(QString("Dependency plugin %1 enabled").arg(dp->getPluginName()));
 			}

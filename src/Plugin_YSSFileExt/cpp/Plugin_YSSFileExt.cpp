@@ -1,4 +1,9 @@
+#include <QtCore/qdir.h>
+#include <General/Log.h>
+#include <General/PluginManager.h>
 #include <General/TranslationHost.h>
+#include <Utility/FileOperation.h>
+#include <Utility/FileUtility.h>
 #include "FileServer/DefaultTextEdit.h"
 #include "FileServer/YSSPEditor.h"
 #include "FileTemplate/SimpleFileTemplate.h"
@@ -31,6 +36,29 @@ Plugin_YSSFileExt::Plugin_YSSFileExt() : YSSCore::Editor::EditorPlugin("cn.yxgen
 }
 
 void Plugin_YSSFileExt::onPluginEnable() {
+	// Migrate the config of the legacy plugin ID to the current one, if it exists.
+	const QString legacyPluginID = "cn.yxgeneral.weavestudio.yssfileext";
+	const QDir legacyFolder = VIPLM->getPluginFolder(legacyPluginID, Visindigo::General::Plugin::LoadType::FromDisk);
+	const QString legacyConfigPath = legacyFolder.filePath("config.json");
+	if (Visindigo::Utility::FileUtility::isFileExist(legacyConfigPath)) {
+		const QString configPath = getPluginFolder().filePath("config.json");
+		const Visindigo::Utility::FileOperation::ErrorCode copyResult =
+			Visindigo::Utility::FileOperation::copyFile(legacyConfigPath, configPath, true, true);
+		if (copyResult != Visindigo::Utility::FileOperation::Success) {
+			vgWarningF << "Failed to migrate config from legacy plugin ID" << legacyPluginID
+				<< ", error:" << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+		}
+		else {
+			reloadPluginConfig();
+			// The migration is one-shot: remove the legacy folder so it won't be migrated again.
+			const Visindigo::Utility::FileOperation::ErrorCode removeResult =
+				Visindigo::Utility::FileOperation::deleteDir(legacyFolder.absolutePath(), false);
+			if (removeResult != Visindigo::Utility::FileOperation::Success) {
+				vgWarningF << "Failed to remove legacy plugin folder" << legacyFolder.absolutePath()
+					<< ", error:" << Visindigo::Utility::FileOperation::errorCodeName(removeResult);
+			}
+		}
+	}
 	registerPluginModule(new YSSFileExt::YSSFileExtTranslator(this));
 	registerLangServer(new YSSFileExt::JsonLangServer(this));
 	registerLangServer(new YSSFileExt::YamlLangServer(this));

@@ -2,11 +2,11 @@
 #define Visindigo_General_PluginManager_h
 #include <QObject>
 #include "VICompileMacro.h"
+#include "General/Plugin.h"
 // Forward declarations
 class QString;
 class QDir;
 namespace Visindigo::General {
-	class Plugin;
 	class PluginManagerPrivate;
 }
 // Main
@@ -71,6 +71,8 @@ namespace Visindigo::General {
 		Plugin* getPluginByID(const QString& id) const;
 		QList<Plugin*> getPluginByName(const QString& name) const;
 		QDir getPluginBinaryFolder(const QString& id) const;
+		QDir getPluginFolder(Plugin* plugin) const;
+		QDir getPluginFolder(const QString& pluginID, Plugin::LoadType type = Plugin::LoadType::FromDisk) const;
 		LoadPluginResult getPluginLoadResultByID(const QString& id) const;
 		QList<Plugin*> getLoadedPlugins() const;
 		QList<Plugin*> getEnabledPlugins() const;

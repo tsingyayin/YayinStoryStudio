@@ -207,9 +207,6 @@
     <QtMoc Include="Editor\TextEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Scripts\ES6Executer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="Editor\private\HoverInfoProvider_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
