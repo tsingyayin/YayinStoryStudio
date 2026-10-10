@@ -895,30 +895,30 @@ namespace YSSCore::__Private__ {
 		}
 		if (TabCompleterWidget->isVisible()) {
 			QRect tpos = TabCompleterWidget->geometry();
-			if (not HoverArea) {
-				bool rightOut = tpos.x() + tpos.width() + HoverInfoWidget->width() > Text->viewport()->width();
-				if (rightOut) {
-					// right align
-					HoverInfoWidget->move(tpos.x() - HoverInfoWidget->width(), tpos.y());
-				}
-				else {
-					// left align
-					HoverInfoWidget->move(tpos.x() + tpos.width(), tpos.y());
-				}
+			// 同时计算 TabCompleterWidget 左右两侧的间隙，选择较大的那个用于显示 HoverInfo
+			qint32 containerWidth = HoverArea ? HoverArea->width() : Text->viewport()->width();
+			qint32 leftGap = tpos.x();
+			qint32 rightGap = containerWidth - (tpos.x() + tpos.width());
+			qint32 largerGap = qMax(leftGap, rightGap);
+			if (largerGap < HoverInfoWidget::DefaultWidth) {
+				// 较大间隙也放不下完整宽度的 HoverInfo：调整宽度到恰好能显示整个 HoverInfo
+				HoverInfoWidget->setFixedWidth(qMax(0, largerGap));
 			}
 			else {
-				bool rightOut = tpos.x() + tpos.width() + HoverInfoWidget->width() > HoverArea->width();
-				if (rightOut) {
-					// right align
-					HoverInfoWidget->move(tpos.x() - HoverInfoWidget->width(), tpos.y());
-				}
-				else {
-					// left align
-					HoverInfoWidget->move(tpos.x() + tpos.width(), tpos.y());
-				}
+				// 间隙足够：恢复正常宽度
+				HoverInfoWidget->recoverDefaultWidth();
+			}
+			if (rightGap >= leftGap) {
+				// 右侧间隙较大：靠 TabCompleterWidget 右边缘显示
+				HoverInfoWidget->move(tpos.x() + tpos.width(), tpos.y());
+			}
+			else {
+				// 左侧间隙较大：靠 TabCompleterWidget 左边缘显示
+				HoverInfoWidget->move(tpos.x() - HoverInfoWidget->width(), tpos.y());
 			}
 		}
 		else {
+			HoverInfoWidget->recoverDefaultWidth();
 			QRect lpos = Text->cursorRect(cursor);
 			if (!HoverArea) {
 				bool rightOut = lpos.x() + HoverInfoWidget->width() > Text->viewport()->width();

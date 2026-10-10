@@ -39,6 +39,7 @@ namespace Visindigo::Widgets {
 			int thickness, int range, const QColor& color, qreal intensity = 1.0, QRect* changedRect = nullptr);
 		static QImage globalRimImage(const QImage& image, int borderRadius, const QPointF& lightDirection,
 			int lightThickness, const QColor& lightColor, int shadowThickness, const QColor& shadowColor);
+		static void applyForegroundAlpha(QWidget* widget, qreal alpha = 0.7);
 	public:
 		explicit LiquidGlassEffect(QWidget* parent = nullptr);
 		~LiquidGlassEffect() override;

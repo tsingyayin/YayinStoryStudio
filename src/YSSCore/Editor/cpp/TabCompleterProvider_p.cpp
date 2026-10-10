@@ -6,6 +6,7 @@
 #include <QtWidgets/qtextedit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <Widgets/LiquidGlassEffect.h>
 #include <Widgets/MultiButton.h>
 #include <Widgets/MultiButtonGroup.h>
 #include <Widgets/ThemeManager.h>
@@ -17,6 +18,10 @@ namespace YSSCore::__Private__ {
 		: Visindigo::Widgets::BorderFrame(textEdit) {
 		Target = textEdit;
 		this->setAttribute(Qt::WA_ShowWithoutActivating);
+		auto* glass = new Visindigo::Widgets::LiquidGlassEffect(this);
+		glass->setBorderRadius(6);
+		glass->setBlurRadius(20);
+		this->setGraphicsEffect(glass);
 		this->setFocusPolicy(Qt::NoFocus);
 		this->setFixedWidth(240);
 		auto font = this->font();
@@ -112,6 +117,7 @@ namespace YSSCore::__Private__ {
 		connect(OperatorFilter, &QAction::toggled, this, &TabCompleterWidget::onFilterButtonToggled);
 		setColorfulEnable(true);
 		onThemeChanged();
+		Visindigo::Widgets::LiquidGlassEffect::applyForegroundAlpha(this);
 	}
 
 	void TabCompleterWidget::setCompleterItems(const QList<YSSCore::Editor::TabCompleterItem>& items) {

@@ -748,6 +748,30 @@ namespace Visindigo::Widgets {
 	}
 
 	/*!
+		\since Visindigo 0.17.0
+		把控件自身的底色改成半透明，好让挂在这个控件上的液态玻璃透出来。
+		\a widget 要处理的控件。
+		\a alpha 透明度系数，默认0.7。
+
+		液态玻璃效果会把控件自己画的内容叠在玻璃上面，底色不透明就会把玻璃整个盖住。这里只给调色板里
+		的底色（Base/Window）乘上alpha，绘制方式仍然是原来的QStyle：如果改用样式表，Qt会把控件交给
+		QStyleSheetStyle绘制，工具条、滚动条、按钮这些控件都会失去原生样式。调色板会传递给子控件，
+		所以文本浏览器的视口、标签的底色也会一起变半透明，而文字和图标仍用原色绘制。
+	*/
+	void LiquidGlassEffect::applyForegroundAlpha(QWidget* widget, qreal alpha) {
+		if (widget == nullptr) {
+			return;
+		}
+		QPalette palette = widget->palette();
+		for (QPalette::ColorRole role : { QPalette::Base, QPalette::Window }) {
+			QColor color = palette.color(role);
+			color.setAlphaF(color.alphaF() * alpha);
+			palette.setColor(role, color);
+		}
+		widget->setPalette(palette);
+	}
+
+	/*!
 		\since Visindigo 0.13.0
 		重写了QGraphicsEffect的draw()方法，在其中实现了液态玻璃效果的绘制逻辑。
 		\a painter 用于绘制效果的QPainter对象。
