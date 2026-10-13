@@ -5,6 +5,7 @@
 #include <QtCore/qhashfunctions.h>
 #include <QtCore/qpointer.h>
 #include <QtCore/qscopeguard.h>
+#include <QtCore/qset.h>
 #include <QtCore/qvector.h>
 #include <QtGui/qcursor.h>
 #include <QtGui/qevent.h>
@@ -120,14 +121,22 @@ namespace Visindigo::Widgets {
 		// 所以把采样矩形内所有控件都监听上：有人重绘就把帧缓存作废，没人重绘就一直用缓存。
 		QPointer<QWidget> renderSource;
 		QVector<QPointer<QWidget>> renderWatched;
+		QSet<QWidget*> renderWatchedSet;
 		bool frameCacheDirty = false;
 		bool drawing = false;
+		qreal opacity = 1.0;
+		QVector<QPoint> rimBorderPointsCache;
+		QSize rimBorderPointsSize = QSize(-1, -1);
+		int rimBorderPointsRadius = -1;
+		int rimBorderPointsThickness = -1;
 	protected:
 		static QVector<QPoint> borderPoints(const QSize& size, int borderRadius, int stride);
 		static QImage splatBoundaryGlow(const QSize& size, const QVector<QPoint>& points, const QVector<qreal>& weights, int thickness, const QColor& color, QRect* dirtyRect = nullptr);
 		static QImage buildGlobalRimSide(const QSize& size, int borderRadius, const QPointF& lightDirection, int thickness, qreal polarity, const QColor& color, QRect* dirtyRect = nullptr);
-		static QImage rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color, QRect* dirtyRect = nullptr);
-		static void modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten, qreal strength = 1.0, bool additive = false);
+		static QImage rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color,
+			QRect* dirtyRect = nullptr, const QVector<QPoint>* cachedPoints = nullptr);
+		static void modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten,
+			qreal strength = 1.0, bool additive = false, const QPoint& lightMapOrigin = QPoint());
 		static void buildGaussKernel(int radius, QVector<int>& kernel);
 		static void blurAccumulate(const quint32* sourceRow, int x, int width, int halfRadius, const int* kernel, int* sums);
 		static void blurAccumulateInner(const quint32* sourceRow, int x, int halfRadius, const int* kernel, int* sums);
@@ -141,6 +150,8 @@ namespace Visindigo::Widgets {
 		void releaseMouseTracking(LiquidGlassEffect* q);
 		quint64 frameKey(const QSize& size) const;
 		void clearFrameCache();
+		void clearBlurCache();
+		const QVector<QPoint>& rimBorderPoints(int thickness);
 		void syncRenderWatching(LiquidGlassEffect* q);
 		void releaseRenderWatching(LiquidGlassEffect* q);
 		void collectRenderWatched(QWidget* widget, QWidget* source, QWidget* exclude, const QRect& rect, QVector<QPointer<QWidget>>& out);
@@ -223,6 +234,14 @@ namespace Visindigo::Widgets {
 		做满了会盖过玻璃本身的颜色，喧宾夺主。
 		阴影是“吸掉一部分光”而不是盖一层黑：纯黑阴影把画面整体压暗，彩色阴影则只吸掉它的补色。
 
+		\section1 效果透明度
+		整体透明度通过opacity()和setOpacity()设置，取值范围为0到1，默认值为1。
+		它会同时控制液态玻璃效果及其上层源控件内容的最终绘制透明度：
+		0表示完全不绘制，1表示保持原始不透明度。
+		此属性声明为Qt的opacity属性，可以直接使用QPropertyAnimation对其进行动画，
+		适合实现浮动面板的渐入渐出。它与setColorMask()中的percent不同，
+		后者只控制颜色遮罩层的强度，不会让整个效果及源控件一起淡出。
+
 		\section1 性能考虑
 		模糊是这类效果里最贵的操作，半径越大越明显，建议不要设置过大的模糊半径，尤其是在较大的控件上。
 		扭曲比模糊便宜得多，色散会让扭曲略微变慢，但仍然远低于模糊；全局打光只处理边界附近，开销可以忽略。
@@ -294,6 +313,9 @@ namespace Visindigo::Widgets {
 		只想用其中几种时，用|把需要的EffectType拼起来传给这个函数即可。
 	*/
 	void LiquidGlassEffect::setEffectTypes(EffectTypes effects) {
+		if (d->effectTypes == effects) {
+			return;
+		}
 		d->effectTypes = effects;
 		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::RimLight)) {
 			d->syncMouseTracking(this);
@@ -310,7 +332,11 @@ namespace Visindigo::Widgets {
 		\a image 用于模糊的图像。
 	*/
 	void LiquidGlassEffect::setBackgroundImage(const QImage& image) {
+		if (d->backgroundImage.cacheKey() == image.cacheKey() && d->backgroundImage.size() == image.size()) {
+			return;
+		}
 		d->backgroundImage = image;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -322,7 +348,11 @@ namespace Visindigo::Widgets {
 	*/
 	void LiquidGlassEffect::setLiquidDistortRadius(int radius) {
 		if (radius <= 0) radius = 1;
+		if (d->liquidDistortRadius == radius) {
+			return;
+		}
 		d->liquidDistortRadius = radius;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -335,7 +365,12 @@ namespace Visindigo::Widgets {
 		色散会让扭曲略微变慢。
 	*/
 	void LiquidGlassEffect::setLiquidDistortDispersion(qreal dispersion) {
-		d->liquidDistortDispersion = std::clamp(dispersion, 0.0, 0.5);
+		dispersion = std::clamp(dispersion, 0.0, 0.5);
+		if (qFuzzyCompare(d->liquidDistortDispersion, dispersion)) {
+			return;
+		}
+		d->liquidDistortDispersion = dispersion;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -346,7 +381,13 @@ namespace Visindigo::Widgets {
 		如果被应用效果的控件具有圆角，那么就应该同步设置此值以避免输出时溢出应有的视觉边界。
 	*/
 	void LiquidGlassEffect::setBorderRadius(int radius) {
+		radius = std::max(0, radius);
+		if (d->borderRadius == radius) {
+			return;
+		}
 		d->borderRadius = radius;
+		d->clearFrameCache();
+		d->rimBorderPointsSize = QSize(-1, -1);
 		update();
 	}
 
@@ -358,6 +399,10 @@ namespace Visindigo::Widgets {
 		颜色遮罩会在模糊效果之后应用，可以用来调整模糊效果的整体色调和透明度，从而更好地模仿液态玻璃的外观。
 	*/
 	void LiquidGlassEffect::setColorMask(const QColor& color, qreal percent) {
+		percent = std::clamp(percent, 0.0, 1.0);
+		if (d->colorMask == color && qFuzzyCompare(d->percent, percent)) {
+			return;
+		}
 		d->colorMask = color;
 		d->percent = percent;
 		update();
@@ -368,7 +413,11 @@ namespace Visindigo::Widgets {
 		\a policy 模糊效果的位置策略，决定了模糊效果在CustomImage上的定位和裁剪方式。
 	*/
 	void LiquidGlassEffect::setPositionPolicy(PositionPolicy policy) {
+		if (d->positionPolicy == policy) {
+			return;
+		}
 		d->positionPolicy = policy;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -378,8 +427,12 @@ namespace Visindigo::Widgets {
 		\a geometry 自定义的几何形状，决定了模糊效果在CustomImage上的位置和大小。
 	*/
 	void LiquidGlassEffect::setCustomGeometry(const QRect& geometry) {
+		if (d->customGeometry == geometry) {
+			return;
+		}
 		d->customGeometry = geometry;
 		if (d->positionPolicy == PositionPolicy::CustomGeometry) {
+			d->clearFrameCache();
 			update();
 		}
 	}
@@ -390,7 +443,11 @@ namespace Visindigo::Widgets {
 		\a policy 获取被模糊源的方法，决定了模糊效果的来源。
 	*/
 	void LiquidGlassEffect::setBackgroundPolicy(BackgroundPolicy policy) {
+		if (d->backgroundPolicy == policy) {
+			return;
+		}
 		d->backgroundPolicy = policy;
+		d->clearFrameCache();
 		d->syncRenderWatching(this);
 		update();
 	}
@@ -402,7 +459,12 @@ namespace Visindigo::Widgets {
 		出于性能考虑，建议不要设置过大的模糊半径，尤其是在较大的控件上。
 	*/
 	void LiquidGlassEffect::setBlurRadius(int radius) {
+		radius = std::max(0, radius);
+		if (d->blurRadius == radius) {
+			return;
+		}
 		d->blurRadius = radius;
+		d->clearBlurCache();
 		update();
 	}
 
@@ -423,7 +485,11 @@ namespace Visindigo::Widgets {
 	*/
 	void LiquidGlassEffect::setRimLightThickness(int thickness) {
 		if (thickness <= 0) thickness = 1;
+		if (d->rimLightThickness == thickness) {
+			return;
+		}
 		d->rimLightThickness = thickness;
+		d->rimBorderPointsSize = QSize(-1, -1);
 		update();
 	}
 
@@ -435,6 +501,9 @@ namespace Visindigo::Widgets {
 	*/
 	void LiquidGlassEffect::setRimLightRange(int range) {
 		if (range <= 0) range = 1;
+		if (d->rimLightRange == range) {
+			return;
+		}
 		d->rimLightRange = range;
 		update();
 	}
@@ -447,6 +516,9 @@ namespace Visindigo::Widgets {
 	*/
 	void LiquidGlassEffect::setRimLightActivationDistance(int distance) {
 		if (distance < 0) distance = 0;
+		if (d->rimLightActivationDistance == distance) {
+			return;
+		}
 		d->rimLightActivationDistance = distance;
 		update();
 	}
@@ -458,7 +530,11 @@ namespace Visindigo::Widgets {
 		以屏幕坐标为准（y轴向下），因此(-0.5, -0.866)表示光从左上角来（偏上），(0, -1)表示光从正上方来，(-1, 0)表示光从左侧来，(1, 1)表示光从右下角来。
 	*/
 	void LiquidGlassEffect::setGlobalRimLightDirection(const QPointF& direction) {
+		if (d->globalRimLightDirection == direction) {
+			return;
+		}
 		d->globalRimLightDirection = direction;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -469,7 +545,11 @@ namespace Visindigo::Widgets {
 		全局光只是一个效果元素，默认不应该盖过玻璃本身的颜色，需要更强的光时把alpha值调大即可。
 	*/
 	void LiquidGlassEffect::setGlobalRimLightColor(const QColor& color) {
+		if (d->globalRimLightColor == color) {
+			return;
+		}
 		d->globalRimLightColor = color;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -480,7 +560,11 @@ namespace Visindigo::Widgets {
 	*/
 	void LiquidGlassEffect::setGlobalRimLightThickness(int thickness) {
 		if (thickness <= 0) thickness = 1;
+		if (d->globalRimLightThickness == thickness) {
+			return;
+		}
 		d->globalRimLightThickness = thickness;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -490,7 +574,11 @@ namespace Visindigo::Widgets {
 		\a color 背光面阴影的颜色，其alpha值决定了阴影的强度，默认半透明黑色（alpha值60）。
 	*/
 	void LiquidGlassEffect::setGlobalRimShadowColor(const QColor& color) {
+		if (d->globalRimShadowColor == color) {
+			return;
+		}
 		d->globalRimShadowColor = color;
+		d->clearFrameCache();
 		update();
 	}
 
@@ -502,7 +590,45 @@ namespace Visindigo::Widgets {
 	*/
 	void LiquidGlassEffect::setGlobalRimShadowThickness(int thickness) {
 		if (thickness <= 0) thickness = 1;
+		if (d->globalRimShadowThickness == thickness) {
+			return;
+		}
 		d->globalRimShadowThickness = thickness;
+		d->clearFrameCache();
+		update();
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		\brief 获取液态玻璃效果的整体透明度。
+
+		返回值范围为0到1，默认值为1。该值同时作用于液态玻璃效果及其上层源控件内容的最终绘制结果。
+	*/
+	qreal LiquidGlassEffect::opacity() const {
+		return d->opacity;
+	}
+
+	/*!
+		\since Visindigo 0.17.0
+		\brief 设置液态玻璃效果的整体透明度。
+
+		\a opacity 透明度，取值范围为0到1，超出范围的值会被自动限制。
+		0表示完全不绘制，1表示保持原始不透明度。
+
+		该属性可通过QPropertyAnimation进行动画，例如：
+		\code
+		auto* animation = new QPropertyAnimation(effect, "opacity", effect);
+		animation->setStartValue(0.0);
+		animation->setEndValue(1.0);
+		animation->start(QAbstractAnimation::DeleteWhenStopped);
+		\endcode
+	*/
+	void LiquidGlassEffect::setOpacity(qreal opacity) {
+		opacity = std::clamp(opacity, 0.0, 1.0);
+		if (qFuzzyCompare(d->opacity, opacity)) {
+			return;
+		}
+		d->opacity = opacity;
 		update();
 	}
 
@@ -548,7 +674,8 @@ namespace Visindigo::Widgets {
 		if (coverdArea.isNull()) {
 			return QImage();
 		}
-		const QImage source = coverdArea.convertToFormat(QImage::Format_ARGB32);
+		const QImage source = coverdArea.format() == QImage::Format_ARGB32
+			? coverdArea : coverdArea.convertToFormat(QImage::Format_ARGB32);
 		QImage result = source;
 		liquidDistortRadius = std::min(liquidDistortRadius, std::min(source.width(), source.height()) / 2);
 		if (liquidDistortRadius <= 0) {
@@ -709,10 +836,11 @@ namespace Visindigo::Widgets {
 			return QImage();
 		}
 		// 先统一成32位格式，后面才可以按像素调制；如果本来就是该格式则不会真的转换
-		QImage result = image.convertToFormat(QImage::Format_ARGB32);
+		QImage result = image.format() == QImage::Format_ARGB32
+			? image : image.convertToFormat(QImage::Format_ARGB32);
 		QRect glowRect;
 		const QImage glow = LiquidGlassEffectPrivate::rimLightGlow(result.size(), borderRadius, mousePosition, thickness, range, color, &glowRect);
-		LiquidGlassEffectPrivate::modulateByLightMap(result, glow, glowRect, true, intensity, true);
+		LiquidGlassEffectPrivate::modulateByLightMap(result, glow, glowRect, true, intensity, true, glowRect.topLeft());
 		if (changedRect) {
 			*changedRect = glowRect;
 		}
@@ -735,15 +863,16 @@ namespace Visindigo::Widgets {
 		if (image.isNull()) {
 			return QImage();
 		}
-		QImage result = image.convertToFormat(QImage::Format_ARGB32);
+		QImage result = image.format() == QImage::Format_ARGB32
+			? image : image.convertToFormat(QImage::Format_ARGB32);
 		const QSize size = result.size();
 		// 阴影是高光的伴生产物：同一束光里点积为负的半边就是阴影面，两面用同一个光源方向和同一个圆角半径
 		QRect shadowRect;
 		const QImage shadow = LiquidGlassEffectPrivate::buildGlobalRimSide(size, borderRadius, lightDirection, shadowThickness, -1.0, shadowColor, &shadowRect);
-		LiquidGlassEffectPrivate::modulateByLightMap(result, shadow, shadowRect, false);
+		LiquidGlassEffectPrivate::modulateByLightMap(result, shadow, shadowRect, false, 1.0, false, shadowRect.topLeft());
 		QRect lightRect;
 		const QImage light = LiquidGlassEffectPrivate::buildGlobalRimSide(size, borderRadius, lightDirection, lightThickness, 1.0, lightColor, &lightRect);
-		LiquidGlassEffectPrivate::modulateByLightMap(result, light, lightRect, true);
+		LiquidGlassEffectPrivate::modulateByLightMap(result, light, lightRect, true, 1.0, false, lightRect.topLeft());
 		return result;
 	}
 
@@ -762,6 +891,7 @@ namespace Visindigo::Widgets {
 		if (widget == nullptr) {
 			return;
 		}
+		alpha = std::clamp(alpha, 0.0, 1.0);
 		QPalette palette = widget->palette();
 		for (QPalette::ColorRole role : { QPalette::Base, QPalette::Window }) {
 			QColor color = palette.color(role);
@@ -786,6 +916,10 @@ namespace Visindigo::Widgets {
 		});
 		QPixmap sourcePixmap = this->sourcePixmap(Qt::LogicalCoordinates);
 		if (sourcePixmap.isNull()) {
+			return;
+		}
+		if (!d->parentWidget) {
+			painter->drawPixmap(0, 0, sourcePixmap);
 			return;
 		}
 		const QSize areaSize = d->parentWidget->size();
@@ -824,7 +958,8 @@ namespace Visindigo::Widgets {
 				painter->drawPixmap(0, 0, sourcePixmap);
 				return;
 			}
-			base = sampled.convertToFormat(QImage::Format_ARGB32);
+			base = sampled.format() == QImage::Format_ARGB32
+				? sampled : sampled.convertToFormat(QImage::Format_ARGB32);
 			const bool dispersionDistort = d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::DispersionDistort);
 			if (dispersionDistort || d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::NormalDistort)) {
 				base = distortImage(base, d->liquidDistortRadius, dispersionDistort ? d->liquidDistortDispersion : 0.0);
@@ -842,8 +977,10 @@ namespace Visindigo::Widgets {
 		QRect rimLightRect;
 		QImage lit = base;
 		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::RimLight) && d->rimLightIntensity > 0.0) {
-			lit = LiquidGlassEffect::rimLightImage(lit, d->borderRadius, d->mousePosition,
-				d->rimLightThickness, d->rimLightRange, d->rimLightColor, d->rimLightIntensity, &rimLightRect);
+			const QImage glow = LiquidGlassEffectPrivate::rimLightGlow(lit.size(), d->borderRadius, d->mousePosition,
+				d->rimLightThickness, d->rimLightRange, d->rimLightColor, &rimLightRect, &d->rimBorderPoints(d->rimLightThickness));
+			lit = base;
+			LiquidGlassEffectPrivate::modulateByLightMap(lit, glow, rimLightRect, true, d->rimLightIntensity, true, rimLightRect.topLeft());
 		}
 		QImage coverdArea;
 		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::Blur)) {
@@ -872,7 +1009,10 @@ namespace Visindigo::Widgets {
 			finalPainter.drawPixmap(0, 0, colorMaskPixmap);
 		}
 		finalPainter.end();
+		const qreal painterOpacity = painter->opacity();
+		painter->setOpacity(painterOpacity * d->opacity);
 		painter->drawPixmap(0, 0, finalPixmap);
+		painter->setOpacity(painterOpacity);
 	}
 
 	/*!
@@ -916,7 +1056,20 @@ namespace Visindigo::Widgets {
 			const bool causedBySampling = LiquidGlassEffectPrivate::samplingDepth > 0 && event->type() == QEvent::Paint;
 			if (!causedBySampling) {
 				switch (event->type()) {
-				case QEvent::Paint:
+				case QEvent::Paint: {
+					QPaintEvent* paintEvent = static_cast<QPaintEvent*>(event);
+					QWidget* paintedWidget = qobject_cast<QWidget*>(watched);
+					if (!paintedWidget || !d->renderSource || !d->parentWidget) {
+						break;
+					}
+					const QRegion sourceRegion = paintEvent->region().translated(
+						paintedWidget->mapTo(d->renderSource, QPoint()));
+					if (!sourceRegion.intersects(QRegion(d->parentWidget->geometry()))) {
+						break;
+					}
+					d->frameCacheDirty = true;
+					break;
+				}
 				case QEvent::Show:
 				case QEvent::Hide:
 				case QEvent::Resize:
@@ -1138,14 +1291,34 @@ namespace Visindigo::Widgets {
 	QImage LiquidGlassEffectPrivate::splatBoundaryGlow(const QSize& size, const QVector<QPoint>& points, const QVector<qreal>& weights, int thickness, const QColor& color, QRect* dirtyRect) {
 		const int width = size.width();
 		const int height = size.height();
+		if (dirtyRect) {
+			*dirtyRect = QRect();
+		}
+		if (width <= 0 || height <= 0 || thickness <= 0) {
+			return QImage();
+		}
 		const qreal thickness2 = qreal(thickness) * thickness;
 		const qreal maxAlpha = color.alphaF() * 255.0;
-		// 先在单通道缓冲上做最大值累积，最后再一次性转成颜色
-		quint8* buffer = new quint8[width * height]();
 		int top = height;
 		int bottom = -1;
 		int left = width;
 		int right = -1;
+		for (int i = 0; i < points.size() && i < weights.size(); i++) {
+			if (weights[i] <= 0.0) {
+				continue;
+			}
+			top = std::min(top, std::max(points[i].y() - thickness, 0));
+			bottom = std::max(bottom, std::min(points[i].y() + thickness, height - 1));
+			left = std::min(left, std::max(points[i].x() - thickness, 0));
+			right = std::max(right, std::min(points[i].x() + thickness, width - 1));
+		}
+		if (bottom < top || right < left) {
+			return QImage();
+		}
+		const QRect outputRect(left, top, right - left + 1, bottom - top + 1);
+		QImage image(outputRect.size(), QImage::Format_ARGB32);
+		image.fill(0);
+		quint8* buffer = new quint8[qsizetype(outputRect.width()) * outputRect.height()]();
 		for (int i = 0; i < points.size() && i < weights.size(); i++) {
 			const qreal weight = weights[i];
 			if (weight <= 0.0) {
@@ -1162,7 +1335,7 @@ namespace Visindigo::Widgets {
 			right = std::max(right, xEnd);
 			for (int y = yBegin; y <= yEnd; y++) {
 				const int offsetY = y - points[i].y();
-				quint8* line = buffer + y * width;
+				quint8* line = buffer + qsizetype(y - top) * outputRect.width();
 				for (int x = xBegin; x <= xEnd; x++) {
 					const int offsetX = x - points[i].x();
 					const qreal falloff = 1.0 - qreal(offsetX * offsetX + offsetY * offsetY) / thickness2;
@@ -1170,30 +1343,27 @@ namespace Visindigo::Widgets {
 						continue;
 					}
 					const quint8 value = quint8(std::clamp(alpha * falloff * falloff, 0.0, 255.0));
-					if (value > line[x]) {
-						line[x] = value;
+					const int localX = x - left;
+					if (value > line[localX]) {
+						line[localX] = value;
 					}
 				}
 			}
 		}
-		QImage image(size, QImage::Format_ARGB32);
-		image.fill(0);
-		if (bottom >= top) {
-			const quint32 rgb = (quint32(color.red()) << 16) | (quint32(color.green()) << 8) | quint32(color.blue());
-			quint32* imageBits = reinterpret_cast<quint32*>(image.bits());
-			for (int y = top; y <= bottom; y++) {
-				const quint8* line = buffer + y * width;
-				for (int x = 0; x < width; x++) {
-					const quint8 alpha = line[x];
+		const quint32 rgb = (quint32(color.red()) << 16) | (quint32(color.green()) << 8) | quint32(color.blue());
+		quint32* imageBits = reinterpret_cast<quint32*>(image.bits());
+		for (int y = 0; y < outputRect.height(); y++) {
+			const quint8* line = buffer + qsizetype(y) * outputRect.width();
+			for (int x = 0; x < outputRect.width(); x++) {
+				const quint8 alpha = line[x];
 					if (alpha != 0) {
-						imageBits[y * width + x] = (quint32(alpha) << 24) | rgb;
+						imageBits[y * outputRect.width() + x] = (quint32(alpha) << 24) | rgb;
 					}
-				}
 			}
 		}
 		delete[] buffer;
 		if (dirtyRect) {
-			*dirtyRect = bottom >= top ? QRect(left, top, right - left + 1, bottom - top + 1) : QRect();
+			*dirtyRect = outputRect;
 		}
 		return image;
 	}
@@ -1201,7 +1371,7 @@ namespace Visindigo::Widgets {
 	/*
 		鼠标边缘光的核心：找出离鼠标最近的那一个边界点，以它为原点沿边界向两侧衰减。
 	*/
-	QImage LiquidGlassEffectPrivate::rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color, QRect* dirtyRect) {
+	QImage LiquidGlassEffectPrivate::rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color, QRect* dirtyRect, const QVector<QPoint>* cachedPoints) {
 		if (dirtyRect) {
 			*dirtyRect = QRect();
 		}
@@ -1209,7 +1379,8 @@ namespace Visindigo::Widgets {
 			return QImage();
 		}
 		// 边界点的间隔不超过厚度的一半，这样相邻边界点扩散出的光晕才能连成一条连续的边缘光
-		const QVector<QPoint> points = borderPoints(size, borderRadius, std::max(1, thickness / 2));
+		const QVector<QPoint> generatedPoints = borderPoints(size, borderRadius, std::max(1, thickness / 2));
+		const QVector<QPoint>& points = cachedPoints ? *cachedPoints : generatedPoints;
 		if (points.isEmpty()) {
 			return QImage();
 		}
@@ -1231,6 +1402,18 @@ namespace Visindigo::Widgets {
 		return splatBoundaryGlow(size, points, weights, thickness, color, dirtyRect);
 	}
 
+	const QVector<QPoint>& LiquidGlassEffectPrivate::rimBorderPoints(int thickness) {
+		const QSize size = parentWidget ? parentWidget->size() : QSize();
+		const int stride = std::max(1, thickness / 2);
+		if (rimBorderPointsSize != size || rimBorderPointsRadius != borderRadius || rimBorderPointsThickness != stride) {
+			rimBorderPointsCache = borderPoints(size, borderRadius, stride);
+			rimBorderPointsSize = size;
+			rimBorderPointsRadius = borderRadius;
+			rimBorderPointsThickness = stride;
+		}
+		return rimBorderPointsCache;
+	}
+
 	/*
 		把亮度图按乘法调制作用到画面的一块区域上。亮度图的 alpha 是强度、RGB 是光的颜色：
 		亮面把现有颜色按比例提亮（dst *= 1 + 光色 * 强度），阴影按比例压暗（dst *= 1 - 补色 * 强度，纯黑阴影即 dst *= 1 - 强度）。
@@ -1242,9 +1425,9 @@ namespace Visindigo::Widgets {
 		看上去就像边缘光被阴影挡住了；叠加提亮与底色无关，加多少就亮多少。代价是边缘一带会偏白一点，
 		不再像乘法那样保留原有色相，所以只用在边缘光这种面积很小的局部高光上。
 	*/
-	void LiquidGlassEffectPrivate::modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten, qreal strength, bool additive) {
+	void LiquidGlassEffectPrivate::modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten, qreal strength, bool additive, const QPoint& lightMapOrigin) {
 		const QRect rect = area.intersected(QRect(QPoint(0, 0), target.size()));
-		if (rect.isEmpty() || lightMap.isNull() || lightMap.size() != target.size() || strength <= 0.0) {
+		if (rect.isEmpty() || lightMap.isNull() || strength <= 0.0) {
 			return;
 		}
 		if (strength > 1.0) {
@@ -1252,10 +1435,18 @@ namespace Visindigo::Widgets {
 		}
 		const int scale = int(strength * 256.0); // 强度也折成定点，鼠标边缘光的淡入淡出就靠它
 		for (int y = rect.top(); y <= rect.bottom(); y++) {
-			const quint32* mapLine = reinterpret_cast<const quint32*>(lightMap.constScanLine(y));
+			const int mapY = y - lightMapOrigin.y();
+			if (mapY < 0 || mapY >= lightMap.height()) {
+				continue;
+			}
+			const quint32* mapLine = reinterpret_cast<const quint32*>(lightMap.constScanLine(mapY));
 			quint32* targetLine = reinterpret_cast<quint32*>(target.scanLine(y));
 			for (int x = rect.left(); x <= rect.right(); x++) {
-				const quint32 mapPixel = mapLine[x];
+				const int mapX = x - lightMapOrigin.x();
+				if (mapX < 0 || mapX >= lightMap.width()) {
+					continue;
+				}
+				const quint32 mapPixel = mapLine[mapX];
 				const int alpha = int(mapPixel >> 24) & 0xFF;
 				if (alpha == 0) {
 					continue;
@@ -1363,9 +1554,13 @@ namespace Visindigo::Widgets {
 			sum += weights[i];
 		}
 		kernel.resize(radius);
+		int kernelSum = 0;
 		for (int i = 0; i < radius; i++) {
-			kernel[i] = int(weights[i] / sum * 65536);
+			kernel[i] = qRound(weights[i] / sum * 65536.0);
+			kernelSum += kernel[i];
 		}
+		// 让定点核的系数和精确等于 65536，避免小半径下反复卷积后逐渐变暗。
+		kernel[radius / 2] += 65536 - kernelSum;
 	}
 
 	// 贴着图像边界的那几个像素要夹住采样坐标（相当于把边界外的像素按边界像素处理）
@@ -1439,10 +1634,10 @@ namespace Visindigo::Widgets {
 					sums[2] = b;
 					sums[3] = a;
 				}
-				targetRow[x] = (quint32(std::clamp(sums[3] >> 16, 0, 255)) << 24)
-					| (quint32(std::clamp(sums[0] >> 16, 0, 255)) << 16)
-					| (quint32(std::clamp(sums[1] >> 16, 0, 255)) << 8)
-					| quint32(std::clamp(sums[2] >> 16, 0, 255));
+				targetRow[x] = (quint32(std::clamp((sums[3] + 32768) >> 16, 0, 255)) << 24)
+					| (quint32(std::clamp((sums[0] + 32768) >> 16, 0, 255)) << 16)
+					| (quint32(std::clamp((sums[1] + 32768) >> 16, 0, 255)) << 8)
+					| quint32(std::clamp((sums[2] + 32768) >> 16, 0, 255));
 			}
 		}
 	}
@@ -1455,7 +1650,8 @@ namespace Visindigo::Widgets {
 		if (radius % 2 == 0) {
 			radius++;
 		}
-		const QImage source = image.convertToFormat(QImage::Format_ARGB32);
+		const QImage source = image.format() == QImage::Format_ARGB32
+			? image : image.convertToFormat(QImage::Format_ARGB32);
 		const int width = source.width();
 		const int height = source.height();
 		if (width <= 0 || height <= 0) {
@@ -1519,6 +1715,7 @@ namespace Visindigo::Widgets {
 		const QRect widgetGeometry = parentWidget ? parentWidget->geometry() : QRect();
 		return quint64(qHashMulti(size_t(0),
 			quint32(effectTypes),
+			quint32(positionPolicy),
 			size.width(),
 			size.height(),
 			widgetGeometry.x(),
@@ -1528,7 +1725,6 @@ namespace Visindigo::Widgets {
 			customGeometry.width(),
 			customGeometry.height(),
 			liquidDistortRadius,
-			blurRadius,
 			borderRadius,
 			liquidDistortDispersion,
 			quint32(backgroundPolicy),
@@ -1549,6 +1745,11 @@ namespace Visindigo::Widgets {
 		frameCacheKey = 0;
 		frameCacheValid = false;
 		frameCacheDirty = false;
+	}
+
+	void LiquidGlassEffectPrivate::clearBlurCache() {
+		frameBlurredCache = QImage();
+		frameScratch = QImage();
 	}
 
 	// 采样矩形里任何一个控件重绘，都可能让被模糊源跟着变，所以要把矩形内所有控件都监听上。
@@ -1596,6 +1797,7 @@ namespace Visindigo::Widgets {
 		for (int i = 0; i < wanted.size(); i++) {
 			if (wanted[i]) {
 				wanted[i]->installEventFilter(q);
+				renderWatchedSet.insert(wanted[i].data());
 			}
 		}
 		renderWatched = wanted;
@@ -1610,6 +1812,7 @@ namespace Visindigo::Widgets {
 			}
 		}
 		renderWatched.clear();
+		renderWatchedSet.clear();
 		renderSource = nullptr;
 	}
 
@@ -1645,11 +1848,6 @@ namespace Visindigo::Widgets {
 	}
 
 	bool LiquidGlassEffectPrivate::watchesRenderWidget(const QObject* object) const {
-		for (int i = 0; i < renderWatched.size(); i++) {
-			if (renderWatched[i].data() == object) {
-				return true;
-			}
-		}
-		return false;
+		return renderWatchedSet.contains(static_cast<QWidget*>(const_cast<QObject*>(object)));
 	}
 }

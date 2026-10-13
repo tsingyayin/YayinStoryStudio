@@ -38,5 +38,16 @@
     "About": {
         "Title": "YSS Update & Telemetry Service - À propos",
         "Desc": "YSS Update & Telemetry Service est un programme auxiliaire de Yayin Story Studio, chargé d'installer et de mettre à jour les applications YSS sur votre ordinateur. Dans les versions futures, il fournira également des services de télémétrie pour aider les développeurs à collecter les informations d'utilisation et les rapports de crash du programme, afin de mieux améliorer YSS.\n\nCe programme démarre automatiquement au lancement de YSS et s'exécute silencieusement en arrière-plan sans intervention de l'utilisateur. Lorsque YSS se ferme, ce programme se ferme également automatiquement."
+    },
+    "CrashScreen": {
+        "Headline": "Yayin Story Studio a rencontré un problème et a planté. Nous avons sauvegardé votre projet en urgence et collecté quelques informations sur l'erreur.",
+        "Message": "Message d'erreur : ",
+        "StopCode": "Code d'arrêt : %1",
+        "Location": "Emplacement de l'erreur : %1",
+        "Stacktrace": "Pile d'appels",
+        "ReportFolder": "Dossier des rapports de plantage : %1",
+        "ReportHint": "Les détails ont été enregistrés dans last_crash.zip. Vous pouvez envoyer cette archive à d'autres personnes pour obtenir de l'aide, ou au moins fournir une capture d'écran de cet écran de plantage.",
+        "NoReport": "Nous n'avons pas pu lire les détails de ce plantage. Veuillez transmettre le dossier ci-dessus aux développeurs.",
+        "Dismiss": "OK"
     }
 }

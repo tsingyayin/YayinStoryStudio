@@ -1,0 +1,18 @@
+{
+	"placeholder": {
+		"audio": "音频：%1"
+	},
+	"control": {
+		"rewind5": "回退 5 秒",
+		"rewind1": "回退 1 秒",
+		"play": "播放",
+		"pause": "暂停",
+		"forward1": "前进 1 秒",
+		"forward5": "前进 5 秒",
+		"volume": "音量",
+		"progress": "播放进度"
+	},
+	"error": {
+		"playback": "无法播放该媒体文件：%1"
+	}
+}

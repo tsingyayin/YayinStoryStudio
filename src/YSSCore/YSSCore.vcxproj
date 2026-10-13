@@ -145,6 +145,7 @@
     <ClCompile Include="Editor\cpp\TextEdit_p.cpp" />
     <ClCompile Include="Editor\cpp\ToolWidgetManager.cpp" />
     <ClCompile Include="Editor\cpp\VirtualFilePath.cpp" />
+    <ClCompile Include="Editor\cpp\YSSCoreBuiltinPlugin.cpp" />
     <ClCompile Include="General\cpp\YSSLogger.cpp" />
     <ClCompile Include="General\cpp\YSSProject.cpp" />
     <ClCompile Include="main.cpp" />
@@ -184,6 +185,7 @@
     <QtMoc Include="Editor\FileEditWidget.h" />
     <QtMoc Include="Editor\EditorPlugin.h" />
     <QtMoc Include="Editor\DebugServer.h" />
+    <QtMoc Include="Editor\YSSCoreBuiltinPlugin.h" />
     <ClInclude Include="Editor\private\EditorPlugin_p.h" />
     <QtMoc Include="Editor\private\TextEdit_p.h" />
     <QtMoc Include="Editor\private\TabCompleterProvider_p.h" />

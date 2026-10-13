@@ -1,0 +1,18 @@
+{
+	"placeholder": {
+		"audio": "Audio: %1"
+	},
+	"control": {
+		"rewind5": "Rewind 5 seconds",
+		"rewind1": "Rewind 1 second",
+		"play": "Play",
+		"pause": "Pause",
+		"forward1": "Forward 1 second",
+		"forward5": "Forward 5 seconds",
+		"volume": "Volume",
+		"progress": "Playback progress"
+	},
+	"error": {
+		"playback": "Unable to play this media file: %1"
+	}
+}

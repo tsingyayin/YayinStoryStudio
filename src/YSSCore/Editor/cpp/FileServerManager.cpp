@@ -9,8 +9,21 @@
 #include "Editor/FileServerManager.h"
 #include "Editor/TextEdit.h"
 #include "Editor/VirtualFilePath.h"
+#include "Editor/YSSCoreBuiltinPlugin.h"
 #include "General/YSSLogger.h"
 namespace YSSCore::Editor {
+	class FallBackFileServer :public FileServer {
+	public:
+		FallBackFileServer(EditorPlugin* plugin) :FileServer("Fallback File Server", "YSSCore.Editor.FallbackFileServer", plugin) {
+			setEditorType(FileServer::CodeEditor);
+			setSupportedFileExts(QStringList() << "*");
+		}
+		virtual ~FallBackFileServer() {}
+		static FallBackFileServer* Instance;
+	};
+
+	FallBackFileServer* FallBackFileServer::Instance = nullptr;
+
 	class FileServerManagerPrivate {
 		friend class FileServerManager;
 	protected:
@@ -31,7 +44,6 @@ namespace YSSCore::Editor {
 			此函数从指定Server获取FileEditWidget并打开指定文件。若成功，则将转入onFileEditWidgetCreated作进一步处理。
 		*/
 		bool openFile(const QString& filePath, FileServer* server) {
-			bool ok = false;
 			if (server != nullptr) {
 				FileEditWidget* feWidget = nullptr;
 				switch (server->getEditorType()) {
@@ -56,6 +68,7 @@ namespace YSSCore::Editor {
 				onFileEditWidgetCreated(feWidget);
 				return true;
 			}
+			return false;
 		}
 
 		/*
@@ -189,6 +202,9 @@ namespace YSSCore::Editor {
 	*/
 	FileServerManager::FileServerManager() {
 		d = new FileServerManagerPrivate();
+		if (FallBackFileServer::Instance == nullptr) {
+			FallBackFileServer::Instance = new FallBackFileServer(YSSCoreBuiltinPlugin::getInstance());
+		}
 		ySuccessF << "Success!";
 	}
 
@@ -202,6 +218,8 @@ namespace YSSCore::Editor {
 		}
 		d->FileServers.clear();
 		delete d;
+		delete FallBackFileServer::Instance;
+		FallBackFileServer::Instance = nullptr;
 	}
 
 	/*!
@@ -404,16 +422,7 @@ namespace YSSCore::Editor {
 				VITRL("YSS::editor.textEdit.notSuitable.message").arg(ext),
 				QMessageBox::Yes | QMessageBox::No);
 			if (ret == QMessageBox::Yes) {
-				FileEditWidget* feWidget = new TextEdit();
-				bool ok = feWidget->openFile(absPath);
-				if (ok) {
-					d->onFileEditWidgetCreated(feWidget);
-					return true;
-				}
-				else {
-					delete feWidget;
-					return false;
-				}
+				return d->openFile(absPath, FallBackFileServer::Instance);
 			}
 		}
 		return false;

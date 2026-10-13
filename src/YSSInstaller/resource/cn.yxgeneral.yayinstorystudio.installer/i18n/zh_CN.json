@@ -38,5 +38,16 @@
     "About": {
         "Title": "YSS 更新与遥测服务 - 关于",
         "Desc": "YSS 更新与遥测服务是 Yayin Story Studio 的一个辅助程序，负责在计算机上安装、更新YSS应用程序。未来的版本中，它还将提供遥测服务，帮助开发者收集程序使用情况和崩溃报告，以便更好地改进YSS。\n\n本程序在启动YSS时自动启动并在后台静默运行，无需用户干预。当YSS退出时，本程序也会自动退出。"
+    },
+    "CrashScreen": {
+        "Headline": "Yayin Story Studio遇到了问题，已经崩溃。我们已应急保存了项目，并收集了一些错误信息。",
+        "Message": "错误信息：",
+        "StopCode": "停止代码：%1",
+        "Location": "出错位置：%1",
+        "Stacktrace": "调用堆栈",
+        "ReportFolder": "崩溃报告目录：%1",
+        "ReportHint": "详细信息已经保存到last_crash.zip文件中，可以向他人发送此压缩包以寻求帮助，或至少提供此崩溃页面的截图",
+        "NoReport": "没有读到本次崩溃的详细信息，请将上面的目录提供给开发者以便进一步排查。",
+        "Dismiss": "确定"
     }
 }

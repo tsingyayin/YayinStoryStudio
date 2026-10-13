@@ -8,9 +8,10 @@
 #include <General/YSSLogger.h>
 #include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
+#include <Editor/YSSCoreBuiltinPlugin.h>
 #include "Editor/MainEditor/MainEditorBuiltinPlugin.h"
 #include "Editor/TitlePage/TitlePage.h"
-#include "Widgets/BSOD.h"
+#include "Widgets/YSSCrashHandler.h"
 #include "YayinStoryStudio.h"
 
 #ifdef Q_OS_ANDROID
@@ -111,6 +112,9 @@ R"(警告！
 
 敬请期待Yayin Story Studio后续的开发。)", QMessageBox::Ok);
 */
+	YSSCore::Editor::YSSCoreBuiltinPlugin* yssCoreBuiltinPlugin = YSSCore::Editor::YSSCoreBuiltinPlugin::getInstance();
+	app.addDependencyPlugin(yssCoreBuiltinPlugin);
+
 	YSS::Editor::MainEditorBuiltinPlugin* mainEditorBuiltinPlugin = new YSS::Editor::MainEditorBuiltinPlugin();
 	app.addDependencyPlugin(mainEditorBuiltinPlugin);
 
@@ -129,7 +133,7 @@ R"(警告！
 	YSS::Main* mainPlugin = new YSS::Main();
 	app.setMainPlugin(mainPlugin);
 	app.setLoadingMessageHandler(new YSS::TitlePage::TitlePage());
-	app.setExceptionMessageHandler(new YSS::Widgets::BSOD());
+	app.setExceptionMessageHandler(new YSS::Widgets::YSSCrashHandler());
 
 	int c = app.start();
 	return c;

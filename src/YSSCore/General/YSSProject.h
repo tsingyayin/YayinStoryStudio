@@ -40,6 +40,7 @@ namespace YSSCore::General {
 		QString getProjectName();
 		QString getProjectDescription();
 		QString getProjectFolder();
+		QString getProjectCacheFolder();
 		QString getProjectPath();
 		QString getProjectIconPath();
 		QString getProjectAuthor();
@@ -88,6 +89,10 @@ namespace YSSCore::General {
 		void setRequiredPlugins(const QStringList& pluginIDs);
 		QStringList getRequiredPlugins();
 		bool updateProject();
+		void setFilePreferredFileServer(const QString& abs_filePath, const QString& serverID);
+		QString getFilePreferredFileServer(const QString& abs_filePath);
+		void removeFilePreferredFileServer(const QString& abs_filePath);
+		bool hasFilePreferredFileServer(const QString& abs_filePath);
 	private:
 		YSSProjectPrivate* d;
 	};

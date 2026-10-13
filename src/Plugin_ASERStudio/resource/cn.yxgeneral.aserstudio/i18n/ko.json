@@ -545,5 +545,25 @@
         "ErrorLine": "오류 선",
         "WarningLine": "경고 선",
         "InfoLine": "정보 선"
+    },
+    "projectResourceBrowser": {
+        "title": "ASER 외부 리소스 뷰어",
+        "overview": "전체 보기",
+        "empty": "여기에 표시할 리소스가 없습니다.",
+        "category": {
+            "background": "배경",
+            "charPicture": "캐릭터 일러스트",
+            "charSpine": "동적 일러스트",
+            "soundEffect": "효과음",
+            "music": "오디오",
+            "visualEffect": "시각 효과"
+        },
+        "spine": {
+            "atlas": ".atlas Spine 프로젝트",
+            "texture": ".png 텍스처 파일",
+            "skeleton": ".skel 보인 파일",
+            "aserConfig": ".json ASER 캐릭터 설정",
+            "spineProject": ".json Spine 프로젝트"
+        }
     }
 }

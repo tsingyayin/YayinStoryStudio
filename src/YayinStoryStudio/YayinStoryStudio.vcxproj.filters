@@ -71,7 +71,7 @@
     <ClCompile Include="Widgets\cpp\UpToWin11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Widgets\cpp\BSOD.cpp">
+    <ClCompile Include="Widgets\cpp\YSSCrashHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\ToolWidgetArea.cpp">
@@ -128,6 +128,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Test\cpp\LiquidGlassDragTestWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\MainEditor\DocumentMessageTracer.h">
@@ -173,9 +176,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\UpToWin11.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Widgets\BSOD.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\ToolWidgetArea.h">
@@ -229,6 +229,9 @@
     <QtMoc Include="Editor\MainEditor\private\TreeLayoutWidget_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Test\LiquidGlassDragTestWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="YayinStoryEditor.qrc">
@@ -252,6 +255,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\MainEditor\DebugCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\YSSCrashHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

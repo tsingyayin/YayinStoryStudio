@@ -545,5 +545,25 @@
         "ErrorLine": "错误线条",
         "WarningLine": "警告线条",
         "InfoLine": "信息线条"
+    },
+    "projectResourceBrowser": {
+        "title": "ASER外部资源查看器",
+        "overview": "总览",
+        "empty": "这里没有可显示的资源。",
+        "category": {
+            "background": "背景",
+            "charPicture": "人物立绘",
+            "charSpine": "动态立绘",
+            "soundEffect": "音效",
+            "music": "音频",
+            "visualEffect": "特效"
+        },
+        "spine": {
+            "atlas": ".atlas Spine项目",
+            "texture": ".png 贴图文件",
+            "skeleton": ".skel 骨骼文件",
+            "aserConfig": ".json ASER人物配置",
+            "spineProject": ".json Spine项目"
+        }
     }
 }

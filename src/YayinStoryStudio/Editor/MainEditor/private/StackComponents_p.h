@@ -32,6 +32,7 @@ namespace YSS::Editor {
 		QString FilePath;
 		bool Hovering = false;
 		bool Focused = false;
+		bool AreaCurrent = false;
 		bool Pinned = false;
 		bool Pressed = false;
 		bool Modified = false;
@@ -82,6 +83,8 @@ namespace YSS::Editor {
 		YSSCore::Editor::FileEditWidget* getFileEditWidget() const;
 		void setFocusOn(bool focus);
 		bool isFocusOn() const;
+		void setAreaCurrent(bool areaCurrent);
+		bool isAreaCurrent() const;
 		void setPinned(bool pinned);
 		bool isPinned() const;
 	public:

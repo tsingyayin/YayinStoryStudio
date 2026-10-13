@@ -169,9 +169,22 @@ namespace YSS::Editor {
 		if (Orientation != Qt::Horizontal) {
 			return;
 		}
-		qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(TitleLabel->text()) + 40;
+		// Mirror the fixed size the buttons receive in resizeEvent(); fall back
+		// to the default tag height before the first layout pass.
+		const qint32 buttonWidth = (this->height() > 2 ? this->height() : 32) - 2;
+		// A tag always keeps room for one trailing button next to the title.
+		// A pinned tag keeps its pin button visible permanently, and the close
+		// button stays visible too whenever the tag is current or hovered, so it
+		// has to reserve room for both or the text ends up covered.
+		qint32 buttonCount = 1;
+		if (Pinned) {
+			buttonCount = 2;
+		}
+		qint32 fixedWidth = TitleLabel->fontMetrics().horizontalAdvance(TitleLabel->text())
+			+ 10 /* TitleLabel left + right padding */
+			+ buttonCount * buttonWidth;
 		if (Modified) {
-			fixedWidth += ModifiedLabel->width() + Layout->spacing();
+			fixedWidth += ModifiedLabel->width();
 		}
 		if (fixedWidth < 100) {
 			fixedWidth = 100;
@@ -243,6 +256,18 @@ namespace YSS::Editor {
 		return Focused;
 	}
 
+	void StackTag::setAreaCurrent(bool areaCurrent) {
+		if (AreaCurrent == areaCurrent) {
+			return;
+		}
+		AreaCurrent = areaCurrent;
+		repaint();
+	}
+
+	bool StackTag::isAreaCurrent() const {
+		return AreaCurrent;
+	}
+
 	void StackTag::updateToolTip() {
 		const int textWidth = QFontMetrics(TitleLabel->font()).horizontalAdvance(TitleLabel->text());
 		setToolTip(textWidth > TitleLabel->width() ? TitleLabel->text() : QString());
@@ -268,6 +293,7 @@ namespace YSS::Editor {
 			PinLabel->setIcon(VIApp->getFontIcon("\uE840", 64, { VISTM->getPaletteTextColor() }));
 		}
 		updateButtonVisibility();
+		updateFixedWidth();
 	}
 
 	bool StackTag::isPinned() const {
@@ -355,8 +381,20 @@ namespace YSS::Editor {
 		QPainter painter(this);
 		QStyle* style = this->style();
 		style->drawControl(QStyle::CE_PushButton, &option, &painter, this);
+		// The globally focused tag draws a full accent underline; the current tag
+		// of a non-focused area draws a much fainter one so each area can still
+		// advertise its own current widget.
+		bool drawUnderline = false;
+		QColor underlineColor = VISTM->getPaletteAccentColor();
 		if (Pressed || Focused) {
-			QPen pen(VISTM->getPaletteAccentColor());
+			drawUnderline = true;
+		}
+		else if (AreaCurrent) {
+			drawUnderline = true;
+			underlineColor.setAlpha(80);
+		}
+		if (drawUnderline) {
+			QPen pen(underlineColor);
 			pen.setWidth(2);
 			pen.setCapStyle(Qt::RoundCap);
 			painter.setPen(pen);
@@ -647,6 +685,9 @@ namespace YSS::Editor {
 		int cache = i;
 		for (StackTag* label : Labels) {
 			const bool isCurrent = (label->getFilePath() == filePath);
+			// AreaCurrent marks this area's own current widget (faint underline),
+			// independent of which area holds the global focus.
+			label->setAreaCurrent(isCurrent);
 			if (not UseGlobalFocus) {
 				label->setFocusOn(isCurrent);
 			}

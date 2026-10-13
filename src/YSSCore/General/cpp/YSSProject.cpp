@@ -308,6 +308,7 @@ namespace YSSCore::General {
 		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		d->ProjectConfig->setStringList("Project.RequiredPlugins", QStringList());
 		refreshLastModifyTime();
+		d->ensureYssDir();
 		// 首次保存失败（磁盘不可写等）时不应谎报成功，否则调用方会拿一个不存在的
 		// project.yssp 路径继续往下走，最终报出莫名其妙的 FileNotFound。
 		return saveProject();
@@ -338,6 +339,18 @@ namespace YSSCore::General {
 	*/
 	QString YSSProject::getProjectFolder() {
 		return d->ConfigPath.absolutePath();
+	}
+
+	/*!
+		\since YSS 0.17.0
+
+		return 当前项目的缓存文件夹路径。
+
+		缓存文件夹固定为项目文件夹下的 \c{.yss} 目录，用于存放项目自身的各种临时数据与缓存。
+		它可能不存在（例如由更早版本创建的项目），此时调用方应当自行建立它。
+	*/
+	QString YSSProject::getProjectCacheFolder() {
+		return d->yssDir();
 	}
 
 	/*!
@@ -1150,4 +1163,87 @@ namespace YSSCore::General {
 		}
 		return rtn;
 	}
+
+	/*!
+		\since YSS 0.17.0
+		为指定文件\a filePath 记录偏好的文件服务ID \serverID。
+	*/
+	void YSSProject::setFilePreferredFileServer(const QString& abs_filePath, const QString& serverID) {
+		QString absInput = abs_filePath;
+		if (absInput.startsWith("./")) {
+			absInput = getProjectFolder() + "/" + absInput.mid(2);
+		}
+		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(abs_filePath)) {
+			absInput = QFileInfo(abs_filePath).absoluteFilePath();
+		}
+		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		if (hasFilePreferredFileServer(abs_filePath)) {
+			for (int i = 0; i < count; ++i) {
+				QString path = d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i));
+				if (path == abs_filePath) {
+					d->ProjectConfig->setString("FilePreferredFileServers.serverID." + QString::number(i), serverID);
+					break;
+				}
+			}
+		}
+		else {
+		
+			d->ProjectConfig->setString("FilePreferredFileServers.filePath." + QString::number(count), abs_filePath);
+			d->ProjectConfig->setString("FilePreferredFileServers.serverID." + QString::number(count), serverID);
+		}
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a filePath 指定文件的绝对路径。
+		return 指定文件的偏好文件服务ID，如果没有设置，则返回空字符串。
+	*/
+	QString YSSProject::getFilePreferredFileServer(const QString& abs_filePath) {
+		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		for (int i = 0; i < count; ++i) {
+			QString path = d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i));
+			if (path == abs_filePath) {
+				return d->ProjectConfig->getString("FilePreferredFileServers.serverID." + QString::number(i));
+			}
+		}
+		return QString();
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a filePath 指定文件的绝对路径。
+
+		删除指定文件的偏好文件服务设置。如果指定文件没有偏好文件服务，则不会有任何操作。
+
+		值得指出的是，使用removeEditorOpenedFile活removeEditorOpenedFilesInArea函数清除
+		已打开文件记录时，将会自动调用此函数移除偏好记录。
+	*/
+	void YSSProject::removeFilePreferredFileServer(const QString& abs_filePath) {
+		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		for (int i = 0; i < count; ++i) {
+			QString path = d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i));
+			if (path == abs_filePath) {
+				d->ProjectConfig->remove("FilePreferredFileServers.filePath." + QString::number(i));
+				d->ProjectConfig->remove("FilePreferredFileServers.serverID." + QString::number(i));
+				break;
+			}
+		}
+	}
+
+	/*!
+		\since YSS 0.17.0
+		\a filePath 指定文件的绝对路径。
+		return 如果指定文件有偏好文件服务，则返回true，否则返回false。
+	*/
+	bool YSSProject::hasFilePreferredFileServer(const QString& abs_filePath) {
+		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		for (int i = 0; i < count; ++i) {
+			QString path = d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i));
+			if (path == abs_filePath) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

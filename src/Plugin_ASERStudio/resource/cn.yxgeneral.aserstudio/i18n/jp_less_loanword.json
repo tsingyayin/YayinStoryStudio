@@ -545,5 +545,25 @@
         "ErrorLine": "エラー線",
         "WarningLine": "警告線",
         "InfoLine": "情報線"
+    },
+    "projectResourceBrowser": {
+        "title": "ASER外部資源閲覧器",
+        "overview": "一覧",
+        "empty": "ここに表示できる資源はありません。",
+        "category": {
+            "background": "背景",
+            "charPicture": "キャラ立ち絵",
+            "charSpine": "動的立ち絵",
+            "soundEffect": "効果音",
+            "music": "音声",
+            "visualEffect": "視覚効果"
+        },
+        "spine": {
+            "atlas": ".atlas Spineプロジェクト",
+            "texture": ".png テクスチャファイル",
+            "skeleton": ".skel ボーンファイル",
+            "aserConfig": ".json ASER人物設定",
+            "spineProject": ".json Spineプロジェクト"
+        }
     }
 }

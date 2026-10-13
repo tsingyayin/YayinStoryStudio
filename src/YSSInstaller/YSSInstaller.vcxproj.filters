@@ -52,6 +52,9 @@
     <ClCompile Include="Installer\cpp\LocalUpdateWizard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Installer\cpp\PSOD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Installer\InstallerClientData.h">
@@ -64,6 +67,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Installer\VersionManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Installer\PSOD.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

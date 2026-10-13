@@ -545,5 +545,25 @@
         "ErrorLine": "錯誤線條",
         "WarningLine": "警告線條",
         "InfoLine": "資訊線條"
+    },
+    "projectResourceBrowser": {
+        "title": "ASER外部資源檢視器",
+        "overview": "總覽",
+        "empty": "這裡沒有可顯示的資源。",
+        "category": {
+            "background": "背景",
+            "charPicture": "人物立繪",
+            "charSpine": "動態立繪",
+            "soundEffect": "音效",
+            "music": "音訊",
+            "visualEffect": "特效"
+        },
+        "spine": {
+            "atlas": ".atlas Spine專案",
+            "texture": ".png 貼圖檔案",
+            "skeleton": ".skel 骨骼檔案",
+            "aserConfig": ".json ASER人物配置",
+            "spineProject": ".json Spine專案"
+        }
     }
 }

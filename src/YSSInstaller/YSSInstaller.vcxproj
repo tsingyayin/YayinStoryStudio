@@ -125,6 +125,7 @@
     </ClCompile>
     <ClCompile Include="Installer\cpp\TrayIcon.cpp" />
     <ClCompile Include="Installer\cpp\VersionManager.cpp" />
+    <ClCompile Include="Installer\cpp\PSOD.cpp" />
     <ClCompile Include="YSSInstaller.cpp" />
     <ClCompile Include="Installer\cpp\InstallerServer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -138,6 +139,7 @@
   <ItemGroup>
     <QtMoc Include="Installer\LocalUpdateWizard.h" />
     <QtMoc Include="Installer\VersionManager.h" />
+    <QtMoc Include="Installer\PSOD.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionInfo.rc" />

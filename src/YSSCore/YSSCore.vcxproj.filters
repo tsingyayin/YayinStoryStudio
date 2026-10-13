@@ -110,6 +110,9 @@
     <ClCompile Include="Editor\cpp\CustomDocumentData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\YSSCoreBuiltinPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Mystery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -225,5 +228,8 @@
     <ClInclude Include="Editor\CustomDocumentData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <QtMoc Include="Editor\YSSCoreBuiltinPlugin.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

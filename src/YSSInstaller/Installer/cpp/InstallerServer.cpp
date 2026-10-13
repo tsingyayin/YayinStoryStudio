@@ -14,6 +14,7 @@
 #include <Utility/SevenZipBinder.h>
 #include "Installer/InstallerClientData.h"
 #include "Installer/InstallerServer.h"
+#include "Installer/PSOD.h"
 #include "Installer/TrayIcon.h"
 #include "Installer/VersionManager.h"
 
@@ -33,8 +34,15 @@ namespace YSS::Installer {
 		QSet<QLocalSocket*> activeSockets;
 		// 该 YSS 正在打包时不能退出安装程序
 		bool isArchiving = false;
+		// 崩溃页面显示期间也不能退出安装程序
+		bool isCrashScreenShowing = false;
 		static constexpr int CompressTimeoutMS = 60000;
 		static InstallerServer* Instance;
+
+		// 安装程序手上有活时就不能退出：升级、打包、显示崩溃页面
+		bool isBusy() const {
+			return isArchiving || isCrashScreenShowing || VersionManager::getInstance()->inUpdateProgress();
+		}
 
 		void onSocketReadyRead(QLocalSocket* socket) {
 			if (not activeSockets.contains(socket)) {
@@ -119,26 +127,33 @@ namespace YSS::Installer {
 			socket->write(dataPacket);
 		}
 
-		QStringList readCrashManifest(const QString& programDir) const {
-			QStringList files;
+		// last_crash.txt 按行记录本次运行的日志、崩溃报告与转储。路径相对该 YSS 的根目录，
+		// 取不到相对路径时写入的则是绝对路径。空行一概跳过，因此行序即日志/报告/转储。
+		QStringList readCrashManifestLines(const QString& programDir) const {
+			QStringList paths;
 			QFile manifest(programDir + "/last_crash.txt");
 			if (not manifest.open(QIODevice::ReadOnly)) {
-				return files;
+				return paths;
 			}
 			QString content = QString::fromUtf8(manifest.readAll());
 			// 用记事本改过的话文件开头会多一个 BOM，先去掉
 			if (content.startsWith(QChar(0xFEFF))) {
 				content.remove(0, 1);
 			}
-			const QStringList lines = content.split(QLatin1Char('\n'));
 			manifest.close();
-			for (const QString& rawLine : lines) {
+			for (const QString& rawLine : content.split(QLatin1Char('\n'))) {
 				const QString line = rawLine.trimmed();
 				if (line.isEmpty()) {
 					continue;
 				}
-				// last_crash.txt 里的路径相对该 YSS 的根目录，取不到相对路径时写入的则是绝对路径
-				const QString path = QDir::isAbsolutePath(line) ? line : programDir + "/" + line;
+				paths << (QDir::isAbsolutePath(line) ? line : programDir + "/" + line);
+			}
+			return paths;
+		}
+
+		QStringList readCrashManifest(const QString& programDir) const {
+			QStringList files;
+			for (const QString& path : readCrashManifestLines(programDir)) {
 				if (Visindigo::Utility::FileUtility::isFileExist(path)) {
 					files << path;
 				}
@@ -147,6 +162,11 @@ namespace YSS::Installer {
 				}
 			}
 			return files;
+		}
+
+		// 崩溃报告不可用时的兜底目录：与 CrashGateway 的默认布局一致
+		QString fallbackReportFolder(const QString& programDir) const {
+			return programDir + "/user_data/logs/crashreports";
 		}
 
 		// 启动 7za 并等它结束。7za 有文件没能处理时会返回非0，这里把真实结果报出来。
@@ -203,12 +223,33 @@ namespace YSS::Installer {
 						<< "(" << files.size() << "files)";
 				}
 			}
+			// 压缩结束后再把崩溃页面交给用户，此刻崩溃产物已经齐了
+			showCrashScreenLater(programDir);
+			quitIfIdle();
+		}
+
+		// 崩溃页面推迟到本次 socket 处理返回之后再显示：在 readyRead 里再套一层模态循环，
+		// 容易和协议解析、断开处理互相嵌套。占位标记必须在这里同步置上，
+		// 否则处理函数返回后 YSS 一旦断开，退出逻辑就会抢在页面显示之前把安装程序关掉。
+		void showCrashScreenLater(const QString& programDir) {
+			isCrashScreenShowing = true;
+			QTimer::singleShot(0, InstallerServer::getInstance(), [this, programDir]() {
+				showCrashScreen(programDir);
+				});
+		}
+
+		// 页面内容全部取自落盘文件：报告路径来自 last_crash.txt 的第二行。
+		void showCrashScreen(const QString& programDir) {
+			const QStringList manifest = readCrashManifestLines(programDir);
+			const QString reportPath = manifest.size() > 1 ? manifest.at(1) : QString();
+			PSOD psod(reportPath, fallbackReportFolder(programDir));
+			psod.execute();
+			isCrashScreenShowing = false;
 			quitIfIdle();
 		}
 
 		void quitIfIdle() {
-			if (activeSockets.isEmpty() and not isArchiving
-				and not VersionManager::getInstance()->inUpdateProgress()) {
+			if (activeSockets.isEmpty() and not isBusy()) {
 				qApp->quit();
 			}
 		}
@@ -255,8 +296,8 @@ namespace YSS::Installer {
 					if (d->activeSockets.contains(clientSocket)) {
 						d->activeSockets.remove(clientSocket);
 						if (d->activeSockets.isEmpty()) {
-							// 正在打包时先把退出推后，等包完成再退
-							if (not VersionManager::getInstance()->inUpdateProgress() and not d->isArchiving) {
+							// 手上还有活时把退出推后，等活干完再退
+							if (not d->isBusy()) {
 								qApp->quit();
 							}
 							else {

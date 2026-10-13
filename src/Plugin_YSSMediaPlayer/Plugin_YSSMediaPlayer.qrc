@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resource/cn.yxgeneral.yayinstorystudio.plugin.yssmediaplayer/icon.png</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio.plugin.yssmediaplayer/i18n/zh_CN.json</file>
+        <file>resource/cn.yxgeneral.yayinstorystudio.plugin.yssmediaplayer/i18n/en.json</file>
+    </qresource>
+</RCC>

@@ -545,5 +545,25 @@
         "ErrorLine": "Error Line",
         "WarningLine": "Warning Line",
         "InfoLine": "Info Line"
+    },
+    "projectResourceBrowser": {
+        "title": "ASER External Resource Viewer",
+        "overview": "Overview",
+        "empty": "There are no resources to display here.",
+        "category": {
+            "background": "Background",
+            "charPicture": "Character Art",
+            "charSpine": "Dynamic Character",
+            "soundEffect": "Sound Effect",
+            "music": "Audio",
+            "visualEffect": "Visual Effect"
+        },
+        "spine": {
+            "atlas": ".atlas Spine Project",
+            "texture": ".png Texture File",
+            "skeleton": ".skel Skeleton File",
+            "aserConfig": ".json ASER Character Config",
+            "spineProject": ".json Spine Project"
+        }
     }
 }

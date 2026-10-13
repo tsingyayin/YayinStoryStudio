@@ -545,5 +545,25 @@
         "ErrorLine": "Линия ошибки",
         "WarningLine": "Линия предупреждения",
         "InfoLine": "Линия информации"
+    },
+    "projectResourceBrowser": {
+        "title": "Просмотр внешних ресурсов ASER",
+        "overview": "Обзор",
+        "empty": "Здесь нет ресурсов для отображения.",
+        "category": {
+            "background": "Фон",
+            "charPicture": "Портреты персонажей",
+            "charSpine": "Динамические персонажи",
+            "soundEffect": "Звуковой эффект",
+            "music": "Аудио",
+            "visualEffect": "Визуальный эффект"
+        },
+        "spine": {
+            "atlas": ".atlas проект Spine",
+            "texture": ".png файл текстуры",
+            "skeleton": ".skel файл скелета",
+            "aserConfig": ".json настройки персонажа ASER",
+            "spineProject": ".json проект Spine"
+        }
     }
 }

@@ -15,8 +15,10 @@
 #include "Plugin_ASERStudio.h"
 #include "YSS/ASERFileServer.h"
 #include "YSS/ASERFileTemplate.h"
+#include "YSS/ASERProjectResourceBrowser.h"
 #include "YSS/ASERProjectTemplate.h"
 #include "YSS/DS_AStoryXDebugger.h"
+#include "YSS/ImageCacheHelper.h"
 #include "YSS/LangServer_AStoryX.h"
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
@@ -75,6 +77,7 @@ namespace ASERStudio {
 		registerLangServer(new YSS::AStoryXLanguageServer(this));
 		registerFileServer(new YSS::FileServer_AStoryX(this));
 		registerFileServer(new YSS::FileServer_ASRuleJson(this));
+		registerFileServer(new YSS::FileServer_ASERProjectResourceBrowser(this));
 		registerDebugServer(new YSS::DS_AStoryXDebugger(this));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
 		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json");
@@ -101,6 +104,8 @@ namespace ASERStudio {
 	}
 	void Main::onApplicationInit() {}
 	void Main::onPluginDisable() {
+		// 缩略图缓存的工作线程需要在这里收尾，否则插件被卸载后它仍然会持有数据库连接
+		YSS::ImageCacheHelper::getInstance()->shutdown();
 		if (d->ASERDebugIO) {
 			delete d->ASERDebugIO;
 			d->ASERDebugIO = nullptr;

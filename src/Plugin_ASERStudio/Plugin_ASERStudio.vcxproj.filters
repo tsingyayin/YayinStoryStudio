@@ -47,6 +47,15 @@
     <QtMoc Include="YSS\ASERProjectTemplate.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="YSS\ASERProjectResourceBrowser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="YSS\ImageCacheHelper.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="YSS\WAVViewHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <QtMoc Include="YSS\ASERFileTemplate.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -104,6 +113,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\ASERProjectTemplate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\ASERProjectResourceBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\ImageCacheHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\WAVViewHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\ASERFileTemplate.cpp">

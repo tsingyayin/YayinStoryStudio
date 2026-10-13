@@ -545,5 +545,25 @@
         "ErrorLine": "Ligne d'erreur",
         "WarningLine": "Ligne d'avertissement",
         "InfoLine": "Ligne d'information"
+    },
+    "projectResourceBrowser": {
+        "title": "Visionneuse de ressources externes ASER",
+        "overview": "Aperçu",
+        "empty": "Aucune ressource à afficher ici.",
+        "category": {
+            "background": "Arrière-plan",
+            "charPicture": "Illustrations de personnages",
+            "charSpine": "Personnages animés",
+            "soundEffect": "Effet sonore",
+            "music": "Audio",
+            "visualEffect": "Effet visuel"
+        },
+        "spine": {
+            "atlas": ".atlas projet Spine",
+            "texture": ".png fichier de texture",
+            "skeleton": ".skel fichier de squelette",
+            "aserConfig": ".json configuration de personnage ASER",
+            "spineProject": ".json projet Spine"
+        }
     }
 }

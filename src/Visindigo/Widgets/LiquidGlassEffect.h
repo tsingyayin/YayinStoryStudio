@@ -11,6 +11,7 @@ namespace Visindigo::Widgets {
 	class LiquidGlassEffectPrivate;
 	class VisindigoAPI LiquidGlassEffect : public QGraphicsEffect {
 		Q_OBJECT;
+		Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 	public:
 		enum class EffectType {
 			NormalDistort = 0x01,
@@ -62,6 +63,8 @@ namespace Visindigo::Widgets {
 		void setGlobalRimLightThickness(int thickness);
 		void setGlobalRimShadowColor(const QColor& color);
 		void setGlobalRimShadowThickness(int thickness);
+		qreal opacity() const;
+		void setOpacity(qreal opacity);
 		virtual void draw(QPainter* painter) override;
 		virtual bool eventFilter(QObject* watched, QEvent* event) override;
 	private:

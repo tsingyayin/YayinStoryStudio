@@ -37,12 +37,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.10.3</QtInstall>
-    <QtModules>core;gui;widgets;network</QtModules>
+    <QtModules>core;gui;widgets;network;sql</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.10.3</QtInstall>
-    <QtModules>core;gui;widgets;network</QtModules>
+    <QtModules>core;gui;widgets;network;sql</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -137,7 +137,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="YSS\cpp\ASERFileServer.cpp" />
     <ClCompile Include="YSS\cpp\ASERFileTemplate.cpp" />
+    <ClCompile Include="YSS\cpp\ASERProjectResourceBrowser.cpp" />
     <ClCompile Include="YSS\cpp\ASERProjectTemplate.cpp" />
+    <ClCompile Include="YSS\cpp\ImageCacheHelper.cpp" />
+    <ClCompile Include="YSS\cpp\WAVViewHelper.cpp" />
     <ClCompile Include="YSS\cpp\DS_AStoryXDebugger.cpp" />
     <ClCompile Include="YSS\cpp\LangServer_AStoryX.cpp" />
     <ClCompile Include="YSS\cpp\LS_AStoryXHoverInfoProvider.cpp" />
@@ -158,7 +161,9 @@
     <QtMoc Include="YSS\LS_AStoryXTabCompleter.h" />
     <QtMoc Include="YSS\LS_AStoryXSyntaxHighlighter.h" />
     <QtMoc Include="YSS\ASERFileTemplate.h" />
+    <QtMoc Include="YSS\ASERProjectResourceBrowser.h" />
     <QtMoc Include="YSS\ASERProjectTemplate.h" />
+    <QtMoc Include="YSS\ImageCacheHelper.h" />
     <QtMoc Include="YSS\ASERFileServer.h" />
     <QtMoc Include="YSS\private\ASERFileServer_p.h" />
     <QtMoc Include="AStorySyntax\AStoryXValueMeta.h" />
@@ -166,6 +171,7 @@
     <QtMoc Include="ASEREnv\ASERDebugIO.h" />
     <QtMoc Include="ASEREnv\ASERProgram.h" />
     <ClInclude Include="ASERStudioCompileMacro.h" />
+    <ClInclude Include="YSS\WAVViewHelper.h" />
     <ClInclude Include="AStorySyntax\AStoryXDiagnosticData.h" />
     <QtMoc Include="AStorySyntax\AStoryXDocument.h" />
     <QtMoc Include="AStorySyntax\AStoryXController.h" />
