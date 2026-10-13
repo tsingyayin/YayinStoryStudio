@@ -17,6 +17,24 @@ namespace Visindigo::General {
 		QString nickName = "";
 		static Version APIVersion;
 		static Version ABIVersion;
+
+		static int compare(const VersionPrivate& a, const VersionPrivate& b) {
+			if (a.major != b.major) {
+				return a.major < b.major ? -1 : 1;
+			}
+			if (a.minor != b.minor) {
+				return a.minor < b.minor ? -1 : 1;
+			}
+			if (a.patch != b.patch) {
+				return a.patch < b.patch ? -1 : 1;
+			}
+			const quint32 aBuild = a.useBuild ? a.build : 0;
+			const quint32 bBuild = b.useBuild ? b.build : 0;
+			if (aBuild != bBuild) {
+				return aBuild < bBuild ? -1 : 1;
+			}
+			return 0;
+		}
 	};
 	Version VersionPrivate::APIVersion = Version(Visindigo_VERSION_MAJOR, Visindigo_VERSION_MINOR, Visindigo_VERSION_PATCH, true, Visindigo_VERSION_BUILD, Visindigo_VERSION_NICKNAME);
 	Version VersionPrivate::ABIVersion = Version(Visindigo_ABI_VERSION_MAJOR, Visindigo_ABI_VERSION_MINOR, 0);
@@ -42,6 +60,9 @@ namespace Visindigo::General {
 
 		Visindigo Version版本号不支持 短杠 或 下划线 作为后缀补充部分，如需使用，请使用昵称字段，例如：
 		1.0.0-beta1 应表示为 1.0.0 [beta1]
+
+		比较版本号时昵称不参与比较，且未使用或未给出的构建号按0处理，
+		因此 0.17.0 与 0.17.0.0 相等，0.17.0.236 大于 0.17.0。
 	*/
 
 	/*!
@@ -86,68 +107,17 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		复制构造函数，创建一个与 \a other 相同的版本号对象。
+		复制构造函数与复制赋值运算符，创建一个与 \a other 相同的版本号对象。
 	*/
-	Version::Version(const Version& other)
-	{
-		d = new VersionPrivate;
-		d->major = other.d->major;
-		d->minor = other.d->minor;
-		d->patch = other.d->patch;
-		d->useBuild = other.d->useBuild;
-		d->build = other.d->build;
-		d->nickName = other.d->nickName;
-	}
+	VICopyable_Impl(Version);
 
 	/*!
 		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		移动构造函数，转移 \a other 的资源到新对象中， \a other 变为空对象。
+		移动构造函数与移动赋值运算符，转移 \a other 的资源到新对象中， \a other 变为空对象。
 	*/
-	Version::Version(Version&& other) noexcept
-	{
-		d = other.d;
-		other.d = nullptr;
-	}
-
-	/*!
-		\since Visindigo 0.13.0
-		\a other 另一个版本号对象。
-
-		复制赋值运算符，将 \a other 的值赋给当前对象。
-		return 当前对象的引用。
-	*/
-	Version& Version::operator=(const Version& other)
-	{
-		if (this != &other) {
-			d->major = other.d->major;
-			d->minor = other.d->minor;
-			d->patch = other.d->patch;
-			d->useBuild = other.d->useBuild;
-			d->build = other.d->build;
-			d->nickName = other.d->nickName;
-		}
-		return *this;
-	}
-
-	/*!
-		\since Visindigo 0.13.0
-		\a other 另一个版本号对象。
-
-		移动赋值运算符，将 \a other 的资源转移到当前对象中，\a other 变为空对象。
-		return 当前对象的引用。
-	*/
-	Version& Version::operator=(Version&& other) noexcept
-	{
-		if (this != &other) {
-			if (d)
-				delete d;
-			d = other.d;
-			other.d = nullptr;
-		}
-		return *this;
-	}
+	VIMoveable_Impl(Version);
 
 	/*!
 		析构函数，释放资源。
@@ -162,87 +132,39 @@ namespace Visindigo::General {
 		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		大于运算符，比较当前对象与 \a other 的版本号大小。它依次比较主版本号、次版本号、修订号和构建号（如果使用）。
+		大于运算符，比较当前对象与 \a other 的版本号大小。它依次比较主版本号、次版本号、修订号和构建号
+		（未使用的构建号视为0）。昵称不参与比较。
 		return 如果当前对象的版本号大于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator>(const Version& other) const
 	{
-		if (d->major > other.d->major) {
-			return true;
-		}
-		else if (d->major == other.d->major) {
-			if (d->minor > other.d->minor) {
-				return true;
-			}
-			else if (d->minor == other.d->minor) {
-				if (d->patch > other.d->patch) {
-					return true;
-				}
-				else if (d->patch == other.d->patch) {
-					if (d->useBuild && other.d->useBuild) {
-						if (d->build > other.d->build) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
+		return VersionPrivate::compare(*d, *other.d) > 0;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		小于运算符，比较当前对象与 \a other 的版本号大小。它依次比较主版本号、次版本号、修订号和构建号（如果使用）。
+		小于运算符，比较当前对象与 \a other 的版本号大小。它依次比较主版本号、次版本号、修订号和构建号
+		（未使用的构建号视为0）。昵称不参与比较。
 		return 如果当前对象的版本号小于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator<(const Version& other) const
 	{
-		if (d->major < other.d->major) {
-			return true;
-		}
-		else if (d->major == other.d->major) {
-			if (d->minor < other.d->minor) {
-				return true;
-			}
-			else if (d->minor == other.d->minor) {
-				if (d->patch < other.d->patch) {
-					return true;
-				}
-				else if (d->patch == other.d->patch) {
-					if (d->useBuild && other.d->useBuild) {
-						if (d->build < other.d->build) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
+		return VersionPrivate::compare(*d, *other.d) < 0;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		等于运算符，比较当前对象与 \a other 的版本号是否相等。它比较主版本号、次版本号、修订号和构建号（如果使用）。
+		等于运算符，比较当前对象与 \a other 的版本号是否相等。它比较主版本号、次版本号、修订号和构建号
+		（未使用的构建号视为0，因此 0.17.0 与 0.17.0.0 相等）。昵称不参与比较。
 		return 如果当前对象的版本号等于 \a other 的版本号，则返回 true；否则返回 false。
 	*/
 	bool Version::operator==(const Version& other) const
 	{
-		if (d->major == other.d->major && d->minor == other.d->minor && d->patch == other.d->patch)
-		{
-			if (d->useBuild && other.d->useBuild)
-			{
-				return d->build == other.d->build;
-			}
-			else if (!d->useBuild && !other.d->useBuild)
-			{
-				return true;
-			}
-		}
-		return false;
+		return VersionPrivate::compare(*d, *other.d) == 0;
 	}
 
 	/*!

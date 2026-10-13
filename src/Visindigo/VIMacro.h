@@ -38,13 +38,28 @@
 	name(const name& other); \
 	name& operator=(const name& other); \
 
+// 拷贝操作必须容忍 d 为空：VIMoveable_Impl 会把被移动对象的 d 置空，而这样的对象按 C++
+// 约定仍处于 valid but unspecified state，必须依然可以被析构、被移动、被拷贝/赋值。
+// 所以 d 为空的一方在拷贝后保持为空（与拷贝一个已被移动的 std::string 得到空串同理），
+// 而不是解引用空指针崩溃。
 #define VICopyable_Impl(name)\
 	name::name(const name& other){\
-		d = new name##Private(*other.d); \
+		d = other.d ? new name##Private(*other.d) : nullptr; \
 	}\
 	name& name::operator=(const name& other) {\
 		if (this != &other) { \
-			*d = *other.d; \
+			if (other.d) { \
+				if (!d) { \
+					d = new name##Private(*other.d); \
+				} \
+				else { \
+					*d = *other.d; \
+				} \
+			} \
+			else { \
+				delete d; \
+				d = nullptr; \
+			} \
 		} \
 		return *this; \
 	}

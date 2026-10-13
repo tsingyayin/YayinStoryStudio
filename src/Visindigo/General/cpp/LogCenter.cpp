@@ -18,7 +18,7 @@ namespace Visindigo::General {
 		friend LogCenter;
 	protected:
 		static LogCenter* Instance;
-		Logger::Level threshold = Logger::Info;
+		Logger::Level threshold = Logger::Debug;
 		QFile LogFile;
 		QTextStream* Stream = nullptr;
 		quint16 cache = 30;
@@ -63,6 +63,15 @@ namespace Visindigo::General {
 				});
 			Timer.start();
 		}
+
+		// Stream 是本类自己 new 的，并且只有它析构时才保证把缓冲刷进日志文件，
+		// 所以这里必须显式释放，否则既泄漏、最后一次写入也可能停在内存里。
+		~LogCenterPrivate() {
+			save();
+			delete Stream;
+			Stream = nullptr;
+		}
+
 		void log(QString line) {
 			Pause = false;
 			if (Stream) {
@@ -118,26 +127,21 @@ namespace Visindigo::General {
 		这是一个私有构造函数，用户无法直接调用此函数创建LogCenter实例。
 		要获取LogCenter实例，请使用静态函数LogCenter::getInstance()。
 		默认阈值为Logger::Debug，即默认输出所有级别（含调试信息），Debug与Release构建行为一致。
+
+		构造函数只负责创建，不提供"替换已有实例"的能力。要动态调整阈值，请调用setGlobalLogLevel()。
 	*/
 	LogCenter::LogCenter(Logger::Level threshold) {
-		if (LogCenterPrivate::Instance != nullptr) {
-			d = LogCenterPrivate::Instance->d;
-			LogCenterPrivate::Instance->d = nullptr;
-			delete LogCenterPrivate::Instance;
-			LogCenterPrivate::Instance = this;
-		}
-		else {
-			d = new LogCenterPrivate;
-			LogCenterPrivate::Instance = this;
-		}
-		LogCenterPrivate::Instance->setGlobalLogLevel(threshold);
+		d = new LogCenterPrivate;
+		d->threshold = threshold;
+		LogCenterPrivate::Instance = this;
 	}
 
 	/*!
 		\since Visindigo 0.13.0
-		return LogCenter单例对象的指针。
+		return LogCenter单例对象的指针。如果实例尚不存在，则以默认阈值（Logger::Debug）创建它。
 
-		这是Visindigo单例类getInstance()函数的一个特例。其他单例类的getInstance()函数均会在实例不存在时创建它们。请注意区分。
+		\note LogCenter不会被自动析构，因此程序退出阶段（其它静态对象析构、崩溃处理）仍然可以安全地写日志。
+		手动析构它之后，再调用此函数会创建一个新实例，并另开一个日志文件。
 	*/
 	LogCenter* LogCenter::getInstance() {
 		if (LogCenterPrivate::Instance == nullptr) {
@@ -150,9 +154,15 @@ namespace Visindigo::General {
 
 	/*!
 		\since Visindigo 0.13.0
-		析构函数
+		析构函数，释放日志文件句柄与缓冲。
+
+		\note 析构时会复位内部单例指针，因此之后调用getInstance()会创建新实例，而不会拿到悬空指针。
+		一般情况下不需要手动析构LogCenter。
 	*/
 	LogCenter::~LogCenter() {
+		if (LogCenterPrivate::Instance == this) {
+			LogCenterPrivate::Instance = nullptr;
+		}
 		delete d;
 	}
 
