@@ -1,8 +1,11 @@
+#include <algorithm>
+#include <functional>
 #include <QtCore/qdir.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qlibrary.h>
 #include <QtCore/qmap.h>
+#include <QtCore/qset.h>
 #include <QtCore/qstring.h>
 #include "General/Log.h"
 #include "General/Plugin.h"
@@ -39,7 +42,8 @@ namespace Visindigo::General {
 			__VisindigoPluginMain entryPoint = nullptr;
 			Plugin* plugin = nullptr;
 
-			quint32 priority = 0;
+			// Longest dependency chain starting from this plugin, see derivePriorityList().
+			quint32 dependencyDepth = 0;
 
 			PluginManager::LoadPluginResult loadResult = PluginManager::LoadPluginResult::Unknown;
 			PluginManager::PluginState state = PluginManager::PluginState::Unknown;
@@ -69,6 +73,11 @@ namespace Visindigo::General {
 		QMap<IDString, QString> PluginModuleTypeDescriptions;
 		QMap<IDString, QString> PluginModuleTypeNames;
 
+		// Faults found while scanning metadata, which cannot be reported per plugin ID because either the
+		// ID is unusable or it would collide with an already registered plugin. Keyed by the metadata
+		// json path instead, and merged into PluginManager::getAllPluginLoadResults().
+		QMap<QString, PluginManager::LoadPluginResult> ScanFaults;
+
 		static QStringList recursionGetAllDll(const QString& path) {
 			return Visindigo::Utility::FileUtility::fileFilter(path, { "*.vpl" }, true);
 		}
@@ -79,33 +88,41 @@ namespace Visindigo::General {
 				VIPM->error() << "Failed to read plugin meta json file: " << metaJsonPath
 					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(jsonResult.error())
 					<< ", IGNORE this plugin.";
+				ScanFaults.insert(metaJsonPath, PluginManager::LoadPluginResult::MetadataNotFound);
 				return;
 			}
 			auto jsonStr = jsonResult.value();
 			auto json = Visindigo::Utility::JsonConfig();
 			if (json.parse(jsonStr).error != QJsonParseError::NoError) {
 				VIPM->error() << "Failed to parse plugin meta json file: " << metaJsonPath << ", IGNORE this plugin.";
+				ScanFaults.insert(metaJsonPath, PluginManager::LoadPluginResult::MetadataNotFound);
 				return;
 			}
 			auto id = json.getString("ID");
 			if (id.isEmpty()) {
 				VIPM->error() << "Plugin meta json file: " << metaJsonPath << " has no ID, IGNORE this plugin.";
+				ScanFaults.insert(metaJsonPath, PluginManager::LoadPluginResult::MetadataNotFound);
 				return;
 			}
 			auto regex = QRegularExpression(R"(^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*$)");
 			if (not regex.match(id).hasMatch()) {
 				VIPM->error() << "Plugin ID \"" << id << "\" is invalid. It must follow the reverse domain name convention "
 					"and only contain letters, numbers (not at the beginning of each segment), and underscores.";
+				ScanFaults.insert(metaJsonPath, PluginManager::LoadPluginResult::MetadataNotFound);
 				return;
 			}
 			if (PluginManage.contains(id)) {
 				VIPM->error() << "Plugin ID \"" << id << "\" is already loaded. IGNORE this plugin.";
+				// The ID is taken by the plugin that was registered first, so this duplicate can only be
+				// reported against its own metadata path.
+				ScanFaults.insert(metaJsonPath, PluginManager::LoadPluginResult::AlreadyLoaded);
 				return;
 			}
 			data.id = id;
 			data.metaPath = metaJsonPath;
 			data.meta = json;
 			data.binaryFolder = QDir(binaryPath);
+			data.state = PluginManager::PluginState::MetadataLoaded;
 			PluginManage.insert(id, data);
 		}
 
@@ -123,22 +140,52 @@ namespace Visindigo::General {
 
 		void derivePriorityList() {
 			// NOTICE: this step does not care about whether the dependencies are all present.
-			for (auto id : PluginManage.keys()) {
-				auto deps = PluginManage[id].getDependencies();
-				for (auto dep : deps) {
-					if (PluginManage.contains(dep)) {
-						PluginManage[dep].priority++;
-					}
+			// A plugin must always be loaded after the plugins it depends on, which requires the depth
+			// of its dependency chain. Counting the dependents of a plugin only measures the width of
+			// the dependency graph, so it cannot order a chain like A -> B -> C correctly (B and C both
+			// have a single dependent) and even puts a widely used plugin before its own dependencies.
+			QMap<IDString, quint32> depth;
+			QSet<IDString> resolving;
+
+			std::function<quint32(const IDString&)> resolveDepth = [&](const IDString& id) -> quint32 {
+				if (depth.contains(id)) {
+					return depth.value(id);
 				}
+				if (resolving.contains(id)) {
+					VIPM->error() << "Cyclic dependency detected on plugin" << id
+						<< ". The dependency chain cannot be resolved, involved plugins will fail to load.";
+					return 0;
+				}
+				resolving.insert(id);
+				quint32 chainDepth = 0;
+				auto dependencies = PluginManage.value(id).getDependencies();
+				for (auto& dep : dependencies) {
+					if (not PluginManage.contains(dep)) {
+						continue;
+					}
+					chainDepth = std::max(chainDepth, resolveDepth(dep) + 1);
+				}
+				resolving.remove(id);
+				depth.insert(id, chainDepth);
+				return chainDepth;
+			};
+
+			for (auto id : PluginManage.keys()) {
+				PluginManage[id].dependencyDepth = resolveDepth(id);
 			}
-			// Sort by priority (descending, higher priority first)
+
+			// Sort by dependency depth (ascending, so plugins with no dependency come first). A plugin
+			// always has a strictly greater depth than each of its dependencies, so this guarantees every
+			// dependency is loaded before its dependents. stable_sort keeps equal-depth plugins in the
+			// deterministic (alphabetical) ID order of PluginManage.keys(). Reversing this list still
+			// yields dependents before their dependencies, as required by disable/unload.
 			LoadPriorityList = PluginManage.keys();
-			std::sort(LoadPriorityList.begin(), LoadPriorityList.end(), [this](const IDString& a, const IDString& b) {
-				return PluginManage[a].priority > PluginManage[b].priority;
+			std::stable_sort(LoadPriorityList.begin(), LoadPriorityList.end(), [this](const IDString& a, const IDString& b) {
+				return PluginManage[a].dependencyDepth < PluginManage[b].dependencyDepth;
 				});
 			auto i = 1;
 			for (auto id : LoadPriorityList) {
-				VIPM->notice() << "Plugin" << id << ", used:" << PluginManage[id].priority << "times, load priority: " << i++;
+				VIPM->notice() << "Plugin" << id << ", dependency depth:" << PluginManage[id].dependencyDepth << ", load order: " << i++;
 			}
 		}
 
@@ -162,10 +209,11 @@ namespace Visindigo::General {
 						VIPM->error() << "Unloading all previously loaded external libraries for this plugin.";
 						for (auto lib : loadedLibs) {
 							lib->unload();
-							lib->deleteLater();
+							delete lib;
 						}
 						for (auto libName : newLibs) {
 							ExternalLibs.remove(libName);
+							ExternalLibsLoadPriority.removeAll(libName);
 						}
 						return PluginManager::LoadPluginResult::InvalidDependLib;
 					}
@@ -193,10 +241,11 @@ namespace Visindigo::General {
 					VIPM->error() << "Unloading all previously loaded external libraries for this plugin.";
 					for (auto lib : loadedLibs) {
 						lib->unload();
-						lib->deleteLater();
+						delete lib;
 					}
 					for (auto libName : newLibs) {
 						ExternalLibs.remove(libName);
+						ExternalLibsLoadPriority.removeAll(libName);
 					}
 					return PluginManager::LoadPluginResult::DependLibConflict;
 				}
@@ -250,7 +299,11 @@ namespace Visindigo::General {
 					}
 					auto& depData = PluginManage[dep];
 					if (depData.loadResult != PluginManager::LoadPluginResult::Success) {
-						manageData.loadResult = PluginManager::LoadPluginResult::DependencyDeactivated;
+						// Tell the two reasons apart: the user disabled the dependency on purpose, or the
+						// dependency itself failed to load (and may need the user's attention).
+						manageData.loadResult = depData.loadResult == PluginManager::LoadPluginResult::Deactivated
+							? PluginManager::LoadPluginResult::DependencyDeactivated
+							: PluginManager::LoadPluginResult::DependencyLoadFailed;
 						manageData.state = PluginManager::PluginState::Deactivated;
 						VIPM->error() << "Plugin" << pluginID << "dependency" << dep << "load failed or deactivated. IGNORE this plugin.";
 						dependencyFailed = true;
@@ -309,6 +362,7 @@ namespace Visindigo::General {
 				manageData.loadResult = PluginManager::LoadPluginResult::Success;
 				manageData.state = PluginManager::PluginState::InstanceCreated;
 				manageData.plugin = instance;
+				emit Instance->pluginLoaded(instance);
 				VIPM->success() << "Plugin" << pluginID << "loaded successfully, will be enabled later.";
 			}
 		}
@@ -443,6 +497,10 @@ namespace Visindigo::General {
 		此函数会扫描Visindigo::General::VIApplication::EnvKey::PluginFolderPath
 		指定的目录下的所有插件，并根据插件的依赖关系决定加载顺序。
 
+		加载顺序保证：只要依赖存在且可用，任何插件的全部依赖都会先于该插件被加载。
+		反之，\l disableAllPlugin() 与 \l unloadAllPlugin() 按相反顺序处理，即先处理依赖者。
+		如果依赖链中存在环，则环上的插件会被记录一条错误日志，且环上的插件及依赖它的插件都无法加载。
+
 		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
 
 		\note 这个函数不能被多次调用，重复调用会被忽略。
@@ -546,14 +604,21 @@ namespace Visindigo::General {
 			}
 		}
 		for (auto rit = d->ExternalLibsLoadPriority.rbegin(); rit != d->ExternalLibsLoadPriority.rend(); ++rit){
-			auto& extLib = d->ExternalLibs[*rit];
-			if (extLib.lib != nullptr) {
-				extLib.lib->unload();
-				delete extLib.lib;
-				extLib.lib = nullptr;
+			// Look the name up instead of using ExternalLibs[*rit]: a name that was removed while rolling
+			// back a failed plugin leaves no entry behind, and operator[] would insert a phantom one.
+			auto extLib = d->ExternalLibs.find(*rit);
+			if (extLib == d->ExternalLibs.end()) {
+				continue;
+			}
+			if (extLib.value().lib != nullptr) {
+				extLib.value().lib->unload();
+				delete extLib.value().lib;
+				extLib.value().lib = nullptr;
 			}
 		}
 		d->ExternalLibs.clear();
+		d->ExternalLibsLoadPriority.clear();
+		d->ScanFaults.clear();
 		d->PluginManage.clear();
 		d->LoadPriorityList.clear();
 		d->DeactivatedList.clear();
@@ -617,9 +682,12 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 
-		return \a plugin 插件是否被启用。
+		return \a plugin 插件是否被启用。如果 \a plugin 为nullptr，则返回false。
 	*/
 	bool PluginManager::isPluginEnable(Plugin* plugin) const {
+		if (plugin == nullptr) {
+			return false;
+		}
 		return isPluginEnable(plugin->getPluginID());
 	}
 
@@ -732,6 +800,7 @@ namespace Visindigo::General {
 						continue;
 					}
 					manageData.state = PluginManager::PluginState::Enabled;
+					emit pluginEnabled(manageData.plugin);
 					VIPM->success() << "Plugin" << id << " enabled successfully.";
 				}
 			}
@@ -741,11 +810,16 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		根据 \a id 获取插件对象指针。如果插件ID不存在或未被正确加载，则返回nullptr。
+
+		与getLoadedPlugins()一样，这里判断的是"加载阶段是否成功"（即 LoadPluginResult::Success），
+		与插件的启用状态无关：即使插件在启用阶段失败，只要它被成功加载到内存，这里仍会返回它的实例。
+		需要确认插件当前是否可用时，请另外调用isPluginEnable()。
+
+		\sa getLoadedPlugins()、isPluginEnable()、getPluginBinaryFolder()
 	*/
 	Plugin* PluginManager::getPluginByID(const QString& id) const {
 		if (d->PluginManage.contains(id) && 
-			(d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
-			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled)){
+			d->PluginManage.value(id).loadResult == PluginManager::LoadPluginResult::Success) {
 			return d->PluginManage.value(id).plugin;
 		}
 		return nullptr;
@@ -758,12 +832,14 @@ namespace Visindigo::General {
 		这个目录是插件动态库实际存放的目录，与插件的配置目录(getPluginFolder())不同。
 		如果插件ID不存在或未被加载，返回空的QDir。
 
+		与getLoadedPlugins()一样，这里判断的是"加载阶段是否成功"（即 LoadPluginResult::Success），
+		与插件的启用状态无关。
+
 		\sa Plugin::getPluginBinaryFolder()
 	*/
 	QDir PluginManager::getPluginBinaryFolder(const QString& id) const {
-		if (d->PluginManage.contains(id) && (
-			d->PluginManage.value(id).state == PluginManager::PluginState::InstanceCreated ||
-			d->PluginManage.value(id).state == PluginManager::PluginState::Enabled)) {
+		if (d->PluginManage.contains(id) &&
+			d->PluginManage.value(id).loadResult == PluginManager::LoadPluginResult::Success) {
 			return d->PluginManage.value(id).binaryFolder;
 		}
 		return QDir();
@@ -773,11 +849,14 @@ namespace Visindigo::General {
 		\since Visindigo 0.17.0
 		获取插件 \a plugin 的配置/数据文件夹。
 
-		这是 Plugin::getPluginFolder() 的便捷包装。
+		这是 Plugin::getPluginFolder() 的便捷包装。如果 \a plugin 为nullptr，则返回空的QDir。
 
 		\sa PluginManager::getPluginFolder(const QString&, Plugin::LoadType)
 	*/
 	QDir PluginManager::getPluginFolder(Plugin* plugin) const {
+		if (plugin == nullptr) {
+			return QDir();
+		}
 		return plugin->getPluginFolder();
 	}
 
@@ -815,13 +894,17 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		根据插件名称 \a name 获取插件对象指针列表，其中包括全部具有此名称的插件对象指针。对象必须已经被加载到内存中，无论它们是否被启用。
+
+		与getLoadedPlugins()一样，这里判断的是"加载阶段是否成功"（即 LoadPluginResult::Success），
+		与插件的启用状态无关。
+
+		\sa getLoadedPlugins()
 	*/
 	QList<Plugin*> PluginManager::getPluginByName(const QString& name) const {
 		QList<Plugin*> plugins;
 		for (auto pluginID : d->LoadPriorityList) {
 			auto& manageData = d->PluginManage[pluginID];
-			if (manageData.state == PluginManager::PluginState::InstanceCreated ||
-				manageData.state == PluginManager::PluginState::Enabled) {
+			if (manageData.loadResult == PluginManager::LoadPluginResult::Success && manageData.plugin != nullptr) {
 				if (manageData.plugin->getPluginName() == name) {
 					plugins.append(manageData.plugin);
 				}
@@ -846,13 +929,18 @@ namespace Visindigo::General {
 	/*!
 		\since Visindigo 0.13.0
 		return 已加载的插件对象列表。这个列表包含所有被正确识别并加载到内存中的插件对象指针，无论它们是否被启用。
+
+		这里判断的是"加载阶段是否成功"（即 LoadPluginResult::Success），与插件的启用状态无关：
+		即使插件在启用阶段失败，它的实例仍然在内存中，也会出现在这个列表里。
+		需要只包含已启用的插件时，请改用getEnabledPlugins()。
+
+		\sa getEnabledPlugins()
 	*/
 	QList<Plugin*> PluginManager::getLoadedPlugins() const {
 		auto rtn = QList<Plugin*>();
 		for (auto id : d->LoadPriorityList) {
 			auto& manageData = d->PluginManage[id];
-			if (manageData.state == PluginManager::PluginState::InstanceCreated ||
-				manageData.state == PluginManager::PluginState::Enabled) {
+			if (manageData.loadResult == PluginManager::LoadPluginResult::Success && manageData.plugin != nullptr) {
 				rtn.append(manageData.plugin);
 			}
 		}
@@ -880,6 +968,9 @@ namespace Visindigo::General {
 
 		因此可以通过它找出那些加载失败或被禁用的插件：加载成功的插件其结果一定为Success，
 		其余结果请参考LoadPluginResult的说明。
+
+		对于在识别元数据阶段就失败、因而无法用插件ID来标识的插件（元数据缺失或损坏、插件ID重复等），
+		键为该插件的元数据json路径，值为对应的失败结果。
 	*/
 	QMap<QString, PluginManager::LoadPluginResult> PluginManager::getAllPluginLoadResults() const {
 		auto rtn = QMap<QString, PluginManager::LoadPluginResult>();
@@ -888,6 +979,9 @@ namespace Visindigo::General {
 			if (manageData.state != PluginManager::PluginState::Unknown) {
 				rtn[id] = manageData.loadResult;
 			}
+		}
+		for (auto it = d->ScanFaults.begin(); it != d->ScanFaults.end(); ++it) {
+			rtn[it.key()] = it.value();
 		}
 		return rtn;
 	}

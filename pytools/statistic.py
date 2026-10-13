@@ -17,6 +17,6 @@ def getCodeLines(path):
     return totalLines, totalSize
 
 if __name__ == "__main__":
-    lines, size = getCodeLines("../")
+    lines, size = getCodeLines(".")
     print(f"Total code lines: {lines}")
     print(f"Total file size: {size} bytes")
