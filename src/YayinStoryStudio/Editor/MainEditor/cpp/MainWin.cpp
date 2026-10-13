@@ -30,7 +30,6 @@
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/SimpleFileDialog.h"
-#include "Editor/MainEditor/ToolWidgetArea.h"
 #include "Editor/MainEditor/TreeLayoutWidget.h"
 #include "Editor/NewFilePage/NewFileWin.h"
 #include "Editor/ProjectPage/ProjectWin.h"
@@ -100,7 +99,6 @@ namespace YSS::Editor {
 			this->showMaximized();
 		}
 
-		connect(YSSTWM, &YSSCore::Editor::ToolWidgetManager::widgetOpened, this, &MainWin::onToolWidgetOpened);
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileClosed, this, [this](const QString& filePath) {
 			if (auto* current = FileEditWidgetArea::getCurrentFocusedWidget(); current && current->getFilePath() == filePath) {
 				FileEditWidgetArea::setCurrentFocusedWidget(FileEditWidgetArea::getCurrentArea(), nullptr);
@@ -374,12 +372,6 @@ namespace YSS::Editor {
 		if (auto area = selectFileEditWidgetAreaForNewFile(widget)) {
 			area->addWidget(widget);
 			FileEditWidgetArea::setCurrentFocusedWidget(area, widget);
-		}
-	}
-
-	void MainWin::onToolWidgetOpened(const QString& widgetID) {
-		if (Tools) {
-			Tools->addWidget(widgetID);
 		}
 	}
 
@@ -680,9 +672,6 @@ namespace YSS::Editor {
 		}
 		for (auto layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
 			layout->close();
-		}
-		if (Tools) {
-			Tools->closeAll(); // this two lines indicates a potential memory trap. see comments in its destructor.
 		}
 		Instance = nullptr;
 		delete YSSCore::General::YSSProject::getCurrentProject();

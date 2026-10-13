@@ -143,7 +143,6 @@
     <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit_p.cpp" />
-    <ClCompile Include="Editor\cpp\ToolWidgetManager.cpp" />
     <ClCompile Include="Editor\cpp\VirtualFilePath.cpp" />
     <ClCompile Include="Editor\cpp\YSSCoreBuiltinPlugin.cpp" />
     <ClCompile Include="General\cpp\YSSLogger.cpp" />
@@ -168,7 +167,6 @@
     <ClInclude Include="Editor\private\DocumentMessageManager_p.h" />
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <QtMoc Include="Editor\SyntaxHighlighter.h" />
-    <QtMoc Include="Editor\ToolWidgetManager.h" />
     <ClInclude Include="Editor\CustomDocumentData.h" />
     <ClInclude Include="Editor\VirtualFilePath.h" />
     <ClInclude Include="General\YSSLogger.h" />

@@ -26,7 +26,6 @@ namespace YSS::Editor {
 		Q_OBJECT;
 	private:
 		QWidget* CentralWidget = nullptr;
-		ToolWidgetArea* Tools = nullptr;
 		QVBoxLayout* MainLayout = nullptr;
 		QHBoxLayout* Layout = nullptr;
 		RenameDialog* RenameDlg = nullptr;
@@ -50,7 +49,6 @@ namespace YSS::Editor {
 		void saveProject();
 		void backToHome();
 		void onFileEditOpened(const QString& filePath);
-		void onToolWidgetOpened(const QString& toolWidgetID);
 		void saveCurrentFocusedFile();
 		void saveCurrentFocusedFileAs(QString rawFilePath = "");
 		void openFileDialog(const QString& startPath = "");

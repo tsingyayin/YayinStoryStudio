@@ -22,13 +22,4 @@ namespace YSS::Editor {
 		registerFileServer(new ColorThemeSettingsVFServer(this));
 		registerPluginModule(new DebugCommand(this));
 	}
-	QWidget* MainEditorBuiltinPlugin::onToolWidgetRequested(const QString& widgetID) {
-		if (widgetID == "cn.yxgeneral.yss.messageViewer") {
-			return new MessageViewer;
-		}
-		else if (widgetID == "cn.yxgeneral.yss.multiTerminal") {
-			return new MultiTerminal;
-		}
-		return nullptr;
-	}
 }

@@ -142,7 +142,6 @@
     <ClCompile Include="Editor\MainEditor\cpp\FileEditWidgetArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\StackComponents_p.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\ToolWidgetArea.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\TreeLayoutWidget.cpp" />
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
@@ -175,7 +174,6 @@
     <QtMoc Include="Editor\MainEditor\FileEditWidgetArea.h" />
     <QtMoc Include="Editor\MainEditor\private\StackComponents_p.h" />
     <QtMoc Include="Editor\MainEditor\SimpleFileDialog.h" />
-    <QtMoc Include="Editor\MainEditor\ToolWidgetArea.h" />
     <QtMoc Include="Editor\MainEditor\MainWinMenu.h" />
     <QtMoc Include="Editor\MainEditor\DebugServerRouter.h" />
     <QtMoc Include="Editor\MainEditor\MainEditorBuiltinPlugin.h" />

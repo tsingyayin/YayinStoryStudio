@@ -13,7 +13,6 @@
 #include "Editor/private/EditorPlugin_p.h"
 #include "Editor/ProjectTemplateManager.h"
 #include "Editor/ProjectTemplateProvider.h"
-#include "Editor/ToolWidgetManager.h"
 #include "General/YSSProject.h"
 namespace YSSCore::Editor {
 	/*!
@@ -68,29 +67,6 @@ namespace YSSCore::Editor {
 	*/
 
 	/*!
-		\fn YSSCore::Editor::EditorPlugin::onToolWidgetRequested(const QString& widgetID)
-		\since YSSCore 0.15.0
-		\a widgetID 工具窗口ID
-
-		YSS需要请求显示工具窗口内容时调用此函数。参数widgetID是被请求的工具窗口ID。
-		如果插件提供了对应ID的工具窗口内容，则返回一个QWidget指针；否则返回nullptr。
-
-		这个窗口一旦创建，所有权归YSS前台所有，插件不需要也不应该管理它的生命周期。
-		YSS会确保每次请求同一个工具窗口ID时，如果窗口仍然存活，则直接返回现有的实例；
-		如果窗口已经被关闭销毁，则再次调用此函数请求新的实例。因此，这个函数每次被调用时，
-		上一次请求所返回的指针已经被正确销毁了，因此插件不需要担心重复创建工具窗口的问题。
-
-		此外，这个窗口不应该中途移除Qt::WA_DeleteOnClose属性，YSS使用此属性来辅助管理工具窗口的生命周期。
-
-		如果你确实有持久化存储一些数据的需求，请考虑将其存储在工具窗口类的外部。
-
-		另请参见YSSCore::Editor::ToolWidgetManager。
-	*/
-	QWidget* EditorPlugin::onToolWidgetRequested(const QString& widgetID) {
-		return nullptr;
-	}
-
-	/*!
 		\fn bool YSSCore::Editor::EditorPlugin::onProjectAboutToClose(YSSCore::General::YSSProject* project)
 		\since YSSCore 0.16.0
 		\a project 即将关闭的项目对象
@@ -115,7 +91,7 @@ namespace YSSCore::Editor {
 	*/
 	void EditorPlugin::registerLangServer(LangServer* server) {
 		registerPluginModule(server);
-		QString currentThemeName = getPluginConfig()->getString("_yss_auto_.LangServer." + server->getModuleID() + ".CurrentTheme"); 
+		QString currentThemeName = getPluginConfig()->getString("_yss_auto_.LangServer." + server->getModuleID() + ".CurrentTheme");
 		if (not currentThemeName.isEmpty()) {
 			server->getColorThemeProvider()->setCurrentTheme(currentThemeName);
 		}
@@ -176,22 +152,5 @@ namespace YSSCore::Editor {
 	*/
 	YSSCore::General::YSSProject* EditorPlugin::getCurrentProject() {
 		return YSSCore::General::YSSProject::getCurrentProject();
-	}
-
-	/*!
-		\since YSS 0.15.0
-		\a widgetID 工具窗口ID
-		\a widgetName 工具窗口名称
-		
-		\warning 自0.17.0起，ToolWidget完全弃用，改用FileServer的listAsTool属性来实现工具窗口功能。
-
-		注册工具窗口。工具窗口是YSS编辑器中可以停靠的窗口，插件可以通过onToolWidgetRequested()提供工具窗口的内容。
-
-		工具窗口的ID必须全程序唯一，一般建议使用反向域命名法。 \a widgetName 是支持VI18N的字符串，用于直接显示在界面上。
-
-		另请参见YSSCore::Editor::ToolWidgetManager。
-	*/
-	void EditorPlugin::registerToolWidget(const QString& widgetID, const QString& widgetName) {
-		YSSCore::Editor::ToolWidgetManager::getInstance()->registerToolWidget(widgetID, widgetName, this);
 	}
 }

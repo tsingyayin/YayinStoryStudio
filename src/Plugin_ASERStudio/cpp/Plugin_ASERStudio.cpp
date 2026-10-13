@@ -154,14 +154,6 @@ namespace ASERStudio {
 		}
 	}
 
-	QWidget* Main::onToolWidgetRequested(const QString& widgetID) {
-		if (widgetID == "cn.yxgeneral.aserstudio.aser_warpper") {
-			ASEREnv::ASERWarpper* warpper = new ASEREnv::ASERWarpper();
-			return warpper;
-		}
-		return nullptr;
-	}
-
 	bool Main::onProjectAboutToClose(YSSCore::General::YSSProject* project) {
 		if (d->ASERProgram->isRunning()) {
 			QMessageBox::StandardButton result = 

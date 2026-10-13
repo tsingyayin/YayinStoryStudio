@@ -8,7 +8,6 @@ namespace YSS::Editor {
 		MainEditorBuiltinPlugin();
 		virtual ~MainEditorBuiltinPlugin();
 		virtual void onPluginEnable() override;
-		virtual QWidget* onToolWidgetRequested(const QString& widgetID) override;
 	};
 }
 #endif // YayinStoryStudio_Editor_MainEditor_MainEditorBuiltinPlugin_h

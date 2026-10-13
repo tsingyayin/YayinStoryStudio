@@ -8,7 +8,8 @@ AutoPack.py - YSS 自动打包脚本
          - 开发版本：使用完整昵称（如 "EA TP1"、"EA Beta 1"）→ YSS_V0.16.0.193 EA Beta 1
          - EA Release（昵称等于 "EA" 或含 "Release"）：只保留 "EA" → YSS_V0.16.0.193 EA
          - 历史兼容：昵称等于 "SEA" 时只保留 "SEA"（日后不再使用）
-  2. 清空 user_data/logs、user_data/repos、user_data/third_party 的内容（保留目录本身）
+  2. 清空 user_data/logs、user_data/repos、user_data/third_party 的内容（保留目录本身），
+     并删除程序根目录下的 last_crash.zip / last_crash.txt（本地运行遗留的崩溃文件）
   3. 删除新文件夹中的 *.ilk；将 *.exp / *.lib / *.map / *.pdb 收集并压缩为
      YSSDbg_V<版本号>_MSVC_AMD64.zip，之后从新文件夹中移除
   4. 用 Bandizip (bz.exe) 将新文件夹压缩为同名 .zip
@@ -48,6 +49,8 @@ BZ_EXE = os.environ.get("BZ_EXE") or shutil.which("bz.exe") or "bz.exe"
 DBG_EXTS = (".exp", ".lib", ".map", ".pdb")
 # 需要清空内容但保留目录的 user_data 子目录
 CLEAR_DIRS = ("logs", "repos", "third_party")
+# 需要从发布文件夹根目录删除的运行时残留（崩溃处理器留下的文件）
+ROOT_RESIDUE_FILES = ("last_crash.zip", "last_crash.txt")
 
 
 # ---------------------------------------------------------------- 工具函数
@@ -137,7 +140,10 @@ def step1_copy_release(plan):
 
 
 def step2_clear_user_data(plan):
-    """清空 user_data/logs、repos、third_party 的内容，保留目录本身。"""
+    """
+    清空 user_data/logs、repos、third_party 的内容（保留目录本身），
+    并删除程序根目录下的 last_crash.zip / last_crash.txt。
+    """
     for sub in CLEAR_DIRS:
         p = os.path.join(plan["new_folder"], "user_data", sub)
         if not os.path.isdir(p):
@@ -152,6 +158,14 @@ def step2_clear_user_data(plan):
                 os.remove(ep)
             count += 1
         log("已清空 %s （移除 %d 项）" % (os.path.relpath(p, plan["new_folder"]), count))
+
+    for name in ROOT_RESIDUE_FILES:
+        p = os.path.join(plan["new_folder"], name)
+        if os.path.isfile(p) or os.path.islink(p):
+            os.remove(p)
+            log("已删除运行时残留: %s" % name)
+        else:
+            log("跳过（不存在）: %s" % name)
 
 
 def step3_strip_debug_files(plan):

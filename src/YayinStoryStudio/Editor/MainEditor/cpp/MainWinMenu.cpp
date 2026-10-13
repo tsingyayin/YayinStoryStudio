@@ -14,7 +14,6 @@
 #include <Editor/FileServer.h>
 #include <Editor/FileServerManager.h>
 #include <Editor/TextEdit.h>
-#include <Editor/ToolWidgetManager.h>
 #include <Editor/VirtualFilePath.h>
 #include <General/Log.h>
 #include <General/Plugin.h>

@@ -95,9 +95,6 @@
     <ClCompile Include="Editor\cpp\FormatNormalizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\ToolWidgetManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\cpp\DocumentMessage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -214,9 +211,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\SyntaxHighlighter.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Editor\ToolWidgetManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\DebugServerManager.h">
