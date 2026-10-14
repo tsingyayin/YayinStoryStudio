@@ -180,7 +180,7 @@ namespace YSS::Editor {
 				textEdit->setHoverArea(nullptr);
 			}
 			widget->setParent(nullptr);
-			widget->closeFile();
+			widget->closeFile(true);
 		}
 		if (AreaRegistry::instance().main() == this) {
 			AreaRegistry::instance().setMain(nullptr);
@@ -328,6 +328,9 @@ namespace YSS::Editor {
 		else {
 			d->TagArea->addStackLabel(filePath, QString(), widget);
 		}
+		if (widget->isFileChanged()) {
+			d->TagArea->setFileChanged(filePath);
+		}
 	
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackTagWidget::setFileChanged);
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea, &StackTagWidget::cancelFileChanged);
@@ -364,20 +367,38 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::closeAll(bool autoGiveup) {
-		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
+		for (auto widget : d->TagArea->getFileEditWidgets()) {
 			vgDebug << "close " << widget->getFilePath();
 			widget->closeFile(autoGiveup);
 		}
 	}
 
 	void FileEditWidgetArea::closeSaved() {
-		for (auto widget : YSSFSM->getAllFileEditWidgets()) {
+		for (auto widget : d->TagArea->getFileEditWidgets()) {
 			QString filePath = widget->getFilePath();
 			if (not widget->isFileChanged() and not d->TagArea->isStackLabelPinned(filePath)) {
 				vgDebug << "close " << filePath;
 				widget->closeFile();
 			}
 		}
+	}
+
+	bool FileEditWidgetArea::closeAllWidgetsWithConfirm() {
+		QStringList filePaths;
+		for (auto widget : d->TagArea->getFileEditWidgets()) {
+			filePaths.append(widget->getFilePath());
+		}
+		for (const QString& filePath : filePaths) {
+			if (YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath)) {
+				widget->closeFile();
+			}
+		}
+		for (const QString& filePath : filePaths) {
+			if (d->TagArea->containsStackLabel(filePath)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	void FileEditWidgetArea::closeWidget(YSSCore::Editor::FileEditWidget* widget) {
 		closeWidget(widget->getFilePath());
@@ -440,12 +461,7 @@ namespace YSS::Editor {
 			d->Layout->insertWidget(1, d->ContentArea);
 			d->ContentArea->show();
 		}
-		QFileInfo fileInfo(filePath);
-		QString absPath = fileInfo.absoluteFilePath();
-		if (not YSSFSM->getAllOpenedFilePaths().contains(absPath)) {
-			return;
-		}
-		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
 		if (not widget) {
 			return;
 		}
@@ -473,6 +489,7 @@ namespace YSS::Editor {
 		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
 			absPath = QFileInfo(filePath).absoluteFilePath();
 		}
+		const bool pinned = d->TagArea->isStackLabelPinned(absPath);
 		d->TagArea->removeStackLabel(absPath);
 		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
 		YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFile(absPath);
@@ -480,6 +497,9 @@ namespace YSS::Editor {
 			widget->disconnect(this);
 			widget->disconnect(d->TagArea);
 			otherArea->addWidget(widget);
+			if (pinned) {
+				otherArea->d->TagArea->setStackLabelPinned(absPath, true);
+			}
 			d->OpenFileCount--;
 			if (d->OpenFileCount <= 0) {
 				d->OpenFileCount = 0;
@@ -508,15 +528,11 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::dropEvent(QDropEvent* event) {
-		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
-			QByteArray data = event->mimeData()->data(StackTag::stackTagDragMimeType);
-			Visindigo::Utility::JsonConfig json(QString::fromUtf8(data));
-			QString selfPtr = json.getString("self");
-			StackTag* selfLabel = reinterpret_cast<StackTag*>(selfPtr.toULongLong(nullptr, 16));
+		if (StackTag::canAcceptDrag(event->mimeData())) {
+			StackTag* selfLabel = StackTag::draggedTag(event->mimeData());
 			// The drag source serializes the "area" key: the StackTagWidget the dragged
 			// tag stays in (i.e. the SOURCE tag bar), not "parent".
-			QString sourcePtr = json.getString("area");
-			StackTagWidget* sourceTagArea = reinterpret_cast<StackTagWidget*>(sourcePtr.toULongLong(nullptr, 16));
+			StackTagWidget* sourceTagArea = StackTag::draggedTagArea(event->mimeData());
 			if (selfLabel && sourceTagArea && sourceTagArea != d->TagArea) {
 				FileEditWidgetArea* from = sourceTagArea->getArea();
 				if (from && from != this) {

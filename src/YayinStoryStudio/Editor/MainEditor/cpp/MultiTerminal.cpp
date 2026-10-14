@@ -1,23 +1,140 @@
+#include <QtGui/qaction.h>
+#include <QtGui/qicon.h>
 #include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlistwidget.h>
+#include <QtWidgets/qmenu.h>
+#include <QtWidgets/qtoolbutton.h>
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 #include <Widgets/Terminal.h>
+#include <Widgets/ThemeManager.h>
 #include "Editor/MainEditor/MultiTerminal.h"
-#include "Editor/MainEditor/private/StackComponents_p.h"
 namespace YSS::Editor {
+		static void showTerminalContextMenu(MultiTerminal* owner, const QString& name, const QPoint& globalPos) {
+			QMenu menu;
+			QAction* closeAction = menu.addAction(VITRL("Visindigo::general.close"));
+			QAction* closeAllAction = menu.addAction(VITRL("YSS::menu.file.closeAll"));
+
+			closeAction->setEnabled(not name.isEmpty() and name != "builtin");
+			QAction* chosen = menu.exec(globalPos);
+			if (chosen == closeAction) {
+				owner->closeTerminal(name);
+			}
+			else if (chosen == closeAllAction) {
+				owner->closeAll();
+			}
+
+			owner->setCurrentTerminal(owner->getCurrentTerminalName());
+		}
+
+		static void bindTerminalContextMenu(QWidget* widget, MultiTerminal* owner, const QString& name) {
+			widget->setContextMenuPolicy(Qt::CustomContextMenu);
+			QObject::connect(widget, &QWidget::customContextMenuRequested, owner, [owner, name, widget](const QPoint& pos) {
+				showTerminalContextMenu(owner, name, widget->mapToGlobal(pos));
+				});
+		}
+	
 	class MultiTerminalPrivate {
 		friend class MultiTerminal;
 	protected:
 		static MultiTerminal* Instance;
 		static QList<Visindigo::Widgets::Terminal*> Terminals; // terminal resource should not be released when q class deleted.
 		static QStringList TerminalNames;
-		QHBoxLayout* Layout;
-		QPushButton* CreateButton;
-		StackTagWidget* TagArea;
+		QHBoxLayout* Layout = nullptr;
+		QListWidget* TerminalList = nullptr;
 		QWidget* ContentArea = nullptr;
-		DefaultStackWidgetCentralArea* CentralArea;
+		QLabel* Placeholder = nullptr;
+		QString CurrentName;
+
+		QIcon terminalCloseIcon() const {
+			return VIApp->getFontIcon("\uE711", 64, { VISTM->getPaletteTextColor() });
+		}
+
+		void addRow(MultiTerminal* owner, const QString& name, bool closable) {
+			QListWidgetItem* item = new QListWidgetItem(TerminalList);
+			item->setData(Qt::UserRole, name);
+			item->setSizeHint(QSize(0, 28));
+			QWidget* row = new QWidget(TerminalList);
+			QHBoxLayout* rowLayout = new QHBoxLayout(row);
+			rowLayout->setContentsMargins(0, 0, 0, 0);
+			rowLayout->setSpacing(2);
+			QToolButton* nameButton = new QToolButton(row);
+			nameButton->setText(name);
+			nameButton->setAutoRaise(true);
+			nameButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+			nameButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			nameButton->setStyleSheet("QToolButton { text-align: left; padding-left: 8px; }");
+			rowLayout->addWidget(nameButton, 1);
+			QObject::connect(nameButton, &QToolButton::clicked, owner, [owner, name]() {
+				owner->setCurrentTerminal(name);
+				});
+			bindTerminalContextMenu(nameButton, owner, name);
+			if (closable) {
+				QToolButton* closeButton = new QToolButton(row);
+				closeButton->setObjectName("TerminalCloseButton");
+				closeButton->setAutoRaise(true);
+				closeButton->setIcon(terminalCloseIcon());
+				closeButton->setToolTip(VITRL("Visindigo::general.close"));
+				rowLayout->addWidget(closeButton, 0);
+				QObject::connect(closeButton, &QToolButton::clicked, owner, [owner, name]() {
+					owner->closeTerminal(name);
+					});
+				bindTerminalContextMenu(closeButton, owner, name);
+			}
+			TerminalList->setItemWidget(item, row);
+		}
+
+		void rebuildList(MultiTerminal* owner) {
+			TerminalList->clear();
+			if (VIApp->getVirtualTerminal()) {
+				addRow(owner, "builtin", false);
+			}
+			for (const QString& name : TerminalNames) {
+				addRow(owner, name, true);
+			}
+			if (CurrentName.isEmpty()) {
+				TerminalList->clearSelection();
+			}
+			else {
+				selectRow(CurrentName);
+			}
+		}
+
+		void selectRow(const QString& name) {
+			for (int i = 0; i < TerminalList->count(); ++i) {
+				QListWidgetItem* item = TerminalList->item(i);
+				if (item->data(Qt::UserRole).toString() == name) {
+					TerminalList->setCurrentItem(item);
+					return;
+				}
+			}
+			TerminalList->clearSelection();
+		}
+
+		void refreshRowIcons() {
+			const QIcon icon = terminalCloseIcon();
+			for (int i = 0; i < TerminalList->count(); ++i) {
+				QWidget* row = TerminalList->itemWidget(TerminalList->item(i));
+				if (not row) {
+					continue;
+				}
+				if (QToolButton* button = row->findChild<QToolButton*>("TerminalCloseButton")) {
+					button->setIcon(icon);
+				}
+			}
+		}
+
+		void setContentWidget(QWidget* widget) {
+			if (not widget or ContentArea == widget) {
+				return;
+			}
+			ContentArea->hide();
+			Layout->removeWidget(ContentArea);
+			ContentArea = widget;
+			Layout->insertWidget(0, ContentArea);
+			ContentArea->show();
+		}
 
 		void initData() {
 			auto builtinTerminal = VIApp->getVirtualTerminal();
@@ -25,14 +142,15 @@ namespace YSS::Editor {
 				builtinTerminal->setContentsMargins(0, 0, 0, 0);
 				builtinTerminal->setParent(Instance);
 				builtinTerminal->hide();
-				TagArea->addStackLabel("builtin", "builtin");
+			}
+			for (auto terminal : Terminals) {
+				terminal->setParent(Instance);
+			}
+			rebuildList(Instance);
+			if (builtinTerminal) {
 				Instance->setCurrentTerminal("builtin");
 			}
-			for (int i = 0; i < TerminalNames.size(); i++) {
-				auto terminal = Terminals[i];
-				auto name = TerminalNames[i];
-				terminal->setParent(Instance);
-				TagArea->addStackLabel(name, name);
+			for (const QString& name : TerminalNames) {
 				Instance->setCurrentTerminal(name);
 			}
 		}
@@ -63,28 +181,38 @@ namespace YSS::Editor {
 		d->Layout = new QHBoxLayout(this);
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
-		d->TagArea = new StackTagWidget(this, Qt::Vertical);
-		d->TagArea->setFixedWidth(160);
-		d->CentralArea = new DefaultStackWidgetCentralArea(this);
-		d->CentralArea->setText(VITRL("YSS::editor.toolWidgetArea.noToolWidget"));
-		d->ContentArea = d->CentralArea;
 
-		d->Layout->addWidget(d->CentralArea);
-		d->Layout->addWidget(d->TagArea);
+		d->Placeholder = new QLabel(VITRL("YSS::editor.toolWidgetArea.noToolWidget"), this);
+		d->Placeholder->setAlignment(Qt::AlignCenter);
+		d->ContentArea = d->Placeholder;
 
-		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const QString& widgetID) {
-			setCurrentTerminal(widgetID);
-			});
+		d->TerminalList = new QListWidget(this);
+		d->TerminalList->setFixedWidth(160);
+		d->TerminalList->setFrameShape(QFrame::NoFrame);
+		d->TerminalList->setSelectionMode(QAbstractItemView::SingleSelection);
+		d->TerminalList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		d->TerminalList->setContextMenuPolicy(Qt::CustomContextMenu);
 
-		connect(d->TagArea, &StackTagWidget::closeFile, this, [this](const QString& widgetID) {
-			if (widgetID != "builtin") {
-				closeTerminal(widgetID);
-				d->TagArea->removeStackLabel(widgetID);
+		d->Layout->addWidget(d->ContentArea, 1);
+		d->Layout->addWidget(d->TerminalList, 0);
+
+		connect(d->TerminalList, &QListWidget::currentItemChanged, this, [this](QListWidgetItem* current, QListWidgetItem*) {
+			if (not current) {
+				return;
+			}
+			const QString name = current->data(Qt::UserRole).toString();
+			if (name != d->CurrentName) {
+				setCurrentTerminal(name);
 			}
 			});
 
-		connect(d->TagArea, &StackTagWidget::closeAllRequested, this, [this]() {
-			closeAll();
+		connect(d->TerminalList, &QListWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
+			// 列表空白处（没有任何终端行的地方）也能关闭全部终端。
+			showTerminalContextMenu(this, QString(), d->TerminalList->mapToGlobal(pos));
+			});
+
+		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged, this, [this](const QString& themeID) {
+			d->refreshRowIcons();
 			});
 
 		d->initData();
@@ -111,37 +239,58 @@ namespace YSS::Editor {
 		return MultiTerminalPrivate::Instance;
 	}
 	void MultiTerminal::addTerminal(const QString& name, const QString& command, const QDir& workingDir) {
-		if (name == "builtin") {
+		if (name == "builtin" or MultiTerminalPrivate::TerminalNames.contains(name)) {
 			return;
 		}
 		auto terminal = new Visindigo::Widgets::Terminal(this);
 		terminal->launchExternalProcess(command, {}, workingDir.path());
 		MultiTerminalPrivate::Terminals.append(terminal);
 		MultiTerminalPrivate::TerminalNames.append(name);
-		d->TagArea->addStackLabel(name, name);
+		d->rebuildList(this);
 		setCurrentTerminal(name);
 	}
 
 	void MultiTerminal::closeTerminal(const QString& name) {
-		if (name == "builtin") {
+		if (name.isEmpty() or name == "builtin") {
 			return;
 		}
 		int index = MultiTerminalPrivate::TerminalNames.indexOf(name);
-		if (index != -1) {
-			auto terminal = MultiTerminalPrivate::Terminals[index];
+		if (index == -1) {
+			return;
+		}
+		auto terminal = MultiTerminalPrivate::Terminals.value(index, nullptr);
+		MultiTerminalPrivate::Terminals.removeAt(index);
+		MultiTerminalPrivate::TerminalNames.removeAt(index);
+		if (terminal) {
 			terminal->close();
-			MultiTerminalPrivate::Terminals.removeAt(index);
-			MultiTerminalPrivate::TerminalNames.removeAt(index);
+			terminal->deleteLater();
+		}
+		const bool closedCurrent = (d->CurrentName == name);
+		d->rebuildList(this);
+		if (closedCurrent) {
+			if (VIApp->getVirtualTerminal()) {
+				setCurrentTerminal("builtin");
+			}
+			else if (MultiTerminalPrivate::TerminalNames.isEmpty()) {
+				setCurrentTerminal(QString());
+			}
+			else {
+				setCurrentTerminal(MultiTerminalPrivate::TerminalNames.first());
+			}
 		}
 	}
 
 	void MultiTerminal::closeAll() {
 		for (auto terminal : MultiTerminalPrivate::Terminals) {
-			terminal->close();
-			terminal->deleteLater();
+			if (terminal) {
+				terminal->close();
+				terminal->deleteLater();
+			}
 		}
 		MultiTerminalPrivate::Terminals.clear();
 		MultiTerminalPrivate::TerminalNames.clear();
+		d->rebuildList(this);
+		setCurrentTerminal(VIApp->getVirtualTerminal() ? QString("builtin") : QString());
 	}
 
 	bool MultiTerminal::containsTerminal(const QString& name) const {
@@ -153,35 +302,30 @@ namespace YSS::Editor {
 	}
 
 	QString MultiTerminal::getCurrentTerminalName() const {
-		return d->TagArea->getCurrentSelected();
+		return d->CurrentName;
 	}
 
 	void MultiTerminal::setCurrentTerminal(const QString& name) {
 		if (name.isEmpty()) {
-			d->ContentArea->hide();
-			d->Layout->removeWidget(d->ContentArea);
-			d->ContentArea = d->CentralArea;
-			d->Layout->insertWidget(0, d->ContentArea);
-			d->ContentArea->show();
+			d->setContentWidget(d->Placeholder);
+			d->CurrentName.clear();
+			d->TerminalList->clearSelection();
 			return;
 		}
 		Visindigo::Widgets::Terminal* terminal = nullptr;
-		if (name != "builtin") {
-			terminal = MultiTerminalPrivate::Terminals[MultiTerminalPrivate::TerminalNames.indexOf(name)];
-		}
-		else {
+		if (name == "builtin") {
 			terminal = VIApp->getVirtualTerminal();
 		}
-		if (not terminal) return;
-		if (d->ContentArea != terminal) {
-			d->ContentArea->hide();
-			d->Layout->removeWidget(d->ContentArea);
-			d->ContentArea = terminal;
-			d->Layout->insertWidget(0, d->ContentArea);
-			d->ContentArea->show();
+		else {
+			terminal = MultiTerminalPrivate::Terminals.value(MultiTerminalPrivate::TerminalNames.indexOf(name), nullptr);
 		}
+		if (not terminal) {
+			return;
+		}
+		d->setContentWidget(terminal);
+		d->CurrentName = name;
+		d->selectRow(name);
 		emit currentTerminalChanged(name);
-		d->TagArea->setCurrentStackLabel(name);
 	}
 
 	bool MultiTerminal::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {

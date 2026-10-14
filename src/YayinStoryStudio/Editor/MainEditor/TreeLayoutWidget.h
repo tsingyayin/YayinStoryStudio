@@ -25,6 +25,7 @@ namespace YSS::Editor {
 		TreeLayoutWidget* createLayoutLast();
 		TreeLayoutWidget* createLayoutAt(int index);
 		TreeLayoutWidget* replaceFileEditAt(int index, FileEditWidgetArea* newArea, bool up);
+		// 折叠指定下标的空布局，返回被摘下的空布局（已无父级，调用方负责回收）。
 		TreeLayoutWidget* replaceLayoutAt(int index);
 	public:
 		FileEditWidgetArea* getFileEditAreaAt(int index) const;
@@ -42,7 +43,9 @@ namespace YSS::Editor {
 		Visindigo::Utility::JsonConfig saveToJson() const;
 		void recoverFromJson(const Visindigo::Utility::JsonConfig& json);
 		QList<FileEditWidgetArea*> getAllFileEditAreas() const;
+		bool closeAllFilesWithConfirm();
 	protected:
+		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
 		virtual void dragEnterEvent(QDragEnterEvent* event) override;
 		virtual void dragMoveEvent(QDragMoveEvent* event) override;

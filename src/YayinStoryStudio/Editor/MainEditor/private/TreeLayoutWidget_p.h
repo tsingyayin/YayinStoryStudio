@@ -23,7 +23,7 @@ namespace YSS::Editor {
 			Seam,
 		};
 	public:
-		TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex);
+		TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex, QWidget* childAnchor = nullptr);
 		void setZoneShape(const QPainterPath& shape);
 	protected:
 		virtual void paintEvent(QPaintEvent* event) override;
@@ -37,6 +37,7 @@ namespace YSS::Editor {
 		TreeLayoutWidgetPrivate* Owner;
 		DropZone Zone;
 		int ChildIndex;
+		QWidget* ChildAnchor = nullptr;
 		QPainterPath Shape;
 		bool Hovered = false;
 	};

@@ -4,6 +4,7 @@
 #include <QtCore/qdirlisting.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qsavefile.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qtextstream.h>
@@ -26,6 +27,36 @@ namespace Visindigo::Utility {
 			default:
 				return FileOperation::UnknownError;
 			}
+		}
+
+		// 先写临时文件、成功后再整体替换目标文件。这样即使写入中途失败（磁盘满、断电、
+		// 文件被占用），目标文件仍然是上一次保存成功的完整内容，而不是被截断的半截文件。
+		// \a writer 负责把数据写进已经打开的临时文件，并返回写入过程中的错误。
+		template<typename Writer>
+		static FileOperation::ErrorCode atomicWrite(const QString& filePath, QIODevice::OpenMode mode, const Writer& writer) {
+			const bool exist = QFileInfo::exists(filePath);
+			const QDir parentDir = QFileInfo(filePath).absoluteDir();
+			if (!parentDir.exists() && !parentDir.mkpath(".")) {
+				return FileOperation::DirNotFound;
+			}
+			QSaveFile file(filePath);
+			if (!file.open(mode)) {
+				return mapFileError(file.error());
+			}
+			QFileDevice::FileError error = writer(file);
+			if (error == QFileDevice::NoError && !exist && QFileInfo::exists(filePath)) {
+				// 与旧的 NewOnly 语义一致：目标文件原本不存在时，如果它在这期间被别人建了出来，
+				// 就放弃这次写入，不要去覆盖别人的文件。
+				file.cancelWriting();
+				return FileOperation::NameConflict;
+			}
+			if (error == QFileDevice::NoError && !file.commit()) {
+				error = file.error() != QFileDevice::NoError ? file.error() : QFileDevice::WriteError;
+			}
+			if (error != QFileDevice::NoError) {
+				return mapFileError(error);
+			}
+			return FileOperation::Success;
 		}
 	};
 
@@ -193,28 +224,18 @@ namespace Visindigo::Utility {
 		\note 这个函数无法感知对象的析构，因此保存是即时完成的，不会进行延迟写入。
 	*/
 	FileOperation::ErrorCode FileOperation::saveAll(const QString& filePath, const QString& data) {
-		QFile file(filePath);
-		const bool exist = file.exists();
-		const QDir parentDir = QFileInfo(file).absoluteDir();
-		if (!parentDir.exists() && !parentDir.mkpath(".")) {
-			return DirNotFound;
-		}
-		if (!file.open((exist ? QIODevice::WriteOnly : QIODevice::NewOnly) | QIODevice::Text)) {
-			return FileOperationPrivate::mapFileError(file.error());
-		}
-		QTextStream ts(&file);
-		ts.setEncoding(QStringConverter::Utf8);
-		ts << data;
-		ts.flush();
-		QFileDevice::FileError error = file.error();
-		if (error == QFileDevice::NoError && ts.status() != QTextStream::Ok) {
-			error = QFileDevice::WriteError;
-		}
-		file.close();
-		if (error != QFileDevice::NoError) {
-			return FileOperationPrivate::mapFileError(error);
-		}
-		return Success;
+		return FileOperationPrivate::atomicWrite(filePath, QIODevice::WriteOnly | QIODevice::Text,
+			[&data](QFileDevice& file) {
+				QTextStream ts(&file);
+				ts.setEncoding(QStringConverter::Utf8);
+				ts << data;
+				ts.flush();
+				QFileDevice::FileError error = file.error();
+				if (error == QFileDevice::NoError && ts.status() != QTextStream::Ok) {
+					error = QFileDevice::WriteError;
+				}
+				return error;
+			});
 	}
 
 	/*!
@@ -230,25 +251,15 @@ namespace Visindigo::Utility {
 		\note 与 saveAll 不同，这个函数不进行任何编码和换行符转换。
 	*/
 	FileOperation::ErrorCode FileOperation::saveBinary(const QString& filePath, const QByteArray& data) {
-		QFile file(filePath);
-		const bool exist = file.exists();
-		const QDir parentDir = QFileInfo(file).absoluteDir();
-		if (!parentDir.exists() && !parentDir.mkpath(".")) {
-			return DirNotFound;
-		}
-		if (!file.open(exist ? QIODevice::WriteOnly : QIODevice::NewOnly)) {
-			return FileOperationPrivate::mapFileError(file.error());
-		}
-		const qint64 written = file.write(data);
-		QFileDevice::FileError error = file.error();
-		if (error == QFileDevice::NoError && written != data.size()) {
-			error = QFileDevice::WriteError;
-		}
-		file.close();
-		if (error != QFileDevice::NoError) {
-			return FileOperationPrivate::mapFileError(error);
-		}
-		return Success;
+		return FileOperationPrivate::atomicWrite(filePath, QIODevice::WriteOnly,
+			[&data](QFileDevice& file) {
+				const qint64 written = file.write(data);
+				QFileDevice::FileError error = file.error();
+				if (error == QFileDevice::NoError && written != data.size()) {
+					error = QFileDevice::WriteError;
+				}
+				return error;
+			});
 	}
 
 	/*!

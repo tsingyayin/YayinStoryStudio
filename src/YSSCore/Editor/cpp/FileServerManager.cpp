@@ -79,18 +79,18 @@ namespace YSSCore::Editor {
 				VI_Throw_ST(Visindigo::General::Exception::NullPointer, "This function requires a valid FileEditWidget pointer.");
 			}
 			QString path = few->getFilePath();
-			OpenedFileEditWidgets.insert(path, few);
+			OpenedFileEditWidgets.insert(normalizePath(path), few);
 			QObject::connect(few, &FileEditWidget::fileClosed, Instance, [this, few](const QString& path) {
-				OpenedFileEditWidgets.remove(path);
+				OpenedFileEditWidgets.remove(normalizePath(path));
 				FileEditWidgetSourceServerMap.remove(few);
 				emit Instance->fileClosed(path);
 				few->deleteLater();
 				yDebug << "File closed:" << path;
 				});
 			QObject::connect(few, &FileEditWidget::fileRenamed, Instance, [this, few](const QString& rawPath, const QString& changedPath) {
-				if (OpenedFileEditWidgets.contains(rawPath)) {
-					OpenedFileEditWidgets.remove(rawPath);
-					OpenedFileEditWidgets.insert(changedPath, few);
+				if (OpenedFileEditWidgets.contains(normalizePath(rawPath))) {
+					OpenedFileEditWidgets.remove(normalizePath(rawPath));
+					OpenedFileEditWidgets.insert(normalizePath(changedPath), few);
 					emit Instance->fileRenamed(rawPath, changedPath);
 				}
 				else {
@@ -110,7 +110,19 @@ namespace YSSCore::Editor {
 		}
 
 		bool isFileAlreadyOpen(const QString& filePath) {
-			return OpenedFileEditWidgets.contains(filePath);
+			return OpenedFileEditWidgets.contains(normalizePath(filePath));
+		}
+
+		// 归一化真实文件路径：解析符号链接/联接，并（在 Windows 上）取磁盘上的真实大小写。
+		// Windows 的文件系统不区分大小写，不归一的话"同一个文件"会被当成两个文件、开成两个编辑器，
+		// 各自保存时后写的会静默覆盖先写的。文件还不存在时 canonicalFilePath() 返回空串，退回绝对路径。
+		static QString normalizePath(const QString& filePath) {
+			if (VirtualFilePath::isVirtualFilePath(filePath)) {
+				return filePath;
+			}
+			QFileInfo info(filePath);
+			const QString canonical = info.canonicalFilePath();
+			return canonical.isEmpty() ? info.absoluteFilePath() : canonical;
 		}
 	};
 	FileServerManager* FileServerManagerPrivate::Instance = nullptr;
@@ -544,7 +556,7 @@ namespace YSSCore::Editor {
 		这是getFileEditWidget的主实现版本。直接接受QFileInfo，以规范化路径进行索引查找。
 	*/
 	FileEditWidget* FileServerManager::getFileEditWidget(const QFileInfo& fileInfo) {
-		QString absPath = fileInfo.absoluteFilePath();
+		const QString absPath = FileServerManagerPrivate::normalizePath(fileInfo.absoluteFilePath());
 		if (d->OpenedFileEditWidgets.contains(absPath)) {
 			return d->OpenedFileEditWidgets[absPath];
 		}
@@ -620,11 +632,9 @@ namespace YSSCore::Editor {
 	*/
 	FileServer* FileServerManager::getFileEditWidgetSourceServer(const QString& filePath) const {
 		if (VirtualFilePath::isVirtualFilePath(filePath)) {
-			if (d->OpenedFileEditWidgets.contains(filePath)) {
-				auto we = d->OpenedFileEditWidgets[filePath];
-				if (we) {
-					return getFileEditWidgetSourceServer(we);
-				}
+			auto we = d->OpenedFileEditWidgets.value(FileServerManagerPrivate::normalizePath(filePath), nullptr);
+			if (we) {
+				return getFileEditWidgetSourceServer(we);
 			}
 		}
 		else {
@@ -638,7 +648,7 @@ namespace YSSCore::Editor {
 		return 指定文件信息对应的FileEditWidget的源FileServer对象。
 	*/
 	FileServer* FileServerManager::getFileEditWidgetSourceServer(const QFileInfo& fileInfo) const {
-		QString absPath = fileInfo.absoluteFilePath();
+		const QString absPath = FileServerManagerPrivate::normalizePath(fileInfo.absoluteFilePath());
 		if (d->OpenedFileEditWidgets.contains(absPath)) {
 			auto we = d->OpenedFileEditWidgets[absPath];
 			if (we) {

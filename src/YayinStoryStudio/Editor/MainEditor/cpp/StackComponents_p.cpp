@@ -15,6 +15,7 @@
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 #include <Utility/FileUtility.h>
+#include <Utility/JsonConfig.h>
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/TreeLayoutWidget.h"
@@ -23,6 +24,31 @@ namespace YSS::Editor {
 
 	bool StackTag::canAcceptDrag(const QMimeData* mimeData) {
 		return mimeData && mimeData->hasFormat(stackTagDragMimeType);
+	}
+
+	static quint64 dragAddress(const QString& hexAddress) {
+		if (hexAddress.isEmpty()) {
+			return 0;
+		}
+		bool ok = false;
+		quint64 address = hexAddress.toULongLong(&ok, 16);
+		return ok ? address : 0;
+	}
+
+	StackTag* StackTag::draggedTag(const QMimeData* mimeData) {
+		if (not canAcceptDrag(mimeData)) {
+			return nullptr;
+		}
+		Visindigo::Utility::JsonConfig json(QString::fromUtf8(mimeData->data(stackTagDragMimeType)));
+		return reinterpret_cast<StackTag*>(dragAddress(json.getString("self")));
+	}
+
+	StackTagWidget* StackTag::draggedTagArea(const QMimeData* mimeData) {
+		if (not canAcceptDrag(mimeData)) {
+			return nullptr;
+		}
+		Visindigo::Utility::JsonConfig json(QString::fromUtf8(mimeData->data(stackTagDragMimeType)));
+		return reinterpret_cast<StackTagWidget*>(dragAddress(json.getString("area")));
 	}
 
 	StackTagDrag::StackTagDrag(StackTag* source, QWidget* dragSource) :QDrag(dragSource), Source(source) {
@@ -580,7 +606,6 @@ namespace YSS::Editor {
 		connect(tagLabel, &StackTag::saveRequested, this, [this](const QString& filePath) {
 			emit saveRequested(filePath);
 			});
-		ScrollArea->horizontalScrollBar()->setMaximum(Labels.size() * Labels.last()->width() - ScrollArea->width());
 		/*tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
 			VISTMGT("YSS::Editor.StackTag.Hover"),
 			VISTMGT("YSS::Editor.StackTag.Pressed"));*/
@@ -637,6 +662,15 @@ namespace YSS::Editor {
 		}
 	}
 
+	void StackTagWidget::setStackLabelPinned(const QString& filePath, bool pinned) {
+		StackTag* targetLabel = findLabel(filePath);
+		if (not targetLabel) {
+			return;
+		}
+		targetLabel->setPinned(pinned);
+		pinStackLabel(filePath);
+	}
+
 	void StackTagWidget::removeStackLabel(const QString& filePath) {
 		StackTag* targetLabel = findLabel(filePath);
 		int index = -1;
@@ -658,7 +692,7 @@ namespace YSS::Editor {
 			// Prefer the label that slid into the removed slot (its successor);
 			// if none exists, fall back to the first remaining label.
 			StackTag* next = nullptr;
-			if (index > 1 && index < Labels.size()) {
+			if (index >= 1 && index < Labels.size()) {
 				next = Labels[index];
 			}
 			else if (not Labels.isEmpty()) {
@@ -705,11 +739,8 @@ namespace YSS::Editor {
 					break;
 				}
 			}
-			if (Orientation == Qt::Horizontal) {
-				ScrollArea->horizontalScrollBar()->setValue(cache * Labels.last()->width());
-			}
-			else {
-				ScrollArea->verticalScrollBar()->setValue(cache * Labels.last()->height());
+			if (StackTag* current = Labels.value(cache, nullptr)) {
+				ScrollArea->ensureWidgetVisible(current, 0, 0);
 			}
 		}
 	}
@@ -866,13 +897,10 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::dropEvent(QDropEvent* event) {
-		if (event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
+		if (StackTag::canAcceptDrag(event->mimeData())) {
 			event->acceptProposedAction();
-			QByteArray data = event->mimeData()->data(StackTag::stackTagDragMimeType);
-			Visindigo::Utility::JsonConfig json(QString::fromUtf8(data));
-			QString selfPtr = json.getString("self");
-			StackTag* selfLabel = reinterpret_cast<StackTag*>(selfPtr.toULongLong(nullptr, 16));
-			if (Labels.contains(selfLabel)) {
+			StackTag* selfLabel = StackTag::draggedTag(event->mimeData());
+			if (selfLabel and Labels.contains(selfLabel)) {
 				int index = ContentLayout->indexOf(selfLabel);
 				if (index != -1) {
 					// event->position() is relative to this widget; map it into
@@ -921,8 +949,7 @@ namespace YSS::Editor {
 			else if (selfLabel) {
 				// Cross-area: a tag dragged from another StackTagWidget is dropped
 				// on this tag bar -> move it from its source area into this area.
-				QString sourcePtr = json.getString("area");
-				StackTagWidget* sourceTagArea = reinterpret_cast<StackTagWidget*>(sourcePtr.toULongLong(nullptr, 16));
+				StackTagWidget* sourceTagArea = StackTag::draggedTagArea(event->mimeData());
 				FileEditWidgetArea* sourceArea = sourceTagArea ? sourceTagArea->getArea() : nullptr;
 				if (sourceArea && Area && sourceArea != Area) {
 					sourceArea->moveWidgetTo(selfLabel->getFilePath(), Area);

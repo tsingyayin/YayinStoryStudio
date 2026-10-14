@@ -69,6 +69,8 @@ namespace YSS::Editor {
 	public:
 		static const QString stackTagDragMimeType;
 		static bool canAcceptDrag(const QMimeData* mimeData);
+		static StackTag* draggedTag(const QMimeData* mimeData);
+		static StackTagWidget* draggedTagArea(const QMimeData* mimeData);
 	public:
 		StackTag(QWidget* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 		void setStayInWidget(StackTagWidget* widget);
@@ -130,6 +132,7 @@ namespace YSS::Editor {
 		void addStackLabel(const QString& filePath, const QString& displayName = QString(), YSSCore::Editor::FileEditWidget* widget = nullptr);
 		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName = QString());
 		void pinStackLabel(const QString& filePath);
+		void setStackLabelPinned(const QString& filePath, bool pinned);
 		void removeStackLabel(const QString& filePath);
 		void setCurrentStackLabel(const QString& filePath);
 		void setUseGlobalFocus(bool use);

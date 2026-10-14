@@ -36,6 +36,7 @@ namespace YSS::Editor {
 		bool containsWidget(const QString& filePath) const;
 		void closeAll(bool autoGiveup = false);
 		void closeSaved();
+		bool closeAllWidgetsWithConfirm();
 		void closeWidget(YSSCore::Editor::FileEditWidget* widget);
 		void closeWidget(const QString& filePath);
 		void setCurrentWidget(YSSCore::Editor::FileEditWidget* widget);

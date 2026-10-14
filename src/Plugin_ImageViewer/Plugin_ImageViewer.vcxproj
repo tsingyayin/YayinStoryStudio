@@ -75,6 +75,10 @@
     <Link>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);Visindigo.lib;YSSCore.lib;</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)qt_creator\plugins\Plugin_ImageViewer\Plugin_ImageViewer.vpl.json" "$(OutDir)Plugin_ImageViewer.vpl.json"</Command>
+      <Message>Deploying ImageViewer plugin metadata</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -84,6 +88,10 @@
     <Link>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);Visindigo.lib;YSSCore.lib;</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)qt_creator\plugins\Plugin_ImageViewer\Plugin_ImageViewer.vpl.json" "$(OutDir)Plugin_ImageViewer.vpl.json"</Command>
+      <Message>Deploying ImageViewer plugin metadata</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -125,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Plugin_ImageViewer.qrc" />
+    <None Include="..\..\qt_creator\plugins\Plugin_ImageViewer\Plugin_ImageViewer.vpl.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

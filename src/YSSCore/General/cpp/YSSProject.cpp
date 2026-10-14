@@ -1024,11 +1024,11 @@ namespace YSSCore::General {
 			return false;
 		}
 
-		{
-			QFile file(targetPath);
-			if (file.open(QIODevice::WriteOnly)) {
-				file.write(content);
-			}
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveBinary(targetPath, content);
+		if (saveResult != Visindigo::Utility::FileOperation::Success) {
+			yErrorF << "Failed to restore file from backup: " << targetPath
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			return false;
 		}
 		return true;
 	}

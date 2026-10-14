@@ -56,5 +56,8 @@
     <QtRcc Include="Plugin_ImageViewer.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+    <None Include="..\..\qt_creator\plugins\Plugin_ImageViewer\Plugin_ImageViewer.vpl.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -122,6 +122,12 @@ namespace YSSCore::__Private__ {
 		bool ReloadTab = false;
 		bool useKeyboardToMoveCursor = false;
 		bool Rehighlighting = false;
+		// 打开文件时探测到的编码与换行符，保存时按原样写回：否则会把 UTF-16 文件写成
+		// UTF-8、或者把 CRLF 文档悄悄改成 LF。Encoding 为 Unsupported 表示这种编码
+		// 无法安全改写（例如 GBK），此时会拒绝保存，以免把原始内容变成乱码。
+		enum class TextEncoding { Utf8 = 0, Utf8Bom, Utf16LE, Utf16BE, Unsupported };
+		TextEncoding Encoding = TextEncoding::Utf8;
+		bool UseCRLF = false;
 		QFontMetricsF* FontMetrics = nullptr;
 		YSSCore::Editor::SyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::LangServer* LangServer = nullptr;

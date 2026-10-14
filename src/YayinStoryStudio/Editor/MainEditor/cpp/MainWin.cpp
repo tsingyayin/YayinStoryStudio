@@ -211,6 +211,20 @@ namespace YSS::Editor {
 		return nullptr;
 	}
 
+	static bool hasLayoutArea(const Visindigo::Utility::JsonConfig& layoutConfig) {
+		for (const auto& child : layoutConfig.getArray("children")) {
+			if (child.getString("type") == "layout") {
+				if (hasLayoutArea(child)) {
+					return true;
+				}
+			}
+			else {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	// 在主区域的左侧或下侧就地创建一个新的副区域并返回它，创建失败时返回 nullptr。
 	static FileEditWidgetArea* CreateSubAreaBesideMainArea() {
 		FileEditWidgetArea* mainArea = FileEditWidgetArea::getMainArea();
@@ -509,16 +523,25 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::initTreeLayout() {
+		bool restored = false;
 		if (YSSCore::General::YSSProject::getCurrentProject()->hasTreeLayoutConfig()) {
 			auto treeConfig = YSSCore::General::YSSProject::getCurrentProject()->getTreeLayoutConfig();
-			TreeLayout->recoverFromJson(treeConfig.getObject("default"));
-			for (auto key : treeConfig.keys("extra")) {
-				auto treeLayout = new TreeLayoutWidget();
-				treeLayout->recoverFromJson(treeConfig.getObject("extra." + key));
-				treeLayout->show();
+			auto defaultConfig = treeConfig.getObject("default");
+			if (hasLayoutArea(defaultConfig)) {
+				TreeLayout->recoverFromJson(defaultConfig);
+				for (auto key : treeConfig.keys("extra")) {
+					auto extraConfig = treeConfig.getObject("extra." + key);
+					if (not hasLayoutArea(extraConfig)) {
+						continue;
+					}
+					auto treeLayout = new TreeLayoutWidget();
+					treeLayout->recoverFromJson(extraConfig);
+					treeLayout->show();
+				}
+				restored = true;
 			}
 		}
-		else {
+		if (not restored) {
 			TreeLayout->setOrientation(Qt::Horizontal);
 			FileEditWidgetArea* resourceArea = TreeLayout->createFileEditAreaFirst();
 			FileEditWidgetArea::setCurrentFocusedWidget(resourceArea, resourceArea ? resourceArea->getCurrentWidget() : nullptr);
@@ -598,7 +621,8 @@ namespace YSS::Editor {
 				browser->setCurrentSelected(QFileInfo(filePath));
 			}
 		}
-		if (YSSFSM->getFileEditWidgetSourceServer(widget)->isListAsTool()) {
+		YSSCore::Editor::FileServer* sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget);
+		if (sourceServer and sourceServer->isListAsTool()) {
 			return;
 		}
 		FocusingFileEditWidgetNotTool = widget;
@@ -662,6 +686,14 @@ namespace YSS::Editor {
 			saveProject();
 		}
 
+		for (TreeLayoutWidget* layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
+			if (not layout->closeAllFilesWithConfirm()) {
+				event->ignore();
+				CloseForBack = false;
+				return;
+			}
+		}
+
 		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
@@ -671,7 +703,11 @@ namespace YSS::Editor {
 			}
 		}
 		for (auto layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
-			layout->close();
+			if (not layout->close()) {
+				event->ignore();
+				CloseForBack = false;
+				return;
+			}
 		}
 		Instance = nullptr;
 		delete YSSCore::General::YSSProject::getCurrentProject();

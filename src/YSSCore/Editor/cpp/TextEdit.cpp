@@ -1,5 +1,7 @@
+#include <QtCore/qbytearray.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qstringconverter.h>
 #include <QtCore/qtimer.h>
 #include <QtGui/qsyntaxhighlighter.h>
 #include <QtWidgets/qapplication.h>
@@ -10,6 +12,7 @@
 #include <QtWidgets/qtextedit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <Utility/FileOperation.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/ColorThemeProvider.h"
 #include "Editor/HoverInfoProvider.h"
@@ -1024,6 +1027,10 @@ namespace YSSCore::Editor {
 	TextEdit::TextEdit(QWidget* parent) :YSSCore::Editor::FileEditWidget(parent) {
 		d = new YSSCore::__Private__::TextEditPrivate;
 		d->q = this;
+		// 新建的文档在 Windows 上按平台习惯用 CRLF；打开已有文件时会按文件本身的行尾覆盖。
+#ifdef Q_OS_WIN
+		d->UseCRLF = true;
+#endif
 		this->setMouseTracking(true);
 		
 
@@ -1553,6 +1560,12 @@ namespace YSSCore::Editor {
 
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。
 	*/
+	// 用"解码再编码是否还原"判断字节流是不是合法 UTF-8：非法字节会被解码器替换成 U+FFFD，
+	// 再编码回去就对不上了；合法的 UTF-8（包括本身就含有 U+FFFD 的文本）可以精确还原。
+	static bool isStrictUtf8(const QByteArray& bytes) {
+		return QString::fromUtf8(bytes).toUtf8() == bytes;
+	}
+
 	bool TextEdit::onOpen(const QString& path) {
 		QString ext = QFileInfo(path).suffix();
 		if (d->LangServer) {
@@ -1608,15 +1621,39 @@ namespace YSSCore::Editor {
 			yInfoF << "No Language server found for extension:" << ext;
 		}
 		//highlighter 应在 setText之前，否则会触发两次textChanged
-		QFile file(path);
-		if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			vgErrorF << "Failed to open file:" << path;
+		Visindigo::Utility::FileOperation::Errorable<QByteArray> readResult = Visindigo::Utility::FileOperation::readBinary(path);
+		if (not readResult) {
+			vgErrorF << "Failed to open file:" << path
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(readResult.error());
 			return false;
 		}
-		QTextStream in(&file);
-		in.setEncoding(QStringConverter::Utf8);
-		d->Text->setPlainText(in.readAll());
-		file.close();
+		const QByteArray bytes = readResult.value();
+		// 按 BOM 与 UTF-8 合法性判断编码：UTF-8（可带 BOM）与 UTF-16 都会按原编码写回；
+		// 其它编码（如 GBK）没有安全的改写能力，这里只为显示做容错解码，保存时会被拒绝。
+		QString text;
+		if (bytes.startsWith(QByteArray::fromHex("efbbbf"))) {
+			d->Encoding = YSSCore::__Private__::TextEditPrivate::TextEncoding::Utf8Bom;
+			text = QString::fromUtf8(bytes.mid(3));
+		}
+		else if (bytes.startsWith(QByteArray::fromHex("fffe"))) {
+			d->Encoding = YSSCore::__Private__::TextEditPrivate::TextEncoding::Utf16LE;
+			text = QStringDecoder(QStringConverter::Utf16LE)(bytes.mid(2));
+		}
+		else if (bytes.startsWith(QByteArray::fromHex("feff"))) {
+			d->Encoding = YSSCore::__Private__::TextEditPrivate::TextEncoding::Utf16BE;
+			text = QStringDecoder(QStringConverter::Utf16BE)(bytes.mid(2));
+		}
+		else if (isStrictUtf8(bytes)) {
+			d->Encoding = YSSCore::__Private__::TextEditPrivate::TextEncoding::Utf8;
+			text = QString::fromUtf8(bytes);
+		}
+		else {
+			d->Encoding = YSSCore::__Private__::TextEditPrivate::TextEncoding::Unsupported;
+			text = QString::fromUtf8(bytes);
+			vgWarningF << "File" << path << "is not UTF-8/UTF-16 encoded, it is opened for display only and cannot be saved in place.";
+		}
+		d->UseCRLF = text.contains("\r\n");
+		d->Text->setPlainText(text);
 		cancelFileChanged();
 		emit messageChanged();
 		
@@ -1634,7 +1671,7 @@ namespace YSSCore::Editor {
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用saveFile()函数。
 	*/
 	bool TextEdit::onSave(const QString& path) {
-		QFile file(path);
+		using TextEncoding = YSSCore::__Private__::TextEditPrivate::TextEncoding;
 		QFileInfo fileInfo(path);
 		if (fileInfo.exists() && not fileInfo.isWritable()) {
 			QMessageBox::warning(this,
@@ -1643,28 +1680,43 @@ namespace YSSCore::Editor {
 			vgWarning << "File is read-only:" << path << ",";
 			return false;
 		}
-		else if (fileInfo.exists() && fileInfo.isWritable()) {
-			if (not file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-				vgErrorF << "Failed to save file:" << path;
-				return false;
-			}
-			file.write(d->Text->toPlainText().toUtf8());
-			file.close();
-			return true;
-		}
-		else if (not fileInfo.exists()) {
-			if (not file.open(QIODevice::NewOnly | QIODevice::Text)) {
-				vgErrorF << "Failed to save file:" << path;
-				return false;
-			}
-			file.write(d->Text->toPlainText().toUtf8());
-			file.close();
-			return true;
-		}
-		else {
-			vgErrorF << "Unknown error when saving file:" << path;
+		if (d->Encoding == TextEncoding::Unsupported) {
+			QMessageBox::warning(this,
+				VITRL("YSS::editor.textEdit.readOnly.title"), VITRL("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
+				QMessageBox::Ok);
+			vgWarning << "Refuse to overwrite file with unsupported encoding:" << path;
 			return false;
 		}
+		QString text = d->Text->toPlainText();
+		if (d->UseCRLF) {
+			text.replace("\n", "\r\n");
+		}
+		QByteArray data;
+		switch (d->Encoding) {
+		case TextEncoding::Utf8:
+			data = text.toUtf8();
+			break;
+		case TextEncoding::Utf8Bom:
+			data = QByteArray::fromHex("efbbbf") + text.toUtf8();
+			break;
+		case TextEncoding::Utf16LE:
+			data = QByteArray::fromHex("fffe") + QStringEncoder(QStringConverter::Utf16LE)(text);
+			break;
+		case TextEncoding::Utf16BE:
+			data = QByteArray::fromHex("feff") + QStringEncoder(QStringConverter::Utf16BE)(text);
+			break;
+		default:
+			data = text.toUtf8();
+			break;
+		}
+
+		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveBinary(path, data);
+		if (saveResult != Visindigo::Utility::FileOperation::Success) {
+			vgErrorF << "Failed to save file:" << path
+				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
+			return false;
+		}
+		return true;
 	}
 
 	/*!

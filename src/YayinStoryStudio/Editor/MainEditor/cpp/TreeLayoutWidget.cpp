@@ -111,11 +111,12 @@ namespace YSS::Editor {
 		void showDropIndicators();
 		void hideDropIndicators();
 		void scheduleHideDropIndicators();
-		void handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QDropEvent* event);
+		int indexOfChild(QWidget* child) const;
+		void handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QWidget* childAnchor, QDropEvent* event);
 	};
 
-	TreeLayoutDropZone::TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex)
-		:QWidget(owner->q), Owner(owner), Zone(zone), ChildIndex(childIndex) {
+	TreeLayoutDropZone::TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex, QWidget* childAnchor)
+		:QWidget(owner->q), Owner(owner), Zone(zone), ChildIndex(childIndex), ChildAnchor(childAnchor) {
 		setAcceptDrops(true);
 		setAttribute(Qt::WA_TransparentForMouseEvents, false);
 		hide();
@@ -173,7 +174,7 @@ namespace YSS::Editor {
 	}
 
 	void TreeLayoutDropZone::dropEvent(QDropEvent* event) {
-		Owner->handleDrop(Zone, ChildIndex, event);
+		Owner->handleDrop(Zone, ChildIndex, ChildAnchor, event);
 	}
 
 	void TreeLayoutDropZone::setHovered(bool hovered) {
@@ -453,6 +454,28 @@ namespace YSS::Editor {
 		return result;
 	}
 
+	bool TreeLayoutWidget::closeAllFilesWithConfirm() {
+		QStringList areaIDs;
+		for (FileEditWidgetArea* area : getAllFileEditAreas()) {
+			areaIDs.append(area->getAreaID());
+		}
+		for (const QString& areaID : areaIDs) {
+			FileEditWidgetArea* area = FileEditWidgetArea::getAreaByID(areaID);
+			if (area and not area->closeAllWidgetsWithConfirm()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void TreeLayoutWidget::closeEvent(QCloseEvent* event) {
+		if (isTopLevel() and not closeAllFilesWithConfirm()) {
+			event->ignore();
+			return;
+		}
+		QFrame::closeEvent(event);
+	}
+
 	void TreeLayoutWidget::resizeEvent(QResizeEvent* event) {
 		QFrame::resizeEvent(event);
 		if (d->Childrens.size() <= 1) {
@@ -679,6 +702,7 @@ namespace YSS::Editor {
 			QObject::disconnect(static_cast<FileEditWidgetArea*>(child), &FileEditWidgetArea::allFileClosed, q, nullptr);
 		}
 		child->removeEventFilter(q);
+		// 摘下来的子控件彻底脱离本布局，所有权交给调用方。
 		child->setParent(nullptr);
 		return child;
 	}
@@ -750,14 +774,17 @@ namespace YSS::Editor {
 		}
 	}
 
-	void TreeLayoutWidgetPrivate::onChildClosed(QWidget* child) {
-		int index = -1;
+	int TreeLayoutWidgetPrivate::indexOfChild(QWidget* child) const {
 		for (int i = 0; i < Childrens.size(); ++i) {
 			if (Childrens[i].widget == child) {
-				index = i;
-				break;
+				return i;
 			}
 		}
+		return -1;
+	}
+
+	void TreeLayoutWidgetPrivate::onChildClosed(QWidget* child) {
+		int index = indexOfChild(child);
 		if (index < 0) {
 			return;
 		}
@@ -928,9 +955,9 @@ namespace YSS::Editor {
 			}
 		}
 
-		auto createIndicator = [this](TreeLayoutDropZone::DropZone zone, int childIndex, const QPainterPath& parentShape) {
+		auto createIndicator = [this](TreeLayoutDropZone::DropZone zone, int childIndex, QWidget* childAnchor, const QPainterPath& parentShape) {
 			QRectF bounds = parentShape.boundingRect();
-			TreeLayoutDropZone* indicator = new TreeLayoutDropZone(this, zone, childIndex);
+			TreeLayoutDropZone* indicator = new TreeLayoutDropZone(this, zone, childIndex, childAnchor);
 			indicator->setGeometry(bounds.toRect());
 			QPainterPath localShape = parentShape;
 			localShape.translate(-bounds.topLeft());
@@ -1012,7 +1039,7 @@ namespace YSS::Editor {
 					shape.addRect(w - 2 * thickness, yTop, thickness, yBottom - yTop);
 				}
 			}
-			createIndicator(zone.first, index, shape);
+			createIndicator(zone.first, index, child, shape);
 		}
 
 		if (Childrens.size() > 1) {
@@ -1035,7 +1062,7 @@ namespace YSS::Editor {
 					int centerY = (firstBottom + secondTopY) / 2;
 					shape.addRoundedRect(QRectF(thickness, centerY - seamHalf, w - 2 * thickness, seamHalf * 2), 4, 4);
 				}
-				createIndicator(TreeLayoutDropZone::DropZone::Seam, i + 1, shape);
+				createIndicator(TreeLayoutDropZone::DropZone::Seam, i + 1, secondChild, shape);
 			}
 		}
 
@@ -1072,7 +1099,7 @@ namespace YSS::Editor {
 					shape.addRect(0, h - thickness, w, thickness);
 				}
 			}
-			createIndicator(zone.first, -1, shape);
+			createIndicator(zone.first, -1, nullptr, shape);
 		}
 	}
 
@@ -1093,15 +1120,22 @@ namespace YSS::Editor {
 		}
 	}
 
-	void TreeLayoutWidgetPrivate::handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QDropEvent* event) {
+	void TreeLayoutWidgetPrivate::handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QWidget* childAnchor, QDropEvent* event) {
 		hideDropIndicators();
-		if (not event->mimeData()->hasFormat(StackTag::stackTagDragMimeType)) {
+		if (not StackTag::canAcceptDrag(event->mimeData())) {
 			return;
 		}
-		QByteArray data = event->mimeData()->data(StackTag::stackTagDragMimeType);
-		Visindigo::Utility::JsonConfig json(QString::fromUtf8(data));
-		StackTag* selfLabel = reinterpret_cast<StackTag*>(json.getString("self").toULongLong(nullptr, 16));
-		StackTagWidget* sourceTagArea = reinterpret_cast<StackTagWidget*>(json.getString("area").toULongLong(nullptr, 16));
+		if (childAnchor) {
+			childIndex = indexOfChild(childAnchor);
+			if (childIndex < 0) {
+				if (zone != TreeLayoutDropZone::DropZone::Seam) {
+					return;
+				}
+				childIndex = Childrens.size();
+			}
+		}
+		StackTag* selfLabel = StackTag::draggedTag(event->mimeData());
+		StackTagWidget* sourceTagArea = StackTag::draggedTagArea(event->mimeData());
 		FileEditWidgetArea* sourceArea = sourceTagArea ? sourceTagArea->getArea() : nullptr;
 		if (not selfLabel || not sourceArea) {
 			return;
