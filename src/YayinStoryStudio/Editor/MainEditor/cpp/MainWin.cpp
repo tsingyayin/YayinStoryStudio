@@ -71,6 +71,8 @@ namespace YSS::Editor {
 		connect(MessageCenter::getInstance(), &MessageCenter::messageCountChanged, this, [this]() {
 			BottomFrame->displayFileMessageCount(MessageCenter::getInstance()->getMessageCount());
 			});
+		connect(this, &MainWin::currentFileEditWidgetChangedNotTool,
+			MessageCenter::getInstance(), &MessageCenter::onCurrentFileEditWidgetChanged);
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 
 		initTreeLayout();
@@ -709,6 +711,8 @@ namespace YSS::Editor {
 				return;
 			}
 		}
+		// 本窗口的编辑器都关掉了，而消息中心会活到下一个项目，必须让它忘掉这些编辑器。
+		MessageCenter::getInstance()->onCurrentFileEditWidgetChanged(nullptr);
 		Instance = nullptr;
 		delete YSSCore::General::YSSProject::getCurrentProject();
 		this->deleteLater();

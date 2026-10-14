@@ -1,3 +1,4 @@
+#include <QtCore/qpointer.h>
 #include <Editor/TextEdit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
@@ -12,7 +13,8 @@ namespace ASERStudio::YSS {
 	class LS_AStoryXHoverInfoProviderPrivate {
 		friend class LS_AStoryXHoverInfoProvider;
 	protected:
-		ASERStudio::AStorySyntax::AStoryXDocument* Document = nullptr;
+		
+		QPointer<ASERStudio::AStorySyntax::AStoryXDocument> Document = nullptr;
 		QString filePath;
 	};
 
@@ -27,6 +29,9 @@ namespace ASERStudio::YSS {
 	}
 
 	void LS_AStoryXHoverInfoProvider::onMouseHover(qint32 lineNumber, qint32 column, const QString& content) {
+		if (d->Document.isNull()) {
+			return;
+		}
 		if (triggerFromHover()) {
 			if (column < 0 || column >= content.length()) {
 				return;

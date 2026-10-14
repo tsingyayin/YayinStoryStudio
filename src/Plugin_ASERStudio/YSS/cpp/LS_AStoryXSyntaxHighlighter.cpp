@@ -43,7 +43,7 @@ namespace ASERStudio::YSS {
 		});
 	}
 	LS_AStoryXSyntaxHighlighter::~LS_AStoryXSyntaxHighlighter() {
-		AStoryXLanguageServer::deleteAStoryXDocument(d->FilePath);
+		AStoryXLanguageServer::deleteAStoryXDocument(d->FilePath, d->Document);
 		delete d;
 	}
 	void LS_AStoryXSyntaxHighlighter::onBlockChanged(const QString& text, int blockNumber) {

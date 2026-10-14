@@ -1,3 +1,5 @@
+#include <QtCore/qmap.h>
+#include <QtCore/qpointer.h>
 #include <Editor/ColorThemeProvider.h>
 #include <General/Log.h>
 #include <Utility/FileOperation.h>
@@ -10,9 +12,9 @@ namespace ASERStudio::YSS {
 	class AStoryXLanguageServerPrivate {
 		friend class AStoryXLanguageServer;
 	protected:
-		static QMap<QString, ASERStudio::AStorySyntax::AStoryXDocument*> DocumentMap;
+		static QMap<QString, QPointer<ASERStudio::AStorySyntax::AStoryXDocument>> DocumentMap;
 	};
-	QMap<QString, ASERStudio::AStorySyntax::AStoryXDocument*> AStoryXLanguageServerPrivate::DocumentMap;
+	QMap<QString, QPointer<ASERStudio::AStorySyntax::AStoryXDocument>> AStoryXLanguageServerPrivate::DocumentMap;
 
 	AStoryXLanguageServer::AStoryXLanguageServer(YSSCore::Editor::EditorPlugin* plugin) :
 		LangServer("ASE-Remake AStoryX File Language Server", "ASEAStoryXLS", plugin, "AStoryX", { "astoryx" }) {
@@ -70,21 +72,37 @@ namespace ASERStudio::YSS {
 	void AStoryXLanguageServer::setAStoryXDocument(const QString& who, ASERStudio::AStorySyntax::AStoryXDocument* doc) {
 		AStoryXLanguageServerPrivate::DocumentMap.insert(who, doc);
 	}
-	void AStoryXLanguageServer::deleteAStoryXDocument(const QString& who) {
-		ASERStudio::AStorySyntax::AStoryXDocument* doc = AStoryXLanguageServerPrivate::DocumentMap.value(who, nullptr);
-		if (doc) {
-			delete doc;
+	
+	void AStoryXLanguageServer::deleteAStoryXDocument(const QString& who, ASERStudio::AStorySyntax::AStoryXDocument* doc) {
+		if (doc == nullptr) {
+			return;
 		}
-		AStoryXLanguageServerPrivate::DocumentMap.remove(who);
+		if (AStoryXLanguageServerPrivate::DocumentMap.value(who).data() == doc) {
+			AStoryXLanguageServerPrivate::DocumentMap.remove(who);
+		}
+		delete doc;
 	}
 	void AStoryXLanguageServer::renameAStoryXDocument(const QString& oldWho, const QString& newWho) {
-		ASERStudio::AStorySyntax::AStoryXDocument* doc = AStoryXLanguageServerPrivate::DocumentMap.value(oldWho, nullptr);
-		if (doc) {
-			AStoryXLanguageServerPrivate::DocumentMap.remove(oldWho);
-			AStoryXLanguageServerPrivate::DocumentMap.insert(newWho, doc);
+		auto it = AStoryXLanguageServerPrivate::DocumentMap.find(oldWho);
+		if (it == AStoryXLanguageServerPrivate::DocumentMap.end()) {
+			return;
 		}
+		QPointer<ASERStudio::AStorySyntax::AStoryXDocument> doc = it.value();
+		AStoryXLanguageServerPrivate::DocumentMap.erase(it);
+		if (doc.isNull()) {
+			return;
+		}
+		AStoryXLanguageServerPrivate::DocumentMap.insert(newWho, doc);
 	}
 	ASERStudio::AStorySyntax::AStoryXDocument* AStoryXLanguageServer::getAStoryXDocument(const QString& who) {
-		return AStoryXLanguageServerPrivate::DocumentMap.value(who, nullptr);
+		auto it = AStoryXLanguageServerPrivate::DocumentMap.find(who);
+		if (it == AStoryXLanguageServerPrivate::DocumentMap.end()) {
+			return nullptr;
+		}
+		if (it.value().isNull()) {
+			AStoryXLanguageServerPrivate::DocumentMap.erase(it);
+			return nullptr;
+		}
+		return it.value().data();
 	}
 }

@@ -9,9 +9,11 @@
 #include <Editor/TextEdit.h>
 namespace YSS::Editor {
 	class DocumentMessageTracer;
+	class MainWin;
 	class MessageCenter :public QObject {
 		Q_OBJECT;
 		friend class DocumentMessageTracer;
+		friend class MainWin;
 	private:
 		MessageCenter();
 	public:
@@ -33,6 +35,7 @@ namespace YSS::Editor {
 		void onMessageChanged();
 		void onMessageChangedForLine(qint32 lineNumber);
 	private:
+		static void notifyTracerDestroyed(DocumentMessageTracer* tracer);
 		DocumentMessageTracer* ensureTracer(qint32 lineNumber);
 		void applyLineCount(DocumentMessageTracer* tracer, qint32 error, qint32 warning, qint32 info);
 		void onTracerLineChanged(DocumentMessageTracer* tracer, qint32 oldLine, qint32 newLine);

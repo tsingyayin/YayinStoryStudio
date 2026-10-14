@@ -535,8 +535,6 @@ namespace ASERStudio::ASEREnv {
 		}
 		vgDebug << "Writing to named pipe:" << context;
 		const QByteArray dataToSend = (context + "\r\n").toUtf8();
-		// 具名管道是流式的：写入字节数不足就说明这条命令只过去了一半，对端会把后面的内容
-		// 当成上一条命令的剩余部分，整个协议就此错位，所以这里必须检查写入结果。
 		const qint64 written = d->ASERPipe->write(dataToSend);
 		if (written != dataToSend.size()) {
 			vgErrorF << "Failed to write to ASER named pipe, expected" << dataToSend.size()

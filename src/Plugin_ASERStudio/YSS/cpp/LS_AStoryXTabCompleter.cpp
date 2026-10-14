@@ -1,3 +1,4 @@
+#include <QtCore/qpointer.h>
 #include <Editor/TextEdit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
@@ -13,7 +14,8 @@ namespace ASERStudio::YSS {
 	class LS_AStoryXTabCompleterPrivate {
 		friend class LS_AStoryXTabCompleter;
 	protected:
-		ASERStudio::AStorySyntax::AStoryXDocument* document;
+		
+		QPointer<ASERStudio::AStorySyntax::AStoryXDocument> document;
 	};
 
 	LS_AStoryXTabCompleter::LS_AStoryXTabCompleter(YSSCore::Editor::TextEdit* textEdit) :YSSCore::Editor::TabCompleterProvider(textEdit) {
@@ -24,6 +26,9 @@ namespace ASERStudio::YSS {
 		delete d;
 	}
 	QList<YSSCore::Editor::TabCompleterItem> LS_AStoryXTabCompleter::onTabComplete(qint32 line, qint32 column, const QString& content) {
+		if (d->document.isNull()) {
+			return QList<YSSCore::Editor::TabCompleterItem>();
+		}
 		ASERStudio::AStorySyntax::AStoryXRule* rule = d->document->getCurrentRule();
 		if (not rule) {
 			return QList<YSSCore::Editor::TabCompleterItem>();

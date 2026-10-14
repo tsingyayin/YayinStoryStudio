@@ -2,7 +2,6 @@
 #include <Editor/DocumentMessage.h>
 #include <Editor/TextEdit.h>
 #include "Editor/MainEditor/DocumentMessageTracer.h"
-#include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/MessageCenter.h"
 
 namespace YSS::Editor {
@@ -50,8 +49,6 @@ namespace YSS::Editor {
 	}
 
 	MessageCenter::MessageCenter() {
-		connect(MainWin::getInstance(), &MainWin::currentFileEditWidgetChangedNotTool,
-			this, &MessageCenter::onCurrentFileEditWidgetChanged);
 	}
 
 	MessageCenter::~MessageCenter() {
@@ -176,6 +173,14 @@ namespace YSS::Editor {
 			return;
 		}
 		emit tracerLineChanged(tracer, oldLine, newLine);
+	}
+
+	// \a tracer 正在析构：消息层不存在就没有什么可通知的，不能为了通知去创建它。
+	void MessageCenter::notifyTracerDestroyed(DocumentMessageTracer* tracer) {
+		if (Instance == nullptr) {
+			return;
+		}
+		Instance->onTracerDestroyed(tracer);
 	}
 
 	void MessageCenter::onTracerDestroyed(DocumentMessageTracer* tracer) {

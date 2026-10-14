@@ -28,7 +28,7 @@ YSS::Editor::DocumentMessageTracer::DocumentMessageTracer() {
 	析构函数。
 */
 YSS::Editor::DocumentMessageTracer::~DocumentMessageTracer() {
-	MessageCenter::getInstance()->onTracerDestroyed(this);
+	MessageCenter::notifyTracerDestroyed(this);
 }
 
 /*!
