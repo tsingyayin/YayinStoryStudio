@@ -54,8 +54,10 @@ namespace YSS::Widgets {
 			YSS::Editor::InstallerClient::getInstance()->requestCrashArchive();
 		}
 		// 抢救用户的成果：项目和已打开的文件都保存一次。
+		// 这里是崩溃收尾，界面已经不可信，必须走静默保存——否则只读文件或非 UTF-8 文件上的
+		// 弹窗会把进程挂在无人响应的模态循环里，日志和项目文件继续被占用，收尾也做不完。
 		if (YSS::Editor::MainWin* mainWin = YSS::Editor::MainWin::getInstance()) {
-			mainWin->saveProject();
+			mainWin->saveProject(true);
 		}
 	}
 

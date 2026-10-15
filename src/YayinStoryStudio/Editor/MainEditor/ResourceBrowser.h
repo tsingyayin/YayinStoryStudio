@@ -18,6 +18,7 @@ class QFileSystemModel;
 class QToolBar;
 class QUndoCommand;
 namespace YSS::Editor {
+	class FileOperationCommand;
 	class ResourceBrowserVFS :public YSSCore::Editor::FileServer {
 		Q_OBJECT;
 	public:
@@ -57,7 +58,7 @@ namespace YSS::Editor {
 		void visibilityChanged(bool visible);
 		void otherFileRenamed(const QString& path, const QString& oldName, const QString& newName);
 		void directoryRenamed(const QString& path, const QString& oldName, const QString& newName);
-		void fileOperationRequested(QUndoCommand* command);
+		void fileOperationRequested(YSS::Editor::FileOperationCommand* command);
 	public:
 		static ResourceBrowser* getInstance();
 	public:

@@ -1675,19 +1675,23 @@ namespace YSSCore::Editor {
 		using TextEncoding = YSSCore::__Private__::TextEditPrivate::TextEncoding;
 		QFileInfo fileInfo(path);
 		if (fileInfo.exists() && not fileInfo.isWritable()) {
-			QMessageBox::warning(this,
-				VITRL("YSS::editor.textEdit.readOnly.title"), VITRL("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
-				QMessageBox::Ok);
+			if (not isSaveSilent()) {
+				QMessageBox::warning(this,
+					VITRL("YSS::editor.textEdit.readOnly.title"), VITRL("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
+					QMessageBox::Ok);
+			}
 			vgWarning << "File is read-only:" << path << ",";
 			return false;
 		}
 		// 非 UTF-8/UTF-16 的文件只能另存，不能覆盖原件。
 		const bool saveToOtherPath = fileInfo.absoluteFilePath() != QFileInfo(getFilePath()).absoluteFilePath();
 		if (d->Encoding == TextEncoding::Unsupported and not saveToOtherPath) {
-			QMessageBox::warning(this,
-				VITRL("YSS::editor.textEdit.unsupportedEncoding.title"),
-				VITRL("YSS::editor.textEdit.unsupportedEncoding.message").arg(fileInfo.fileName()),
-				QMessageBox::Ok);
+			if (not isSaveSilent()) {
+				QMessageBox::warning(this,
+					VITRL("YSS::editor.textEdit.unsupportedEncoding.title"),
+					VITRL("YSS::editor.textEdit.unsupportedEncoding.message").arg(fileInfo.fileName()),
+					QMessageBox::Ok);
+			}
 			vgWarning << "Refuse to overwrite file with unsupported encoding:" << path;
 			return false;
 		}

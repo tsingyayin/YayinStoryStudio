@@ -193,7 +193,10 @@ namespace Visindigo::Utility {
 				}
 				else {
 					QJsonObject obj = val.toObject();
-					obj.remove(*(*it));
+					if (obj.contains(*(*it))) {
+						obj.remove(*(*it));
+						*haveValue = true;
+					}
 					return obj;
 				}
 			}

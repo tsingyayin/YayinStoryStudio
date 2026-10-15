@@ -178,8 +178,12 @@ namespace YSS::ProjectPage {
 		VIApp->getMainPlugin()->savePluginConfig();
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
-			project = nullptr;
 		}
+		// 项目对象已经删掉了，容器不能再留着悬空指针，免得后续任何一次访问踩到已释放的对象。
+		HistoryProjectList.clear();
+		HistoryProjectMap.clear();
+		HistoryProjectLabelList.clear();
+		InfoWidget->showProject(nullptr);
 		if (YSSCore::General::YSSProject::getCurrentProject()) {
 			if (YSS::Editor::MainWin::getInstance() == nullptr) {
 				new YSS::Editor::MainWin();
@@ -194,10 +198,16 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {
-		QWidget* widget = HistoryProjectLabelList[HistoryProjectList.indexOf(project)];
+		int index = HistoryProjectList.indexOf(project);
+		if (index < 0) {
+			// 面板持有的项目已经不在历史列表里（列表已重建或已被移除），不能拿-1去索引标签列表。
+			InfoWidget->showProject(nullptr);
+			return;
+		}
+		QWidget* widget = HistoryProjectLabelList[index];
 		if (widget != nullptr) {
 			widget->hide();
-			HistoryProjectLabelList.remove(HistoryProjectList.indexOf(project));
+			HistoryProjectLabelList.remove(index);
 			HistoryProjectList.removeAll(project);
 			HistoryProjectMap.remove(static_cast<Visindigo::Widgets::MultiButton*>(widget));
 			HistoryProjectLayout->removeWidget(widget);

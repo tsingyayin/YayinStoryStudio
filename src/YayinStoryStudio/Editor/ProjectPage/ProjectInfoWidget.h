@@ -26,6 +26,7 @@ namespace YSS::ProjectPage {
 		QPushButton* DeleteButton;
 		QGridLayout* Layout;
 		YSSCore::General::YSSProject* Project = nullptr;
+		int SizeRequestId = 0;
 	public:
 		ProjectInfoWidget(QWidget* parent);
 		void showProject(YSSCore::General::YSSProject* project);

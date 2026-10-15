@@ -311,6 +311,12 @@
 			"title": "Project Metadata File Cannot Be Deleted",
 			"message": "You cannot delete the metadata file of a project that is currently open. If you want to delete the project, return to the project selection page and choose to delete the project."
 		},
+		"fileOperation": {
+			"failed": {
+				"title": "Operation failed",
+				"message": "The operation on %1 could not be completed. Make sure the file is not in use by another program, that you have permission, and that there is free space left on the disk."
+			}
+		},
 		"deleteFile": {
 			"title": "Delete Confirmation",
 			"message": "Are you sure you want to delete the file or folder %1? It will be moved to the system recycle bin, from which you can restore it."

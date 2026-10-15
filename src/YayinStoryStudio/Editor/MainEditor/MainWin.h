@@ -45,8 +45,8 @@ namespace YSS::Editor {
 		MainWin();
 		virtual ~MainWin();
 		static MainWin* getInstance();
-		void saveAllFiles();
-		void saveProject();
+		void saveAllFiles(bool silent = false);
+		void saveProject(bool silent = false);
 		void backToHome();
 		void onFileEditOpened(const QString& filePath);
 		void saveCurrentFocusedFile();

@@ -311,6 +311,12 @@
 			"title": "Le fichier de métadonnées du projet ne peut pas être supprimé",
 			"message": "Vous ne pouvez pas supprimer le fichier de métadonnées du projet actuellement ouvert. Si vous souhaitez supprimer le projet, revenez à la page de sélection des projets et choisissez de supprimer le projet."
 		},
+		"fileOperation": {
+			"failed": {
+				"title": "Échec de l'opération",
+				"message": "L'opération sur %1 n'a pas pu être terminée. Vérifiez que le fichier n'est pas utilisé par un autre programme, que vous disposez des droits nécessaires et qu'il reste de l'espace disque."
+			}
+		},
 		"deleteFile": {
 			"title": "Confirmation de suppression",
 			"message": "Voulez-vous vraiment supprimer le fichier ou le dossier %1 ? Il sera déplacé vers la corbeille du système, d'où vous pourrez le restaurer."

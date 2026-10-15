@@ -38,8 +38,10 @@ namespace YSSCore::Editor {
 	public:
 		bool openFile(const QFileInfo& fileInfo);
 		bool openFile(const QString& path);
-		bool saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs = false);
-		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false);
+		// silent 为真时，派生类的 onSave()/onVirtualSave() 不应弹出任何界面（崩溃收尾等没有界面可用的场景）。
+		bool saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs = false, bool silent = false);
+		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false, bool silent = false);
+		bool isSaveSilent() const;
 		bool reloadFile();
 		void closeFile(bool autoAbandon = false);
 		QByteArray createFileBackup();

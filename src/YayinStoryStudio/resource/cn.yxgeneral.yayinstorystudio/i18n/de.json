@@ -311,6 +311,12 @@
 			"title": "Projekt-Metadatei kann nicht gelöscht werden",
 			"message": "Die Metadatei des aktuell geöffneten Projekts kann nicht gelöscht werden. Wenn Sie das Projekt löschen möchten, kehren Sie zur Projektauswahlseite zurück und wählen Sie dort das Löschen des Projekts."
 		},
+		"fileOperation": {
+			"failed": {
+				"title": "Vorgang fehlgeschlagen",
+				"message": "Der Vorgang für %1 konnte nicht abgeschlossen werden. Prüfen Sie, ob die Datei von einem anderen Programm verwendet wird, ob Sie die nötigen Rechte haben und ob noch Speicherplatz frei ist."
+			}
+		},
 		"deleteFile": {
 			"title": "Löschen bestätigen",
 			"message": "Möchten Sie die Datei oder den Ordner %1 wirklich löschen? Sie wird in den System-Papierkorb verschoben, von wo aus Sie sie wiederherstellen können."

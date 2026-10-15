@@ -184,9 +184,9 @@ namespace YSS::Editor {
 					} while (QFileInfo::exists(dst));
 				}
 
-				QUndoCommand* cmd = isCut
-					? static_cast<QUndoCommand*>(new FileMoveCommand(src, dst))
-					: static_cast<QUndoCommand*>(new FileCopyCommand(src, dst));
+				FileOperationCommand* cmd = isCut
+					? static_cast<FileOperationCommand*>(new FileMoveCommand(src, dst))
+					: static_cast<FileOperationCommand*>(new FileCopyCommand(src, dst));
 				emit fileOperationRequested(cmd);
 			}
 			});
@@ -250,9 +250,17 @@ namespace YSS::Editor {
 		// multiple slots are connected to the same signal.
 		// As it`s not a public API, refactoring is not urgent.
 		// SHOULD BE SOLVED in 0.17~0.18 version.
-		connect(this, &ResourceBrowser::fileOperationRequested, this, [this](QUndoCommand* cmd) {
+		connect(this, &ResourceBrowser::fileOperationRequested, this, [this](FileOperationCommand* cmd) {
 			cmd->redo();          // execute now
 			// TODO: push to global QUndoStack when ready
+			if (cmd->getErrorCode() != Visindigo::Utility::FileOperation::Success) {
+				// 这些操作以前是静默失败：用户点了删除/剪切/粘贴，磁盘上什么都没发生也没有提示。
+				vgWarningF << "Resource browser file operation failed on" << cmd->getTarget()
+					<< ", error:" << Visindigo::Utility::FileOperation::errorCodeName(cmd->getErrorCode());
+				QMessageBox::warning(this,
+					VITRL("YSS::editor.fileOperation.failed.title"),
+					VITRL("YSS::editor.fileOperation.failed.message").arg(QFileInfo(cmd->getTarget()).fileName()));
+			}
 			delete cmd;           // temporary — replace with stack management later
 			this->refresh();
 			});

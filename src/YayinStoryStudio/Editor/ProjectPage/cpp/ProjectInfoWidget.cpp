@@ -49,6 +49,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectInfoWidget::initWidget() {
+		SizeRequestId++;
 		Project = nullptr;
 		CoverLabel->setText(VITRL("YSS::project.noCover"));
 		CoverLabel->setStyleSheet("QLabel{border-image:url()}");
@@ -68,15 +69,22 @@ namespace YSS::ProjectPage {
 		
 		Project = project;
 		QString path = project->getProjectFolder();
+		int requestId = ++SizeRequestId;
 		YSSAsync<qint64, QString>(
 			{ QString(path) },
 			[](QString path)->qint64 {
 				return Visindigo::Utility::FileUtility::sizeBytes(path);
 			},
-			[this](qint64 size) {
+			// 传入this作为上下文：本控件在求值完成前被销毁时，这段回调不会再执行。
+			[this, requestId](qint64 size) {
+				if (requestId != SizeRequestId) {
+					// 用户已经切到别的项目，这个结果是过期的。
+					return;
+				}
 				QString readable = Visindigo::Utility::FileUtility::readableSize(size);
 				SizeLabel->setText(VITRL("YSS::project.size") + ": " + readable);
-			}
+			},
+			this
 		);
 		SizeLabel->setText(VITRL("YSS::project.size") + ": " + VITRL("YSS::project.calculating"));
 		CoverLabel->setText("");

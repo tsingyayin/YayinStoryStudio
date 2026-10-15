@@ -2,10 +2,22 @@
 #define YayinStoryStudio_Editor_MainEditor_FileOperationCommands_h
 #include <QtGui/qundostack.h>
 #include <QtCore/qstring.h>
+#include <Utility/FileOperation.h>
 
 namespace YSS::Editor {
 
-class FileCopyCommand : public QUndoCommand {
+class FileOperationCommand : public QUndoCommand {
+public:
+	FileOperationCommand(const QString& text, const QString& target)
+		: QUndoCommand(text), Target(target) {}
+	Visindigo::Utility::FileOperation::ErrorCode getErrorCode() const { return LastError; }
+	QString getTarget() const { return Target; }
+protected:
+	QString Target;
+	Visindigo::Utility::FileOperation::ErrorCode LastError = Visindigo::Utility::FileOperation::Success;
+};
+
+class FileCopyCommand : public FileOperationCommand {
 public:
 	FileCopyCommand(const QString& src, const QString& dst);
 	void undo() override;
@@ -15,7 +27,7 @@ private:
     QString Dst;
 };
 
-class FileMoveCommand : public QUndoCommand {
+class FileMoveCommand : public FileOperationCommand {
 public:
 	FileMoveCommand(const QString& src, const QString& dst);
 	void undo() override;
@@ -25,17 +37,17 @@ private:
     QString Dst;
 };
 
-class FileDeleteCommand : public QUndoCommand {
+class FileDeleteCommand : public FileOperationCommand {
 public:
 	FileDeleteCommand(const QString& path);
 	void undo() override;
 	void redo() override;
 private:
 	QString Path;
-    QString Backup;
 };
 
 } // namespace YSS::Editor
 
 Q_DECLARE_METATYPE(QUndoCommand*)
+Q_DECLARE_METATYPE(YSS::Editor::FileOperationCommand*)
 #endif // YayinStoryStudio_Editor_MainEditor_FileOperationCommands_h

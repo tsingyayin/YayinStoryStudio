@@ -15,6 +15,7 @@ protected:
 	bool fileChanged = false;
 	bool isVirtualFile = false;
 	bool autoAbandon = false;
+	bool saveSilent = false;
 	QString filePath;   // 仅虚拟文件使用
 	QFileInfo fileInfo; // 真实文件使用
 	};
@@ -363,6 +364,8 @@ protected:
 		保存当前文件编辑器的内容到指定QFileInfo对应的路径。
 		\a fileInfo 要保存到的文件信息对象。
 		\a deleteWhenSaveAs 当执行另存为操作时，是否删除原文件。
+		\a silent 静默保存。为真时 onSave()/onVirtualSave() 不应弹出任何界面，派生类应当只记录日志
+		并返回失败。崩溃收尾等没有界面可用的场景会用这个选项，免得弹窗把进程挂在无人响应的模态循环里。
 
 		return 如果文件成功保存，返回true；否则返回false。
 
@@ -377,12 +380,17 @@ protected:
 		为了保持一致性，此函数不会重新判定路径是否为虚拟文件，因此不可能对虚拟文件使用
 		真实路径保存。反之，也不可能对真实文件使用虚拟路径保存。
 	*/
-	bool FileEditWidget::saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs) {
+	bool FileEditWidget::saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs, bool silent) {
 		if (d->isVirtualFile) {
-			return onVirtualSave();
+			d->saveSilent = silent;
+			bool ok = onVirtualSave();
+			d->saveSilent = false;
+			return ok;
 		}
 		QString targetPath = fileInfo.absoluteFilePath();
+		d->saveSilent = silent;
 		bool ok = onSave(targetPath);
+		d->saveSilent = false;
 		if (not Visindigo::Utility::FileUtility::isFileExist(targetPath)) {
 			return false;
 		}
@@ -412,6 +420,7 @@ protected:
 		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
 		\a deleteWhenSaveAs 当执行另存为操作时，是否删除原文件。默认为false，即不删除原文件。如果设置为true，
 		可以视作重命名文件，保存成功后原文件将被删除。请谨慎使用此选项，以免误删重要文件。
+		\a silent 静默保存，含义同QFileInfo版本的重载。
 
 		return 如果文件成功保存，返回true；否则返回false。
 
@@ -422,9 +431,12 @@ protected:
 		为了保持一致性，此函数不会重新判定路径是否为虚拟文件，因此不可能对虚拟文件使用
 		真实路径保存。反之，也不可能对真实文件使用虚拟路径保存。
 	*/
-	bool FileEditWidget::saveFile(const QString& path, bool deleteWhenSaveAs) {
+	bool FileEditWidget::saveFile(const QString& path, bool deleteWhenSaveAs, bool silent) {
 		if (d->isVirtualFile) {
-			return onVirtualSave();
+			d->saveSilent = silent;
+			bool ok = onVirtualSave();
+			d->saveSilent = false;
+			return ok;
 		}
 		QString pathCopy = path;
 		if (path.isEmpty()) {
@@ -433,7 +445,20 @@ protected:
 				return false;
 			}
 		}
-		return saveFile(QFileInfo(pathCopy), deleteWhenSaveAs);
+		return saveFile(QFileInfo(pathCopy), deleteWhenSaveAs, silent);
+	}
+
+	/*!
+		\since YSS 0.17.0
+
+		return 当前这次保存是否为静默保存。
+
+		只在onSave()/onVirtualSave()执行期间为真，其余时候都是false。派生类在这两个函数里需要
+		弹窗询问或提示时，应当先查这个值：静默保存多发生在崩溃收尾这类没有界面可用的场合，
+		弹窗会把正在收尾的进程挂在无人响应的模态循环里（现场文件和日志继续被占用，收尾也做不完）。
+	*/
+	bool FileEditWidget::isSaveSilent() const {
+		return d->saveSilent;
 	}
 
 	/*!

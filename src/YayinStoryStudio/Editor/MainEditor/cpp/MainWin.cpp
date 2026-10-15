@@ -486,10 +486,10 @@ namespace YSS::Editor {
 		Visindigo::Utility::FileUtility::openBrowser("http://prts.site");
 	}
 
-	void MainWin::saveAllFiles() {
+	void MainWin::saveAllFiles(bool silent) {
 		for (auto* widget : YSSFSM->getAllFileEditWidgets()) {
 			if (widget->isFileChanged()) {
-				widget->saveFile();
+				widget->saveFile(QString(), false, silent);
 			}
 		}
 	}
@@ -730,8 +730,8 @@ namespace YSS::Editor {
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height() - BottomFrame->height());
 	}
 
-	void MainWin::saveProject() {
-		saveAllFiles();
+	void MainWin::saveProject(bool silent) {
+		saveAllFiles(silent);
 		FileEditWidgetArea::compressAreaID();
 		auto layouts = TreeLayoutWidget::getAllTopLevelLayouts();
 		Visindigo::Utility::JsonConfig treeConfig;
