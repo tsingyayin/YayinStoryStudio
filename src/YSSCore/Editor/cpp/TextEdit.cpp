@@ -1620,6 +1620,7 @@ namespace YSSCore::Editor {
 			d->TabCompleter = nullptr;
 		}
 		if (d->Highlighter) {
+			d->Highlighter->setDocument(nullptr);
 			d->Highlighter->setParent(nullptr);
 			d->Highlighter->deleteLater();
 			d->Highlighter = nullptr;
@@ -1680,9 +1681,12 @@ namespace YSSCore::Editor {
 			vgWarning << "File is read-only:" << path << ",";
 			return false;
 		}
-		if (d->Encoding == TextEncoding::Unsupported) {
+		// 非 UTF-8/UTF-16 的文件只能另存，不能覆盖原件。
+		const bool saveToOtherPath = fileInfo.absoluteFilePath() != QFileInfo(getFilePath()).absoluteFilePath();
+		if (d->Encoding == TextEncoding::Unsupported and not saveToOtherPath) {
 			QMessageBox::warning(this,
-				VITRL("YSS::editor.textEdit.readOnly.title"), VITRL("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
+				VITRL("YSS::editor.textEdit.unsupportedEncoding.title"),
+				VITRL("YSS::editor.textEdit.unsupportedEncoding.message").arg(fileInfo.fileName()),
 				QMessageBox::Ok);
 			vgWarning << "Refuse to overwrite file with unsupported encoding:" << path;
 			return false;
@@ -1715,6 +1719,10 @@ namespace YSSCore::Editor {
 			vgErrorF << "Failed to save file:" << path
 				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
 			return false;
+		}
+		if (d->Encoding == TextEncoding::Unsupported) {
+			// 另存为 UTF-8 之后，这个编辑器就按 UTF-8 工作了。
+			d->Encoding = TextEncoding::Utf8;
 		}
 		return true;
 	}

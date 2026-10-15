@@ -80,12 +80,24 @@
 		"cloneFromGit": "Von Git klonen",
 		"createFromTemplate": "Aus Vorlage erstellen",
 		"searchWithTags": "Vorlagen nach Tags durchsuchen",
+		"projectVersionTooNew": {
+			"title": "Projekt ist zu neu",
+			"message": "Das Projekt \"%1\" stammt aus einer unbekannten neueren Version. Beim Öffnen in der aktuellen Version kann es zu Datenverlust kommen oder das Projekt funktioniert nicht mehr ordnungsgemäß. Vergewissern Sie sich, dass Sie Ihre Projektdaten gesichert haben.\n\nMöchten Sie das Projekt trotzdem öffnen?"
+		},
+		"projectVersionTooOld": {
+			"title": "Projekt muss aktualisiert werden",
+			"message": "Das Projekt \"%1\" stammt aus einer älteren kompatiblen Version (Projektversion %2, kompatibel mit %3 bis %4). Beim Öffnen in der neuen Version wird es dauerhaft aktualisiert und lässt sich danach nicht mehr in älteren Versionen öffnen. Vergewissern Sie sich, dass Sie Ihre Projektdaten gesichert haben.\n\nMöchten Sie das Projekt trotzdem öffnen?"
+		},
 		"recentUsed": "Zuletzt verwendet",
 		"openProjectFailed": {
 			"message": "Projekt konnte nicht geöffnet werden",
 			"ParseError": "Die Projektdatei konnte nicht analysiert werden. Möglicherweise enthält sie Syntaxfehler oder ist beschädigt.",
 			"InvaildConfig": "Ungültige Projektkonfiguration: Pflichtfelder fehlen oder Feldtypen sind falsch.",
 			"UnknownError": "Ein unbekannter Fehler ist aufgetreten. Das Projekt konnte nicht geöffnet werden."
+		},
+		"requiredPluginsNotAvailable": {
+			"title": "Erforderliche Plugins fehlen",
+			"message": "Das Projekt \"%1\" benötigt die folgenden Plugins (anhand der ID), um ordnungsgemäß zu funktionieren. Wir empfehlen, diese Plugins zu ergänzen, bevor Sie das Projekt öffnen. Sie können das Projekt weiterhin erzwingen, was jedoch zu Datenverlust führen kann.\n\nMöchten Sie das Projekt erzwingen?"
 		},
 		"saveQuestion": {
 			"title": "Programm schließen?",
@@ -216,6 +228,10 @@
 			"readOnly": {
 				"title": "Diese Datei ist schreibgeschützt",
 				"message": "Die Datei %1, die Sie speichern möchten, ist schreibgeschützt. Sie können in dieser Datei nicht speichern. Überprüfen Sie die Dateiberechtigungen oder verwenden Sie \"Speichern unter\", um an einem anderen Ort zu speichern."
+			},
+			"unsupportedEncoding": {
+				"title": "Speichern in der ursprünglichen Kodierung nicht möglich",
+				"message": "Die Datei %1 ist nicht UTF-8- oder UTF-16-kodiert. YSS kann sie nur zur Anzeige einlesen, und ein Zurückschreiben in der aktuellen Kodierung würde den tatsächlichen Inhalt der Datei zerstören. Deshalb wurde das Speichern über die Originaldatei blockiert. Wenn Sie Ihre Änderungen behalten möchten, verwenden Sie \"Speichern unter\", um sie in eine andere Datei zu schreiben."
 			},
 			"notSuitable": {
 				"title": "Kein Dienst gefunden, der diese Datei unterstützt",

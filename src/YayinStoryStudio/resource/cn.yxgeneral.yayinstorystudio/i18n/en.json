@@ -80,12 +80,24 @@
 		"cloneFromGit": "Clone from Git",
 		"createFromTemplate": "Create from Template",
 		"searchWithTags": "Search Templates by Tags",
+		"projectVersionTooNew": {
+			"title": "Project is too new",
+			"message": "The project \"%1\" comes from an unknown newer version. Opening it in the current version may cause data loss or prevent it from working correctly. Please make sure you have backed up your project data.\n\nDo you want to continue opening the project?"
+		},
+		"projectVersionTooOld": {
+			"title": "Project needs an upgrade",
+			"message": "The project \"%1\" comes from an older compatible version (project version %2, compatible with %3 to %4). Opening it in this version will upgrade it permanently, and it can no longer be opened in older versions. Please make sure you have backed up your project data.\n\nDo you want to continue opening the project?"
+		},
 		"recentUsed": "Recently Used",
 		"openProjectFailed": {
 			"message": "Failed to Open Project",
 			"ParseError": "Failed to parse project file, possibly due to syntax errors or corruption.",
 			"InvaildConfig": "Invalid project configuration, missing required fields or incorrect field types.",
 			"UnknownError": "An unknown error occurred and the project could not be opened."
+		},
+		"requiredPluginsNotAvailable": {
+			"title": "Required plugins are missing",
+			"message": "The project \"%1\" needs the plugins with the following IDs to work correctly. We recommend installing and enabling them before opening the project. You can still force the project open, but that may cause data loss.\n\nDo you want to force open the project?"
 		},
 		"saveQuestion": {
 			"title": "Close application?",
@@ -216,6 +228,10 @@
 			"readOnly": {
 				"title": "File is read-only",
 				"message": "The file %1 you wish to save is read-only. You cannot save to this file. Please check file permissions or use Save As to save to a different location."
+			},
+			"unsupportedEncoding": {
+				"title": "Cannot save with the original encoding",
+				"message": "The file %1 is not UTF-8 or UTF-16 encoded. YSS can only read it for display, and writing it back with the current encoding would destroy the content that is really in the file, so saving over the original file has been blocked. If you want to keep your changes, use Save As to write them to another file."
 			},
 			"notSuitable": {
 				"title": "No service found to support this file",

@@ -602,8 +602,7 @@ protected:
 				QMessageBox::Save);
 			switch (ret) {
 			case QMessageBox::Save:
-				saveFile();
-				return true;
+				return saveFile();
 			case QMessageBox::Discard:
 				// Don't save was clicked
 				return true;

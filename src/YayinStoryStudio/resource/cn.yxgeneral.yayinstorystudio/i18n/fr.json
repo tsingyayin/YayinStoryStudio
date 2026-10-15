@@ -80,12 +80,24 @@
 		"cloneFromGit": "Cloner depuis Git",
 		"createFromTemplate": "Créer à partir d'un modèle",
 		"searchWithTags": "Rechercher des modèles par tags",
+		"projectVersionTooNew": {
+			"title": "Projet trop récent",
+			"message": "Le projet « %1 » provient d'une version plus récente inconnue. L'ouvrir dans la version actuelle peut entraîner une perte de données ou empêcher son bon fonctionnement. Assurez-vous d'avoir sauvegardé les données du projet.\n\nVoulez-vous continuer à ouvrir le projet ?"
+		},
+		"projectVersionTooOld": {
+			"title": "Le projet doit être mis à niveau",
+			"message": "Le projet « %1 » provient d'une ancienne version compatible (version du projet %2, compatible de %3 à %4). L'ouvrir dans la nouvelle version le mettra définitivement à niveau et il ne pourra plus être ouvert dans les anciennes versions. Assurez-vous d'avoir sauvegardé les données du projet.\n\nVoulez-vous continuer à ouvrir le projet ?"
+		},
 		"recentUsed": "Utilisés récemment",
 		"openProjectFailed": {
 			"message": "Échec de l'ouverture du projet",
 			"ParseError": "Échec de l'analyse du fichier de projet. Le fichier contient peut-être des erreurs de syntaxe ou est corrompu.",
 			"InvaildConfig": "Configuration de projet invalide : champs obligatoires manquants ou types de champs incorrects.",
 			"UnknownError": "Une erreur inconnue s'est produite, impossible d'ouvrir le projet."
+		},
+		"requiredPluginsNotAvailable": {
+			"title": "Plugins requis manquants",
+			"message": "Le projet « %1 » nécessite les plugins suivants (par identifiant) pour fonctionner correctement. Nous vous recommandons de les installer avant d'ouvrir le projet. Vous pouvez toujours forcer l'ouverture du projet, mais cela peut entraîner une perte de données.\n\nVoulez-vous forcer l'ouverture du projet ?"
 		},
 		"saveQuestion": {
 			"title": "Fermer le programme ?",
@@ -216,6 +228,10 @@
 			"readOnly": {
 				"title": "Ce fichier est en lecture seule",
 				"message": "Le fichier %1 que vous souhaitez enregistrer est en lecture seule. Vous ne pouvez pas enregistrer dans ce fichier. Vérifiez les autorisations du fichier ou utilisez « Enregistrer sous » pour enregistrer à un autre emplacement."
+			},
+			"unsupportedEncoding": {
+				"title": "Enregistrement dans l'encodage d'origine impossible",
+				"message": "Le fichier %1 n'est pas encodé en UTF-8 ou UTF-16. YSS peut seulement le lire pour l'afficher, et le réécrire dans l'encodage actuel détruirait le contenu réel du fichier ; l'enregistrement sur le fichier d'origine a donc été bloqué. Si vous souhaitez conserver vos modifications, utilisez « Enregistrer sous » pour les écrire dans un autre fichier."
 			},
 			"notSuitable": {
 				"title": "Aucun service trouvé pour prendre en charge ce fichier",

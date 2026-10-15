@@ -80,12 +80,24 @@
 		"cloneFromGit":"從Git複製",
 		"createFromTemplate":"從範本新增",
 		"searchWithTags": "依標籤搜尋範本",
+		"projectVersionTooNew": {
+			"title": "專案太新",
+			"message": "專案「%1」來自未知的新版本，若在目前版本中開啟，可能導致資料遺失或無法正常使用。請確認您已經備份專案資料。\n\n您確定要繼續開啟專案嗎？"
+		},
+		"projectVersionTooOld": {
+			"title": "專案需要升級",
+			"message": "專案「%1」來自舊的相容版本（專案版本 %2，相容 %3 至 %4），若在新版本中開啟，將永久升級至新版本，且無法再於舊版本中開啟。請確認您已經備份專案資料。\n\n您確定要繼續開啟專案嗎？"
+		},
 		"recentUsed":"最近使用",
 		"openProjectFailed":{
 			"message":"開啟專案失敗",
 			"ParseError":"專案檔案解析失敗，可能是因為專案檔案存在語法錯誤或已經損壞。",
 			"InvaildConfig":"專案設定無效，缺少必要的欄位或欄位型別不正確。",
 			"UnknownError":"發生未知錯誤，無法開啟專案。"
+		},
+		"requiredPluginsNotAvailable": {
+			"title": "缺少必要的外掛程式",
+			"message": "專案「%1」需要具有以下 ID 的外掛程式才能正常運作。建議補齊這些外掛程式後再嘗試開啟專案。您仍然可以繼續強制開啟專案，但可能造成資料遺失。\n\n您確定要繼續強制開啟專案嗎？"
 		},
 		"saveQuestion": {
 			"title": "要關閉程式嗎？",
@@ -216,6 +228,10 @@
 			"readOnly": {
 				"title": "這個檔案是唯讀的",
 				"message": "您希望儲存的檔案 %1 是唯讀的，您不能在這個檔案上進行儲存操作。請檢查檔案權限，或者選擇另存新檔來儲存到其他位置。"
+			},
+			"unsupportedEncoding": {
+				"title": "無法以原編碼儲存",
+				"message": "檔案 %1 不是 UTF-8 或 UTF-16 編碼。YSS 只能將它讀取出來顯示，以目前編碼寫回會破壞檔案中原本的內容，因此已阻止儲存到原檔案。如果您想保留這次的修改，請使用「另存新檔」另存一份。"
 			},
 			"notSuitable": {
 				"title": "沒有找到支援此檔案的服務",
