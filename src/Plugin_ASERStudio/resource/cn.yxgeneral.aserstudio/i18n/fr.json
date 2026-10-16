@@ -544,7 +544,8 @@
         "MacroParameter": "Paramètre de macro",
         "ErrorLine": "Ligne d'erreur",
         "WarningLine": "Ligne d'avertissement",
-        "InfoLine": "Ligne d'information"
+        "InfoLine": "Ligne d'information",
+        "InlayHint": "Indication intégrée"
     },
     "projectResourceBrowser": {
         "title": "Visionneuse de ressources externes ASER",

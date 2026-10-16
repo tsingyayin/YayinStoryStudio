@@ -1,5 +1,6 @@
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qset.h>
+#include <QtGui/qcolor.h>
 #include <QtGui/qfont.h>
 #include <Editor/ColorThemeProvider.h>
 #include <General/Log.h>
@@ -7,6 +8,7 @@
 #include <Widgets/ThemeManager.h>
 #include "AStorySyntax/AStoryXControllerParseData.h"
 #include "AStorySyntax/AStoryXDocument.h"
+#include "AStorySyntax/AStoryXRule.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
 #include "YSS/LangServer_AStoryX.h"
 #include "YSS/LS_AStoryXSyntaxHighlighter.h"
@@ -27,6 +29,7 @@ namespace ASERStudio::YSS {
 		QString FilePath;
 		AStorySyntax::AStoryXDocument* Document = nullptr;
 		QMap<QString, YSSCore::Editor::StyleData> CurrentTheme;
+		QColor InlayHintColor;
 	};
 	LS_AStoryXSyntaxHighlighter::LS_AStoryXSyntaxHighlighter(YSSCore::Editor::TextEdit* parent) : SyntaxHighlighter(parent) {
 		d = new LS_AStoryXSyntaxHighlighterPrivate();
@@ -154,6 +157,18 @@ namespace ASERStudio::YSS {
 			setFormatWithColorKey(optional.getIndex() + optional.getPrefix().size(), optional.getContent().size(), type);
 		}
 
+		
+		ASERStudio::AStorySyntax::AStoryXRule* rule = d->Document->getCurrentRule();
+		if (rule != nullptr and not rule->isMonotonicity(parseData.getControllerType())) {
+			for (auto optional : parseData.getOptionalParameters()) {
+				if (not optional.isValid()) {
+					continue;
+				}
+				createInlayHint(optional.getIndex() + optional.getPrefix().size(),
+					optional.getName(), d->InlayHintColor);
+			}
+		}
+
 		static QRegularExpression protectTMP("&\\{[\\d\\D]*?\\}");
 		QRegularExpressionMatchIterator protectTMPIt = protectTMP.globalMatch(text);
 		while (protectTMPIt.hasNext()) {
@@ -184,6 +199,9 @@ namespace ASERStudio::YSS {
 
 	void LS_AStoryXSyntaxHighlighter::onThemeChanged(const QMap<QString, YSSCore::Editor::StyleData>& theme) {
 		d->CurrentTheme = theme;
+		if (theme.contains("InlayHint")) {
+			d->InlayHintColor = theme.value("InlayHint").getTextColor();
+		}
 	}
 
 	void LS_AStoryXSyntaxHighlighter::onBlockRemoved(qint32 startBlockNumber, qint32 count) {

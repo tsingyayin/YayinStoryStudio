@@ -544,7 +544,8 @@
         "MacroParameter": "宏参数",
         "ErrorLine": "错误线条",
         "WarningLine": "警告线条",
-        "InfoLine": "信息线条"
+        "InfoLine": "信息线条",
+        "InlayHint": "内联提示"
     },
     "projectResourceBrowser": {
         "title": "ASER外部资源查看器",

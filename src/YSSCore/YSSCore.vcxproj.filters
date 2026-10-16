@@ -80,6 +80,9 @@
     <ClCompile Include="Editor\cpp\HoverInfoProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\InlayHint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\cpp\HoverInfoProvider_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -89,7 +92,10 @@
     <ClCompile Include="Editor\cpp\SyntaxHighlighter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\cpp\TextEdit_p.cpp">
+    <ClCompile Include="Editor\cpp\TextEditPrivateWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\TextEditPrivate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\cpp\FormatNormalizer.cpp">
@@ -161,6 +167,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\DocumentMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\InlayHint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\private\InlayHint_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\private\DocumentMessageManager_p.h">

@@ -134,6 +134,7 @@
     <ClCompile Include="Editor\cpp\FormatNormalizer.cpp" />
     <ClCompile Include="Editor\cpp\HoverInfoProvider.cpp" />
     <ClCompile Include="Editor\cpp\HoverInfoProvider_p.cpp" />
+    <ClCompile Include="Editor\cpp\InlayHint.cpp" />
     <ClCompile Include="Editor\cpp\LangServer.cpp" />
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp" />
@@ -142,7 +143,8 @@
     <ClCompile Include="Editor\cpp\TabCompleterProvider.cpp" />
     <ClCompile Include="Editor\cpp\TabCompleterProvider_p.cpp" />
     <ClCompile Include="Editor\cpp\TextEdit.cpp" />
-    <ClCompile Include="Editor\cpp\TextEdit_p.cpp" />
+    <ClCompile Include="Editor\cpp\TextEditPrivate.cpp" />
+    <ClCompile Include="Editor\cpp\TextEditPrivateWidget.cpp" />
     <ClCompile Include="Editor\cpp\VirtualFilePath.cpp" />
     <ClCompile Include="Editor\cpp\YSSCoreBuiltinPlugin.cpp" />
     <ClCompile Include="General\cpp\YSSLogger.cpp" />
@@ -155,7 +157,9 @@
     <QtMoc Include="Editor\ColorThemeProvider.h" />
     <ClInclude Include="Editor\DebugStepData.h" />
     <ClInclude Include="Editor\DocumentMessage.h" />
+    <ClInclude Include="Editor\InlayHint.h" />
     <ClInclude Include="Editor\private\DocumentMessage_p.h" />
+    <ClInclude Include="Editor\private\InlayHint_p.h" />
     <ClInclude Include="Editor\EditorProjectHelper.h" />
     <ClInclude Include="Editor\EditorProjectHelperManager.h" />
     <ClInclude Include="Editor\FileTemplateManager.h" />

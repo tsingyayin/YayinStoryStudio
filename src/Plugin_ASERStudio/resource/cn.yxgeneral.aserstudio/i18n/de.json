@@ -544,7 +544,8 @@
         "MacroParameter": "Makroparameter",
         "ErrorLine": "Fehlerlinie",
         "WarningLine": "Warnlinie",
-        "InfoLine": "Infolinie"
+        "InfoLine": "Infolinie",
+        "InlayHint": "Inline-Hinweis"
     },
     "projectResourceBrowser": {
         "title": "ASER Externer Ressourcenbetrachter",

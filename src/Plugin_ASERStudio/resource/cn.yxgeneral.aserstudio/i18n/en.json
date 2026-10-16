@@ -544,7 +544,8 @@
         "MacroParameter": "Macro Parameter",
         "ErrorLine": "Error Line",
         "WarningLine": "Warning Line",
-        "InfoLine": "Info Line"
+        "InfoLine": "Info Line",
+        "InlayHint": "Inlay Hint"
     },
     "projectResourceBrowser": {
         "title": "ASER External Resource Viewer",

@@ -12,10 +12,10 @@
 
 // Visindigo version macro
 #define Visindigo_VERSION_MAJOR 0
-#define Visindigo_VERSION_MINOR 17
+#define Visindigo_VERSION_MINOR 18
 #define Visindigo_VERSION_PATCH 0
 
 #define Visindigo_ABI_VERSION_MAJOR 17
-#define Visindigo_ABI_VERSION_MINOR 0
+#define Visindigo_ABI_VERSION_MINOR 10
 
 #endif // Visindigo_General_private_VersionMacro_h

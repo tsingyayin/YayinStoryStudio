@@ -544,7 +544,8 @@
         "MacroParameter": "マクロパラメータ",
         "ErrorLine": "エラー線",
         "WarningLine": "警告線",
-        "InfoLine": "情報線"
+        "InfoLine": "情報線",
+        "InlayHint": "インラインヒント"
     },
     "projectResourceBrowser": {
         "title": "ASER外部リソースビューア",

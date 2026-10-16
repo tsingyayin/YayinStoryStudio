@@ -18,12 +18,14 @@ namespace YSSCore::Editor {
 	class HoverInfoProvider;
 	class SyntaxHighlighter;
 	class LangServer;
+	class InlayHint;
 }
 class QVBoxLayout;
 class QComboBox;
 class QTextEdit;
 class QHBoxLayout;
 class QFontMetricsF;
+class QPainter;
 class QSyntaxHighlighter;
 class QKeyEvent;
 class QMouseEvent;
@@ -104,6 +106,30 @@ namespace YSSCore::__Private__ {
 		void updateViewportIndicator();
 	};
 
+	/*!
+		文本编辑区的实际控件。重写paintEvent是为了在文本之上绘制内联提示：
+		QTextEdit::paintEvent里创建的QPainter作用于viewport，因此这里同样作用于viewport，
+		并直接使用光标矩形（也是viewport坐标）定位提示，不需要自己做滚动偏移换算。
+
+		\note 重写paintEvent时创建QPainter必须作用于viewport，这是QTextEdit的要求。
+	*/
+	class InlayHintTextEdit :public QTextEdit {
+		Q_OBJECT;
+	public:
+		InlayHintTextEdit(YSSCore::Editor::TextEdit* editor, QWidget* parent = nullptr);
+	protected:
+		virtual void paintEvent(QPaintEvent* event) override;
+	public slots:
+		void onInlayHintChangedForLine(qint32 lineNumber);
+	public:
+		void refreshInlayHintSpacings();
+	private:
+		YSSCore::Editor::TextEdit* editor = nullptr;
+		void paintInlayHints(QPainter& painter, const QRect& clipRect);
+		void paintInlayHint(QPainter& painter, const QRectF& gapRect, const YSSCore::Editor::InlayHint& hint) const;
+		bool visibleLines(qint32& firstLine, qint32& lastLine, const QRect& clipRect) const;
+	};
+
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
 		friend class DocumentOverviewLabel;
@@ -113,7 +139,7 @@ namespace YSSCore::__Private__ {
 	protected:
 		YSSCore::Editor::TextEdit* q = nullptr;
 		QTextEdit* Line = nullptr;
-		QTextEdit* Text = nullptr;
+		InlayHintTextEdit* Text = nullptr;
 		DocumentOverviewLabel* Overview = nullptr;
 		QScrollBar* HScrollBar = nullptr;
 		QGridLayout* Layout = nullptr;
@@ -128,6 +154,8 @@ namespace YSSCore::__Private__ {
 		enum class TextEncoding { Utf8 = 0, Utf8Bom, Utf16LE, Utf16BE, Unsupported };
 		TextEncoding Encoding = TextEncoding::Utf8;
 		bool UseCRLF = false;
+		qreal InlayHintFontScale = 0.6;
+		bool InlayHintVisible = true;
 		QFontMetricsF* FontMetrics = nullptr;
 		YSSCore::Editor::SyntaxHighlighter* Highlighter = nullptr;
 		YSSCore::Editor::LangServer* LangServer = nullptr;

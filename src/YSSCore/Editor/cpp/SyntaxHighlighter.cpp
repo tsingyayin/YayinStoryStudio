@@ -2,6 +2,7 @@
 #include <General/Log.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/DocumentMessage.h"
+#include "Editor/private/InlayHint_p.h"
 #include "Editor/private/TextEdit_p.h"
 #include "Editor/SyntaxHighlighter.h"
 #include "Editor/TextEdit.h"
@@ -11,6 +12,7 @@ namespace YSSCore::Editor {
 	protected:
 		TextEdit* Parent;
 		bool AutoRenderMessageWaveLine = true;
+		bool AutoRenderInlayHint = true;
 		qint32 LastTotalBlockNumber = 0;
 	};
 
@@ -96,7 +98,8 @@ namespace YSSCore::Editor {
 		重写自QSyntaxHighlighter的函数，在文本块内容改变时被调用。
 		\a text 当前文本块的内容。
 
-		这个函数会清除当前文本块的所有消息，然后调用onBlockChanged()让子类实现具体的高亮和消息创建逻辑，最后刷新当前文本块的消息显示。
+		这个函数会清除当前文本块的所有消息和所有内联提示，然后调用onBlockChanged()让子类实现具体的高亮和消息创建逻辑，
+		最后刷新当前文本块的消息显示，并为这轮解析出的内联提示注入空隙。
 		它也负责根据行数的变化自动前后移动消息，以保持消息与文本块的正确关联。
 	*/
 	void SyntaxHighlighter::highlightBlock(const QString& text) {
@@ -116,7 +119,40 @@ namespace YSSCore::Editor {
 		d->LastTotalBlockNumber = totalNumber;
 		int blockNumber = currentBlock().blockNumber();
 		d->Parent->clearMessages(blockNumber);
+		clearInlayHints(blockNumber);
 		onBlockChanged(text, blockNumber);
+		// 提示的空隙在子类着色完成后注入：子类可能对锚点字符设过格式，而 setFormat 是覆盖语义。
+		applyInlayHintSpacings(text, blockNumber);
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a text 当前文本块的内容。
+		\a blockNumber 当前文本块的块号。
+
+		为当前文本块上的内联提示注入空隙，使提示之后的文字向右让出绘制提示所需的空间。
+	*/
+	void SyntaxHighlighter::applyInlayHintSpacings(const QString& text, qint32 blockNumber) {
+		if (not d->AutoRenderInlayHint or not d->Parent->isInlayHintVisible()) {
+			return;
+		}
+		const QList<InlayHint> hints = getInlayHints(blockNumber);
+		if (hints.isEmpty()) {
+			return;
+		}
+		const QFont hintFont = __Private__::inlayHintFont(d->Parent->getDocument()->defaultFont(),
+			d->Parent->getInlayHintFontScale());
+		for (const InlayHint& hint : hints) {
+			const qint32 anchor = hint.getPositionInBlock() - 1;
+			if (anchor < 0 or anchor >= text.size()) {
+				// 行首没有可用的锚点字符，这类提示无法推开后续文字，绘制端也会跳过它。
+				continue;
+			}
+			QTextCharFormat format = this->format(anchor);
+			format.setFontLetterSpacingType(QFont::AbsoluteSpacing);
+			format.setFontLetterSpacing(__Private__::inlayHintGapWidth(hint, hintFont));
+			this->setFormat(anchor, 1, format);
+		}
 	}
 
 	/*!
@@ -218,5 +254,133 @@ namespace YSSCore::Editor {
 		}
 		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Info, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a hint 要创建的内联提示。
+
+		为当前文本块创建一条内联提示，你可以在onBlockChanged()中调用这个函数，把不属于文档内容的辅助文字
+		（例如函数调用的形参名）插进字符流里显示。提示会把后面的文字推开，但不会修改文档内容。
+
+		与消息一样，每次重新着色一行时该行上已有的提示都会被自动清除，因此这里只需要给出当前这次解析的结果。
+		位置小于1的提示无法推开后续文字，会被忽略。
+	*/
+	void SyntaxHighlighter::createInlayHint(const InlayHint& hint) {
+		if (not d->AutoRenderInlayHint) {
+			return;
+		}
+		if (hint.getText().isEmpty()) {
+			return;
+		}
+		addInlayHint(currentBlock().blockNumber(), hint);
+	}
+
+	/*!
+		\fn void SyntaxHighlighter::addInlayHint(qint32 blockNumber, const InlayHint& hint)
+		\since YSS 0.18.0
+		\a blockNumber 块号，从 0 开始。
+		\a hint 要添加的内联提示。
+
+		给指定文本块添加一条内联提示，提示随该文本块一起移动。
+	*/
+	void SyntaxHighlighter::addInlayHint(qint32 blockNumber, const InlayHint& hint) {
+		if (blockNumber < 0) {
+			return;
+		}
+		__Private__::InlayHintList* list = d->Parent->getBlockData<__Private__::InlayHintList>(blockNumber);
+		if (list == nullptr) {
+			list = new __Private__::InlayHintList();
+			d->Parent->setBlockData<__Private__::InlayHintList>(blockNumber, list);
+		}
+		list->Hints.append(hint);
+		emit inlayHintChangedForLine(blockNumber);
+	}
+
+	/*!
+		\fn void SyntaxHighlighter::clearInlayHints(qint32 blockNumber)
+		\since YSS 0.18.0
+		\a blockNumber 块号，从 0 开始。
+
+		清空指定文本块上的内联提示。着色每个文本块之前都会调用它，因此一个文本块上的提示总是当前这次解析的结果。
+	*/
+	void SyntaxHighlighter::clearInlayHints(qint32 blockNumber) {
+		__Private__::InlayHintList* list = d->Parent->getBlockData<__Private__::InlayHintList>(blockNumber);
+		if (list == nullptr or list->Hints.isEmpty()) {
+			return;
+		}
+		list->Hints.clear();
+		emit inlayHintChangedForLine(blockNumber);
+	}
+
+	/*!
+		\fn QList<InlayHint> SyntaxHighlighter::getInlayHints(qint32 blockNumber) const
+		\since YSS 0.18.0
+		\a blockNumber 块号，从 0 开始。
+
+		\return 该文本块上的内联提示。没有提示时返回空列表。
+	*/
+	QList<InlayHint> SyntaxHighlighter::getInlayHints(qint32 blockNumber) const {
+		__Private__::InlayHintList* list = d->Parent->getBlockData<__Private__::InlayHintList>(blockNumber);
+		if (list == nullptr) {
+			return QList<InlayHint>();
+		}
+		return list->Hints;
+	}
+
+	/*!
+		\fn QMap<qint32, QList<InlayHint>> SyntaxHighlighter::getAllInlayHints() const
+		\since YSS 0.18.0
+		\return 文档中所有需要显示的内联提示，以块号为键。
+
+		只有确实带有提示的文本块才会出现在结果里。
+	*/
+	QMap<qint32, QList<InlayHint>> SyntaxHighlighter::getAllInlayHints() const {
+		QMap<qint32, QList<InlayHint>> result;
+		const QMap<qint32, __Private__::InlayHintList*> allData = d->Parent->getAllBlockData<__Private__::InlayHintList>();
+		for (auto it = allData.begin(); it != allData.end(); ++it) {
+			if (it.value()->Hints.isEmpty()) {
+				continue;
+			}
+			result.insert(it.key(), it.value()->Hints);
+		}
+		return result;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a positionInBlock 提示插入的位置（块内字符偏移，提示显示在该位置之前，必须大于0）。
+		\a text 提示文字。
+		\a color 提示文字颜色，默认为无效颜色，此时使用编辑器默认的弱化文字颜色。
+		\a paddings 提示文字左右两侧的内边距（像素），默认为8。
+
+		与 InlayHint 版本的 createInlayHint 相同，只是省略了构造 InlayHint 的步骤。
+	*/
+	void SyntaxHighlighter::createInlayHint(qint32 positionInBlock, const QString& text, const QColor& color, qint32 paddings) {
+		createInlayHint(InlayHint(positionInBlock, text, color, paddings));
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a autoRender 是否自动创建并渲染内联提示，默认为true。
+
+		设置为false时，createInlayHint不会再创建任何提示，已经创建的提示会被清除，文本流中为提示注入的空隙也会一并消失。
+	*/
+	void SyntaxHighlighter::setAutoRenderInlayHint(bool autoRender) {
+		if (d->AutoRenderInlayHint == autoRender) {
+			return;
+		}
+		d->AutoRenderInlayHint = autoRender;
+		d->Parent->removeAllBlockData<__Private__::InlayHintList>();
+		// 重新着色一遍以使注入的空隙随之出现或消失，rehighlight_s内部会屏蔽由此产生的文件改变信号。
+		rehighlight_s();
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\return 是否自动创建并渲染内联提示。
+	*/
+	bool SyntaxHighlighter::isAutoRenderInlayHint() const {
+		return d->AutoRenderInlayHint;
 	}
 }

@@ -544,7 +544,8 @@
         "MacroParameter": "매크로 매개변수",
         "ErrorLine": "오류 선",
         "WarningLine": "경고 선",
-        "InfoLine": "정보 선"
+        "InfoLine": "정보 선",
+        "InlayHint": "인라인 힌트"
     },
     "projectResourceBrowser": {
         "title": "ASER 외부 리소스 뷰어",

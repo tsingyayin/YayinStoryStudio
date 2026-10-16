@@ -1,5 +1,8 @@
 #include <QtCore/qtimer.h>
+#include <QtGui/qfontmetrics.h>
 #include <QtGui/qpainter.h>
+#include <QtGui/qpalette.h>
+#include <QtGui/qtextcursor.h>
 #include <QtGui/qtextlayout.h>
 #include <QtGui/qtextobject.h>
 #include <QtWidgets/qcheckbox.h>
@@ -12,6 +15,9 @@
 #include <QtWidgets/qstyleoption.h>
 #include <General/TranslationHost.h>
 #include "Editor/DocumentMessage.h"
+#include "Editor/InlayHint.h"
+#include "Editor/SyntaxHighlighter.h"
+#include "Editor/private/InlayHint_p.h"
 #include "Editor/private/TextEdit_p.h"
 #include "Editor/TextEdit.h"
 
@@ -372,5 +378,160 @@ namespace YSSCore::__Private__ {
 
 		p.setPen(QPen(Qt::white, 2));
 		p.drawRect(rect().adjusted(1, 1, -2, -2));
+	}
+
+	InlayHintTextEdit::InlayHintTextEdit(YSSCore::Editor::TextEdit* editor, QWidget* parent) : QTextEdit(parent) {
+		this->editor = editor;
+	}
+
+	/*!
+		绘制文本本身之后，再把内联提示画到文本流为它让出的空隙里。
+
+		提示的空隙由 YSSCore::Editor::SyntaxHighlighter 通过字距注入产生，那个字距只存在于布局层，
+		并不在文档里，所以文档内容、保存结果和撤销栈都不受影响，提示的文字需要由这里自己画上去。
+	*/
+	void InlayHintTextEdit::paintEvent(QPaintEvent* event) {
+		QTextEdit::paintEvent(event);
+		if (this->editor == nullptr) {
+			return;
+		}
+		QPainter painter(this->viewport());
+		painter.setClipRect(event->rect());
+		painter.setRenderHint(QPainter::Antialiasing);
+		this->paintInlayHints(painter, event->rect());
+	}
+
+	/*!
+		\a lineNumber 提示发生变化的行号。
+
+		只重绘这一行，避免每次着色都重绘整个视口。
+	*/
+	void InlayHintTextEdit::onInlayHintChangedForLine(qint32 lineNumber) {
+		QTextDocument* document = this->document();
+		if (document == nullptr) {
+			return;
+		}
+		const QTextBlock block = document->findBlockByNumber(lineNumber);
+		if (not block.isValid()) {
+			this->viewport()->update();
+			return;
+		}
+		const QRect lineRect = this->cursorRect(QTextCursor(block));
+		if (not lineRect.isValid()) {
+			this->viewport()->update();
+			return;
+		}
+		this->viewport()->update(QRect(0, lineRect.top() - 2, this->viewport()->width(), lineRect.height() + 4));
+	}
+
+	/*!
+		提示的空隙宽度取决于字体，字号或字体变化后必须重新注入一遍字距，否则空隙会与提示文字的大小对不上；
+		显示开关切换时同样需要重新注入（或收回）空隙，因此也走这里。
+		这里只为确实带有提示的行重新着色，而不是整篇重新着色：整篇重新着色在打开大文件时太昂贵了。
+	*/
+	void InlayHintTextEdit::refreshInlayHintSpacings() {
+		if (this->editor == nullptr) {
+			return;
+		}
+		YSSCore::Editor::SyntaxHighlighter* highlighter = this->editor->getSyntaxHighlighter();
+		QTextDocument* document = this->document();
+		if (highlighter == nullptr or document == nullptr) {
+			return;
+		}
+		const QList<qint32> lines = highlighter->getAllInlayHints().keys();
+		for (qint32 line : lines) {
+			highlighter->rehighlightBlock(document->findBlockByNumber(line));
+		}
+	}
+
+	void InlayHintTextEdit::paintInlayHints(QPainter& painter, const QRect& clipRect) {
+		QTextDocument* document = this->document();
+		if (document == nullptr) {
+			return;
+		}
+		YSSCore::Editor::SyntaxHighlighter* highlighter = this->editor->getSyntaxHighlighter();
+		if (highlighter == nullptr or not this->editor->isInlayHintVisible()) {
+			return;
+		}
+		qint32 firstLine = 0;
+		qint32 lastLine = 0;
+		if (not this->visibleLines(firstLine, lastLine, clipRect)) {
+			return;
+		}
+		const QFont hintFont = YSSCore::__Private__::inlayHintFont(document->defaultFont(),
+			this->editor->getInlayHintFontScale());
+		painter.setFont(hintFont);
+		for (qint32 line = firstLine; line <= lastLine; ++line) {
+			const QList<YSSCore::Editor::InlayHint> hints = highlighter->getInlayHints(line);
+			if (hints.isEmpty()) {
+				continue;
+			}
+			const QTextBlock block = document->findBlockByNumber(line);
+			for (const YSSCore::Editor::InlayHint& hint : hints) {
+				// 位置小于1的提示没有可用的锚点字符，框架不会为它让出空隙，这里也不能画，否则会和正文重叠。
+				if (hint.getPositionInBlock() < 1 or hint.getPositionInBlock() >= block.length()) {
+					continue;
+				}
+				QTextCursor cursor(block);
+				cursor.setPosition(block.position() + hint.getPositionInBlock());
+				// 空隙在提示位置之前，而光标矩形给出的是提示位置之后的那条边。
+				const QRect rightEdge = this->cursorRect(cursor);
+				if (not rightEdge.isValid()) {
+					continue;
+				}
+				const qreal gap = YSSCore::__Private__::inlayHintGapWidth(hint, hintFont);
+				const QRectF gapRect(rightEdge.left() - gap, rightEdge.top(), gap, rightEdge.height());
+				if (not gapRect.intersects(clipRect)) {
+					continue;
+				}
+				this->paintInlayHint(painter, gapRect, hint);
+			}
+		}
+	}
+
+	void InlayHintTextEdit::paintInlayHint(QPainter& painter, const QRectF& gapRect, const YSSCore::Editor::InlayHint& hint) const {
+		QColor color = hint.getColor();
+		if (not color.isValid()) {
+			color = this->palette().color(QPalette::PlaceholderText);
+		}
+		if (not color.isValid()) {
+			color = QColor(140, 140, 140);
+		}
+		// 背景高度跟随文字本身而不是整行高度，提示看起来才像贴着文字的小徽章。
+		const QFontMetricsF metrics(painter.font());
+		const QRectF textRect = metrics.boundingRect(hint.getText());
+		const qreal contentHeight = qMin(gapRect.height(), textRect.height() + 2);
+		const QRectF backgroundRect(gapRect.left() + 1, gapRect.center().y() - contentHeight / 2,
+			qMax(0.0, gapRect.width() - 2), contentHeight);
+		QColor backgroundColor = color;
+		backgroundColor.setAlpha(32);
+		painter.setPen(Qt::NoPen);
+		painter.setBrush(backgroundColor);
+		painter.drawRoundedRect(backgroundRect, 3, 3);
+		painter.setPen(color);
+		painter.drawText(backgroundRect, Qt::AlignCenter, hint.getText());
+	}
+
+	/*!
+		\a firstLine 视口内第一行的行号。
+		\a lastLine 视口内最后一行的行号。
+		\a clipRect 视口坐标下的关注区域。
+
+		\return 文档中是否存在与 \a clipRect 相交的行。
+	*/
+	bool InlayHintTextEdit::visibleLines(qint32& firstLine, qint32& lastLine, const QRect& clipRect) const {
+		QTextDocument* document = this->document();
+		if (document == nullptr or document->blockCount() == 0) {
+			return false;
+		}
+		const qint32 bottom = qMin(clipRect.bottom(), this->viewport()->height() - 1);
+		const QTextCursor first = this->cursorForPosition(QPoint(0, qMax(0, clipRect.top())));
+		const QTextCursor last = this->cursorForPosition(QPoint(0, qMax(0, bottom)));
+		if (not first.block().isValid() or not last.block().isValid()) {
+			return false;
+		}
+		firstLine = first.blockNumber();
+		lastLine = last.blockNumber();
+		return true;
 	}
 }

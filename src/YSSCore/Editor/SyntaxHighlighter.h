@@ -2,17 +2,23 @@
 #define YSSCore_Editor_SyntaxHighlighter_h
 #include "YSSCoreCompileMacro.h"
 #include <QtGui/qsyntaxhighlighter.h>
+#include "Editor/InlayHint.h"
 namespace YSSCore::Editor {
 	class StyleData;
 	class TextEdit;
 	class SyntaxHighlighterPrivate;
 	class YSSCoreAPI SyntaxHighlighter : public QSyntaxHighlighter {
 		Q_OBJECT
+	signals:
+		void inlayHintChangedForLine(qint32 blockNumber);
 	public:
 		SyntaxHighlighter(TextEdit* parent = nullptr);
 		virtual ~SyntaxHighlighter();
 	private:
 		void highlightBlock(const QString& text) override;
+		void addInlayHint(qint32 blockNumber, const InlayHint& hint);
+		void clearInlayHints(qint32 blockNumber);
+		void applyInlayHintSpacings(const QString& text, qint32 blockNumber);
 	public:
 		virtual void onBlockChanged(const QString& text, int blockNumber) = 0;
 		virtual void onBlockRemoved(qint32 startBlockNumber, qint32 count);
@@ -23,6 +29,13 @@ namespace YSSCore::Editor {
 		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
 		void createWarningMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
 		void createInfoMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
+	public:
+		void createInlayHint(const InlayHint& hint);
+		void createInlayHint(qint32 positionInBlock, const QString& text, const QColor& color = QColor(), qint32 paddings = 8);
+		QList<InlayHint> getInlayHints(qint32 blockNumber) const;
+		QMap<qint32, QList<InlayHint>> getAllInlayHints() const;
+		void setAutoRenderInlayHint(bool autoRender);
+		bool isAutoRenderInlayHint() const;
 	private:
 		SyntaxHighlighterPrivate* d;
 	};

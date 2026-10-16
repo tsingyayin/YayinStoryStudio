@@ -113,6 +113,11 @@ namespace YSSCore::Editor {
 		QList<DocumentMessage> getMessages(qint32 lineNumber) const;
 		QMap<qint32, QList<DocumentMessage>> getAllMessages() const;
 		std::tuple<qint32, qint32, qint32> getMessageCount();
+	public:
+		void setInlayHintFontScale(qreal scale);
+		qreal getInlayHintFontScale() const;
+		void setInlayHintVisible(bool visible);
+		bool isInlayHintVisible() const;
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;

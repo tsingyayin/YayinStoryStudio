@@ -544,7 +544,8 @@
         "MacroParameter": "Параметр макроса",
         "ErrorLine": "Линия ошибки",
         "WarningLine": "Линия предупреждения",
-        "InfoLine": "Линия информации"
+        "InfoLine": "Линия информации",
+        "InlayHint": "Встроенная подсказка"
     },
     "projectResourceBrowser": {
         "title": "Просмотр внешних ресурсов ASER",

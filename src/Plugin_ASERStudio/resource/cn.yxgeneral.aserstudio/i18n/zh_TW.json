@@ -544,7 +544,8 @@
         "MacroParameter": "巨集參數",
         "ErrorLine": "錯誤線條",
         "WarningLine": "警告線條",
-        "InfoLine": "資訊線條"
+        "InfoLine": "資訊線條",
+        "InlayHint": "內聯提示"
     },
     "projectResourceBrowser": {
         "title": "ASER外部資源檢視器",

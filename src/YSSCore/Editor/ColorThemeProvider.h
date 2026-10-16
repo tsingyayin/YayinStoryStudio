@@ -21,7 +21,7 @@ namespace YSSCore::Editor {
 		};
 		Q_ENUM(UnderlineType);
 		enum IdentifierType {
-			Undefined, __Overlay_Background__, __Overlay_Underline__, __LineNumber__,
+			Undefined, __Overlay_Background__, __Overlay_Underline__, __LineNumber__, __InlayHint__,
 			Normal, Keyword, String, SpecialString, Comment, Number, Operator, Function, Class, Variable, Parameter, Vector,
 			Macro, MacroParameter, Meta, Preprocessor, Type, Constant, Label, Namespace, Template, Enum, Struct, Union,
 		};

@@ -385,6 +385,17 @@
             "underlineType": "NoUnderline",
             "bold": false,
             "italic": false
+        },
+        "InlayHint": {
+            "styleName": "i18n:ASERStudio::syntaxColorTheme.InlayHint",
+            "identifierType": "__InlayHint__",
+            "textColor": "#A0A0A0",
+            "bgColor": "#000000",
+            "bgColorEnabled": false,
+            "lineColor": "#000000",
+            "underlineType": "NoUnderline",
+            "bold": false,
+            "italic": false
         }
     }
 }

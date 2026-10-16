@@ -544,7 +544,8 @@
         "MacroParameter": "マクロ引数",
         "ErrorLine": "エラー線",
         "WarningLine": "警告線",
-        "InfoLine": "情報線"
+        "InfoLine": "情報線",
+        "InlayHint": "行内の手掛かり"
     },
     "projectResourceBrowser": {
         "title": "ASER外部資源閲覧器",
