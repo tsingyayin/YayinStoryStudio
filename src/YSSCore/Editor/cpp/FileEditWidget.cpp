@@ -210,26 +210,31 @@ protected:
 
 	/*!
 		\since YSS 0.18.0
-		用身份打开一个文件。只适用于虚拟文件。
+		用身份打开一个文件。内容由本类通过 \l{FileServerManager} 读取。
 
 		\a uri 文件身份。
 
-		return 如果 \l{onVirtualOpen()} 成功则返回true。
+		return 读取并打开成功时返回true。
 
-		真实文件必须在 \l{FileServerManager} 里读好内容后调用带 \a data 的重载，
-		编辑器不再自己读文件。
+		这是给"自己创建、不经过 FileServerManager 管理"的编辑器用的便利重载（例如偏好设置里的
+		预览窗口）。由 \l{FileServerManager} 打开的常规路径仍然是它读好内容后调用带 \a data
+		的重载，这样异步化和后端差异都在那一层处理。
 	*/
 	bool FileEditWidget::openFile(const YSSCore::General::YSSURI& uri) {
 		if (!uri.isValid()) {
 			yWarningF << "File URI is invalid.";
 			return false;
 		}
-		if (!uri.isVirtual()) {
-			yWarningF << "Real files must be opened through FileServerManager so that the content is provided.";
+		if (uri.isVirtual()) {
+			d->Uri = uri;
+			return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
+		}
+		QByteArray data;
+		if (!FileServerManager::getInstance()->readFile(uri, &data)) {
+			yWarningF << "Failed to read file content for" << uri.toString();
 			return false;
 		}
-		d->Uri = uri;
-		return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
+		return this->openFile(uri, data);
 	}
 
 	/*!

@@ -107,6 +107,7 @@ namespace YSSCore::General {
 		bool parseSshRest(const QString& rest);
 		bool parseDocRest(const QString& rest);
 		bool parseVirtualText(const QString& text);
+		bool parseResourceText(const QString& text);
 		Qt::CaseSensitivity pathCaseSensitivity() const;
 		bool isSameScopeAs(const YSSURIPrivate& other) const;
 		QString formatAuthority() const;
@@ -291,6 +292,30 @@ namespace YSSCore::General {
 		return true;
 	}
 
+	bool YSSURIPrivate::parseResourceText(const QString& text) {
+		// Qt 资源的两种写法：qrc:/x 与 :/x。去掉前缀后都必须以 '/' 开头。
+		QString pathText = text;
+		if (pathText.startsWith(QStringLiteral("qrc:"))) {
+			pathText = pathText.mid(4);
+		}
+		else if (pathText.startsWith(QChar(':'))) {
+			pathText = pathText.mid(1);
+		}
+		else {
+			return false;
+		}
+		if (not pathText.startsWith(QChar('/'))) {
+			return false;
+		}
+		pathText.replace(QChar('\\'), QChar('/'));
+		QString normalized;
+		if (not normalizePath(pathText, true, &normalized)) {
+			return false;
+		}
+		this->Path = normalized;
+		return true;
+	}
+
 	Qt::CaseSensitivity YSSURIPrivate::pathCaseSensitivity() const {
 	#ifdef Q_OS_WIN
 		// Windows 的本机文件系统不区分大小写；远端大小写敏感性未知，按保守处理。
@@ -417,6 +442,9 @@ namespace YSSCore::General {
 		if (data->parseVirtualText(trimmed)) {
 			data->SchemeType = Scheme::VirtualFile;
 		}
+		else if (data->parseResourceText(trimmed)) {
+			data->SchemeType = Scheme::Resource;
+		}
 		else if (data->parseLocalText(path)) {
 			data->SchemeType = Scheme::Local;
 		}
@@ -446,6 +474,10 @@ namespace YSSCore::General {
 		if (data->parseVirtualText(trimmed)) {
 			scheme = Scheme::VirtualFile;
 			ok = true;
+		}
+		else if (trimmed.startsWith(QStringLiteral("qrc:")) or trimmed.startsWith(QChar(':'))) {
+			scheme = Scheme::Resource;
+			ok = data->parseResourceText(trimmed);
 		}
 		else if (splitScheme(trimmed, &schemeName, &rest)) {
 			if (schemeName == QStringLiteral("file")) {
@@ -543,6 +575,8 @@ namespace YSSCore::General {
 		switch (this->getScheme()) {
 		case Scheme::Local:
 			return QStringLiteral("file");
+		case Scheme::Resource:
+			return QStringLiteral("qrc");
 		case Scheme::SSH:
 			return QStringLiteral("ssh");
 		case Scheme::VirtualFile:
@@ -555,10 +589,20 @@ namespace YSSCore::General {
 	/*!
 		\fn bool YSSCore::General::YSSURI::isLocal() const
 		\since YSS 0.18.0
-		\return 是否指向本机文件。
+		\return 是否由本机后端处理。Qt 资源也算：QFile 认识 \c{:} 前缀。
 	*/
 	bool YSSURI::isLocal() const {
-		return this->getScheme() == Scheme::Local;
+		const Scheme scheme = this->getScheme();
+		return scheme == Scheme::Local or scheme == Scheme::Resource;
+	}
+
+	/*!
+		\fn bool YSSCore::General::YSSURI::isResource() const
+		\since YSS 0.18.0
+		\return 是否指向 Qt 资源（qrc）。
+	*/
+	bool YSSURI::isResource() const {
+		return this->getScheme() == Scheme::Resource;
 	}
 
 	/*!
@@ -630,7 +674,14 @@ namespace YSSCore::General {
 		\return \c file scheme的本机路径，使用原生分隔符；其余scheme返回空字符串。
 	*/
 	QString YSSURI::getLocalPath() const {
-		if (d == nullptr or d->SchemeType != Scheme::Local) {
+		if (d == nullptr) {
+			return QString();
+		}
+		// Qt 资源也用 QFile 直接打开，因此按 ':' 前缀返回。
+		if (d->SchemeType == Scheme::Resource) {
+			return QStringLiteral(":") + d->Path;
+		}
+		if (d->SchemeType != Scheme::Local) {
 			return QString();
 		}
 		QString path = d->Path;
@@ -850,6 +901,8 @@ namespace YSSCore::General {
 			return QStringLiteral("file:///") + d->Path;
 		case Scheme::SSH:
 			return QStringLiteral("ssh://") + d->formatAuthority() + d->Path;
+		case Scheme::Resource:
+			return QStringLiteral("qrc:") + d->Path;
 		case Scheme::VirtualFile:
 			return this->getVirtualPath();
 		default:
@@ -868,6 +921,8 @@ namespace YSSCore::General {
 		}
 		switch (d->SchemeType) {
 		case Scheme::Local:
+			return this->getLocalPath();
+		case Scheme::Resource:
 			return this->getLocalPath();
 		case Scheme::SSH:
 			return d->formatAuthority() + QChar(':') + d->Path;
@@ -911,8 +966,7 @@ namespace YSSCore::General {
 			return QString();
 		}
 		QString key;
-		if (d->SchemeType == Scheme::Local) {
-			const QFileInfo info(this->getLocalPath());
+		if (d->SchemeType == Scheme::Local) {			const QFileInfo info(this->getLocalPath());
 			const QString canonical = info.canonicalFilePath();
 			if (not canonical.isEmpty()) {
 				key = canonical;

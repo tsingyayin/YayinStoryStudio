@@ -29,7 +29,10 @@ namespace YSSCore::General {
 			Unknown = 0,
 			Local,
 			SSH,
-			VirtualFile
+			VirtualFile,
+			// Qt 资源（qrc）。字符串形式是 qrc:/x 或 :/x，由本机后端读取，
+			// 因为 QFile 本来就认识 ':' 前缀；写入一定会失败（资源是只读的）。
+			Resource
 		};
 	public:
 		static YSSURI fromLocalPath(const QString& path);
@@ -46,6 +49,7 @@ namespace YSSCore::General {
 		Scheme getScheme() const;
 		QString getSchemeName() const;
 		bool isLocal() const;
+		bool isResource() const;
 		bool isRemote() const;
 		bool isVirtual() const;
 	public:
