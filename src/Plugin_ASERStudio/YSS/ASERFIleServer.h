@@ -19,10 +19,10 @@ namespace ASERStudio::YSS {
 		EditorWidget_ASRuleJson(QWidget* parent = nullptr);
 		virtual ~EditorWidget_ASRuleJson();
 	protected:
-		virtual bool onOpen(const QString& path) override;
+		virtual bool onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) override;
 		virtual bool onClose() override;
-		virtual bool onSave(const QString& path = "") override;
-		virtual bool onReload() override;
+		virtual std::expected<QByteArray, bool> onSave(const YSSCore::General::YSSURI& uri) override;
+		virtual bool onReload(const QByteArray& data) override;
 		virtual bool onCopy() override;
 		virtual bool onCut() override;
 		virtual bool onPaste() override;
@@ -37,7 +37,7 @@ namespace ASERStudio::YSS {
 	public:
 		FileServer_ASRuleJson(YSSCore::Editor::EditorPlugin* plugin);
 		~FileServer_ASRuleJson();
-		virtual qint64 especiallyFocusFile(const QString& filePath) override;
+		virtual qint64 especiallyFocusFile(const YSSCore::General::YSSURI& uri) override;
 		virtual YSSCore::Editor::FileEditWidget* onCreateFileEditWidget() override;
 	};
 }

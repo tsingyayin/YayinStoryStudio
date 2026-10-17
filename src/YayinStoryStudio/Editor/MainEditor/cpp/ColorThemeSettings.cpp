@@ -143,7 +143,7 @@ namespace YSS::Editor {
 
 			QString previewTextPath = currentLangServer->getColorThemeProvider()->getTemplateTextPath();
 			if (not previewTextPath.isEmpty()) {
-				documentPreviewTextEdit->openFile(previewTextPath);
+				documentPreviewTextEdit->openFile(YSSCore::General::YSSURI::fromLocalPath(previewTextPath));
 			}
 		}
 

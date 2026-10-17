@@ -222,7 +222,7 @@ namespace YSS::Editor {
 				auto editor = YSSFSM->getFileEditWidget(absOldPath);
 				if (editor) {
 					const QString absNewPath = path + "/" + newName;
-					editor->saveFile(absNewPath, true);
+					editor->saveFile(YSSCore::General::YSSURI::fromLocalPath(absNewPath), true);
 				}
 			}
 			});
@@ -239,7 +239,7 @@ namespace YSS::Editor {
 					QString oldFileAbsPath = absOldPath + "/" + newRelativePath;
 					auto editor = YSSFSM->getFileEditWidget(oldFileAbsPath);
 					if (editor) {
-						editor->saveFile(newPath, true);
+						editor->saveFile(YSSCore::General::YSSURI::fromLocalPath(newPath), true);
 					}
 				}
 			}

@@ -4,219 +4,114 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
-#include <Utility/FileUtility.h>
+#include <General/YSSLogger.h>
 #include "Editor/FileEditWidget.h"
+#include "Editor/FileServerManager.h"
 #include "Editor/VirtualFilePath.h"
-#include "General/YSSLogger.h"
 namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
 protected:
 	bool fileChanged = false;
-	bool isVirtualFile = false;
 	bool autoAbandon = false;
 	bool saveSilent = false;
-	QString filePath;   // 仅虚拟文件使用
-	QFileInfo fileInfo; // 真实文件使用
+	YSSCore::General::YSSURI Uri;
 	};
+
 	/*!
 		\class YSSCore::Editor::FileEditWidget
-		\brief 此类为Yayin Story Studio 提供文件编辑的基类.
+		\brief 此类为Yayin Story Studio 提供文件编辑的基础类.
 		\since YSS 0.13.0
 		\inmodule YSSCore
 
 		FileEditWidget是所有文件编辑器的基类，所有文件编辑器都需要继承此类。
 
-		\note 这类在0.15.0因引入虚拟文件概念而变更了虚函数顺序和声明，因此ABI与此前不同。
+		从0.18.0开始，文件身份由 \l{YSSCore::General::YSSURI} 表示，而不是路径字符串。
+		URI 自带 scheme 与 authority，因此"本机文件"和"远端文件"在这里没有分支；本机文件
+		只是 \c file scheme 的 URI。内容也不再由编辑器自己读取：\l{FileServerManager}
+		通过 \l{YSSCore::General::YSSUniqueFileSystem} 读好二进制后，连同 URI 一起交给
+		\l{onOpen()}。编辑器因此完全不关心后端是本机还是 SSH。
+
+		\note 这类在0.15.0因引入虚拟文件概念而变更了虚函数顺序和声明，0.18.0又因引入 URI
+		身份再次变更，因此ABI与此前不兼容。
 
 		\section1 文件编辑器的职责
-		文件编辑器的职责是提供一个界面来编辑文件内容，并提供一些基本的文件操作功能，
-		如保存、撤销、重做等。具体来说，文件编辑器需要实现以下功能：
 		\list
-		\li 1. 打开文件：能够打开一个指定路径的文件，并将其内容显示在编辑器中。
-		\li 2. 编辑文件：能够修改文件内容，并能够检测到文件内容的修改状态。
-		\li 3. 保存文件：能够将修改后的文件内容保存到指定路径的文件中。
-		\li 4. 其他操作：能够提供一些常用的编辑操作，如复制、剪切、粘贴、全选等。
+		\li 1. 打开文件：把外部给出的 URI 与内容显示在编辑器里。
+		\li 2. 编辑文件：修改内容并能检测到修改状态。
+		\li 3. 保存文件：把内容交给外部写出，自己只负责产出内容。
+		\li 4. 其他操作：复制、剪切、粘贴、全选等。
 		\endlist
-		上述未提及的功能，如重载、光标定位等都是可选功能。重载默认按照打开文件的方式重新加载文件内容，光标定位默认不实现。
-
-		\section1 文件编辑器的使用接口和实现接口
-		文件编辑器提供了一套使用接口和实现接口。使用接口是指外部代码调用该
-		文件编辑器时使用的接口，比如openFile、saveFile等；
-		实现接口是指文件编辑器的子类需要重载的接口，如onOpen、onSave等。
-
-		目前，所有实现接口都以on开头，且设为protected，理应不被外部调用，
-		实际上也不应被继承类调用，除非你明确要复用基类的实现逻辑。
 
 		\section1 虚拟文件
-		YSSCore提供了一套被称之为虚拟文件的概念。有关该概念的详细阐述，
-		以及虚拟文件路径的格式，请参考 YSSCore::Editor::VirtualFilePath 类的相关文档。
-		这里我们只说明一下FileEditWidget在虚拟文件模式下的一些特殊行为。
+		虚拟文件用 \l{YSSCore::General::YSSURI::Scheme::VirtualFile} 表示，其字符串形式
+		仍是 \c{@ext!name?param}。虚拟文件没有二进制内容，因此 \l{onOpen()} 不会被调用，
+		而是走 \l{onVirtualOpen()}。
 
-		当openFile函数被调用时，如果传入的路径符合虚拟文件路径的格式（即以@开头，且包含!和?），
-		则FileEditWidget会自动将其识别为虚拟文件，并将isVirtualFile属性设为true。
-		此时，文件路径、文件名、扩展名等相关信息会按照虚拟文件路径的格式进行解析和返回。
-
-		在虚拟文件模式下，有关文件读写操作的四函数从onOpen、onClose、onSave、onReload
-		变更为onVirtualOpen、onVirtualClose、onVirtualSave、onVirtualReload，且默认实现为返回false。
-		但对应的外部使用接口不变，仍然为openFile、close、saveFile、reloadFile等。
-
-		也就是说，外部调用者无需关心当前文件是否为虚拟文件，仍然按照正常的方式调用这些接口即可，
-		FileEditWidget会根据当前文件的类型自动调用相应的实现接口。不过值得一提的是，
-		在虚拟文件模式下，saveFile传入的两个参数均会被忽略。
-
+		外部调用者无需区分两者：依然调用 \l{openFile()}，本类按 URI 的 scheme 分发。
 		\section1 文件关闭的行为
-		在四大读写操作函数中，只有closeFile()是void类型，这意味着无法通过返回值来判断文件是否成功关闭了。
-		因为文件的关闭可能并非是从手动调用触发的，也可能是从用户点击关闭按钮触发的，而且也可能因
-		用户的要求中途取消了关闭操作。因此FileEditWidget通过重载closeEvent函数来统一处理所有
-		来源的关闭，且不可能从closeFile知道是否成功关闭。要获得文件的关闭状态，应该监听fileClosed信号。
-
-		此外，根据目前FileServerManager的实现，fileClosed信号发出之后，在下一个事件循环该
-		FileEditWidget对象就会被销毁，因此任何连接到fileClosed信号的槽函数都只应做一些立即操作，
-		并且不得缓存该对象的指针以备后用，因为该对象可能已经被销毁了。（此信号基本等同于
-		QObject::destroyed信号）
-
+		只有 \l{closeFile()} 是void类型，无法通过返回值判断是否真的关闭。关闭统一在
+		\l{closeEvent()} 里处理，状态通过 \l{fileClosed()} 信号通知。
 		\section1 文件备份的行为
-		FileEditWidget提供了一个createFileBackup函数，用于创建当前文件的备份。该函数会调用onBackup虚函数，
-		并返回一个QByteArray，表示当前文件的备份内容。默认情况下，onBackup函数会返回一个空的QByteArray，
-		因此如果需要实现文件备份功能，子类需要重载onBackup函数，并返回实际的备份内容。
-
-		这个QByteArray必须是当前文件的完整内容，而非增量备份。也就是说，onBackup函数的返回值在被
-		直接写到磁盘后，形成的文件应该与当前编辑器中的内容完全一致。
-
-		根据YSS目前的实现，createFileBackup函数会定时调用以生成备份，并在相关文件被手动保存后
-		移除备份内容，因此，备份不作为版本控制的手段。（这与VSCode的历史编辑行为不同，VSCode的文件历史记录
-		作为Git记录的补充存在，且为增量记录）
-
-		\section1 QFileInfo规范化
-		自0.16.0版本开始，为了解决不同路径字符串可能实质上指向同一文件的问题，FileEditWidget在内部改用QFileInfo存储
-		真实文件的索引，并在先前返回QString的接口中永远直接返回QFileInfo::absoluteFilePath()的结果。
-		也就是说，所有返回文件路径的接口都将返回绝对路径，且在不同平台上遵循QFileInfo的规范化行为。
-		这对于减少潜在的文件路径比较问题有很大帮助。
-	*/
-
-	/*!
-		\fn YSSCore::Editor::FileEditWidget::fileChanged(const QString& filePath)
-		\since YSS 0.13.0
-		\a filePath 当前文件路径。
-
-		当文件内容被修改时，自动触发此信号。
-	*/
-
-	/*!
-		\fn YSSCore::Editor::FileEditWidget::fileChangeCanceled(const QString& filePath)
-		\since YSS 0.14.0
-		\a filePath 当前文件路径。
-
-		当文件内容修改被取消时，自动触发此信号。
-	*/
-
-	/*!
-		\fn YSSCore::Editor::FileEditWidget::fileSaved(const QString& filePath)
-		\since YSS 0.13.0
-		\a filePath 当前文件路径。
-
-		当文件被成功保存时，自动触发此信号。
-	*/
-
-	/*!
-		\fn YSSCore::Editor::FileEditWidget::fileRenamed(const QString& rawPath, const QString& changedPath)
-		\since YSS 0.15.0
-		\a rawPath 原文件路径。
-		\a changedPath 现文件路径。
-
-		当文件被成功保存，且路径与此前不一致时，自动触发此信号。
-	*/
-
-	/*!
-		\fn YSSCore::Editor::FileEditWidget::fileClosed(const QString& filePath)
-		\since YSS 0.15.0
-		\a filePath 当前文件路径。
-
-		当文件最终被关闭时，自动触发此信号。
-
-		请注意，这函数发出之后，该FileEditWidget很快就会被销毁，且无法阻止。
-		请勿再保存该对象的指针以备后用。
+		\l{createFileBackup()} 调用 \l{onBackup()}，返回当前文件的完整内容用于备份。
 	*/
 
 	/*!
 		\since YSS 0.13.0
-		\a parent 为父对象。
-
-		构造FileEditWidget对象。
+		构造文件编辑器。
+		\a parent 父对象。
 	*/
-	FileEditWidget::FileEditWidget(QWidget* parent) : QFrame(parent) {
+	FileEditWidget::FileEditWidget(QWidget* parent) :QFrame(parent) {
 		d = new FileEditWidgetPrivate;
+		d->q = this;
 	}
 
 	/*!
 		\since YSS 0.13.0
-
-		析构FileEditWidget对象。
+		析构函数。
 	*/
 	FileEditWidget::~FileEditWidget() {
 		delete d;
 	}
 
 	/*!
-		\since YSS 0.13.0
-		return 当前文件编辑器的文件路径。
-
-		返回当前文件编辑器的文件路径。如果当前没有打开任何文件，则返回空字符串。
-
-		注意，这可能是个虚拟文件路径，如果当前文件是通过FileServer打开的虚拟文件，
-		则返回的路径格式为 \c{@ext!fileName?param}。有关虚拟文件路径的详细格式，
-		请参考 YSSCore::Editor::VirtualFilePath。
-
-		对于真实文件，永远返回从QFileInfo获得的绝对路径。不同平台上的路径规范行为由QFileInfo担保。
+		\since YSS 0.18.0
+		取当前文件的身份。
+		\return 当前文件的 URI；没有打开文件时为空。
 	*/
-	QString FileEditWidget::getFilePath() const {
-		if (d->isVirtualFile) {
-			return d->filePath;
-		}
-		return d->fileInfo.absoluteFilePath();
+	YSSCore::General::YSSURI FileEditWidget::getUri() const {
+		return d->Uri;
 	}
 
 	/*!
-		\since YSS 0.16.0
-		return 当前文件的QFileInfo对象。
+		\since YSS 0.13.0
+		return 当前文件的路径字符串。
 
-		返回当前文件的QFileInfo对象。如果是虚拟文件，返回一个空的（无效的）QFileInfo。
-
-		下游可以直接使用此对象进行文件存在性、权限、元数据等判断，无需再次构造QFileInfo。
+		真实文件返回本机绝对路径；虚拟文件返回 \c{@ext!name?param} 形式的字符串。
+		这只是给界面显示和旧调用点用的便利函数，身份请用 \l{getUri()}。
 	*/
-	QFileInfo FileEditWidget::getFileInfo() const {
-		if (d->isVirtualFile) {
-			return QFileInfo();
+	QString FileEditWidget::getFilePath() const {
+		if (d->Uri.isVirtual()) {
+			return d->Uri.getVirtualPath();
 		}
-		return d->fileInfo;
+		// 与 QFileInfo::absoluteFilePath() 保持同一形式（正斜杠）：上层的标签索引、
+		// 项目文件和 QFileInfo 比较都拿这个字符串当键，形式一变就全都对不上。
+		return QDir::fromNativeSeparators(d->Uri.getLocalPath());
 	}
 
 	/*!
 		\since YSS 0.13.0
 		return 当前文件编辑器的文件名。
 
-		返回当前文件编辑器的文件名。如果当前没有打开任何文件，则返回空字符串。
-
-		对于虚拟文件，返回的是虚拟文件路径中的fileName部分。
-
-		解析方式请参考 YSSCore::Editor::VirtualFilePath。
+		虚拟文件返回名称部分（\c{!} 之后、\c{?} 之前）。
 	*/
 	QString FileEditWidget::getFileName() const {
-		if (d->isVirtualFile) {
-			auto vfp = VirtualFilePath(d->filePath);
-			if (vfp.isValid()) {
-				return vfp.getFileName();
-			}
-		}
-		return d->fileInfo.fileName();
+		return d->Uri.getFileName();
 	}
 
 	/*!
 		\since YSS 0.13.0
 		return 当前文件内容是否被修改。
-
-		如果文件内容被修改，返回true；否则返回false。
 	*/
 	bool FileEditWidget::isFileChanged() const {
 		return d->fileChanged;
@@ -225,80 +120,58 @@ protected:
 	/*!
 		\since YSS 0.15.0
 		return 当前文件是否为虚拟文件。
-
-		如果当前文件为虚拟文件，返回true；否则返回false。
 	*/
 	bool FileEditWidget::isVirtualFile() const {
-		return d->isVirtualFile;
+		return d->Uri.isVirtual();
 	}
 
 	/*!
 		\since YSS 0.15.0
-		return 当前文件的扩展名。
+		return 当前文件的扩展名（不带点）。
 
-		返回当前文件的扩展名（不带点）。如果当前没有打开任何文件，则返回空字符串。
-
-		对于虚拟文件路径，返回的是虚拟文件路径中的ext部分。
-
-		解析方式请参考 YSSCore::Editor::VirtualFilePath。
+		虚拟文件返回 \c{@} 与 \c{!} 之间的 ext 部分；真实文件返回文件名的后缀。
 	*/
 	QString FileEditWidget::getFileExt() const {
-		if (d->isVirtualFile) {
-			auto vfp = VirtualFilePath(d->filePath);
-			if (vfp.isValid()) {
-				return vfp.getExt();
-			}
+		if (d->Uri.isVirtual()) {
+			return d->Uri.getHost();
 		}
-		return d->fileInfo.suffix();
+		return d->Uri.getFileExt();
 	}
 
 	/*!
 		\since YSS 0.15.0
 		return 当前虚拟文件的参数部分。
 
-		返回当前虚拟文件的参数部分。如果当前文件不是虚拟文件或没有参数，则返回空字符串。
-
-		对于虚拟文件路径，参数部分是路径中?之后的部分。
-
-		解析方式请参考 YSSCore::Editor::VirtualFilePath。
+		不是虚拟文件时返回空字符串。解析方式参见 \l{VirtualFilePath}。
 	*/
 	QString FileEditWidget::getVirtualFileParam() const {
-		if (d->isVirtualFile) {
-			auto vfp = VirtualFilePath(d->filePath);
-			if (vfp.isValid()) {
-				return vfp.getParam();
-			}
+		if (!d->Uri.isVirtual()) {
+			return QString();
 		}
-		return QString();
+		return d->Uri.getQuery();
 	}
 
 	/*!
 		\since YSS 0.13.0
-		将当前文件内容标记为已修改状态。
-		此函数通常在派生类中被调用，当用户修改了文件内容时，应调用此函数以更新文件状态。
-		之后，它会自动触发fileChanged信号，通知外部文件内容已被修改，并传递当前文件路径作为参数。
+		将当前文件内容标记为已修改状态，并触发 \l{fileChanged()} 信号。
 	*/
 	void FileEditWidget::setFileChanged() {
 		d->fileChanged = true;
-		emit fileChanged(getFilePath());
+		emit fileChanged(d->Uri);
 	}
 
 	/*!
 		\since YSS 0.13.0
-		将当前文件内容标记为未修改状态。
-		此函数通常在派生类中被调用，当文件内容被保存或重新加载后，应调用此函数以更新文件状态。
-		之后，它会自动触发fileChangeCanceled信号，通知外部文件内容修改已被取消，并传递当前文件路径作为参数。
+		将当前文件内容标记为未修改状态，并触发 \l{fileChangeCanceled()} 信号。
 	*/
 	void FileEditWidget::cancelFileChanged() {
 		d->fileChanged = false;
-		emit fileChangeCanceled(getFilePath());
+		emit fileChangeCanceled(d->Uri);
 	}
 
 	/*!
 		\since YSS 0.15.0
-		return 当前文件编辑器的自动放弃状态。
-
-		如果在关闭文件时会自动放弃未保存的修改，返回true；否则返回false。
+		return 关闭时是否自动放弃未保存的修改。
 	*/
 	bool FileEditWidget::isAutoAbandon() const {
 		return d->autoAbandon;
@@ -306,156 +179,123 @@ protected:
 
 	/*!
 		\since YSS 0.15.0
-		设置当前文件编辑器的自动放弃状态。
-		\a autoAbandon 是否在关闭文件时自动放弃未保存的修改。默认为false，即不自动放弃。
+		设置关闭时是否自动放弃未保存的修改。
+		\a autoAbandon 是否自动放弃。
 	*/
 	void FileEditWidget::setAutoAbandon(bool autoAbandon) {
 		d->autoAbandon = autoAbandon;
 	}
 
 	/*!
-		\since YSS 0.16.0
-		打开指定QFileInfo对应的文件，并加载其内容。
-		\a fileInfo 要打开的文件信息对象。
+		\since YSS 0.18.0
+		用身份与内容打开一个真实文件。
+		\a uri 文件身份。
+		\a data 文件内容，由 \l{FileServerManager} 从 \l{YSSUniqueFileSystem} 读好后给出。
 
-		return 如果文件成功打开并加载，返回true；否则返回false。
+		return 如果 \l{onOpen()} 成功则返回true。
 
-		显然，此函数只能打开真实文件。
+		虚拟文件请用不带 \a data 的重载。
 	*/
-	bool FileEditWidget::openFile(const QFileInfo& fileInfo) {
-		QString absPath = fileInfo.absoluteFilePath();
-		if (absPath.isEmpty()) {
-			yWarningF << "File path is empty.";
+	bool FileEditWidget::openFile(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
+		if (!uri.isValid()) {
+			yWarningF << "File URI is invalid.";
 			return false;
 		}
-		d->fileInfo = fileInfo;
-		return onOpen(absPath);
+		d->Uri = uri;
+		if (uri.isVirtual()) {
+			return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
+		}
+		return onOpen(uri, data);
+	}
+
+	/*!
+		\since YSS 0.18.0
+		用身份打开一个文件。只适用于虚拟文件。
+
+		\a uri 文件身份。
+
+		return 如果 \l{onVirtualOpen()} 成功则返回true。
+
+		真实文件必须在 \l{FileServerManager} 里读好内容后调用带 \a data 的重载，
+		编辑器不再自己读文件。
+	*/
+	bool FileEditWidget::openFile(const YSSCore::General::YSSURI& uri) {
+		if (!uri.isValid()) {
+			yWarningF << "File URI is invalid.";
+			return false;
+		}
+		if (!uri.isVirtual()) {
+			yWarningF << "Real files must be opened through FileServerManager so that the content is provided.";
+			return false;
+		}
+		d->Uri = uri;
+		return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
 	}
 
 	/*!
 		\since YSS 0.13.0
-		打开指定路径的文件，并加载其内容。
-		\a path 要打开的文件路径。
+		保存当前文件编辑器的内容。
+		\a target 保存到的目标 URI。为空时保存到当前 URI。
+		\a deleteWhenSaveAs 另存为时是否删除原文件。
+		\a silent 静默保存。为真时 \l{onSave()}/\l{onVirtualSave()} 不应弹出任何界面。
 
-		return 如果文件成功打开并加载，返回true；否则返回false。
+		return 如果 \l{onSave()} 产出内容且写出成功，返回true。
 
-		对于真实文件路径，等同于QFileInfo版本的重载。
+		派生类只负责在 \l{onSave()} 里把内容返回，写盘由本类通过
+		\l{FileServerManager} 完成。保存成功后依次触发 \l{fileChangeCanceled()}、
+		\l{fileSaved()}，路径变化时再触发 \l{fileRenamed()}。
 
-		从0.15.0开始，这个函数会事先判定文件路径是否满足虚拟文件路径格式（参见
-		YSSCore::Editor::VirtualFilePath），如果是的话，则调用
-		onVirtualOpen()函数打开。
+		虚拟文件会直接调用 \l{onVirtualSave()}，\a target 与 \a deleteWhenSaveAs 均无效。
 	*/
-	bool FileEditWidget::openFile(const QString& path) {
-		auto vfp = VirtualFilePath(path);
-		if (vfp.isValid()) {
-			d->isVirtualFile = true;
-			d->filePath = path;
-			return onVirtualOpen(vfp.getExt(), vfp.getFileName(), vfp.getParam());
-		}
-		if (path.isEmpty()) {
-			yWarningF << "File path is empty.";
-			return false;
-		}
-		return openFile(QFileInfo(path));
-	}
-
-	/*!
-		\since YSS 0.16.0
-		保存当前文件编辑器的内容到指定QFileInfo对应的路径。
-		\a fileInfo 要保存到的文件信息对象。
-		\a deleteWhenSaveAs 当执行另存为操作时，是否删除原文件。
-		\a silent 静默保存。为真时 onSave()/onVirtualSave() 不应弹出任何界面，派生类应当只记录日志
-		并返回失败。崩溃收尾等没有界面可用的场景会用这个选项，免得弹窗把进程挂在无人响应的模态循环里。
-
-		return 如果文件成功保存，返回true；否则返回false。
-
-		此函数会调用派生类实现的onSave()函数以实际处理保存逻辑。保存成功后，首先触发
-		fileChangeCanceled信号，通知外部文件内容修改已被取消，并传递当前文件路径作为参数。
-
-		之后自动触发fileSaved信号，通知外部文件已被保存，并传递当前文件路径作为参数。
-
-		如果保存成功且路径与此前不一致，还会触发fileRenamed信号，通知外部文件已被重命名，
-		并传递原路径和新路径作为参数。
-
-		为了保持一致性，此函数不会重新判定路径是否为虚拟文件，因此不可能对虚拟文件使用
-		真实路径保存。反之，也不可能对真实文件使用虚拟路径保存。
-	*/
-	bool FileEditWidget::saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs, bool silent) {
-		if (d->isVirtualFile) {
+	bool FileEditWidget::saveFile(const YSSCore::General::YSSURI& target, bool deleteWhenSaveAs, bool silent) {
+		if (d->Uri.isVirtual()) {
 			d->saveSilent = silent;
 			bool ok = onVirtualSave();
 			d->saveSilent = false;
 			return ok;
 		}
-		QString targetPath = fileInfo.absoluteFilePath();
+		const YSSCore::General::YSSURI targetUri = target.isValid() ? target : d->Uri;
+		if (!targetUri.isValid() || targetUri.isVirtual()) {
+			return false;
+		}
+		QByteArray data;
 		d->saveSilent = silent;
-		bool ok = onSave(targetPath);
+		std::expected<QByteArray, bool> produced = onSave(targetUri);
 		d->saveSilent = false;
-		if (not Visindigo::Utility::FileUtility::isFileExist(targetPath)) {
+		if (!produced.has_value()) {
+			if (produced.error()) {
+				yWarningF << "Failed to produce content for" << targetUri.toString();
+			}
 			return false;
 		}
-		if (ok) {
-			cancelFileChanged();
-			QString currentPath = d->fileInfo.absoluteFilePath();
-			if (targetPath != currentPath) {
-				if (deleteWhenSaveAs) {
-					QFile::remove(currentPath);
-				}
-				QString oldPath = currentPath;
-				d->fileInfo = fileInfo;
-				emit fileSaved(d->fileInfo.absoluteFilePath());
-				emit fileRenamed(oldPath, targetPath);
-			}
-			else {
-				d->fileInfo = fileInfo;
-				emit fileSaved(d->fileInfo.absoluteFilePath());
-			}
+		if (!FileServerManager::getInstance()->writeFile(targetUri, produced.value())) {
+			yWarningF << "Failed to write file" << targetUri.toString();
+			return false;
 		}
-		return ok;
-	}
-
-	/*!
-		\since YSS 0.15.0
-		保存当前文件编辑器的内容到指定路径。
-		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
-		\a deleteWhenSaveAs 当执行另存为操作时，是否删除原文件。默认为false，即不删除原文件。如果设置为true，
-		可以视作重命名文件，保存成功后原文件将被删除。请谨慎使用此选项，以免误删重要文件。
-		\a silent 静默保存，含义同QFileInfo版本的重载。
-
-		return 如果文件成功保存，返回true；否则返回false。
-
-		在虚拟文件模式下，它会直接调用onVirtualSave()函数进行保存。虚拟保存时，\a path 和 \a deleteWhenSaveAs 均无效。
-
-		对于真实文件，等同于QFileInfo版本的重载。
-
-		为了保持一致性，此函数不会重新判定路径是否为虚拟文件，因此不可能对虚拟文件使用
-		真实路径保存。反之，也不可能对真实文件使用虚拟路径保存。
-	*/
-	bool FileEditWidget::saveFile(const QString& path, bool deleteWhenSaveAs, bool silent) {
-		if (d->isVirtualFile) {
-			d->saveSilent = silent;
-			bool ok = onVirtualSave();
-			d->saveSilent = false;
-			return ok;
-		}
-		QString pathCopy = path;
-		if (path.isEmpty()) {
-			pathCopy = d->fileInfo.absoluteFilePath();
-			if (pathCopy.isEmpty()) {
-				return false;
+		const YSSCore::General::YSSURI oldUri = d->Uri;
+		d->Uri = targetUri;
+		d->fileChanged = false;
+		if (oldUri != targetUri) {
+			if (deleteWhenSaveAs) {
+				FileServerManager::getInstance()->removeFile(oldUri);
 			}
+			emit fileChangeCanceled(oldUri);
+			emit fileSaved(targetUri);
+			emit fileRenamed(oldUri, targetUri);
 		}
-		return saveFile(QFileInfo(pathCopy), deleteWhenSaveAs, silent);
+		else {
+			emit fileChangeCanceled(targetUri);
+			emit fileSaved(targetUri);
+		}
+		return true;
 	}
 
 	/*!
 		\since YSS 0.17.0
-
 		return 当前这次保存是否为静默保存。
 
-		只在onSave()/onVirtualSave()执行期间为真，其余时候都是false。派生类在这两个函数里需要
-		弹窗询问或提示时，应当先查这个值：静默保存多发生在崩溃收尾这类没有界面可用的场合，
-		弹窗会把正在收尾的进程挂在无人响应的模态循环里（现场文件和日志继续被占用，收尾也做不完）。
+		只在 \l{onSave()}/\l{onVirtualSave()} 执行期间为真。派生类在这两个函数里需要
+		弹窗询问或提示时，应当先查这个值。
 	*/
 	bool FileEditWidget::isSaveSilent() const {
 		return d->saveSilent;
@@ -465,24 +305,25 @@ protected:
 		\since YSS 0.13.0
 		重新加载当前文件编辑器的内容。
 
-		return 如果文件成功重新加载，返回true；否则返回false。
+		return 如果文件成功重新加载，返回true。
 
-		如果是虚拟文件，重新路由到onVirtualReload()函数；如果是普通文件，重新路由到onReload()函数。
+		虚拟文件路由到 \l{onVirtualReload()}；真实文件由本类通过 \l{FileServerManager}
+		重新读取内容后交给 \l{onReload()}。
 	*/
 	bool FileEditWidget::reloadFile() {
-		if (d->isVirtualFile) {
+		if (d->Uri.isVirtual()) {
 			return onVirtualReload();
 		}
-		return onReload();
+		QByteArray data;
+		if (!FileServerManager::getInstance()->readFile(d->Uri, &data)) {
+			return false;
+		}
+		return onReload(data);
 	}
 
 	/*!
 		\since YSS 0.13.0
-		关闭当前文件编辑器。\a autoAbandon 是否自动放弃未保存的修改。默认为false，即不自动放弃。
-
-		这个函数直接调用QWidget的close()函数，触发关闭事件。
-
-		关闭事件会调用派生类实现的onClose()函数以决定是否允许关闭。
+		关闭当前文件编辑器。\a autoAbandon 是否自动放弃未保存的修改。
 	*/
 	void FileEditWidget::closeFile(bool autoAbandon) {
 		d->autoAbandon = autoAbandon;
@@ -492,24 +333,14 @@ protected:
 	/*!
 		\since YSS 0.16.0
 		创建当前文件的备份。
-
-		这函数直接调用onBackup()函数以获取备份数据，并返回该函数的返回值。
-
-		目前没有打算为FileEditWidget引入恢复备份的功能，因为YSS预计会直接将备份文件按
-		用户要求覆盖现有文件或显式的存储到别处并直接打开，不需要复写当前编辑态。
 	*/
 	QByteArray FileEditWidget::createFileBackup() {
 		return onBackup();
 	}
 
-
 	/*!
 		\since YSS 0.13.0
 		复制当前选中的内容到剪贴板。
-
-		return 如果复制操作成功，返回true；否则返回false。
-
-		此类调用派生类实现的onCopy()函数以实际处理复制逻辑。
 	*/
 	bool FileEditWidget::copy() {
 		return onCopy();
@@ -518,10 +349,6 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		剪切当前选中的内容到剪贴板。
-
-		return 如果剪切操作成功，返回true；否则返回false。
-
-		此类调用派生类实现的onCut()函数以实际处理剪切逻辑。
 	*/
 	bool FileEditWidget::cut() {
 		return onCut();
@@ -530,10 +357,6 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		从剪贴板粘贴内容到当前光标位置。
-
-		return 如果粘贴操作成功，返回true；否则返回false。
-
-		此类调用派生类实现的onPaste()函数以实际处理粘贴逻辑。
 	*/
 	bool FileEditWidget::paste() {
 		return onPaste();
@@ -542,10 +365,6 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		撤销上一次编辑操作。
-
-		return 如果撤销操作成功，返回true；否则返回false。
-
-		此类调用派生类实现的onUndo()函数以实际处理撤销逻辑。
 	*/
 	bool FileEditWidget::undo() {
 		return onUndo();
@@ -554,10 +373,6 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		重做上一次被撤销的编辑操作。
-
-		return 如果重做操作成功，返回true；否则返回false。
-
-		此类调用派生类实现的onRedo()函数以实际处理重做逻辑。
 	*/
 	bool FileEditWidget::redo() {
 		return onRedo();
@@ -565,33 +380,25 @@ protected:
 
 	/*!
 		\since YSS 0.13.0
-		选中当前文件编辑器中的所有内容。
-
-		return 如果全选操作成功，返回true；否则返回false。
-
-		此类调用派生类实现的onSelectAll()函数以实际处理全选逻辑。
+		全选当前编辑器的内容。
 	*/
 	bool FileEditWidget::selectAll() {
 		return onSelectAll();
 	}
 
 	/*!
-		\since YSS 0.13.0
-		\a lineNumber 行号，从1开始。
-		\a column 列号，从1开始。
-
-		将光标移动到指定的行号和列号位置。
-
-		return 如果光标成功移动到指定位置，返回true；否则返回false。
+		\since YSS 0.15.0
+		把光标移动到指定行列。
 	*/
 	bool FileEditWidget::cursorToPosition(qint32 lineNumber, qint32 column) {
 		return onCursorToPosition(lineNumber, column);
 	}
 
 	/*!
-		\since YSS 0.13.0
-		派生类必须实现此纯虚函数以处理文件打开逻辑。
-		\a path 要打开的文件路径。
+		\since YSS 0.18.0
+		派生类必须实现此函数以处理文件打开逻辑。
+		\a uri 文件身份。
+		\a data 文件内容。
 
 		return 如果文件成功打开并加载，返回true；否则返回false。
 
@@ -599,7 +406,7 @@ protected:
 		在整个生命周期内只调用一次。因此如果你在这个函数内尝试懒加载你的
 		FileEditWidget，应当首先检查资源是否已经初始化，避免出现内存泄漏。
 	*/
-	bool FileEditWidget::onOpen(const QString& path) {
+	bool FileEditWidget::onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
 		return false;
 	}
 
@@ -609,15 +416,10 @@ protected:
 
 		return 如果文件编辑器可以关闭，返回true；否则返回false。
 
-		这个函数默认会根据isFileChanged()的返回值来判断文件是否被修改过，
-		如果被修改过则弹出一个警告对话框询问用户是否保存修改。这应该可以
-		满足绝大部分情况下的关闭需求，因此如果没有特殊需求，派生类无需重载此函数。
+		默认会根据 \l{isFileChanged()} 判断并询问是否保存。若 \l{isAutoAbandon()}
+		返回true，则直接允许关闭。
 
-		如果isAutoAbandon()返回true，则无论文件是否被修改过，都会直接放弃修改并允许关闭。
-
-		\warning 不要在这个函数里调用close或deleteLater等任何实质上真的
-		会关闭这个Widget的函数，会造成递归爆栈。这个函数的唯一作用是通过
-		return 告知YSS是否真的应该关闭它。因此你可以在里面做一些保存、警告等操作
+		\warning 不要在这个函数里调用close或deleteLater，会造成递归爆栈。
 	*/
 	bool FileEditWidget::onClose() {
 		if (isFileChanged() && not isAutoAbandon()) {
@@ -629,13 +431,10 @@ protected:
 			case QMessageBox::Save:
 				return saveFile();
 			case QMessageBox::Discard:
-				// Don't save was clicked
 				return true;
 			case QMessageBox::Cancel:
-				// Cancel was clicked
 				return false;
 			default:
-				// should never be reached
 				return false;
 			}
 		}
@@ -645,49 +444,50 @@ protected:
 	}
 
 	/*!
-		\since YSS 0.13.0
+		\since YSS 0.18.0
+		派生类必须实现此函数以产出要保存的内容。
+		\a uri 要保存到的目标身份。
 
-		派生类必须实现此纯虚函数以处理文件保存逻辑。
+		return 成功时返回完整文件内容；失败时返回 \c{std::unexpected(flag)}，其中
+		\c{flag} 表示这次失败是否需要让用户知道：\c{true} 是真失败（编码不支持、
+		内容生成出错等），\c{false} 是本来就不打算保存（只读视图之类），应当静默跳过。
+		失败时不会写盘，也不会发出任何保存信号。
 
-		\a path 要保存的文件路径。如果为空字符串，则使用当前文件路径。非空字符串在保存成功后会更新当前文件路径。
-
-		return 如果文件成功保存，返回true；否则返回false。
+		这里只产出内容，不要自己写文件——写盘由 \l{saveFile()} 交给
+		\l{FileServerManager} 完成，这样 SSH 上的文件也能保存。
 	*/
-	bool FileEditWidget::onSave(const QString& path) {
-		return false;
+	std::expected<QByteArray, bool> FileEditWidget::onSave(const YSSCore::General::YSSURI& uri) {
+		Q_UNUSED(uri);
+		return std::unexpected(false);
 	}
 
 	/*!
-		\since YSS 0.13.0
-		派生类实现此纯虚函数以处理文件重新加载逻辑。
+		\since YSS 0.18.0
+		派生类实现此函数以处理文件重新加载逻辑。
+		\a data 重新读取到的文件内容。
 
-		return 如果文件成功重新加载，返回true；否则返回false。
+		return 如果文件成功重新加载，返回true。
 
-		在0.15之前的版本，这个函数默认返回false
-		从0.15开始，这个函数默认使用现在的文件路径重新调用onOpen()
+		默认实现用当前 URI 与给定内容重新调用 \l{onOpen()}。
 	*/
-	bool FileEditWidget::onReload() {
-		QString absPath = d->fileInfo.absoluteFilePath();
-		if (absPath.isEmpty()) {
+	bool FileEditWidget::onReload(const QByteArray& data) {
+		if (!d->Uri.isValid()) {
 			return false;
 		}
-		return onOpen(absPath);
+		return onOpen(d->Uri, data);
 	}
 
 	/*!
 		\since YSS 0.13.0
-		派生类实现此纯虚函数以处理复制逻辑。
-
-		return 如果复制操作成功，返回true；否则返回false。
+		派生类实现此虚函数以处理复制逻辑。
 	*/
 	bool FileEditWidget::onCopy() {
 		return false;
 	}
+
 	/*!
 		\since YSS 0.13.0
-		派生类实现此纯虚函数以处理剪切逻辑。
-
-		return 如果剪切操作成功，返回true；否则返回false。
+		派生类实现此虚函数以处理剪切逻辑。
 	*/
 	bool FileEditWidget::onCut() {
 		return false;
@@ -695,9 +495,7 @@ protected:
 
 	/*!
 		\since YSS 0.13.0
-		派生类实现此纯虚函数以处理粘贴逻辑。
-
-		return 如果粘贴操作成功，返回true；否则返回false。
+		派生类实现此虚函数以处理粘贴逻辑。
 	*/
 	bool FileEditWidget::onPaste() {
 		return false;
@@ -705,9 +503,7 @@ protected:
 
 	/*!
 		\since YSS 0.13.0
-		派生类实现此纯虚函数以处理撤销逻辑。
-
-		return 如果撤销操作成功，返回true；否则返回false。
+		派生类实现此虚函数以处理撤销逻辑。
 	*/
 	bool FileEditWidget::onUndo() {
 		return false;
@@ -715,9 +511,7 @@ protected:
 
 	/*!
 		\since YSS 0.13.0
-		派生类实现此纯虚函数以处理重做逻辑。
-
-		return 如果重做操作成功，返回true；否则返回false。
+		派生类实现此虚函数以处理重做逻辑。
 	*/
 	bool FileEditWidget::onRedo() {
 		return false;
@@ -725,26 +519,17 @@ protected:
 
 	/*!
 		\since YSS 0.13.0
-		派生类实现此纯虚函数以处理全选逻辑。
-
-		return 如果全选操作成功，返回true；否则返回false。
+		派生类实现此虚函数以处理全选逻辑。
 	*/
 	bool FileEditWidget::onSelectAll() {
 		return false;
 	}
 
 	/*!
-		\since YSS 0.13.0
-		\a lineNumber 行号，从1开始。
-		\a column 列号，从1开始。
-
-		由派生类实现的函数，用于将光标移动到指定的行号和列号位置。
-
-		由于FileEditWidget最早是面向文本文件设计，因此 \a lineNumber 和
-		\a column 的语义是基于文本文件的行列号的。但如有需要，
-		也可以将其按照其他方式进行解释和使用，例如对于图片，可用理解为像素坐标等。
-
-		return 如果光标成功移动到指定位置，返回true；否则返回false。
+		\since YSS 0.15.0
+		派生类实现此虚函数以处理光标定位逻辑。
+		\a lineNumber 行号。
+		\a column 列号。
 	*/
 	bool FileEditWidget::onCursorToPosition(qint32 lineNumber, qint32 column) {
 		return false;
@@ -752,15 +537,12 @@ protected:
 
 	/*!
 		\since YSS 0.15.0
+		处理虚拟文件的打开逻辑。
 		\a ext 虚拟文件的扩展名。
 		\a fileName 虚拟文件的文件名。
-		\a param 其他参数字符串，可以包含任意内容，由调用者和实现者自行约定格式和含义。
+		\a param 其他参数字符串。
 
-		处理虚拟文件的打开逻辑。
-
-		return 如果虚拟文件成功打开，返回true；否则返回false。
-
-		默认返回false。
+		return 如果虚拟文件成功打开，返回true。默认返回false。
 	*/
 	bool FileEditWidget::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {
 		return false;
@@ -769,10 +551,7 @@ protected:
 	/*!
 		\since YSS 0.15.0
 		处理虚拟文件的关闭逻辑。
-
-		return 如果虚拟文件编辑器可以关闭，返回true；否则返回false。
-
-		默认返回true。
+		return 如果虚拟文件编辑器可以关闭，返回true。默认返回true。
 	*/
 	bool FileEditWidget::onVirtualClose() {
 		return true;
@@ -781,10 +560,7 @@ protected:
 	/*!
 		\since YSS 0.15.0
 		处理虚拟文件的保存逻辑。
-
-		return 如果虚拟文件成功保存，返回true；否则返回false。
-
-		默认实现为返回false，表示虚拟文件不支持保存操作。派生类可以根据需要重载此函数以提供虚拟文件的保存功能。
+		return 如果虚拟文件成功保存，返回true。默认返回false。
 	*/
 	bool FileEditWidget::onVirtualSave() {
 		return false;
@@ -792,11 +568,7 @@ protected:
 
 	/*!
 		\since YSS 0.15.0
-		处理虚拟文件的重新加载逻辑。
-
-		return 如果虚拟文件成功重新加载，返回true；否则返回false。
-
-		这个实现默认重新调用onVirtualOpen。
+		处理虚拟文件的重新加载逻辑。默认重新调用 \l{onVirtualOpen()}。
 	*/
 	bool FileEditWidget::onVirtualReload() {
 		return onVirtualOpen(getFileExt(), getFileName(), getVirtualFileParam());
@@ -806,26 +578,14 @@ protected:
 		\since YSS 0.13.0
 		\a event 关闭事件对象。
 
-		处理文件编辑器关闭事件。
-
-		此函数在文件编辑器尝试关闭时被调用，调用派生类实现的onClose()函数以决定是否允许关闭。
-		如果onClose()返回true，则接受关闭事件；否则忽略关闭事件，文件编辑器保持打开状态。
-		\warning 派生类若重载了closeEvent()，应确保调用基类的实现以保持正确的关闭行为。
+		处理文件编辑器关闭事件：调用 \l{onVirtualClose()} 或 \l{onClose()} 决定是否允许关闭，
+		允许时发出 \l{fileClosed()}。
 	*/
 	void FileEditWidget::closeEvent(QCloseEvent* event) {
-		if (d->isVirtualFile) {
-			if (onVirtualClose()) {
-				event->accept();
-				emit fileClosed(d->filePath);
-			}
-			else {
-				event->ignore();
-			}
-			return;
-		}
-		if (onClose()) {
+		const bool allowed = d->Uri.isVirtual() ? onVirtualClose() : onClose();
+		if (allowed) {
 			event->accept();
-			emit fileClosed(getFilePath());
+			emit fileClosed(d->Uri);
 		}
 		else {
 			event->ignore();
@@ -836,10 +596,7 @@ protected:
 		\since YSS 0.16.0
 		派生类可以实现此虚函数以提供文件备份数据。
 
-		默认返回空的QByteArray，表示不提供备份数据。派生类可以根据需要重载此函数以返回当前文件的备份数据，
-		这个备份数据必须是完整文件的二进制内容，以便在需要时可以恢复文件。
-
-		\note 如果返回QByteArray为空，YSS也不会为该文件创建备份文件，无需担心生成空文件。
+		默认返回空的QByteArray。返回空时YSS不会为该文件创建备份文件。
 	*/
 	QByteArray FileEditWidget::onBackup() {
 		return QByteArray();

@@ -30,16 +30,17 @@ namespace ASERStudio::YSS {
 		setSupportedFileExts({ "json" });
 	}
 	FileServer_ASRuleJson::~FileServer_ASRuleJson() {}
-	qint64 FileServer_ASRuleJson::especiallyFocusFile(const QString& filePath) {
+	qint64 FileServer_ASRuleJson::especiallyFocusFile(const YSSCore::General::YSSURI& uri) {
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		QString projectFolder = project->getProjectFolder();
 		QString ruleFolder = projectFolder + "/Rules";
-		if (filePath.startsWith(ruleFolder) && filePath.endsWith(".json")) {
+		const QString filePath = uri.getLocalPath();
+		if (!filePath.isEmpty() && filePath.startsWith(ruleFolder) && filePath.endsWith(".json")) {
 			vgDebug << "ASRule JSON file focused: " << filePath;
 			return std::numeric_limits<qint64>::max();
 		}
 		else {
-			vgDebug << "Normal JSON file:" << filePath;
+			vgDebug << "Normal JSON file:" << uri.toString();
 			return -1;
 		}
 	}
@@ -272,14 +273,8 @@ namespace ASERStudio::YSS {
 		delete d;
 	}
 
-	bool EditorWidget_ASRuleJson::onOpen(const QString& path) {
-		Visindigo::Utility::FileOperation::Errorable<QString> contentResult = Visindigo::Utility::FileOperation::readAll(path);
-		if (not contentResult) {
-			vgErrorF << "Failed to read ASRule JSON: " << path
-				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(contentResult.error());
-			return false;
-		}
-		d->rawContent = contentResult.value();
+	bool EditorWidget_ASRuleJson::onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
+		d->rawContent = QString::fromUtf8(data);
 
 		for (auto frame : d->controllerFrames) {
 			d->contentLayout->removeWidget(frame);
@@ -290,7 +285,7 @@ namespace ASERStudio::YSS {
 
 		ASERStudio::AStorySyntax::AStoryXRule rule("default");
 		if (!rule.parseJson(d->rawContent)) {
-			vgWarning << "Failed to parse ASRule JSON: " << path;
+			vgWarning << "Failed to parse ASRule JSON: " << uri.toString();
 		}
 		auto controllers = rule.getAvailableControllers();
 		int insertIndex = d->contentLayout->count() - 1;
@@ -314,17 +309,13 @@ namespace ASERStudio::YSS {
 		return true;
 	}
 
-	bool EditorWidget_ASRuleJson::onSave(const QString& path) {
-		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveAll(path, d->rawContent);
-		if (saveResult != Visindigo::Utility::FileOperation::Success) {
-			vgErrorF << "Failed to save ASRule JSON: " << path
-				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
-			return false;
-		}
-		return true;
+	std::expected<QByteArray, bool> EditorWidget_ASRuleJson::onSave(const YSSCore::General::YSSURI& uri) {
+		Q_UNUSED(uri);
+		return d->rawContent.toUtf8();
 	}
 
-	bool EditorWidget_ASRuleJson::onReload() {
+	bool EditorWidget_ASRuleJson::onReload(const QByteArray& data) {
+		Q_UNUSED(data);
 		return true;
 	}
 

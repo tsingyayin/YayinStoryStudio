@@ -77,6 +77,15 @@
     <ClCompile Include="General\cpp\YSSURI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\YSSUniqueFileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSUniqueFileSystemLocal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSUniqueFileSystemSsh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="General\cpp\YSSLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -148,6 +157,12 @@
     <ClInclude Include="General\YSSProject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <QtMoc Include="General\YSSUniqueFileSystem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\private\YSSUniqueFileSystem_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <ClInclude Include="General\YSSURI.h">
       <Filter>Header Files</Filter>
     </ClInclude>

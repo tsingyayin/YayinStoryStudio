@@ -19,9 +19,9 @@ namespace YSS::ImageViewer {
 		explicit ImageViewer(QWidget* parent = nullptr);
 		virtual ~ImageViewer() override;
 	public:
-		virtual bool onOpen(const QString& filePath) override;
+		virtual bool onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) override;
 		virtual bool onClose() override;
-		virtual bool onSave(const QString& filePath = "") override;
+		virtual std::expected<QByteArray, bool> onSave(const YSSCore::General::YSSURI& uri) override;
 	protected:
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;

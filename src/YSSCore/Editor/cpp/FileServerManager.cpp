@@ -1,9 +1,12 @@
+#include <QtCore/qeventloop.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qtimer.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/Exception.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <General/YSSUniqueFileSystem.h>
 #include <Utility/FileUtility.h>
 #include "Editor/FileServer.h"
 #include "Editor/FileServerManager.h"
@@ -12,6 +15,8 @@
 #include "Editor/YSSCoreBuiltinPlugin.h"
 #include "General/YSSLogger.h"
 namespace YSSCore::Editor {
+	using namespace YSSCore::General;
+
 	class FallBackFileServer :public FileServer {
 	public:
 		FallBackFileServer(EditorPlugin* plugin) :FileServer("Fallback File Server", "YSSCore.Editor.FallbackFileServer", plugin) {
@@ -42,8 +47,9 @@ namespace YSSCore::Editor {
 
 		/*
 			此函数从指定Server获取FileEditWidget并打开指定文件。若成功，则将转入onFileEditWidgetCreated作进一步处理。
+			uri 是文件身份，data 是已经由 YSSUniqueFileSystem 读好的内容；虚拟文件的内容为空。
 		*/
-		bool openFile(const QString& filePath, FileServer* server) {
+		bool openFile(const YSSURI& uri, const QByteArray& data, FileServer* server) {
 			if (server != nullptr) {
 				FileEditWidget* feWidget = nullptr;
 				switch (server->getEditorType()) {
@@ -55,12 +61,12 @@ namespace YSSCore::Editor {
 					break;
 				}
 				if (not feWidget) {
-					vgWarningF << "FileServer" << server->getModuleID() << "failed to create FileEditWidget for file" << filePath;
+					vgWarningF << "FileServer" << server->getModuleID() << "failed to create FileEditWidget for file" << uri.toString();
 					return false;
 				}
-				bool	ok = feWidget->openFile(filePath);
+				const bool ok = uri.isVirtual() ? feWidget->openFile(uri) : feWidget->openFile(uri, data);
 				if (not ok) {
-					vgWarningF << "FileEditWidget failed to open file" << filePath << "for FileServer" << server->getModuleID();
+					vgWarningF << "FileEditWidget failed to open file" << uri.toString() << "for FileServer" << server->getModuleID();
 					feWidget->deleteLater();
 					return false;
 				}
@@ -78,51 +84,46 @@ namespace YSSCore::Editor {
 			if (not few) {
 				VI_Throw_ST(Visindigo::General::Exception::NullPointer, "This function requires a valid FileEditWidget pointer.");
 			}
-			QString path = few->getFilePath();
-			OpenedFileEditWidgets.insert(normalizePath(path), few);
-			QObject::connect(few, &FileEditWidget::fileClosed, Instance, [this, few](const QString& path) {
-				OpenedFileEditWidgets.remove(normalizePath(path));
+			const YSSURI uri = few->getUri();
+			OpenedFileEditWidgets.insert(keyOf(uri), few);
+			QObject::connect(few, &FileEditWidget::fileClosed, Instance, [this, few](const YSSURI& closedUri) {
+				OpenedFileEditWidgets.remove(keyOf(closedUri));
 				FileEditWidgetSourceServerMap.remove(few);
-				emit Instance->fileClosed(path);
+				emit Instance->fileClosed(closedUri);
 				few->deleteLater();
-				yDebug << "File closed:" << path;
+				yDebug << "File closed:" << closedUri.toString();
 				});
-			QObject::connect(few, &FileEditWidget::fileRenamed, Instance, [this, few](const QString& rawPath, const QString& changedPath) {
-				if (OpenedFileEditWidgets.contains(normalizePath(rawPath))) {
-					OpenedFileEditWidgets.remove(normalizePath(rawPath));
-					OpenedFileEditWidgets.insert(normalizePath(changedPath), few);
-					emit Instance->fileRenamed(rawPath, changedPath);
+			QObject::connect(few, &FileEditWidget::fileRenamed, Instance, [this, few](const YSSURI& rawUri, const YSSURI& changedUri) {
+				if (OpenedFileEditWidgets.contains(keyOf(rawUri))) {
+					OpenedFileEditWidgets.remove(keyOf(rawUri));
+					OpenedFileEditWidgets.insert(keyOf(changedUri), few);
+					emit Instance->fileRenamed(rawUri, changedUri);
 				}
 				else {
 					VI_Throw_ST(Visindigo::General::Exception::NotFound, "FileEditWidget emitted fileRenamed signal but the raw path is not found in OpenedFileEditWidgets.");
 				}
 				});
-			QObject::connect(few, &FileEditWidget::fileChanged, Instance, [this](const QString& path) {
-				emit Instance->fileChanged(path);
+			QObject::connect(few, &FileEditWidget::fileChanged, Instance, [this](const YSSURI& uri) {
+				emit Instance->fileChanged(uri);
 				});
-			QObject::connect(few, &FileEditWidget::fileChangeCanceled, Instance, [this](const QString& path) {
-				emit Instance->fileChangeCanceled(path);
+			QObject::connect(few, &FileEditWidget::fileChangeCanceled, Instance, [this](const YSSURI& uri) {
+				emit Instance->fileChangeCanceled(uri);
 				});
-			QObject::connect(few, &FileEditWidget::fileSaved, Instance, [this](const QString& path) {
-				emit Instance->fileSaved(path);
+			QObject::connect(few, &FileEditWidget::fileSaved, Instance, [this](const YSSURI& uri) {
+				emit Instance->fileSaved(uri);
 				});
-			emit Instance->fileOpened(path);
+			emit Instance->fileOpened(uri);
 		}
 
-		bool isFileAlreadyOpen(const QString& filePath) {
-			return OpenedFileEditWidgets.contains(normalizePath(filePath));
+		bool isFileAlreadyOpen(const YSSURI& uri) {
+			return OpenedFileEditWidgets.contains(keyOf(uri));
 		}
 
-		// 归一化真实文件路径：解析符号链接/联接，并（在 Windows 上）取磁盘上的真实大小写。
-		// Windows 的文件系统不区分大小写，不归一的话"同一个文件"会被当成两个文件、开成两个编辑器，
-		// 各自保存时后写的会静默覆盖先写的。文件还不存在时 canonicalFilePath() 返回空串，退回绝对路径。
-		static QString normalizePath(const QString& filePath) {
-			if (VirtualFilePath::isVirtualFilePath(filePath)) {
-				return filePath;
-			}
-			QFileInfo info(filePath);
-			const QString canonical = info.canonicalFilePath();
-			return canonical.isEmpty() ? info.absoluteFilePath() : canonical;
+		// 索引键。统一交给 YSSURI::toIdentityKey()：本机路径优先用磁盘上的真实路径
+		// （解析符号链接、取真实大小写），拿不到再退回词法规范形式。这样"同一个文件"
+		// 不会开出两个编辑器，页面层的标签索引也用同一个键。
+		static QString keyOf(const YSSURI& uri) {
+			return uri.toIdentityKey();
 		}
 	};
 	FileServerManager* FileServerManagerPrivate::Instance = nullptr;
@@ -310,78 +311,50 @@ namespace YSSCore::Editor {
 	}
 
 	/*!
-		\since Visindgo 0.13.0
-		打开一个文件。如果有合适的FileServer注册，则使用该FileServer打开文件，否则使用内置的文本编辑器打开文件。
-		\a filePath 要打开的文件路径。
+		\since YSS 0.18.0
+		打开一个文件。这是 openFile 的主实现版本。
+
+		\a uri 文件身份。真实文件的内容由本类通过 \l{YSSCore::General::YSSUniqueFileSystem} 读好，
+		再连同 URI 一起交给 FileEditWidget；虚拟文件不读内容。
 		\a preferredServerId 优先使用的FileServer ID。
 		\a useFallback 是否在没有任何FileServer成功打开文件时使用内置文本编辑器打开文件。默认为true。
 
-		return 文件成功是否成功打开
+		return 文件是否成功打开
 
 		如果存在优先使用的FileServerID且该FileServer成功打开文件，则会优先使用该FileServer。
 		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
 		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
 
-		如果filePath为虚拟文件路径（参见 YSSCore::Editor::VirtualFilePath），则只匹配支持该虚拟文件的FileServer，不考虑 \a preferredServerId 、特别关注强度、优先级列表、 \a useFallback 等因素。
+		虚拟文件（\l{YSSCore::General::YSSURI::Scheme::VirtualFile}）只匹配支持该虚拟文件的FileServer，
+		不考虑 \a preferredServerId 、特别关注强度、优先级列表、 \a useFallback 等因素。
 	*/
-	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
-		if (filePath.isEmpty()) {
-			vgErrorF << "File path is empty!";
+	bool FileServerManager::openFile(const YSSURI& uri, const QString& preferredServerId, bool useFallback) {
+		if (!uri.isValid()) {
+			vgErrorF << "File URI is invalid!";
 			return false;
 		}
-		auto vfp = VirtualFilePath(filePath);
-		if (vfp.isValid()) {
-			if (d->isFileAlreadyOpen(filePath)) {
-				yDebug << "Virtual file already open:" << filePath;
-				emit fileOpened(filePath);
-				return true;
-			}
-			QString ext = vfp.getExt();
-			FileServer* server = nullptr;
-			if (d->VirtualFileServerMap.contains(ext)) {
-				server = d->VirtualFileServerMap[ext];
-			}
-			if (server) {
-				yDebug << "Virtual FileServer is trying to open the file.";
-				return d->openFile(filePath, server);
-			}
-			else {
-				vgErrorF << "No Virtual FileServer found for type" << ext;
-				return false;
-			}
-		}
-		return openFile(QFileInfo(filePath), preferredServerId, useFallback);
-	}
-
-	/*!
-		\since YSS 0.16.0
-		打开一个文件。如果有合适的FileServer注册，则使用该FileServer打开文件，否则使用内置的文本编辑器打开文件。
-
-		这是openFile的主实现版本。接受QFileInfo对象以避免路径字面值问题。
-		\a fileInfo 要打开的文件信息对象。
-		\a preferredServerId 优先使用的FileServer ID。
-		\a useFallback 是否在没有任何FileServer成功打开文件时使用内置文本编辑器打开文件。默认为true。
-
-		return 文件成功是否成功打开
-
-		如果存在优先使用的FileServerID且该FileServer成功打开文件，则会优先使用该FileServer。
-		否则首先回退到特别关注强度决定的优先级列表（除非为改扩展名禁用了该功能），然后回退到注册顺序决定的优先级列表。
-		如果以上操作全部失败，或者根本不存在支持该文件类型的FileServer，则会根据useFallback参数决定是否使用内置文本编辑器打开文件。
-
-		\warning QFileInfo不处理虚拟文件路径。虚拟文件路径的判断和分发在 openFile(const QString&) 版本中完成，使用 YSSCore::Editor::VirtualFilePath 进行解析。
-	*/
-	bool FileServerManager::openFile(const QFileInfo& fileInfo, const QString& preferredServerId, bool useFallback) {
-		QString ext = fileInfo.suffix();
-		QString absPath = fileInfo.absoluteFilePath();
-		if (not fileInfo.exists()) {
-			vgErrorF << "File does not exist:" << absPath;
-			return false;
-		}
-		if (d->isFileAlreadyOpen(absPath)) {
-			yDebug << "File already open:" << absPath;
-			emit fileOpened(absPath);
+		if (d->isFileAlreadyOpen(uri)) {
+			yDebug << "File already open:" << uri.toString();
+			emit fileOpened(uri);
 			return true;
 		}
+		if (uri.isVirtual()) {
+			const QString ext = uri.getHost();
+			FileServer* server = d->VirtualFileServerMap.value(ext, nullptr);
+			if (server) {
+				yDebug << "Virtual FileServer is trying to open the file.";
+				return d->openFile(uri, QByteArray(), server);
+			}
+			vgErrorF << "No Virtual FileServer found for type" << ext;
+			return false;
+		}
+		QByteArray data;
+		YSSFileError error;
+		if (!this->readFile(uri, &data, &error)) {
+			vgErrorF << "Failed to read file" << uri.toString() << error.toString();
+			return false;
+		}
+		const QString ext = uri.getFileExt();
 		if (d->FileServerMap.contains(ext)) { // means supported
 			QList<FileServer*> servers = d->FileServerMap[ext];
 			if (d->FileServerPriorityMap.contains(ext)) {
@@ -396,10 +369,8 @@ namespace YSSCore::Editor {
 						break;
 					}
 				}
-				if (server) {
-					if (d->openFile(absPath, server)) {
-						return true;
-					}
+				if (server && d->openFile(uri, data, server)) {
+					return true;
 				}
 			}
 			yDebug << "Especially focus:" << isEspeciallyFocusEnable(ext);
@@ -407,7 +378,7 @@ namespace YSSCore::Editor {
 				qint64 especiallyFocus = -1;
 				FileServer* especiallyFocusServer = nullptr;
 				for (auto server : servers) {
-					qint64 currentFocus = server->especiallyFocusFile(absPath);
+					qint64 currentFocus = server->especiallyFocusFile(uri);
 					if (currentFocus > 0 && currentFocus > especiallyFocus) {
 						especiallyFocus = currentFocus;
 						especiallyFocusServer = server;
@@ -415,29 +386,67 @@ namespace YSSCore::Editor {
 				}
 				if (especiallyFocusServer) {
 					yDebug << "Especially focus server:" << especiallyFocusServer->getModuleID();
-					if (d->openFile(absPath, especiallyFocusServer)) {
+					if (d->openFile(uri, data, especiallyFocusServer)) {
 						return true;
 					}
 				}
 			}
 			for (auto server : servers) {
 				yDebug << "FileServer " << server->getModuleID() << "is trying to open the file.";
-				if (d->openFile(absPath, server)) {
+				if (d->openFile(uri, data, server)) {
 					return true;
 				}
 			}
 		}
 		if (useFallback) { // use builtin editor
-			// create a warning dialog
 			int ret = QMessageBox::warning(
 				nullptr, VITRL("YSS::editor.textEdit.notSuitable.title"),
 				VITRL("YSS::editor.textEdit.notSuitable.message").arg(ext),
 				QMessageBox::Yes | QMessageBox::No);
 			if (ret == QMessageBox::Yes) {
-				return d->openFile(absPath, FallBackFileServer::Instance);
+				return d->openFile(uri, data, FallBackFileServer::Instance);
 			}
 		}
 		return false;
+	}
+
+	/*!
+		\since YSS 0.13.0
+		打开一个文件。路径字符串形式的便利版本，内部转成 \l{YSSCore::General::YSSURI}。
+		\a filePath 文件路径。虚拟文件用 \c{@ext!name?param}，其余按本机绝对路径处理。
+		\a preferredServerId 优先使用的FileServer ID。
+		\a useFallback 是否使用内置文本编辑器兜底。
+
+		return 文件是否成功打开
+	*/
+	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
+		if (filePath.isEmpty()) {
+			vgErrorF << "File path is empty!";
+			return false;
+		}
+		if (VirtualFilePath::isVirtualFilePath(filePath)) {
+			return openFile(YSSURI::fromVirtualPath(filePath), preferredServerId, useFallback);
+		}
+		return openFile(QFileInfo(filePath), preferredServerId, useFallback);
+	}
+
+	/*!
+		\since YSS 0.16.0
+		打开一个文件。QFileInfo 形式的便利版本，内部转成 \l{YSSCore::General::YSSURI}。
+		\a fileInfo 文件信息对象。
+		\a preferredServerId 优先使用的FileServer ID。
+		\a useFallback 是否使用内置文本编辑器兜底。
+
+		return 文件是否成功打开
+
+		\warning QFileInfo不处理虚拟文件路径，虚拟文件请用 openFile(const QString&) 或 URI 版本。
+	*/
+	bool FileServerManager::openFile(const QFileInfo& fileInfo, const QString& preferredServerId, bool useFallback) {
+		if (!fileInfo.exists()) {
+			vgErrorF << "File does not exist:" << fileInfo.absoluteFilePath();
+			return false;
+		}
+		return openFile(YSSURI::fromLocalPath(fileInfo.absoluteFilePath()), preferredServerId, useFallback);
 	}
 
 	/*!
@@ -529,7 +538,13 @@ namespace YSSCore::Editor {
 		该返回值应即用即弃，不应被缓存或长期持有，因为实际打开的文件列表可能会发生变化，缓存的列表可能会过时并导致逻辑错误。
 	*/
 	QStringList FileServerManager::getAllOpenedFilePaths() {
-		return d->OpenedFileEditWidgets.keys();
+		QStringList paths;
+		for (auto* widget : d->OpenedFileEditWidgets) {
+			if (widget) {
+				paths.append(widget->getFilePath());
+			}
+		}
+		return paths;
 	}
 
 	/*!
@@ -542,7 +557,7 @@ namespace YSSCore::Editor {
 	*/
 	FileEditWidget* FileServerManager::getFileEditWidget(const QString& filePath) {
 		if (VirtualFilePath::isVirtualFilePath(filePath)) {
-			return d->OpenedFileEditWidgets.value(filePath, nullptr);
+			return getFileEditWidget(YSSURI::fromVirtualPath(filePath));
 		}
 		return getFileEditWidget(QFileInfo(filePath));
 	}
@@ -556,11 +571,17 @@ namespace YSSCore::Editor {
 		这是getFileEditWidget的主实现版本。直接接受QFileInfo，以规范化路径进行索引查找。
 	*/
 	FileEditWidget* FileServerManager::getFileEditWidget(const QFileInfo& fileInfo) {
-		const QString absPath = FileServerManagerPrivate::normalizePath(fileInfo.absoluteFilePath());
-		if (d->OpenedFileEditWidgets.contains(absPath)) {
-			return d->OpenedFileEditWidgets[absPath];
-		}
-		return nullptr;
+		return getFileEditWidget(YSSURI::fromLocalPath(fileInfo.absoluteFilePath()));
+	}
+
+	/*!
+		\since YSS 0.18.0
+		return 指定 URI 对应的文件编辑窗口。
+		\a uri 文件身份。
+		return 对应的文件编辑窗口指针，如果没有找到则返回nullptr。
+	*/
+	FileEditWidget* FileServerManager::getFileEditWidget(const YSSURI& uri) {
+		return d->OpenedFileEditWidgets.value(FileServerManagerPrivate::keyOf(uri), nullptr);
 	}
 
 	/*!
@@ -632,15 +653,9 @@ namespace YSSCore::Editor {
 	*/
 	FileServer* FileServerManager::getFileEditWidgetSourceServer(const QString& filePath) const {
 		if (VirtualFilePath::isVirtualFilePath(filePath)) {
-			auto we = d->OpenedFileEditWidgets.value(FileServerManagerPrivate::normalizePath(filePath), nullptr);
-			if (we) {
-				return getFileEditWidgetSourceServer(we);
-			}
+			return getFileEditWidgetSourceServer(YSSURI::fromVirtualPath(filePath));
 		}
-		else {
-			return getFileEditWidgetSourceServer(QFileInfo(filePath));
-		}
-		return nullptr;
+		return getFileEditWidgetSourceServer(QFileInfo(filePath));
 	}
 
 	/*!
@@ -648,12 +663,18 @@ namespace YSSCore::Editor {
 		return 指定文件信息对应的FileEditWidget的源FileServer对象。
 	*/
 	FileServer* FileServerManager::getFileEditWidgetSourceServer(const QFileInfo& fileInfo) const {
-		const QString absPath = FileServerManagerPrivate::normalizePath(fileInfo.absoluteFilePath());
-		if (d->OpenedFileEditWidgets.contains(absPath)) {
-			auto we = d->OpenedFileEditWidgets[absPath];
-			if (we) {
-				return getFileEditWidgetSourceServer(we);
-			}
+		return getFileEditWidgetSourceServer(YSSURI::fromLocalPath(fileInfo.absoluteFilePath()));
+	}
+
+	/*!
+		\since YSS 0.18.0
+		return 指定 URI 对应的FileEditWidget的源FileServer对象。
+		\a uri 文件身份。
+	*/
+	FileServer* FileServerManager::getFileEditWidgetSourceServer(const YSSURI& uri) const {
+		auto we = d->OpenedFileEditWidgets.value(FileServerManagerPrivate::keyOf(uri), nullptr);
+		if (we) {
+			return getFileEditWidgetSourceServer(we);
 		}
 		return nullptr;
 	}
@@ -669,5 +690,149 @@ namespace YSSCore::Editor {
 			return d->FileEditWidgetSourceServerMap[few];
 		}
 		return nullptr;
+	}
+
+	namespace {
+		// 等一条文件系统请求结束。返回 false 表示超时。
+		// 这里用事件循环等，是因为文件系统是异步的，而上层的打开/保存接口目前是同步的。
+		// 本机磁盘上这段等待是微秒级；远端后端接进来之后应当把上层也改成异步。
+		bool waitForFileReply(YSSCore::General::YSSFileSystemReply* reply, int timeoutMs = 30000) {
+			if (reply == nullptr) {
+				return false;
+			}
+			if (!reply->isFinished()) {
+				QEventLoop loop;
+				QTimer timer;
+				timer.setSingleShot(true);
+				QObject::connect(reply, &YSSCore::General::YSSFileSystemReply::finished, &loop, &QEventLoop::quit);
+				QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+				timer.start(timeoutMs);
+				loop.exec();
+			}
+			return reply->isFinished();
+		}
+	}
+
+	/*!
+		\since YSS 0.18.0
+		取文件系统对象。
+
+		返回进程级单例；本机与远端后端都挂在它上面，按 URI 的 scheme 自动路由，
+		不需要调用方选择。本机路径始终可用，SSH 需要先配置并连接。
+
+		\a uri 文件身份。
+
+		\return 文件系统对象；虚拟文件返回 nullptr（它没有文件系统语义）。
+	*/
+	YSSUniqueFileSystem* FileServerManager::getFileSystem(const YSSURI& uri) {
+		if (!uri.isValid() || uri.isVirtual()) {
+			return nullptr;
+		}
+		return YSSUniqueFileSystem::getInstance();
+	}
+
+	/*!
+		\since YSS 0.18.0
+		同步读取一个文件。阻塞当前线程直到文件系统返回。
+
+		\a uri 文件身份。
+		\a data 输出参数，读取到的内容。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 读取成功返回 true。
+	*/
+	bool FileServerManager::readFile(const YSSURI& uri, QByteArray* data, YSSFileError* error) {
+		if (data == nullptr) {
+			return false;
+		}
+		YSSUniqueFileSystem* fs = this->getFileSystem(uri);
+		if (fs == nullptr) {
+			if (error) {
+				error->Type = YSSFileError::ErrorType::NotSupported;
+				error->Message = QStringLiteral("No filesystem handles this scheme");
+				error->Detail = uri.toString();
+			}
+			return false;
+		}
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Read);
+		request.setUri(uri);
+		request.setAutoDelete(false);
+		YSSFileSystemReply* reply = fs->execute(request);
+		const bool finished = waitForFileReply(reply);
+		const bool ok = finished && !reply->getError().isError();
+		if (ok) {
+			*data = reply->getData();
+		}
+		if (error) {
+			*error = finished ? reply->getError() : YSSFileError{ YSSFileError::ErrorType::IoError,
+				QStringLiteral("Timed out while reading the file"), uri.toString() };
+		}
+		delete reply;
+		return ok;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		同步写一个文件。阻塞当前线程直到文件系统返回。
+
+		\a uri 文件身份。
+		\a data 要写入的内容。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 写入成功返回 true。
+	*/
+	bool FileServerManager::writeFile(const YSSURI& uri, const QByteArray& data, YSSFileError* error) {
+		YSSUniqueFileSystem* fs = this->getFileSystem(uri);
+		if (fs == nullptr) {
+			if (error) {
+				error->Type = YSSFileError::ErrorType::NotSupported;
+				error->Message = QStringLiteral("No filesystem handles this scheme");
+				error->Detail = uri.toString();
+			}
+			return false;
+		}
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Write);
+		request.setUri(uri);
+		request.setData(data);
+		request.setAutoDelete(false);
+		YSSFileSystemReply* reply = fs->execute(request);
+		const bool finished = waitForFileReply(reply);
+		const bool ok = finished && !reply->getError().isError();
+		if (error) {
+			*error = finished ? reply->getError() : YSSFileError{ YSSFileError::ErrorType::IoError,
+				QStringLiteral("Timed out while writing the file"), uri.toString() };
+		}
+		delete reply;
+		return ok;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		同步删除一个文件。阻塞当前线程直到文件系统返回。
+
+		\a uri 文件身份。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 删除成功返回 true。
+	*/
+	bool FileServerManager::removeFile(const YSSURI& uri, YSSFileError* error) {
+		YSSUniqueFileSystem* fs = this->getFileSystem(uri);
+		if (fs == nullptr) {
+			return false;
+		}
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setUri(uri);
+		request.setAutoDelete(false);
+		YSSFileSystemReply* reply = fs->execute(request);
+		const bool finished = waitForFileReply(reply);
+		const bool ok = finished && !reply->getError().isError();
+		if (error) {
+			*error = reply->getError();
+		}
+		delete reply;
+		return ok;
 	}
 }

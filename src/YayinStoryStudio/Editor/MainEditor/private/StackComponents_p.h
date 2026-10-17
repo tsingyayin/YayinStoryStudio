@@ -1,5 +1,7 @@
 #ifndef YayinStoryStudio_Editor_MainEditor_private_StackComponents_p_h
 #define YayinStoryStudio_Editor_MainEditor_private_StackComponents_p_h
+#include <General/YSSURI.h>
+#include <QtCore/qpointer.h>
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
@@ -29,7 +31,7 @@ namespace YSS::Editor {
 		QLabel* TitleLabel;
 		QLabel* ModifiedLabel;
 		QHBoxLayout* Layout;
-		QString FilePath;
+		YSSCore::General::YSSURI Uri;
 		bool Hovering = false;
 		bool Focused = false;
 		bool AreaCurrent = false;
@@ -39,7 +41,10 @@ namespace YSS::Editor {
 		qint32 AppliedFixedWidth = -1;
 		QPoint PressedPos;
 		StackTagWidget* StayInWidget = nullptr;
-		YSSCore::Editor::FileEditWidget* FileEditWidget = nullptr;
+		// 用 QPointer 而不是裸指针：FileEditWidget 由 FileServerManager 在 fileClosed
+		// 之后 deleteLater()，标签有可能比它活得久。QPointer 在对象销毁时自动置空，
+		// 于是 getFileEditWidgets() 永远不会返回悬空指针。
+		QPointer<YSSCore::Editor::FileEditWidget> FileEditWidget;
 		QIcon ModifiedIcon;
 		void updateToolTip();
 		void updateFixedWidth();
@@ -58,14 +63,14 @@ namespace YSS::Editor {
 		QAction* ActionCloseAll;
 		QAction* ActionCloseSaved;
 	signals:
-		void clicked(const QString& filePath);
-		void pinClicked(const QString& filePath);
-		void closeClicked(const QString& filePath);
-		void renameRequested(const QString& filePath);
-		void saveAsRequested(const QString& filePath);
+		void clicked(const YSSCore::General::YSSURI& uri);
+		void pinClicked(const YSSCore::General::YSSURI& uri);
+		void closeClicked(const YSSCore::General::YSSURI& uri);
+		void renameRequested(const YSSCore::General::YSSURI& uri);
+		void saveAsRequested(const YSSCore::General::YSSURI& uri);
 		void closeAllRequested();
 		void closeSavedRequested();
-		void saveRequested(const QString& filePath);
+		void saveRequested(const YSSCore::General::YSSURI& uri);
 	public:
 		static const QString stackTagDragMimeType;
 		static bool canAcceptDrag(const QMimeData* mimeData);
@@ -78,8 +83,8 @@ namespace YSS::Editor {
 		void setText(const QString& text);
 		void setModified(bool modified);
 		bool isModified() const;
-		void setFilePath(const QString& filePath);
-		QString getFilePath() const;
+		void setUri(const YSSCore::General::YSSURI& uri);
+		YSSCore::General::YSSURI getUri() const;
 		QString getText() const;
 		void setFileEditWidget(YSSCore::Editor::FileEditWidget* widget);
 		YSSCore::Editor::FileEditWidget* getFileEditWidget() const;
@@ -102,13 +107,13 @@ namespace YSS::Editor {
 	class StackTagWidget :public QFrame, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
-		void switchToFile(const QString& filePath);
-		void closeFile(const QString& filePath);
-		void renameRequested(const QString& filePath);
-		void saveAsRequested(const QString& filePath);
+		void switchToFile(const YSSCore::General::YSSURI& uri);
+		void closeFile(const YSSCore::General::YSSURI& uri);
+		void renameRequested(const YSSCore::General::YSSURI& uri);
+		void saveAsRequested(const YSSCore::General::YSSURI& uri);
 		void closeAllRequested();
 		void closeSavedRequested();
-		void saveRequested(const QString& filePath);
+		void saveRequested(const YSSCore::General::YSSURI& uri);
 	private:
 		Qt::Orientation Orientation;
 		QBoxLayout* ContentLayout;
@@ -120,29 +125,29 @@ namespace YSS::Editor {
 		QStandardItemModel* WidgetSelectorModel;
 		QBoxLayout* Layout;
 		QList<StackTag*> Labels;
-		QString CurrentSelected;
+		YSSCore::General::YSSURI CurrentSelected;
 		FileEditWidgetArea* Area = nullptr;
 		bool UseGlobalFocus = false;
-		QString GlobalCurrentPath;
+		YSSCore::General::YSSURI GlobalCurrentUri;
 	public:
 		StackTagWidget(QWidget* parent = nullptr, Qt::Orientation orientation = Qt::Horizontal);
 		virtual ~StackTagWidget();
 		void setArea(FileEditWidgetArea* area);
 		FileEditWidgetArea* getArea() const;
-		void addStackLabel(const QString& filePath, const QString& displayName = QString(), YSSCore::Editor::FileEditWidget* widget = nullptr);
-		void changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName = QString());
-		void pinStackLabel(const QString& filePath);
-		void setStackLabelPinned(const QString& filePath, bool pinned);
-		void removeStackLabel(const QString& filePath);
-		void setCurrentStackLabel(const QString& filePath);
+		void addStackLabel(const YSSCore::General::YSSURI& uri, const QString& displayName = QString(), YSSCore::Editor::FileEditWidget* widget = nullptr);
+		void changeStackLabel(const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri, const QString& newDisplayName = QString());
+		void pinStackLabel(const YSSCore::General::YSSURI& uri);
+		void setStackLabelPinned(const YSSCore::General::YSSURI& uri, bool pinned);
+		void removeStackLabel(const YSSCore::General::YSSURI& uri);
+		void setCurrentStackLabel(const YSSCore::General::YSSURI& uri);
 		void setUseGlobalFocus(bool use);
-		void setGlobalCurrentPath(const QString& filePath);
-		QString getCurrentSelected() const;
+		void setGlobalCurrentUri(const YSSCore::General::YSSURI& uri);
+		YSSCore::General::YSSURI getCurrentSelected() const;
 		void adjustScrollArea();
-		void setFileChanged(const QString& filePath);
-		void cancelFileChanged(const QString& filePath);
-		bool containsStackLabel(const QString& filePath) const;
-		bool isStackLabelPinned(const QString& filePath) const;
+		void setFileChanged(const YSSCore::General::YSSURI& uri);
+		void cancelFileChanged(const YSSCore::General::YSSURI& uri);
+		bool containsStackLabel(const YSSCore::General::YSSURI& uri) const;
+		bool isStackLabelPinned(const YSSCore::General::YSSURI& uri) const;
 		QList<YSSCore::Editor::FileEditWidget*> getFileEditWidgets() const;
 	public:
 		virtual void wheelEvent(QWheelEvent* event) override;
@@ -153,7 +158,7 @@ namespace YSS::Editor {
 		virtual void dropEvent(QDropEvent* event) override;
 	private:
 		void applyIcon(StackTag* label, const QColor& textColor, const QColor& accentColor);
-		StackTag* findLabel(const QString& filePath) const;
+		StackTag* findLabel(const YSSCore::General::YSSURI& uri) const;
 		void showWidgetSelectorPopup();
 	};
 

@@ -48,7 +48,7 @@ namespace YSS::Editor {
 		void saveAllFiles(bool silent = false);
 		void saveProject(bool silent = false);
 		void backToHome();
-		void onFileEditOpened(const QString& filePath);
+		void onFileEditOpened(const YSSCore::General::YSSURI& uri);
 		void saveCurrentFocusedFile();
 		void saveCurrentFocusedFileAs(QString rawFilePath = "");
 		void openFileDialog(const QString& startPath = "");

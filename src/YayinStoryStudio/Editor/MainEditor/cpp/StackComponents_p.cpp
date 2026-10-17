@@ -78,7 +78,7 @@ namespace YSS::Editor {
 		StackTagWidget* sourceTagArea = Source->getStayInWidget();
 		FileEditWidgetArea* sourceArea = sourceTagArea ? sourceTagArea->getArea() : nullptr;
 		if (sourceArea && targetArea && sourceArea != targetArea) {
-			sourceArea->moveWidgetTo(Source->getFilePath(), targetArea);
+			sourceArea->moveWidgetTo(Source->getUri(), targetArea);
 		}
 	}
 
@@ -108,11 +108,11 @@ namespace YSS::Editor {
 
 		connect(PinLabel, &QToolButton::clicked, this, [this]() {
 			setPinned(!isPinned());
-			emit pinClicked(FilePath);
+			emit pinClicked(Uri);
 			});
 
 		connect(CloseLabel, &QToolButton::clicked, this, [this]() {
-			emit closeClicked(FilePath);
+			emit closeClicked(Uri);
 			});
 
 		setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -121,11 +121,11 @@ namespace YSS::Editor {
 		ActionCloseAll = new QAction(VITRL("YSS::menu.file.closeAll"), this);
 
 		connect(ActionClose, &QAction::triggered, this, [this]() {
-			emit closeClicked(FilePath);
+			emit closeClicked(Uri);
 			});
 		connect(ActionPin, &QAction::triggered, this, [this]() {
 			setPinned(!isPinned());
-			emit pinClicked(FilePath);
+			emit pinClicked(Uri);
 			});
 		connect(ActionCloseAll, &QAction::triggered, this, [this]() {
 			emit closeAllRequested();
@@ -138,22 +138,22 @@ namespace YSS::Editor {
 		ActionShowInExplorer = new QAction(VITRL("YSS::menu.file.showInExplorer"), this);
 		ActionCloseSaved = new QAction(VITRL("YSS::menu.file.closeSaved"), this);
 		connect(ActionReload, &QAction::triggered, this, [this]() {
-			YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(FilePath);
+			YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(Uri);
 			if (editor) {
 				editor->reloadFile();
 			}
 			});
 		connect(ActionRename, &QAction::triggered, this, [this]() {
-			emit renameRequested(FilePath);
+			emit renameRequested(Uri);
 			});
 		connect(ActionSave, &QAction::triggered, this, [this]() {
-			emit saveRequested(FilePath);
+			emit saveRequested(Uri);
 			});
 		connect(ActionSaveAs, &QAction::triggered, this, [this]() {
-			emit saveAsRequested(FilePath);
+			emit saveAsRequested(Uri);
 			});
 		connect(ActionShowInExplorer, &QAction::triggered, this, [this]() {
-			Visindigo::Utility::FileUtility::openExplorer(FilePath);
+			Visindigo::Utility::FileUtility::openExplorer(Uri.getLocalPath());
 			});
 		connect(ActionCloseSaved, &QAction::triggered, this, [this]() {
 			emit closeSavedRequested();
@@ -246,18 +246,18 @@ namespace YSS::Editor {
 		ModifiedLabel->setPixmap(ModifiedIcon.pixmap(iconSize));
 	}
 
-	void StackTag::setFilePath(const QString& filePath) {
-		FilePath = filePath;
+	void StackTag::setUri(const YSSCore::General::YSSURI& uri) {
+		Uri = uri;
 		// Virtual files have a virtual save but no virtual "save as", so disable
 		// the actions that don't apply to them.
-		const bool virtualFile = YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath);
+		const bool virtualFile = uri.isVirtual();
 		ActionRename->setEnabled(!virtualFile);
 		ActionSaveAs->setEnabled(!virtualFile);
 		ActionShowInExplorer->setEnabled(!virtualFile);
 	}
 
-	QString StackTag::getFilePath() const {
-		return FilePath;
+	YSSCore::General::YSSURI StackTag::getUri() const {
+		return Uri;
 	}
 
 	QString StackTag::getText() const {
@@ -338,7 +338,7 @@ namespace YSS::Editor {
 		QFrame::mouseReleaseEvent(event);
 		if (Pressed && event->button() == Qt::LeftButton) {
 			Pressed = false;
-			emit clicked(FilePath);
+			emit clicked(Uri);
 		}
 	}
 	
@@ -495,9 +495,9 @@ namespace YSS::Editor {
 			});
 		connect(WidgetSelectorList, &QListView::clicked, this, [this](const QModelIndex& index) {
 			WidgetSelectorPopup->hide();
-			QString filePath = index.data(Qt::UserRole).toString();
-			setCurrentStackLabel(filePath);
-			emit switchToFile(filePath);
+			const YSSCore::General::YSSURI uri = index.data(Qt::UserRole).value<YSSCore::General::YSSURI>();
+			setCurrentStackLabel(uri);
+			emit switchToFile(uri);
 			});
 		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged, this, [this](const QString& themeID) {
 			auto textColor = VISTM->getPaletteTextColor();
@@ -565,37 +565,36 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackTagWidget::addStackLabel(const QString& filePath, const QString& displayName, YSSCore::Editor::FileEditWidget* widget) {
-		QFileInfo fileInfo(filePath);
+	void StackTagWidget::addStackLabel(const YSSCore::General::YSSURI& uri, const QString& displayName, YSSCore::Editor::FileEditWidget* widget) {
 		StackTag* tagLabel = new StackTag(ScrollContent, Orientation);
-		tagLabel->setFilePath(filePath);
+		tagLabel->setUri(uri);
 		tagLabel->setStayInWidget(this);
 		tagLabel->setFileEditWidget(widget);
-		const QString text = displayName.isEmpty() ? fileInfo.fileName() : displayName;
+		const QString text = displayName.isEmpty() ? uri.getFileName() : displayName;
 		tagLabel->setText(text);
 		QStandardItem* selectorItem = new QStandardItem(text);
-		selectorItem->setData(filePath, Qt::UserRole);
+		selectorItem->setData(QVariant::fromValue(uri), Qt::UserRole);
 		WidgetSelectorModel->appendRow(selectorItem);
 		ContentLayout->addWidget(tagLabel);
 		Labels.append(tagLabel);
 		if (UseGlobalFocus) {
-			tagLabel->setFocusOn(tagLabel->getFilePath() == GlobalCurrentPath);
+			tagLabel->setFocusOn(uri.toIdentityKey() == GlobalCurrentUri.toIdentityKey());
 		}
 
-		connect(tagLabel, &StackTag::pinClicked, this, [this](const QString& filePath) {
-			pinStackLabel(filePath);
+		connect(tagLabel, &StackTag::pinClicked, this, [this](const YSSCore::General::YSSURI& uri) {
+			pinStackLabel(uri);
 			});
-		connect(tagLabel, &StackTag::closeClicked, this, [this](const QString& filePath) {
-			emit closeFile(filePath); // NOTICE: close should be handled by some dialog, cannot directly do any other operation here.
+		connect(tagLabel, &StackTag::closeClicked, this, [this](const YSSCore::General::YSSURI& uri) {
+			emit closeFile(uri); // NOTICE: close should be handled by some dialog, cannot directly do any other operation here.
 			});
-		connect(tagLabel, &StackTag::clicked, this, [this](const QString& filePath) {
-			emit switchToFile(filePath);
+		connect(tagLabel, &StackTag::clicked, this, [this](const YSSCore::General::YSSURI& uri) {
+			emit switchToFile(uri);
 			});
-		connect(tagLabel, &StackTag::renameRequested, this, [this](const QString& filePath) {
-			emit renameRequested(filePath);
+		connect(tagLabel, &StackTag::renameRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			emit renameRequested(uri);
 			});
-		connect(tagLabel, &StackTag::saveAsRequested, this, [this](const QString& filePath) {
-			emit saveAsRequested(filePath);
+		connect(tagLabel, &StackTag::saveAsRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			emit saveAsRequested(uri);
 			});
 		connect(tagLabel, &StackTag::closeAllRequested, this, [this]() {
 			emit closeAllRequested();
@@ -603,8 +602,8 @@ namespace YSS::Editor {
 		connect(tagLabel, &StackTag::closeSavedRequested, this, [this]() {
 			emit closeSavedRequested();
 			});
-		connect(tagLabel, &StackTag::saveRequested, this, [this](const QString& filePath) {
-			emit saveRequested(filePath);
+		connect(tagLabel, &StackTag::saveRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			emit saveRequested(uri);
 			});
 		/*tagLabel->setStyleSheet(VISTMGT("YSS::Editor.StackTag.Normal"),
 			VISTMGT("YSS::Editor.StackTag.Hover"),
@@ -616,29 +615,30 @@ namespace YSS::Editor {
 		
 	}
 
-	void StackTagWidget::changeStackLabel(const QString& oldFilePath, const QString& newFilePath, const QString& newDisplayName) {
-		StackTag* label = findLabel(oldFilePath);
+	void StackTagWidget::changeStackLabel(const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri, const QString& newDisplayName) {
+		StackTag* label = findLabel(oldUri);
 		if (not label) {
 			return;
 		}
-		const QString text = newDisplayName.isEmpty() ? QFileInfo(newFilePath).fileName() : newDisplayName;
+		const QString text = newDisplayName.isEmpty() ? newUri.getFileName() : newDisplayName;
 		label->setText(text);
-		label->setFilePath(newFilePath);
-		if (GlobalCurrentPath == oldFilePath) {
-			GlobalCurrentPath = newFilePath;
+		label->setUri(newUri);
+		if (GlobalCurrentUri.toIdentityKey() == oldUri.toIdentityKey()) {
+			GlobalCurrentUri = newUri;
 		}
+		const QString oldKey = oldUri.toIdentityKey();
 		for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
 			QStandardItem* item = WidgetSelectorModel->item(i);
-			if (item->data(Qt::UserRole).toString() == oldFilePath) {
+			if (item->data(Qt::UserRole).value<YSSCore::General::YSSURI>().toIdentityKey() == oldKey) {
 				item->setText(text);
-				item->setData(newFilePath, Qt::UserRole);
+				item->setData(QVariant::fromValue(newUri), Qt::UserRole);
 				break;
 			}
 		}
 	}
 
-	void StackTagWidget::pinStackLabel(const QString& filePath) {
-		StackTag* targetLabel = findLabel(filePath);
+	void StackTagWidget::pinStackLabel(const YSSCore::General::YSSURI& uri) {
+		StackTag* targetLabel = findLabel(uri);
 		// NOTICE:
 		// This move-afterward operation working in two situations:
 		// 1. When pinning, it will move the label to the leftmost of all unpinned labels,
@@ -662,33 +662,35 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackTagWidget::setStackLabelPinned(const QString& filePath, bool pinned) {
-		StackTag* targetLabel = findLabel(filePath);
+	void StackTagWidget::setStackLabelPinned(const YSSCore::General::YSSURI& uri, bool pinned) {
+		StackTag* targetLabel = findLabel(uri);
 		if (not targetLabel) {
 			return;
 		}
 		targetLabel->setPinned(pinned);
-		pinStackLabel(filePath);
+		pinStackLabel(uri);
 	}
 
-	void StackTagWidget::removeStackLabel(const QString& filePath) {
-		StackTag* targetLabel = findLabel(filePath);
+	void StackTagWidget::removeStackLabel(const YSSCore::General::YSSURI& uri) {
+		StackTag* targetLabel = findLabel(uri);
 		int index = -1;
-		vgDebug << "Attempting to remove stack label with file path: " << filePath;
+		vgDebug << "Attempting to remove stack label with uri: " << uri.toString();
 		if (targetLabel) {
 			index = Labels.indexOf(targetLabel);
 			vgDebug << targetLabel;
 			Labels.removeAll(targetLabel);
 			ContentLayout->removeWidget(targetLabel);
 			targetLabel->deleteLater();
+			const QString key = uri.toIdentityKey();
 			for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
-				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).toString() == filePath) {
+				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).value<YSSCore::General::YSSURI>()
+					.toIdentityKey() == key) {
 					WidgetSelectorModel->removeRow(i);
 					break;
 				}
 			}
 		}
-		if (CurrentSelected == filePath) {
+		if (CurrentSelected.toIdentityKey() == uri.toIdentityKey()) {
 			// Prefer the label that slid into the removed slot (its successor);
 			// if none exists, fall back to the first remaining label.
 			StackTag* next = nullptr;
@@ -699,26 +701,27 @@ namespace YSS::Editor {
 				next = Labels.first();
 			}
 			if (next) {
-				setCurrentStackLabel(next->getFilePath());
-				emit switchToFile(next->getFilePath());
+				setCurrentStackLabel(next->getUri());
+				emit switchToFile(next->getUri());
 			}
 			else {
-				CurrentSelected = "";
-				emit switchToFile("");
+				CurrentSelected = YSSCore::General::YSSURI();
+				emit switchToFile(YSSCore::General::YSSURI());
 			}
 		}
 		adjustScrollArea();
 	}
 
-	void StackTagWidget::setCurrentStackLabel(const QString& filePath) {
-		if (filePath == CurrentSelected) {
+	void StackTagWidget::setCurrentStackLabel(const YSSCore::General::YSSURI& uri) {
+		const QString key = uri.toIdentityKey();
+		if (key == CurrentSelected.toIdentityKey()) {
 			return;
 		}
 		bool finded = false;
 		int i = 0;
 		int cache = i;
 		for (StackTag* label : Labels) {
-			const bool isCurrent = (label->getFilePath() == filePath);
+			const bool isCurrent = (label->getUri().toIdentityKey() == key);
 			// AreaCurrent marks this area's own current widget (faint underline),
 			// independent of which area holds the global focus.
 			label->setAreaCurrent(isCurrent);
@@ -727,14 +730,15 @@ namespace YSS::Editor {
 			}
 			if (isCurrent) {
 				finded = true;
-				CurrentSelected = filePath;
+				CurrentSelected = uri;
 				cache = i;
 			}
 			i++;
 		}
 		if (finded) {
 			for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
-				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).toString() == filePath) {
+				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).value<YSSCore::General::YSSURI>()
+					.toIdentityKey() == key) {
 					WidgetSelectorList->setCurrentIndex(WidgetSelectorModel->index(i, 0));
 					break;
 				}
@@ -749,14 +753,15 @@ namespace YSS::Editor {
 		UseGlobalFocus = use;
 	}
 
-	void StackTagWidget::setGlobalCurrentPath(const QString& filePath) {
-		GlobalCurrentPath = filePath;
+	void StackTagWidget::setGlobalCurrentUri(const YSSCore::General::YSSURI& uri) {
+		GlobalCurrentUri = uri;
+		const QString key = uri.toIdentityKey();
 		for (StackTag* label : Labels) {
-			label->setFocusOn(label->getFilePath() == filePath);
+			label->setFocusOn(label->getUri().toIdentityKey() == key);
 		}
 	}
 
-	QString StackTagWidget::getCurrentSelected() const {
+	YSSCore::General::YSSURI StackTagWidget::getCurrentSelected() const {
 		return CurrentSelected;
 	}
 
@@ -789,38 +794,38 @@ namespace YSS::Editor {
 		}
 	}
 
-	void StackTagWidget::setFileChanged(const QString& path) {
-		StackTag* label = findLabel(path);
+	void StackTagWidget::setFileChanged(const YSSCore::General::YSSURI& uri) {
+		StackTag* label = findLabel(uri);
 		if (not label) {
 			return;
 		}
 		label->setModified(true);
 	}
 
-	void StackTagWidget::cancelFileChanged(const QString& path) {
-		StackTag* label = findLabel(path);
+	void StackTagWidget::cancelFileChanged(const YSSCore::General::YSSURI& uri) {
+		StackTag* label = findLabel(uri);
 		if (not label) {
 			return;
 		}
 		label->setModified(false);
 	}
 
-	bool StackTagWidget::containsStackLabel(const QString& filePath) const {
-		return findLabel(filePath) != nullptr;
+	bool StackTagWidget::containsStackLabel(const YSSCore::General::YSSURI& uri) const {
+		return findLabel(uri) != nullptr;
 	}
 
-	bool StackTagWidget::isStackLabelPinned(const QString& filePath) const {
-		StackTag* label = findLabel(filePath);
+	bool StackTagWidget::isStackLabelPinned(const YSSCore::General::YSSURI& uri) const {
+		StackTag* label = findLabel(uri);
 		return label ? label->isPinned() : false;
 	}
 
-	StackTag* StackTagWidget::findLabel(const QString& filePath) const {
-		QString abs_path = filePath;
-		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
-			abs_path = QFileInfo(filePath).absoluteFilePath();
+	StackTag* StackTagWidget::findLabel(const YSSCore::General::YSSURI& uri) const {
+		const QString key = uri.toIdentityKey();
+		if (key.isEmpty()) {
+			return nullptr;
 		}
 		for (StackTag* label : Labels) {
-			if (label->getFilePath() == abs_path) {
+			if (label->getUri().toIdentityKey() == key) {
 				return label;
 			}
 		}
@@ -952,7 +957,7 @@ namespace YSS::Editor {
 				StackTagWidget* sourceTagArea = StackTag::draggedTagArea(event->mimeData());
 				FileEditWidgetArea* sourceArea = sourceTagArea ? sourceTagArea->getArea() : nullptr;
 				if (sourceArea && Area && sourceArea != Area) {
-					sourceArea->moveWidgetTo(selfLabel->getFilePath(), Area);
+					sourceArea->moveWidgetTo(selfLabel->getUri(), Area);
 				}
 			}
 			event->accept();

@@ -75,6 +75,14 @@ npm start
 沙箱在每次启动时自动创建，但**不会自动清空**——重复跑测试脚本时，若上一次留下的
 目录还在，`mkdir` 会按预期失败。需要干净环境时手动删掉 `sftp-root/`。
 
+### 已知限制：状态码只有 0~8
+
+`ssh2` 的 `STATUS_CODE` 只覆盖 0~8（`OK`/`EOF`/`NO_SUCH_FILE`/`PERMISSION_DENIED`/
+`FAILURE`/...），协议里更强的 `SSH_FX_FILE_ALREADY_EXISTS`(11)、`SSH_FX_NO_SUCH_PATH`(10)
+无法表达。因此"创建已存在的目录"在这里只能回 `FAILURE`，客户端会看到
+`YSSFileError::ErrorType::IoError` 而不是 `AlreadyExists`——真实 OpenSSH 会返回 11，
+客户端的映射本身是对的。测试脚本对远端这一条只能断言"失败"。
+
 ## 验证记录
 
 ### 握手 / 认证 / 主机密钥（`SshSession`）

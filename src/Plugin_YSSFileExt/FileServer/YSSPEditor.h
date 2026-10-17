@@ -11,9 +11,9 @@ namespace YSSFileExt {
 		YSSPEditor(QWidget* parent = nullptr);
 		virtual ~YSSPEditor();
 	public:
-		bool onOpen(const QString& path) override;
+		bool onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) override;
 		bool onClose() override;
-		bool onSave(const QString& path = "") override;
+		std::expected<QByteArray, bool> onSave(const YSSCore::General::YSSURI& uri) override;
 	private:
 		YSSPEditorPrivate* d;
 	};

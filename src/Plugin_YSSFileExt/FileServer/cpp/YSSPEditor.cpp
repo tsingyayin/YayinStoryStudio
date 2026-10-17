@@ -67,7 +67,9 @@ namespace YSSFileExt {
 	YSSPEditor::~YSSPEditor() {
 		delete d;
 	}
-	bool YSSPEditor::onOpen(const QString& path) {
+	bool YSSPEditor::onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
+		Q_UNUSED(uri);
+		Q_UNUSED(data);
 		auto project = YSSCore::General::YSSProject::getCurrentProject();
 		QString iconPath = project->getProjectIconPath();
 		iconPath = project->getProjectFolder() + "/" + iconPath;
@@ -119,13 +121,15 @@ namespace YSSFileExt {
 			return true;
 		}
 	}
-	bool YSSPEditor::onSave(const QString& path) {
+	std::expected<QByteArray, bool> YSSPEditor::onSave(const YSSCore::General::YSSURI& uri) {
+		Q_UNUSED(uri);
 		auto project = YSSCore::General::YSSProject::getCurrentProject();
 		project->setProjectAuthor(d->AuthorLineEdit->text());
 		project->setProjectDescription(d->DescriptionEdit->toPlainText());
 		project->setProjectName(d->ProjectNameLabel->text());
 		project->setProjectDebugServerID(d->DebugServerComboBox->currentText());
-		return true;
+		// 项目信息写进 yssp，本身没有独立的文件内容可写。
+		return std::unexpected(false);
 	}
 	YSSPFileServer::YSSPFileServer(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::FileServer("YSSP File Server", "YSSFileExt.FileServer.YSSP", plugin) {

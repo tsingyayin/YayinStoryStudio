@@ -9,10 +9,10 @@ namespace YSS::Editor {
 	class FileEditWidgetArea :public Visindigo::Widgets::BorderFrame {
 		Q_OBJECT;
 	signals:
-		void renameRequested(const QString& absOldPath);
-		void saveAsRequested(const QString& rawFilePath);
-		void currentFileChanged(const QString& filePath);
-		void textEditCursorPositionChanged(const QString& filePath, const QTextCursor& cursor);
+		void renameRequested(const YSSCore::General::YSSURI& oldUri);
+		void saveAsRequested(const YSSCore::General::YSSURI& uri);
+		void currentFileChanged(const YSSCore::General::YSSURI& uri);
+		void textEditCursorPositionChanged(const YSSCore::General::YSSURI& uri, const QTextCursor& cursor);
 		void areaFocusd(const QString& areaID);
 		void allFileClosed();
 		void areaClosed(const QString& areaID);
@@ -33,19 +33,19 @@ namespace YSS::Editor {
 		QString getAreaID() const;
 		void setCloseSilently(bool silent);
 		void addWidget(YSSCore::Editor::FileEditWidget* widget);
-		bool containsWidget(const QString& filePath) const;
+		bool containsWidget(const YSSCore::General::YSSURI& uri) const;
 		void closeAll(bool autoGiveup = false);
 		void closeSaved();
 		bool closeAllWidgetsWithConfirm();
 		void closeWidget(YSSCore::Editor::FileEditWidget* widget);
-		void closeWidget(const QString& filePath);
+		void closeWidget(const YSSCore::General::YSSURI& uri);
 		void setCurrentWidget(YSSCore::Editor::FileEditWidget* widget);
-		void setCurrentWidget(const QString& filePath);
+		void setCurrentWidget(const YSSCore::General::YSSURI& uri);
 		void setCurrentWidget(YSSCore::Editor::FileEditWidget* widget, qint32 lineNumber, qint32 column = 0);
-		void setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column);
+		void setCurrentWidget(const YSSCore::General::YSSURI& uri, qint32 lineNumber, qint32 column);
 		YSSCore::Editor::FileEditWidget* getCurrentWidget() const;
-		QString getCurrentWidgetFilePath() const;
-		void moveWidgetTo(const QString& filePath, FileEditWidgetArea* otherArea);
+		YSSCore::General::YSSURI getCurrentWidgetUri() const;
+		void moveWidgetTo(const YSSCore::General::YSSURI& uri, FileEditWidgetArea* otherArea);
 	protected:
 		virtual void dragEnterEvent(QDragEnterEvent* event) override;
 		virtual void dragLeaveEvent(QDragLeaveEvent* event) override;

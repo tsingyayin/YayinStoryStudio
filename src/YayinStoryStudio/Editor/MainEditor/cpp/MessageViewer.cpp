@@ -69,7 +69,8 @@ namespace YSS::Editor {
 		qint32 lineNumber = MessageTable->item(row, 3)->text().toInt() - 1;
 		qint32 columnNumber = MessageTable->item(row, 4)->text().toInt();
 		//vgDebug << "Redirection requested to " << filePath << ":" << lineNumber << ":" << columnNumber;
-		emit YSSCore::Editor::FileServerManager::getInstance()->focusOnFile(filePath, lineNumber, columnNumber);
+		emit YSSCore::Editor::FileServerManager::getInstance()->focusOnFile(
+			YSSCore::General::YSSURI::fromLocalPath(filePath), lineNumber, columnNumber);
 	}
 
 	void MessageViewer::onMessageChangedForLine(qint32 lineNumber) {

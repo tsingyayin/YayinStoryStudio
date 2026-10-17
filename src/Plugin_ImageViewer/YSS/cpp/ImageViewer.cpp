@@ -74,14 +74,8 @@ namespace YSS::ImageViewer {
 		delete d;
 	}
 
-	bool ImageViewer::onOpen(const QString& filePath) {
-		Visindigo::Utility::FileOperation::Errorable<QByteArray> contentResult = Visindigo::Utility::FileOperation::readBinary(filePath);
-		if (not contentResult) {
-			vgErrorF << "Failed to read image file: " << filePath
-				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(contentResult.error());
-			return false;
-		}
-		d->RawContent = contentResult.value();
+	bool ImageViewer::onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
+		d->RawContent = data;
 		d->Pixmap = QPixmap();
 		if (!d->Pixmap.loadFromData(d->RawContent)) {
 			return false;
@@ -105,14 +99,9 @@ namespace YSS::ImageViewer {
 		return true;
 	}
 
-	bool ImageViewer::onSave(const QString& filePath) {
-		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveBinary(filePath, d->RawContent);
-		if (saveResult != Visindigo::Utility::FileOperation::Success) {
-			vgErrorF << "Failed to save image file: " << filePath
-				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
-			return false;
-		}
-		return true;
+	std::expected<QByteArray, bool> ImageViewer::onSave(const YSSCore::General::YSSURI& uri) {
+		Q_UNUSED(uri);
+		return d->RawContent;
 	}
 
 	void ImageViewer::showEvent(QShowEvent* event) {

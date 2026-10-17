@@ -101,11 +101,11 @@ namespace YSS::Editor {
 			this->showMaximized();
 		}
 
-		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileClosed, this, [this](const QString& filePath) {
-			if (auto* current = FileEditWidgetArea::getCurrentFocusedWidget(); current && current->getFilePath() == filePath) {
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileClosed, this, [this](const YSSCore::General::YSSURI& uri) {
+			if (auto* current = FileEditWidgetArea::getCurrentFocusedWidget(); current && current->getUri() == uri) {
 				FileEditWidgetArea::setCurrentFocusedWidget(FileEditWidgetArea::getCurrentArea(), nullptr);
 			}
-			if (FocusingFileEditWidgetNotTool && FocusingFileEditWidgetNotTool->getFilePath() == filePath) {
+			if (FocusingFileEditWidgetNotTool && FocusingFileEditWidgetNotTool->getUri() == uri) {
 				FocusingFileEditWidgetNotTool = nullptr;
 			}
 			});
@@ -117,7 +117,7 @@ namespace YSS::Editor {
 		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
 			auto editor = YSSFSM->getFileEditWidget(oldName);
 			if (editor) {
-				editor->saveFile(newName, true);
+				editor->saveFile(YSSCore::General::YSSURI::fromLocalPath(newName), true);
 			}
 			if (auto browser = ResourceBrowser::getInstance()) {
 				browser->refresh();
@@ -186,8 +186,9 @@ namespace YSS::Editor {
 		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(
 			YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(focusedFile));
 		if (focusedArea) {
-			focusedArea->setCurrentWidget(focusedFile);
-			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, YSSFSM->getFileEditWidget(focusedFile));
+			const YSSCore::General::YSSURI focusedUri = YSSCore::General::YSSURI::fromLocalPath(focusedFile);
+			focusedArea->setCurrentWidget(focusedUri);
+			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, YSSFSM->getFileEditWidget(focusedUri));
 		}
 		saveProject();
 	}
@@ -367,8 +368,8 @@ namespace YSS::Editor {
 		return mainArea;
 	}
 
-	void MainWin::onFileEditOpened(const QString& filePath) {
-		auto widget = YSSFSM->getFileEditWidget(filePath);
+	void MainWin::onFileEditOpened(const YSSCore::General::YSSURI& uri) {
+		auto widget = YSSFSM->getFileEditWidget(uri);
 		if (not widget) {
 			return;
 		}
@@ -379,7 +380,7 @@ namespace YSS::Editor {
 			}
 		}
 		for (auto area : FileEditWidgetArea::getAllAreas()) {
-			if (area->containsWidget(filePath)) {
+			if (area->containsWidget(uri)) {
 				area->addWidget(widget);
 				FileEditWidgetArea::setCurrentFocusedWidget(area, widget);
 				return;
@@ -432,7 +433,7 @@ namespace YSS::Editor {
 		}
 		editor = YSSFSM->getFileEditWidget(rawFilePath);
 		if (editor) {
-			editor->saveFile(newfilePath);
+			editor->saveFile(YSSCore::General::YSSURI::fromLocalPath(newfilePath));
 			if (auto browser = ResourceBrowser::getInstance()) {
 				browser->refresh();
 			}
@@ -489,7 +490,7 @@ namespace YSS::Editor {
 	void MainWin::saveAllFiles(bool silent) {
 		for (auto* widget : YSSFSM->getAllFileEditWidgets()) {
 			if (widget->isFileChanged()) {
-				widget->saveFile(QString(), false, silent);
+				widget->saveFile(YSSCore::General::YSSURI(), false, silent);
 			}
 		}
 	}
@@ -583,22 +584,22 @@ namespace YSS::Editor {
 
 	void MainWin::onFileEditWidgetAreaCreated(FileEditWidgetArea* area) {
 		connect(area, &FileEditWidgetArea::areaFocusd, this, &MainWin::onFileEditWidgetAreaFocusIn);
-		connect(area, &FileEditWidgetArea::currentFileChanged, this, [this, area](const QString&) {
+		connect(area, &FileEditWidgetArea::currentFileChanged, this, [this, area](const YSSCore::General::YSSURI&) {
 			// 后台区域换文件不算“当前文件”变了，只有当前聚焦的那个区域才跟。
 			if (area != FileEditWidgetArea::getCurrentArea()) {
 				return;
 			}
 			FileEditWidgetArea::setCurrentFocusedWidget(area, area->getCurrentWidget());
 			});
-		connect(area, &FileEditWidgetArea::textEditCursorPositionChanged, this, [this](const QString& filePath, const QTextCursor& cursor) {
+		connect(area, &FileEditWidgetArea::textEditCursorPositionChanged, this, [this](const YSSCore::General::YSSURI& uri, const QTextCursor& cursor) {
 			BottomFrame->displayEditorInfo(cursor);
 			});
-		connect(area, &FileEditWidgetArea::renameRequested, this, [this](const QString& absOldPath) {
-			RenameDlg->setContext(absOldPath);
+		connect(area, &FileEditWidgetArea::renameRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			RenameDlg->setContext(uri.getLocalPath());
 			RenameDlg->show();
 			});
-		connect(area, &FileEditWidgetArea::saveAsRequested, this, [this](const QString& rawFilePath) {
-			saveCurrentFocusedFileAs(rawFilePath);
+		connect(area, &FileEditWidgetArea::saveAsRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			saveCurrentFocusedFileAs(uri.getLocalPath());
 			});
 		connect(area, &FileEditWidgetArea::areaClosed, this, [this, area](const QString& areaID) {
 			if (YSSCore::General::YSSProject::getCurrentProject()) {

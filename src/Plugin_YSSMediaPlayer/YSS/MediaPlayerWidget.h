@@ -38,9 +38,9 @@ namespace YSS::MediaPlayer {
 		explicit MediaPlayerWidget(QWidget* parent = nullptr);
 		virtual ~MediaPlayerWidget() override;
 	public:
-		virtual bool onOpen(const QString& filePath) override;
+		virtual bool onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) override;
 		virtual bool onClose() override;
-		virtual bool onSave(const QString& filePath = "") override;
+		virtual std::expected<QByteArray, bool> onSave(const YSSCore::General::YSSURI& uri) override;
 	protected:
 		virtual void showEvent(QShowEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
@@ -72,6 +72,8 @@ namespace YSS::MediaPlayer {
 		void updateVolumeIcon();
 		void updateTimeLabel(qint64 positionOverride = -1);
 		void showPlaybackError(const QString& errorString);
+		QString materializeTempMediaFile(const YSSCore::General::YSSURI& uri, const QByteArray& data);
+		void removeTempMediaFile();
 	private:
 		MediaPlayerWidgetPrivate* d;
 	};

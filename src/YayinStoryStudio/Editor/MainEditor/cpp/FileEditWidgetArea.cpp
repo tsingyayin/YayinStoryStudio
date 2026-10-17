@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <QtCore/qdir.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qmimedata.h>
 #include <QtGui/qdrag.h>
@@ -16,6 +17,24 @@
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/TextEditConfigOperator.h"
 namespace YSS::Editor {
+	namespace {
+		// YSSProject 仍以"本地路径"为索引：本机文件给本地绝对路径（正斜杠，与
+		// QFileInfo::absoluteFilePath() 一致），虚拟文件给 @ext!name?param，
+		// 远端文件暂时给 URI 字符串——项目级远程路由尚未实现。
+		QString toProjectPath(const YSSCore::General::YSSURI& uri) {
+			if (not uri.isValid()) {
+				return QString();
+			}
+			if (uri.isVirtual()) {
+				return uri.getVirtualPath();
+			}
+			if (uri.isLocal()) {
+				return QDir::fromNativeSeparators(uri.getLocalPath());
+			}
+			return uri.toString();
+		}
+	}
+
 	class AreaRegistry {
 	protected:
 		FileEditWidgetArea* mainArea = nullptr;
@@ -119,23 +138,23 @@ namespace YSS::Editor {
 		d->Layout->addWidget(d->TagArea);
 		d->Layout->addWidget(d->ContentArea);
 
-		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const QString& filePath) {
-			setCurrentWidget(filePath);
+		connect(d->TagArea, &StackTagWidget::switchToFile, this, [this](const YSSCore::General::YSSURI& uri) {
+			setCurrentWidget(uri);
 			});
-		connect(d->TagArea, &StackTagWidget::closeFile, this, [this](const QString& filePath) {
-			closeWidget(filePath);
+		connect(d->TagArea, &StackTagWidget::closeFile, this, [this](const YSSCore::General::YSSURI& uri) {
+			closeWidget(uri);
 			});
-		connect(d->TagArea, &StackTagWidget::renameRequested, this, [this](const QString& oldPath) {
-			emit renameRequested(oldPath);
+		connect(d->TagArea, &StackTagWidget::renameRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			emit renameRequested(uri);
 			});
-		connect(d->TagArea, &StackTagWidget::saveRequested, this, [this](const QString& filePath) {
-			YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
+		connect(d->TagArea, &StackTagWidget::saveRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri);
 			if (widget) {
 				widget->saveFile();
 			}
 			});
-		connect(d->TagArea, &StackTagWidget::saveAsRequested, this, [this](const QString& filePath) {
-			emit saveAsRequested(filePath);
+		connect(d->TagArea, &StackTagWidget::saveAsRequested, this, [this](const YSSCore::General::YSSURI& uri) {
+			emit saveAsRequested(uri);
 			});
 		connect(d->TagArea, &StackTagWidget::closeAllRequested, this, [this]() {
 			closeAll();
@@ -174,6 +193,9 @@ namespace YSS::Editor {
 			若这里关闭所有已打开文件，销毁树状布局中任意一个 Area 都会误关全局文件。
 		*/
 		for (auto widget : d->TagArea->getFileEditWidgets()) {
+			if (widget == nullptr) {
+				continue;
+			}
 			widget->disconnect(this);
 			widget->disconnect(d->TagArea);
 			if (auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget)) {
@@ -249,9 +271,9 @@ namespace YSS::Editor {
 		registry.setCurrent(area, widget);
 		// The "current" tag highlight is global: only the tag matching the globally
 		// focused widget keeps the close button and bottom accent line.
-		const QString currentPath = widget ? widget->getFilePath() : QString();
+		const YSSCore::General::YSSURI currentUri = widget ? widget->getUri() : YSSCore::General::YSSURI();
 		for (FileEditWidgetArea* target : registry.allAreas()) {
-			target->d->TagArea->setGlobalCurrentPath(currentPath);
+			target->d->TagArea->setGlobalCurrentUri(currentUri);
 		}
 		if (MainWin* win = MainWin::getInstance()) {
 			win->onGlobalCurrentChanged(area, widget);
@@ -314,98 +336,103 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::addWidget(YSSCore::Editor::FileEditWidget* widget) {
-		QString filePath = widget->getFilePath();
-		vgDebug << filePath;
-		if (d->TagArea->containsStackLabel(filePath)) {
-			setCurrentWidget(filePath);
+		const YSSCore::General::YSSURI uri = widget->getUri();
+		vgDebug << uri.toString();
+		if (d->TagArea->containsStackLabel(uri)) {
+			setCurrentWidget(uri);
 			return;
 		}
 		widget->setParent(this);
-		auto vfp = YSSCore::Editor::VirtualFilePath(filePath);
-		if (vfp.isValid()) {
-			d->TagArea->addStackLabel(filePath, vfp.getFileName(), widget);
-		}
-		else {
-			d->TagArea->addStackLabel(filePath, QString(), widget);
-		}
+		d->TagArea->addStackLabel(uri, QString(), widget);
 		if (widget->isFileChanged()) {
-			d->TagArea->setFileChanged(filePath);
+			d->TagArea->setFileChanged(uri);
 		}
-	
-		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea, &StackTagWidget::setFileChanged);
-		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea, &StackTagWidget::cancelFileChanged);
-		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea, &StackTagWidget::cancelFileChanged);
+
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileChanged, d->TagArea,
+			[this](const YSSCore::General::YSSURI& changed) { d->TagArea->setFileChanged(changed); });
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileChangeCanceled, d->TagArea,
+			[this](const YSSCore::General::YSSURI& changed) { d->TagArea->cancelFileChanged(changed); });
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileSaved, d->TagArea,
+			[this](const YSSCore::General::YSSURI& saved) { d->TagArea->cancelFileChanged(saved); });
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileClosed, this, [this, widget]() {
-			d->TagArea->removeStackLabel(widget->getFilePath()); // this function handle re-choice if the closed widget is current one
-			YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFile(widget->getFilePath());
+			const YSSCore::General::YSSURI closedUri = widget->getUri();
+			d->TagArea->removeStackLabel(closedUri); // this function handle re-choice if the closed widget is current one
+			if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+				project->removeEditorOpenedFile(toProjectPath(closedUri));
+			}
 			d->OpenFileCount--;
 			if (d->OpenFileCount <= 0) {
 				d->OpenFileCount = 0;
 				emit allFileClosed();
 			}
 			});
-		connect(widget, &YSSCore::Editor::FileEditWidget::fileRenamed, this, [this](const QString& oldPath, const QString& newPath) {
-			d->TagArea->changeStackLabel(oldPath, newPath);
-			YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFile(oldPath);
-			YSSCore::General::YSSProject::getCurrentProject()->addEditorOpenedFile(newPath, getAreaID());
+		connect(widget, &YSSCore::Editor::FileEditWidget::fileRenamed, this,
+			[this](const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri) {
+				d->TagArea->changeStackLabel(oldUri, newUri);
+				if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+					project->removeEditorOpenedFile(toProjectPath(oldUri));
+					project->addEditorOpenedFile(toProjectPath(newUri), getAreaID());
+				}
 			});
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
 		if (textEdit) {
 			textEdit->setHoverArea(this->window());
 			connect(textEdit, &YSSCore::Editor::TextEdit::cursorPositionChanged, this, [this, textEdit]() {
-				emit textEditCursorPositionChanged(textEdit->getFilePath(), textEdit->getTextCursor());
+				emit textEditCursorPositionChanged(textEdit->getUri(), textEdit->getTextCursor());
 				});
 			YSS::Editor::TextEditConfigOperator::applyTo(textEdit);
 		}
-		YSSCore::General::YSSProject::getCurrentProject()->addEditorOpenedFile(filePath, d->areaID);
+		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+			project->addEditorOpenedFile(toProjectPath(uri), d->areaID);
+		}
 		d->OpenFileCount++;
-		setCurrentWidget(filePath);
+		setCurrentWidget(uri);
 	}
 
-	bool FileEditWidgetArea::containsWidget(const QString& filePath) const {
-		return d->TagArea->containsStackLabel(filePath);
+	bool FileEditWidgetArea::containsWidget(const YSSCore::General::YSSURI& uri) const {
+		return d->TagArea->containsStackLabel(uri);
 	}
 
 	void FileEditWidgetArea::closeAll(bool autoGiveup) {
 		for (auto widget : d->TagArea->getFileEditWidgets()) {
-			vgDebug << "close " << widget->getFilePath();
+			vgDebug << "close " << widget->getUri().toString();
 			widget->closeFile(autoGiveup);
 		}
 	}
 
 	void FileEditWidgetArea::closeSaved() {
 		for (auto widget : d->TagArea->getFileEditWidgets()) {
-			QString filePath = widget->getFilePath();
-			if (not widget->isFileChanged() and not d->TagArea->isStackLabelPinned(filePath)) {
-				vgDebug << "close " << filePath;
+			const YSSCore::General::YSSURI uri = widget->getUri();
+			if (not widget->isFileChanged() and not d->TagArea->isStackLabelPinned(uri)) {
+				vgDebug << "close " << uri.toString();
 				widget->closeFile();
 			}
 		}
 	}
 
 	bool FileEditWidgetArea::closeAllWidgetsWithConfirm() {
-		QStringList filePaths;
+		QList<YSSCore::General::YSSURI> uris;
 		for (auto widget : d->TagArea->getFileEditWidgets()) {
-			filePaths.append(widget->getFilePath());
+			uris.append(widget->getUri());
 		}
-		for (const QString& filePath : filePaths) {
-			if (YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath)) {
+		for (const auto& uri : uris) {
+			if (YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri)) {
 				widget->closeFile();
 			}
 		}
-		for (const QString& filePath : filePaths) {
-			if (d->TagArea->containsStackLabel(filePath)) {
+		for (const auto& uri : uris) {
+			if (d->TagArea->containsStackLabel(uri)) {
 				return false;
 			}
 		}
 		return true;
 	}
 	void FileEditWidgetArea::closeWidget(YSSCore::Editor::FileEditWidget* widget) {
-		closeWidget(widget->getFilePath());
+		closeWidget(widget->getUri());
 	}
 
-	void FileEditWidgetArea::closeWidget(const QString& filePath) {
-		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
+	void FileEditWidgetArea::closeWidget(const YSSCore::General::YSSURI& uri) {
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri);
 		if (not widget) {
 			return;
 		}
@@ -414,27 +441,27 @@ namespace YSS::Editor {
 
 	void FileEditWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget) {
 		if (widget) {
-			setCurrentWidget(widget->getFilePath());
+			setCurrentWidget(widget->getUri());
 		}
 	}
 
-	void FileEditWidgetArea::setCurrentWidget(const QString& filePath) {
-		if (filePath == getCurrentWidgetFilePath()) {
+	void FileEditWidgetArea::setCurrentWidget(const YSSCore::General::YSSURI& uri) {
+		if (uri.isValid() and uri.toIdentityKey() == getCurrentWidgetUri().toIdentityKey()) {
 			return;
 		}
-		if (filePath.isEmpty()) {
+		if (not uri.isValid()) {
 			d->ContentArea->hide();
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(1, d->ContentArea);
 			d->ContentArea->show();
-			emit currentFileChanged(QString());
+			emit currentFileChanged(YSSCore::General::YSSURI());
 			return;
 		}
-		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
-		vgDebug << "setCurrentWidget: " << filePath << " widget: " << widget;
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri);
+		vgDebug << "setCurrentWidget: " << uri.toString() << " widget: " << widget;
 		if (not widget) {
-			vgErrorF << "File path not found in FileServerManager: " << filePath;
+			vgErrorF << "File uri not found in FileServerManager: " << uri.toString();
 			return;
 		}
 		if (d->ContentArea != widget) {
@@ -444,24 +471,26 @@ namespace YSS::Editor {
 			d->Layout->insertWidget(1, d->ContentArea);
 			d->ContentArea->show();
 		}
-		YSSCore::General::YSSProject::getCurrentProject()->setFocusedFile(filePath);
-		emit currentFileChanged(filePath);
-		d->TagArea->setCurrentStackLabel(filePath);
+		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+			project->setFocusedFile(toProjectPath(uri));
+		}
+		emit currentFileChanged(uri);
+		d->TagArea->setCurrentStackLabel(uri);
 	}
 
 	void FileEditWidgetArea::setCurrentWidget(YSSCore::Editor::FileEditWidget* widget, qint32 lineNumber, qint32 column) {
-		setCurrentWidget(widget->getFilePath(), lineNumber, column);
+		setCurrentWidget(widget->getUri(), lineNumber, column);
 	}
 
-	void FileEditWidgetArea::setCurrentWidget(const QString& filePath, qint32 lineNumber, qint32 column) {
-		if (filePath.isEmpty()) {
+	void FileEditWidgetArea::setCurrentWidget(const YSSCore::General::YSSURI& uri, qint32 lineNumber, qint32 column) {
+		if (not uri.isValid()) {
 			d->ContentArea->hide();
 			d->Layout->removeWidget(d->ContentArea);
 			d->ContentArea = d->CentralArea;
 			d->Layout->insertWidget(1, d->ContentArea);
 			d->ContentArea->show();
 		}
-		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(filePath);
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri);
 		if (not widget) {
 			return;
 		}
@@ -476,29 +505,27 @@ namespace YSS::Editor {
 		return qobject_cast<YSSCore::Editor::FileEditWidget*>(d->ContentArea);
 	}
 
-	QString FileEditWidgetArea::getCurrentWidgetFilePath() const {
+	YSSCore::General::YSSURI FileEditWidgetArea::getCurrentWidgetUri() const {
 		auto widget = getCurrentWidget();
 		if (widget) {
-			return widget->getFilePath();
+			return widget->getUri();
 		}
-		return QString();
+		return YSSCore::General::YSSURI();
 	}
 
-	void FileEditWidgetArea::moveWidgetTo(const QString& filePath, FileEditWidgetArea* otherArea) {
-		QString absPath = filePath;
-		if (not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
-			absPath = QFileInfo(filePath).absoluteFilePath();
+	void FileEditWidgetArea::moveWidgetTo(const YSSCore::General::YSSURI& uri, FileEditWidgetArea* otherArea) {
+		const bool pinned = d->TagArea->isStackLabelPinned(uri);
+		d->TagArea->removeStackLabel(uri);
+		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri);
+		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+			project->removeEditorOpenedFile(toProjectPath(uri));
 		}
-		const bool pinned = d->TagArea->isStackLabelPinned(absPath);
-		d->TagArea->removeStackLabel(absPath);
-		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(absPath);
-		YSSCore::General::YSSProject::getCurrentProject()->removeEditorOpenedFile(absPath);
 		if (widget) {
 			widget->disconnect(this);
 			widget->disconnect(d->TagArea);
 			otherArea->addWidget(widget);
 			if (pinned) {
-				otherArea->d->TagArea->setStackLabelPinned(absPath, true);
+				otherArea->d->TagArea->setStackLabelPinned(uri, true);
 			}
 			d->OpenFileCount--;
 			if (d->OpenFileCount <= 0) {
@@ -536,7 +563,7 @@ namespace YSS::Editor {
 			if (selfLabel && sourceTagArea && sourceTagArea != d->TagArea) {
 				FileEditWidgetArea* from = sourceTagArea->getArea();
 				if (from && from != this) {
-					from->moveWidgetTo(selfLabel->getFilePath(), this);
+					from->moveWidgetTo(selfLabel->getUri(), this);
 				}
 			}
 		}

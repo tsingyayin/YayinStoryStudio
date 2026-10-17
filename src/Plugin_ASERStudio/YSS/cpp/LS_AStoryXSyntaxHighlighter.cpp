@@ -40,10 +40,13 @@ namespace ASERStudio::YSS {
 		d->Document = AStoryXLanguageServer::getAStoryXDocument(d->FilePath);
 		connect(d->Document, &AStorySyntax::AStoryXDocument::currentRuleChanged, this,
 			&LS_AStoryXSyntaxHighlighter::rehighlight_s);
-		connect(parent, &YSSCore::Editor::FileEditWidget::fileRenamed, this, [this](const QString& oldPath, const QString& newPath) {
-			AStoryXLanguageServer::renameAStoryXDocument(oldPath, newPath);
-			d->FilePath = newPath;
-		});
+		connect(parent, &YSSCore::Editor::FileEditWidget::fileRenamed, this,
+			[this](const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri) {
+				const QString oldPath = oldUri.getLocalPath();
+				const QString newPath = newUri.getLocalPath();
+				AStoryXLanguageServer::renameAStoryXDocument(oldPath, newPath);
+				d->FilePath = newPath;
+			});
 	}
 	LS_AStoryXSyntaxHighlighter::~LS_AStoryXSyntaxHighlighter() {
 		AStoryXLanguageServer::deleteAStoryXDocument(d->FilePath, d->Document);

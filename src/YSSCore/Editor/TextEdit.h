@@ -131,9 +131,9 @@ namespace YSSCore::Editor {
 		bool hasActiveSuggestions() const;
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
-		virtual bool onOpen(const QString& path) override;
-		virtual bool onSave(const QString& path = "") override;
-		virtual bool onReload() override;
+		virtual bool onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) override;
+		virtual std::expected<QByteArray, bool> onSave(const YSSCore::General::YSSURI& uri) override;
+		virtual bool onReload(const QByteArray& data) override;
 		virtual bool onCopy() override;
 		virtual bool onCut() override;
 		virtual bool onPaste() override;

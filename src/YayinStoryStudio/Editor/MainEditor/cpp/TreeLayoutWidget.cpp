@@ -1140,18 +1140,18 @@ namespace YSS::Editor {
 		if (not selfLabel || not sourceArea) {
 			return;
 		}
-		QString filePath = selfLabel->getFilePath();
+		const YSSCore::General::YSSURI fileUri = selfLabel->getUri();
 
-		auto createAndFill = [this, sourceArea, filePath](int index) -> FileEditWidgetArea* {
+		auto createAndFill = [this, sourceArea, fileUri](int index) -> FileEditWidgetArea* {
 			FileEditWidgetArea* area = new FileEditWidgetArea();
 			insertChildAt(index, area, false);
 			if (sourceArea != area) {
-				sourceArea->moveWidgetTo(filePath, area);
+				sourceArea->moveWidgetTo(fileUri, area);
 			}
 			return area;
 			};
 
-		auto insertIntoParent = [this, sourceArea, filePath](bool before) {
+		auto insertIntoParent = [this, sourceArea, fileUri](bool before) {
 			if (not ParentLayout) {
 				return;
 			}
@@ -1169,7 +1169,7 @@ namespace YSS::Editor {
 			FileEditWidgetArea* area = new FileEditWidgetArea();
 			ParentLayout->d->insertChildAt(insertIndex, area, false);
 			if (sourceArea != area) {
-				sourceArea->moveWidgetTo(filePath, area);
+				sourceArea->moveWidgetTo(fileUri, area);
 			}
 			};
 
@@ -1211,7 +1211,7 @@ namespace YSS::Editor {
 			FileEditWidgetArea* area = new FileEditWidgetArea();
 			TreeLayoutWidget* layout = replaceAreaWithNewLayoutAt(childIndex, area, zone == TreeLayoutDropZone::DropZone::ItemTop);
 			if (layout && sourceArea != area) {
-				sourceArea->moveWidgetTo(filePath, area);
+				sourceArea->moveWidgetTo(fileUri, area);
 			}
 			break;
 		}
@@ -1220,7 +1220,7 @@ namespace YSS::Editor {
 			FileEditWidgetArea* area = new FileEditWidgetArea();
 			TreeLayoutWidget* layout = replaceAreaWithNewLayoutAt(childIndex, area, zone == TreeLayoutDropZone::DropZone::ItemLeft);
 			if (layout && sourceArea != area) {
-				sourceArea->moveWidgetTo(filePath, area);
+				sourceArea->moveWidgetTo(fileUri, area);
 			}
 			break;
 		}

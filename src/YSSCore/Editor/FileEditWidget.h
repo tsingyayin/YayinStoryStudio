@@ -1,12 +1,14 @@
 #ifndef YSSCore_Editor_FileEditWidget_h
 #define YSSCore_Editor_FileEditWidget_h
 #include <QtWidgets/qframe.h>
-#include <QtCore/qfileinfo.h>
+#include <General/YSSURI.h>
 #include "YSSCoreCompileMacro.h"
+#include <expected>
 // Forward declarations
 class QWidget;
 class QString;
-class QFileInfo;
+class QByteArray;
+class QCloseEvent;
 namespace YSSCore::Editor {
 	class FileEditWidgetPrivate;
 }
@@ -16,16 +18,16 @@ namespace YSSCore::Editor {
 		Q_OBJECT;
 		VImpl(FileEditWidget);
 	signals:
-		void fileChanged(const QString& filePath);
-		void fileChangeCanceled(const QString& filePath);
-		void fileSaved(const QString& filePath);
-		void fileRenamed(const QString& rawPath, const QString& changedPath);
-		void fileClosed(const QString& filePath);
+		void fileChanged(const YSSCore::General::YSSURI& uri);
+		void fileChangeCanceled(const YSSCore::General::YSSURI& uri);
+		void fileSaved(const YSSCore::General::YSSURI& uri);
+		void fileRenamed(const YSSCore::General::YSSURI& rawUri, const YSSCore::General::YSSURI& changedUri);
+		void fileClosed(const YSSCore::General::YSSURI& uri);
 	public:
 		FileEditWidget(QWidget* parent = nullptr);
 		virtual ~FileEditWidget();
+		YSSCore::General::YSSURI getUri() const;
 		QString getFilePath() const;
-		QFileInfo getFileInfo() const;
 		QString getFileName() const;
 		bool isFileChanged() const;
 		bool isVirtualFile() const;
@@ -36,11 +38,10 @@ namespace YSSCore::Editor {
 		bool isAutoAbandon() const;
 		void setAutoAbandon(bool autoAbandon);
 	public:
-		bool openFile(const QFileInfo& fileInfo);
-		bool openFile(const QString& path);
-		// silent 为真时，派生类的 onSave()/onVirtualSave() 不应弹出任何界面（崩溃收尾等没有界面可用的场景）。
-		bool saveFile(const QFileInfo& fileInfo, bool deleteWhenSaveAs = false, bool silent = false);
-		bool saveFile(const QString& path = "", bool deleteWhenSaveAs = false, bool silent = false);
+		bool openFile(const YSSCore::General::YSSURI& uri, const QByteArray& data);
+		bool openFile(const YSSCore::General::YSSURI& uri);
+		bool saveFile(const YSSCore::General::YSSURI& target = YSSCore::General::YSSURI(),
+			bool deleteWhenSaveAs = false, bool silent = false);
 		bool isSaveSilent() const;
 		bool reloadFile();
 		void closeFile(bool autoAbandon = false);
@@ -54,10 +55,10 @@ namespace YSSCore::Editor {
 		bool selectAll();
 		bool cursorToPosition(qint32 lineNumber, qint32 column);
 	protected:
-		virtual bool onOpen(const QString& path);
+		virtual bool onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data);
 		virtual bool onClose();
-		virtual bool onSave(const QString& path);
-		virtual bool onReload();
+		virtual std::expected<QByteArray, bool> onSave(const YSSCore::General::YSSURI& uri);
+		virtual bool onReload(const QByteArray& data);
 	protected:
 		virtual bool onCopy();
 		virtual bool onCut();

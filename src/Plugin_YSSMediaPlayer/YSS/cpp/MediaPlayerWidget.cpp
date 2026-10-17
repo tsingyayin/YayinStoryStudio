@@ -1,13 +1,19 @@
+#include <QtCore/qdatetime.h>
+#include <QtCore/qdir.h>
 #include <QtCore/qeasingcurve.h>
 #include <QtCore/qelapsedtimer.h>
+#include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qpropertyanimation.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qset.h>
 #include <QtCore/qsize.h>
+#include <QtCore/qstandardpaths.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qurl.h>
+#include <QtCore/quuid.h>
+#include <mutex>
 #include <QtGui/qcursor.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qpainter.h>
@@ -77,6 +83,8 @@ namespace YSS::MediaPlayer {
 		// 控制栏的“目标可见状态”。渐出动画结束后才会真正 hide()，
 		// 期间 isVisible() 仍为 true，因此不能只看 isVisible() 判断当前状态。
 		bool ControlBarShown = false;
+		// 远端媒体为播放而落地的临时副本路径；本地文件播放时为空。
+		QString TempMediaFile;
 	};
 
 	namespace {
@@ -99,7 +107,43 @@ namespace YSS::MediaPlayer {
 		constexpr int ScrubRampMs = 1000;
 		constexpr qint64 ScrubMaxStepMs = 5000;
 		constexpr qint64 DefaultFrameDurationMs = 33;
+		// 临时副本的年龄超过它，就认为是被上次异常退出遗弃的。
+		constexpr qint64 TempCacheMaxAgeMs = 24LL * 60 * 60 * 1000;
 		const QColor IconColor(0xF0, 0xF0, 0xF0);
+
+		QString mediaCacheDirPath() {
+			QString baseDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+			if (baseDir.isEmpty()) {
+				baseDir = QDir::tempPath();
+			}
+			return baseDir + QStringLiteral("/YSSMediaCache");
+		}
+
+		// 每个进程只清一次：删掉上次运行遗留的过期临时副本。
+		// 本进程正在播放的文件是刚写出来的，不会命中这个年龄阈值。
+		void cleanStaleMediaCache() {
+			static std::once_flag once;
+			std::call_once(once, []() {
+				QDir dir(mediaCacheDirPath());
+				if (!dir.exists()) {
+					return;
+				}
+				const QDateTime deadline = QDateTime::currentDateTimeUtc().addMSecs(-TempCacheMaxAgeMs);
+				const QFileInfoList entries = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+				qint32 removed = 0;
+				for (const QFileInfo& entry : entries) {
+					if (entry.lastModified().toUTC() > deadline) {
+						continue;
+					}
+					if (QFile::remove(entry.absoluteFilePath())) {
+						++removed;
+					}
+				}
+				if (removed > 0) {
+					vgDebug << "Removed" << removed << "stale media cache file(s) from" << dir.absolutePath();
+				}
+			});
+		}
 
 		QIcon mediaIcon(const QString& iconName) {
 			return VIApp->getNamedFontIcon(iconName, IconRenderSize, { IconColor });
@@ -289,6 +333,7 @@ namespace YSS::MediaPlayer {
 	}
 
 	MediaPlayerWidget::~MediaPlayerWidget() {
+		removeTempMediaFile();
 		delete d;
 	}
 
@@ -622,15 +667,27 @@ namespace YSS::MediaPlayer {
 		return object == d->VideoView || object == d->VideoView->viewport();
 	}
 
-	bool MediaPlayerWidget::onOpen(const QString& filePath) {
-		const QFileInfo fileInfo(filePath);
+	bool MediaPlayerWidget::onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
+		// QMediaPlayer 只接受本地 URL，因此远端 URI 先落一份临时副本再播放。
+		QString playablePath;
+		if (uri.isLocal()) {
+			removeTempMediaFile();
+			playablePath = uri.getLocalPath();
+		}
+		else {
+			playablePath = this->materializeTempMediaFile(uri, data);
+			if (playablePath.isEmpty()) {
+				return false;
+			}
+		}
+		const QFileInfo fileInfo(playablePath);
 		if (!fileInfo.exists() || !fileInfo.isFile()) {
-			vgErrorF << "Failed to open media file, file does not exist:" << filePath;
+			vgErrorF << "Failed to open media file, file does not exist:" << playablePath;
 			return false;
 		}
 
-		d->AudioPlaceholder->setText(VITRL("YSSMediaPlayer::placeholder.audio").arg(fileInfo.fileName()));
-		const bool isVideo = MediaFormats::isVideoExtension(fileInfo.suffix());
+		d->AudioPlaceholder->setText(VITRL("YSSMediaPlayer::placeholder.audio").arg(uri.getFileName()));
+		const bool isVideo = MediaFormats::isVideoExtension(uri.getFileExt());
 		showDisplayPage(isVideo);
 		d->ProgressSlider->setRange(0, 0);
 		d->ProgressSlider->setValue(0);
@@ -648,6 +705,65 @@ namespace YSS::MediaPlayer {
 		return true;
 	}
 
+	/*!
+		\since YSS 0.18.0
+
+		把远端媒体的内容写成临时文件，供 QMediaPlayer 播放。
+
+		扩展名必须保留：QMediaPlayer 靠它挑选解复用器。
+
+		\a uri 媒体文件身份，仅用于生成临时文件名与诊断信息。
+		\a data 已经由 \l{YSSCore::General::YSSUniqueFileSystem} 读到的内容。
+
+		\return 临时文件的绝对路径；内容为空或写入失败时返回空字符串。
+	*/
+	QString MediaPlayerWidget::materializeTempMediaFile(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
+		if (data.isEmpty()) {
+			vgErrorF << "Remote media file has no content:" << uri.toString();
+			return QString();
+		}
+		removeTempMediaFile();
+		cleanStaleMediaCache();
+		const QString cacheDir = mediaCacheDirPath();
+		if (!QDir().mkpath(cacheDir)) {
+			vgErrorF << "Failed to create media cache directory:" << cacheDir;
+			return QString();
+		}
+		const QString ext = uri.getFileExt();
+		QString fileName = QUuid::createUuid().toString(QUuid::WithoutBraces);
+		if (!ext.isEmpty()) {
+			fileName += QStringLiteral(".") + ext;
+		}
+		const QString path = cacheDir + QStringLiteral("/") + fileName;
+		QFile file(path);
+		if (!file.open(QIODevice::WriteOnly)) {
+			vgErrorF << "Failed to create media cache file:" << path;
+			return QString();
+		}
+		const bool ok = file.write(data) == data.size();
+		file.close();
+		if (!ok) {
+			vgErrorF << "Failed to write media cache file:" << path;
+			QFile::remove(path);
+			return QString();
+		}
+		d->TempMediaFile = path;
+		return path;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		删除上一次为远端媒体落地的临时副本。没有副本时什么也不做。
+	*/
+	void MediaPlayerWidget::removeTempMediaFile() {
+		if (d->TempMediaFile.isEmpty()) {
+			return;
+		}
+		QFile::remove(d->TempMediaFile);
+		d->TempMediaFile.clear();
+	}
+
 	bool MediaPlayerWidget::onClose() {
 		d->PrimeFirstFrame = false;
 		d->PrimingActive = false;
@@ -656,6 +772,7 @@ namespace YSS::MediaPlayer {
 		d->ScrubKeys.clear();
 		d->Player->stop();
 		d->Player->setSource(QUrl());
+		removeTempMediaFile();
 		d->ProgressSlider->setRange(0, 0);
 		d->ProgressSlider->setValue(0);
 		d->AudioPlaceholder->setText(QString());
@@ -665,10 +782,10 @@ namespace YSS::MediaPlayer {
 		return true;
 	}
 
-	bool MediaPlayerWidget::onSave(const QString& filePath) {
-		// 媒体播放器为只读视图，不提供保存功能。
-		Q_UNUSED(filePath);
-		return false;
+	std::expected<QByteArray, bool> MediaPlayerWidget::onSave(const YSSCore::General::YSSURI& uri) {
+		// 媒体播放器为只读视图，不提供保存功能：静默跳过，不当作错误打扰用户。
+		Q_UNUSED(uri);
+		return std::unexpected(false);
 	}
 
 	void MediaPlayerWidget::togglePlayPause() {

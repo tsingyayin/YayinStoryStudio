@@ -807,16 +807,9 @@ namespace YSSCore::Editor {
 		return QString::fromUtf8(bytes).toUtf8() == bytes;
 	}
 
-	bool TextEdit::onOpen(const QString& path) {
-		const QString ext = QFileInfo(path).suffix();
-		
-		Visindigo::Utility::FileOperation::Errorable<QByteArray> readResult = Visindigo::Utility::FileOperation::readBinary(path);
-		if (not readResult) {
-			vgErrorF << "Failed to open file:" << path
-				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(readResult.error());
-			return false;
-		}
-		const QByteArray bytes = readResult.value();
+	bool TextEdit::onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
+		const QString ext = uri.getFileExt();
+		const QByteArray bytes = data;
 		
 		QString text;
 		if (bytes.startsWith(QByteArray::fromHex("efbbbf"))) {
@@ -838,7 +831,7 @@ namespace YSSCore::Editor {
 		else {
 			d->Encoding = YSSCore::__Private__::TextEditPrivate::TextEncoding::Unsupported;
 			text = QString::fromUtf8(bytes);
-			vgWarningF << "File" << path << "is not UTF-8/UTF-16 encoded, it is opened for display only and cannot be saved in place.";
+			vgWarningF << "File" << uri.toString() << "is not UTF-8/UTF-16 encoded, it is opened for display only and cannot be saved in place.";
 		}
 		d->UseCRLF = text.contains("\r\n");
 		if (d->LangServer) {
@@ -910,24 +903,26 @@ namespace YSSCore::Editor {
 
 		保存当前文件。
 
-		return 当文件成功保存时才会返回true，其他任何失败情况均返回false。
+		return 成功时返回要写出的完整内容；失败时返回 \c{std::unexpected(true)}，
+		调用方据此知道这是一次需要让用户知道的失败。
 
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用saveFile()函数。
 	*/
-	bool TextEdit::onSave(const QString& path) {
+	std::expected<QByteArray, bool> TextEdit::onSave(const YSSCore::General::YSSURI& uri) {
 		using TextEncoding = YSSCore::__Private__::TextEditPrivate::TextEncoding;
+		const QString path = uri.getLocalPath();
 		QFileInfo fileInfo(path);
-		if (fileInfo.exists() && not fileInfo.isWritable()) {
+		if (uri.isLocal() && fileInfo.exists() && not fileInfo.isWritable()) {
 			if (not isSaveSilent()) {
 				QMessageBox::warning(this,
 					VITRL("YSS::editor.textEdit.readOnly.title"), VITRL("YSS::editor.textEdit.readOnly.message").arg(fileInfo.fileName()),
 					QMessageBox::Ok);
 			}
 			vgWarning << "File is read-only:" << path << ",";
-			return false;
+			return std::unexpected(true);
 		}
 		// 非 UTF-8/UTF-16 的文件只能另存，不能覆盖原件。
-		const bool saveToOtherPath = fileInfo.absoluteFilePath() != QFileInfo(getFilePath()).absoluteFilePath();
+		const bool saveToOtherPath = uri != getUri();
 		if (d->Encoding == TextEncoding::Unsupported and not saveToOtherPath) {
 			if (not isSaveSilent()) {
 				QMessageBox::warning(this,
@@ -936,7 +931,7 @@ namespace YSSCore::Editor {
 					QMessageBox::Ok);
 			}
 			vgWarning << "Refuse to overwrite file with unsupported encoding:" << path;
-			return false;
+			return std::unexpected(true);
 		}
 		QString text = d->Text->toPlainText();
 		if (d->UseCRLF) {
@@ -961,17 +956,11 @@ namespace YSSCore::Editor {
 			break;
 		}
 
-		Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveBinary(path, data);
-		if (saveResult != Visindigo::Utility::FileOperation::Success) {
-			vgErrorF << "Failed to save file:" << path
-				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
-			return false;
-		}
 		if (d->Encoding == TextEncoding::Unsupported) {
 			// 另存为 UTF-8 之后，这个编辑器就按 UTF-8 工作了。
 			d->Encoding = TextEncoding::Utf8;
 		}
-		return true;
+		return data;
 	}
 
 	/*!
@@ -982,7 +971,7 @@ namespace YSSCore::Editor {
 
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用reloadFile()函数。
 	*/
-	bool TextEdit::onReload() {
+	bool TextEdit::onReload(const QByteArray& data) {
 		if (isFileChanged()) {
 			QMessageBox msgBox;
 			msgBox.setWindowTitle(VITRL("YSS::editor.reloadWarning.title"));
@@ -992,7 +981,7 @@ namespace YSSCore::Editor {
 			int ret = msgBox.exec();
 			switch (ret) {
 			case QMessageBox::Yes:
-				return openFile(getFilePath());
+				return onOpen(getUri(), data);
 				break;
 			case QMessageBox::Cancel:
 				break;
@@ -1002,7 +991,7 @@ namespace YSSCore::Editor {
 			return false;
 		}
 		else {
-			return openFile(getFilePath());
+			return openFile(getUri(), data);
 		}
 	}
 

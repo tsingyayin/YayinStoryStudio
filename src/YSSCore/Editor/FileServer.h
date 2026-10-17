@@ -1,5 +1,6 @@
 #ifndef YSSCore_Editor_FileServer_h
 #define YSSCore_Editor_FileServer_h
+#include <General/YSSURI.h>
 #include "YSSCoreCompileMacro.h"
 #include <General/PluginModule.h>
 // Forward declarations
@@ -40,7 +41,7 @@ namespace YSSCore::Editor {
 		bool isListAsTool();
 		QString getToolNickname();
 	public:
-		virtual qint64 especiallyFocusFile(const QString& filePath);
+		virtual qint64 especiallyFocusFile(const YSSCore::General::YSSURI& uri);
 		virtual FileEditWidget* onCreateFileEditWidget();
 	protected:
 		void setEditorType(EditorType type);

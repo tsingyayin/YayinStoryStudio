@@ -895,6 +895,39 @@ namespace YSSCore::General {
 	}
 
 	/*!
+		\fn QString YSSCore::General::YSSURI::toIdentityKey() const
+		\since YSS 0.18.0
+
+		取用于"是不是同一个文件"判断的键。
+
+		本机路径会先尝试解析成磁盘上的真实路径（跟随符号链接、取真实大小写），拿不到
+		（文件不存在等）再退回 \l{toKey()} 的词法形式。远端与虚拟文件只用词法形式。
+
+		这是一次真实身份判断，本机路径会访问文件系统，因此不要用它替代 \l{toKey()}
+		做哈希计算。
+	*/
+	QString YSSURI::toIdentityKey() const {
+		if (d == nullptr) {
+			return QString();
+		}
+		QString key;
+		if (d->SchemeType == Scheme::Local) {
+			const QFileInfo info(this->getLocalPath());
+			const QString canonical = info.canonicalFilePath();
+			if (not canonical.isEmpty()) {
+				key = canonical;
+			}
+		}
+		if (key.isEmpty()) {
+			key = this->toString();
+		}
+		if (d->pathCaseSensitivity() == Qt::CaseInsensitive) {
+			return key.toLower();
+		}
+		return key;
+	}
+
+	/*!
 		\fn std::size_t YSSCore::General::YSSURI::hash() const
 		\since YSS 0.18.0
 		\return 与 qHash() 一致的哈希值。

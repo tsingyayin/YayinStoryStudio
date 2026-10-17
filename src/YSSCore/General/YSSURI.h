@@ -14,6 +14,7 @@
 #define YSSCore_General_YSSURI_h
 #include "YSSCoreCompileMacro.h"
 #include <QtCore/qhashfunctions.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qstring.h>
 #include <cstddef>
 // Forward declarations
@@ -68,6 +69,7 @@ namespace YSSCore::General {
 		QString toString() const;
 		QString toDisplayString() const;
 		QString toKey() const;
+		QString toIdentityKey() const;
 		std::size_t hash() const;
 		bool operator==(const YSSURI& other) const;
 		bool operator!=(const YSSURI& other) const;
@@ -82,4 +84,5 @@ namespace YSSCore::General {
 		return ::qHash(uri.toKey(), seed);
 	}
 }
+Q_DECLARE_METATYPE(YSSCore::General::YSSURI)
 #endif // YSSCore_General_YSSURI_h

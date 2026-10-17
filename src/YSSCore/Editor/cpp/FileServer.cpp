@@ -213,7 +213,7 @@ namespace YSSCore::Editor {
 
 		\note 从0.15.0开始引入虚拟文件概念。在虚拟文件服务器模式时，该功能无效
 	*/
-	qint64 FileServer::especiallyFocusFile(const QString& filePath) {
+	qint64 FileServer::especiallyFocusFile(const YSSCore::General::YSSURI& uri) {
 		return -1;
 	}
 
