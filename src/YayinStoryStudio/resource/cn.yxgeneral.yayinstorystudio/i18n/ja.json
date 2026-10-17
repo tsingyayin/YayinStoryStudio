@@ -264,7 +264,10 @@
 				"scrollDown": "行 %1 へ下にスクロール",
 				"accept": "受け入れる",
 				"reject": "拒否する"
-			}
+			},
+			"inlayHintVisible": "インラインヒント",
+			"hintSettings": "ヒント設定",
+			"completerLevel": "補完レベル"
 		},
 		"debug": {
 			"notFound": {

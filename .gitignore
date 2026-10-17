@@ -47,7 +47,8 @@ bld/
 doc/html
 doc/scan_report
 binary
-
+third_party/libssh2/include
+third_party/libssh2/src
 # modules or projects that are not ready to publish
 src/VKCompute
 
@@ -374,3 +375,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# SSH test server: throwaway host key, never commit
+tools/ssh-test-server/hostkey_rsa.pem
+# SSH test server: sandbox used by the SFTP subsystem
+tools/ssh-test-server/sftp-root/

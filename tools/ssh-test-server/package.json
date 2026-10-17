@@ -1,0 +1,13 @@
+{
+  "name": "yss-ssh-test-server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local SSH server used to test Visindigo::Network::SshSession",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ssh2": "^1.16.0"
+  }
+}

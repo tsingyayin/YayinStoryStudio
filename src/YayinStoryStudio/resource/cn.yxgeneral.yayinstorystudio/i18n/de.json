@@ -264,7 +264,10 @@
 				"scrollDown": "Nach unten zu Zeile %1 scrollen",
 				"accept": "Annehmen",
 				"reject": "Ablehnen"
-			}
+			},
+			"inlayHintVisible": "Inline-Hinweise",
+			"hintSettings": "Hinweis-Einstellungen",
+			"completerLevel": "Vervollständigungsstufe"
 		},
 		"debug": {
 			"notFound": {

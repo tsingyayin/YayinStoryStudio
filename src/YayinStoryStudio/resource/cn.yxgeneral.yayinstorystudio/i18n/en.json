@@ -264,7 +264,10 @@
 				"scrollDown": "Scroll down to line %1",
 				"accept": "Accept",
 				"reject": "Reject"
-			}
+			},
+			"inlayHintVisible": "Inlay hints",
+			"hintSettings": "Hint settings",
+			"completerLevel": "Completion level"
 		},
 		"debug": {
 			"notFound": {

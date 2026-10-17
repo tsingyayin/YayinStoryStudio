@@ -264,7 +264,10 @@
 				"scrollDown": "Прокрутить вниз к строке %1",
 				"accept": "Принять",
 				"reject": "Отклонить"
-			}
+			},
+			"inlayHintVisible": "Встроенные подсказки",
+			"hintSettings": "Настройки подсказок",
+			"completerLevel": "Уровень дополнения"
 		},
 		"debug": {
 			"notFound": {

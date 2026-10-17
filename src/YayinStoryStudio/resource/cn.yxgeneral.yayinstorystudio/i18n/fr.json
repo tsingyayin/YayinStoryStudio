@@ -264,7 +264,10 @@
 				"scrollDown": "Faire défiler vers le bas jusqu'à la ligne %1",
 				"accept": "Accepter",
 				"reject": "Rejeter"
-			}
+			},
+			"inlayHintVisible": "Indications intégrées",
+			"hintSettings": "Paramètres d'indication",
+			"completerLevel": "Niveau de complétion"
 		},
 		"debug": {
 			"notFound": {

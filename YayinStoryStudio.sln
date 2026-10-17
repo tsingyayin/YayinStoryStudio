@@ -16,6 +16,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YayinStoryStudio", "src\Yay
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Visindigo", "src\Visindigo\Visindigo.vcxproj", "{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33} = {C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VIAgent", "src\VIAgent\VIAgent.vcxproj", "{5E1D9C4B-7A3F-4E62-9B58-3D2C6F0A8E71}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -56,6 +59,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSSInstaller", "src\YSSInst
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41} = {A7BAE61B-D84E-410D-A68F-805E7E0BAF41}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libssh2", "third_party\libssh2\libssh2.vcxproj", "{C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -66,6 +71,10 @@ Global
 		{2F0011CF-E80F-4A56-ADFD-6F7720A161AB}.Debug|x64.Build.0 = Debug|x64
 		{2F0011CF-E80F-4A56-ADFD-6F7720A161AB}.Release|x64.ActiveCfg = Release|x64
 		{2F0011CF-E80F-4A56-ADFD-6F7720A161AB}.Release|x64.Build.0 = Release|x64
+		{C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33}.Debug|x64.ActiveCfg = Debug|x64
+		{C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33}.Debug|x64.Build.0 = Debug|x64
+		{C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33}.Release|x64.ActiveCfg = Release|x64
+		{C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33}.Release|x64.Build.0 = Release|x64
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}.Debug|x64.ActiveCfg = Debug|x64
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}.Debug|x64.Build.0 = Debug|x64
 		{A7BAE61B-D84E-410D-A68F-805E7E0BAF41}.Release|x64.ActiveCfg = Release|x64

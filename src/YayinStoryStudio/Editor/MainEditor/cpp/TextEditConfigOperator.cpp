@@ -118,11 +118,39 @@ namespace YSS::Editor {
 		}
 	}
 
+	bool TextEditConfigOperator::getInlayHintVisible() {
+		bool ok = true;
+		bool rtn = YSS::Main::getInstance()->getPluginConfig()->getBool("Settings.Editor.TextEdit.InlayHintVisible", &ok);
+		if (not ok) {
+			rtn = true;
+		}
+		return rtn;
+	}
+
+	void TextEditConfigOperator::setInlayHintVisible(bool visible, bool applyToAll) {
+		YSS::Main::getInstance()->getPluginConfig()->setBool("Settings.Editor.TextEdit.InlayHintVisible", visible);
+		if (applyToAll) {
+			applyInlayHintVisible();
+		}
+	}
+
+	void TextEditConfigOperator::applyInlayHintVisible() {
+		bool visible = getInlayHintVisible();
+		QList<YSSCore::Editor::FileEditWidget*> allEditors = YSSFSM->getAllFileEditWidgets();
+		for (auto editor : allEditors) {
+			YSSCore::Editor::TextEdit* textEdit = dynamic_cast<YSSCore::Editor::TextEdit*>(editor);
+			if (textEdit) {
+				textEdit->setInlayHintVisible(visible);
+			}
+		}
+	}
+
 	void TextEditConfigOperator::applyAll() {
 		applyTextFont();
 		applyTabWidth();
 		applyFontScale();
 		applyCompleterLevel();
+		applyInlayHintVisible();
 	}
 
 	void TextEditConfigOperator::applyTo(YSSCore::Editor::TextEdit* target) {
@@ -142,6 +170,9 @@ namespace YSS::Editor {
 
 		YSSCore::Editor::TabCompleterItem::CompleterLevel completerLevel = getCompleterLevel();
 		target->setCompleterLevel(completerLevel);
+
+		bool inlayHintVisible = getInlayHintVisible();
+		target->setInlayHintVisible(inlayHintVisible);
 
 		vgDebugF << "Applied text edit config to target text edit: " << target;
 	}

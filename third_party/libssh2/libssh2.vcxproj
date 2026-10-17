@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C3B1D7A4-2F8E-4B6C-9A21-5D7E4F0B8C33}</ProjectGuid>
+    <RootNamespace>libssh2</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\obj\</IntDir>
+    <TargetName>libssh2</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>LIBSSH2_WINCNG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsC</CompileAs>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4100;4245;4701;4706</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>LIBSSH2_WINCNG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsC</CompileAs>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4100;4245;4701;4706</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\agent.c." />
+    <ClCompile Include="src\bcrypt_pbkdf.c." />
+    <ClCompile Include="src\channel.c." />
+    <ClCompile Include="src\comp.c." />
+    <ClCompile Include="src\chacha.c." />
+    <ClCompile Include="src\cipher-chachapoly.c." />
+    <ClCompile Include="src\crypt.c." />
+    <ClCompile Include="src\crypto.c." />
+    <ClCompile Include="src\global.c." />
+    <ClCompile Include="src\hostkey.c." />
+    <ClCompile Include="src\keepalive.c." />
+    <ClCompile Include="src\kex.c." />
+    <ClCompile Include="src\knownhost.c." />
+    <ClCompile Include="src\mac.c." />
+    <ClCompile Include="src\misc.c." />
+    <ClCompile Include="src\packet.c." />
+    <ClCompile Include="src\pem.c." />
+    <ClCompile Include="src\poly1305.c." />
+    <ClCompile Include="src\publickey.c." />
+    <ClCompile Include="src\scp.c." />
+    <ClCompile Include="src\session.c." />
+    <ClCompile Include="src\sftp.c." />
+    <ClCompile Include="src\transport.c." />
+    <ClCompile Include="src\userauth.c." />
+    <ClCompile Include="src\userauth_kbd_packet.c." />
+    <ClCompile Include="src\version.c." />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\chacha.h." />
+    <ClInclude Include="src\channel.h." />
+    <ClInclude Include="src\cipher-chachapoly.h." />
+    <ClInclude Include="src\comp.h." />
+    <ClInclude Include="src\crypto.h." />
+    <ClInclude Include="src\crypto_config.h." />
+    <ClInclude Include="src\libgcrypt.h." />
+    <ClInclude Include="include\libssh2_priv.h." />
+    <ClInclude Include="include\libssh2_setup.h." />
+    <ClInclude Include="src\mac.h." />
+    <ClInclude Include="src\mbedtls.h." />
+    <ClInclude Include="src\misc.h." />
+    <ClInclude Include="src\openssl.h." />
+    <ClInclude Include="src\os400qc3.h." />
+    <ClInclude Include="src\packet.h." />
+    <ClInclude Include="src\poly1305.h." />
+    <ClInclude Include="src\session.h." />
+    <ClInclude Include="src\sftp.h." />
+    <ClInclude Include="src\transport.h." />
+    <ClInclude Include="src\userauth.h." />
+    <ClInclude Include="src\userauth_kbd_packet.h." />
+    <ClInclude Include="src\wincng.h." />
+    <ClInclude Include="include\libssh2.h." />
+    <ClInclude Include="include\libssh2_publickey.h." />
+    <ClInclude Include="include\libssh2_sftp.h." />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

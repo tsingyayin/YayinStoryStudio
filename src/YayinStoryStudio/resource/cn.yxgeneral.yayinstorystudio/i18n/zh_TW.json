@@ -264,7 +264,10 @@
 				"scrollDown": "向下捲動到行 %1",
 				"accept": "接受",
 				"reject": "拒絕"
-			}
+			},
+			"inlayHintVisible": "內聯提示",
+			"hintSettings": "提示設定",
+			"completerLevel": "補全級別"
 		},
 		"debug": {
 			"notFound": {

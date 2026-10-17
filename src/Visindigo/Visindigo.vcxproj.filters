@@ -230,6 +230,24 @@
     <ClCompile Include="Network\cpp\SSEReply.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Network\cpp\SshChannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\cpp\SshExecRequest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\cpp\SftpRequest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\cpp\SshSession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\cpp\SshSessionSftp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\cpp\SshTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Network\cpp\WebSocketRequest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -508,6 +526,24 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Network\SSERequest.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Network\private\SshSession_p.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Network\SshChannel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Network\SshExecRequest.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Network\SftpRequest.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Network\SshSession.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Network\SshTypes.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Network\WebSocketRequest.h">

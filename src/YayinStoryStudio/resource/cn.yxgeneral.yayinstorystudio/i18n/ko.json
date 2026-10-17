@@ -264,7 +264,10 @@
 				"scrollDown": "%1행으로 아래로 스크롤",
 				"accept": "수락",
 				"reject": "거부"
-			}
+			},
+			"inlayHintVisible": "인라인 힌트",
+			"hintSettings": "힌트 설정",
+			"completerLevel": "자동 완성 수준"
 		},
 		"debug": {
 			"notFound": {

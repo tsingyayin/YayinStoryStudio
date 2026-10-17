@@ -74,6 +74,9 @@
     <ClCompile Include="General\cpp\YSSProject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\YSSURI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="General\cpp\YSSLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\YSSProject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\YSSURI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorProjectHelper.h">

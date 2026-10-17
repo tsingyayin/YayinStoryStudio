@@ -1,4 +1,5 @@
 #include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qprogressbar.h>
@@ -32,7 +33,10 @@ namespace YSS::Editor {
 		QLabel* FM_InfoText;
 		QToolButton* EditorInfoText;
 		QComboBox* EditorFontSizeComboBox;
+		QToolButton* EditorHintSettingsButton;
+		QFrame* EditorHintSettingsPopup;
 		QComboBox* EditorTabCompleterLevelComboBox;
+		QCheckBox* EditorInlayHintCheckBox;
 
 		QWidget* GitInfoWidget;
 		QHBoxLayout* GitInfoLayout;
@@ -119,6 +123,22 @@ namespace YSS::Editor {
 			}
 			EditorTabCompleterLevelComboBox->setCurrentIndex(index);
 		}
+
+		/*!
+			提示设置悬浮窗贴着底栏向上弹出。底栏空间有限，补全级别和内联提示开关都收进这里，
+			不再各自占用一个控件的位置。
+		*/
+		void showHintSettingsPopup() {
+			EditorHintSettingsPopup->adjustSize();
+			const int width = qMax(220, EditorHintSettingsPopup->sizeHint().width());
+			const int height = EditorHintSettingsPopup->sizeHint().height();
+			EditorHintSettingsPopup->setFixedSize(width, height);
+			const QPoint buttonPos = EditorHintSettingsButton->mapToGlobal(QPoint(0, 0));
+			// 右边缘与按钮对齐，并向上弹出，避免盖住底栏本身。
+			EditorHintSettingsPopup->move(buttonPos.x() + EditorHintSettingsButton->width() - width,
+				buttonPos.y() - height);
+			EditorHintSettingsPopup->show();
+		}
 	};
 
 	BottomInfoWidget::BottomInfoWidget(QWidget* parent) :QFrame(parent), d(new BottomInfoWidgetPrivate) {
@@ -175,9 +195,30 @@ namespace YSS::Editor {
 			});
 		d->EditorFontSizeComboBox = new QComboBox(d->EditorInfoWidget);
 		d->EditorFontSizeComboBox->setStyleSheet("QComboBox { border: none; background: transparent; }");
-		d->EditorTabCompleterLevelComboBox = new QComboBox(d->EditorInfoWidget);
-		d->EditorTabCompleterLevelComboBox->setStyleSheet("QComboBox { border: none; background: transparent; }");
 		d->initFontSizeComboBox();
+
+		d->EditorHintSettingsButton = new QToolButton(d->EditorInfoWidget);
+		d->EditorHintSettingsButton->setAutoRaise(true);
+		d->EditorHintSettingsButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+		d->EditorHintSettingsButton->setText(VITRL("YSS::editor.textEdit.hintSettings"));
+
+		d->EditorHintSettingsPopup = new QFrame(nullptr, Qt::Popup | Qt::FramelessWindowHint);
+		d->EditorHintSettingsPopup->setObjectName("EditorHintSettingsPopup");
+		auto* hintPopupLayout = new QVBoxLayout(d->EditorHintSettingsPopup);
+		hintPopupLayout->setContentsMargins(10, 8, 10, 8);
+		hintPopupLayout->setSpacing(8);
+		auto* completerLevelRow = new QHBoxLayout();
+		completerLevelRow->setContentsMargins(0, 0, 0, 0);
+		completerLevelRow->setSpacing(8);
+		completerLevelRow->addWidget(new QLabel(VITRL("YSS::editor.textEdit.completerLevel"), d->EditorHintSettingsPopup));
+		completerLevelRow->addStretch(1);
+		d->EditorTabCompleterLevelComboBox = new QComboBox(d->EditorHintSettingsPopup);
+		completerLevelRow->addWidget(d->EditorTabCompleterLevelComboBox);
+		hintPopupLayout->addLayout(completerLevelRow);
+		d->EditorInlayHintCheckBox = new QCheckBox(VITRL("YSS::editor.textEdit.inlayHintVisible"), d->EditorHintSettingsPopup);
+		d->EditorInlayHintCheckBox->setChecked(YSS::Editor::TextEditConfigOperator::getInlayHintVisible());
+		hintPopupLayout->addWidget(d->EditorInlayHintCheckBox);
+
 		d->initTabCompleterLevelComboBox();
 		d->EditorInfoLayout->addWidget(d->FM_ErrorIcon);
 		d->EditorInfoLayout->addWidget(d->FM_ErrorText);
@@ -192,7 +233,7 @@ namespace YSS::Editor {
 		d->EditorInfoLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum));
 		d->EditorInfoLayout->addWidget(d->EditorFontSizeComboBox);
 		d->EditorInfoLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum));
-		d->EditorInfoLayout->addWidget(d->EditorTabCompleterLevelComboBox);
+		d->EditorInfoLayout->addWidget(d->EditorHintSettingsButton);
 		d->MainLayout->addWidget(d->EditorInfoWidget);
 
 		d->GitInfoWidget = new QWidget(this);
@@ -240,9 +281,22 @@ namespace YSS::Editor {
 				YSS::Editor::TextEditConfigOperator::setCompleterLevel(level, true);
 			}
 			});
+
+		connect(d->EditorInlayHintCheckBox, &QCheckBox::toggled, [](bool checked) {
+			YSS::Editor::TextEditConfigOperator::setInlayHintVisible(checked, true);
+			});
+
+		connect(d->EditorHintSettingsButton, &QToolButton::clicked, [this]() {
+			d->showHintSettingsPopup();
+			});
 	}
 
 	BottomInfoWidget::~BottomInfoWidget() {
+		// 悬浮窗是没有父窗口的顶层控件（Qt::Popup），不会随父控件销毁，这里手动回收。
+		if (d->EditorHintSettingsPopup) {
+			d->EditorHintSettingsPopup->deleteLater();
+			d->EditorHintSettingsPopup = nullptr;
+		}
 		delete d;
 	}
 

@@ -26,6 +26,10 @@ namespace YSS::Editor {
 		static QFont getTextFont();
 		static void setTextFont(const QFont& font, bool applyToAll = false);
 		static void applyTextFont();
+
+		static bool getInlayHintVisible();
+		static void setInlayHintVisible(bool visible, bool applyToAll = false);
+		static void applyInlayHintVisible();
 	};
 }
 #endif // YayinStoryStudio_Editor_MainEditor_TextEditConfigOperator_h
