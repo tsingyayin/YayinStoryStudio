@@ -3,9 +3,11 @@
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qpalette.h>
 #include <QtWidgets/qapplication.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qtextedit.h>
 #include <General/Log.h>
+#include <General/TranslationHost.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/HoverInfoProvider.h"
 #include "Editor/private/HoverInfoProvider_p.h"
@@ -36,10 +38,47 @@ namespace YSSCore::__Private__ {
 			if (TabCompleterWidget->isVisible()) {
 				TabCompleterWidget->hide();
 			}
+			if (SgtKind != SuggestionKind::None) {
+				dismissSuggestion(true);
+			}
+		}
+		// 输入法组字意味着用户开始输入别的内容，同样按放弃处理。
+		if (event->type() == QEvent::InputMethod and SgtKind != SuggestionKind::None) {
+			dismissSuggestion(true);
 		}
 		if (obj == Text) {
 			if (event->type() == QEvent::KeyPress) {
 				QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+				// 待抉择建议自己的按键：Tab/Enter 接受，Esc 拒绝，方向键切换，输入别的字符视为放弃。
+				// 自动补全可见时 Tab 与方向键归补全，避免两套交互抢同一个键。
+				if (SgtKind != SuggestionKind::None and not TabCompleterWidget->isVisible()) {
+					const int key = keyEvent->key();
+					if (key == Qt::Key_Tab) {
+						acceptSuggestion();
+						return true;
+					}
+					else if (key == Qt::Key_Return or key == Qt::Key_Enter) {
+						if (not Text->textCursor().hasSelection()) {
+							acceptSuggestion();
+							return true;
+						}
+					}
+					else if (key == Qt::Key_Escape) {
+						dismissSuggestion(true);
+						return true;
+					}
+					else if ((key == Qt::Key_Up or key == Qt::Key_Left) and keyEvent->modifiers() == Qt::NoModifier) {
+						cycleSuggestion(-1);
+						return true;
+					}
+					else if ((key == Qt::Key_Down or key == Qt::Key_Right) and keyEvent->modifiers() == Qt::NoModifier) {
+						cycleSuggestion(1);
+						return true;
+					}
+					else if (not keyEvent->text().isEmpty() and keyEvent->text().at(0).isPrint()) {
+						dismissSuggestion(true);
+					}
+				}
 				if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab) {
 					onTabClicked(keyEvent);
 					return true;
@@ -102,6 +141,9 @@ namespace YSSCore::__Private__ {
 			}
 		}
 		else if (obj == Text->viewport()) {
+			if (event->type() == QEvent::Resize) {
+				positionTestButton();
+			}
 			if (event->type() == QEvent::MouseMove) {
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 				onMouseMove(mouseEvent);
@@ -120,6 +162,10 @@ namespace YSSCore::__Private__ {
 					}
 					if (HoverInfoWidget->isVisible()) {
 						HoverInfoWidget->hide();
+					}
+					if (SgtKind != SuggestionKind::None) {
+						// 点击正文意味着用户放弃了当前建议，但点击本身照常生效。
+						dismissSuggestion(true);
 					}
 				}
 				return false;
@@ -148,6 +194,7 @@ namespace YSSCore::__Private__ {
 				FindAndReplaceWidget->move(q->width() - 352, 0); // 340 for width, 12 for vertical scrollbar width
 				adjustTabCompleterPosition();
 				adjustHoverInfoPosition(Text->textCursor());
+				adjustSuggestionPosition();
 			}
 		}
 		else if (obj == Line->viewport()) {
@@ -247,6 +294,10 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onCompleter() {
+		// 待抉择状态独占浮层，补全不能在此期间冒出来抢键。
+		if (SgtKind != SuggestionKind::None) {
+			return;
+		}
 		QTextCursor cursor = Text->textCursor();
 		if (cursor.hasSelection()) {
 			return;
@@ -624,6 +675,10 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onHoverInfo(bool triggerFromHover) {
+		// 待抉择状态独占浮层，悬停信息也不能在此期间冒出来。
+		if (SgtKind != SuggestionKind::None) {
+			return;
+		}
 		if (not triggerFromHover && Text->textCursor().hasSelection()) {
 			return;
 		}
@@ -689,6 +744,7 @@ namespace YSSCore::__Private__ {
 		}
 		adjustTabCompleterPosition();
 		adjustHoverInfoPosition(Text->textCursor());
+		adjustSuggestionPosition();
 	}
 
 	void TextEditPrivate::onAltSwapLine(QKeyEvent* event) {
@@ -936,5 +992,449 @@ namespace YSSCore::__Private__ {
 				}
 			}
 		}
+	}
+
+	/*!
+		\a kind 建议类型。行内建议作用于目标行（pureAdd 时追加到行尾，否则替换整行），
+		多行建议会在目标行之前插入若干行。
+		\a line 目标行号。行内建议是它要作用的行，多行建议是插入位置所在的行（在这些行之前插入）。
+		\a items 建议列表，每一项是一条建议的若干行文字。
+		\a pureAdd 仅对行内建议有效：建议文字追加到行尾，而不是替换整行。
+
+		进入待抉择状态：在文本右侧显示建议浮窗，多行建议还会在插入位置画出指示线，pureAdd 行内建议会把文字画在行尾。
+		期间 Tab/Enter 接受、Esc 拒绝、方向键切换建议、输入其他字符或点击正文则放弃。
+		进入时会收起自动补全和悬停信息浮窗，并在整个待抉择期间阻止它们再次出现，避免几套浮层互相抢键。
+	*/
+	void TextEditPrivate::showSuggestion(SuggestionKind kind, qint32 line, const QList<QStringList>& items, bool pureAdd) {
+		if (kind == SuggestionKind::None or kind == SuggestionKind::Remove or items.isEmpty() or SuggestionWidget == nullptr) {
+			dismissSuggestion(false);
+			return;
+		}
+		const qint32 blockCount = Text->document()->blockCount();
+		if (line < 0 or (kind == SuggestionKind::Inline ? line >= blockCount : line > blockCount)) {
+			dismissSuggestion(false);
+			return;
+		}
+		// 待抉择状态下不接受其他浮层干扰：补全和悬停信息会让用户搞不清现在该按哪个键。
+		if (TabCompleterWidget and TabCompleterWidget->isVisible()) {
+			TabCompleterWidget->hide();
+		}
+		if (HoverInfoWidget and HoverInfoWidget->isVisible()) {
+			HoverInfoWidget->hide();
+		}
+		SgtKind = kind;
+		SgtLine = line;
+		SgtItems = items;
+		SgtIndex = 0;
+		SgtPureAdd = kind == SuggestionKind::Inline and pureAdd;
+		SgtRemoveSize = 0;
+		SgtTitleKey.clear();
+		updateSuggestionWidget();
+		adjustSuggestionPosition();
+		SuggestionWidget->show();
+		// 指示线、行尾虚影和删除底色都画在文本流里，需要重绘一次。
+		Text->viewport()->update();
+	}
+
+	/*!
+		\a from 要删除的第一行（从 0 开始）。
+		\a size 要删除的行数。
+
+		进入行删除的待抉择状态：在要删除的行上叠一层半透明红底，浮窗只显示标题和接受/拒绝。
+		行号越界会被钳制到文档范围内。
+	*/
+	void TextEditPrivate::showRemoveSuggestion(qint32 from, qint32 size) {
+		if (SuggestionWidget == nullptr) {
+			return;
+		}
+		const qint32 blockCount = Text->document()->blockCount();
+		if (from < 0 or size <= 0 or from >= blockCount) {
+			dismissSuggestion(false);
+			return;
+		}
+		if (TabCompleterWidget and TabCompleterWidget->isVisible()) {
+			TabCompleterWidget->hide();
+		}
+		if (HoverInfoWidget and HoverInfoWidget->isVisible()) {
+			HoverInfoWidget->hide();
+		}
+		SgtKind = SuggestionKind::Remove;
+		SgtLine = from;
+		SgtItems.clear();
+		SgtIndex = 0;
+		SgtPureAdd = false;
+		SgtRemoveSize = qMin(size, blockCount - from);
+		SgtTitleKey.clear();
+		updateSuggestionWidget();
+		adjustSuggestionPosition();
+		SuggestionWidget->show();
+		Text->viewport()->update();
+	}
+
+	/*!
+		\a notifyRejected 是否发出被拒绝的信号。
+
+		退出待抉择状态。用户放弃（Esc、输入其他字符、点击正文）时应当发信号，
+		调用方自己收起建议时则不需要。
+	*/
+	void TextEditPrivate::dismissSuggestion(bool notifyRejected) {
+		if (SgtKind == SuggestionKind::None) {
+			return;
+		}
+		const SuggestionKind kind = SgtKind;
+		const qint32 line = SgtLine;
+		const qint32 removeSize = SgtRemoveSize;
+		const QStringList current = (SgtIndex >= 0 and SgtIndex < SgtItems.size()) ? SgtItems.at(SgtIndex) : QStringList();
+		SgtKind = SuggestionKind::None;
+		SgtLine = -1;
+		SgtItems.clear();
+		SgtIndex = 0;
+		SgtRemoveSize = 0;
+		SgtPureAdd = false;
+		SgtTitleKey.clear();
+		if (SuggestionWidget) {
+			SuggestionWidget->hide();
+		}
+		Text->viewport()->update();
+		if (not notifyRejected) {
+			return;
+		}
+		if (kind == SuggestionKind::Inline) {
+			emit q->modifySuggestionRejected(line, current.value(0));
+		}
+		else if (kind == SuggestionKind::Block) {
+			emit q->ghostTextRejected(line, current);
+		}
+		else {
+			emit q->blockRemoveRejected(line, removeSize);
+		}
+	}
+
+	/*!
+		接受当前建议并退出待抉择状态。行内建议替换目标行或追加到行尾，多行建议在目标行之前插入这些行，
+		行删除建议删除指定范围内的行。改完文档后发出对应的 Accepted 信号，让调用方知道建议已被采纳。
+
+		如果接受时目标行不在视口内，接受后会把视图滚动到实际改动的位置，否则用户看不到发生了什么。
+	*/
+	void TextEditPrivate::acceptSuggestion() {
+		if (SgtKind == SuggestionKind::None) {
+			return;
+		}
+		const SuggestionKind kind = SgtKind;
+		const qint32 line = SgtLine;
+		const qint32 removeSize = SgtRemoveSize;
+		const bool pureAdd = SgtPureAdd;
+		const QStringList current = (SgtIndex >= 0 and SgtIndex < SgtItems.size()) ? SgtItems.at(SgtIndex) : QStringList();
+		bool ignored = false;
+		const bool lineWasVisible = isSuggestionLineVisible(ignored);
+		SgtKind = SuggestionKind::None;
+		SgtLine = -1;
+		SgtItems.clear();
+		SgtIndex = 0;
+		SgtRemoveSize = 0;
+		SgtPureAdd = false;
+		SgtTitleKey.clear();
+		if (SuggestionWidget) {
+			SuggestionWidget->hide();
+		}
+		ApplyingSuggestion = true;
+		QTextDocument* document = Text->document();
+		if (kind == SuggestionKind::Inline) {
+			const QTextBlock block = document->findBlockByNumber(line);
+			if (block.isValid()) {
+				QTextCursor cursor(block);
+				if (pureAdd) {
+					// pureAdd：追加到行尾，保留原有内容。
+					cursor.movePosition(QTextCursor::EndOfBlock);
+					cursor.insertText(current.value(0));
+				}
+				else {
+					cursor.movePosition(QTextCursor::StartOfBlock);
+					cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+					cursor.insertText(current.value(0));
+				}
+				Text->setTextCursor(cursor);
+			}
+		}
+		else if (kind == SuggestionKind::Block) {
+			const QString text = current.join(QChar('\n'));
+			QTextCursor cursor(document);
+			if (line >= document->blockCount()) {
+				// 追加到文档末尾：只有当前不在一个空行开头时才需要先补一个换行。
+				cursor.movePosition(QTextCursor::End);
+				if (not cursor.atBlockStart()) {
+					cursor.insertText(QStringLiteral("\n") + text);
+				}
+				else {
+					cursor.insertText(text);
+				}
+			}
+			else {
+				cursor = QTextCursor(document->findBlockByNumber(line));
+				cursor.movePosition(QTextCursor::StartOfBlock);
+				cursor.insertText(text + QChar('\n'));
+			}
+			Text->setTextCursor(cursor);
+		}
+		else {
+			// 行删除：从目标行行首选到"删除范围之后那一行"的行首，连行带换行一起删掉。
+			const qint32 blockCount = document->blockCount();
+			const qint32 size = qMax(1, removeSize);
+			const qint32 endLine = line + size;
+			QTextCursor startCursor(document->findBlockByNumber(line));
+			startCursor.movePosition(QTextCursor::StartOfBlock);
+			int selectionStart = startCursor.position();
+			int selectionEnd = 0;
+			if (endLine < blockCount) {
+				QTextCursor endCursor(document->findBlockByNumber(endLine));
+				endCursor.movePosition(QTextCursor::StartOfBlock);
+				selectionEnd = endCursor.position();
+			}
+			else {
+				QTextCursor endCursor(document);
+				endCursor.movePosition(QTextCursor::End);
+				selectionEnd = endCursor.position();
+				// 删到文档末尾时没有"下一行行首"，改为把目标行前面那个换行一起吃掉，否则会留下一个空行。
+				selectionStart = qMax(0, selectionStart - 1);
+			}
+			QTextCursor cursor(document);
+			cursor.setPosition(selectionStart);
+			cursor.setPosition(selectionEnd, QTextCursor::KeepAnchor);
+			cursor.removeSelectedText();
+			Text->setTextCursor(cursor);
+		}
+		ApplyingSuggestion = false;
+		Text->viewport()->update();
+		// 目标行原本在视口外时，接受后要转到真正改动的位置，否则用户面对的还是一屏无关内容。
+		Text->ensureCursorVisible();
+		if (not lineWasVisible) {
+			// 尽量把它放到视口中部，而不是贴着上下边缘。
+			const QRect cursorRect = Text->cursorRect();
+			QScrollBar* verticalBar = Text->verticalScrollBar();
+			if (cursorRect.isValid() and verticalBar != nullptr) {
+				verticalBar->setValue(verticalBar->value() + cursorRect.top()
+					- (Text->viewport()->height() - cursorRect.height()) / 2);
+			}
+		}
+		if (kind == SuggestionKind::Inline) {
+			emit q->modifySuggestionAccepted(line, current.value(0));
+		}
+		else if (kind == SuggestionKind::Block) {
+			emit q->ghostTextAccepted(line, current);
+		}
+		else {
+			emit q->blockRemoveAccepted(line, removeSize);
+		}
+	}
+
+	/*!
+		\a delta 在建议列表中移动的相对位置，-1 是上一个，1 是下一个。
+
+		在待抉择状态下切换当前建议。只有一条建议时什么也不做。
+	*/
+	void TextEditPrivate::cycleSuggestion(qint32 delta) {
+		if (SgtKind == SuggestionKind::None or SgtItems.size() <= 1 or delta == 0) {
+			return;
+		}
+		const qint32 count = SgtItems.size();
+		SgtIndex = ((SgtIndex + delta) % count + count) % count;
+		updateSuggestionWidget();
+		adjustSuggestionPosition();
+		// pureAdd 的行内虚影画在行尾，切换建议后必须重绘文本区，否则看到的还是上一条。
+		if (SgtKind == SuggestionKind::Inline and SgtPureAdd) {
+			Text->viewport()->update();
+		}
+	}
+
+	void TextEditPrivate::updateSuggestionWidget() {
+		if (SuggestionWidget == nullptr) {
+			return;
+		}
+		if (SgtKind == SuggestionKind::Remove) {
+			// 删除建议没有候选内容，也不需要序号，只留标题和按钮。
+			SuggestionWidget->setIndex(-1, 0);
+			SuggestionWidget->setContent(QString());
+		}
+		else {
+			SuggestionWidget->setIndex(SgtIndex + 1, SgtItems.size());
+			SuggestionWidget->setContent(SgtItems.value(SgtIndex).join(QChar('\n')));
+		}
+		updateSuggestionTitle();
+		SuggestionWidget->applySize();
+	}
+
+	/*!
+		小标题随目标行是否在视口内变化：在视口内就写建议类型，否则改成"向上/向下滚动到行 xxx"并显示箭头。
+		只有文案真的变了才重排浮窗，滚动时不会反复 setFixedSize。
+	*/
+	void TextEditPrivate::updateSuggestionTitle() {
+		if (SuggestionWidget == nullptr or SgtKind == SuggestionKind::None) {
+			return;
+		}
+		bool above = false;
+		QString title;
+		qint32 arrow = 0;
+		if (isSuggestionLineVisible(above)) {
+			switch (SgtKind) {
+			case SuggestionKind::Inline:
+				title = SgtPureAdd ? VITRL("YSS::editor.textEdit.suggestion.pureAdd")
+					: VITRL("YSS::editor.textEdit.suggestion.inlineEdit");
+				break;
+			case SuggestionKind::Block:
+				title = VITRL("YSS::editor.textEdit.suggestion.multiLineEdit");
+				break;
+			default:
+				title = VITRL("YSS::editor.textEdit.suggestion.blockRemove");
+				break;
+			}
+		}
+		else {
+			arrow = above ? -1 : 1;
+			title = (above ? VITRL("YSS::editor.textEdit.suggestion.scrollUp")
+				: VITRL("YSS::editor.textEdit.suggestion.scrollDown")).arg(SgtLine + 1);
+		}
+		const QString key = QStringLiteral("%1|%2").arg(arrow).arg(title);
+		if (key == SgtTitleKey) {
+			return;
+		}
+		SgtTitleKey = key;
+		SuggestionWidget->setTitle(title);
+		SuggestionWidget->setScrollArrow(arrow);
+		SuggestionWidget->applySize();
+	}
+
+	/*!
+		\return 当前建议的文字。行内建议取第一行，多行建议返回全部行；删除建议没有文字，返回空。
+	*/
+	QString TextEditPrivate::currentSuggestionText() const {
+		if (SgtKind == SuggestionKind::Remove or SgtIndex < 0 or SgtIndex >= SgtItems.size()) {
+			return QString();
+		}
+		return SgtItems.at(SgtIndex).join(QChar('\n'));
+	}
+
+	/*!
+		\a above 目标行在视口上方时为 true，在视口下方时为 false（仅当返回 false 时有意义）。
+
+		\return 目标行是否至少有一部分落在视口内。
+	*/
+	bool TextEditPrivate::isSuggestionLineVisible(bool& above) const {
+		above = false;
+		QTextDocument* document = Text->document();
+		if (document == nullptr or document->blockCount() == 0 or SgtLine < 0) {
+			return false;
+		}
+		const qint32 line = qBound(0, SgtLine, document->blockCount() - 1);
+		const QTextBlock block = document->findBlockByNumber(line);
+		if (not block.isValid()) {
+			return false;
+		}
+		const QRect lineRect = Text->cursorRect(QTextCursor(block));
+		if (not lineRect.isValid()) {
+			return false;
+		}
+		const int viewportHeight = Text->viewport()->height();
+		if (lineRect.bottom() < 0) {
+			above = true;
+			return false;
+		}
+		if (lineRect.top() >= viewportHeight) {
+			above = false;
+			return false;
+		}
+		return true;
+	}
+
+	/*!
+		把建议浮窗贴到目标行右侧，并保证它不会跑出视口。
+		行号越界（例如文档被截短）时直接退出待抉择状态。
+	*/
+	void TextEditPrivate::adjustSuggestionPosition() {
+		if (SgtKind == SuggestionKind::None or SuggestionWidget == nullptr) {
+			return;
+		}
+		QTextDocument* document = Text->document();
+		if (document->blockCount() == 0 or SgtLine > document->blockCount() or SgtLine < 0) {
+			dismissSuggestion(true);
+			return;
+		}
+		const qint32 line = qBound(0, SgtLine, document->blockCount() - 1);
+		const QTextBlock block = document->findBlockByNumber(line);
+		if (not block.isValid()) {
+			dismissSuggestion(true);
+			return;
+		}
+		const QRect lineRect = Text->cursorRect(QTextCursor(block));
+		const int margin = 8;
+		// 滚动会改变目标行是否在视口内，小标题要跟着在"行内编辑建议"和"滚动到行 xxx"之间切换；
+		// 这一步可能改变浮窗宽度，所以必须在算坐标之前做。
+		updateSuggestionTitle();
+		const int viewportWidth = Text->viewport()->width();
+		const int viewportHeight = Text->viewport()->height();
+		const int x = qMax(margin, viewportWidth - SuggestionWidget->width() - margin);
+		// 右上角是测试按钮的地盘，浮窗只在这个位置让开它，其余情况仍与目标行对齐。
+		const int avoidTop = TestButton ? TestButton->geometry().bottom() + 6 : margin;
+		const int y = qBound(margin, qMax(lineRect.top(), avoidTop),
+			qMax(margin, viewportHeight - SuggestionWidget->height() - margin));
+		SuggestionWidget->move(x, y);
+	}
+
+	/*!
+		测试按钮固定在编辑区右上角，跟随视口尺寸变化。
+	*/
+	void TextEditPrivate::positionTestButton() {
+		if (TestButton == nullptr or Text == nullptr) {
+			return;
+		}
+		TestButton->move(qMax(0, Text->viewport()->width() - TestButton->width() - 6), 4);
+		TestButton->raise();
+	}
+
+	/*!
+		临时测试入口：没有建议时在当前行弹出一条演示建议，有建议时收起。
+		交替演示行内建议（多条，替换当前行）和多行建议（多条，在当前行之前插入）。
+	*/
+	void TextEditPrivate::runSuggestionDemo() {
+		if (SgtKind != SuggestionKind::None) {
+			dismissSuggestion(false);
+			return;
+		}
+		QTextDocument* document = Text->document();
+		const qint32 currentLine = Text->textCursor().blockNumber();
+		switch (TestDemoIndex % 4) {
+		case 0: {
+			const qint32 line = qBound(0, currentLine, qMax(0, document->blockCount() - 1));
+			q->showLineSuggestions(line, {
+				QStringLiteral("音乐：immutable_ins/1"),
+				QStringLiteral("背景：bg_amb2026/3"),
+				QStringLiteral("遮罩：true") });
+			break;
+		}
+		case 1: {
+			const qint32 line = qBound(0, currentLine, qMax(0, document->blockCount() - 1));
+			q->showLineSuggestions(line, {
+				QStringLiteral(", 深度: PARADISE"),
+				QStringLiteral("，透明度: 0.5") }, true);
+			break;
+		}
+		case 2: {
+			const qint32 line = qBound(0, currentLine, document->blockCount());
+			q->showBlockSuggestions(line, {
+				QStringList{
+					QStringLiteral("？？？\t好安静的地方。"),
+					QStringLiteral("？？？\t太安静了，以至于我无法判断这是好事还是坏事。") },
+				QStringList{
+					QStringLiteral("？？？\t看得到我吗？") } });
+			break;
+		}
+		default: {
+			const qint32 line = qBound(0, currentLine, qMax(0, document->blockCount() - 1));
+			q->showBlockRemoveSuggestions(line, 2);
+			break;
+		}
+		}
+		++TestDemoIndex;
+		// 浮窗本身是视口子控件，测试按钮后创建会被压在下面，这里重新抬起来。
+		positionTestButton();
 	}
 }

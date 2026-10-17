@@ -1,4 +1,4 @@
-{
+﻿{
 	"config": {
 		"title": "Yayin Story Studio 설정",
 		"general": {
@@ -254,6 +254,16 @@
 				"some": "후보 적당함",
 				"many": "후보 많음",
 				"all": "모든 후보"
+			},
+			"suggestion":{
+				"inlineEdit": "줄 전체 바꾸기 제안",
+				"pureAdd": "내용 덧붙이기 제안",
+				"multiLineEdit": "여러 줄 삽입 제안",
+				"blockRemove": "줄 삭제 제안",
+				"scrollUp": "%1행으로 위로 스크롤",
+				"scrollDown": "%1행으로 아래로 스크롤",
+				"accept": "수락",
+				"reject": "거부"
 			}
 		},
 		"debug": {

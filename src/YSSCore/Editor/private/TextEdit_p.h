@@ -1,12 +1,14 @@
 #ifndef YSSCore_Editor_private_TextEdit_p_h
 #define YSSCore_Editor_private_TextEdit_p_h
 #include <QtCore/qobject.h>
+#include <QtCore/qstringlist.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qpoint.h>
 #include <QtGui/qevent.h>
 #include <QtWidgets/qtextedit.h>
 #include <Widgets/BorderFrame.h>
+#include <Widgets/ThemeManager.h>
 #include <QtGui/qabstracttextdocumentlayout.h>
 #include "Editor/TabCompleterProvider.h"
 #include <QtGui/qimage.h>
@@ -33,11 +35,23 @@ class QGridLayout;
 class QLineEdit;
 class QLabel;
 class QPushButton;
+class QToolButton;
 class QCheckBox;
 class QScrollBar;
 namespace YSSCore::__Private__ {
 	class TabCompleterWidget;
 	class HoverInfoWidget;
+	class SuggestionWidget;
+
+	/*!
+		建议的呈现方式。
+		\list
+		\li Inline 行内建议：只作用于目标行，不增加行。pureAdd 时把文字追加到行尾，否则替换整行。
+		\li Block 多行建议：在目标行之前插入若干行，因此需要在行间画出插入位置指示。
+		\li Remove 行删除建议：删除从目标行开始的若干行，在要删除的行上叠一层半透明红底。
+		\endlist
+	*/
+	enum class SuggestionKind { None = 0, Inline, Block, Remove };
 }
 // Main Implementation
 namespace YSSCore::__Private__ {
@@ -127,12 +141,57 @@ namespace YSSCore::__Private__ {
 		YSSCore::Editor::TextEdit* editor = nullptr;
 		void paintInlayHints(QPainter& painter, const QRect& clipRect);
 		void paintInlayHint(QPainter& painter, const QRectF& gapRect, const YSSCore::Editor::InlayHint& hint) const;
+		void paintSuggestionIndicator(QPainter& painter, const QRect& clipRect);
+		void paintPureAddSuggestion(QPainter& painter, const QRect& clipRect);
+		void paintRemoveSuggestion(QPainter& painter, const QRect& clipRect);
 		bool visibleLines(qint32& firstLine, qint32& lastLine, const QRect& clipRect) const;
+	};
+
+	/*!
+		待抉择建议的浮窗。三种建议共用这一个控件：
+		\list
+		\li 行内建议：显示序号与建议文字（pureAdd 时文字也画在行尾，这里仍保留一份便于行外查看）。
+		\li 多行建议：显示序号与要插入的若干行。
+		\li 行删除建议：没有序号和正文，只有标题与接受/拒绝。
+		\endlist
+
+		顶部一行显示序号、小标题（行内/多行/行删除建议）和接受(√)、拒绝(×)按钮。
+		目标行不在视口内时，小标题会变成"向上/向下滚动到行 xxx"，并在其后显示一个同色箭头。
+		它不抢焦点：接受与拒绝同时支持键盘（Tab/Enter 接受，Esc 拒绝），按钮只是鼠标的等价入口。
+	*/
+	class SuggestionWidget :public Visindigo::Widgets::BorderFrame, public Visindigo::Widgets::ColorfulWidget {
+		Q_OBJECT;
+		friend class YSSCore::__Private__::TextEditPrivate;
+		friend class YSSCore::Editor::TextEdit;
+	signals:
+		void accepted();
+		void rejected();
+	public:
+		SuggestionWidget(YSSCore::Editor::TextEdit* editor, QWidget* parent = nullptr);
+		void setIndex(qint32 index, qint32 total);
+		void setTitle(const QString& title);
+		void setScrollArrow(qint32 direction);
+		void setContent(const QString& content);
+		void applySize();
+	protected:
+		YSSCore::Editor::TextEdit* editor = nullptr;
+		QVBoxLayout* layout = nullptr;
+		QHBoxLayout* titleLayout = nullptr;
+		QLabel* indexLabel = nullptr;
+		QLabel* titleLabel = nullptr;
+		QLabel* arrowLabel = nullptr;
+		QLabel* contentLabel = nullptr;
+		QToolButton* acceptButton = nullptr;
+		QToolButton* rejectButton = nullptr;
+		QIcon scrollUpIcon;
+		QIcon scrollDownIcon;
+		virtual void onThemeChanged() override;
 	};
 
 	class TextEditPrivate :public QObject {
 		Q_OBJECT;
 		friend class DocumentOverviewLabel;
+		friend class InlayHintTextEdit;
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::Editor::HoverInfoProvider;
 		friend class YSSCore::Editor::SyntaxHighlighter;
@@ -163,6 +222,20 @@ namespace YSSCore::__Private__ {
 		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
 		YSSCore::Editor::HoverInfoProvider* HoverInfoProvider = nullptr;
 		YSSCore::__Private__::HoverInfoWidget* HoverInfoWidget = nullptr;
+		// 待抉择建议：SgtLine 在 Inline/Remove 时是目标行，在 Block 时是要在其之前插入的行号。
+		// SgtItems 中每一项都是一条建议，行内建议只有一行，多行建议有多行；删除建议没有候选内容。
+		SuggestionKind SgtKind = SuggestionKind::None;
+		qint32 SgtLine = -1;
+		QList<QStringList> SgtItems;
+		qint32 SgtIndex = 0;
+		qint32 SgtRemoveSize = 0;
+		bool SgtPureAdd = false;
+		QString SgtTitleKey;
+		bool ApplyingSuggestion = false;
+		YSSCore::__Private__::SuggestionWidget* SuggestionWidget = nullptr;
+		// 临时测试入口：编辑区右上角的小按钮，用来手动触发上面这套建议 UI。
+		QPushButton* TestButton = nullptr;
+		qint32 TestDemoIndex = 0;
 		qint32 HoverTimeout = 400;
 		YSSCore::Editor::TabCompleterItem::CompleterLevel CompleterLevel = YSSCore::Editor::TabCompleterItem::CompleterLevel::All;
 		QTimer* HoverTimer = nullptr;
@@ -202,6 +275,18 @@ namespace YSSCore::__Private__ {
 		void onMultiSelectionChanged();
 		void adjustTabCompleterPosition();
 		void adjustHoverInfoPosition(const QTextCursor& cursor);
+		void showSuggestion(SuggestionKind kind, qint32 line, const QList<QStringList>& items, bool pureAdd = false);
+		void showRemoveSuggestion(qint32 from, qint32 size);
+		void dismissSuggestion(bool notifyRejected);
+		void acceptSuggestion();
+		void cycleSuggestion(qint32 delta);
+		void updateSuggestionWidget();
+		void updateSuggestionTitle();
+		QString currentSuggestionText() const;
+		bool isSuggestionLineVisible(bool& above) const;
+		void adjustSuggestionPosition();
+		void positionTestButton();
+		void runSuggestionDemo();
 	};
 }
 #endif // YSSCore_Editor_private_TextEdit_p_h

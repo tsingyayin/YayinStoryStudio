@@ -6,6 +6,7 @@
 #include <QtGui/qsyntaxhighlighter.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qtextbrowser.h>
 #include <QtWidgets/qtextedit.h>
@@ -70,6 +71,17 @@ namespace YSSCore::Editor {
 		提示的字号默认为正文的60%，可以用 YSSCore::Editor::TextEdit::setInlayHintFontScale 调整。
 		提示的显示用一个开关统一控制：YSSCore::Editor::TextEdit::setInlayHintVisible。关闭它只是不给提示注入空隙、也不绘制，
 		提示数据本身依然保留，与"根本不产出提示"的 YSSCore::Editor::SyntaxHighlighter::setAutoRenderInlayHint 是两回事。
+
+		\section1 待抉择建议
+		和上面的内联提示不同，建议不是为了长期显示语法信息，而是"提出一个改动并等用户决定"：
+		用 YSSCore::Editor::TextEdit::showLineSuggestions 或 showBlockSuggestions 进入待抉择状态，
+		编辑器在文本右侧弹出一个浮动小窗显示建议内容，多行建议还会在插入位置画一条通栏粗实线作为指示。
+
+		小窗左上角显示当前建议的序号与总数，右上角是接受(√)和拒绝(×)按钮；键盘上 Tab 或 Enter 接受、
+		Esc 拒绝、方向键在各条建议之间切换，输入其他字符或点击正文则视为放弃。接受时编辑器直接改文档
+		并发信号通知调用方，放弃时只发信号。一次可以给出多条建议。
+
+		这套机制完全在控件层实现：不修改文档（除了用户接受的那一刻）、不改变行高、也不进入撤销栈。
 
 		\section1 自定义文档数据
 		TextEdit允许把任意数据挂到某一行上，用来缓存这一行解析出来的信息。让数据类继承
@@ -143,6 +155,20 @@ namespace YSSCore::Editor {
 		d->TabCompleterWidget->hide();
 		d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
 		d->HoverInfoWidget->hide();
+		// 建议浮窗是编辑区的子控件，位置直接用视口坐标，滚动时由 TextEditPrivate 跟着调整。
+		d->SuggestionWidget = new YSSCore::__Private__::SuggestionWidget(this, d->Text->viewport());
+		d->SuggestionWidget->hide();
+		connect(d->SuggestionWidget, &YSSCore::__Private__::SuggestionWidget::accepted,
+			this->d, &YSSCore::__Private__::TextEditPrivate::acceptSuggestion);
+		connect(d->SuggestionWidget, &YSSCore::__Private__::SuggestionWidget::rejected,
+			this->d, [this]() { this->d->dismissSuggestion(true); });
+		// 临时测试入口：点一次弹出建议，再点收起，交替演示行内建议与多行建议。
+		d->TestButton = new QPushButton(QStringLiteral("T"), d->Text->viewport());
+		d->TestButton->setFocusPolicy(Qt::NoFocus);
+		d->TestButton->setFixedSize(22, 20);
+		d->TestButton->setToolTip(QStringLiteral("Test inlay suggestions"));
+		connect(d->TestButton, &QPushButton::clicked, this, [this]() { d->runSuggestionDemo(); });
+		d->positionTestButton();
 		d->Text->installEventFilter(d);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
@@ -189,6 +215,15 @@ namespace YSSCore::Editor {
 			}
 			else {
 				d->Overview->recalculateAll();
+			}
+			});
+		// 文档被其他途径改动（撤销、粘贴菜单等）时，指向旧文本的建议已经失效，直接收起。
+		connect(d->Text->document(), &QTextDocument::contentsChanged, this, [this]() {
+			if (d->ApplyingSuggestion) {
+				return;
+			}
+			if (d->SgtKind != YSSCore::__Private__::SuggestionKind::None) {
+				d->dismissSuggestion(false);
 			}
 			});
 		this->installEventFilter(d);
@@ -460,6 +495,70 @@ namespace YSSCore::Editor {
 	*/
 	bool TextEdit::isInlayHintVisible() const {
 		return d->InlayHintVisible;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a lineNumber 建议要作用的行号，从 0 开始。
+		\a suggestions 建议列表，每条建议是一行文字。
+		\a pureAdd 为真时建议是"纯追加"：文字被画在行尾，接受时追加到行尾而不是替换整行；为假时替换整行。
+
+		在指定行进入待抉择状态：编辑器在这一行右侧弹出一个浮动小窗显示当前建议，
+		并等待用户抉择——Tab 或 Enter 接受，Esc 拒绝，方向键在多条建议之间切换，
+		输入其他字符或点击正文则视为放弃。
+
+		接受时编辑器会把该行替换为当前建议（pureAdd 时改为追加到行尾），然后发出 modifySuggestionAccepted ；
+		放弃时发出 modifySuggestionRejected 。一次可以给出多条建议，浮窗左上角会显示"当前序号/总数"。
+	*/
+	void TextEdit::showLineSuggestions(qint32 lineNumber, const QStringList& suggestions, bool pureAdd) {
+		QList<QStringList> items;
+		for (const QString& suggestion : suggestions) {
+			items.append(QStringList{ suggestion });
+		}
+		d->showSuggestion(YSSCore::__Private__::SuggestionKind::Inline, lineNumber, items, pureAdd);
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a insertLine 插入位置所在的行号，从 0 开始；建议会插入到这一行之前。传入文档行数表示追加到末尾。
+		\a suggestions 建议列表，每条建议是若干行文字。
+
+		和 showLineSuggestions 一样进入待抉择状态，区别在于这条建议会增加行，因此编辑器会在插入位置
+		画一条通栏粗实线作为指示（左端是一个 > 形状）。接受时这些行被插入到 \a insertLine 之前并发出
+		ghostTextAccepted ，放弃时发出 ghostTextRejected 。
+	*/
+	void TextEdit::showBlockSuggestions(qint32 insertLine, const QList<QStringList>& suggestions) {
+		d->showSuggestion(YSSCore::__Private__::SuggestionKind::Block, insertLine, suggestions);
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a from 要删除的第一行，从 0 开始。
+		\a size 要删除的行数。
+
+		在指定行区间进入行删除的待抉择状态：编辑器在要删除的行上叠一层半透明红底，
+		右侧浮窗只显示"行删除建议"标题与接受/拒绝按钮（没有序号和正文，因为删除只有一种结果）。
+		接受时删除这些行并发出 blockRemoveAccepted ，放弃时发出 blockRemoveRejected 。
+	*/
+	void TextEdit::showBlockRemoveSuggestions(qint32 from, qint32 size) {
+		d->showRemoveSuggestion(from, size);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		主动退出待抉择状态，不发出被拒绝的信号。用户自己放弃时编辑器会发信号，调用方自己收起时用这个。
+	*/
+	void TextEdit::dismissSuggestions() {
+		d->dismissSuggestion(false);
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\return 当前是否处于待抉择状态。
+	*/
+	bool TextEdit::hasActiveSuggestions() const {
+		return d->SgtKind != YSSCore::__Private__::SuggestionKind::None;
 	}
 
 	/*!

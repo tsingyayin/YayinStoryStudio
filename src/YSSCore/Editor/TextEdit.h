@@ -5,6 +5,7 @@
 #include <typeindex>
 #include "Editor/FileEditWidget.h"
 #include <QtCore/qmap.h>
+#include <QtCore/qstringlist.h>
 #include <QtGui/qtextdocument.h>
 #include "Editor/DocumentMessage.h"
 #include "Editor/TabCompleterProvider.h"
@@ -17,6 +18,7 @@ class QSyntaxHighlighter;
 namespace YSSCore::__Private__ {
 	class TextEditPrivate;
 	class DocumentOverviewLabel;
+	class InlayHintTextEdit;
 }
 namespace YSSCore::Editor {
 	class TabCompleterProvider;
@@ -29,6 +31,7 @@ namespace YSSCore::Editor {
 		Q_OBJECT;
 		friend class YSSCore::__Private__::TextEditPrivate;
 		friend class YSSCore::__Private__::DocumentOverviewLabel;
+		friend class YSSCore::__Private__::InlayHintTextEdit;
 		friend class HoverInfoProvider;
 		friend class SyntaxHighlighter;
 	signals:
@@ -39,6 +42,8 @@ namespace YSSCore::Editor {
 		void modifySuggestionRejected(qint32 lineNumber, const QString& suggestion);
 		void ghostTextAccepted(qint32 insertLine, const QStringList& ghostText);
 		void ghostTextRejected(qint32 insertLine, const QStringList& ghostText);
+		void blockRemoveAccepted(qint32 from, qint32 size);
+		void blockRemoveRejected(qint32 from, qint32 size);
 		void messageChanged();
 		void messageChangedForLine(qint32 lineNumber);
 	public:
@@ -118,6 +123,12 @@ namespace YSSCore::Editor {
 		qreal getInlayHintFontScale() const;
 		void setInlayHintVisible(bool visible);
 		bool isInlayHintVisible() const;
+	public:
+		void showLineSuggestions(qint32 lineNumber, const QStringList& suggestions, bool pureAdd = false);
+		void showBlockSuggestions(qint32 insertLine, const QList<QStringList>& suggestions);
+		void showBlockRemoveSuggestions(qint32 from, qint32 size);
+		void dismissSuggestions();
+		bool hasActiveSuggestions() const;
 	protected:
 		virtual bool onCursorToPosition(qint32 lineNumber, qint32 column) override;
 		virtual bool onOpen(const QString& path) override;

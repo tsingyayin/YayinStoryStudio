@@ -1,4 +1,4 @@
-{
+﻿{
 	"config": {
 		"title": "Préférences de Yayin Story Studio",
 		"general": {
@@ -254,6 +254,16 @@
 				"some": "Quelques suggestions",
 				"many": "Beaucoup de suggestions",
 				"all": "Toutes les suggestions"
+			},
+			"suggestion":{
+				"inlineEdit": "Suggestion de remplacement de ligne",
+				"pureAdd": "Suggestion d'ajout de contenu",
+				"multiLineEdit": "Suggestion d'insertion multiligne",
+				"blockRemove": "Suggestion de suppression de ligne",
+				"scrollUp": "Faire défiler vers le haut jusqu'à la ligne %1",
+				"scrollDown": "Faire défiler vers le bas jusqu'à la ligne %1",
+				"accept": "Accepter",
+				"reject": "Rejeter"
 			}
 		},
 		"debug": {

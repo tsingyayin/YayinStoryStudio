@@ -1,4 +1,4 @@
-{
+﻿{
 	"config": {
 		"title": "Yayin Story Studio Preferences",
 		"general": {
@@ -254,6 +254,16 @@
 				"some": "Some Suggestions",
 				"many": "Many Suggestions",
 				"all": "All Suggestions"
+			},
+			"suggestion":{
+				"inlineEdit": "Replace line suggestion",
+				"pureAdd": "Append content suggestion",
+				"multiLineEdit": "Multi-line insertion suggestion",
+				"blockRemove": "Line removal suggestion",
+				"scrollUp": "Scroll up to line %1",
+				"scrollDown": "Scroll down to line %1",
+				"accept": "Accept",
+				"reject": "Reject"
 			}
 		},
 		"debug": {

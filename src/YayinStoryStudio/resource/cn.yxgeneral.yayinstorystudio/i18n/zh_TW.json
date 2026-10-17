@@ -1,4 +1,4 @@
-{
+﻿{
 	"config":{
 		"title": "Yayin Story Studio 程式設定",
 		"general":{
@@ -254,6 +254,16 @@
 				"some": "適量提示",
 				"many": "大量提示",
 				"all": "全部提示"
+			},
+			"suggestion":{
+				"inlineEdit": "取代整行建議",
+				"pureAdd": "附加內容建議",
+				"multiLineEdit": "多行插入建議",
+				"blockRemove": "行刪除建議",
+				"scrollUp": "向上捲動到行 %1",
+				"scrollDown": "向下捲動到行 %1",
+				"accept": "接受",
+				"reject": "拒絕"
 			}
 		},
 		"debug": {

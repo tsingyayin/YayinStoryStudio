@@ -20,7 +20,8 @@
             "MacroParameter": "#EEEEEE",
             "ErrorLine": "#95DB7D",
             "WarningLine": "#FFA500",
-            "InfoLine": "#55AAFF"
+            "InfoLine": "#55AAFF",
+            "InlayHint": "#A0A0A0"
 		},
 		"Light":{
 			"PlainText": "#242424",
@@ -40,7 +41,8 @@
             "MacroParameter": "#0F0F0F",
             "ErrorLine": "#95DB7D",
             "WarningLine": "#FFA500",
-            "InfoLine": "#55AAFF"
+            "InfoLine": "#55AAFF",
+            "InlayHint": "#808080"
 		}
 	}
 }

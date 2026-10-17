@@ -1,19 +1,25 @@
 #include <QtCore/qtimer.h>
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qpainter.h>
+#include <QtGui/qpainterpath.h>
 #include <QtGui/qpalette.h>
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qtextlayout.h>
 #include <QtGui/qtextobject.h>
 #include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qstyleoption.h>
+#include <QtWidgets/qtoolbutton.h>
 #include <General/TranslationHost.h>
+#include <General/VIApplication.h>
+#include <Widgets/LiquidGlassEffect.h>
+#include <Widgets/ThemeManager.h>
 #include "Editor/DocumentMessage.h"
 #include "Editor/InlayHint.h"
 #include "Editor/SyntaxHighlighter.h"
@@ -399,6 +405,9 @@ namespace YSSCore::__Private__ {
 		painter.setClipRect(event->rect());
 		painter.setRenderHint(QPainter::Antialiasing);
 		this->paintInlayHints(painter, event->rect());
+		this->paintRemoveSuggestion(painter, event->rect());
+		this->paintSuggestionIndicator(painter, event->rect());
+		this->paintPureAddSuggestion(painter, event->rect());
 	}
 
 	/*!
@@ -533,5 +542,286 @@ namespace YSSCore::__Private__ {
 		firstLine = first.blockNumber();
 		lastLine = last.blockNumber();
 		return true;
+	}
+
+	/*!
+		多行建议的插入位置指示：在目标行上沿画一条通栏粗实线，左端是一个指向文字的 > 形状。
+
+		这条线不需要在文本流里占位置，它画在两行之间的空隙上，因此不会改变任何布局。
+	*/
+	void InlayHintTextEdit::paintSuggestionIndicator(QPainter& painter, const QRect& clipRect) {
+		YSSCore::__Private__::TextEditPrivate* d = this->editor->d;
+		if (d->SgtKind != YSSCore::__Private__::SuggestionKind::Block) {
+			return;
+		}
+		QTextDocument* document = this->document();
+		if (document == nullptr or document->blockCount() == 0) {
+			return;
+		}
+		const qint32 line = qBound(0, d->SgtLine, document->blockCount() - 1);
+		const QTextBlock block = document->findBlockByNumber(line);
+		if (not block.isValid()) {
+			return;
+		}
+		const QRect lineRect = this->cursorRect(QTextCursor(block));
+		if (not lineRect.isValid()) {
+			return;
+		}
+		const int y = lineRect.top();
+		if (not clipRect.intersects(QRect(0, y - 6, this->viewport()->width(), 13))) {
+			return;
+		}
+		const QColor color = VISTM->getColor(QStringLiteral("SelectedTextBackground"));
+		if (not color.isValid()) {
+			return;
+		}
+		const int left = 2;
+		const int chevronWidth = 7;
+		const int thickness = 2;
+		const int right = this->viewport()->width();
+		painter.save();
+		painter.setPen(QPen(color, thickness, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+		painter.setBrush(Qt::NoBrush);
+		// 箭头与横线画在同一条路径里，从箭头尖端直接接出去，看起来是 >──────── 而不是断开的 > ────。
+		QPainterPath path;
+		path.moveTo(left, y - 5);
+		path.lineTo(left + chevronWidth, y);
+		path.lineTo(left, y + 5);
+		path.moveTo(left + chevronWidth, y);
+		path.lineTo(qMax(left + chevronWidth, right), y);
+		painter.drawPath(path);
+		painter.restore();
+	}
+
+	/*!
+		行删除建议：在要删除的每一行上叠一层半透明红底。
+
+		这里按行盒的上下边界取范围，横向直接铺满视口，避免逐字测量；叠色只在绘制层，不动文档。
+	*/
+	void InlayHintTextEdit::paintRemoveSuggestion(QPainter& painter, const QRect& clipRect) {
+		YSSCore::__Private__::TextEditPrivate* d = this->editor->d;
+		if (d->SgtKind != YSSCore::__Private__::SuggestionKind::Remove) {
+			return;
+		}
+		QTextDocument* document = this->document();
+		if (document == nullptr or document->blockCount() == 0) {
+			return;
+		}
+		const qint32 firstLine = qBound(0, d->SgtLine, document->blockCount() - 1);
+		const qint32 lastLine = qBound(firstLine, firstLine + qMax(1, d->SgtRemoveSize) - 1,
+			document->blockCount() - 1);
+		int top = 0;
+		int bottom = -1;
+		for (qint32 line = firstLine; line <= lastLine; ++line) {
+			const QTextBlock block = document->findBlockByNumber(line);
+			if (not block.isValid()) {
+				continue;
+			}
+			const QRect lineRect = this->cursorRect(QTextCursor(block));
+			if (not lineRect.isValid()) {
+				continue;
+			}
+			top = bottom < 0 ? lineRect.top() : qMin(top, lineRect.top());
+			bottom = qMax(bottom, lineRect.bottom());
+		}
+		if (bottom < top) {
+			return;
+		}
+		const QRect band = QRect(0, top, this->viewport()->width(), bottom - top + 1).intersected(clipRect);
+		if (band.isEmpty()) {
+			return;
+		}
+		painter.fillRect(band, QColor(0xD9, 0x30, 0x30, 64));
+	}
+
+	/*!
+		pureAdd 行内建议：把建议文字画在目标行行尾，用内联提示的弱化颜色，看起来像还没落盘的补全。
+
+		文字不进入文档，也不占布局空间；接受时才真正追加到行尾。
+	*/
+	void InlayHintTextEdit::paintPureAddSuggestion(QPainter& painter, const QRect& clipRect) {
+		YSSCore::__Private__::TextEditPrivate* d = this->editor->d;
+		if (d->SgtKind != YSSCore::__Private__::SuggestionKind::Inline or not d->SgtPureAdd) {
+			return;
+		}
+		QTextDocument* document = this->document();
+		if (document == nullptr or document->blockCount() == 0) {
+			return;
+		}
+		const QString text = d->currentSuggestionText();
+		if (text.isEmpty()) {
+			return;
+		}
+		const qint32 line = qBound(0, d->SgtLine, document->blockCount() - 1);
+		const QTextBlock block = document->findBlockByNumber(line);
+		if (not block.isValid()) {
+			return;
+		}
+		QTextCursor endOfLine(block);
+		endOfLine.movePosition(QTextCursor::EndOfBlock);
+		const QRect lineRect = this->cursorRect(endOfLine);
+		if (not lineRect.isValid() or not clipRect.intersects(lineRect)) {
+			return;
+		}
+		QFont font = document->defaultFont();
+		const QFontMetricsF metrics(font);
+		painter.save();
+		painter.setClipRect(clipRect);
+		painter.setFont(font);
+		painter.setPen(VISTM->getColor(QStringLiteral("InlayHint")));
+		painter.drawText(QPointF(lineRect.left() + 6, lineRect.top() + metrics.ascent()), text);
+		painter.restore();
+	}
+
+	SuggestionWidget::SuggestionWidget(YSSCore::Editor::TextEdit* editor, QWidget* parent)
+		: Visindigo::Widgets::BorderFrame(parent) {
+		this->editor = editor;
+		this->setAttribute(Qt::WA_ShowWithoutActivating);
+		this->setFocusPolicy(Qt::NoFocus);
+		auto* glass = new Visindigo::Widgets::LiquidGlassEffect(this);
+		glass->setBorderRadius(6);
+		glass->setBlurRadius(20);
+		this->setGraphicsEffect(glass);
+		Visindigo::Widgets::LiquidGlassEffect::applyForegroundAlpha(this);
+
+		this->layout = new QVBoxLayout(this);
+		this->layout->setContentsMargins(8, 5, 8, 6);
+		this->layout->setSpacing(4);
+
+		this->titleLayout = new QHBoxLayout();
+		this->titleLayout->setContentsMargins(0, 0, 0, 0);
+		this->titleLayout->setSpacing(6);
+
+		this->indexLabel = new QLabel(this);
+		auto titleFont = this->font();
+		titleFont.setPointSizeF(titleFont.pointSizeF() * 0.85);
+		this->indexLabel->setFont(titleFont);
+		this->titleLayout->addWidget(this->indexLabel);
+
+		// 小标题居中，用两侧的弹簧和左右元素隔开；目标行不在视口内时它会变成"滚动到行 xxx"。
+		this->titleLayout->addStretch(1);
+		this->titleLabel = new QLabel(this);
+		this->titleLabel->setFont(titleFont);
+		this->titleLabel->setAlignment(Qt::AlignCenter);
+		this->titleLayout->addWidget(this->titleLabel);
+
+		this->arrowLabel = new QLabel(this);
+		this->arrowLabel->setFixedSize(14, 14);
+		this->arrowLabel->setVisible(false);
+		this->titleLayout->addWidget(this->arrowLabel);
+		this->titleLayout->addStretch(1);
+
+		// 接受/拒绝用图标而不是文字：图标来自应用的图标字体，按语义着色（接受绿、拒绝红）。
+		this->rejectButton = new QToolButton(this);
+		this->acceptButton = new QToolButton(this);
+		const QList<QToolButton*> buttons = { this->rejectButton, this->acceptButton };
+		for (QToolButton* button : buttons) {
+			button->setFocusPolicy(Qt::NoFocus);
+			button->setAutoRaise(true);
+			button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+			button->setFixedSize(20, 18);
+			button->setIconSize(QSize(13, 13));
+			this->titleLayout->addWidget(button);
+		}
+		if (not VIApp->getIconFont().family().isEmpty()) {
+			this->acceptButton->setIcon(VIApp->getNamedFontIcon(QStringLiteral("Accept"), 64,
+				{ QColor(0x3F, 0xA4, 0x5B) }));
+			this->rejectButton->setIcon(VIApp->getNamedFontIcon(QStringLiteral("Cancel"), 64,
+				{ QColor(0xD9, 0x53, 0x4F) }));
+			this->acceptButton->setToolTip(VITRL("YSS::editor.textEdit.suggestion.accept"));
+			this->rejectButton->setToolTip(VITRL("YSS::editor.textEdit.suggestion.reject"));
+		}
+		this->layout->addLayout(this->titleLayout);
+
+		this->contentLabel = new QLabel(this);
+		this->contentLabel->setTextInteractionFlags(Qt::NoTextInteraction);
+		// 建议内容是要插入文档的原文，不能按富文本解析，否则含 < 或 & 的内容会被吃掉。
+		this->contentLabel->setTextFormat(Qt::PlainText);
+		this->contentLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+		this->layout->addWidget(this->contentLabel);
+
+		connect(this->acceptButton, &QToolButton::clicked, this, [this]() { emit accepted(); });
+		connect(this->rejectButton, &QToolButton::clicked, this, [this]() { emit rejected(); });
+	}
+
+	/*!
+		\a index 当前建议的序号，从 1 开始；\a total 建议总数。
+		\a index 小于等于 0 时不显示序号（行删除建议没有多个候选）。
+	*/
+	void SuggestionWidget::setIndex(qint32 index, qint32 total) {
+		if (index <= 0) {
+			this->indexLabel->clear();
+			this->indexLabel->setVisible(false);
+			return;
+		}
+		this->indexLabel->setText(QStringLiteral("%1/%2").arg(index).arg(total));
+		this->indexLabel->setVisible(true);
+	}
+
+	/*!
+		\a title 显示在序号与按钮之间的小标题。
+	*/
+	void SuggestionWidget::setTitle(const QString& title) {
+		this->titleLabel->setText(title);
+		this->titleLabel->setVisible(not title.isEmpty());
+	}
+
+	/*!
+		\a direction 0 隐藏箭头，-1 向上（目标行在视口上方），1 向下（目标行在视口下方）。
+		箭头用选中色着色，和"滚动到该行"的语义保持一致。
+	*/
+	void SuggestionWidget::setScrollArrow(qint32 direction) {
+		if (direction == 0) {
+			this->arrowLabel->clear();
+			this->arrowLabel->setVisible(false);
+			return;
+		}
+		const QColor color = VISTM->getColor(QStringLiteral("SelectedTextBackground"));
+		if (direction < 0) {
+			if (this->scrollUpIcon.isNull()) {
+				this->scrollUpIcon = VIApp->getNamedFontIcon(QStringLiteral("ChevronUp"), 64, { color });
+			}
+			this->arrowLabel->setPixmap(this->scrollUpIcon.pixmap(14, 14));
+		}
+		else {
+			if (this->scrollDownIcon.isNull()) {
+				this->scrollDownIcon = VIApp->getNamedFontIcon(QStringLiteral("ChevronDown"), 64, { color });
+			}
+			this->arrowLabel->setPixmap(this->scrollDownIcon.pixmap(14, 14));
+		}
+		this->arrowLabel->setVisible(true);
+	}
+
+	/*!
+		\a content 建议正文；为空时隐藏正文区（行删除建议没有正文）。
+	*/
+	void SuggestionWidget::setContent(const QString& content) {
+		if (content.isEmpty()) {
+			this->contentLabel->clear();
+			this->contentLabel->setVisible(false);
+			return;
+		}
+		this->contentLabel->setText(content);
+		this->contentLabel->setVisible(true);
+		// 建议的内容就是要放进文档的文字，因此用正文的字体来显示，看起来才和结果一致。
+		this->contentLabel->setFont(this->editor->getTextFont());
+	}
+
+	/*!
+		按当前内容重新计算浮窗大小：宽度跟随最长的一行（标题行也算），高度跟随行数，宽度上限为视口的六成。
+	*/
+	void SuggestionWidget::applySize() {
+		this->layout->activate();
+		const QSize hint = this->layout->sizeHint();
+		const QWidget* area = this->parentWidget();
+		const int areaWidth = area ? area->width() : this->editor->width();
+		const int maxWidth = qMax(220, int(areaWidth * 0.6));
+		const int width = qBound(160, hint.width() + 4, maxWidth);
+		this->setFixedSize(width, qMax(40, hint.height()));
+		this->update();
+	}
+
+	void SuggestionWidget::onThemeChanged() {
+		this->update();
 	}
 }

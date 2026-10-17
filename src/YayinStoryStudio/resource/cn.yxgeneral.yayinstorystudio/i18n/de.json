@@ -1,4 +1,4 @@
-{
+﻿{
 	"config": {
 		"title": "Einstellungen von Yayin Story Studio",
 		"general": {
@@ -254,6 +254,16 @@
 				"some": "Einige Vorschläge",
 				"many": "Viele Vorschläge",
 				"all": "Alle Vorschläge"
+			},
+			"suggestion":{
+				"inlineEdit": "Vorschlag zum Ersetzen der Zeile",
+				"pureAdd": "Vorschlag zum Anhängen von Inhalt",
+				"multiLineEdit": "Vorschlag zum Einfügen mehrerer Zeilen",
+				"blockRemove": "Zeilenlöschungsvorschlag",
+				"scrollUp": "Nach oben zu Zeile %1 scrollen",
+				"scrollDown": "Nach unten zu Zeile %1 scrollen",
+				"accept": "Annehmen",
+				"reject": "Ablehnen"
 			}
 		},
 		"debug": {
