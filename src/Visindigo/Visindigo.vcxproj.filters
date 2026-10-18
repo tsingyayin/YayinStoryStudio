@@ -245,6 +245,9 @@
     <ClCompile Include="Network\cpp\SshSessionSftp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Network\cpp\SshPath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Network\cpp\SshTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -392,6 +395,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Network\private\WebSocketRequest_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Network\SshPath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -181,7 +181,7 @@
     <ClInclude Include="General\YSSProject.h" />
     <QtMoc Include="General\private\YSSUniqueFileSystem_p.h" />
     <QtMoc Include="General\YSSUniqueFileSystem.h" />
-    <ClInclude Include="General\YSSURI.h" />
+    <QtMoc Include="General\YSSURI.h" />
     <ClInclude Include="Mystery.h" />
     <ClInclude Include="YSSCoreCompileMacro.h" />
     <QtMoc Include="Editor\TextEdit.h" />

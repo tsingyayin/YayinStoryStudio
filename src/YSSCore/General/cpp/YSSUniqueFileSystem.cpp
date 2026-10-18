@@ -962,7 +962,7 @@ namespace YSSCore::General {
 		\return 能力标志。
 	*/
 	YSSUniqueFileSystem::Capabilities YSSUniqueFileSystem::getCapabilities(const YSSURI& uri) const {
-		if (uri.isLocal()) {
+		if (uri.isNotRemote()) {
 			return this->d->Local->getCapabilities();
 		}
 		if (uri.isRemote()) {
@@ -981,7 +981,7 @@ namespace YSSCore::General {
 		\return 可用返回 true。
 	*/
 	bool YSSUniqueFileSystem::isReady(const YSSURI& uri) const {
-		if (uri.isLocal()) {
+		if (uri.isNotRemote()) {
 			return this->d->Local->isReady();
 		}
 		if (uri.isRemote()) {
@@ -1061,7 +1061,7 @@ namespace YSSCore::General {
 		}
 		const YSSURI uri = request.getUri();
 		YSSUniqueFileSystemProvider* provider = nullptr;
-		if (uri.isLocal()) {
+		if (uri.isNotRemote()) {
 			provider = this->d->Local;
 		}
 		else if (uri.isRemote()) {

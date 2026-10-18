@@ -13,10 +13,15 @@
 #ifndef YSSCore_General_YSSURI_h
 #define YSSCore_General_YSSURI_h
 #include "YSSCoreCompileMacro.h"
+#include "Editor/VirtualFilePath.h"
+#include <Network/SshPath.h>
+#include <QtCore/qfileinfo.h>
 #include <QtCore/qhashfunctions.h>
 #include <QtCore/qmetatype.h>
+#include <QtCore/qobjectdefs.h>
 #include <QtCore/qstring.h>
 #include <cstddef>
+#include <optional>
 // Forward declarations
 namespace YSSCore::General {
 	class YSSURIPrivate;
@@ -24,16 +29,16 @@ namespace YSSCore::General {
 // Main
 namespace YSSCore::General {
 	class YSSCoreAPI YSSURI {
+		Q_GADGET;
 	public:
 		enum class Scheme {
 			Unknown = 0,
 			Local,
 			SSH,
 			VirtualFile,
-			// Qt 资源（qrc）。字符串形式是 qrc:/x 或 :/x，由本机后端读取，
-			// 因为 QFile 本来就认识 ':' 前缀；写入一定会失败（资源是只读的）。
 			Resource
 		};
+		Q_ENUM(Scheme)
 	public:
 		static YSSURI fromLocalPath(const QString& path);
 		static YSSURI fromString(const QString& text);
@@ -47,11 +52,18 @@ namespace YSSCore::General {
 	public:
 		bool isValid() const;
 		Scheme getScheme() const;
-		QString getSchemeName() const;
 		bool isLocal() const;
 		bool isResource() const;
 		bool isRemote() const;
+		bool isNotRemote() const;
 		bool isVirtual() const;
+		bool isFile() const;
+		bool isDir() const;
+	public:
+		std::optional<QFileInfo> getLocalFileInfo() const;
+		std::optional<Visindigo::Network::SshPath> getSshPath() const;
+		std::optional<YSSCore::Editor::VirtualFilePath> getVirtualFilePath() const;
+		QString getResourcePath() const;
 	public:
 		QString getUser() const;
 		QString getHost() const;
@@ -62,8 +74,8 @@ namespace YSSCore::General {
 		QString getLocalPath() const;
 		QString getVirtualPath() const;
 		QString getFileName() const;
-		QString getBaseName() const;
 		QString getFileExt() const;
+		QString getFileMainName() const;
 		YSSURI parent() const;
 	public:
 		bool isUnder(const YSSURI& root) const;
@@ -71,10 +83,7 @@ namespace YSSCore::General {
 		YSSURI resolve(const QString& relativePath) const;
 	public:
 		QString toString() const;
-		QString toDisplayString() const;
-		QString toKey() const;
-		QString toIdentityKey() const;
-		std::size_t hash() const;
+		std::size_t hash(std::size_t seed = 0) const;
 		bool operator==(const YSSURI& other) const;
 		bool operator!=(const YSSURI& other) const;
 		bool operator<(const YSSURI& other) const;
@@ -85,7 +94,7 @@ namespace YSSCore::General {
 	};
 
 	inline std::size_t qHash(const YSSURI& uri, std::size_t seed = 0) noexcept {
-		return ::qHash(uri.toKey(), seed);
+		return uri.hash(seed);
 	}
 }
 Q_DECLARE_METATYPE(YSSCore::General::YSSURI)

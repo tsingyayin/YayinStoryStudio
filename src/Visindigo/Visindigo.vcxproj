@@ -197,6 +197,7 @@
     <ClCompile Include="Network\cpp\SftpRequest.cpp" />
     <ClCompile Include="Network\cpp\SshSession.cpp" />
     <ClCompile Include="Network\cpp\SshSessionSftp.cpp" />
+    <ClCompile Include="Network\cpp\SshPath.cpp" />
     <ClCompile Include="Network\cpp\SshTypes.cpp" />
     <ClCompile Include="Network\cpp\WebSocketRequest.cpp" />
   </ItemGroup>
@@ -296,6 +297,7 @@
     <QtMoc Include="Network\private\SshSession_p.h" />
     <QtMoc Include="Network\WebSocketRequest.h" />
     <QtMoc Include="Network\HttpCenter.h" />
+    <ClInclude Include="Network\SshPath.h" />
     <ClInclude Include="Network\private\HttpRequest_p.h" />
     <ClInclude Include="Network\private\HttpReply_p.h" />
     <ClInclude Include="Network\private\HttpCenter_p.h" />

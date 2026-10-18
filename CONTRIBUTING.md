@@ -181,8 +181,12 @@
 
 ### 3.2 命名规范（自定义为主，注意与 Qt 惯例不同）
 - **类名**：PascalCase（`MultiButton`、`YSSProject`、`PluginManager`）。
-- **函数/方法**：**首字母大写**（与 Qt 小写开头相反）：`getInstance()`、`loadProject()`、`toString()`；槽函数用 `onXxxChanged`。
-- **成员变量**：**PascalCase 无前缀**（`CentralWidget`、`PluginID`、`ConfigPath`）；**禁用 `m_` 前缀**。
+- **函数/方法**：**首字母小写**（维持Qt风格）：`getInstance()`、`loadProject()`、`toString()`；
+    - 槽函数用 `onXxxChanged`，槽函数和信号函数中的动词应该与实际情况相符。例如，一个信号发射时，相关属性已经改变，则应使用过去式。一个槽函数被调用时，正在对某件事进行处理，则使用现在时。
+    - getter/setter使用`getXXX()`/`setXXX()`，而不是`xxx()`/`setXxx()`，这点与Qt不同。
+    - bool的getter使用`isXXX()`，而不是`getXXX()`。
+    - 考虑到现在代码空间的大小并非寸土寸金，因此严禁在函数名上搞奇奇怪怪的缩写，除非是非常常见的缩写（如`getID()`、`setURL()`、`getJSON()`等）。在几个单词的简单命名容易引起歧义的情况下，只要不滥用，在必要时采用短句对函数命名也是可以接受的。
+- **成员变量**：**PascalCase 无前缀**（`CentralWidget`、`PluginID`、`ConfigPath`）；**禁用 `m_` 前缀**。成员变量不限制大小驼峰，但不建议在一个类内对成员变量混用大小驼峰和小驼峰。
 - **常量/宏**：全大写下划线（`VisindigoAPI`、`Compiled_VIAPI_Version`）。
 - **命名空间**：首字母大写 + C++17 `::` 嵌套：`namespace Visindigo::General`、`namespace YSSCore::General`、`namespace YSS::Editor`；私有实现放 `namespace Visindigo::__Private__`。
   - ⚠️ 命名空间易混淆：核心库用 `YSSCore::General` / `YSSCore::Editor`，主程序编辑器用 `YSS::Editor`。
@@ -243,11 +247,12 @@
 ### 4.2 QDoc 文档注释（公共 API）
 - **QDoc 必须专业且克制**：它只需要给出用户使用时的体感特征即可，如无特别必要，不要在其中详细说明实现方式。
   QDoc 是给用户看的说明手册，不是任何人的开发笔记。私有类注释和函数内注释可以较为详尽。
-- 格式：`/*! ... */` + **反斜杠命令**（`\class` `\brief` `\since` `\inmodule` `\fn` `\enum` `\a` `\property`）。
+- 格式：`/*! ... */` + **反斜杠命令**（`\class` `\brief` `\since` `\inmodule` `\fn` `\enum` `\a` `\property`；值得指出的是，`return`不需要反斜杠，直接写`return + 空格 + 说明` 即可）。
 - **不要**用 `/**` 或 `@param` / `@brief`（Javadoc 风格）。
 - 所有QtDoc注释只能写在`.cpp`文件中，`.h`中的注释QtDoc不能识别。
 - 所有实体都使用`\since` 记录引入版本（`Visindigo 0.13.0`、`YSS 0.13.0`）。
-- 函数文档直接写在函数体上方。类文档写在Private类定义之后，构造函数定义之前。
+- 如果cpp文件中有函数定义，则函数文档直接写在函数体上方。否则按后文给出顺序书写。直接写在函数体上方的QDoc文档不需要`\fn`，否则需要写`\fn`。
+- 类文档写在Private类定义之后，构造函数定义之前。
 - 类内其他在cpp文件没有对应代码的实体（如枚举、属性、信号）文档写在类文档之后，构造函数定义之前。
 - 类内其他在cpp文件没有对应代码的函数或模板函数，按声明时的顺序写在对应位置。譬如
   ```cpp
@@ -263,8 +268,9 @@
   由于这里的 `bar()` 和 `baz()` 在cpp文件中没有对应的实现代码，所以它们的文档应该按顺序排列在构造函数文档之后，`qux()`的文档之前。
 
 ### 4.3 行注释与块注释
-- 代码内用 `//` 行注释为主；`/* */` 块注释罕见。
-- 不用 `///` 三斜杠（个别历史文件有，非惯例）。
+- 一般来说，行注释用 `//`，块注释用 `/* ... */`，对于寥寥几行的注释，也可以每一行都用 `//`。
+如果不嫌麻烦的话，十几行的注释使用`//`也是允许的，前提是它不得是QDoc注释。
+- 无论是否是QDoc注释，禁止在多行注释的每一行开始使用`*`符号。
 
 ### 4.4 版本/作者/许可证头
 - 所有文件都**不写** Copyright / Author / License 头（仓库根 `LICENSE.txt` 是唯一许可证声明）。
@@ -282,5 +288,24 @@
     features remain basically stable.
     ```
     注：由人类设计API，人类指导大部分细节的文件，即使由AI完成实现，也不需要加入上述声明。
+- 标注有以上声明的文件，只要参与生成它的开发者亲自审阅并基本完全理解了实现逻辑和代码结构，并且后续一段时间内不会对代码进行重大修改的前提下，就可以将注释变更为以下内容：
+    ```plain
+    Visindigo Project AI Assisted Declaration
+
+    1. This file was generated with the assistance of AI. The design of its
+    API and implementation involved significant human involvement.
+    2. Provided that the usage characteristics of the program corresponding
+    to this code are not substantially changed, anyone is free to make
+    fundamental modifications to this code.
+    3. This code does not guarantee implementation consistency across
+    generations; it only guarantees that the corresponding program
+    features remain basically stable.
+    ```
 ### 4.5 TODO
 - 用 `// TODO: ...` 行注释，中英皆可；不使用 FIXME / XXX。
+
+## 5. 约定的编码规范
+### 5.1 资源的初始化
+- 如果一个类只存在一种构造函数（不计拷贝和移动），则允许在构造函数内初始化资源，而不必使用初始化列表
+- 除非重新赋值存在性能问题，不强制要求使用初始化列表写法。
+- 如果一个类内存在多种构造函数，且每种构造涉及的初始化资源不同，无法统一到一个init()函数中，则要求必须在声明值时就完成初始化。

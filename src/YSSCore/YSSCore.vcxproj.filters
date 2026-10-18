@@ -163,9 +163,9 @@
     <QtMoc Include="General\private\YSSUniqueFileSystem_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <ClInclude Include="General\YSSURI.h">
+    <QtMoc Include="General\YSSURI.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
+    </QtMoc>
     <ClInclude Include="Editor\EditorProjectHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>

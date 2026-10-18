@@ -61,7 +61,7 @@ namespace {
 
 	// 把请求解析成本机绝对路径。本机后端没有"根"，身份完全来自请求携带的 URI。
 	QString absolutePath(const YSSCore::General::YSSURI& uri) {
-		if (!uri.isValid() || !uri.isLocal()) {
+		if (!uri.isValid() || !uri.isNotRemote()) {
 			return QString();
 		}
 		return uri.getLocalPath();

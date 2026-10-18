@@ -119,11 +119,11 @@ namespace YSSCore::Editor {
 			return OpenedFileEditWidgets.contains(keyOf(uri));
 		}
 
-		// 索引键。统一交给 YSSURI::toIdentityKey()：本机路径优先用磁盘上的真实路径
-		// （解析符号链接、取真实大小写），拿不到再退回词法规范形式。这样"同一个文件"
-		// 不会开出两个编辑器，页面层的标签索引也用同一个键。
+		// 索引键。统一交给 YSSURI::toString()：本机路径是绝对路径（Windows 上比较时
+		// 不区分大小写，见 YSSURI::operator==），虚拟文件是 @ext!name?param，
+		// 远端是规范化的 ssh:// 字符串。页面层的标签索引也用同一个键。
 		static QString keyOf(const YSSURI& uri) {
-			return uri.toIdentityKey();
+			return uri.toString();
 		}
 	};
 	FileServerManager* FileServerManagerPrivate::Instance = nullptr;

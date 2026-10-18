@@ -578,7 +578,7 @@ namespace YSS::Editor {
 		ContentLayout->addWidget(tagLabel);
 		Labels.append(tagLabel);
 		if (UseGlobalFocus) {
-			tagLabel->setFocusOn(uri.toIdentityKey() == GlobalCurrentUri.toIdentityKey());
+			tagLabel->setFocusOn(uri.toString() == GlobalCurrentUri.toString());
 		}
 
 		connect(tagLabel, &StackTag::pinClicked, this, [this](const YSSCore::General::YSSURI& uri) {
@@ -623,13 +623,13 @@ namespace YSS::Editor {
 		const QString text = newDisplayName.isEmpty() ? newUri.getFileName() : newDisplayName;
 		label->setText(text);
 		label->setUri(newUri);
-		if (GlobalCurrentUri.toIdentityKey() == oldUri.toIdentityKey()) {
+		if (GlobalCurrentUri.toString() == oldUri.toString()) {
 			GlobalCurrentUri = newUri;
 		}
-		const QString oldKey = oldUri.toIdentityKey();
+		const QString oldKey = oldUri.toString();
 		for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
 			QStandardItem* item = WidgetSelectorModel->item(i);
-			if (item->data(Qt::UserRole).value<YSSCore::General::YSSURI>().toIdentityKey() == oldKey) {
+			if (item->data(Qt::UserRole).value<YSSCore::General::YSSURI>().toString() == oldKey) {
 				item->setText(text);
 				item->setData(QVariant::fromValue(newUri), Qt::UserRole);
 				break;
@@ -681,16 +681,16 @@ namespace YSS::Editor {
 			Labels.removeAll(targetLabel);
 			ContentLayout->removeWidget(targetLabel);
 			targetLabel->deleteLater();
-			const QString key = uri.toIdentityKey();
+			const QString key = uri.toString();
 			for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
 				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).value<YSSCore::General::YSSURI>()
-					.toIdentityKey() == key) {
+					.toString() == key) {
 					WidgetSelectorModel->removeRow(i);
 					break;
 				}
 			}
 		}
-		if (CurrentSelected.toIdentityKey() == uri.toIdentityKey()) {
+		if (CurrentSelected.toString() == uri.toString()) {
 			// Prefer the label that slid into the removed slot (its successor);
 			// if none exists, fall back to the first remaining label.
 			StackTag* next = nullptr;
@@ -713,15 +713,15 @@ namespace YSS::Editor {
 	}
 
 	void StackTagWidget::setCurrentStackLabel(const YSSCore::General::YSSURI& uri) {
-		const QString key = uri.toIdentityKey();
-		if (key == CurrentSelected.toIdentityKey()) {
+		const QString key = uri.toString();
+		if (key == CurrentSelected.toString()) {
 			return;
 		}
 		bool finded = false;
 		int i = 0;
 		int cache = i;
 		for (StackTag* label : Labels) {
-			const bool isCurrent = (label->getUri().toIdentityKey() == key);
+			const bool isCurrent = (label->getUri().toString() == key);
 			// AreaCurrent marks this area's own current widget (faint underline),
 			// independent of which area holds the global focus.
 			label->setAreaCurrent(isCurrent);
@@ -738,7 +738,7 @@ namespace YSS::Editor {
 		if (finded) {
 			for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
 				if (WidgetSelectorModel->item(i)->data(Qt::UserRole).value<YSSCore::General::YSSURI>()
-					.toIdentityKey() == key) {
+					.toString() == key) {
 					WidgetSelectorList->setCurrentIndex(WidgetSelectorModel->index(i, 0));
 					break;
 				}
@@ -755,9 +755,9 @@ namespace YSS::Editor {
 
 	void StackTagWidget::setGlobalCurrentUri(const YSSCore::General::YSSURI& uri) {
 		GlobalCurrentUri = uri;
-		const QString key = uri.toIdentityKey();
+		const QString key = uri.toString();
 		for (StackTag* label : Labels) {
-			label->setFocusOn(label->getUri().toIdentityKey() == key);
+			label->setFocusOn(label->getUri().toString() == key);
 		}
 	}
 
@@ -820,12 +820,12 @@ namespace YSS::Editor {
 	}
 
 	StackTag* StackTagWidget::findLabel(const YSSCore::General::YSSURI& uri) const {
-		const QString key = uri.toIdentityKey();
+		const QString key = uri.toString();
 		if (key.isEmpty()) {
 			return nullptr;
 		}
 		for (StackTag* label : Labels) {
-			if (label->getUri().toIdentityKey() == key) {
+			if (label->getUri().toString() == key) {
 				return label;
 			}
 		}

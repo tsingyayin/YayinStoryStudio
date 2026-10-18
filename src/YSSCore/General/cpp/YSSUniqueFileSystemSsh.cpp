@@ -13,19 +13,22 @@
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qstring.h>
 #include <Network/SftpRequest.h>
+#include <Network/SshPath.h>
 #include "General/private/YSSUniqueFileSystem_p.h"
 
 namespace {
 	using FileOperation = YSSCore::General::YSSUniqueFileSystem::Operation;
 
 	// 判断一个 SSH 目标 URI 是否属于本后端：必须与连接配置同一主机、同一端口。
+	// URI 未写端口时按默认端口比较，否则 ssh://host/x 永远找不到默认端口的连接。
 	bool isAcceptableSshTarget(const Visindigo::Network::SshConnectConfig& config,
 		const YSSCore::General::YSSURI& target) {
-		if (!target.isValid() || !target.isRemote()) {
+		const auto path = target.getSshPath();
+		if (not path) {
 			return false;
 		}
-		return target.getHost().compare(config.Host, Qt::CaseInsensitive) == 0
-			&& target.getPort() == config.Port;
+		return path->getHost().compare(config.Host, Qt::CaseInsensitive) == 0
+			&& path->getEffectivePort() == config.Port;
 	}
 
 	YSSCore::General::YSSFileError mapSshError(const Visindigo::Network::SshError& source) {

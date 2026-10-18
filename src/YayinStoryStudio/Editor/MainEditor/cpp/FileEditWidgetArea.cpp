@@ -446,7 +446,7 @@ namespace YSS::Editor {
 	}
 
 	void FileEditWidgetArea::setCurrentWidget(const YSSCore::General::YSSURI& uri) {
-		if (uri.isValid() and uri.toIdentityKey() == getCurrentWidgetUri().toIdentityKey()) {
+		if (uri.isValid() and uri.toString() == getCurrentWidgetUri().toString()) {
 			return;
 		}
 		if (not uri.isValid()) {
