@@ -76,6 +76,9 @@ namespace YSSCore::Editor {
 		virtual void closeEvent(QCloseEvent* event) override;
 	protected:
 		virtual QByteArray onBackup();
+	private:
+		// 保存成功且本次关闭正处于等待状态时，排队触发真正的关闭。
+		void finishClose();
 	};
 }
 

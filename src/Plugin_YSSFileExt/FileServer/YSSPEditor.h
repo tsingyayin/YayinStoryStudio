@@ -12,7 +12,6 @@ namespace YSSFileExt {
 		virtual ~YSSPEditor();
 	public:
 		bool onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) override;
-		bool onClose() override;
 		std::expected<QByteArray, bool> onSave(const YSSCore::General::YSSURI& uri) override;
 	private:
 		YSSPEditorPrivate* d;

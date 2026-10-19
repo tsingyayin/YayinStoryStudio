@@ -3,7 +3,6 @@
 #include <QtWidgets/qframe.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtextedit.h>
 #include <Editor/DebugServerManager.h>
@@ -95,31 +94,6 @@ namespace YSSFileExt {
 			saveFile();
 			});
 		return true;
-	}
-	bool YSSPEditor::onClose() {
-		if (isFileChanged()) {
-			int ret = QMessageBox::warning(this, VITRL("YSS::editor.saveWarning.title"),
-				VITRL("YSS::editor.saveWarning.message").arg(getFileName()),
-				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-				QMessageBox::Save);
-			switch (ret) {
-			case QMessageBox::Save:
-				saveFile();
-				return true;
-			case QMessageBox::Discard:
-				// Don't save was clicked
-				return true;
-			case QMessageBox::Cancel:
-				// Cancel was clicked
-				return false;
-			default:
-				// should never be reached
-				return false;
-			}
-		}
-		else {
-			return true;
-		}
 	}
 	std::expected<QByteArray, bool> YSSPEditor::onSave(const YSSCore::General::YSSURI& uri) {
 		Q_UNUSED(uri);

@@ -43,7 +43,10 @@ namespace Visindigo::Network {
 	struct VisindigoAPI SftpAttributes {
 		quint64 Size = 0;
 		qint64 ModifiedMs = 0;      // UTC 毫秒，0 表示服务端未给出
+		qint64 AccessedMs = 0;      // UTC 毫秒，0 表示服务端未给出
 		quint32 Permissions = 0;    // 原生权限位，0 表示服务端未给出
+		quint32 OwnerId = 0;        // 所有者 id，0 表示服务端未给出
+		quint32 GroupId = 0;        // 所属组 id，0 表示服务端未给出
 		bool IsDirectory = false;
 		bool IsSymlink = false;
 	public:
@@ -89,6 +92,9 @@ namespace Visindigo::Network {
 		void succeeded();
 		void failed(const SshError& error);
 		void finished();
+		// 传输进度。仅在 Read / Write 期间发出，节流后仍是同一个线程投递，
+		// total 为 -1 表示服务端没有给出总长度。结束时一定会再发一次终值。
+		void progressed(qint64 transferred, qint64 total);
 	public:
 		quint64 getId() const;
 		SftpOperation getOperation() const;
@@ -97,6 +103,7 @@ namespace Visindigo::Network {
 		QList<SftpEntry> getEntries() const;
 		SftpAttributes getAttributes() const;
 		qint64 getBytesTransferred() const;
+		qint64 getTotalBytes() const;
 		SshError getError() const;
 		bool isFinished() const;
 	public:

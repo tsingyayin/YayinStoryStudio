@@ -91,10 +91,27 @@ namespace {
 
 	YSSCore::General::YSSFileAttributes toAttributes(const Visindigo::Network::SftpAttributes& source) {
 		YSSCore::General::YSSFileAttributes attributes;
-		attributes.Size = source.Size;
-		attributes.ModifiedMs = source.ModifiedMs;
-		attributes.IsDirectory = source.IsDirectory;
-		attributes.IsSymlink = source.IsSymlink;
+		attributes.setSize(source.Size);
+		if (source.ModifiedMs != 0) {
+			attributes.setModifiedMs(source.ModifiedMs);
+		}
+		if (source.AccessedMs != 0) {
+			attributes.setAccessedMs(source.AccessedMs);
+		}
+		if (source.OwnerId != 0) {
+			attributes.setOwnerId(source.OwnerId);
+		}
+		if (source.GroupId != 0) {
+			attributes.setGroupId(source.GroupId);
+		}
+		// SFTP 只用 permissions 表达文件类型；没有 permissions 时目录/链接标志也不可信。
+		if (source.Permissions != 0) {
+			attributes.setPermissions(source.Permissions);
+			attributes.setIsDirectory(source.IsDirectory);
+			attributes.setIsSymlink(source.IsSymlink);
+			attributes.setIsReadOnly((source.Permissions & 0222u) == 0);
+			attributes.setIsExecutable((source.Permissions & 0111u) != 0);
+		}
 		return attributes;
 	}
 
@@ -105,6 +122,8 @@ namespace {
 			YSSCore::General::YSSFileEntry entry;
 			entry.Name = item.Name;
 			entry.Attributes = toAttributes(item.Attributes);
+			// POSIX 的隐藏属性由文件名决定，SFTP 属性里没有，只能在列表这一层补。
+			entry.Attributes.setIsHidden(item.Name.startsWith(QChar('.')));
 			entries.append(entry);
 		}
 		return entries;
@@ -314,7 +333,7 @@ namespace YSSCore::General {
 				YSSFileError error;
 				error.Type = YSSFileError::ErrorType::InvalidConfiguration;
 				error.Message = QStringLiteral("Target URI does not belong to this SSH connection");
-				error.Detail = request.hasTargetUri() ? targetPath.toString() : request.getTargetPath();
+				error.Detail = targetPath.toString();
 				this->fail(reply, error);
 				return;
 			}
@@ -331,10 +350,16 @@ namespace YSSCore::General {
 		}
 
 		YSSSshFileSystemProvider* provider = this;
+		this->markStarted(reply);
+		QObject::connect(sftpReply, &Visindigo::Network::SftpReply::progressed, this,
+			[provider, reply](qint64 transferred, qint64 total) {
+				provider->reportProgress(reply, transferred, total);
+			});
 		QObject::connect(sftpReply, &Visindigo::Network::SftpReply::succeeded, this,
 			[provider, reply, sftpReply]() {
 				provider->complete(reply, sftpReply->getData(), toEntries(sftpReply->getEntries()),
-					toAttributes(sftpReply->getAttributes()), sftpReply->getBytesTransferred());
+					toAttributes(sftpReply->getAttributes()), sftpReply->getBytesTransferred(),
+					sftpReply->getTotalBytes());
 			});
 		QObject::connect(sftpReply, &Visindigo::Network::SftpReply::failed, this,
 			[provider, reply](const Visindigo::Network::SshError& error) {

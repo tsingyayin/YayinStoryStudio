@@ -1,5 +1,6 @@
 #include <QtCore/qdir.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qmetaobject.h>
 #include <QtGui/qevent.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/Log.h>
@@ -12,9 +13,20 @@ namespace YSSCore::Editor {
 	VImplClass(FileEditWidget) {
 		VIAPI(FileEditWidget);
 protected:
+	// 关闭流程的一次性状态。只在 closeEvent() 与 finishClose() 之间使用。
+	enum class CloseStatus {
+		Default,
+		// 已放弃本次关闭，等待保存完成后再关闭。
+		WaitingSave,
+		// 保存已经完成，下一次 closeEvent 直接放行。
+		Saved
+	};
 	bool fileChanged = false;
 	bool autoAbandon = false;
 	bool saveSilent = false;
+	// 上一次保存是否属于 onSave() 主动声明的"没有内容可写"（unexpected(false)）。
+	bool saveSkipped = false;
+	CloseStatus closeStatus = CloseStatus::Default;
 	YSSCore::General::YSSURI Uri;
 	};
 
@@ -26,11 +38,10 @@ protected:
 
 		FileEditWidget是所有文件编辑器的基类，所有文件编辑器都需要继承此类。
 
-		从0.18.0开始，文件身份由 \l{YSSCore::General::YSSURI} 表示，而不是路径字符串。
-		URI 自带 scheme 与 authority，因此"本机文件"和"远端文件"在这里没有分支；本机文件
-		只是 \c file scheme 的 URI。内容也不再由编辑器自己读取：\l{FileServerManager}
-		通过 \l{YSSCore::General::YSSUniqueFileSystem} 读好二进制后，连同 URI 一起交给
-		\l{onOpen()}。编辑器因此完全不关心后端是本机还是 SSH。
+		从0.18.0开始，因为要同时支持本地文件和远程文件，YSS改用统一文件系统，因此
+		此类的文件身份从QString/QFileInfo标识，转为使用YSSURI标识。且文件的实际IO
+		不再由此类直接处理。FileEditWidget现在只需要在合适的时机，接受QByteArray作为
+		文件输入，返回QByteArray作为文件输出即可。实际的文件IO将由FileServerManager类处理。
 
 		\note 这类在0.15.0因引入虚拟文件概念而变更了虚函数顺序和声明，0.18.0又因引入 URI
 		身份再次变更，因此ABI与此前不兼容。
@@ -52,6 +63,10 @@ protected:
 		\section1 文件关闭的行为
 		只有 \l{closeFile()} 是void类型，无法通过返回值判断是否真的关闭。关闭统一在
 		\l{closeEvent()} 里处理，状态通过 \l{fileClosed()} 信号通知。
+
+		真实文件有未保存修改时，\l{closeEvent()} 负责询问保存。选择保存后本次关闭会先
+		被放弃，保存成功后再排队触发一次新的关闭；\l{onClose()} 因此不再承担询问，
+		只作为"真正关闭前"的清理与否决钩子，并且总是在保存完成之后调用。
 		\section1 文件备份的行为
 		\l{createFileBackup()} 调用 \l{onBackup()}，返回当前文件的完整内容用于备份。
 	*/
@@ -202,6 +217,7 @@ protected:
 			return false;
 		}
 		d->Uri = uri;
+		d->closeStatus = FileEditWidgetPrivate::CloseStatus::Default;
 		if (uri.isVirtual()) {
 			return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
 		}
@@ -227,6 +243,7 @@ protected:
 		}
 		if (uri.isVirtual()) {
 			d->Uri = uri;
+			d->closeStatus = FileEditWidgetPrivate::CloseStatus::Default;
 			return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
 		}
 		QByteArray data;
@@ -250,9 +267,13 @@ protected:
 		\l{FileServerManager} 完成。保存成功后依次触发 \l{fileChangeCanceled()}、
 		\l{fileSaved()}，路径变化时再触发 \l{fileRenamed()}。
 
+		如果调用发生在关闭流程中（\c{WaitingSave}），保存成功后本函数会安排一次新的
+		关闭，调用方不需要再调用 \l{closeFile()}。
+
 		虚拟文件会直接调用 \l{onVirtualSave()}，\a target 与 \a deleteWhenSaveAs 均无效。
 	*/
 	bool FileEditWidget::saveFile(const YSSCore::General::YSSURI& target, bool deleteWhenSaveAs, bool silent) {
+		d->saveSkipped = false;
 		if (d->Uri.isVirtual()) {
 			d->saveSilent = silent;
 			bool ok = onVirtualSave();
@@ -268,6 +289,9 @@ protected:
 		std::expected<QByteArray, bool> produced = onSave(targetUri);
 		d->saveSilent = false;
 		if (!produced.has_value()) {
+			// unexpected(false) 表示"本来就没有内容要写"（例如属性面板把状态写进了项目对象），
+			// 关闭流程需要把它当成已完成，而不是失败。
+			d->saveSkipped = !produced.error();
 			if (produced.error()) {
 				yWarningF << "Failed to produce content for" << targetUri.toString();
 			}
@@ -292,6 +316,8 @@ protected:
 			emit fileChangeCanceled(targetUri);
 			emit fileSaved(targetUri);
 		}
+		// 如果这次保存是关闭流程的一部分，保存成功后由这里接力完成关闭。
+		this->finishClose();
 		return true;
 	}
 
@@ -421,31 +447,14 @@ protected:
 
 		return 如果文件编辑器可以关闭，返回true；否则返回false。
 
-		默认会根据 \l{isFileChanged()} 判断并询问是否保存。若 \l{isAutoAbandon()}
-		返回true，则直接允许关闭。
+		调用时机是"已经确定要关闭、并且保存已经完成"之后、\l{fileClosed()} 之前，
+		因此适合做资源清理或最后一道否决。未保存修改的询问由 \l{closeEvent()} 负责，
+		这里不要再弹保存对话框。
 
 		\warning 不要在这个函数里调用close或deleteLater，会造成递归爆栈。
 	*/
 	bool FileEditWidget::onClose() {
-		if (isFileChanged() && not isAutoAbandon()) {
-			int ret = QMessageBox::warning(this, VITRL("YSS::editor.saveWarning.title"),
-				VITRL("YSS::editor.saveWarning.message").arg(getFileName()),
-				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-				QMessageBox::Save);
-			switch (ret) {
-			case QMessageBox::Save:
-				return saveFile();
-			case QMessageBox::Discard:
-				return true;
-			case QMessageBox::Cancel:
-				return false;
-			default:
-				return false;
-			}
-		}
-		else {
-			return true;
-		}
+		return true;
 	}
 
 	/*!
@@ -583,18 +592,96 @@ protected:
 		\since YSS 0.13.0
 		\a event 关闭事件对象。
 
-		处理文件编辑器关闭事件：调用 \l{onVirtualClose()} 或 \l{onClose()} 决定是否允许关闭，
-		允许时发出 \l{fileClosed()}。
+		处理文件编辑器关闭事件。虚拟文件由 \l{onVirtualClose()} 决定；真实文件在有
+		未保存修改时先询问保存：选择保存则放弃本次关闭，等 \l{saveFile()} 成功后由
+		\l{finishClose()} 重新发起关闭。允许关闭时发出 \l{fileClosed()}。
+
+		\l{onClose()} 只在真正关闭前调用一次，此时保存已经完成。
 	*/
 	void FileEditWidget::closeEvent(QCloseEvent* event) {
-		const bool allowed = d->Uri.isVirtual() ? onVirtualClose() : onClose();
-		if (allowed) {
+		if (d->Uri.isVirtual()) {
+			if (onVirtualClose()) {
+				event->accept();
+				emit fileClosed(d->Uri);
+			}
+			else {
+				event->ignore();
+			}
+			return;
+		}
+
+		// 已经有保存正在进行：不重复询问，也不允许这次关闭穿透。
+		if (d->closeStatus == FileEditWidgetPrivate::CloseStatus::WaitingSave) {
+			event->ignore();
+			return;
+		}
+
+		// 上一次关闭已经保存成功：直接放行。若期间又被修改（异步保存后才可能发生），
+		// 复位状态并重新走询问流程。
+		if (d->closeStatus == FileEditWidgetPrivate::CloseStatus::Saved) {
+			d->closeStatus = FileEditWidgetPrivate::CloseStatus::Default;
+			if (!isFileChanged()) {
+				if (onClose()) {
+					event->accept();
+					emit fileClosed(d->Uri);
+				}
+				else {
+					event->ignore();
+				}
+				return;
+			}
+		}
+
+		if (isFileChanged() && !isAutoAbandon()) {
+			const int ret = QMessageBox::warning(this, VITRL("YSS::editor.saveWarning.title"),
+				VITRL("YSS::editor.saveWarning.message").arg(getFileName()),
+				QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+				QMessageBox::Save);
+			if (ret == QMessageBox::Save) {
+				d->closeStatus = FileEditWidgetPrivate::CloseStatus::WaitingSave;
+				// 先放弃本次关闭，保存成功后再排队触发一次新的关闭。
+				event->ignore();
+				if (!saveFile()) {
+					if (d->saveSkipped) {
+						// onSave() 声明没有内容可写，视为保存已完成，继续关闭。
+						this->finishClose();
+					}
+					else {
+						d->closeStatus = FileEditWidgetPrivate::CloseStatus::Default;
+					}
+				}
+				return;
+			}
+			if (ret != QMessageBox::Discard) {
+				event->ignore();
+				return;
+			}
+		}
+
+		if (onClose()) {
 			event->accept();
 			emit fileClosed(d->Uri);
 		}
 		else {
 			event->ignore();
 		}
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		由 \l{saveFile()} 在保存成功后调用。只有本次关闭正处于等待保存状态时才生效：
+		把状态推进到 \c{Saved}，并排队触发一次新的关闭，避免在 closeEvent 的调用栈内
+		重入关闭。
+
+		将来保存改为异步时，只需在保存完成的回调里调用它。
+	*/
+	void FileEditWidget::finishClose() {
+		if (d->closeStatus != FileEditWidgetPrivate::CloseStatus::WaitingSave) {
+			return;
+		}
+		d->closeStatus = FileEditWidgetPrivate::CloseStatus::Saved;
+		QMetaObject::invokeMethod(this, [this]() { this->close(); }, Qt::QueuedConnection);
 	}
 
 	/*!

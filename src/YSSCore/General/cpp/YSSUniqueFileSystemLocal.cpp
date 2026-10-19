@@ -11,6 +11,7 @@
 	   features remain basically stable.
 */
 #include <QtCore/qdir.h>
+#include <QtCore/qfiledevice.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qmetaobject.h>
@@ -21,6 +22,11 @@
 
 namespace {
 	using FileOperation = YSSCore::General::YSSUniqueFileSystem::Operation;
+	using ProgressCallback = std::function<void(qint64, qint64)>;
+
+	// 读写分块大小与进度节流阈值。
+	constexpr qint64 LocalChunkBytes = 64 * 1024;
+	constexpr qint64 LocalProgressStepBytes = 256 * 1024;
 
 	struct YSSLocalOutcome {
 		bool Ok = false;
@@ -29,6 +35,7 @@ namespace {
 		QList<YSSCore::General::YSSFileEntry> Entries;
 		YSSCore::General::YSSFileAttributes Attributes;
 		qint64 Bytes = 0;
+		qint64 Total = -1;
 	};
 
 	YSSCore::General::YSSFileError makeLocalError(YSSCore::General::YSSFileError::ErrorType type,
@@ -67,16 +74,77 @@ namespace {
 		return uri.getLocalPath();
 	}
 
+	// QFileInfo::ownerId() / groupId() 在不支持 owner 的平台上返回 (uint)-2。
+	const quint32 InvalidFileId = static_cast<quint32>(-2);
+
+	// 把 Qt 的跨平台权限集合映射成 POSIX mode，至少与 SFTP 给出的权限位可比。
+	quint32 posixModeOf(QFileDevice::Permissions permissions) {
+		quint32 mode = 0;
+		if (permissions.testFlag(QFileDevice::ReadOwner) || permissions.testFlag(QFileDevice::ReadUser)) {
+			mode |= 0400;
+		}
+		if (permissions.testFlag(QFileDevice::WriteOwner) || permissions.testFlag(QFileDevice::WriteUser)) {
+			mode |= 0200;
+		}
+		if (permissions.testFlag(QFileDevice::ExeOwner) || permissions.testFlag(QFileDevice::ExeUser)) {
+			mode |= 0100;
+		}
+		if (permissions.testFlag(QFileDevice::ReadGroup)) {
+			mode |= 0040;
+		}
+		if (permissions.testFlag(QFileDevice::WriteGroup)) {
+			mode |= 0020;
+		}
+		if (permissions.testFlag(QFileDevice::ExeGroup)) {
+			mode |= 0010;
+		}
+		if (permissions.testFlag(QFileDevice::ReadOther)) {
+			mode |= 0004;
+		}
+		if (permissions.testFlag(QFileDevice::WriteOther)) {
+			mode |= 0002;
+		}
+		if (permissions.testFlag(QFileDevice::ExeOther)) {
+			mode |= 0001;
+		}
+		return mode;
+	}
+
 	YSSCore::General::YSSFileAttributes attributesOf(const QFileInfo& info) {
 		YSSCore::General::YSSFileAttributes attributes;
-		attributes.Size = static_cast<quint64>(info.size());
-		attributes.ModifiedMs = info.lastModified().toMSecsSinceEpoch();
-		attributes.IsDirectory = info.isDir();
-		attributes.IsSymlink = info.isSymLink();
+		attributes.setSize(static_cast<quint64>(info.size()));
+		attributes.setModifiedMs(info.lastModified().toMSecsSinceEpoch());
+		attributes.setIsDirectory(info.isDir());
+		attributes.setIsSymlink(info.isSymLink());
+		attributes.setIsHidden(info.isHidden());
+		attributes.setIsReadOnly(!info.isWritable());
+		attributes.setIsExecutable(info.isExecutable());
+		attributes.setPermissions(posixModeOf(info.permissions()));
+		if (info.birthTime().isValid()) {
+			attributes.setCreatedMs(info.birthTime().toMSecsSinceEpoch());
+		}
+		if (info.lastRead().isValid()) {
+			attributes.setAccessedMs(info.lastRead().toMSecsSinceEpoch());
+		}
+		const quint32 ownerId = info.ownerId();
+		if (ownerId != 0 && ownerId != InvalidFileId) {
+			attributes.setOwnerId(ownerId);
+		}
+		const quint32 groupId = info.groupId();
+		if (groupId != 0 && groupId != InvalidFileId) {
+			attributes.setGroupId(groupId);
+		}
+		if (info.isSymLink()) {
+			const QString linkTarget = info.symLinkTarget();
+			if (!linkTarget.isEmpty()) {
+				attributes.setLinkTarget(linkTarget);
+			}
+		}
 		return attributes;
 	}
 
-	YSSLocalOutcome computeLocal(const YSSCore::General::YSSFileSystemRequest& request) {
+	YSSLocalOutcome computeLocal(const YSSCore::General::YSSFileSystemRequest& request,
+		const ProgressCallback& report) {
 		using namespace YSSCore::General;
 		YSSLocalOutcome outcome;
 		const QString detail = request.getUri().toString();
@@ -111,8 +179,20 @@ namespace {
 					QStringLiteral("Cannot open the file for reading"), file.errorString());
 				return outcome;
 			}
-			outcome.Data = file.readAll();
-			outcome.Bytes = outcome.Data.size();
+			outcome.Total = file.size();
+			qint64 reported = 0;
+			for (;;) {
+				const QByteArray chunk = file.read(LocalChunkBytes);
+				if (chunk.isEmpty()) {
+					break;
+				}
+				outcome.Data.append(chunk);
+				outcome.Bytes += chunk.size();
+				if (report && outcome.Bytes - reported >= LocalProgressStepBytes) {
+					reported = outcome.Bytes;
+					report(outcome.Bytes, outcome.Total);
+				}
+			}
 			if (file.error() != QFileDevice::NoError) {
 				outcome.Error = makeLocalError(YSSFileError::ErrorType::IoError,
 					QStringLiteral("Cannot read the file"), file.errorString());
@@ -131,14 +211,26 @@ namespace {
 				return outcome;
 			}
 			const QByteArray payload = request.getData();
-			const qint64 written = file.write(payload);
+			outcome.Total = payload.size();
+			qint64 reported = 0;
+			while (outcome.Bytes < payload.size()) {
+				const qint64 written = file.write(payload.constData() + outcome.Bytes,
+					qMin<qint64>(LocalChunkBytes, payload.size() - outcome.Bytes));
+				if (written <= 0) {
+					break;
+				}
+				outcome.Bytes += written;
+				if (report && outcome.Bytes - reported >= LocalProgressStepBytes) {
+					reported = outcome.Bytes;
+					report(outcome.Bytes, outcome.Total);
+				}
+			}
 			file.close();
-			if (written != payload.size()) {
+			if (outcome.Bytes != payload.size()) {
 				outcome.Error = makeLocalError(YSSFileError::ErrorType::IoError,
 					QStringLiteral("Cannot write the file"), file.errorString());
 				return outcome;
 			}
-			outcome.Bytes = written;
 			outcome.Ok = true;
 			return outcome;
 		}
@@ -355,7 +447,11 @@ namespace YSSCore::General {
 		\a reply 结果对象。
 	*/
 	void YSSLocalFileSystemProvider::runRequest(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) {
-		const YSSLocalOutcome outcome = computeLocal(request);
+		this->markStarted(reply);
+		const YSSLocalOutcome outcome = computeLocal(request,
+			[this, reply](qint64 transferred, qint64 total) {
+				this->reportProgress(reply, transferred, total);
+			});
 		{
 			QMutexLocker locker(&this->d->Mutex);
 			this->d->Outcomes.insert(reply, outcome);
@@ -382,7 +478,8 @@ namespace YSSCore::General {
 			outcome = this->d->Outcomes.take(reply);
 		}
 		if (outcome.Ok) {
-			this->complete(reply, outcome.Data, outcome.Entries, outcome.Attributes, outcome.Bytes);
+			this->complete(reply, outcome.Data, outcome.Entries, outcome.Attributes,
+				outcome.Bytes, outcome.Total);
 		}
 		else {
 			this->fail(reply, outcome.Error);

@@ -24,6 +24,8 @@ namespace {
 	constexpr qint64 SftpMaxTransferBytes = 64 * 1024 * 1024;
 	// 每次 pump 里处理 SFTP 队列的时间预算，它决定了 exec 通道最多被挡住多久。
 	constexpr qint64 SftpTickBudgetMs = 100;
+	// 进度上报的最小字节间隔。按字节节流，避免小文件产生大量无意义的信号。
+	constexpr qint64 SftpProgressStepBytes = 256 * 1024;
 
 	Visindigo::Network::SftpAttributes toAttributes(const LIBSSH2_SFTP_ATTRIBUTES& attributes) {
 		Visindigo::Network::SftpAttributes result;
@@ -31,7 +33,12 @@ namespace {
 			result.Size = attributes.filesize;
 		}
 		if ((attributes.flags & LIBSSH2_SFTP_ATTR_ACMODTIME) != 0) {
+			result.AccessedMs = static_cast<qint64>(attributes.atime) * 1000;
 			result.ModifiedMs = static_cast<qint64>(attributes.mtime) * 1000;
+		}
+		if ((attributes.flags & LIBSSH2_SFTP_ATTR_UIDGID) != 0) {
+			result.OwnerId = static_cast<quint32>(attributes.uid);
+			result.GroupId = static_cast<quint32>(attributes.gid);
 		}
 		if ((attributes.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) != 0) {
 			result.Permissions = attributes.permissions;
@@ -121,6 +128,8 @@ namespace Visindigo::Network {
 			LIBSSH2_SFTP* sftp = this->Sftp;
 			LIBSSH2_SFTP_HANDLE* handle = nullptr;
 			QString explicitError;
+			qint64 total = -1;
+			qint64 reported = 0;
 
 			this->setBlockingTemporarily([&]() {
 				switch (operation.Operation) {
@@ -160,12 +169,22 @@ namespace Visindigo::Network {
 					if (handle == nullptr) {
 						break;
 					}
+					LIBSSH2_SFTP_ATTRIBUTES info;
+					memset(&info, 0, sizeof(info));
+					if (libssh2_sftp_fstat_ex(handle, &info, 0) == 0
+						&& (info.flags & LIBSSH2_SFTP_ATTR_SIZE) != 0) {
+						total = static_cast<qint64>(info.filesize);
+					}
 					char buffer[16384];
 					for (;;) {
 						const ssize_t got = libssh2_sftp_read(handle, buffer, sizeof(buffer));
 						if (got > 0) {
 							result.Data.append(buffer, static_cast<int>(got));
 							result.BytesTransferred += got;
+							if (result.BytesTransferred - reported >= SftpProgressStepBytes) {
+								reported = result.BytesTransferred;
+								emit this->sftpProgressed(operation.Id, reported, total);
+							}
 							if (result.BytesTransferred > SftpMaxTransferBytes) {
 								result.Data.clear();
 								explicitError = QStringLiteral("%1 exceeds the %2 byte SFTP read limit")
@@ -193,6 +212,7 @@ namespace Visindigo::Network {
 					if (handle == nullptr) {
 						break;
 					}
+					total = operation.Payload.size();
 					bool failed = false;
 					while (result.BytesTransferred < operation.Payload.size()) {
 						const qint64 remaining = operation.Payload.size() - result.BytesTransferred;
@@ -204,6 +224,10 @@ namespace Visindigo::Network {
 							break;
 						}
 						result.BytesTransferred += written;
+						if (result.BytesTransferred - reported >= SftpProgressStepBytes) {
+							reported = result.BytesTransferred;
+							emit this->sftpProgressed(operation.Id, reported, total);
+						}
 					}
 					if (!failed) {
 						result.Succeeded = true;
@@ -264,6 +288,7 @@ namespace Visindigo::Network {
 				}
 			});
 
+			result.TotalBytes = total;
 			emit this->sftpFinished(operation.Id, result);
 		}
 	}

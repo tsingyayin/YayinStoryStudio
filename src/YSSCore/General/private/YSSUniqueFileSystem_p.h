@@ -33,6 +33,13 @@ namespace YSSCore::General {
 		Q_OBJECT;
 		friend class YSSUniqueFileSystem;
 		friend class YSSFileSystemReply;
+	signals:
+		// 后端真正开始处理该请求。只带 id，避免结果对象在排队期间被销毁后留下悬空指针。
+		void started(quint64 id);
+		// 传输进度。可以从任意线程发出，门面会排队回自己的线程。
+		void progressed(quint64 id, qint64 transferred, qint64 total);
+		// 请求已经结束（成功或失败）。
+		void finished(quint64 id, bool ok);
 	public:
 		YSSUniqueFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSUniqueFileSystemProvider();
@@ -41,9 +48,11 @@ namespace YSSCore::General {
 		virtual bool isReady() const = 0;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) = 0;
 	protected:
+		void markStarted(YSSFileSystemReply* reply);
+		void reportProgress(YSSFileSystemReply* reply, qint64 transferred, qint64 total);
 		void complete(YSSFileSystemReply* reply, const QByteArray& data,
 			const QList<YSSFileEntry>& entries, const YSSFileAttributes& attributes,
-			qint64 bytesTransferred);
+			qint64 bytesTransferred, qint64 totalBytes = -1);
 		void fail(YSSFileSystemReply* reply, const YSSFileError& error);
 	};
 

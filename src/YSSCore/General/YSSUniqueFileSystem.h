@@ -24,10 +24,12 @@ namespace Visindigo::Network {
 	struct SshConnectConfig;
 }
 namespace YSSCore::General {
+	class YSSFileAttributesPrivate;
 	class YSSFileSystemReply;
 	class YSSFileSystemReplyPrivate;
 	class YSSFileSystemRequest;
 	class YSSFileSystemRequestPrivate;
+	struct YSSFileSystemTask;
 	class YSSUniqueFileSystemPrivate;
 	class YSSUniqueFileSystemProvider;
 }
@@ -58,14 +60,88 @@ namespace YSSCore::General {
 		QString toString() const;
 	};
 
-	struct YSSCoreAPI YSSFileAttributes {
-		quint64 Size = 0;
-		qint64 ModifiedMs = 0;
-		bool IsDirectory = false;
-		bool IsSymlink = false;
+	// 文件属性。值类型 + PIMPL。
+	//
+	// 每个字段是否可信由 Field 位掩码单独记录：后端拿不到的字段保持默认值，
+	// 并且不会出现在 getKnownFields() 里。调用方应当用 hasField() 判断，
+	// 而不是用"0 就是未知"这类哨兵值——0 本身也可能是合法取值。
+	//
+	// 掩码底层是 quint64，因此最多可以登记 64 个字段；当前远未达到上限。
+	class YSSCoreAPI YSSFileAttributes {
+		Q_GADGET;
 	public:
+		enum class Field : quint64 {
+			None = 0,
+			// 大小与时间
+			Size = 1ull << 0,
+			ModifiedMs = 1ull << 1,
+			CreatedMs = 1ull << 2,
+			AccessedMs = 1ull << 3,
+			// 类型
+			IsDirectory = 1ull << 4,
+			IsSymlink = 1ull << 5,
+			// 通用标志
+			IsHidden = 1ull << 6,
+			IsReadOnly = 1ull << 7,
+			IsExecutable = 1ull << 8,
+			// POSIX 元数据
+			Permissions = 1ull << 9,
+			OwnerId = 1ull << 10,
+			GroupId = 1ull << 11,
+			// 符号链接
+			LinkTarget = 1ull << 12
+		};
+		Q_ENUM(Field)
+		Q_DECLARE_FLAGS(Fields, Field)
+		Q_FLAG(Fields)
+	public:
+		YSSFileAttributes();
+		VICopyable(YSSFileAttributes);
+		VIMoveable(YSSFileAttributes);
+		~YSSFileAttributes();
+	public:
+		// 哪些字段是后端真正给出的。
+		Fields getKnownFields() const;
+		bool hasField(Field field) const;
+		bool hasFields(Fields fields) const;
+		void setFieldKnown(Field field, bool known);
+	public:
+		// 对应字段未知时返回默认值（数值为 0、布尔为 false、字符串为空）。
+		quint64 getSize() const;
+		qint64 getModifiedMs() const;
+		qint64 getCreatedMs() const;
+		qint64 getAccessedMs() const;
+		bool isDirectory() const;
+		bool isSymlink() const;
+		bool isHidden() const;
+		bool isReadOnly() const;
+		bool isExecutable() const;
+		quint32 getPermissions() const;
+		quint32 getOwnerId() const;
+		quint32 getGroupId() const;
+		QString getLinkTarget() const;
+	public:
+		// 每个 setter 同时把对应字段标记为可信。
+		void setSize(quint64 size);
+		void setModifiedMs(qint64 modifiedMs);
+		void setCreatedMs(qint64 createdMs);
+		void setAccessedMs(qint64 accessedMs);
+		void setIsDirectory(bool isDirectory);
+		void setIsSymlink(bool isSymlink);
+		void setIsHidden(bool isHidden);
+		void setIsReadOnly(bool isReadOnly);
+		void setIsExecutable(bool isExecutable);
+		void setPermissions(quint32 permissions);
+		void setOwnerId(quint32 ownerId);
+		void setGroupId(quint32 groupId);
+		void setLinkTarget(const QString& linkTarget);
+	public:
+		// 至少有一个字段可信。存在但信息全缺的对象是不合法的。
 		bool isValid() const;
+	private:
+		YSSFileAttributesPrivate* d;
 	};
+	Q_DECLARE_OPERATORS_FOR_FLAGS(YSSFileAttributes::Fields)
 
 	struct YSSCoreAPI YSSFileEntry {
 		QString Name;
@@ -80,12 +156,17 @@ namespace YSSCore::General {
 		QList<YSSFileEntry> Entries;
 		YSSFileAttributes Attributes;
 		qint64 BytesTransferred = 0;
+		// 传输总量；-1 表示后端没有给出（例如 SFTP 服务端未返回尺寸）。
+		qint64 TotalBytes = -1;
 	public:
 		bool isError() const;
 	};
 
 	// 这是唯一对外的入口，进程内单例。本机后端始终可用；SSH 后端需要先配置并连接，
 	// 之后才参与路由。两者共存，不是二选一：URI 的 scheme 决定走哪一条。
+	//
+	// 同一 URI 上的请求按提交顺序串行执行（重命名同时占用目标 URI），不同 URI 之间
+	// 互不阻塞。排队情况可用 getTasks() 查看。
 	//
 	// 真实后端的实现细节（Provider 与 Local/SSH 两个实现）都在
 	// 私有头 General/private/YSSUniqueFileSystem_p.h 里。
@@ -98,6 +179,14 @@ namespace YSSCore::General {
 	signals:
 		void sshReadyChanged(bool ready);
 		void sshConnectFinished(bool ok, const QString& message);
+		// 任务进入队列（提交成功，尚未开始执行）。
+		void taskQueued(const YSSFileSystemTask& task);
+		// 后端真正开始处理该任务。排队中的任务不会有这个信号。
+		void taskStarted(const YSSFileSystemTask& task);
+		// 读写进度，节流后发出；total 为 -1 表示总长度未知。
+		void taskProgressed(quint64 id, qint64 transferred, qint64 total);
+		// 任务结束（成功或失败），此时该任务已从 getTasks() 中移除。
+		void taskFinished(quint64 id, bool ok);
 	public:
 		enum class Operation {
 			Unknown = 0,
@@ -138,6 +227,11 @@ namespace YSSCore::General {
 		Capabilities getCapabilities(const YSSURI& uri) const;
 		bool isReady(const YSSURI& uri) const;
 	public:
+		// 尚未结束的任务快照，按提交顺序排列。只在门面对象所属线程调用。
+		QList<YSSFileSystemTask> getTasks() const;
+		int getTaskCount() const;
+		int getQueuedTaskCount() const;
+	public:
 		// 设置远端连接信息。设置成功之后仍需 connectSsh() 才会真正连上。
 		bool setSshConnectConfig(const Visindigo::Network::SshConnectConfig& config);
 		bool isSshConfigured() const;
@@ -157,29 +251,47 @@ namespace YSSCore::General {
 		YSSFileSystemReply* mkdir(const YSSURI& uri);
 		YSSFileSystemReply* rmdir(const YSSURI& uri);
 	private:
+		void onProviderStarted(quint64 id);
+		void onProviderProgressed(quint64 id, qint64 transferred, qint64 total);
+		void onProviderFinished(quint64 id, bool ok);
+		// 同一 URI（含重命名目标）上的请求串行执行所需的身份键。
+		QStringList taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const;
+		void schedulePending();
+	private:
 		YSSUniqueFileSystemPrivate* d;
 	};
 	Q_DECLARE_OPERATORS_FOR_FLAGS(YSSUniqueFileSystem::Capabilities)
 
+	// UFS 中的一个未结束任务。值类型快照，由 getTasks() 返回。
+	struct YSSCoreAPI YSSFileSystemTask {
+		quint64 Id = 0;
+		YSSURI Uri;
+		YSSURI TargetUri;
+		YSSUniqueFileSystem::Operation Operation = YSSUniqueFileSystem::Operation::Unknown;
+		qint64 QueuedAtMs = 0;
+		qint64 StartedAtMs = 0;
+		qint64 BytesTransferred = 0;
+		qint64 TotalBytes = -1;
+	public:
+		bool isRunning() const;
+		// 进度百分比，0..100；总长度未知或为 0 时返回 -1。
+		qreal progressPercent() const;
+	};
+
 	class YSSCoreAPI YSSFileSystemRequest {
 	public:
 		YSSFileSystemRequest();
-		YSSFileSystemRequest(YSSUniqueFileSystem::Operation operation, const QString& path);
 		VICopyable(YSSFileSystemRequest);
 		VIMoveable(YSSFileSystemRequest);
 		~YSSFileSystemRequest();
 	public:
 		YSSFileSystemRequest& setOperation(YSSUniqueFileSystem::Operation operation);
-		YSSFileSystemRequest& setPath(const QString& path);
-		YSSFileSystemRequest& setTargetPath(const QString& targetPath);
 		YSSFileSystemRequest& setUri(const YSSURI& uri);
 		YSSFileSystemRequest& setTargetUri(const YSSURI& uri);
 		YSSFileSystemRequest& setData(const QByteArray& data);
 		YSSFileSystemRequest& setAutoDelete(bool autoDelete);
 	public:
 		YSSUniqueFileSystem::Operation getOperation() const;
-		QString getPath() const;
-		QString getTargetPath() const;
 		YSSURI getUri() const;
 		YSSURI getTargetUri() const;
 		bool hasUri() const;
@@ -201,15 +313,18 @@ namespace YSSCore::General {
 		void succeeded();
 		void failed(const YSSFileError& error);
 		void finished();
+		// 传输进度，仅 Read / Write 会发出；节流后的中间值，结束时一定再发一次终值。
+		// total 为 -1 表示后端没有给出总长度。
+		void progressed(qint64 transferred, qint64 total);
 	public:
 		quint64 getId() const;
 		YSSURI getUri() const;
 		YSSUniqueFileSystem::Operation getOperation() const;
-		QString getPath() const;
 		QByteArray getData() const;
 		QList<YSSFileEntry> getEntries() const;
 		YSSFileAttributes getAttributes() const;
 		qint64 getBytesTransferred() const;
+		qint64 getTotalBytes() const;
 		YSSFileError getError() const;
 		bool isFinished() const;
 	public:
@@ -227,4 +342,5 @@ namespace YSSCore::General {
 		YSSFileSystemReplyPrivate* d;
 	};
 }
+Q_DECLARE_METATYPE(YSSCore::General::YSSFileSystemTask)
 #endif // YSSCore_General_YSSUniqueFileSystem_h

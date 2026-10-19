@@ -50,6 +50,7 @@ namespace Visindigo::Network {
 		QList<SftpEntry> Entries;
 		SftpAttributes Attributes;
 		qint64 BytesTransferred = 0;
+		qint64 TotalBytes = -1;
 		SshError Error;
 		bool Finished = false;
 		bool AutoDelete = true;
@@ -63,6 +64,7 @@ namespace Visindigo::Network {
 		QList<SftpEntry> Entries;
 		SftpAttributes Attributes;
 		qint64 BytesTransferred = 0;
+		qint64 TotalBytes = -1;
 	};
 
 	// 工作线程内的一条 SFTP 操作。读、写、列目录需要跨多次 pump 保持句柄，
@@ -125,6 +127,7 @@ namespace Visindigo::Network {
 		void channelClosed(quint64 id, qint32 exitStatus, bool hasExitStatus);
 		void channelFailed(quint64 id, const Visindigo::Network::SshError& error);
 		void sftpFinished(quint64 id, const Visindigo::Network::SshSftpResult& result);
+		void sftpProgressed(quint64 id, qint64 transferred, qint64 total);
 	protected:
 		_LIBSSH2_SESSION* Session = nullptr;
 		_LIBSSH2_SFTP* Sftp = nullptr;
@@ -191,6 +194,7 @@ namespace Visindigo::Network {
 		void onChannelFailed(quint64 id, const SshError& error);
 		void registerSftp(const SftpRequest& request, SftpReply* reply);
 		void onSftpFinished(quint64 id, const SshSftpResult& result);
+		void onSftpProgressed(quint64 id, qint64 transferred, qint64 total);
 		void detachSftpReply(quint64 id);
 		void abortPendingSftp();
 	};

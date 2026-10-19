@@ -38,7 +38,9 @@ namespace Visindigo::Network {
 		\list
 		\li \b{Size} 文件字节数；目录为 0。
 		\li \b{ModifiedMs} 修改时间的 UTC 毫秒数，0 表示服务端没有给出。
+		\li \b{AccessedMs} 访问时间的 UTC 毫秒数，0 表示服务端没有给出。
 		\li \b{Permissions} 原生权限位，0 表示服务端没有给出。
+		\li \b{OwnerId} / \b{GroupId} 所有者 / 所属组的数字 id，0 表示服务端没有给出。
 		\li \b{IsDirectory} 是否为目录。
 		\li \b{IsSymlink} 是否为符号链接。
 		\endlist
@@ -86,10 +88,11 @@ namespace Visindigo::Network {
 
 		判断属性是否携带了有效信息。
 
-		\return 尺寸、时间或权限至少有一项非零时返回 true。
+		\return 尺寸、时间、权限、所有者或类型标志至少有一项非默认值时返回 true。
 	*/
 	bool SftpAttributes::isValid() const {
-		return Size != 0 || ModifiedMs != 0 || Permissions != 0 || IsDirectory || IsSymlink;
+		return Size != 0 || ModifiedMs != 0 || AccessedMs != 0 || Permissions != 0
+			|| OwnerId != 0 || GroupId != 0 || IsDirectory || IsSymlink;
 	}
 
 	/*!
@@ -376,12 +379,23 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		取实际传输的字节数，读与写都有值。
+		取已传输的字节数。传输期间随 \l{progressed()} 更新，结束后为终值。
 
 		\return 字节数。
 	*/
 	qint64 SftpReply::getBytesTransferred() const {
 		return this->d->BytesTransferred;
+	}
+
+	/*!
+		\since Visindigo 0.18.0
+
+		取本次传输的总字节数；服务端没有给出时为 -1。
+
+		\return 总字节数或 -1。
+	*/
+	qint64 SftpReply::getTotalBytes() const {
+		return this->d->TotalBytes;
 	}
 
 	/*!

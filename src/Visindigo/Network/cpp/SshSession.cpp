@@ -769,6 +769,10 @@ namespace Visindigo::Network {
 			[this](quint64 id, const SshError& error) { this->onChannelFailed(id, error); });
 		QObject::connect(this->Worker, &SshSessionWorker::sftpFinished, this->Q,
 			[this](quint64 id, const SshSftpResult& result) { this->onSftpFinished(id, result); });
+		QObject::connect(this->Worker, &SshSessionWorker::sftpProgressed, this->Q,
+			[this](quint64 id, qint64 transferred, qint64 total) {
+				this->onSftpProgressed(id, transferred, total);
+			});
 		this->WorkerThread->start();
 	}
 
@@ -932,8 +936,12 @@ namespace Visindigo::Network {
 		reply->d->Entries = result.Entries;
 		reply->d->Attributes = result.Attributes;
 		reply->d->BytesTransferred = result.BytesTransferred;
+		reply->d->TotalBytes = result.TotalBytes;
 		reply->d->Error = result.Error;
 		reply->d->Owner = nullptr;
+		if (reply->d->Operation == SftpOperation::Read || reply->d->Operation == SftpOperation::Write) {
+			emit reply->progressed(reply->d->BytesTransferred, reply->d->TotalBytes);
+		}
 		if (result.Succeeded) {
 			emit reply->succeeded();
 		}
@@ -944,6 +952,16 @@ namespace Visindigo::Network {
 		if (reply->d->AutoDelete) {
 			reply->deleteLater();
 		}
+	}
+
+	void SshSessionPrivate::onSftpProgressed(quint64 id, qint64 transferred, qint64 total) {
+		SftpReply* reply = this->SftpReplies.value(id, nullptr);
+		if (reply == nullptr || reply->d->Finished) {
+			return;
+		}
+		reply->d->BytesTransferred = transferred;
+		reply->d->TotalBytes = total;
+		emit reply->progressed(transferred, total);
 	}
 
 	void SshSessionPrivate::detachSftpReply(quint64 id) {
