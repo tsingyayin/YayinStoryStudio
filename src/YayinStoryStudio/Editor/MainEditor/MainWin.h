@@ -33,10 +33,21 @@ namespace YSS::Editor {
 		TreeLayoutWidget* TreeLayout = nullptr;
 		BottomInfoWidget* BottomFrame = nullptr;
 		bool CloseForBack = false;
+		// 关闭流程已经完成过一次用户询问与插件否决，等待保存结束后重入时跳过。
+		bool CloseApproved = false;
+		// 正在等待异步保存落盘。
+		bool CloseAwaitingSaves = false;
+		// 本次等待期间是否出现了写入失败。
+		bool CloseSaveFailed = false;
+		QString CloseSaveFailedUri;
 		YSSCore::Editor::FileEditWidget* FocusingFileEditWidgetNotTool = nullptr;
 		static MainWin* Instance;
 	private:
 		YSS::Editor::FileEditWidgetArea* selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget);
+		// 是否还有已提交但未完成的异步写入。
+		bool hasPendingSaves() const;
+		// 挂起关闭流程，待所有异步写入结束后自动重新关闭；失败则放弃本次关闭。
+		void waitForPendingSaves();
 	signals:
 		void currentFileEditWidgetAreaChanged(FileEditWidgetArea* area);
 		void currentFileEditWidgetChanged(YSSCore::Editor::FileEditWidget* widget);

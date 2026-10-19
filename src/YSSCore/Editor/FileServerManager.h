@@ -9,10 +9,6 @@
 // Forward declarations
 class QString;
 class QFileInfo;
-namespace YSSCore::General {
-	class YSSUniqueFileSystem;
-	struct YSSFileError;
-}
 namespace YSSCore::Editor {
 	class FileServer;
 	class FileServerManagerPrivate;
@@ -60,14 +56,6 @@ namespace YSSCore::Editor {
 		FileServer* getFileEditWidgetSourceServer(const QString& filePath) const;
 		FileServer* getFileEditWidgetSourceServer(const QFileInfo& fileInfo) const;
 		FileServer* getFileEditWidgetSourceServer(FileEditWidget* widget) const;
-	public:
-		YSSCore::General::YSSUniqueFileSystem* getFileSystem(const YSSCore::General::YSSURI& uri);
-		bool readFile(const YSSCore::General::YSSURI& uri, QByteArray* data,
-			YSSCore::General::YSSFileError* error = nullptr);
-		bool writeFile(const YSSCore::General::YSSURI& uri, const QByteArray& data,
-			YSSCore::General::YSSFileError* error = nullptr);
-		bool removeFile(const YSSCore::General::YSSURI& uri,
-			YSSCore::General::YSSFileError* error = nullptr);
 	private:
 		FileServerManagerPrivate* d;
 	};

@@ -11,11 +11,13 @@
 	   features remain basically stable.
 */
 #include <QtCore/qdatetime.h>
+#include <QtCore/qeventloop.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qpointer.h>
 #include <QtCore/qset.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qtimer.h>
 #include "General/YSSUniqueFileSystem.h"
 #include "General/private/YSSUniqueFileSystem_p.h"
 
@@ -1322,6 +1324,10 @@ namespace YSSCore::General {
 		并发语义：同一个 URI 上的请求严格按提交顺序串行执行，后一个要等前一个结束
 		才会开始；重命名按源与目标两个 URI 一起判定。不同 URI 之间不互相阻塞。因此
 		对同一文件先写后读一定读到新内容，不会读到被覆盖一半的文件。
+
+		同步便捷接口：\l{readSync()}、\l{writeSync()}、\l{removeSync()} 在内部等待请求
+		结束，适合启动、退出这类本来就要阻塞的流程；界面线程上的常规读写请用异步
+		版本，否则读远端文件会卡住界面。
 	*/
 
 	/*!
@@ -1774,6 +1780,158 @@ namespace YSSCore::General {
 	*/
 	YSSFileSystemReply* YSSUniqueFileSystem::rmdir(const YSSURI& uri) {
 		return this->execute(uri, YSSUniqueFileSystem::Operation::Rmdir);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		等一条请求结束。
+
+		\a reply 结果句柄，可为空。
+		\a error 输出参数，失败原因，可为 nullptr。
+		\a timeoutMs 超时毫秒数。
+
+		\return 请求完成且没有错误时返回 true。
+
+		后端的完成通知是排队投递的，因此这里通常真的会进一次嵌套事件循环。超时的请求
+		不会被取消——后端可能仍在执行，所以调用方不能直接销毁 reply。
+	*/
+	bool YSSUniqueFileSystem::waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs) {
+		if (reply == nullptr) {
+			if (error) {
+				YSSFileError noBackend;
+				noBackend.Type = YSSFileError::ErrorType::NotSupported;
+				noBackend.Message = QStringLiteral("No filesystem backend handles this URI");
+				*error = noBackend;
+			}
+			return false;
+		}
+		if (!reply->isFinished()) {
+			QEventLoop loop;
+			QTimer timer;
+			timer.setSingleShot(true);
+			QObject::connect(reply, &YSSFileSystemReply::finished, &loop, &QEventLoop::quit);
+			QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+			timer.start(timeoutMs);
+			loop.exec();
+		}
+		const bool finished = reply->isFinished();
+		if (error) {
+			if (finished) {
+				*error = reply->getError();
+			}
+			else {
+				YSSFileError timeout;
+				timeout.Type = YSSFileError::ErrorType::IoError;
+				timeout.Message = QStringLiteral("Timed out while waiting for the filesystem");
+				timeout.Detail = reply->getUri().toString();
+				*error = timeout;
+			}
+		}
+		return finished && !reply->getError().isError();
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		同步读取整个文件。
+
+		内部提交一条 \l{YSSUniqueFileSystem::Operation::Read} 请求并等待它结束，
+		因此会阻塞调用线程。界面线程上读远端文件应当改用 \l{read()} 异步版本。
+
+		\a uri 文件身份。
+		\a data 输出参数，读到的内容。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 读取成功返回 true。
+	*/
+	bool YSSUniqueFileSystem::readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error) {
+		if (data == nullptr) {
+			return false;
+		}
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Read);
+		request.setUri(uri);
+		request.setAutoDelete(false);
+		YSSFileSystemReply* reply = this->execute(request);
+		const bool ok = this->waitForReply(reply, error);
+		if (ok) {
+			*data = reply->getData();
+		}
+		if (reply) {
+			if (reply->isFinished()) {
+				delete reply;
+			}
+			else {
+				// 超时：请求可能还在后端执行，交给它完成后自行回收，避免悬空指针。
+				reply->d->AutoDelete = true;
+			}
+		}
+		return ok;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		同步整体覆盖写入文件。
+
+		内部提交一条 \l{YSSUniqueFileSystem::Operation::Write} 请求并等待它结束，
+		因此会阻塞调用线程。界面线程上写远端文件应当改用 \l{write()} 异步版本。
+
+		\a uri 文件身份。
+		\a data 内容。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 写入成功返回 true。
+	*/
+	bool YSSUniqueFileSystem::writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error) {
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Write);
+		request.setUri(uri);
+		request.setData(data);
+		request.setAutoDelete(false);
+		YSSFileSystemReply* reply = this->execute(request);
+		const bool ok = this->waitForReply(reply, error);
+		if (reply) {
+			if (reply->isFinished()) {
+				delete reply;
+			}
+			else {
+				reply->d->AutoDelete = true;
+			}
+		}
+		return ok;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		同步删除文件。
+
+		内部提交一条 \l{YSSUniqueFileSystem::Operation::Remove} 请求并等待它结束，
+		因此会阻塞调用线程。界面线程上删远端文件应当改用 \l{remove()} 异步版本。
+
+		\a uri 文件身份。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 删除成功返回 true。
+	*/
+	bool YSSUniqueFileSystem::removeSync(const YSSURI& uri, YSSFileError* error) {
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setUri(uri);
+		request.setAutoDelete(false);
+		YSSFileSystemReply* reply = this->execute(request);
+		const bool ok = this->waitForReply(reply, error);
+		if (reply) {
+			if (reply->isFinished()) {
+				delete reply;
+			}
+			else {
+				reply->d->AutoDelete = true;
+			}
+		}
+		return ok;
 	}
 
 	/*!

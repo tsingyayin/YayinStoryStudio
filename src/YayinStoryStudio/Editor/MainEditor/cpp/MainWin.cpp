@@ -1,4 +1,5 @@
 #include <QtGui/qevent.h>
+#include <QtCore/qtimer.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
@@ -487,6 +488,7 @@ namespace YSS::Editor {
 		Visindigo::Utility::FileUtility::openBrowser("http://prts.site");
 	}
 
+	// 只负责提交保存请求，不等写盘结束；需要等结果时用 hasPendingSaves()/waitForPendingSaves()。
 	void MainWin::saveAllFiles(bool silent) {
 		for (auto* widget : YSSFSM->getAllFileEditWidgets()) {
 			if (widget->isFileChanged()) {
@@ -498,6 +500,59 @@ namespace YSS::Editor {
 	void MainWin::backToHome() {
 		CloseForBack = true;
 		this->close();
+	}
+
+	bool MainWin::hasPendingSaves() const {
+		for (const auto* widget : YSSFSM->getAllFileEditWidgets()) {
+			if (widget->isSaving()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void MainWin::waitForPendingSaves() {
+		if (CloseAwaitingSaves) {
+			return;
+		}
+		CloseAwaitingSaves = true;
+		CloseSaveFailed = false;
+		CloseSaveFailedUri.clear();
+		// 只关心本次等待期间提交的写入失败，所以用一个临时上下文对象挂这些连接，结束后整体断开。
+		QObject* watcher = new QObject(this);
+		for (auto* widget : YSSFSM->getAllFileEditWidgets()) {
+			connect(widget, &YSSCore::Editor::FileEditWidget::fileSaveFailed, watcher,
+				[this](const YSSCore::General::YSSURI& uri) {
+					CloseSaveFailed = true;
+					CloseSaveFailedUri = uri.toString();
+					yWarningF << "Failed to save" << CloseSaveFailedUri << "while closing";
+				});
+		}
+		QTimer* timer = new QTimer(this);
+		timer->setInterval(50);
+		connect(timer, &QTimer::timeout, this, [this, timer, watcher]() {
+			if (CloseSaveFailed) {
+				timer->stop();
+				timer->deleteLater();
+				delete watcher;
+				CloseAwaitingSaves = false;
+				CloseApproved = false;
+				CloseForBack = false;
+				QMessageBox::warning(this, VITRL("YSS::editor.fileOperation.failed.title"),
+					VITRL("YSS::editor.fileOperation.failed.message").arg(CloseSaveFailedUri));
+				return;
+			}
+			if (hasPendingSaves()) {
+				return;
+			}
+			timer->stop();
+			timer->deleteLater();
+			delete watcher;
+			CloseAwaitingSaves = false;
+			CloseApproved = true;
+			QMetaObject::invokeMethod(this, [this]() { this->close(); }, Qt::QueuedConnection);
+		});
+		timer->start();
 	}
 
 	void MainWin::setMenuShortcutTips() {
@@ -661,38 +716,59 @@ namespace YSS::Editor {
 
 	void MainWin::closeEvent(QCloseEvent* event) {
 		yDebugF << "MainWin Close Event";
+		if (CloseAwaitingSaves) {
+			// 正在等异步写入结束，期间的重复关闭请求一律忽略。
+			event->ignore();
+			return;
+		}
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
-		for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
-			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
-				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
-				if (editorPlugin) {
-					bool okToClose = editorPlugin->onProjectAboutToClose(YSSCore::General::YSSProject::getCurrentProject());
-					if (not okToClose) {
-						event->ignore();
-						CloseForBack = false;
-						return;
+		if (not CloseApproved) {
+			for (Visindigo::General::Plugin* plugin : VIPLM->getLoadedPlugins()) {
+				if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
+					YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
+					if (editorPlugin) {
+						bool okToClose = editorPlugin->onProjectAboutToClose(YSSCore::General::YSSProject::getCurrentProject());
+						if (not okToClose) {
+							event->ignore();
+							CloseForBack = false;
+							return;
+						}
 					}
 				}
 			}
+
+			QMessageBox::StandardButton result = QMessageBox::question(this, VITRL("YSS::project.saveQuestion.title"),
+				VITRL("YSS::project.saveQuestion.text").arg(project->getProjectName()),
+				QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+				QMessageBox::Yes);
+			if (result == QMessageBox::Cancel) {
+				event->ignore();
+				CloseForBack = false;
+				return;
+			}
+			else if (result == QMessageBox::Yes) {
+				saveProject();
+			}
 		}
 
-		QMessageBox::StandardButton result = QMessageBox::question(this, VITRL("YSS::project.saveQuestion.title"),
-			VITRL("YSS::project.saveQuestion.text").arg(project->getProjectName()),
-			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-			QMessageBox::Yes);
-		if (result == QMessageBox::Cancel) {
+		if (hasPendingSaves()) {
+			// 项目和文件都是异步写盘的，必须等写完再销毁窗口，否则进程可能先退出。
 			event->ignore();
-			CloseForBack = false;
+			waitForPendingSaves();
 			return;
-		}
-		else if (result == QMessageBox::Yes) {
-			saveProject();
 		}
 
 		for (TreeLayoutWidget* layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
 			if (not layout->closeAllFilesWithConfirm()) {
 				event->ignore();
-				CloseForBack = false;
+				if (hasPendingSaves()) {
+					// 逐个关闭时用户选择了保存：保留当前的关闭意图，等写完后再关一次。
+					waitForPendingSaves();
+				}
+				else {
+					CloseApproved = false;
+					CloseForBack = false;
+				}
 				return;
 			}
 		}

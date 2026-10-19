@@ -1,3 +1,4 @@
+#include <QtCore/qdir.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qpainter.h>
 #include <QtWidgets/qlabel.h>
@@ -32,10 +33,23 @@ namespace ASERStudio::YSS {
 	FileServer_ASRuleJson::~FileServer_ASRuleJson() {}
 	qint64 FileServer_ASRuleJson::especiallyFocusFile(const YSSCore::General::YSSURI& uri) {
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
-		QString projectFolder = project->getProjectFolder();
-		QString ruleFolder = projectFolder + "/Rules";
-		const QString filePath = uri.getLocalPath();
-		if (!filePath.isEmpty() && filePath.startsWith(ruleFolder) && filePath.endsWith(".json")) {
+		if (project == nullptr) {
+			return -1;
+		}
+		// 项目文件夹来自 QDir::absolutePath()（正斜杠），URI 的本机路径来自
+		// QDir::toNativeSeparators()（Windows 上是反斜杠），直接 startsWith 永远不成立。
+		// 两边都先统一成分隔符再比较；末尾补 '/' 避免把 RulesX 目录也算进来。
+		const QString ruleFolder = QDir::cleanPath(QDir::fromNativeSeparators(project->getProjectFolder())) + "/Rules/";
+		const QString filePath = QDir::cleanPath(QDir::fromNativeSeparators(uri.getLocalPath()));
+		if (filePath.isEmpty()) {
+			return -1;
+		}
+	#ifdef Q_OS_WIN
+		const bool inRuleFolder = filePath.startsWith(ruleFolder, Qt::CaseInsensitive);
+	#else
+		const bool inRuleFolder = filePath.startsWith(ruleFolder);
+	#endif
+		if (inRuleFolder && filePath.endsWith(".json", Qt::CaseInsensitive)) {
 			vgDebug << "ASRule JSON file focused: " << filePath;
 			return std::numeric_limits<qint64>::max();
 		}

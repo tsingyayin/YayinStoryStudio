@@ -23,6 +23,8 @@ namespace YSSCore::Editor {
 		void fileSaved(const YSSCore::General::YSSURI& uri);
 		void fileRenamed(const YSSCore::General::YSSURI& rawUri, const YSSCore::General::YSSURI& changedUri);
 		void fileClosed(const YSSCore::General::YSSURI& uri);
+		// 异步写入失败。写入是异步的，失败不会体现在 saveFile() 的返回值里。
+		void fileSaveFailed(const YSSCore::General::YSSURI& uri);
 	public:
 		FileEditWidget(QWidget* parent = nullptr);
 		virtual ~FileEditWidget();
@@ -43,6 +45,8 @@ namespace YSSCore::Editor {
 		bool saveFile(const YSSCore::General::YSSURI& target = YSSCore::General::YSSURI(),
 			bool deleteWhenSaveAs = false, bool silent = false);
 		bool isSaveSilent() const;
+		// 是否还有已提交但尚未完成的异步写入。
+		bool isSaving() const;
 		bool reloadFile();
 		void closeFile(bool autoAbandon = false);
 		QByteArray createFileBackup();

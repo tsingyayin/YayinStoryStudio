@@ -250,6 +250,15 @@ namespace YSSCore::General {
 		YSSFileSystemReply* rename(const YSSURI& uri, const YSSURI& target);
 		YSSFileSystemReply* mkdir(const YSSURI& uri);
 		YSSFileSystemReply* rmdir(const YSSURI& uri);
+	public:
+		// 同步便捷接口：内部用嵌套事件循环等到结束，会阻塞调用线程。
+		// 有事件循环的界面线程不要用它读远端文件；能接受异步的路径请直接用上面的异步版本。
+		bool readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error = nullptr);
+		bool writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error = nullptr);
+		bool removeSync(const YSSURI& uri, YSSFileError* error = nullptr);
+	private:
+		// 等一条请求结束并填好错误信息；超时按 IoError 处理。
+		bool waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs = 30000);
 	private:
 		void onProviderStarted(quint64 id);
 		void onProviderProgressed(quint64 id, qint64 transferred, qint64 total);

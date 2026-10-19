@@ -448,9 +448,15 @@ namespace YSSCore::__Private__ {
 			return;
 		}
 		const QList<qint32> lines = highlighter->getAllInlayHints().keys();
+		if (lines.isEmpty()) {
+			return;
+		}
+		const bool previous = this->editor->d->Rehighlighting;
+		this->editor->d->Rehighlighting = true;
 		for (qint32 line : lines) {
 			highlighter->rehighlightBlock(document->findBlockByNumber(line));
 		}
+		this->editor->d->Rehighlighting = previous;
 	}
 
 	void InlayHintTextEdit::paintInlayHints(QPainter& painter, const QRect& clipRect) {

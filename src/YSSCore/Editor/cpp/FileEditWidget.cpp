@@ -6,6 +6,7 @@
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <General/YSSLogger.h>
+#include <General/YSSUniqueFileSystem.h>
 #include "Editor/FileEditWidget.h"
 #include "Editor/FileServerManager.h"
 #include "Editor/VirtualFilePath.h"
@@ -26,6 +27,10 @@ protected:
 	bool saveSilent = false;
 	// 上一次保存是否属于 onSave() 主动声明的"没有内容可写"（unexpected(false)）。
 	bool saveSkipped = false;
+	// 每次 setFileChanged 递增，用来判断异步写入完成前内容是否又被修改。
+	quint64 changeSerial = 0;
+	// 已提交但尚未完成的异步写入数量。
+	int pendingSaves = 0;
 	CloseStatus closeStatus = CloseStatus::Default;
 	YSSCore::General::YSSURI Uri;
 	};
@@ -41,7 +46,7 @@ protected:
 		从0.18.0开始，因为要同时支持本地文件和远程文件，YSS改用统一文件系统，因此
 		此类的文件身份从QString/QFileInfo标识，转为使用YSSURI标识。且文件的实际IO
 		不再由此类直接处理。FileEditWidget现在只需要在合适的时机，接受QByteArray作为
-		文件输入，返回QByteArray作为文件输出即可。实际的文件IO将由FileServerManager类处理。
+		文件输入，返回QByteArray作为文件输出即可。实际的文件IO将由YSSUniqueFileSystem类处理。
 
 		\note 这类在0.15.0因引入虚拟文件概念而变更了虚函数顺序和声明，0.18.0又因引入 URI
 		身份再次变更，因此ABI与此前不兼容。
@@ -67,6 +72,9 @@ protected:
 		真实文件有未保存修改时，\l{closeEvent()} 负责询问保存。选择保存后本次关闭会先
 		被放弃，保存成功后再排队触发一次新的关闭；\l{onClose()} 因此不再承担询问，
 		只作为"真正关闭前"的清理与否决钩子，并且总是在保存完成之后调用。
+
+		写盘是异步的，\l{isSaving()} 表示还有写入没有落地。负责退出进程的代码必须先
+		等它变成 false，否则程序可能先于写盘结束而退出。
 		\section1 文件备份的行为
 		\l{createFileBackup()} 调用 \l{onBackup()}，返回当前文件的完整内容用于备份。
 	*/
@@ -172,6 +180,7 @@ protected:
 	*/
 	void FileEditWidget::setFileChanged() {
 		d->fileChanged = true;
+		++d->changeSerial;
 		emit fileChanged(d->Uri);
 	}
 
@@ -226,7 +235,7 @@ protected:
 
 	/*!
 		\since YSS 0.18.0
-		用身份打开一个文件。内容由本类通过 \l{FileServerManager} 读取。
+		用身份打开一个文件。内容由本类通过 \l{YSSUniqueFileSystem} 同步读取。
 
 		\a uri 文件身份。
 
@@ -247,7 +256,7 @@ protected:
 			return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
 		}
 		QByteArray data;
-		if (!FileServerManager::getInstance()->readFile(uri, &data)) {
+		if (!YSSCore::General::YSSUniqueFileSystem::getInstance()->readSync(uri, &data)) {
 			yWarningF << "Failed to read file content for" << uri.toString();
 			return false;
 		}
@@ -261,11 +270,16 @@ protected:
 		\a deleteWhenSaveAs 另存为时是否删除原文件。
 		\a silent 静默保存。为真时 \l{onSave()}/\l{onVirtualSave()} 不应弹出任何界面。
 
-		return 如果 \l{onSave()} 产出内容且写出成功，返回true。
+		return 是否已经受理这次保存：\l{onSave()} 产出了内容并成功提交写入时返回 true。
+		真正写盘是异步的，结果通过 \l{fileSaved()}、\l{fileRenamed()} 或日志体现；
+		写入失败不会再把编辑器标脏，但也不会发出成功信号，而是发出 \l{fileSaveFailed()}。
 
 		派生类只负责在 \l{onSave()} 里把内容返回，写盘由本类通过
-		\l{FileServerManager} 完成。保存成功后依次触发 \l{fileChangeCanceled()}、
+		\l{YSSUniqueFileSystem} 完成。写入成功后依次触发 \l{fileChangeCanceled()}、
 		\l{fileSaved()}，路径变化时再触发 \l{fileRenamed()}。
+
+		写入期间如果内容又被修改，本次保存不会清除修改状态，也不会发出
+		\l{fileChangeCanceled()}；只有保存发起时的那份内容被持久化。
 
 		如果调用发生在关闭流程中（\c{WaitingSave}），保存成功后本函数会安排一次新的
 		关闭，调用方不需要再调用 \l{closeFile()}。
@@ -284,7 +298,6 @@ protected:
 		if (!targetUri.isValid() || targetUri.isVirtual()) {
 			return false;
 		}
-		QByteArray data;
 		d->saveSilent = silent;
 		std::expected<QByteArray, bool> produced = onSave(targetUri);
 		d->saveSilent = false;
@@ -297,27 +310,60 @@ protected:
 			}
 			return false;
 		}
-		if (!FileServerManager::getInstance()->writeFile(targetUri, produced.value())) {
-			yWarningF << "Failed to write file" << targetUri.toString();
+		const YSSCore::General::YSSURI oldUri = d->Uri;
+		const quint64 serial = d->changeSerial;
+		YSSCore::General::YSSFileSystemReply* reply = YSSCore::General::YSSUniqueFileSystem::getInstance()->write(targetUri, produced.value());
+		if (reply == nullptr) {
+			yWarningF << "Failed to submit write request for" << targetUri.toString();
 			return false;
 		}
-		const YSSCore::General::YSSURI oldUri = d->Uri;
-		d->Uri = targetUri;
-		d->fileChanged = false;
-		if (oldUri != targetUri) {
-			if (deleteWhenSaveAs) {
-				FileServerManager::getInstance()->removeFile(oldUri);
-			}
-			emit fileChangeCanceled(oldUri);
-			emit fileSaved(targetUri);
-			emit fileRenamed(oldUri, targetUri);
-		}
-		else {
-			emit fileChangeCanceled(targetUri);
-			emit fileSaved(targetUri);
-		}
-		// 如果这次保存是关闭流程的一部分，保存成功后由这里接力完成关闭。
-		this->finishClose();
+		++d->pendingSaves;
+		QObject::connect(reply, &YSSCore::General::YSSFileSystemReply::succeeded, this,
+			[this, oldUri, targetUri, deleteWhenSaveAs, serial]() {
+				if (d->pendingSaves > 0) {
+					--d->pendingSaves;
+				}
+				// 写入是异步的：期间内容可能又被改过。只有内容没变时才清除修改状态，
+				// 否则保留脏标记，避免把新编辑当成已保存。
+				const bool stillClean = d->changeSerial == serial;
+				d->Uri = targetUri;
+				if (stillClean) {
+					d->fileChanged = false;
+				}
+				if (oldUri != targetUri) {
+					if (deleteWhenSaveAs) {
+						if (auto* removal = YSSCore::General::YSSUniqueFileSystem::getInstance()->remove(oldUri)) {
+							QObject::connect(removal, &YSSCore::General::YSSFileSystemReply::failed, this,
+								[oldUri](const YSSCore::General::YSSFileError& error) {
+									yWarningF << "Failed to remove old file" << oldUri.toString() << error.toString();
+								});
+						}
+					}
+					if (stillClean) {
+						emit fileChangeCanceled(oldUri);
+					}
+					emit fileSaved(targetUri);
+					emit fileRenamed(oldUri, targetUri);
+				}
+				else {
+					if (stillClean) {
+						emit fileChangeCanceled(targetUri);
+					}
+					emit fileSaved(targetUri);
+				}
+				this->finishClose();
+			});
+		QObject::connect(reply, &YSSCore::General::YSSFileSystemReply::failed, this,
+			[this, targetUri](const YSSCore::General::YSSFileError& error) {
+				if (d->pendingSaves > 0) {
+					--d->pendingSaves;
+				}
+				yWarningF << "Failed to write file" << targetUri.toString() << error.toString();
+				if (d->closeStatus == FileEditWidgetPrivate::CloseStatus::WaitingSave) {
+					d->closeStatus = FileEditWidgetPrivate::CloseStatus::Default;
+				}
+				emit fileSaveFailed(targetUri);
+			});
 		return true;
 	}
 
@@ -333,20 +379,30 @@ protected:
 	}
 
 	/*!
+		\since YSS 0.18.0
+		return 当前是否还有已提交但尚未完成的异步写入。
+
+		负责关闭窗口的代码在退出前应当等待此值为 false，否则进程可能先于写盘结束而退出。
+	*/
+	bool FileEditWidget::isSaving() const {
+		return d->pendingSaves > 0;
+	}
+
+	/*!
 		\since YSS 0.13.0
 		重新加载当前文件编辑器的内容。
 
 		return 如果文件成功重新加载，返回true。
 
-		虚拟文件路由到 \l{onVirtualReload()}；真实文件由本类通过 \l{FileServerManager}
-		重新读取内容后交给 \l{onReload()}。
+		虚拟文件路由到 \l{onVirtualReload()}；真实文件由本类通过
+		\l{YSSCore::General::YSSUniqueFileSystem} 同步重新读取内容后交给 \l{onReload()}。
 	*/
 	bool FileEditWidget::reloadFile() {
 		if (d->Uri.isVirtual()) {
 			return onVirtualReload();
 		}
 		QByteArray data;
-		if (!FileServerManager::getInstance()->readFile(d->Uri, &data)) {
+		if (!YSSCore::General::YSSUniqueFileSystem::getInstance()->readSync(d->Uri, &data)) {
 			return false;
 		}
 		return onReload(data);
@@ -468,7 +524,7 @@ protected:
 		失败时不会写盘，也不会发出任何保存信号。
 
 		这里只产出内容，不要自己写文件——写盘由 \l{saveFile()} 交给
-		\l{FileServerManager} 完成，这样 SSH 上的文件也能保存。
+		\l{YSSUniqueFileSystem} 完成，这样 SSH 上的文件也能保存。
 	*/
 	std::expected<QByteArray, bool> FileEditWidget::onSave(const YSSCore::General::YSSURI& uri) {
 		Q_UNUSED(uri);
@@ -670,11 +726,11 @@ protected:
 	/*!
 		\since YSS 0.18.0
 
-		由 \l{saveFile()} 在保存成功后调用。只有本次关闭正处于等待保存状态时才生效：
+		由 \l{saveFile()} 在写入成功后调用。只有本次关闭正处于等待保存状态时才生效：
 		把状态推进到 \c{Saved}，并排队触发一次新的关闭，避免在 closeEvent 的调用栈内
 		重入关闭。
 
-		将来保存改为异步时，只需在保存完成的回调里调用它。
+		写入失败时不会调用它，等待状态会由保存失败的回调复位。
 	*/
 	void FileEditWidget::finishClose() {
 		if (d->closeStatus != FileEditWidgetPrivate::CloseStatus::WaitingSave) {
