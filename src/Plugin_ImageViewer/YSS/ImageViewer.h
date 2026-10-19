@@ -11,6 +11,7 @@ namespace YSS::ImageViewer {
 	/// - 左键拖拽平移
 	/// - 默认自动适应窗口大小
 	/// - 双击恢复适合窗口
+	/// - 缩小时按设备像素做高质量重采样，100% 以上保留原始像素
 	class ImageViewer : public YSSCore::Editor::FileEditWidget {
 		Q_OBJECT
 	signals:
