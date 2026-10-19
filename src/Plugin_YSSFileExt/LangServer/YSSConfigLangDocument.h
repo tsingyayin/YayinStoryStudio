@@ -40,6 +40,9 @@ namespace YSSFileExt {
 		Severity getSeverity() const;
 		QString getCode() const;
 		QString getFixAdvice() const;
+		// 内容完全相同（含位置与严重级别）。用于判断一次重新分析是否真的改变了诊断。
+		bool operator==(const YSSLangDiagnosticData& other) const;
+		bool operator!=(const YSSLangDiagnosticData& other) const;
 	private:
 		QString message;
 		qint32 line = -1;
