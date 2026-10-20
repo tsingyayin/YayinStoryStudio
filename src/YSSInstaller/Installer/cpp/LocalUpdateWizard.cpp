@@ -612,7 +612,7 @@ namespace YSS::Installer {
 		QStringList files = {
 			"Visindigo.dll", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "Qt6Sql.dll",
 			"Qt6WebSockets.dll", "Qt6Svg.dll", "icuuc.dll", "opengl32sw.dll", "7za.exe", "YSSInstaller.exe",
-			"YayinStoryStudio.exe", "YSSCore.dll",
+			"YayinStoryStudio.exe", "YSSCore.dll", "VIAgent.dll", 
 			"Qt6Multimedia.dll", "Qt6MultimediaWidgets.dll",
 			"avcodec-61.dll", "avformat-61.dll", "avutil-59.dll", "swscale-8.dll", "swresample-5.dll",
 			"user_data/themes/template/yss.vst",
