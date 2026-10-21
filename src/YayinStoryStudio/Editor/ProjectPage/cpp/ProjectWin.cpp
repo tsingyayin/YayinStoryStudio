@@ -28,8 +28,16 @@
 #include "Editor/NewProjectPage/NewProjectWin.h"
 #include "Editor/ProjectPage/ProjectInfoWidget.h"
 #include "Editor/ProjectPage/ProjectWin.h"
+#include "General/YSSURI.h"
 #include "YayinStoryStudio.h"
 namespace YSS::ProjectPage {
+	namespace {
+		// 用于界面展示的项目位置文本：本地路径用原生分隔符，远端路径保留 ssh:// 形式。
+		QString displayablePath(const YSSCore::General::YSSURI& uri) {
+			const QString localPath = uri.getLocalPath();
+			return localPath.isEmpty() ? uri.toString() : localPath;
+		}
+	}
 	bool ProjectWin::firstOpen = true;
 	ProjectWin::ProjectWin() :QFrame() {
 		NetworkManager = new QNetworkAccessManager(this);
@@ -176,6 +184,9 @@ namespace YSS::ProjectPage {
 		config->setInt("Window.Project.Height", this->normalGeometry().height());
 		config->setBool("Window.Project.Maximized", this->isMaximized());
 		VIApp->getMainPlugin()->savePluginConfig();
+		// 还在加载中的批次作废：它们的回调虽然会继续执行，但不会再碰本窗口的列表。
+		++HistoryLoadGeneration;
+		HistoryLoadResults.clear();
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			delete project;
 		}
@@ -216,7 +227,7 @@ namespace YSS::ProjectPage {
 		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
 		QStringList keys = Config->keys("RecentProjects");
 		for (int i = 0; i < keys.size(); i++) {
-			if (Config->getString("RecentProjects." + keys[i]) == project->getProjectPath()) {
+			if (Config->getString("RecentProjects." + keys[i]) == project->getProjectPath().toString()) {
 				yMessageF << i;
 				Config->remove("RecentProjects." + keys[i]);
 				break;
@@ -268,47 +279,58 @@ namespace YSS::ProjectPage {
 	void ProjectWin::onOpenProject(QString filePath) {
 		if (filePath.isEmpty()) {
 			filePath = QFileDialog::getOpenFileName(this, VITRL("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
+			if (filePath.isEmpty()) {
+				return;
+			}
 		}
-		filePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(QDir::currentPath(), filePath);
-		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
 		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
-		YSSCore::General::YSSProject::LoadProjectResult res = project->loadProject(filePath);
-		if (res == YSSCore::General::YSSProject::Success) {
+		// 加载是异步的，结论只能从信号里拿；这里只连接一次，之后本窗口不再关心这个对象。
+		connect(project, &YSSCore::General::YSSProject::projectLoaded, this, [this, project]() {
+			Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
+			const QString projectPath = project->getProjectPath().toString();
 			bool inList = false;
 			for (QString key : Config->keys("RecentProjects")) {
-				QString projectPath = Config->getString("RecentProjects." + key);
-				if (projectPath == filePath) { inList = true; break; }
+				QString recentPath = Config->getString("RecentProjects." + key);
+				if (recentPath == projectPath) { inList = true; break; }
 			}
 			if (not inList) {
-				yMessageF << "Add" << filePath << "to project list.";
-				Config->setString("RecentProjects." + QString::number(Config->keys("RecentProjects").size()), filePath);
+				yMessageF << "Add" << projectPath << "to project list.";
+				Config->setString("RecentProjects." + QString::number(Config->keys("RecentProjects").size()), projectPath);
 			}
 			if (not preCheckProject(project)) {
-				delete project;
+				project->deleteLater();
 				return;
 			}
 			YSSCore::General::YSSProject::setCurrentProject(project);
 			this->close();
-		}
-		else {
-			QMessageBox msgBox;
-			msgBox.setIcon(QMessageBox::Critical);
-			msgBox.setText(VITRL("YSS::project.openProjectFailed.message"));
-			switch (res) {
-			case YSSCore::General::YSSProject::ParseError:
-				msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.ParseError"));
-				break;
-			case YSSCore::General::YSSProject::InvalidConfig:
-				msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.InvalidConfig"));
-				break;
-			default:
-				msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.UnknownError"));
-				break;
-			}
-			msgBox.setStandardButtons(QMessageBox::Ok);
-			msgBox.exec();
-			delete project;
-		}
+			});
+		connect(project, &YSSCore::General::YSSProject::projectLoadFailed, this,
+			[this, project](YSSCore::General::YSSProject::LoadError error) {
+				QMessageBox msgBox;
+				msgBox.setIcon(QMessageBox::Critical);
+				msgBox.setText(VITRL("YSS::project.openProjectFailed.message"));
+				switch (error) {
+				case YSSCore::General::YSSProject::LoadError::NotFound:
+					msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.NotFound"));
+					break;
+				case YSSCore::General::YSSProject::LoadError::ReadFailed:
+					msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.ReadFailed"));
+					break;
+				case YSSCore::General::YSSProject::LoadError::ParseError:
+					msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.ParseError"));
+					break;
+				case YSSCore::General::YSSProject::LoadError::InvalidConfig:
+					msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.InvalidConfig"));
+					break;
+				default:
+					msgBox.setInformativeText(VITRL("YSS::project.openProjectFailed.UnknownError"));
+					break;
+				}
+				msgBox.setStandardButtons(QMessageBox::Ok);
+				msgBox.exec();
+				project->deleteLater();
+			});
+		project->loadProject(YSSCore::General::YSSURI::fromString(filePath));
 	}
 
 	/*
@@ -388,25 +410,6 @@ namespace YSS::ProjectPage {
 			project = nullptr;
 		}
 		HistoryProjectList.clear();
-		QStringList okProjects;
-		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
-		for (QString key : Config->keys("RecentProjects")) {
-			QString projectPath = Config->getString("RecentProjects." + key);
-			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
-			YSSCore::General::YSSProject::LoadProjectResult res = project->loadProject(projectPath);
-			if (res != YSSCore::General::YSSProject::Success) {
-				delete project;
-				continue;
-			}
-			else {
-				okProjects.append(projectPath);
-				HistoryProjectList.append(project);
-			}
-		}
-		Config->setArray("RecentProjects", okProjects);
-		std::sort(HistoryProjectList.begin(), HistoryProjectList.end(), [](YSSCore::General::YSSProject* a, YSSCore::General::YSSProject* b) {
-			return a->getProjectLastModifyTime() > b->getProjectLastModifyTime();
-			});
 		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
 			label->deleteLater();
 			label = nullptr;
@@ -418,12 +421,71 @@ namespace YSS::ProjectPage {
 		}
 		HistoryProjectTimeLabelList.clear();
 		HistoryProjectMap.clear();
+
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
+		QStringList recentPaths;
+		for (QString key : Config->keys("RecentProjects")) {
+			recentPaths.append(Config->getString("RecentProjects." + key));
+		}
+		// 加载是异步的，一批加载全部结束之后再重建列表。用代数丢弃过期批次的结果，
+		// 避免两次 loadProject 的完成顺序交错时把旧结果写进新列表。
+		++HistoryLoadGeneration;
+		const int generation = HistoryLoadGeneration;
+		HistoryLoadResults.clear();
+		HistoryLoadPending = recentPaths.size();
+		if (HistoryLoadPending == 0) {
+			finishHistoryLoad(generation);
+			return;
+		}
+		for (const QString& projectPath : recentPaths) {
+			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
+			connect(project, &YSSCore::General::YSSProject::projectLoaded, this, [this, project, generation]() {
+				if (generation != HistoryLoadGeneration) {
+					project->deleteLater();
+					return;
+				}
+				HistoryLoadResults.append(project);
+				if (--HistoryLoadPending == 0) {
+					finishHistoryLoad(generation);
+				}
+				});
+			connect(project, &YSSCore::General::YSSProject::projectLoadFailed, this, [this, project, generation]() {
+				project->deleteLater();
+				if (generation != HistoryLoadGeneration) {
+					return;
+				}
+				if (--HistoryLoadPending == 0) {
+					finishHistoryLoad(generation);
+				}
+				});
+			project->loadProject(YSSCore::General::YSSURI::fromString(projectPath));
+		}
+	}
+
+	/*
+		一批历史项目加载完成后重建列表，并把仍然可用的项目路径写回配置。
+	*/
+	void ProjectWin::finishHistoryLoad(int generation) {
+		if (generation != HistoryLoadGeneration) {
+			return;
+		}
+		HistoryProjectList = HistoryLoadResults;
+		HistoryLoadResults.clear();
+		QStringList okProjects;
+		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
+			okProjects.append(project->getProjectPath().toString());
+		}
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
+		Config->setArray("RecentProjects", okProjects);
+		std::sort(HistoryProjectList.begin(), HistoryProjectList.end(), [](YSSCore::General::YSSProject* a, YSSCore::General::YSSProject* b) {
+			return a->getProjectLastModifyTime() > b->getProjectLastModifyTime();
+			});
 		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
 			Visindigo::Widgets::MultiButton* label = new Visindigo::Widgets::MultiButton(HistoryProjectWidget);
 			label->setObjectName("HistoryProject");
 			label->setTitle(project->getProjectName());
 			QString lastModifyTime = project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss");
-			label->setDescription(lastModifyTime + "\n" + project->getProjectFolder());
+			label->setDescription(lastModifyTime + "\n" + displayablePath(project->getProjectFolder()));
 			HistoryProjectLabelList.append(label);
 			HistoryProjectLayout->addWidget(label);
 			//label->setSpacing(5);

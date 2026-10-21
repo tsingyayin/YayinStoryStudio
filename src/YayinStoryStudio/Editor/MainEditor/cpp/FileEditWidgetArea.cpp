@@ -17,24 +17,6 @@
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/TextEditConfigOperator.h"
 namespace YSS::Editor {
-	namespace {
-		// YSSProject 仍以"本地路径"为索引：本机文件给本地绝对路径（正斜杠，与
-		// QFileInfo::absoluteFilePath() 一致），虚拟文件给 @ext!name?param，
-		// 远端文件暂时给 URI 字符串——项目级远程路由尚未实现。
-		QString toProjectPath(const YSSCore::General::YSSURI& uri) {
-			if (not uri.isValid()) {
-				return QString();
-			}
-			if (uri.isVirtual()) {
-				return uri.getVirtualPath();
-			}
-			if (uri.isLocal()) {
-				return QDir::fromNativeSeparators(uri.getLocalPath());
-			}
-			return uri.toString();
-		}
-	}
-
 	class AreaRegistry {
 	protected:
 		FileEditWidgetArea* mainArea = nullptr;
@@ -309,7 +291,7 @@ namespace YSS::Editor {
 			return;
 		}
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
-		QMap<QString, QStringList> filesInArea;
+		QMap<QString, QList<YSSCore::General::YSSURI>> filesInArea;
 		if (project) {
 			filesInArea = project->getEditorOpenedFilesInArea();
 		}
@@ -323,7 +305,7 @@ namespace YSS::Editor {
 		}
 
 		if (project) {
-			QMap<QString, QStringList> newFilesInArea;
+			QMap<QString, QList<YSSCore::General::YSSURI>> newFilesInArea;
 			for (auto it = filesInArea.constBegin(); it != filesInArea.constEnd(); ++it) {
 				QString key = it.key();
 				if (remap.contains(key)) {
@@ -358,7 +340,7 @@ namespace YSS::Editor {
 			const YSSCore::General::YSSURI closedUri = widget->getUri();
 			d->TagArea->removeStackLabel(closedUri); // this function handle re-choice if the closed widget is current one
 			if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
-				project->removeEditorOpenedFile(toProjectPath(closedUri));
+				project->removeEditorOpenedFile(closedUri);
 			}
 			d->OpenFileCount--;
 			if (d->OpenFileCount <= 0) {
@@ -370,8 +352,8 @@ namespace YSS::Editor {
 			[this](const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri) {
 				d->TagArea->changeStackLabel(oldUri, newUri);
 				if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
-					project->removeEditorOpenedFile(toProjectPath(oldUri));
-					project->addEditorOpenedFile(toProjectPath(newUri), getAreaID());
+					project->removeEditorOpenedFile(oldUri);
+					project->addEditorOpenedFile(newUri, getAreaID());
 				}
 			});
 		YSSCore::Editor::TextEdit* textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
@@ -383,7 +365,7 @@ namespace YSS::Editor {
 			YSS::Editor::TextEditConfigOperator::applyTo(textEdit);
 		}
 		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
-			project->addEditorOpenedFile(toProjectPath(uri), d->areaID);
+			project->addEditorOpenedFile(uri, d->areaID);
 		}
 		d->OpenFileCount++;
 		setCurrentWidget(uri);
@@ -472,7 +454,7 @@ namespace YSS::Editor {
 			d->ContentArea->show();
 		}
 		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
-			project->setFocusedFile(toProjectPath(uri));
+			project->setFocusedFile(uri);
 		}
 		emit currentFileChanged(uri);
 		d->TagArea->setCurrentStackLabel(uri);
@@ -518,7 +500,7 @@ namespace YSS::Editor {
 		d->TagArea->removeStackLabel(uri);
 		YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri);
 		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
-			project->removeEditorOpenedFile(toProjectPath(uri));
+			project->removeEditorOpenedFile(uri);
 		}
 		if (widget) {
 			widget->disconnect(this);

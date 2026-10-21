@@ -70,8 +70,7 @@ namespace YSSFileExt {
 		Q_UNUSED(uri);
 		Q_UNUSED(data);
 		auto project = YSSCore::General::YSSProject::getCurrentProject();
-		QString iconPath = project->getProjectIconPath();
-		iconPath = project->getProjectFolder() + "/" + iconPath;
+		QString iconPath = project->getProjectIconPath().getLocalPath();
 		if (not iconPath.isEmpty()) {
 			QPixmap pixmap(iconPath);
 			d->CoverLabel->setPixmap(pixmap.scaled(d->CoverLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));

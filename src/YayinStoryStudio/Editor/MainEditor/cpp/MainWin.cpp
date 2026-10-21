@@ -165,31 +165,30 @@ namespace YSS::Editor {
 
 		YSSCore::General::YSSProject::getCurrentProject()->refreshLastModifyTime();
 		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
-		QMap<QString, QStringList> openedFilesInArea = YSSCore::General::YSSProject::getCurrentProject()->getEditorOpenedFilesInArea();
-		QString focusedFile = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFile();
-		QMap<QString, QStringList> stillOKFilesInArea;
+		YSSCore::General::YSSProject* currentProject = YSSCore::General::YSSProject::getCurrentProject();
+		QMap<QString, QList<YSSCore::General::YSSURI>> openedFilesInArea = currentProject->getEditorOpenedFilesInArea();
+		YSSCore::General::YSSURI focusedFile = currentProject->getFocusedFile();
+		QMap<QString, QList<YSSCore::General::YSSURI>> stillOKFilesInArea;
 		for (auto areaID : openedFilesInArea.keys()) {
-			QStringList stillOKFiles;
-			for (auto filePath : openedFilesInArea[areaID]) {
-				bool okToOpen = YSSFSM->openFile(filePath);
+			QList<YSSCore::General::YSSURI> stillOKFiles;
+			for (const YSSCore::General::YSSURI& fileUri : openedFilesInArea[areaID]) {
+				bool okToOpen = YSSFSM->openFile(fileUri);
 				if (okToOpen) {
-					stillOKFiles.append(filePath);
+					stillOKFiles.append(fileUri);
 				}
 			}
 			if (not stillOKFiles.isEmpty()) {
 				stillOKFilesInArea[areaID] = stillOKFiles;
 			}
 		}
-		YSSCore::General::YSSProject::getCurrentProject()->setEditorOpenedFilesInArea(stillOKFilesInArea);
+		currentProject->setEditorOpenedFilesInArea(stillOKFilesInArea);
 		// The focused file may live in a non-main area (e.g. a split window).
 		// Always targeting "Editors" here would reparent that file's FileEditWidget
 		// into the main area and leave the original area with a tag but no content.
-		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(
-			YSSCore::General::YSSProject::getCurrentProject()->getFileAreaID(focusedFile));
-		if (focusedArea) {
-			const YSSCore::General::YSSURI focusedUri = YSSCore::General::YSSURI::fromLocalPath(focusedFile);
-			focusedArea->setCurrentWidget(focusedUri);
-			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, YSSFSM->getFileEditWidget(focusedUri));
+		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(currentProject->getFileAreaID(focusedFile));
+		if (focusedArea and focusedFile.isValid()) {
+			focusedArea->setCurrentWidget(focusedFile);
+			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, YSSFSM->getFileEditWidget(focusedFile));
 		}
 		saveProject();
 	}
@@ -254,11 +253,12 @@ namespace YSS::Editor {
 	}
 
 	YSS::Editor::FileEditWidgetArea* MainWin::selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget) {
+		const YSSCore::General::YSSURI fileUri = widget->getUri();
 		const QString filePath = widget->getFilePath();
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		// 项目中已记录了此文件所在的区域（例如上次退出时未关闭的文件），直接回到原区域。
 		if (project) {
-			QString recordedAreaID = project->getFileAreaID(filePath);
+			QString recordedAreaID = project->getFileAreaID(fileUri);
 			if (not recordedAreaID.isEmpty()) {
 				if (FileEditWidgetArea* recordedArea = FileEditWidgetArea::getAreaByID(recordedAreaID)) {
 					yDebug << "File opened in recorded area: " << recordedAreaID << " file: " << filePath;
@@ -448,7 +448,7 @@ namespace YSS::Editor {
 			CurrentDir.setPath(startPath);
 		}
 		else if (project) {
-			CurrentDir.setPath(project->getProjectFolder());
+			CurrentDir.setPath(project->getProjectFolder().getLocalPath());
 		}
 		else {
 			CurrentDir.setPath(QDir::currentPath());
@@ -466,7 +466,7 @@ namespace YSS::Editor {
 	void MainWin::openNewFileWindow(const QString& startPath) {
 		QString path = startPath;
 		if (path.isEmpty()) {
-			path = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder();
+			path = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder().getLocalPath();
 		}
 		QFileInfo fileInfo(startPath);
 		if (fileInfo.isFile()) {
@@ -508,6 +508,11 @@ namespace YSS::Editor {
 				return true;
 			}
 		}
+		// 项目配置本身也是异步写盘的，关窗同样要等它写完。
+		const YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+		if (project != nullptr and project->isSaving()) {
+			return true;
+		}
 		return false;
 	}
 
@@ -526,6 +531,13 @@ namespace YSS::Editor {
 					CloseSaveFailed = true;
 					CloseSaveFailedUri = uri.toString();
 					yWarningF << "Failed to save" << CloseSaveFailedUri << "while closing";
+				});
+		}
+		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+			connect(project, &YSSCore::General::YSSProject::projectSaveFailed, watcher, [this, project]() {
+				CloseSaveFailed = true;
+				CloseSaveFailedUri = project->getProjectPath().toString();
+				yWarningF << "Failed to save project" << CloseSaveFailedUri << "while closing";
 				});
 		}
 		QTimer* timer = new QTimer(this);
@@ -820,7 +832,8 @@ namespace YSS::Editor {
 		}
 		YSSCore::General::YSSProject::getCurrentProject()->setTreeLayoutConfig(treeConfig);
 
-		YSSCore::General::YSSProject::getCurrentProject()->setFocusedFile(FocusingFileEditWidgetNotTool ? FocusingFileEditWidgetNotTool->getFilePath() : "");
+		YSSCore::General::YSSProject::getCurrentProject()->setFocusedFile(
+			FocusingFileEditWidgetNotTool ? FocusingFileEditWidgetNotTool->getUri() : YSSCore::General::YSSURI());
 		Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
 		if (this->isMaximized()) {
 			config->setBool("Window.Editor.Maximized", true);

@@ -118,7 +118,12 @@ namespace ASERStudio {
 	void Main::onTest() {}
 
 	void Main::onProjectOpen(YSSCore::General::YSSProject* project) {
-		QString projectFolder = project->getProjectFolder();
+		QString projectFolder = project->getProjectFolder().getLocalPath();
+		if (projectFolder.isEmpty()) {
+			vgWarning << "ASERStudio rule loading currently only supports local projects:"
+				<< project->getProjectPath().toString();
+			return;
+		}
 		vgDebug << projectFolder + "/Rules";
 		QStringList paths = Visindigo::Utility::FileUtility::fileFilter(projectFolder + "/Rules", { "*.json" });
 		vgDebug << paths;

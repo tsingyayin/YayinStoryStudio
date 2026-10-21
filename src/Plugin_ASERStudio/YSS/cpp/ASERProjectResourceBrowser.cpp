@@ -150,7 +150,7 @@ namespace ASERStudio::YSS {
 			if (project == nullptr) {
 				return QString();
 			}
-			const QString projectFolder = project->getProjectFolder();
+			const QString projectFolder = project->getProjectFolder().getLocalPath();
 			if (path.startsWith("./")) {
 				path = path.mid(2);
 			}
@@ -804,7 +804,7 @@ namespace ASERStudio::YSS {
 		if (project == nullptr) {
 			return QString();
 		}
-		return project->getProjectFolder() + "/Resources";
+		return project->getProjectFolder().getLocalPath() + "/Resources";
 	}
 
 	bool ASERProjectResourceBrowserPrivate::ensureResourcesRoot() {

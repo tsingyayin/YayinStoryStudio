@@ -149,12 +149,11 @@ namespace ASERStudio::YSS {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
 		YSSCore::General::YSSProject project;
 		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegalFileName(config->getString("Project.Name"));
-		bool ok = project.initProject(completePath, config->getString("Project.Name"));
+		bool ok = project.initProject(YSSCore::General::YSSURI::fromLocalPath(completePath), config->getString("Project.Name"));
 		if (ok) {
-			project.setProjectIconPath("cover.png");
+			project.setProjectIconPath(project.getProjectFolder().resolve("cover.png"));
 			project.setProjectDebugServerID(ASERStudio_AStoryXDebuggerID);
-			project.saveProject();
-			QString projectFolder = project.getProjectFolder();
+			QString projectFolder = project.getProjectFolder().getLocalPath();
 			QStringList CompGroup_2_05_22_1A = {
 					"uptodate"
 			};
@@ -162,6 +161,8 @@ namespace ASERStudio::YSS {
 				initProjectV3(&project);
 			}
 			else {
+				// 项目文件夹已经建好，把基础配置落盘，避免留下一个没有 project.yssp 的空目录。
+				project.saveProject();
 				QMessageBox msgBox;
 				msgBox.setWindowTitle(VITRL("ASERStudio::provider.version.unsupported.title"));
 				msgBox.setText(VITRL("ASERStudio::provider.version.unsupported.text").arg(config->getString("Project.Version")));
@@ -169,7 +170,7 @@ namespace ASERStudio::YSS {
 				int ret = msgBox.exec();
 				return;
 			}
-			emit projectPrepared(project.getProjectPath());
+			emit projectPrepared(project.getProjectPath().toString());
 			close();
 		}
 		else {
@@ -195,7 +196,7 @@ namespace ASERStudio::YSS {
 				"/Configs",
 				"/Stories"
 		};
-		QString projectFolder = project->getProjectFolder();
+		QString projectFolder = project->getProjectFolder().getLocalPath();
 		for (const QString& folder : folders) {
 			Visindigo::Utility::FileUtility::createDir(projectFolder + folder);
 		}
@@ -209,8 +210,9 @@ namespace ASERStudio::YSS {
 		// 只把实际生成成功的示例故事记入打开列表/焦点，避免记录不存在的文件导致打开后恢复报错。
 		const QString mainStoryPath = projectFolder + "/Stories/main.astoryx";
 		if (Visindigo::Utility::FileUtility::isFileExist(mainStoryPath)) {
-			project->addEditorOpenedFile(mainStoryPath);
-			project->setFocusedFile(mainStoryPath);
+			const YSSCore::General::YSSURI mainStoryUri = YSSCore::General::YSSURI::fromLocalPath(mainStoryPath);
+			project->addEditorOpenedFile(mainStoryUri);
+			project->setFocusedFile(mainStoryUri);
 		}
 		project->saveProject();
 	}
@@ -320,13 +322,12 @@ namespace ASERStudio::YSS {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
 		YSSCore::General::YSSProject project;
 		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegalFileName(config->getString("Project.Name"));
-		bool ok = project.initProject(completePath, config->getString("Project.Name"));
+		bool ok = project.initProject(YSSCore::General::YSSURI::fromLocalPath(completePath), config->getString("Project.Name"));
 		if (ok) {
-			project.setProjectIconPath("cover.png");
+			project.setProjectIconPath(project.getProjectFolder().resolve("cover.png"));
 			project.setProjectDebugServerID(ASERStudio_AStoryXDebuggerID);
-			project.saveProject();
 			initProjectV3(&project);
-			emit projectPrepared(project.getProjectPath());
+			emit projectPrepared(project.getProjectPath().toString());
 			close();
 		}
 		else {
@@ -342,7 +343,7 @@ namespace ASERStudio::YSS {
 		Visindigo::Utility::JsonConfig projectConfig = project->getProjectConfigForPlugin("cn.yxgeneral.aserstudio");
 		projectConfig.setString("ASERVersion", "3.6.7");
 		project->saveProjectConfigForPlugin("cn.yxgeneral.aserstudio", projectConfig);
-		QString projectFolder = project->getProjectFolder();
+		QString projectFolder = project->getProjectFolder().getLocalPath();
 		const QString templatePath = ":/resource/cn.yxgeneral.aserstudio/template/3.6.7";
 		const QMap<QString, QString> fileMap = {
 			{ "Configs/override_aliases.json", "Configs/override_aliases.json" },
@@ -379,11 +380,11 @@ namespace ASERStudio::YSS {
 		};
 		for (const QString& storyPath : exampleStories) {
 			if (Visindigo::Utility::FileUtility::isFileExist(storyPath)) {
-				project->addEditorOpenedFile(storyPath);
+				project->addEditorOpenedFile(YSSCore::General::YSSURI::fromLocalPath(storyPath));
 			}
 		}
 		if (Visindigo::Utility::FileUtility::isFileExist(exampleStories.first())) {
-			project->setFocusedFile(exampleStories.first());
+			project->setFocusedFile(YSSCore::General::YSSURI::fromLocalPath(exampleStories.first()));
 		}
 		project->saveProject();
 	}

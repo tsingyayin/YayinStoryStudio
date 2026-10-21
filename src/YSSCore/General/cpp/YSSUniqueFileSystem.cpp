@@ -18,8 +18,14 @@
 #include <QtCore/qset.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qtimer.h>
+#include <algorithm>
+#include <tuple>
+#include "General/Log.h"
 #include "General/YSSUniqueFileSystem.h"
 #include "General/private/YSSUniqueFileSystem_p.h"
+
+// 独立日志命名空间：日志前缀只显示 (YSSUniqueFileSystem)，不带函数签名与行号。
+VI_DECLARE_LOGGER(YSSUniqueFileSystem, YSSUFS, YSSCore::General);
 
 namespace {
 	// 会修改文件系统的操作。资源（qrc）只读，这类操作在门面层就拒绝，
@@ -36,6 +42,36 @@ namespace {
 		default:
 			return false;
 		}
+	}
+
+	// 日志里使用的操作名。
+	const char* operationName(YSSCore::General::YSSUniqueFileSystem::Operation operation) {
+		using Operation = YSSCore::General::YSSUniqueFileSystem::Operation;
+		switch (operation) {
+		case Operation::Stat: return "stat";
+		case Operation::Read: return "read";
+		case Operation::Write: return "write";
+		case Operation::List: return "list";
+		case Operation::Remove: return "remove";
+		case Operation::Rename: return "rename";
+		case Operation::Mkdir: return "mkdir";
+		case Operation::Rmdir: return "rmdir";
+		default: return "unknown";
+		}
+	}
+
+	// 日志里统一的任务描述："read #12 ssh://user@host:22/a.txt"，
+	// 重命名再追加目标："rename #7 <from> -> <to>"。
+	QString describeRequest(quint64 id, YSSCore::General::YSSUniqueFileSystem::Operation operation,
+		const YSSCore::General::YSSURI& uri, const YSSCore::General::YSSURI& target = YSSCore::General::YSSURI()) {
+		QString text = QStringLiteral("%1 #%2 %3")
+			.arg(QLatin1String(operationName(operation)))
+			.arg(id)
+			.arg(uri.toString());
+		if (target.isValid()) {
+			text += QStringLiteral(" -> ") + target.toString();
+		}
+		return text;
 	}
 }
 
@@ -98,17 +134,132 @@ namespace YSSCore::General {
 			YSSUniqueFileSystemProvider* Provider = nullptr;
 			QStringList Keys;
 		};
+		// authority 的比较键：折叠大小写，避免 user@Host:22 与 user@host:22 被当成两条连接。
+		static QString sshKey(const QString& authority) {
+			return authority.trimmed().toCaseFolded();
+		}
+		// 取得 authority 对应的 SSH 后端；\a create 为真时不存在就新建一个。
+		// 新建的后端会立即挂上 Started / Progressed / Finished 三个信号。
+		YSSSshFileSystemProvider* sshProvider(const QString& authority, bool create) {
+			const QString key = sshKey(authority);
+			if (key.isEmpty()) {
+				return nullptr;
+			}
+			const auto it = SshProviders.constFind(key);
+			if (it != SshProviders.constEnd()) {
+				return it.value();
+			}
+			if (!create) {
+				return nullptr;
+			}
+			YSSSshFileSystemProvider* provider = new YSSSshFileSystemProvider(Owner);
+			SshProviders.insert(key, provider);
+			// 信号里用连接自己的 authority（保留原始大小写）以便界面直接展示与比较；
+			// 尚未配置的后端退回使用登记的键。注意 authority 可能在建后端之后才设置，
+			// 所以这里在每次发信号时现取。
+			const auto authorityOf = [provider, key]() {
+				return provider->isConfigured() ? provider->getConnectConfig().getAuthority() : key;
+			};
+			QObject::connect(provider, &YSSSshFileSystemProvider::readyChanged, Owner,
+				[this, authorityOf](bool ready) {
+					emit Owner->sshReadyChanged(authorityOf(), ready);
+				});
+			QObject::connect(provider, &YSSSshFileSystemProvider::connectFinished, Owner,
+				[this, authorityOf](bool ok, const QString& message) {
+					emit Owner->sshConnectFinished(authorityOf(), ok, message);
+				});
+			QObject::connect(provider, &YSSSshFileSystemProvider::disconnected, Owner,
+				[this, authorityOf](bool expected) {
+					emit Owner->sshDisconnected(authorityOf(), expected);
+				});
+			QObject::connect(provider, &YSSUniqueFileSystemProvider::started, Owner,
+				[this](quint64 id) { Owner->onProviderStarted(id); });
+			QObject::connect(provider, &YSSUniqueFileSystemProvider::progressed, Owner,
+				[this](quint64 id, qint64 transferred, qint64 total) {
+					Owner->onProviderProgressed(id, transferred, total);
+				});
+			QObject::connect(provider, &YSSUniqueFileSystemProvider::finished, Owner,
+				[this](quint64 id, bool ok) { Owner->onProviderFinished(id, ok); });
+			return provider;
+		}
+		// URI 的路由：本机/资源走 Local，远端按 authority 找对应的 SSH 后端。
+		// 远端找不到时按需新建一个未配置的后端，让请求以"未连接"失败，
+		// 而不是在门面层凭空丢掉一个可连接的结果对象。
+		YSSUniqueFileSystemProvider* providerFor(const YSSURI& uri) {
+			if (uri.isNotRemote()) {
+				return Local;
+			}
+			if (!uri.isRemote()) {
+				return nullptr;
+			}
+			const auto path = uri.getSshPath();
+			if (!path) {
+				return nullptr;
+			}
+			return sshProvider(path->getAuthority(), true);
+		}
+		// 统计使用的 Provider 标识："local" 或 user@host:port。
+		QString providerIdOf(const YSSURI& uri) const {
+			if (uri.isNotRemote()) {
+				return QStringLiteral("local");
+			}
+			const auto path = uri.getSshPath();
+			return path ? path->getAuthority() : QString();
+		}
+		// 只查不建，供 const 查询接口使用。
+		YSSSshFileSystemProvider* findSshProvider(const QString& authority) const {
+			const auto it = SshProviders.constFind(sshKey(authority));
+			return it != SshProviders.constEnd() ? it.value() : nullptr;
+		}
+		// 把一笔已完成读写记到合计与对应 Provider 两个地方。\a providerId 为空时只记合计。
+		void addTransfer(const QString& providerId, YSSUniqueFileSystem::Operation operation,
+			qint64 readBytes, qint64 writeBytes) {
+			switch (operation) {
+			case YSSUniqueFileSystem::Operation::Read:
+				BytesRead += readBytes;
+				break;
+			case YSSUniqueFileSystem::Operation::Write:
+				BytesWritten += writeBytes;
+				break;
+			default:
+				return;
+			}
+			if (providerId.isEmpty()) {
+				return;
+			}
+			YSSFileSystemTransferStats& stats = ProviderStats[providerId];
+			stats.ProviderId = providerId;
+			if (operation == YSSUniqueFileSystem::Operation::Read) {
+				stats.BytesRead += readBytes;
+			}
+			else {
+				stats.BytesWritten += writeBytes;
+			}
+		}
 		YSSLocalFileSystemProvider* Local = nullptr;
-		YSSSshFileSystemProvider* Ssh = nullptr;
+		// 远端后端按连接身份 user@host:port 索引；同一进程可以同时挂多条 SSH 连接。
+		// 键是折叠成小写的 authority，与 URI 的比较规则保持一致。
+		QHash<QString, YSSSshFileSystemProvider*> SshProviders;
+		// 旧的不带 authority 的连接接口作用在这条"默认连接"上。
+		QString DefaultSshKey;
+		// 反向指回门面，创建后端时用来挂信号。
+		YSSUniqueFileSystem* Owner = nullptr;
 		quint64 NextId = 1;
 		// 按提交顺序保存尚未结束的任务。
 		QMap<quint64, YSSFileSystemTask> Tasks;
+		// 任务 → Provider 标识。移除某条连接时要据此清掉它的排队任务与占用键。
+		QHash<quint64, QString> TaskProviderIds;
 		// 等待调度队列，按提交顺序处理。
 		QList<PendingTask> Pending;
 		// 正在执行的任务占用的 URI 键。同一键上的请求串行执行。
 		QSet<QString> BusyKeys;
 		QHash<quint64, QStringList> RunningKeys;
 		bool Scheduling = false;
+		// 成功结束的读写操作累计字节数，见 getTransferredBytes()。
+		// 合计与按 Provider 分项各存一份：删除连接后历史统计仍然保留。
+		qint64 BytesRead = 0;
+		qint64 BytesWritten = 0;
+		QHash<QString, YSSFileSystemTransferStats> ProviderStats;
 		static YSSUniqueFileSystem* Instance;
 	};
 
@@ -1256,6 +1407,23 @@ namespace YSSCore::General {
 				emit reply->progressed(bytesTransferred, totalBytes);
 			}
 			const quint64 id = reply->d->Id;
+			QString result;
+			switch (reply->d->Operation) {
+			case YSSUniqueFileSystem::Operation::Read:
+			case YSSUniqueFileSystem::Operation::Write:
+				result = QStringLiteral("ok, %1 bytes").arg(bytesTransferred >= 0 ? bytesTransferred : data.size());
+				break;
+			case YSSUniqueFileSystem::Operation::List:
+				result = QStringLiteral("ok, %1 entries").arg(entries.size());
+				break;
+			case YSSUniqueFileSystem::Operation::Stat:
+				result = QStringLiteral("ok, %1").arg(attributes.isDirectory() ? "directory" : "file");
+				break;
+			default:
+				result = QStringLiteral("ok");
+				break;
+			}
+			YSSUFS->debug() << "done" << describeRequest(id, reply->d->Operation, reply->d->Uri) << "->" << result;
 			emit reply->succeeded();
 			emit reply->finished();
 			emit this->finished(id, true);
@@ -1284,6 +1452,20 @@ namespace YSSCore::General {
 			reply->d->Error = error;
 			reply->d->Finished = true;
 			const quint64 id = reply->d->Id;
+			const QString line = describeRequest(id, reply->d->Operation, reply->d->Uri);
+			// 这些失败是正常业务结果（探测文件是否存在、只读后端等），用调试级别记录；
+			// 其余视为异常，用警告级别，便于在日志里一眼看到。
+			switch (error.Type) {
+			case YSSFileError::ErrorType::NotFound:
+			case YSSFileError::ErrorType::NotSupported:
+			case YSSFileError::ErrorType::AlreadyExists:
+			case YSSFileError::ErrorType::Aborted:
+				YSSUFS->debug() << "done" << line << "-> failed," << error.toString();
+				break;
+			default:
+				YSSUFS->warning() << "done" << line << "-> failed," << error.toString();
+				break;
+			}
 			emit reply->failed(error);
 			emit reply->finished();
 			emit this->finished(id, false);
@@ -1365,22 +1547,38 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::sshReadyChanged(bool ready)
+		\fn void YSSCore::General::YSSUniqueFileSystem::sshReadyChanged(const QString& authority, bool ready)
 		\since YSS 0.18.0
 
-		SSH 后端就绪状态变化。界面可借此启用/禁用远端相关操作。
+		某条 SSH 连接的就绪状态变化。界面可借此启用/禁用对应的远端操作。
 
+		\a authority 连接身份 user@host:port。
 		\a ready 是否已就绪。
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::sshConnectFinished(bool ok, const QString& message)
+		\fn void YSSCore::General::YSSUniqueFileSystem::sshConnectFinished(const QString& authority, bool ok, const QString& message)
 		\since YSS 0.18.0
 
-		SSH 连接尝试结束。
+		某条 SSH 连接尝试结束。
 
+		\a authority 连接身份 user@host:port。
 		\a ok 是否连接成功。
 		\a message 失败原因；成功时为空。
+	*/
+
+	/*!
+		\fn void YSSCore::General::YSSUniqueFileSystem::sshDisconnected(const QString& authority, bool expected)
+		\since YSS 0.18.0
+
+		某条原本已建立的 SSH 连接断开。
+
+		只在“已连接 -> 未连接”时发出，并且与 \l{sshReadyChanged()}(authority, false)
+		成对出现：后者表达状态变化，本信号额外说明这是不是本机主动断开。
+
+		\a authority 连接身份 user@host:port。
+		\a expected 为真表示由 \l{disconnectSsh()} / \l{removeSshConnection()} 发起；
+		为假表示对端关闭、保活超时或网络中断。
 	*/
 
 	/*!
@@ -1440,42 +1638,36 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		构造单例。本机后端在这里创建并且始终存在；SSH 后端也一并创建，但在配置并连接
-		成功之前不参与路由。
+		构造单例。本机后端在这里创建并且始终存在；SSH 后端按需创建——每当出现
+		一条新的远端连接身份或一个指向未登记 authority 的请求时才会新建。
 	*/
 	YSSUniqueFileSystem::YSSUniqueFileSystem() : QObject(nullptr) {
 		this->d = new YSSUniqueFileSystemPrivate();
+		this->d->Owner = this;
 		this->d->Local = new YSSLocalFileSystemProvider(this);
-		this->d->Ssh = new YSSSshFileSystemProvider(this);
-		QObject::connect(this->d->Ssh, &YSSSshFileSystemProvider::readyChanged, this,
-			[this](bool ready) { emit this->sshReadyChanged(ready); });
-		QObject::connect(this->d->Ssh, &YSSSshFileSystemProvider::connectFinished, this,
-			[this](bool ok, const QString& message) { emit this->sshConnectFinished(ok, message); });
 		// 后端可能在任意线程上发出这三个信号：同一线程内直接更新，跨线程自动排队。
-		const auto connectProvider = [this](YSSUniqueFileSystemProvider* provider) {
-			QObject::connect(provider, &YSSUniqueFileSystemProvider::started, this,
-				[this](quint64 id) { this->onProviderStarted(id); });
-			QObject::connect(provider, &YSSUniqueFileSystemProvider::progressed, this,
-				[this](quint64 id, qint64 transferred, qint64 total) {
-					this->onProviderProgressed(id, transferred, total);
-				});
-			QObject::connect(provider, &YSSUniqueFileSystemProvider::finished, this,
-				[this](quint64 id, bool ok) { this->onProviderFinished(id, ok); });
-		};
-		connectProvider(this->d->Local);
-		connectProvider(this->d->Ssh);
+		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::started, this,
+			[this](quint64 id) { this->onProviderStarted(id); });
+		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::progressed, this,
+			[this](quint64 id, qint64 transferred, qint64 total) {
+				this->onProviderProgressed(id, transferred, total);
+			});
+		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::finished, this,
+			[this](quint64 id, bool ok) { this->onProviderFinished(id, ok); });
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		析构函数。两个后端对象会被一并销毁。
+		析构函数。本机后端与所有 SSH 后端会被一并销毁。
 	*/
 	YSSUniqueFileSystem::~YSSUniqueFileSystem() {
 		delete this->d->Local;
 		this->d->Local = nullptr;
-		delete this->d->Ssh;
-		this->d->Ssh = nullptr;
+		for (YSSSshFileSystemProvider* provider : this->d->SshProviders) {
+			delete provider;
+		}
+		this->d->SshProviders.clear();
 		delete this->d;
 	}
 
@@ -1501,7 +1693,11 @@ namespace YSSCore::General {
 			return this->d->Local->getCapabilities();
 		}
 		if (uri.isRemote()) {
-			return this->d->Ssh->getCapabilities();
+			// SSH 后端的能力是固定的，与具体连接无关，因此不必先建后端就能回答；
+			// 路由时后端会在需要时按需创建。
+			if (uri.getSshPath()) {
+				return Capabilities(AllCapabilities | PathCaseSensitive);
+			}
 		}
 		return NoCapability;
 	}
@@ -1509,7 +1705,8 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		判断指定 URI 现在能否执行操作。本机 URI 恒为 true；SSH URI 需要连接已经建立。
+		判断指定 URI 现在能否执行操作。本机 URI 恒为 true；SSH URI 需要对应那条
+		连接已经建立。
 
 		\a uri 文件身份。
 
@@ -1519,64 +1716,264 @@ namespace YSSCore::General {
 		if (uri.isNotRemote()) {
 			return this->d->Local->isReady();
 		}
-		if (uri.isRemote()) {
-			return this->d->Ssh->isReady();
+		const auto path = uri.getSshPath();
+		if (!path) {
+			return false;
 		}
-		return false;
+		const YSSSshFileSystemProvider* provider =
+			this->d->findSshProvider(path->getAuthority());
+		return provider != nullptr && provider->isReady();
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		设置 SSH 连接配置（含凭据）。设置成功之后仍需 \l{connectSsh()} 才会真正连上。
+		添加（或更新）一条 SSH 连接。同一个 authority 重复添加只更新配置，
+		已建立的会话不受影响。
+
+		\a config 连接配置。
+
+		\return 配置是否自洽；不自洽时不会创建任何后端。
+	*/
+	bool YSSUniqueFileSystem::addSshConnection(const Visindigo::Network::SshConnectConfig& config) {
+		if (!config.isValid()) {
+			YSSUFS->warning() << "refused to add an invalid SSH connection";
+			return false;
+		}
+		const QString authority = config.getAuthority();
+		YSSSshFileSystemProvider* provider = this->d->sshProvider(authority, true);
+		if (provider == nullptr) {
+			return false;
+		}
+		provider->setConnectConfig(config);
+		YSSUFS->debug() << "registered SSH connection" << authority;
+		return true;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		关闭并移除一条 SSH 连接。该连接上正在进行的请求会随会话断开而失败，
+		已经累计的读写统计会保留。
+
+		\a authority 连接身份 user@host:port。
+
+		\return 该连接存在并已移除返回 true。
+	*/
+	bool YSSUniqueFileSystem::removeSshConnection(const QString& authority) {
+		const QString key = YSSUniqueFileSystemPrivate::sshKey(authority);
+		auto it = this->d->SshProviders.find(key);
+		if (it == this->d->SshProviders.end()) {
+			return false;
+		}
+		YSSSshFileSystemProvider* provider = it.value();
+		this->d->SshProviders.erase(it);
+
+		// 先断开：会话关闭时后端会把在途请求以失败收尾。
+		provider->disconnect();
+
+		// 还排着队的请求不可能再执行了，直接以 Aborted 结束，避免留下悬空的后端指针。
+		for (int i = this->d->Pending.size() - 1; i >= 0; --i) {
+			const YSSUniqueFileSystemPrivate::PendingTask item = this->d->Pending.at(i);
+			if (item.Provider != provider) {
+				continue;
+			}
+			this->d->Pending.removeAt(i);
+			this->d->Tasks.remove(item.Id);
+			this->d->TaskProviderIds.remove(item.Id);
+			if (item.Reply) {
+				YSSFileError error;
+				error.Type = YSSFileError::ErrorType::Aborted;
+				error.Message = QStringLiteral("The SSH connection was removed");
+				error.Detail = authority;
+				provider->fail(item.Reply.data(), error);
+			}
+		}
+		// 正在执行的请求由会话负责收尾；这里只清掉占用的键与任务记录，
+		// 之后即使收到迟到的 finished 也只会被当作未知编号忽略。
+		const QString providerId = provider->getConnectConfig().getAuthority();
+		const QList<quint64> runningIds = this->d->TaskProviderIds.keys();
+		for (quint64 id : runningIds) {
+			if (YSSUniqueFileSystemPrivate::sshKey(this->d->TaskProviderIds.value(id))
+				!= YSSUniqueFileSystemPrivate::sshKey(providerId)) {
+				continue;
+			}
+			const QStringList keys = this->d->RunningKeys.take(id);
+			for (const QString& busyKey : keys) {
+				this->d->BusyKeys.remove(busyKey);
+			}
+			this->d->Tasks.remove(id);
+			this->d->TaskProviderIds.remove(id);
+		}
+		if (this->d->DefaultSshKey == key) {
+			this->d->DefaultSshKey.clear();
+		}
+		provider->deleteLater();
+		YSSUFS->debug() << "removed SSH connection" << authority;
+		return true;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		\return 当前登记的所有 SSH 连接身份 user@host:port。
+
+		只列出真正配置过的连接；为某个未登记 authority 路由请求时临时创建的后端
+		不算连接，不会出现在这里。
+	*/
+	QStringList YSSUniqueFileSystem::getSshAuthorities() const {
+		QStringList authorities;
+		for (const YSSSshFileSystemProvider* provider : this->d->SshProviders) {
+			if (!provider->isConfigured()) {
+				continue;
+			}
+			authorities.append(provider->getConnectConfig().getAuthority());
+		}
+		authorities.sort();
+		return authorities;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		判断指定 SSH 连接的配置是否完整。配置完整不代表已经连上。
+
+		\a authority 连接身份。
+
+		\return 已配置返回 true。
+	*/
+	bool YSSUniqueFileSystem::isSshConfigured(const QString& authority) const {
+		const YSSSshFileSystemProvider* provider =
+			this->d->findSshProvider(authority);
+		return provider != nullptr && provider->isConfigured();
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		判断指定 SSH 连接是否已经建立。
+
+		\a authority 连接身份。
+
+		\return 就绪返回 true。
+	*/
+	bool YSSUniqueFileSystem::isSshReady(const QString& authority) const {
+		const YSSSshFileSystemProvider* provider =
+			this->d->findSshProvider(authority);
+		return provider != nullptr && provider->isReady();
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		开始连接指定的远端。配置不完整时不会发起连接，而是立刻发出
+		\l{sshConnectFinished()} 失败信号。
+
+		\a authority 连接身份。
+	*/
+	void YSSUniqueFileSystem::connectSsh(const QString& authority) {
+		YSSSshFileSystemProvider* provider = this->d->sshProvider(authority, false);
+		if (provider == nullptr) {
+			YSSUFS->warning() << "connect requested for unknown SSH connection" << authority;
+			emit this->sshConnectFinished(authority, false,
+				QStringLiteral("Unknown SSH connection: %1").arg(authority));
+			return;
+		}
+		provider->connect();
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		关闭指定的远端连接。之后的请求在该连接上以失败返回。
+
+		\a authority 连接身份。
+	*/
+	void YSSUniqueFileSystem::disconnectSsh(const QString& authority) {
+		YSSSshFileSystemProvider* provider = this->d->sshProvider(authority, false);
+		if (provider != nullptr) {
+			provider->disconnect();
+		}
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		设置默认 SSH 连接（含凭据）。等价于 \l{addSshConnection()} 并把该连接记为
+		默认；之后不带 authority 的那组接口都作用在它上面。
+
+		设置成功之后仍需 \l{connectSsh()} 才会真正连上。
 
 		\a config 连接配置。
 
 		\return 配置是否自洽。
 	*/
 	bool YSSUniqueFileSystem::setSshConnectConfig(const Visindigo::Network::SshConnectConfig& config) {
-		return this->d->Ssh->setConnectConfig(config);
+		const QString authority = config.getAuthority();
+		if (!this->addSshConnection(config)) {
+			return false;
+		}
+		this->d->DefaultSshKey = YSSUniqueFileSystemPrivate::sshKey(authority);
+		return true;
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		判断 SSH 连接信息是否已经配置完整。配置完整不代表已经连上。
+		判断默认连接的配置是否完整。
 
-		\return 已配置返回 true。
+		\return 已配置返回 true；没有默认连接时返回 false。
 	*/
 	bool YSSUniqueFileSystem::isSshConfigured() const {
-		return this->d->Ssh->isConfigured();
+		const YSSSshFileSystemProvider* provider =
+			this->d->findSshProvider(this->getDefaultSshAuthority());
+		return provider != nullptr && provider->isConfigured();
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		判断 SSH 连接是否已经建立、可以处理请求。
+		判断默认连接是否已经建立。
 
-		\return 就绪返回 true。
+		\return 就绪返回 true；没有默认连接时返回 false。
 	*/
 	bool YSSUniqueFileSystem::isSshReady() const {
-		return this->d->Ssh->isReady();
+		const YSSSshFileSystemProvider* provider =
+			this->d->findSshProvider(this->getDefaultSshAuthority());
+		return provider != nullptr && provider->isReady();
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		开始连接远端。配置不完整时不会发起连接，而是立刻发出
+		开始连接默认连接。配置不完整时不会发起连接，而是立刻发出
 		\l{sshConnectFinished()} 失败信号。
 	*/
 	void YSSUniqueFileSystem::connectSsh() {
-		this->d->Ssh->connect();
+		this->connectSsh(this->getDefaultSshAuthority());
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		关闭远端连接。已连接的会话会被断开，之后的 SSH 请求以失败返回。
+		关闭默认连接。已连接的会话会被断开，之后的 SSH 请求以失败返回。
 	*/
 	void YSSUniqueFileSystem::disconnectSsh() {
-		this->d->Ssh->disconnect();
+		this->disconnectSsh(this->getDefaultSshAuthority());
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		\return 默认连接的身份 user@host:port；没有默认连接时返回空字符串。
+	*/
+	QString YSSUniqueFileSystem::getDefaultSshAuthority() const {
+		if (this->d->DefaultSshKey.isEmpty()) {
+			return QString();
+		}
+		const YSSSshFileSystemProvider* provider =
+			this->d->findSshProvider(this->d->DefaultSshKey);
+		return provider != nullptr ? provider->getConnectConfig().getAuthority() : QString();
 	}
 
 	/*!
@@ -1598,23 +1995,36 @@ namespace YSSCore::General {
 	*/
 	YSSFileSystemReply* YSSUniqueFileSystem::execute(const YSSFileSystemRequest& request) {
 		if (!request.isValid() || !request.hasUri()) {
+			YSSUFS->warning() << "rejected" << operationName(request.getOperation())
+				<< "request without a valid URI";
 			return nullptr;
 		}
 		const YSSURI uri = request.getUri();
-		YSSUniqueFileSystemProvider* provider = nullptr;
-		if (uri.isNotRemote()) {
-			provider = this->d->Local;
-		}
-		else if (uri.isRemote()) {
-			provider = this->d->Ssh;
-		}
+		YSSUniqueFileSystemProvider* provider = this->d->providerFor(uri);
 		if (provider == nullptr) {
+			YSSUFS->warning() << "no provider for" << operationName(request.getOperation())
+				<< "request on" << uri.toString();
 			return nullptr;
 		}
 		YSSFileSystemReply* reply = new YSSFileSystemReply(this->d->NextId++);
 		reply->d->Uri = uri;
 		reply->d->Operation = request.getOperation();
 		reply->d->AutoDelete = request.isAutoDelete();
+		// 累计读写字节：只认整笔成功结束的操作，因此等 finished 一次性加。
+		// 写入大小在提交时就已经确定，不必依赖后端回报。
+		{
+			const qint64 writeBytes = request.getData().size();
+			const QString providerId = this->d->providerIdOf(uri);
+			QObject::connect(reply, &YSSFileSystemReply::finished, this, [this, reply, writeBytes, providerId]() {
+				if (reply->getError().isError()) {
+					return;
+				}
+				const qint64 readBytes = reply->getOperation() == Operation::Read
+					? qMax(reply->getBytesTransferred(), qint64(reply->getData().size()))
+					: 0;
+				this->d->addTransfer(providerId, reply->getOperation(), readBytes, writeBytes);
+			});
+		}
 
 		YSSFileSystemTask task;
 		task.Id = reply->d->Id;
@@ -1622,7 +2032,9 @@ namespace YSSCore::General {
 		task.TargetUri = request.getTargetUri();
 		task.Operation = request.getOperation();
 		task.QueuedAtMs = QDateTime::currentMSecsSinceEpoch();
+		YSSUFS->debug() << "submit" << describeRequest(task.Id, task.Operation, task.Uri, task.TargetUri);
 		this->d->Tasks.insert(task.Id, task);
+		this->d->TaskProviderIds.insert(task.Id, this->d->providerIdOf(uri));
 		emit this->taskQueued(task);
 
 		if (isWriteOperation(request.getOperation())) {
@@ -1814,6 +2226,10 @@ namespace YSSCore::General {
 			QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
 			timer.start(timeoutMs);
 			loop.exec();
+			if (!reply->isFinished()) {
+				YSSUFS->warning() << "sync wait timed out after" << timeoutMs << "ms for"
+					<< describeRequest(reply->getId(), reply->getOperation(), reply->getUri());
+			}
 		}
 		const bool finished = reply->isFinished();
 		if (error) {
@@ -1976,6 +2392,62 @@ namespace YSSCore::General {
 		return count;
 	}
 
+	/*!
+		\since YSS 0.18.0
+
+		取自本对象创建以来成功读入与写出的字节总数。
+
+		\return 顺序为 (read, write) 的字节数。
+
+		这是在总线上跑过的数据量的粗略计数，用于状态展示或排查"到底传了多少"：
+		\list
+		\li 只在操作**成功结束**时把整笔大小加进去，进行中的传输不计入；
+		\li 失败、中止、只读被拒的操作不计入；
+		\li 读写以外（stat / list / remove / rename / mkdir / rmdir）不计数；
+		\li 重命名不搬运数据，因此也不算写出。
+		\endlist
+
+		因为采用"结束时一次性累加"，同一时刻读取到的值可能比实际已传输的字节略少，
+		这正是本函数不保证实时精确的原因。它只统计经本类门面发起并完成的请求，
+		不包含其它途径（例如旧的文件工具）产生的 IO。
+
+		\note 与其它查询接口一样，请在门面对象所属线程调用。
+	*/
+	std::tuple<qint64, qint64> YSSUniqueFileSystem::getTransferredBytes() const {
+		return std::make_tuple(this->d->BytesRead, this->d->BytesWritten);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		把 \l{getTransferredBytes()} 的数字按 Provider 拆开。
+
+		\return 每个 Provider 一条记录，按 \c{ProviderId} 的字母序排列。
+		本机资源与 Qt 资源的 \c{ProviderId} 都是 \c{"local"}，每条 SSH 连接是
+		自己的 \c{user@host:port}。各项之和等于合计值；连接被移除后它的历史统计
+		仍留在列表里。
+	*/
+	QList<YSSFileSystemTransferStats> YSSUniqueFileSystem::getTransferredBytesByProvider() const {
+		QList<YSSFileSystemTransferStats> stats = this->d->ProviderStats.values();
+		std::sort(stats.begin(), stats.end(),
+			[](const YSSFileSystemTransferStats& left, const YSSFileSystemTransferStats& right) {
+				return left.ProviderId < right.ProviderId;
+			});
+		return stats;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		\a uri 文件身份。
+
+		\return 该 URI 会交给哪个 Provider 处理：本机资源为 \c{"local"}，
+		远端为 \c{user@host:port}；无法归类时返回空字符串。
+	*/
+	QString YSSUniqueFileSystem::providerIdOf(const YSSURI& uri) const {
+		return this->d->providerIdOf(uri);
+	}
+
 	void YSSUniqueFileSystem::onProviderStarted(quint64 id) {
 		auto it = this->d->Tasks.find(id);
 		if (it == this->d->Tasks.end() || it->StartedAtMs != 0) {
@@ -1984,7 +2456,6 @@ namespace YSSCore::General {
 		it->StartedAtMs = QDateTime::currentMSecsSinceEpoch();
 		emit this->taskStarted(it.value());
 	}
-
 	void YSSUniqueFileSystem::onProviderProgressed(quint64 id, qint64 transferred, qint64 total) {
 		auto it = this->d->Tasks.find(id);
 		if (it == this->d->Tasks.end()) {
@@ -2005,6 +2476,7 @@ namespace YSSCore::General {
 		if (this->d->Tasks.remove(id) == 0) {
 			return;
 		}
+		this->d->TaskProviderIds.remove(id);
 		emit this->taskFinished(id, ok);
 		this->schedulePending();
 	}
@@ -2055,6 +2527,7 @@ namespace YSSCore::General {
 			if (!item.Reply) {
 				this->d->Pending.removeAt(i);
 				this->d->Tasks.remove(item.Id);
+				this->d->TaskProviderIds.remove(item.Id);
 				continue;
 			}
 			bool blocked = false;
@@ -2076,6 +2549,16 @@ namespace YSSCore::General {
 				this->d->BusyKeys.insert(key);
 			}
 			this->d->RunningKeys.insert(item.Id, item.Keys);
+			{
+				qint64 waitedMs = 0;
+				const auto taskIt = this->d->Tasks.constFind(item.Id);
+				if (taskIt != this->d->Tasks.constEnd()) {
+					waitedMs = QDateTime::currentMSecsSinceEpoch() - taskIt.value().QueuedAtMs;
+				}
+				YSSUFS->debug() << "dispatch" << describeRequest(item.Id, item.Request.getOperation(),
+					item.Request.getUri(), item.Request.getTargetUri())
+					<< QStringLiteral("(queued %1 ms)").arg(waitedMs);
+			}
 			item.Provider->execute(item.Request, item.Reply.data());
 		}
 		this->d->Scheduling = false;

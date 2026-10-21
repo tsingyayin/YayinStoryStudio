@@ -19,6 +19,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
 #include <functional>
+#include <tuple>
 // Forward declarations
 namespace Visindigo::Network {
 	struct SshConnectConfig;
@@ -30,6 +31,7 @@ namespace YSSCore::General {
 	class YSSFileSystemRequest;
 	class YSSFileSystemRequestPrivate;
 	struct YSSFileSystemTask;
+	struct YSSFileSystemTransferStats;
 	class YSSUniqueFileSystemPrivate;
 	class YSSUniqueFileSystemProvider;
 }
@@ -177,8 +179,14 @@ namespace YSSCore::General {
 		Q_OBJECT;
 		friend class YSSUniqueFileSystemPrivate;
 	signals:
-		void sshReadyChanged(bool ready);
-		void sshConnectFinished(bool ok, const QString& message);
+		// 某条 SSH 连接的就绪状态变化。authority 为 user@host:port。
+		void sshReadyChanged(const QString& authority, bool ready);
+		// 某条 SSH 连接的连接尝试结束。
+		void sshConnectFinished(const QString& authority, bool ok, const QString& message);
+		// 某条原本已建立的 SSH 连接断开。只在“已连接 -> 未连接”时发出，
+		// 与 sshReadyChanged(authority, false) 成对出现。
+		// expected 为真表示是本机主动 disconnectSsh()/removeSshConnection() 造成的。
+		void sshDisconnected(const QString& authority, bool expected);
 		// 任务进入队列（提交成功，尚未开始执行）。
 		void taskQueued(const YSSFileSystemTask& task);
 		// 后端真正开始处理该任务。排队中的任务不会有这个信号。
@@ -232,12 +240,38 @@ namespace YSSCore::General {
 		int getTaskCount() const;
 		int getQueuedTaskCount() const;
 	public:
-		// 设置远端连接信息。设置成功之后仍需 connectSsh() 才会真正连上。
+		// 自本对象创建以来成功读入与写出的字节总数，顺序为 (read, write)。
+		// 只在操作结束时累加整笔大小：进行中的传输、失败的操作都不计入。
+		// 仅供展示与调试，不要拿它做配额或一致性校验。
+		std::tuple<qint64, qint64> getTransferredBytes() const;
+		// 上面那组数字按 Provider 拆开，按 ProviderId 的字母序返回。
+		// 合计接口是这里的各项之和；已移除连接的统计仍会保留在列表里。
+		QList<YSSFileSystemTransferStats> getTransferredBytesByProvider() const;
+		// 该 URI 会交给哪个 Provider 处理：本机资源为 "local"，远端为 user@host:port。
+		// 无法归类时返回空字符串。
+		QString providerIdOf(const YSSURI& uri) const;
+	public:
+		// 添加（或更新）一条 SSH 连接。同一个 authority 重复添加只更新配置。
+		// 添加后仍需对应的 connectSsh(authority) 才会真正连上。
+		bool addSshConnection(const Visindigo::Network::SshConnectConfig& config);
+		// 关闭并移除一条 SSH 连接；进行中的请求失败。authority 不存在时返回 false。
+		bool removeSshConnection(const QString& authority);
+		// 当前登记的所有 SSH 连接身份（user@host:port）。
+		QStringList getSshAuthorities() const;
+		bool isSshConfigured(const QString& authority) const;
+		bool isSshReady(const QString& authority) const;
+		void connectSsh(const QString& authority);
+		void disconnectSsh(const QString& authority);
+	public:
+		// 单连接的便捷接口：等价于添加一条连接并把它记为默认连接，
+		// 之后不带 authority 的那组接口都作用在它上面。
 		bool setSshConnectConfig(const Visindigo::Network::SshConnectConfig& config);
 		bool isSshConfigured() const;
 		bool isSshReady() const;
 		void connectSsh();
 		void disconnectSsh();
+		// 当前默认连接的身份；没有默认连接时返回空字符串。
+		QString getDefaultSshAuthority() const;
 	public:
 		YSSFileSystemReply* execute(const YSSFileSystemRequest& request);
 		YSSFileSystemReply* execute(const YSSURI& uri, Operation operation,
@@ -285,6 +319,14 @@ namespace YSSCore::General {
 		bool isRunning() const;
 		// 进度百分比，0..100；总长度未知或为 0 时返回 -1。
 		qreal progressPercent() const;
+	};
+
+	// 单个 Provider 的累计读写字节数。值类型快照，由 getTransferredBytesByProvider() 返回。
+	struct YSSCoreAPI YSSFileSystemTransferStats {
+		// "local"，或 SSH 连接的 user@host:port。
+		QString ProviderId;
+		qint64 BytesRead = 0;
+		qint64 BytesWritten = 0;
 	};
 
 	class YSSCoreAPI YSSFileSystemRequest {

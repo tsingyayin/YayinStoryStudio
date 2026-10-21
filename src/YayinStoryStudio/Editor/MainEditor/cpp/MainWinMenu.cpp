@@ -378,13 +378,13 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_file_projectConfig() {
-		QString ysspFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectPath();
+		QString ysspFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectPath().getLocalPath();
 		QDir projectDir(ysspFilePath);
 		YSSFSM->openFile(projectDir.absoluteFilePath(""));
 	}
 
 	void MainWinMenu::file_file_showInExplorer() {
-		QString projectFolder = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder();
+		QString projectFolder = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder().getLocalPath();
 		Visindigo::Utility::FileUtility::openExplorer(projectFolder);
 	}
 

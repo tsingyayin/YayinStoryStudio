@@ -8,6 +8,7 @@
 #include <General/VIApplication.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/MainEditor/BottomInfoWidget.h"
+#include "Editor/MainEditor/BottomInfoWidget_p.h"
 namespace YSS::Editor {
 	class BottomInfoWidgetPrivate {
 		friend class BottomInfoWidget;
@@ -34,9 +35,12 @@ namespace YSS::Editor {
 		QToolButton* EditorInfoText;
 		QComboBox* EditorFontSizeComboBox;
 		QToolButton* EditorHintSettingsButton;
-		QFrame* EditorHintSettingsPopup;
-		QComboBox* EditorTabCompleterLevelComboBox;
-		QCheckBox* EditorInlayHintCheckBox;
+
+		QToolButton* ProgramMessagesButton;
+		// 两个底栏浮窗都由 MainEditor/BottomInfoWidget_p.h 提供，
+		// 这里只负责创建、弹出与回收。
+		EditorHintSettingsPopup* HintSettingsPopup = nullptr;
+		TransferMonitorPopup* TransferPopup = nullptr;
 
 		QWidget* GitInfoWidget;
 		QHBoxLayout* GitInfoLayout;
@@ -46,8 +50,6 @@ namespace YSS::Editor {
 		QLabel* GI_ModifiedText;
 		QLabel* GI_BranchIcon;
 		QLabel* GI_BranchText;
-
-		QToolButton* ProgramMessagesButton;
 
 		QColor textColor;
 		qint32 iconSize = 30;
@@ -102,42 +104,6 @@ namespace YSS::Editor {
 				index = 2; // Default to 100% if not found
 			}
 			EditorFontSizeComboBox->setCurrentIndex(index);
-		}
-
-		void initTabCompleterLevelComboBox() {
-			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.none"), YSSCore::Editor::TabCompleterItem::CompleterLevel::None);
-			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.few"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Few);
-			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.some"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Some);
-			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.many"), YSSCore::Editor::TabCompleterItem::CompleterLevel::Many);
-			EditorTabCompleterLevelComboBox->addItem(VITRL("YSS::editor.textEdit.tabCompleterLevel.all"), YSSCore::Editor::TabCompleterItem::CompleterLevel::All);
-			qint32 index = -1;
-			auto configLevel = YSS::Editor::TextEditConfigOperator::getCompleterLevel();
-			for (qint32 i = 0; i < EditorTabCompleterLevelComboBox->count(); i++) {
-				if (EditorTabCompleterLevelComboBox->itemData(i).value<YSSCore::Editor::TabCompleterItem::CompleterLevel>() == configLevel) {
-					index = i;
-					break;
-				}
-			}
-			if (index == -1) {
-				index = 4; // Default to "All" if not found
-			}
-			EditorTabCompleterLevelComboBox->setCurrentIndex(index);
-		}
-
-		/*!
-			提示设置悬浮窗贴着底栏向上弹出。底栏空间有限，补全级别和内联提示开关都收进这里，
-			不再各自占用一个控件的位置。
-		*/
-		void showHintSettingsPopup() {
-			EditorHintSettingsPopup->adjustSize();
-			const int width = qMax(220, EditorHintSettingsPopup->sizeHint().width());
-			const int height = EditorHintSettingsPopup->sizeHint().height();
-			EditorHintSettingsPopup->setFixedSize(width, height);
-			const QPoint buttonPos = EditorHintSettingsButton->mapToGlobal(QPoint(0, 0));
-			// 右边缘与按钮对齐，并向上弹出，避免盖住底栏本身。
-			EditorHintSettingsPopup->move(buttonPos.x() + EditorHintSettingsButton->width() - width,
-				buttonPos.y() - height);
-			EditorHintSettingsPopup->show();
 		}
 	};
 
@@ -202,24 +168,6 @@ namespace YSS::Editor {
 		d->EditorHintSettingsButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
 		d->EditorHintSettingsButton->setText(VITRL("YSS::editor.textEdit.hintSettings"));
 
-		d->EditorHintSettingsPopup = new QFrame(nullptr, Qt::Popup | Qt::FramelessWindowHint);
-		d->EditorHintSettingsPopup->setObjectName("EditorHintSettingsPopup");
-		auto* hintPopupLayout = new QVBoxLayout(d->EditorHintSettingsPopup);
-		hintPopupLayout->setContentsMargins(10, 8, 10, 8);
-		hintPopupLayout->setSpacing(8);
-		auto* completerLevelRow = new QHBoxLayout();
-		completerLevelRow->setContentsMargins(0, 0, 0, 0);
-		completerLevelRow->setSpacing(8);
-		completerLevelRow->addWidget(new QLabel(VITRL("YSS::editor.textEdit.completerLevel"), d->EditorHintSettingsPopup));
-		completerLevelRow->addStretch(1);
-		d->EditorTabCompleterLevelComboBox = new QComboBox(d->EditorHintSettingsPopup);
-		completerLevelRow->addWidget(d->EditorTabCompleterLevelComboBox);
-		hintPopupLayout->addLayout(completerLevelRow);
-		d->EditorInlayHintCheckBox = new QCheckBox(VITRL("YSS::editor.textEdit.inlayHintVisible"), d->EditorHintSettingsPopup);
-		d->EditorInlayHintCheckBox->setChecked(YSS::Editor::TextEditConfigOperator::getInlayHintVisible());
-		hintPopupLayout->addWidget(d->EditorInlayHintCheckBox);
-
-		d->initTabCompleterLevelComboBox();
 		d->EditorInfoLayout->addWidget(d->FM_ErrorIcon);
 		d->EditorInfoLayout->addWidget(d->FM_ErrorText);
 		d->EditorInfoLayout->addWidget(d->FM_WarningIcon);
@@ -259,8 +207,12 @@ namespace YSS::Editor {
 
 		d->ProgramMessagesButton = new QToolButton(this);
 		d->ProgramMessagesButton->setIconSize(QSize(d->iconSize, d->iconSize));
-		d->ProgramMessagesButton->hide(); // not implemented in 0.16.
+		d->ProgramMessagesButton->setToolTip(VITRL("YSS::editor.bottomInfoWidget.transfer.tooltip"));
 		d->MainLayout->addWidget(d->ProgramMessagesButton);
+
+		// 两个浮窗都是 Qt::Popup 顶层控件（没有父对象），由本类负责回收。
+		d->HintSettingsPopup = new EditorHintSettingsPopup();
+		d->TransferPopup = new TransferMonitorPopup();
 
 		displayDebugProgress(YSSCore::Editor::DebugServer::DebugAction::Unknown, 0, 0);
 		clearDebugProgress();
@@ -274,28 +226,24 @@ namespace YSS::Editor {
 			}
 			});
 
-		connect(d->EditorTabCompleterLevelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
-			if (index >= 0) {
-				YSSCore::Editor::TabCompleterItem::CompleterLevel level = 
-					static_cast<YSSCore::Editor::TabCompleterItem::CompleterLevel>(d->EditorTabCompleterLevelComboBox->itemData(index).toInt());
-				YSS::Editor::TextEditConfigOperator::setCompleterLevel(level, true);
-			}
-			});
-
-		connect(d->EditorInlayHintCheckBox, &QCheckBox::toggled, [](bool checked) {
-			YSS::Editor::TextEditConfigOperator::setInlayHintVisible(checked, true);
-			});
-
 		connect(d->EditorHintSettingsButton, &QToolButton::clicked, [this]() {
-			d->showHintSettingsPopup();
+			d->HintSettingsPopup->popupFor(d->EditorHintSettingsButton);
+			});
+
+		connect(d->ProgramMessagesButton, &QToolButton::clicked, [this]() {
+			d->TransferPopup->popupFor(d->ProgramMessagesButton);
 			});
 	}
 
 	BottomInfoWidget::~BottomInfoWidget() {
 		// 悬浮窗是没有父窗口的顶层控件（Qt::Popup），不会随父控件销毁，这里手动回收。
-		if (d->EditorHintSettingsPopup) {
-			d->EditorHintSettingsPopup->deleteLater();
-			d->EditorHintSettingsPopup = nullptr;
+		if (d->HintSettingsPopup != nullptr) {
+			delete d->HintSettingsPopup;
+			d->HintSettingsPopup = nullptr;
+		}
+		if (d->TransferPopup != nullptr) {
+			delete d->TransferPopup;
+			d->TransferPopup = nullptr;
 		}
 		delete d;
 	}

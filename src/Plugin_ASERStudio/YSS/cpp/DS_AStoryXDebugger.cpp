@@ -105,7 +105,7 @@ namespace ASERStudio::YSS {
 
 		auto debugIO = ASERStudio::Main::getInstance()->getASERDebugIO();
 		auto param = ASERStudio::ASEREnv::ASERProgramLaunchParameter();
-		auto path = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder();
+		auto path = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder().getLocalPath();
 		param.setProjectPath(path);
 		auto sizeMode = ASERStudio::Main::getInstance()->getPluginConfig()->getString("ASERExeSettings.WindowSize");
 		param.setSizeMode((ASERStudio::ASEREnv::ASERProgramLaunchParameter::SizeMode)sizeMode.toInt());

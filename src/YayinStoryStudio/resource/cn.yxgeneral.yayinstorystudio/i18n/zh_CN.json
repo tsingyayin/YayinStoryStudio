@@ -83,7 +83,10 @@
 		"recentUsed":"最近使用",
 		"openProjectFailed":{
 			"message":"打开项目失败",
+			"NotFound":"找不到项目配置文件，它可能已被移动或删除。",
+			"ReadFailed":"无法读取项目配置文件，请检查访问权限或远端连接状态。",
 			"ParseError":"项目文件解析失败，可能是因为项目文件存在语法错误或已经损坏。",
+			"InvalidConfig":"项目配置无效，缺少必要的字段或字段类型不正确。",
 			"InvaildConfig":"项目配置无效，缺少必要的字段或字段类型不正确。",
 			"UnknownError":"发生未知错误，无法打开项目。"
 		},
@@ -207,6 +210,15 @@
 		"bottomInfoWidget":{
 			"debugMessage": {
 				"prepared": "就绪"
+			},
+			"transfer": {
+				"title": "总计",
+				"tooltip": "统一文件系统读写统计（↑ 写出 / ↓ 读入）",
+				"local": "本地",
+				"current": "正在对 %1 进行 %2",
+				"idle": "没有进行中的操作",
+				"queued": "还有 %1 个任务在排队",
+				"queuedNone": "没有排队的任务"
 			},
 			"cursorInfo_s": "行 %1，列 %2（已选中 %3）",
 			"cursorInfo": "行 %1，列 %2",

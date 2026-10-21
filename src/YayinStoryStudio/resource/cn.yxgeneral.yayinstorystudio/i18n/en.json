@@ -91,7 +91,10 @@
 		"recentUsed": "Recently Used",
 		"openProjectFailed": {
 			"message": "Failed to Open Project",
+			"NotFound": "The project configuration file could not be found. It may have been moved or deleted.",
+			"ReadFailed": "The project configuration file could not be read. Check the access permissions or the remote connection.",
 			"ParseError": "Failed to parse project file, possibly due to syntax errors or corruption.",
+			"InvalidConfig": "Invalid project configuration, missing required fields or incorrect field types.",
 			"InvaildConfig": "Invalid project configuration, missing required fields or incorrect field types.",
 			"UnknownError": "An unknown error occurred and the project could not be opened."
 		},
@@ -207,6 +210,15 @@
 		"bottomInfoWidget": {
 			"debugMessage": {
 				"prepared": "Ready"
+			},
+			"transfer": {
+				"title": "Total",
+				"tooltip": "Unified filesystem transfer statistics (↑ written / ↓ read)",
+				"local": "Local",
+				"current": "Working on %1 (%2)",
+				"idle": "No operation in progress",
+				"queued": "%1 task(s) queued",
+				"queuedNone": "No queued tasks"
 			},
 			"cursorInfo_s": "Line %1, Column %2 (Selected %3)",
 			"cursorInfo": "Line %1, Column %2",

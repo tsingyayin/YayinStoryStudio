@@ -83,6 +83,8 @@ namespace YSSCore::General {
 	signals:
 		void readyChanged(bool ready);
 		void connectFinished(bool ok, const QString& message);
+		// 连接从就绪变为断开。expected 为真表示是本机调用 disconnect() 造成的。
+		void disconnected(bool expected);
 	public:
 		YSSSshFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSSshFileSystemProvider();

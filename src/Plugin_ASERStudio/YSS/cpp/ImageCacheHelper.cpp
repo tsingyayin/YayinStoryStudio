@@ -38,7 +38,12 @@ namespace ASERStudio::YSS {
 			if (project == nullptr) {
 				return absPath;
 			}
-			return Visindigo::Utility::FileUtility::getRelativeIfStartWith(project->getProjectFolder(), absPath);
+			const YSSCore::General::YSSURI folder = project->getProjectFolder();
+			const YSSCore::General::YSSURI uri = YSSCore::General::YSSURI::fromLocalPath(absPath);
+			if (not folder.isValid() or not uri.isValid() or not uri.isUnder(folder)) {
+				return absPath;
+			}
+			return QStringLiteral("./") + uri.relativePathTo(folder);
 		}
 
 		// 文件的修改时间，作为缓存的新鲜度标记
@@ -260,7 +265,7 @@ namespace ASERStudio::YSS {
 			if (project == nullptr) {
 				return QString();
 			}
-			const QString folder = project->getProjectCacheFolder();
+			const QString folder = project->getProjectCacheFolder().getLocalPath();
 			if (folder.isEmpty()) {
 				return QString();
 			}
@@ -429,7 +434,7 @@ namespace ASERStudio::YSS {
 		if (project == nullptr) {
 			return QString();
 		}
-		const QString folder = project->getProjectCacheFolder();
+		const QString folder = project->getProjectCacheFolder().getLocalPath();
 		if (folder.isEmpty()) {
 			return QString();
 		}

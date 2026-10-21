@@ -68,28 +68,39 @@ namespace YSS::ProjectPage {
 		}
 		
 		Project = project;
-		QString path = project->getProjectFolder();
+		QString path = project->getProjectFolder().getLocalPath();
 		int requestId = ++SizeRequestId;
-		YSSAsync<qint64, QString>(
-			{ QString(path) },
-			[](QString path)->qint64 {
-				return Visindigo::Utility::FileUtility::sizeBytes(path);
-			},
-			// 传入this作为上下文：本控件在求值完成前被销毁时，这段回调不会再执行。
-			[this, requestId](qint64 size) {
-				if (requestId != SizeRequestId) {
-					// 用户已经切到别的项目，这个结果是过期的。
-					return;
-				}
-				QString readable = Visindigo::Utility::FileUtility::readableSize(size);
-				SizeLabel->setText(VITRL("YSS::project.size") + ": " + readable);
-			},
-			this
-		);
-		SizeLabel->setText(VITRL("YSS::project.size") + ": " + VITRL("YSS::project.calculating"));
+		if (path.isEmpty()) {
+			SizeLabel->setText(VITRL("YSS::project.size") + ": " + VITRL("YSS::project.calculating"));
+		}
+		else {
+			YSSAsync<qint64, QString>(
+				{ QString(path) },
+				[](QString path)->qint64 {
+					return Visindigo::Utility::FileUtility::sizeBytes(path);
+				},
+				// 传入this作为上下文：本控件在求值完成前被销毁时，这段回调不会再执行。
+				[this, requestId](qint64 size) {
+					if (requestId != SizeRequestId) {
+						// 用户已经切到别的项目，这个结果是过期的。
+						return;
+					}
+					QString readable = Visindigo::Utility::FileUtility::readableSize(size);
+					SizeLabel->setText(VITRL("YSS::project.size") + ": " + readable);
+				},
+				this
+			);
+			SizeLabel->setText(VITRL("YSS::project.size") + ": " + VITRL("YSS::project.calculating"));
+		}
 		CoverLabel->setText("");
-		CoverLabel->setStyleSheet("QLabel{border-image:url(" + project->getProjectFolder() + "/" + project->getProjectIconPath() + ")}");
-		//yDebugF << project->getProjectFolder() + "/" + project->getProjectIconPath();
+		const QString coverPath = project->getProjectIconPath().getLocalPath();
+		if (coverPath.isEmpty()) {
+			CoverLabel->setStyleSheet("");
+			CoverLabel->setText(VITRL("YSS::project.noCover"));
+		}
+		else {
+			CoverLabel->setStyleSheet("QLabel{border-image:url(" + coverPath + ")}");
+		}
 		TitleLabel->setText(project->getProjectName());
 		CreateTimeLabel->setText(VITRL("YSS::project.createTime") + ": " + project->getProjectCreateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		LastModifiedTimeLabel->setText(VITRL("YSS::project.lastModifiedTime") + ": " + project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss"));
@@ -135,7 +146,7 @@ namespace YSS::ProjectPage {
 
 	void ProjectInfoWidget::onShowInBrowserButtonClicked() {
 		if (Project != nullptr) {
-			QString dir = Project->getProjectFolder();
+			QString dir = Project->getProjectFolder().getLocalPath();
 			//yDebugF << dir;
 			Visindigo::Utility::FileUtility::openExplorer(dir);
 		}

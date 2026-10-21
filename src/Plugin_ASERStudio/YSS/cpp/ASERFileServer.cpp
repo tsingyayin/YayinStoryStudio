@@ -39,7 +39,7 @@ namespace ASERStudio::YSS {
 		// 项目文件夹来自 QDir::absolutePath()（正斜杠），URI 的本机路径来自
 		// QDir::toNativeSeparators()（Windows 上是反斜杠），直接 startsWith 永远不成立。
 		// 两边都先统一成分隔符再比较；末尾补 '/' 避免把 RulesX 目录也算进来。
-		const QString ruleFolder = QDir::cleanPath(QDir::fromNativeSeparators(project->getProjectFolder())) + "/Rules/";
+		const QString ruleFolder = QDir::cleanPath(QDir::fromNativeSeparators(project->getProjectFolder().getLocalPath())) + "/Rules/";
 		const QString filePath = QDir::cleanPath(QDir::fromNativeSeparators(uri.getLocalPath()));
 		if (filePath.isEmpty()) {
 			return -1;

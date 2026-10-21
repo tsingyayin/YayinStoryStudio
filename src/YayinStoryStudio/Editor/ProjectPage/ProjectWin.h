@@ -50,6 +50,9 @@ namespace YSS::ProjectPage {
 		QMap<Visindigo::Widgets::MultiButton*, YSSCore::General::YSSProject*> HistoryProjectMap;
 		QList<QLabel*> HistoryProjectTimeLabelList;
 		QNetworkAccessManager* NetworkManager;
+		QList<YSSCore::General::YSSProject*> HistoryLoadResults;
+		int HistoryLoadPending = 0;
+		int HistoryLoadGeneration = 0;
 		static bool firstOpen;
 	public:
 		ProjectWin();
@@ -68,6 +71,7 @@ namespace YSS::ProjectPage {
 		// 只做检查与询问，不接管 prepareToOpen 的所有权；返回true表示可以继续打开。
 		bool preCheckProject(YSSCore::General::YSSProject* prepareToOpen);
 		void loadProject();
+		void finishHistoryLoad(int generation);
 	};
 }
 #endif // YayinStoryStudio_Editor_ProjectPage_ProjectWin_h

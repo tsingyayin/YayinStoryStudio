@@ -136,6 +136,8 @@ namespace YSSCore::General {
 	protected:
 		Visindigo::Network::SshSession* Session = nullptr;
 		Visindigo::Network::SshConnectConfig Config;
+		// 本次断开是否由本机发起（disconnect()）。用来区分主动断开与意外掉线。
+		bool CloseRequested = false;
 	};
 
 	/*!
@@ -256,6 +258,7 @@ namespace YSSCore::General {
 			this->d->Session = new Visindigo::Network::SshSession(this->d->Config);
 			YSSSshFileSystemProvider* provider = this;
 			QObject::connect(this->d->Session, &Visindigo::Network::SshSession::ready, this, [provider]() {
+				provider->d->CloseRequested = false;
 				emit provider->readyChanged(true);
 				emit provider->connectFinished(true, QString());
 			});
@@ -265,7 +268,12 @@ namespace YSSCore::General {
 					emit provider->connectFinished(false, error.toString());
 				});
 			QObject::connect(this->d->Session, &Visindigo::Network::SshSession::disconnected, this,
-				[provider]() { emit provider->readyChanged(false); });
+				[provider]() {
+					const bool expected = provider->d->CloseRequested;
+					provider->d->CloseRequested = false;
+					emit provider->readyChanged(false);
+					emit provider->disconnected(expected);
+				});
 		}
 		else {
 			this->d->Session->setConfig(this->d->Config);

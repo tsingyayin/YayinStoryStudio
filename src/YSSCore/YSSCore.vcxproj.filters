@@ -154,9 +154,9 @@
     <ClInclude Include="YSSCoreCompileMacro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="General\YSSProject.h">
+    <QtMoc Include="General\YSSProject.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
+    </QtMoc>
     <QtMoc Include="General\YSSUniqueFileSystem.h">
       <Filter>Header Files</Filter>
     </QtMoc>

@@ -99,8 +99,9 @@ namespace YSS::Editor {
 		
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		if (project != nullptr) {
-			ProjectRootDir.setPath(project->getProjectFolder());
-			FileTree->setRootIndex(FileModel->setRootPath(project->getProjectFolder()));
+			const QString projectRoot = project->getProjectFolder().getLocalPath();
+			ProjectRootDir.setPath(projectRoot);
+			FileTree->setRootIndex(FileModel->setRootPath(projectRoot));
 			for (int i = 1; i < FileModel->columnCount(); i++) {
 				FileTree->setColumnHidden(i, true);
 			}
@@ -193,7 +194,7 @@ namespace YSS::Editor {
 
 		connect(FileOptionDelete, &QAction::triggered, this, [this]() {
 			if (CurrentFilePath.isEmpty()) return;
-			auto projectFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder() + "/project.yssp";
+			auto projectFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder().resolve("project.yssp").getLocalPath();
 			if (QFileInfo(CurrentFilePath).absoluteFilePath() == QFileInfo(projectFilePath).absoluteFilePath()) {
 				QMessageBox::warning(this, VITRL("YSS::editor.deleteProjectFile.title"), VITRL("YSS::editor.deleteProjectFile.message"));
 				return;

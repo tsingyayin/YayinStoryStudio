@@ -1,4 +1,4 @@
-ï»¿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -76,7 +76,7 @@
     </ClCompile>
     <PostBuildEvent>
       <Command>python.exe "$(SolutionDir)pytools\deriveLib.py"</Command>
-      <Message>æ´¾ç”Ÿ Visindigo/YSSCore/VIAgent çš„äºŒè¿›åˆ¶ä¸Žå¤´æ–‡ä»¶åˆ° binary ç›®å½•</Message>
+      <Message>ÅÉÉú Visindigo/YSSCore/VIAgent µÄ¶þ½øÖÆÓëÍ·ÎÄ¼þµ½ binary Ä¿Â¼</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -91,7 +91,7 @@
     </Link>
     <PostBuildEvent>
       <Command>python.exe "$(SolutionDir)pytools\deriveLib.py"</Command>
-      <Message>æ´¾ç”Ÿ Visindigo/YSSCore/VIAgent çš„äºŒè¿›åˆ¶ä¸Žå¤´æ–‡ä»¶åˆ° binary ç›®å½•</Message>
+      <Message>ÅÉÉú Visindigo/YSSCore/VIAgent µÄ¶þ½øÖÆÓëÍ·ÎÄ¼þµ½ binary Ä¿Â¼</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -114,7 +114,7 @@
       <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -124,6 +124,7 @@
     <ClCompile Include="Editor\cpp\YSSCommandHandler.cpp" />
     <ClCompile Include="Editor\cpp\YSSTranslator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget_p.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings_p.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp" />
@@ -186,6 +187,7 @@
     <QtMoc Include="Editor\PluginLoadFaultDialog.h" />
     <QtMoc Include="Editor\MainEditor\ColorThemeSettings.h" />
     <QtMoc Include="Editor\MainEditor\private\ColorThemeSettings_p.h" />
+    <ClInclude Include="Editor\MainEditor\BottomInfoWidget_p.h" />
     <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />
