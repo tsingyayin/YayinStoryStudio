@@ -122,6 +122,9 @@
     <ClCompile Include="Editor\cpp\ColorThemeProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\CodeDiff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\cpp\CustomDocumentData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -196,6 +199,9 @@
     <ClInclude Include="Editor\private\InlayHint_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\private\CodeDiff_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Editor\private\DocumentMessageManager_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -250,6 +256,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ColorThemeProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\CodeDiff.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <ClInclude Include="Editor\CustomDocumentData.h">

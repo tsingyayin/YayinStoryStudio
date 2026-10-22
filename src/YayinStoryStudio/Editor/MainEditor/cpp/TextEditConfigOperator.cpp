@@ -1,5 +1,6 @@
 #include <QtCore/qmetaobject.h>
 #include <QtWidgets/qapplication.h>
+#include <Editor/CodeDiff.h>
 #include <Editor/FileServerManager.h>
 #include <General/Log.h>
 #include "Editor/MainEditor/TextEditConfigOperator.h"
@@ -58,6 +59,11 @@ namespace YSS::Editor {
 			YSSCore::Editor::TextEdit* textEdit = dynamic_cast<YSSCore::Editor::TextEdit*>(editor);
 			if (textEdit) {
 				textEdit->setFontSize(targetFontSize);
+				continue;
+			}
+			YSSCore::Editor::CodeDiff* codeDiff = dynamic_cast<YSSCore::Editor::CodeDiff*>(editor);
+			if (codeDiff) {
+				codeDiff->setFontSize(targetFontSize);
 			}
 		}
 	}
@@ -114,6 +120,11 @@ namespace YSS::Editor {
 			YSSCore::Editor::TextEdit* textEdit = dynamic_cast<YSSCore::Editor::TextEdit*>(editor);
 			if (textEdit) {
 				textEdit->setFont(font);
+				continue;
+			}
+			YSSCore::Editor::CodeDiff* codeDiff = dynamic_cast<YSSCore::Editor::CodeDiff*>(editor);
+			if (codeDiff) {
+				codeDiff->setTextFont(font);
 			}
 		}
 	}
@@ -153,26 +164,39 @@ namespace YSS::Editor {
 		applyInlayHintVisible();
 	}
 
-	void TextEditConfigOperator::applyTo(YSSCore::Editor::TextEdit* target) {
+	void TextEditConfigOperator::applyTo(YSSCore::Editor::FileEditWidget* target) {
 		if (not target) {
 			return;
 		}
 		QFont textFont = getTextFont();
-		target->setFont(textFont);
-
-		qint32 tabWidth = getTabWidth();
-		target->setTabWidth(tabWidth);
-
 		float fontScale = getFontScale();
 		qint32 globalFontSize = qApp->font().pointSizeF();
 		qint32 targetFontSize = globalFontSize * fontScale;
-		target->setFontSize(targetFontSize);
+
+		YSSCore::Editor::CodeDiff* codeDiff = dynamic_cast<YSSCore::Editor::CodeDiff*>(target);
+		if (codeDiff) {
+			codeDiff->setTextFont(textFont);
+			codeDiff->setFontSize(targetFontSize);
+			vgDebugF << "Applied code diff config to target code diff: " << target;
+			return;
+		}
+
+		YSSCore::Editor::TextEdit* textEdit = dynamic_cast<YSSCore::Editor::TextEdit*>(target);
+		if (not textEdit) {
+			return;
+		}
+		textEdit->setFont(textFont);
+
+		qint32 tabWidth = getTabWidth();
+		textEdit->setTabWidth(tabWidth);
+
+		textEdit->setFontSize(targetFontSize);
 
 		YSSCore::Editor::TabCompleterItem::CompleterLevel completerLevel = getCompleterLevel();
-		target->setCompleterLevel(completerLevel);
+		textEdit->setCompleterLevel(completerLevel);
 
 		bool inlayHintVisible = getInlayHintVisible();
-		target->setInlayHintVisible(inlayHintVisible);
+		textEdit->setInlayHintVisible(inlayHintVisible);
 
 		vgDebugF << "Applied text edit config to target text edit: " << target;
 	}

@@ -1,4 +1,4 @@
-#ifndef YSSCore_Editor_SyntaxHighlighter_h
+﻿#ifndef YSSCore_Editor_SyntaxHighlighter_h
 #define YSSCore_Editor_SyntaxHighlighter_h
 #include "YSSCoreCompileMacro.h"
 #include <QtGui/qsyntaxhighlighter.h>
@@ -9,8 +9,10 @@ namespace YSSCore::Editor {
 	class SyntaxHighlighterPrivate;
 	class YSSCoreAPI SyntaxHighlighter : public QSyntaxHighlighter {
 		Q_OBJECT
+		friend class SyntaxHighlighterPrivate;
 	signals:
 		void inlayHintChangedForLine(qint32 blockNumber);
+		void wholeDocumentHighlighted();
 	public:
 		SyntaxHighlighter(TextEdit* parent = nullptr);
 		virtual ~SyntaxHighlighter();
@@ -24,6 +26,9 @@ namespace YSSCore::Editor {
 		virtual void onBlockRemoved(qint32 startBlockNumber, qint32 count);
 		virtual void onBlockAdded(qint32 startBlockNumber, qint32 count);
 		virtual void onThemeChanged(const QMap<QString, StyleData>& theme);
+	protected:
+		void setCharFormat(qint32 start, qint32 count, const QTextCharFormat& format);
+	public:
 		void rehighlight_s();
 		void autoRenderMessageWaveLine(bool autoRender);
 		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");

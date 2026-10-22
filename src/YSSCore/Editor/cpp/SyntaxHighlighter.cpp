@@ -1,4 +1,4 @@
-#include <QtCore/qtimer.h>
+﻿#include <QtCore/qtimer.h>
 #include <General/Log.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/DocumentMessage.h"
@@ -10,10 +10,19 @@ namespace YSSCore::Editor {
 	class SyntaxHighlighterPrivate {
 		friend class SyntaxHighlighter;
 	protected:
-		TextEdit* Parent;
+		TextEdit* Parent = nullptr;
+		SyntaxHighlighter* q = nullptr;
 		bool AutoRenderMessageWaveLine = true;
 		bool AutoRenderInlayHint = true;
 		qint32 LastTotalBlockNumber = 0;
+		// 整篇着色时格式只记账、不提交；此标志为 true 表示正在记账。
+		bool Recording = false;
+		// 整篇着色期间攒下来的格式，最后一次性写回各块的布局。
+		QHash<qint32, QList<QTextLayout::FormatRange>> RecordedFormats;
+	protected:
+		void doHighlightBlock(const QTextBlock& block, const QString& text);
+		void appendRecordedFormat(qint32 blockNumber, qint32 start, qint32 count, const QTextCharFormat& format);
+		void highlightWholeDocument();
 	};
 
 	/*!
@@ -36,6 +45,7 @@ namespace YSSCore::Editor {
 	*/
 	SyntaxHighlighter::SyntaxHighlighter(TextEdit* parent) : QSyntaxHighlighter(parent->getDocument()) {
 		d = new SyntaxHighlighterPrivate();
+		d->q = this;
 		d->Parent = parent;
 	}
 
@@ -103,26 +113,116 @@ namespace YSSCore::Editor {
 		它也负责根据行数的变化自动前后移动消息，以保持消息与文本块的正确关联。
 	*/
 	void SyntaxHighlighter::highlightBlock(const QString& text) {
-		qint32 totalNumber = currentBlock().document()->blockCount();
-		if (totalNumber < d->LastTotalBlockNumber) {
-			qint32 removedCount = d->LastTotalBlockNumber - totalNumber;
-			qint32 startBlockNumber = currentBlock().blockNumber();
-			//vgDebug << "Blocks removed: " << removedCount << ", from " << startBlockNumber << " to " << startBlockNumber + removedCount - 1;
-			onBlockRemoved(startBlockNumber, removedCount);
+		d->doHighlightBlock(currentBlock(), text);
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a block 要着色的文本块。
+		\a text 该文本块的内容。
+
+		单个文本块的着色流程。QSyntaxHighlighter::highlightBlock 与
+		highlightWholeDocument() 都走这里，区别只在于当前是否处于"整篇着色"状态。
+	*/
+	void SyntaxHighlighterPrivate::doHighlightBlock(const QTextBlock& block, const QString& text) {
+		if (!block.isValid()) {
+			return;
 		}
-		else if (totalNumber > d->LastTotalBlockNumber) {
-			qint32 addedCount = totalNumber - d->LastTotalBlockNumber;
-			qint32 startBlockNumber = currentBlock().blockNumber();
-			//vgDebug << "Blocks added: " << addedCount << ", from " << startBlockNumber << " to " << startBlockNumber + addedCount - 1;
-			onBlockAdded(startBlockNumber, addedCount);
+		const qint32 blockNumber = block.blockNumber();
+		qint32 totalNumber = block.document()->blockCount();
+		if (totalNumber < LastTotalBlockNumber) {
+			q->onBlockRemoved(blockNumber, LastTotalBlockNumber - totalNumber);
 		}
-		d->LastTotalBlockNumber = totalNumber;
-		int blockNumber = currentBlock().blockNumber();
-		d->Parent->clearMessages(blockNumber);
-		clearInlayHints(blockNumber);
-		onBlockChanged(text, blockNumber);
+		else if (totalNumber > LastTotalBlockNumber) {
+			q->onBlockAdded(blockNumber, totalNumber - LastTotalBlockNumber);
+		}
+		LastTotalBlockNumber = totalNumber;
+		Parent->clearMessages(blockNumber);
+		q->clearInlayHints(blockNumber);
+		q->onBlockChanged(text, blockNumber);
 		// 提示的空隙在子类着色完成后注入：子类可能对锚点字符设过格式，而 setFormat 是覆盖语义。
-		applyInlayHintSpacings(text, blockNumber);
+		q->applyInlayHintSpacings(text, blockNumber);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		给整个文档着色，格式延迟应用。
+
+		为什么需要它：QSyntaxHighlighter 每处理完一个块就会调用
+		QSyntaxHighlighterPrivate::applyFormatChanges，其中对
+		QTextDocument::markContentsDirty 的调用会让 QTextEdit 的文档布局重排到文档末尾。
+		于是 document->rehighlight() 是 O(n²)：实测 4713 块 4.8 秒、18853 块 76 秒、37706 块约 5 分钟。
+		（换成 QPlainTextEdit 的增量布局，同样的事情只要 9~40 毫秒，可见慢的是 QTextEdit 的布局。）
+
+		这里仍然由 Qt 驱动整篇着色（currentBlock、块状态、previousBlockState 的语义都不变，
+		语言服务照旧看得到完整文档），只是把 setCharFormat 的格式先记下来、不立即提交：
+		记账期间布局里没有格式，applyFormatChanges 就什么都不做，整轮是线性的。
+		整篇走完之后把攒下的格式一次性写进各块的 QTextLayout，再只做一次 markContentsDirty。
+	*/
+	void SyntaxHighlighterPrivate::highlightWholeDocument() {
+		QTextDocument* document = q->document();
+		if (document == nullptr) {
+			return;
+		}
+		// 先清掉上次落地在布局里的格式：Qt 的 applyFormatChanges 一旦发现布局里有格式，
+		// 就会为每个块标脏，而 QTextEdit 每次标脏都要重排到文档末尾，几万行会退化成 O(n²)。
+		for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
+			QTextLayout* layout = block.layout();
+			if (layout != nullptr && not layout->formats().isEmpty()) {
+				layout->clearFormats();
+			}
+		}
+		RecordedFormats.clear();
+		Recording = true;
+		// 仍然交给 Qt 驱动：currentBlock、块状态、previousBlockState 的语义都保持不变，
+		// 只是格式被记录下来而不立即提交，因此这一轮是线性的。
+		q->rehighlight();
+		Recording = false;
+		// 全部格式一次性写进各块布局（不触发文档信号），最后只做一次重排。
+		for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
+			auto it = RecordedFormats.constFind(block.blockNumber());
+			if (it != RecordedFormats.constEnd() && block.layout() != nullptr) {
+				block.layout()->setFormats(it.value());
+			}
+		}
+		RecordedFormats.clear();
+		document->markContentsDirty(0, document->characterCount());
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a start 起始列。
+		\a count 长度。
+		\a format 要应用的格式。
+
+		着色的统一入口：整篇着色时只记录，普通着色时直接交给 QSyntaxHighlighter。
+	*/
+	void SyntaxHighlighter::setCharFormat(qint32 start, qint32 count, const QTextCharFormat& format) {
+		if (d->Recording) {
+			d->appendRecordedFormat(currentBlock().blockNumber(), start, count, format);
+			return;
+		}
+		setFormat(start, count, format);
+	}
+
+	void SyntaxHighlighterPrivate::appendRecordedFormat(qint32 blockNumber, qint32 start, qint32 count, const QTextCharFormat& format) {
+		if (count <= 0) {
+			return;
+		}
+		QList<QTextLayout::FormatRange>& ranges = RecordedFormats[blockNumber];
+		for (QTextLayout::FormatRange& range : ranges) {
+			// 与已有区间完全重合时直接覆盖，避免列表无限增长
+			if (range.start == start && range.length == count) {
+				range.format = format;
+				return;
+			}
+		}
+		QTextLayout::FormatRange range;
+		range.start = start;
+		range.length = count;
+		range.format = format;
+		ranges.append(range);
 	}
 
 	/*!
@@ -148,10 +248,21 @@ namespace YSSCore::Editor {
 				// 行首没有可用的锚点字符，这类提示无法推开后续文字，绘制端也会跳过它。
 				continue;
 			}
-			QTextCharFormat format = this->format(anchor);
+			QTextCharFormat format;
+			if (d->Recording) {
+				// 整篇着色时格式还没进布局，得从这一块已记录的区间里取（取最后一个命中的，即最具体的那个）。
+				for (const QTextLayout::FormatRange& range : d->RecordedFormats.value(blockNumber)) {
+					if (anchor >= range.start && anchor < range.start + range.length) {
+						format = range.format;
+					}
+				}
+			}
+			else {
+				format = this->format(anchor);
+			}
 			format.setFontLetterSpacingType(QFont::AbsoluteSpacing);
 			format.setFontLetterSpacing(__Private__::inlayHintGapWidth(hint, hintFont));
-			this->setFormat(anchor, 1, format);
+			setCharFormat(anchor, 1, format);
 		}
 	}
 
@@ -175,8 +286,9 @@ namespace YSSCore::Editor {
 	void SyntaxHighlighter::rehighlight_s() {
 		QTimer::singleShot(0, this, [this]() {
 			d->Parent->d->Rehighlighting = true;
-			this->rehighlight();
+			d->highlightWholeDocument();
 			d->Parent->d->Rehighlighting = false;
+			emit wholeDocumentHighlighted();
 			});
 	}
 	/*!
@@ -206,7 +318,7 @@ namespace YSSCore::Editor {
 			QTextCharFormat format = block.charFormat();
 			format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 			format.setUnderlineColor(VISTM->getColor("ErrorLine"));
-			setFormat(columnNumber, length, format);
+			setCharFormat(columnNumber, length, format);
 		}
 		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Error, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
@@ -228,7 +340,7 @@ namespace YSSCore::Editor {
 			QTextCharFormat format = block.charFormat();
 			format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 			format.setUnderlineColor(VISTM->getColor("WarningLine"));
-			setFormat(columnNumber, length, format);
+			setCharFormat(columnNumber, length, format);
 		}
 		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Warning, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
@@ -250,7 +362,7 @@ namespace YSSCore::Editor {
 			QTextCharFormat format = block.charFormat();
 			format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 			format.setUnderlineColor(VISTM->getColor("InfoLine"));
-			setFormat(columnNumber, length, format);
+			setCharFormat(columnNumber, length, format);
 		}
 		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Info, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));

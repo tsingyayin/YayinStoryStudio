@@ -1,3 +1,4 @@
+#include <QtCore/qcoreapplication.h>
 #include <QtCore/qtimer.h>
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qpainter.h>
@@ -28,6 +29,11 @@
 #include "Editor/TextEdit.h"
 
 namespace YSSCore::__Private__ {
+	// 行号与编辑区之间的留白，以及行号栏至少预留的位数
+	// （行数少的文件也留够，免得多一位数字就贴边）
+	constexpr qint32 LineNumberBarPadding = 12;
+	constexpr qint32 LineNumberBarMinDigits = 6;
+
 	TextEditFindAndReplace::TextEditFindAndReplace(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {
 		this->parent = parent;
 		auto font = this->font();
@@ -229,8 +235,12 @@ namespace YSSCore::__Private__ {
 			endBlockNum = endBlock.blockNumber();
 		}
 
-		for (int i = startBlockNum; i <= endBlockNum && i < blockCount; ++i) {
-			recalculateBlock(i);
+		for (QTextBlock block = startBlock; block.isValid() && block.blockNumber() <= endBlockNum; block = block.next()) {
+			const int i = block.blockNumber();
+			if (i >= blockCount) {
+				break;
+			}
+			this->lineColors[i] = colorsOf(block);
 		}
 
 		this->update();
@@ -240,13 +250,13 @@ namespace YSSCore::__Private__ {
 	void DocumentOverviewLabel::recalculateAll() {
 		if (this->document == nullptr) return;
 
-		const int blockCount = this->document->blockCount();
 		this->lineColors.clear();
-		this->lineColors.reserve(blockCount);
+		this->lineColors.reserve(this->document->blockCount());
 
-		for (int i = 0; i < blockCount; ++i) {
-			this->lineColors.append(QList<QColor>());
-			recalculateBlock(i);
+		// 顺序遍历：QTextDocument::findBlockByNumber 是线性查找，按块号逐块找会退化成 O(n²)
+		// （实测 5 万行纯文本要 1 秒）。
+		for (QTextBlock block = this->document->firstBlock(); block.isValid(); block = block.next()) {
+			this->lineColors.append(colorsOf(block));
 		}
 
 		this->update();
@@ -255,12 +265,17 @@ namespace YSSCore::__Private__ {
 	void DocumentOverviewLabel::recalculateBlock(int blockNumber) {
 		if (this->document == nullptr) return;
 
-		QTextBlock block = this->document->findBlockByNumber(blockNumber);
+		if (blockNumber < 0 || blockNumber >= this->lineColors.size()) return;
+		const QTextBlock block = this->document->findBlockByNumber(blockNumber);
 		if (!block.isValid()) return;
+		this->lineColors[blockNumber] = colorsOf(block);
+	}
+
+	QList<QColor> DocumentOverviewLabel::colorsOf(const QTextBlock& block) const {
+		if (!block.isValid()) return QList<QColor>();
 
 		const int width = this->width() - 10;
-		const QString text = block.text();
-		const int len = qMin(text.length(), width);
+		const int len = qMin(block.length() - 1, width);
 
 		const QColor defaultColor = this->palette().color(QPalette::Text);
 		QList<QColor> colors(len, defaultColor);
@@ -279,10 +294,7 @@ namespace YSSCore::__Private__ {
 				}
 			}
 		}
-
-		if (blockNumber < this->lineColors.size()) {
-			this->lineColors[blockNumber] = std::move(colors);
-		}
+		return colors;
 	}
 
 	void DocumentOverviewLabel::onMessageChanged() {
@@ -388,6 +400,111 @@ namespace YSSCore::__Private__ {
 
 	InlayHintTextEdit::InlayHintTextEdit(YSSCore::Editor::TextEdit* editor, QWidget* parent) : QTextEdit(parent) {
 		this->editor = editor;
+	}
+
+	LineNumberBar::LineNumberBar(QTextEdit* editor, QWidget* parent) : QWidget(parent) {
+		this->editor = editor;
+		setObjectName(QStringLiteral("LineNumberBar"));
+		setFocusPolicy(Qt::NoFocus);
+		setAttribute(Qt::WA_OpaquePaintEvent, true);
+		refreshMetrics();
+	}
+
+	/*!
+		行数变化时只需要更新宽度（位数可能变了）并重绘，不再维护任何文本块。
+
+		打开大文件时 blockCountChanged 会逐块触发几万次，因此位数没变时只标脏，
+		连字体度量都不必重算。
+	*/
+	void LineNumberBar::updateLineCount(qint32 count) {
+		lineCount = qMax(1, count);
+		const qint32 digits = qMax<qint32>(LineNumberBarMinDigits, QString::number(lineCount).length());
+		if (digits == cachedDigits) {
+			update();
+			return;
+		}
+		cachedDigits = digits;
+		refreshMetrics();
+	}
+
+	/*!
+		字体/字号变化后行号宽度会变，因此重新按当前字体算一次宽度。
+
+		宽度只由位数和字体决定，不再设上限：以前那道上限会在行数或字号一大就把数字裁掉。
+	*/
+	void LineNumberBar::refreshMetrics() {
+		const QFontMetrics metrics(editor->document()->defaultFont());
+		const qint32 digits = qMax<qint32>(LineNumberBarMinDigits, QString::number(lineCount).length());
+		cachedDigits = digits;
+		const qint32 digitWidth = qMax(metrics.horizontalAdvance(QLatin1Char('0')),
+			metrics.horizontalAdvance(QLatin1Char('9')));
+		const qint32 width = digitWidth * digits + LineNumberBarPadding;
+		if (width != this->width()) {
+			this->setFixedWidth(width);
+		}
+		update();
+	}
+
+	/*!
+		只画视口里能看见的那几行：先用 hitTest 找到视口顶端的块，再往下走到超出底边为止，
+		因此代价与文档总行数无关。
+
+		QTextEdit 自带边框，它的 viewport 并不从本控件的 (0,0) 开始，因此块的文档坐标要先
+		换算到 viewport 坐标，再加上 viewport 在本控件里的偏移，否则行号会整体上移一个边框的高度。
+	*/
+	void LineNumberBar::paintEvent(QPaintEvent* event) {
+		QPainter painter(this);
+		painter.fillRect(event->rect(), editor->palette().color(QPalette::Base));
+
+		QTextDocument* document = editor->document();
+		if (document == nullptr or document->blockCount() == 0) {
+			return;
+		}
+		QAbstractTextDocumentLayout* layout = document->documentLayout();
+		if (layout == nullptr) {
+			return;
+		}
+		// 注意不要在这里对整个文档 adjustSize()：QTextEdit 的文档布局是惰性的，
+		// 强制整体布局几万行要一秒多，而且会顶在一次事件循环里变成明显卡顿。
+		// 下面按块取矩形时 QTextDocumentLayout 只会补算到那个块为止，随后
+		// documentSizeChanged 会驱动本控件继续重绘，行号于是随布局推进逐步补全。
+		// 行号栏与编辑区是编辑器控件里的兄弟，用各自 pos() 换算即可，不必依赖全局映射。
+		qint32 viewportTop = editor->viewport()->pos().y();
+		if (this->parentWidget() != nullptr && editor->parentWidget() == this->parentWidget()) {
+			viewportTop += editor->pos().y() - this->pos().y();
+		}
+		const qint32 scrollY = editor->verticalScrollBar()->value();
+		const qint32 clipTopDocY = scrollY + qMax(0, event->rect().top() - viewportTop);
+		const qint32 clipBottomDocY = scrollY + (event->rect().bottom() - viewportTop);
+
+		QTextBlock block = document->findBlock(layout->hitTest(QPointF(0, clipTopDocY), Qt::FuzzyHit));
+		if (!block.isValid()) {
+			block = document->firstBlock();
+		}
+
+		painter.setPen(editor->palette().color(QPalette::Text));
+		painter.setFont(document->defaultFont());
+		const qreal barWidth = this->width();
+		for (; block.isValid(); block = block.next()) {
+			const QRectF blockRect = layout->blockBoundingRect(block);
+			if (blockRect.top() > clipBottomDocY) {
+				break;
+			}
+			if (blockRect.bottom() < clipTopDocY) {
+				continue;
+			}
+			// 横向范围取行号栏自己的宽度：块的宽度是整个文档的宽度，直接用它右对齐会画到控件外面。
+			const QRectF numberRect(0, viewportTop + blockRect.top() - scrollY, barWidth, blockRect.height());
+			painter.drawText(numberRect.adjusted(0, 0, -LineNumberBarPadding, 0), Qt::AlignRight | Qt::AlignVCenter,
+				QString::number(block.blockNumber() + 1));
+		}
+	}
+
+	/*!
+		行号栏本身不滚动，滚轮事件转交给编辑区，保持鼠标停在行号上也能滚动文档的旧行为。
+	*/
+	void LineNumberBar::wheelEvent(QWheelEvent* event) {
+		QCoreApplication::sendEvent(editor->viewport(), event);
 	}
 
 	/*!

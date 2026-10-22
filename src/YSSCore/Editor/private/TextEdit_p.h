@@ -1,4 +1,4 @@
-#ifndef YSSCore_Editor_private_TextEdit_p_h
+﻿#ifndef YSSCore_Editor_private_TextEdit_p_h
 #define YSSCore_Editor_private_TextEdit_p_h
 #include <QtCore/qobject.h>
 #include <QtCore/qstringlist.h>
@@ -89,6 +89,28 @@ namespace YSSCore::__Private__ {
 		void paintEvent(QPaintEvent* event) override;
 	};
 
+	/*!
+		行号栏。
+
+		旧实现用 QTextBrowser 承载行号，每新增一行就要 append 一次并顺带
+		setBlockFormat —— 打开几万行的文件时光这一段就要几秒（实测 37706 行约 4.7 秒）。
+		行号本身只是"第几行"这几个字符，没必要真的建 37706 个文本块，因此这里改成
+		自绘：布局由 QTextDocument 负责，本控件只按文档坐标取可见块的矩形，画出对应的行号。
+	*/
+	class LineNumberBar : public QWidget {
+	public:
+		LineNumberBar(QTextEdit* editor, QWidget* parent = nullptr);
+		void updateLineCount(qint32 count);
+		void refreshMetrics();
+	protected:
+		void paintEvent(QPaintEvent* event) override;
+		void wheelEvent(QWheelEvent* event) override;
+	private:
+		QTextEdit* editor = nullptr;
+		qint32 lineCount = 1;
+		qint32 cachedDigits = 1;
+	};
+
 	class DocumentOverviewLabel : public QWidget {
 		Q_OBJECT;
 		friend class YSSCore::Editor::TextEdit;
@@ -116,6 +138,7 @@ namespace YSSCore::__Private__ {
 		void onMessageChangedForLine(qint32 lineNumber);
 		void recalculateAll();
 		void recalculateBlock(int blockNumber);
+		QList<QColor> colorsOf(const QTextBlock& block) const;
 		void rebuildErrorLines();
 		void updateViewportIndicator();
 	};
@@ -197,7 +220,7 @@ namespace YSSCore::__Private__ {
 		friend class YSSCore::Editor::SyntaxHighlighter;
 	protected:
 		YSSCore::Editor::TextEdit* q = nullptr;
-		QTextEdit* Line = nullptr;
+		LineNumberBar* Line = nullptr;
 		InlayHintTextEdit* Text = nullptr;
 		DocumentOverviewLabel* Overview = nullptr;
 		QScrollBar* HScrollBar = nullptr;

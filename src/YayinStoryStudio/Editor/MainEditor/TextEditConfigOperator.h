@@ -9,7 +9,7 @@ namespace YSS::Editor {
 		TextEditConfigOperator() = delete;
 
 		static void applyAll();
-		static void applyTo(YSSCore::Editor::TextEdit* target);
+		static void applyTo(YSSCore::Editor::FileEditWidget* target);
 
 		static qint32 getTabWidth();
 		static void setTabWidth(qint32 width, bool applyToAll = false);

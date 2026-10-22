@@ -1,4 +1,4 @@
-#include <QtCore/qtimer.h>
+﻿#include <QtCore/qtimer.h>
 #include <QtGui/qcursor.h>
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qpalette.h>
@@ -197,7 +197,7 @@ namespace YSSCore::__Private__ {
 				adjustSuggestionPosition();
 			}
 		}
-		else if (obj == Line->viewport()) {
+		else if (obj == Line) {
 			if (event->type() == QEvent::Wheel) { 
 				if ((static_cast<QWheelEvent*>(event))->modifiers() & Qt::ControlModifier) {
 					return true; // forbid zooming in/out when Ctrl + mouse wheel
@@ -208,28 +208,12 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onBlockCountChanged(qint32 count) {
-		qint32 delta = count - LineCount;
-		if (delta > 0) {
-			QTextCursor cursor = Line->textCursor();
-			cursor.movePosition(QTextCursor::End);
-			QTextBlockFormat blockFormat = cursor.blockFormat();
-			//blockFormat.setBackground(VISTM->getColor("Editor.Background"));
-			//blockFormat.setForeground(VISTM->getColor("Editor.LineNumber"));
-			for (int i = 0; i < delta; i++) {
-				Line->append(QString::number(LineCount + i + 1));
-				cursor.movePosition(QTextCursor::Down);
-				cursor.setBlockFormat(blockFormat);
-			}
-		}
-		else {
-			for (int i = 0; i < -delta; i++) {
-				QTextCursor cursor = QTextCursor(Line->document()->findBlockByNumber(LineCount - i - 1));
-				cursor.select(QTextCursor::BlockUnderCursor);
-				cursor.removeSelectedText();
-				cursor.deleteChar();
-			}
+		if (count == LineCount) {
+			return;
 		}
 		LineCount = count;
+		// 行号现在是画出来的，这里只更新位数对应的宽度，不再逐行维护文本块。
+		Line->updateLineCount(count);
 	}
 
 	static bool isSignSymbol(QChar c) {
@@ -257,7 +241,7 @@ namespace YSSCore::__Private__ {
 		int index = cursor.block().blockNumber();
 		int column = cursor.positionInBlock();
 		int selection = cursor.selectedText().length();
-		if (index >= Line->document()->blockCount()) {
+		if (index >= Text->document()->blockCount()) {
 			onBlockCountChanged(index + 1);
 		}
 		if (useKeyboardToMoveCursor) {
@@ -735,13 +719,9 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::onScrollBarChanged(int value) {
-		QScrollBar* sender = static_cast<QScrollBar*>(this->sender());
-		if (sender == Text->verticalScrollBar()) {
-			Line->verticalScrollBar()->setValue(value);
-		}
-		else {
-			Text->verticalScrollBar()->setValue(value);
-		}
+		Q_UNUSED(value);
+		// 行号栏不再有自己的滚动条，跟随文档滚动重绘可见的那几行
+		Line->update();
 		adjustTabCompleterPosition();
 		adjustHoverInfoPosition(Text->textCursor());
 		adjustSuggestionPosition();

@@ -127,7 +127,9 @@
 			"projectConfig": "项目设置",
 			"showInExplorer": "在资源管理器中显示",
 			"closeAll": "关闭所有",
-			"closeSaved": "关闭已保存"
+			"closeSaved": "关闭已保存",
+			"compareAsOld": "将其列为旧文件进行比较",
+			"compareAsNew": "将其列为新文件进行比较"
 		},
 		"edit": {
 			"title": "编辑",
@@ -183,6 +185,16 @@
 			"closeOtherTerminals": "关闭其他终端",
 			"closeAllTerminals": "关闭所有终端",
 			"terminalName": "终端 %1"
+		},
+		"codeDiff": {
+			"takeOld": "取左侧",
+			"takeNew": "取右侧",
+			"progress": "第 %1/%2 处差异（已处理 %3 处）",
+			"progressSimple": "已处理 %1/%2 处差异",
+			"allResolved": "已处理完全部 %1 处差异",
+			"noDifference": "两侧内容相同",
+			"loading": "正在读取文件…",
+			"readFailed": "无法读取文件：%1"
 		},
 		"far":{
 			"title": "查找和替换",

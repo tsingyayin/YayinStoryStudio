@@ -1,6 +1,7 @@
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qmimedata.h>
 #include <QtGui/qcursor.h>
+#include <QtGui/qevent.h>
 #include <QtGui/qdrag.h>
 #include <QtGui/qpainter.h>
 #include <QtWidgets/qapplication.h>
@@ -17,6 +18,7 @@
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/private/StackComponents_p.h"
 #include "Editor/MainEditor/TreeLayoutWidget.h"
 namespace YSS::Editor {
@@ -159,9 +161,18 @@ namespace YSS::Editor {
 			emit closeSavedRequested();
 			});
 
+		ActionCompareAsOld = new QAction(VITRL("YSS::menu.file.compareAsOld"), this);
+		ActionCompareAsNew = new QAction(VITRL("YSS::menu.file.compareAsNew"), this);
+		connect(ActionCompareAsOld, &QAction::triggered, this, [this]() {
+			MainWin::getInstance()->setCompareFileAsOld(Uri);
+			});
+		connect(ActionCompareAsNew, &QAction::triggered, this, [this]() {
+			MainWin::getInstance()->setCompareFileAsNew(Uri);
+			});
+
 		this->addActions({ ActionClose, ActionPin, ActionReload,
 			ActionRename, ActionSave, ActionSaveAs, ActionShowInExplorer,
-			ActionCloseAll, ActionCloseSaved });
+			ActionCloseAll, ActionCloseSaved, ActionCompareAsOld, ActionCompareAsNew });
 	}
 
 	void StackTag::setStayInWidget(StackTagWidget* widget) {
@@ -390,6 +401,14 @@ namespace YSS::Editor {
 		Hovering = false;
 		updateButtonVisibility();
 		updateToolTip();
+	}
+
+	void StackTag::contextMenuEvent(QContextMenuEvent* event) {
+		// 虚拟文件（设置页等）不参与比较；目录不能作为比较对象。
+		const bool canCompare = Uri.isValid() && !Uri.isVirtual() && !Uri.isDir();
+		ActionCompareAsOld->setEnabled(canCompare);
+		ActionCompareAsNew->setEnabled(canCompare);
+		QFrame::contextMenuEvent(event);
 	}
 
 	void StackTag::paintEvent(QPaintEvent* event) {

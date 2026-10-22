@@ -1,4 +1,4 @@
-#include <QtCore/qmetaobject.h>
+﻿#include <QtCore/qmetaobject.h>
 #include <QtCore/qset.h>
 #include <QtGui/qcolor.h>
 #include <QtGui/qfont.h>
@@ -232,7 +232,7 @@ namespace ASERStudio::YSS {
 		}
 		format.setFontWeight(styleData.isBold() ? QFont::Bold : QFont::Normal);
 		format.setFontItalic(styleData.isItalic());
-		setFormat(start, count, format);
+		setCharFormat(start, count, format);
 	}
 
 	void LS_AStoryXSyntaxHighlighter::DiagnosticTransform(const ASERStudio::AStorySyntax::AStoryXDiagnosticData& diagnostic) {

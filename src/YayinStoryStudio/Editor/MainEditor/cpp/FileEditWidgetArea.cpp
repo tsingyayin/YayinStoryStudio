@@ -362,8 +362,8 @@ namespace YSS::Editor {
 			connect(textEdit, &YSSCore::Editor::TextEdit::cursorPositionChanged, this, [this, textEdit]() {
 				emit textEditCursorPositionChanged(textEdit->getUri(), textEdit->getTextCursor());
 				});
-			YSS::Editor::TextEditConfigOperator::applyTo(textEdit);
 		}
+		YSS::Editor::TextEditConfigOperator::applyTo(widget);
 		if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
 			project->addEditorOpenedFile(uri, d->areaID);
 		}

@@ -41,9 +41,16 @@ namespace YSS::Editor {
 		bool CloseSaveFailed = false;
 		QString CloseSaveFailedUri;
 		YSSCore::Editor::FileEditWidget* FocusingFileEditWidgetNotTool = nullptr;
+		// 资源浏览器/标签页右键"将其列为旧/新文件进行比较"留下的待比较文件。
+		YSSCore::General::YSSURI CompareOldUri;
+		YSSCore::General::YSSURI CompareNewUri;
+		bool HasCompareOld = false;
+		bool HasCompareNew = false;
 		static MainWin* Instance;
 	private:
 		YSS::Editor::FileEditWidgetArea* selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget);
+		// 新旧两侧都已登记时，构造虚拟文件路径打开比较器，并清空待比较状态。
+		void launchComparisonIfReady();
 		// 是否还有已提交但未完成的异步写入。
 		bool hasPendingSaves() const;
 		// 挂起关闭流程，待所有异步写入结束后自动重新关闭；失败则放弃本次关闭。
@@ -70,6 +77,11 @@ namespace YSS::Editor {
 		YSSCore::Editor::FileEditWidget* getCurrentFocusedFileEditWidget() const;
 		YSSCore::Editor::FileEditWidget* getCurrentFocusedFileEditWidgetNotTool() const;
 		void initTreeLayout();
+	public:
+		// 将给定文件登记为比较的旧侧/新侧。两次登记彼此独立，
+		// 当另一侧也已登记时立即打开比较器，并清空两侧的登记。
+		void setCompareFileAsOld(const YSSCore::General::YSSURI& uri);
+		void setCompareFileAsNew(const YSSCore::General::YSSURI& uri);
 	public slots:
 		void onFileEditWidgetAreaCreated(FileEditWidgetArea* widget);
 		void onFileEditWidgetAreaFocusIn(const QString& areaID);

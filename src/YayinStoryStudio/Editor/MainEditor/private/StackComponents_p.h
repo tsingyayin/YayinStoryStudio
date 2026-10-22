@@ -62,6 +62,8 @@ namespace YSS::Editor {
 		QAction* ActionShowInExplorer;
 		QAction* ActionCloseAll;
 		QAction* ActionCloseSaved;
+		QAction* ActionCompareAsOld;
+		QAction* ActionCompareAsNew;
 	signals:
 		void clicked(const YSSCore::General::YSSURI& uri);
 		void pinClicked(const YSSCore::General::YSSURI& uri);
@@ -101,6 +103,7 @@ namespace YSS::Editor {
 		virtual void resizeEvent(QResizeEvent* event) override;
 		virtual void enterEvent(QEnterEvent* event) override;
 		virtual void leaveEvent(QEvent* event) override;
+		virtual void contextMenuEvent(QContextMenuEvent* event) override;
 		virtual void paintEvent(QPaintEvent* event) override;
 	};
 

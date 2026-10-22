@@ -96,6 +96,8 @@ namespace YSS::Editor {
 		FileOptionCut = FileOptions->addAction(VITRL("YSS::menu.edit.cut"));
 		FileOptions->addSeparator();
 		FileOptionRefresh = FileOptions->addAction(VITRL("Visindigo::general.refresh"));
+		FileOptionCompareAsOld = FileOptions->addAction(VITRL("YSS::menu.file.compareAsOld"));
+		FileOptionCompareAsNew = FileOptions->addAction(VITRL("YSS::menu.file.compareAsNew"));
 		
 		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
 		if (project != nullptr) {
@@ -128,6 +130,12 @@ namespace YSS::Editor {
 		connect(FileOptionNewFolder, &QAction::triggered, this, &ResourceBrowser::onNewFolderTriggered);
 		connect(FileOptionRename, &QAction::triggered, this, &ResourceBrowser::onRenameTriggered);
 		connect(FileOptionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
+		connect(FileOptionCompareAsOld, &QAction::triggered, this, [this]() {
+			MainWin::getInstance()->setCompareFileAsOld(YSSCore::General::YSSURI::fromLocalPath(CurrentFilePath));
+			});
+		connect(FileOptionCompareAsNew, &QAction::triggered, this, [this]() {
+			MainWin::getInstance()->setCompareFileAsNew(YSSCore::General::YSSURI::fromLocalPath(CurrentFilePath));
+			});
 		connect(FileOptionCopyPath, &QAction::triggered, this, [this]() {
 			QApplication::clipboard()->setText(CurrentFilePath);
 			});
@@ -381,6 +389,10 @@ namespace YSS::Editor {
 		FileOptionNewFile->setEnabled(true);
 		FileOptionNewFolder->setEnabled(true);
 		FileOptionRefresh->setEnabled(true);
+		// 只有真实存在的单个文件才能参与比较。
+		const bool canCompare = onItem && QFileInfo(CurrentFilePath).isFile();
+		FileOptionCompareAsOld->setEnabled(canCompare);
+		FileOptionCompareAsNew->setEnabled(canCompare);
 
 		FileOptions->exec(FileTree->viewport()->mapToGlobal(pos));
 	}

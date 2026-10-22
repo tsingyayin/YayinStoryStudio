@@ -1,10 +1,12 @@
 #include <QtGui/qevent.h>
+#include <QtCore/qjsonvalue.h>
 #include <QtCore/qtimer.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qsplitter.h>
 #include <Editor/EditorPlugin.h>
+#include <Editor/CodeDiff.h>
 #include <Editor/FileServer.h>
 #include <Editor/FileServerManager.h>
 #include <Editor/TextEdit.h>
@@ -845,5 +847,46 @@ namespace YSS::Editor {
 		}
 		VIApp->getMainPlugin()->savePluginConfig();
 		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
+	}
+
+	void MainWin::setCompareFileAsOld(const YSSCore::General::YSSURI& uri) {
+		if (!uri.isValid() || uri.isVirtual()) {
+			return;
+		}
+		CompareOldUri = uri;
+		HasCompareOld = true;
+		launchComparisonIfReady();
+	}
+
+	void MainWin::setCompareFileAsNew(const YSSCore::General::YSSURI& uri) {
+		if (!uri.isValid() || uri.isVirtual()) {
+			return;
+		}
+		CompareNewUri = uri;
+		HasCompareNew = true;
+		launchComparisonIfReady();
+	}
+
+	void MainWin::launchComparisonIfReady() {
+		if (!HasCompareOld || !HasCompareNew) {
+			return;
+		}
+		const YSSCore::General::YSSURI oldUri = CompareOldUri;
+		const YSSCore::General::YSSURI newUri = CompareNewUri;
+		CompareOldUri = YSSCore::General::YSSURI();
+		CompareNewUri = YSSCore::General::YSSURI();
+		HasCompareOld = false;
+		HasCompareNew = false;
+
+		const QString fileName = QStringLiteral("%1 ↔ %2")
+			.arg(oldUri.getFileName(), newUri.getFileName());
+		Visindigo::Utility::JsonConfig params;
+		params.setValue(QStringLiteral("old_uri"), QJsonValue(oldUri.toString()));
+		params.setValue(QStringLiteral("new_uri"), QJsonValue(newUri.toString()));
+		YSSCore::Editor::VirtualFilePath path(
+			QStringLiteral(YSSVirtualFile_CodeDiff), fileName, params);
+		if (!YSSFSM->openFile(path.toString())) {
+			vgWarningF << "Failed to open code diff for" << oldUri.toString() << "and" << newUri.toString();
+		}
 	}
 }

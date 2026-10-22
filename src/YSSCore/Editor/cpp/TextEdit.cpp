@@ -1,4 +1,4 @@
-#include <QtCore/qbytearray.h>
+﻿#include <QtCore/qbytearray.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qstringconverter.h>
@@ -8,7 +8,6 @@
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
-#include <QtWidgets/qtextbrowser.h>
 #include <QtWidgets/qtextedit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
@@ -139,18 +138,13 @@ namespace YSSCore::Editor {
 		d->Layout->setSpacing(0);
 		d->Layout->setContentsMargins(0, 0, 0, 0);
 
-		d->Line = new QTextBrowser(this);
-		d->Line->setReadOnly(true);
-		d->Line->setTextInteractionFlags(Qt::NoTextInteraction);
-		d->Line->setMaximumWidth(80);
-		d->Line->setAlignment(Qt::AlignRight);
-		d->Line->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		d->Line->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		d->Layout->addWidget(d->Line, 0, 0);
-
 		d->Text = new YSSCore::__Private__::InlayHintTextEdit(this, this);
 		d->Text->setLineWrapMode(QTextEdit::NoWrap);
 		d->Text->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		d->Layout->addWidget(d->Text, 0, 1);
+		// 行号栏是自绘控件，依赖编辑区（文档布局与滚动位置），因此在 Text 之后再建。
+		d->Line = new YSSCore::__Private__::LineNumberBar(d->Text, this);
+		d->Layout->addWidget(d->Line, 0, 0);
 		d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(this);
 		d->TabCompleterWidget->hide();
 		d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
@@ -173,8 +167,7 @@ namespace YSSCore::Editor {
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
 		d->Text->setAcceptRichText(false);
-		d->Layout->addWidget(d->Text, 0, 1);
-		d->Line->viewport()->installEventFilter(d); 
+		d->Line->installEventFilter(d);
 
 		setTextFont(QFont("Microsoft YaHei"));
 
@@ -205,16 +198,18 @@ namespace YSSCore::Editor {
 		connect(d->Text->document(), &QTextDocument::blockCountChanged, this, [this](qint32 count) {
 			emit messageChanged();
 			});
+		// 行号栏只画可见行，内容或布局变了重绘一次即可，不需要维护行号文本。
+		connect(d->Text->document(), &QTextDocument::contentsChanged, d->Line, [this]() { d->Line->update(); });
+		connect(d->Text->document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
+			d->Line, [this](const QSizeF&) { d->Line->update(); });
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
-		connect(d->Line->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
 		connect(d->Text, &QTextEdit::textChanged, [this]() {
+			// 整篇着色期间文档会短暂处于"还没有格式"的状态，此时不要去刷新缩略图，
+			// 否则拿到的是空数据、缩略图会整片变白；着色结束后由 wholeDocumentHighlighted 刷新一次。
 			if (not d->Rehighlighting) {
 				this->setFileChanged();
-			}
-			else {
-				d->Overview->recalculateAll();
 			}
 			});
 		// 文档被其他途径改动（撤销、粘贴菜单等）时，指向旧文本的建议已经失效，直接收起。
@@ -378,7 +373,7 @@ namespace YSSCore::Editor {
 		QFont font = d->Text->document()->defaultFont();
 		font.setPointSize(size);
 		d->Text->document()->setDefaultFont(font);
-		d->Line->document()->setDefaultFont(font);
+		d->Line->refreshMetrics();
 		if (d->FontMetrics) {
 			delete d->FontMetrics;
 			d->FontMetrics = nullptr;
@@ -407,7 +402,7 @@ namespace YSSCore::Editor {
 		auto target = font;
 		target.setPointSize(fontSize);
 		d->Text->document()->setDefaultFont(target);
-		d->Line->document()->setDefaultFont(target);
+		d->Line->refreshMetrics();
 		d->FontMetrics = new QFontMetricsF(target);
 		double rawSpaceWidth = d->FontMetrics->size(Qt::TextSingleLine, " ").width();
 		double tabStopDistance = d->TabWidth * rawSpaceWidth * this->devicePixelRatioF();
@@ -866,6 +861,13 @@ namespace YSSCore::Editor {
 			if (d->Highlighter) {
 				connect(d->Highlighter, &YSSCore::Editor::SyntaxHighlighter::inlayHintChangedForLine,
 					d->Text, &YSSCore::__Private__::InlayHintTextEdit::onInlayHintChangedForLine);
+				// 缩略图的颜色来自各块布局里的格式，只有整篇着色结束后才是完整的。
+				connect(d->Highlighter, &YSSCore::Editor::SyntaxHighlighter::wholeDocumentHighlighted,
+					this, [this]() {
+						if (d->Overview != nullptr) {
+							d->Overview->recalculateAll();
+						}
+					});
 				auto themeProvider = d->LangServer->getColorThemeProvider();
 				d->Highlighter->onThemeChanged(themeProvider->getCurrentThemeStyleData());
 				connect(themeProvider, &YSSCore::Editor::ColorThemeProvider::themeModified,
@@ -889,7 +891,9 @@ namespace YSSCore::Editor {
 		else {
 			yInfoF << "No Language server found for extension:" << ext;
 		}
-		//highlighter 应在 setText之前，否则会触发两次textChanged
+		//highlighter 必须在 setText 之前挂上：QSyntaxHighlighter::setDocument 对非空文档会
+		//排一个延迟的整篇重着色，那既等于把整篇再算一遍，又会在 cancelFileChanged 之后
+		//从 QTextCursor 的编辑块里发出 textChanged，让新打开的文件错误地显示为已更改。
 		d->Text->setPlainText(text);
 		cancelFileChanged();
 		emit messageChanged();

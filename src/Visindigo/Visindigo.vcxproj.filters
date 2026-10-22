@@ -47,12 +47,6 @@
     <ClCompile Include="General\cpp\Translator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\cpp\DiffSequence.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility\cpp\CodeDiff.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Widgets\cpp\ConfigWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -272,12 +266,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\VersionMacro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\DiffSequence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility\CodeDiff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\Translator_p.h">

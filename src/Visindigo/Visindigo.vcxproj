@@ -171,9 +171,7 @@
     <ClCompile Include="General\cpp\Version.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\cpp\AsyncFunction.cpp" />
-    <ClCompile Include="Utility\cpp\CodeDiff.cpp" />
     <ClCompile Include="Utility\cpp\Console.cpp" />
-    <ClCompile Include="Utility\cpp\DiffSequence.cpp" />
     <ClCompile Include="Utility\cpp\ExtTool.cpp" />
     <ClCompile Include="Utility\cpp\FileUtility.cpp" />
     <ClCompile Include="Utility\cpp\FileOperation.cpp" />
@@ -272,8 +270,6 @@
     <QtMoc Include="Widgets\ConfigWidget.h" />
     <QtMoc Include="General\TranslationHost.h" />
     <ClInclude Include="Utility\AsyncFunction.h" />
-    <ClInclude Include="Utility\DiffSequence.h" />
-    <ClInclude Include="Utility\CodeDiff.h" />
     <ClInclude Include="Utility\FileUtility.h" />
     <ClInclude Include="Widgets\MultiLabel.h" />
     <QtMoc Include="Widgets\Terminal.h" />

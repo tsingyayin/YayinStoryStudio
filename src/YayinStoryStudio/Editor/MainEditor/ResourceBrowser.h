@@ -54,6 +54,8 @@ namespace YSS::Editor {
 		QAction* FileOptionPaste;
 		QAction* FileOptionCut;
 		QAction* FileOptionRefresh;
+		QAction* FileOptionCompareAsOld;
+		QAction* FileOptionCompareAsNew;
 	signals:
 		void visibilityChanged(bool visible);
 		void otherFileRenamed(const QString& path, const QString& oldName, const QString& newName);

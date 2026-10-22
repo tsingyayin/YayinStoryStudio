@@ -127,7 +127,9 @@
 			"projectConfig": "Project Settings",
 			"showInExplorer": "Show in File Explorer",
 			"closeAll": "Close All",
-			"closeSaved": "Close Saved"
+			"closeSaved": "Close Saved",
+			"compareAsOld": "Compare as Old File",
+			"compareAsNew": "Compare as New File"
 		},
 		"edit": {
 			"title": "Edit",
@@ -183,6 +185,16 @@
 			"closeOtherTerminals": "Close Other Terminals",
 			"closeAllTerminals": "Close All Terminals",
 			"terminalName": "Terminal %1"
+		},
+		"codeDiff": {
+			"takeOld": "Take Left",
+			"takeNew": "Take Right",
+			"progress": "Difference %1 of %2 (%3 resolved)",
+			"progressSimple": "%1 of %2 differences resolved",
+			"allResolved": "All %1 differences resolved",
+			"noDifference": "Both sides are identical",
+			"loading": "Reading files...",
+			"readFailed": "Failed to read file: %1"
 		},
 		"far": {
 			"title": "Find and Replace",
