@@ -26,10 +26,12 @@ namespace YSSCore::Editor {
 		virtual void onBlockRemoved(qint32 startBlockNumber, qint32 count);
 		virtual void onBlockAdded(qint32 startBlockNumber, qint32 count);
 		virtual void onThemeChanged(const QMap<QString, StyleData>& theme);
-	protected:
-		void setCharFormat(qint32 start, qint32 count, const QTextCharFormat& format);
 	public:
 		void rehighlight_s();
+		void rehighlightRange_s(qint32 startBlockNumber, qint32 count);
+		void setHighlightSuspended(bool suspended);
+		bool isHighlightSuspended() const;
+		void rehighlightProgressive_s(qint32 sliceMilliseconds = 32);
 		void autoRenderMessageWaveLine(bool autoRender);
 		void createErrorMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");
 		void createWarningMessage(const QString& message, int columnNumber = -1, int length = -1, const QString& code = "", const QUrl& helpUrl = QUrl(), const QString& fixeAdvice = "");

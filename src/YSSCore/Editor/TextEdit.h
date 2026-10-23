@@ -11,7 +11,6 @@
 #include "Editor/TabCompleterProvider.h"
 #include "Editor/CustomDocumentData.h"
 // Forward declarations
-class QTextEdit;
 class QHBoxLayout;
 class QSyntaxHighlighter;
 
@@ -24,6 +23,7 @@ namespace YSSCore::Editor {
 	class TabCompleterProvider;
 	class HoverInfoProvider;
 	class SyntaxHighlighter;
+	class SyntaxHighlighterPrivate;
 }
 // Main
 namespace YSSCore::Editor {
@@ -34,6 +34,7 @@ namespace YSSCore::Editor {
 		friend class YSSCore::__Private__::InlayHintTextEdit;
 		friend class HoverInfoProvider;
 		friend class SyntaxHighlighter;
+		friend class SyntaxHighlighterPrivate;
 	signals:
 		void fontSizeChanged(qint32 newSize);
 		void textFontChanged(const QFont& newFont);

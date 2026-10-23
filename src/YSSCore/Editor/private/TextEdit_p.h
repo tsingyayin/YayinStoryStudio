@@ -6,6 +6,7 @@
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qpoint.h>
 #include <QtGui/qevent.h>
+#include <QtWidgets/qplaintextedit.h>
 #include <QtWidgets/qtextedit.h>
 #include <Widgets/BorderFrame.h>
 #include <Widgets/ThemeManager.h>
@@ -19,12 +20,14 @@ namespace YSSCore::Editor {
 	class TabCompleterProvider;
 	class HoverInfoProvider;
 	class SyntaxHighlighter;
+	class SyntaxHighlighterPrivate;
 	class LangServer;
 	class InlayHint;
 }
 class QVBoxLayout;
 class QComboBox;
 class QTextEdit;
+class QPlainTextEdit;
 class QHBoxLayout;
 class QFontMetricsF;
 class QPainter;
@@ -97,16 +100,17 @@ namespace YSSCore::__Private__ {
 		行号本身只是"第几行"这几个字符，没必要真的建 37706 个文本块，因此这里改成
 		自绘：布局由 QTextDocument 负责，本控件只按文档坐标取可见块的矩形，画出对应的行号。
 	*/
+	class InlayHintTextEdit;
 	class LineNumberBar : public QWidget {
 	public:
-		LineNumberBar(QTextEdit* editor, QWidget* parent = nullptr);
+		LineNumberBar(InlayHintTextEdit* editor, QWidget* parent = nullptr);
 		void updateLineCount(qint32 count);
 		void refreshMetrics();
 	protected:
 		void paintEvent(QPaintEvent* event) override;
 		void wheelEvent(QWheelEvent* event) override;
 	private:
-		QTextEdit* editor = nullptr;
+		InlayHintTextEdit* editor = nullptr;
 		qint32 lineCount = 1;
 		qint32 cachedDigits = 1;
 	};
@@ -125,7 +129,10 @@ namespace YSSCore::__Private__ {
 	private:
 		YSSCore::Editor::TextEdit* editor = nullptr;
 		QTextDocument* document = nullptr;
-		QList<QList<QColor>> lineColors;
+		// 缩略图只缓存一张位图：每次重绘都按"需要画出来的那几行"现算，不再为全文建缓存。
+		QImage backBuffer;
+		QString glyphFamily;
+		QByteArray glyphData;
 		QList<int> errorLines;
 
 		ViewportIndicator* viewportIndicator = nullptr;
@@ -137,23 +144,32 @@ namespace YSSCore::__Private__ {
 		void onMessageChanged();
 		void onMessageChangedForLine(qint32 lineNumber);
 		void recalculateAll();
-		void recalculateBlock(int blockNumber);
-		QList<QColor> colorsOf(const QTextBlock& block) const;
+		void ensureGlyphAtlas();
+		const uchar* glyphMask(char16_t ch) const;
+		void renderRow(qint32 y, const QTextBlock& block);
 		void rebuildErrorLines();
 		void updateViewportIndicator();
 	};
 
 	/*!
 		文本编辑区的实际控件。重写paintEvent是为了在文本之上绘制内联提示：
-		QTextEdit::paintEvent里创建的QPainter作用于viewport，因此这里同样作用于viewport，
+		QPlainTextEdit::paintEvent里创建的QPainter作用于viewport，因此这里同样作用于viewport，
 		并直接使用光标矩形（也是viewport坐标）定位提示，不需要自己做滚动偏移换算。
 
-		\note 重写paintEvent时创建QPainter必须作用于viewport，这是QTextEdit的要求。
+		\note 重写paintEvent时创建QPainter必须作用于viewport，这是QPlainTextEdit的要求。
+
+		\note firstVisibleBlock()/blockBoundingGeometry()/blockBoundingRect()/contentOffset()
+		在QPlainTextEdit里都是protected，行号栏这类兄弟控件要用，所以这里开一组转发。
 	*/
-	class InlayHintTextEdit :public QTextEdit {
+	class InlayHintTextEdit :public QPlainTextEdit {
 		Q_OBJECT;
 	public:
 		InlayHintTextEdit(YSSCore::Editor::TextEdit* editor, QWidget* parent = nullptr);
+
+		QTextBlock getFirstVisibleBlock() const;
+		QRectF getBlockBoundingGeometry(const QTextBlock& block) const;
+		QRectF getBlockBoundingRect(const QTextBlock& block) const;
+		QPointF getContentOffset() const;
 	protected:
 		virtual void paintEvent(QPaintEvent* event) override;
 	public slots:
@@ -218,6 +234,7 @@ namespace YSSCore::__Private__ {
 		friend class YSSCore::Editor::TextEdit;
 		friend class YSSCore::Editor::HoverInfoProvider;
 		friend class YSSCore::Editor::SyntaxHighlighter;
+		friend class YSSCore::Editor::SyntaxHighlighterPrivate;
 	protected:
 		YSSCore::Editor::TextEdit* q = nullptr;
 		LineNumberBar* Line = nullptr;

@@ -1,4 +1,5 @@
 ﻿#include <QtCore/qtimer.h>
+#include <QtCore/qelapsedtimer.h>
 #include <General/Log.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/DocumentMessage.h"
@@ -7,6 +8,11 @@
 #include "Editor/SyntaxHighlighter.h"
 #include "Editor/TextEdit.h"
 namespace YSSCore::Editor {
+	// 视口优先着色：可见块上下各留一些余量，轻微滚动也不会看到还没着色的行。
+	static constexpr qint32 ViewportHighlightOverscan = 64;
+	static constexpr qint32 ViewportHighlightCount = 256;
+	// 分片着色期间刷新缩略图的间隔，避免大文件补齐那几秒里缩略图一直空着。
+	static constexpr qint64 ProgressiveOverviewIntervalMs = 400;
 	class SyntaxHighlighterPrivate {
 		friend class SyntaxHighlighter;
 	protected:
@@ -15,14 +21,17 @@ namespace YSSCore::Editor {
 		bool AutoRenderMessageWaveLine = true;
 		bool AutoRenderInlayHint = true;
 		qint32 LastTotalBlockNumber = 0;
-		// 整篇着色时格式只记账、不提交；此标志为 true 表示正在记账。
-		bool Recording = false;
-		// 整篇着色期间攒下来的格式，最后一次性写回各块的布局。
-		QHash<qint32, QList<QTextLayout::FormatRange>> RecordedFormats;
+		// 批量装载内容时挂起着色，避免 QSyntaxHighlighter 对每一块都做无意义的回调。
+		bool Suspended = false;
+		// 分片着色：-1 表示当前没有进行中的任务。
+		qint32 ProgressiveNext = -1;
+		qint32 ProgressiveSkipFrom = 0;
+		qint32 ProgressiveSkipTo = 0;
+		qint32 ProgressiveSliceMs = 16;
+		qint64 ProgressiveElapsedMs = 0;
 	protected:
 		void doHighlightBlock(const QTextBlock& block, const QString& text);
-		void appendRecordedFormat(qint32 blockNumber, qint32 start, qint32 count, const QTextCharFormat& format);
-		void highlightWholeDocument();
+		void stepProgressiveHighlight();
 	};
 
 	/*!
@@ -121,8 +130,7 @@ namespace YSSCore::Editor {
 		\a block 要着色的文本块。
 		\a text 该文本块的内容。
 
-		单个文本块的着色流程。QSyntaxHighlighter::highlightBlock 与
-		highlightWholeDocument() 都走这里，区别只在于当前是否处于"整篇着色"状态。
+		单个文本块的着色流程。QSyntaxHighlighter 的 highlightBlock 与 rehighlightBlock 都走这里。
 	*/
 	void SyntaxHighlighterPrivate::doHighlightBlock(const QTextBlock& block, const QString& text) {
 		if (!block.isValid()) {
@@ -130,6 +138,11 @@ namespace YSSCore::Editor {
 		}
 		const qint32 blockNumber = block.blockNumber();
 		qint32 totalNumber = block.document()->blockCount();
+		if (Suspended) {
+			// 挂起期间只同步块数，避免恢复后把整篇当成"新增块"再通知一遍。
+			LastTotalBlockNumber = totalNumber;
+			return;
+		}
 		if (totalNumber < LastTotalBlockNumber) {
 			q->onBlockRemoved(blockNumber, LastTotalBlockNumber - totalNumber);
 		}
@@ -144,94 +157,6 @@ namespace YSSCore::Editor {
 		q->applyInlayHintSpacings(text, blockNumber);
 	}
 
-	/*!
-		\since YSS 0.18.0
-
-		给整个文档着色，格式延迟应用。
-
-		为什么需要它：QSyntaxHighlighter 每处理完一个块就会调用
-		QSyntaxHighlighterPrivate::applyFormatChanges，其中对
-		QTextDocument::markContentsDirty 的调用会让 QTextEdit 的文档布局重排到文档末尾。
-		于是 document->rehighlight() 是 O(n²)：实测 4713 块 4.8 秒、18853 块 76 秒、37706 块约 5 分钟。
-		（换成 QPlainTextEdit 的增量布局，同样的事情只要 9~40 毫秒，可见慢的是 QTextEdit 的布局。）
-
-		这里仍然由 Qt 驱动整篇着色（currentBlock、块状态、previousBlockState 的语义都不变，
-		语言服务照旧看得到完整文档），只是把 setCharFormat 的格式先记下来、不立即提交：
-		记账期间布局里没有格式，applyFormatChanges 就什么都不做，整轮是线性的。
-		整篇走完之后把攒下的格式一次性写进各块的 QTextLayout，再只做一次 markContentsDirty。
-	*/
-	void SyntaxHighlighterPrivate::highlightWholeDocument() {
-		QTextDocument* document = q->document();
-		if (document == nullptr) {
-			return;
-		}
-		// 先清掉上次落地在布局里的格式：Qt 的 applyFormatChanges 一旦发现布局里有格式，
-		// 就会为每个块标脏，而 QTextEdit 每次标脏都要重排到文档末尾，几万行会退化成 O(n²)。
-		for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
-			QTextLayout* layout = block.layout();
-			if (layout != nullptr && not layout->formats().isEmpty()) {
-				layout->clearFormats();
-			}
-		}
-		RecordedFormats.clear();
-		Recording = true;
-		// 仍然交给 Qt 驱动：currentBlock、块状态、previousBlockState 的语义都保持不变，
-		// 只是格式被记录下来而不立即提交，因此这一轮是线性的。
-		q->rehighlight();
-		Recording = false;
-		// 全部格式一次性写进各块布局（不触发文档信号），最后只做一次重排。
-		for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
-			auto it = RecordedFormats.constFind(block.blockNumber());
-			if (it != RecordedFormats.constEnd() && block.layout() != nullptr) {
-				block.layout()->setFormats(it.value());
-			}
-		}
-		RecordedFormats.clear();
-		document->markContentsDirty(0, document->characterCount());
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\a start 起始列。
-		\a count 长度。
-		\a format 要应用的格式。
-
-		着色的统一入口：整篇着色时只记录，普通着色时直接交给 QSyntaxHighlighter。
-	*/
-	void SyntaxHighlighter::setCharFormat(qint32 start, qint32 count, const QTextCharFormat& format) {
-		if (d->Recording) {
-			d->appendRecordedFormat(currentBlock().blockNumber(), start, count, format);
-			return;
-		}
-		setFormat(start, count, format);
-	}
-
-	void SyntaxHighlighterPrivate::appendRecordedFormat(qint32 blockNumber, qint32 start, qint32 count, const QTextCharFormat& format) {
-		if (count <= 0) {
-			return;
-		}
-		QList<QTextLayout::FormatRange>& ranges = RecordedFormats[blockNumber];
-		for (QTextLayout::FormatRange& range : ranges) {
-			// 与已有区间完全重合时直接覆盖，避免列表无限增长
-			if (range.start == start && range.length == count) {
-				range.format = format;
-				return;
-			}
-		}
-		QTextLayout::FormatRange range;
-		range.start = start;
-		range.length = count;
-		range.format = format;
-		ranges.append(range);
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\a text 当前文本块的内容。
-		\a blockNumber 当前文本块的块号。
-
-		为当前文本块上的内联提示注入空隙，使提示之后的文字向右让出绘制提示所需的空间。
-	*/
 	void SyntaxHighlighter::applyInlayHintSpacings(const QString& text, qint32 blockNumber) {
 		if (not d->AutoRenderInlayHint or not d->Parent->isInlayHintVisible()) {
 			return;
@@ -248,21 +173,10 @@ namespace YSSCore::Editor {
 				// 行首没有可用的锚点字符，这类提示无法推开后续文字，绘制端也会跳过它。
 				continue;
 			}
-			QTextCharFormat format;
-			if (d->Recording) {
-				// 整篇着色时格式还没进布局，得从这一块已记录的区间里取（取最后一个命中的，即最具体的那个）。
-				for (const QTextLayout::FormatRange& range : d->RecordedFormats.value(blockNumber)) {
-					if (anchor >= range.start && anchor < range.start + range.length) {
-						format = range.format;
-					}
-				}
-			}
-			else {
-				format = this->format(anchor);
-			}
+			QTextCharFormat format = this->format(anchor);
 			format.setFontLetterSpacingType(QFont::AbsoluteSpacing);
 			format.setFontLetterSpacing(__Private__::inlayHintGapWidth(hint, hintFont));
-			setCharFormat(anchor, 1, format);
+			setFormat(anchor, 1, format);
 		}
 	}
 
@@ -277,7 +191,7 @@ namespace YSSCore::Editor {
 		可以在着色触发时根据需要直接调用全部重新着色函数，而它会自动延迟到
 		下一个事件循环再触发（而当前这轮着色必然会在本轮事件循环完成）。
 		\li 2. 由于rehighlight内部的实现方式，其在QTextCursor上的操作会
-		触发QTextEdit::textChanged信号，而YSSCore::Editor::TextEdit通过监听
+		触发QPlainTextEdit::textChanged信号，而YSSCore::Editor::TextEdit通过监听
 		此信号来感知文件是否已改变，这会导致直接调用rehighlight会使TextEdit错误
 		的判断文件的改变情况。而此安全版函数会与其对应的TextEdit进行实现协商，
 		使其自动屏蔽从rehighlight触发的textChanged信号。
@@ -286,10 +200,144 @@ namespace YSSCore::Editor {
 	void SyntaxHighlighter::rehighlight_s() {
 		QTimer::singleShot(0, this, [this]() {
 			d->Parent->d->Rehighlighting = true;
-			d->highlightWholeDocument();
+			this->rehighlight();
 			d->Parent->d->Rehighlighting = false;
 			emit wholeDocumentHighlighted();
 			});
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a startBlockNumber 起始块号，从0开始。
+		\a count 要重新着色的块数量，传入负数表示一直到文档末尾。
+
+		只重新着色指定范围的块，其余语义与 rehighlight_s() 相同：延迟到下一轮事件循环、
+		期间屏蔽着色本身产生的 textChanged，结束后发出 wholeDocumentHighlighted()。
+
+		用于"变化只影响部分行"的场合——例如语法规则在文档开头才确定，那么规则生效位置
+		之后的行在同一趟格式化里就已经用新规则解析过了，没有理由再解析一遍。
+	*/
+	void SyntaxHighlighter::rehighlightRange_s(qint32 startBlockNumber, qint32 count) {
+		QTimer::singleShot(0, this, [this, startBlockNumber, count]() {
+			QTextDocument* doc = this->document();
+			if (doc == nullptr) {
+				return;
+			}
+			d->Parent->d->Rehighlighting = true;
+			QTextBlock block = doc->findBlockByNumber(qMax<qint32>(0, startBlockNumber));
+			for (qint32 i = 0; block.isValid() && (count < 0 || i < count); ++i, block = block.next()) {
+				this->rehighlightBlock(block);
+			}
+			d->Parent->d->Rehighlighting = false;
+			// 分片着色进行中时不要提前通知：此时格式还不完整，缩略图会拿到半张空数据。
+			if (d->ProgressiveNext < 0) {
+				emit wholeDocumentHighlighted();
+			}
+			});
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a suspended 为true时，着色回调直接返回。
+
+		用于批量替换文档内容的场合（例如打开一个新文件时的setPlainText）：QSyntaxHighlighter
+		会对内容变化范围内的每一块同步回调一次，而此时既没有窗口可显示、也没有必要逐块着色。
+		挂起只是省掉这些回调，格式本身由 QSyntaxHighlighter 在这一轮里清空，因此恢复后需要
+		自己驱动一次着色（见 rehighlightProgressive_s() 或 rehighlight_s()）。
+	*/
+	void SyntaxHighlighter::setHighlightSuspended(bool suspended) {
+		d->Suspended = suspended;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		return 当前是否挂着色。
+	*/
+	bool SyntaxHighlighter::isHighlightSuspended() const {
+		return d->Suspended;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a sliceMilliseconds 每一片的时间预算，默认8毫秒。
+
+		视口优先的整篇着色：先把视口附近的一批文本块同步着色（这样首帧画出来就是带色的），
+		其余部分在随后的定时器里按时间片逐段补完，补完后发出 wholeDocumentHighlighted()。
+
+		与 rehighlight_s() 的区别只在于着色顺序和调度方式，最终结果完全一致。大文件打开时，
+		它让"能看到正确的颜色"这件事不必等整篇算完。
+	*/
+	void SyntaxHighlighter::rehighlightProgressive_s(qint32 sliceMilliseconds) {
+		QTextDocument* doc = this->document();
+		if (doc == nullptr) {
+			return;
+		}
+		qint32 firstVisible = 0;
+		if (d->Parent != nullptr && d->Parent->d->Text != nullptr) {
+			const QTextBlock visibleBlock = d->Parent->d->Text->getFirstVisibleBlock();
+			if (visibleBlock.isValid()) {
+				firstVisible = visibleBlock.blockNumber();
+			}
+		}
+		const qint32 headFrom = qMax<qint32>(0, firstVisible - ViewportHighlightOverscan);
+		const qint32 headTo = qMin<qint32>(doc->blockCount(), headFrom + ViewportHighlightCount);
+
+		d->Parent->d->Rehighlighting = true;
+		QTextBlock block = doc->findBlockByNumber(headFrom);
+		while (block.isValid() && block.blockNumber() < headTo) {
+			this->rehighlightBlock(block);
+			block = block.next();
+		}
+		d->Parent->d->Rehighlighting = false;
+
+		d->ProgressiveNext = 0;
+		d->ProgressiveSkipFrom = headFrom;
+		d->ProgressiveSkipTo = headTo;
+		d->ProgressiveSliceMs = qMax<qint32>(1, sliceMilliseconds);
+		d->stepProgressiveHighlight();
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		分片着色的单步：在时间预算内尽量多地着色，做完就发出 wholeDocumentHighlighted()。
+
+		\note 分片期间如果用户改动了光标之前的文本，块号会错位，极少数块可能因此被跳过、
+		保持装载时的无格式状态。被改动的行本身不受影响（QSyntaxHighlighter 对内容变化范围
+		是同步重新着色的），而且分片总共只持续不到一秒，因此这里不做额外的重扫。
+	*/
+	void SyntaxHighlighterPrivate::stepProgressiveHighlight() {
+		QTextDocument* doc = q->document();
+		if (doc == nullptr || ProgressiveNext < 0) {
+			return;
+		}
+		QElapsedTimer timer;
+		timer.start();
+		Parent->d->Rehighlighting = true;
+		QTextBlock block = doc->findBlockByNumber(ProgressiveNext);
+		while (block.isValid() && timer.elapsed() < ProgressiveSliceMs) {
+			if (block.blockNumber() == ProgressiveSkipFrom) {
+				block = doc->findBlockByNumber(ProgressiveSkipTo);
+				continue;
+			}
+			q->rehighlightBlock(block);
+			block = block.next();
+		}
+		Parent->d->Rehighlighting = false;
+		if (block.isValid()) {
+			ProgressiveNext = block.blockNumber();
+			// 分片要持续几秒，期间按固定间隔刷新一次缩略图，避免它一直空着。
+			ProgressiveElapsedMs += timer.elapsed();
+			if (ProgressiveElapsedMs >= ProgressiveOverviewIntervalMs) {
+				ProgressiveElapsedMs = 0;
+				emit q->wholeDocumentHighlighted();
+			}
+			QTimer::singleShot(0, q, [this]() { stepProgressiveHighlight(); });
+		}
+		else {
+			ProgressiveNext = -1;
+			emit q->wholeDocumentHighlighted();
+		}
 	}
 	/*!
 		\since YSS 0.13.0
@@ -318,7 +366,7 @@ namespace YSSCore::Editor {
 			QTextCharFormat format = block.charFormat();
 			format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 			format.setUnderlineColor(VISTM->getColor("ErrorLine"));
-			setCharFormat(columnNumber, length, format);
+			setFormat(columnNumber, length, format);
 		}
 		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Error, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
@@ -340,7 +388,7 @@ namespace YSSCore::Editor {
 			QTextCharFormat format = block.charFormat();
 			format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 			format.setUnderlineColor(VISTM->getColor("WarningLine"));
-			setCharFormat(columnNumber, length, format);
+			setFormat(columnNumber, length, format);
 		}
 		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Warning, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));
@@ -362,7 +410,7 @@ namespace YSSCore::Editor {
 			QTextCharFormat format = block.charFormat();
 			format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
 			format.setUnderlineColor(VISTM->getColor("InfoLine"));
-			setCharFormat(columnNumber, length, format);
+			setFormat(columnNumber, length, format);
 		}
 		d->Parent->addMessage(currentBlock().blockNumber(),
 			DocumentMessage(DocumentMessage::Info, message, currentBlock().blockNumber(), columnNumber, length, code, helpUrl, fixeAdvice));

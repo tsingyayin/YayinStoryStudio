@@ -21,7 +21,7 @@ namespace ASERStudio::AStorySyntax {
 		rtn += data.getRequiredParameter().getContent();
 		QStringList optParaPrefixes = rule->getOptionalParameterPrefixes(data.getControllerType());
 		QStringList optParaNames = rule->getOptionalParameterNames(data.getControllerType());
-		for (auto optPara : data.getOptionalParameters()) {
+		for (const auto& optPara : data.getOptionalParameters()) {
 			qint32 index = optParaNames.indexOf(optPara.getName());
 			if (index == -1) {
 				if (errorCode) {

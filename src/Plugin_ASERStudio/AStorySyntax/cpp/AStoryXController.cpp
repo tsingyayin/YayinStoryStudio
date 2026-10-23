@@ -185,8 +185,11 @@ namespace ASERStudio::AStorySyntax {
 			QList<qint32> repeatedPrefixIndexes;
 			for (int i = 0; i < prefixes.size(); i++) {
 				QString prefix = prefixes[i];
-				prefixIndexes.append(str.indexOf(prefix));
-				if (str.count(prefix) > 1) {
+				const qint32 firstIndex = str.indexOf(prefix);
+				prefixIndexes.append(firstIndex);
+				// 重复前缀只用于诊断：diagnostic 为假时不必再扫一遍，
+				// 且判定「出现不止一次」只需在首次命中之后再 indexOf 一次，不必 count 整行。
+				if (diagnostic && firstIndex != -1 && str.indexOf(prefix, firstIndex + 1) != -1) {
 					repeatedPrefixes.append(prefixNames[i]);
 					repeatedPrefixIndexes.append(str.lastIndexOf(prefix));
 				}
@@ -481,42 +484,46 @@ namespace ASERStudio::AStorySyntax {
 			return AStoryXControllerParseData();
 		}
 		AStoryXControllerParseData result;
-		static QRegularExpression protectTMP("&\\{[\\d\\D]*?\\}");
-		QRegularExpressionMatchIterator protectTMPIt = protectTMP.globalMatch(str);
+		// 占位符（&{...}、$[...]、$(...)）一定以 & 或 $ 开头。绝大多数行两者都没有，
+		// 此时三趟正则 + 保护表 + 后续还原全是空转，因此先做一次快速判定再决定是否保护。
 		QMap<QString, QString> protectedStrs;
-		quint32 i = 0;
-		QString ptStr = str;
-		static QString protectedStrTemplate = "▲★▲TMP%1▲★▲";
-		for (auto match : protectTMPIt) {
-			QString content = match.captured();
-			ptStr.replace(content, protectedStrTemplate.arg(i));
-			protectedStrs[protectedStrTemplate.arg(i)] = content;
-			i++;
-		}
-		static QRegularExpression protectRef("\\$\\[[\\d\\D]*?\\]");
-		QRegularExpressionMatchIterator protectRefIt = protectRef.globalMatch(ptStr);
-		i = 0;
 		QMap<QString, QString> protectedRefStrs;
-		static QString protectedRefTemplate = "▲★▲REF%1▲★▲";
-		for (auto match : protectRefIt) {
-			QString content = match.captured();
-			ptStr.replace(content, protectedRefTemplate.arg(i));
-			protectedRefStrs[protectedRefTemplate.arg(i)] = content;
-			result.d->referenceVariables.append(content.mid(2, content.length() - 3));
-			i++;
-		}
-
-		static QRegularExpression protectBlockPara("\\$\\([\\d\\D]*?\\)");
-		QRegularExpressionMatchIterator protectBlockParaIt = protectBlockPara.globalMatch(ptStr);
-		i = 0;
 		QMap<QString, QString> protectedBlockParaStrs;
-		static QString protectedBlockParaTemplate = "▲★▲BLK%1▲★▲";
-		for (auto match : protectBlockParaIt) {
-			QString content = match.captured();
-			ptStr.replace(content, protectedBlockParaTemplate.arg(i));
-			protectedBlockParaStrs[protectedBlockParaTemplate.arg(i)] = content;
-			result.d->blockParameters.append(content.mid(2, content.length() - 3));
-			i++;
+		QString ptStr = str;
+		quint32 i = 0;
+		if (str.contains(QLatin1Char('&')) || str.contains(QLatin1Char('$'))) {
+			static QRegularExpression protectTMP("&\\{[\\d\\D]*?\\}");
+			QRegularExpressionMatchIterator protectTMPIt = protectTMP.globalMatch(str);
+			static QString protectedStrTemplate = "▲★▲TMP%1▲★▲";
+			for (auto match : protectTMPIt) {
+				QString content = match.captured();
+				ptStr.replace(content, protectedStrTemplate.arg(i));
+				protectedStrs[protectedStrTemplate.arg(i)] = content;
+				i++;
+			}
+			static QRegularExpression protectRef("\\$\\[[\\d\\D]*?\\]");
+			QRegularExpressionMatchIterator protectRefIt = protectRef.globalMatch(ptStr);
+			i = 0;
+			static QString protectedRefTemplate = "▲★▲REF%1▲★▲";
+			for (auto match : protectRefIt) {
+				QString content = match.captured();
+				ptStr.replace(content, protectedRefTemplate.arg(i));
+				protectedRefStrs[protectedRefTemplate.arg(i)] = content;
+				result.d->referenceVariables.append(content.mid(2, content.length() - 3));
+				i++;
+			}
+
+			static QRegularExpression protectBlockPara("\\$\\([\\d\\D]*?\\)");
+			QRegularExpressionMatchIterator protectBlockParaIt = protectBlockPara.globalMatch(ptStr);
+			i = 0;
+			static QString protectedBlockParaTemplate = "▲★▲BLK%1▲★▲";
+			for (auto match : protectBlockParaIt) {
+				QString content = match.captured();
+				ptStr.replace(content, protectedBlockParaTemplate.arg(i));
+				protectedBlockParaStrs[protectedBlockParaTemplate.arg(i)] = content;
+				result.d->blockParameters.append(content.mid(2, content.length() - 3));
+				i++;
+			}
 		}
 
 		ptStr = ptStr.mid(d->Header.length());
@@ -531,8 +538,8 @@ namespace ASERStudio::AStorySyntax {
 			//非单调性解析
 			d->parseNonmonotonicity(protectedStrs, protectedRefStrs, protectedBlockParaStrs, ptStr, cursorPosition, diagnostic, lineIndex, &result);
 		}
-		AStoryXParameter requiredParameter = result.getRequiredParameter();
-		QString content = requiredParameter.getContent();
+		const AStoryXParameter& requiredParameter = result.getRequiredParameter();
+		const QString& content = requiredParameter.getContent();
 		if (d->Type == AStoryXController::ControllerType::Dialog) {
 			if (not Visindigo::Utility::StringUtility::isAllBlank(content) &&
 				content.contains(" ") && not content.contains("\t") && diagnostic) {
@@ -663,7 +670,7 @@ namespace ASERStudio::AStorySyntax {
 		}
 		}
 
-		for (auto optional : result.getOptionalParameters()) {
+		for (const auto& optional : result.getOptionalParameters()) {
 			auto optResult = optional.getValue().isTypeMatching(optional.getContent());
 			switch (optResult) {
 			case AStoryXDiagnosticData::Undefined:

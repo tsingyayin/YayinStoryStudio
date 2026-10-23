@@ -1,5 +1,7 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qtimer.h>
+#include <algorithm>
+#include <QtCore/qvarLengthArray.h>
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpainterpath.h>
@@ -130,6 +132,49 @@ namespace YSSCore::__Private__ {
 		findAll();
 	}
 
+	// 缩略图按"字符格"渲染：宽度方向一格 1px，高度方向一行 2px（与 VS Code 的
+	// BASE_CHAR_WIDTH / BASE_CHAR_HEIGHT 一致）。每个字符用一张 1x2 的字形掩码着色，
+	// 掩码的灰度取自真实字形的墨迹覆盖率，因此在缩略图上能看出"字"，而不是一根实心横条。
+	static constexpr qint32 OverviewGutterWidth = 10;
+	static constexpr qint32 OverviewCharWidth = 1;
+	static constexpr qint32 OverviewLineHeight = 2;
+	// 字形采样尺寸：先把字符画进 10x16 的格子，再降采样到 1x2。
+	static constexpr qint32 OverviewSampleWidth = 10;
+	static constexpr qint32 OverviewSampleHeight = 16;
+	static constexpr char16_t OverviewFirstChar = 32;
+	static constexpr char16_t OverviewLastChar = 126;
+	// 表里最后一项是"未知字符"，非 ASCII 走与 VS Code 相同的映射时会用到它。
+	static constexpr qint32 OverviewGlyphCount = OverviewLastChar - OverviewFirstChar + 2;
+	static constexpr char16_t OverviewUnknownChar = 0xFFFD;
+
+	// 缩略图的一行：在控件里的 y 坐标，以及这一行代表哪个文本块。
+	struct OverviewRowSlot {
+		qint32 y;
+		qint32 blockNumber;
+	};
+
+	// 把 \a coverage 覆盖率下的 \a color 写到 \a line 的第 \a x 个像素上。
+	// 图像是预乘 ARGB，用 qPremultiply 生成像素值，与平台字节序无关。
+	static void writeInk(uchar* line, qint32 x, QRgb color, qint32 coverage) {
+		const qint32 alpha = coverage * qAlpha(color) / 255;
+		if (alpha <= 0) {
+			return;
+		}
+		reinterpret_cast<quint32*>(line)[x] =
+			qPremultiply(qRgba(qRed(color), qGreen(color), qBlue(color), alpha));
+	}
+
+	// 全角字符占两格，中文在缩略图里的宽度比例才和正文一致。
+	static bool isFullWidthChar(char16_t code) {
+		return (code >= 0x1100 and code <= 0x115F)      // 谚文字母
+			or (code >= 0x2E80 and code <= 0xA4CF)      // 部首扩展、假名、汉字
+			or (code >= 0xAC00 and code <= 0xD7A3)      // 谚文音节
+			or (code >= 0xF900 and code <= 0xFAFF)      // 兼容汉字
+			or (code >= 0xFE30 and code <= 0xFE6F)      // 兼容形式
+			or (code >= 0xFF00 and code <= 0xFF60)      // 全角 ASCII
+			or (code >= 0xFFE0 and code <= 0xFFE6);
+	}
+
 	DocumentOverviewLabel::DocumentOverviewLabel(YSSCore::Editor::TextEdit* editor, QWidget* parent) : QWidget(parent) {
 		this->setFixedWidth(80);
 		this->editor = editor;
@@ -141,10 +186,6 @@ namespace YSSCore::__Private__ {
 			this, &DocumentOverviewLabel::onMessageChanged);
 		connect(editor, &YSSCore::Editor::TextEdit::messageChangedForLine,
 			this, &DocumentOverviewLabel::onMessageChangedForLine);
-
-		if (this->document->blockCount() > 0) {
-			recalculateAll();
-		}
 		rebuildErrorLines();
 
 		// 视口指示器（QStyle绘制：Window颜色50%透明背景 + 白色边框）
@@ -170,131 +211,222 @@ namespace YSSCore::__Private__ {
 		return QSize(80, 0);
 	}
 
+	/*!
+		构建字形掩码表：把 ASCII 可见字符按 16px 粗体画进 10x16 的格子，
+		再把每个格子按纵向对半降采样成 2 个字节，值表示该处的墨迹覆盖率。
+
+		表只在字体族变化时重建一次，渲染时直接查表，不做任何字体光栅化。
+	*/
+	void DocumentOverviewLabel::ensureGlyphAtlas() {
+		const QString family = this->document != nullptr ? this->document->defaultFont().family() : QString();
+		if (family == this->glyphFamily and this->glyphData.size() == OverviewGlyphCount * OverviewLineHeight) {
+			return;
+		}
+
+		QImage sample(OverviewGlyphCount * OverviewSampleWidth, OverviewSampleHeight, QImage::Format_ARGB32);
+		sample.fill(Qt::transparent);
+		{
+			QPainter painter(&sample);
+			QFont font(family);
+			font.setPixelSize(OverviewSampleHeight);
+			font.setBold(true);
+			painter.setFont(font);
+			painter.setPen(Qt::white);
+			for (qint32 i = 0; i < OverviewGlyphCount; ++i) {
+				const char16_t code = (i < OverviewGlyphCount - 1)
+					? char16_t(OverviewFirstChar + i)
+					: OverviewUnknownChar;
+				painter.drawText(QRect(i * OverviewSampleWidth, 0, OverviewSampleWidth, OverviewSampleHeight),
+					Qt::AlignHCenter | Qt::AlignVCenter, QString(QChar(code)));
+			}
+		}
+
+		QByteArray data(OverviewGlyphCount * OverviewLineHeight, '\0');
+		qint32 brightest = 0;
+		for (qint32 i = 0; i < OverviewGlyphCount; ++i) {
+			for (qint32 row = 0; row < OverviewLineHeight; ++row) {
+				const qint32 firstY = row * OverviewSampleHeight / OverviewLineHeight;
+				const qint32 lastY = (row + 1) * OverviewSampleHeight / OverviewLineHeight;
+				qint32 sum = 0;
+				qint32 samples = 0;
+				for (qint32 y = firstY; y < lastY; ++y) {
+					const QRgb* line = reinterpret_cast<const QRgb*>(sample.constScanLine(y));
+					for (qint32 x = i * OverviewSampleWidth; x < (i + 1) * OverviewSampleWidth; ++x) {
+						sum += qAlpha(line[x]);
+						++samples;
+					}
+				}
+				const qint32 value = samples > 0 ? sum / samples : 0;
+				data[i * OverviewLineHeight + row] = char(value);
+				brightest = qMax(brightest, value);
+			}
+		}
+		// 降采样到 1x2 之后墨迹很淡，按最亮的字形归一化，字与字之间才有区分度。
+		if (brightest > 0) {
+			for (char& value : data) {
+				value = char(qMin(255, int(uchar(value)) * 255 / brightest));
+			}
+		}
+		this->glyphFamily = family;
+		this->glyphData = data;
+	}
+
+	/*!
+		取 \a ch 对应的掩码（OverviewLineHeight 个字节）。
+
+		ASCII 直接对应；其余字符（中文、全角标点等）没有现成的字形表，按 VS Code 的
+		做法把它们映射到某一个 ASCII 字形上（`(码位 - 32 + 表长) % 表长`）。这样不同的
+		汉字会得到不同的墨色深浅——实测 VS Code 里"永"映射到"8"、"一"映射到"`"、
+		"口"映射到"C"，正是中文段落看起来像文字而不是一片实心的原因。
+	*/
+	const uchar* DocumentOverviewLabel::glyphMask(char16_t ch) const {
+		static const uchar fullInk[OverviewLineHeight] = { 255, 255 };
+		if (this->glyphData.isEmpty()) {
+			return fullInk;
+		}
+		qint32 index = qint32(ch) - OverviewFirstChar;
+		if (index < 0 or index >= OverviewGlyphCount) {
+			index = (index + OverviewGlyphCount) % OverviewGlyphCount;
+			if (index < 0) {
+				index += OverviewGlyphCount;
+			}
+		}
+		return reinterpret_cast<const uchar*>(this->glyphData.constData()) + index * OverviewLineHeight;
+	}
+
+	/*!
+		把 \a block 画到 \a y 这一行（占 OverviewLineHeight 行像素）。
+
+		这里只处理这一块自己的字符与格式，代价与本块长度成正比；调用方负责挑出
+		真正需要画的那几块，因此整体代价与文档行数无关。
+	*/
+	void DocumentOverviewLabel::renderRow(qint32 y, const QTextBlock& block) {
+		const qint32 columns = (this->width() - OverviewGutterWidth) / OverviewCharWidth;
+		if (columns <= 0 or y < 0 or y + OverviewLineHeight > this->backBuffer.height()) {
+			return;
+		}
+		const QString text = block.text();
+		if (text.isEmpty()) {
+			return;
+		}
+
+		// 每个字符的颜色：默认前景色，再被格式区间覆盖。全角字符占两格，所以按 2 倍宽松取值。
+		const qint32 textLength = qMin(text.size(), columns * 2);
+		const QRgb defaultColor = this->palette().color(QPalette::Text).rgba();
+		QVarLengthArray<QRgb, 256> colors;
+		colors.resize(textLength);
+		std::fill(colors.begin(), colors.end(), defaultColor);
+		if (QTextLayout* layout = block.layout(); layout != nullptr) {
+			for (const auto& range : layout->formats()) {
+				const QBrush foreground = range.format.foreground();
+				if (foreground.style() == Qt::NoBrush or not foreground.color().isValid()) {
+					continue;
+				}
+				const qint32 first = qMax(range.start, 0);
+				const qint32 last = qMin(range.start + range.length, textLength);
+				for (qint32 i = first; i < last; ++i) {
+					colors[i] = foreground.color().rgba();
+				}
+			}
+		}
+
+		uchar* firstLine = this->backBuffer.scanLine(y);
+		uchar* secondLine = this->backBuffer.scanLine(y + 1);
+		const qint32 limit = this->width();
+		qint32 cell = OverviewGutterWidth;
+		for (qint32 i = 0; i < textLength and cell < limit; ++i) {
+			const char16_t code = text.at(i).unicode();
+			const qint32 cellCount = isFullWidthChar(code) ? 2 : 1;
+			// 空白不画：缩略图是"文字分布"的示意，缩进和词间的空隙要能看出来。
+			if (code != u' ' and code != u'\t') {
+				const uchar* mask = this->glyphMask(code);
+				const QRgb color = colors[i];
+				for (qint32 offset = 0; offset < cellCount; ++offset) {
+					const qint32 x = cell + offset;
+					if (x >= limit) {
+						break;
+					}
+					// 掩码的两个字节分别是上下两行的墨迹覆盖率。
+					writeInk(firstLine, x, color, mask[0]);
+					writeInk(secondLine, x, color, mask[1]);
+				}
+			}
+			cell += cellCount * OverviewCharWidth;
+		}
+	}
+
+	/*!
+		重绘缩略图。
+
+		只枚举"会被看到的那些块"：缩略图共 rows 行，行 r 对应块 r*lineCount/rows，
+		其余行根本不会出现在缩略图上，因此不必为它们算颜色——5 万行的文档也只处理
+		几百块，代价与文档长度无关。
+	*/
 	void DocumentOverviewLabel::paintEvent(QPaintEvent* event) {
 		QWidget::paintEvent(event);
+		if (this->document == nullptr) {
+			return;
+		}
+
+		const qint32 lineCount = this->document->blockCount();
+		const qint32 rows = this->height() / OverviewLineHeight;
+		if (lineCount <= 0 or rows <= 0 or this->width() <= OverviewGutterWidth) {
+			return;
+		}
+
+		if (this->backBuffer.size() != this->size()) {
+			this->backBuffer = QImage(this->size(), QImage::Format_ARGB32_Premultiplied);
+		}
+		this->backBuffer.fill(Qt::transparent);
+		this->ensureGlyphAtlas();
+
+		// 行数少于缩略图行数时同一个块会连续占好几行，此时只画一次，避免同一行被涂粗。
+		QVarLengthArray<OverviewRowSlot, 512> rowSlots;
+		qint32 previous = -1;
+		for (qint32 r = 0; r < rows; ++r) {
+			const qint32 target = qint32(qint64(r) * lineCount / rows);
+			if (target == previous) {
+				continue;
+			}
+			previous = target;
+			rowSlots.append(OverviewRowSlot{ r * OverviewLineHeight, target });
+		}
+
+		for (const OverviewRowSlot& slot : rowSlots) {
+			const QTextBlock block = this->document->findBlockByNumber(slot.blockNumber);
+			if (block.isValid()) {
+				this->renderRow(slot.y, block);
+			}
+		}
 
 		QPainter painter(this);
-		const int lineCount = this->lineColors.size();
-		if (lineCount == 0) return;
+		painter.drawImage(0, 0, this->backBuffer);
 
-		const int h = this->height();
-
-		bool lessHalf = (lineCount * 3 < h);
-		for (int y = 0; y < h; ++y) {
-			int i = y * lineCount / h;
-			if (i >= lineCount) break;
-
-			// error line indicator
-			if (this->errorLines.contains(i)) {
-				QPen errorPen(Qt::red, 4);
-				painter.setPen(errorPen);
-
-				int lineTop, lineBottom;
-				if (y <= 1) {
-					lineTop = y;  lineBottom = y + 4;
-				} else if (y >= h - 2) {
-					lineTop = y - 4;  lineBottom = y;
-				} else {
-					lineTop = y - 2;  lineBottom = y + 2;
+		// 错误行标记
+		if (not this->errorLines.isEmpty()) {
+			painter.setPen(QPen(Qt::red, 4));
+			for (const OverviewRowSlot& slot : rowSlots) {
+				if (not this->errorLines.contains(slot.blockNumber)) {
+					continue;
 				}
+				const qint32 lineTop = qMax(slot.y - 1, 0);
+				const qint32 lineBottom = qMin(slot.y + OverviewLineHeight, this->height() - 1);
 				painter.drawLine(3, lineTop, 3, lineBottom);
-			}
-
-			if (lessHalf) {
-				int i_n = (qMin(y + 1, h - 1)) * lineCount / h;
-				if (i_n == i) continue;
-			}
-			const QList<QColor>& colors = this->lineColors[i];
-
-			for (int x = 0; x < colors.size(); ++x) {
-				painter.setPen(colors[x]);
-				painter.drawPoint(x + 10, y);
 			}
 		}
 	}
 
 	void DocumentOverviewLabel::onContentsChange(int position, int charsRemoved, int charsAdded) {
-		if (this->document == nullptr) return;
-
-		const int blockCount = this->document->blockCount();
-
-		while (this->lineColors.size() < blockCount) {
-			this->lineColors.append(QList<QColor>());
-		}
-		while (this->lineColors.size() > blockCount) {
-			this->lineColors.removeLast();
-		}
-
-		QTextBlock startBlock = this->document->findBlock(position);
-		int startBlockNum = startBlock.blockNumber();
-
-		int endBlockNum = startBlockNum;
-		int endPos = position + qMax(charsRemoved, charsAdded);
-		if (endPos > 0) {
-			QTextBlock endBlock = this->document->findBlock(endPos - 1);
-			endBlockNum = endBlock.blockNumber();
-		}
-
-		for (QTextBlock block = startBlock; block.isValid() && block.blockNumber() <= endBlockNum; block = block.next()) {
-			const int i = block.blockNumber();
-			if (i >= blockCount) {
-				break;
-			}
-			this->lineColors[i] = colorsOf(block);
-		}
-
+		Q_UNUSED(position);
+		Q_UNUSED(charsRemoved);
+		Q_UNUSED(charsAdded);
 		this->update();
 		updateViewportIndicator();
 	}
 
 	void DocumentOverviewLabel::recalculateAll() {
-		if (this->document == nullptr) return;
-
-		this->lineColors.clear();
-		this->lineColors.reserve(this->document->blockCount());
-
-		// 顺序遍历：QTextDocument::findBlockByNumber 是线性查找，按块号逐块找会退化成 O(n²)
-		// （实测 5 万行纯文本要 1 秒）。
-		for (QTextBlock block = this->document->firstBlock(); block.isValid(); block = block.next()) {
-			this->lineColors.append(colorsOf(block));
-		}
-
+		// 缩略图不再缓存全文颜色，重绘时按需现算，这里只需要标脏。
 		this->update();
-	}
-
-	void DocumentOverviewLabel::recalculateBlock(int blockNumber) {
-		if (this->document == nullptr) return;
-
-		if (blockNumber < 0 || blockNumber >= this->lineColors.size()) return;
-		const QTextBlock block = this->document->findBlockByNumber(blockNumber);
-		if (!block.isValid()) return;
-		this->lineColors[blockNumber] = colorsOf(block);
-	}
-
-	QList<QColor> DocumentOverviewLabel::colorsOf(const QTextBlock& block) const {
-		if (!block.isValid()) return QList<QColor>();
-
-		const int width = this->width() - 10;
-		const int len = qMin(block.length() - 1, width);
-
-		const QColor defaultColor = this->palette().color(QPalette::Text);
-		QList<QColor> colors(len, defaultColor);
-
-		QTextLayout* layout = block.layout();
-		if (layout != nullptr) {
-			const auto& formats = layout->formats();
-			for (const auto& range : formats) {
-				const QBrush fg = range.format.foreground();
-				if (fg.style() == Qt::NoBrush || !fg.color().isValid()) continue;
-
-				const int start = qMax(range.start, 0);
-				const int end = qMin(range.start + range.length, len);
-				for (int x = start; x < end; ++x) {
-					colors[x] = fg.color();
-				}
-			}
-		}
-		return colors;
 	}
 
 	void DocumentOverviewLabel::onMessageChanged() {
@@ -398,11 +530,27 @@ namespace YSSCore::__Private__ {
 		p.drawRect(rect().adjusted(1, 1, -2, -2));
 	}
 
-	InlayHintTextEdit::InlayHintTextEdit(YSSCore::Editor::TextEdit* editor, QWidget* parent) : QTextEdit(parent) {
+	InlayHintTextEdit::InlayHintTextEdit(YSSCore::Editor::TextEdit* editor, QWidget* parent) : QPlainTextEdit(parent) {
 		this->editor = editor;
 	}
 
-	LineNumberBar::LineNumberBar(QTextEdit* editor, QWidget* parent) : QWidget(parent) {
+	QTextBlock InlayHintTextEdit::getFirstVisibleBlock() const {
+		return this->firstVisibleBlock();
+	}
+
+	QRectF InlayHintTextEdit::getBlockBoundingGeometry(const QTextBlock& block) const {
+		return this->blockBoundingGeometry(block);
+	}
+
+	QRectF InlayHintTextEdit::getBlockBoundingRect(const QTextBlock& block) const {
+		return this->blockBoundingRect(block);
+	}
+
+	QPointF InlayHintTextEdit::getContentOffset() const {
+		return this->contentOffset();
+	}
+
+	LineNumberBar::LineNumberBar(InlayHintTextEdit* editor, QWidget* parent) : QWidget(parent) {
 		this->editor = editor;
 		setObjectName(QStringLiteral("LineNumberBar"));
 		setFocusPolicy(Qt::NoFocus);
@@ -446,11 +594,12 @@ namespace YSSCore::__Private__ {
 	}
 
 	/*!
-		只画视口里能看见的那几行：先用 hitTest 找到视口顶端的块，再往下走到超出底边为止，
+		只画视口里能看见的那几行：从 firstVisibleBlock 开始往下走，直到超出底边为止，
 		因此代价与文档总行数无关。
 
-		QTextEdit 自带边框，它的 viewport 并不从本控件的 (0,0) 开始，因此块的文档坐标要先
-		换算到 viewport 坐标，再加上 viewport 在本控件里的偏移，否则行号会整体上移一个边框的高度。
+		QPlainTextEdit 的滚动条以"块"为单位，块几何是 viewport 坐标（首个可见块的 y 由
+		contentOffset() 给出，通常是个负值，表示它已经卷出视口多少）。行号栏与编辑区是
+		同一父控件下的兄弟，两者的 viewport 顶边相差一个固定偏移，按 pos() 换算即可。
 	*/
 	void LineNumberBar::paintEvent(QPaintEvent* event) {
 		QPainter painter(this);
@@ -460,43 +609,32 @@ namespace YSSCore::__Private__ {
 		if (document == nullptr or document->blockCount() == 0) {
 			return;
 		}
-		QAbstractTextDocumentLayout* layout = document->documentLayout();
-		if (layout == nullptr) {
+		QTextBlock block = editor->getFirstVisibleBlock();
+		if (not block.isValid()) {
 			return;
 		}
-		// 注意不要在这里对整个文档 adjustSize()：QTextEdit 的文档布局是惰性的，
-		// 强制整体布局几万行要一秒多，而且会顶在一次事件循环里变成明显卡顿。
-		// 下面按块取矩形时 QTextDocumentLayout 只会补算到那个块为止，随后
-		// documentSizeChanged 会驱动本控件继续重绘，行号于是随布局推进逐步补全。
 		// 行号栏与编辑区是编辑器控件里的兄弟，用各自 pos() 换算即可，不必依赖全局映射。
 		qint32 viewportTop = editor->viewport()->pos().y();
 		if (this->parentWidget() != nullptr && editor->parentWidget() == this->parentWidget()) {
 			viewportTop += editor->pos().y() - this->pos().y();
 		}
-		const qint32 scrollY = editor->verticalScrollBar()->value();
-		const qint32 clipTopDocY = scrollY + qMax(0, event->rect().top() - viewportTop);
-		const qint32 clipBottomDocY = scrollY + (event->rect().bottom() - viewportTop);
-
-		QTextBlock block = document->findBlock(layout->hitTest(QPointF(0, clipTopDocY), Qt::FuzzyHit));
-		if (!block.isValid()) {
-			block = document->firstBlock();
-		}
+		const qint32 clipTop = event->rect().top() - viewportTop;
+		const qint32 clipBottom = event->rect().bottom() - viewportTop;
 
 		painter.setPen(editor->palette().color(QPalette::Text));
 		painter.setFont(document->defaultFont());
 		const qreal barWidth = this->width();
-		for (; block.isValid(); block = block.next()) {
-			const QRectF blockRect = layout->blockBoundingRect(block);
-			if (blockRect.top() > clipBottomDocY) {
-				break;
+		qint32 top = qRound(editor->getBlockBoundingGeometry(block).translated(editor->getContentOffset()).top());
+		qint32 bottom = top + qRound(editor->getBlockBoundingRect(block).height());
+		for (; block.isValid() && top <= clipBottom; block = block.next()) {
+			if (block.isVisible() && bottom >= clipTop) {
+				// 横向范围取行号栏自己的宽度：块的宽度是整个文档的宽度，直接用它右对齐会画到控件外面。
+				const QRectF numberRect(0, viewportTop + top, barWidth, bottom - top);
+				painter.drawText(numberRect.adjusted(0, 0, -LineNumberBarPadding, 0),
+					Qt::AlignRight | Qt::AlignVCenter, QString::number(block.blockNumber() + 1));
 			}
-			if (blockRect.bottom() < clipTopDocY) {
-				continue;
-			}
-			// 横向范围取行号栏自己的宽度：块的宽度是整个文档的宽度，直接用它右对齐会画到控件外面。
-			const QRectF numberRect(0, viewportTop + blockRect.top() - scrollY, barWidth, blockRect.height());
-			painter.drawText(numberRect.adjusted(0, 0, -LineNumberBarPadding, 0), Qt::AlignRight | Qt::AlignVCenter,
-				QString::number(block.blockNumber() + 1));
+			top = bottom;
+			bottom = top + qRound(editor->getBlockBoundingRect(block.next()).height());
 		}
 	}
 
@@ -514,7 +652,7 @@ namespace YSSCore::__Private__ {
 		并不在文档里，所以文档内容、保存结果和撤销栈都不受影响，提示的文字需要由这里自己画上去。
 	*/
 	void InlayHintTextEdit::paintEvent(QPaintEvent* event) {
-		QTextEdit::paintEvent(event);
+		QPlainTextEdit::paintEvent(event);
 		if (this->editor == nullptr) {
 			return;
 		}

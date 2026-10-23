@@ -17,7 +17,7 @@ namespace ASERStudio::AStorySyntax {
 	class ASERAPI AStoryXDocument :public QObject {
 		Q_OBJECT;
 	signals:
-		void currentRuleChanged();
+		void currentRuleChanged(qint32 lineNumber);
 	public:
 		enum WorkMode {
 			SyntaxHighlighter,
@@ -30,7 +30,7 @@ namespace ASERStudio::AStorySyntax {
 		QList<AStoryXDiagnosticData> getDiagnostics(qint32 lineNumber) const;
 		QList<AStoryXDiagnosticData> getAllDiagnostics() const;
 		QList<AStoryXDiagnosticData> getGlobalDiagnostics() const;
-		AStoryXControllerParseData getParseData(qint32 lineNumber) const;
+		const AStoryXControllerParseData& getParseData(qint32 lineNumber) const;
 		QList<AStoryXControllerParseData> getAllParseData() const;
 		void setEnableDiagnostic(bool enable);
 		void onSyntaxHighlighter(QTextBlock currentBlock, const QString& text);

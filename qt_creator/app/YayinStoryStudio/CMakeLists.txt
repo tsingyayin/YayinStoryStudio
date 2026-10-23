@@ -10,7 +10,9 @@
 # ============================================================================
 set(_mod_dir "${YSS_SRC_ROOT}/YayinStoryStudio")
 
-yss_collect_sources(_src "${_mod_dir}")
+# ProjectWin_new.* / ProjectInfoWidget_new.* 是新版项目管理界面的保留实现，
+# 当前版本仍使用 ProjectWin / ProjectInfoWidget，暂不参与编译。
+yss_collect_sources(_src "${_mod_dir}" "/Editor/ProjectPage/(cpp/)?Project(Win|InfoWidget)_new\\.(h|cpp)$")
 
 qt_add_executable(YayinStoryStudio ${_src} "${_mod_dir}/YayinStoryEditor.qrc")
 

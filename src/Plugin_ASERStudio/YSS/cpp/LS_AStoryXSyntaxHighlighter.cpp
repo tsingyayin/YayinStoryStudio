@@ -38,8 +38,10 @@ namespace ASERStudio::YSS {
 		doc->setEnableDiagnostic(true);
 		AStoryXLanguageServer::setAStoryXDocument(parent->getFilePath(), doc);
 		d->Document = AStoryXLanguageServer::getAStoryXDocument(d->FilePath);
+		// 触发本次变化的那一趟格式化已经把该行之后的内容用新规则解析过了，
+		// 因此只需要重做该行及其之前的部分，不必整篇再解析一遍。
 		connect(d->Document, &AStorySyntax::AStoryXDocument::currentRuleChanged, this,
-			&LS_AStoryXSyntaxHighlighter::rehighlight_s);
+			[this](qint32 lineNumber) { this->rehighlightRange_s(0, lineNumber + 1); });
 		connect(parent, &YSSCore::Editor::FileEditWidget::fileRenamed, this,
 			[this](const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri) {
 				const QString oldPath = oldUri.getLocalPath();
@@ -57,15 +59,15 @@ namespace ASERStudio::YSS {
 		d->Document->onSyntaxHighlighter(currentBlock(), text);
 		if (text.isEmpty()) return;
 		setFormatWithColorKey(0, text.length(), "PlainText");
-		auto parseData = d->Document->getParseData(blockNumber);
+		const auto& parseData = d->Document->getParseData(blockNumber);
 		if (parseData.getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ControllerType::Comment) {
 			setFormatWithColorKey(0, text.length(), "Comment");
 			return;
 		}
 		//vgDebug << "Highlighting line " << blockNumber << " with controller type " << parseData.getControllerType();
-		QString controllerKey = ASERStudio::AStorySyntax::AStoryXController::controllerTypeToString(parseData.getControllerType());
+		const QString controllerKey = ASERStudio::AStorySyntax::AStoryXController::controllerTypeToString(parseData.getControllerType());
 		setFormatWithColorKey(0, parseData.getStartSign().length(), controllerKey);
-		auto required = parseData.getRequiredParameter();
+		const auto& required = parseData.getRequiredParameter();
 		if (parseData.getControllerType() != ASERStudio::AStorySyntax::AStoryXController::ControllerType::Dialog) {
 			QString requiredType = "PlainText";
 			switch (required.getValue().getType()) {
@@ -106,8 +108,8 @@ namespace ASERStudio::YSS {
 			setFormatWithColorKey(required.getIndex(), required.getContent().size(), requiredType);
 		}
 		else {
-			auto dialogRequired = parseData.getRequiredParameter();
-			auto content = dialogRequired.getContent();
+			const auto& dialogRequired = parseData.getRequiredParameter();
+			const auto& content = dialogRequired.getContent();
 			qint32 tabIndex = content.indexOf("\t");
 			if (d->CurrentTheme.contains("Dialog")) {
 				setFormatWithColorKey(dialogRequired.getIndex(), tabIndex, "Dialog");
@@ -118,9 +120,9 @@ namespace ASERStudio::YSS {
 			}
 		}
 
-		for (auto optional : parseData.getOptionalParameters()) {
+		for (const auto& optional : parseData.getOptionalParameters()) {
 			setFormatWithColorKey(optional.getIndex(), optional.getPrefix().size(), "PlainText");
-			ASERStudio::AStorySyntax::AStoryXValueMeta value = optional.getValue();
+			const ASERStudio::AStorySyntax::AStoryXValueMeta& value = optional.getValue();
 			QString type = "PlainText";
 			switch (value.getType()) {
 			case ASERStudio::AStorySyntax::AStoryXValueMeta::String:
@@ -163,7 +165,7 @@ namespace ASERStudio::YSS {
 		
 		ASERStudio::AStorySyntax::AStoryXRule* rule = d->Document->getCurrentRule();
 		if (rule != nullptr and not rule->isMonotonicity(parseData.getControllerType())) {
-			for (auto optional : parseData.getOptionalParameters()) {
+			for (const auto& optional : parseData.getOptionalParameters()) {
 				if (not optional.isValid()) {
 					continue;
 				}
@@ -172,25 +174,28 @@ namespace ASERStudio::YSS {
 			}
 		}
 
-		static QRegularExpression protectTMP("&\\{[\\d\\D]*?\\}");
-		QRegularExpressionMatchIterator protectTMPIt = protectTMP.globalMatch(text);
-		while (protectTMPIt.hasNext()) {
-			QRegularExpressionMatch match = protectTMPIt.next();
-			setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "SpecialString");
-		}
+		// 这三类占位符都以 & 或 $ 开头；行里没有它们时直接跳过三趟正则扫描。
+		if (text.contains(QLatin1Char('&')) || text.contains(QLatin1Char('$'))) {
+			static QRegularExpression protectTMP("&\\{[\\d\\D]*?\\}");
+			QRegularExpressionMatchIterator protectTMPIt = protectTMP.globalMatch(text);
+			while (protectTMPIt.hasNext()) {
+				QRegularExpressionMatch match = protectTMPIt.next();
+				setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "SpecialString");
+			}
 
-		static QRegularExpression variableTMP("\\$\\[[\\d\\D]*?\\]");
-		QRegularExpressionMatchIterator variableTMPIt = variableTMP.globalMatch(text);
-		while (variableTMPIt.hasNext()) {
-			QRegularExpressionMatch match = variableTMPIt.next();
-			setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "Parameter");
-		}
+			static QRegularExpression variableTMP("\\$\\[[\\d\\D]*?\\]");
+			QRegularExpressionMatchIterator variableTMPIt = variableTMP.globalMatch(text);
+			while (variableTMPIt.hasNext()) {
+				QRegularExpressionMatch match = variableTMPIt.next();
+				setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "Parameter");
+			}
 
-		static QRegularExpression blockParaTMP("\\$\\([\\d\\D]*?\\)");
-		QRegularExpressionMatchIterator blockParaTMPIt = blockParaTMP.globalMatch(text);
-		while (blockParaTMPIt.hasNext()) {
-			QRegularExpressionMatch match = blockParaTMPIt.next();
-			setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "MacroParameter");
+			static QRegularExpression blockParaTMP("\\$\\([\\d\\D]*?\\)");
+			QRegularExpressionMatchIterator blockParaTMPIt = blockParaTMP.globalMatch(text);
+			while (blockParaTMPIt.hasNext()) {
+				QRegularExpressionMatch match = blockParaTMPIt.next();
+				setFormatWithColorKey(match.capturedStart(), match.capturedLength(), "MacroParameter");
+			}
 		}
 
 		QList<ASERStudio::AStorySyntax::AStoryXDiagnosticData> diagnostics = d->Document->getDiagnostics(blockNumber);
@@ -232,7 +237,7 @@ namespace ASERStudio::YSS {
 		}
 		format.setFontWeight(styleData.isBold() ? QFont::Bold : QFont::Normal);
 		format.setFontItalic(styleData.isItalic());
-		setCharFormat(start, count, format);
+		setFormat(start, count, format);
 	}
 
 	void LS_AStoryXSyntaxHighlighter::DiagnosticTransform(const ASERStudio::AStorySyntax::AStoryXDiagnosticData& diagnostic) {

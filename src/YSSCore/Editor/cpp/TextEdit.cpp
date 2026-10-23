@@ -8,7 +8,7 @@
 #include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
-#include <QtWidgets/qtextedit.h>
+#include <QtWidgets/qplaintextedit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <Utility/FileOperation.h>
@@ -34,7 +34,7 @@ namespace YSSCore::Editor {
 
 		TextEdit是Yayin Story Studio中最关键、最核心的功能，即代码编辑器。
 
-		此类相比于Qt提供的QTextEdit，额外提供了其所缺失的现代代码编辑必备的几项基本功能：
+		此类相比于Qt提供的QPlainTextEdit，额外提供了其所缺失的现代代码编辑必备的几项基本功能：
 		\list
 			\li 自动缩进
 			\li 多行Tab的缩进和反缩进
@@ -139,7 +139,7 @@ namespace YSSCore::Editor {
 		d->Layout->setContentsMargins(0, 0, 0, 0);
 
 		d->Text = new YSSCore::__Private__::InlayHintTextEdit(this, this);
-		d->Text->setLineWrapMode(QTextEdit::NoWrap);
+		d->Text->setLineWrapMode(QPlainTextEdit::NoWrap);
 		d->Text->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->Layout->addWidget(d->Text, 0, 1);
 		// 行号栏是自绘控件，依赖编辑区（文档布局与滚动位置），因此在 Text 之后再建。
@@ -166,7 +166,6 @@ namespace YSSCore::Editor {
 		d->Text->installEventFilter(d);
 		d->Text->viewport()->setMouseTracking(true);
 		d->Text->viewport()->installEventFilter(d);
-		d->Text->setAcceptRichText(false);
 		d->Line->installEventFilter(d);
 
 		setTextFont(QFont("Microsoft YaHei"));
@@ -203,9 +202,9 @@ namespace YSSCore::Editor {
 		connect(d->Text->document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
 			d->Line, [this](const QSizeF&) { d->Line->update(); });
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
-		connect(d->Text, &QTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
+		connect(d->Text, &QPlainTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
-		connect(d->Text, &QTextEdit::textChanged, [this]() {
+		connect(d->Text, &QPlainTextEdit::textChanged, [this]() {
 			// 整篇着色期间文档会短暂处于"还没有格式"的状态，此时不要去刷新缩略图，
 			// 否则拿到的是空数据、缩略图会整片变白；着色结束后由 wholeDocumentHighlighted 刷新一次。
 			if (not d->Rehighlighting) {
@@ -894,7 +893,18 @@ namespace YSSCore::Editor {
 		//highlighter 必须在 setText 之前挂上：QSyntaxHighlighter::setDocument 对非空文档会
 		//排一个延迟的整篇重着色，那既等于把整篇再算一遍，又会在 cancelFileChanged 之后
 		//从 QTextCursor 的编辑块里发出 textChanged，让新打开的文件错误地显示为已更改。
+		//
+		//挂上之后先把着色挂起：setPlainText 会对内容范围内的每一块同步回调一次，
+		//而这几万次回调既看不到、也没必要，整篇着色统一交给 rehighlightProgressive_s()，
+		//它会先把视口附近同步着色好（首帧就是带色的），其余分片补完。
+		if (d->Highlighter != nullptr) {
+			d->Highlighter->setHighlightSuspended(true);
+		}
 		d->Text->setPlainText(text);
+		if (d->Highlighter != nullptr) {
+			d->Highlighter->setHighlightSuspended(false);
+			d->Highlighter->rehighlightProgressive_s();
+		}
 		cancelFileChanged();
 		emit messageChanged();
 		

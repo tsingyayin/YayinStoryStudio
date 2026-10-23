@@ -41,7 +41,7 @@ namespace ASERStudio::YSS {
 		if (not rule) {
 			return;
 		}
-		auto parseData = d->Document->getParseData(lineNumber);
+		const auto& parseData = d->Document->getParseData(lineNumber);
 		if (not parseData.isValid()) {
 			return;
 		}

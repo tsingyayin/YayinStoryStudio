@@ -5,6 +5,7 @@
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qscrollbar.h>
+#include <QtWidgets/qplaintextedit.h>
 #include <QtWidgets/qtextedit.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
@@ -1189,12 +1190,7 @@ namespace YSSCore::__Private__ {
 		Text->ensureCursorVisible();
 		if (not lineWasVisible) {
 			// 尽量把它放到视口中部，而不是贴着上下边缘。
-			const QRect cursorRect = Text->cursorRect();
-			QScrollBar* verticalBar = Text->verticalScrollBar();
-			if (cursorRect.isValid() and verticalBar != nullptr) {
-				verticalBar->setValue(verticalBar->value() + cursorRect.top()
-					- (Text->viewport()->height() - cursorRect.height()) / 2);
-			}
+			Text->centerCursor();
 		}
 		if (kind == SuggestionKind::Inline) {
 			emit q->modifySuggestionAccepted(line, current.value(0));

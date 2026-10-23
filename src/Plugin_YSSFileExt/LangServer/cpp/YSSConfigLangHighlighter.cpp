@@ -78,7 +78,7 @@ namespace YSSFileExt {
 		}
 		format.setFontWeight(styleData.isBold() ? QFont::Bold : QFont::Normal);
 		format.setFontItalic(styleData.isItalic());
-		setCharFormat(start, count, format);
+		setFormat(start, count, format);
 	}
 
 	int YSSConfigLangHighlighter::getPreviousBlockState() const {

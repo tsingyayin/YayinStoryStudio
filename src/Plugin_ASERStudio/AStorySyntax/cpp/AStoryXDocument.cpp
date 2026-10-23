@@ -1,5 +1,6 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qtimer.h>
+#include <utility>
 #include <QtGui/qtextdocument.h>
 #include <Editor/TextEdit.h>
 #include <General/Log.h>
@@ -71,10 +72,15 @@ namespace ASERStudio::AStorySyntax {
 		}
 
 		void onParsed(const AStoryXControllerParseData& data, qint32 lineNumber) {
+			onParsed(AStoryXControllerParseData(data), lineNumber);
+		}
+
+		// 解析结果在交给存储后就不再使用，用移动重载省掉一次深拷贝。
+		void onParsed(AStoryXControllerParseData&& data, qint32 lineNumber) {
 			if (Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
 				AStoryXLineData* lineData = ensureLineData(lineNumber);
 				if (lineData != nullptr) {
-					lineData->ParseData = data;
+					lineData->ParseData = std::move(data);
 				}
 				return;
 			}
@@ -83,8 +89,7 @@ namespace ASERStudio::AStorySyntax {
 					ParseDataCache.append(AStoryXControllerParseData());
 				}
 			}
-			ParseDataCache[lineNumber] = data;
-			//vgDebug << "Parsed line " << lineNumber << ": " << data;
+			ParseDataCache[lineNumber] = std::move(data);
 		}
 
 		void setUserState(qint32 lineNumber, qint32 state, QTextBlock* block = nullptr) {
@@ -152,7 +157,7 @@ namespace ASERStudio::AStorySyntax {
 						if (rule->getName() != CurrentRule.getName()) {
 							CurrentRule = *rule;
 							GlobalDiagnostics.removeAll(RuleNotSelectedDiagnostic);
-							emit q->currentRuleChanged();
+							emit q->currentRuleChanged(lineNumber);
 						}
 					}
 				}
@@ -186,7 +191,7 @@ namespace ASERStudio::AStorySyntax {
 					else if (data.getRequiredParameter().getContent() == "endaliases") {
 						setUserState(lineNumber, 0x4242, block);
 					}
-					onParsed(data, lineNumber);
+					onParsed(std::move(data), lineNumber);
 					//emit q->parseDataUpdated(lineNumber);
 				}
 				else {
@@ -195,12 +200,12 @@ namespace ASERStudio::AStorySyntax {
 						// here can do sth to parse alias context.
 						// sth like data = d->CurrentRule.parseAliasContext(text, lineNumber);
 						data = AStoryXRule::parseAliases(text, -1, true, lineNumber);
-						onParsed(data, lineNumber);
+						onParsed(std::move(data), lineNumber);
 						//emit q->parseDataUpdated(lineNumber);
 					}
 					else {
 						setUserState(lineNumber, 0, block);
-						onParsed(data, lineNumber);
+						onParsed(std::move(data), lineNumber);
 						//emit q->parseDataUpdated(lineNumber);
 					}
 				}
@@ -422,7 +427,7 @@ namespace ASERStudio::AStorySyntax {
 	QList<AStoryXDiagnosticData> AStoryXDocument::getAllDiagnostics() const {
 		QList<AStoryXDiagnosticData> diagnostics;
 		diagnostics.append(d->GlobalDiagnostics);
-		for (auto data : getAllParseData()) {
+		for (const auto& data : getAllParseData()) {
 			diagnostics.append(data.getDiagnostics());
 		}
 		return diagnostics;
@@ -442,21 +447,24 @@ namespace ASERStudio::AStorySyntax {
 
 	/*!
 		\since ASERStudio 2.0
-		获取指定行的解析数据，返回一个AStoryXControllerParseData对象。
+		获取指定行的解析数据。
 		如果\a lineNumber 对应的行没有解析数据，则返回一个无效的AStoryXControllerParseData对象。
+
+		\note 返回的是文档内部持有的引用，调用方不应保存它跨过任何会改动文档的操作。
 	*/
-	AStoryXControllerParseData AStoryXDocument::getParseData(qint32 lineNumber) const {
+	const AStoryXControllerParseData& AStoryXDocument::getParseData(qint32 lineNumber) const {
+		static const AStoryXControllerParseData Invalid;
 		if (lineNumber < 0) {
-			return AStoryXControllerParseData();
+			return Invalid;
 		}
 		if (d->Mode == AStoryXDocument::WorkMode::SyntaxHighlighter) {
 			AStoryXLineData* lineData = d->findLineData(lineNumber);
-			return lineData != nullptr ? lineData->ParseData : AStoryXControllerParseData();
+			return lineData != nullptr ? lineData->ParseData : Invalid;
 		}
 		if (lineNumber < d->ParseDataCache.size()) {
 			return d->ParseDataCache[lineNumber];
 		}
-		return AStoryXControllerParseData();
+		return Invalid;
 	}
 
 	/*!

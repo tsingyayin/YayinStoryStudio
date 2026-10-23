@@ -69,7 +69,7 @@ namespace ASERStudio::AStorySyntax {
 
 		return 参数名称字符串。
 	*/
-	QString AStoryXParameter::getName() const {
+	const QString& AStoryXParameter::getName() const {
 		return d->Name;
 	}
 
@@ -79,7 +79,7 @@ namespace ASERStudio::AStorySyntax {
 
 		return 参数前缀字符串。
 	*/
-	QString AStoryXParameter::getPrefix() const {
+	const QString& AStoryXParameter::getPrefix() const {
 		return d->Prefix;
 	}
 
@@ -89,7 +89,7 @@ namespace ASERStudio::AStorySyntax {
 
 		return 参数分隔符字符串。
 	*/
-	QString AStoryXParameter::getSeparator() const {
+	const QString& AStoryXParameter::getSeparator() const {
 		return d->Separator;
 	}
 
@@ -99,7 +99,7 @@ namespace ASERStudio::AStorySyntax {
 
 		return 参数内容字符串。
 	*/
-	QString AStoryXParameter::getContent() const {
+	const QString& AStoryXParameter::getContent() const {
 		return d->Content;
 	}
 
@@ -109,7 +109,7 @@ namespace ASERStudio::AStorySyntax {
 
 		return 参数值元对象。
 	*/
-	AStoryXValueMeta AStoryXParameter::getValue() const {
+	const AStoryXValueMeta& AStoryXParameter::getValue() const {
 		return d->Value;
 	}
 
@@ -309,7 +309,7 @@ namespace ASERStudio::AStorySyntax {
 
 		对于预处理器来说，这个行首标识符永远是#。
 	*/
-	QString AStoryXControllerParseData::getStartSign() const {
+	const QString& AStoryXControllerParseData::getStartSign() const {
 		return d->StartSign;
 	}
 
@@ -317,7 +317,7 @@ namespace ASERStudio::AStorySyntax {
 		\since ASERStudio 2.0
 		return 必选参数的解析结果
 	*/
-	AStoryXParameter AStoryXControllerParseData::getRequiredParameter() const {
+	const AStoryXParameter& AStoryXControllerParseData::getRequiredParameter() const {
 		return d->RequiredParameter;
 	}
 
@@ -328,7 +328,7 @@ namespace ASERStudio::AStorySyntax {
 		这个列表不包括那些没有被捕捉到的可选参数，
 		因此它的长度可能小于可选参数的实际定义数量。
 	*/
-	QList<AStoryXParameter> AStoryXControllerParseData::getOptionalParameters() const {
+	const QList<AStoryXParameter>& AStoryXControllerParseData::getOptionalParameters() const {
 		return d->OptionalParameters;
 	}
 
@@ -390,7 +390,7 @@ namespace ASERStudio::AStorySyntax {
 		请注意和blockParameter进行区分。
 		refVar只包括那些可以用于判定的变量，而blockPara指的是block中用于替换的占位参数。
 	*/
-	QStringList AStoryXControllerParseData::referenceVariables() const {
+	const QStringList& AStoryXControllerParseData::referenceVariables() const {
 		return d->referenceVariables;
 	}
 
@@ -401,7 +401,7 @@ namespace ASERStudio::AStorySyntax {
 		请注意和referenceVariable进行区分。
 		blockPara指的是block中用于替换的占位参数，而refVar只包括那些可以用于判定的变量。
 	*/
-	QStringList AStoryXControllerParseData::blockParameters() const {
+	const QStringList& AStoryXControllerParseData::blockParameters() const {
 		return d->blockParameters;
 	}
 
@@ -423,7 +423,7 @@ namespace ASERStudio::AStorySyntax {
 		如果isDiagnosticAvailable返回false，则这个返回值不具有任何意义。
 		如果isDiagnosticAvailable返回true，且这个返回值为空列表，则保证没有语法错误。
 	*/
-	QList<AStoryXDiagnosticData> AStoryXControllerParseData::getDiagnostics() const {
+	const QList<AStoryXDiagnosticData>& AStoryXControllerParseData::getDiagnostics() const {
 		return d->Diagnostics;
 	}
 

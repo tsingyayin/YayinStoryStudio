@@ -23,11 +23,11 @@ namespace ASERStudio::AStorySyntax {
 		VICopyable(AStoryXParameter);
 		~AStoryXParameter();
 	public:
-		QString getName() const;
-		QString getPrefix() const;
-		QString getSeparator() const;
-		QString getContent() const;
-		AStoryXValueMeta getValue() const;
+		const QString& getName() const;
+		const QString& getPrefix() const;
+		const QString& getSeparator() const;
+		const QString& getContent() const;
+		const AStoryXValueMeta& getValue() const;
 		qint32 getIndex() const;
 		bool isValid() const;
 		QString toString() const;
@@ -51,16 +51,16 @@ namespace ASERStudio::AStorySyntax {
 		VICopyable(AStoryXControllerParseData);
 		~AStoryXControllerParseData();
 	public:
-		QString getStartSign() const;
+		const QString& getStartSign() const;
 		AStoryXController::ControllerType getControllerType() const;
-		AStoryXParameter getRequiredParameter() const;
-		QList<AStoryXParameter> getOptionalParameters() const;
+		const AStoryXParameter& getRequiredParameter() const;
+		const QList<AStoryXParameter>& getOptionalParameters() const;
 		QString getCursorInWhichParameter(qint32 cursorPosition) const;
 		AStoryXParameter getCursorParameter(qint32 cursorPosition) const;
-		QStringList referenceVariables() const;
-		QStringList blockParameters() const;
+		const QStringList& referenceVariables() const;
+		const QStringList& blockParameters() const;
 		bool isDiagnosticAvailable() const;
-		QList<AStoryXDiagnosticData> getDiagnostics() const;
+		const QList<AStoryXDiagnosticData>& getDiagnostics() const;
 		QString toString() const;
 		bool isValid() const;
 	protected:
