@@ -47,7 +47,9 @@ bld/
 doc/html
 doc/scan_report
 binary
-
+third_party/libssh2/include
+third_party/libssh2/src
+tools/ssh-test-server
 # modules or projects that are not ready to publish
 src/VKCompute
 

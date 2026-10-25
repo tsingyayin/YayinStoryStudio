@@ -34,6 +34,14 @@ namespace YSSFileExt {
 	YSSLangDiagnosticData::Severity YSSLangDiagnosticData::getSeverity() const { return severity; }
 	QString YSSLangDiagnosticData::getCode() const { return code; }
 	QString YSSLangDiagnosticData::getFixAdvice() const { return fixAdvice; }
+	bool YSSLangDiagnosticData::operator==(const YSSLangDiagnosticData& other) const {
+		return line == other.line && column == other.column && length == other.length
+			&& severity == other.severity && code == other.code
+			&& message == other.message && fixAdvice == other.fixAdvice;
+	}
+	bool YSSLangDiagnosticData::operator!=(const YSSLangDiagnosticData& other) const {
+		return !(*this == other);
+	}
 
 	/*!
 		\class YSSFileExt::YSSConfigLangDocument
@@ -53,6 +61,10 @@ namespace YSSFileExt {
 		QTimer DebounceTimer;
 		// 正在跑由自己发起的重新着色：这期间的行变化通知不要再触发一轮分析。
 		bool Analyzing = false;
+		// 上一次分析的结果，用来判断这次分析是否真的改变了诊断。
+		// 着色 -> 分析 -> 重新着色 是一条回路，没有这个比较就会一直自我触发。
+		qint32 LastBlockCount = -1;
+		QMap<qint32, QList<YSSLangDiagnosticData>> LastByLine;
 
 		void scheduleAnalyze() {
 			DebounceTimer.start(0);
@@ -104,6 +116,22 @@ namespace YSSFileExt {
 				byLine[line].append(diag);
 			}
 		}
+		// 诊断没变（行数也没变）说明这次分析是上一轮重新着色引出来的回声，到此为止：
+		// 不替换行数据、不发出 contentChanged，否则会立刻再触发一次整篇重新着色，
+		// 形成永不停歇的"着色-分析-重新着色"循环。
+		// 但换过文档（重新打开、重载）后块上的数据会随着旧文本块一起消失，这种情况要重建。
+		bool cacheAttached = true;
+		for (auto it = byLine.begin(); it != byLine.end(); ++it) {
+			if (d->HostEdit->getBlockData<YSSConfigLineData>(it.key()) == nullptr) {
+				cacheAttached = false;
+				break;
+			}
+		}
+		if (cacheAttached && lines.size() == d->LastBlockCount && byLine == d->LastByLine) {
+			return;
+		}
+		d->LastBlockCount = lines.size();
+		d->LastByLine = byLine;
 		d->HostEdit->removeAllBlockData<YSSConfigLineData>();
 		for (auto it = byLine.begin(); it != byLine.end(); ++it) {
 			YSSConfigLineData* data = new YSSConfigLineData();

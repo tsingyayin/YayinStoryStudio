@@ -8,8 +8,8 @@
             "bin_ext_names": ["dll", "exp", "lib", "pdb", "map"],
             "ignore_header_suffixes": ["_p"],
             "platforms": ["x64"],
-            "release_build_paths": ["./x64/Release"],
-            "debug_build_paths": ["./x64/Debug"]
+            "release_build_paths": ["./x64/0.17/Release"],
+            "debug_build_paths": ["./x64/0.17/Debug"]
         },
         "YSSCore": {
             "proj_path": "./src/YSSCore",
@@ -18,8 +18,8 @@
             "bin_ext_names": ["dll", "exp", "lib", "pdb", "map"],
             "ignore_header_suffixes": ["_p"],
             "platforms": ["x64"],
-            "release_build_paths": ["./x64/Release"],
-            "debug_build_paths": ["./x64/Debug"]
+            "release_build_paths": ["./x64/0.17/Release"],
+            "debug_build_paths": ["./x64/0.17/Debug"]
         },
         "VIAgent": {
             "proj_path": "./src/VIAgent",
@@ -28,8 +28,8 @@
             "bin_ext_names": ["dll", "exp", "lib", "pdb", "map"],
             "ignore_header_suffixes": ["_p"],
             "platforms": ["x64"],
-            "release_build_paths": ["./x64/Release"],
-            "debug_build_paths": ["./x64/Debug"]
+            "release_build_paths": ["./x64/0.17/Release"],
+            "debug_build_paths": ["./x64/0.17/Debug"]
         }
     }
 }

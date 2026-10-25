@@ -56,12 +56,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <OutDir>$(SolutionDir)$(Platform)\Debug\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\0.17\Debug\</OutDir>
     <IncludePath>$(SolutionDir)library\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)library\bin;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutDir>$(SolutionDir)$(Platform)\Release\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\0.17\Release\</OutDir>
     <IncludePath>$(SolutionDir)library\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)library\bin;</LibraryPath>
   </PropertyGroup>
