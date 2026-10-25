@@ -10,6 +10,7 @@
 #define YSSPluginModule_FileServer "cn.yxgeneral.yss.fileserver"
 #define YSSPluginModule_ProjectTemplateProvider "cn.yxgeneral.yss.project_template_provider"
 #define YSSPluginModule_FileTemplateProvider "cn.yxgeneral.yss.file_template_provider"
+#define YSSPluginModule_InlayHintProvider "cn.yxgeneral.yss.inlayhint_provider"
 #define YSSPluginTypeID "YayinStoryStudio"
 
 // Forward declarations
@@ -32,6 +33,7 @@ namespace YSSCore::Editor {
 	class FileServer;
 	class ProjectTemplateProvider;
 	class FileTemplateProvider;
+	class InlayHintProvider;
 	class EditorPluginManager;
 	class EditorPluginModule;
 }
@@ -54,6 +56,7 @@ namespace YSSCore::Editor {
 		void registerFileServer(FileServer* server);
 		void registerProjectTemplateProvider(ProjectTemplateProvider* provider);
 		void registerFileTemplateProvider(FileTemplateProvider* provider);
+		void registerInlayHintProvider(InlayHintProvider* provider);
 		YSSCore::General::YSSProject* getCurrentProject();
 	protected:
 		YSSCore::__Private__::EditorPluginPrivate* d;

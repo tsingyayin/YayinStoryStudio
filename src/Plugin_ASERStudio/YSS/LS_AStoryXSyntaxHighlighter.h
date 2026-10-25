@@ -4,6 +4,9 @@
 #include <Editor/SyntaxHighlighter.h>
 #include "AStorySyntax/AStoryXDiagnosticData.h"
 #include <Editor/TextEdit.h>
+namespace ASERStudio::AStorySyntax {
+	class AStoryXControllerParseData;
+}
 namespace ASERStudio::YSS {
 	class LS_AStoryXSyntaxHighlighterPrivate;
 	class LS_AStoryXSyntaxHighlighter :public YSSCore::Editor::SyntaxHighlighter {
@@ -17,6 +20,9 @@ namespace ASERStudio::YSS {
 		virtual void onThemeChanged(const QMap<QString, YSSCore::Editor::StyleData>& theme) override;
 		void setFormatWithColorKey(int start, int count, const QString& styleKey);
 		void DiagnosticTransform(const ASERStudio::AStorySyntax::AStoryXDiagnosticData& diagnostic);
+	private:
+		void createColorInlayHints(const QString& text,
+			const ASERStudio::AStorySyntax::AStoryXControllerParseData& parseData);
 	private:
 		LS_AStoryXSyntaxHighlighterPrivate* d;
 	};

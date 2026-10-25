@@ -1,4 +1,10 @@
 {
+    "inlayColor": {
+        "title": "색상",
+        "pick": "색상 선택",
+        "hint": "클릭하여 색상을 선택하고 확인하면 원본 텍스트를 바꿉니다.",
+        "invalid": "현재 색상을 해석할 수 없습니다"
+    },
     "diagnostic": {
         "undefined": {
             "name": "정의되지 않음",

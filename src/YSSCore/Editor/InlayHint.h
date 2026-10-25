@@ -9,6 +9,7 @@ namespace YSSCore::Editor {
 	private:
 		qint32 PositionInBlock = 0;
 		QString Text;
+		QString Multi;
 		QColor Color;
 		qint32 Paddings = 8;
 	public:
@@ -18,9 +19,11 @@ namespace YSSCore::Editor {
 	public:
 		void setPositionInBlock(qint32 positionInBlock);
 		void setText(const QString& text);
+		void setMulti(const QString& multi);
 		void setColor(const QColor& color);
 		void setPaddings(qint32 paddings);
 		QString getText() const;
+		QString getMulti() const;
 		QColor getColor() const;
 		qint32 getPositionInBlock() const;
 		qint32 getPaddings() const;

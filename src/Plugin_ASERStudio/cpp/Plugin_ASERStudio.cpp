@@ -19,6 +19,7 @@
 #include "YSS/ASERProjectTemplate.h"
 #include "YSS/DS_AStoryXDebugger.h"
 #include "YSS/ImageCacheHelper.h"
+#include "YSS/InlayColorProvider.h"
 #include "YSS/LangServer_AStoryX.h"
 namespace ASERStudio {
 	ASERStudioTranslator::ASERStudioTranslator(Visindigo::General::Plugin* parent) :
@@ -75,6 +76,8 @@ namespace ASERStudio {
 		registerProjectTemplateProvider(new YSS::ProjectTemplate_AStoryX_3_6_7(this));
 		registerFileTemplateProvider(new YSS::FileTemplate_AStoryX(this));
 		registerLangServer(new YSS::AStoryXLanguageServer(this));
+		registerInlayHintProvider(new YSS::InlayColorProvider(QStringLiteral("Inlay Color"),
+			YSS::InlayColorProviderID, this));
 		registerFileServer(new YSS::FileServer_AStoryX(this));
 		registerFileServer(new YSS::FileServer_ASRuleJson(this));
 		registerFileServer(new YSS::FileServer_ASERProjectResourceBrowser(this));

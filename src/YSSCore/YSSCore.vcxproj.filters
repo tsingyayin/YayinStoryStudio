@@ -95,6 +95,15 @@
     <ClCompile Include="Editor\cpp\InlayHint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\cpp\InlayHintHoverWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\InlayHintManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\cpp\InlayHintProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\cpp\HoverInfoProvider_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -196,6 +205,9 @@
     <ClInclude Include="Editor\InlayHint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\InlayHintManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Editor\private\InlayHint_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -250,6 +262,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\SyntaxHighlighter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\InlayHintHoverWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\InlayHintProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\DebugServerManager.h">

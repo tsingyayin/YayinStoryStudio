@@ -33,6 +33,13 @@
 
 	要提供项目模板，则需要实现类YSSCore::Editor::ProjectTemplateProvider。
 
+	要把内联提示扩展为图片或其他自定义绘制内容，则需要实现类
+	YSSCore::Editor::InlayHintProvider，并通过
+	YSSCore::Editor::EditorPlugin::registerInlayHintProvider 注册。内联提示的
+	Multi 字段使用 \c{@providerId!name?param} 指定 Provider 与参数；需要交互时，
+	再由 YSSCore::Editor::InlayHintProvider::createHoverWidget 提供
+	YSSCore::Editor::InlayHintHoverWidget。
+
 	\section1 语言支持的实现建议
 	当前，YSS要求LangServer必须至少提供有效的SyntaxHighlighter实例。实际上这并不是
 	在要求用户只要实现YSS语言支持就必须实现语法高亮，而是YSS希望用户通过SyntaxHighlighter

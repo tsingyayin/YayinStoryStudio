@@ -1,4 +1,10 @@
 {
+    "inlayColor": {
+        "title": "颜色",
+        "pick": "选择颜色",
+        "hint": "点击选择颜色，确定后替换原文。",
+        "invalid": "无法解析当前颜色"
+    },
     "diagnostic": {
         "undefined": {
             "name": "未定义",

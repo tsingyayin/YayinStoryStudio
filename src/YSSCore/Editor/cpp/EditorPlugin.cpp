@@ -4,6 +4,8 @@
 #include "Editor/DebugServer.h"
 #include "Editor/DebugServerManager.h"
 #include "Editor/EditorPlugin.h"
+#include "Editor/InlayHintManager.h"
+#include "Editor/InlayHintProvider.h"
 #include "Editor/FileServer.h"
 #include "Editor/FileServerManager.h"
 #include "Editor/FileTemplateManager.h"
@@ -142,6 +144,17 @@ namespace YSSCore::Editor {
 	void EditorPlugin::registerFileTemplateProvider(FileTemplateProvider* provider) {
 		registerPluginModule(provider);
 		YSSCore::Editor::FileTemplateManager::getInstance()->addProvider(provider);
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a provider 内联提示提供者
+
+		注册内联提示提供者。
+	*/
+	void EditorPlugin::registerInlayHintProvider(InlayHintProvider* provider) {
+		registerPluginModule(provider);
+		YSSCore::Editor::InlayHintManager::getInstance()->addProvider(provider);
 	}
 
 	/*!

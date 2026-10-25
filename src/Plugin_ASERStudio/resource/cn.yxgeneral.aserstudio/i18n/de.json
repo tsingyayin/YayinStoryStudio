@@ -1,4 +1,10 @@
 {
+    "inlayColor": {
+        "title": "Farbe",
+        "pick": "Farbe wählen",
+        "hint": "Klicken Sie, um eine Farbe zu wählen; Bestätigen ersetzt den Originaltext.",
+        "invalid": "Aktuelle Farbe kann nicht gelesen werden"
+    },
     "diagnostic": {
         "undefined": {
             "name": "Nicht definiert",

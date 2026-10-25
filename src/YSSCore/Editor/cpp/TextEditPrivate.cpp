@@ -1,4 +1,5 @@
-﻿#include <QtCore/qtimer.h>
+#include <QtCore/qset.h>
+#include <QtCore/qtimer.h>
 #include <QtGui/qcursor.h>
 #include <QtGui/qfontmetrics.h>
 #include <QtGui/qpalette.h>
@@ -11,7 +12,13 @@
 #include <General/TranslationHost.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/HoverInfoProvider.h"
+#include "Editor/InlayHint.h"
+#include "Editor/InlayHintHoverWidget.h"
+#include "Editor/InlayHintManager.h"
+#include "Editor/InlayHintProvider.h"
+#include "Editor/VirtualFilePath.h"
 #include "Editor/private/HoverInfoProvider_p.h"
+#include "Editor/private/InlayHint_p.h"
 #include "Editor/private/TabCompleterProvider_p.h"
 #include "Editor/private/TextEdit_p.h"
 #include "Editor/SyntaxHighlighter.h"
@@ -39,6 +46,7 @@ namespace YSSCore::__Private__ {
 			if (TabCompleterWidget->isVisible()) {
 				TabCompleterWidget->hide();
 			}
+			hideInlayHintHover();
 			if (SgtKind != SuggestionKind::None) {
 				dismissSuggestion(true);
 			}
@@ -150,6 +158,16 @@ namespace YSSCore::__Private__ {
 				onMouseMove(mouseEvent);
 				return false;
 			}
+			else if (event->type() == QEvent::Leave) {
+				YSSCore::Editor::InlayHintHoverWidget* visibleWidget =
+					InlayHintHoverWidgets.value(InlayHintHoverCurrentID, nullptr);
+				if (visibleWidget != nullptr and visibleWidget->isVisible()) {
+					QWidget* underMouse = QApplication::widgetAt(QCursor::pos());
+					if (underMouse != visibleWidget and (underMouse == nullptr or not visibleWidget->isAncestorOf(underMouse))) {
+						hideInlayHintHover();
+					}
+				}
+			}
 			else if (event->type() == QEvent::Wheel) {
 				QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
 				return onMouseScroll(wheelEvent);
@@ -163,6 +181,16 @@ namespace YSSCore::__Private__ {
 					}
 					if (HoverInfoWidget->isVisible()) {
 						HoverInfoWidget->hide();
+					}
+					qint32 hitLine = -1;
+					qint32 hitColumn = -1;
+					QString hitMulti;
+					if (findInlayHintAt(mouseEvent->position().toPoint(), hitLine, hitColumn, hitMulti)) {
+						InlayHintHoverTimer->stop();
+						showInlayHintHover(hitLine, hitColumn, hitMulti);
+					}
+					else {
+						hideInlayHintHover();
 					}
 					if (SgtKind != SuggestionKind::None) {
 						// 点击正文意味着用户放弃了当前建议，但点击本身照常生效。
@@ -180,6 +208,7 @@ namespace YSSCore::__Private__ {
 				if (TabCompleterWidget->isVisible()) {
 					TabCompleterWidget->hide();
 				}
+				hideInlayHintHover();
 				return false;
 			}
 			else if (event->type() == QEvent::Show || event->type() == QEvent::ShowToParent) {
@@ -189,10 +218,12 @@ namespace YSSCore::__Private__ {
 				if (TabCompleterWidget->isVisible()) {
 					TabCompleterWidget->hide();
 				}
+				hideInlayHintHover();
 				return false;
 			}
 			else if (event->type() == QEvent::Resize) {
 				FindAndReplaceWidget->move(q->width() - 352, 0); // 340 for width, 12 for vertical scrollbar width
+				hideInlayHintHover();
 				adjustTabCompleterPosition();
 				adjustHoverInfoPosition(Text->textCursor());
 				adjustSuggestionPosition();
@@ -213,6 +244,7 @@ namespace YSSCore::__Private__ {
 			return;
 		}
 		LineCount = count;
+		hideInlayHintHover();
 		// 行号现在是画出来的，这里只更新位数对应的宽度，不再逐行维护文本块。
 		Line->updateLineCount(count);
 	}
@@ -252,6 +284,7 @@ namespace YSSCore::__Private__ {
 			if (HoverInfoWidget->isVisible()) {
 				HoverInfoWidget->hide();
 			}
+			hideInlayHintHover();
 			useKeyboardToMoveCursor = false;
 			emit q->cursorPositionChanged(cursor);
 			return;
@@ -263,12 +296,15 @@ namespace YSSCore::__Private__ {
 			if (HoverInfoWidget->isVisible()) {
 				HoverInfoWidget->hide();
 			}
+			hideInlayHintHover();
 			CurrentLineSelection.format.setBackground(Qt::transparent);
 			onMultiSelectionChanged();
 			emit q->cursorPositionChanged(cursor);
 			return;
 		}
 		onCompleter();
+		// 补全触发之后统一检查一次：文档里已经没有人使用的图片提示浮窗在这里销毁。
+		syncInlayHintHoverWidgets();
 		onHoverInfo(false);
 		CurrentLineSelection.cursor = cursor;
 		CurrentLineSelection.cursor.clearSelection();
@@ -359,6 +395,7 @@ namespace YSSCore::__Private__ {
 			filteredList.append(medium);
 			filteredList.append(low);
 			///yDebugF << "TabCompleterWidget is shown";
+			hideInlayHintHover();
 			TabCompleterWidget->setCompleterItems(filteredList);
 			adjustTabCompleterPosition();
 			TabCompleterWidget->show();
@@ -550,6 +587,7 @@ namespace YSSCore::__Private__ {
 		if (HoverInfoWidget->isVisible()) {
 			HoverInfoWidget->hide();
 		}
+		hideInlayHintHover();
 		if (FindAndReplaceWidget != nullptr && FindAndReplaceWidget->isVisible()) {
 			// I think this function should be moved to farWidget.hideEvent().
 			// Currently, different hide operations do not share same code, which is not good.
@@ -605,11 +643,67 @@ namespace YSSCore::__Private__ {
 
 	void TextEditPrivate::onMouseMove(QMouseEvent* event) {
 		QPoint currentPos = event->globalPosition().toPoint();
-		float dist = std::sqrt(std::pow(LastMousePos.x() - currentPos.x(), 2) + std::pow(LastMousePos.y() - currentPos.y(), 2));
+		QPoint lastPos = LastMousePos;
+		const QPoint viewportPos = Text->viewport()->mapFromGlobal(currentPos);
+
+		// 图片提示区域优先：悬停到它上面时不再触发普通的文本悬停信息。
+		qint32 hitLine = -1;
+		qint32 hitColumn = -1;
+		QString hitMulti;
+		if (findInlayHintAt(viewportPos, hitLine, hitColumn, hitMulti)) {
+			YSSCore::Editor::VirtualFilePath hitPath(hitMulti);
+			const QString hitProviderID = hitPath.getExt();
+			ensureInlayHintHoverWidget(hitProviderID);
+			if (InlayHintHoverWidgets.value(hitProviderID, nullptr) != nullptr) {
+				if (HoverInfoWidget->isVisible()) {
+					HoverInfoWidget->hide();
+				}
+				HoverTimer->stop();
+				YSSCore::Editor::InlayHintHoverWidget* visibleWidget =
+					InlayHintHoverWidgets.value(InlayHintHoverCurrentID, nullptr);
+				if (visibleWidget != nullptr and visibleWidget->isVisible()) {
+					if ((hitLine == visibleWidget->getBlockNumber() and hitColumn == visibleWidget->getColumn())
+						or nearArea(visibleWidget, event->globalPosition())) {
+						LastMousePos = currentPos;
+						return;
+					}
+					hideInlayHintHover();
+				}
+				if (InlayHintHoverTimer->isActive() and InlayHintHoverPendingLine == hitLine
+					and InlayHintHoverPendingColumn == hitColumn and InlayHintHoverPendingMulti == hitMulti) {
+					LastMousePos = currentPos;
+					return;
+				}
+				InlayHintHoverPendingLine = hitLine;
+				InlayHintHoverPendingColumn = hitColumn;
+				InlayHintHoverPendingMulti = hitMulti;
+				InlayHintHoverTimer->start(HoverTimeout);
+				LastMousePos = currentPos;
+				return;
+			}
+		}
+
+		if (InlayHintHoverTimer->isActive()) {
+			InlayHintHoverTimer->stop();
+			InlayHintHoverPendingLine = -1;
+			InlayHintHoverPendingColumn = -1;
+			InlayHintHoverPendingMulti.clear();
+		}
+		YSSCore::Editor::InlayHintHoverWidget* visibleWidget =
+			InlayHintHoverWidgets.value(InlayHintHoverCurrentID, nullptr);
+		if (visibleWidget != nullptr and visibleWidget->isVisible()) {
+			if (moveVectorPointTo(lastPos, currentPos, visibleWidget)
+				or nearArea(visibleWidget, event->globalPosition())) {
+				LastMousePos = currentPos;
+				return;
+			}
+			hideInlayHintHover();
+		}
+
+		float dist = std::sqrt(std::pow(lastPos.x() - currentPos.x(), 2) + std::pow(lastPos.y() - currentPos.y(), 2));
 		if (dist <= qApp->startDragDistance()) {
 			return;
 		}
-		QPoint lastPos = LastMousePos;
 		LastMousePos = currentPos;
 		if (not HoverInfoWidget->isVisible()) {
 			HoverTimer->start(HoverTimeout);
@@ -627,6 +721,10 @@ namespace YSSCore::__Private__ {
 		if (HoverTimer->isActive()) {
 			HoverTimer->stop();
 		}
+		if (InlayHintHoverTimer->isActive()) {
+			InlayHintHoverTimer->stop();
+		}
+		hideInlayHintHover();
 		if (Text->isReadOnly() && (event->modifiers() & Qt::ControlModifier)) {	
 			return true;
 		}
@@ -662,6 +760,11 @@ namespace YSSCore::__Private__ {
 	void TextEditPrivate::onHoverInfo(bool triggerFromHover) {
 		// 待抉择状态独占浮层，悬停信息也不能在此期间冒出来。
 		if (SgtKind != SuggestionKind::None) {
+			return;
+		}
+		YSSCore::Editor::InlayHintHoverWidget* inlayWidget =
+			InlayHintHoverWidgets.value(InlayHintHoverCurrentID, nullptr);
+		if (inlayWidget != nullptr and inlayWidget->isVisible()) {
 			return;
 		}
 		if (not triggerFromHover && Text->textCursor().hasSelection()) {
@@ -719,8 +822,216 @@ namespace YSSCore::__Private__ {
 		}
 	}
 
+	bool TextEditPrivate::findInlayHintAt(const QPoint& viewportPos, qint32& lineNumber, qint32& column, QString& multi) const {
+		if (Text == nullptr) {
+			return false;
+		}
+		return Text->getInlayHintAt(viewportPos, lineNumber, column, multi);
+	}
+
+	void TextEditPrivate::ensureInlayHintHoverWidget(const QString& providerID) {
+		if (InlayHintHoverWidgets.contains(providerID)) {
+			return;
+		}
+		YSSCore::Editor::InlayHintProvider* provider = YSSIHM->getProvider(providerID);
+		if (provider == nullptr) {
+			// 记一个空项，避免每次鼠标经过都重新查询同一个没有浮窗的 Provider。
+			InlayHintHoverWidgets.insert(providerID, nullptr);
+			return;
+		}
+		YSSCore::Editor::InlayHintHoverWidget* widget = provider->createHoverWidget(q->getUri());
+		if (widget == nullptr) {
+			InlayHintHoverWidgets.insert(providerID, nullptr);
+			return;
+		}
+		widget->setParent(HoverArea ? HoverArea : Text);
+		widget->hide();
+		connect(widget, &YSSCore::Editor::InlayHintHoverWidget::requestModify, this,
+			[this, widget](qint32 startColumn, qint32 rawLength, QString& newContent) {
+				const qint32 blockNumber = widget->getBlockNumber();
+				QTextBlock block = Text->document()->findBlockByNumber(blockNumber);
+				if (not block.isValid()) {
+					return;
+				}
+				const QString rawText = block.text();
+				if (startColumn < 0 or rawLength < 0 or startColumn + rawLength > rawText.length()) {
+					return;
+				}
+				QTextCursor cursor(block);
+				cursor.setPosition(block.position() + startColumn);
+				cursor.setPosition(block.position() + startColumn + rawLength, QTextCursor::KeepAnchor);
+				cursor.insertText(newContent);
+				Text->setTextCursor(cursor);
+				hideInlayHintHover();
+			});
+		connect(widget, &QObject::destroyed, this, [this, providerID, widget]() {
+			if (InlayHintHoverWidgets.value(providerID, nullptr) == widget) {
+				InlayHintHoverWidgets.remove(providerID);
+			}
+			if (InlayHintHoverCurrentID == providerID) {
+				InlayHintHoverCurrentID.clear();
+			}
+			});
+		InlayHintHoverWidgets.insert(providerID, widget);
+	}
+
+	void TextEditPrivate::syncInlayHintHoverWidgets() {
+		if (not InlayHintHoverDirty) {
+			return;
+		}
+		InlayHintHoverDirty = false;
+		QSet<QString> usedProviders;
+		if (Highlighter != nullptr) {
+			const QMap<qint32, QList<YSSCore::Editor::InlayHint>> allHints = Highlighter->getAllInlayHints();
+			for (auto it = allHints.begin(); it != allHints.end(); ++it) {
+				for (const YSSCore::Editor::InlayHint& hint : it.value()) {
+					QString providerID;
+					if (YSSCore::__Private__::inlayHintUsesProvider(hint, &providerID)) {
+						usedProviders.insert(providerID);
+					}
+				}
+			}
+		}
+		for (const QString& providerID : usedProviders) {
+			ensureInlayHintHoverWidget(providerID);
+		}
+		for (auto it = InlayHintHoverWidgets.begin(); it != InlayHintHoverWidgets.end();) {
+			if (usedProviders.contains(it.key())) {
+				++it;
+				continue;
+			}
+			if (it.value() != nullptr) {
+				if (it.value()->isVisible()) {
+					it.value()->hide();
+				}
+				it.value()->setParent(nullptr);
+				it.value()->deleteLater();
+			}
+			it = InlayHintHoverWidgets.erase(it);
+		}
+		if (not InlayHintHoverCurrentID.isEmpty() and not InlayHintHoverWidgets.contains(InlayHintHoverCurrentID)) {
+			hideInlayHintHover();
+		}
+	}
+
+	void TextEditPrivate::showInlayHintHover(qint32 lineNumber, qint32 column, const QString& multi) {
+		YSSCore::Editor::VirtualFilePath path(multi);
+		if (not path.isValid()) {
+			hideInlayHintHover();
+			return;
+		}
+		const QString providerID = path.getExt();
+		ensureInlayHintHoverWidget(providerID);
+		YSSCore::Editor::InlayHintHoverWidget* widget = InlayHintHoverWidgets.value(providerID, nullptr);
+		if (widget == nullptr) {
+			hideInlayHintHover();
+			return;
+		}
+		QTextBlock block = Text->document()->findBlockByNumber(lineNumber);
+		if (not block.isValid()) {
+			hideInlayHintHover();
+			return;
+		}
+		for (YSSCore::Editor::InlayHintHoverWidget* other : InlayHintHoverWidgets) {
+			if (other != nullptr and other != widget and other->isVisible()) {
+				other->hide();
+			}
+		}
+		widget->setTargetFile(q->getUri());
+		widget->setBlockNumber(lineNumber);
+		widget->setColumn(column);
+		widget->setRawText(block.text());
+		widget->setPara(path.getParams());
+		widget->onHoverRequest();
+		widget->adjustSize();
+		adjustInlayHintHoverPosition(widget, lineNumber, column);
+		InlayHintHoverCurrentID = providerID;
+		LastMousePos = QCursor::pos();
+		widget->show();
+		widget->raise();
+	}
+
+	void TextEditPrivate::hideInlayHintHover() {
+		if (InlayHintHoverTimer != nullptr) {
+			InlayHintHoverTimer->stop();
+		}
+		for (YSSCore::Editor::InlayHintHoverWidget* widget : InlayHintHoverWidgets) {
+			if (widget != nullptr and widget->isVisible()) {
+				widget->hide();
+			}
+		}
+		InlayHintHoverCurrentID.clear();
+		InlayHintHoverPendingMulti.clear();
+		InlayHintHoverPendingLine = -1;
+		InlayHintHoverPendingColumn = -1;
+	}
+
+	void TextEditPrivate::adjustInlayHintHoverPosition(QWidget* hoverWidget, qint32 lineNumber, qint32 column) {
+		if (hoverWidget == nullptr) {
+			return;
+		}
+		QTextBlock block = Text->document()->findBlockByNumber(lineNumber);
+		if (not block.isValid()) {
+			return;
+		}
+		QTextCursor cursor(block);
+		cursor.setPosition(block.position() + qBound(0, column, qMax(0, block.length() - 1)));
+		const QRect anchorRect = Text->cursorRect(cursor);
+		QWidget* container = HoverArea ? HoverArea : Text;
+		const QPoint anchor = Text->viewport()->mapTo(container, anchorRect.topLeft());
+		const QSize containerSize = HoverArea ? HoverArea->size() : Text->viewport()->size();
+		const QSize widgetSize = hoverWidget->size();
+		qint32 x = anchor.x();
+		qint32 y = anchor.y() + anchorRect.height() + 6;
+		if (x + widgetSize.width() > containerSize.width()) {
+			x = containerSize.width() - widgetSize.width();
+		}
+		if (x < 0) {
+			x = 0;
+		}
+		if (y + widgetSize.height() > containerSize.height()) {
+			y = anchor.y() - widgetSize.height() - 6;
+		}
+		if (y < 0) {
+			y = 0;
+		}
+		hoverWidget->move(x, y);
+	}
+
+	void TextEditPrivate::clearInlayHintHoverWidgets() {
+		hideInlayHintHover();
+		InlayHintHoverDirty = true;
+		const QList<YSSCore::Editor::InlayHintHoverWidget*> widgets = InlayHintHoverWidgets.values();
+		InlayHintHoverWidgets.clear();
+		for (YSSCore::Editor::InlayHintHoverWidget* widget : widgets) {
+			if (widget != nullptr) {
+				widget->setParent(nullptr);
+				delete widget;
+			}
+		}
+	}
+
+	void TextEditPrivate::onInlayHintHoverTimeout() {
+		if (InlayHintHoverPendingLine < 0 or InlayHintHoverPendingMulti.isEmpty()) {
+			return;
+		}
+		const QPoint viewportPos = Text->viewport()->mapFromGlobal(QCursor::pos());
+		qint32 lineNumber = -1;
+		qint32 column = -1;
+		QString multi;
+		if (not findInlayHintAt(viewportPos, lineNumber, column, multi)) {
+			return;
+		}
+		if (lineNumber != InlayHintHoverPendingLine or column != InlayHintHoverPendingColumn
+			or multi != InlayHintHoverPendingMulti) {
+			return;
+		}
+		showInlayHintHover(lineNumber, column, multi);
+	}
+
 	void TextEditPrivate::onScrollBarChanged(int value) {
 		Q_UNUSED(value);
+		hideInlayHintHover();
 		// 行号栏不再有自己的滚动条，跟随文档滚动重绘可见的那几行
 		Line->update();
 		adjustTabCompleterPosition();
@@ -1003,6 +1314,7 @@ namespace YSSCore::__Private__ {
 		if (HoverInfoWidget and HoverInfoWidget->isVisible()) {
 			HoverInfoWidget->hide();
 		}
+		hideInlayHintHover();
 		SgtKind = kind;
 		SgtLine = line;
 		SgtItems = items;

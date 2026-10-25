@@ -25,7 +25,11 @@
 #include <Widgets/ThemeManager.h>
 #include "Editor/DocumentMessage.h"
 #include "Editor/InlayHint.h"
+#include "Editor/InlayHintHoverWidget.h"
+#include "Editor/InlayHintManager.h"
+#include "Editor/InlayHintProvider.h"
 #include "Editor/SyntaxHighlighter.h"
+#include "Editor/VirtualFilePath.h"
 #include "Editor/private/InlayHint_p.h"
 #include "Editor/private/TextEdit_p.h"
 #include "Editor/TextEdit.h"
@@ -675,6 +679,14 @@ namespace YSSCore::__Private__ {
 		if (document == nullptr) {
 			return;
 		}
+		if (this->editor != nullptr) {
+			for (YSSCore::Editor::InlayHintHoverWidget* widget : this->editor->d->InlayHintHoverWidgets) {
+				if (widget != nullptr and widget->isVisible() and widget->getBlockNumber() == lineNumber) {
+					this->editor->d->hideInlayHintHover();
+					break;
+				}
+			}
+		}
 		const QTextBlock block = document->findBlockByNumber(lineNumber);
 		if (not block.isValid()) {
 			this->viewport()->update();
@@ -697,6 +709,7 @@ namespace YSSCore::__Private__ {
 		if (this->editor == nullptr) {
 			return;
 		}
+		this->editor->d->hideInlayHintHover();
 		YSSCore::Editor::SyntaxHighlighter* highlighter = this->editor->getSyntaxHighlighter();
 		QTextDocument* document = this->document();
 		if (highlighter == nullptr or document == nullptr) {
@@ -728,7 +741,8 @@ namespace YSSCore::__Private__ {
 		if (not this->visibleLines(firstLine, lastLine, clipRect)) {
 			return;
 		}
-		const QFont hintFont = YSSCore::__Private__::inlayHintFont(document->defaultFont(),
+		const QFont baseFont = document->defaultFont();
+		const QFont hintFont = YSSCore::__Private__::inlayHintFont(baseFont,
 			this->editor->getInlayHintFontScale());
 		painter.setFont(hintFont);
 		for (qint32 line = firstLine; line <= lastLine; ++line) {
@@ -749,14 +763,85 @@ namespace YSSCore::__Private__ {
 				if (not rightEdge.isValid()) {
 					continue;
 				}
-				const qreal gap = YSSCore::__Private__::inlayHintGapWidth(hint, hintFont);
+				const qreal gap = YSSCore::__Private__::inlayHintGapWidth(hint, baseFont, hintFont);
+				if (gap <= 0) {
+					continue;
+				}
 				const QRectF gapRect(rightEdge.left() - gap, rightEdge.top(), gap, rightEdge.height());
 				if (not gapRect.intersects(clipRect)) {
 					continue;
 				}
-				this->paintInlayHint(painter, gapRect, hint);
+				YSSCore::Editor::InlayHintProvider* provider = nullptr;
+				YSSCore::Editor::VirtualFilePath multiPath(hint.getMulti());
+				if (multiPath.isValid()) {
+					provider = YSSIHM->getProvider(multiPath.getExt());
+				}
+				if (provider != nullptr) {
+					Visindigo::Utility::JsonConfig para = multiPath.getParams();
+					const qint32 side = qRound(gap);
+					QImage& image = provider->drawInlayHint(side, side,
+						this->editor->getUri(), multiPath.getFileName(), para);
+					if (not image.isNull()) {
+						const QSizeF targetSize = QSizeF(image.size()).scaled(gapRect.size(), Qt::KeepAspectRatio);
+						const QRectF targetRect(gapRect.center().x() - targetSize.width() / 2,
+							gapRect.center().y() - targetSize.height() / 2,
+							targetSize.width(), targetSize.height());
+						painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+						painter.drawImage(targetRect, image);
+						continue;
+					}
+				}
+				if (not hint.getText().isEmpty()) {
+					this->paintInlayHint(painter, gapRect, hint);
+				}
 			}
 		}
+	}
+
+	bool InlayHintTextEdit::getInlayHintAt(const QPoint& viewportPos, qint32& lineNumber, qint32& column, QString& multi) const {
+		if (this->editor == nullptr or not this->editor->isInlayHintVisible()) {
+			return false;
+		}
+		YSSCore::Editor::SyntaxHighlighter* highlighter = this->editor->getSyntaxHighlighter();
+		QTextDocument* document = this->document();
+		if (highlighter == nullptr or document == nullptr) {
+			return false;
+		}
+		const QTextBlock block = this->cursorForPosition(viewportPos).block();
+		if (not block.isValid()) {
+			return false;
+		}
+		const QFont baseFont = document->defaultFont();
+		const QFont hintFont = YSSCore::__Private__::inlayHintFont(baseFont,
+			this->editor->getInlayHintFontScale());
+		const QList<YSSCore::Editor::InlayHint> hints = highlighter->getInlayHints(block.blockNumber());
+		for (const YSSCore::Editor::InlayHint& hint : hints) {
+			QString providerID;
+			if (not YSSCore::__Private__::inlayHintUsesProvider(hint, &providerID)) {
+				continue;
+			}
+			if (hint.getPositionInBlock() < 1 or hint.getPositionInBlock() >= block.length()) {
+				continue;
+			}
+			QTextCursor hintCursor(block);
+			hintCursor.setPosition(block.position() + hint.getPositionInBlock());
+			const QRect rightEdge = this->cursorRect(hintCursor);
+			if (not rightEdge.isValid()) {
+				continue;
+			}
+			const qreal gap = YSSCore::__Private__::inlayHintGapWidth(hint, baseFont, hintFont);
+			if (gap <= 0) {
+				continue;
+			}
+			const QRectF gapRect(rightEdge.left() - gap, rightEdge.top(), gap, rightEdge.height());
+			if (gapRect.adjusted(-2, -2, 2, 2).contains(viewportPos)) {
+				lineNumber = block.blockNumber();
+				column = hint.getPositionInBlock();
+				multi = hint.getMulti();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void InlayHintTextEdit::paintInlayHint(QPainter& painter, const QRectF& gapRect, const YSSCore::Editor::InlayHint& hint) const {
@@ -779,7 +864,11 @@ namespace YSSCore::__Private__ {
 		painter.setBrush(backgroundColor);
 		painter.drawRoundedRect(backgroundRect, 3, 3);
 		painter.setPen(color);
-		painter.drawText(backgroundRect, Qt::AlignCenter, hint.getText());
+		QString text = hint.getText();
+		if (metrics.horizontalAdvance(text) > backgroundRect.width()) {
+			text = metrics.elidedText(text, Qt::ElideRight, backgroundRect.width());
+		}
+		painter.drawText(backgroundRect, Qt::AlignCenter, text);
 	}
 
 	/*!

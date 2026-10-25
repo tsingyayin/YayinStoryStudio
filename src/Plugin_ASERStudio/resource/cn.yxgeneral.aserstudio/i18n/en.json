@@ -1,4 +1,10 @@
 {
+    "inlayColor": {
+        "title": "Color",
+        "pick": "Pick Color",
+        "hint": "Click to pick a color; confirm to replace the original text.",
+        "invalid": "Cannot parse the current color"
+    },
     "diagnostic": {
         "undefined": {
             "name": "Undefined",

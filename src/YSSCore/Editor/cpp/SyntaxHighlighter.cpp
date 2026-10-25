@@ -165,17 +165,21 @@ namespace YSSCore::Editor {
 		if (hints.isEmpty()) {
 			return;
 		}
-		const QFont hintFont = __Private__::inlayHintFont(d->Parent->getDocument()->defaultFont(),
-			d->Parent->getInlayHintFontScale());
+		const QFont baseFont = d->Parent->getDocument()->defaultFont();
+		const QFont hintFont = __Private__::inlayHintFont(baseFont, d->Parent->getInlayHintFontScale());
 		for (const InlayHint& hint : hints) {
 			const qint32 anchor = hint.getPositionInBlock() - 1;
 			if (anchor < 0 or anchor >= text.size()) {
 				// 行首没有可用的锚点字符，这类提示无法推开后续文字，绘制端也会跳过它。
 				continue;
 			}
+			const qreal gapWidth = __Private__::inlayHintGapWidth(hint, baseFont, hintFont);
+			if (gapWidth <= 0) {
+				continue;
+			}
 			QTextCharFormat format = this->format(anchor);
 			format.setFontLetterSpacingType(QFont::AbsoluteSpacing);
-			format.setFontLetterSpacing(__Private__::inlayHintGapWidth(hint, hintFont));
+			format.setFontLetterSpacing(gapWidth);
 			setFormat(anchor, 1, format);
 		}
 	}
@@ -424,13 +428,15 @@ namespace YSSCore::Editor {
 		（例如函数调用的形参名）插进字符流里显示。提示会把后面的文字推开，但不会修改文档内容。
 
 		与消息一样，每次重新着色一行时该行上已有的提示都会被自动清除，因此这里只需要给出当前这次解析的结果。
-		位置小于1的提示无法推开后续文字，会被忽略。
+		位置小于1的提示无法推开后续文字，会被忽略。文字和Multi均为空的提示不会被创建。
+
+		设置Multi可以把提示交给对应的 InlayHintProvider 绘制；Multi 有效时优先于 Text。
 	*/
 	void SyntaxHighlighter::createInlayHint(const InlayHint& hint) {
 		if (not d->AutoRenderInlayHint) {
 			return;
 		}
-		if (hint.getText().isEmpty()) {
+		if (hint.getText().isEmpty() and hint.getMulti().isEmpty()) {
 			return;
 		}
 		addInlayHint(currentBlock().blockNumber(), hint);

@@ -1,6 +1,7 @@
 ﻿#ifndef YSSCore_Editor_private_TextEdit_p_h
 #define YSSCore_Editor_private_TextEdit_p_h
 #include <QtCore/qobject.h>
+#include <QtCore/qmap.h>
 #include <QtCore/qstringlist.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qtextcursor.h>
@@ -23,6 +24,7 @@ namespace YSSCore::Editor {
 	class SyntaxHighlighterPrivate;
 	class LangServer;
 	class InlayHint;
+	class InlayHintHoverWidget;
 }
 class QVBoxLayout;
 class QComboBox;
@@ -41,6 +43,7 @@ class QPushButton;
 class QToolButton;
 class QCheckBox;
 class QScrollBar;
+class QTimer;
 namespace YSSCore::__Private__ {
 	class TabCompleterWidget;
 	class HoverInfoWidget;
@@ -170,6 +173,7 @@ namespace YSSCore::__Private__ {
 		QRectF getBlockBoundingGeometry(const QTextBlock& block) const;
 		QRectF getBlockBoundingRect(const QTextBlock& block) const;
 		QPointF getContentOffset() const;
+		bool getInlayHintAt(const QPoint& viewportPos, qint32& lineNumber, qint32& column, QString& multi) const;
 	protected:
 		virtual void paintEvent(QPaintEvent* event) override;
 	public slots:
@@ -262,6 +266,14 @@ namespace YSSCore::__Private__ {
 		YSSCore::__Private__::TabCompleterWidget* TabCompleterWidget = nullptr;
 		YSSCore::Editor::HoverInfoProvider* HoverInfoProvider = nullptr;
 		YSSCore::__Private__::HoverInfoWidget* HoverInfoWidget = nullptr;
+		// 图片内联提示的悬停浮窗按 Provider 模块ID缓存，所有权归当前 TextEdit。
+		QMap<QString, YSSCore::Editor::InlayHintHoverWidget*> InlayHintHoverWidgets;
+		QTimer* InlayHintHoverTimer = nullptr;
+		QString InlayHintHoverPendingMulti;
+		qint32 InlayHintHoverPendingLine = -1;
+		qint32 InlayHintHoverPendingColumn = -1;
+		QString InlayHintHoverCurrentID;
+		bool InlayHintHoverDirty = true;
 		// 待抉择建议：SgtLine 在 Inline/Remove 时是目标行，在 Block 时是要在其之前插入的行号。
 		// SgtItems 中每一项都是一条建议，行内建议只有一行，多行建议有多行；删除建议没有候选内容。
 		SuggestionKind SgtKind = SuggestionKind::None;
@@ -315,6 +327,14 @@ namespace YSSCore::__Private__ {
 		void onMultiSelectionChanged();
 		void adjustTabCompleterPosition();
 		void adjustHoverInfoPosition(const QTextCursor& cursor);
+		void onInlayHintHoverTimeout();
+		void syncInlayHintHoverWidgets();
+		void ensureInlayHintHoverWidget(const QString& providerID);
+		void showInlayHintHover(qint32 lineNumber, qint32 column, const QString& multi);
+		void hideInlayHintHover();
+		void adjustInlayHintHoverPosition(QWidget* hoverWidget, qint32 lineNumber, qint32 column);
+		void clearInlayHintHoverWidgets();
+		bool findInlayHintAt(const QPoint& viewportPos, qint32& lineNumber, qint32& column, QString& multi) const;
 		void showSuggestion(SuggestionKind kind, qint32 line, const QList<QStringList>& items, bool pureAdd = false);
 		void showRemoveSuggestion(qint32 from, qint32 size);
 		void dismissSuggestion(bool notifyRejected);

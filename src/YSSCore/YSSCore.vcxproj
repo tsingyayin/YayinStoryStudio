@@ -136,6 +136,9 @@
     <ClCompile Include="Editor\cpp\HoverInfoProvider.cpp" />
     <ClCompile Include="Editor\cpp\HoverInfoProvider_p.cpp" />
     <ClCompile Include="Editor\cpp\InlayHint.cpp" />
+    <ClCompile Include="Editor\cpp\InlayHintHoverWidget.cpp" />
+    <ClCompile Include="Editor\cpp\InlayHintManager.cpp" />
+    <ClCompile Include="Editor\cpp\InlayHintProvider.cpp" />
     <ClCompile Include="Editor\cpp\LangServer.cpp" />
     <ClCompile Include="Editor\cpp\LangServerManager.cpp" />
     <ClCompile Include="Editor\cpp\ProjectTemplateManager.cpp" />
@@ -164,6 +167,7 @@
     <ClInclude Include="Editor\DebugStepData.h" />
     <ClInclude Include="Editor\DocumentMessage.h" />
     <ClInclude Include="Editor\InlayHint.h" />
+    <ClInclude Include="Editor\InlayHintManager.h" />
     <ClInclude Include="Editor\private\CodeDiff_p.h" />
     <ClInclude Include="Editor\private\DocumentMessage_p.h" />
     <ClInclude Include="Editor\private\InlayHint_p.h" />
@@ -178,6 +182,8 @@
     <ClInclude Include="Editor\private\DocumentMessageManager_p.h" />
     <ClInclude Include="Editor\ProjectTemplateManager.h" />
     <QtMoc Include="Editor\SyntaxHighlighter.h" />
+    <QtMoc Include="Editor\InlayHintHoverWidget.h" />
+    <QtMoc Include="Editor\InlayHintProvider.h" />
     <ClInclude Include="Editor\CustomDocumentData.h" />
     <ClInclude Include="Editor\VirtualFilePath.h" />
     <ClInclude Include="General\YSSLogger.h" />

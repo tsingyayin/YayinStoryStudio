@@ -1,8 +1,11 @@
 ﻿#include <QtCore/qmetaobject.h>
+#include <QtCore/qregularexpression.h>
 #include <QtCore/qset.h>
+#include <QtCore/qstringlist.h>
 #include <QtGui/qcolor.h>
 #include <QtGui/qfont.h>
 #include <Editor/ColorThemeProvider.h>
+#include <Editor/VirtualFilePath.h>
 #include <General/Log.h>
 #include <Utility/ColorTool.h>
 #include <Widgets/ThemeManager.h>
@@ -10,6 +13,7 @@
 #include "AStorySyntax/AStoryXDocument.h"
 #include "AStorySyntax/AStoryXRule.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
+#include "YSS/InlayColorProvider.h"
 #include "YSS/LangServer_AStoryX.h"
 #include "YSS/LS_AStoryXSyntaxHighlighter.h"
 namespace ASERStudio::YSS {
@@ -174,6 +178,8 @@ namespace ASERStudio::YSS {
 			}
 		}
 
+		createColorInlayHints(text, parseData);
+
 		// 这三类占位符都以 & 或 $ 开头；行里没有它们时直接跳过三趟正则扫描。
 		if (text.contains(QLatin1Char('&')) || text.contains(QLatin1Char('$'))) {
 			static QRegularExpression protectTMP("&\\{[\\d\\D]*?\\}");
@@ -202,6 +208,98 @@ namespace ASERStudio::YSS {
 		for (auto diagnostic : diagnostics) {
 			//vgDebug << diagnostic;
 			DiagnosticTransform(diagnostic);
+		}
+	}
+
+	void LS_AStoryXSyntaxHighlighter::createColorInlayHints(const QString& text,
+		const ASERStudio::AStorySyntax::AStoryXControllerParseData& parseData) {
+		auto addColorHint = [this](qint32 position, qint32 start, qint32 length,
+			const QString& value, double scale, bool hasAlpha, qint32 components) {
+			if (position < 1 or start < 0 or length <= 0) {
+				return;
+			}
+			Visindigo::Utility::JsonConfig para;
+			para.setString(InlayColorKeys::Kind,
+				value.startsWith(QLatin1Char('#')) ? InlayColorKeys::KindHex : InlayColorKeys::KindVector);
+			para.setInt(InlayColorKeys::Start, start);
+			para.setInt(InlayColorKeys::Length, length);
+			para.setString(InlayColorKeys::Value, value);
+			para.setDouble(InlayColorKeys::Scale, scale);
+			para.setBool(InlayColorKeys::Alpha, hasAlpha);
+			para.setInt(InlayColorKeys::Components, components);
+			YSSCore::Editor::VirtualFilePath path(InlayColorProviderID, value, para);
+			if (not path.isValid()) {
+				return;
+			}
+			YSSCore::Editor::InlayHint hint(position, QString(), QColor(), 8);
+			hint.setMulti(path.toString());
+			createInlayHint(hint);
+			};
+
+		// 剧本正文里的富文本颜色标签：<color=#RRGGBB> / <color=#AARRGGBB>
+		static const QRegularExpression colorTagRegex(
+			QStringLiteral(R"(<\s*color\s*=\s*(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{8})\s*>)"),
+			QRegularExpression::CaseInsensitiveOption);
+		QRegularExpressionMatchIterator tagMatches = colorTagRegex.globalMatch(text);
+		while (tagMatches.hasNext()) {
+			const QRegularExpressionMatch match = tagMatches.next();
+			const QString value = match.captured(1);
+			if (not QColor(value).isValid()) {
+				continue;
+			}
+			const bool hasAlpha = value.length() == 9;
+			// 色块放在颜色值之后、标签的 '>' 之前，而不是放在整个标签之后。
+			addColorHint(match.capturedEnd(1), match.capturedStart(1), match.capturedLength(1),
+				value, 1.0, hasAlpha, hasAlpha ? 4 : 3);
+		}
+
+		if (not parseData.isValid()) {
+			return;
+		}
+		// 控制器参数中的颜色：目前是 ColorMask 的必需参数 Color，按 r,g,b[,a] 向量表示。
+		auto addVectorColorHint = [&addColorHint](const ASERStudio::AStorySyntax::AStoryXParameter& param,
+			qint32 contentOffset, bool acceptByControllerType) {
+			if (not param.isValid()) {
+				return;
+			}
+			if (not acceptByControllerType
+				and param.getName().compare(QStringLiteral("Color"), Qt::CaseInsensitive) != 0) {
+				return;
+			}
+			if (param.getValue().getType() != ASERStudio::AStorySyntax::AStoryXValueMeta::Vector) {
+				return;
+			}
+			const QString content = param.getContent();
+			qint32 leading = 0;
+			while (leading < content.size() and content.at(leading).isSpace()) {
+				++leading;
+			}
+			qint32 trailing = content.size();
+			while (trailing > leading and content.at(trailing - 1).isSpace()) {
+				--trailing;
+			}
+			if (trailing <= leading) {
+				return;
+			}
+			const QString value = content.mid(leading, trailing - leading);
+			const QStringList parts = value.split(QLatin1Char(','));
+			if (parts.size() != 3 and parts.size() != 4) {
+				return;
+			}
+			double scale = 1.0;
+			const QColor color = InlayColorProvider::colorFromString(value, &scale);
+			if (not color.isValid()) {
+				return;
+			}
+			const qint32 start = param.getIndex() + contentOffset + leading;
+			const qint32 length = trailing - leading;
+			addColorHint(start + length, start, length, value, scale, parts.size() >= 4, parts.size());
+			};
+		addVectorColorHint(parseData.getRequiredParameter(), 0,
+			parseData.getControllerType() == ASERStudio::AStorySyntax::AStoryXController::ColorMask);
+		for (const ASERStudio::AStorySyntax::AStoryXParameter& optional : parseData.getOptionalParameters()) {
+			// 可选参数的 getIndex 指向前缀起点，内容从 prefix 之后开始。
+			addVectorColorHint(optional, optional.getPrefix().size(), false);
 		}
 	}
 

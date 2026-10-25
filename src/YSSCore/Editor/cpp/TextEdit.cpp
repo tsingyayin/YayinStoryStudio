@@ -14,6 +14,7 @@
 #include <Utility/FileOperation.h>
 #include "Editor/ColorThemeProvider.h"
 #include "Editor/HoverInfoProvider.h"
+#include "Editor/InlayHintHoverWidget.h"
 #include "Editor/LangServer.h"
 #include "Editor/LangServerManager.h"
 #include "Editor/private/HoverInfoProvider_p.h"
@@ -70,6 +71,13 @@ namespace YSSCore::Editor {
 		提示的字号默认为正文的60%，可以用 YSSCore::Editor::TextEdit::setInlayHintFontScale 调整。
 		提示的显示用一个开关统一控制：YSSCore::Editor::TextEdit::setInlayHintVisible。关闭它只是不给提示注入空隙、也不绘制，
 		提示数据本身依然保留，与"根本不产出提示"的 YSSCore::Editor::SyntaxHighlighter::setAutoRenderInlayHint 是两回事。
+
+		TextEdit的默认实现只绘制 InlayHint 中的文字。若要把内联提示扩展成任意绘制内容，
+		可以为提示设置 Multi（格式为 \c{@providerId!name?param}），并向
+		YSSCore::Editor::InlayHintManager 注册对应的 YSSCore::Editor::InlayHintProvider。
+		Multi 有效时由 Provider 绘制图片提示，图片占位为行高正方形；Multi 无效或 Provider 未注册时回退到文字。
+		Provider还可以通过 createHoverWidget 返回 YSSCore::Editor::InlayHintHoverWidget，
+		由 TextEdit 管理其显示与隐藏，并在用户悬停或单击图片提示时调用 onHoverRequest()。
 
 		\section1 待抉择建议
 		和上面的内联提示不同，建议不是为了长期显示语法信息，而是"提出一个改动并等用户决定"：
@@ -188,6 +196,8 @@ namespace YSSCore::Editor {
 
 		d->HoverTimer = new QTimer(this);
 		d->HoverTimer->setInterval(d->HoverTimeout);
+		d->InlayHintHoverTimer = new QTimer(this);
+		d->InlayHintHoverTimer->setInterval(d->HoverTimeout);
 
 		d->FindAndReplaceWidget = new YSSCore::__Private__::TextEditFindAndReplace(this);
 		d->FindAndReplaceWidget->resize(340, 180);
@@ -204,6 +214,7 @@ namespace YSSCore::Editor {
 		connect(d->Text->verticalScrollBar(), &QScrollBar::valueChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onScrollBarChanged);
 		connect(d->Text, &QPlainTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
+		connect(d->InlayHintHoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onInlayHintHoverTimeout);
 		connect(d->Text, &QPlainTextEdit::textChanged, [this]() {
 			// 整篇着色期间文档会短暂处于"还没有格式"的状态，此时不要去刷新缩略图，
 			// 否则拿到的是空数据、缩略图会整片变白；着色结束后由 wholeDocumentHighlighted 刷新一次。
@@ -216,6 +227,7 @@ namespace YSSCore::Editor {
 			if (d->ApplyingSuggestion) {
 				return;
 			}
+			d->hideInlayHintHover();
 			if (d->SgtKind != YSSCore::__Private__::SuggestionKind::None) {
 				d->dismissSuggestion(false);
 			}
@@ -235,6 +247,7 @@ namespace YSSCore::Editor {
 		// IF SyntaxHighlighter wants to access some of this object's members in its destructor,
 		// it will cause a crash as our d pointer is already deleted.
 		// So, Delete d->Text first to make sure SyntaxHighlighter is deleted before we delete d.
+		d->clearInlayHintHoverWidgets();
 		d->HoverInfoWidget->setParent(d->Text);
 		d->TabCompleterWidget->setParent(d->Text);
 		delete d->Text;
@@ -254,6 +267,11 @@ namespace YSSCore::Editor {
 		QWidget* target = area ? area : d->Text;
 		d->HoverInfoWidget->setParent(target);
 		d->TabCompleterWidget->setParent(target);
+		for (YSSCore::Editor::InlayHintHoverWidget* widget : d->InlayHintHoverWidgets) {
+			if (widget != nullptr) {
+				widget->setParent(target);
+			}
+		}
 	}
 
 	/*!
@@ -310,6 +328,7 @@ namespace YSSCore::Editor {
 	void TextEdit::setHoverTimeout(qint32 ms) {
 		d->HoverTimeout = ms;
 		d->HoverTimer->setInterval(ms);
+		d->InlayHintHoverTimer->setInterval(ms);
 	}
 
 	/*!
@@ -855,14 +874,18 @@ namespace YSSCore::Editor {
 		}
 		d->TabCompleterWidget->hide();
 		d->HoverInfoWidget->hide();
+		d->clearInlayHintHoverWidgets();
 		if (d->LangServer) {
 			d->Highlighter = d->LangServer->createHighlighter(this);
 			if (d->Highlighter) {
 				connect(d->Highlighter, &YSSCore::Editor::SyntaxHighlighter::inlayHintChangedForLine,
 					d->Text, &YSSCore::__Private__::InlayHintTextEdit::onInlayHintChangedForLine);
+				connect(d->Highlighter, &YSSCore::Editor::SyntaxHighlighter::inlayHintChangedForLine,
+					this, [this](qint32) { d->InlayHintHoverDirty = true; });
 				// 缩略图的颜色来自各块布局里的格式，只有整篇着色结束后才是完整的。
 				connect(d->Highlighter, &YSSCore::Editor::SyntaxHighlighter::wholeDocumentHighlighted,
 					this, [this]() {
+						d->InlayHintHoverDirty = true;
 						if (d->Overview != nullptr) {
 							d->Overview->recalculateAll();
 						}

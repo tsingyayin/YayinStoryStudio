@@ -53,6 +53,12 @@
     <QtMoc Include="YSS\ImageCacheHelper.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="YSS\InlayColorHoverWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="YSS\InlayColorProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <ClInclude Include="YSS\WAVViewHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -119,6 +125,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\ImageCacheHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\InlayColorHoverWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\InlayColorProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\WAVViewHelper.cpp">
