@@ -42,7 +42,6 @@ class QLabel;
 class QPushButton;
 class QToolButton;
 class QCheckBox;
-class QScrollBar;
 class QTimer;
 namespace YSSCore::__Private__ {
 	class TabCompleterWidget;
@@ -127,6 +126,8 @@ namespace YSSCore::__Private__ {
 	protected:
 		void paintEvent(QPaintEvent* event) override;
 		void resizeEvent(QResizeEvent* event) override;
+		void mousePressEvent(QMouseEvent* event) override;
+		void wheelEvent(QWheelEvent* event) override;
 		bool eventFilter(QObject* obj, QEvent* event) override;
 		QSize sizeHint() const override;
 	private:
@@ -244,7 +245,6 @@ namespace YSSCore::__Private__ {
 		LineNumberBar* Line = nullptr;
 		InlayHintTextEdit* Text = nullptr;
 		DocumentOverviewLabel* Overview = nullptr;
-		QScrollBar* HScrollBar = nullptr;
 		QGridLayout* Layout = nullptr;
 		qint32 LineCount = 0;
 		qint8 TabWidth = 4;

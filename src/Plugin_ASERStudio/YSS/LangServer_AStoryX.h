@@ -14,6 +14,7 @@ namespace ASERStudio::YSS {
 		static void deleteAStoryXDocument(const QString& filePath, ASERStudio::AStorySyntax::AStoryXDocument* doc);
 		static void renameAStoryXDocument(const QString& oldFilePath, const QString& newFilePath);
 		static ASERStudio::AStorySyntax::AStoryXDocument* getAStoryXDocument(const QString& filePath);
+		static void reloadRulesForOpenDocuments();
 	};
 }
 

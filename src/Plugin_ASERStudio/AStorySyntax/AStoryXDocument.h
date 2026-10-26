@@ -18,6 +18,8 @@ namespace ASERStudio::AStorySyntax {
 		Q_OBJECT;
 	signals:
 		void currentRuleChanged(qint32 lineNumber);
+		// 规则集重新加载后发出，宿主应当据此重新解析整篇文档。
+		void rulesReloaded();
 	public:
 		enum WorkMode {
 			SyntaxHighlighter,
@@ -37,6 +39,7 @@ namespace ASERStudio::AStorySyntax {
 		void onManualParse(qint32 lineIndex, const QString& text, qint32 cursorPosition = -1);
 		void onLinesAdded(qint32 startLine, qint32 count);
 		void onLinesRemoved(qint32 startLine, qint32 count);
+		void reloadCurrentRule();
 		AStoryXRule* getCurrentRule() const;
 		bool isDiagnosticEnabled() const;
 		WorkMode getWorkMode() const;

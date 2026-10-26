@@ -152,6 +152,17 @@ namespace YSSCore::__Private__ {
 		else if (obj == Text->viewport()) {
 			if (event->type() == QEvent::Resize) {
 				positionTestButton();
+				// 内置水平滚动条出现/消失时视口高度会变化；行号栏和缩略图只占视口高度，
+				// 避免在滚动条所在的高度上继续画行号或缩略图。
+				const qint32 viewportHeight = Text->viewport()->height();
+				if (viewportHeight > 0) {
+					if (Line != nullptr) {
+						Line->setFixedHeight(viewportHeight);
+					}
+					if (Overview != nullptr) {
+						Overview->setFixedHeight(viewportHeight);
+					}
+				}
 			}
 			if (event->type() == QEvent::MouseMove) {
 				QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);

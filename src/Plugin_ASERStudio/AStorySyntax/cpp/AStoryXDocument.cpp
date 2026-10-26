@@ -503,6 +503,20 @@ namespace ASERStudio::AStorySyntax {
 	}
 
 	/*!
+		\since ASERStudio 2.5.0
+		通知文档语法规则集已经变化。
+
+		规则文件的解析是异步进行的，文档很可能在规则可用之前就开始着色了，此时
+		#useRule 指令找不到对应规则，整篇文档会退化为默认规则。规则加载完成后由外部
+		调用此函数重置当前规则并发出 \l{rulesReloaded()}，让宿主重新解析整篇文档。
+	*/
+	void AStoryXDocument::reloadCurrentRule() {
+		d->CurrentRule = AStoryXRule();
+		d->GlobalDiagnostics.clear();
+		emit rulesReloaded();
+	}
+
+	/*!
 		\since ASERStudio 2.0
 		获取当前选定的规则，返回一个指向AStoryXRule对象的指针。
 

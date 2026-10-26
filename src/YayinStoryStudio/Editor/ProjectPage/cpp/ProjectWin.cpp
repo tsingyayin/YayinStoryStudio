@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <QtCore/qelapsedtimer.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
 #include <QtNetwork/qnetworkreply.h>
 #include <QtNetwork/qnetworkrequest.h>
@@ -30,6 +31,9 @@
 #include "Editor/ProjectPage/ProjectWin.h"
 #include "General/YSSURI.h"
 #include "YayinStoryStudio.h"
+
+VI_DECLARE_LOGGER(StartupProbe, YSSStartupProbe, YSS);
+
 namespace YSS::ProjectPage {
 	namespace {
 		// 用于界面展示的项目位置文本：本地路径用原生分隔符，远端路径保留 ssh:// 形式。
@@ -196,10 +200,15 @@ namespace YSS::ProjectPage {
 		HistoryProjectLabelList.clear();
 		InfoWidget->showProject(nullptr);
 		if (YSSCore::General::YSSProject::getCurrentProject()) {
+			QElapsedTimer startupProbeTimer;
+			startupProbeTimer.start();
+			YSSStartupProbe->debug() << "ProjectWin -> MainWin transition started";
 			if (YSS::Editor::MainWin::getInstance() == nullptr) {
 				new YSS::Editor::MainWin();
 			}
 			YSS::Editor::MainWin::getInstance()->show();
+			YSSStartupProbe->debug() << "ProjectWin -> MainWin transition finished, elapsed(ms):"
+				<< startupProbeTimer.elapsed();
 		}
 		this->deleteLater();
 	}

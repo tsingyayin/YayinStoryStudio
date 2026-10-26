@@ -36,6 +36,9 @@
 #include "Editor/MainEditor/TreeLayoutWidget.h"
 #include "Editor/NewFilePage/NewFileWin.h"
 #include "Editor/ProjectPage/ProjectWin.h"
+
+VI_DECLARE_LOGGER(StartupProbe, YSSStartupProbe, YSS);
+
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
 
@@ -44,6 +47,8 @@ namespace YSS::Editor {
 	}
 
 	MainWin::MainWin() :QFrame() {
+		StartupProbeTimer.start();
+		YSSStartupProbe->debug() << "MainWin construction started";
 		Instance = this;
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setWindowTitle(YSSCore::General::YSSProject::getCurrentProject()->getProjectName()+" - Yayin Story Studio");
@@ -79,6 +84,7 @@ namespace YSS::Editor {
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 
 		initTreeLayout();
+		YSSStartupProbe->debug() << "initTreeLayout finished, elapsed(ms):" << StartupProbeTimer.elapsed();
 
 		connect(YSSDSR, &DebugServerRouter::actionStarted, this, [this](YSSCore::Editor::DebugServer::DebugAction action) {
 			BottomFrame->displayDebugInfo(action, QString());
@@ -160,10 +166,17 @@ namespace YSS::Editor {
 			if (plugin->getPluginExtensionID() == YSSPluginTypeID) {
 				YSSCore::Editor::EditorPlugin* editorPlugin = dynamic_cast<YSSCore::Editor::EditorPlugin*>(plugin);
 				if (editorPlugin) {
+					QElapsedTimer pluginTimer;
+					pluginTimer.start();
 					editorPlugin->onProjectOpen(YSSCore::General::YSSProject::getCurrentProject());
+					YSSStartupProbe->debug() << "onProjectOpen finished, plugin:"
+						<< plugin->getPluginID() << "elapsed(ms):" << pluginTimer.elapsed()
+						<< "total(ms):" << StartupProbeTimer.elapsed();
 				}
 			}
 		}
+		YSSStartupProbe->debug() << "synchronous project initialization finished, elapsed(ms):"
+			<< StartupProbeTimer.elapsed();
 
 		YSSCore::General::YSSProject::getCurrentProject()->refreshLastModifyTime();
 		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
@@ -175,6 +188,8 @@ namespace YSS::Editor {
 			QList<YSSCore::General::YSSURI> stillOKFiles;
 			for (const YSSCore::General::YSSURI& fileUri : openedFilesInArea[areaID]) {
 				bool okToOpen = YSSFSM->openFile(fileUri);
+				YSSStartupProbe->debug() << "restore file request:" << fileUri.toString()
+					<< "accepted:" << okToOpen << "elapsed(ms):" << StartupProbeTimer.elapsed();
 				if (okToOpen) {
 					stillOKFiles.append(fileUri);
 				}
@@ -193,6 +208,8 @@ namespace YSS::Editor {
 			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, YSSFSM->getFileEditWidget(focusedFile));
 		}
 		saveProject();
+		YSSStartupProbe->debug() << "MainWin construction finished, elapsed(ms):"
+			<< StartupProbeTimer.elapsed();
 	}
 
 	MainWin::~MainWin() {
@@ -372,6 +389,8 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::onFileEditOpened(const YSSCore::General::YSSURI& uri) {
+		YSSStartupProbe->debug() << "file opened:" << uri.toString()
+			<< "elapsed(ms):" << StartupProbeTimer.elapsed();
 		auto widget = YSSFSM->getFileEditWidget(uri);
 		if (not widget) {
 			return;

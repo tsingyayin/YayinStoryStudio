@@ -46,6 +46,9 @@ namespace ASERStudio::YSS {
 		// 因此只需要重做该行及其之前的部分，不必整篇再解析一遍。
 		connect(d->Document, &AStorySyntax::AStoryXDocument::currentRuleChanged, this,
 			[this](qint32 lineNumber) { this->rehighlightRange_s(0, lineNumber + 1); });
+		// 规则是异步加载的，文档可能先于规则完成着色；规则就绪后整篇重来一遍。
+		connect(d->Document, &AStorySyntax::AStoryXDocument::rulesReloaded, this,
+			[this]() { this->rehighlightProgressive_s(); });
 		connect(parent, &YSSCore::Editor::FileEditWidget::fileRenamed, this,
 			[this](const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri) {
 				const QString oldPath = oldUri.getLocalPath();

@@ -1,6 +1,7 @@
 #ifndef YayinStoryStudio_Editor_MainEditor_MainWin_h
 #define YayinStoryStudio_Editor_MainEditor_MainWin_h
 #include <QObject>
+#include <QtCore/qelapsedtimer.h>
 #include <QtWidgets/qframe.h>
 #include <Widgets/ThemeManager.h>
 #include <Editor/FileServerManager.h>
@@ -46,6 +47,7 @@ namespace YSS::Editor {
 		YSSCore::General::YSSURI CompareNewUri;
 		bool HasCompareOld = false;
 		bool HasCompareNew = false;
+		QElapsedTimer StartupProbeTimer;
 		static MainWin* Instance;
 	private:
 		YSS::Editor::FileEditWidgetArea* selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget);

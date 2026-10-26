@@ -9,6 +9,7 @@
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qtextlayout.h>
 #include <QtGui/qtextobject.h>
+#include <QtWidgets/qapplication.h>
 #include <QtWidgets/qcheckbox.h>
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qboxlayout.h>
@@ -142,6 +143,16 @@ namespace YSSCore::__Private__ {
 	static constexpr qint32 OverviewGutterWidth = 10;
 	static constexpr qint32 OverviewCharWidth = 1;
 	static constexpr qint32 OverviewLineHeight = 2;
+	// 文档很长时按比例算出来的视口指示器可能只有几个像素高，鼠标很难抓住。
+	static constexpr qint32 OverviewViewportIndicatorMinHeight = 20;
+
+	static qint32 overviewViewportIndicatorHeight(qint32 viewHeight, qint32 pageStep, qint32 totalRange) {
+		if (viewHeight <= 0 or totalRange <= 0) {
+			return OverviewViewportIndicatorMinHeight;
+		}
+		const qint32 proportional = viewHeight * pageStep / totalRange;
+		return qMin(viewHeight, qMax(proportional, OverviewViewportIndicatorMinHeight));
+	}
 	// 字形采样尺寸：先把字符画进 10x16 的格子，再降采样到 1x2。
 	static constexpr qint32 OverviewSampleWidth = 10;
 	static constexpr qint32 OverviewSampleHeight = 16;
@@ -209,6 +220,47 @@ namespace YSSCore::__Private__ {
 			recalculateAll();
 			updateViewportIndicator();
 			});
+	}
+
+	void DocumentOverviewLabel::mousePressEvent(QMouseEvent* event) {
+		if (event->button() == Qt::LeftButton and this->editor != nullptr) {
+			auto* scrollBar = this->editor->d->Text->verticalScrollBar();
+			const int maximum = scrollBar->maximum();
+			const int pageStep = scrollBar->pageStep();
+			const int totalRange = maximum + pageStep;
+			const int h = this->height();
+			const int indicatorH = overviewViewportIndicatorHeight(h, pageStep, totalRange);
+			if (maximum > 0 and h > indicatorH) {
+				// 单击缩略图时把点击位置放到视口中心，而不是让视口顶边贴住点击位置。
+				const qreal ratio = (event->position().y() - indicatorH / 2.0) / (h - indicatorH);
+				const int newValue = qBound(scrollBar->minimum(),
+					qRound(ratio * maximum), maximum);
+				scrollBar->setValue(newValue);
+				event->accept();
+				return;
+			}
+		}
+		QWidget::mousePressEvent(event);
+	}
+
+	void DocumentOverviewLabel::wheelEvent(QWheelEvent* event) {
+		if (this->editor == nullptr) {
+			QWidget::wheelEvent(event);
+			return;
+		}
+		const int delta = event->angleDelta().y();
+		if (delta != 0) {
+			auto* scrollBar = this->editor->d->Text->verticalScrollBar();
+			const int lines = qMax(1, QApplication::wheelScrollLines());
+			const int singleStep = qMax(1, scrollBar->singleStep());
+			const int amount = qRound(delta * lines * singleStep / 120.0);
+			if (amount != 0) {
+				scrollBar->setValue(scrollBar->value() - amount);
+			}
+			event->accept();
+			return;
+		}
+		QWidget::wheelEvent(event);
 	}
 
 	QSize DocumentOverviewLabel::sizeHint() const {
@@ -476,9 +528,10 @@ namespace YSSCore::__Private__ {
 		}
 
 		const int h = this->height();
-		const int indicatorH = qMax(h * pageStep / totalRange, 5);
-		const int indicatorY = maximum > 0
-			? (h - indicatorH) * scrollBar->value() / maximum
+		const int indicatorH = overviewViewportIndicatorHeight(h, pageStep, totalRange);
+		const int trackHeight = qMax(0, h - indicatorH);
+		const int indicatorY = maximum > 0 and trackHeight > 0
+			? trackHeight * scrollBar->value() / maximum
 			: 0;
 
 		this->viewportIndicator->setGeometry(0, indicatorY, this->width(), indicatorH);
@@ -504,7 +557,7 @@ namespace YSSCore::__Private__ {
 					const int pageStep = scrollBar->pageStep();
 					const int totalRange = maximum + pageStep;
 					const int h = this->height();
-					const int indicatorH = qMax(h * pageStep / totalRange, 5);
+					const int indicatorH = overviewViewportIndicatorHeight(h, pageStep, totalRange);
 
 					if (h - indicatorH > 0 && maximum > 0) {
 						int newValue = this->dragStartScrollValue + deltaY * maximum / (h - indicatorH);

@@ -105,4 +105,27 @@ namespace ASERStudio::YSS {
 		}
 		return it.value().data();
 	}
+
+	/*!
+		\since ASERStudio 2.5.0
+
+		通知所有已打开的AStoryX文档：语法规则集已经重新加载。
+
+		规则文件的解析是异步的，打开较早的文档可能是在规则尚未注册时完成着色的。
+		规则加载完成后调用此函数，让这些文档重新解析。
+	*/
+	void AStoryXLanguageServer::reloadRulesForOpenDocuments() {
+		// 先收集再通知：reloadCurrentRule会触发重新着色，避免在遍历静态表时被间接修改。
+		QList<QPointer<ASERStudio::AStorySyntax::AStoryXDocument>> documents;
+		for (const auto& document : AStoryXLanguageServerPrivate::DocumentMap) {
+			if (not document.isNull()) {
+				documents.append(document);
+			}
+		}
+		for (const auto& document : documents) {
+			if (not document.isNull()) {
+				document->reloadCurrentRule();
+			}
+		}
+	}
 }

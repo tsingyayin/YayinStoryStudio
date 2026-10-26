@@ -148,11 +148,12 @@ namespace YSSCore::Editor {
 
 		d->Text = new YSSCore::__Private__::InlayHintTextEdit(this, this);
 		d->Text->setLineWrapMode(QPlainTextEdit::NoWrap);
-		d->Text->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		d->Text->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+		d->Text->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->Layout->addWidget(d->Text, 0, 1);
 		// 行号栏是自绘控件，依赖编辑区（文档布局与滚动位置），因此在 Text 之后再建。
 		d->Line = new YSSCore::__Private__::LineNumberBar(d->Text, this);
-		d->Layout->addWidget(d->Line, 0, 0);
+		d->Layout->addWidget(d->Line, 0, 0, Qt::AlignTop);
 		d->TabCompleterWidget = new YSSCore::__Private__::TabCompleterWidget(this);
 		d->TabCompleterWidget->hide();
 		d->HoverInfoWidget = new YSSCore::__Private__::HoverInfoWidget(d->Text);
@@ -179,20 +180,8 @@ namespace YSSCore::Editor {
 		setTextFont(QFont("Microsoft YaHei"));
 
 		d->Overview = new YSSCore::__Private__::DocumentOverviewLabel(this, this);
-		d->Layout->addWidget(d->Overview, 0, 2);
-
-		// 底部横向滚动轴：整个控件底部统一横向滚动 Text 的内容
-		d->HScrollBar = new QScrollBar(Qt::Horizontal, this);
-		d->Layout->addWidget(d->HScrollBar, 1, 0, 1, 3);
+		d->Layout->addWidget(d->Overview, 0, 2, Qt::AlignTop);
 		d->Layout->setRowStretch(0, 1);
-		auto textHBar = d->Text->horizontalScrollBar();
-		connect(textHBar, &QScrollBar::rangeChanged, this, [this, textHBar](int min, int max) {
-			d->HScrollBar->setRange(min, max);
-			d->HScrollBar->setPageStep(textHBar->pageStep());
-			d->HScrollBar->setSingleStep(textHBar->singleStep());
-			});
-		connect(textHBar, &QScrollBar::valueChanged, d->HScrollBar, &QScrollBar::setValue);
-		connect(d->HScrollBar, &QScrollBar::valueChanged, textHBar, &QScrollBar::setValue);
 
 		d->HoverTimer = new QTimer(this);
 		d->HoverTimer->setInterval(d->HoverTimeout);
