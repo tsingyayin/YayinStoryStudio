@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 		YSSAndroid::openAllFilesAccessSettings();
 	}
 #endif
-	VISetEnv(Visindigo::General::VIApplication::MinimumLoadingTimeMS, 1500);
+	VISetEnv(Visindigo::General::VIApplication::MinimumLoadingTimeMS, 1000);
 	VISetEnv(Visindigo::General::VIApplication::UseVirtualTerminal, true);
 	VISetEnv(Visindigo::General::VIApplication::SaveCommandHistory, true);
 	Visindigo::General::VIApplication app(argc, argv, Visindigo::General::VIApplication::WidgetApp);

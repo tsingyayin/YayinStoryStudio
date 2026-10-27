@@ -1210,7 +1210,13 @@ namespace YSS::Editor {
 		case TreeLayoutDropZone::DropZone::ItemBottom: {
 			FileEditWidgetArea* area = new FileEditWidgetArea();
 			TreeLayoutWidget* layout = replaceAreaWithNewLayoutAt(childIndex, area, zone == TreeLayoutDropZone::DropZone::ItemTop);
-			if (layout && sourceArea != area) {
+			if (not layout) {
+				// 新区域没能插进布局，它此时没有父对象，只能由这里回收。
+				area->setCloseSilently(true);
+				delete area;
+				break;
+			}
+			if (sourceArea != area) {
 				sourceArea->moveWidgetTo(fileUri, area);
 			}
 			break;
@@ -1219,7 +1225,13 @@ namespace YSS::Editor {
 		case TreeLayoutDropZone::DropZone::ItemRight: {
 			FileEditWidgetArea* area = new FileEditWidgetArea();
 			TreeLayoutWidget* layout = replaceAreaWithNewLayoutAt(childIndex, area, zone == TreeLayoutDropZone::DropZone::ItemLeft);
-			if (layout && sourceArea != area) {
+			if (not layout) {
+				// 同上：插入失败时自行回收，避免泄漏一个区域及其子控件。
+				area->setCloseSilently(true);
+				delete area;
+				break;
+			}
+			if (sourceArea != area) {
 				sourceArea->moveWidgetTo(fileUri, area);
 			}
 			break;

@@ -204,8 +204,12 @@ namespace YSS::Editor {
 		// into the main area and leave the original area with a tag but no content.
 		FileEditWidgetArea* focusedArea = FileEditWidgetArea::getAreaByID(currentProject->getFileAreaID(focusedFile));
 		if (focusedArea and focusedFile.isValid()) {
-			focusedArea->setCurrentWidget(focusedFile);
-			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, YSSFSM->getFileEditWidget(focusedFile));
+			// 真实文件是异步读取的，此时控件可能还没建好；等 onFileEditOpened 再设为当前页签。
+			YSSCore::Editor::FileEditWidget* focusedWidget = YSSFSM->getFileEditWidget(focusedFile);
+			if (focusedWidget) {
+				focusedArea->setCurrentWidget(focusedWidget);
+			}
+			FileEditWidgetArea::setCurrentFocusedWidget(focusedArea, focusedWidget);
 		}
 		saveProject();
 		YSSStartupProbe->debug() << "MainWin construction finished, elapsed(ms):"
@@ -213,7 +217,10 @@ namespace YSS::Editor {
 	}
 
 	MainWin::~MainWin() {
-		RenameDlg->deleteLater();
+		// RenameDlg 没有父对象，deleteLater 依赖事件循环继续运行；进程退出路径上循环随时会停，
+		// 所以这里同步销毁，保证它一定被释放。
+		delete RenameDlg;
+		RenameDlg = nullptr;
 		Instance = nullptr;
 	}
 
@@ -790,6 +797,10 @@ namespace YSS::Editor {
 			waitForPendingSaves();
 			return;
 		}
+
+		// 用户已经确认关闭，此后不再需要为这个项目打开任何文件。还没读完的打开请求要在这里
+		// 作废，否则它们读完后仍会创建编辑器，而那时已经没有区域能接管这些控件了。
+		YSSFSM->clearPendingOpens();
 
 		for (TreeLayoutWidget* layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
 			if (not layout->closeAllFilesWithConfirm()) {

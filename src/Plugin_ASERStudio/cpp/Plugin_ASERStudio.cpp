@@ -3,6 +3,7 @@
 #include <QtCore/qelapsedtimer.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qthread.h>
+#include <QtCore/qtimer.h>
 #include <QtWidgets/qmessagebox.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
@@ -221,6 +222,9 @@ namespace ASERStudio {
 		d->ASERDebugIO->setProgram(d->ASERProgram);
 		onConfigLoaded();
 		d->setupRuleLoader(this);
+		// 资源监视器的构造会读取官方配置并建立文件监视，放在启动阶段完成，
+		// 避免第一次打开项目时才承担这部分初始化。
+		ASERStudio::ASEREnv::ASERResourceMoniter::getInstance();
 	}
 	void Main::onApplicationInit() {}
 	void Main::onPluginDisable() {
@@ -253,12 +257,19 @@ namespace ASERStudio {
 		const quint64 generation = ++d->RuleLoadGeneration;
 		d->setupRuleLoader(this);
 		d->startRuleLoading(projectFolder, generation);
-		QElapsedTimer resourceProbeTimer;
-		resourceProbeTimer.start();
-		ASERRM->changeProjectPath(projectFolder);
+		// 资源扫描是同步的，放到事件循环的下一轮执行，避免阻塞 MainWin 的构造和首次显示。
+		QTimer::singleShot(0, this, [this, projectFolder, generation]() {
+			if (generation != d->RuleLoadGeneration) {
+				return;
+			}
+			QElapsedTimer resourceProbeTimer;
+			resourceProbeTimer.start();
+			ASERRM->changeProjectPath(projectFolder);
+			ASERStartupProbe->debug() << "ASER resource monitor updated, generation:" << generation
+				<< "elapsed(ms):" << resourceProbeTimer.elapsed();
+		});
 		ASERStartupProbe->debug() << "ASER rule loading scheduled, generation:" << generation
-			<< "resource monitor elapsed(ms):" << resourceProbeTimer.elapsed()
-			<< "synchronous total(ms):" << startupProbeTimer.elapsed();
+			<< "resource monitor deferred, synchronous total(ms):" << startupProbeTimer.elapsed();
 	}
 
 	void Main::onConfigLoaded() {

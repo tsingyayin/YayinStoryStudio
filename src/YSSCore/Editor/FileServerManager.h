@@ -36,6 +36,7 @@ namespace YSSCore::Editor {
 		bool openFile(const YSSCore::General::YSSURI& uri, const QString& preferredServerId = QString(), bool useFallback = true);
 		bool openFile(const QFileInfo& fileInfo, const QString& preferredServerId = QString(), bool useFallback = true);
 		bool openFile(const QString& filePath, const QString& preferredServerId = QString(), bool useFallback = true);
+		void clearPendingOpens();
 		QStringList getSupportedFileExts();
 		QString getNameOfFileServer(const QString& serverId);
 		void setPriorityForFileExt(const QString& fileExt, const QStringList& serverIds);

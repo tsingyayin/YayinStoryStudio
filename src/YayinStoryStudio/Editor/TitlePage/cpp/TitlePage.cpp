@@ -1,7 +1,9 @@
 #include <chrono>
+#include <QtCore/qmetaobject.h>
 #include <QtGui/qfontdatabase.h>
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qgraphicseffect.h>
+#include <General/StacktraceHelper.h>
 #include "Editor/TitlePage/TitlePage.h"
 
 namespace YSS::TitlePage {
@@ -27,6 +29,13 @@ namespace YSS::TitlePage {
 		Title->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		Title->setStyleSheet("QLabel{border-image:url();color:#BBBBBB}");
 		Title->setText("Loading...");
+
+		// std::stacktrace 首次解析符号会加载各模块的 PDB，耗时可达数百毫秒；
+		// 在加载界面显示期间完成这次预热，避免第一次进入项目时才付出该开销。
+		// 用队列调用让回调经过 QWidget::event，这样栈上会包含 Qt Widgets/Gui 模块。
+		QMetaObject::invokeMethod(this, []() {
+			Visindigo::General::StacktraceHelper::getStacktrace();
+		}, Qt::QueuedConnection);
 	}
 	void TitlePage::onLoadingMessage(const QString& msg) {
 		Title->setText(msg);

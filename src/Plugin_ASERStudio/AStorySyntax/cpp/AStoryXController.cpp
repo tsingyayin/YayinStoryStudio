@@ -195,11 +195,13 @@ namespace ASERStudio::AStorySyntax {
 				}
 			}
 			if (diagnostic && repeatedPrefixes.size() > 0) {
+				const QString repeatedMessage = VITRL("ASERStudio::diagnostic.parameterRepeated.message");
+				const QString repeatedFixAdvice = VITRL("ASERStudio::diagnostic.parameterRepeated.fixAdvice");
 				for (int i = 0; i < repeatedPrefixes.size(); i++) {
 					AStoryXDiagnosticData diagnosticData = AStoryXDiagnosticData(
-						VITRL("ASERStudio::diagnostic.parameterRepeated.message").arg(repeatedPrefixes[i]).arg(repeatedPrefixIndexes[i]),
+						repeatedMessage.arg(repeatedPrefixes[i]).arg(repeatedPrefixIndexes[i]),
 						lineIndex, repeatedPrefixIndexes[i], AStoryXDiagnosticData::DiagnosticType::ParameterRepeated,
-						VITRL("ASERStudio::diagnostic.parameterRepeated.fixAdvice")
+						repeatedFixAdvice
 					);
 					data->d->Diagnostics.append(diagnosticData);
 				}

@@ -1,19 +1,52 @@
 #include <QtCore/qfile.h>
+#include <QtCore/qmap.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qtextstream.h>
+#include <utility>
 #include "General/Log.h"
 #include "General/private/Translator_p.h"
+#include "Utility/JsonConfig.h"
+
+namespace {
+	void flattenConfig(const Visindigo::Utility::JsonConfig& config, const QString& prefix, QMap<QString, QString>& result) {
+		const QStringList keys = config.keys(prefix);
+		for (const QString& key : keys) {
+			const QString path = prefix.isEmpty() ? key : prefix + QLatin1Char('.') + key;
+			if (config.isObject(path) || config.isArray(path)) {
+				flattenConfig(config, path, result);
+			}
+			else if (config.isString(path)) {
+				const QString text = config.getString(path);
+				// Keep the original lookup semantics: an empty text is treated as a missing key.
+				if (not text.isEmpty()) {
+					result.insert(path, text);
+				}
+			}
+		}
+	}
+}
 
 namespace Visindigo::__Private__ {
 	bool TranslatorPrivate::loadDefault() {
-		return loadTranslationFile(DefaultID, true);
+		return loadStrings(DefaultID, DefaultStrings);
 	}
 
-	bool TranslatorPrivate::loadTranslationFile(Visindigo::General::Translator::LangID id, bool asDefault) {
-		//vgDebug << FilePath.size();
-		QString filePath = FilePath[id];
+	bool TranslatorPrivate::loadLanguage(Visindigo::General::Translator::LangID id) {
+		// The default language is already flattened into DefaultStrings; skip re-reading the same file.
+		if (id == DefaultID) {
+			LangStrings.clear();
+			return not DefaultStrings.isEmpty();
+		}
+		return loadStrings(id, LangStrings);
+	}
+
+	bool TranslatorPrivate::loadStrings(Visindigo::General::Translator::LangID id, QMap<QString, QString>& target) {
+		const QString filePath = FilePath.value(id);
+		if (filePath.isEmpty()) {
+			return false;
+		}
 		QFile file(filePath);
-		if (!file.exists()) {
+		if (not file.exists()) {
 			return false;
 		}
 		if (not file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -21,31 +54,20 @@ namespace Visindigo::__Private__ {
 		}
 		QTextStream ts(&file);
 		ts.setEncoding(QStringConverter::Utf8);
-		QString jsonConfig = ts.readAll();
+		const QString jsonConfig = ts.readAll();
 		file.close();
-		if (asDefault) {
-			if (DefaultLang != nullptr) {
-				delete DefaultLang;
-			}
-			DefaultLang = new Visindigo::Utility::JsonConfig();
-			DefaultLang->parse(jsonConfig);
+		Visindigo::Utility::JsonConfig config;
+		const QJsonParseError error = config.parse(jsonConfig);
+		if (error.error != QJsonParseError::NoError) {
+			vgWarningF << "Failed to parse translation file" << filePath << ":" << error.errorString();
+			return false;
 		}
-		else {
-			if (Lang != nullptr) {
-				delete Lang;
-			}
-			Lang = new Visindigo::Utility::JsonConfig();
-			Lang->parse(jsonConfig);
-		}
+		QMap<QString, QString> strings;
+		flattenConfig(config, QString(), strings);
+		target = std::move(strings);
 		return true;
 	}
 	TranslatorPrivate::~TranslatorPrivate() {
-		if (DefaultLang != nullptr) {
-			delete DefaultLang;
-		}
-		if (Lang != nullptr) {
-			delete Lang;
-		}
 	}
 }
 namespace Visindigo::General
@@ -222,42 +244,14 @@ namespace Visindigo::General
 		return 翻译结果。如果当前语言和默认语言均缺少该键名的翻译，则返回原键名。
 	*/
 	QString Translator::tr(const QString& key) {
-		if (d->Lang == nullptr && d->DefaultLang == nullptr) [[unlikely]] {
-			return key;
+		const auto langIt = d->LangStrings.constFind(key);
+		if (langIt != d->LangStrings.constEnd()) [[likely]] {
+			return langIt.value();
 		}
-		if (d->Lang != nullptr) [[likely]] {
-			QString tr = d->Lang->getString(key);
-			if (tr.isEmpty()) [[unlikely]] {
-				if (d->DefaultLang != nullptr) {
-					tr = d->DefaultLang->getString(key);
-					if (tr.isEmpty()) {
-						return key;
-					}
-					else {
-						return tr;
-					}
-				}
-				else {
-					return key;
-				}
-			}
-			else [[likely]] {
-				return tr;
-			}
+		const auto defaultIt = d->DefaultStrings.constFind(key);
+		if (defaultIt != d->DefaultStrings.constEnd()) {
+			return defaultIt.value();
 		}
-		else {
-			if (d->DefaultLang != nullptr) {
-				QString tr = d->DefaultLang->getString(key);
-				if (tr.isEmpty()) {
-					return key;
-				}
-				else {
-					return tr;
-				}
-			}
-			else {
-				return key;
-			}
-		}
+		return key;
 	}
 }

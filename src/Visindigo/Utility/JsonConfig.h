@@ -37,11 +37,9 @@ namespace Visindigo::Utility {
 		JsonConfig(const QVariant& variant);
 		JsonConfig(const QString& jsonStr);
 		JsonConfig(const QJsonDocument& json);
-		JsonConfig(const JsonConfig& other) noexcept;
-		JsonConfig(JsonConfig&& other) noexcept;
 		~JsonConfig();
-		JsonConfig& operator=(const JsonConfig& other) noexcept;
-		JsonConfig& operator=(JsonConfig&& other) noexcept;
+		VIMoveable(JsonConfig);
+		VICopyable(JsonConfig);
 		JsonValueRef operator[](const QString& key);
 		QStringList keys(const QString& key = "") const;
 		bool remove(const QString& key);

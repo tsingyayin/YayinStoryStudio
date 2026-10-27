@@ -662,8 +662,9 @@ namespace ASERStudio::YSS {
 		CategoryGroup->setExclusive(true);
 		for (const CategoryEntry& entry : CategoryTable) {
 			QToolButton* button = new QToolButton(CategoryBar);
-			button->setText(VITR(entry.TitleKey));
-			button->setToolTip(VITR(entry.TitleKey));
+			const QString title = VITR(entry.TitleKey);
+			button->setText(title);
+			button->setToolTip(title);
 			button->setCheckable(true);
 			button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 			// 不画按钮边框，只在悬浮和选中时给出底色反馈
@@ -1057,6 +1058,11 @@ namespace ASERStudio::YSS {
 		const QString dirPath = categoryPath(ResourceCategory::CharSpine);
 		const QFileInfoList folders = QDir(dirPath).entryInfoList(
 			QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::IgnoreCase);
+		const QString atlasText = VITRL("ASERStudio::projectResourceBrowser.spine.atlas");
+		const QString textureText = VITRL("ASERStudio::projectResourceBrowser.spine.texture");
+		const QString skeletonText = VITRL("ASERStudio::projectResourceBrowser.spine.skeleton");
+		const QString aserConfigText = VITRL("ASERStudio::projectResourceBrowser.spine.aserConfig");
+		const QString spineProjectText = VITRL("ASERStudio::projectResourceBrowser.spine.spineProject");
 		for (const QFileInfo& folder : folders) {
 			const QString folderName = folder.fileName();
 			const QString folderPath = folder.absoluteFilePath();
@@ -1078,19 +1084,19 @@ namespace ASERStudio::YSS {
 			const QString spineProjectPath = folderPath + "/" + folderName + ".json";
 			const QString aserConfigPath = folderPath + "/" + folderName + "_config.json";
 			if (QFileInfo::exists(atlasPath)) {
-				buttons.append({ VITRL("ASERStudio::projectResourceBrowser.spine.atlas"), atlasPath });
+				buttons.append({ atlasText, atlasPath });
 			}
 			if (QFileInfo::exists(texturePath)) {
-				buttons.append({ VITRL("ASERStudio::projectResourceBrowser.spine.texture"), texturePath });
+				buttons.append({ textureText, texturePath });
 			}
 			if (QFileInfo::exists(skelPath)) {
-				buttons.append({ VITRL("ASERStudio::projectResourceBrowser.spine.skeleton"), skelPath });
+				buttons.append({ skeletonText, skelPath });
 			}
 			if (QFileInfo::exists(aserConfigPath)) {
-				buttons.append({ VITRL("ASERStudio::projectResourceBrowser.spine.aserConfig"), aserConfigPath });
+				buttons.append({ aserConfigText, aserConfigPath });
 			}
 			if (QFileInfo::exists(spineProjectPath)) {
-				buttons.append({ VITRL("ASERStudio::projectResourceBrowser.spine.spineProject"), spineProjectPath });
+				buttons.append({ spineProjectText, spineProjectPath });
 			}
 			item->setOverlayButtons(buttons);
 		}

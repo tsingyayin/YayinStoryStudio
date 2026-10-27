@@ -1,4 +1,7 @@
 #include <QtCore/qcoreapplication.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringview.h>
 #include <QtCore/qtranslator.h>
 #include "General/Log.h"
 #include "General/private/Translator_p.h"
@@ -7,16 +10,15 @@ namespace Visindigo::General {
 	class TranslationHostPrivate {
 		friend class TranslationHost;
 		static TranslationHost* Instance;
-		QMap<QString, Translator*> Translators;
+		QHash<QString, Translator*> Translators;
 		Translator::LangID GlobalID = Translator::LangID::zh_CN;
 		QTranslator* currentQTranslator = nullptr;
 		void refreshLang(Translator::LangID langID) {
 			if (langID == GlobalID) {
 				return;
 			}
-			for (QString id : Translators.keys()) {
-				Translator* trans = Translators[id];
-				trans->d->loadTranslationFile(langID);
+			for (Translator* trans : Translators) {
+				trans->d->loadLanguage(langID);
 			}
 			QString langId = QMetaEnum::fromType<Translator::LangID>().valueToKey(langID);
 			vgNoticeF << "Language changed to" << langId;
@@ -145,7 +147,7 @@ namespace Visindigo::General {
 		}
 		d->Translators.insert(translator->getNamespace(), translator);
 		translator->d->loadDefault();
-		translator->d->loadTranslationFile(d->GlobalID);
+		translator->d->loadLanguage(d->GlobalID);
 		vgNoticeF << "Translator:" << translator->getNamespace() << "actived.";
 	}
 
@@ -179,9 +181,9 @@ namespace Visindigo::General {
 		return 返回翻译后的字符串，或 "nameSpace::key" 形式的字符串。
 	*/
 	QString TranslationHost::tra(const QString& nameSpace, const QString& key) {
-		Translator* trans = d->Translators[nameSpace];
-		if (trans != nullptr) [[likely]] {
-			return trans->tr(key);
+		const auto it = d->Translators.constFind(nameSpace);
+		if (it != d->Translators.constEnd()) [[likely]] {
+			return it.value()->tr(key);
 		}
 		else {
 			vgErrorF << "No such namespace" << nameSpace << "for key" << key;
@@ -201,9 +203,16 @@ namespace Visindigo::General {
 		return 返回翻译后的字符串，或 \a key 本身。
 	*/
 	QString TranslationHost::tra(const QString& key) {
-		QStringList keys = key.split("::");
-		if (keys.length() == 2) {
-			return tra(keys[0], keys[1]);
+		const qsizetype separator = key.indexOf(QStringLiteral("::"));
+		if (separator >= 0 && key.indexOf(QStringLiteral("::"), separator + 2) < 0) {
+			const QStringView nameSpace = QStringView(key).left(separator);
+			const QStringView trKey = QStringView(key).mid(separator + 2);
+			const auto it = d->Translators.constFind(nameSpace);
+			if (it != d->Translators.constEnd()) [[likely]] {
+				return it.value()->tr(trKey.toString());
+			}
+			vgErrorF << "No such namespace" << nameSpace.toString() << "for key" << trKey.toString();
+			return key;
 		}
 		vgErrorF << "Key" << key << "dose not use namespace syntax.";
 		return key;
@@ -220,12 +229,12 @@ namespace Visindigo::General {
 		return 返回翻译后的字符串，或 \a raw 本身。
 	*/
 	QString TranslationHost::i18n(const VI18NStr& raw) {
-		if (raw.startsWith("i18n:")) {
-			QStringList keys = raw.mid(5).split("::");
-			if (keys.length() != 2) {
+		if (raw.startsWith(QLatin1String("i18n:"))) {
+			const qsizetype separator = raw.indexOf(QStringLiteral("::"), 5);
+			if (separator < 0 || raw.indexOf(QStringLiteral("::"), separator + 2) >= 0) {
 				return raw;
 			}
-			return tra(keys[0], keys[1]);
+			return tra(raw.mid(5, separator - 5), raw.mid(separator + 2));
 		}
 		return raw;
 	}

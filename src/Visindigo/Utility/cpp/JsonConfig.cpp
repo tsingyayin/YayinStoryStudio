@@ -11,12 +11,12 @@ namespace Visindigo::Utility {
 		friend class JsonConfig;
 		QJsonDocument JsonDoc;
 		QStringList getKeys(const QString& key) {
-			QJsonObject Json = JsonDoc.object();
+			const QJsonObject Json = JsonDoc.object();
 			if (key.isEmpty()) {
 				return Json.keys();
 			}
 			QStringList keys = key.split(".");
-			QJsonValue value = Json[keys[0]];
+			QJsonValue value = Json.value(keys[0]);
 			if (keys.size() == 1) {
 				if (value.isObject()) {
 					return value.toObject().keys();
@@ -35,13 +35,13 @@ namespace Visindigo::Utility {
 			else {
 				for (int i = 1; i < keys.size(); i++) {
 					if (value.isObject()) {
-						value = value.toObject()[keys[i]];
+						value = value.toObject().value(keys[i]);
 					}
 					else if (value.isArray()) {
 						bool ok;
 						int index = keys[i].toInt(&ok);
 						if (ok) {
-							value = value.toArray()[index];
+							value = value.toArray().at(index);
 						}
 						else {
 							return QStringList();
@@ -82,20 +82,20 @@ namespace Visindigo::Utility {
 				return Json;
 			}
 			QStringList keys = key.split(".");
-			QJsonValue value = Json[keys[0]];
+			QJsonValue value = Json.value(keys[0]);
 			if (keys.size() == 1) {
 				return value;
 			}
 			else {
 				for (int i = 1; i < keys.size(); i++) {
 					if (value.isObject()) {
-						value = value.toObject()[keys[i]];
+						value = value.toObject().value(keys[i]);
 					}
 					else if (value.isArray()) {
 						bool ok;
 						int index = keys[i].toInt(&ok);
 						if (ok) {
-							value = value.toArray()[index];
+							value = value.toArray().at(index);
 						}
 						else {
 							return QJsonValue();
@@ -413,26 +413,18 @@ namespace Visindigo::Utility {
 		d->JsonDoc = json;
 	}
 	/*!
-		\since Visindigo 0.13.0
-		\a other 为VIJsonConfig的另一个实例。
-		VIJsonConfig的拷贝构造函数
-	*/
-	JsonConfig::JsonConfig(const JsonConfig& other) noexcept
-	{
-		d = new JsonConfigPrivate();
-		d->JsonDoc = other.d->JsonDoc;
-	}
-
-	/*!
+		\fn Visindigo::Utility::JsonConfig::JsonConfig(JsonConfig&& other) noexcept
 		\since Visindigo 0.13.0
 		\a other 为VIJsonConfig的另一个实例。
 		VIJsonConfig的移动构造函数
 	*/
-	JsonConfig::JsonConfig(JsonConfig&& other) noexcept
-	{
-		d = other.d;
-		other.d = nullptr;
-	}
+
+	/*!
+		\fn Visindigo::Utility::JsonConfig::JsonConfig(const JsonConfig& other)
+		\since Visindigo 0.13.0
+		\a other 为VIJsonConfig的另一个实例。
+		VIJsonConfig的拷贝构造函数
+	*/
 
 	/*!
 		\since Visindigo 0.13.0
@@ -444,28 +436,20 @@ namespace Visindigo::Utility {
 	}
 
 	/*!
-		\since Visindigo 0.13.0
-		\a other 为VIJsonConfig的另一个实例。
-		VIJsonConfig的赋值操作符
-	*/
-	JsonConfig& JsonConfig::operator=(const JsonConfig& other) noexcept
-	{
-		d->JsonDoc = other.d->JsonDoc;
-		return *this;
-	}
-
-	/*!
+		\fn Visindigo::Utility::JsonConfig& Visindigo::Utility::JsonConfig::operator=(JsonConfig&& other) noexcept
 		\since Visindigo 0.13.0
 		\a other 为VIJsonConfig的另一个实例。
 		VIJsonConfig的移动操作符
 	*/
-	JsonConfig& JsonConfig::operator=(JsonConfig&& other) noexcept
-	{
-		if (this->d != nullptr) { delete d; }
-		d = other.d;
-		other.d = nullptr;
-		return *this;
-	}
+
+	/*!
+		\fn Visindigo::Utility::JsonConfig& Visindigo::Utility::JsonConfig::operator=(const JsonConfig& other)
+		\since Visindigo 0.13.0
+		\a other 为VIJsonConfig的另一个实例。
+		VIJsonConfig的赋值操作符
+	*/
+	VIMoveable_Impl(JsonConfig);
+	VICopyable_Impl(JsonConfig);
 
 	/*!
 		\since Visindigo 0.13.0

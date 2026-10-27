@@ -43,6 +43,8 @@ namespace YSSCore::Editor {
 		QMap<FileEditWidget*, FileServer*> FileEditWidgetSourceServerMap;
 		// 已经受理、正在异步读取的文件。用来防止同一个 URI 在读取完成前被重复打开。
 		QSet<QString> PendingOpens;
+		// 每次 clearPendingOpens() 递增。回调带着提交时的值，值对不上就说明这次打开已经被作废。
+		quint64 PendingOpenEpoch = 0;
 
 		static FileServerManager* Instance;
 
@@ -95,6 +97,7 @@ namespace YSSCore::Editor {
 				return this->openWithServer(uri, QByteArray(), candidates.first());
 			}
 			const QString key = keyOf(uri);
+			const quint64 epoch = PendingOpenEpoch;
 			PendingOpens.insert(key);
 			YSSUniqueFileSystem* fs = YSSUniqueFileSystem::getInstance();
 			YSSFileSystemReply* reply = fs->read(uri);
@@ -104,7 +107,13 @@ namespace YSSCore::Editor {
 				return false;
 			}
 			QObject::connect(reply, &YSSFileSystemReply::succeeded, Instance,
-				[this, uri, key, candidates, reply, useFallback]() {
+				[this, uri, key, candidates, reply, useFallback, epoch]() {
+					if (epoch != PendingOpenEpoch) {
+						// 提交这次打开的项目已经关闭：不能再建编辑器，否则没人会接管这个控件。
+						PendingOpens.remove(key);
+						vgDebugF << "Discard stale open request for" << uri.toString();
+						return;
+					}
 					const QByteArray data = reply->getData();
 					for (FileServer* server : candidates) {
 						if (this->openWithServer(uri, data, server)) {
@@ -517,6 +526,24 @@ namespace YSSCore::Editor {
 			return false;
 		}
 		return openFile(YSSURI::fromLocalPath(fileInfo.absoluteFilePath()), preferredServerId, useFallback);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		作废所有已受理但尚未结束的异步打开请求。
+
+		真实文件的打开是"先异步读取、读完再创建编辑器"的两段流程。调用方（例如项目窗口）
+		可能要在这段读取结束之前就关闭，此时如果读完之后照旧创建 FileEditWidget，这个控件
+		既不会出现在任何区域里，也不会被谁负责关闭，等于一直留在 FileServerManager 里。
+		本函数让这些已经受理的请求在回调到达时直接作废，同时清空 \l{openFile()} 用来去重的
+		受理记录。
+
+		\note 本函数只影响尚未读完的请求，已经打开的编辑器不受影响。
+	*/
+	void FileServerManager::clearPendingOpens() {
+		++d->PendingOpenEpoch;
+		d->PendingOpens.clear();
 	}
 
 	/*!

@@ -528,7 +528,11 @@ namespace YSS::Editor {
 		onThemeChanged();
 	}
 
-	StackTagWidget::~StackTagWidget() {}
+	StackTagWidget::~StackTagWidget() {
+		// WidgetSelectorPopup 是 Qt::Popup 顶层控件，没有父对象，不会随本控件销毁。
+		delete WidgetSelectorPopup;
+		WidgetSelectorPopup = nullptr;
+	}
 
 	void StackTagWidget::setArea(FileEditWidgetArea* area) {
 		Area = area;
