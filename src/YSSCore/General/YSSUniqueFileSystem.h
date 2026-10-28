@@ -50,6 +50,9 @@ namespace YSSCore::General {
 			NotSupported,
 			Aborted,
 			InvalidConfiguration,
+			// 文件超过后端配置的大小上限。SSH 后端的上限由
+			// Visindigo::Network::SshConnectConfig::MaxSftpFileBytes 决定。
+			FileTooLarge,
 			Unknown
 		};
 		Q_ENUM(ErrorType)
@@ -195,6 +198,11 @@ namespace YSSCore::General {
 		void taskProgressed(quint64 id, qint64 transferred, qint64 total);
 		// 任务结束（成功或失败），此时该任务已从 getTasks() 中移除。
 		void taskFinished(quint64 id, bool ok);
+		// 被监听目录的内容发生了变化。只在该目录的直接内容变化时发出，不递归。
+		//
+		// 同一目录在一小段时间内的多次变化会被合并成一次；目录被删除时也会发出，
+		// 此时后续的 list() 会以 NotFound 失败，调用方应丢弃该节点并 unwatchDirectory()。
+		void directoryChanged(const YSSURI& uri);
 	public:
 		enum class Operation {
 			Unknown = 0,
@@ -208,6 +216,13 @@ namespace YSSCore::General {
 			// 且不保证能恢复——需要恢复的删除请在项目内自己留副本。
 			Recycle,
 			Rename,
+			// 复制文件/链接或整个目录树到目标 URI。目标必须不存在。
+			// 同一后端内由后端直接完成；跨后端时由门面按块中继，
+			// 因此本机与远端之间、两条 SSH 连接之间都可以复制。
+			Copy,
+			// 移动文件/链接或整个目录树到目标 URI。目标必须不存在。
+			// 同一后端内优先使用后端的重命名；跨后端时退化为复制后删除源。
+			Move,
 			Mkdir,
 			// 删除空目录。目录非空时失败，需要连内容一起删请用 Remove。
 			Rmdir
@@ -233,7 +248,12 @@ namespace YSSCore::General {
 			// 调用方应当把 NotSupported 当作"此位置无法回收"，然后自行询问用户是否永久删除，
 			// 绝不要把它当成"已经删掉了"。
 			CanRecycle = 0x0100,
-			// 全部操作能力。不含 PathCaseSensitive / ReadOnly / CanRecycle 这些修饰性标志。
+			// 该位置可以监听目录内容变化。不支持的后端（例如 SFTP）没有这一位，
+			// 调用方应当退化为手动刷新。逐 URI 判定：同一个后端内也可能有的位置不行。
+			// 与 CanRecycle 一样不在 AllCapabilities 里，必须由后端显式声明。
+			CanWatchDirectory = 0x0200,
+			// 全部操作能力。不含 PathCaseSensitive / ReadOnly / CanRecycle / CanWatchDirectory
+			// 这些修饰性标志。
 			AllCapabilities = CanRead | CanWrite | CanList | CanRemove | CanRename | CanMakeDirectory
 		};
 		Q_ENUM(Capability)
@@ -299,8 +319,26 @@ namespace YSSCore::General {
 		// 不支持的 backend 会以 NotSupported 失败，不会退化成永久删除。
 		YSSFileSystemReply* recycle(const YSSURI& uri);
 		YSSFileSystemReply* rename(const YSSURI& uri, const YSSURI& target);
+		// 复制文件/链接或整个目录树。目标必须不存在。
+		YSSFileSystemReply* copy(const YSSURI& uri, const YSSURI& target);
+		// 移动文件/链接或整个目录树。目标必须不存在。
+		YSSFileSystemReply* move(const YSSURI& uri, const YSSURI& target);
 		YSSFileSystemReply* mkdir(const YSSURI& uri);
 		YSSFileSystemReply* rmdir(const YSSURI& uri);
+	public:
+		// 开始监听一个目录。只监听该目录自身的直接内容变化，不递归；同名重复调用
+		// 无副作用。目录树应当随展开/折叠成对调用，避免累积无用监听。
+		//
+		// 不支持监听的位置（\l{getCapabilities()} 里没有 \l{CanWatchDirectory}）
+		// 返回 false，并以 \l{YSSFileError::ErrorType::NotSupported} 填充 error。
+		// 登记是纯本地操作，因此这是同步接口。
+		//
+		// \a uri 目录身份。
+		// \a error 输出参数，失败原因，可为 nullptr。
+		bool watchDirectory(const YSSURI& uri, YSSFileError* error = nullptr);
+		bool unwatchDirectory(const YSSURI& uri);
+		// 当前已监听的目录。主要用于调试与界面状态展示。
+		QList<YSSURI> getWatchedDirectories() const;
 	public:
 		// 同步便捷接口：内部用嵌套事件循环等到结束，会阻塞调用线程。
 		// 有事件循环的界面线程不要用它读远端文件；能接受异步的路径请直接用上面的异步版本。
@@ -308,16 +346,6 @@ namespace YSSCore::General {
 		bool writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error = nullptr);
 		bool removeSync(const YSSURI& uri, YSSFileError* error = nullptr);
 		bool recycleSync(const YSSURI& uri, YSSFileError* error = nullptr);
-	private:
-		// 等一条请求结束并填好错误信息；超时按 IoError 处理。
-		bool waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs = 30000);
-	private:
-		void onProviderStarted(quint64 id);
-		void onProviderProgressed(quint64 id, qint64 transferred, qint64 total);
-		void onProviderFinished(quint64 id, bool ok);
-		// 同一 URI（含重命名目标）上的请求串行执行所需的身份键。
-		QStringList taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const;
-		void schedulePending();
 	private:
 		YSSUniqueFileSystemPrivate* d;
 	};
@@ -370,6 +398,9 @@ namespace YSSCore::General {
 	public:
 		bool isValid() const;
 	private:
+		// 后端与门面直接读写请求的内部字段：数据区间（分块中继）不对外公开。
+		friend class YSSUniqueFileSystemPrivate;
+		friend class YSSUniqueFileSystemProvider;
 		YSSFileSystemRequestPrivate* d;
 	};
 
@@ -377,6 +408,7 @@ namespace YSSCore::General {
 	class YSSCoreAPI YSSFileSystemReply : public QObject {
 		Q_OBJECT;
 		friend class YSSUniqueFileSystem;
+		friend class YSSUniqueFileSystemPrivate;
 		friend class YSSUniqueFileSystemProvider;
 	signals:
 		void succeeded();

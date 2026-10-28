@@ -14,10 +14,13 @@
 #include <QtCore/qfiledevice.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qfilesystemwatcher.h>
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qmutex.h>
 #include <QtCore/qrunnable.h>
+#include <QtCore/qset.h>
 #include <QtCore/qthreadpool.h>
+#include <QtCore/qtimer.h>
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #endif
@@ -30,6 +33,11 @@ namespace {
 	// 读写分块大小与进度节流阈值。
 	constexpr qint64 LocalChunkBytes = 64 * 1024;
 	constexpr qint64 LocalProgressStepBytes = 256 * 1024;
+
+	// 目录监听的去抖窗口。编辑器保存会产生一批瞬时事件，合并后只通知一次。
+	constexpr int LocalWatchDebounceMs = 200;
+	// 同时监听的目录上限。Windows 上每个目录占一个目录变更句柄，不能无限加。
+	constexpr int LocalWatchMaxDirectories = 512;
 
 	struct YSSLocalOutcome {
 		bool Ok = false;
@@ -232,8 +240,178 @@ namespace {
 		return attributes;
 	}
 
-	YSSLocalOutcome computeLocal(const YSSCore::General::YSSFileSystemRequest& request,
+	// 目录树的总字节数，只用于进度显示；统计失败时返回 0，真正的错误由复制阶段报出。
+	quint64 localTreeBytes(const QString& path) {
+		const QFileInfo info(path);
+		if (info.isSymLink() || isLocalReparsePoint(path) || !info.isDir()) {
+			return info.size() > 0 ? static_cast<quint64>(info.size()) : 0;
+		}
+		quint64 total = 0;
+		const QFileInfoList children = QDir(path).entryInfoList(
+			QDir::NoDotAndDotDot | QDir::AllEntries | QDir::Hidden | QDir::System);
+		for (const QFileInfo& child : children) {
+			total += localTreeBytes(child.absoluteFilePath());
+		}
+		return total;
+	}
+
+	// 分块复制单个文件。数据只在缓冲里过一遍，不整份读入内存。
+	bool copyLocalFile(const QString& source, const QString& target, quint64* transferred,
+		YSSCore::General::YSSFileError* error, const ProgressCallback& report) {
+		QFile input(source);
+		if (!input.open(QIODevice::ReadOnly)) {
+			*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::PermissionDenied,
+				QStringLiteral("Cannot open the source file for reading"), input.errorString());
+			return false;
+		}
+		QFile output(target);
+		if (!output.open(QIODevice::WriteOnly | QIODevice::NewOnly)) {
+			*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::IoError,
+				QStringLiteral("Cannot create the target file"), output.errorString());
+			return false;
+		}
+		QByteArray buffer;
+		buffer.resize(LocalChunkBytes);
+		quint64 reported = 0;
+		for (;;) {
+			const qint64 got = input.read(buffer.data(), buffer.size());
+			if (got < 0) {
+				*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::IoError,
+					QStringLiteral("Cannot read the source file"), input.errorString());
+				return false;
+			}
+			if (got == 0) {
+				break;
+			}
+			qint64 written = 0;
+			while (written < got) {
+				const qint64 step = output.write(buffer.constData() + written, got - written);
+				if (step <= 0) {
+					*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::IoError,
+						QStringLiteral("Cannot write the target file"), output.errorString());
+					return false;
+				}
+				written += step;
+			}
+			*transferred += static_cast<quint64>(got);
+			if (report && *transferred - reported >= static_cast<quint64>(LocalProgressStepBytes)) {
+				reported = *transferred;
+				report(static_cast<qint64>(*transferred), -1);
+			}
+		}
+		output.close();
+		if (output.error() != QFileDevice::NoError) {
+			*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::IoError,
+				QStringLiteral("Cannot write the target file"), output.errorString());
+			return false;
+		}
+		return true;
+	}
+
+	// 递归复制目录树。目标目录由本函数创建，因此失败时调用方可以整体删掉它。
+	bool copyLocalTree(const QString& source, const QString& target, quint64* transferred,
+		YSSCore::General::YSSFileError* error, const ProgressCallback& report) {
+		if (!QDir().mkdir(target)) {
+			*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::IoError,
+				QStringLiteral("Cannot create the target directory"), target);
+			return false;
+		}
+		const QFileInfoList children = QDir(source).entryInfoList(
+			QDir::NoDotAndDotDot | QDir::AllEntries | QDir::Hidden | QDir::System);
+		for (const QFileInfo& child : children) {
+			const QString childSource = child.absoluteFilePath();
+			const QString childTarget = target + QLatin1Char('/') + child.fileName();
+			// 符号链接与目录联接按文件复制（只复制链接本身，不跟进目标）。
+			const bool isDirectory = child.isDir() && !child.isSymLink()
+				&& !isLocalReparsePoint(childSource);
+			const bool copied = isDirectory
+				? copyLocalTree(childSource, childTarget, transferred, error, report)
+				: copyLocalFile(childSource, childTarget, transferred, error, report);
+			if (!copied) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// 复制或移动一个入口。目标必须不存在；移动优先重命名，跨卷时退化为复制后删除。
+	YSSLocalOutcome copyOrMoveLocal(const QString& source, const QString& target, bool moveSource,
 		const ProgressCallback& report) {
+		using namespace YSSCore::General;
+		YSSLocalOutcome outcome;
+		const QFileInfo sourceInfo(source);
+		if (!sourceInfo.exists() && !sourceInfo.isSymLink()) {
+			outcome.Error = makeLocalError(YSSFileError::ErrorType::NotFound,
+				QStringLiteral("No such file or directory"), source);
+			return outcome;
+		}
+		const QFileInfo targetInfo(target);
+		if (targetInfo.exists() || targetInfo.isSymLink()) {
+			outcome.Error = makeLocalError(YSSFileError::ErrorType::AlreadyExists,
+				QStringLiteral("The target already exists"), target);
+			return outcome;
+		}
+		const bool sourceIsDirectory = sourceInfo.isDir() && !sourceInfo.isSymLink()
+			&& !isLocalReparsePoint(source);
+		// 目录复制到自身内部会无限递归，直接拒绝。
+		const QString cleanSource = QDir::cleanPath(sourceInfo.absoluteFilePath());
+		const QString cleanTarget = QDir::cleanPath(QFileInfo(target).absoluteFilePath());
+		const Qt::CaseSensitivity caseSensitivity = localPathIsCaseSensitive()
+			? Qt::CaseSensitive : Qt::CaseInsensitive;
+		if (sourceIsDirectory
+			&& (cleanTarget.compare(cleanSource, caseSensitivity) == 0
+				|| cleanTarget.startsWith(cleanSource + QLatin1Char('/'), caseSensitivity))) {
+			outcome.Error = makeLocalError(YSSFileError::ErrorType::InvalidConfiguration,
+				QStringLiteral("Cannot copy or move a directory into itself"), target);
+			return outcome;
+		}
+
+		if (moveSource) {
+			const bool renamed = sourceIsDirectory
+				? QDir().rename(source, target)
+				: QFile::rename(source, target);
+			if (renamed) {
+				outcome.Ok = true;
+				outcome.Total = 0;
+				return outcome;
+			}
+			// 跨卷等情况下重命名会失败，继续走复制后删除。
+		}
+
+		const quint64 total = localTreeBytes(source);
+		outcome.Total = static_cast<qint64>(total);
+		quint64 transferred = 0;
+		if (sourceIsDirectory) {
+			if (!copyLocalTree(source, target, &transferred, &outcome.Error, report)) {
+				YSSFileError cleanupError;
+				removeLocalRecursive(target, &cleanupError);
+				outcome.Bytes = 0;
+				return outcome;
+			}
+		}
+		else if (!copyLocalFile(source, target, &transferred, &outcome.Error, report)) {
+			QFile::remove(target);
+			outcome.Bytes = 0;
+			return outcome;
+		}
+		outcome.Bytes = static_cast<qint64>(transferred);
+		if (moveSource) {
+			YSSFileError removeError;
+			if (!removeLocalRecursive(source, &removeError)) {
+				// 源删不掉时不要把副本留在目标位置，尽量保持"移动未发生"。
+				YSSFileError cleanupError;
+				removeLocalRecursive(target, &cleanupError);
+				outcome.Error = removeError;
+				outcome.Bytes = 0;
+				return outcome;
+			}
+		}
+		outcome.Ok = true;
+		return outcome;
+	}
+
+	YSSLocalOutcome computeLocal(const YSSCore::General::YSSFileSystemRequest& request,
+		const ProgressCallback& report, qint64 dataOffset, qint64 dataLength) {
 		using namespace YSSCore::General;
 		YSSLocalOutcome outcome;
 		const QString detail = request.getUri().toString();
@@ -269,9 +447,30 @@ namespace {
 				return outcome;
 			}
 			outcome.Total = file.size();
+			const qint64 offset = dataOffset;
+			const qint64 length = dataLength;
+			if (offset > 0 && !file.seek(offset)) {
+				outcome.Error = makeLocalError(YSSFileError::ErrorType::IoError,
+					QStringLiteral("Cannot seek in the file"), detail);
+				return outcome;
+			}
+			// 区间读取按区间报总量；整体读取用文件大小。
+			if (length >= 0) {
+				outcome.Total = length;
+			}
+			else if (offset > 0) {
+				outcome.Total = qMax<qint64>(outcome.Total - offset, 0);
+			}
 			qint64 reported = 0;
 			for (;;) {
-				const QByteArray chunk = file.read(LocalChunkBytes);
+				qint64 want = LocalChunkBytes;
+				if (length >= 0) {
+					want = qMin(length - outcome.Bytes, LocalChunkBytes);
+					if (want <= 0) {
+						break;
+					}
+				}
+				const QByteArray chunk = file.read(want);
 				if (chunk.isEmpty()) {
 					break;
 				}
@@ -294,9 +493,22 @@ namespace {
 		}
 		case FileOperation::Write: {
 			QFile file(target);
-			if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+			// 偏移 0 是整文件覆盖；非 0 表示接着已有的前缀写，不能截断。
+			//
+			// 注意：Qt 的 QFile 以 WriteOnly 打开时会截断文件，ExistingOnly 并不阻止
+			// 这一点（实测写入会留下一个同长度的全零文件）。因此续写必须用 ReadWrite。
+			const qint64 writeOffset = dataOffset;
+			const QIODevice::OpenMode mode = writeOffset == 0
+				? (QIODevice::WriteOnly | QIODevice::Truncate)
+				: (QIODevice::ReadWrite | QIODevice::ExistingOnly);
+			if (!file.open(mode)) {
 				outcome.Error = makeLocalError(YSSFileError::ErrorType::IoError,
 					QStringLiteral("Cannot open the file for writing"), file.errorString());
+				return outcome;
+			}
+			if (writeOffset > 0 && !file.seek(writeOffset)) {
+				outcome.Error = makeLocalError(YSSFileError::ErrorType::IoError,
+					QStringLiteral("Cannot seek in the file"), detail);
 				return outcome;
 			}
 			const QByteArray payload = request.getData();
@@ -399,6 +611,19 @@ namespace {
 			outcome.Ok = true;
 			return outcome;
 		}
+		case FileOperation::Copy:
+		case FileOperation::Move: {
+			using namespace YSSCore::General;
+			const QString targetPath = absolutePath(request.getTargetUri());
+			if (targetPath.isEmpty()) {
+				outcome.Error = makeLocalError(YSSFileError::ErrorType::InvalidConfiguration,
+					QStringLiteral("Target path is not usable on the local filesystem"),
+					request.getTargetUri().toString());
+				return outcome;
+			}
+			return copyOrMoveLocal(target, targetPath,
+				request.getOperation() == FileOperation::Move, report);
+		}
 		case FileOperation::Mkdir: {
 			if (QFileInfo::exists(target)) {
 				outcome.Error = makeLocalError(YSSFileError::ErrorType::AlreadyExists,
@@ -447,6 +672,13 @@ namespace YSSCore::General {
 	protected:
 		QMutex Mutex;
 		QHash<YSSFileSystemReply*, YSSLocalOutcome> Outcomes;
+		// 目录监听。QFileSystemWatcher 按路径工作，这里维护"本地路径 -> 原始 URI"的映射，
+		// 发信号时用原始 URI，保证调用方拿到的身份与它登记时一致。
+		QFileSystemWatcher* Watcher = nullptr;
+		QHash<QString, YSSURI> WatchedByPath;
+		// 去抖：一批变化在 DebounceMs 后合并成每个路径一次通知。
+		QTimer* DebounceTimer = nullptr;
+		QSet<QString> PendingPaths;
 	};
 
 	/*!
@@ -507,8 +739,139 @@ namespace YSSCore::General {
 			if (localPathSupportsRecycle(uri.getLocalPath())) {
 				capabilities |= YSSUniqueFileSystem::Capability::CanRecycle;
 			}
+			// 目录监听只对真实存在的本机目录有意义。
+			const QString watchPath = uri.getLocalPath();
+			if (!watchPath.isEmpty() && QFileInfo(watchPath).isDir()) {
+				capabilities |= YSSUniqueFileSystem::Capability::CanWatchDirectory;
+			}
 			return capabilities;
 		}
+
+	/*!
+		\since YSS 0.18.0
+
+		开始监听一个本机目录。重复登记同一目录无副作用。
+
+		监听由 QFileSystemWatcher 驱动，同一目录在一小段时间内的多次变化会被合并成
+		一次 \l{watchedDirectoryChanged()}。同时监听的目录数有上限，超出时以
+		\l{YSSFileError::ErrorType::NotSupported} 失败，由调用方退化为手动刷新。
+
+		\a uri 目录身份，必须属于本机。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 登记成功返回 true。
+	*/
+	bool YSSLocalFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
+		const auto failWith = [error](YSSFileError::ErrorType type, const QString& message,
+			const QString& detail) {
+			if (error) {
+				YSSFileError value;
+				value.Type = type;
+				value.Message = message;
+				value.Detail = detail;
+				*error = value;
+			}
+			return false;
+		};
+		if (!uri.isValid() || !uri.isNotRemote()) {
+			return failWith(YSSFileError::ErrorType::InvalidConfiguration,
+				QStringLiteral("Only local directories can be watched"), uri.toString());
+		}
+		const QString path = QDir::cleanPath(uri.getLocalPath());
+		if (path.isEmpty()) {
+			return failWith(YSSFileError::ErrorType::InvalidConfiguration,
+				QStringLiteral("The URI carries no local path"), uri.toString());
+		}
+		const QFileInfo info(path);
+		if (!info.exists()) {
+			return failWith(YSSFileError::ErrorType::NotFound,
+				QStringLiteral("No such directory"), path);
+		}
+		if (!info.isDir()) {
+			return failWith(YSSFileError::ErrorType::NotADirectory,
+				QStringLiteral("Not a directory"), path);
+		}
+		if (this->d->WatchedByPath.contains(path)) {
+			return true;
+		}
+		if (this->d->WatchedByPath.size() >= LocalWatchMaxDirectories) {
+			return failWith(YSSFileError::ErrorType::NotSupported,
+				QStringLiteral("Too many watched directories"),
+				QStringLiteral("limit %1").arg(LocalWatchMaxDirectories));
+		}
+		if (this->d->Watcher == nullptr) {
+			this->d->Watcher = new QFileSystemWatcher(this);
+			YSSLocalFileSystemProvider* provider = this;
+			QObject::connect(this->d->Watcher, &QFileSystemWatcher::directoryChanged, this,
+				[provider](const QString& changed) { provider->onWatchedDirectoryChanged(changed); });
+			this->d->DebounceTimer = new QTimer(this);
+			this->d->DebounceTimer->setSingleShot(true);
+			this->d->DebounceTimer->setInterval(LocalWatchDebounceMs);
+			QObject::connect(this->d->DebounceTimer, &QTimer::timeout, this,
+				[provider]() { provider->flushWatchedDirectories(); });
+		}
+		if (!this->d->Watcher->addPath(path)) {
+			return failWith(YSSFileError::ErrorType::PermissionDenied,
+				QStringLiteral("Cannot watch the directory"), path);
+		}
+		this->d->WatchedByPath.insert(path, uri);
+		return true;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		停止监听一个目录。没有登记过的目录直接返回 false，不报错。
+
+		\a uri 目录身份。
+
+		\return 确实取消了一条登记时返回 true。
+	*/
+	bool YSSLocalFileSystemProvider::unwatchDirectory(const YSSURI& uri) {
+		const QString path = QDir::cleanPath(uri.getLocalPath());
+		if (path.isEmpty() || !this->d->WatchedByPath.contains(path)) {
+			return false;
+		}
+		this->d->WatchedByPath.remove(path);
+		this->d->PendingPaths.remove(path);
+		if (this->d->Watcher != nullptr) {
+			this->d->Watcher->removePath(path);
+		}
+		return true;
+	}
+
+	QList<YSSURI> YSSLocalFileSystemProvider::getWatchedDirectories() const {
+		return this->d->WatchedByPath.values();
+	}
+
+	// QFileSystemWatcher 的原始回调：只登记路径，由去抖定时器统一发信号。
+	void YSSLocalFileSystemProvider::onWatchedDirectoryChanged(const QString& path) {
+		if (!this->d->WatchedByPath.contains(path)) {
+			return;
+		}
+		this->d->PendingPaths.insert(path);
+		if (this->d->DebounceTimer != nullptr) {
+			this->d->DebounceTimer->start();
+		}
+	}
+
+	// 把去抖窗口内累积的变化逐目录发出去。目录已被删除时同时取消监听，
+	// 调用方随后 list() 会拿到 NotFound，据此丢弃节点。
+	void YSSLocalFileSystemProvider::flushWatchedDirectories() {
+		const QSet<QString> pending = this->d->PendingPaths;
+		this->d->PendingPaths.clear();
+		for (const QString& path : pending) {
+			const auto it = this->d->WatchedByPath.constFind(path);
+			if (it == this->d->WatchedByPath.constEnd()) {
+				continue;
+			}
+			const YSSURI uri = it.value();
+			if (!QFileInfo::exists(path)) {
+				this->unwatchDirectory(uri);
+			}
+			emit this->watchedDirectoryChanged(uri);
+		}
+	}
 
 	/*!
 		\since YSS 0.18.0
@@ -562,7 +925,7 @@ namespace YSSCore::General {
 		const YSSLocalOutcome outcome = computeLocal(request,
 			[this, reply](qint64 transferred, qint64 total) {
 				this->reportProgress(reply, transferred, total);
-			});
+			}, requestDataOffset(request), requestDataLength(request));
 		{
 			QMutexLocker locker(&this->d->Mutex);
 			this->d->Outcomes.insert(reply, outcome);

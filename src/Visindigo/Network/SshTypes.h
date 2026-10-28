@@ -30,6 +30,8 @@ namespace Visindigo::Network {
 			PermissionDenied,
 			FileNotFound,
 			FileExists,
+			// 文件超过 SshConnectConfig::MaxSftpFileBytes 设定的上限，传输未开始或被中止。
+			FileTooLarge,
 			CommandFailed,
 			ConnectionRefused,
 			HostNotFound,
@@ -95,6 +97,14 @@ namespace Visindigo::Network {
 		qint32 ConnectTimeoutMs = 15000;
 		qint32 KeepAliveIntervalMs = 20000;
 		qint32 KeepAliveCountMax = 3;
+		// SFTP 单个文件的传输上限，单位字节。默认 2 GiB。
+		//
+		// 读操作在传输开始前先按远端报告的文件大小判定，超过即失败；远端没有给出
+		// 大小时，在读取过程中按实际字节数兜底。写操作在打开远端文件前按待写内容
+		// 长度判定。超出上限时以 \l{SshError::ErrorType} 的 \c{FileTooLarge} 失败。
+		//
+		// 0 或负数表示不限制。上限在建立连接时生效，修改后需要重新连接。
+		qint64 MaxSftpFileBytes = 2LL * 1024 * 1024 * 1024;
 	public:
 		bool isValid() const;
 		QString getAuthority() const;

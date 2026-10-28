@@ -11,7 +11,29 @@
 
 const fs = require('fs');
 const path = require('path');
-const { utils: { sftp: { STATUS_CODE, flagsToString } } } = require('ssh2');
+const { utils: { sftp: { STATUS_CODE, OPEN_MODE } } } = require('ssh2');
+
+// 把 SFTP 的 OPEN 标志翻译成 Node 的打开模式。
+//
+// ssh2 自带的 flagsToString 只认几种固定组合，而分块写入需要
+// "WRITE + CREAT（不截断、从偏移处继续写）"这类组合，因此这里自己判断。
+function flagsToNodeMode(flags) {
+	const canRead = (flags & OPEN_MODE.READ) !== 0;
+	const canWrite = (flags & OPEN_MODE.WRITE) !== 0;
+	const truncate = (flags & OPEN_MODE.TRUNC) !== 0;
+	const append = (flags & OPEN_MODE.APPEND) !== 0;
+	if (canRead && canWrite) {
+		return truncate ? 'w+' : 'r+';
+	}
+	if (canWrite) {
+		if (append) {
+			return 'a';
+		}
+		// 不截断时保留已有内容，从当前位置写；文件是否存在由调用方按 CREAT 决定。
+		return truncate ? 'w' : 'r+';
+	}
+	return 'r';
+}
 
 function toAttrs(stats) {
 	return {
@@ -102,8 +124,24 @@ module.exports = function attachSftp(sftp, rootDir, log) {
 			return sftp.status(reqid, STATUS_CODE.PERMISSION_DENIED);
 		}
 		try {
-			const mode = flagsToString(flags);
-			const fd = fs.openSync(real, mode, 0o644);
+			let mode = flagsToNodeMode(flags);
+			if ((flags & OPEN_MODE.EXCL) !== 0 && fs.existsSync(real)) {
+				return sftp.status(reqid, STATUS_CODE.FAILURE);
+			}
+			let fd;
+			try {
+				fd = fs.openSync(real, mode, 0o644);
+			}
+			catch (error) {
+				// 只写不截断时用 'r+' 打开；文件不存在且允许创建时退回到 'w+'。
+				if (error.code === 'ENOENT' && (flags & OPEN_MODE.CREAT) !== 0) {
+					mode = 'w+';
+					fd = fs.openSync(real, mode, 0o644);
+				}
+				else {
+					throw error;
+				}
+			}
 			log(`sftp open ${filename} (${mode})`);
 			sftp.handle(reqid, makeHandle({ fd }));
 		}

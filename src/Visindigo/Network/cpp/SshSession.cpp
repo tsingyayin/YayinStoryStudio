@@ -531,6 +531,7 @@ namespace Visindigo::Network {
 	}
 
 	void SshSessionWorker::beginConnect(const SshConnectConfig& config) {
+		this->MaxSftpFileBytes = config.MaxSftpFileBytes;
 		this->cleanup();
 
 		if (!ensureWinsock()) {

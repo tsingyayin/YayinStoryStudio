@@ -37,6 +37,8 @@ namespace {
 		case Operation::Remove:
 		case Operation::Recycle:
 		case Operation::Rename:
+		case Operation::Copy:
+		case Operation::Move:
 		case Operation::Mkdir:
 		case Operation::Rmdir:
 			return true;
@@ -56,6 +58,8 @@ namespace {
 		case Operation::Remove: return "remove";
 		case Operation::Recycle: return "recycle";
 		case Operation::Rename: return "rename";
+		case Operation::Copy: return "copy";
+		case Operation::Move: return "move";
 		case Operation::Mkdir: return "mkdir";
 		case Operation::Rmdir: return "rmdir";
 		default: return "unknown";
@@ -97,19 +101,10 @@ namespace YSSCore::General {
 		QString LinkTarget;
 	};
 
-	class YSSFileSystemRequestPrivate {
-		friend class YSSFileSystemRequest;
-	protected:
-		YSSUniqueFileSystem::Operation Operation = YSSUniqueFileSystem::Operation::Unknown;
-		YSSURI Uri;
-		YSSURI TargetUri;
-		QByteArray Data;
-		bool AutoDelete = true;
-	};
-
 	class YSSFileSystemReplyPrivate {
 		friend class YSSFileSystemReply;
 		friend class YSSUniqueFileSystem;
+		friend class YSSUniqueFileSystemPrivate;
 		friend class YSSUniqueFileSystemProvider;
 	protected:
 		quint64 Id = 0;
@@ -136,6 +131,50 @@ namespace YSSCore::General {
 			YSSUniqueFileSystemProvider* Provider = nullptr;
 			QStringList Keys;
 		};
+		// 一条跨后端（或后端不原生支持）的复制/移动。门面按块在源与目标之间中继，
+		// 因此内存里只保留一块数据。
+		struct TransferTask {
+			quint64 Id = 0;
+			YSSURI Source;
+			YSSURI Target;
+			YSSUniqueFileSystemProvider* SourceProvider = nullptr;
+			YSSUniqueFileSystemProvider* TargetProvider = nullptr;
+			QPointer<YSSFileSystemReply> Reply;
+			// 偏移 0 处的中继读写已经在进行，后续可以继续用区间请求。
+			bool Started = false;
+			// 复制完成后是否删除源（移动）。
+			bool RemoveSource = false;
+			// 已经向目标写入过数据；失败时要清掉这个半成品。
+			bool TargetWritten = false;
+			bool SourceRemovalSubmitted = false;
+			qint64 Offset = 0;
+			qint64 TotalBytes = -1;
+		};
+		// 一次中继的块大小。块越大往返越少，单块占用内存越多。
+		static constexpr qint64 RelayChunkBytes = 1024 * 1024;
+	protected:
+		// 等一条请求结束并填好错误信息；超时按 IoError 处理。
+		bool waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs = 30000);
+		void onProviderStarted(quint64 id);
+		void onProviderProgressed(quint64 id, qint64 transferred, qint64 total);
+		void onProviderFinished(quint64 id, bool ok);
+		// 同一 URI（含重命名/复制的目标）上的请求串行执行所需的身份键。
+		QStringList taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const;
+		void schedulePending();
+		// 开始一条门面中继的复制/移动。
+		void startTransfer(quint64 id);
+		// 目标不存在确认之后的第二步：取源大小，然后开始搬运。
+		void beginTransferStat(quint64 id);
+		// 从源读下一块；读完（空块）后进入收尾。
+		void submitRelayRead(quint64 id);
+		// 把一块写进目标，成功后继续读下一块。
+		void submitRelayWrite(quint64 id, const QByteArray& data);
+		// 移动：复制成功后删除源。
+		void submitSourceRemoval(quint64 id);
+		void reportTransferProgress(quint64 id);
+		// 结束一条中继。失败且已写过目标时先清掉半成品。
+		void finishTransfer(quint64 id, bool ok, const YSSFileError& error);
+		void discardTransferTarget(quint64 id, const YSSFileError& error);
 		// authority 的比较键：折叠大小写，避免 user@Host:22 与 user@host:22 被当成两条连接。
 		static QString sshKey(const QString& authority) {
 			return authority.trimmed().toCaseFolded();
@@ -175,13 +214,15 @@ namespace YSSCore::General {
 					emit Owner->sshDisconnected(authorityOf(), expected);
 				});
 			QObject::connect(provider, &YSSUniqueFileSystemProvider::started, Owner,
-				[this](quint64 id) { Owner->onProviderStarted(id); });
+				[this](quint64 id) { Owner->d->onProviderStarted(id); });
 			QObject::connect(provider, &YSSUniqueFileSystemProvider::progressed, Owner,
 				[this](quint64 id, qint64 transferred, qint64 total) {
-					Owner->onProviderProgressed(id, transferred, total);
+					Owner->d->onProviderProgressed(id, transferred, total);
 				});
 			QObject::connect(provider, &YSSUniqueFileSystemProvider::finished, Owner,
-				[this](quint64 id, bool ok) { Owner->onProviderFinished(id, ok); });
+				[this](quint64 id, bool ok) { Owner->d->onProviderFinished(id, ok); });
+			QObject::connect(provider, &YSSUniqueFileSystemProvider::watchedDirectoryChanged, Owner,
+				[this](const YSSURI& uri) { emit Owner->directoryChanged(uri); });
 			return provider;
 		}
 		// URI 的路由：本机/资源走 Local，远端按 authority 找对应的 SSH 后端。
@@ -223,6 +264,12 @@ namespace YSSCore::General {
 			case YSSUniqueFileSystem::Operation::Write:
 				BytesWritten += writeBytes;
 				break;
+			case YSSUniqueFileSystem::Operation::Copy:
+			case YSSUniqueFileSystem::Operation::Move:
+				// 复制与需要搬运数据的移动同时读源、写目标。
+				BytesRead += readBytes;
+				BytesWritten += writeBytes;
+				break;
 			default:
 				return;
 			}
@@ -231,12 +278,8 @@ namespace YSSCore::General {
 			}
 			YSSFileSystemTransferStats& stats = ProviderStats[providerId];
 			stats.ProviderId = providerId;
-			if (operation == YSSUniqueFileSystem::Operation::Read) {
-				stats.BytesRead += readBytes;
-			}
-			else {
-				stats.BytesWritten += writeBytes;
-			}
+			stats.BytesRead += readBytes;
+			stats.BytesWritten += writeBytes;
 		}
 		YSSLocalFileSystemProvider* Local = nullptr;
 		// 远端后端按连接身份 user@host:port 索引；同一进程可以同时挂多条 SSH 连接。
@@ -256,6 +299,8 @@ namespace YSSCore::General {
 		// 正在执行的任务占用的 URI 键。同一键上的请求串行执行。
 		QSet<QString> BusyKeys;
 		QHash<quint64, QStringList> RunningKeys;
+		// 正在进行的中继复制/移动，键是外层 reply 的编号。
+		QHash<quint64, TransferTask> Transfers;
 		bool Scheduling = false;
 		// 成功结束的读写操作累计字节数，见 getTransferredBytes()。
 		// 合计与按 Provider 分项各存一份：删除连接后历史统计仍然保留。
@@ -1019,9 +1064,16 @@ namespace YSSCore::General {
 		if (this->d->Operation == YSSUniqueFileSystem::Operation::Unknown) {
 			return false;
 		}
-		if (this->d->Operation == YSSUniqueFileSystem::Operation::Rename
-			&& !this->d->TargetUri.isValid()) {
-			return false;
+		switch (this->d->Operation) {
+		case YSSUniqueFileSystem::Operation::Rename:
+		case YSSUniqueFileSystem::Operation::Copy:
+		case YSSUniqueFileSystem::Operation::Move:
+			if (!this->d->TargetUri.isValid()) {
+				return false;
+			}
+			break;
+		default:
+			break;
 		}
 		return true;
 	}
@@ -1343,8 +1395,31 @@ namespace YSSCore::General {
 
 		\a reply 结果对象。
 	*/
-	void YSSUniqueFileSystemProvider::markStarted(YSSFileSystemReply* reply) {
-		if (reply == nullptr) {
+	qint64 YSSUniqueFileSystemProvider::requestDataOffset(const YSSFileSystemRequest& request) {
+		return request.d->DataOffset;
+	}
+
+	qint64 YSSUniqueFileSystemProvider::requestDataLength(const YSSFileSystemRequest& request) {
+		return request.d->DataLength;
+	}
+
+	bool YSSUniqueFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
+		if (error) {
+			YSSFileError value;
+			value.Type = YSSFileError::ErrorType::NotSupported;
+			value.Message = QStringLiteral("This backend cannot watch directories");
+			value.Detail = uri.toString();
+			*error = value;
+		}
+		return false;
+	}
+
+	bool YSSUniqueFileSystemProvider::unwatchDirectory(const YSSURI& uri) {
+		Q_UNUSED(uri);
+		return false;
+	}
+
+	void YSSUniqueFileSystemProvider::markStarted(YSSFileSystemReply* reply) {		if (reply == nullptr) {
 			return;
 		}
 		emit this->started(reply->getId());
@@ -1654,13 +1729,16 @@ namespace YSSCore::General {
 		this->d->Local = new YSSLocalFileSystemProvider(this);
 		// 后端可能在任意线程上发出这三个信号：同一线程内直接更新，跨线程自动排队。
 		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::started, this,
-			[this](quint64 id) { this->onProviderStarted(id); });
+			[this](quint64 id) { this->d->onProviderStarted(id); });
 		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::progressed, this,
 			[this](quint64 id, qint64 transferred, qint64 total) {
-				this->onProviderProgressed(id, transferred, total);
+				this->d->onProviderProgressed(id, transferred, total);
 			});
 		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::finished, this,
-			[this](quint64 id, bool ok) { this->onProviderFinished(id, ok); });
+			[this](quint64 id, bool ok) { this->d->onProviderFinished(id, ok); });
+		// 目录变化：后端自己已经做了去抖，这里只做转发。
+		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::watchedDirectoryChanged, this,
+			[this](const YSSURI& uri) { emit this->directoryChanged(uri); });
 	}
 
 	/*!
@@ -2050,6 +2128,19 @@ namespace YSSCore::General {
 			if (request.getOperation() == Operation::Rename && request.hasTargetUri()) {
 				writable = writable && this->getCapabilities(request.getTargetUri()).testFlag(CanRename);
 			}
+			// 复制只要求源可读；移动要求源可删。两者都还要目标可写。
+			if (request.getOperation() == Operation::Copy) {
+				writable = capabilities.testFlag(CanRead)
+					&& (request.hasTargetUri()
+						? this->getCapabilities(request.getTargetUri()).testFlag(CanWrite)
+						: false);
+			}
+			else if (request.getOperation() == Operation::Move) {
+				writable = capabilities.testFlag(CanRemove)
+					&& (request.hasTargetUri()
+						? this->getCapabilities(request.getTargetUri()).testFlag(CanWrite)
+						: false);
+			}
 			if (!writable) {
 				YSSFileError error;
 				error.Type = YSSFileError::ErrorType::NotSupported;
@@ -2069,15 +2160,66 @@ namespace YSSCore::General {
 			}
 		}
 
+		// 跨后端的复制/移动由门面分块中继；后端自己能做时直接交给后端。
+		const Operation operation = request.getOperation();
+		if ((operation == Operation::Copy || operation == Operation::Move) && request.hasTargetUri()) {
+			const YSSURI targetUri = request.getTargetUri();
+			if (uri == targetUri) {
+				YSSFileError error;
+				error.Type = YSSFileError::ErrorType::InvalidConfiguration;
+				error.Message = QStringLiteral("Source and target are the same URI");
+				error.Detail = uri.toString();
+				provider->fail(reply, error);
+				return reply;
+			}
+			YSSUniqueFileSystemProvider* targetProvider = this->d->providerFor(targetUri);
+			if (targetProvider == nullptr) {
+				YSSFileError error;
+				error.Type = YSSFileError::ErrorType::NotSupported;
+				error.Message = QStringLiteral("No filesystem backend handles the target URI");
+				error.Detail = targetUri.toString();
+				provider->fail(reply, error);
+				return reply;
+			}
+			const Capabilities sourceCapabilities = this->getCapabilities(uri);
+			const Capabilities targetCapabilities = this->getCapabilities(targetUri);
+			const bool needed = operation == Operation::Copy
+				? sourceCapabilities.testFlag(CanRead) && targetCapabilities.testFlag(CanWrite)
+				: sourceCapabilities.testFlag(CanRemove) && targetCapabilities.testFlag(CanWrite);
+			if (!needed) {
+				YSSFileError error;
+				error.Type = YSSFileError::ErrorType::NotSupported;
+				error.Message = QStringLiteral("The operation is not supported by the backend");
+				error.Detail = uri.toString() + QStringLiteral(" -> ") + targetUri.toString();
+				provider->fail(reply, error);
+				return reply;
+			}
+			const bool native = provider == targetProvider
+				&& (operation == Operation::Copy
+					? provider->supportsNativeCopy()
+					: provider->supportsNativeMove());
+			if (!native) {
+				YSSUniqueFileSystemPrivate::TransferTask transfer;
+				transfer.Id = task.Id;
+				transfer.Source = uri;
+				transfer.Target = targetUri;
+				transfer.SourceProvider = provider;
+				transfer.TargetProvider = targetProvider;
+				transfer.Reply = reply;
+				transfer.RemoveSource = operation == Operation::Move;
+				this->d->Transfers.insert(task.Id, transfer);
+			}
+		}
+
 		YSSUniqueFileSystemPrivate::PendingTask pending;
 		pending.Id = task.Id;
 		pending.Request = request;
 		pending.Reply = reply;
 		pending.Provider = provider;
-		pending.Keys = this->taskKeysOf(uri, request.getTargetUri());
+		pending.Keys = this->d->taskKeysOf(uri, request.getTargetUri());
 		this->d->Pending.append(pending);
-		QObject::connect(reply, &QObject::destroyed, this, [this]() { this->schedulePending(); });
-		this->schedulePending();
+		QObject::connect(reply, &QObject::destroyed, this, [this]() { this->d->schedulePending(); });
+		this->d->schedulePending();
 		return reply;
 	}
 
@@ -2099,7 +2241,9 @@ namespace YSSCore::General {
 		request.setOperation(operation);
 		request.setUri(uri);
 		request.setData(data);
-		if (operation == YSSUniqueFileSystem::Operation::Rename) {
+		if (operation == YSSUniqueFileSystem::Operation::Rename
+			|| operation == YSSUniqueFileSystem::Operation::Copy
+			|| operation == YSSUniqueFileSystem::Operation::Move) {
 			request.setTargetUri(target);
 		}
 		return this->execute(request);
@@ -2214,6 +2358,43 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
+		复制文件、符号链接或整个目录树。等价于提交一条
+		\l{YSSUniqueFileSystem::Operation::Copy} 请求。
+
+		目标必须不存在，目录不会与已有目标合并。同一后端内由后端直接完成；跨后端时
+		由门面按块中继，因此本机与远端之间、两条 SSH 连接之间都可以复制，内存占用
+		只有一块数据。
+
+		\a uri 源身份。
+		\a target 目标身份。
+
+		\return 结果句柄。
+	*/
+	YSSFileSystemReply* YSSUniqueFileSystem::copy(const YSSURI& uri, const YSSURI& target) {
+		return this->execute(uri, YSSUniqueFileSystem::Operation::Copy, QByteArray(), target);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		移动文件、符号链接或整个目录树。等价于提交一条
+		\l{YSSUniqueFileSystem::Operation::Move} 请求。
+
+		同一后端内优先使用后端的重命名（SSH 上不搬运任何数据）；跨后端时退化为复制
+		后删除源，中途失败会保留源，只清理写在目标上的半成品。目标必须不存在。
+
+		\a uri 源身份。
+		\a target 目标身份。
+
+		\return 结果句柄。
+	*/
+	YSSFileSystemReply* YSSUniqueFileSystem::move(const YSSURI& uri, const YSSURI& target) {
+		return this->execute(uri, YSSUniqueFileSystem::Operation::Move, QByteArray(), target);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
 		创建目录。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Mkdir} 请求。
 
 		\a uri 目录身份。
@@ -2251,7 +2432,7 @@ namespace YSSCore::General {
 		后端的完成通知是排队投递的，因此这里通常真的会进一次嵌套事件循环。超时的请求
 		不会被取消——后端可能仍在执行，所以调用方不能直接销毁 reply。
 	*/
-	bool YSSUniqueFileSystem::waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs) {
+	bool YSSUniqueFileSystemPrivate::waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs) {
 		if (reply == nullptr) {
 			if (error) {
 				YSSFileError noBackend;
@@ -2313,7 +2494,7 @@ namespace YSSCore::General {
 		request.setUri(uri);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);
-		const bool ok = this->waitForReply(reply, error);
+		const bool ok = this->d->waitForReply(reply, error);
 		if (ok) {
 			*data = reply->getData();
 		}
@@ -2350,7 +2531,7 @@ namespace YSSCore::General {
 		request.setData(data);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);
-		const bool ok = this->waitForReply(reply, error);
+		const bool ok = this->d->waitForReply(reply, error);
 		if (reply) {
 			if (reply->isFinished()) {
 				delete reply;
@@ -2381,7 +2562,7 @@ namespace YSSCore::General {
 		request.setUri(uri);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);
-		const bool ok = this->waitForReply(reply, error);
+		const bool ok = this->d->waitForReply(reply, error);
 		if (reply) {
 			if (reply->isFinished()) {
 				delete reply;
@@ -2413,7 +2594,7 @@ namespace YSSCore::General {
 		request.setUri(uri);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);
-		const bool ok = this->waitForReply(reply, error);
+		const bool ok = this->d->waitForReply(reply, error);
 		if (reply) {
 			if (reply->isFinished()) {
 				delete reply;
@@ -2423,6 +2604,71 @@ namespace YSSCore::General {
 			}
 		}
 		return ok;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		开始监听一个目录。
+
+		只监听该目录自身的直接内容变化，不递归；重复调用无副作用。目录树应当随展开/
+		折叠成对调用，避免累积无用监听。
+
+		不支持监听的位置（\l{getCapabilities()} 里没有 \l{CanWatchDirectory}）返回
+		false，并以 \l{YSSFileError::ErrorType::NotSupported} 填充 error。登记是纯本地
+		操作，因此这是同步接口。
+
+		\a uri 目录身份。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 登记成功返回 true。
+	*/
+	bool YSSUniqueFileSystem::watchDirectory(const YSSURI& uri, YSSFileError* error) {
+		YSSUniqueFileSystemProvider* provider = this->d->providerFor(uri);
+		if (provider == nullptr || !provider->supportsDirectoryWatch()) {
+			if (error) {
+				YSSFileError value;
+				value.Type = YSSFileError::ErrorType::NotSupported;
+				value.Message = QStringLiteral("This location cannot be watched");
+				value.Detail = uri.toString();
+				*error = value;
+			}
+			return false;
+		}
+		return provider->watchDirectory(uri, error);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		停止监听一个目录。没有登记过的目录返回 false，不报错。
+
+		\a uri 目录身份。
+
+		\return 确实取消了一条登记时返回 true。
+	*/
+	bool YSSUniqueFileSystem::unwatchDirectory(const YSSURI& uri) {
+		YSSUniqueFileSystemProvider* provider = this->d->providerFor(uri);
+		if (provider == nullptr || !provider->supportsDirectoryWatch()) {
+			return false;
+		}
+		return provider->unwatchDirectory(uri);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		return 所有后端当前正在监听的目录。
+	*/
+	QList<YSSURI> YSSUniqueFileSystem::getWatchedDirectories() const {
+		QList<YSSURI> result;
+		if (this->d->Local != nullptr) {
+			result += this->d->Local->getWatchedDirectories();
+		}
+		for (const auto& provider : this->d->SshProviders) {
+			result += provider->getWatchedDirectories();
+		}
+		return result;
 	}
 
 	/*!
@@ -2523,54 +2769,55 @@ namespace YSSCore::General {
 		return this->d->providerIdOf(uri);
 	}
 
-	void YSSUniqueFileSystem::onProviderStarted(quint64 id) {
-		auto it = this->d->Tasks.find(id);
-		if (it == this->d->Tasks.end() || it->StartedAtMs != 0) {
+	void YSSUniqueFileSystemPrivate::onProviderStarted(quint64 id) {
+		auto it = this->Tasks.find(id);
+		if (it == this->Tasks.end() || it->StartedAtMs != 0) {
 			return;
 		}
 		it->StartedAtMs = QDateTime::currentMSecsSinceEpoch();
-		emit this->taskStarted(it.value());
+		emit this->Owner->taskStarted(it.value());
 	}
-	void YSSUniqueFileSystem::onProviderProgressed(quint64 id, qint64 transferred, qint64 total) {
-		auto it = this->d->Tasks.find(id);
-		if (it == this->d->Tasks.end()) {
+	void YSSUniqueFileSystemPrivate::onProviderProgressed(quint64 id, qint64 transferred, qint64 total) {
+		auto it = this->Tasks.find(id);
+		if (it == this->Tasks.end()) {
 			return;
 		}
 		it->BytesTransferred = transferred;
 		if (total >= 0) {
 			it->TotalBytes = total;
 		}
-		emit this->taskProgressed(id, transferred, it->TotalBytes);
+		emit this->Owner->taskProgressed(id, transferred, it->TotalBytes);
 	}
 
-	void YSSUniqueFileSystem::onProviderFinished(quint64 id, bool ok) {
-		const QStringList keys = this->d->RunningKeys.take(id);
+	void YSSUniqueFileSystemPrivate::onProviderFinished(quint64 id, bool ok) {
+		const QStringList keys = this->RunningKeys.take(id);
 		for (const QString& key : keys) {
-			this->d->BusyKeys.remove(key);
+			this->BusyKeys.remove(key);
 		}
-		if (this->d->Tasks.remove(id) == 0) {
+		if (this->Tasks.remove(id) == 0) {
 			return;
 		}
-		this->d->TaskProviderIds.remove(id);
-		emit this->taskFinished(id, ok);
+		this->TaskProviderIds.remove(id);
+		emit this->Owner->taskFinished(id, ok);
 		this->schedulePending();
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		计算一个请求用于串行化的身份键。同一 URI 上的请求共用同一个键；重命名还会
-		占用目标 URI 的键。后端不区分大小写时把键折叠成小写，避免 \c{C:/A.txt} 与
-		\c{c:/a.txt} 被当成两个目标。
+		计算一个请求用于串行化的身份键。同一 URI 上的请求共用同一个键；重命名与
+		复制/移动还会占用目标 URI 的键。后端不区分大小写时把键折叠成小写，避免
+		\c{C:/A.txt} 与 \c{c:/a.txt} 被当成两个目标。
 	*/
-	QStringList YSSUniqueFileSystem::taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const {
+	QStringList YSSUniqueFileSystemPrivate::taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const {
 		QStringList keys;
 		const auto appendKey = [this, &keys](const YSSURI& value) {
 			if (!value.isValid()) {
 				return;
 			}
 			QString key = value.toString();
-			if (!this->getCapabilities(value).testFlag(PathCaseSensitive)) {
+			if (!this->Owner->getCapabilities(value).testFlag(
+				YSSUniqueFileSystem::Capability::PathCaseSensitive)) {
 				key = key.toCaseFolded();
 			}
 			if (!keys.contains(key)) {
@@ -2582,6 +2829,323 @@ namespace YSSCore::General {
 		return keys;
 	}
 
+	/*
+		开始一条门面中继的复制/移动。
+
+		先取一次源的属性拿到总大小（拿不到就按未知处理），然后逐块读 → 写。
+		整个过程只保留一块数据，因此内存占用与文件大小无关。
+	*/
+	void YSSUniqueFileSystemPrivate::startTransfer(quint64 id) {
+		auto it = this->Transfers.find(id);
+		if (it == this->Transfers.end()) {
+			return;
+		}
+		if (it->Reply.isNull()) {
+			YSSFileError error;
+			error.Type = YSSFileError::ErrorType::Aborted;
+			error.Message = QStringLiteral("The reply was destroyed before the transfer started");
+			this->finishTransfer(id, false, error);
+			return;
+		}
+		if (it->Started) {
+			return;
+		}
+		it->Started = true;
+		this->onProviderStarted(id);
+
+		const YSSURI source = it->Source;
+		const YSSURI target = it->Target;
+		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
+		YSSUniqueFileSystemProvider* targetProvider = it->TargetProvider;
+
+		// 目标必须不存在。先查一次，避免 Truncate 掉用户已有的文件。
+		YSSFileSystemRequest targetStat;
+		targetStat.setOperation(YSSUniqueFileSystem::Operation::Stat);
+		targetStat.setUri(target);
+		targetStat.setAutoDelete(true);
+		YSSFileSystemReply* targetStatReply = new YSSFileSystemReply(this->NextId++);
+		targetStatReply->d->Uri = target;
+		targetStatReply->d->Operation = YSSUniqueFileSystem::Operation::Stat;
+		targetStatReply->d->AutoDelete = true;
+		QObject::connect(targetStatReply, &YSSFileSystemReply::finished, this->Owner,
+			[this, id, targetStatReply]() {
+				if (this->Transfers.find(id) == this->Transfers.end()) {
+					return;
+				}
+				if (!targetStatReply->getError().isError()) {
+					YSSFileError error;
+					error.Type = YSSFileError::ErrorType::AlreadyExists;
+					error.Message = QStringLiteral("The target already exists");
+					const auto current = this->Transfers.constFind(id);
+					if (current != this->Transfers.constEnd()) {
+						error.Detail = current->Target.toString();
+					}
+					this->finishTransfer(id, false, error);
+					return;
+				}
+				this->beginTransferStat(id);
+			});
+		targetProvider->execute(targetStat, targetStatReply);
+	}
+
+	// 目标确认不存在之后，取一次源的大小让进度有总量，再开始搬运。
+	void YSSUniqueFileSystemPrivate::beginTransferStat(quint64 id) {
+		auto it = this->Transfers.find(id);
+		if (it == this->Transfers.end()) {
+			return;
+		}
+		const YSSURI source = it->Source;
+		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
+		YSSFileSystemRequest statRequest;
+		statRequest.setOperation(YSSUniqueFileSystem::Operation::Stat);
+		statRequest.setUri(source);
+		statRequest.setAutoDelete(true);
+		YSSFileSystemReply* statReply = new YSSFileSystemReply(this->NextId++);
+		statReply->d->Uri = source;
+		statReply->d->Operation = YSSUniqueFileSystem::Operation::Stat;
+		statReply->d->AutoDelete = true;
+		QObject::connect(statReply, &YSSFileSystemReply::finished, this->Owner, [this, id, statReply]() {
+			auto current = this->Transfers.find(id);
+			if (current == this->Transfers.end()) {
+				return;
+			}
+			if (!statReply->getError().isError()
+				&& statReply->getAttributes().hasField(YSSFileAttributes::Field::Size)) {
+				current->TotalBytes = static_cast<qint64>(statReply->getAttributes().getSize());
+			}
+			this->submitRelayRead(id);
+		});
+		provider->execute(statRequest, statReply);
+	}
+
+	// 从源读下一块。返回空块表示源已经读完。
+	void YSSUniqueFileSystemPrivate::submitRelayRead(quint64 id) {
+		auto it = this->Transfers.find(id);
+		if (it == this->Transfers.end()) {
+			return;
+		}
+		const YSSURI source = it->Source;
+		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
+		const qint64 offset = it->Offset;
+
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Read);
+		request.setUri(source);
+		request.d->DataOffset = offset;
+		request.d->DataLength = RelayChunkBytes;
+		request.setAutoDelete(true);
+
+		YSSFileSystemReply* chunk = new YSSFileSystemReply(this->NextId++);
+		chunk->d->Uri = source;
+		chunk->d->Operation = YSSUniqueFileSystem::Operation::Read;
+		chunk->d->AutoDelete = true;
+		QObject::connect(chunk, &YSSFileSystemReply::finished, this->Owner, [this, id, chunk]() {
+			if (this->Transfers.find(id) == this->Transfers.end()) {
+				return;
+			}
+			if (chunk->getError().isError()) {
+				this->finishTransfer(id, false, chunk->getError());
+				return;
+			}
+			const QByteArray data = chunk->getData();
+			if (data.isEmpty()) {
+				// 源读完：移动时再删源，否则直接结束。
+				this->submitSourceRemoval(id);
+				return;
+			}
+			this->submitRelayWrite(id, data);
+		});
+		provider->execute(request, chunk);
+	}
+
+	void YSSUniqueFileSystemPrivate::submitRelayWrite(quint64 id, const QByteArray& data) {
+		auto it = this->Transfers.find(id);
+		if (it == this->Transfers.end()) {
+			return;
+		}
+		const YSSURI target = it->Target;
+		YSSUniqueFileSystemProvider* provider = it->TargetProvider;
+		const qint64 offset = it->Offset;
+		const qint64 chunkBytes = data.size();
+
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Write);
+		request.setUri(target);
+		request.setData(data);
+		// 偏移 0 处覆盖并截断，后续块接着写。
+		request.d->DataOffset = offset;
+		request.setAutoDelete(true);
+
+		YSSFileSystemReply* chunk = new YSSFileSystemReply(this->NextId++);
+		chunk->d->Uri = target;
+		chunk->d->Operation = YSSUniqueFileSystem::Operation::Write;
+		chunk->d->AutoDelete = true;
+		QObject::connect(chunk, &YSSFileSystemReply::finished, this->Owner, [this, id, chunk, chunkBytes]() {
+			auto current = this->Transfers.find(id);
+			if (current == this->Transfers.end()) {
+				return;
+			}
+			if (chunk->getError().isError()) {
+				this->finishTransfer(id, false, chunk->getError());
+				return;
+			}
+			current->Offset += chunkBytes;
+			current->TargetWritten = true;
+			this->reportTransferProgress(id);
+			this->submitRelayRead(id);
+		});
+		provider->execute(request, chunk);
+	}
+
+	// 移动：复制已经完成，删除源。删除成功才算移动成功。
+	void YSSUniqueFileSystemPrivate::submitSourceRemoval(quint64 id) {
+		auto it = this->Transfers.find(id);
+		if (it == this->Transfers.end()) {
+			return;
+		}
+		if (!it->RemoveSource) {
+			this->finishTransfer(id, true, YSSFileError());
+			return;
+		}
+		if (it->SourceRemovalSubmitted) {
+			return;
+		}
+		it->SourceRemovalSubmitted = true;
+		const YSSURI source = it->Source;
+		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
+
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setUri(source);
+		request.setAutoDelete(true);
+
+		YSSFileSystemReply* removal = new YSSFileSystemReply(this->NextId++);
+		removal->d->Uri = source;
+		removal->d->Operation = YSSUniqueFileSystem::Operation::Remove;
+		removal->d->AutoDelete = true;
+		QObject::connect(removal, &YSSFileSystemReply::finished, this->Owner, [this, id, removal]() {
+			if (this->Transfers.find(id) == this->Transfers.end()) {
+				return;
+			}
+			if (removal->getError().isError()) {
+				// 源删不掉：目标上的副本已经写好，但移动没有完成，如实报告失败。
+				this->finishTransfer(id, false, removal->getError());
+				return;
+			}
+			this->finishTransfer(id, true, YSSFileError());
+		});
+		provider->execute(request, removal);
+	}
+
+	void YSSUniqueFileSystemPrivate::reportTransferProgress(quint64 id) {
+		const auto it = this->Transfers.constFind(id);
+		if (it == this->Transfers.constEnd()) {
+			return;
+		}
+		const qint64 transferred = it->Offset;
+		const qint64 total = it->TotalBytes;
+		auto taskIt = this->Tasks.find(id);
+		if (taskIt != this->Tasks.end()) {
+			taskIt->BytesTransferred = transferred;
+			if (total >= 0) {
+				taskIt->TotalBytes = total;
+			}
+			emit this->Owner->taskProgressed(id, transferred, taskIt->TotalBytes);
+		}
+		const QPointer<YSSFileSystemReply> reply = it->Reply;
+		if (!reply.isNull()) {
+			emit reply->progressed(transferred, total);
+		}
+	}
+
+	/*
+		失败且已经往目标写过数据时，先把半成品删掉再报告失败。
+
+		目标在开始时被要求不存在，因此这里删掉的只可能是本次中继的产物；
+		但如果是 Write 的第一块就覆盖了一个已存在的文件，删除它同样比留下半截内容好。
+	*/
+	void YSSUniqueFileSystemPrivate::discardTransferTarget(quint64 id, const YSSFileError& error) {
+		const auto it = this->Transfers.constFind(id);
+		if (it == this->Transfers.constEnd()) {
+			return;
+		}
+		const YSSURI target = it->Target;
+		YSSUniqueFileSystemProvider* provider = it->TargetProvider;
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setUri(target);
+		request.setAutoDelete(true);
+		YSSFileSystemReply* removal = new YSSFileSystemReply(this->NextId++);
+		removal->d->Uri = target;
+		removal->d->Operation = YSSUniqueFileSystem::Operation::Remove;
+		removal->d->AutoDelete = true;
+		QObject::connect(removal, &YSSFileSystemReply::finished, this->Owner, [this, id, error]() {
+			this->finishTransfer(id, false, error);
+		});
+		provider->execute(request, removal);
+	}
+
+	void YSSUniqueFileSystemPrivate::finishTransfer(quint64 id, bool ok, const YSSFileError& error) {
+		const auto found = this->Transfers.constFind(id);
+		if (found == this->Transfers.constEnd()) {
+			return;
+		}
+		if (!ok && found->TargetWritten) {
+			// 先把状态换成"已经在清理"，避免重复进入。
+			YSSUniqueFileSystemPrivate::TransferTask snapshot = found.value();
+			snapshot.TargetWritten = false;
+			this->Transfers.insert(id, snapshot);
+			this->discardTransferTarget(id, error);
+			return;
+		}
+		const YSSUniqueFileSystemPrivate::TransferTask transfer = found.value();
+		this->Transfers.remove(id);
+
+		const QStringList keys = this->RunningKeys.take(id);
+		for (const QString& key : keys) {
+			this->BusyKeys.remove(key);
+		}
+		const bool tracked = this->Tasks.remove(id) > 0;
+		this->TaskProviderIds.remove(id);
+
+		QPointer<YSSFileSystemReply> reply = transfer.Reply;
+		if (!reply.isNull()) {
+			const bool autoDelete = reply->isAutoDelete();
+			reply->d->BytesTransferred = transfer.Offset;
+			reply->d->TotalBytes = transfer.TotalBytes >= 0 ? transfer.TotalBytes : transfer.Offset;
+			if (ok) {
+				reply->d->Finished = true;
+				emit reply->progressed(reply->d->BytesTransferred, reply->d->TotalBytes);
+				if (!reply.isNull()) {
+					emit reply->succeeded();
+				}
+				if (!reply.isNull()) {
+					emit reply->finished();
+				}
+			}
+			else {
+				reply->d->Error = error;
+				reply->d->Finished = true;
+				emit reply->failed(error);
+				if (!reply.isNull()) {
+					emit reply->finished();
+				}
+			}
+			if (autoDelete && !reply.isNull()) {
+				reply->deleteLater();
+			}
+		}
+		if (ok) {
+			const QString providerId = this->providerIdOf(transfer.Source);
+			this->addTransfer(providerId, YSSUniqueFileSystem::Operation::Copy,
+				transfer.Offset, transfer.Offset);
+		}
+		if (tracked) {
+			emit this->Owner->taskFinished(id, ok);
+		}
+		this->schedulePending();
+	}
+
 	/*!
 		\since YSS 0.18.0
 
@@ -2591,23 +3155,23 @@ namespace YSSCore::General {
 		不同 URI 之间不互相阻塞。FIFO 的实现方式是：一旦某个待调度请求因为键被占用
 		而等待，它的键也会加入本轮阻塞集合，后续同键请求不能越过它先跑。
 	*/
-	void YSSUniqueFileSystem::schedulePending() {
-		if (this->d->Scheduling) {
+	void YSSUniqueFileSystemPrivate::schedulePending() {
+		if (this->Scheduling) {
 			return;
 		}
-		this->d->Scheduling = true;
+		this->Scheduling = true;
 		QSet<QString> blockedKeys;
-		for (int i = 0; i < this->d->Pending.size();) {
-			const YSSUniqueFileSystemPrivate::PendingTask item = this->d->Pending.at(i);
+		for (int i = 0; i < this->Pending.size();) {
+			const PendingTask item = this->Pending.at(i);
 			if (!item.Reply) {
-				this->d->Pending.removeAt(i);
-				this->d->Tasks.remove(item.Id);
-				this->d->TaskProviderIds.remove(item.Id);
+				this->Pending.removeAt(i);
+				this->Tasks.remove(item.Id);
+				this->TaskProviderIds.remove(item.Id);
 				continue;
 			}
 			bool blocked = false;
 			for (const QString& key : item.Keys) {
-				if (this->d->BusyKeys.contains(key) || blockedKeys.contains(key)) {
+				if (this->BusyKeys.contains(key) || blockedKeys.contains(key)) {
 					blocked = true;
 					break;
 				}
@@ -2619,23 +3183,28 @@ namespace YSSCore::General {
 				++i;
 				continue;
 			}
-			this->d->Pending.removeAt(i);
+			this->Pending.removeAt(i);
 			for (const QString& key : item.Keys) {
-				this->d->BusyKeys.insert(key);
+				this->BusyKeys.insert(key);
 			}
-			this->d->RunningKeys.insert(item.Id, item.Keys);
+			this->RunningKeys.insert(item.Id, item.Keys);
 			{
 				qint64 waitedMs = 0;
-				const auto taskIt = this->d->Tasks.constFind(item.Id);
-				if (taskIt != this->d->Tasks.constEnd()) {
+				const auto taskIt = this->Tasks.constFind(item.Id);
+				if (taskIt != this->Tasks.constEnd()) {
 					waitedMs = QDateTime::currentMSecsSinceEpoch() - taskIt.value().QueuedAtMs;
 				}
 				YSSUFS->debug() << "dispatch" << describeRequest(item.Id, item.Request.getOperation(),
 					item.Request.getUri(), item.Request.getTargetUri())
 					<< QStringLiteral("(queued %1 ms)").arg(waitedMs);
 			}
+			// 跨后端（或后端不原生支持）的复制/移动由门面分块中继，不交给后端。
+			if (this->Transfers.contains(item.Id)) {
+				this->startTransfer(item.Id);
+				continue;
+			}
 			item.Provider->execute(item.Request, item.Reply.data());
 		}
-		this->d->Scheduling = false;
+		this->Scheduling = false;
 	}
 }

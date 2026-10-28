@@ -54,6 +54,8 @@ namespace Visindigo::Network {
 		\value PermissionDenied 认证通过，但操作被服务端拒绝（多见于文件权限不足）。
 		\value FileNotFound 远端文件或目录不存在。
 		\value FileExists 远端已存在同名文件或目录（例如创建已存在的目录）。
+		\value FileTooLarge 文件超过 \l{SshConnectConfig::MaxSftpFileBytes} 设定的上限。
+			读操作在传输前按远端报告的大小判定，写操作在打开远端文件前按内容长度判定。
 		\value CommandFailed 远端命令执行完毕，但退出码不为 0。
 		\value ConnectionRefused 连接被拒绝。
 		\value HostNotFound 域名解析失败。

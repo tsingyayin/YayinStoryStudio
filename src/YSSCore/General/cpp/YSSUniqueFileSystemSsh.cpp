@@ -52,6 +52,9 @@ namespace {
 		case Visindigo::Network::SshError::ErrorType::FileExists:
 			error.Type = YSSError::ErrorType::AlreadyExists;
 			break;
+		case Visindigo::Network::SshError::ErrorType::FileTooLarge:
+			error.Type = YSSError::ErrorType::FileTooLarge;
+			break;
 		case Visindigo::Network::SshError::ErrorType::ChannelRejected:
 			error.Type = YSSError::ErrorType::NotSupported;
 			break;
@@ -84,7 +87,12 @@ namespace {
 			// SFTP 没有回收站，Recycle 由 SshRemoveWalker 之外的独立分支明确拒绝。
 			return Visindigo::Network::SftpOperation::Unknown;
 		case FileOperation::Rename:
+		case FileOperation::Move:
+			// 同一 SFTP 服务器上的移动直接交给服务端重命名，不搬运数据。
 			return Visindigo::Network::SftpOperation::Rename;
+		case FileOperation::Copy:
+			// 复制由门面按块中继，不会走到这条映射。
+			return Visindigo::Network::SftpOperation::Unknown;
 		case FileOperation::Mkdir:
 			return Visindigo::Network::SftpOperation::Mkdir;
 		case FileOperation::Rmdir:
@@ -514,8 +522,13 @@ namespace YSSCore::General {
 		sftpRequest.setAutoDelete(false);
 		if (request.getOperation() == FileOperation::Write) {
 			sftpRequest.setData(request.getData());
+			sftpRequest.setRange(requestDataOffset(request), -1);
 		}
-		else if (request.getOperation() == FileOperation::Rename) {
+		else if (request.getOperation() == FileOperation::Read) {
+			sftpRequest.setRange(requestDataOffset(request), requestDataLength(request));
+		}
+		else if (request.getOperation() == FileOperation::Rename
+			|| request.getOperation() == FileOperation::Move) {
 			const YSSURI targetPath = request.getTargetUri();
 			if (!isAcceptableSshTarget(this->d->Config, targetPath)) {
 				YSSFileError error;

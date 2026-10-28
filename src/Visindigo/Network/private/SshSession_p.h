@@ -78,6 +78,8 @@ namespace Visindigo::Network {
 		bool Started = false;
 		_LIBSSH2_SFTP_HANDLE* Handle = nullptr;
 		qint64 Offset = 0;
+		// Read 本次最多读取的字节数，负值表示读到末尾。
+		qint64 Length = -1;
 		qint64 Transferred = 0;
 		QByteArray Collected;
 		QList<SftpEntry> Entries;
@@ -139,6 +141,8 @@ namespace Visindigo::Network {
 		QSocketNotifier* SocketNotifier = nullptr;
 		qint64 NextKeepAliveMs = 0;
 		qint32 KeepAliveSeconds = 0;
+		// SshConnectConfig::MaxSftpFileBytes 的快照；0 或负数表示不限制。
+		qint64 MaxSftpFileBytes = 0;
 	protected:
 		void beginConnect(const Visindigo::Network::SshConnectConfig& config);
 		void cleanup();

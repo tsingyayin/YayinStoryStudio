@@ -19,9 +19,9 @@
 #include "Network/private/SshSession_p.h"
 
 namespace {
-	// 单个文件读写的上限。SFTP 的结果是一个内存缓冲，没有上限的话一个超大文件
-	// 就能把进程撑死；超过这个值时按错误处理，而不是悄悄截断。
-	constexpr qint64 SftpMaxTransferBytes = 64 * 1024 * 1024;
+	// 单次 sftp_read / sftp_write 搬运的字节数。文件按这个粒度分块传输，
+	// 整文件的大小边界由 SshConnectConfig::MaxSftpFileBytes 决定。
+	constexpr qint64 SftpIoChunkBytes = 64 * 1024;
 	// 每次 pump 里处理 SFTP 队列的时间预算，它决定了 exec 通道最多被挡住多久。
 	constexpr qint64 SftpTickBudgetMs = 100;
 	// 进度上报的最小字节间隔。按字节节流，避免小文件产生大量无意义的信号。
@@ -74,6 +74,16 @@ namespace {
 		}
 		return error;
 	}
+
+	// 单个文件上限判定。\a limitBytes 为 0 或负数表示不限制。
+	bool exceedsFileLimit(qint64 limitBytes, qint64 sizeBytes) {
+		return limitBytes > 0 && sizeBytes > limitBytes;
+	}
+
+	QString fileTooLargeMessage(const QString& path, qint64 sizeBytes, qint64 limitBytes) {
+		return QStringLiteral("%1 is %2 bytes, over the configured %3 byte SFTP file limit")
+			.arg(path).arg(sizeBytes).arg(limitBytes);
+	}
 }
 
 namespace Visindigo::Network {
@@ -84,6 +94,8 @@ namespace Visindigo::Network {
 		operation.Path = request.getPath();
 		operation.TargetPath = request.getTargetPath();
 		operation.Payload = request.getData();
+		operation.Offset = request.getOffset();
+		operation.Length = request.getLength();
 		this->SftpQueue.append(operation);
 		this->stepSftp();
 	}
@@ -179,54 +191,108 @@ namespace Visindigo::Network {
 					if (handle == nullptr) {
 						break;
 					}
+					// 传输前预检：远端报了大小就先判一次，超限时一个字节都不读。
 					LIBSSH2_SFTP_ATTRIBUTES info;
 					memset(&info, 0, sizeof(info));
 					if (libssh2_sftp_fstat_ex(handle, &info, 0) == 0
 						&& (info.flags & LIBSSH2_SFTP_ATTR_SIZE) != 0) {
 						total = static_cast<qint64>(info.filesize);
+						if (exceedsFileLimit(this->MaxSftpFileBytes, total)) {
+							result.Error.Type = SshError::ErrorType::FileTooLarge;
+							result.Error.Message = fileTooLargeMessage(operation.Path, total,
+								this->MaxSftpFileBytes);
+							result.Error.Detail = QStringLiteral("remote size %1 bytes").arg(total);
+							break;
+						}
+						// 已知大小就先留出空间，避免边读边扩容。超大文件不预先申请，
+						// 按实际读到的量增长，免得一次 reserve 就把内存吃满。
+						constexpr qint64 ReserveLimitBytes = 256 * 1024 * 1024;
+						if (total > 0 && total <= ReserveLimitBytes) {
+							result.Data.reserve(static_cast<qsizetype>(total));
+						}
 					}
-					char buffer[16384];
-					for (;;) {
-						const ssize_t got = libssh2_sftp_read(handle, buffer, sizeof(buffer));
-						if (got > 0) {
-							result.Data.append(buffer, static_cast<int>(got));
-							result.BytesTransferred += got;
-							if (result.BytesTransferred - reported >= SftpProgressStepBytes) {
-								reported = result.BytesTransferred;
-								emit this->sftpProgressed(operation.Id, reported, total);
-							}
-							if (result.BytesTransferred > SftpMaxTransferBytes) {
-								result.Data.clear();
-								explicitError = QStringLiteral("%1 exceeds the %2 byte SFTP read limit")
-									.arg(operation.Path).arg(SftpMaxTransferBytes);
+					char buffer[SftpIoChunkBytes];
+					bool ioError = false;
+					// 区间读取：从偏移处开始，最多读 Length；整体读取时两者都是默认值。
+					if (operation.Offset > 0) {
+						libssh2_sftp_seek64(handle, static_cast<libssh2_uint64_t>(operation.Offset));
+					}
+					// 分块读取时进度总量是本次区间的长度，而不是整个文件。
+					if (operation.Length >= 0) {
+						total = operation.Length;
+					}
+					bool finishedRead = operation.Length == 0;
+					while (!finishedRead)
+					{
+						qint64 want = SftpIoChunkBytes;
+						if (operation.Length >= 0) {
+							want = qMin(operation.Length - result.BytesTransferred, SftpIoChunkBytes);
+							if (want <= 0) {
 								break;
 							}
-							continue;
 						}
-						if (got == 0) {
-							result.Succeeded = true;
+						const ssize_t got = libssh2_sftp_read(handle, buffer, static_cast<size_t>(want));
+						if (got <= 0) {
+							ioError = got < 0;
+							break;
 						}
-						break;
+						result.Data.append(buffer, static_cast<int>(got));
+						result.BytesTransferred += got;
+						if (result.BytesTransferred - reported >= SftpProgressStepBytes) {
+							reported = result.BytesTransferred;
+							emit this->sftpProgressed(operation.Id, reported, total);
+						}
+						// 远端没给出大小时靠这里兜底：文件可能在预检之后才变大。
+						if (exceedsFileLimit(this->MaxSftpFileBytes, result.BytesTransferred)) {
+							result.Error.Type = SshError::ErrorType::FileTooLarge;
+							result.Error.Message = fileTooLargeMessage(operation.Path,
+								result.BytesTransferred, this->MaxSftpFileBytes);
+							result.Error.Detail = QStringLiteral("limit exceeded while reading");
+							result.Data.clear();
+							result.BytesTransferred = 0;
+							break;
+						}
 					}
-					if (!result.Succeeded && explicitError.isEmpty()) {
+					if (ioError) {
 						result.Data.clear();
+						result.BytesTransferred = 0;
+					}
+					else if (result.Error.Type != SshError::ErrorType::FileTooLarge) {
+						result.Succeeded = true;
 					}
 					break;
 				}
 				case SftpOperation::Write: {
+					// 写入前判定：待写内容本身就是调用方已经放进内存的整份数据，
+					// 超过上限时不要连远端文件一起打开。
+					if (exceedsFileLimit(this->MaxSftpFileBytes,
+						static_cast<qint64>(operation.Payload.size()))) {
+						result.Error.Type = SshError::ErrorType::FileTooLarge;
+						result.Error.Message = fileTooLargeMessage(operation.Path,
+							static_cast<qint64>(operation.Payload.size()), this->MaxSftpFileBytes);
+						result.Error.Detail = QStringLiteral("payload exceeds the configured limit");
+						break;
+					}
+					// 偏移 0 时整文件覆盖；非 0 时保留已有前缀，只改写这一段。
+					unsigned long writeFlags = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT;
+					if (operation.Offset == 0) {
+						writeFlags |= LIBSSH2_FXF_TRUNC;
+					}
 					handle = libssh2_sftp_open_ex(sftp, path.constData(),
-						static_cast<unsigned int>(path.size()),
-						LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC,
+						static_cast<unsigned int>(path.size()), writeFlags,
 						LIBSSH2_SFTP_S_IRUSR | LIBSSH2_SFTP_S_IWUSR | LIBSSH2_SFTP_S_IRGRP | LIBSSH2_SFTP_S_IROTH,
 						LIBSSH2_SFTP_OPENFILE);
 					if (handle == nullptr) {
 						break;
 					}
+					if (operation.Offset > 0) {
+						libssh2_sftp_seek64(handle, static_cast<libssh2_uint64_t>(operation.Offset));
+					}
 					total = operation.Payload.size();
 					bool failed = false;
 					while (result.BytesTransferred < operation.Payload.size()) {
 						const qint64 remaining = operation.Payload.size() - result.BytesTransferred;
-						const size_t chunk = static_cast<size_t>(qMin(remaining, qint64(16384)));
+						const size_t chunk = static_cast<size_t>(qMin(remaining, SftpIoChunkBytes));
 						const ssize_t written = libssh2_sftp_write(handle,
 							operation.Payload.constData() + result.BytesTransferred, chunk);
 						if (written <= 0) {
@@ -283,7 +349,9 @@ namespace Visindigo::Network {
 					libssh2_sftp_close_handle(handle);
 					handle = nullptr;
 				}
-				if (!result.Succeeded) {
+				// 操作自己中途填好了具体错误（例如超出文件大小上限）时就保留它，
+				// 不要再被下面的通用映射覆盖成协议错误。
+				if (!result.Succeeded && result.Error.Type == SshError::ErrorType::NoError) {
 					if (explicitError.isEmpty()) {
 						result.Error = sftpError(sftp,
 							QStringLiteral("SFTP operation on %1 failed").arg(operation.Path));

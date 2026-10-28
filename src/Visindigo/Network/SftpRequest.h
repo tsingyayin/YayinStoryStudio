@@ -74,12 +74,18 @@ namespace Visindigo::Network {
 		SftpRequest& setPath(const QString& path);
 		SftpRequest& setTargetPath(const QString& targetPath);
 		SftpRequest& setData(const QByteArray& data);
+		// 设置读写区间，让大文件可以分块传输，不必整份放进一次请求。
+		// Read 读 [offset, offset+length)，length 为负表示读到文件末尾；
+		// Write 从 offset 开始写，offset 为 0 时覆盖并截断，大于 0 时保留已有前缀。
+		SftpRequest& setRange(qint64 offset, qint64 length = -1);
 		SftpRequest& setAutoDelete(bool autoDelete);
 	public:
 		SftpOperation getOperation() const;
 		QString getPath() const;
 		QString getTargetPath() const;
 		QByteArray getData() const;
+		qint64 getOffset() const;
+		qint64 getLength() const;
 		bool isAutoDelete() const;
 	public:
 		bool isValid() const;

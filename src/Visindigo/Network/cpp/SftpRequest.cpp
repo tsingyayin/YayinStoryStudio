@@ -22,6 +22,8 @@ namespace Visindigo::Network {
 		QString Path;
 		QString TargetPath;
 		QByteArray Data;
+		qint64 Offset = 0;
+		qint64 Length = -1;
 		bool AutoDelete = true;
 	};
 
@@ -72,8 +74,7 @@ namespace Visindigo::Network {
 		\list
 		\li \l{SftpOperation::Stat} 只读 \l{Path}。
 		\li \l{SftpOperation::Read} 读 \l{Path}，结果在 \l{SftpReply::getData()}。
-		\li \l{SftpOperation::Write} 把 \l{Data} 整体写入 \l{Path}（覆盖）。
-		\li \l{SftpOperation::List} 列 \l{Path} 下的条目。
+		\li \l{SftpOperation::Write} 把 \l{Data} 整体写入 \l{Path}（覆盖）。		\li \l{SftpOperation::List} 列 \l{Path} 下的条目。
 		\li \l{SftpOperation::Remove} 删除 \l{Path}。
 		\li \l{SftpOperation::Rename} 把 \l{Path} 改名或移动到 \l{TargetPath}。
 		\li \l{SftpOperation::Mkdir} / \l{SftpOperation::Rmdir} 建目录 / 删空目录。
@@ -203,6 +204,23 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
+		设置读写的起始偏移与读取长度。
+
+		\a offset 起始偏移，负数按 0 处理。
+		\a length 对 Read 是本次最多读取的字节数，负数表示读到文件末尾；
+		对 Write 不使用，写入长度由 \l{setData()} 决定。
+
+		\return 自身引用，便于链式调用。
+	*/
+	SftpRequest& SftpRequest::setRange(qint64 offset, qint64 length) {
+		this->d->Offset = offset < 0 ? 0 : offset;
+		this->d->Length = length;
+		return *this;
+	}
+
+	/*!
+		\since Visindigo 0.18.0
+
 		取操作类型。
 
 		\return 操作类型。
@@ -242,6 +260,28 @@ namespace Visindigo::Network {
 	*/
 	QByteArray SftpRequest::getData() const {
 		return this->d->Data;
+	}
+
+	/*!
+		\since Visindigo 0.18.0
+
+		取读写起始偏移。
+
+		\return 偏移字节数。
+	*/
+	qint64 SftpRequest::getOffset() const {
+		return this->d->Offset;
+	}
+
+	/*!
+		\since Visindigo 0.18.0
+
+		取读取长度上限。
+
+		\return 最多读取的字节数，负值表示读到末尾。
+	*/
+	qint64 SftpRequest::getLength() const {
+		return this->d->Length;
 	}
 
 	/*!

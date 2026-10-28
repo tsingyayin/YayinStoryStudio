@@ -24,6 +24,26 @@ namespace YSSCore::General {
 }
 // Main
 namespace YSSCore::General {
+	// 请求的内部状态。放在私有头里，是因为后端与门面都要读写数据区间
+	// （跨后端中继按块搬运时必须指定偏移），而这些字段不对外公开。
+	class YSSFileSystemRequestPrivate {
+		friend class YSSFileSystemRequest;
+		friend class YSSUniqueFileSystem;
+		friend class YSSUniqueFileSystemPrivate;
+		friend class YSSUniqueFileSystemProvider;
+	protected:
+		YSSUniqueFileSystem::Operation Operation = YSSUniqueFileSystem::Operation::Unknown;
+		YSSURI Uri;
+		YSSURI TargetUri;
+		QByteArray Data;
+		// 读写的起始偏移。Read 从 Offset 开始读；Write 从 Offset 开始写，
+		// Offset 为 0 表示整文件覆盖并截断。
+		qint64 DataOffset = 0;
+		// Read 本次最多读取的字节数；负数表示读到文件末尾。
+		qint64 DataLength = -1;
+		bool AutoDelete = true;
+	};
+
 	// 文件系统后端接口。只在本模块内部可见：调用方永远只面对 YSSUniqueFileSystem。
 	//
 	// 一个后端对应一种 scheme，不持有"根"——身份完全由请求里的绝对 URI 决定。
@@ -32,6 +52,7 @@ namespace YSSCore::General {
 	class YSSUniqueFileSystemProvider : public QObject {
 		Q_OBJECT;
 		friend class YSSUniqueFileSystem;
+		friend class YSSUniqueFileSystemPrivate;
 		friend class YSSFileSystemReply;
 	signals:
 		// 后端真正开始处理该请求。只带 id，避免结果对象在排队期间被销毁后留下悬空指针。
@@ -40,6 +61,9 @@ namespace YSSCore::General {
 		void progressed(quint64 id, qint64 transferred, qint64 total);
 		// 请求已经结束（成功或失败）。
 		void finished(quint64 id, bool ok);
+		// 后端监听的一个目录内容发生了变化。门面把它转成公开的
+		// YSSUniqueFileSystem::directoryChanged()。
+		void watchedDirectoryChanged(const YSSURI& uri);
 	public:
 		YSSUniqueFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSUniqueFileSystemProvider();
@@ -47,7 +71,26 @@ namespace YSSCore::General {
 		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const = 0;
 		virtual bool isReady() const = 0;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) = 0;
+	public:
+		// 后端能否自己完成 Operation::Copy，而不需要门面按块中继。
+		// 本机后端可以（直接读写本地文件）；SFTP 没有服务端复制操作，
+		// 由门面用 Read/Write 区间请求中继。
+		virtual bool supportsNativeCopy() const { return false; };
+		// 后端能否自己完成 Operation::Move。本机与 SSH 都可以（重命名）。
+		virtual bool supportsNativeMove() const { return false; };
+	public:
+		// 后端能否监听目录变化。为真时 getCapabilities() 必须按 URI 给出
+		// CanWatchDirectory，并且 watchDirectory() 要真正生效。
+		virtual bool supportsDirectoryWatch() const { return false; };
+		// 开始监听一个目录。默认实现以 NotSupported 失败。
+		virtual bool watchDirectory(const YSSURI& uri, YSSFileError* error);
+		virtual bool unwatchDirectory(const YSSURI& uri);
+		// 该后端当前正在监听的目录。用于门面汇总。
+		virtual QList<YSSURI> getWatchedDirectories() const { return QList<YSSURI>(); };
 	protected:
+		// 请求携带的数据区间。这些字段只在模块内部使用，不对外公开。
+		static qint64 requestDataOffset(const YSSFileSystemRequest& request);
+		static qint64 requestDataLength(const YSSFileSystemRequest& request);
 		void markStarted(YSSFileSystemReply* reply);
 		void reportProgress(YSSFileSystemReply* reply, qint64 transferred, qint64 total);
 		void complete(YSSFileSystemReply* reply, const QByteArray& data,
@@ -68,9 +111,21 @@ namespace YSSCore::General {
 		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
 		virtual bool isReady() const override;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) override;
+	public:
+		virtual bool supportsNativeCopy() const override { return true; };
+		virtual bool supportsNativeMove() const override { return true; };
+	public:
+		virtual bool supportsDirectoryWatch() const override { return true; };
+		virtual bool watchDirectory(const YSSURI& uri, YSSFileError* error) override;
+		virtual bool unwatchDirectory(const YSSURI& uri) override;
+		virtual QList<YSSURI> getWatchedDirectories() const override;
 	protected:
 		void runRequest(const YSSFileSystemRequest& request, YSSFileSystemReply* reply);
 		void deliverResult(YSSFileSystemReply* reply);
+		// QFileSystemWatcher 的原始回调：登记路径，等去抖窗口结束再统一发信号。
+		void onWatchedDirectoryChanged(const QString& path);
+		// 把去抖窗口内累积的变化逐目录发出 watchedDirectoryChanged。
+		void flushWatchedDirectories();
 	private:
 		YSSLocalFileSystemProviderPrivate* d;
 	};
@@ -92,6 +147,10 @@ namespace YSSCore::General {
 		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
 		virtual bool isReady() const override;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) override;
+	public:
+		// SFTP 没有服务端复制操作，复制交给门面按块中继；移动用重命名，不需要搬运数据。
+		virtual bool supportsNativeCopy() const override { return false; };
+		virtual bool supportsNativeMove() const override { return true; };
 	public:
 		bool setConnectConfig(const Visindigo::Network::SshConnectConfig& config);
 		Visindigo::Network::SshConnectConfig getConnectConfig() const;
