@@ -44,7 +44,7 @@ namespace YSSCore::General {
 		YSSUniqueFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSUniqueFileSystemProvider();
 	public:
-		virtual YSSUniqueFileSystem::Capabilities getCapabilities() const = 0;
+		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const = 0;
 		virtual bool isReady() const = 0;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) = 0;
 	protected:
@@ -65,7 +65,7 @@ namespace YSSCore::General {
 		YSSLocalFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSLocalFileSystemProvider();
 	public:
-		virtual YSSUniqueFileSystem::Capabilities getCapabilities() const override;
+		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
 		virtual bool isReady() const override;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) override;
 	protected:
@@ -89,7 +89,7 @@ namespace YSSCore::General {
 		YSSSshFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSSshFileSystemProvider();
 	public:
-		virtual YSSUniqueFileSystem::Capabilities getCapabilities() const override;
+		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
 		virtual bool isReady() const override;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) override;
 	public:

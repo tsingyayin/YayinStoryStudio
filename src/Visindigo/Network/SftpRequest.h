@@ -30,7 +30,11 @@ namespace Visindigo::Network {
 namespace Visindigo::Network {
 	enum class SftpOperation {
 		Unknown = 0,
+		// 跟随符号链接读属性。
 		Stat,
+		// 不跟随符号链接读属性：链接本身会被报成 IsSymlink，链接指向的目录不会
+		// 被当成目录。删除、递归遍历这类操作必须用它，否则会穿过链接删掉目标内容。
+		LStat,
 		Read,
 		Write,
 		List,

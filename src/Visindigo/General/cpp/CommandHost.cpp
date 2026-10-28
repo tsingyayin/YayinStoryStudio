@@ -163,8 +163,8 @@ namespace Visindigo::General {
 	*/
 	CommandHost::CommandHost() {
 		d = new CommandHostPrivate();
-		d->saveCommandHistory = VIApp->getEnvConfig(VIApplication::SaveCommandHistory).toBool();
-		d->savedPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString() + "/command_history.log";
+		d->saveCommandHistory = VIApplication::getEnvConfig(VIApplication::SaveCommandHistory).toBool();
+		d->savedPath = VIApplication::getEnvConfig(VIApplication::LogFolderPath).toString() + "/command_history.log";
 		if (d->saveCommandHistory) {
 			Visindigo::Utility::FileOperation::Errorable<QStringList> historyResult = Visindigo::Utility::FileOperation::readLines(d->savedPath);
 			if (historyResult) {

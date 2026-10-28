@@ -29,10 +29,10 @@ namespace Visindigo::General {
 		QString LogTimeFormat;
 		qint64 currentEpoch = 0;
 		LogCenterPrivate() {
-			LogFileNameTimeFormat = VIApp->getEnvConfig(VIApplication::LogFileNameTimeFormat).toString();
-			LogTimeFormat = VIApp->getEnvConfig(VIApplication::LogTimeFormat).toString();
+			LogFileNameTimeFormat = VIApplication::getEnvConfig(VIApplication::LogFileNameTimeFormat).toString();
+			LogTimeFormat = VIApplication::getEnvConfig(VIApplication::LogTimeFormat).toString();
 			QString birthTime = QDateTime::currentDateTime().toString(LogFileNameTimeFormat);
-			QString LogFolderPath = VIApp->getEnvConfig(VIApplication::LogFolderPath).toString();
+			QString LogFolderPath = VIApplication::getEnvConfig(VIApplication::LogFolderPath).toString();
 			QString LogFileName = birthTime % ".log";
 			LogFile.setFileName(LogFolderPath % "/" % LogFileName);
 			CrashGateway::setLogFolder(LogFolderPath);

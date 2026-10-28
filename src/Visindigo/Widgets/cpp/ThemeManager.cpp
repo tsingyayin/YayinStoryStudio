@@ -499,7 +499,7 @@ namespace Visindigo::Widgets {
 		
 		QFontDatabase::addApplicationFont(":/resource/cn.yxgeneral.visindigo/Segoe Fluent Icons.ttf");
 		//d->ColorSchemes["#Default"] = d->DefaultColorScheme;
-		d->ConfigPath = VIApp->getEnvConfig(Visindigo::General::VIApplication::EnvKey::ThemeFolderPath).toString();
+		d->ConfigPath = Visindigo::General::VIApplication::getEnvConfig(Visindigo::General::VIApplication::EnvKey::ThemeFolderPath).toString();
 		d->Config = new Visindigo::Utility::JsonConfig();
 		if (!Visindigo::Utility::FileUtility::isFileExist(d->ConfigPath + "/config.json")) {
 			vgWarningF << "Theme config file not found at path:" << d->ConfigPath + "/config.json" << ", creating default config.";
@@ -533,7 +533,7 @@ namespace Visindigo::Widgets {
 			d->CurrentThemeID = d->Config->getString("Theme");
 		}
 		else {
-			d->CurrentThemeID = VIApp->getEnvConfig(Visindigo::General::VIApplication::EnvKey::DefaultColorTheme).toString();
+			d->CurrentThemeID = Visindigo::General::VIApplication::getEnvConfig(Visindigo::General::VIApplication::EnvKey::DefaultColorTheme).toString();
 		}
 		loadAndRefresh(false); // not merge for constructor
 		connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this](Qt::ColorScheme newScheme) {

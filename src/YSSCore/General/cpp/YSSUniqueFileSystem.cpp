@@ -35,6 +35,7 @@ namespace {
 		switch (operation) {
 		case Operation::Write:
 		case Operation::Remove:
+		case Operation::Recycle:
 		case Operation::Rename:
 		case Operation::Mkdir:
 		case Operation::Rmdir:
@@ -53,6 +54,7 @@ namespace {
 		case Operation::Write: return "write";
 		case Operation::List: return "list";
 		case Operation::Remove: return "remove";
+		case Operation::Recycle: return "recycle";
 		case Operation::Rename: return "rename";
 		case Operation::Mkdir: return "mkdir";
 		case Operation::Rmdir: return "rmdir";
@@ -1523,10 +1525,11 @@ namespace YSSCore::General {
 		\value Read 读取整个文件。
 		\value Write 整体覆盖写入。
 		\value List 列出目录条目。
-		\value Remove 删除文件。
+		\value Remove 删除文件或符号链接，或者是整个目录树（递归）。不经过回收站。
+		\value Recycle 移入后端提供的回收站。需要 \l{CanRecycle} 能力，且不保证能恢复。
 		\value Rename 重命名或移动，需要同时给出 \l{YSSFileSystemRequest::setTargetUri()}。
 		\value Mkdir 创建目录。
-		\value Rmdir 删除空目录。
+		\value Rmdir 删除空目录。目录非空时失败，需要连内容一起删请用 \l{Remove}。
 	*/
 
 	/*!
@@ -1540,10 +1543,14 @@ namespace YSSCore::General {
 		\value CanRead 支持读文件。
 		\value CanWrite 支持写文件。
 		\value CanList 支持列目录。
-		\value CanRemove 支持删文件。
+		\value CanRemove 支持删文件与目录树。
 		\value CanRename 支持重命名。
 		\value CanMakeDirectory 支持建目录。
-		\value AllCapabilities 全部支持。
+		\value PathCaseSensitive 路径区分大小写。
+		\value ReadOnly 只读后端，写类操作一律以 NotSupported 失败。
+		\value CanRecycle 该位置可以把文件移入回收站。逐 URI 判定，不在 AllCapabilities 里；
+		没置位时 Recycle 请求以 NotSupported 失败，绝不退化成永久删除。
+		\value AllCapabilities 全部操作能力，不含 PathCaseSensitive / ReadOnly / CanRecycle。
 	*/
 
 	/*!
@@ -1686,15 +1693,15 @@ namespace YSSCore::General {
 	*/
 	YSSUniqueFileSystem::Capabilities YSSUniqueFileSystem::getCapabilities(const YSSURI& uri) const {
 		if (uri.isResource()) {
-			const Capabilities local = this->d->Local->getCapabilities();
+			const Capabilities local = this->d->Local->getCapabilities(uri);
 			return (local & (CanRead | CanList)) | PathCaseSensitive | ReadOnly;
 		}
 		if (uri.isNotRemote()) {
-			return this->d->Local->getCapabilities();
+			return this->d->Local->getCapabilities(uri);
 		}
 		if (uri.isRemote()) {
 			// SSH 后端的能力是固定的，与具体连接无关，因此不必先建后端就能回答；
-			// 路由时后端会在需要时按需创建。
+			// 路由时后端会在需要时按需创建。它没有 CanRecycle：SFTP 不提供回收站。
 			if (uri.getSshPath()) {
 				return Capabilities(AllCapabilities | PathCaseSensitive);
 			}
@@ -2038,7 +2045,8 @@ namespace YSSCore::General {
 		emit this->taskQueued(task);
 
 		if (isWriteOperation(request.getOperation())) {
-			bool writable = this->getCapabilities(uri).testFlag(CanWrite);
+			const Capabilities capabilities = this->getCapabilities(uri);
+			bool writable = capabilities.testFlag(CanWrite);
 			if (request.getOperation() == Operation::Rename && request.hasTargetUri()) {
 				writable = writable && this->getCapabilities(request.getTargetUri()).testFlag(CanRename);
 			}
@@ -2046,6 +2054,15 @@ namespace YSSCore::General {
 				YSSFileError error;
 				error.Type = YSSFileError::ErrorType::NotSupported;
 				error.Message = QStringLiteral("The backend is read-only");
+				error.Detail = uri.toString();
+				provider->fail(reply, error);
+				return reply;
+			}
+			// 回收站不在通用写能力里：不支持的后端必须明确失败，绝不能退化成永久删除。
+			if (request.getOperation() == Operation::Recycle && !capabilities.testFlag(CanRecycle)) {
+				YSSFileError error;
+				error.Type = YSSFileError::ErrorType::NotSupported;
+				error.Message = QStringLiteral("This location cannot be recycled");
 				error.Detail = uri.toString();
 				provider->fail(reply, error);
 				return reply;
@@ -2144,7 +2161,11 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		删除文件。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Remove} 请求。
+		删除文件或符号链接，或者是整个目录树。等价于提交一条
+		\l{YSSUniqueFileSystem::Operation::Remove} 请求。
+
+		目录是递归删除的：先删子项，最后删自己。符号链接本身会被删除，链接指向的
+		目标不受影响。删除不经过回收站，不可恢复；需要回收语义请用 \l{recycle()}。
 
 		\a uri 文件身份。
 
@@ -2152,6 +2173,28 @@ namespace YSSCore::General {
 	*/
 	YSSFileSystemReply* YSSUniqueFileSystem::remove(const YSSURI& uri) {
 		return this->execute(uri, YSSUniqueFileSystem::Operation::Remove);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		把文件、符号链接或整个目录树移入后端提供的回收站。等价于提交一条
+		\l{YSSUniqueFileSystem::Operation::Recycle} 请求。
+
+		只有 \l{getCapabilities()} 里带 \l{CanRecycle} 的位置才可能成功。不支持回收的
+		位置会以 \l{YSSFileError::ErrorType::NotSupported} 失败，而**不会**退化成永久
+		删除——是否改为永久删除由调用方询问用户之后自己决定。
+
+		能进回收站不代表能恢复：多数平台上回收站里的真实位置是拿不到的（Windows 的
+		Shell 只回一个成功/失败），因此这里不提供 restore，也不回传位置。真正的"可撤销
+		删除"请在项目内自己留副本（例如先把文件 rename 到项目内的 trash 目录）。
+
+		\a uri 文件身份。
+
+		\return 结果句柄。
+	*/
+	YSSFileSystemReply* YSSUniqueFileSystem::recycle(const YSSURI& uri) {
+		return this->execute(uri, YSSUniqueFileSystem::Operation::Recycle);
 	}
 
 	/*!
@@ -2322,7 +2365,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		同步删除文件。
+		同步删除文件/链接，或者是整个目录树。
 
 		内部提交一条 \l{YSSUniqueFileSystem::Operation::Remove} 请求并等待它结束，
 		因此会阻塞调用线程。界面线程上删远端文件应当改用 \l{remove()} 异步版本。
@@ -2335,6 +2378,38 @@ namespace YSSCore::General {
 	bool YSSUniqueFileSystem::removeSync(const YSSURI& uri, YSSFileError* error) {
 		YSSFileSystemRequest request;
 		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setUri(uri);
+		request.setAutoDelete(false);
+		YSSFileSystemReply* reply = this->execute(request);
+		const bool ok = this->waitForReply(reply, error);
+		if (reply) {
+			if (reply->isFinished()) {
+				delete reply;
+			}
+			else {
+				reply->d->AutoDelete = true;
+			}
+		}
+		return ok;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		同步移入回收站。
+
+		内部提交一条 \l{YSSUniqueFileSystem::Operation::Recycle} 请求并等待它结束，
+		因此会阻塞调用线程。语义与 \l{recycle()} 相同：不支持回收的位置以
+		\l{YSSFileError::ErrorType::NotSupported} 失败，不会退化成永久删除。
+
+		\a uri 文件身份。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		\return 移入回收站成功返回 true。
+	*/
+	bool YSSUniqueFileSystem::recycleSync(const YSSURI& uri, YSSFileError* error) {
+		YSSFileSystemRequest request;
+		request.setOperation(YSSUniqueFileSystem::Operation::Recycle);
 		request.setUri(uri);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);

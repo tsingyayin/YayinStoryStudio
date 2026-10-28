@@ -11,9 +11,11 @@
 	   features remain basically stable.
 */
 #include <QtCore/qmetaobject.h>
+#include <QtCore/qpointer.h>
 #include <QtCore/qstring.h>
 #include <Network/SftpRequest.h>
 #include <Network/SshPath.h>
+#include <optional>
 #include "General/private/YSSUniqueFileSystem_p.h"
 
 namespace {
@@ -78,6 +80,9 @@ namespace {
 			return Visindigo::Network::SftpOperation::List;
 		case FileOperation::Remove:
 			return Visindigo::Network::SftpOperation::Remove;
+		case FileOperation::Recycle:
+			// SFTP 没有回收站，Recycle 由 SshRemoveWalker 之外的独立分支明确拒绝。
+			return Visindigo::Network::SftpOperation::Unknown;
 		case FileOperation::Rename:
 			return Visindigo::Network::SftpOperation::Rename;
 		case FileOperation::Mkdir:
@@ -128,6 +133,153 @@ namespace {
 		}
 		return entries;
 	}
+
+	// SFTP 路径都是 POSIX 风格，直接拼 '/'。
+	QString joinRemotePath(const QString& dir, const QString& name) {
+		if (dir.isEmpty()) {
+			return name;
+		}
+		if (dir.endsWith(QLatin1Char('/'))) {
+			return dir + name;
+		}
+		return dir + QLatin1Char('/') + name;
+	}
+
+	// 用一次次 SFTP 请求把一个远端目录树删干净。
+	//
+	// 用显式的待处理栈而不是递归调用：递归深度受调用栈限制，而这里每一步都要等一次
+	// 异步往返，深层目录用递归会把状态散落在几十层 lambda 里。
+	//
+	// 遍历用 LStat 而不是 Stat：Stat 会跟随符号链接，一个指向目录的链接会被当成目录，
+	// 于是递归会穿过链接把目标里的内容删掉。LStat 看到的是链接本身，删掉它不会影响目标。
+	class SshRemoveWalker : public QObject {
+	public:
+		using Done = std::function<void(const std::optional<Visindigo::Network::SshError>&)>;
+	public:
+		SshRemoveWalker(Visindigo::Network::SshSession* session, const QString& root, Done done, QObject* parent)
+			: QObject(parent), Session(session), DoneFn(std::move(done)) {
+			// pair 的 second 为 true 表示"子项都处理完了，把这层目录 rmdir 掉"。
+			this->Steps.append(qMakePair(root, false));
+		}
+		void start() {
+			this->step();
+		}
+	private:
+		void step() {
+			if (this->Steps.isEmpty()) {
+				this->finish(std::nullopt);
+				return;
+			}
+			const QPair<QString, bool> item = this->Steps.takeLast();
+			if (item.second) {
+				this->submitRmdir(item.first);
+				return;
+			}
+			this->submitInspect(item.first);
+		}
+		void submitInspect(const QString& path) {
+			Visindigo::Network::SftpReply* reply = this->submit(Visindigo::Network::SftpOperation::LStat, path);
+			if (reply == nullptr) {
+				this->finish(this->rejectedError());
+				return;
+			}
+			const QPointer<SshRemoveWalker> self(this);
+			QObject::connect(reply, &Visindigo::Network::SftpReply::succeeded, this, [self, path, reply]() {
+				if (self.isNull()) {
+					return;
+				}
+				const Visindigo::Network::SftpAttributes attributes = reply->getAttributes();
+				if (attributes.IsSymlink || !attributes.IsDirectory) {
+					self->submitRemove(path);
+					return;
+				}
+				self->submitList(path);
+			});
+			QObject::connect(reply, &Visindigo::Network::SftpReply::failed, this,
+				[this](const Visindigo::Network::SshError& error) { this->finish(error); });
+		}
+		void submitRemove(const QString& path) {
+			Visindigo::Network::SftpReply* reply = this->submit(Visindigo::Network::SftpOperation::Remove, path);
+			if (reply == nullptr) {
+				this->finish(this->rejectedError());
+				return;
+			}
+			QObject::connect(reply, &Visindigo::Network::SftpReply::succeeded, this, [this]() { this->step(); });
+			QObject::connect(reply, &Visindigo::Network::SftpReply::failed, this,
+				[this](const Visindigo::Network::SshError& error) { this->finish(error); });
+		}
+		void submitList(const QString& path) {
+			Visindigo::Network::SftpReply* reply = this->submit(Visindigo::Network::SftpOperation::List, path);
+			if (reply == nullptr) {
+				this->finish(this->rejectedError());
+				return;
+			}
+			const QPointer<SshRemoveWalker> self(this);
+			QObject::connect(reply, &Visindigo::Network::SftpReply::succeeded, this, [self, path, reply]() {
+				if (self.isNull()) {
+					return;
+				}
+				// 先压入"关"这一步，再压入子项；step() 从尾部取，所以子项会先被处理。
+				self->Steps.append(qMakePair(path, true));
+				const QList<Visindigo::Network::SftpEntry> entries = reply->getEntries();
+				for (int i = entries.size() - 1; i >= 0; --i) {
+					const QString& name = entries.at(i).Name;
+					if (name == QLatin1String(".") || name == QLatin1String("..")) {
+						continue;
+					}
+					self->Steps.append(qMakePair(joinRemotePath(path, name), false));
+				}
+				self->step();
+			});
+			QObject::connect(reply, &Visindigo::Network::SftpReply::failed, this,
+				[this](const Visindigo::Network::SshError& error) { this->finish(error); });
+		}
+		void submitRmdir(const QString& path) {
+			Visindigo::Network::SftpReply* reply = this->submit(Visindigo::Network::SftpOperation::Rmdir, path);
+			if (reply == nullptr) {
+				this->finish(this->rejectedError());
+				return;
+			}
+			QObject::connect(reply, &Visindigo::Network::SftpReply::succeeded, this, [this]() { this->step(); });
+			QObject::connect(reply, &Visindigo::Network::SftpReply::failed, this,
+				[this](const Visindigo::Network::SshError& error) { this->finish(error); });
+		}
+		Visindigo::Network::SftpReply* submit(Visindigo::Network::SftpOperation operation, const QString& path) {
+			if (this->Session == nullptr || !this->Session->isReady()) {
+				return nullptr;
+			}
+			Visindigo::Network::SftpRequest request(operation, path);
+			request.setAutoDelete(false);
+			Visindigo::Network::SftpReply* reply = this->Session->sftp(request);
+			if (reply != nullptr) {
+				QObject::connect(reply, &Visindigo::Network::SftpReply::finished, reply, &QObject::deleteLater);
+			}
+			return reply;
+		}
+		Visindigo::Network::SshError rejectedError() const {
+			Visindigo::Network::SshError error;
+			error.Type = Visindigo::Network::SshError::ErrorType::InvalidConfiguration;
+			error.Message = QStringLiteral("The SSH filesystem is not connected");
+			return error;
+		}
+		void finish(const std::optional<Visindigo::Network::SshError>& error) {
+			if (this->Finished) {
+				return;
+			}
+			this->Finished = true;
+			Done done = std::move(this->DoneFn);
+			this->DoneFn = nullptr;
+			this->deleteLater();
+			if (done) {
+				done(error);
+			}
+		}
+	private:
+		Visindigo::Network::SshSession* Session = nullptr;
+		QList<QPair<QString, bool>> Steps;
+		Done DoneFn;
+		bool Finished = false;
+	};
 }
 
 namespace YSSCore::General {
@@ -190,7 +342,10 @@ namespace YSSCore::General {
 
 		\return 能力集合。
 		*/
-		YSSUniqueFileSystem::Capabilities YSSSshFileSystemProvider::getCapabilities() const {
+		YSSUniqueFileSystem::Capabilities YSSSshFileSystemProvider::getCapabilities(const YSSURI& uri) const {
+			// SFTP 没有回收站，因此不置 CanRecycle：Recycle 请求会在门面层就以
+			// NotSupported 失败，而不是在这里退化成 unlink。
+			Q_UNUSED(uri);
 			return YSSUniqueFileSystem::AllCapabilities | YSSUniqueFileSystem::Capability::PathCaseSensitive;
 		}
 
@@ -327,6 +482,31 @@ namespace YSSCore::General {
 			error.Message = QStringLiteral("URI does not belong to this SSH connection");
 			error.Detail = target.toString();
 			this->fail(reply, error);
+			return;
+		}
+
+		if (request.getOperation() == FileOperation::Recycle) {
+			// SFTP 没有回收站。绝不能用 unlink 将就——那等于永久删除，而调用方以为能恢复。
+			YSSFileError error;
+			error.Type = YSSFileError::ErrorType::NotSupported;
+			error.Message = QStringLiteral("The SSH filesystem cannot recycle files");
+			error.Detail = target.toString();
+			this->fail(reply, error);
+			return;
+		}
+		if (request.getOperation() == FileOperation::Remove) {
+			// 先探属性再决定怎么删，因此走单独的遍历器，不用下面的一问一答路径。
+			this->markStarted(reply);
+			YSSSshFileSystemProvider* owner = this;
+			SshRemoveWalker* walker = new SshRemoveWalker(this->d->Session, target.getPath(),
+				[owner, reply](const std::optional<Visindigo::Network::SshError>& error) {
+					if (error.has_value()) {
+						owner->fail(reply, mapSshError(error.value()));
+						return;
+					}
+					owner->complete(reply, QByteArray(), QList<YSSFileEntry>(), YSSFileAttributes(), 0);
+				}, this);
+			walker->start();
 			return;
 		}
 

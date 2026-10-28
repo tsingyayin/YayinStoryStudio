@@ -143,6 +143,16 @@ namespace Visindigo::Network {
 					}
 					break;
 				}
+				case SftpOperation::LStat: {
+					LIBSSH2_SFTP_ATTRIBUTES attributes;
+					memset(&attributes, 0, sizeof(attributes));
+					if (libssh2_sftp_stat_ex(sftp, path.constData(), static_cast<unsigned int>(path.size()),
+						LIBSSH2_SFTP_LSTAT, &attributes) == 0) {
+						result.Attributes = toAttributes(attributes);
+						result.Succeeded = true;
+					}
+					break;
+				}
 				case SftpOperation::Remove:
 					result.Succeeded = libssh2_sftp_unlink_ex(sftp, path.constData(),
 						static_cast<unsigned int>(path.size())) == 0;

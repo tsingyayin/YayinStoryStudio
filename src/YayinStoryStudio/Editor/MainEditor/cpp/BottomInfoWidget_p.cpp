@@ -103,6 +103,7 @@ namespace YSS::Editor {
 			case Operation::Write: return QStringLiteral("write");
 			case Operation::List: return QStringLiteral("list");
 			case Operation::Remove: return QStringLiteral("remove");
+			case Operation::Recycle: return QStringLiteral("recycle");
 			case Operation::Rename: return QStringLiteral("rename");
 			case Operation::Mkdir: return QStringLiteral("mkdir");
 			case Operation::Rmdir: return QStringLiteral("rmdir");

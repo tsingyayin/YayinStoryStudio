@@ -202,9 +202,14 @@ namespace YSSCore::General {
 			Read,
 			Write,
 			List,
+			// 删除文件或符号链接，或者是整个目录树（递归）。
 			Remove,
+			// 移入后端提供的回收站。只有声明了 CanRecycle 的后端才支持，
+			// 且不保证能恢复——需要恢复的删除请在项目内自己留副本。
+			Recycle,
 			Rename,
 			Mkdir,
+			// 删除空目录。目录非空时失败，需要连内容一起删请用 Remove。
 			Rmdir
 		};
 		Q_ENUM(Operation)
@@ -220,7 +225,15 @@ namespace YSSCore::General {
 			PathCaseSensitive = 0x0040,
 			// 后端只读，写类操作一律以 NotSupported 失败。
 			ReadOnly = 0x0080,
-			// 全部操作能力。不含 PathCaseSensitive / ReadOnly 这两个描述性标志。
+			// 该位置可以把文件移入回收站。逐 URI 判定：同一个后端内也可能有的位置不行
+			// （例如网络映射盘、只读挂载点）。不在 AllCapabilities 里，必须由后端显式声明，
+			// 因此不支持回收的后端（例如 SFTP）天然没有这一位。
+			//
+			// 能力位是乐观声明：即便置了位，执行仍可能失败并返回 NotSupported。
+			// 调用方应当把 NotSupported 当作"此位置无法回收"，然后自行询问用户是否永久删除，
+			// 绝不要把它当成"已经删掉了"。
+			CanRecycle = 0x0100,
+			// 全部操作能力。不含 PathCaseSensitive / ReadOnly / CanRecycle 这些修饰性标志。
 			AllCapabilities = CanRead | CanWrite | CanList | CanRemove | CanRename | CanMakeDirectory
 		};
 		Q_ENUM(Capability)
@@ -280,7 +293,11 @@ namespace YSSCore::General {
 		YSSFileSystemReply* read(const YSSURI& uri);
 		YSSFileSystemReply* write(const YSSURI& uri, const QByteArray& data);
 		YSSFileSystemReply* list(const YSSURI& uri);
+		// 删除文件/链接，或者整个目录树。目录是递归删除的，不经过回收站。
 		YSSFileSystemReply* remove(const YSSURI& uri);
+		// 移入回收站。调用前请先查 getCapabilities(uri) 是否含 CanRecycle；
+		// 不支持的 backend 会以 NotSupported 失败，不会退化成永久删除。
+		YSSFileSystemReply* recycle(const YSSURI& uri);
 		YSSFileSystemReply* rename(const YSSURI& uri, const YSSURI& target);
 		YSSFileSystemReply* mkdir(const YSSURI& uri);
 		YSSFileSystemReply* rmdir(const YSSURI& uri);
@@ -290,6 +307,7 @@ namespace YSSCore::General {
 		bool readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error = nullptr);
 		bool writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error = nullptr);
 		bool removeSync(const YSSURI& uri, YSSFileError* error = nullptr);
+		bool recycleSync(const YSSURI& uri, YSSFileError* error = nullptr);
 	private:
 		// 等一条请求结束并填好错误信息；超时按 IoError 处理。
 		bool waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs = 30000);

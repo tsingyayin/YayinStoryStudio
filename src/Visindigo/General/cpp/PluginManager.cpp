@@ -873,7 +873,7 @@ namespace Visindigo::General {
 		\sa Plugin::getPluginFolder()
 	*/
 	QDir PluginManager::getPluginFolder(const QString& pluginID, Plugin::LoadType type) const {
-		const QString configPath = VIApp->getEnvConfig(VIApplication::ConfigPath).toString();
+		const QString configPath = VIApplication::getEnvConfig(VIApplication::ConfigPath).toString();
 		QString baseDir;
 		switch (type) {
 		case Plugin::LoadType::FromDisk:

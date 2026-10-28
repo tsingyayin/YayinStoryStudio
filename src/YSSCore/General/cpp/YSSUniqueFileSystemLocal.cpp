@@ -18,6 +18,9 @@
 #include <QtCore/qmutex.h>
 #include <QtCore/qrunnable.h>
 #include <QtCore/qthreadpool.h>
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#endif
 #include "General/private/YSSUniqueFileSystem_p.h"
 
 namespace {
@@ -64,6 +67,92 @@ namespace {
 	#else
 		return true;
 	#endif
+	}
+
+	// 该位置能否进回收站。
+	// 能力位只能按 URI 判定，而回收站是卷级别的特性：Windows 上网络映射盘没有回收站，
+	// moveToTrash 会直接失败（甚至退化成永久删除），因此按卷类型先拒掉。
+	// 其余平台交给 QFile::moveToTrash，失败时由 Recycle 分支返回 NotSupported。
+	bool localPathSupportsRecycle(const QString& path) {
+		if (path.isEmpty()) {
+			return false;
+		}
+	#ifdef Q_OS_WIN
+		const QString native = QDir::toNativeSeparators(path);
+		if (native.size() < 2) {
+			return false;
+		}
+		QString root = native.left(3);
+		if (!root.endsWith(QLatin1Char('\\'))) {
+			root = native.left(2) + QLatin1Char('\\');
+		}
+		const UINT type = ::GetDriveTypeW(reinterpret_cast<LPCWSTR>(root.utf16()));
+		return type == DRIVE_FIXED || type == DRIVE_REMOVABLE;
+	#else
+		Q_UNUSED(path);
+		return true;
+	#endif
+	}
+
+	// 是否为"重解析点"（符号链接、目录联接等）。Windows 上 QFileInfo::isSymLink() 只认
+	// 符号链接，不认目录联接，而两者都不能跟进——否则会删到链接目标里去。
+	bool isLocalReparsePoint(const QString& path) {
+	#ifdef Q_OS_WIN
+		const QString native = QDir::toNativeSeparators(path);
+		const DWORD attributes = ::GetFileAttributesW(reinterpret_cast<LPCWSTR>(native.utf16()));
+		return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+	#else
+		Q_UNUSED(path);
+		return false;
+	#endif
+	}
+
+	// 删除文件或链接本身（不跟进目标）。
+	bool removeLocalFileOrLink(const QString& path) {
+		if (isLocalReparsePoint(path)) {
+	#ifdef Q_OS_WIN
+			const QString native = QDir::toNativeSeparators(path);
+			// 目录联接用 RemoveDirectoryW 才只删链接；符号链接两者皆可。
+			if (::RemoveDirectoryW(reinterpret_cast<LPCWSTR>(native.utf16()))) {
+				return true;
+			}
+			return ::DeleteFileW(reinterpret_cast<LPCWSTR>(native.utf16())) != 0;
+	#endif
+		}
+		return QFile::remove(path);
+	}
+
+	// 递归删除。符号链接与目录联接只删链接本身，绝不跟进目标——否则一个指向目录的
+	// 链接会把目标目录里的内容一起删掉。
+	bool removeLocalRecursive(const QString& path, YSSCore::General::YSSFileError* error) {
+		const QFileInfo info(path);
+		const bool isLink = info.isSymLink() || isLocalReparsePoint(path);
+		if (!info.exists() && !isLink) {
+			*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::NotFound,
+				QStringLiteral("No such file or directory"), path);
+			return false;
+		}
+		if (isLink || !info.isDir()) {
+			if (!removeLocalFileOrLink(path)) {
+				*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::PermissionDenied,
+					QStringLiteral("Cannot remove the file"), path);
+				return false;
+			}
+			return true;
+		}
+		const QFileInfoList children = QDir(path).entryInfoList(
+			QDir::NoDotAndDotDot | QDir::AllEntries | QDir::Hidden | QDir::System);
+		for (const QFileInfo& child : children) {
+			if (!removeLocalRecursive(child.absoluteFilePath(), error)) {
+				return false;
+			}
+		}
+		if (!QDir().rmdir(path)) {
+			*error = makeLocalError(YSSCore::General::YSSFileError::ErrorType::PermissionDenied,
+				QStringLiteral("Cannot remove the directory"), path);
+			return false;
+		}
+		return true;
 	}
 
 	// 把请求解析成本机绝对路径。本机后端没有"根"，身份完全来自请求携带的 URI。
@@ -258,14 +347,26 @@ namespace {
 			return outcome;
 		}
 		case FileOperation::Remove: {
-			if (!QFileInfo::exists(target)) {
-				outcome.Error = makeLocalError(YSSFileError::ErrorType::NotFound,
-					QStringLiteral("No such file"), detail);
+			YSSFileError removeError;
+			if (!removeLocalRecursive(target, &removeError)) {
+				outcome.Error = removeError;
+				outcome.Error.Detail = detail;
 				return outcome;
 			}
-			if (!QFile::remove(target)) {
-				outcome.Error = makeLocalError(YSSFileError::ErrorType::PermissionDenied,
-					QStringLiteral("Cannot remove the file"), detail);
+			outcome.Ok = true;
+			return outcome;
+		}
+		case FileOperation::Recycle: {
+			if (!QFileInfo::exists(target) && !QFileInfo(target).isSymLink()) {
+				outcome.Error = makeLocalError(YSSFileError::ErrorType::NotFound,
+					QStringLiteral("No such file or directory"), detail);
+				return outcome;
+			}
+			// moveToTrash 一次可以处理文件和整个目录树。失败时绝不退化成永久删除：
+			// 告诉调用方这个位置不能回收，由它决定要不要改成 Remove。
+			if (!QFile::moveToTrash(target)) {
+				outcome.Error = makeLocalError(YSSFileError::ErrorType::NotSupported,
+					QStringLiteral("This location cannot be recycled"), detail);
 				return outcome;
 			}
 			outcome.Ok = true;
@@ -389,12 +490,22 @@ namespace YSSCore::General {
 		本机后端支持全部操作能力。Windows 的盘符路径不区分大小写，因此不置
 		\l{YSSUniqueFileSystem::PathCaseSensitive}。
 
+		回收站能力按 URI 判定：只有固定盘和可移动盘才置
+		\l{YSSUniqueFileSystem::CanRecycle}，网络映射盘、光驱等位置没有回收站。
+		Qt 资源（\c{qrc}）解析出来的不是本机路径，因此也不会置这一位。
+
+		\a uri 文件身份。
+
 		\return 能力集合。
 		*/
-		YSSUniqueFileSystem::Capabilities YSSLocalFileSystemProvider::getCapabilities() const {
+		YSSUniqueFileSystem::Capabilities YSSLocalFileSystemProvider::getCapabilities(const YSSURI& uri) const {
 			YSSUniqueFileSystem::Capabilities capabilities = YSSUniqueFileSystem::AllCapabilities;
 			if (localPathIsCaseSensitive()) {
 				capabilities |= YSSUniqueFileSystem::Capability::PathCaseSensitive;
+			}
+			// 回收站是卷级别特性，只能按 URI 判定；资源（qrc）与不存在的盘符不行。
+			if (localPathSupportsRecycle(uri.getLocalPath())) {
+				capabilities |= YSSUniqueFileSystem::Capability::CanRecycle;
 			}
 			return capabilities;
 		}
