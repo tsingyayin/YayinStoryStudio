@@ -55,10 +55,54 @@
 			"delete": "Remove project from list",
 			"createNewProject": "Create a new project from template",
 			"openFolder": "Open a Yayin Story Studio project",
+			"openRemoteProject": "Open an existing project from a remote SSH host",
 			"cloneFromGit": "Clone a project from a given Git repository URL"
 		}
 	},
 	"project": {
+		"locate": {
+			"title": "Choose project location",
+			"subtitle": "Pick where the project will be created, then fill in the template options on the next page.",
+			"local": "Local",
+			"remote": "Remote",
+				"newFolder": "New folder",
+				"newFolderDialog": {
+				    "title": "New folder",
+				    "text": "Enter a name for the new folder.",
+				    "failedTitle": "Cannot create folder",
+				    "failedMessage": "Cannot create a folder in “%1”. Check permissions or the connection state."
+				},
+			"name": {
+				"title": "Project name",
+				"text": "Used as the project folder name; illegal path characters are replaced."
+			},
+			"browse": "Browse...",
+			"addAuthentic": "Open SSH connection manager",
+			"refresh": "Refresh",
+			"up": "Up",
+			"remoteLoading": "Reading directory...",
+			"remoteEmpty": "No subfolders in this directory.",
+			"remoteNotConnected": "The connection identity is invalid or not connected. Connect it on the SSH connection page first.",
+			"where": "The project will be created at “%1”.",
+			"confirm": "Next"
+		},
+		"openRemote": {
+			"title": "Open remote project",
+			"subtitle": "Pick an existing YSS project (project.yssp) stored on a remote host.",
+			"open": "Open",
+			"selected": "Will open “%1”.",
+			"none": "Select a project file in the list."
+		},
+		"create": {
+			"exists": {
+				"title": "Project folder already exists",
+				"message": "“%1” already exists or is not empty. A new project cannot be created there."
+			},
+			"failed": {
+				"title": "Failed to create project",
+				"message": "Cannot create project “%1”. Check that the target location exists and is writable."
+			}
+		},
 		"newFile": {
 			"exists": {
 				"title": "File already exists",
@@ -91,6 +135,7 @@
 		"createNewProject": "Create New Project",
 		"createNewFile": "Create New File",
 		"openFolder": "Open Project",
+		"openRemoteProject": "Open remote project",
 		"openYSSProject": "Open YSS Project",
 		"cloneFromGit": "Clone from Git",
 		"createFromTemplate": "Create from Template",

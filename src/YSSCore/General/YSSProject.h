@@ -49,7 +49,9 @@ namespace YSSCore::General {
 	public:
 		void loadProject(const YSSURI& configPath);
 		void saveProject(const YSSURI& configPath = YSSURI());
-		bool initProject(const YSSURI& folder, const QString& name);
+		bool initConfig(const YSSURI& folder, const QString& name);
+		Visindigo::Utility::JsonConfig getYSSProjectContent() const;
+		void setYSSProjectContent(const Visindigo::Utility::JsonConfig& config);
 		bool isLoaded() const;
 		bool isSaving() const;
 		LoadError getLoadError() const;

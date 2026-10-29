@@ -1,4 +1,5 @@
 #include <QtCore/qdatetime.h>
+#include <QtCore/qdir.h>
 #include <QtWidgets/qApplication.h>
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qlabel.h>
@@ -120,13 +121,15 @@ namespace YSS::ProjectPage {
 			SizeLabel->setText(VITRL("YSS::project.size") + ": " + VITRL("YSS::project.calculating"));
 		}
 		CoverLabel->setText("");
-		const QString coverPath = project->getProjectIconPath().getLocalPath();
+		const YSSCore::General::YSSURI coverUri = project->getProjectIconPath();
+		const QString coverPath = coverUri.getLocalPath();
 		if (coverPath.isEmpty()) {
 			CoverLabel->setStyleSheet("");
 			CoverLabel->setText(VITRL("YSS::project.noCover"));
 		}
 		else {
-			CoverLabel->setStyleSheet("QLabel{border-image:url(" + coverPath + ")}");
+			CoverLabel->setStyleSheet(QStringLiteral("QLabel{border-image:url(\"%1\")}")
+				.arg(QDir::fromNativeSeparators(coverPath)));
 		}
 		TitleLabel->setText(project->getProjectName());
 		CreateTimeLabel->setText(VITRL("YSS::project.createTime") + ": " + project->getProjectCreateTime().toString("yyyy-MM-dd hh:mm:ss"));

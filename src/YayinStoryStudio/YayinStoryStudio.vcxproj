@@ -145,9 +145,12 @@
     <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\TreeLayoutWidget.cpp" />
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp" />
+    <ClCompile Include="Editor\NewProjectPage\cpp\ProjectLocateWin.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectInfoWidget.cpp" />
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp" />
+    <ClCompile Include="Editor\ProjectPage\cpp\OpenRemoteProjectWin.cpp" />
     <ClCompile Include="Editor\SimpleWidget\cpp\EAWarningWidget.cpp" />
+    <ClCompile Include="Editor\SimpleWidget\cpp\RemoteBrowserWidget.cpp" />
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp" />
     <ClCompile Include="Editor\SSHConnection\cpp\SSHConnectionWidget.cpp" />
     <ClCompile Include="Editor\TitlePage\cpp\TitlePage.cpp" />
@@ -159,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h" />
+    <QtMoc Include="Editor\ProjectPage\OpenRemoteProjectWin.h" />
     <QtMoc Include="Editor\MainEditor\DocumentMessageTracer.h" />
     <QtMoc Include="Editor\MainEditor\MainWin.h" />
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />
@@ -172,6 +176,7 @@
     <QtMoc Include="YayinStoryStudio.h" />
     <QtMoc Include="Test\LiquidGlassDragTestWidget.h" />
     <QtMoc Include="Editor\NewProjectPage\NewProjectWin.h" />
+    <QtMoc Include="Editor\NewProjectPage\ProjectLocateWin.h" />
     <QtMoc Include="Editor\ProjectPage\NewsArea.h" />
     <QtMoc Include="Editor\MainEditor\FileEditWidgetArea.h" />
     <QtMoc Include="Editor\MainEditor\private\StackComponents_p.h" />
@@ -198,6 +203,7 @@
     <ClInclude Include="Editor\ProjectPage\HistoryProject.h" />
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h" />
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h" />
+    <QtMoc Include="Editor\SimpleWidget\RemoteBrowserWidget.h" />
     <QtMoc Include="Editor\NewFilePage\NewFileWin.h" />
     <QtMoc Include="Editor\SSHConnection\SSHConnectionWidget.h" />
     <ClInclude Include="Editor\YSSCommandHandler.h" />

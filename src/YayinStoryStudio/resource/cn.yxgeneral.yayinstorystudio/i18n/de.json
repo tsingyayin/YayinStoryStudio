@@ -55,10 +55,54 @@
 			"delete": "Projekt aus der Liste entfernen",
 			"createNewProject": "Neues Projekt aus Vorlage erstellen",
 			"openFolder": "Ein Yayin Story Studio-Projekt öffnen",
+			"openRemoteProject": "Ein vorhandenes Projekt von einem Remote-SSH-Host öffnen",
 			"cloneFromGit": "Ein Projekt aus einer Git-Repository-URL klonen"
 		}
 	},
 	"project": {
+		"locate": {
+			"title": "Projektspeicherort wählen",
+			"subtitle": "Wähle, wo das Projekt erstellt wird, und fülle auf der nächsten Seite die Vorlagenoptionen aus.",
+			"local": "Lokal",
+			"remote": "Remote",
+				"newFolder": "Neuer Ordner",
+				"newFolderDialog": {
+				    "title": "Neuer Ordner",
+				    "text": "Gib einen Namen für den neuen Ordner ein.",
+				    "failedTitle": "Ordner kann nicht erstellt werden",
+				    "failedMessage": "In “%1” kann kein Ordner erstellt werden. Prüfe Berechtigungen oder den Verbindungsstatus."
+				},
+			"name": {
+				"title": "Projektname",
+				"text": "Wird als Projektordnername verwendet; unzulässige Pfadzeichen werden ersetzt."
+			},
+			"browse": "Durchsuchen...",
+			"addAuthentic": "SSH-Verbindungsverwaltung öffnen",
+			"refresh": "Aktualisieren",
+			"up": "Übergeordnet",
+			"remoteLoading": "Verzeichnis wird gelesen...",
+			"remoteEmpty": "Keine Unterordner in diesem Verzeichnis.",
+			"remoteNotConnected": "Die Verbindungsidentität ist ungültig oder nicht verbunden. Stelle die Verbindung zuerst auf der SSH-Seite her.",
+			"where": "Das Projekt wird unter “%1” erstellt.",
+			"confirm": "Weiter"
+		},
+		"openRemote": {
+			"title": "Remote-Projekt öffnen",
+			"subtitle": "Wähle ein bereits auf einem Remote-Host liegendes YSS-Projekt (project.yssp).",
+			"open": "Öffnen",
+			"selected": "“%1” wird geöffnet.",
+			"none": "Wähle eine Projektdatei in der Liste."
+		},
+		"create": {
+			"exists": {
+				"title": "Projektordner existiert bereits",
+				"message": "“%1” existiert bereits oder ist nicht leer. Dort kann kein neues Projekt erstellt werden."
+			},
+			"failed": {
+				"title": "Projekt konnte nicht erstellt werden",
+				"message": "Projekt “%1” kann nicht erstellt werden. Prüfe, ob der Zielort existiert und beschreibbar ist."
+			}
+		},
 		"newFile": {
 			"exists": {
 				"title": "Datei existiert bereits",
@@ -91,6 +135,7 @@
 		"createNewProject": "Neues Projekt erstellen",
 		"createNewFile": "Neue Datei erstellen",
 		"openFolder": "Projekt öffnen",
+		"openRemoteProject": "Remote-Projekt öffnen",
 		"openYSSProject": "YSS-Projekt öffnen",
 		"cloneFromGit": "Von Git klonen",
 		"createFromTemplate": "Aus Vorlage erstellen",

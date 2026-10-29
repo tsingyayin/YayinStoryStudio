@@ -10,27 +10,6 @@
 			"text": "",
 			"children":[
 				{
-					"node": "Path",
-					"type": "LineEdit",
-					"icon": "",
-					"title": "i18n:ASERStudio::provider.project.path.title",
-					"text": "i18n:ASERStudio::provider.project.path.text",
-					"data": {
-						"default": "$(visindigo::userDataPath)/repos",
-						"isFolder": true
-					}
-				},
-				{
-					"node": "Name",
-					"type": "LineEdit",
-					"icon": "",
-					"title": "i18n:ASERStudio::provider.project.name.title",
-					"text": "i18n:ASERStudio::provider.project.name.text",
-					"data": {
-						"default": "ASE Story Project"
-					}
-				},
-				{
 					"node": "Version",
 					"type": "ComboBox",
 					"icon": "",

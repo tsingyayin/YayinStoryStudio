@@ -55,10 +55,54 @@
 			"delete": "一覧からプロジェクトを削除",
 			"createNewProject": "プロジェクトの雛形から新しいプロジェクトを作成",
 			"openFolder": "Yayin Story Studioプロジェクトを開く",
+			"openRemoteProject": "遠隔 SSH ホストから既存のプロジェクトを開く",
 			"cloneFromGit": "指定したGitリポジトリのURLからプロジェクトを複製"
 		}
 	},
 	"project": {
+		"locate": {
+			"title": "プロジェクトの保存先を選ぶ",
+			"subtitle": "プロジェクトを作る場所を選び、次のページでテンプレートの項目を入力します。",
+			"local": "この端末",
+			"remote": "遠隔",
+				"newFolder": "新規フォルダ",
+				"newFolderDialog": {
+				    "title": "新規フォルダ",
+				    "text": "新しいフォルダの名前を入力してください。",
+				    "failedTitle": "フォルダを作れません",
+				    "failedMessage": "“%1”にフォルダを作れません。権限やつながり状態を確かめてください。"
+				},
+			"name": {
+				"title": "プロジェクト名",
+				"text": "プロジェクトのフォルダ名になります。使えない文字は置き換えます。"
+			},
+			"browse": "選ぶ...",
+			"addAuthentic": "SSH 接続の管理を開く",
+			"refresh": "読み直す",
+			"up": "親フォルダ",
+			"remoteLoading": "フォルダを読み込み中...",
+			"remoteEmpty": "このフォルダに下位フォルダはありません。",
+			"remoteNotConnected": "接続情報が正しくないか、まだつながっていません。先に SSH 接続のページでつないでください。",
+			"where": "プロジェクトは“%1”に作られます。",
+			"confirm": "次へ"
+		},
+		"openRemote": {
+			"title": "遠隔プロジェクトを開く",
+			"subtitle": "遠隔側に既にある YSS プロジェクト（project.yssp）を選びます。",
+			"open": "開く",
+			"selected": "“%1”を開きます。",
+			"none": "一覧からプロジェクトのファイルを選んでください。"
+		},
+		"create": {
+			"exists": {
+				"title": "プロジェクトのフォルダが既にあります",
+				"message": "“%1”は既にあるか、空ではありません。ここに新しいプロジェクトは作れません。"
+			},
+			"failed": {
+				"title": "プロジェクトを作れませんでした",
+				"message": "プロジェクト“%1”を作れません。保存先があるか、書き込めるかを確かめてください。"
+			}
+		},
 		"newFile": {
 			"exists": {
 				"title": "ファイルが既に存在します",
@@ -91,6 +135,7 @@
 		"createNewProject": "新しいプロジェクトを作成",
 		"createNewFile": "新しいファイルを作成",
 		"openFolder": "プロジェクトを開く",
+		"openRemoteProject": "遠隔プロジェクトを開く",
 		"openYSSProject": "YSSプロジェクトを開く",
 		"cloneFromGit": "Gitから複製",
 		"createFromTemplate": "雛形から作成",

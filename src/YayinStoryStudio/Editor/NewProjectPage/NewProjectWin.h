@@ -3,6 +3,7 @@
 #include <QtWidgets/qwidget.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
+#include <General/YSSURI.h>
 #include <Widgets/ThemeManager.h>
 
 class QLabel;
@@ -19,10 +20,11 @@ namespace YSSCore::Editor {
 	class ProjectTemplateProvider;
 }
 namespace YSS::NewProjectPage {
+	class ProjectLocateWin;
 	class NewProjectWin :public QWidget, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
-		void projectPrepared(QString projectPath);
+		void projectPrepared(const YSSCore::General::YSSURI& projectUri);
 	private:
 		Visindigo::Widgets::BorderLabel* TitleLabel;
 		Visindigo::Widgets::BorderLabel* RecentTemplateTitle;
@@ -37,6 +39,7 @@ namespace YSS::NewProjectPage {
 		QWidget* ProjectTemplateWidget;
 		QVBoxLayout* ProjectTemplateLayout;
 		QGridLayout* Layout;
+		YSSCore::Editor::ProjectTemplateProvider* PendingProvider = nullptr;
 	public:
 		NewProjectWin();
 		~NewProjectWin() {};
@@ -47,7 +50,8 @@ namespace YSS::NewProjectPage {
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:
 		void onTemplateButtonClicked();
-		void onProjectPrepared(QString projectPath);
+		void onLocateTargetChosen(const YSSCore::General::YSSURI& projectUri);
+		void onProjectPrepared();
 		void refreshTemplate() {};
 	};
 }

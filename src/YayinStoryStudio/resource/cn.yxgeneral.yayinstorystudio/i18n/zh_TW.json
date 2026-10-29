@@ -55,10 +55,54 @@
 			"delete": "從清單中移除專案",
 			"createNewProject": "從專案範本建立一個新專案",
 			"openFolder": "開啟一個Yayin Story Studio 專案",
+			"openRemoteProject": "從遠端 SSH 主機開啟一個既有專案",
 			"cloneFromGit": "從指定的Git儲存庫位址複製一個專案"
 		}
 	},
 	"project":{
+		"locate": {
+			"title": "選擇專案位置",
+			"subtitle": "先決定專案要建立在哪裡，再進入範本頁面填寫範本選項。",
+			"local": "本機",
+			"remote": "遠端",
+				"newFolder": "新增資料夾",
+				"newFolderDialog": {
+				    "title": "新增資料夾",
+				    "text": "輸入新資料夾的名稱。",
+				    "failedTitle": "無法新增資料夾",
+				    "failedMessage": "無法在“%1”新增資料夾，請檢查權限或連線狀態。"
+				},
+			"name": {
+				"title": "專案名稱",
+				"text": "將作為專案資料夾名稱，路徑非法字元會被替換。"
+			},
+			"browse": "瀏覽...",
+			"addAuthentic": "開啟 SSH 連線管理",
+			"refresh": "重新整理",
+			"up": "上一層",
+			"remoteLoading": "正在讀取目錄...",
+			"remoteEmpty": "此目錄下沒有子資料夾。",
+			"remoteNotConnected": "連線身分無效或尚未連線，請先在 SSH 連線頁面建立連線。",
+			"where": "專案將建立在“%1”。",
+			"confirm": "下一步"
+		},
+		"openRemote": {
+			"title": "開啟遠端專案",
+			"subtitle": "選擇一個已存在於遠端的 YSS 專案（project.yssp）。",
+			"open": "開啟",
+			"selected": "將開啟“%1”。",
+			"none": "請在清單中選擇一個專案檔案。"
+		},
+		"create": {
+			"exists": {
+				"title": "專案資料夾已存在",
+				"message": "“%1”已存在或非空！無法在此建立新專案。"
+			},
+			"failed": {
+				"title": "建立專案失敗",
+				"message": "無法建立專案“%1”，請檢查目標位置是否存在，或是否有權限寫入。"
+			}
+		},
 		"newFile": {
 			"exists": {
 				"title": "檔案已存在",
@@ -91,6 +135,7 @@
 		"createNewProject":"建立新專案",
 		"createNewFile":"建立新檔案",
 		"openFolder":"開啟專案",
+		"openRemoteProject": "開啟遠端專案",
 		"openYSSProject": "開啟YSS專案",
 		"cloneFromGit":"從Git複製",
 		"createFromTemplate":"從範本新增",

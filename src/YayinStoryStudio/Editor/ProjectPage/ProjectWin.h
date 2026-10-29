@@ -51,6 +51,7 @@ namespace YSS::ProjectPage {
 		QWidget* OptionWidget;
 		QPushButton* CreateProjectButton;
 		QPushButton* OpenFolderButton;
+		QPushButton* OpenRemoteButton;
 		QPushButton* CloneGitButton;
 		QPushButton* SshConnectionButton;
 		QRadioButton* ThemeLightButton;
@@ -76,6 +77,7 @@ namespace YSS::ProjectPage {
 		void onProjectSelected();
 		void onProjectDoubleClicked();
 		void onOpenProjectClicked();
+		void onOpenRemoteProjectClicked();
 		void onCreateProject();
 		virtual void onThemeChanged() override;
 		void onNewsMetaGot(const Visindigo::Utility::JsonConfig& jsonConfig);

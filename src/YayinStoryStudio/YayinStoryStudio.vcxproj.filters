@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -44,10 +44,19 @@
     <ClCompile Include="Editor\ProjectPage\cpp\ProjectWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\ProjectPage\cpp\OpenRemoteProjectWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\SimpleWidget\cpp\EAWarningWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\SimpleWidget\cpp\RemoteBrowserWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\NewProjectPage\cpp\NewProjectWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\NewProjectPage\cpp\ProjectLocateWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp">
@@ -148,13 +157,22 @@
     <QtMoc Include="Editor\ProjectPage\ProjectWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\ProjectPage\OpenRemoteProjectWin.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="Editor\ProjectPage\ProjectInfoWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\SimpleWidget\EAWarningWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\SimpleWidget\RemoteBrowserWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="Editor\NewProjectPage\NewProjectWin.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\NewProjectPage\ProjectLocateWin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\NewFilePage\NewFileWin.h">

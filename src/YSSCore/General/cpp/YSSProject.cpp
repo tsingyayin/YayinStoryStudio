@@ -26,7 +26,7 @@ namespace YSSCore::General {
 		static YSSProject* CurrentProject;
 		// 远端项目里记录本机绝对路径时使用的占位前缀，见 uriToStr 的说明。
 		static const QString RemoteLocalPrefix;
-		Visindigo::Utility::JsonConfig* ProjectConfig = nullptr;
+		Visindigo::Utility::JsonConfig ProjectConfig;
 		YSSURI ConfigPath;
 		bool Loaded = false;
 		bool Saving = false;
@@ -36,20 +36,14 @@ namespace YSSCore::General {
 		Visindigo::Utility::VirtualStorage* BackupStorage = nullptr;
 		qint32 BackupMaxCount = 50;
 
-		YSSProjectPrivate() {
-			ProjectConfig = new Visindigo::Utility::JsonConfig();
-		}
 		~YSSProjectPrivate() {
-			if (ProjectConfig != nullptr) {
-				delete ProjectConfig;
-			}
 			if (BackupStorage != nullptr) {
 				delete BackupStorage;
 			}
 		}
 
 		void updateLastModifyTime() {
-			ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+			ProjectConfig.setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 		}
 
 		/*
@@ -240,9 +234,9 @@ namespace YSSCore::General {
 		*/
 		QList<YSSURI> readUriList(const QString& key) const {
 			QList<YSSURI> files;
-			const QStringList keys = ProjectConfig->keys(key);
+			const QStringList keys = ProjectConfig.keys(key);
 			for (const QString& itemKey : keys) {
-				const YSSURI uri = strToUri(ProjectConfig->getString(key + "." + itemKey));
+				const YSSURI uri = strToUri(ProjectConfig.getString(key + "." + itemKey));
 				if (uri.isValid()) {
 					files.append(uri);
 				}
@@ -338,7 +332,7 @@ namespace YSSCore::General {
 		“当前项目”，你可以通过getCurrentProject和setCurrentProject读写它。当前项目
 		可以为nullptr，代表当前没有打开任何项目。
 
-		要从本类直接初始化一个YSS项目，请参见initProject函数的说明。
+		要从本类直接初始化一个YSS项目，请参见initConfig函数的说明。
 	*/
 
 	/*!
@@ -436,7 +430,7 @@ namespace YSSCore::General {
 				return;
 			}
 			const QByteArray data = reply->getData();
-			if (d->ProjectConfig->parse(QString::fromUtf8(data)).error != QJsonParseError::NoError) {
+			if (d->ProjectConfig.parse(QString::fromUtf8(data)).error != QJsonParseError::NoError) {
 				yErrorF << "Failed to parse project config: " << configPath.toString();
 				d->Loaded = false;
 				d->LastLoadError = LoadError::ParseError;
@@ -453,7 +447,7 @@ namespace YSSCore::General {
 				"Project.IconPath"
 			};
 			for (const QString& key : crucialKeys) {
-				if (!d->ProjectConfig->contains(key)) {
+				if (!d->ProjectConfig.contains(key)) {
 					yErrorF << "Project config missing crucial key: " << key
 						<< ", config: " << configPath.toString();
 					d->Loaded = false;
@@ -496,7 +490,7 @@ namespace YSSCore::General {
 		d->Saving = true;
 		d->SavePending = false;
 		d->updateLastModifyTime();
-		const QByteArray content = d->ProjectConfig->toString().toUtf8();
+		const QByteArray content = d->ProjectConfig.toString().toUtf8();
 		YSSFileSystemReply* reply = YSSUniqueFileSystem::getInstance()->write(d->ConfigPath, content);
 		if (reply == nullptr) {
 			yErrorF << "Failed to request project config write: " << d->ConfigPath.toString();
@@ -527,7 +521,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		return 是否已加载（含由 \l{initProject()} 初始化）了项目配置。
+		return 是否已加载（含由 \l{initConfig()} 初始化）了项目配置。
 
 		这里只反映最近一次加载的结果；要拿到失败原因请用 \l{getLoadError()}。
 	*/
@@ -552,53 +546,58 @@ namespace YSSCore::General {
 	}
 
 	/*!
-		\since YSS 0.13.0
-		在 \a folder 指定的文件夹初始化项目，名称为 \a name
+		\since YSS 0.18.0
+		在 \a folder 指定的文件夹初始化项目配置，名称为 \a name
 
-		如果 \a folder 不存在，那么会自动创建沿途所有不存在的文件夹。
+		本函数只在内存里准备项目配置，并把配置路径设为 \c{folder/project.yssp}：
+		不创建文件夹、不检查文件夹是否为空、也不写盘。
 
-		如果 \a folder 不为空，会创建失败。
+		\note 文件夹的创建与所有文件的写入都由调用方通过 \l{YSSUniqueFileSystem} 完成，
+		这样本地项目与远端项目走同一条路径。
+		\note 初始化完成后调用方需要自行调用 \l{saveProject()} 把配置写到目标位置。
 
-		只要可以创建，这函数执行之后，项目配置路径就被自动设置为指定的位置。
-
-		如果要通过YSSProject初始化YSS项目，一般推荐首先调用此函数以建立项目文件夹，
-		稍后再进行其他初始化操作。
-
-		\note 本函数不写盘。初始化完成后调用方需要自行调用 \l{saveProject()}。
-		\note 项目创建目前只支持本机文件夹：远端项目需要先通过SFTP建目录再初始化。
-
-		return 是否成功初始化项目
+		return 是否成功初始化项目配置
 	*/
-	bool YSSProject::initProject(const YSSURI& folder, const QString& name) {
-		if (not folder.isValid() or not folder.isLocal()) {
-			yErrorF << "initProject only supports local folders, got: " << folder.toString();
+	bool YSSProject::initConfig(const YSSURI& folder, const QString& name) {
+		if (not folder.isValid()) {
+			yErrorF << "Cannot init project config with invalid folder URI";
 			return false;
 		}
-		const QString folderPath = folder.getLocalPath();
-		if (not Visindigo::Utility::FileUtility::isDirExist(folderPath)) {
-			Visindigo::Utility::FileUtility::createDir(folderPath);
-		}
-		else {
-			if (!Visindigo::Utility::FileUtility::isDirEmpty(folderPath)) {
-				yErrorF << "Project folder is not empty:" << folderPath;
-				return false;
-			}
-		}
 		d->ConfigPath = folder.resolve("project.yssp");
-		d->ProjectConfig->setString("Project.Name", name);
-		d->ProjectConfig->setString("Project.Description", "");
-		d->ProjectConfig->setString("Project.IconPath", "");
-		d->ProjectConfig->setString("Project.Version", getCurrentProjectVersion().toString());
-		d->ProjectConfig->setString("Project.Author", "");
-		d->ProjectConfig->setString("Project.DebugServerID", "");
-		d->ProjectConfig->setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-		d->ProjectConfig->setStringList("Project.RequiredPlugins", QStringList());
+		d->ProjectConfig.setString("Project.Name", name);
+		d->ProjectConfig.setString("Project.Description", "");
+		d->ProjectConfig.setString("Project.IconPath", "");
+		d->ProjectConfig.setString("Project.Version", getCurrentProjectVersion().toString());
+		d->ProjectConfig.setString("Project.Author", "");
+		d->ProjectConfig.setString("Project.DebugServerID", "");
+		d->ProjectConfig.setString("Project.CreateTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		d->ProjectConfig.setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		d->ProjectConfig.setStringList("Project.RequiredPlugins", QStringList());
 		refreshLastModifyTime();
-		d->ensureYssDir();
 		d->Loaded = true;
 		d->LastLoadError = LoadError::None;
 		return true;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		return 整份项目配置的副本。
+
+		项目模板用它把准备好的配置导出给调用方，调用方再通过 \l{setYSSProjectContent()}
+		设置到新建的 YSSProject 上。本函数不写盘。
+	*/
+	Visindigo::Utility::JsonConfig YSSProject::getYSSProjectContent() const {
+		return d->ProjectConfig;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		\a config 整份项目配置
+
+		用 \a config 替换当前的项目配置。本函数不写盘，需要落盘时自行调用 \l{saveProject()}。
+	*/
+	void YSSProject::setYSSProjectContent(const Visindigo::Utility::JsonConfig& config) {
+		d->ProjectConfig = config;
 	}
 
 	/*!
@@ -606,7 +605,7 @@ namespace YSSCore::General {
 		获得项目名称
 	*/
 	QString YSSProject::getProjectName() {
-		return d->ProjectConfig->getString("Project.Name");
+		return d->ProjectConfig.getString("Project.Name");
 	}
 
 	/*!
@@ -614,7 +613,7 @@ namespace YSSCore::General {
 		获得项目描述
 	*/
 	QString YSSProject::getProjectDescription() {
-		return d->ProjectConfig->getString("Project.Description");
+		return d->ProjectConfig.getString("Project.Description");
 	}
 
 	/*!
@@ -658,7 +657,7 @@ namespace YSSCore::General {
 		是否真的有效，以及是什么格式的路径。
 	*/
 	YSSURI YSSProject::getProjectIconPath() {
-		return d->strToUri(d->ProjectConfig->getString("Project.IconPath"));
+		return d->strToUri(d->ProjectConfig.getString("Project.IconPath"));
 	}
 
 	/*!
@@ -666,7 +665,7 @@ namespace YSSCore::General {
 		return 项目作者设置。
 	*/
 	QString YSSProject::getProjectAuthor() {
-		return d->ProjectConfig->getString("Project.Author");
+		return d->ProjectConfig.getString("Project.Author");
 	}
 
 	/*!
@@ -674,7 +673,7 @@ namespace YSSCore::General {
 		设置项目名称为 \a name
 	*/
 	void YSSProject::setProjectName(const QString& name) {
-		d->ProjectConfig->setString("Project.Name", name);
+		d->ProjectConfig.setString("Project.Name", name);
 	}
 
 	/*!
@@ -682,7 +681,7 @@ namespace YSSCore::General {
 		设置项目描述为 \a description
 	*/
 	void YSSProject::setProjectDescription(const QString& description) {
-		d->ProjectConfig->setString("Project.Description", description);
+		d->ProjectConfig.setString("Project.Description", description);
 	}
 
 	/*!
@@ -693,7 +692,7 @@ namespace YSSCore::General {
 		因此项目整体搬迁后依然有效。
 	*/
 	void YSSProject::setProjectIconPath(const YSSURI& iconPath) {
-		d->ProjectConfig->setString("Project.IconPath", d->uriToStr(iconPath));
+		d->ProjectConfig.setString("Project.IconPath", d->uriToStr(iconPath));
 	}
 
 	/*!
@@ -701,7 +700,7 @@ namespace YSSCore::General {
 		设置项目作者为 \a author
 	*/
 	void YSSProject::setProjectAuthor(const QString& author) {
-		d->ProjectConfig->setString("Project.Author", author);
+		d->ProjectConfig.setString("Project.Author", author);
 	}
 
 	/*!
@@ -709,7 +708,7 @@ namespace YSSCore::General {
 		return 项目创建时间
 	*/
 	QDateTime YSSProject::getProjectCreateTime() {
-		return QDateTime::fromString(d->ProjectConfig->getString("Project.CreateTime"), "yyyy-MM-dd hh:mm:ss");
+		return QDateTime::fromString(d->ProjectConfig.getString("Project.CreateTime"), "yyyy-MM-dd hh:mm:ss");
 	}
 
 	/*!
@@ -717,7 +716,7 @@ namespace YSSCore::General {
 		return 项目上次修改时间
 	*/
 	QDateTime YSSProject::getProjectLastModifyTime() {
-		return QDateTime::fromString(d->ProjectConfig->getString("Project.LastModifyTime"), "yyyy-MM-dd hh:mm:ss");
+		return QDateTime::fromString(d->ProjectConfig.getString("Project.LastModifyTime"), "yyyy-MM-dd hh:mm:ss");
 	}
 
 	/*!
@@ -728,7 +727,7 @@ namespace YSSCore::General {
 		或多或少需要调试功能，因此提供了这个API。
 	*/
 	QString YSSProject::getProjectDebugServerID() {
-		return d->ProjectConfig->getString("Project.DebugServerID");
+		return d->ProjectConfig.getString("Project.DebugServerID");
 	}
 
 	/*!
@@ -739,16 +738,16 @@ namespace YSSCore::General {
 		或多或少需要调试功能，因此提供了这个API。
 	*/
 	void YSSProject::setProjectDebugServerID(const QString& id) {
-		d->ProjectConfig->setString("Project.DebugServerID", id);
+		d->ProjectConfig.setString("Project.DebugServerID", id);
 		emit YSSCore::Editor::DebugServerManager::getInstance()->projectDebugServerChanged(id);
 	}
 
 	/*!
 		\since YSS 0.13.0
-		return 项目的版本号。从initProject初始化时，默认初始化为0.1.
+		return 项目的版本号。从initConfig初始化时，默认初始化为0.1.
 	*/
 	Visindigo::General::Version YSSProject::getProjectVersion() {
-		return Visindigo::General::Version(d->ProjectConfig->getString("Project.Version"));
+		return Visindigo::General::Version(d->ProjectConfig.getString("Project.Version"));
 	}
 
 	/*!
@@ -759,7 +758,7 @@ namespace YSSCore::General {
 	*/
 	Visindigo::Utility::JsonConfig YSSProject::getProjectConfigForPlugin(Visindigo::General::Plugin* plugin) {
 		QString key = "MetaData." + plugin->getPluginID();
-		return d->ProjectConfig->getObject(key);
+		return d->ProjectConfig.getObject(key);
 	}
 
 	/*!
@@ -770,7 +769,7 @@ namespace YSSCore::General {
 	*/
 	Visindigo::Utility::JsonConfig YSSProject::getProjectConfigForPlugin(const QString& pluginID) {
 		QString key = "MetaData." + pluginID;
-		return d->ProjectConfig->getObject(key);
+		return d->ProjectConfig.getObject(key);
 	}
 
 	/*!
@@ -779,7 +778,7 @@ namespace YSSCore::General {
 		return 项目中为树形布局保存的配置数据。这个配置数据是一个JsonConfig对象，包含了树形布局的相关设置。
 	*/
 	Visindigo::Utility::JsonConfig YSSProject::getTreeLayoutConfig() {
-		return d->ProjectConfig->getObject("TreeLayout");
+		return d->ProjectConfig.getObject("TreeLayout");
 	}
 
 	/*!
@@ -789,7 +788,7 @@ namespace YSSCore::General {
 		\a config 树形布局配置数据。
 	*/
 	void YSSProject::setTreeLayoutConfig(const Visindigo::Utility::JsonConfig& config) {
-		d->ProjectConfig->setObject("TreeLayout", config);
+		d->ProjectConfig.setObject("TreeLayout", config);
 	}
 
 	/*!
@@ -798,7 +797,7 @@ namespace YSSCore::General {
 		return 项目中是否有树形布局的配置数据。
 	*/
 	bool YSSProject::hasTreeLayoutConfig() {
-		return d->ProjectConfig->contains("TreeLayout");
+		return d->ProjectConfig.contains("TreeLayout");
 	}
 
 	/*!
@@ -809,7 +808,7 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::saveProjectConfigForPlugin(Visindigo::General::Plugin* plugin, const Visindigo::Utility::JsonConfig& config) {
 		QString key = "MetaData." + plugin->getPluginID();
-		d->ProjectConfig->setObject(key, config);
+		d->ProjectConfig.setObject(key, config);
 	}
 
 	/*!
@@ -820,7 +819,7 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::saveProjectConfigForPlugin(const QString& pluginID, const Visindigo::Utility::JsonConfig& config) {
 		QString key = "MetaData." + pluginID;
-		d->ProjectConfig->setObject(key, config);
+		d->ProjectConfig.setObject(key, config);
 	}
 
 	/*!
@@ -829,7 +828,7 @@ namespace YSSCore::General {
 		刷新项目的最后修改时间。它被直接刷新为调用此函数的时间。
 	*/
 	void YSSProject::refreshLastModifyTime() {
-		d->ProjectConfig->setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		d->ProjectConfig.setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 	}
 
 	/*!
@@ -844,7 +843,7 @@ namespace YSSCore::General {
 	*/
 	QList<YSSURI> YSSProject::getEditorOpenedFiles() {
 		QList<YSSURI> files = d->readUriList("Editor.OpenedFiles");
-		const QStringList extraKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra");
+		const QStringList extraKeys = d->ProjectConfig.keys("Editor.OpenedFilesExtra");
 		for (const QString& areaID : extraKeys) {
 			files.append(d->readUriList("Editor.OpenedFilesExtra." + areaID));
 		}
@@ -859,7 +858,7 @@ namespace YSSCore::General {
 	QMap<QString, QList<YSSURI>> YSSProject::getEditorOpenedFilesInArea() {
 		QMap<QString, QList<YSSURI>> areaFiles;
 		areaFiles["0"] = d->readUriList("Editor.OpenedFiles");
-		QStringList extraKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra");
+		QStringList extraKeys = d->ProjectConfig.keys("Editor.OpenedFilesExtra");
 		for (const QString& areaID : extraKeys) {
 			QString realID = areaID;
 			realID.remove(0, 2); // 去掉前缀 "s_"
@@ -894,10 +893,10 @@ namespace YSSCore::General {
 		}
 		const QString storedPath = d->uriToStr(uri);
 		if (areaID.isEmpty() || areaID == "0") {
-			d->ProjectConfig->setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig->keys("Editor.OpenedFiles").size()), storedPath);
+			d->ProjectConfig.setString("Editor.OpenedFiles." + QString::number(d->ProjectConfig.keys("Editor.OpenedFiles").size()), storedPath);
 		}
 		else {
-			d->ProjectConfig->setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig->keys("Editor.OpenedFilesExtra.s_" + areaID).size()), storedPath);
+			d->ProjectConfig.setString("Editor.OpenedFilesExtra.s_" + areaID + "." + QString::number(d->ProjectConfig.keys("Editor.OpenedFilesExtra.s_" + areaID).size()), storedPath);
 		}
 	}
 
@@ -973,21 +972,21 @@ namespace YSSCore::General {
 		}
 		QString areaID = getFileAreaID(uri);
 		if (areaID.isEmpty() || areaID == "0") {
-			QStringList keys = d->ProjectConfig->keys("Editor.OpenedFiles");
+			QStringList keys = d->ProjectConfig.keys("Editor.OpenedFiles");
 			for (const QString& key : keys) {
-				const YSSURI fileUri = d->strToUri(d->ProjectConfig->getString("Editor.OpenedFiles." + key));
+				const YSSURI fileUri = d->strToUri(d->ProjectConfig.getString("Editor.OpenedFiles." + key));
 				if (fileUri == uri) {
-					d->ProjectConfig->remove("Editor.OpenedFiles." + key);
+					d->ProjectConfig.remove("Editor.OpenedFiles." + key);
 					break;
 				}
 			}
 		}
 		else {
-			QStringList keys = d->ProjectConfig->keys("Editor.OpenedFilesExtra.s_" + areaID);
+			QStringList keys = d->ProjectConfig.keys("Editor.OpenedFilesExtra.s_" + areaID);
 			for (const QString& key : keys) {
-				const YSSURI fileUri = d->strToUri(d->ProjectConfig->getString("Editor.OpenedFilesExtra.s_" + areaID + "." + key));
+				const YSSURI fileUri = d->strToUri(d->ProjectConfig.getString("Editor.OpenedFilesExtra.s_" + areaID + "." + key));
 				if (fileUri == uri) {
-					d->ProjectConfig->remove("Editor.OpenedFilesExtra.s_" + areaID + "." + key);
+					d->ProjectConfig.remove("Editor.OpenedFilesExtra.s_" + areaID + "." + key);
 					break;
 				}
 			}
@@ -1007,7 +1006,7 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::setFocusedFile(const YSSURI& uri) {
 		if (not uri.isValid()) {
-			d->ProjectConfig->setString("Editor.FocusedFile", "");
+			d->ProjectConfig.setString("Editor.FocusedFile", "");
 			return;
 		}
 		// 虚拟文档没有文件系统实体，只要求其余类型确实存在。
@@ -1015,7 +1014,7 @@ namespace YSSCore::General {
 			yErrorF << "Focused file does not exist:" << uri.toString();
 			return;
 		}
-		d->ProjectConfig->setString("Editor.FocusedFile", d->uriToStr(uri));
+		d->ProjectConfig.setString("Editor.FocusedFile", d->uriToStr(uri));
 	}
 
 	/*!
@@ -1029,21 +1028,21 @@ namespace YSSCore::General {
 		if (not uri.isValid()) {
 			return QString();
 		}
-		if (d->ProjectConfig->contains("Editor.OpenedFiles")) {
-			QStringList keys = d->ProjectConfig->keys("Editor.OpenedFiles");
+		if (d->ProjectConfig.contains("Editor.OpenedFiles")) {
+			QStringList keys = d->ProjectConfig.keys("Editor.OpenedFiles");
 			for (const QString& key : keys) {
-				const YSSURI fileUri = d->strToUri(d->ProjectConfig->getString("Editor.OpenedFiles." + key));
+				const YSSURI fileUri = d->strToUri(d->ProjectConfig.getString("Editor.OpenedFiles." + key));
 				if (fileUri == uri) {
 					return "0"; // 默认区域
 				}
 			}
 		}
-		if (d->ProjectConfig->contains("Editor.OpenedFilesExtra")) {
-			QStringList areaKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra");
+		if (d->ProjectConfig.contains("Editor.OpenedFilesExtra")) {
+			QStringList areaKeys = d->ProjectConfig.keys("Editor.OpenedFilesExtra");
 			for (const QString& areaID : areaKeys) {
-				QStringList fileKeys = d->ProjectConfig->keys("Editor.OpenedFilesExtra." + areaID);
+				QStringList fileKeys = d->ProjectConfig.keys("Editor.OpenedFilesExtra." + areaID);
 				for (const QString& key : fileKeys) {
-					const YSSURI fileUri = d->strToUri(d->ProjectConfig->getString("Editor.OpenedFilesExtra." + areaID + "." + key));
+					const YSSURI fileUri = d->strToUri(d->ProjectConfig.getString("Editor.OpenedFilesExtra." + areaID + "." + key));
 					if (fileUri == uri) {
 						QString realAreaID = areaID;
 						realAreaID.remove(0, 2); // 去掉前缀 "s_"
@@ -1061,7 +1060,7 @@ namespace YSSCore::General {
 		return 项目中编辑器当前聚焦的文件。没有聚焦文件时返回无效URI。
 	*/
 	YSSURI YSSProject::getFocusedFile() {
-		return d->strToUri(d->ProjectConfig->getString("Editor.FocusedFile"));
+		return d->strToUri(d->ProjectConfig.getString("Editor.FocusedFile"));
 	}
 
 	/*!
@@ -1080,8 +1079,8 @@ namespace YSSCore::General {
 		它只是单纯地修改项目文件中的数据，告诉项目没有文件被打开了，但它并不会真的使编辑器关闭所有文件。
 	*/
 	void YSSProject::removeAllEditorOpenedFiles() {
-		d->ProjectConfig->remove("Editor.OpenedFiles");
-		d->ProjectConfig->remove("Editor.OpenedFilesExtra");
+		d->ProjectConfig.remove("Editor.OpenedFiles");
+		d->ProjectConfig.remove("Editor.OpenedFilesExtra");
 	}
 
 	/*!
@@ -1092,10 +1091,10 @@ namespace YSSCore::General {
 	*/
 	void YSSProject::removeEditorOpenedFilesInArea(const QString& areaID) {
 		if (areaID.isEmpty() || areaID == "0") {
-			d->ProjectConfig->remove("Editor.OpenedFiles");
+			d->ProjectConfig.remove("Editor.OpenedFiles");
 		}
 		else {
-			d->ProjectConfig->remove("Editor.OpenedFilesExtra.s_" + areaID);
+			d->ProjectConfig.remove("Editor.OpenedFilesExtra.s_" + areaID);
 		}
 	}
 
@@ -1354,10 +1353,10 @@ namespace YSSCore::General {
 		添加一个项目所需的插件ID到项目配置中。如果插件ID已存在，则不会重复添加。
 	*/
 	void YSSProject::addRequiredPlugin(const QString& pluginID) {
-		QStringList requiredPlugins = d->ProjectConfig->getStringList("Project.RequiredPlugins");
+		QStringList requiredPlugins = d->ProjectConfig.getStringList("Project.RequiredPlugins");
 		if (not requiredPlugins.contains(pluginID)) {
 			requiredPlugins.append(pluginID);
-			d->ProjectConfig->setStringList("Project.RequiredPlugins", requiredPlugins);
+			d->ProjectConfig.setStringList("Project.RequiredPlugins", requiredPlugins);
 		}
 	}
 
@@ -1366,10 +1365,10 @@ namespace YSSCore::General {
 		移除一个项目所需的插件ID从项目配置中。如果插件ID不存在，则不会有任何操作。
 	*/
 	void YSSProject::removeRequiredPlugin(const QString& pluginID) {
-		QStringList requiredPlugins = d->ProjectConfig->getStringList("Project.RequiredPlugins");
+		QStringList requiredPlugins = d->ProjectConfig.getStringList("Project.RequiredPlugins");
 		if (requiredPlugins.contains(pluginID)) {
 			requiredPlugins.removeAll(pluginID);
-			d->ProjectConfig->setStringList("Project.RequiredPlugins", requiredPlugins);
+			d->ProjectConfig.setStringList("Project.RequiredPlugins", requiredPlugins);
 		}
 	}
 	
@@ -1378,7 +1377,7 @@ namespace YSSCore::General {
 		设置项目所需的插件ID列表到项目配置中。这个函数会覆盖原有的列表。
 	*/
 	void YSSProject::setRequiredPlugins(const QStringList& pluginIDs) {
-		d->ProjectConfig->setStringList("Project.RequiredPlugins", pluginIDs);
+		d->ProjectConfig.setStringList("Project.RequiredPlugins", pluginIDs);
 	}
 
 	/*!
@@ -1386,7 +1385,7 @@ namespace YSSCore::General {
 		return 当前项目所需的插件ID列表。
 	*/
 	QStringList YSSProject::getRequiredPlugins() {
-		return d->ProjectConfig->getStringList("Project.RequiredPlugins");
+		return d->ProjectConfig.getStringList("Project.RequiredPlugins");
 	}
 
 	/*!
@@ -1402,7 +1401,7 @@ namespace YSSCore::General {
 	bool YSSProject::updateProject() {
 		bool rtn = true;
 		if (getProjectVersion() == Visindigo::General::Version("0.1")) {
-			d->ProjectConfig->setString("Project.Version", "0.2");
+			d->ProjectConfig.setString("Project.Version", "0.2");
 			// nothing special to do for 0.2
 		}
 		return rtn;
@@ -1418,20 +1417,20 @@ namespace YSSCore::General {
 			return;
 		}
 		const QString storedPath = d->uriToStr(uri);
-		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
 		if (hasFilePreferredFileServer(uri)) {
 			for (int i = 0; i < count; ++i) {
-				const YSSURI path = d->strToUri(d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i)));
+				const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
 				if (path == uri) {
-					d->ProjectConfig->setString("FilePreferredFileServers.serverID." + QString::number(i), serverID);
+					d->ProjectConfig.setString("FilePreferredFileServers.serverID." + QString::number(i), serverID);
 					break;
 				}
 			}
 		}
 		else {
 		
-			d->ProjectConfig->setString("FilePreferredFileServers.filePath." + QString::number(count), storedPath);
-			d->ProjectConfig->setString("FilePreferredFileServers.serverID." + QString::number(count), serverID);
+			d->ProjectConfig.setString("FilePreferredFileServers.filePath." + QString::number(count), storedPath);
+			d->ProjectConfig.setString("FilePreferredFileServers.serverID." + QString::number(count), serverID);
 		}
 	}
 
@@ -1444,11 +1443,11 @@ namespace YSSCore::General {
 		if (not uri.isValid()) {
 			return QString();
 		}
-		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
 		for (int i = 0; i < count; ++i) {
-			const YSSURI path = d->strToUri(d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i)));
+			const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
 			if (path == uri) {
-				return d->ProjectConfig->getString("FilePreferredFileServers.serverID." + QString::number(i));
+				return d->ProjectConfig.getString("FilePreferredFileServers.serverID." + QString::number(i));
 			}
 		}
 		return QString();
@@ -1467,12 +1466,12 @@ namespace YSSCore::General {
 		if (not uri.isValid()) {
 			return;
 		}
-		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
 		for (int i = 0; i < count; ++i) {
-			const YSSURI path = d->strToUri(d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i)));
+			const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
 			if (path == uri) {
-				d->ProjectConfig->remove("FilePreferredFileServers.filePath." + QString::number(i));
-				d->ProjectConfig->remove("FilePreferredFileServers.serverID." + QString::number(i));
+				d->ProjectConfig.remove("FilePreferredFileServers.filePath." + QString::number(i));
+				d->ProjectConfig.remove("FilePreferredFileServers.serverID." + QString::number(i));
 				break;
 			}
 		}
@@ -1487,9 +1486,9 @@ namespace YSSCore::General {
 		if (not uri.isValid()) {
 			return false;
 		}
-		auto count = d->ProjectConfig->keys("FilePreferredFileServers.filePath").size();
+		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
 		for (int i = 0; i < count; ++i) {
-			const YSSURI path = d->strToUri(d->ProjectConfig->getString("FilePreferredFileServers.filePath." + QString::number(i)));
+			const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
 			if (path == uri) {
 				return true;
 			}

@@ -30,6 +30,7 @@
 #include "Editor/NewProjectPage/NewProjectWin.h"
 #include "Editor/ProjectPage/ProjectInfoWidget.h"
 #include "Editor/ProjectPage/ProjectWin.h"
+#include "Editor/ProjectPage/OpenRemoteProjectWin.h"
 #include "Editor/SSHConnection/SSHConnectionWidget.h"
 #include "General/YSSURI.h"
 #include "YayinStoryStudio.h"
@@ -178,6 +179,9 @@ namespace YSS::ProjectPage {
 		OpenFolderButton = new QPushButton(OptionWidget);
 		OpenFolderButton->setText(VITRL("YSS::project.openFolder"));
 		OpenFolderButton->setToolTip(VITRL("YSS::tooltips.projectWin.openFolder"));
+		OpenRemoteButton = new QPushButton(OptionWidget);
+		OpenRemoteButton->setText(VITRL("YSS::project.openRemoteProject"));
+		OpenRemoteButton->setToolTip(VITRL("YSS::tooltips.projectWin.openRemoteProject"));
 		CloneGitButton = new QPushButton(OptionWidget);
 		CloneGitButton->setText(VITRL("YSS::project.cloneFromGit"));
 		CloneGitButton->setToolTip(VITRL("YSS::tooltips.projectWin.cloneFromGit"));
@@ -188,6 +192,7 @@ namespace YSS::ProjectPage {
 		OptionWidget->setLayout(ButtonLayout);
 		ButtonLayout->addWidget(CreateProjectButton);
 		ButtonLayout->addWidget(OpenFolderButton);
+		ButtonLayout->addWidget(OpenRemoteButton);
 		ButtonLayout->addWidget(CloneGitButton);
 		ButtonLayout->addWidget(SshConnectionButton);
 		InfoWidget = new ProjectInfoWidget(this);
@@ -216,6 +221,7 @@ namespace YSS::ProjectPage {
 		connect(CreateProjectButton, &QPushButton::clicked, this, &ProjectWin::onCreateProject);
 		connect(InfoWidget, &ProjectInfoWidget::removeConfirmed, this, &ProjectWin::onProjectRemoved);
 		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProjectClicked);
+		connect(OpenRemoteButton, &QPushButton::clicked, this, &ProjectWin::onOpenRemoteProjectClicked);
 		connect(SshConnectionButton, &QPushButton::clicked, this, [this]() {
 			YSS::Editor::SSHConnectionWidget* page = YSS::Editor::SSHConnectionWidget::getInstance();
 			page->refreshConnectionList();
@@ -242,8 +248,6 @@ namespace YSS::ProjectPage {
 				}
 			}
 		}
-		// 临时：项目页打开时直接把 SSH 连接页弹出来，方便看效果。
-		YSS::Editor::SSHConnectionWidget::getInstance()->show();
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event) {
@@ -373,6 +377,17 @@ namespace YSS::ProjectPage {
 		onOpenProject(YSSCore::General::YSSURI::fromLocalPath(filePath));
 	}
 
+	void ProjectWin::onOpenRemoteProjectClicked() {
+		OpenRemoteProjectWin* win = new OpenRemoteProjectWin(this);
+		win->setAttribute(Qt::WA_DeleteOnClose);
+		win->setWindowModality(Qt::ApplicationModal);
+		connect(win, &OpenRemoteProjectWin::projectChosen, this,
+			[this](const YSSCore::General::YSSURI& uri) {
+				onOpenProject(uri);
+			});
+		win->show();
+	}
+
 	void ProjectWin::onOpenProject(const YSSCore::General::YSSURI& uri) {
 		if (not uri.isValid()) {
 			return;
@@ -498,8 +513,8 @@ namespace YSS::ProjectPage {
 		win->setWindowFlags(win->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
 		win->show();
 		connect(win, &NewProjectPage::NewProjectWin::projectPrepared, this,
-			[this](const QString& projectPath) {
-				this->onOpenProject(YSSCore::General::YSSURI::fromString(projectPath));
+			[this](const YSSCore::General::YSSURI& projectUri) {
+				this->onOpenProject(projectUri);
 			});
 	}
 

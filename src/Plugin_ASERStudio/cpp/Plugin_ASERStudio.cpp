@@ -7,6 +7,7 @@
 #include <QtWidgets/qmessagebox.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
+#include <General/YSSProject.h>
 #include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/StringUtility.h>

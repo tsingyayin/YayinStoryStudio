@@ -55,10 +55,55 @@
 			"delete": "从列表中移除项目",
 			"createNewProject": "从项目模板创建一个新项目",
 			"openFolder": "打开一个Yayin Story Studio 项目",
+			"openRemoteProject": "从远端 SSH 主机打开一个已有项目",
 			"cloneFromGit": "从给定的Git仓库地址克隆一个项目"
 		}
 	},
 	"project":{
+		"locate": {
+				"title": "选择项目位置",
+				"subtitle": "先确定项目要创建在哪里，再进入模板页面填写模板选项。",
+				"local": "本机",
+				"remote": "远程",
+				"newFolder": "新建文件夹",
+				"newFolderDialog": {
+				    "title": "新建文件夹",
+				    "text": "输入新文件夹的名称。",
+				    "failedTitle": "无法新建文件夹",
+				    "failedMessage": "无法在“%1”新建文件夹，请检查权限或连接状态。"
+				},
+				"name": {
+					"title": "项目名称",
+					"text": "将作为项目文件夹名，路径非法字符会被替换。"
+				},
+				"browse": "浏览...",
+				"addAuthentic": "打开 SSH 连接管理",
+				"refresh": "刷新",
+				"up": "上一级",
+				"remoteLoading": "正在读取目录...",
+				"remoteEmpty": "此目录下没有子文件夹。",
+				"remoteNotConnected": "连接身份无效或尚未连接，请先在 SSH 连接页面建立连接。",
+				"where": "项目将创建在\"%1\"。",
+				"confirm": "下一步"
+		},
+		"openRemote": {
+			"title": "打开远程项目",
+			"subtitle": "选择一个已经存在于远端的 YSS 项目（project.yssp）。",
+			"open": "打开",
+			"selected": "将打开“%1”。",
+			"none": "请在列表中选择一个项目文件。"
+		},
+		"create": {
+				"exists": {
+					"title": "项目文件夹已存在",
+					"message": "\"%1\"已存在或非空！无法在此创建新项目。"
+				},
+				"failed": {
+					"title": "创建项目失败",
+					"message": "无法创建项目\"%1\"，请检查目标位置是否存在，或是否有权限写入。"
+				}
+		},
+
 		"newFile": {
 			"exists": {
 				"title": "文件已存在",
@@ -91,6 +136,7 @@
 		"createNewProject":"创建新项目",
 		"createNewFile":"创建新文件",
 		"openFolder":"打开项目",
+		"openRemoteProject": "打开远程项目",
 		"openYSSProject": "打开YSS项目",
 		"cloneFromGit":"从Git克隆",
 		"createFromTemplate":"从模板新建",

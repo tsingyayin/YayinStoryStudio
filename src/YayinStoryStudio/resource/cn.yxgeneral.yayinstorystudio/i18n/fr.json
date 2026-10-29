@@ -55,10 +55,54 @@
 			"delete": "Retirer le projet de la liste",
 			"createNewProject": "Créer un nouveau projet à partir d'un modèle",
 			"openFolder": "Ouvrir un projet Yayin Story Studio",
+			"openRemoteProject": "Ouvrir un projet existant depuis un hôte SSH distant",
 			"cloneFromGit": "Cloner un projet depuis une URL de dépôt Git"
 		}
 	},
 	"project": {
+		"locate": {
+			"title": "Choisir l'emplacement du projet",
+			"subtitle": "Choisissez où le projet sera créé, puis renseignez les options du modèle à l'étape suivante.",
+			"local": "Local",
+			"remote": "Distant",
+				"newFolder": "Nouveau dossier",
+				"newFolderDialog": {
+				    "title": "Nouveau dossier",
+				    "text": "Saisissez le nom du nouveau dossier.",
+				    "failedTitle": "Impossible de créer le dossier",
+				    "failedMessage": "Impossible de créer un dossier dans “%1”. Vérifiez les droits ou l'état de la connexion."
+				},
+			"name": {
+				"title": "Nom du projet",
+				"text": "Utilisé comme nom du dossier du projet ; les caractères de chemin interdits sont remplacés."
+			},
+			"browse": "Parcourir...",
+			"addAuthentic": "Ouvrir le gestionnaire de connexions SSH",
+			"refresh": "Actualiser",
+			"up": "Dossier parent",
+			"remoteLoading": "Lecture du dossier...",
+			"remoteEmpty": "Aucun sous-dossier dans ce dossier.",
+			"remoteNotConnected": "L'identité de connexion est invalide ou non connectée. Connectez-la d'abord depuis la page SSH.",
+			"where": "Le projet sera créé dans “%1”.",
+			"confirm": "Suivant"
+		},
+		"openRemote": {
+			"title": "Ouvrir un projet distant",
+			"subtitle": "Choisissez un projet YSS (project.yssp) déjà présent sur un hôte distant.",
+			"open": "Ouvrir",
+			"selected": "“%1” va être ouvert.",
+			"none": "Sélectionnez un fichier de projet dans la liste."
+		},
+		"create": {
+			"exists": {
+				"title": "Le dossier du projet existe déjà",
+				"message": "“%1” existe déjà ou n'est pas vide. Impossible d'y créer un nouveau projet."
+			},
+			"failed": {
+				"title": "Échec de la création du projet",
+				"message": "Impossible de créer le projet “%1”. Vérifiez que l'emplacement cible existe et est accessible en écriture."
+			}
+		},
 		"newFile": {
 			"exists": {
 				"title": "Le fichier existe déjà",
@@ -91,6 +135,7 @@
 		"createNewProject": "Créer un nouveau projet",
 		"createNewFile": "Créer un nouveau fichier",
 		"openFolder": "Ouvrir le projet",
+		"openRemoteProject": "Ouvrir un projet distant",
 		"openYSSProject": "Ouvrir un projet YSS",
 		"cloneFromGit": "Cloner depuis Git",
 		"createFromTemplate": "Créer à partir d'un modèle",

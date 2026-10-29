@@ -12,7 +12,6 @@
 #include <General/TranslationHost.h>
 #include <General/YSSProject.h>
 #include <Utility/FileOperation.h>
-#include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/ConfigWidget.h>
 #include "YSS/ASERProjectTemplate.h"
@@ -21,12 +20,13 @@ namespace ASERStudio::YSS {
 	static const QString ASERStudioPluginID = QStringLiteral("cn.yxgeneral.aserstudio");
 	static const QString ASERStudioAssets1Rcc = QStringLiteral("ASERStudio_assets1.rcc");
 
-	static void copyTemplateFile(const QString& srcPath, const QString& dstPath, bool overwrite = false) {
-		Visindigo::Utility::FileOperation::ErrorCode copyResult = Visindigo::Utility::FileOperation::copyFile(srcPath, dstPath, true, overwrite);
-		if (copyResult != Visindigo::Utility::FileOperation::Success) {
-			vgErrorF << "Failed to copy project template file " << srcPath << " to " << dstPath
-				<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(copyResult);
+	static QByteArray readTemplateFile(const QString& srcPath) {
+		QFile file(srcPath);
+		if (!file.open(QIODevice::ReadOnly)) {
+			vgErrorF << "Failed to read project template file " << srcPath;
+			return QByteArray();
 		}
+		return file.readAll();
 	}
 
 	// ASERStudio_assets1.rcc 的"现场加载、现场使用、现场卸载"生命周期管理。
@@ -86,15 +86,14 @@ namespace ASERStudio::YSS {
 		QPushButton* CreateButton;
 		QVBoxLayout* Layout;
 		QHBoxLayout* ButtonLayout;
-		QString ProjectPath;
-		QString ProjectName;
 	};
-	ProjectTemplateInitWidget_AStoryX::ProjectTemplateInitWidget_AStoryX(QWidget* parent)
-		: YSSCore::Editor::ProjectTemplateInitWidget(parent)
+	ProjectTemplateInitWidget_AStoryX::ProjectTemplateInitWidget_AStoryX(const YSSCore::General::YSSURI& targetUri,
+		QWidget* parent)
+		: YSSCore::Editor::ProjectTemplateInitWidget(targetUri, parent)
 	{
 		d = new ProjectTemplateInitWidget_AStoryXPrivate();
 		ProjectTemplateAssets::registerAssets();
-		this->setMinimumWidth(800);
+		this->setMinimumWidth(560);
 		this->setWindowTitle(VITRL("ASERStudio::provider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
 		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP.json");
@@ -105,7 +104,6 @@ namespace ASERStudio::YSS {
 			vgErrorF << "Failed to read project template config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
 		}
 		d->Layout = new QVBoxLayout(this);
-		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ConfigWidget);
 		d->ButtonLayout = new QHBoxLayout();
 		d->ButtonLayout->setContentsMargins(10, 0, 10, 0);
@@ -118,12 +116,8 @@ namespace ASERStudio::YSS {
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setMaximumWidth(160);
 		d->ButtonLayout->addWidget(d->CreateButton);
-		d->ProjectPath = d->ConfigWidget->getConfig()->getString("Project.Path");
-		d->ProjectName = d->ConfigWidget->getConfig()->getString("Project.Name");
-		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::lineEditTextChanged, this, &ProjectTemplateInitWidget_AStoryX::onLineEditTextChanged);
 		connect(d->CreateButton, &QPushButton::clicked, this, &ProjectTemplateInitWidget_AStoryX::onCreateButtonClicked);
 		refreshWhereLabel();
-		// Constructor implementation
 	}
 
 	ProjectTemplateInitWidget_AStoryX::~ProjectTemplateInitWidget_AStoryX() {
@@ -131,102 +125,65 @@ namespace ASERStudio::YSS {
 		delete d;
 	}
 
-	void ProjectTemplateInitWidget_AStoryX::resizeEvent(QResizeEvent* event) {
-		YSSCore::Editor::ProjectTemplateInitWidget::resizeEvent(event);
-	}
-
-	void ProjectTemplateInitWidget_AStoryX::onLineEditTextChanged(const QString& node, const QString& str) {
-		if (node == "Project.Path") {
-			d->ProjectPath = str;
-		}
-		else if (node == "Project.Name") {
-			d->ProjectName = str;
-		}
-		refreshWhereLabel();
-	}
-
 	void ProjectTemplateInitWidget_AStoryX::onCreateButtonClicked() {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
-		YSSCore::General::YSSProject project;
-		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegalFileName(config->getString("Project.Name"));
-		bool ok = project.initProject(YSSCore::General::YSSURI::fromLocalPath(completePath), config->getString("Project.Name"));
-		if (ok) {
-			project.setProjectIconPath(project.getProjectFolder().resolve("cover.png"));
-			project.setProjectDebugServerID(ASERStudio_AStoryXDebuggerID);
-			QString projectFolder = project.getProjectFolder().getLocalPath();
-			QStringList CompGroup_2_05_22_1A = {
-					"uptodate"
-			};
-			if (CompGroup_2_05_22_1A.contains(config->getString("Project.Version"))) {
-				initProjectV3(&project);
-			}
-			else {
-				// 项目文件夹已经建好，把基础配置落盘，避免留下一个没有 project.yssp 的空目录。
-				project.saveProject();
-				QMessageBox msgBox;
-				msgBox.setWindowTitle(VITRL("ASERStudio::provider.version.unsupported.title"));
-				msgBox.setText(VITRL("ASERStudio::provider.version.unsupported.text").arg(config->getString("Project.Version")));
-				msgBox.setStandardButtons(QMessageBox::Ok);
-				int ret = msgBox.exec();
-				return;
-			}
-			emit projectPrepared(project.getProjectPath().toString());
-			close();
+		const QString version = config->getString("Project.Version");
+		static const QStringList supportedVersions = { "uptodate" };
+		if (!supportedVersions.contains(version)) {
+			QMessageBox::warning(this, VITRL("ASERStudio::provider.version.unsupported.title"),
+				VITRL("ASERStudio::provider.version.unsupported.text").arg(version));
+			return;
 		}
-		else {
-			QMessageBox msgBox;
-			msgBox.setWindowTitle(VITRL("ASERStudio::provider.failed.title"));
-			msgBox.setText("ASERStudio::provider.failed.text");
-			msgBox.setStandardButtons(QMessageBox::Ok);
-			int ret = msgBox.exec();
+		if (!prepareProjectV3()) {
+			return;
 		}
+		emit projectPrepared();
+		close();
 	}
 
-	void ProjectTemplateInitWidget_AStoryX::initProjectV3(YSSCore::General::YSSProject* project) {
-		Visindigo::Utility::JsonConfig projectConfig = project->getProjectConfigForPlugin("cn.yxgeneral.aserstudio");
+	bool ProjectTemplateInitWidget_AStoryX::prepareProjectV3() {
+		const YSSCore::General::YSSURI targetUri = getTargetUri();
+		YSSCore::General::YSSProject project;
+		if (!project.initConfig(targetUri, targetUri.getFileName())) {
+			QMessageBox::warning(this, VITRL("ASERStudio::provider.failed.title"),
+				VITRL("ASERStudio::provider.failed.text"));
+			return false;
+		}
+		project.setProjectIconPath(targetUri.resolve("cover.png"));
+		project.setProjectDebugServerID(ASERStudio_AStoryXDebuggerID);
+		Visindigo::Utility::JsonConfig projectConfig = project.getProjectConfigForPlugin(ASERStudioPluginID);
 		projectConfig.setString("ASERVersion", "3.0");
-		project->saveProjectConfigForPlugin("cn.yxgeneral.aserstudio", projectConfig);
-		QStringList folders = {
-				"/Resources/Music",
-				"/Resources/Background",
-				"/Resources/Char_Picture/tianyu",
-				"/Resources/Char_Spine",
-				"/Resources/SoundEffect",
-				"/Rules",
-				"/Configs",
-				"/Stories"
+		project.saveProjectConfigForPlugin(ASERStudioPluginID, projectConfig);
+		setYSSProjectContent(project.getYSSProjectContent());
+
+		static const QString templatePath = QStringLiteral(":/resource/cn.yxgeneral.aserstudio/template/3.0");
+		static const QMap<QString, QString> fileMap = {
+			{ "AdvanceRule.json", "Rules/AdvanceRule.json" },
+			{ "BaseRule.json", "Rules/BaseRule.json" },
+			{ "main.astoryx", "Stories/main.astoryx" },
+			{ "tianyu_0.png", "Resources/Char_Picture/tianyu/0.png" },
+			{ "tianyu_1.png", "Resources/Char_Picture/tianyu/1.png" },
+			{ "classic.png", "Resources/Background/bg.png" }
 		};
-		QString projectFolder = project->getProjectFolder().getLocalPath();
-		for (const QString& folder : folders) {
-			Visindigo::Utility::FileUtility::createDir(projectFolder + folder);
+		for (const QString& key : fileMap.keys()) {
+			setFileContent(fileMap.value(key), readTemplateFile(templatePath + "/" + key));
 		}
-		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/BaseRule.json", projectFolder + "/Rules/BaseRule.json");
-		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/AdvanceRule.json", projectFolder + "/Rules/AdvanceRule.json");
-		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/main.astoryx", projectFolder + "/Stories/main.astoryx");
-		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_0.png", projectFolder + "/Resources/Char_Picture/tianyu/0.png");
-		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/tianyu_1.png", projectFolder + "/Resources/Char_Picture/tianyu/1.png");
-		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/Resources/Background/bg.png");
-		copyTemplateFile(":/resource/cn.yxgeneral.aserstudio/template/3.0/classic.png", projectFolder + "/cover.png");
-		// 只把实际生成成功的示例故事记入打开列表/焦点，避免记录不存在的文件导致打开后恢复报错。
-		const QString mainStoryPath = projectFolder + "/Stories/main.astoryx";
-		if (Visindigo::Utility::FileUtility::isFileExist(mainStoryPath)) {
-			const YSSCore::General::YSSURI mainStoryUri = YSSCore::General::YSSURI::fromLocalPath(mainStoryPath);
-			project->addEditorOpenedFile(mainStoryUri);
-			project->setFocusedFile(mainStoryUri);
-		}
-		project->saveProject();
+		setFileContent(QStringLiteral("cover.png"), readTemplateFile(templatePath + "/classic.png"));
+		setDefaultOpenFiles(QStringList({ QStringLiteral("Stories/main.astoryx") }));
+		return true;
 	}
 
 	void ProjectTemplateInitWidget_AStoryX::refreshWhereLabel() {
-		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegalFileName(d->ProjectName);
-		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
-			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.where").arg(completePath));
-			d->CreateButton->setEnabled(true);
-		}
-		else {
-			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.exists").arg(completePath));
+		const YSSCore::General::YSSURI targetUri = getTargetUri();
+		if (!targetUri.isValid()) {
+			d->WhereLabel->clear();
 			d->CreateButton->setEnabled(false);
+			return;
 		}
+		const QString localPath = targetUri.getLocalPath();
+		d->WhereLabel->setText(VITRL("ASERStudio::provider.window.where")
+			.arg(localPath.isEmpty() ? targetUri.toString() : localPath));
+		d->CreateButton->setEnabled(true);
 	}
 
 	ProjectTemplate_AStoryX::ProjectTemplate_AStoryX(YSSCore::Editor::EditorPlugin* plugin) :
@@ -242,47 +199,35 @@ namespace ASERStudio::YSS {
 				VITRL("ASERStudio::provider.astory.tags.script"),
 				VITRL("ASERStudio::provider.astory.tags.arknights")
 			}));
-		// Constructor implementation
 	}
 
 	ProjectTemplate_AStoryX::~ProjectTemplate_AStoryX() {
-		// Destructor implementation
 	}
 
-	YSSCore::Editor::ProjectTemplateInitWidget* ProjectTemplate_AStoryX::projectInitWidget() {
-		return new ProjectTemplateInitWidget_AStoryX();
+	YSSCore::Editor::ProjectTemplateInitWidget* ProjectTemplate_AStoryX::projectInitWidget(
+		const YSSCore::General::YSSURI& targetUri) {
+		return new ProjectTemplateInitWidget_AStoryX(targetUri);
 	}
 
 	class ProjectTemplateInitWidget_AStoryX_3_6_7Private {
 		friend class ProjectTemplateInitWidget_AStoryX_3_6_7;
 	protected:
-		Visindigo::Widgets::ConfigWidget* ConfigWidget;
 		QLabel* WhereLabel;
 		QPushButton* CreateButton;
 		QVBoxLayout* Layout;
 		QHBoxLayout* ButtonLayout;
-		QString ProjectPath;
-		QString ProjectName;
 	};
-	ProjectTemplateInitWidget_AStoryX_3_6_7::ProjectTemplateInitWidget_AStoryX_3_6_7(QWidget* parent)
-		: YSSCore::Editor::ProjectTemplateInitWidget(parent)
+	ProjectTemplateInitWidget_AStoryX_3_6_7::ProjectTemplateInitWidget_AStoryX_3_6_7(
+		const YSSCore::General::YSSURI& targetUri, QWidget* parent)
+		: YSSCore::Editor::ProjectTemplateInitWidget(targetUri, parent)
 	{
 		d = new ProjectTemplateInitWidget_AStoryX_3_6_7Private();
 		ProjectTemplateAssets::registerAssets();
-		this->setMinimumWidth(800);
+		this->setMinimumWidth(560);
 		this->setWindowTitle(VITRL("ASERStudio::provider.window.title"));
-		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
-		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/PTP_3_6_7.json");
-		if (cwJsonResult) {
-			d->ConfigWidget->loadCWJson(cwJsonResult.value());
-		}
-		else {
-			vgErrorF << "Failed to read project template config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
-		}
 		d->Layout = new QVBoxLayout(this);
-		d->Layout->addWidget(d->ConfigWidget);
 		d->ButtonLayout = new QHBoxLayout();
-		d->ButtonLayout->setContentsMargins(10, 0, 10, 0);
+		d->ButtonLayout->setContentsMargins(10, 10, 10, 10);
 		d->Layout->addLayout(d->ButtonLayout);
 		d->WhereLabel = new QLabel(this);
 		d->WhereLabel->setWordWrap(true);
@@ -292,9 +237,6 @@ namespace ASERStudio::YSS {
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setMaximumWidth(160);
 		d->ButtonLayout->addWidget(d->CreateButton);
-		d->ProjectPath = d->ConfigWidget->getConfig()->getString("Project.Path");
-		d->ProjectName = d->ConfigWidget->getConfig()->getString("Project.Name");
-		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::lineEditTextChanged, this, &ProjectTemplateInitWidget_AStoryX_3_6_7::onLineEditTextChanged);
 		connect(d->CreateButton, &QPushButton::clicked, this, &ProjectTemplateInitWidget_AStoryX_3_6_7::onCreateButtonClicked);
 		refreshWhereLabel();
 	}
@@ -304,48 +246,31 @@ namespace ASERStudio::YSS {
 		delete d;
 	}
 
-	void ProjectTemplateInitWidget_AStoryX_3_6_7::resizeEvent(QResizeEvent* event) {
-		YSSCore::Editor::ProjectTemplateInitWidget::resizeEvent(event);
-	}
-
-	void ProjectTemplateInitWidget_AStoryX_3_6_7::onLineEditTextChanged(const QString& node, const QString& str) {
-		if (node == "Project.Path") {
-			d->ProjectPath = str;
-		}
-		else if (node == "Project.Name") {
-			d->ProjectName = str;
-		}
-		refreshWhereLabel();
-	}
-
 	void ProjectTemplateInitWidget_AStoryX_3_6_7::onCreateButtonClicked() {
-		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
-		YSSCore::General::YSSProject project;
-		QString completePath = config->getString("Project.Path") + "/" + Visindigo::Utility::FileUtility::toLegalFileName(config->getString("Project.Name"));
-		bool ok = project.initProject(YSSCore::General::YSSURI::fromLocalPath(completePath), config->getString("Project.Name"));
-		if (ok) {
-			project.setProjectIconPath(project.getProjectFolder().resolve("cover.png"));
-			project.setProjectDebugServerID(ASERStudio_AStoryXDebuggerID);
-			initProjectV3(&project);
-			emit projectPrepared(project.getProjectPath().toString());
-			close();
+		if (!prepareProjectV3()) {
+			return;
 		}
-		else {
-			QMessageBox msgBox;
-			msgBox.setWindowTitle(VITRL("ASERStudio::provider.failed.title"));
-			msgBox.setText(VITRL("ASERStudio::provider.failed.text"));
-			msgBox.setStandardButtons(QMessageBox::Ok);
-			int ret = msgBox.exec();
-		}
+		emit projectPrepared();
+		close();
 	}
 
-	void ProjectTemplateInitWidget_AStoryX_3_6_7::initProjectV3(YSSCore::General::YSSProject* project) {
-		Visindigo::Utility::JsonConfig projectConfig = project->getProjectConfigForPlugin("cn.yxgeneral.aserstudio");
+	bool ProjectTemplateInitWidget_AStoryX_3_6_7::prepareProjectV3() {
+		const YSSCore::General::YSSURI targetUri = getTargetUri();
+		YSSCore::General::YSSProject project;
+		if (!project.initConfig(targetUri, targetUri.getFileName())) {
+			QMessageBox::warning(this, VITRL("ASERStudio::provider.failed.title"),
+				VITRL("ASERStudio::provider.failed.text"));
+			return false;
+		}
+		project.setProjectIconPath(targetUri.resolve("cover.png"));
+		project.setProjectDebugServerID(ASERStudio_AStoryXDebuggerID);
+		Visindigo::Utility::JsonConfig projectConfig = project.getProjectConfigForPlugin(ASERStudioPluginID);
 		projectConfig.setString("ASERVersion", "3.6.7");
-		project->saveProjectConfigForPlugin("cn.yxgeneral.aserstudio", projectConfig);
-		QString projectFolder = project->getProjectFolder().getLocalPath();
-		const QString templatePath = ":/resource/cn.yxgeneral.aserstudio/template/3.6.7";
-		const QMap<QString, QString> fileMap = {
+		project.saveProjectConfigForPlugin(ASERStudioPluginID, projectConfig);
+		setYSSProjectContent(project.getYSSProjectContent());
+
+		static const QString templatePath = QStringLiteral(":/resource/cn.yxgeneral.aserstudio/template/3.6.7");
+		static const QMap<QString, QString> fileMap = {
 			{ "Configs/override_aliases.json", "Configs/override_aliases.json" },
 			{ "Configs/override_userConfigs.json", "Configs/override_userConfigs.json" },
 			{ "Resources/Background/bg_amb2026.png", "Resources/Background/bg_amb2026.png" },
@@ -369,36 +294,29 @@ namespace ASERStudio::YSS {
 			{ "Stories/02_BasicExample_3.astoryx", "Stories/02_基础？？？.astoryx" }
 		};
 		for (const QString& key : fileMap.keys()) {
-			copyTemplateFile(templatePath + "/" + key, projectFolder + "/" + fileMap.value(key), true);
+			setFileContent(fileMap.value(key), readTemplateFile(templatePath + "/" + key));
 		}
-		copyTemplateFile(templatePath + "/Resources/Background/bg_amb2026.png", projectFolder + "/cover.png");
-		// 只把实际生成成功的示例故事记入打开列表/焦点，避免记录不存在的文件导致打开后恢复报错。
-		const QList<QString> exampleStories = {
-			projectFolder + "/Stories/00_基础示例上.astoryx",
-			projectFolder + "/Stories/01_基础示例下.astoryx",
-			projectFolder + "/Stories/02_基础？？？.astoryx"
-		};
-		for (const QString& storyPath : exampleStories) {
-			if (Visindigo::Utility::FileUtility::isFileExist(storyPath)) {
-				project->addEditorOpenedFile(YSSCore::General::YSSURI::fromLocalPath(storyPath));
-			}
-		}
-		if (Visindigo::Utility::FileUtility::isFileExist(exampleStories.first())) {
-			project->setFocusedFile(YSSCore::General::YSSURI::fromLocalPath(exampleStories.first()));
-		}
-		project->saveProject();
+		setFileContent(QStringLiteral("cover.png"),
+			readTemplateFile(templatePath + "/Resources/Background/bg_amb2026.png"));
+		setDefaultOpenFiles(QStringList({
+			QStringLiteral("Stories/00_基础示例上.astoryx"),
+			QStringLiteral("Stories/01_基础示例下.astoryx"),
+			QStringLiteral("Stories/02_基础？？？.astoryx")
+			}));
+		return true;
 	}
 
 	void ProjectTemplateInitWidget_AStoryX_3_6_7::refreshWhereLabel() {
-		QString completePath = d->ProjectPath + "/" + Visindigo::Utility::FileUtility::toLegalFileName(d->ProjectName);
-		if (!Visindigo::Utility::FileUtility::isDirExist(completePath)) {
-			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.where").arg(completePath));
-			d->CreateButton->setEnabled(true);
-		}
-		else {
-			d->WhereLabel->setText(VITRL("ASERStudio::provider.window.exists").arg(completePath));
+		const YSSCore::General::YSSURI targetUri = getTargetUri();
+		if (!targetUri.isValid()) {
+			d->WhereLabel->clear();
 			d->CreateButton->setEnabled(false);
+			return;
 		}
+		const QString localPath = targetUri.getLocalPath();
+		d->WhereLabel->setText(VITRL("ASERStudio::provider.window.where")
+			.arg(localPath.isEmpty() ? targetUri.toString() : localPath));
+		d->CreateButton->setEnabled(true);
 	}
 
 	ProjectTemplate_AStoryX_3_6_7::ProjectTemplate_AStoryX_3_6_7(YSSCore::Editor::EditorPlugin* plugin) :
@@ -419,7 +337,8 @@ namespace ASERStudio::YSS {
 	ProjectTemplate_AStoryX_3_6_7::~ProjectTemplate_AStoryX_3_6_7() {
 	}
 
-	YSSCore::Editor::ProjectTemplateInitWidget* ProjectTemplate_AStoryX_3_6_7::projectInitWidget() {
-		return new ProjectTemplateInitWidget_AStoryX_3_6_7();
+	YSSCore::Editor::ProjectTemplateInitWidget* ProjectTemplate_AStoryX_3_6_7::projectInitWidget(
+		const YSSCore::General::YSSURI& targetUri) {
+		return new ProjectTemplateInitWidget_AStoryX_3_6_7(targetUri);
 	}
 }
