@@ -1,8 +1,10 @@
 #ifndef YSSCore_Editor_FileTemplateProvider_h
 #define YSSCore_Editor_FileTemplateProvider_h
 #include "YSSCoreCompileMacro.h"
-#include <QtWidgets/qframe.h>
+#include <General/YSSURI.h>
+#include <QtCore/qbytearray.h>
 #include <QtCore/qstringlist.h>
+#include <QtWidgets/qframe.h>
 #include <General/PluginModule.h>
 // Forward declarations
 namespace YSSCore::Editor {
@@ -15,11 +17,15 @@ namespace YSSCore::Editor {
 	class YSSCoreAPI FileTemplateInitWidget :public QFrame {
 		Q_OBJECT;
 	signals:
-		void filePrepared(QString filePath);
+		void contentPrepared();
 	public:
-		FileTemplateInitWidget(const QString& initFolder, QWidget* parent);
+		FileTemplateInitWidget(const YSSCore::General::YSSURI& targetUri, QWidget* parent);
 		virtual ~FileTemplateInitWidget();
-		QString getInitFolder() const;
+		YSSCore::General::YSSURI getTargetUri() const;
+		const QByteArray& getBinaryContent() const;
+		void setBinaryContent(QByteArray& content);
+		QString getTargetName() const;
+		void setTargetName(const QString& name);
 	private:
 		FileTemplateInitWidgetPrivate* d;
 	};
@@ -40,7 +46,9 @@ namespace YSSCore::Editor {
 		void setTemplateDescription(const QString& description);
 		QStringList getTemplateTags() const;
 		void setTemplateTags(const QStringList& tags);
-		virtual FileTemplateInitWidget* fileInitWidget(const QString& initPath) = 0;
+		QString getFileExt() const;
+		void setFileExt(const QString& ext);
+		virtual FileTemplateInitWidget* fileInitWidget(const YSSCore::General::YSSURI& targetUri);
 	private:
 		FileTemplateProviderPrivate* d;
 	};

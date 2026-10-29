@@ -16,25 +16,11 @@
 #include <QtCore/qstringlist.h>
 
 namespace YSSFileExt {
-	class SimpleFileTemplateInitWidgetPrivate;
-
-	class SimpleFileTemplateInitWidget :public YSSCore::Editor::FileTemplateInitWidget {
-		Q_OBJECT;
-	public:
-		SimpleFileTemplateInitWidget(const QString& initFolder, const QString& extension, QWidget* parent = nullptr);
-		virtual ~SimpleFileTemplateInitWidget();
-	private:
-		SimpleFileTemplateInitWidgetPrivate* d;
-	};
-
 	class SimpleFileTemplateProvider :public YSSCore::Editor::FileTemplateProvider {
 	public:
 		SimpleFileTemplateProvider(YSSCore::Editor::EditorPlugin* plugin, const QString& name, const QString& id,
 			const QString& templateID, const QString& templateName, const QString& description,
 			const QStringList& tags, const QString& extension);
-		virtual YSSCore::Editor::FileTemplateInitWidget* fileInitWidget(const QString& initPath) override;
-	private:
-		QString Extension;
 	};
 }
 #endif // Plugin_YSSFileExt_FileTemplate_SimpleFileTemplate_h

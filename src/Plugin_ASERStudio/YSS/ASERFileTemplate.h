@@ -19,7 +19,7 @@ namespace ASERStudio::YSS {
 	{
 		Q_OBJECT;
 	public:
-		FileTemplateInitWidget_AStoryX(const QString& initFolder, QWidget* parent = nullptr);
+		FileTemplateInitWidget_AStoryX(const YSSCore::General::YSSURI& targetUri, QWidget* parent = nullptr);
 		virtual ~FileTemplateInitWidget_AStoryX();
 		virtual void resizeEvent(QResizeEvent* event) override;
 	public slots:
@@ -37,7 +37,8 @@ namespace ASERStudio::YSS {
 	public:
 		FileTemplate_AStoryX(YSSCore::Editor::EditorPlugin* plugin);
 		virtual ~FileTemplate_AStoryX();
-		virtual YSSCore::Editor::FileTemplateInitWidget* fileInitWidget(const QString& initPath) override;
+		virtual YSSCore::Editor::FileTemplateInitWidget* fileInitWidget(
+			const YSSCore::General::YSSURI& targetUri) override;
 	};
 }
 #endif // Plugin_ASERStudio_YSS_ASERFileTemplate_h

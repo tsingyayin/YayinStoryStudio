@@ -1,5 +1,6 @@
 {
 	"general": {
+		"fileName": "Dateiname",
 		"about": "Über",
 		"abort": "Abbrechen",
 		"active": "Aktiv",

@@ -1,4 +1,3 @@
-#include <QtCore/qfile.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qmessagebox.h>
@@ -21,14 +20,17 @@ namespace ASERStudio::YSS {
 		QPushButton* CreateButton = nullptr;
 		QVBoxLayout* Layout = nullptr;
 		QHBoxLayout* ButtonLayout = nullptr;
-		QString FilePath;
 		QString FileName;
+		// 新文件将被创建到的目录，只用于展示最终位置。
+		YSSCore::General::YSSURI TargetUri;
 	};
 
-	FileTemplateInitWidget_AStoryX::FileTemplateInitWidget_AStoryX(const QString& initFolder, QWidget* parent)
-		: YSSCore::Editor::FileTemplateInitWidget(initFolder, parent)
+	FileTemplateInitWidget_AStoryX::FileTemplateInitWidget_AStoryX(const YSSCore::General::YSSURI& targetUri,
+		QWidget* parent)
+		: YSSCore::Editor::FileTemplateInitWidget(targetUri, parent)
 	{
 		d = new FileTemplateInitWidget_AStoryXPrivate;
+		d->TargetUri = targetUri;
 		this->setMinimumWidth(800);
 		this->setWindowTitle(VITRL("ASERStudio::fileProvider.window.title"));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget(this);
@@ -39,7 +41,6 @@ namespace ASERStudio::YSS {
 		else {
 			vgErrorF << "Failed to read file template config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
 		}
-		d->ConfigWidget->setLineEditText("File.Path", getInitFolder());
 		d->Layout = new QVBoxLayout(this);
 		//d->Layout->setContentsMargins(0, 0, 0, 0);
 		d->Layout->addWidget(d->ConfigWidget);
@@ -54,7 +55,6 @@ namespace ASERStudio::YSS {
 		d->CreateButton->setMinimumWidth(120);
 		d->CreateButton->setMaximumWidth(160);
 		d->ButtonLayout->addWidget(d->CreateButton);
-		d->FilePath = d->ConfigWidget->getConfig()->getString("File.Path");
 		d->FileName = d->ConfigWidget->getConfig()->getString("File.Name");
 		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::lineEditTextChanged, this, &FileTemplateInitWidget_AStoryX::onLineEditTextChanged);
 		connect(d->CreateButton, &QPushButton::clicked, this, &FileTemplateInitWidget_AStoryX::onCreateButtonClicked);
@@ -70,10 +70,7 @@ namespace ASERStudio::YSS {
 	}
 
 	void FileTemplateInitWidget_AStoryX::onLineEditTextChanged(const QString& node, const QString& text) {
-		if (node == "File.Path") {
-			d->FilePath = text;
-		}
-		else if (node == "File.Name") {
+		if (node == "File.Name") {
 			d->FileName = text;
 		}
 		refreshWhereLabel();
@@ -81,40 +78,25 @@ namespace ASERStudio::YSS {
 
 	void FileTemplateInitWidget_AStoryX::onCreateButtonClicked() {
 		Visindigo::Utility::JsonConfig* config = d->ConfigWidget->getConfig();
-		QString completePath = config->getString("File.Path") + "/" +
-			Visindigo::Utility::FileUtility::toLegalFileName(config->getString("File.Name")) + ".astoryx";
-		QFile file(completePath);
-		bool ok = !file.exists();
-		if (ok) {
-			QStringList fileContent;
-			if (config->getString("File.Version") == "2.05.22.1A" || config->getString("File.Version") == "uptodate") {
-				fileContent = initFileV3();
-			}
-			else {
-				QMessageBox msgBox;
-				msgBox.setWindowTitle(VITRL("ASERStudio::fileProvider.version.unsupported.title"));
-				msgBox.setText(VITRL("ASERStudio::fileProvider.version.unsupported.text").arg(config->getString("File.Version")));
-				msgBox.setStandardButtons(QMessageBox::Ok);
-				int ret = msgBox.exec();
-				return;
-			}
-			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveLines(completePath, fileContent);
-			if (saveResult != Visindigo::Utility::FileOperation::Success) {
-				vgErrorF << "Failed to create AStoryX file: " << completePath
-					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
-				QMessageBox::warning(this, VITRL("ASERStudio::fileProvider.failed.title"), VITRL("ASERStudio::fileProvider.failed.text"));
-				return;
-			}
-			emit filePrepared(completePath);
-			close();
+		const QString version = config->getString("File.Version");
+		QStringList fileContent;
+		if (version == "2.05.22.1A" || version == "uptodate") {
+			fileContent = initFileV3();
 		}
 		else {
 			QMessageBox msgBox;
-			msgBox.setWindowTitle(VITRL("ASERStudio::fileProvider.failed.title"));
-			msgBox.setText("ASERStudio::fileProvider.failed.text");
+			msgBox.setWindowTitle(VITRL("ASERStudio::fileProvider.version.unsupported.title"));
+			msgBox.setText(VITRL("ASERStudio::fileProvider.version.unsupported.text").arg(version));
 			msgBox.setStandardButtons(QMessageBox::Ok);
 			int ret = msgBox.exec();
+			return;
 		}
+		setTargetName(Visindigo::Utility::FileUtility::toLegalFileName(d->FileName) + ".astoryx");
+		// 目标目录由新建文件窗口决定，这里只负责给出内容。
+		QByteArray content = fileContent.join("\n").toUtf8();
+		setBinaryContent(content);
+		emit contentPrepared();
+		close();
 	}
 
 	QStringList FileTemplateInitWidget_AStoryX::initFileV3() {
@@ -127,16 +109,18 @@ namespace ASERStudio::YSS {
 	}
 
 	void FileTemplateInitWidget_AStoryX::refreshWhereLabel() {
-		QString completePath = d->FilePath + "/" +
-			Visindigo::Utility::FileUtility::toLegalFileName(d->FileName) + ".astoryx";
-		if (!Visindigo::Utility::FileUtility::isFileExist(completePath)) {
-			d->WhereLabel->setText(VITRL("ASERStudio::fileProvider.window.where").arg(completePath));
-			d->CreateButton->setEnabled(true);
-		}
-		else {
-			d->WhereLabel->setText(VITRL("ASERStudio::fileProvider.window.exists").arg(completePath));
+		if (d->FileName.trimmed().isEmpty()) {
+			d->WhereLabel->clear();
 			d->CreateButton->setEnabled(false);
+			return;
 		}
+		const QString targetName = Visindigo::Utility::FileUtility::toLegalFileName(d->FileName) + ".astoryx";
+		// 目标目录由新建文件窗口提供，用它拼出最终位置；重名由窗口统一检查。
+		const YSSCore::General::YSSURI uri = d->TargetUri.resolve(targetName);
+		const QString localPath = uri.getLocalPath();
+		d->WhereLabel->setText(VITRL("ASERStudio::fileProvider.window.where")
+			.arg(localPath.isEmpty() ? uri.toString() : localPath));
+		d->CreateButton->setEnabled(true);
 	}
 	FileTemplate_AStoryX::FileTemplate_AStoryX(YSSCore::Editor::EditorPlugin* plugin) :
 		FileTemplateProvider("ASE AStory File Template Provider", "FileTemplate_AStoryX", plugin)
@@ -152,6 +136,7 @@ namespace ASERStudio::YSS {
 				VITRL("ASERStudio::fileProvider.astory.tags.script"),
 				VITRL("ASERStudio::fileProvider.astory.tags.arknights")
 			}));
+		setFileExt("astoryx");
 		// Constructor implementation
 	}
 
@@ -159,7 +144,8 @@ namespace ASERStudio::YSS {
 		// Destructor implementation (if needed)
 	}
 
-	YSSCore::Editor::FileTemplateInitWidget* FileTemplate_AStoryX::fileInitWidget(const QString& initPath) {
-		return new FileTemplateInitWidget_AStoryX(initPath);
+	YSSCore::Editor::FileTemplateInitWidget* FileTemplate_AStoryX::fileInitWidget(
+		const YSSCore::General::YSSURI& targetUri) {
+		return new FileTemplateInitWidget_AStoryX(targetUri);
 	}
 }

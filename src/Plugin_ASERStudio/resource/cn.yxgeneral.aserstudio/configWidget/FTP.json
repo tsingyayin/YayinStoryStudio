@@ -10,17 +10,6 @@
 			"text": "",
 			"children":[
 				{
-					"node": "Path",
-					"type": "LineEdit",
-					"icon": "",
-					"title": "i18n:ASERStudio::fileProvider.file.path.title",
-					"text": "i18n:ASERStudio::fileProvider.file.path.text",
-					"data": {
-						"default": "",
-						"isFolder": true
-					}
-				},
-				{
 					"node": "Name",
 					"type": "LineEdit",
 					"icon": "",

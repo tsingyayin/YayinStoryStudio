@@ -1,8 +1,10 @@
 #ifndef YayinStoryStudio_Editor_NewFilePage_NewFileWin_h
 #define YayinStoryStudio_Editor_NewFilePage_NewFileWin_h
-#include <QtWidgets/qwidget.h>
+#include <General/YSSURI.h>
+#include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
+#include <QtWidgets/qwidget.h>
 #include <Widgets/ThemeManager.h>
 class QLabel;
 class QLineEdit;
@@ -21,7 +23,7 @@ namespace YSS::NewFilePage {
 	class NewFileWin :public QWidget, public Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
-		void filePrepared(QString projectPath);
+		void filePrepared(const YSSCore::General::YSSURI& uri);
 	private:
 		Visindigo::Widgets::BorderLabel* TitleLabel;
 		Visindigo::Widgets::BorderLabel* RecentTemplateTitle;
@@ -36,18 +38,20 @@ namespace YSS::NewFilePage {
 		QWidget* FileTemplateWidget;
 		QVBoxLayout* FileTemplateLayout;
 		QGridLayout* Layout;
-		QString InitPath;
+		YSSCore::General::YSSURI InitUri;
 	public:
-		NewFileWin(const QString& initPath);
+		NewFileWin(const YSSCore::General::YSSURI& initUri);
 		~NewFileWin() {};
 		void loadRecentTemplate() {};
 		void loadFileTemplate();
 		virtual void onThemeChanged() override;
 		virtual void closeEvent(QCloseEvent* event) override;
 		virtual void resizeEvent(QResizeEvent* event) override;
+	private:
+		void createFile(const YSSCore::General::YSSURI& uri, const QByteArray& content);
+		void reportCreateFailure(const QString& title, const QString& message);
 	public slots:
 		void onTemplateButtonClicked();
-		void onFilePrepared(QString projectPath);
 		void refreshTemplate() {};
 	};
 }

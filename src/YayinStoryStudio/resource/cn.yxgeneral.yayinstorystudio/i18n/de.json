@@ -59,6 +59,20 @@
 		}
 	},
 	"project": {
+		"newFile": {
+			"exists": {
+				"title": "Datei existiert bereits",
+				"message": "Am Zielort existiert bereits eine Datei mit demselben Namen:\n%1"
+			},
+			"failed": {
+				"title": "Datei konnte nicht erstellt werden",
+				"message": "Die Datei konnte nicht erstellt werden:\n%1"
+			},
+			"invalidName": {
+				"title": "Ungültiger Dateiname",
+				"message": "Der Dateiname darf nicht leer sein und keine Pfadtrennzeichen enthalten."
+			}
+		},
 		"remoteInfoUnavailable": "(Ohne Verbindung nicht sichtbar)",
 		"author": "Autor",
 		"description": "Beschreibung",

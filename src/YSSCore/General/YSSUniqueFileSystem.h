@@ -48,12 +48,7 @@ namespace YSSCore::General {
 			NotSupported,
 			Aborted,
 			InvalidConfiguration,
-			// 文件超过后端配置的大小上限。SSH 后端的上限由
-			// Visindigo::Network::SshConnectConfig::MaxSftpFileBytes 决定。
 			FileTooLarge,
-			// 连接当前不可用，需要用户提供凭据。与 \l{InvalidConfiguration} 的区别是：
-			// 配置本身可能完全正确，只是还没登录（或登录后掉线了）。界面据此决定要不要
-			// 弹出登录页，而不是把它当成一条普通的配置错误。
 			NeedsCredentials,
 			Unknown
 		};
@@ -67,35 +62,23 @@ namespace YSSCore::General {
 		QString toString() const;
 	};
 
-	// 文件属性。值类型 + PIMPL。
-	//
-	// 每个字段是否可信由 Field 位掩码单独记录：后端拿不到的字段保持默认值，
-	// 并且不会出现在 getKnownFields() 里。调用方应当用 hasField() 判断，
-	// 而不是用"0 就是未知"这类哨兵值——0 本身也可能是合法取值。
-	//
-	// 掩码底层是 quint64，因此最多可以登记 64 个字段；当前远未达到上限。
 	class YSSCoreAPI YSSFileAttributes {
 		Q_GADGET;
 	public:
 		enum class Field : quint64 {
 			None = 0,
-			// 大小与时间
 			Size = 1ull << 0,
 			ModifiedMs = 1ull << 1,
 			CreatedMs = 1ull << 2,
 			AccessedMs = 1ull << 3,
-			// 类型
 			IsDirectory = 1ull << 4,
 			IsSymlink = 1ull << 5,
-			// 通用标志
 			IsHidden = 1ull << 6,
 			IsReadOnly = 1ull << 7,
 			IsExecutable = 1ull << 8,
-			// POSIX 元数据
 			Permissions = 1ull << 9,
 			OwnerId = 1ull << 10,
 			GroupId = 1ull << 11,
-			// 符号链接
 			LinkTarget = 1ull << 12
 		};
 		Q_ENUM(Field)
@@ -107,13 +90,11 @@ namespace YSSCore::General {
 		VIMoveable(YSSFileAttributes);
 		~YSSFileAttributes();
 	public:
-		// 哪些字段是后端真正给出的。
 		Fields getKnownFields() const;
 		bool hasField(Field field) const;
 		bool hasFields(Fields fields) const;
 		void setFieldKnown(Field field, bool known);
 	public:
-		// 对应字段未知时返回默认值（数值为 0、布尔为 false、字符串为空）。
 		quint64 getSize() const;
 		qint64 getModifiedMs() const;
 		qint64 getCreatedMs() const;
@@ -128,7 +109,6 @@ namespace YSSCore::General {
 		quint32 getGroupId() const;
 		QString getLinkTarget() const;
 	public:
-		// 每个 setter 同时把对应字段标记为可信。
 		void setSize(quint64 size);
 		void setModifiedMs(qint64 modifiedMs);
 		void setCreatedMs(qint64 createdMs);
@@ -143,7 +123,6 @@ namespace YSSCore::General {
 		void setGroupId(quint32 groupId);
 		void setLinkTarget(const QString& linkTarget);
 	public:
-		// 至少有一个字段可信。存在但信息全缺的对象是不合法的。
 		bool isValid() const;
 	private:
 		YSSFileAttributesPrivate* d;
@@ -155,7 +134,6 @@ namespace YSSCore::General {
 		YSSFileAttributes Attributes;
 	};
 
-	// 一次操作的结果快照，以值传递进 then()。
 	struct YSSCoreAPI YSSFileSystemResult {
 		YSSURI Uri;
 		YSSFileError Error;
@@ -163,60 +141,25 @@ namespace YSSCore::General {
 		QList<YSSFileEntry> Entries;
 		YSSFileAttributes Attributes;
 		qint64 BytesTransferred = 0;
-		// 传输总量；-1 表示后端没有给出（例如 SFTP 服务端未返回尺寸）。
 		qint64 TotalBytes = -1;
 	public:
 		bool isError() const;
 	};
 
-	// 这是唯一对外的入口，进程内单例。本机后端始终可用；SSH 后端需要先配置并连接，
-	// 之后才参与路由。两者共存，不是二选一：URI 的 scheme 决定走哪一条。
-	//
-	// 同一 URI 上的请求按提交顺序串行执行（重命名同时占用目标 URI），不同 URI 之间
-	// 互不阻塞。排队情况可用 getTasks() 查看。
-	//
-	// 真实后端的实现细节（Provider 与 Local/SSH 两个实现）都在
-	// 私有头 General/private/YSSUniqueFileSystem_p.h 里。
-	//
-	// 虚拟文档不在本类范围内：\c{@ext!name?param} 这类标识没有文件系统语义，
-	// 它们走 YSSCore::Editor::VirtualFilePath 与 FileServer 体系。
 	class YSSCoreAPI YSSUniqueFileSystem : public QObject {
 		Q_OBJECT;
 		friend class YSSUniqueFileSystemPrivate;
 	signals:
-		// 某条 SSH 连接的就绪状态变化。authority 为 user@host:port。
 		void sshReadyChanged(const QString& authority, bool ready);
-		// 某条 SSH 连接的连接尝试结束。
 		void sshConnectFinished(const QString& authority, bool ok, const QString& message);
-		// 某条原本已建立的 SSH 连接断开。只在“已连接 -> 未连接”时发出，
-		// 与 sshReadyChanged(authority, false) 成对出现。
-		// expected 为真表示是本机主动 disconnectSsh()/removeSshConnection() 造成的。
 		void sshDisconnected(const QString& authority, bool expected);
-		// 远端出示的主机密钥被接受。info 已含密钥类型与 SHA-256 指纹，可用于首次信任时
-		// 向用户展示。连接策略为 Insecure 时也会发出。
 		void sshHostKeyAccepted(const QString& authority, const Visindigo::Network::SshHostKeyInfo& info);
-		// 远端出示的主机密钥被拒绝，连接随后失败。调用方应当把 info 里的指纹展示给用户，
-		// 由用户决定是否信任，绝不要自动接受——尤其是 info.Changed 为真的情况。
 		void sshHostKeyRejected(const QString& authority, const Visindigo::Network::SshHostKeyInfo& info);
-		// 某个请求因为该连接当前不可用而被拒绝，调用方应当提示用户登录。
-		// 只在"确实需要凭据才能继续"的位置发出：请求本身仍会以
-		// \l{YSSFileError::ErrorType::NeedsCredentials} 失败，本信号只是附带的通知。
-		//
-		// 同一连接在一个短时间窗口内只发一次，避免批量请求同时失败时连发几十条；
-		// 该连接连上之后窗口立即重置。
 		void sshConnectionRequired(const QString& authority);
-		// 任务进入队列（提交成功，尚未开始执行）。
 		void taskQueued(const YSSFileSystemTask& task);
-		// 后端真正开始处理该任务。排队中的任务不会有这个信号。
 		void taskStarted(const YSSFileSystemTask& task);
-		// 读写进度，节流后发出；total 为 -1 表示总长度未知。
 		void taskProgressed(quint64 id, qint64 transferred, qint64 total);
-		// 任务结束（成功或失败），此时该任务已从 getTasks() 中移除。
 		void taskFinished(quint64 id, bool ok);
-		// 被监听目录的内容发生了变化。只在该目录的直接内容变化时发出，不递归。
-		//
-		// 同一目录在一小段时间内的多次变化会被合并成一次；目录被删除时也会发出，
-		// 此时后续的 list() 会以 NotFound 失败，调用方应丢弃该节点并 unwatchDirectory()。
 		void directoryChanged(const YSSURI& uri);
 	public:
 		enum class Operation {
@@ -225,21 +168,12 @@ namespace YSSCore::General {
 			Read,
 			Write,
 			List,
-			// 删除文件或符号链接，或者是整个目录树（递归）。
 			Remove,
-			// 移入后端提供的回收站。只有声明了 CanRecycle 的后端才支持，
-			// 且不保证能恢复——需要恢复的删除请在项目内自己留副本。
 			Recycle,
 			Rename,
-			// 复制文件/链接或整个目录树到目标 URI。目标必须不存在。
-			// 同一后端内由后端直接完成；跨后端时由门面按块中继，
-			// 因此本机与远端之间、两条 SSH 连接之间都可以复制。
 			Copy,
-			// 移动文件/链接或整个目录树到目标 URI。目标必须不存在。
-			// 同一后端内优先使用后端的重命名；跨后端时退化为复制后删除源。
 			Move,
 			Mkdir,
-			// 删除空目录。目录非空时失败，需要连内容一起删请用 Remove。
 			Rmdir
 		};
 		Q_ENUM(Operation)
@@ -251,24 +185,10 @@ namespace YSSCore::General {
 			CanRemove = 0x0008,
 			CanRename = 0x0010,
 			CanMakeDirectory = 0x0020,
-			// 后端的路径区分大小写。身份判定（YSSURI::toKey）与同名不同大小写的比较都要看它。
 			PathCaseSensitive = 0x0040,
-			// 后端只读，写类操作一律以 NotSupported 失败。
 			ReadOnly = 0x0080,
-			// 该位置可以把文件移入回收站。逐 URI 判定：同一个后端内也可能有的位置不行
-			// （例如网络映射盘、只读挂载点）。不在 AllCapabilities 里，必须由后端显式声明，
-			// 因此不支持回收的后端（例如 SFTP）天然没有这一位。
-			//
-			// 能力位是乐观声明：即便置了位，执行仍可能失败并返回 NotSupported。
-			// 调用方应当把 NotSupported 当作"此位置无法回收"，然后自行询问用户是否永久删除，
-			// 绝不要把它当成"已经删掉了"。
 			CanRecycle = 0x0100,
-			// 该位置可以监听目录内容变化。不支持的后端（例如 SFTP）没有这一位，
-			// 调用方应当退化为手动刷新。逐 URI 判定：同一个后端内也可能有的位置不行。
-			// 与 CanRecycle 一样不在 AllCapabilities 里，必须由后端显式声明。
 			CanWatchDirectory = 0x0200,
-			// 全部操作能力。不含 PathCaseSensitive / ReadOnly / CanRecycle / CanWatchDirectory
-			// 这些修饰性标志。
 			AllCapabilities = CanRead | CanWrite | CanList | CanRemove | CanRename | CanMakeDirectory
 		};
 		Q_ENUM(Capability)
@@ -283,42 +203,27 @@ namespace YSSCore::General {
 		Capabilities getCapabilities(const YSSURI& uri) const;
 		bool isReady(const YSSURI& uri) const;
 	public:
-		// 尚未结束的任务快照，按提交顺序排列。只在门面对象所属线程调用。
 		QList<YSSFileSystemTask> getTasks() const;
 		int getTaskCount() const;
 		int getQueuedTaskCount() const;
 	public:
-		// 自本对象创建以来成功读入与写出的字节总数，顺序为 (read, write)。
-		// 只在操作结束时累加整笔大小：进行中的传输、失败的操作都不计入。
-		// 仅供展示与调试，不要拿它做配额或一致性校验。
 		std::tuple<qint64, qint64> getTransferredBytes() const;
-		// 上面那组数字按 Provider 拆开，按 ProviderId 的字母序返回。
-		// 合计接口是这里的各项之和；已移除连接的统计仍会保留在列表里。
 		QList<YSSFileSystemTransferStats> getTransferredBytesByProvider() const;
-		// 该 URI 会交给哪个 Provider 处理：本机资源为 "local"，远端为 user@host:port。
-		// 无法归类时返回空字符串。
 		QString providerIdOf(const YSSURI& uri) const;
 	public:
-		// 添加（或更新）一条 SSH 连接。同一个 authority 重复添加只更新配置。
-		// 添加后仍需对应的 connectSsh(authority) 才会真正连上。
 		bool addSshConnection(const Visindigo::Network::SshConnectConfig& config);
-		// 关闭并移除一条 SSH 连接；进行中的请求失败。authority 不存在时返回 false。
 		bool removeSshConnection(const QString& authority);
-		// 当前登记的所有 SSH 连接身份（user@host:port）。
 		QStringList getSshAuthorities() const;
 		bool isSshConfigured(const QString& authority) const;
 		bool isSshReady(const QString& authority) const;
 		void connectSsh(const QString& authority);
 		void disconnectSsh(const QString& authority);
 	public:
-		// 单连接的便捷接口：等价于添加一条连接并把它记为默认连接，
-		// 之后不带 authority 的那组接口都作用在它上面。
 		bool setSshConnectConfig(const Visindigo::Network::SshConnectConfig& config);
 		bool isSshConfigured() const;
 		bool isSshReady() const;
 		void connectSsh();
 		void disconnectSsh();
-		// 当前默认连接的身份；没有默认连接时返回空字符串。
 		QString getDefaultSshAuthority() const;
 	public:
 		YSSFileSystemReply* execute(const YSSFileSystemRequest& request);
@@ -328,35 +233,18 @@ namespace YSSCore::General {
 		YSSFileSystemReply* read(const YSSURI& uri);
 		YSSFileSystemReply* write(const YSSURI& uri, const QByteArray& data);
 		YSSFileSystemReply* list(const YSSURI& uri);
-		// 删除文件/链接，或者整个目录树。目录是递归删除的，不经过回收站。
 		YSSFileSystemReply* remove(const YSSURI& uri);
-		// 移入回收站。调用前请先查 getCapabilities(uri) 是否含 CanRecycle；
-		// 不支持的 backend 会以 NotSupported 失败，不会退化成永久删除。
 		YSSFileSystemReply* recycle(const YSSURI& uri);
 		YSSFileSystemReply* rename(const YSSURI& uri, const YSSURI& target);
-		// 复制文件/链接或整个目录树。目标必须不存在。
 		YSSFileSystemReply* copy(const YSSURI& uri, const YSSURI& target);
-		// 移动文件/链接或整个目录树。目标必须不存在。
 		YSSFileSystemReply* move(const YSSURI& uri, const YSSURI& target);
 		YSSFileSystemReply* mkdir(const YSSURI& uri);
 		YSSFileSystemReply* rmdir(const YSSURI& uri);
 	public:
-		// 开始监听一个目录。只监听该目录自身的直接内容变化，不递归；同名重复调用
-		// 无副作用。目录树应当随展开/折叠成对调用，避免累积无用监听。
-		//
-		// 不支持监听的位置（\l{getCapabilities()} 里没有 \l{CanWatchDirectory}）
-		// 返回 false，并以 \l{YSSFileError::ErrorType::NotSupported} 填充 error。
-		// 登记是纯本地操作，因此这是同步接口。
-		//
-		// \a uri 目录身份。
-		// \a error 输出参数，失败原因，可为 nullptr。
 		bool watchDirectory(const YSSURI& uri, YSSFileError* error = nullptr);
 		bool unwatchDirectory(const YSSURI& uri);
-		// 当前已监听的目录。主要用于调试与界面状态展示。
 		QList<YSSURI> getWatchedDirectories() const;
 	public:
-		// 同步便捷接口：内部用嵌套事件循环等到结束，会阻塞调用线程。
-		// 有事件循环的界面线程不要用它读远端文件；能接受异步的路径请直接用上面的异步版本。
 		bool readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error = nullptr);
 		bool writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error = nullptr);
 		bool removeSync(const YSSURI& uri, YSSFileError* error = nullptr);
@@ -366,7 +254,6 @@ namespace YSSCore::General {
 	};
 	Q_DECLARE_OPERATORS_FOR_FLAGS(YSSUniqueFileSystem::Capabilities)
 
-	// UFS 中的一个未结束任务。值类型快照，由 getTasks() 返回。
 	struct YSSCoreAPI YSSFileSystemTask {
 		quint64 Id = 0;
 		YSSURI Uri;
@@ -378,13 +265,10 @@ namespace YSSCore::General {
 		qint64 TotalBytes = -1;
 	public:
 		bool isRunning() const;
-		// 进度百分比，0..100；总长度未知或为 0 时返回 -1。
 		qreal progressPercent() const;
 	};
 
-	// 单个 Provider 的累计读写字节数。值类型快照，由 getTransferredBytesByProvider() 返回。
 	struct YSSCoreAPI YSSFileSystemTransferStats {
-		// "local"，或 SSH 连接的 user@host:port。
 		QString ProviderId;
 		qint64 BytesRead = 0;
 		qint64 BytesWritten = 0;
@@ -413,13 +297,11 @@ namespace YSSCore::General {
 	public:
 		bool isValid() const;
 	private:
-		// 后端与门面直接读写请求的内部字段：数据区间（分块中继）不对外公开。
 		friend class YSSUniqueFileSystemPrivate;
 		friend class YSSUniqueFileSystemProvider;
 		YSSFileSystemRequestPrivate* d;
 	};
 
-	// 默认在 finished() 之后自动 deleteLater；需要长期持有请先 setAutoDelete(false)。
 	class YSSCoreAPI YSSFileSystemReply : public QObject {
 		Q_OBJECT;
 		friend class YSSUniqueFileSystem;
@@ -429,8 +311,6 @@ namespace YSSCore::General {
 		void succeeded();
 		void failed(const YSSFileError& error);
 		void finished();
-		// 传输进度，仅 Read / Write 会发出；节流后的中间值，结束时一定再发一次终值。
-		// total 为 -1 表示后端没有给出总长度。
 		void progressed(qint64 transferred, qint64 total);
 	public:
 		quint64 getId() const;

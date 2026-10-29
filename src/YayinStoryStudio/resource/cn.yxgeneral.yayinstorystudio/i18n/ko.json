@@ -59,6 +59,20 @@
 		}
 	},
 	"project": {
+		"newFile": {
+			"exists": {
+				"title": "파일이 이미 있습니다",
+				"message": "대상 위치에 같은 이름의 파일이 이미 있습니다:\n%1"
+			},
+			"failed": {
+				"title": "파일 생성 실패",
+				"message": "파일을 만들 수 없습니다:\n%1"
+			},
+			"invalidName": {
+				"title": "잘못된 파일 이름",
+				"message": "파일 이름은 비워 둘 수 없으며 경로 구분자를 포함할 수 없습니다."
+			}
+		},
 		"remoteInfoUnavailable": "(연결하지 않으면 볼 수 없음)",
 		"author": "작성자",
 		"description": "설명",

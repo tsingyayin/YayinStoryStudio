@@ -11,134 +11,26 @@
 	   features remain basically stable.
 */
 #include "FileTemplate/SimpleFileTemplate.h"
-#include <General/Log.h>
-#include <General/TranslationHost.h>
-#include <Utility/FileOperation.h>
-#include <Utility/FileUtility.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qlineedit.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qmessagebox.h>
 
 namespace YSSFileExt {
-	class SimpleFileTemplateInitWidgetPrivate {
-		friend class SimpleFileTemplateInitWidget;
-	protected:
-		QString Extension;
-		QString InitFolder;
-		QLineEdit* NameLineEdit = nullptr;
-		QLabel* WhereLabel = nullptr;
-		QPushButton* CreateButton = nullptr;
-	};
-
-	/*!
-		\class YSSFileExt::SimpleFileTemplateInitWidget
-		\brief 极简新建文件初始化控件：输入文件名，在目标文件夹创建指定扩展名的空文件.
-		\since YSS 0.16.0
-		\inmodule YSSFileExt
-
-		参考 ASERStudio::YSS::FileTemplateInitWidget_AStoryX，但不使用 ConfigWidget，
-		仅提供一个文件名输入框与创建按钮。创建成功后发出 filePrepared 信号。
-	*/
-	SimpleFileTemplateInitWidget::SimpleFileTemplateInitWidget(const QString& initFolder, const QString& extension, QWidget* parent)
-		: YSSCore::Editor::FileTemplateInitWidget(initFolder, parent) {
-		d = new SimpleFileTemplateInitWidgetPrivate;
-		d->Extension = extension;
-		d->InitFolder = initFolder;
-		setMinimumWidth(480);
-		setWindowTitle(VITRL("YSSFileExt::fileProvider.window.title"));
-
-		auto* layout = new QVBoxLayout(this);
-		layout->setContentsMargins(12, 12, 12, 12);
-		layout->setSpacing(8);
-
-		// 文件名输入
-		auto* nameTitleLabel = new QLabel(VITRL("YSSFileExt::fileProvider.file.name.title"), this);
-		nameTitleLabel->setToolTip(VITRL("YSSFileExt::fileProvider.file.name.text").arg(d->Extension));
-		d->NameLineEdit = new QLineEdit(this);
-		d->NameLineEdit->setPlaceholderText(VITRL("YSSFileExt::fileProvider.file.name.title"));
-		layout->addWidget(nameTitleLabel);
-		layout->addWidget(d->NameLineEdit);
-
-		// 目标路径预览
-		d->WhereLabel = new QLabel(this);
-		d->WhereLabel->setWordWrap(true);
-		layout->addWidget(d->WhereLabel);
-
-		// 创建按钮
-		auto* buttonLayout = new QHBoxLayout();
-		buttonLayout->addStretch(1);
-		d->CreateButton = new QPushButton(VITRL("YSSFileExt::fileProvider.window.create"), this);
-		d->CreateButton->setMinimumWidth(120);
-		d->CreateButton->setEnabled(false);
-		buttonLayout->addWidget(d->CreateButton);
-		layout->addLayout(buttonLayout);
-
-		auto refresh = [this]() {
-			const QString name = d->NameLineEdit->text().trimmed();
-			const QString completePath = d->InitFolder + "/" +
-				Visindigo::Utility::FileUtility::toLegalFileName(name) + "." + d->Extension;
-			if (name.isEmpty()) {
-				d->WhereLabel->setText(VITRL("YSSFileExt::fileProvider.window.where").arg(completePath));
-				d->CreateButton->setEnabled(false);
-			}
-			else if (!Visindigo::Utility::FileUtility::isFileExist(completePath)) {
-				d->WhereLabel->setText(VITRL("YSSFileExt::fileProvider.window.where").arg(completePath));
-				d->CreateButton->setEnabled(true);
-			}
-			else {
-				d->WhereLabel->setText(VITRL("YSSFileExt::fileProvider.window.exists").arg(completePath));
-				d->CreateButton->setEnabled(false);
-			}
-		};
-		connect(d->NameLineEdit, &QLineEdit::textChanged, this, refresh);
-		connect(d->CreateButton, &QPushButton::clicked, this, [this]() {
-			const QString name = d->NameLineEdit->text().trimmed();
-			const QString completePath = d->InitFolder + "/" +
-				Visindigo::Utility::FileUtility::toLegalFileName(name) + "." + d->Extension;
-			if (name.isEmpty() || Visindigo::Utility::FileUtility::isFileExist(completePath)) {
-				QMessageBox::warning(this, VITRL("YSSFileExt::fileProvider.failed.title"),
-					VITRL("YSSFileExt::fileProvider.failed.text"));
-				return;
-			}
-			// 创建空文件
-			Visindigo::Utility::FileOperation::ErrorCode saveResult = Visindigo::Utility::FileOperation::saveLines(completePath, QStringList());
-			if (saveResult != Visindigo::Utility::FileOperation::Success) {
-				vgErrorF << "Failed to create file: " << completePath
-					<< ", error: " << Visindigo::Utility::FileOperation::errorCodeName(saveResult);
-				QMessageBox::warning(this, VITRL("YSSFileExt::fileProvider.failed.title"),
-					VITRL("YSSFileExt::fileProvider.failed.text"));
-				return;
-			}
-			emit filePrepared(completePath);
-			close();
-		});
-		refresh();
-	}
-
-	SimpleFileTemplateInitWidget::~SimpleFileTemplateInitWidget() {
-		delete d;
-	}
-
 	/*!
 		\class YSSFileExt::SimpleFileTemplateProvider
-		\brief 基于 SimpleFileTemplateInitWidget 的通用空文件模板提供者.
+		\brief 通用空文件模板提供者.
 		\since YSS 0.16.0
 		\inmodule YSSFileExt
+
+		只登记模板的元信息与扩展名，不覆盖 \l{fileInitWidget()}。编辑器会使用默认实现，
+		即一个只输入文件名的界面，扩展名由 \l{setFileExt()} 给出。
 	*/
 	SimpleFileTemplateProvider::SimpleFileTemplateProvider(YSSCore::Editor::EditorPlugin* plugin,
 		const QString& name, const QString& id, const QString& templateID,
 		const QString& templateName, const QString& description, const QStringList& tags, const QString& extension) :
-		FileTemplateProvider(name, id, plugin), Extension(extension) {
+		FileTemplateProvider(name, id, plugin) {
 		setTemplateIconPath(":/resource/cn.yxgeneral.yayinstorystudio.plugin.yssfileext/icon.png");
 		setTemplateID(templateID);
 		setTemplateName(templateName);
 		setTemplateDescription(description);
 		setTemplateTags(tags);
-	}
-
-	YSSCore::Editor::FileTemplateInitWidget* SimpleFileTemplateProvider::fileInitWidget(const QString& initPath) {
-		return new SimpleFileTemplateInitWidget(initPath, Extension);
+		setFileExt(extension);
 	}
 }

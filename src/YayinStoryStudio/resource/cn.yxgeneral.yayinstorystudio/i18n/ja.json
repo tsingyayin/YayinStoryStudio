@@ -59,6 +59,20 @@
 		}
 	},
 	"project": {
+		"newFile": {
+			"exists": {
+				"title": "ファイルが既に存在します",
+				"message": "保存先に同名のファイルが既に存在します:\n%1"
+			},
+			"failed": {
+				"title": "ファイルの作成に失敗しました",
+				"message": "ファイルを作成できませんでした:\n%1"
+			},
+			"invalidName": {
+				"title": "ファイル名が不正です",
+				"message": "ファイル名は空にできず、パス区切り文字を含めることもできません。"
+			}
+		},
 		"remoteInfoUnavailable": "（未接続時は表示されません）",
 		"author": "作者",
 		"description": "説明",

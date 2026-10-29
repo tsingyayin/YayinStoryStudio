@@ -317,7 +317,8 @@ namespace YSS::Editor {
 		else {
 			currentSelectedPath = ProjectRootDir.path();
 		}
-		YSS::Editor::MainWin::getInstance()->openNewFileWindow(currentSelectedPath);
+		YSS::Editor::MainWin::getInstance()->openNewFileWindow(
+			YSSCore::General::YSSURI::fromLocalPath(currentSelectedPath));
 	}
 
 	void ResourceBrowser::onThemeChanged() {

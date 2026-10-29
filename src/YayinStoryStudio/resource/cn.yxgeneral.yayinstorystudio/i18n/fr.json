@@ -59,6 +59,20 @@
 		}
 	},
 	"project": {
+		"newFile": {
+			"exists": {
+				"title": "Le fichier existe déjà",
+				"message": "Un fichier du même nom existe déjà à cet emplacement :\n%1"
+			},
+			"failed": {
+				"title": "Échec de la création du fichier",
+				"message": "Le fichier n'a pas pu être créé :\n%1"
+			},
+			"invalidName": {
+				"title": "Nom de fichier invalide",
+				"message": "Le nom du fichier ne doit pas être vide ni contenir de séparateur de chemin."
+			}
+		},
 		"remoteInfoUnavailable": "(Invisible hors connexion)",
 		"author": "Auteur",
 		"description": "Description",

@@ -16,8 +16,6 @@ namespace YSS::ProjectPage {
 	class ProjectInfoWidget :public Visindigo::Widgets::BorderFrame, Visindigo::Widgets::ColorfulWidget {
 		Q_OBJECT;
 	signals:
-		// 请求把该 URI 从历史列表里移除。本地项目也是先取 YSSProject 的 URI 再发出来，
-		// 这样本地和远端走同一条路径。
 		void removeConfirmed(const YSSCore::General::YSSURI& uri);
 	private:
 		QLabel* CoverLabel;
@@ -30,13 +28,11 @@ namespace YSS::ProjectPage {
 		QPushButton* DeleteButton;
 		QGridLayout* Layout;
 		YSSCore::General::YSSProject* Project = nullptr;
-		// 当前展示的项目 URI；远端未加载的项目没有 YSSProject，也能据此移除。
 		YSSCore::General::YSSURI CurrentUri;
 		int SizeRequestId = 0;
 	public:
 		ProjectInfoWidget(QWidget* parent);
 		void showProject(YSSCore::General::YSSProject* project);
-		// 没有 YSSProject 对象时（例如未连接的远端项目）按已知信息展示。
 		void showUri(const YSSCore::General::YSSURI& uri, const QString& name,
 			const QDateTime& createTime, const QDateTime& lastModified);
 		void initWidget();

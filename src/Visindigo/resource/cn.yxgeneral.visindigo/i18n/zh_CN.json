@@ -1,5 +1,6 @@
 {
 	"general": {
+		"fileName": "文件名",
 		"about": "关于",
 		"abort": "中止",
 		"active": "激活",

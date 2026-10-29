@@ -59,6 +59,20 @@
 		}
 	},
 	"project":{
+		"newFile": {
+			"exists": {
+				"title": "檔案已存在",
+				"message": "目標位置已存在同名檔案：\n%1"
+			},
+			"failed": {
+				"title": "建立檔案失敗",
+				"message": "無法建立檔案：\n%1"
+			},
+			"invalidName": {
+				"title": "檔名無效",
+				"message": "檔名不能為空，也不能包含路徑分隔符。"
+			}
+		},
 		"remoteInfoUnavailable": "（未連線時不可見）",
 		"author":"作者",
 		"description":"描述",

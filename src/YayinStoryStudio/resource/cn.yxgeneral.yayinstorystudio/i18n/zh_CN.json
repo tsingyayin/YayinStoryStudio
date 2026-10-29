@@ -59,6 +59,20 @@
 		}
 	},
 	"project":{
+		"newFile": {
+			"exists": {
+				"title": "文件已存在",
+				"message": "目标位置已存在同名文件：\n%1"
+			},
+			"failed": {
+				"title": "创建文件失败",
+				"message": "无法创建文件：\n%1"
+			},
+			"invalidName": {
+				"title": "文件名无效",
+				"message": "文件名不能为空，也不能包含路径分隔符。"
+			}
+		},
 		"remoteInfoUnavailable": "（未连接时不可见）",
 		"author":"作者",
 		"description":"描述",

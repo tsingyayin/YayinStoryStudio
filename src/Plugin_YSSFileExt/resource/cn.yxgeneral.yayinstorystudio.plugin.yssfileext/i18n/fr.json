@@ -17,22 +17,6 @@
 		"Section": "Section"
 	},
 	"fileProvider": {
-		"window": {
-			"title": "Assistant d'initialisation de modèle de fichier YSS",
-			"create": "Créer le fichier",
-			"where": "Le nouveau fichier sera créé sous le nom « %1 ».",
-			"exists": "« %1 » existe déjà ! Impossible de créer un nouveau fichier."
-		},
-		"failed": {
-			"title": "Échec de la création du fichier",
-			"text": "Impossible de créer le fichier. Vérifiez que le dossier cible existe et que vous disposez des autorisations nécessaires pour y créer un nouveau fichier."
-		},
-		"file": {
-			"name": {
-				"title": "Nom du fichier",
-				"text": "Le nom du nouveau fichier (sans extension) ; « .%1 » sera ajouté automatiquement."
-			}
-		},
 		"json": {
 			"name": "Fichier de données JSON",
 			"description": "Créer un fichier de données JSON vide (.json).",

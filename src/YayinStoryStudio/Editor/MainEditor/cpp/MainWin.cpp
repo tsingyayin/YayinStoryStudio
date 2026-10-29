@@ -491,23 +491,23 @@ namespace YSS::Editor {
 		}
 	}
 
-	void MainWin::openNewFileWindow(const QString& startPath) {
-		QString path = startPath;
-		if (path.isEmpty()) {
-			path = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder().getLocalPath();
+	void MainWin::openNewFileWindow(const YSSCore::General::YSSURI& startUri) {
+		YSSCore::General::YSSURI folder = startUri;
+		if (not folder.isValid()) {
+			folder = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder();
 		}
-		QFileInfo fileInfo(startPath);
-		if (fileInfo.isFile()) {
-			path = fileInfo.absoluteDir().absolutePath();
+		else if (folder.isFile()) {
+			// 选中了一个文件时，新文件建在它所在的目录里。
+			folder = folder.parent();
 		}
-		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(path);
+		YSS::NewFilePage::NewFileWin* newFileWin = new YSS::NewFilePage::NewFileWin(folder);
 		newFileWin->setAttribute(Qt::WA_DeleteOnClose);
 		newFileWin->setWindowModality(Qt::ApplicationModal);
 		newFileWin->setWindowFlags(newFileWin->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
-		connect(newFileWin, &YSS::NewFilePage::NewFileWin::filePrepared, this, [this](const QString& filePath) {
-			if (QFileInfo(filePath).isFile()) {
-				YSSFSM->openFile(filePath);
-			}
+		connect(newFileWin, &YSS::NewFilePage::NewFileWin::filePrepared, this,
+			[](const YSSCore::General::YSSURI& uri) {
+				// 文件刚刚由新建窗口写好，直接交给文件服务管理器打开。
+				YSSFSM->openFile(uri);
 			});
 		newFileWin->show();
 	}
@@ -879,6 +879,7 @@ namespace YSS::Editor {
 		YSSCore::General::YSSProject::getCurrentProject()->saveProject();
 	}
 
+	// 新旧两侧各自独立登记；另一侧已登记时立即打开比较器并清空两侧登记。
 	void MainWin::setCompareFileAsOld(const YSSCore::General::YSSURI& uri) {
 		if (!uri.isValid() || uri.isVirtual()) {
 			return;

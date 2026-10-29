@@ -3,6 +3,7 @@
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
+#include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qscrollbar.h>
 #include <Editor/FileTemplateManager.h>
@@ -10,14 +11,16 @@
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <General/YSSLogger.h>
+#include <General/YSSUniqueFileSystem.h>
+#include <Utility/FileUtility.h>
 #include <Widgets/BorderLabel.h>
 #include <Widgets/MultiButton.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/NewFilePage/NewFileWin.h"
 
 namespace YSS::NewFilePage {
-	NewFileWin::NewFileWin(const QString& initPath) :QWidget() {
-		this->InitPath = initPath;
+	NewFileWin::NewFileWin(const YSSCore::General::YSSURI& initUri) :QWidget() {
+		this->InitUri = initUri;
 		this->setMinimumSize(900, 600);
 		this->setWindowIcon(QIcon(":/resource/cn.yxgeneral.yayinstorystudio/icon.png"));
 		this->setWindowTitle(VITRL("YSS::project.createNewFile"));
@@ -110,15 +113,95 @@ namespace YSS::NewFilePage {
 			return;
 		}
 		YSSCore::Editor::FileTemplateProvider* provider = ProviderMap[Button];
-		YSSCore::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(InitPath);
-		if (initWidget != nullptr) {
-			initWidget->setAttribute(Qt::WA_DeleteOnClose);
-			connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::filePrepared,
-				this, &NewFileWin::onFilePrepared);
-			initWidget->setWindowModality(Qt::ApplicationModal);
-			initWidget->show();
+		if (provider == nullptr) {
+			return;
 		}
+		YSSCore::Editor::FileTemplateInitWidget* initWidget = provider->fileInitWidget(this->InitUri);
+		if (initWidget == nullptr) {
+			// 无界面模板：不需要任何输入，按模板名直接建一个空文件。
+			QString baseName = Visindigo::Utility::FileUtility::toLegalFileName(
+				provider->getTemplateName()).trimmed();
+			if (baseName.isEmpty()) {
+				baseName = provider->getTemplateID();
+			}
+			if (baseName.isEmpty()) {
+				this->reportCreateFailure(VITRL("YSS::project.newFile.invalidName.title"),
+					VITRL("YSS::project.newFile.invalidName.message"));
+				return;
+			}
+			this->createFile(this->InitUri.resolve(baseName), QByteArray());
+			return;
+		}
+		initWidget->setAttribute(Qt::WA_DeleteOnClose);
+		connect(initWidget, &YSSCore::Editor::FileTemplateInitWidget::contentPrepared,
+			this, [this, initWidget]() {
+				const QString targetName = initWidget->getTargetName().trimmed();
+				if (targetName.isEmpty() || targetName.contains(QLatin1Char('/'))
+					|| targetName.contains(QLatin1Char('\\'))) {
+					QMessageBox::warning(this, VITRL("YSS::project.newFile.invalidName.title"),
+						VITRL("YSS::project.newFile.invalidName.message"));
+					return;
+				}
+				this->createFile(this->InitUri.resolve(targetName), initWidget->getBinaryContent());
+			});
+		initWidget->setWindowModality(Qt::ApplicationModal);
+		initWidget->show();
 	}
+
+	void NewFileWin::createFile(const YSSCore::General::YSSURI& uri, const QByteArray& content) {
+		if (not uri.isValid()) {
+			this->reportCreateFailure(VITRL("YSS::project.newFile.invalidName.title"),
+				VITRL("YSS::project.newFile.invalidName.message"));
+			return;
+		}
+		YSSCore::General::YSSUniqueFileSystem* fs =
+			YSSCore::General::YSSUniqueFileSystem::getInstance();
+		// 先探一次目标：存在就报错，绝不能覆盖已有文件。
+		YSSCore::General::YSSFileSystemReply* statReply =
+			fs->execute(uri, YSSCore::General::YSSUniqueFileSystem::Operation::Stat);
+		if (statReply == nullptr) {
+			this->reportCreateFailure(VITRL("YSS::project.newFile.failed.title"),
+				VITRL("YSS::project.newFile.failed.message").arg(uri.toString()));
+			return;
+		}
+		connect(statReply, &YSSCore::General::YSSFileSystemReply::succeeded, this, [this, uri]() {
+			this->reportCreateFailure(VITRL("YSS::project.newFile.exists.title"),
+				VITRL("YSS::project.newFile.exists.message").arg(uri.toString()));
+			});
+		connect(statReply, &YSSCore::General::YSSFileSystemReply::failed, this,
+			[this, uri, content](const YSSCore::General::YSSFileError& error) {
+				using ErrorType = YSSCore::General::YSSFileError::ErrorType;
+				if (error.Type != ErrorType::NotFound) {
+					this->reportCreateFailure(VITRL("YSS::project.newFile.failed.title"),
+						VITRL("YSS::project.newFile.failed.message").arg(error.toString()));
+					return;
+				}
+				YSSCore::General::YSSFileSystemReply* writeReply =
+					YSSCore::General::YSSUniqueFileSystem::getInstance()->execute(
+						uri, YSSCore::General::YSSUniqueFileSystem::Operation::Write, content);
+				if (writeReply == nullptr) {
+					this->reportCreateFailure(VITRL("YSS::project.newFile.failed.title"),
+						VITRL("YSS::project.newFile.failed.message").arg(uri.toString()));
+					return;
+				}
+				connect(writeReply, &YSSCore::General::YSSFileSystemReply::failed, this,
+					[this](const YSSCore::General::YSSFileError& writeError) {
+						this->reportCreateFailure(VITRL("YSS::project.newFile.failed.title"),
+							VITRL("YSS::project.newFile.failed.message").arg(writeError.toString()));
+					});
+				connect(writeReply, &YSSCore::General::YSSFileSystemReply::succeeded, this,
+					[this, uri]() {
+						emit this->filePrepared(uri);
+						this->close();
+					});
+			});
+	}
+
+	void NewFileWin::reportCreateFailure(const QString& title, const QString& message) {
+		QMessageBox::warning(this, title, message);
+		this->close();
+	}
+
 	void NewFileWin::onThemeChanged() {
 
 	}
@@ -127,9 +210,5 @@ namespace YSS::NewFilePage {
 	}
 	void NewFileWin::resizeEvent(QResizeEvent* event) {
 		FileTemplateWidget->setFixedWidth(FileTemplateArea->width() - 12);
-	}
-	void NewFileWin::onFilePrepared(QString projectPath) {
-		emit filePrepared(projectPath);
-		this->close();
 	}
 }
