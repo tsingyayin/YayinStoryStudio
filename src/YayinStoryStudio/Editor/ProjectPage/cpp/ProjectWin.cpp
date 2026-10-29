@@ -19,6 +19,7 @@
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
 #include <General/YSSProject.h>
+#include <General/YSSUniqueFileSystem.h>
 #include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
@@ -41,6 +42,52 @@ namespace YSS::ProjectPage {
 		QString displayablePath(const YSSCore::General::YSSURI& uri) {
 			const QString localPath = uri.getLocalPath();
 			return localPath.isEmpty() ? uri.toString() : localPath;
+		}
+		QString recentProjectsKey() { return QStringLiteral("RecentProjects"); }
+		QString remoteProjectInfoKey() { return QStringLiteral("RecentRemoteProjectInfo"); }
+		QString remoteUriField() { return QStringLiteral("uri"); }
+		QString remoteNameField() { return QStringLiteral("name"); }
+		QString remoteCreateTimeField() { return QStringLiteral("createTime"); }
+		QString remoteLastModifiedField() { return QStringLiteral("lastModified"); }
+		// 远端项目没有缓存信息时统一使用的占位文本。
+		QString unavailableText() { return VITRL("YSS::project.remoteInfoUnavailable"); }
+		// RecentProjects 里的 URI，按存储顺序去重后返回。
+		QStringList recentProjectUris() {
+			Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
+			QStringList uris;
+			for (const QString& stored : config->getStringList(recentProjectsKey())) {
+				const QString trimmed = stored.trimmed();
+				if (trimmed.isEmpty() || uris.contains(trimmed)) {
+					continue;
+				}
+				uris.append(trimmed);
+			}
+			return uris;
+		}
+		// 从 RecentRemoteProjectInfo 里取出一条记录，找不到返回 false。
+		bool findRemoteProjectInfo(const QString& uriText, QString* name,
+			QDateTime* createTime, QDateTime* lastModified) {
+			Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
+			const QList<Visindigo::Utility::JsonConfig> entries =
+				config->getArray(remoteProjectInfoKey());
+			for (const Visindigo::Utility::JsonConfig& entry : entries) {
+				if (entry.getString(remoteUriField()) != uriText) {
+					continue;
+				}
+				if (name != nullptr) {
+					*name = entry.getString(remoteNameField());
+				}
+				if (createTime != nullptr) {
+					*createTime = QDateTime::fromString(
+						entry.getString(remoteCreateTimeField()), Qt::ISODate);
+				}
+				if (lastModified != nullptr) {
+					*lastModified = QDateTime::fromString(
+						entry.getString(remoteLastModifiedField()), Qt::ISODate);
+				}
+				return true;
+			}
+			return false;
 		}
 	}
 	bool ProjectWin::firstOpen = true;
@@ -182,12 +229,16 @@ namespace YSS::ProjectPage {
 			firstOpen = false;
 			QStringList launchArgs = qApp->arguments();
 			if (launchArgs.size() > 1) {
-				QString ysspFilePath = launchArgs[1];
-				if (ysspFilePath.endsWith(".yssp") || ysspFilePath.endsWith("yssproj.json")) {
-					onOpenProject(ysspFilePath);
+				// 启动参数既可以是本地路径，也可以是 ssh:// 形式的远端项目，交给 YSSURI 统一解析。
+				const YSSCore::General::YSSURI uri = YSSCore::General::YSSURI::fromString(launchArgs[1]);
+				const QString localPath = uri.getLocalPath();
+				const QString uriText = localPath.isEmpty() ? uri.toString() : localPath;
+				if (uri.isValid()
+					&& (uriText.endsWith(".yssp") || uriText.endsWith("yssproj.json"))) {
+					onOpenProject(uri);
 				}
 				else {
-					yMessageF << "Invalid project file path:" << ysspFilePath;
+					yMessageF << "Invalid project file path:" << launchArgs[1];
 				}
 			}
 		}
@@ -204,8 +255,8 @@ namespace YSS::ProjectPage {
 		// 还在加载中的批次作废：它们的回调虽然会继续执行，但不会再碰本窗口的列表。
 		++HistoryLoadGeneration;
 		HistoryLoadResults.clear();
-		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
-			delete project;
+		for (const HistoryEntry& entry : HistoryProjectList) {
+			delete entry.Project;
 		}
 		// 项目对象已经删掉了，容器不能再留着悬空指针，免得后续任何一次访问踩到已释放的对象。
 		HistoryProjectList.clear();
@@ -230,31 +281,33 @@ namespace YSS::ProjectPage {
 		HistoryProjectWidget->setFixedWidth(HistoryProjectArea->width() - 12);
 	}
 
-	void ProjectWin::onProjectRemoved(YSSCore::General::YSSProject* project) {
-		int index = HistoryProjectList.indexOf(project);
+	void ProjectWin::onProjectRemoved(const YSSCore::General::YSSURI& uri) {
+		const int index = indexOfHistory(uri.toString());
 		if (index < 0) {
 			// 面板持有的项目已经不在历史列表里（列表已重建或已被移除），不能拿-1去索引标签列表。
 			InfoWidget->showProject(nullptr);
 			return;
 		}
-		QWidget* widget = HistoryProjectLabelList[index];
+		const QString uriText = HistoryProjectList[index].Uri.toString();
+		QWidget* widget = HistoryProjectLabelList.value(index);
 		if (widget != nullptr) {
 			widget->hide();
-			HistoryProjectLabelList.remove(index);
-			HistoryProjectList.removeAll(project);
+			HistoryProjectLabelList.removeAt(index);
 			HistoryProjectMap.remove(static_cast<Visindigo::Widgets::MultiButton*>(widget));
 			HistoryProjectLayout->removeWidget(widget);
 			widget->deleteLater();
 		}
-		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
-		QStringList keys = Config->keys("RecentProjects");
-		for (int i = 0; i < keys.size(); i++) {
-			if (Config->getString("RecentProjects." + keys[i]) == project->getProjectPath().toString()) {
-				yMessageF << i;
-				Config->remove("RecentProjects." + keys[i]);
-				break;
+		YSSCore::General::YSSProject* project = HistoryProjectList[index].Project;
+		HistoryProjectList.removeAt(index);
+		QStringList remain;
+		for (const QString& recentUri : recentProjectUris()) {
+			if (recentUri != uriText) {
+				remain.append(recentUri);
 			}
 		}
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
+		Config->setArray(recentProjectsKey(), remain);
+		this->pruneRemoteProjectInfo(remain);
 		VIApp->getMainPlugin()->savePluginConfig();
 		InfoWidget->showProject(nullptr);
 		if (HistoryProjectLabelList.isEmpty()) {
@@ -262,6 +315,7 @@ namespace YSS::ProjectPage {
 		}else{
 			HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * (HistoryProjectLabelList.first()->height() + HistoryProjectLayout->spacing()) + HistoryProjectLayout->contentsMargins().top() + HistoryProjectLayout->contentsMargins().bottom());
 		}
+		// 远端历史项目可能根本没加载过，这里拿到的是空指针。
 		delete project;
 		project = nullptr;
 	}
@@ -269,24 +323,38 @@ namespace YSS::ProjectPage {
 	void ProjectWin::onProjectSelected() {
 		Visindigo::Widgets::MultiButton* label = qobject_cast<Visindigo::Widgets::MultiButton*>(sender());
 		if (label) {
-			YSSCore::General::YSSProject* project = HistoryProjectMap[label];
-			if (project) {
-				InfoWidget->showProject(project);
+			const int index = indexOfHistory(HistoryProjectMap.value(label));
+			if (index < 0) {
+				return;
+			}
+			const HistoryEntry& entry = HistoryProjectList[index];
+			if (entry.Project != nullptr) {
+				InfoWidget->showProject(entry.Project);
+			}
+			else {
+				// 远端项目还没加载，按缓存信息展示；没有缓存时面板自己会写占位文本。
+				InfoWidget->showUri(entry.Uri, entry.Name, entry.CreateTime, entry.LastModified);
 			}
 		}
 	}
 
 	void ProjectWin::onProjectDoubleClicked() {
 		Visindigo::Widgets::MultiButton* label = qobject_cast<Visindigo::Widgets::MultiButton*>(sender());
-		YSSCore::General::YSSProject* project = HistoryProjectMap.value(label);
+		const int index = indexOfHistory(HistoryProjectMap.value(label));
+		if (index < 0) {
+			return;
+		}
+		YSSCore::General::YSSProject* project = HistoryProjectList[index].Project;
 		if (project == nullptr) {
+			// 远端历史项目还没有加载过：现在才需要连上去真正读一次。
+			onOpenProject(HistoryProjectList[index].Uri);
 			return;
 		}
 		if (not preCheckProject(project)) {
 			return;
 		}
 		// 所有权移交给“当前项目”，必须先摘出历史列表，否则closeEvent会把它一起删掉。
-		HistoryProjectList.removeAll(project);
+		HistoryProjectList.removeAt(index);
 		HistoryProjectMap.remove(label);
 		HistoryProjectLabelList.removeAll(label);
 		HistoryProjectLayout->removeWidget(label);
@@ -296,29 +364,35 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::onOpenProjectClicked() {
-		onOpenProject();
-	}
-	void ProjectWin::onOpenProject(QString filePath) {
+		const QString filePath = QFileDialog::getOpenFileName(this,
+			VITRL("YSS::project.openYSSProject"), "./user_data/repos",
+			"YSS Project (*.yssp);;YSS Project (yssproj.json)");
 		if (filePath.isEmpty()) {
-			filePath = QFileDialog::getOpenFileName(this, VITRL("YSS::project.openYSSProject"), "./user_data/repos", "YSS Project (*.yssp);;YSS Project (yssproj.json)");
-			if (filePath.isEmpty()) {
-				return;
-			}
+			return;
+		}
+		onOpenProject(YSSCore::General::YSSURI::fromLocalPath(filePath));
+	}
+
+	void ProjectWin::onOpenProject(const YSSCore::General::YSSURI& uri) {
+		if (not uri.isValid()) {
+			return;
+		}
+		if (not ensureRemoteConnected(uri)) {
+			return;
 		}
 		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 		// 加载是异步的，结论只能从信号里拿；这里只连接一次，之后本窗口不再关心这个对象。
 		connect(project, &YSSCore::General::YSSProject::projectLoaded, this, [this, project]() {
 			Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
 			const QString projectPath = project->getProjectPath().toString();
-			bool inList = false;
-			for (QString key : Config->keys("RecentProjects")) {
-				QString recentPath = Config->getString("RecentProjects." + key);
-				if (recentPath == projectPath) { inList = true; break; }
-			}
-			if (not inList) {
+			QStringList recent = recentProjectUris();
+			if (not recent.contains(projectPath)) {
 				yMessageF << "Add" << projectPath << "to project list.";
-				Config->setString("RecentProjects." + QString::number(Config->keys("RecentProjects").size()), projectPath);
+				recent.append(projectPath);
+				Config->setArray(recentProjectsKey(), recent);
 			}
+			// 远端项目要留一份显示用的信息，下次未连接时列表才不会空着。
+			this->rememberRemoteProjectInfo(project);
 			if (not preCheckProject(project)) {
 				project->deleteLater();
 				return;
@@ -352,7 +426,7 @@ namespace YSS::ProjectPage {
 				msgBox.exec();
 				project->deleteLater();
 			});
-		project->loadProject(YSSCore::General::YSSURI::fromString(filePath));
+		project->loadProject(uri);
 	}
 
 	/*
@@ -423,13 +497,15 @@ namespace YSS::ProjectPage {
 		win->setWindowModality(Qt::ApplicationModal);
 		win->setWindowFlags(win->windowFlags() & ~Qt::WindowMinMaxButtonsHint);
 		win->show();
-		connect(win, &NewProjectPage::NewProjectWin::projectPrepared, this, &ProjectWin::onOpenProject);
+		connect(win, &NewProjectPage::NewProjectWin::projectPrepared, this,
+			[this](const QString& projectPath) {
+				this->onOpenProject(YSSCore::General::YSSURI::fromString(projectPath));
+			});
 	}
 
 	void ProjectWin::loadProject() {
-		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
-			delete project;
-			project = nullptr;
+		for (const HistoryEntry& entry : HistoryProjectList) {
+			delete entry.Project;
 		}
 		HistoryProjectList.clear();
 		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
@@ -444,22 +520,24 @@ namespace YSS::ProjectPage {
 		HistoryProjectTimeLabelList.clear();
 		HistoryProjectMap.clear();
 
-		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
-		QStringList recentPaths;
-		for (QString key : Config->keys("RecentProjects")) {
-			recentPaths.append(Config->getString("RecentProjects." + key));
-		}
+		HistoryLoadOrder = recentProjectUris();
 		// 加载是异步的，一批加载全部结束之后再重建列表。用代数丢弃过期批次的结果，
 		// 避免两次 loadProject 的完成顺序交错时把旧结果写进新列表。
 		++HistoryLoadGeneration;
 		const int generation = HistoryLoadGeneration;
 		HistoryLoadResults.clear();
-		HistoryLoadPending = recentPaths.size();
-		if (HistoryLoadPending == 0) {
-			finishHistoryLoad(generation);
-			return;
-		}
-		for (const QString& projectPath : recentPaths) {
+		HistoryLoadPending = 0;
+		for (const QString& uriText : HistoryLoadOrder) {
+			const YSSCore::General::YSSURI uri = YSSCore::General::YSSURI::fromString(uriText);
+			if (not uri.isValid()) {
+				continue;
+			}
+			// 远端项目在没建立连接时加载必然失败，而失败会被当成“项目已不存在”从列表里剔掉，
+			// 所以远端条目启动时只按缓存展示，等用户真正打开时再加载。
+			if (uri.isRemote()) {
+				continue;
+			}
+			++HistoryLoadPending;
 			YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
 			connect(project, &YSSCore::General::YSSProject::projectLoaded, this, [this, project, generation]() {
 				if (generation != HistoryLoadGeneration) {
@@ -480,47 +558,178 @@ namespace YSS::ProjectPage {
 					finishHistoryLoad(generation);
 				}
 				});
-			project->loadProject(YSSCore::General::YSSURI::fromString(projectPath));
+			project->loadProject(uri);
+		}
+		if (HistoryLoadPending == 0) {
+			finishHistoryLoad(generation);
 		}
 	}
 
 	/*
-		一批历史项目加载完成后重建列表，并把仍然可用的项目路径写回配置。
+		一批历史项目加载完成后重建列表。
+
+		本地项目只有加载成功才会保留（原行为）；远端项目即使没有加载也会保留，
+		名称与时间优先用 RecentRemoteProjectInfo 里的缓存，没有缓存就写占位文本。
 	*/
 	void ProjectWin::finishHistoryLoad(int generation) {
 		if (generation != HistoryLoadGeneration) {
 			return;
 		}
-		HistoryProjectList = HistoryLoadResults;
-		HistoryLoadResults.clear();
-		QStringList okProjects;
-		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
-			okProjects.append(project->getProjectPath().toString());
+		QMap<QString, YSSCore::General::YSSProject*> loadedProjects;
+		for (YSSCore::General::YSSProject* project : HistoryLoadResults) {
+			loadedProjects.insert(project->getProjectPath().toString(), project);
 		}
-		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
-		Config->setArray("RecentProjects", okProjects);
-		std::sort(HistoryProjectList.begin(), HistoryProjectList.end(), [](YSSCore::General::YSSProject* a, YSSCore::General::YSSProject* b) {
-			return a->getProjectLastModifyTime() > b->getProjectLastModifyTime();
+		HistoryLoadResults.clear();
+
+		QList<HistoryEntry> entries;
+		QStringList keepUris;
+		for (const QString& uriText : HistoryLoadOrder) {
+			HistoryEntry entry;
+			entry.Uri = YSSCore::General::YSSURI::fromString(uriText);
+			if (not entry.Uri.isValid()) {
+				continue;
+			}
+			YSSCore::General::YSSProject* project = loadedProjects.take(uriText);
+			if (project != nullptr) {
+				entry.Project = project;
+				entry.Name = project->getProjectName();
+				entry.CreateTime = project->getProjectCreateTime();
+				entry.LastModified = project->getProjectLastModifyTime();
+			}
+			else if (entry.Uri.isRemote()) {
+				QString name;
+				QDateTime createTime;
+				QDateTime lastModified;
+				if (findRemoteProjectInfo(uriText, &name, &createTime, &lastModified)) {
+					entry.Name = name;
+					entry.CreateTime = createTime;
+					entry.LastModified = lastModified;
+				}
+				else {
+					entry.Name = unavailableText();
+				}
+			}
+			else {
+				// 本地项目加载失败：保持原行为，不再留在列表里。
+				continue;
+			}
+			entries.append(entry);
+			keepUris.append(uriText);
+		}
+		// 配置里已不再引用的项目对象直接释放。
+		for (YSSCore::General::YSSProject* leftover : loadedProjects) {
+			delete leftover;
+		}
+
+		// 时间未知的条目排在最后，其余按最后修改时间倒序。
+		std::sort(entries.begin(), entries.end(), [](const HistoryEntry& a, const HistoryEntry& b) {
+			if (a.LastModified.isValid() != b.LastModified.isValid()) {
+				return a.LastModified.isValid();
+			}
+			return a.LastModified > b.LastModified;
 			});
-		for (YSSCore::General::YSSProject* project : HistoryProjectList) {
+		HistoryProjectList = entries;
+
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
+		Config->setArray(recentProjectsKey(), keepUris);
+		this->pruneRemoteProjectInfo(keepUris);
+		VIApp->getMainPlugin()->savePluginConfig();
+
+		const QString unavailable = unavailableText();
+		for (const HistoryEntry& entry : HistoryProjectList) {
 			Visindigo::Widgets::MultiButton* label = new Visindigo::Widgets::MultiButton(HistoryProjectWidget);
 			label->setObjectName("HistoryProject");
-			label->setTitle(project->getProjectName());
-			QString lastModifyTime = project->getProjectLastModifyTime().toString("yyyy-MM-dd hh:mm:ss");
-			label->setDescription(lastModifyTime + "\n" + displayablePath(project->getProjectFolder()));
+			label->setTitle(entry.Name);
+			const QString lastModifyTime = entry.LastModified.isValid()
+				? entry.LastModified.toString("yyyy-MM-dd hh:mm:ss")
+				: unavailable;
+			const QString location = entry.Project != nullptr
+				? displayablePath(entry.Project->getProjectFolder())
+				: displayablePath(entry.Uri.parent());
+			label->setDescription(lastModifyTime + "\n" + location);
 			HistoryProjectLabelList.append(label);
 			HistoryProjectLayout->addWidget(label);
-			//label->setSpacing(5);
-			//label->setContentsMargins(10, 10, 10, 10);
 			label->setToolTip(VITRL("YSS::tooltips.projectWin.project"));
 			label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-			//label->setFixedHeight(50);
 			label->show();
-			HistoryProjectMap[label] = project;
+			HistoryProjectMap[label] = entry.Uri.toString();
 			connect(label, &Visindigo::Widgets::MultiButton::clicked, this, &ProjectWin::onProjectSelected);
 			connect(label, &Visindigo::Widgets::MultiButton::doubleClicked, this, &ProjectWin::onProjectDoubleClicked);
 		}
 		HistoryProjectWidget->setFixedHeight(HistoryProjectLabelList.length() * 90);
+	}
+
+	int ProjectWin::indexOfHistory(const QString& uriText) const {
+		if (uriText.isEmpty()) {
+			return -1;
+		}
+		for (int i = 0; i < HistoryProjectList.size(); i++) {
+			if (HistoryProjectList[i].Uri.toString() == uriText) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	bool ProjectWin::ensureRemoteConnected(const YSSCore::General::YSSURI& uri) {
+		if (not uri.isRemote()) {
+			return true;
+		}
+		if (YSSCore::General::YSSUniqueFileSystem::getInstance()->isReady(uri)) {
+			return true;
+		}
+		YSS::Editor::SSHConnectionWidget::requestVerification(uri);
+		return false;
+	}
+
+	void ProjectWin::rememberRemoteProjectInfo(YSSCore::General::YSSProject* project) {
+		const YSSCore::General::YSSURI uri = project->getProjectPath();
+		if (not uri.isRemote()) {
+			return;
+		}
+		const QString uriText = uri.toString();
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
+		QList<Visindigo::Utility::JsonConfig> entries = Config->getArray(remoteProjectInfoKey());
+		bool replaced = false;
+		for (Visindigo::Utility::JsonConfig& entry : entries) {
+			if (entry.getString(remoteUriField()) != uriText) {
+				continue;
+			}
+			entry.setString(remoteNameField(), project->getProjectName());
+			entry.setString(remoteCreateTimeField(),
+				project->getProjectCreateTime().toString(Qt::ISODate));
+			entry.setString(remoteLastModifiedField(),
+				project->getProjectLastModifyTime().toString(Qt::ISODate));
+			replaced = true;
+			break;
+		}
+		if (not replaced) {
+			Visindigo::Utility::JsonConfig entry;
+			entry.setString(remoteUriField(), uriText);
+			entry.setString(remoteNameField(), project->getProjectName());
+			entry.setString(remoteCreateTimeField(),
+				project->getProjectCreateTime().toString(Qt::ISODate));
+			entry.setString(remoteLastModifiedField(),
+				project->getProjectLastModifyTime().toString(Qt::ISODate));
+			entries.append(entry);
+		}
+		Config->setArray(remoteProjectInfoKey(), entries);
+	}
+
+	void ProjectWin::pruneRemoteProjectInfo(const QStringList& keepUris) {
+		Visindigo::Utility::JsonConfig* Config = VIApp->getMainPlugin()->getPluginConfig();
+		const QList<Visindigo::Utility::JsonConfig> entries =
+			Config->getArray(remoteProjectInfoKey());
+		QList<Visindigo::Utility::JsonConfig> kept;
+		for (const Visindigo::Utility::JsonConfig& entry : entries) {
+			if (keepUris.contains(entry.getString(remoteUriField()))) {
+				kept.append(entry);
+			}
+		}
+		if (kept.size() == entries.size()) {
+			return;
+		}
+		Config->setArray(remoteProjectInfoKey(), kept);
 	}
 
 	void ProjectWin::onThemeChanged() {

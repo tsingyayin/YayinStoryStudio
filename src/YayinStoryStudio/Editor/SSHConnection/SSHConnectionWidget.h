@@ -87,6 +87,9 @@ namespace YSS::Editor {
 		void connectTo(const QString& authority);
 		QString currentAuthentic() const;
 	private:
+		// 把页面切到"为这条连接输入凭据"的状态并显示出来。requestVerificationFor()
+		// 与 UFS 的 sshConnectionRequired() 都走这里。
+		void promptForAuthority(const QString& authority);
 		void onConnectClicked();
 		void onBrowseKeyClicked();
 		void onCredentialModeChanged();
@@ -100,6 +103,8 @@ namespace YSS::Editor {
 			const Visindigo::Network::SshHostKeyInfo& info);
 		void onConnectFinished(const QString& authority, bool ok, const QString& message);
 		void onSshReadyChanged(const QString& authority, bool ready);
+		// UFS 报告某条连接当前不可用、需要凭据。
+		void onConnectionRequired(const QString& authority);
 	private:
 		// SSH.Authentics 的读写。
 		static QStringList loadAuthentics();

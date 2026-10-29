@@ -59,6 +59,7 @@
 		}
 	},
 	"project":{
+		"remoteInfoUnavailable": "（未連線時不可見）",
 		"author":"作者",
 		"description":"描述",
 		"debugServer":"偵錯伺服器",

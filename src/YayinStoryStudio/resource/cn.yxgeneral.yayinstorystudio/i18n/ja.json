@@ -59,6 +59,7 @@
 		}
 	},
 	"project": {
+		"remoteInfoUnavailable": "（未接続時は表示されません）",
 		"author": "作者",
 		"description": "説明",
 		"debugServer": "デバッグサーバー",

@@ -33,6 +33,14 @@ namespace {
 			&& path->getEffectivePort() == config.Port;
 	}
 
+	// 连接不可用时统一用这一条错误：配置可能没问题，只是需要重新登录。
+	YSSCore::General::YSSFileError notConnectedError() {
+		YSSCore::General::YSSFileError error;
+		error.Type = YSSCore::General::YSSFileError::ErrorType::NeedsCredentials;
+		error.Message = QStringLiteral("The SSH filesystem is not connected");
+		return error;
+	}
+
 	YSSCore::General::YSSFileError mapSshError(const Visindigo::Network::SshError& source) {
 		using YSSError = YSSCore::General::YSSFileError;
 		YSSError error;
@@ -312,7 +320,7 @@ namespace YSSCore::General {
 		拼成远端绝对路径，再交给 SFTP。
 
 		连接是显式的：先 \l{setConnectConfig()} 给出凭据，再 \l{connect()}。
-		连接成功之前提交的操作会直接以 \l{YSSFileError::ErrorType::InvalidConfiguration}
+		连接成功之前提交的操作会直接以 \l{YSSFileError::ErrorType::NeedsCredentials}
 		失败，而不是排队——静默排队会让调用方误以为操作已经生效。
 	*/
 
@@ -482,10 +490,9 @@ namespace YSSCore::General {
 			return;
 		}
 		if (!this->isReady()) {
-			YSSFileError error;
-			error.Type = YSSFileError::ErrorType::InvalidConfiguration;
-			error.Message = QStringLiteral("The SSH filesystem is not connected");
-			this->fail(reply, error);
+			// 这里是最典型的"缺凭据"位置：请求被拒绝，同时告诉界面该连接需要登录。
+			emit this->connectionRequired();
+			this->fail(reply, notConnectedError());
 			return;
 		}
 		if (!request.hasUri()) {
@@ -521,6 +528,12 @@ namespace YSSCore::General {
 			SshRemoveWalker* walker = new SshRemoveWalker(this->d->Session, target.getPath(),
 				[owner, reply](const std::optional<Visindigo::Network::SshError>& error) {
 					if (error.has_value()) {
+						// 遍历中途连接掉了：按"需要重新登录"上报，而不是笼统的配置错误。
+						if (!owner->isReady()) {
+							emit owner->connectionRequired();
+							owner->fail(reply, notConnectedError());
+							return;
+						}
 						owner->fail(reply, mapSshError(error.value()));
 						return;
 					}

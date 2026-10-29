@@ -59,6 +59,7 @@
 		}
 	},
 	"project": {
+		"remoteInfoUnavailable": "(Ohne Verbindung nicht sichtbar)",
 		"author": "Autor",
 		"description": "Beschreibung",
 		"debugServer": "Debug-Server",

@@ -59,6 +59,7 @@
 		}
 	},
 	"project": {
+		"remoteInfoUnavailable": "(Invisible hors connexion)",
 		"author": "Auteur",
 		"description": "Description",
 		"debugServer": "Serveur de débogage",

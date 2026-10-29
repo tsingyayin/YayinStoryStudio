@@ -179,6 +179,24 @@ namespace YSSCore::General {
 		static QString sshKey(const QString& authority) {
 			return authority.trimmed().toCaseFolded();
 		}
+		// 缺少连接的通知窗口。一次批量操作里可能有几十条请求同时撞上"未连接"，
+		// 只在窗口内第一次真正往界面上报。
+		static constexpr qint64 ConnectionRequiredIntervalMs = 5000;
+		// 判断这次失败是否应当上报给界面；返回 true 时会顺手刷新时间戳。
+		bool shouldReportConnectionRequired(const QString& authority) {
+			const QString key = sshKey(authority);
+			if (key.isEmpty()) {
+				return false;
+			}
+			const qint64 now = QDateTime::currentMSecsSinceEpoch();
+			const auto it = ConnectionRequiredAt.constFind(key);
+			if (it != ConnectionRequiredAt.constEnd()
+				&& now - it.value() < ConnectionRequiredIntervalMs) {
+				return false;
+			}
+			ConnectionRequiredAt.insert(key, now);
+			return true;
+		}
 		// 取得 authority 对应的 SSH 后端；\a create 为真时不存在就新建一个。
 		// 新建的后端会立即挂上 Started / Progressed / Finished 三个信号。
 		YSSSshFileSystemProvider* sshProvider(const QString& authority, bool create) {
@@ -202,7 +220,11 @@ namespace YSSCore::General {
 				return provider->isConfigured() ? provider->getConnectConfig().getAuthority() : key;
 			};
 			QObject::connect(provider, &YSSSshFileSystemProvider::readyChanged, Owner,
-				[this, authorityOf](bool ready) {
+				[this, authorityOf, key](bool ready) {
+					if (ready) {
+						// 连上之后重置窗口，下次断开再失败时还要能提示。
+						this->ConnectionRequiredAt.remove(key);
+					}
 					emit Owner->sshReadyChanged(authorityOf(), ready);
 				});
 			QObject::connect(provider, &YSSSshFileSystemProvider::connectFinished, Owner,
@@ -220,6 +242,14 @@ namespace YSSCore::General {
 			QObject::connect(provider, &YSSSshFileSystemProvider::hostKeyRejected, Owner,
 				[this, authorityOf](const Visindigo::Network::SshHostKeyInfo& info) {
 					emit Owner->sshHostKeyRejected(authorityOf(), info);
+				});
+			QObject::connect(provider, &YSSSshFileSystemProvider::connectionRequired, Owner,
+				[this, authorityOf]() {
+					const QString authority = authorityOf();
+					if (!this->shouldReportConnectionRequired(authority)) {
+						return;
+					}
+					emit Owner->sshConnectionRequired(authority);
 				});
 			QObject::connect(provider, &YSSUniqueFileSystemProvider::started, Owner,
 				[this](quint64 id) { Owner->d->onProviderStarted(id); });
@@ -310,6 +340,8 @@ namespace YSSCore::General {
 		// 正在进行的中继复制/移动，键是外层 reply 的编号。
 		QHash<quint64, TransferTask> Transfers;
 		bool Scheduling = false;
+		// 每条连接上一次"缺少凭据"上报的时间戳，用于节流。
+		QHash<QString, qint64> ConnectionRequiredAt;
 		// 成功结束的读写操作累计字节数，见 getTransferredBytes()。
 		// 合计与按 Provider 分项各存一份：删除连接后历史统计仍然保留。
 		qint64 BytesRead = 0;
@@ -352,7 +384,9 @@ namespace YSSCore::General {
 		\value IoError 底层读写失败。
 		\value NotSupported 当前后端不支持该操作，参见 \l{YSSUniqueFileSystem::getCapabilities()}。
 		\value Aborted 操作在完成前被中止（会话关闭、对象销毁等）。
-		\value InvalidConfiguration 路径或参数不合法，或后端尚未就绪。
+		\value InvalidConfiguration 路径或参数不合法。
+		\value FileTooLarge 文件超过后端配置的大小上限。
+		\value NeedsCredentials 连接当前不可用，需要用户提供凭据。
 		\value Unknown 未归类的错误。
 	*/
 
@@ -1574,7 +1608,8 @@ namespace YSSCore::General {
 		两个后端共存，不是二选一：本机后端始终可用；SSH 后端只有在
 		\l{setSshConnectConfig()} 配好连接信息并且 \l{connectSsh()} 成功之后才参与路由。
 		在它可用之前，\c{ssh:} 的请求会以
-		\l{YSSFileError::ErrorType::InvalidConfiguration} 立刻失败，而不是排队等待。
+		\l{YSSFileError::ErrorType::NeedsCredentials} 立刻失败，而不是排队等待，
+		同时发出 \l{sshConnectionRequired()} 提示界面去登录。
 
 		虚拟文档不在本类范围内：\c{@ext!name?param} 这类标识没有文件系统语义，
 		它们走 \l{YSSCore::Editor::VirtualFilePath} 与 FileServer 体系。

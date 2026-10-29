@@ -59,6 +59,7 @@
 		}
 	},
 	"project": {
+		"remoteInfoUnavailable": "(Not visible while disconnected)",
 		"author": "Author",
 		"description": "Description",
 		"debugServer": "Debug Server",

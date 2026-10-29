@@ -51,6 +51,7 @@ namespace YSS::ProjectPage {
 	void ProjectInfoWidget::initWidget() {
 		SizeRequestId++;
 		Project = nullptr;
+		CurrentUri = YSSCore::General::YSSURI();
 		CoverLabel->setText(VITRL("YSS::project.noCover"));
 		CoverLabel->setStyleSheet("QLabel{border-image:url()}");
 		TitleLabel->setText(VITRL("YSS::project.selectToShow"));
@@ -58,7 +59,30 @@ namespace YSS::ProjectPage {
 		LastModifiedTimeLabel->setText(VITRL("YSS::project.lastModifiedTime") + ": ");
 		SizeLabel->setText(VITRL("YSS::project.size") + ": ");
 		ShowInBrowserButton->setText(VITRL("YSS::project.showInBrowser"));
+		ShowInBrowserButton->setEnabled(false);
 		DeleteButton->setText(VITRL("YSS::project.delete"));
+		DeleteButton->setEnabled(false);
+	}
+
+	void ProjectInfoWidget::showUri(const YSSCore::General::YSSURI& uri, const QString& name,
+		const QDateTime& createTime, const QDateTime& lastModified) {
+		initWidget();
+		if (not uri.isValid()) {
+			return;
+		}
+		CurrentUri = uri;
+		const QString unavailable = VITRL("YSS::project.remoteInfoUnavailable");
+		TitleLabel->setText(name.isEmpty() ? unavailable : name);
+		// 项目没有真正加载，体积无从得知，也不该显示成“计算中”。
+		SizeLabel->setText(VITRL("YSS::project.size") + ": " + unavailable);
+		CreateTimeLabel->setText(VITRL("YSS::project.createTime") + ": "
+			+ (createTime.isValid() ? createTime.toString("yyyy-MM-dd hh:mm:ss") : unavailable));
+		LastModifiedTimeLabel->setText(VITRL("YSS::project.lastModifiedTime") + ": "
+			+ (lastModified.isValid() ? lastModified.toString("yyyy-MM-dd hh:mm:ss") : unavailable));
+		CoverLabel->setText(VITRL("YSS::project.noCover"));
+		// 远端目录没法在资源管理器里打开；移除历史记录仍然可用。
+		ShowInBrowserButton->setEnabled(uri.isNotRemote());
+		DeleteButton->setEnabled(true);
 	}
 
 	void ProjectInfoWidget::showProject(YSSCore::General::YSSProject* project) {
@@ -66,8 +90,11 @@ namespace YSS::ProjectPage {
 			initWidget();
 			return;
 		}
-		
+		initWidget();
 		Project = project;
+		CurrentUri = project->getProjectPath();
+		DeleteButton->setEnabled(true);
+		ShowInBrowserButton->setEnabled(project->getProjectFolder().isNotRemote());
 		QString path = project->getProjectFolder().getLocalPath();
 		int requestId = ++SizeRequestId;
 		if (path.isEmpty()) {
@@ -107,7 +134,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectInfoWidget::onDeleteButtonClicked() {
-		if (Project == nullptr) {
+		if (not CurrentUri.isValid()) {
 			return;
 		}
 		QMessageBox msgBox;
@@ -118,7 +145,7 @@ namespace YSS::ProjectPage {
 		int ret = msgBox.exec();
 		switch (ret) {
 		case QMessageBox::Yes:
-			emit removeConfirmed(Project);
+			emit removeConfirmed(CurrentUri);
 			return;
 		case QMessageBox::Cancel:
 			return;
@@ -126,7 +153,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectInfoWidget::onRemoveFromListButtonClicked() {
-		if (Project == nullptr) {
+		if (not CurrentUri.isValid()) {
 			return;
 		}
 		QMessageBox msgBox;
@@ -137,7 +164,7 @@ namespace YSS::ProjectPage {
 		int ret = msgBox.exec();
 		switch (ret) {
 		case QMessageBox::Yes:
-			emit removeConfirmed(Project);
+			emit removeConfirmed(CurrentUri);
 			return;
 		case QMessageBox::Cancel:
 			return;

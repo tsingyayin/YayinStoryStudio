@@ -59,6 +59,7 @@
 		}
 	},
 	"project":{
+		"remoteInfoUnavailable": "（未连接时不可见）",
 		"author":"作者",
 		"description":"描述",
 		"debugServer":"调试服务器",

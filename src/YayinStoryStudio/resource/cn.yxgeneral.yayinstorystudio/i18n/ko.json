@@ -59,6 +59,7 @@
 		}
 	},
 	"project": {
+		"remoteInfoUnavailable": "(연결하지 않으면 볼 수 없음)",
 		"author": "작성자",
 		"description": "설명",
 		"debugServer": "디버그 서버",

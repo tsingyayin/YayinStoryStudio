@@ -143,6 +143,9 @@ namespace YSSCore::General {
 		// 远端主机密钥被接受 / 被拒绝。门面转成 YSSUniqueFileSystem 的同名信号。
 		void hostKeyAccepted(const Visindigo::Network::SshHostKeyInfo& info);
 		void hostKeyRejected(const Visindigo::Network::SshHostKeyInfo& info);
+		// 有请求因为本连接不可用而被拒绝，需要凭据。门面转成
+		// YSSUniqueFileSystem::sshConnectionRequired() 并负责节流。
+		void connectionRequired();
 	public:
 		YSSSshFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSSshFileSystemProvider();

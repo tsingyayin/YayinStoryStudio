@@ -52,6 +52,8 @@ namespace YSS::Editor {
 			this, &SSHConnectionWidget::onConnectFinished);
 		connect(fs, &YSSCore::General::YSSUniqueFileSystem::sshReadyChanged,
 			this, &SSHConnectionWidget::onSshReadyChanged);
+		connect(fs, &YSSCore::General::YSSUniqueFileSystem::sshConnectionRequired,
+			this, &SSHConnectionWidget::onConnectionRequired);
 		this->refreshAuthenticBox();
 		this->refreshConnectionList();
 	}
@@ -563,7 +565,10 @@ QLabel#sshEmptyHint { color: @dim; }
 		if (!path.has_value()) {
 			return;
 		}
-		const QString authority = path->getAuthority();
+		this->promptForAuthority(path->getAuthority());
+	}
+
+	void SSHConnectionWidget::promptForAuthority(const QString& authority) {
 		if (authority.isEmpty()) {
 			return;
 		}
@@ -583,6 +588,18 @@ QLabel#sshEmptyHint { color: @dim; }
 		else {
 			KeyPathEdit->setFocus();
 		}
+	}
+
+	void SSHConnectionWidget::onConnectionRequired(const QString& authority) {
+		// 正在等用户确认指纹时，会话是被我们自己断开的，这里不要再插一手改状态。
+		if (!AwaitingFingerprint.isEmpty()) {
+			return;
+		}
+		if (this->isVisible() && PendingAuthority == authority) {
+			// 用户已经在为这条连接输入，别把刚敲的密码清掉。
+			return;
+		}
+		this->promptForAuthority(authority);
 	}
 
 	QString SSHConnectionWidget::currentAuthentic() const {

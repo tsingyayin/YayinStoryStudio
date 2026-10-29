@@ -59,6 +59,7 @@
 		}
 	},
 	"project": {
+		"remoteInfoUnavailable": "(Не видно без подключения)",
 		"author": "Автор",
 		"description": "Описание",
 		"debugServer": "Сервер отладки",

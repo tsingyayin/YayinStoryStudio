@@ -51,6 +51,10 @@ namespace YSSCore::General {
 			// 文件超过后端配置的大小上限。SSH 后端的上限由
 			// Visindigo::Network::SshConnectConfig::MaxSftpFileBytes 决定。
 			FileTooLarge,
+			// 连接当前不可用，需要用户提供凭据。与 \l{InvalidConfiguration} 的区别是：
+			// 配置本身可能完全正确，只是还没登录（或登录后掉线了）。界面据此决定要不要
+			// 弹出登录页，而不是把它当成一条普通的配置错误。
+			NeedsCredentials,
 			Unknown
 		};
 		Q_ENUM(ErrorType)
@@ -194,6 +198,13 @@ namespace YSSCore::General {
 		// 远端出示的主机密钥被拒绝，连接随后失败。调用方应当把 info 里的指纹展示给用户，
 		// 由用户决定是否信任，绝不要自动接受——尤其是 info.Changed 为真的情况。
 		void sshHostKeyRejected(const QString& authority, const Visindigo::Network::SshHostKeyInfo& info);
+		// 某个请求因为该连接当前不可用而被拒绝，调用方应当提示用户登录。
+		// 只在"确实需要凭据才能继续"的位置发出：请求本身仍会以
+		// \l{YSSFileError::ErrorType::NeedsCredentials} 失败，本信号只是附带的通知。
+		//
+		// 同一连接在一个短时间窗口内只发一次，避免批量请求同时失败时连发几十条；
+		// 该连接连上之后窗口立即重置。
+		void sshConnectionRequired(const QString& authority);
 		// 任务进入队列（提交成功，尚未开始执行）。
 		void taskQueued(const YSSFileSystemTask& task);
 		// 后端真正开始处理该任务。排队中的任务不会有这个信号。
