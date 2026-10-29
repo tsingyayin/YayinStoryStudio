@@ -467,5 +467,51 @@
 			"title": "Métadonnées incohérentes",
 			"message": "Les métadonnées du plugin ne correspondent pas au fichier réel. Réinstallez le plugin."
 		}
+	},
+	"sshConnection": {
+		"title": "Connexion SSH",
+		"subtitle": "Connexion et gestion des connexions pour les projets distants. Les mots de passe et les clés ne sont jamais enregistrés.",
+		"authentic": "Identité de connexion",
+		"connect": "Se connecter",
+		"disconnect": "Se déconnecter",
+		"remove": "Oublier",
+		"credential": {
+			"password": "Utiliser un mot de passe",
+			"key": "Utiliser un fichier de clé",
+			"passwordHint": "Saisissez le mot de passe ici",
+			"keyHint": "Sélectionnez un fichier de clé privée"
+		},
+		"fingerprint": {
+			"firstTime": "Cet hôte n'a jamais été contacté. Comparez l'empreinte de clé d'hôte ci-dessous avant de lui faire confiance.",
+			"changed": "Attention : l'empreinte enregistrée pour cet hôte diffère de celle présentée. Le serveur a peut-être été réinstallé, ou il s'agit d'une attaque de l'homme du milieu. Vérifiez avant de continuer.",
+			"trust": "Faire confiance et se connecter",
+			"reject": "Annuler"
+		},
+		"list": {
+			"title": "Connexions connues",
+			"empty": "Aucune connexion pour le moment"
+		},
+		"state": {
+			"ready": "Connecté",
+			"idle": "Déconnecté"
+		},
+		"status": {
+			"needCredential": "Saisissez les identifiants de %1, puis connectez-vous.",
+			"invalidAuthentic": "Identité de connexion invalide ; le format attendu est user@host:port.",
+			"needPassword": "Saisissez le mot de passe.",
+			"needKeyFile": "Sélectionnez un fichier de clé privée.",
+			"keyFileMissing": "Fichier de clé privée introuvable : %1",
+			"configRejected": "Impossible d'enregistrer les paramètres de connexion de %1.",
+			"connecting": "Connexion à %1 en cours ...",
+			"connected": "Connecté à %1.",
+			"connectFailed": "Échec de la connexion à %1.",
+			"disconnected": "Déconnecté de %1.",
+			"removed": "L'entrée de connexion de %1 a été oubliée.",
+			"needFingerprint": "Confirmez l'empreinte de clé d'hôte de %1.",
+			"fingerprintTrusted": "L'empreinte de clé d'hôte de %1 a été enregistrée.",
+			"fingerprintRejected": "Annulé ; %1 reste déconnecté.",
+			"hostKeyRejected": "La clé d'hôte de %1 a été refusée (%2 %3).",
+			"alreadyReady": "%1 est déjà connecté."
+		}
 	}
 }

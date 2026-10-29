@@ -741,7 +741,7 @@ namespace Visindigo::Network {
 		this->Worker->moveToThread(this->WorkerThread);
 		QObject::connect(this->WorkerThread, &QThread::finished, this->Worker, &QObject::deleteLater);
 		QObject::connect(this->Worker, &SshSessionWorker::progressed, this->Q,
-			[this](SshSession::State state) { this->setState(state); });
+			[this](SshSession::State state) { this->applyWorkerProgress(state); });
 		QObject::connect(this->Worker, &SshSessionWorker::greetingReceived, this->Q,
 			[this](const QString& banner) { this->Banner = banner; });
 		QObject::connect(this->Worker, &SshSessionWorker::hostKeyAccepted, this->Q,
@@ -757,9 +757,19 @@ namespace Visindigo::Network {
 		QObject::connect(this->Worker, &SshSessionWorker::connectSucceeded, this->Q,
 			[this]() { this->onWorkerReady(); });
 		QObject::connect(this->Worker, &SshSessionWorker::connectFailed, this->Q,
-			[this](const SshError& error) { this->onWorkerFailed(error); });
+			[this](const SshError& error) {
+				if (this->isClosingOrClosed()) {
+					return;
+				}
+				this->onWorkerFailed(error);
+			});
 		QObject::connect(this->Worker, &SshSessionWorker::connectionLost, this->Q,
-			[this](const SshError& error) { this->onWorkerLost(error); });
+			[this](const SshError& error) {
+				if (this->isClosingOrClosed()) {
+					return;
+				}
+				this->onWorkerLost(error);
+			});
 		QObject::connect(this->Worker, &SshSessionWorker::channelData, this->Q,
 			[this](quint64 id, const QByteArray& chunk, bool extended) { this->onChannelData(id, chunk, extended); });
 		QObject::connect(this->Worker, &SshSessionWorker::channelClosed, this->Q,
@@ -800,6 +810,18 @@ namespace Visindigo::Network {
 		QMetaObject::invokeMethod(worker, [worker, config]() {
 			worker->beginConnect(config);
 		}, Qt::QueuedConnection);
+	}
+
+	bool SshSessionPrivate::isClosingOrClosed() const {
+		return this->CurrentState == SshSession::State::Closing
+			|| this->CurrentState == SshSession::State::Disconnected;
+	}
+
+	void SshSessionPrivate::applyWorkerProgress(SshSession::State state) {
+		if (this->isClosingOrClosed()) {
+			return;
+		}
+		this->setState(state);
 	}
 
 	void SshSessionPrivate::onWorkerReady() {

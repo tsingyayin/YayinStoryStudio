@@ -213,6 +213,14 @@ namespace YSSCore::General {
 				[this, authorityOf](bool expected) {
 					emit Owner->sshDisconnected(authorityOf(), expected);
 				});
+			QObject::connect(provider, &YSSSshFileSystemProvider::hostKeyAccepted, Owner,
+				[this, authorityOf](const Visindigo::Network::SshHostKeyInfo& info) {
+					emit Owner->sshHostKeyAccepted(authorityOf(), info);
+				});
+			QObject::connect(provider, &YSSSshFileSystemProvider::hostKeyRejected, Owner,
+				[this, authorityOf](const Visindigo::Network::SshHostKeyInfo& info) {
+					emit Owner->sshHostKeyRejected(authorityOf(), info);
+				});
 			QObject::connect(provider, &YSSUniqueFileSystemProvider::started, Owner,
 				[this](quint64 id) { Owner->d->onProviderStarted(id); });
 			QObject::connect(provider, &YSSUniqueFileSystemProvider::progressed, Owner,

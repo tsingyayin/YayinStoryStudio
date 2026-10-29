@@ -29,6 +29,7 @@
 #include "Editor/NewProjectPage/NewProjectWin.h"
 #include "Editor/ProjectPage/ProjectInfoWidget.h"
 #include "Editor/ProjectPage/ProjectWin.h"
+#include "Editor/SSHConnection/SSHConnectionWidget.h"
 #include "General/YSSURI.h"
 #include "YayinStoryStudio.h"
 
@@ -134,11 +135,14 @@ namespace YSS::ProjectPage {
 		CloneGitButton->setText(VITRL("YSS::project.cloneFromGit"));
 		CloneGitButton->setToolTip(VITRL("YSS::tooltips.projectWin.cloneFromGit"));
 		CloneGitButton->hide();
+		SshConnectionButton = new QPushButton(OptionWidget);
+		SshConnectionButton->setText(VITRL("YSS::sshConnection.title"));
 		ButtonLayout = new QVBoxLayout(OptionWidget);
 		OptionWidget->setLayout(ButtonLayout);
 		ButtonLayout->addWidget(CreateProjectButton);
 		ButtonLayout->addWidget(OpenFolderButton);
 		ButtonLayout->addWidget(CloneGitButton);
+		ButtonLayout->addWidget(SshConnectionButton);
 		InfoWidget = new ProjectInfoWidget(this);
 		InfoWidget->setMinimumHeight(160);
 		Layout = new QGridLayout(this);
@@ -165,6 +169,13 @@ namespace YSS::ProjectPage {
 		connect(CreateProjectButton, &QPushButton::clicked, this, &ProjectWin::onCreateProject);
 		connect(InfoWidget, &ProjectInfoWidget::removeConfirmed, this, &ProjectWin::onProjectRemoved);
 		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProjectClicked);
+		connect(SshConnectionButton, &QPushButton::clicked, this, [this]() {
+			YSS::Editor::SSHConnectionWidget* page = YSS::Editor::SSHConnectionWidget::getInstance();
+			page->refreshConnectionList();
+			page->show();
+			page->raise();
+			page->activateWindow();
+			});
 		setColorfulEnable(true);
 		onThemeChanged();
 		if (firstOpen) {
@@ -180,6 +191,8 @@ namespace YSS::ProjectPage {
 				}
 			}
 		}
+		// 临时：项目页打开时直接把 SSH 连接页弹出来，方便看效果。
+		YSS::Editor::SSHConnectionWidget::getInstance()->show();
 	}
 
 	void ProjectWin::closeEvent(QCloseEvent* event) {

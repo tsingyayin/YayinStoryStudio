@@ -140,6 +140,9 @@ namespace YSSCore::General {
 		void connectFinished(bool ok, const QString& message);
 		// 连接从就绪变为断开。expected 为真表示是本机调用 disconnect() 造成的。
 		void disconnected(bool expected);
+		// 远端主机密钥被接受 / 被拒绝。门面转成 YSSUniqueFileSystem 的同名信号。
+		void hostKeyAccepted(const Visindigo::Network::SshHostKeyInfo& info);
+		void hostKeyRejected(const Visindigo::Network::SshHostKeyInfo& info);
 	public:
 		YSSSshFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSSshFileSystemProvider();

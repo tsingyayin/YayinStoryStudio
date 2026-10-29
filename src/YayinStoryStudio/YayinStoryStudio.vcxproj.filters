@@ -53,6 +53,9 @@
     <ClCompile Include="Editor\NewFilePage\cpp\NewFileWin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\SSHConnection\cpp\SSHConnectionWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="YayinStoryStudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -155,6 +158,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\NewFilePage\NewFileWin.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\SSHConnection\SSHConnectionWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\ProjectPage\NewsArea.h">

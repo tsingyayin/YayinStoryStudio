@@ -437,6 +437,14 @@ namespace YSSCore::General {
 					emit provider->readyChanged(false);
 					emit provider->disconnected(expected);
 				});
+			QObject::connect(this->d->Session, &Visindigo::Network::SshSession::hostKeyAccepted, this,
+				[provider](const Visindigo::Network::SshHostKeyInfo& info) {
+					emit provider->hostKeyAccepted(info);
+				});
+			QObject::connect(this->d->Session, &Visindigo::Network::SshSession::hostKeyRejected, this,
+				[provider](const Visindigo::Network::SshHostKeyInfo& info) {
+					emit provider->hostKeyRejected(info);
+				});
 		}
 		else {
 			this->d->Session->setConfig(this->d->Config);
@@ -451,6 +459,10 @@ namespace YSSCore::General {
 	*/
 	void YSSSshFileSystemProvider::disconnect() {
 		if (this->d->Session != nullptr) {
+			// 只有真正会发生断开时才标记为主动关闭，否则这个标记会被下一次意外断开消耗掉。
+			if (this->d->Session->getState() != Visindigo::Network::SshSession::State::Disconnected) {
+				this->d->CloseRequested = true;
+			}
 			this->d->Session->close();
 		}
 	}

@@ -467,5 +467,51 @@
 			"title": "메타데이터 불일치",
 			"message": "플러그인의 메타데이터가 실제 파일과 일치하지 않습니다. 플러그인을 다시 설치하세요."
 		}
+	},
+	"sshConnection": {
+		"title": "SSH 연결",
+		"subtitle": "원격 프로젝트의 로그인과 연결을 여기에서 관리합니다. 비밀번호와 키는 저장되지 않습니다.",
+		"authentic": "연결 식별자",
+		"connect": "연결",
+		"disconnect": "연결 해제",
+		"remove": "기록 삭제",
+		"credential": {
+			"password": "비밀번호 사용",
+			"key": "키 파일 사용",
+			"passwordHint": "비밀번호를 입력하세요",
+			"keyHint": "개인 키 파일 선택"
+		},
+		"fingerprint": {
+			"firstTime": "이 호스트에는 처음 연결합니다. 아래 호스트 키 지문을 확인한 뒤 신뢰하세요.",
+			"changed": "경고: 이 호스트에 저장된 지문과 지금 제시된 지문이 다릅니다. 서버를 다시 설치했을 수도 있고, 중간자 공격일 수도 있습니다. 계속하기 전에 반드시 확인하세요.",
+			"trust": "신뢰하고 연결",
+			"reject": "취소"
+		},
+		"list": {
+			"title": "등록된 연결",
+			"empty": "아직 연결이 없습니다"
+		},
+		"state": {
+			"ready": "연결됨",
+			"idle": "연결 안 됨"
+		},
+		"status": {
+			"needCredential": "%1 의 자격 증명을 입력한 뒤 연결하세요.",
+			"invalidAuthentic": "연결 식별자 형식이 올바르지 않습니다. user@host:port 형식이어야 합니다.",
+			"needPassword": "비밀번호를 입력하세요.",
+			"needKeyFile": "개인 키 파일을 선택하세요.",
+			"keyFileMissing": "개인 키 파일을 찾을 수 없습니다: %1",
+			"configRejected": "%1 의 연결 설정을 등록할 수 없습니다.",
+			"connecting": "%1 에 연결하는 중 ...",
+			"connected": "%1 에 연결되었습니다.",
+			"connectFailed": "%1 에 연결하지 못했습니다.",
+			"disconnected": "%1 에서 연결을 해제했습니다.",
+			"removed": "%1 의 연결 기록을 삭제했습니다.",
+			"needFingerprint": "%1 의 호스트 키 지문을 확인하세요.",
+			"fingerprintTrusted": "%1 의 호스트 키 지문을 저장했습니다.",
+			"fingerprintRejected": "취소했습니다. %1 은 연결되지 않은 상태로 유지됩니다.",
+			"hostKeyRejected": "%1 의 호스트 키가 거부되었습니다 (%2 %3).",
+			"alreadyReady": "%1 은 이미 연결되어 있습니다."
+		}
 	}
 }

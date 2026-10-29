@@ -491,5 +491,51 @@
 			"title": "Metadata mismatch",
 			"message": "The plugin's metadata does not match the actual binary file. Reinstall the plugin."
 		}
+	},
+	"sshConnection": {
+		"title": "SSH Connection",
+		"subtitle": "Sign in and manage connections for remote projects. Passwords and keys are never stored.",
+		"authentic": "Connection identity",
+		"connect": "Connect",
+		"disconnect": "Disconnect",
+		"remove": "Forget",
+		"credential": {
+			"password": "Use password",
+			"key": "Use key file",
+			"passwordHint": "Enter the password here",
+			"keyHint": "Select a private key file"
+		},
+		"fingerprint": {
+			"firstTime": "This host has not been contacted before. Compare the host key fingerprint below before trusting it.",
+			"changed": "Warning: the stored fingerprint for this host differs from the one presented now. The server may have been reinstalled, or this may be a man-in-the-middle attack. Verify before continuing.",
+			"trust": "Trust and connect",
+			"reject": "Cancel"
+		},
+		"list": {
+			"title": "Known connections",
+			"empty": "No connections yet"
+		},
+		"state": {
+			"ready": "Connected",
+			"idle": "Disconnected"
+		},
+		"status": {
+			"needCredential": "Enter the credentials for %1, then connect.",
+			"invalidAuthentic": "Invalid connection identity; expected user@host:port.",
+			"needPassword": "Enter the password.",
+			"needKeyFile": "Select a private key file.",
+			"keyFileMissing": "Private key file not found: %1",
+			"configRejected": "Could not register the connection settings for %1.",
+			"connecting": "Connecting to %1 ...",
+			"connected": "Connected to %1.",
+			"connectFailed": "Failed to connect to %1.",
+			"disconnected": "Disconnected from %1.",
+			"removed": "Forgot the connection for %1.",
+			"needFingerprint": "Confirm the host key fingerprint of %1.",
+			"fingerprintTrusted": "Stored the host key fingerprint of %1.",
+			"fingerprintRejected": "Cancelled; %1 stays disconnected.",
+			"hostKeyRejected": "The host key of %1 was rejected (%2 %3).",
+			"alreadyReady": "%1 is already connected."
+		}
 	}
 }

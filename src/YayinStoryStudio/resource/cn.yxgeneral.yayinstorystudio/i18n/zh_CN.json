@@ -491,5 +491,51 @@
 			"title": "元数据不一致",
 			"message": "该插件的元数据与实际二进制文件不匹配。请重新安装该插件。"
 		}
+	},
+	"sshConnection": {
+		"title": "SSH 连接",
+		"subtitle": "为远程项目提供登录与连接管理，密码和密钥不会被保存。",
+		"authentic": "连接身份",
+		"connect": "连接",
+		"disconnect": "断开",
+		"remove": "移除记录",
+		"credential": {
+			"password": "使用密码",
+			"key": "使用密钥文件",
+			"passwordHint": "在此输入密码",
+			"keyHint": "选择私钥文件"
+		},
+		"fingerprint": {
+			"firstTime": "首次连接该主机。请核对下面的主机密钥指纹，确认无误后再信任。",
+			"changed": "警告：该主机记录的指纹与本次出示的不一致。这可能是服务端重装，也可能是中间人攻击，请务必查证。",
+			"trust": "信任并连接",
+			"reject": "取消"
+		},
+		"list": {
+			"title": "已登记的连接",
+			"empty": "暂无连接"
+		},
+		"state": {
+			"ready": "已连接",
+			"idle": "未连接"
+		},
+		"status": {
+			"needCredential": "请输入 %1 的凭据，然后点击连接。",
+			"invalidAuthentic": "连接身份格式不正确，应为 user@host:port。",
+			"needPassword": "请输入密码。",
+			"needKeyFile": "请选择私钥文件。",
+			"keyFileMissing": "找不到私钥文件：%1",
+			"configRejected": "无法登记 %1 的连接配置。",
+			"connecting": "正在连接 %1 ……",
+			"connected": "已连接到 %1。",
+			"connectFailed": "连接 %1 失败。",
+			"disconnected": "已断开 %1。",
+			"removed": "已移除 %1 的连接记录。",
+			"needFingerprint": "请确认 %1 的主机密钥指纹。",
+			"fingerprintTrusted": "已记录 %1 的主机密钥指纹。",
+			"fingerprintRejected": "已取消，%1 保持断开。",
+			"hostKeyRejected": "%1 的主机密钥被拒绝（%2 %3）。",
+			"alreadyReady": "%1 已经连接。"
+		}
 	}
 }

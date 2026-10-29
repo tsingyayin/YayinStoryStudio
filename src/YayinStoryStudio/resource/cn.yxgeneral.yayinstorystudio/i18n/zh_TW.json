@@ -467,5 +467,51 @@
 			"title": "中繼資料不一致",
 			"message": "此外掛程式的資訊與實際二進位檔不符。請重新安裝此外掛程式。"
 		}
+	},
+	"sshConnection": {
+		"title": "SSH 連線",
+		"subtitle": "為遠端專案提供登入與連線管理，密碼和金鑰不會被保存。",
+		"authentic": "連線身分",
+		"connect": "連線",
+		"disconnect": "中斷連線",
+		"remove": "移除記錄",
+		"credential": {
+			"password": "使用密碼",
+			"key": "使用金鑰檔案",
+			"passwordHint": "在此輸入密碼",
+			"keyHint": "選擇私鑰檔案"
+		},
+		"fingerprint": {
+			"firstTime": "首次連線此主機。請核對下方的主機金鑰指紋，確認無誤後再信任。",
+			"changed": "警告：此主機記錄的指紋與本次出示的不一致。這可能是伺服器重新安裝，也可能是中間人攻擊，請務必查證。",
+			"trust": "信任並連線",
+			"reject": "取消"
+		},
+		"list": {
+			"title": "已登記的連線",
+			"empty": "尚無連線"
+		},
+		"state": {
+			"ready": "已連線",
+			"idle": "未連線"
+		},
+		"status": {
+			"needCredential": "請輸入 %1 的憑證，然後點擊連線。",
+			"invalidAuthentic": "連線身分格式不正確，應為 user@host:port。",
+			"needPassword": "請輸入密碼。",
+			"needKeyFile": "請選擇私鑰檔案。",
+			"keyFileMissing": "找不到私鑰檔案：%1",
+			"configRejected": "無法登記 %1 的連線設定。",
+			"connecting": "正在連線 %1 ……",
+			"connected": "已連線至 %1。",
+			"connectFailed": "連線 %1 失敗。",
+			"disconnected": "已中斷 %1 的連線。",
+			"removed": "已移除 %1 的連線記錄。",
+			"needFingerprint": "請確認 %1 的主機金鑰指紋。",
+			"fingerprintTrusted": "已記錄 %1 的主機金鑰指紋。",
+			"fingerprintRejected": "已取消，%1 保持未連線。",
+			"hostKeyRejected": "%1 的主機金鑰被拒絕（%2 %3）。",
+			"alreadyReady": "%1 已經連線。"
+		}
 	}
 }

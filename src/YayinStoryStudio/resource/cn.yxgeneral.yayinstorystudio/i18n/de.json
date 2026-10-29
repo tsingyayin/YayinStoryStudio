@@ -467,5 +467,51 @@
 			"title": "Metadaten stimmen nicht überein",
 			"message": "Die Metadaten des Plugins stimmen nicht mit der tatsächlichen Datei überein. Installieren Sie das Plugin neu."
 		}
+	},
+	"sshConnection": {
+		"title": "SSH-Verbindung",
+		"subtitle": "Anmeldung und Verbindungsverwaltung für entfernte Projekte. Passwörter und Schlüssel werden nicht gespeichert.",
+		"authentic": "Verbindungsidentität",
+		"connect": "Verbinden",
+		"disconnect": "Trennen",
+		"remove": "Eintrag entfernen",
+		"credential": {
+			"password": "Passwort verwenden",
+			"key": "Schlüsseldatei verwenden",
+			"passwordHint": "Passwort hier eingeben",
+			"keyHint": "Privaten Schlüssel auswählen"
+		},
+		"fingerprint": {
+			"firstTime": "Dieser Host wurde noch nicht kontaktiert. Vergleichen Sie den folgenden Hostschlüssel-Fingerabdruck, bevor Sie ihn als vertrauenswürdig einstufen.",
+			"changed": "Warnung: Der gespeicherte Fingerabdruck dieses Hosts weicht von dem jetzt vorgelegten ab. Möglicherweise wurde der Server neu installiert, es kann sich aber auch um einen Man-in-the-Middle-Angriff handeln. Bitte prüfen Sie das, bevor Sie fortfahren.",
+			"trust": "Vertrauen und verbinden",
+			"reject": "Abbrechen"
+		},
+		"list": {
+			"title": "Bekannte Verbindungen",
+			"empty": "Noch keine Verbindungen"
+		},
+		"state": {
+			"ready": "Verbunden",
+			"idle": "Nicht verbunden"
+		},
+		"status": {
+			"needCredential": "Geben Sie die Zugangsdaten für %1 ein und verbinden Sie dann.",
+			"invalidAuthentic": "Ungültige Verbindungsidentität; erwartet wird user@host:port.",
+			"needPassword": "Geben Sie das Passwort ein.",
+			"needKeyFile": "Wählen Sie eine Schlüsseldatei aus.",
+			"keyFileMissing": "Schlüsseldatei nicht gefunden: %1",
+			"configRejected": "Die Verbindungseinstellungen für %1 konnten nicht übernommen werden.",
+			"connecting": "Verbindung zu %1 wird aufgebaut ...",
+			"connected": "Mit %1 verbunden.",
+			"connectFailed": "Verbindung zu %1 fehlgeschlagen.",
+			"disconnected": "Verbindung zu %1 getrennt.",
+			"removed": "Der Eintrag für %1 wurde entfernt.",
+			"needFingerprint": "Bestätigen Sie den Hostschlüssel-Fingerabdruck von %1.",
+			"fingerprintTrusted": "Der Hostschlüssel-Fingerabdruck von %1 wurde gespeichert.",
+			"fingerprintRejected": "Abgebrochen; %1 bleibt getrennt.",
+			"hostKeyRejected": "Der Hostschlüssel von %1 wurde abgelehnt (%2 %3).",
+			"alreadyReady": "%1 ist bereits verbunden."
+		}
 	}
 }

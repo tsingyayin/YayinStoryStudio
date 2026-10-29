@@ -41,6 +41,9 @@ namespace YSS::ProjectPage {
 		QPushButton* CreateProjectButton;
 		QPushButton* OpenFolderButton;
 		QPushButton* CloneGitButton;
+		// 临时入口：等 ResourceBrowser 接通 UFS 后，改由需要远端凭据的地方调用
+		// SSHConnectionWidget::requestVerification()。
+		QPushButton* SshConnectionButton;
 		QRadioButton* ThemeLightButton;
 		QVBoxLayout* ButtonLayout;
 		ProjectInfoWidget* InfoWidget;

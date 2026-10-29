@@ -467,5 +467,51 @@
 			"title": "メタデータが一致しません",
 			"message": "プラグインのメタデータが実際の本体ファイルと一致しません。プラグインを再インストールしてください。"
 		}
+	},
+	"sshConnection": {
+		"title": "SSH 接続",
+		"subtitle": "リモートプロジェクトのログインと接続をここで管理します。パスワードと鍵は保存されません。",
+		"authentic": "接続識別子",
+		"connect": "接続",
+		"disconnect": "切断",
+		"remove": "記録を削除",
+		"credential": {
+			"password": "パスワードを使う",
+			"key": "鍵ファイルを使う",
+			"passwordHint": "パスワードを入力してください",
+			"keyHint": "秘密鍵ファイルを選択"
+		},
+		"fingerprint": {
+			"firstTime": "このホストへは初めて接続します。下のホスト鍵の指紋を照合してから信頼してください。",
+			"changed": "警告: このホストに記録された指紋と、今回提示された指紋が一致しません。サーバーの再インストールか、中間者攻撃の可能性があります。続行する前に必ず確認してください。",
+			"trust": "信頼して接続",
+			"reject": "キャンセル"
+		},
+		"list": {
+			"title": "登録済みの接続",
+			"empty": "接続はまだありません"
+		},
+		"state": {
+			"ready": "接続済み",
+			"idle": "未接続"
+		},
+		"status": {
+			"needCredential": "%1 の資格情報を入力してから接続してください。",
+			"invalidAuthentic": "接続識別子の形式が正しくありません。user@host:port の形式で指定してください。",
+			"needPassword": "パスワードを入力してください。",
+			"needKeyFile": "秘密鍵ファイルを選択してください。",
+			"keyFileMissing": "秘密鍵ファイルが見つかりません: %1",
+			"configRejected": "%1 の接続設定を登録できませんでした。",
+			"connecting": "%1 に接続しています ...",
+			"connected": "%1 に接続しました。",
+			"connectFailed": "%1 への接続に失敗しました。",
+			"disconnected": "%1 から切断しました。",
+			"removed": "%1 の接続記録を削除しました。",
+			"needFingerprint": "%1 のホスト鍵の指紋を確認してください。",
+			"fingerprintTrusted": "%1 のホスト鍵の指紋を記録しました。",
+			"fingerprintRejected": "中止しました。%1 は未接続のままです。",
+			"hostKeyRejected": "%1 のホスト鍵が拒否されました (%2 %3)。",
+			"alreadyReady": "%1 はすでに接続されています。"
+		}
 	}
 }

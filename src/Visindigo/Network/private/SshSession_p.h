@@ -184,6 +184,9 @@ namespace Visindigo::Network {
 		void ensureWorker();
 		void teardownWorker();
 		void startConnect();
+		// 会话已主动关闭后，工作线程排队中的旧事件不能再改变状态。
+		bool isClosingOrClosed() const;
+		void applyWorkerProgress(SshSession::State state);
 		void onWorkerReady();
 		void onWorkerFailed(const SshError& error);
 		void onWorkerLost(const SshError& error);

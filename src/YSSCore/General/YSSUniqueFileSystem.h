@@ -14,6 +14,7 @@
 #define YSSCore_General_YSSUniqueFileSystem_h
 #include "General/YSSURI.h"
 #include "YSSCoreCompileMacro.h"
+#include <Network/SshTypes.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
@@ -21,9 +22,6 @@
 #include <functional>
 #include <tuple>
 // Forward declarations
-namespace Visindigo::Network {
-	struct SshConnectConfig;
-}
 namespace YSSCore::General {
 	class YSSFileAttributesPrivate;
 	class YSSFileSystemReply;
@@ -190,6 +188,12 @@ namespace YSSCore::General {
 		// 与 sshReadyChanged(authority, false) 成对出现。
 		// expected 为真表示是本机主动 disconnectSsh()/removeSshConnection() 造成的。
 		void sshDisconnected(const QString& authority, bool expected);
+		// 远端出示的主机密钥被接受。info 已含密钥类型与 SHA-256 指纹，可用于首次信任时
+		// 向用户展示。连接策略为 Insecure 时也会发出。
+		void sshHostKeyAccepted(const QString& authority, const Visindigo::Network::SshHostKeyInfo& info);
+		// 远端出示的主机密钥被拒绝，连接随后失败。调用方应当把 info 里的指纹展示给用户，
+		// 由用户决定是否信任，绝不要自动接受——尤其是 info.Changed 为真的情况。
+		void sshHostKeyRejected(const QString& authority, const Visindigo::Network::SshHostKeyInfo& info);
 		// 任务进入队列（提交成功，尚未开始执行）。
 		void taskQueued(const YSSFileSystemTask& task);
 		// 后端真正开始处理该任务。排队中的任务不会有这个信号。
