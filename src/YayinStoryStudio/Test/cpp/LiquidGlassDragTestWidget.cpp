@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <cmath>
+#include <functional>
 #include <QtCore/qpoint.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qsize.h>
@@ -9,7 +12,12 @@
 #include <QtGui/qpixmap.h>
 #include <QtGui/qregion.h>
 #include <QtGui/qscreen.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qgridlayout.h>
+#include <QtWidgets/qgroupbox.h>
 #include <QtWidgets/qlabel.h>
+#include <QtWidgets/qslider.h>
 #include <QtWidgets/qwidget.h>
 #include <Widgets/LiquidGlassEffect.h>
 #include "Test/LiquidGlassDragTestWidget.h"
@@ -138,8 +146,7 @@ namespace YSS::Test {
 	}
 
 	LiquidGlassDragTestWidget::LiquidGlassDragTestWidget(QWidget* parent) :QWidget(parent) {
-		const QSize winSize(1020, 710);
-		const QSize panelSize(125, 150);
+		const QSize winSize(1020, 800);
 		const QSize sampleSize(820, 170);
 		setWindowTitle("光效测试（边缘光 / 全局打光）");
 		resize(winSize);
@@ -164,43 +171,134 @@ namespace YSS::Test {
 		titleLabel->setText("把鼠标移到下面的玻璃面板上，边缘光会贴着鼠标最近的那段边界");
 		// 默认光方向：从左上角来、与竖直方向成30度
 		const QPointF defaultLight(-0.5, -0.8660254);
-		const PanelSpec specs[] = {
-			{ "默认（细·柔）", true, true, defaultLight, QColor(255, 255, 255, 130), 1, 80, 40, QColor(255, 255, 255, 90), 1, QColor(0, 0, 0, 60), 2, 0.0, 16 },
-			{ "对照：全关", false, false, defaultLight, QColor(255, 255, 255, 130), 1, 80, 40, QColor(255, 255, 255, 90), 1, QColor(0, 0, 0, 60), 2, 0.0, 16 },
-			{ "柔光：厚 3", true, true, defaultLight, QColor(255, 255, 255, 130), 3, 80, 40, QColor(255, 255, 255, 90), 3, QColor(0, 0, 0, 60), 2, 0.0, 16 },
-			{ "扭曲：普通", true, true, defaultLight, QColor(255, 255, 255, 130), 6, 80, 40, QColor(255, 255, 255, 90), 6, QColor(0, 0, 0, 60), 3, 0.0, 16 },
-			{ "扭曲：色散 0.2", true, true, defaultLight, QColor(255, 255, 255, 130), 6, 80, 40, QColor(255, 255, 255, 90), 6, QColor(0, 0, 0, 60), 3, 0.2, 16 },
-			{ "光从左（厚 2）", false, true, QPointF(-1, 0), QColor(255, 255, 255, 130), 2, 80, 40, QColor(255, 255, 255, 90), 2, QColor(0, 0, 0, 60), 2, 0.0, 16 },
-		};
 		// 要看的样例：打光细（亮面厚 1、阴影厚 2）+ 色散 0.5 + 模糊 15，扭曲半径放大到 24 让彩边更明显
 		const PanelSpec sampleSpec = {
 			"样例：打光细（亮 1 / 暗 2） + 色散 0.5 + 模糊 15，扭曲半径 24",
-			true, true, defaultLight, QColor(255, 255, 255, 130), 1, 96, 40,
+			true, true, defaultLight, QColor(255, 255, 255, 72), 2, 96, 40,
 			QColor(255, 255, 255, 90), 1, QColor(0, 0, 0, 60), 2, 0.5, 15
 		};
-		// 全默认值面板：连被模糊源都走默认的Render策略（从父窗口取），一个setter都不调，
-		// 所以它用的是默认的扭曲半径20、色散0.2、模糊13、圆角20，以及默认的光效强度
-		QWidget* defaultPanel = new QWidget(this);
-		defaultPanel->setGeometry(30, 115, panelSize.width(), panelSize.height());
-		defaultPanel->setGraphicsEffect(new LGE(defaultPanel));
-		QLabel* defaultLabel = new QLabel(defaultPanel);
-		defaultLabel->setGeometry(0, 14, panelSize.width(), 60);
-		defaultLabel->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
-		defaultLabel->setWordWrap(true);
-		defaultLabel->setStyleSheet("color:#FFFFFF; font-size:13px; background:transparent;");
-		defaultLabel->setText("全默认值（不调 setter）");
-		for (int i = 0; i < int(sizeof(specs) / sizeof(specs[0])); i++) {
-			buildPanel(this, background, specs[i], QRect(30 + (i + 1) * (panelSize.width() + 15), 115, panelSize.width(), panelSize.height()), 16);
-		}
-		buildPanel(this, background, sampleSpec, QRect((winSize.width() - sampleSize.width()) / 2, 300, sampleSize.width(), sampleSize.height()), 24);
+		buildPanel(this, background, sampleSpec, QRect((winSize.width() - sampleSize.width()) / 2, 80, sampleSize.width(), sampleSize.height()), 24);
 		const int dragSize = 150;
-		buildDragPanel(this, QRect(30, 490, dragSize, dragSize), 28, "拖我：圆角正方形");
-		buildDragPanel(this, QRect(210, 490, dragSize, dragSize), dragSize / 2, "拖我：正圆");
+		buildDragPanel(this, QRect(30, 275, dragSize, dragSize), 28, "拖我：圆角正方形");
+		buildDragPanel(this, QRect(210, 275, dragSize, dragSize), dragSize / 2, "拖我：正圆");
 		QLabel* hintLabel = new QLabel(this);
-		hintLabel->setGeometry(0, 645, winSize.width(), 60);
+		hintLabel->setGeometry(0, 440, winSize.width(), 50);
 		hintLabel->setAlignment(Qt::AlignCenter);
 		hintLabel->setStyleSheet("color:#FFFFFF; font-size:13px; background:transparent;");
 		hintLabel->setWordWrap(true);
-		hintLabel->setText("第一块面板是全默认值（不调任何setter，被模糊源取自父窗口），后面是对照组和样例；左下两块可以按住鼠标拖来拖去。\n边缘光：从面板外靠近→淡入，贴边界滑动→跟着滑动，离开窗口→熄灭。全局光：光从哪边来就亮哪边，垂直两侧无光，对面是阴影。");
+		hintLabel->setText("上面是样例面板，左边两块可以按住鼠标拖来拖去；下面那块由右侧滑块实时调节。\n边缘光：从面板外靠近→淡入，贴边界滑动→跟着滑动，离开窗口→熄灭。全局光：光从哪边来就亮哪边，垂直两侧无光，对面是阴影。");
+
+		// ---- 可动态调节的面板：下面的滑块直接改参数，拖动时立刻重绘 ----
+		QWidget* livePanel = new QWidget(this);
+		livePanel->setGeometry(30, 505, 300, 250);
+		QLabel* liveLabel = new QLabel("可调面板（右侧滑块实时生效）", livePanel);
+		liveLabel->setGeometry(0, 10, 300, 24);
+		liveLabel->setAlignment(Qt::AlignCenter);
+		liveLabel->setStyleSheet("color:#FFFFFF; font-size:13px; background:transparent;");
+		LGE* live = new LGE(livePanel);
+		live->setBackgroundPolicy(LGE::BackgroundPolicy::Render);
+		live->setBorderRadius(20);
+		live->setBlurRadius(13);
+		live->setLiquidDistortRadius(20);
+		live->setLiquidDistortStrength(1.5);
+		live->setLiquidDistortDispersion(0.2);
+		live->setColorMask(QColor(0, 0, 0), 0.1);
+		livePanel->setGraphicsEffect(live);
+
+		QGroupBox* controls = new QGroupBox("可调面板参数", this);
+		controls->setGeometry(345, 505, 655, 250);
+		QGridLayout* grid = new QGridLayout(controls);
+		grid->setContentsMargins(10, 20, 10, 8);
+		grid->setHorizontalSpacing(8);
+		grid->setVerticalSpacing(3);
+		int sliderIndex = 0;
+		auto addSlider = [&](const QString& name, int minimum, int maximum, int value,
+			const std::function<void(int)>& apply) -> QSlider* {
+			const int column = (sliderIndex / 4) * 3;
+			const int row = sliderIndex % 4;
+			sliderIndex++;
+			QSlider* slider = new QSlider(Qt::Horizontal, controls);
+			slider->setRange(minimum, maximum);
+			slider->setValue(value);
+			slider->setMaximumWidth(110);
+			QLabel* valueLabel = new QLabel(QString::number(value), controls);
+			valueLabel->setMinimumWidth(34);
+			valueLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+			grid->addWidget(new QLabel(name, controls), row, column);
+			grid->addWidget(slider, row, column + 1);
+			grid->addWidget(valueLabel, row, column + 2);
+			QObject::connect(slider, &QSlider::valueChanged, controls, [valueLabel, apply](int current) {
+				valueLabel->setText(QString::number(current));
+				apply(current);
+			});
+			return slider;
+		};
+		QSlider* radiusSlider = addSlider("扭曲半径", 1, 60, 6, [live](int value) { live->setLiquidDistortRadius(value); });
+		// 深度是「贴边处取样到多深」，与带宽无关：强度 = 1 + 深度 / 半径
+		QSlider* depthSlider = addSlider("深度(px)", 0, 300, 60, [](int) {});
+		auto applyDepth = [live, radiusSlider, depthSlider]() {
+			const int radius = std::max(1, radiusSlider->value());
+			live->setLiquidDistortStrength(1.0 + depthSlider->value() / qreal(radius));
+		};
+		QObject::connect(radiusSlider, &QSlider::valueChanged, controls, [applyDepth](int) {
+			applyDepth();
+		});
+		QObject::connect(depthSlider, &QSlider::valueChanged, controls, [applyDepth](int) {
+			applyDepth();
+		});
+		applyDepth();
+		addSlider("色散x100", 0, 100, 20, [live](int value) { live->setLiquidDistortDispersion(value / 100.0); });
+		addSlider("模糊半径", 0, 160, 13, [live](int value) { live->setBlurRadius(value); });
+		addSlider("圆角", 0, 100, 20, [live](int value) { live->setBorderRadius(value); });
+		addSlider("不透明度", 0, 100, 100, [live](int value) { live->setOpacity(value / 100.0); });
+		addSlider("着色", 0, 100, 10, [live](int value) { live->setColorMask(QColor(0, 0, 0), value / 100.0); });
+		addSlider("能量x100", 0, 100, 50, [live](int value) { live->setLiquidDistortEnergy(value / 100.0); });
+		addSlider("光源角度", 0, 360, 330, [live](int value) {
+			const qreal pi = 3.14159265358979323846;
+			const qreal radians = value * pi / 180.0;
+			live->setGlobalRimLightDirection(QPointF(std::sin(radians), -std::cos(radians)));
+		});
+		addSlider("亮面厚度", 0, 10, 1, [live](int value) { live->setGlobalRimLightThickness(value); });
+		addSlider("暗面厚度", 0, 10, 2, [live](int value) { live->setGlobalRimShadowThickness(value); });
+		addSlider("边缘光厚度", 0, 10, 1, [live](int value) { live->setRimLightThickness(value); });
+		addSlider("边缘光范围", 0, 200, 80, [live](int value) { live->setRimLightRange(value); });
+
+		QCheckBox* blurBox = new QCheckBox("模糊", controls);
+		QCheckBox* distortBox = new QCheckBox("普通扭曲", controls);
+		QCheckBox* dispersionBox = new QCheckBox("色散", controls);
+		QCheckBox* rimBox = new QCheckBox("边缘光", controls);
+		QCheckBox* globalRimBox = new QCheckBox("全局光", controls);
+		QHBoxLayout* typeLayout = new QHBoxLayout();
+		typeLayout->setSpacing(10);
+		for (QCheckBox* box : { blurBox, distortBox, dispersionBox, rimBox, globalRimBox }) {
+			box->setChecked(true);
+			typeLayout->addWidget(box);
+		}
+		typeLayout->addStretch(1);
+		grid->addLayout(typeLayout, 4, 0, 1, 9);
+		auto applyTypes = [=]() {
+			LGE::EffectTypes types;
+			if (blurBox->isChecked()) {
+				types |= LGE::EffectType::Blur;
+			}
+			if (distortBox->isChecked()) {
+				types |= LGE::EffectType::NormalDistort;
+			}
+			if (dispersionBox->isChecked()) {
+				types |= LGE::EffectType::DispersionDistort;
+			}
+			if (rimBox->isChecked()) {
+				types |= LGE::EffectType::RimLight;
+			}
+			if (globalRimBox->isChecked()) {
+				types |= LGE::EffectType::GlobalRim;
+			}
+			live->setEffectTypes(types);
+		};
+		for (QCheckBox* box : { blurBox, distortBox, dispersionBox, rimBox, globalRimBox }) {
+			QObject::connect(box, &QCheckBox::toggled, controls, [applyTypes](bool) {
+				applyTypes();
+			});
+		}
 	}
 }

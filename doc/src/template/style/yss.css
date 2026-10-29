@@ -122,22 +122,26 @@
 		（用户明确否掉过那圈描边：圈一出来看着就不像水波、像示意图）。
 		浅色下「变深」本来就是高对比，所以 --yss-grid-bright 只比底色深一点点。 */
 
-	/* 折射带宽度。他们 C++ 的语义是：R 先夹到 min(宽,高)/2 —— 也就是说带最大能铺满
-		半个形状。他的 Demo（正圆）用的就是这个上限：整条带盖住整个形状，而映射恰好把
-		「中间那一半」放大 2 倍（x、y 查同一张表，所以各向同性），看起来就是凸透镜。
-		我们默认按同样的比例走：R = 最短边 × --yss-glass-lens-ratio（上限仍是它的一半），
-		--yss-glass-lens 只当"最小带宽"用（小卡片别扭得太碎）。
-		带内的东西会被拉开约一倍，所以面板背面看起来会比页面"稀"——这正是透镜的观感。
-		0.5 就是他 Demo 那个上限（整块形状都在带内），实际放在文档里太强；
-		0.25 又嫌深了一点，现在 0.18：只扭到「从边往内不到五分之一」。
-		把 ratio 设成 0 就退回旧的「只按 px 取、边上一小条」的行为。 */
-	--yss-glass-lens: 40;
-	--yss-glass-lens-ratio: 0.18;
-	/* 色散：三个通道的映射距离差（对应他们的 liquidDistortDispersion，默认 0.2）。
-		注意色散偏移是跟着带宽 R 一起放大的（贴边处最大 = R/2 × 这个值），
-		所以带宽改了要跟着调它：0.08 在 R≈53 时约 2.1px 的通道错位，
-		刚好是「边上有彩，但不至于散成重复」。 */
-	--yss-glass-dispersion: 0.08;
+	/* 面板本身的毛玻璃模糊（对应他们的 blurRadius，默认 13）。
+		第 11 节那套折射滤镜是把这个 blur 放在**位移之前**的：先糊、后扭，
+		与 C++ 里的「采样 → 模糊 → 扭曲」一致，所以带里压进来的是糊过的画面。 */
+	--yss-glass-blur: 2px;
+	/* 折射带宽度。R 是**带的宽度**：带内距边界 d 处取的是更深的内容，
+		深度 D 由 --yss-glass-depth 单独给（见下），所以 R 只决定「这条边有多厚」。
+		R = clamp(max(min(--yss-glass-lens, 短边/4), 最短边 × --yss-glass-lens-ratio), 1, 短边/2)
+		现在 ratio 是 0，也就是「固定 6px 一条边」，跟面板多大无关（只有面板特别小时
+		才受 短边/4、短边/2 的限制）。想要大面板边带更厚，把 ratio 调回 0.18 之类即可。
+		这两个值都能在右上角的「背景设置」里直接拖。 */
+	--yss-glass-lens: 6;
+	--yss-glass-lens-ratio: 0;
+	/* 贴边处的取样深度（相对带宽 R 的倍数，对应 LiquidGlassEffect 的 strength − 1）。
+		strength = 6 → depth = 5，也就是「最外那一条看到 5R = 30px 深的地方」，
+		往带内走按 fall² 收回自身。0 等于关掉几何折射。 */
+	--yss-glass-depth: 5;
+	/* 色散：红/蓝通道的取样深度差，单位是带宽 R（对应他们的 liquidDistortDispersion，0~1）。
+		红取 D + 色散×R、蓝取 D − 色散×R，所以贴边处的通道错位 = 2 × 色散 × R。
+		它是跟着 R 缩放的：R=6 时 0.2 约 2.4px 的错位。 */
+	--yss-glass-dispersion: 0.2;
 
 	/* 鼠标边缘光（对应 LiquidGlassEffect 的 RimLight）：鼠标靠近面板时，边界上离鼠标
 		最近的那一段亮起来，沿边界向两侧衰减 --yss-glass-rim-range，鼠标离开面板超过
@@ -786,7 +790,7 @@ h4:hover > .yss-anchor,
 }
 
 .yss-bgset__field > span {
-	flex: 0 0 3.6rem;
+	flex: 0 0 4rem;
 }
 
 .yss-bgset__field input[type="range"] {
@@ -808,6 +812,16 @@ h4:hover > .yss-anchor,
 	margin: 0.7rem 0 0;
 	font-size: 0.75rem;
 	line-height: 1.45;
+	color: var(--yss-text-faint);
+}
+
+/* 面板里的小标题：把「背景图」那几项和「液态玻璃」那几项分开 */
+.yss-bgset__group {
+	margin: 0.95rem 0 0;
+	padding-top: 0.6rem;
+	border-top: 1px solid var(--yss-border);
+	font-size: 0.75rem;
+	letter-spacing: 0.06em;
 	color: var(--yss-text-faint);
 }
 
@@ -961,8 +975,8 @@ pre,
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-glass-tint);
 	background-image: var(--yss-rim-bg);
-	backdrop-filter: blur(0.5px) saturate(145%);
-	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
+	-webkit-backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
 	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 
@@ -1043,8 +1057,8 @@ pre,
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-glass-tint);
 	background-image: var(--yss-rim-bg);
-	backdrop-filter: blur(0.5px) saturate(145%);
-	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
+	-webkit-backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
 	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 
@@ -1062,8 +1076,8 @@ pre,
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-glass-tint);
 	background-image: var(--yss-rim-bg);
-	backdrop-filter: blur(0.5px) saturate(145%);
-	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
+	-webkit-backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
 	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 
@@ -1212,8 +1226,8 @@ pre {
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-code-glass);
 	background-image: var(--yss-rim-bg);
-	backdrop-filter: blur(0.5px) saturate(145%);
-	-webkit-backdrop-filter: blur(0.5px) saturate(145%);
+	backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
+	-webkit-backdrop-filter: blur(var(--yss-glass-blur)) saturate(145%);
 	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 	font-family: var(--yss-mono);
 	overflow-x: auto;
@@ -1319,8 +1333,8 @@ pre:hover .yss-copy,
 	border-radius: var(--yss-radius);
 	background-color: var(--yss-adm-bg, var(--yss-bg-soft));
 	background-image: var(--yss-rim-bg);
-	backdrop-filter: blur(0.5px) saturate(150%);
-	-webkit-backdrop-filter: blur(0.5px) saturate(150%);
+	backdrop-filter: blur(var(--yss-glass-blur)) saturate(150%);
+	-webkit-backdrop-filter: blur(var(--yss-glass-blur)) saturate(150%);
 	box-shadow: var(--yss-glass-bevel), var(--yss-shadow-sm);
 }
 

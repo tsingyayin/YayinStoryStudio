@@ -82,6 +82,8 @@ namespace Visindigo::Widgets {
 		QImage backgroundImage;
 		int liquidDistortRadius = 20;
 		qreal liquidDistortDispersion = 0.2;
+		qreal liquidDistortStrength = 1.5;
+		qreal liquidDistortEnergy = 0.5;
 		int borderRadius = 20;
 		QWidget* parentWidget = nullptr;
 		QRect customGeometry;
@@ -92,8 +94,8 @@ namespace Visindigo::Widgets {
 		LiquidGlassEffect::PositionPolicy positionPolicy = LiquidGlassEffect::PositionPolicy::ParentLocalGeometry;
 		LiquidGlassEffect::BackgroundPolicy backgroundPolicy = LiquidGlassEffect::BackgroundPolicy::Render;
 	protected:
-		QColor rimLightColor = QColor(255, 255, 255, 130);
-		int rimLightThickness = 1;
+		QColor rimLightColor = QColor(255, 255, 255, 72);
+		int rimLightThickness = 2;
 		int rimLightRange = 80;
 		int rimLightActivationDistance = 40;
 		QPoint mousePosition;
@@ -104,7 +106,7 @@ namespace Visindigo::Widgets {
 	protected:
 		QPointF globalRimLightDirection = QPointF(-0.5, -0.8660254); // 光从左上角来，与竖直方向成30°
 		QColor globalRimLightColor = QColor(255, 255, 255, 90);
-		int globalRimLightThickness = 1;
+		int globalRimLightThickness = 2;
 		QColor globalRimShadowColor = QColor(0, 0, 0, 60);
 		int globalRimShadowThickness = 2;
 	protected:
@@ -112,6 +114,7 @@ namespace Visindigo::Widgets {
 		// 所以把“扭曲+全局光之后、边缘光之前”的图像和它的模糊结果缓存下来，
 		// 鼠标移动时只重算被边缘光影响到的那一条带，不必把整张图重新模糊一遍。
 		QImage frameBaseCache;
+		// 先模糊后扭曲之后，边缘光不再需要“带内重模糊”，这两项保留给 blurImageBand() 使用
 		QImage frameBlurredCache;
 		QImage frameScratch;
 		QSize frameCacheSize = QSize(-1, -1);
@@ -125,16 +128,13 @@ namespace Visindigo::Widgets {
 		bool frameCacheDirty = false;
 		bool drawing = false;
 		qreal opacity = 1.0;
-		QVector<QPoint> rimBorderPointsCache;
-		QSize rimBorderPointsSize = QSize(-1, -1);
-		int rimBorderPointsRadius = -1;
-		int rimBorderPointsThickness = -1;
 	protected:
-		static QVector<QPoint> borderPoints(const QSize& size, int borderRadius, int stride);
-		static QImage splatBoundaryGlow(const QSize& size, const QVector<QPoint>& points, const QVector<qreal>& weights, int thickness, const QColor& color, QRect* dirtyRect = nullptr);
+		static constexpr qreal maxRimLightBlend = 0.5;
+		static void roundedRectField(const QSize& size, qreal radius, qreal px, qreal py,
+			qreal& distance, qreal& normalX, qreal& normalY, qreal& boundaryX, qreal& boundaryY);
 		static QImage buildGlobalRimSide(const QSize& size, int borderRadius, const QPointF& lightDirection, int thickness, qreal polarity, const QColor& color, QRect* dirtyRect = nullptr);
 		static QImage rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color,
-			QRect* dirtyRect = nullptr, const QVector<QPoint>* cachedPoints = nullptr);
+			QRect* dirtyRect = nullptr);
 		static void modulateByLightMap(QImage& target, const QImage& lightMap, const QRect& area, bool brighten,
 			qreal strength = 1.0, bool additive = false, const QPoint& lightMapOrigin = QPoint());
 		static void buildGaussKernel(int radius, QVector<int>& kernel);
@@ -151,7 +151,6 @@ namespace Visindigo::Widgets {
 		quint64 frameKey(const QSize& size) const;
 		void clearFrameCache();
 		void clearBlurCache();
-		const QVector<QPoint>& rimBorderPoints(int thickness);
 		void syncRenderWatching(LiquidGlassEffect* q);
 		void releaseRenderWatching(LiquidGlassEffect* q);
 		void collectRenderWatched(QWidget* widget, QWidget* source, QWidget* exclude, const QRect& rect, QVector<QPointer<QWidget>>& out);
@@ -166,7 +165,7 @@ namespace Visindigo::Widgets {
 		\brief 一个提供液态玻璃效果的图形效果类.
 		\since Visindigo 0.13.0
 
-		LiquidGlassEffect 是一个 QGraphicsEffect 的子类，提供了一种模仿IOS26的液态玻璃的图形效果。
+		LiquidGlassEffect 是一个 QGraphicsEffect 的子类，提供了一种模仿现代操作系统中液态玻璃的图形效果。
 		这个实现认为液态玻璃效果主要由四部分组成：模仿液体流动的扭曲效果、模仿玻璃模糊的高斯模糊、反应鼠标位置的边缘光和模仿真实光源的全局打光。
 		用户可以通过设置不同的属性来调整这些效果的强度和外观。
 
@@ -198,27 +197,31 @@ namespace Visindigo::Widgets {
 
 		\section1 效果类型
 		默认情况下，LiquidGlassEffect会同时应用色散扭曲、模糊、边缘光和全局打光四种效果，但用户也可以通过setEffectTypes()方法选择只应用其中一部分效果。这提供了更多的定制选项，允许用户根据自己的需求调整效果的外观。
-		扭曲总是先于模糊应用。
+		模糊先于扭曲应用，扭曲压缩的是已经糊过的画面。
 		边缘光比较特殊，它不是一直存在的效果，只在鼠标靠近控件时才会出现；而全局打光是一直存在的，它的光来自一个固定的方向，不需要鼠标参与。
 
 		\section1 扭曲与色散
-		扭曲模仿的是玻璃边缘对光的折射：只有边缘区域会被扭曲，图像中心保持不变；半径越大，被扭曲的边缘越宽、越明显。扭曲有两种：
+		扭曲模仿的是玻璃边缘对光的折射：只有边缘区域会被扭曲，图像中心保持不变，半径越大被扭曲的边缘越宽。扭曲有两种：
 		\list
 		\li EffectType::NormalDistort：三个颜色通道用同一套映射，就是普通的扭曲效果。
-		\li EffectType::DispersionDistort：三个通道的偏折程度略有不同（绿光不动，红光偏折得少一点、蓝光多一点），
+		\li EffectType::DispersionDistort：三个通道取样的深度略有不同（绿光不动，红光取得更深、蓝光更浅），
 		于是边缘会出现彩色镶边，模仿真实玻璃的色散；它比普通扭曲略贵一点，不追求这个效果时用普通扭曲即可
 		\endlist
-		色散强度通过setLiquidDistortDispersion()调整，取值 0 到 0.5，为 0 时退化成普通扭曲。
+		扭曲带的宽度（半径）由setLiquidDistortRadius()设置，扭曲带的强度由setLiquidDistortStrength()设置，
+		简而言之就是将多少倍于半径的，靠近控件中心的区域以非均匀的映射压缩到半径内，
+		越靠近控件边缘的位置，同等宽度下对应的采样区域越宽，也即图像被压缩的越厉害。
+
+		色散强度通过setLiquidDistortDispersion()调整。
 
 		\section1 边缘光
 		边缘光模仿的是玻璃边缘被光打亮的样子，它通过EffectType::RimLight开启（包含在EffectType::All中）。
 		与其他两种效果不同，边缘光只在鼠标靠近控件的时候才会出现，而且总是出现在离鼠标最近的那一段控件边界上：
 		鼠标沿着边界移动时，边缘光会跟着在边界上滑动，看上去就像是控件边缘在反射鼠标位置的光。
 
-		边缘光的颜色、厚度、沿边界延伸的距离以及激活距离分别通过setRimLightColor()、setRimLightThickness()、setRimLightRange()和setRimLightActivationDistance()调整。
+		边缘光的颜色、厚度、沿边界延伸的距离以及激活距离分别通过setRimLightColor()、setRimLightThickness()、
+		setRimLightRange()和setRimLightActivationDistance()调整。
 		其中激活距离决定了鼠标离控件边界多远时边缘光开始出现，超过这个距离时边缘光完全消失。
-		边缘光是叠加提亮的，不像全局打光那样与画面相乘，因此它不会被阴影压暗，背光侧的边缘光同样清晰；
-		代价是边缘一带会带出一点偏白的亮部。
+		边缘光是叠加提亮的，不像全局打光那样与画面相乘，因此它不会被阴影压暗。
 
 		\section1 全局打光
 		全局打光模仿的是真实世界里的光源：控件不再是均匀发亮的，而是有一个固定的来光方向，
@@ -230,9 +233,6 @@ namespace Visindigo::Widgets {
 		上边界最亮，左边界次之，右边界是浅阴影，下边界是深阴影，四个圆角处自然地从明过渡到暗。
 		亮面的颜色和厚度分别通过setGlobalRimLightColor()和setGlobalRimLightThickness()设置，
 		阴影的颜色和厚度分别通过setGlobalRimShadowColor()和setGlobalRimShadowThickness()设置。
-		两者的默认强度刻意压得比较淡（亮面alpha值90、阴影alpha值60）：全局光只是一个效果元素，
-		做满了会盖过玻璃本身的颜色，喧宾夺主。
-		阴影是“吸掉一部分光”而不是盖一层黑：纯黑阴影把画面整体压暗，彩色阴影则只吸掉它的补色。
 
 		\section1 效果透明度
 		整体透明度通过opacity()和setOpacity()设置，取值范围为0到1，默认值为1。
@@ -241,6 +241,8 @@ namespace Visindigo::Widgets {
 		此属性声明为Qt的opacity属性，可以直接使用QPropertyAnimation对其进行动画，
 		适合实现浮动面板的渐入渐出。它与setColorMask()中的percent不同，
 		后者只控制颜色遮罩层的强度，不会让整个效果及源控件一起淡出。
+
+		总的来说，此功能合并了QOpacityGraphicsEffect的效果。
 
 		\section1 性能考虑
 		模糊是这类效果里最贵的操作，半径越大越明显，建议不要设置过大的模糊半径，尤其是在较大的控件上。
@@ -262,7 +264,7 @@ namespace Visindigo::Widgets {
 		\value RimLight 边缘光效果，在鼠标靠近控件时于控件边界上绘制跟随鼠标的边缘光。
 		\value GlobalRim 全局打光效果，按固定方向的虚拟光源在控件边界上打出亮面和阴影。
 		\value DispersionDistort 色散扭曲效果，在扭曲的同时让三个通道的映射距离不同，边缘会出现彩色镶边；与NormalDistort同时开启时以色散为准。
-		\value All 同时应用普通扭曲、色散扭曲、模糊、边缘光和全局打光效果，扭曲永远优先于模糊，也是默认值。
+		\value All 同时应用普通扭曲、色散扭曲、模糊、边缘光和全局打光效果，模糊优先于扭曲。此项也是默认值。
 	*/
 
 	/*!
@@ -359,17 +361,59 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.17.0
 		设置扭曲的色散强度，仅在EffectType中包含DispersionDistort时有效。
-		\a dispersion 色散强度，取值会被夹到 0 到 0.5 之间，默认0.2。
-		色散就是让红绿蓝三个通道的映射距离略有不同（绿光不动，红光偏折得少一点、蓝光多一点），
-		于是边缘会出现彩色镶边，看起来就像真实玻璃把光拆开了；0表示三个通道完全一致（等同于NormalDistort），越大彩色镶边越明显。
+		\a dispersion 色散强度，取值会被夹到 0 到 1 之间，默认0.2。
+		它是色散分离量相对扭曲半径的比例：1 表示红蓝两个通道的取样深度相差一个完整的扭曲半径。
+		色散就是让红绿蓝三个通道取样的深度略有不同（绿光不动，红光取得更深、蓝光取得更浅），
+		于是边缘会出现彩色镶边，看起来就像真实玻璃把光拆开了。
+		
+		数值越大，色散越明显。
+
 		色散会让扭曲略微变慢。
 	*/
 	void LiquidGlassEffect::setLiquidDistortDispersion(qreal dispersion) {
-		dispersion = std::clamp(dispersion, 0.0, 0.5);
+		dispersion = std::clamp(dispersion, 0.0, 1.0);
 		if (qFuzzyCompare(d->liquidDistortDispersion, dispersion)) {
 			return;
 		}
 		d->liquidDistortDispersion = dispersion;
+		d->clearFrameCache();
+		update();
+	}
+
+	/*!
+		\since Visindigo 0.18.0
+		设置液体扭曲的强度，仅在EffectType中包含NormalDistort或DispersionDistort时有效。
+		\a strength 扭曲强度，取值会被夹到 1 到 64 之间，默认1.5。1 表示完全不扭曲。
+		
+		直观上讲，它是将多少倍于半径的，靠近控件中心的区域以非均匀的映射压缩到半径内，
+		越靠近控件边缘的位置，同等宽度下对应的采样区域越宽，也即图像被压缩的越厉害。
+
+		假设设置扭曲半径为5，强度为10，则就是将半径往里走50像素的区域压缩到5像素之内。
+	*/
+	void LiquidGlassEffect::setLiquidDistortStrength(qreal strength) {
+		strength = std::clamp(strength, 1.0, 64.0);
+		if (qFuzzyCompare(d->liquidDistortStrength, strength)) {
+			return;
+		}
+		d->liquidDistortStrength = strength;
+		d->clearFrameCache();
+		update();
+	}
+
+	/*!
+		\since Visindigo 0.18.0
+		设置扭曲时的能量补偿强度，默认0.5。
+		\a energy 取值 0 到 1。玻璃把一片区域压进窄条时，这一片的光其实是被挤到一起的，
+		所以边缘处理应比周围略亮一点，0表示不补偿，1表示完全补偿。
+
+		即使是完全补偿，也最多提亮18%左右。且只影响颜色，不影响透明度。
+	*/
+	void LiquidGlassEffect::setLiquidDistortEnergy(qreal energy) {
+		energy = std::clamp(energy, 0.0, 1.0);
+		if (qFuzzyCompare(d->liquidDistortEnergy, energy)) {
+			return;
+		}
+		d->liquidDistortEnergy = energy;
 		d->clearFrameCache();
 		update();
 	}
@@ -387,7 +431,6 @@ namespace Visindigo::Widgets {
 		}
 		d->borderRadius = radius;
 		d->clearFrameCache();
-		d->rimBorderPointsSize = QSize(-1, -1);
 		update();
 	}
 
@@ -471,7 +514,8 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.17.0
 		设置边缘光的颜色，仅在EffectType中包含RimLight时有效。
-		\a color 边缘光的颜色，其alpha值决定了边缘光的最大强度，默认半透明白色（alpha值130）。
+		\a color 边缘光的颜色，其alpha值决定了边缘光的最大强度，默认是很淡的半透明白色（alpha值72，约28%）。
+		无论alpha给多大，边缘光实际叠加的不透明度最多只到 50%，不会把边缘烧成一条白线。
 	*/
 	void LiquidGlassEffect::setRimLightColor(const QColor& color) {
 		d->rimLightColor = color;
@@ -481,7 +525,8 @@ namespace Visindigo::Widgets {
 	/*!
 		\since Visindigo 0.17.0
 		设置边缘光的厚度，仅在EffectType中包含RimLight时有效。
-		\a thickness 边缘光从控件边界向内扩散的范围，单位为像素，默认1。
+		\a thickness 边缘光从控件边界向内扩散的范围，单位为像素，默认2。
+		取 1 时是一条一像素宽的细线，在圆角和斜边上会因为逐像素覆盖不同而显得一段一段，2 以上才会连续。
 	*/
 	void LiquidGlassEffect::setRimLightThickness(int thickness) {
 		if (thickness <= 0) thickness = 1;
@@ -489,7 +534,6 @@ namespace Visindigo::Widgets {
 			return;
 		}
 		d->rimLightThickness = thickness;
-		d->rimBorderPointsSize = QSize(-1, -1);
 		update();
 	}
 
@@ -655,112 +699,217 @@ namespace Visindigo::Widgets {
 		\since Visindigo 0.13.0
 		对图像进行液体扭曲处理。
 		\a coverdArea 要扭曲的图像。
-		\a liquidDistortRadius 扭曲效果的半径，值越大扭曲效果越明显。
-		此函数通过对图像的边缘区域进行基于正弦函数的坐标偏移来实现液体流动的效果。
-		扭曲半径决定了边缘区域的宽度，半径越大，扭曲效果越明显。
-
-		为了保持性能，扭曲效果仅应用于图像的边缘区域，而图像的中心部分保持不变。
-		这种方法可以在不显著增加计算量的情况下提供明显的液体流动效果。
-
-		当扭曲半径超过图像最短边的一半时，内部会自动按最短边的一半进行扭曲，且不改变用户设置值。
-
-		\a dispersion 色散强度，取值 0 到 0.5，默认0（不做色散）。
-		色散通过给红绿蓝三个通道不同的映射距离实现：绿光不动，红光偏折得少一点、蓝光多一点，于是边缘会出现彩色镶边。
-		它会让扭曲略微变慢，但仍然远低于模糊；为0时与普通扭曲一样。
-
-		单独使用（不配套模糊）时，边缘可能出现锯齿。
+		\a liquidDistortRadius 扭曲效果的半径，值越大扭曲的绘制范围越大。
+		\a liquidDistortDispersion 色散强度，取值 0 到 1，默认0（不做色散）。
+		\a liquidDistortStrength 扭曲强度，取值 1 到 64，默认1.5。1 表示完全不扭曲（一个像素都不动）。
+		\a borderRadius 图像四角的圆角半径，单位为像素，默认0。
+		\a energyRatio 能量补偿强度，取值 0 到 1。
+		
+		有关各参数的详细说明，可以参见本类对应的set方法。
 	*/
-	QImage LiquidGlassEffect::distortImage(const QImage& coverdArea, int liquidDistortRadius, qreal dispersion) {
+	QImage LiquidGlassEffect::distortImage(const QImage& coverdArea, int liquidDistortRadius, qreal dispersion, qreal strength, int borderRadius, qreal energyRatio) {
 		if (coverdArea.isNull()) {
 			return QImage();
 		}
 		const QImage source = coverdArea.format() == QImage::Format_ARGB32
 			? coverdArea : coverdArea.convertToFormat(QImage::Format_ARGB32);
 		QImage result = source;
-		liquidDistortRadius = std::min(liquidDistortRadius, std::min(source.width(), source.height()) / 2);
+		const int width = source.width();
+		const int height = source.height();
+		liquidDistortRadius = std::min(liquidDistortRadius, std::min(width, height) / 2);
 		if (liquidDistortRadius <= 0) {
 			return result;
 		}
-		const int width = source.width();
-		const int height = source.height();
-		const int halfRadius = liquidDistortRadius / 2;
-		const int rightStart = width - liquidDistortRadius;
-		const int bottomStart = height - liquidDistortRadius;
-		const qreal clampedDispersion = std::clamp(dispersion, 0.0, 0.5);
-		const bool dispersive = clampedDispersion > 0.0;
-		const qreal channelScale[3] = { 1.0 - clampedDispersion, 1.0, 1.0 + clampedDispersion };
-		QVector<int> nearMaps[3];
-		QVector<int> farMaps[3];
-		for (int channel = 0; channel < 3; channel++) {
-			nearMaps[channel].resize(liquidDistortRadius);
-			farMaps[channel].resize(liquidDistortRadius);
-			for (int k = 0; k < liquidDistortRadius; k++) {
-				const qreal phase = float(k + 1) / liquidDistortRadius * M_PI_2;
-				nearMaps[channel][k] = std::clamp(int(halfRadius + (1.0 + std::sin(phase - M_PI_2)) * halfRadius * channelScale[channel]), 0, std::min(width, height) - 1);
-				farMaps[channel][k] = std::clamp(int(std::sin(phase) * halfRadius * channelScale[channel]), 0, liquidDistortRadius - 1);
-			}
+		const int radius = liquidDistortRadius;
+		const qreal clampedStrength = std::clamp(strength, 1.0, 64.0);
+		const qreal depthAtEdge = (clampedStrength - 1.0) * radius;
+		if (depthAtEdge <= 0.0) {
+			return result;
 		}
-		const QVector<int>& nearMapR = nearMaps[0];
-		const QVector<int>& nearMapG = nearMaps[1];
-		const QVector<int>& nearMapB = nearMaps[2];
-		const QVector<int>& farMapR = farMaps[0];
-		const QVector<int>& farMapG = farMaps[1];
-		const QVector<int>& farMapB = farMaps[2];
+		const qreal clampedDispersion = std::clamp(dispersion, 0.0, 1.0);
+
+		const qreal dispersionShift = clampedDispersion * radius;
+		const bool dispersive = dispersionShift > 0.0;
 		const quint32* sourceBits = reinterpret_cast<const quint32*>(source.constBits());
 		quint32* resultBits = reinterpret_cast<quint32*>(result.bits());
 		const qsizetype rowStep = qsizetype(width);
-		auto combineChannels = [](quint32 pixelR, quint32 pixelG, quint32 pixelB) {
-			return (pixelG & 0xFF000000u) | (pixelR & 0x00FF0000u) | (pixelG & 0x0000FF00u) | (pixelB & 0x000000FFu);
+		const qreal centerX = width / 2.0;
+		const qreal centerY = height / 2.0;
+		const qreal cornerRadius = std::clamp(qreal(borderRadius), 0.0, qreal(std::min(width, height)) / 2.0);
+		const qreal coreHalfWidth = width / 2.0 - cornerRadius;
+		const qreal coreHalfHeight = height / 2.0 - cornerRadius;
+
+		const int margin = std::min(std::max(1, int(std::ceil(radius + cornerRadius))), std::max(width, height));
+		const int maxTaps = 65;
+
+		const qreal maxEnergyGain = 0.18;
+		const qreal energy = std::clamp(energyRatio, 0.0, 1.0);
+
+		auto fieldAt = [&](qreal px, qreal py, qreal& distance, qreal& normalX, qreal& normalY) {
+			const qreal dx = px - centerX;
+			const qreal dy = py - centerY;
+			const qreal qx = std::abs(dx) - coreHalfWidth;
+			const qreal qy = std::abs(dy) - coreHalfHeight;
+			const qreal ox = std::max(qx, 0.0);
+			const qreal oy = std::max(qy, 0.0);
+			const qreal outside = std::sqrt(ox * ox + oy * oy);
+			distance = cornerRadius - outside - std::min(std::max(qx, qy), 0.0);
+			if (outside > 0.0) {
+				normalX = ox * (dx < 0.0 ? 1.0 : -1.0) / outside;
+				normalY = oy * (dy < 0.0 ? 1.0 : -1.0) / outside;
+			}
+			else if (qx > qy) {
+				normalX = dx < 0.0 ? 1.0 : -1.0;
+				normalY = 0.0;
+			}
+			else {
+				normalX = 0.0;
+				normalY = dy < 0.0 ? 1.0 : -1.0;
+			}
 		};
-		for (int y = 0; y < liquidDistortRadius; y++) {
-			const quint32* nearRowG = sourceBits + qsizetype(nearMapG[y]) * rowStep;
-			const quint32* farRowG = sourceBits + qsizetype(bottomStart + farMapG[y]) * rowStep;
-			const quint32* nearRowR = dispersive ? sourceBits + qsizetype(nearMapR[y]) * rowStep : nearRowG;
-			const quint32* nearRowB = dispersive ? sourceBits + qsizetype(nearMapB[y]) * rowStep : nearRowG;
-			const quint32* farRowR = dispersive ? sourceBits + qsizetype(bottomStart + farMapR[y]) * rowStep : farRowG;
-			const quint32* farRowB = dispersive ? sourceBits + qsizetype(bottomStart + farMapB[y]) * rowStep : farRowG;
-			quint32* topRow = resultBits + qsizetype(y) * rowStep;
-			quint32* bottomRow = resultBits + qsizetype(bottomStart + y) * rowStep;
-			for (int x = 0; x < liquidDistortRadius; x++) {
-				const quint32 pixelG = nearRowG[nearMapG[x]];
-				const quint32 pixelGBottom = farRowG[nearMapG[x]];
-				topRow[x] = dispersive ? combineChannels(nearRowR[nearMapR[x]], pixelG, nearRowB[nearMapB[x]]) : pixelG;
-				bottomRow[x] = dispersive ? combineChannels(farRowR[nearMapR[x]], pixelGBottom, farRowB[nearMapB[x]]) : pixelGBottom;
+
+		struct SampleTap {
+			int x0;
+			int x1;
+			int y0;
+			int y1;
+			qreal fx;
+			qreal fy;
+		};
+		auto makeTap = [&](qreal sx, qreal sy) {
+			const qreal cx = std::clamp(sx, 0.0, qreal(width - 1));
+			const qreal cy = std::clamp(sy, 0.0, qreal(height - 1));
+			const int xi = int(cx);
+			const int yi = int(cy);
+			return SampleTap{ xi, std::min(xi + 1, width - 1), yi, std::min(yi + 1, height - 1), cx - xi, cy - yi };
+		};
+		// 通道下标按 ARGB32 的字节序：0 = A、1 = R、2 = G、3 = B（与 quint32 的高位到低位一致）
+		auto bilinearChannel = [&](const SampleTap& tap, int channel) {
+			const int bits = 24 - channel * 8;
+			const quint32* row0 = sourceBits + qsizetype(tap.y0) * rowStep;
+			const quint32* row1 = sourceBits + qsizetype(tap.y1) * rowStep;
+			const qreal v00 = qreal((row0[tap.x0] >> bits) & 0xFFu);
+			const qreal v10 = qreal((row0[tap.x1] >> bits) & 0xFFu);
+			const qreal v01 = qreal((row1[tap.x0] >> bits) & 0xFFu);
+			const qreal v11 = qreal((row1[tap.x1] >> bits) & 0xFFu);
+			const qreal top = v00 + (v10 - v00) * tap.fx;
+			const qreal bottom = v01 + (v11 - v01) * tap.fx;
+			return top + (bottom - top) * tap.fy;
+		};
+		auto bilinearPixel = [&](const SampleTap& tap, qreal channels[4]) {
+			const quint32* row0 = sourceBits + qsizetype(tap.y0) * rowStep;
+			const quint32* row1 = sourceBits + qsizetype(tap.y1) * rowStep;
+			const quint32 p00 = row0[tap.x0];
+			const quint32 p10 = row0[tap.x1];
+			const quint32 p01 = row1[tap.x0];
+			const quint32 p11 = row1[tap.x1];
+			for (int channel = 0; channel < 4; channel++) {
+				const int bits = 24 - channel * 8;
+				const qreal v00 = qreal((p00 >> bits) & 0xFFu);
+				const qreal v10 = qreal((p10 >> bits) & 0xFFu);
+				const qreal v01 = qreal((p01 >> bits) & 0xFFu);
+				const qreal v11 = qreal((p11 >> bits) & 0xFFu);
+				const qreal top = v00 + (v10 - v00) * tap.fx;
+				const qreal bottom = v01 + (v11 - v01) * tap.fx;
+				channels[channel] = top + (bottom - top) * tap.fy;
 			}
-			if (dispersive) {
-				for (int x = liquidDistortRadius; x < rightStart; x++) {
-					topRow[x] = combineChannels(nearRowR[x], nearRowG[x], nearRowB[x]);
-					bottomRow[x] = combineChannels(farRowR[x], farRowG[x], farRowB[x]);
-				}
+		};
+
+		auto boxPixel = [&](qreal px, qreal py, qreal normalX, qreal normalY, qreal nearOffset, qreal farOffset, qreal channels[4]) {
+			channels[0] = 0.0;
+			channels[1] = 0.0;
+			channels[2] = 0.0;
+			channels[3] = 0.0;
+			const qreal span = std::max(0.0, farOffset - nearOffset);
+			const int taps = std::clamp(int(std::ceil(span)), 1, maxTaps);
+			qreal sample[4] = { 0.0, 0.0, 0.0, 0.0 };
+			for (int i = 0; i < taps; i++) {
+				const qreal offset = nearOffset + span * (i + 0.5) / taps;
+				bilinearPixel(makeTap(px + normalX * offset, py + normalY * offset), sample);
+				channels[0] += sample[0];
+				channels[1] += sample[1];
+				channels[2] += sample[2];
+				channels[3] += sample[3];
 			}
-			else if (rightStart > liquidDistortRadius) {
-				const size_t middleBytes = size_t(rightStart - liquidDistortRadius) * sizeof(quint32);
-				if (nearRowG != topRow) {
-					memcpy(topRow + liquidDistortRadius, nearRowG + liquidDistortRadius, middleBytes);
-				}
-				if (farRowG != bottomRow) {
-					memcpy(bottomRow + liquidDistortRadius, farRowG + liquidDistortRadius, middleBytes);
-				}
+			for (int channel = 0; channel < 4; channel++) {
+				channels[channel] /= taps;
 			}
-			for (int x = rightStart; x < width; x++) {
-				const int index = x - rightStart;
-				const quint32 pixelG = nearRowG[rightStart + farMapG[index]];
-				const quint32 pixelGBottom = farRowG[rightStart + farMapG[index]];
-				topRow[x] = dispersive ? combineChannels(nearRowR[rightStart + farMapR[index]], pixelG, nearRowB[rightStart + farMapB[index]]) : pixelG;
-				bottomRow[x] = dispersive ? combineChannels(farRowR[rightStart + farMapR[index]], pixelGBottom, farRowB[rightStart + farMapB[index]]) : pixelGBottom;
+		};
+		auto boxChannel = [&](qreal px, qreal py, qreal normalX, qreal normalY, qreal nearOffset, qreal farOffset, int channel) {
+			const qreal span = std::max(0.0, farOffset - nearOffset);
+			const int taps = std::clamp(int(std::ceil(span)), 1, maxTaps);
+			qreal sum = 0.0;
+			for (int i = 0; i < taps; i++) {
+				const qreal offset = nearOffset + span * (i + 0.5) / taps;
+				sum += bilinearChannel(makeTap(px + normalX * offset, py + normalY * offset), channel);
 			}
-		}
-		for (int y = liquidDistortRadius; y < bottomStart; y++) {
-			const quint32* sourceRow = sourceBits + qsizetype(y) * rowStep;
+			return sum / taps;
+		};
+		auto toByte = [](qreal value) {
+			return quint32(std::clamp<long>(std::lround(value), 0, 255));
+		};
+		auto writeSpan = [&](int y, int xBegin, int xEnd) {
 			quint32* resultRow = resultBits + qsizetype(y) * rowStep;
-			for (int x = 0; x < liquidDistortRadius; x++) {
-				const quint32 pixelG = sourceRow[nearMapG[x]];
-				resultRow[x] = dispersive ? combineChannels(sourceRow[nearMapR[x]], pixelG, sourceRow[nearMapB[x]]) : pixelG;
+			const qreal py = y + 0.5;
+			for (int x = xBegin; x < xEnd; x++) {
+				const qreal px = x + 0.5;
+				qreal distance = 0.0;
+				qreal normalX = 0.0;
+				qreal normalY = 0.0;
+				fieldAt(px, py, distance, normalX, normalY);
+				if (distance <= 0.0 || distance >= radius) {
+					continue;
+				}
+				qreal channels[4] = { 0.0, 0.0, 0.0, 0.0 };
+				qreal green[4] = { 0.0, 0.0, 0.0, 0.0 };
+				// falloff：该点到带内边界的相对位置，带内边界处为 0、最外那圈像素中心处为 1。
+				// 按像素中心归一（最外一圈的 distance 恒为 0.5），这样贴边处的取样深度就是设定的那个值，
+				// 不会被半径的取整吃掉。
+				const qreal falloffSpan = std::max(0.5, qreal(radius) - 0.5);
+				const qreal falloff = std::clamp(1.0 - (distance - 0.5) / falloffSpan, 0.0, 1.0);
+				const qreal falloff2 = falloff * falloff;
+				const qreal offset = depthAtEdge * falloff2;
+				// 相邻输出像素跨过的源像素数（局部放大率）。按它做盒式平均：
+				// 核比它窄会欠采样出锯齿，比它宽则会把几十像素的内容糊成一团。
+				const qreal filterHalf = depthAtEdge * falloff / radius;
+				// compression：这一段里「一个输出像素压进了多少个源像素」。
+				// 玻璃把这么多份光通量挤到一个像素上，画面因此变亮；energy 控制把这个亮度还原多少。
+				const qreal compression = 2.0 * filterHalf;
+				const qreal channelShift = dispersionShift * falloff2;
+				boxPixel(px, py, normalX, normalY, offset - filterHalf, offset + filterHalf, green);
+				channels[0] = green[0];
+				channels[2] = green[2];
+				if (dispersive) {
+					const qreal redOffset = (depthAtEdge + channelShift) * falloff2;
+					const qreal blueOffset = std::max(0.0, depthAtEdge - channelShift) * falloff2;
+					channels[1] = boxChannel(px, py, normalX, normalY, redOffset - filterHalf, redOffset + filterHalf, 1);
+					channels[3] = boxChannel(px, py, normalX, normalY, blueOffset - filterHalf, blueOffset + filterHalf, 3);
+				}
+				else {
+					channels[1] = green[1];
+					channels[3] = green[3];
+				}
+				// 能量补偿：一个输出像素吃了 compression 个源像素的光，聚光会让它变亮。
+				// 但真实玻璃的菲涅尔反射与吸收会吃掉大部分，而且人眼对边缘高光极敏感，
+				// 所以这里不按压缩倍数线性提亮，而是一条很快饱和的曲线：最多只提 maxEnergyGain。
+				// energy = 0 就是纯平均（亮度不变），只作用在颜色上，alpha 仍是覆盖率的平均。
+				if (energy > 0.0 && compression > 1.0) {
+					const qreal gain = 1.0 + energy * maxEnergyGain * (1.0 - std::exp(-(compression - 1.0) / 2.0));
+					channels[0] *= gain;
+					channels[1] *= gain;
+					channels[2] *= gain;
+				}
+				resultRow[x] = (toByte(channels[0]) << 24) | (toByte(channels[1]) << 16)
+					| (toByte(channels[2]) << 8) | toByte(channels[3]);
 			}
-			for (int x = rightStart; x < width; x++) {
-				const int index = x - rightStart;
-				const quint32 pixelG = sourceRow[rightStart + farMapG[index]];
-				resultRow[x] = dispersive ? combineChannels(sourceRow[rightStart + farMapR[index]], pixelG, sourceRow[rightStart + farMapB[index]]) : pixelG;
+		};
+		for (int y = 0; y < height; y++) {
+			if (y < margin || y >= height - margin) {
+				writeSpan(y, 0, width);
+			}
+			else {
+				writeSpan(y, 0, std::min(margin, width));
+				writeSpan(y, std::max(width - margin, 0), width);
 			}
 		}
 		return result;
@@ -824,7 +973,7 @@ namespace Visindigo::Widgets {
 		\a image 要绘制的图像，尺寸应当与要绘制边缘光的控件尺寸一致。
 		\a borderRadius 控件的圆角半径，边缘光贴着这个圆角矩形的边界生成。
 		\a mousePosition 鼠标位置，坐标系与 \a image 相同，允许取值在控件之外。
-		\a thickness 边缘光的厚度，即从边界向内扩散的范围，单位为像素。
+		\a thickness 边缘光的厚度，即从边界向内扩散的范围，单位为像素，默认2。一像素宽时在圆角上会断断续续，2 以上才连续。
 		\a range 边缘光沿边界延伸的距离，单位为像素。
 		\a color 边缘光的颜色，其alpha值决定了边缘光的最大强度。
 		\a intensity 整体强度，取值 0 到 1，默认1。鼠标靠近时的淡入、离开时的淡出就靠它。
@@ -960,9 +1109,16 @@ namespace Visindigo::Widgets {
 			}
 			base = sampled.format() == QImage::Format_ARGB32
 				? sampled : sampled.convertToFormat(QImage::Format_ARGB32);
+			// 先模糊、后扭曲：折射带取样的是已经糊过的画面，压缩时不会把细结构撕成锯齿，
+			// 也才能看出“多个像素的光被压进一个像素”这个亮度效果。
+			// 边缘光在这之后叠加，所以它是清晰的表面反光，不会被糊掉。
+			if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::Blur)) {
+				base = blurImage(base, d->blurRadius);
+			}
 			const bool dispersionDistort = d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::DispersionDistort);
 			if (dispersionDistort || d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::NormalDistort)) {
-				base = distortImage(base, d->liquidDistortRadius, dispersionDistort ? d->liquidDistortDispersion : 0.0);
+				base = distortImage(base, d->liquidDistortRadius, dispersionDistort ? d->liquidDistortDispersion : 0.0,
+					d->liquidDistortStrength, d->borderRadius, d->liquidDistortEnergy);
 			}
 			if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::GlobalRim)) {
 				base = LiquidGlassEffect::globalRimImage(base, d->borderRadius, d->globalRimLightDirection,
@@ -978,22 +1134,22 @@ namespace Visindigo::Widgets {
 		QImage lit = base;
 		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::RimLight) && d->rimLightIntensity > 0.0) {
 			const QImage glow = LiquidGlassEffectPrivate::rimLightGlow(lit.size(), d->borderRadius, d->mousePosition,
-				d->rimLightThickness, d->rimLightRange, d->rimLightColor, &rimLightRect, &d->rimBorderPoints(d->rimLightThickness));
+				d->rimLightThickness, d->rimLightRange, d->rimLightColor, &rimLightRect);
 			lit = base;
 			LiquidGlassEffectPrivate::modulateByLightMap(lit, glow, rimLightRect, true, d->rimLightIntensity, true, rimLightRect.topLeft());
 		}
-		QImage coverdArea;
-		if (d->effectTypes.testAnyFlag(LiquidGlassEffect::EffectType::Blur)) {
-			if (d->frameBlurredCache.isNull()) {
-				d->frameBlurredCache = blurImage(base, d->blurRadius); 
-			}
-			coverdArea = LiquidGlassEffectPrivate::blurImageBand(lit, d->blurRadius, d->frameBlurredCache, rimLightRect, d->frameScratch);
-		}
-		else {
-			coverdArea = lit;
-		}
+		// 模糊已经在上面跟着帧缓存一起做完了（先模糊后扭曲），这里只叠边缘光：
+		// 边缘光是表面反光，保持清晰，不参与模糊。
+		QImage coverdArea = lit;
 		QPixmap finalPixmap = sourcePixmap;
 		QPainter finalPainter(&finalPixmap);
+		// 圆角裁剪必须开抗锯齿。QPainter 的裁剪路径默认是 1 位掩码，圆角和斜边会被切成一格一格的阶梯，
+		// 而边缘光/全局光正好贴着这条边界走，于是整条边看上去都是毛的。
+		finalPainter.setRenderHint(QPainter::Antialiasing, true);
+		// 玻璃图是按逻辑像素算的，pixmap 却是设备像素（高 DPI 下是 1.5 倍、2 倍）。
+		// 不开平滑缩放时，一个像素宽的光带会被最近邻"放大"成 1 像素、2 像素交替的虚线，
+		// 这就是边缘光看上去一段一段断开的直接原因。
+		finalPainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 		const qreal devicePixelRatio = sourcePixmap.devicePixelRatio();
 		const QSize logicalSize(qRound(sourcePixmap.width() / devicePixelRatio), qRound(sourcePixmap.height() / devicePixelRatio));
 		QPainterPath roundPath;
@@ -1091,85 +1247,7 @@ namespace Visindigo::Widgets {
 		return QGraphicsEffect::eventFilter(watched, event);
 	}
 
-	/*
-		用八分圆算法（中点圆算法）生成圆角矩形边界上的点。
-		size 为圆角矩形的逻辑尺寸，borderRadius 为圆角半径，stride 为直边上取点的间隔。
-		八分圆算法的要点是：圆上 0° 到 45° 之间的点确定以后，剩下的点全部可以由八分对称性映射出来，
-		所以只需要解算一个小八分圆，再把它按象限镜像到四个圆角上即可，取整圈边界点的代价和一个八分圆相当。
-		圆角部分的点始终逐像素生成（相邻点间隔很小），直边部分才按 stride 抽稀。
-	*/
-	QVector<QPoint> LiquidGlassEffectPrivate::borderPoints(const QSize& size, int borderRadius, int stride) {
-		QVector<QPoint> points;
-		if (size.width() <= 0 || size.height() <= 0) {
-			return points;
-		}
-		if (stride < 1) {
-			stride = 1;
-		}
-		const int width = size.width();
-		const int height = size.height();
-		const int radius = std::clamp(borderRadius, 0, std::min(width, height) / 2);
-		if (radius > 0) {
-			// 八分圆：只解算 x <= y 的那一份，即 0° 到 45° 的离散点
-			QVector<QPoint> octant;
-			octant.reserve(radius + 1);
-			int x = 0;
-			int y = radius;
-			int decision = 1 - radius;
-			while (x <= y) {
-				octant.append(QPoint(x, y));
-				x++;
-				if (decision < 0) {
-					decision += 2 * x + 1;
-				}
-				else {
-					y--;
-					decision += 2 * (x - y) + 1;
-				}
-			}
-			// 八分圆及其转置拼成 0° 到 90° 的四分之一圆（接缝处去重），再镜像到四个圆角
-			QVector<QPoint> quadrant;
-			quadrant.reserve(octant.size() * 2);
-			for (int i = 0; i < octant.size(); i++) {
-				quadrant.append(QPoint(octant[i].y(), octant[i].x()));
-			}
-			for (int i = octant.size() - 2; i >= 0; i--) {
-				quadrant.append(QPoint(octant[i].x(), octant[i].y()));
-			}
-			const int rightCenter = width - 1 - radius;
-			const int bottomCenter = height - 1 - radius;
-			for (int i = 0; i < quadrant.size(); i++) {
-				const int offsetX = quadrant[i].x();
-				const int offsetY = quadrant[i].y();
-				points.append(QPoint(radius - offsetX, radius - offsetY)); // 左上角
-				points.append(QPoint(rightCenter + offsetX, radius - offsetY)); // 右上角
-				points.append(QPoint(rightCenter + offsetX, bottomCenter + offsetY)); // 右下角
-				points.append(QPoint(radius - offsetX, bottomCenter + offsetY)); // 左下角
-			}
-		}
-		// 四条直边，两端与圆角相接，因此直边只需要覆盖两个圆角之间
-		const int xEnd = width - 1 - radius;
-		for (int x = radius; ; x += stride) {
-			x = std::min(x, xEnd);
-			points.append(QPoint(x, 0));
-			points.append(QPoint(x, height - 1));
-			if (x >= xEnd) {
-				break;
-			}
-		}
-		const int yEnd = height - 1 - radius;
-		for (int y = radius; ; y += stride) {
-			y = std::min(y, yEnd);
-			points.append(QPoint(0, y));
-			points.append(QPoint(width - 1, y));
-			if (y >= yEnd) {
-				break;
-			}
-		}
-		return points;
-	}
-
-	// 鼠标对边缘光的激活强度：鼠标在控件内部时为 1，在控件外部时随着远离边界而衰减到 0
+// 鼠标对边缘光的激活强度：鼠标在控件内部时为 1，在控件外部时随着远离边界而衰减到 0
 	qreal LiquidGlassEffectPrivate::rimLightIntensityAt(const QPoint& localPosition) const {
 		if (!parentWidget) {
 			return 0.0;
@@ -1285,133 +1363,147 @@ namespace Visindigo::Widgets {
 	}
 
 	/*
-		把一组边界点按各自的权重（0~1）向内侧扩散成半径 thickness 的软光晕，再按颜色输出成 ARGB 图像。
-		同一个像素取所有覆盖它的光晕中的最大值，因此相邻边界点扩散出的光晕重叠时既不会出现接缝，也不会叠加变亮。
+		圆角矩形内部的距离场：distance 是到形状边界的距离（形状内部为正），
+		normal 是指向内部的单位法线，boundaryX/boundaryY 是最近的边界点（把该点沿内法线推回边界上的位置）。
+		位置和法线都是连续函数，所以用它算出来的光晕天生抗锯齿：
+		不会像「沿边界撒圆点」那样在斜边和圆角上留下台阶，也不会因为点距不足出现串珠。
 	*/
-	QImage LiquidGlassEffectPrivate::splatBoundaryGlow(const QSize& size, const QVector<QPoint>& points, const QVector<qreal>& weights, int thickness, const QColor& color, QRect* dirtyRect) {
-		const int width = size.width();
-		const int height = size.height();
-		if (dirtyRect) {
-			*dirtyRect = QRect();
+	void LiquidGlassEffectPrivate::roundedRectField(const QSize& size, qreal radius, qreal px, qreal py,
+		qreal& distance, qreal& normalX, qreal& normalY, qreal& boundaryX, qreal& boundaryY) {
+		const qreal centerX = size.width() / 2.0;
+		const qreal centerY = size.height() / 2.0;
+		const qreal coreHalfWidth = centerX - radius;
+		const qreal coreHalfHeight = centerY - radius;
+		const qreal dx = px - centerX;
+		const qreal dy = py - centerY;
+		const qreal qx = std::abs(dx) - coreHalfWidth;
+		const qreal qy = std::abs(dy) - coreHalfHeight;
+		const qreal ox = std::max(qx, 0.0);
+		const qreal oy = std::max(qy, 0.0);
+		const qreal outside = std::sqrt(ox * ox + oy * oy);
+		distance = radius - outside - std::min(std::max(qx, qy), 0.0);
+		if (outside > 0.0) {
+			normalX = ox * (dx < 0.0 ? 1.0 : -1.0) / outside;
+			normalY = oy * (dy < 0.0 ? 1.0 : -1.0) / outside;
 		}
-		if (width <= 0 || height <= 0 || thickness <= 0) {
-			return QImage();
+		else if (qx > qy) {
+			normalX = dx < 0.0 ? 1.0 : -1.0;
+			normalY = 0.0;
 		}
-		const qreal thickness2 = qreal(thickness) * thickness;
-		const qreal maxAlpha = color.alphaF() * 255.0;
-		int top = height;
-		int bottom = -1;
-		int left = width;
-		int right = -1;
-		for (int i = 0; i < points.size() && i < weights.size(); i++) {
-			if (weights[i] <= 0.0) {
-				continue;
-			}
-			top = std::min(top, std::max(points[i].y() - thickness, 0));
-			bottom = std::max(bottom, std::min(points[i].y() + thickness, height - 1));
-			left = std::min(left, std::max(points[i].x() - thickness, 0));
-			right = std::max(right, std::min(points[i].x() + thickness, width - 1));
+		else {
+			normalX = 0.0;
+			normalY = dy < 0.0 ? 1.0 : -1.0;
 		}
-		if (bottom < top || right < left) {
-			return QImage();
-		}
-		const QRect outputRect(left, top, right - left + 1, bottom - top + 1);
-		QImage image(outputRect.size(), QImage::Format_ARGB32);
-		image.fill(0);
-		quint8* buffer = new quint8[qsizetype(outputRect.width()) * outputRect.height()]();
-		for (int i = 0; i < points.size() && i < weights.size(); i++) {
-			const qreal weight = weights[i];
-			if (weight <= 0.0) {
-				continue;
-			}
-			const qreal alpha = weight * maxAlpha;
-			const int xBegin = std::max(points[i].x() - thickness, 0);
-			const int xEnd = std::min(points[i].x() + thickness, width - 1);
-			const int yBegin = std::max(points[i].y() - thickness, 0);
-			const int yEnd = std::min(points[i].y() + thickness, height - 1);
-			top = std::min(top, yBegin);
-			bottom = std::max(bottom, yEnd);
-			left = std::min(left, xBegin);
-			right = std::max(right, xEnd);
-			for (int y = yBegin; y <= yEnd; y++) {
-				const int offsetY = y - points[i].y();
-				quint8* line = buffer + qsizetype(y - top) * outputRect.width();
-				for (int x = xBegin; x <= xEnd; x++) {
-					const int offsetX = x - points[i].x();
-					const qreal falloff = 1.0 - qreal(offsetX * offsetX + offsetY * offsetY) / thickness2;
-					if (falloff <= 0.0) {
-						continue;
-					}
-					const quint8 value = quint8(std::clamp(alpha * falloff * falloff, 0.0, 255.0));
-					const int localX = x - left;
-					if (value > line[localX]) {
-						line[localX] = value;
-					}
-				}
-			}
-		}
-		const quint32 rgb = (quint32(color.red()) << 16) | (quint32(color.green()) << 8) | quint32(color.blue());
-		quint32* imageBits = reinterpret_cast<quint32*>(image.bits());
-		for (int y = 0; y < outputRect.height(); y++) {
-			const quint8* line = buffer + qsizetype(y) * outputRect.width();
-			for (int x = 0; x < outputRect.width(); x++) {
-				const quint8 alpha = line[x];
-					if (alpha != 0) {
-						imageBits[y * outputRect.width() + x] = (quint32(alpha) << 24) | rgb;
-					}
-			}
-		}
-		delete[] buffer;
-		if (dirtyRect) {
-			*dirtyRect = outputRect;
-		}
-		return image;
+		boundaryX = px - normalX * distance;
+		boundaryY = py - normalY * distance;
 	}
 
 	/*
-		鼠标边缘光的核心：找出离鼠标最近的那一个边界点，以它为原点沿边界向两侧衰减。
+		鼠标边缘光。逐像素按距离场解析求值，不再沿边界撒圆点：
+		  · 往里：离边界越远越暗，到 thickness 处平滑归零（平方衰减，外沿没有硬切边）；
+		  · 沿边界：以离鼠标最近的边界点为 1，沿边界走开 range 之后归零。
+		两个因子都是位置的连续函数，所以在斜边、圆角上都不会出现台阶，光带的粗细和亮度也是连续的。
 	*/
-	QImage LiquidGlassEffectPrivate::rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color, QRect* dirtyRect, const QVector<QPoint>* cachedPoints) {
+	QImage LiquidGlassEffectPrivate::rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition,
+		int thickness, int range, const QColor& color, QRect* dirtyRect) {
 		if (dirtyRect) {
 			*dirtyRect = QRect();
 		}
-		if (size.width() <= 0 || size.height() <= 0 || thickness <= 0 || range <= 0) {
+		const int width = size.width();
+		const int height = size.height();
+		if (width <= 0 || height <= 0 || thickness <= 0 || range <= 0 || color.alpha() <= 0) {
 			return QImage();
 		}
-		// 边界点的间隔不超过厚度的一半，这样相邻边界点扩散出的光晕才能连成一条连续的边缘光
-		const QVector<QPoint> generatedPoints = borderPoints(size, borderRadius, std::max(1, thickness / 2));
-		const QVector<QPoint>& points = cachedPoints ? *cachedPoints : generatedPoints;
-		if (points.isEmpty()) {
+		const qreal radius = std::clamp(qreal(borderRadius), 0.0, std::min(width, height) / 2.0);
+		const qreal thicknessValue = qreal(thickness);
+		const qreal rangeValue = qreal(range);
+		// 鼠标的像素中心与它到边界的距离：鼠标在形状内部时距离为 0，此时最近点就是它脚下的边界
+		const qreal mouseX = mousePosition.x() + 0.5;
+		const qreal mouseY = mousePosition.y() + 0.5;
+		qreal mouseDistance = 0.0;
+		qreal ignoreNormalX = 0.0;
+		qreal ignoreNormalY = 0.0;
+		qreal ignoreBoundaryX = 0.0;
+		qreal ignoreBoundaryY = 0.0;
+		roundedRectField(size, radius, mouseX, mouseY, mouseDistance, ignoreNormalX, ignoreNormalY, ignoreBoundaryX, ignoreBoundaryY);
+		const qreal nearestDistance = std::max(0.0, mouseDistance);
+		// 沿着边界走不出 range、往里走不出 thickness，所以发光区域一定落在以鼠标为心的这个圆里
+		const qreal reach = nearestDistance + rangeValue + thicknessValue + 1.0;
+		const int left = std::max(0, int(std::floor(mouseX - reach)));
+		const int right = std::min(width - 1, int(std::ceil(mouseX + reach)));
+		const int top = std::max(0, int(std::floor(mouseY - reach)));
+		const int bottom = std::min(height - 1, int(std::ceil(mouseY + reach)));
+		if (right < left || bottom < top) {
 			return QImage();
 		}
-		// 离鼠标最近的边界点：边缘光以它为原点沿边界向两侧衰减
-		int nearestDistance2 = std::numeric_limits<int>::max();
-		for (int i = 0; i < points.size(); i++) {
-			const int deltaX = points[i].x() - mousePosition.x();
-			const int deltaY = points[i].y() - mousePosition.y();
-			nearestDistance2 = std::min(nearestDistance2, deltaX * deltaX + deltaY * deltaY);
+		QImage image(QSize(right - left + 1, bottom - top + 1), QImage::Format_ARGB32);
+		image.fill(0);
+		const qreal baseAlpha = color.alphaF() * 255.0;
+		const quint32 rgb = (quint32(color.red()) << 16) | (quint32(color.green()) << 8) | quint32(color.blue());
+		quint32* imageBits = reinterpret_cast<quint32*>(image.bits());
+		const qsizetype rowStep = image.width();
+		int writtenLeft = right + 1;
+		int writtenTop = bottom + 1;
+		int writtenRight = left - 1;
+		int writtenBottom = top - 1;
+		// 每个像素在 sampleGrid×sampleGrid 个子位置上各算一次再平均。
+		// 光带只有一个像素宽时，按像素中心单点采样会让它在圆弧上变成一个一个方块的阶梯；
+		// 子采样拿到的是这一像素真正覆盖了多少光带，圆弧才会是平滑的一条。
+		const int sampleGrid = 4;
+		const qreal sampleStep = 1.0 / sampleGrid;
+		for (int y = top; y <= bottom; y++) {
+			quint32* line = imageBits + qsizetype(y - top) * rowStep;
+			for (int x = left; x <= right; x++) {
+				qreal coverage = 0.0;
+				for (int subY = 0; subY < sampleGrid; subY++) {
+					const qreal sampleY = y + (subY + 0.5) * sampleStep;
+					for (int subX = 0; subX < sampleGrid; subX++) {
+						const qreal sampleX = x + (subX + 0.5) * sampleStep;
+						qreal distance = 0.0;
+						qreal normalX = 0.0;
+						qreal normalY = 0.0;
+						qreal boundaryX = 0.0;
+						qreal boundaryY = 0.0;
+						roundedRectField(size, radius, sampleX, sampleY, distance, normalX, normalY, boundaryX, boundaryY);
+						if (distance <= 0.0 || distance >= thicknessValue + 0.5) {
+							continue;
+						}
+						const qreal along = 1.0 - (std::hypot(boundaryX - mouseX, boundaryY - mouseY) - nearestDistance) / rangeValue;
+						if (along <= 0.0) {
+							continue;
+						}
+						// 深度按「到边界的那半格像素」算起：贴边那一圈取满强度，再往里平方衰减，
+						// 否则厚度取 1 时最外圈只有 25% 强度，一像素宽的环会碎成断断续续的虚线。
+						const qreal depth = std::clamp(1.0 - (distance - 0.5) / thicknessValue, 0.0, 1.0);
+						if (depth <= 0.0) {
+							continue;
+						}
+						coverage += depth * depth * along * along;
+					}
+				}
+				if (coverage <= 0.0) {
+					continue;
+				}
+				coverage /= qreal(sampleGrid) * sampleGrid;
+				const quint8 alpha = quint8(std::clamp(baseAlpha * coverage, 0.0, 255.0));
+				if (alpha == 0) {
+					continue;
+				}
+				line[x - left] = (quint32(alpha) << 24) | rgb;
+				writtenLeft = std::min(writtenLeft, x);
+				writtenRight = std::max(writtenRight, x);
+				writtenTop = std::min(writtenTop, y);
+				writtenBottom = std::max(writtenBottom, y);
+			}
 		}
-		const qreal nearestDistance = std::sqrt(qreal(nearestDistance2));
-		QVector<qreal> weights(points.size());
-		for (int i = 0; i < points.size(); i++) {
-			const int deltaX = points[i].x() - mousePosition.x();
-			const int deltaY = points[i].y() - mousePosition.y();
-			const qreal weight = 1.0 - (std::sqrt(qreal(deltaX * deltaX + deltaY * deltaY)) - nearestDistance) / range;
-			weights[i] = weight > 0.0 ? weight * weight : 0.0; // 离鼠标太远的边界点不发光
+		if (writtenRight < writtenLeft || writtenBottom < writtenTop) {
+			return QImage();
 		}
-		return splatBoundaryGlow(size, points, weights, thickness, color, dirtyRect);
-	}
-
-	const QVector<QPoint>& LiquidGlassEffectPrivate::rimBorderPoints(int thickness) {
-		const QSize size = parentWidget ? parentWidget->size() : QSize();
-		const int stride = std::max(1, thickness / 2);
-		if (rimBorderPointsSize != size || rimBorderPointsRadius != borderRadius || rimBorderPointsThickness != stride) {
-			rimBorderPointsCache = borderPoints(size, borderRadius, stride);
-			rimBorderPointsSize = size;
-			rimBorderPointsRadius = borderRadius;
-			rimBorderPointsThickness = stride;
+		const QRect written(writtenLeft, writtenTop, writtenRight - writtenLeft + 1, writtenBottom - writtenTop + 1);
+		if (dirtyRect) {
+			*dirtyRect = written;
 		}
-		return rimBorderPointsCache;
+		return image.copy(QRect(written.topLeft() - QPoint(left, top), written.size()));
 	}
 
 	/*
@@ -1432,6 +1524,11 @@ namespace Visindigo::Widgets {
 		}
 		if (strength > 1.0) {
 			strength = 1.0;
+		}
+		// 边缘光是叠加在玻璃表面的高光，混合到 100% 就成了不透明的白线。
+		// 这里给个硬上限：不管颜色 alpha 和激活强度给多大，实际混合最多只到 50%。
+		if (additive && strength > maxRimLightBlend) {
+			strength = maxRimLightBlend;
 		}
 		const int scale = int(strength * 256.0); // 强度也折成定点，鼠标边缘光的淡入淡出就靠它
 		for (int y = rect.top(); y <= rect.bottom(); y++) {
@@ -1459,9 +1556,10 @@ namespace Visindigo::Widgets {
 				if (additive) {
 					// 叠加提亮：加多少就亮多少，与目标像素原本多暗无关。
 					// 分母是 255*256：alpha 归一到 0~1 后乘颜色分量，scale 把强度也折成定点
-					const int amountR = (lightR * alpha * scale) / (255 * 256);
-					const int amountG = (lightG * alpha * scale) / (255 * 256);
-					const int amountB = (lightB * alpha * scale) / (255 * 256);
+					// 加半个分母再除：截断会让缓慢变化的渐变出现一条条色阶
+					const int amountR = (lightR * alpha * scale + 255 * 128) / (255 * 256);
+					const int amountG = (lightG * alpha * scale + 255 * 128) / (255 * 256);
+					const int amountB = (lightB * alpha * scale + 255 * 128) / (255 * 256);
 					const int r = std::clamp(int((pixel >> 16) & 0xFF) + amountR, 0, 255);
 					const int g = std::clamp(int((pixel >> 8) & 0xFF) + amountG, 0, 255);
 					const int b = std::clamp(int(pixel & 0xFF) + amountB, 0, 255);
@@ -1490,17 +1588,20 @@ namespace Visindigo::Widgets {
 	}
 
 	/*
-		全局打光的单侧生成：沿边界求每个边界点的外法线，再用法线与光方向的点积决定它属于迎光面还是背光面。
-		polarity 为 +1 时只画迎光面（亮面），为 -1 时只画背光面（阴影面），两侧的亮度都取点积的平方，
-		因此正对光源最亮、与光垂直处归零、背光面完全不参与亮面，明暗沿边界连续变化。
-		圆角矩形的外法线直接由圆角矩形的有符号距离场求出：直边得到轴向法线，圆角得到指向圆角中心的径向法线。
+		全局打光的单侧生成：逐像素用圆角矩形的距离场求出内法线，再用「法线与光方向」的点积决定
+		它属于迎光面还是背光面。polarity 为 +1 时只画亮面，为 -1 时只画阴影面，
+		两侧的强度都取点积的平方：正对光源最亮、与光垂直处归零、另一面完全不参与。
+		法线来自解析距离场（直边得到轴向法线、圆角得到指向圆角圆心的径向法线），并且是位置的连续函数，
+		所以明暗过渡和边界都不会出现台阶；往里则按厚度做平方衰减，外沿平滑归零。
 		一束光的两面由LiquidGlassEffect::globalRimImage()配对：本函数只生成其中一面，不负责调制。
 	*/
 	QImage LiquidGlassEffectPrivate::buildGlobalRimSide(const QSize& size, int borderRadius, const QPointF& lightDirection, int thickness, qreal polarity, const QColor& color, QRect* dirtyRect) {
 		if (dirtyRect) {
 			*dirtyRect = QRect();
 		}
-		if (size.width() <= 0 || size.height() <= 0 || thickness <= 0 || color.alpha() <= 0) {
+		const int width = size.width();
+		const int height = size.height();
+		if (width <= 0 || height <= 0 || thickness <= 0 || color.alpha() <= 0) {
 			return QImage();
 		}
 		const qreal directionLength = std::hypot(lightDirection.x(), lightDirection.y());
@@ -1509,35 +1610,91 @@ namespace Visindigo::Widgets {
 		}
 		const qreal directionX = lightDirection.x() / directionLength;
 		const qreal directionY = lightDirection.y() / directionLength;
-		const int radius = std::clamp(borderRadius, 0, std::min(size.width(), size.height()) / 2);
-		const QVector<QPoint> points = borderPoints(size, radius, std::max(1, thickness / 2));
-		if (points.isEmpty()) {
-			return QImage();
-		}
-		const qreal centerX = (size.width() - 1) / 2.0;
-		const qreal centerY = (size.height() - 1) / 2.0;
-		const qreal halfWidth = centerX - radius;
-		const qreal halfHeight = centerY - radius;
-		QVector<qreal> weights(points.size());
-		for (int i = 0; i < points.size(); i++) {
-			const qreal offsetX = points[i].x() - centerX;
-			const qreal offsetY = points[i].y() - centerY;
-			const qreal squareX = std::max(std::abs(offsetX) - halfWidth, 0.0);
-			const qreal squareY = std::max(std::abs(offsetY) - halfHeight, 0.0);
-			const qreal squareLength = std::hypot(squareX, squareY);
-			if (squareLength <= 0.0) {
+		const qreal radius = std::clamp(qreal(borderRadius), 0.0, std::min(width, height) / 2.0);
+		const qreal thicknessValue = qreal(thickness);
+		// 只在贴着边界的这一圈里扫：宽度取「厚度 + 圆角半径」，圆角外侧的斜向部分也包得住，
+		// 图中间的大片区域连距离场都不用算。
+		const int band = std::min(std::max(1, int(std::ceil(thicknessValue + radius))), std::max(width, height) / 2);
+		const int sampleGrid = 4;
+		const qreal sampleStep = 1.0 / sampleGrid;
+		QImage image(size, QImage::Format_ARGB32);
+		image.fill(0);
+		const qreal baseAlpha = color.alphaF() * 255.0;
+		const quint32 rgb = (quint32(color.red()) << 16) | (quint32(color.green()) << 8) | quint32(color.blue());
+		quint32* imageBits = reinterpret_cast<quint32*>(image.bits());
+		const qsizetype rowStep = qsizetype(width);
+		int writtenLeft = width;
+		int writtenTop = height;
+		int writtenRight = -1;
+		int writtenBottom = -1;
+		auto paintPixel = [&](int x, int y) {
+			// 每个像素在 sampleGrid×sampleGrid 个子位置上各算一次再平均，理由同边缘光：
+			// 一像素宽的光带按中心单点采样会在圆弧上变成方块台阶，子采样得到的是真实覆盖量。
+			qreal coverage = 0.0;
+			for (int subY = 0; subY < sampleGrid; subY++) {
+				const qreal sampleY = y + (subY + 0.5) * sampleStep;
+				for (int subX = 0; subX < sampleGrid; subX++) {
+					const qreal sampleX = x + (subX + 0.5) * sampleStep;
+					qreal distance = 0.0;
+					qreal normalX = 0.0;
+					qreal normalY = 0.0;
+					qreal boundaryX = 0.0;
+					qreal boundaryY = 0.0;
+					roundedRectField(size, radius, sampleX, sampleY, distance, normalX, normalY, boundaryX, boundaryY);
+					if (distance <= 0.0 || distance >= thicknessValue + 0.5) {
+						continue;
+					}
+					// roundedRectField 给的是指向内部的法线，全局光要的是朝外的那一面：
+					// 光从控件指向光源，所以外法线与光方向点积为正的那条边就是迎光面。
+					const qreal dot = -(normalX * directionX + normalY * directionY);
+					const qreal facing = polarity > 0.0 ? dot : -dot;
+					if (facing <= 0.0) {
+						continue;
+					}
+					const qreal depth = std::clamp(1.0 - (distance - 0.5) / thicknessValue, 0.0, 1.0);
+					if (depth <= 0.0) {
+						continue;
+					}
+					coverage += depth * depth * facing * facing;
+				}
+			}
+			if (coverage <= 0.0) {
+				return;
+			}
+			coverage /= qreal(sampleGrid) * sampleGrid;
+			const quint8 alpha = quint8(std::clamp(baseAlpha * coverage, 0.0, 255.0));
+			if (alpha == 0) {
+				return;
+			}
+			imageBits[qsizetype(y) * rowStep + x] = (quint32(alpha) << 24) | rgb;
+			writtenLeft = std::min(writtenLeft, x);
+			writtenRight = std::max(writtenRight, x);
+			writtenTop = std::min(writtenTop, y);
+			writtenBottom = std::max(writtenBottom, y);
+		};
+		for (int y = 0; y < height; y++) {
+			const bool inVerticalBand = y < band || y >= height - band;
+			if (inVerticalBand) {
+				for (int x = 0; x < width; x++) {
+					paintPixel(x, y);
+				}
 				continue;
 			}
-			const qreal normalX = (squareX / squareLength) * (offsetX < 0 ? -1.0 : 1.0);
-			const qreal normalY = (squareY / squareLength) * (offsetY < 0 ? -1.0 : 1.0);
-			const qreal dot = normalX * directionX + normalY * directionY;
-			const qreal facing = polarity > 0 ? dot : -dot;
-			if (facing <= 0.0) {
-				continue; // 属于另一面，这次不画
+			for (int x = 0; x < std::min(band, width); x++) {
+				paintPixel(x, y);
 			}
-			weights[i] = facing * facing;
+			for (int x = std::max(width - band, 0); x < width; x++) {
+				paintPixel(x, y);
+			}
 		}
-		return splatBoundaryGlow(size, points, weights, thickness, color, dirtyRect);
+		if (writtenRight < writtenLeft || writtenBottom < writtenTop) {
+			return QImage();
+		}
+		const QRect written(writtenLeft, writtenTop, writtenRight - writtenLeft + 1, writtenBottom - writtenTop + 1);
+		if (dirtyRect) {
+			*dirtyRect = written;
+		}
+		return image.copy(written);
 	}
 
 	/*
@@ -1709,7 +1866,8 @@ namespace Visindigo::Widgets {
 	}
 
 	/*
-		帧缓存的指纹：只要下面这些参数不变，“扭曲 + 全局光之后、边缘光之前”的图像就完全一样。
+		帧缓存的指纹：只要下面这些参数不变，"打光 + 模糊 + 扭曲"之后的那张图就完全一样。
+		边缘光在这张图之后才叠加（它跟着鼠标走，不能进缓存），所以这里不含鼠标状态。
 	*/
 	quint64 LiquidGlassEffectPrivate::frameKey(const QSize& size) const {
 		const QRect widgetGeometry = parentWidget ? parentWidget->geometry() : QRect();
@@ -1727,6 +1885,9 @@ namespace Visindigo::Widgets {
 			liquidDistortRadius,
 			borderRadius,
 			liquidDistortDispersion,
+			liquidDistortStrength,
+			liquidDistortEnergy,
+			blurRadius,
 			quint32(backgroundPolicy),
 			backgroundImage.cacheKey(),
 			globalRimLightDirection.x(),

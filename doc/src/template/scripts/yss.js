@@ -624,17 +624,17 @@
 	/* 玻璃面板的边缘折射（对应 Visindigo::Widgets::LiquidGlassEffect 的 distortImage）。
 		selector 必须与 CSS 里应用玻璃的那一串保持一致 ——
 		两边不一致的话，折射带会画在不是玻璃的地方（或者漏掉某块玻璃）。
-		lens 对应他们的 liquidDistortRadius，dispersion 对应 liquidDistortDispersion。 */
+		lens 对应他们的 liquidDistortRadius；depth 就是 strength − 1（贴边取样深度 = depth × R）；
+		dispersion 对应 liquidDistortDispersion（单位是 R，0~1）。 */
 	var GLASS = {
 		lens: 20,
 		minLens: 5,
+		// 贴边处的取样深度 = depth × R（对应他们的 strength − 1）。深度和带宽是两件事：
+		// depth = 2 就是「带宽 40px 时，最外那一条取到 80px 外的东西」。
+		depth: 2,
 		dispersion: 0,
 		dispMin: 0.6,
-		dispMax: 8,
-		// 几何位移由谁来扭：true = 点阵自己扭（第 9 节）；
-		// false = 交给面板自己的 backdrop-filter（第 11 节，连照片一起扭），
-		// 此时第 9 节只剩色散，否则会被扭两遍。
-		warp: true,
+		dispMax: 40,
 		selector: ".table,pre,.admonition,.toc,.context ul,.context ol"
 	};
 
@@ -712,6 +712,11 @@
 			if (isFinite(lrv) && lrv >= 0) {
 				LENS.ratio = lrv;
 			}
+			// 贴边取样深度（相对带宽的倍数，对应他们的 strength − 1）
+			var dpv = parseFloat(cs.getPropertyValue("--yss-glass-depth"));
+			if (isFinite(dpv) && dpv >= 0) {
+				GLASS.depth = dpv;
+			}
 			var dv = parseFloat(cs.getPropertyValue("--yss-glass-dispersion"));
 			if (isFinite(dv) && dv > 0) {
 				GLASS.dispersion = dv;
@@ -739,90 +744,105 @@
 		}
 
 		/* ---- 玻璃边缘折射（对应 LiquidGlassEffect::distortImage）----
-			他们的映射是「输出位置 → 采样源位置」：带内距边缘 x 处，采样源图上距边缘
-				nearMap(x) = R/2 + (1 + sin(π/2 · x/R − π/2)) · R/2
-			处的像素（x ∈ [0, R]，值域 R/2 .. R）：贴边处从 R/2 采、带的内边界处就地采 ——
-			于是带内约 2 倍放大（点距被拉开一倍），而源图上最外那 R/2 圈不会被任何输出位置采到。
+			他们的映射是在**输出**方向定义的：折射带内距边界 d 处（d ∈ (0, R)）的像素，
+			去取内法线方向距边界 s 处的像素
+				s = d + D·fall²，fall = 1 − (d − 0.5)/(R − 0.5)，D = (强度 − 1)·R
+			也就是「贴边处取到 D 那么深，往带内走取样深度按 fall² 收回自身」：
+			窄窄一条边里塞的是深处的内容，而 D 和 R 是两件事 —— R 只有 6px 也能看到 60px 外的东西。
+			色散是给红/蓝换一个 D：红取得更深（D + s）、蓝取得更浅（max(0, D − s)），s = 色散 × R。
+			四边完全一致；角上是 x、y 两次位移的合成（第 11 节那条滤镜路径才用真正的圆角距离场）。
+
 			canvas 上画的是稀疏点阵，没法逐输出像素重采样，所以对每个**源点**反解它该画在哪：
-				s = R/2 + u · R/2   →   u = (s − R/2) / (R/2)
-				x = (2R/π) · (π/2 + asin(u − 1))
-			（采样不到的源点原地不动，见 refractPoint 的注释。）
-			色散：他们的实现是把 channelScale 乘在**采样偏移**上（nearMap 的第三项），
-			那是给"输出重采样"用的 —— 换成"源点重投影"之后，那个写法会变成
-			"越靠带的内边界分离越大、贴边处反而是 0"，与真实玻璃正好相反。
-			所以这里按真实玻璃的观感来：分离量以边缘为最大，向内线性衰减到 0（见 refractSpread）。 */
+			s = f(d) 化成 u = 1 − d/R 的二次方程 D·u² − R·u + (R − s) = 0，
+			所以一个源点有 0、1 或 2 个落脚点 —— D > R/2 时 f 会折返，
+			折返区里的那点内容会在带里出现两次，就是玻璃边缘那道「折过来的影子」。
+			带外的源点先在自己原位画一份（那里的输出像素没人覆盖）；
+			它到某条边的距离不超过 D 时，还会有第二份被吸进那条边带里 —— 带内看到的深处内容就是这么来的。
+			带内、又不在 f 的值域里的源内容会被覆盖掉，与真实重采样一致（那块位置显示的是别的东西）。
+			所以这里不存在旧实现那种「一整圈源内容采不到」的死带：每个源点都有明确的下落。 */
 
-		/* 源点（距边缘 s）折射后该落在距边缘多远。
-			【为什么没有直接用他们的 nearMap 逆】
-			他们的映射把源 [R/2, R] 映满输出 [0, R]（平均 2 倍放大），代价是最外 R/2 那圈源点
-			**没有任何输出位置** —— 在连续图像上那是"被放大后的内容盖住"，看不出问题；
-			但在 20px 间隔的点阵上，那是一条 R/2 宽的死带（R=48 时 24px > 点距），
-			必然至少压住一整列点，看起来就是"这一列压根没反应"。
-			所以改用一条覆盖整个 [0, R] 的单调曲线：边缘拉开、内侧按比例压一点来守恒
-			（平均放大率必须为 1，不可能只放大边缘），于是每个源点都有位移、越靠边越大。 */
-		function refractPos(s, R) {
-			var t = s / R;
-			if (t <= 0 || t >= 1) {
-				return null;
+		// f(d) = s 在 d ∈ [0, R] 上的解，返回「距边界的距离」，0~2 个，由外到内排列
+		function refractRoots(s, R, D) {
+			var out = [];
+			// D·u² − R·u + (R − s) = 0，u = 1 − d/R
+			var disc = R * R - 4 * D * (R - s);
+			if (disc < 0) {
+				return out;
 			}
-			// out'(0) = 1.6（边缘点距拉开 60%）、out'(1) = 0.4（内侧压到 40%）
-			return R * (1.6 * t - 0.6 * t * t);
+			var sq = Math.sqrt(disc);
+			var u1 = (R + sq) / (2 * D);   // 外圈那个根（d 更小、更贴边）
+			var u2 = (R - sq) / (2 * D);
+			if (u1 >= 0 && u1 <= 1) {
+				out.push(R * (1 - u1));
+			}
+			if (u2 >= 0 && u2 <= 1 && u1 - u2 > 1e-6) {
+				out.push(R * (1 - u2));
+			}
+			return out;
 		}
 
-		// 沿某个轴（a0..a1）求折射后的位置；null = 这个源点不在被采样的区间里
-		function refractAxis(p, a0, a1, R) {
-			// 面板外的点（循环会多取一格网格）不参与折射，也不能被当成带内丢掉
-			if (p <= a0 || p >= a1) {
-				return p;
+		// 一个源点在一条轴上的所有落脚点（空 = 被覆盖掉了）
+		function refractAxisImages(p, a0, a1, R, D) {
+			var s0 = p - a0, s1 = a1 - p;
+			// 面板外的点（循环会多取一格网格）不参与折射；没设深度就等于不扭
+			if (s0 <= 0 || s1 <= 0 || !(D > 0)) {
+				return [p];
 			}
-			if (p - a0 < R) {
-				var q = refractPos(p - a0, R);
-				return q === null ? null : a0 + q;
+			var out = [];
+			if (s0 >= R && s1 >= R) {
+				out.push(p);   // 带外：原位照画
 			}
-			if (a1 - p < R) {
-				var q2 = refractPos(a1 - p, R);
-				return q2 === null ? null : a1 - q2;
-			}
-			return p;
-		}
-
-		/* 一个源点在某个通道下的落脚点。ch = 通道系数，1 就是主映射（不带色散）。
-			注意这里**不再把 null 当成"删掉这个点"**：他们的映射是给连续图像用的 ——
-			最外 R/2 那圈源内容采不到，被放大后的内容盖住，图像上根本看不出空。
-			我们的背景是 20px 间隔的离散点，同样的映射就会变成"边缘挖掉一两个点"，
-			而哪些点被挖是网格相位决定的（每个面板、每条边都不同），
-			于是四条边看起来各行其是、某一侧"没被扭曲"。
-			所以：采不到的源点原地不动 —— 点阵不断、四边一致。 */
-		function refractPoint(dx, dy, panel, ch) {
-			var px = dx, py = dy;
-			var R = panel.R;
-			// GLASS.warp 关掉时几何位移由面板自己的 backdrop-filter 负责（第 11 节），
-			// 这里就只剩色散：三颗点各偏一点，之后一起被滤镜掰弯，
-			// 于是贴边的彩边还被顺带放大 —— 真玻璃就是这样。
-			if (GLASS.warp) {
-				if (panel.hx) {
-					var q = refractAxis(dx, panel.x0, panel.x1, R);
-					px = q === null ? dx : q;
-				}
-				if (panel.hy) {
-					var q2 = refractAxis(dy, panel.y0, panel.y1, R);
-					py = q2 === null ? dy : q2;
+			// 左带、右带各查一次：源点距那条边不超过 D，就有一份被折进那条带里
+			var roots, i;
+			if (s0 <= D) {
+				roots = refractRoots(s0, R, D);
+				for (i = 0; i < roots.length; i++) {
+					out.push(a0 + roots[i]);
 				}
 			}
-			// 色散两个轴都要错开（他们的三通道映射在 x、y 上各查一次表）
-			px = refractSpread(px, panel.x0, panel.x1, R, ch);
-			py = refractSpread(py, panel.y0, panel.y1, R, ch);
-			return [px, py];
+			if (s1 <= D) {
+				roots = refractRoots(s1, R, D);
+				for (i = 0; i < roots.length; i++) {
+					out.push(a1 - roots[i]);
+				}
+			}
+			return out;
 		}
 
-		// 色散偏移：贴边处最大，到折射带的内边界线性衰减到 0
-		function refractSpread(v, a0, a1, R, ch) {
-			if (ch === 1) {
+		// 一个源点的所有落脚点：两个轴各取一份再叉乘（贴着角的点最多 4 个）
+		function refractImages(dx, dy, panel) {
+			var xs = refractAxisImages(dx, panel.x0, panel.x1, panel.R, panel.depth);
+			var ys = refractAxisImages(dy, panel.y0, panel.y1, panel.R, panel.depth);
+			var out = [];
+			for (var i = 0; i < xs.length; i++) {
+				for (var j = 0; j < ys.length; j++) {
+					out.push([xs[i], ys[j]]);
+				}
+			}
+			return out;
+		}
+
+		// 色散的通道错位：把落脚点沿内法线挪 delta（正 = 朝面板内部）。
+		// 红光的 D 更大、它的像更贴边，所以红用负 delta、蓝用正 delta；
+		// 错位量按 fall² 衰减，带的内边界处归零，接缝上不会留下彩线。
+		function refractSpread(px, py, panel, delta) {
+			return [
+				spreadAxis(px, panel.x0, panel.x1, panel.R, delta),
+				spreadAxis(py, panel.y0, panel.y1, panel.R, delta)
+			];
+		}
+
+		function spreadAxis(v, a0, a1, R, delta) {
+			var s0 = v - a0, s1 = a1 - v;
+			if (s0 <= 0 || s1 <= 0 || (s0 >= R && s1 >= R)) {
 				return v;
 			}
-			var de = Math.min(v - a0, a1 - v);
-			var f = 1 - Math.max(0, Math.min(1, de / R));
-			return v + (1 - ch) * R * 0.5 * f;
+			var left = s0 <= s1;
+			var d = left ? s0 : s1;
+			var t = 1 - (d - 0.5) / Math.max(0.5, R - 0.5);
+			t = t < 0 ? 0 : (t > 1 ? 1 : t);
+			var move = delta * t * t;
+			return left ? v + move : v - move;
 		}
 
 		// 解析 CSS 颜色（#rgb / #rrggbb / rgb[a](...)）成 [r, g, b, a]
@@ -857,12 +877,10 @@
 				if (R < GLASS.minLens) {
 					continue;
 				}
-				// 带刚好铺满半个面板（R = 短边/2）时两条带在中间相接 —— 他们 C++ 里
-				// rightStart == R 时也照样成立，所以这里允许 2R 顶到边长。
 				list.push({
 					x0: r.left, y0: r.top, x1: r.right, y1: r.bottom, R: R,
-					hx: r.width + 2 >= 2 * R,
-					hy: r.height + 2 >= 2 * R
+					// 贴边处的取样深度，与带宽解耦
+					depth: GLASS.depth * R
 				});
 			}
 			return list;
@@ -976,74 +994,81 @@
 			var i1 = Math.min(Math.ceil(w / spacing), Math.ceil(x1 / spacing));
 			var j0 = Math.max(0, Math.floor(y0 / spacing));
 			var j1 = Math.min(Math.ceil(h / spacing), Math.ceil(y1 / spacing));
+			// 滤镜路径生效时（lensActive）几何与色散都交给面板的 backdrop-filter，
+			// 点阵画成直的、跟背板一起被掰弯即可 —— 这里就不用逐点算位移了。
+			var warp = panel && !lensActive;
 			for (var i = i0; i <= i1; i++) {
 				var dx = i * spacing;
 				for (var j = j0; j <= j1; j++) {
 					var dy = j * spacing;
-					var px = dx, py = dy;
-					var chan = null;
-					// 滤镜路径生效时（lensActive）几何与色散都交给面板的 backdrop-filter，
-					// 点阵画成直的、跟背板一起被掰弯即可 —— 这里就不用逐点算位移了。
-					// 一帧要过几千个点，这条分支能省下每帧两次函数调用。
-					if (panel && !lensActive) {
-						var mid = refractPoint(dx, dy, panel, 1);
-						px = mid[0];
-						py = mid[1];
-						// 色散：三个通道位置错开得够多才拆开画，否则还是一个点（免得整体变淡）
-						// 滤镜路径生效时色散由滤镜做（三通道三张表），别再自己拆一遍
-						if (GLASS.dispersion > 0 && !lensActive) {
-							var lo = refractPoint(dx, dy, panel, 1 - GLASS.dispersion);
-							var hi = refractPoint(dx, dy, panel, 1 + GLASS.dispersion);
-							var spread = Math.abs(lo[0] - hi[0]) + Math.abs(lo[1] - hi[1]);
-							// 太小 = 看不出来；太大 = 某个通道已经落到采样区外（那位是"原地不动"的），
-							// 两种情况都照常画一个点，别硬拆
-							if (spread >= GLASS.dispMin && spread <= GLASS.dispMax) {
-								chan = [lo, mid, hi];
-							}
-						}
+					if (!warp) {
+						drawOne(g, dx, dy, now, null);
+						continue;
 					}
-					var ox = 0, oy = 0, boost = 0;
-					for (var k = 0; k < ripples.length; k++) {
-						var rp = ripples[k];
-						var age = (now - rp.t) / 1000;
-						if (age < 0 || age > DOT.life) {
-							continue;
-						}
-						var vx = px - rp.x;
-						var vy = py - rp.y;
-						var dist = Math.sqrt(vx * vx + vy * vy) || 1;
-						if (dist > DOT.reach) {
-							continue;
-						}
-						// 波峰随时间的环形位置；band 是点到波峰的高斯衰减
-						var peak = dist - DOT.speed * age;
-						var band = Math.exp(-(peak * peak) / (2 * DOT.sigma * DOT.sigma));
-						var kk = band * (1 - dist / DOT.reach) * (1 - age / DOT.life) * (rp.amp || 1);
-						if (kk > 0.002) {
-							// 靠近波心时径向方向本身就是噪声（几个像素的偏差就能反转方向），
-							// 所以让位移随距离平滑趋零，而不是让中心的点来回抰。
-							var dirScale = dist < DOT.sigma ? dist / DOT.sigma : 1;
-							ox += (vx / dist) * kk * DOT.push * dirScale;
-							oy += (vy / dist) * kk * DOT.push * dirScale;
-							boost += kk * dirScale;
-						}
-					}
-					if (chan) {
-						// 色散：三颗点各只带一个通道（另两个通道用的是页面底色），
-						// 所以普通合成就行 —— 错开的地方显彩边，重叠的地方还是原来的灰
-						for (var c = 0; c < 3; c++) {
-							g.beginPath();
-							g.arc(chan[c][0] + ox, chan[c][1] + oy, DOT.radius * (1 + boost * 0.7), 0, TAU);
-							g.fillStyle = c === 0 ? chanR : (c === 1 ? chanG : chanB);
-							g.fill();
-						}
-					} else {
-						g.beginPath();
-						g.arc(px + ox, py + oy, DOT.radius * (1 + boost * 0.7), 0, TAU);
-						g.fillStyle = boost > 0.03 ? bright : color;
-						g.fill();
+					// 一个源点可能同时显影在好几处（原位 + 被折进带里的那份）
+					var imgs = refractImages(dx, dy, panel);
+					for (var k = 0; k < imgs.length; k++) {
+						drawOne(g, imgs[k][0], imgs[k][1], now, panel);
 					}
 				}
+			}
+		}
+
+		// 画一颗点（波纹位移 + 色散拆通道）。px,py 是它折射后的落脚点。
+		function drawOne(g, px, py, now, panel) {
+			var chan = null;
+			// 色散：三个通道的落脚点错开得够多才拆开画，否则还是一个点（免得整体变淡）
+			// 滤镜路径生效时色散由滤镜做（三通道三张位移图），别再自己拆一遍
+			if (panel && GLASS.dispersion > 0) {
+				var dsp = GLASS.dispersion * panel.R;
+				var lo = refractSpread(px, py, panel, -dsp);
+				var hi = refractSpread(px, py, panel, dsp);
+				var spread = Math.abs(lo[0] - hi[0]) + Math.abs(lo[1] - hi[1]);
+				// 太小 = 看不出来；太大 = 已经散成一串，两种情况都照常画一个点
+				if (spread >= GLASS.dispMin && spread <= GLASS.dispMax) {
+					chan = [lo, [px, py], hi];
+				}
+			}
+			var ox = 0, oy = 0, boost = 0;
+			for (var k = 0; k < ripples.length; k++) {
+				var rp = ripples[k];
+				var age = (now - rp.t) / 1000;
+				if (age < 0 || age > DOT.life) {
+					continue;
+				}
+				var vx = px - rp.x;
+				var vy = py - rp.y;
+				var dist = Math.sqrt(vx * vx + vy * vy) || 1;
+				if (dist > DOT.reach) {
+					continue;
+				}
+				// 波峰随时间的环形位置；band 是点到波峰的高斯衰减
+				var peak = dist - DOT.speed * age;
+				var band = Math.exp(-(peak * peak) / (2 * DOT.sigma * DOT.sigma));
+				var kk = band * (1 - dist / DOT.reach) * (1 - age / DOT.life) * (rp.amp || 1);
+				if (kk > 0.002) {
+					// 靠近波心时径向方向本身就是噪声（几个像素的偏差就能反转方向），
+					// 所以让位移随距离平滑趋零，而不是让中心的点来回抰。
+					var dirScale = dist < DOT.sigma ? dist / DOT.sigma : 1;
+					ox += (vx / dist) * kk * DOT.push * dirScale;
+					oy += (vy / dist) * kk * DOT.push * dirScale;
+					boost += kk * dirScale;
+				}
+			}
+			if (chan) {
+				// 色散：三颗点各只带一个通道（另两个通道用的是页面底色），
+				// 所以普通合成就行 —— 错开的地方显彩边，重叠的地方还是原来的灰
+				for (var c = 0; c < 3; c++) {
+					g.beginPath();
+					g.arc(chan[c][0] + ox, chan[c][1] + oy, DOT.radius * (1 + boost * 0.7), 0, TAU);
+					g.fillStyle = c === 0 ? chanR : (c === 1 ? chanG : chanB);
+					g.fill();
+				}
+			} else {
+				g.beginPath();
+				g.arc(px + ox, py + oy, DOT.radius * (1 + boost * 0.7), 0, TAU);
+				g.fillStyle = boost > 0.03 ? bright : color;
+				g.fill();
 			}
 		}
 
@@ -1328,16 +1353,21 @@
 		store: "files",
 		key: "image",
 		lsKey: "yss-doc-bg-image",   // 兜底那一路的键；存进 IndexedDB 成功时会清掉它
-		optKey: "yss-doc-bg-opt",    // { v, alpha, blur } 一起存成一条 JSON
+		optKey: "yss-doc-bg-opt",    // { v, alpha, blur, 玻璃四项 } 一起存成一条 JSON
 		// 改了下面两个默认值就把这个数字 +1：版本号对不上的旧数据不再沿用（否则
 		// 存过一次滑块的页面会永远停在旧默认上），直接用新默认并回写一条带新版本号的。
-		optVer: 2,
+		optVer: 5,
 		maxFile: 32 * 1024 * 1024,   // 再大就不读了，读进内存也存不下
 		maxSide: 2560,               // 存储用的长边上限
 		quality: 0.9,
 		defAlpha: 25,                // 透明度默认值（%）：盖在图片上的那层薄纱
-		defBlur: 3,                  // 背景模糊默认值（px）
-		maxBlur: 80                  // 模糊滑块上限（px）
+		defBlur: 2,                  // 背景模糊默认值（px）
+		maxBlur: 80,                 // 模糊滑块上限（px）
+		// 液态玻璃那四项的默认值，与 CSS 里 :root 的那组变量保持一致
+		defDisp: 20,                 // 色散 ×100（0~60）
+		defLens: 6,                  // 折射带宽度 R（px）
+		defStrength: 6,              // 强度 = depth + 1（C++ 的 liquidDistortStrength）
+		defGlassBlur: 2              // 玻璃自身的模糊（px）
 	};
 
 	function idbOpen() {
@@ -1537,6 +1567,15 @@
 			'<input type="range" min="0" max="100" step="1" data-yss="alpha" aria-label="背景透明度" /><output></output></label>' +
 			'<label class="yss-bgset__field"><span>背景模糊</span>' +
 			'<input type="range" min="0" max="' + BG.maxBlur + '" step="1" data-yss="blur" aria-label="背景模糊度" /><output></output></label>' +
+			'<p class="yss-bgset__group">液态玻璃</p>' +
+			'<label class="yss-bgset__field"><span>色散</span>' +
+			'<input type="range" min="0" max="60" step="1" data-yss="gdisp" aria-label="玻璃色散" /><output></output></label>' +
+			'<label class="yss-bgset__field"><span>边距</span>' +
+			'<input type="range" min="2" max="30" step="1" data-yss="glens" aria-label="折射带宽度" /><output></output></label>' +
+			'<label class="yss-bgset__field"><span>强度</span>' +
+			'<input type="range" min="1" max="20" step="1" data-yss="gstr" aria-label="折射强度" /><output></output></label>' +
+			'<label class="yss-bgset__field"><span>玻璃模糊</span>' +
+			'<input type="range" min="0" max="20" step="1" data-yss="gblur" aria-label="玻璃模糊度" /><output></output></label>' +
 			'<p class="yss-bgset__note" data-yss="msg">图片只存在本机浏览器里，不会上传。</p>';
 		document.body.appendChild(pop);
 
@@ -1556,6 +1595,10 @@
 		var clearBtn = q("clear");
 		var alphaEl = q("alpha");
 		var blurEl = q("blur");
+		var gdispEl = q("gdisp");
+		var glensEl = q("glens");
+		var gstrEl = q("gstr");
+		var gblurEl = q("gblur");
 		var msgEl = q("msg");
 		var outEls = pop.querySelectorAll("output");
 		var msgText = msgEl.textContent;
@@ -1564,7 +1607,10 @@
 		var current = null;  // 当前图片地址；null = 没设背景
 		var busy = false;
 		var msgTimer = 0;
-		var opt = { alpha: BG.defAlpha, blur: BG.defBlur };
+		var opt = {
+			alpha: BG.defAlpha, blur: BG.defBlur,
+			gdisp: BG.defDisp, glens: BG.defLens, gstr: BG.defStrength, gblur: BG.defGlassBlur
+		};
 
 		/* ---- 两个滑块：透明度与模糊度 ---- */
 
@@ -1581,6 +1627,55 @@
 			outEls[1].textContent = opt.blur + "px";
 		}
 
+		/* ---- 四个滑块：液态玻璃 ----
+			它们改的是 CSS 变量（第 9 节的点阵折射与第 11 节的位移滤镜都读这几个），
+			同时要更新脚本里那份 GLASS.* 缓存 —— 两张"表"都在用它：
+			  · 边距 R：透镜带宽（--yss-glass-lens）
+			  · 强度 ：strength，深度 D = (强度 − 1)·R（--yss-glass-depth）
+			  · 色散 ：--yss-glass-dispersion，单位是 R
+			  · 玻璃模糊：面板自己的 backdrop-filter（--yss-glass-blur）
+			改完之后位移图必须重建（特别贵，所以拖滑块时防抖），点阵也要重画。 */
+
+		var glassTimer = 0;
+
+		function applyGlass(rebuild) {
+			var root = document.documentElement;
+			root.style.setProperty("--yss-glass-dispersion", (opt.gdisp / 100).toFixed(2));
+			root.style.setProperty("--yss-glass-lens", String(opt.glens));
+			root.style.setProperty("--yss-glass-depth", String(opt.gstr - 1));
+			root.style.setProperty("--yss-glass-blur", opt.gblur + "px");
+			// 同步脚本里的缓存（第 9 节用它算点阵落脚点，第 11 节用它生成位移图）
+			GLASS.lens = opt.glens;
+			GLASS.dispersion = opt.gdisp / 100;
+			GLASS.depth = opt.gstr - 1;
+			gdispEl.value = opt.gdisp;
+			glensEl.value = opt.glens;
+			gstrEl.value = opt.gstr;
+			gblurEl.value = opt.gblur;
+			outEls[2].textContent = (opt.gdisp / 100).toFixed(2);
+			outEls[3].textContent = opt.glens + "px";
+			outEls[4].textContent = String(opt.gstr);
+			outEls[5].textContent = opt.gblur + "px";
+			if (!rebuild) {
+				return;
+			}
+			// 玻璃模糊属于面板自己的 backdrop-filter，而那份值被 lensBase() 缓存过 ——
+			// 摘掉内联值让它重新读 CSS，否则滑块怎么推都还是老模糊。
+			var nodes = glassNodes();
+			for (var i = 0; i < nodes.length; i++) {
+				delete nodes[i].__yssBase;
+				nodes[i].style.removeProperty("backdrop-filter");
+				nodes[i].style.removeProperty("-webkit-backdrop-filter");
+			}
+			window.clearTimeout(glassTimer);
+			glassTimer = window.setTimeout(function () {
+				applyLens();
+				if (glassRedraw) {
+					glassRedraw();
+				}
+			}, 120);
+		}
+
 		function readOpt() {
 			var stale = false;
 			try {
@@ -1591,6 +1686,18 @@
 					}
 					if (isFinite(raw.blur)) {
 						opt.blur = Math.max(0, Math.min(BG.maxBlur, Math.round(raw.blur)));
+					}
+					if (isFinite(raw.gdisp)) {
+						opt.gdisp = Math.max(0, Math.min(60, Math.round(raw.gdisp)));
+					}
+					if (isFinite(raw.glens)) {
+						opt.glens = Math.max(2, Math.min(30, Math.round(raw.glens)));
+					}
+					if (isFinite(raw.gstr)) {
+						opt.gstr = Math.max(1, Math.min(20, Math.round(raw.gstr)));
+					}
+					if (isFinite(raw.gblur)) {
+						opt.gblur = Math.max(0, Math.min(20, Math.round(raw.gblur)));
 					}
 				} else if (raw) {
 					stale = true;   // 旧格式 / 旧默认值：忽略，用新默认值
@@ -1605,7 +1712,11 @@
 
 		function saveOpt() {
 			try {
-				localStorage.setItem(BG.optKey, JSON.stringify({ v: BG.optVer, alpha: opt.alpha, blur: opt.blur }));
+				localStorage.setItem(BG.optKey, JSON.stringify({
+					v: BG.optVer,
+					alpha: opt.alpha, blur: opt.blur,
+					gdisp: opt.gdisp, glens: opt.glens, gstr: opt.gstr, gblur: opt.gblur
+				}));
 			} catch (e) {
 				/* 记不住就算了，本次会话里照样有效 */
 			}
@@ -1782,6 +1893,19 @@
 		alphaEl.addEventListener("change", saveOpt);
 		blurEl.addEventListener("change", saveOpt);
 
+		var glassEls = [
+			["gdisp", "gdisp"], ["glens", "glens"], ["gstr", "gstr"], ["gblur", "gblur"]
+		];
+		for (var gi = 0; gi < glassEls.length; gi++) {
+			(function (el, key) {
+				el.addEventListener("input", function () {
+					opt[key] = parseInt(el.value, 10) || 0;
+					applyGlass(true);
+				});
+				el.addEventListener("change", saveOpt);
+			})(q(glassEls[gi][0]), glassEls[gi][1]);
+		}
+
 		input.addEventListener("change", function () {
 			var file = input.files && input.files[0];
 			// 先取出文件再清空 value：这样连着选同一个文件也会再触发一次 change
@@ -1792,6 +1916,9 @@
 		// 先把滑块摆到存下来的值、按钮摆成「没背景」的样子，读到存储再改
 		readOpt();
 		applyOpt();
+		// 这里只把 CSS 变量与 GLASS.* 摆好，不重建位移图：
+		// ready() 里 initLens() 排在后面，它会按这里设好的变量建第一次图。
+		applyGlass(false);
 		setState(false);
 		bgLoadURL().then(function (url) {
 			if (url) {
@@ -1802,56 +1929,65 @@
 		});
 	}
 
-	/* ----------------------------------------------------------
-		11. 面板折射（几何）：让面板背后的**真实内容**被掰弯
+		/* ----------------------------------------------------------
+			11. 面板折射（几何）：让面板背后的**真实内容**被掰弯
 
-		第 9 节那套只扭得动点阵：照片是 DOM 层，canvas 里的逐点位移碰不到它 ——
-		所以上传了背景图之后，玻璃的"厚边"依旧是假的。这里换成让浏览器自己扭背板：
-		backdrop-filter 可以引用 SVG 滤镜（url(#f)），而 feDisplacementMap 能对
-		**整个背板**（照片 + 点阵 + 从面板背后滚过去的正文）做逐像素位移。
-		滤镜挂在元素上、跟着元素走，所以滚动时零 JS 开销，视口怎么变都不会错位。
+			第 9 节那套只扭得动点阵：照片是 DOM 层，canvas 里的逐点位移碰不到它 ——
+			所以上传了背景图之后，玻璃的"厚边"依旧是假的。这里换成让浏览器自己扭背板：
+			backdrop-filter 可以引用 SVG 滤镜（url(#f)），而 feDisplacementMap 能对
+			**整个背板**（照片 + 点阵 + 从面板背后滚过去的正文）做逐像素位移。
+			滤镜挂在元素上、跟着元素走，所以滚动时零 JS 开销，视口怎么变都不会错位。
 
-		【这套位移是 LiquidGlassEffect::distortImage 的逐行移植，不要自己"改进"】
-		对应的 C++ 就在 Widgets/cpp/LiquidGlassEffect.cpp（nearMap/farMap 那段）。
-		要点（照抄，不重新推导）：
-		  · R 先夹到 min(宽,高)/2；halfRadius = R/2 **整除**；
-		  · nearMap[k] = clamp(int(halfRadius + (1+sin(phase-π/2))·halfRadius·channelScale), 0, min(宽,高)-1)
-		    farMap[k]  = clamp(int(sin(phase)·halfRadius·channelScale), 0, R-1)，phase = (k+1)/R·π/2；
-		  · 输出像素 (x,y) 的采样位置：x < R 取 nearMap[x]，x >= 宽-R 取 (宽-R)+farMap[x-(宽-R)]，
-		    中间取 x 本身；y 同理（同行同列两张表）；四角的块就是行列各查一次表。
-		  · 色散 = channelScale 取 {1-d, 1, 1+d}（红/绿/蓝各一张表），色散越大采样越深。
-		所以我只做一件事：把"输出像素 → 采样源像素"写成 feDisplacementMap 的位移图
-		（偏移 = 源 - 输出，值 = 0.5 + 偏移/R，滤镜 scale = R），算法本身一个字不改。
-		三个通道各自一张图 + 取通道相加，就是他们 combineChannels 做的事。
+			【这套位移是 LiquidGlassEffect::distortImage 的移植，不要自己"改进"】
+			对应的 C++ 就在 Widgets/cpp/LiquidGlassEffect.cpp 的 distortImage()。
+			它是**输出向**的映射，照抄要点：
+			  · 圆角矩形内部的距离场给出 δ（到边界的距离，内部为正）和内法线 n；
+			    带内就是 0 < δ < R，圆角处沿圆角半径，不按 x/y 分量近似；
+			  · 带内像素的取样位置 = p + n·D·fall²，fall = 1 − (δ − 0.5)/(R − 0.5)；
+			    带外原样不动。δ 越小偏移越大：贴边处取到 D 那么深，往带内走逐步收回自身；
+			  · D = (强度 − 1)·R 是贴边处的取样深度，与带宽 R 解耦
+			    （R 只有 6px 也能看到 60px 外的东西）；
+			  · 色散 = 红/蓝各换一个 D：红 D + s 取更深、蓝 max(0, D − s) 更浅，
+			    s = 色散 × R，绿不动。三张位移图各取一个通道再相加，就是他们 combineChannels 做的事。
+			我们只做一件事：把「输出像素 → 采样源像素」写成 feDisplacementMap 的位移图
+			（偏移 = 源 − 输出，编码成 0.5 + 偏移/(2·Dmax)，滤镜 scale 取 2·Dmax），算法一个字不改。
+			位移只朝面板内部、带外恒为 0.5，所以 8 位位移图也够用。
 
-		【能力探测】CSS.supports 只验证语法，所以真画一次：canvas 的 ctx.filter 与
-		backdrop-filter 在 Blink 里走的是同一套参考滤镜实现，而 canvas 能读像素，
-		于是能确定性地判断"这台浏览器到底会不会渲染参考滤镜"。
-		探测里的位移图用 feTurbulence 而不是 feImage：canvas 这条路是同步画的，
-		feImage 引的图还没解码完就已经出结果了（实测输出整张全空），而 feTurbulence 是纯计算的。
-		探测不过（Safari、较老的 Firefox）就保持第 9 节那套：点阵照扭，照片不扭。
-		---------------------------------------------------------- */
+			【能力探测】CSS.supports 只验证语法，所以真画一次：canvas 的 ctx.filter 与
+			backdrop-filter 在 Blink 里走的是同一套参考滤镜实现，而 canvas 能读像素，
+			于是能确定性地判断"这台浏览器到底会不会渲染参考滤镜"。
+			探测里的位移图用 feTurbulence 而不是 feImage：canvas 这条路是同步画的，
+			feImage 引的图还没解码完就已经出结果了（实测输出整张全空），而 feTurbulence 是纯计算的。
+			探测不过（Safari、较老的 Firefox）就保持第 9 节那套：点阵照扭，照片不扭。
+			---------------------------------------------------------- */
 
 	var SVGNS = "http://www.w3.org/2000/svg";
 
 	var LENS = {
 		quant: 2,     // 位移图的尺寸量化步长（px）：同尺寸的面板共用一张
 		maxMaps: 48,  // 位移图上限，超了就不再建新的（宁可少扭几块）
-		res: 0.5,     // 位移图分辨率（相对 CSS 像素）—— 位移场很平滑，半分辨率够用
-		// 带宽度相对「形状最短边」的比例。他们的 Demo（正圆）用的是 C++ 里那个上限
-		// min(w,h)/2：整条带盖住整个形状，映射恰好把中间一半放大 2 倍（各向同性），
-		// 看起来就是凸透镜。我们这里默认也取这个比例，--yss-glass-lens 只作下限。
+		// 位移图分辨率：必须 1:1。试过 0.5（半分辨率 + preserveAspectRatio 拉伸），
+		// Chromium 的 feDisplacementMap 在拉伸图上会出现**通道串扰** ——
+		// 纯竖直位移也会让竖线在带内左右错开一两像素，看起来就是"上下边缘把背景往左右扭"。
+		// 1:1 之后实测位移场完全干净。
+		res: 1,
+		// 带宽度相对「形状最短边」的比例。他们的 C++ 把 R 夹到 min(w,h)/2，
+		// 也就是带最多铺满半个形状；可在文档这个量级上那就等于整块面板都成了折射带，
+		// 所以默认取 0.18，--yss-glass-lens 只作下限（说明见 CSS）。
 		ratio: 0.5
 	};
 
 	/* 折射带半径。对应他们 C++ 开头那句 clamp，只是在它下面再加一个用户下限：
-		R = clamp(max(--yss-glass-lens, 最短边 × ratio), 1, 最短边/2)
-		ratio 设 0 就退回「只按 --yss-glass-lens 取，且不超过最短边一半」的旧行为。 */
+		R = clamp(max(min(--yss-glass-lens, 短边/4), 短边 × ratio), 1, 短边/2)
+		下限也跟着短边走 —— 面板只有 86px 高时，40px 的最小带宽就等于"整块都是折射带"，
+		带里的点会被压光，所以最小带宽最多取短边的四分之一。
+		ratio 设 0 就退回「只按 --yss-glass-lens 取，且不超过短边一半」的旧行为。 */
 	function lensRadius(w, h) {
 		var minSide = Math.min(w, h);
 		var cap = Math.floor(minSide / 2);
 		var want = Math.round(minSide * LENS.ratio);
-		return Math.max(1, Math.min(cap, Math.max(GLASS.lens, want)));
+		var floorPx = Math.min(GLASS.lens, minSide * 0.25);
+		return Math.max(1, Math.min(cap, Math.max(floorPx, want)));
 	}
 
 	var lensSvg = null;   // 存所有滤镜的 <svg>
@@ -1860,33 +1996,26 @@
 
 	var lensActive = false;   // 滤镜路径生效时，第 9 节的几何与色散都让给滤镜，别扭两遍
 
-	// nearMap / farMap：对应 distortImage 里那两个循环（含 int() 截断与 clamp）。
-	// cs = channelScale：1 是不带色散的绿通道，1∓dispersion 是红/蓝通道。
-	function lensTabs(R, minSide, cs) {
-		var half = Math.floor(R / 2);   // 他们的 halfRadius = liquidDistortRadius / 2，整除
-		var near = new Array(R);
-		var far = new Array(R);
-		for (var k = 0; k < R; k++) {
-			var phase = (k + 1) / R * Math.PI / 2;
-			near[k] = Math.min(minSide - 1, Math.max(0, Math.floor(half + (1 + Math.sin(phase - Math.PI / 2)) * half * cs)));
-			far[k] = Math.min(R - 1, Math.max(0, Math.floor(Math.sin(phase) * half * cs)));
+	// 圆角矩形内部的距离场：返回 [δ, 内法线 x, 内法线 y]，逐字对应 C++ 里的 fieldAt。
+	// δ 是到形状边界的距离（内部为正）；直边上法线就是该边的法线，圆角处沿圆角半径，
+	// 两者连续过渡 —— 所以四条边、四个角是同一套规律，角上不会退化成按 x/y 分量近似。
+	function lensField(px, py, w, h, rad) {
+		var dx = px - w / 2, dy = py - h / 2;
+		var qx = Math.abs(dx) - (w / 2 - rad);
+		var qy = Math.abs(dy) - (h / 2 - rad);
+		var ox = Math.max(qx, 0), oy = Math.max(qy, 0);
+		var outside = Math.sqrt(ox * ox + oy * oy);
+		var dist = rad - outside - Math.min(Math.max(qx, qy), 0);
+		var nx = 0, ny = 0;
+		if (outside > 0) {
+			nx = ox * (dx < 0 ? 1 : -1) / outside;
+			ny = oy * (dy < 0 ? 1 : -1) / outside;
+		} else if (qx > qy) {
+			nx = dx < 0 ? 1 : -1;
+		} else {
+			ny = dy < 0 ? 1 : -1;
 		}
-		return { near: near, far: far };
-	}
-
-	// 输出像素 p 在某条轴上的采样位置，逐字对应他们那四段分支
-	function lensAxis(p, side, R, tab) {
-		var idx = Math.floor(p);
-		if (idx < 0 || idx > side - 1) {
-			return p;
-		}
-		if (idx < R) {
-			return tab.near[idx];
-		}
-		if (idx >= side - R) {
-			return side - R + tab.far[idx - (side - R)];
-		}
-		return p;
+		return [dist, nx, ny];
 	}
 
 	// 画布上所有像素的 alpha 总量：用来判断"画进去的东西有没有被滤镜动过"
@@ -1940,10 +2069,10 @@
 		return lensOK;
 	}
 
-	// 位移图：R 通道 = x 方向位移、G 通道 = y 方向位移，0.5 表示不动。
-	// 通道值 = 0.5 + 位移/R，配合同样的 scale = R，位移范围正好用满 [R/2, 0]。
-	// cs 是这张图用的 channelScale（不带色散时就是 1）。
-	function lensMap(w, h, R, cs) {
+	/* 位移图：R 通道 = x 方向位移、G 通道 = y 方向位移，0.5 表示不动。
+		通道值 = 0.5 + 位移/(2·Dmax)，配合同样的 scale = 2·Dmax，位移范围正好用满；
+		位移只朝面板内部，所以实际只用到 0.5~1 那一半。D 是这张图用的取样深度。 */
+	function lensMap(w, h, rad, R, D, Dmax) {
 		var s = LENS.res;
 		var mw = Math.max(2, Math.round(w * s));
 		var mh = Math.max(2, Math.round(h * s));
@@ -1956,16 +2085,24 @@
 		}
 		var im = g.createImageData(mw, mh);
 		var d = im.data;
-		var tab = lensTabs(R, Math.min(w, h), cs);
+		var k = 255 / (2 * Dmax);
+		var inner = Math.max(0.5, R - 0.5);
 		for (var y = 0; y < mh; y++) {
 			var py = (y + 0.5) / s;
-			var sy = lensAxis(py, h, R, tab);
 			for (var x = 0; x < mw; x++) {
 				var px = (x + 0.5) / s;
-				var sx = lensAxis(px, w, R, tab);
+				var f = lensField(px, py, w, h, rad);
+				var ox = 0, oy = 0;
+				if (f[0] > 0 && f[0] < R) {
+					var t = 1 - (f[0] - 0.5) / inner;
+					t = t < 0 ? 0 : (t > 1 ? 1 : t);
+					var off = D * t * t;
+					ox = f[1] * off;
+					oy = f[2] * off;
+				}
 				var i = (y * mw + x) * 4;
-				d[i] = Math.round(255 * (0.5 + (sx - px) / R));
-				d[i + 1] = Math.round(255 * (0.5 + (sy - py) / R));
+				d[i] = Math.max(0, Math.min(255, Math.round(127.5 + ox * k)));
+				d[i + 1] = Math.max(0, Math.min(255, Math.round(127.5 + oy * k)));
 				d[i + 2] = 128;
 				d[i + 3] = 255;
 			}
@@ -1975,7 +2112,7 @@
 	}
 
 	// 一张位移图 + 一次位移
-	function lensImage(url, w, h, R, tag) {
+	function lensImage(url, w, h, scale, tag) {
 		var img = document.createElementNS(SVGNS, "feImage");
 		img.setAttribute("href", url);
 		img.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url);
@@ -1988,7 +2125,7 @@
 		var disp = document.createElementNS(SVGNS, "feDisplacementMap");
 		disp.setAttribute("in", "SourceGraphic");
 		disp.setAttribute("in2", tag + "m");
-		disp.setAttribute("scale", R);
+		disp.setAttribute("scale", scale);
 		disp.setAttribute("xChannelSelector", "R");
 		disp.setAttribute("yChannelSelector", "G");
 		disp.setAttribute("result", tag);
@@ -2020,8 +2157,8 @@
 		return c;
 	}
 
-	// maps 长度 1（不带色散）或 3（红/绿/蓝各一张表，对应 channelScale = 1±dispersion）
-	function lensFilter(id, w, h, R, maps) {
+	// maps 长度 1（不带色散）或 3（红/绿/蓝各换一个取样深度），scale 是位移图的编码尺度
+	function lensFilter(id, w, h, scale, maps) {
 		var f = document.createElementNS(SVGNS, "filter");
 		f.setAttribute("id", id);
 		// filterUnits 默认是 objectBoundingBox：0,0,1,1 正好是元素自己的框
@@ -2035,7 +2172,7 @@
 		var tags = ["dr", "dg", "db"];
 		var i;
 		for (i = 0; i < maps.length; i++) {
-			var pair = lensImage(maps[i], w, h, R, tags[i]);
+			var pair = lensImage(maps[i], w, h, scale, tags[i]);
 			f.appendChild(pair[0]);
 			f.appendChild(pair[1]);
 		}
@@ -2087,10 +2224,15 @@
 			document.body.appendChild(lensSvg);
 		}
 		lensSvg.innerHTML = "";
-		// 色散也交给滤镜做（三个通道三张表，对应 channelScale = 1∓dispersion），
+		// 色散也交给滤镜做（红/蓝各一张更深/更浅的位移图），
 		// 所以第 9 节不再自己拆通道，否则会叠两遍（见 drawDots 里的 lensActive）。
-		var disp = Math.max(0, Math.min(0.5, GLASS.dispersion || 0));   // 他们的 clamp(0, 0.5)
-		var scales = disp > 0 ? [1 - disp, 1, 1 + disp] : [1];
+		// 单位是 R：s = 色散 × R 就是红蓝通道的取样深度差
+		var disp = Math.max(0, Math.min(1, GLASS.dispersion || 0));   // 他们的 clamp(0, 1)
+		// 圆角半径取自 CSS 的 --yss-radius（与第 9 节裁剪用的是同一个值）
+		var radPx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--yss-radius"));
+		if (!isFinite(radPx) || radPx <= 0) {
+			radPx = 10;
+		}
 		// 【面积预算】超大面板不上滤镜：位移图的滤镜区域就是元素整个盒子，而 feImage
 		// 每帧都要把半分辨率位移图重采样到整个盒子。实测同一页（visindigo-module）
 		// 一个 992×5032 的面板单独就要 62ms/帧（滚动从 8ms 掉到 70ms），
@@ -2119,21 +2261,31 @@
 			if (br < 4) {
 				continue;
 			}
-			boxes.push({ el: nodes[i], base: base, w: bw, h: bh, R: br, id: null });
+			// 贴边取样深度 D = depth × R；色散 s = 色散 × R，红取更深、蓝取更浅
+			var bd = Math.max(1, GLASS.depth * br);
+			var bsp = disp * br;
+			var depths = disp > 0 ? [bd + bsp, bd, Math.max(0, bd - bsp)] : [bd];
+			var brad = Math.min(radPx, Math.floor(Math.min(bw, bh) / 2));
+			boxes.push({
+				el: nodes[i], base: base, w: bw, h: bh, R: br, rad: brad,
+				depths: depths, id: null
+			});
 		}
 		var maps = {};
 		var urls = [];
 		var count = 0;
 		for (i = 0; i < boxes.length; i++) {
 			var b = boxes[i];
-			var key = Math.round(b.w / LENS.quant) + "x" + Math.round(b.h / LENS.quant) + "x" + b.R;
+			var dmax = Math.max.apply(null, b.depths);
+			var key = Math.round(b.w / LENS.quant) + "x" + Math.round(b.h / LENS.quant) +
+				"x" + b.R + "x" + b.rad + "x" + Math.round(dmax);
 			if (!maps[key]) {
 				if (count >= LENS.maxMaps) {
 					continue;
 				}
 				var made = [];
-				for (var ci = 0; ci < scales.length; ci++) {
-					var u = lensMap(b.w, b.h, b.R, scales[ci]);
+				for (var ci = 0; ci < b.depths.length; ci++) {
+					var u = lensMap(b.w, b.h, b.rad, b.R, b.depths[ci], dmax);
 					if (!u) {
 						made = null;
 						break;
@@ -2144,7 +2296,7 @@
 					continue;
 				}
 				var id = "yss-lens-" + (lensSeq++);
-				lensSvg.appendChild(lensFilter(id, b.w, b.h, b.R, made));
+				lensSvg.appendChild(lensFilter(id, b.w, b.h, 2 * dmax, made));
 				maps[key] = id;
 				urls = urls.concat(made);
 				count++;
@@ -2158,8 +2310,9 @@
 				if (!boxes[k].id) {
 					continue;
 				}
-				// url() 放最前：先掰弯再糊，糊在后面才有"厚玻璃"的钝边
-				var v = "url(#" + boxes[k].id + ") " + boxes[k].base;
+				// 位移挂**最后**：先让面板自己的 blur 糊一遍，再掰弯 ——
+				// 与 C++ 的「采样 → 模糊 → 扭曲」同序，带里压进来的是糊过的画面。
+				var v = boxes[k].base + " url(#" + boxes[k].id + ")";
 				boxes[k].el.style.setProperty("backdrop-filter", v);
 				boxes[k].el.style.setProperty("-webkit-backdrop-filter", v);
 				live = true;
@@ -2167,7 +2320,6 @@
 			// 几何与色散都交给滤镜了：第 9 节只剩“画点”，否则点阵会被扭两遍、彩边也会叠两遍。
 			// 一块面板都没挂上（全被过滤掉了）时才保留第 9 节那套。
 			lensActive = live;
-			GLASS.warp = !live;
 			if (glassRedraw) {
 				glassRedraw();
 			}

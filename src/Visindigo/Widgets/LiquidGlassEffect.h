@@ -33,7 +33,8 @@ namespace Visindigo::Widgets {
 		};
 	public:
 		static QImage blurImage(const QImage& image, int radius);
-		static QImage distortImage(const QImage& image, int radius, qreal dispersion = 0.0);
+		static QImage distortImage(const QImage& image, int radius, qreal dispersion = 0.0,
+			qreal strength = 1.5, int borderRadius = 0, qreal energy = 0.5);
 		static QImage colorMaskImage(const QImage& image, const QColor& color, qreal percent);
 		static QImage drawDebugBackground(qint32 width, qint32 height);
 		static QImage rimLightImage(const QImage& image, int borderRadius, const QPoint& mousePosition,
@@ -48,6 +49,8 @@ namespace Visindigo::Widgets {
 		void setBackgroundImage(const QImage& image);
 		void setLiquidDistortRadius(int radius);
 		void setLiquidDistortDispersion(qreal dispersion);
+		void setLiquidDistortStrength(qreal strength);
+		void setLiquidDistortEnergy(qreal energy);
 		void setBorderRadius(int radius);
 		void setColorMask(const QColor& color, qreal percent);
 		void setPositionPolicy(PositionPolicy policy);

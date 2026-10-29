@@ -21,6 +21,8 @@ namespace YSSCore::__Private__ {
 		auto* glass = new Visindigo::Widgets::LiquidGlassEffect(this);
 		glass->setBorderRadius(6);
 		glass->setBlurRadius(20);
+		glass->setLiquidDistortRadius(5);
+		glass->setLiquidDistortStrength(10);
 		this->setGraphicsEffect(glass);
 		this->setFocusPolicy(Qt::NoFocus);
 		this->setFixedWidth(240);
