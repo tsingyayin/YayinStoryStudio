@@ -509,7 +509,9 @@ namespace YSS::Editor {
 		onThemeChanged();
 	}
 
-	StackTagWidget::~StackTagWidget() {}
+	StackTagWidget::~StackTagWidget() {
+		delete WidgetSelectorPopup;
+	}
 
 	void StackTagWidget::setArea(FileEditWidgetArea* area) {
 		Area = area;

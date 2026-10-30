@@ -50,6 +50,7 @@ binary
 third_party/libssh2/include
 third_party/libssh2/src
 tools/ssh-test-server
+design/bug_research
 # modules or projects that are not ready to publish
 src/VKCompute
 

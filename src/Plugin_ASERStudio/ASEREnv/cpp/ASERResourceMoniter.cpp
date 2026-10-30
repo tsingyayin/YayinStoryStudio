@@ -53,17 +53,31 @@ namespace ASERStudio::ASEREnv {
 			tryParseJson(ASERConfig, ASERResourceMoniter::getASERStandardConfigPath() + "/userData.json", true);
 		}
 
+		// ASE-Remake 剧本集本地覆盖配置的文件名见 ASE-Remake 的 Core/Entity/StorySet.cs。
+		// 只有当两个文件同时存在时 ASE-Remake 才会切换到覆盖配置，这里必须保持同样的判定，
+		// 否则会出现 ASER 使用全局配置、而 ASERStudio 认为使用了覆盖配置的分叉。
+		static constexpr const char* ProjectOverrideAliasesSuffix = "/Configs/override_aliases.json";
+		static constexpr const char* ProjectOverrideConfigsSuffix = "/Configs/override_userConfigs.json";
+
+		bool isProjectUsingOverrideConfigs() const {
+			if (ProjectPath.isEmpty()) return false;
+			return QFileInfo::exists(ProjectPath + ProjectOverrideAliasesSuffix)
+				&& QFileInfo::exists(ProjectPath + ProjectOverrideConfigsSuffix);
+		}
+
 		void refreshOfficial() {
 			auto collections = Visindigo::Utility::JsonConfig();
 			tryParseJson(collections, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json", true);
 
+			const bool useOverride = isProjectUsingOverrideConfigs();
+
 			auto aliases = Visindigo::Utility::JsonConfig();
-			if (not tryParseJson(aliases, ProjectPath + "/Configs/officialAssets_aliases.json", true)) {
+			if (not (useOverride && tryParseJson(aliases, ProjectPath + ProjectOverrideAliasesSuffix, true))) {
 				tryParseJson(aliases, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json", true);
 			}
 
 			auto character = Visindigo::Utility::JsonConfig();
-			if (not tryParseJson(character, ProjectPath + "/Configs/officialAssets_userConfigs.json", true)) {
+			if (not (useOverride && tryParseJson(character, ProjectPath + ProjectOverrideConfigsSuffix, true))) {
 				tryParseJson(character, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json", true);
 			}
 
