@@ -1,9 +1,21 @@
 {
     "inlayColor": {
         "title": "Color",
-        "pick": "Pick Color",
-        "hint": "Click to pick a color; confirm to replace the original text.",
+        "apply": "Apply",
+        "hint": "Drag the hue ring, the triangle or the alpha slider to pick a color; the original text is replaced when you apply.",
         "invalid": "Cannot parse the current color"
+    },
+    "inlayPosition": {
+        "character": "Character",
+        "background": "Background",
+        "start": "Start position",
+        "end": "End position",
+        "depth": "Depth / scale",
+        "hint": "Drag the object to move it; scroll the mouse wheel over the object or drag the slider below to change depth.",
+        "reset": "Reset",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "invalid": "The current position cannot be parsed; default coordinates are used."
     },
     "diagnostic": {
         "undefined": {

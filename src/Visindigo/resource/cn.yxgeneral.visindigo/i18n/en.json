@@ -88,6 +88,10 @@
 		"configWidget":{
 			"restartRequired": "Restart Required",
 			"restartRequiredDesc": "Some settings on this page require a full program restart to take effect. Please manually restart the program later to apply these settings."
+		},
+		"modernColor":{
+			"title": "Color",
+			"alphaDisabled": "The current color has no alpha channel"
 		}
 	}
 }

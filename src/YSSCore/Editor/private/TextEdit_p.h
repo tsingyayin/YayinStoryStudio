@@ -69,6 +69,7 @@ namespace YSSCore::__Private__ {
 		~TextEditFindAndReplace();
 		void setFindText(const QString& text);
 		void findAll();
+		virtual void paintEvent(QPaintEvent* event) override;
 	protected:
 		YSSCore::Editor::TextEdit* parent;
 		QGridLayout* layout;
@@ -332,6 +333,7 @@ namespace YSSCore::__Private__ {
 		void ensureInlayHintHoverWidget(const QString& providerID);
 		void showInlayHintHover(qint32 lineNumber, qint32 column, const QString& multi);
 		void hideInlayHintHover();
+		bool isFocusInInlayHintHoverWidget() const;
 		void adjustInlayHintHoverPosition(QWidget* hoverWidget, qint32 lineNumber, qint32 column);
 		void clearInlayHintHoverWidgets();
 		bool findInlayHintAt(const QPoint& viewportPos, qint32& lineNumber, qint32& column, QString& multi) const;

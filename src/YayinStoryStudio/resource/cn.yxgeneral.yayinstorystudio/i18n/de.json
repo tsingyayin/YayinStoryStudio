@@ -459,6 +459,7 @@
 		"message": "Die folgenden Plugins konnten nicht korrekt geladen werden. Ihre IDs und die Gründe sind unten aufgeführt. Möchten Sie das Programm weiterhin verwenden?",
 		"pluginID": "Plugin-ID",
 		"reason": "Grund",
+		"count": "%1 Plugin(s) konnten nicht geladen werden.",
 		"continue": "Weiterverwenden",
 		"quit": "Programm beenden"
 	},

@@ -1,9 +1,21 @@
 {
     "inlayColor": {
         "title": "Couleur",
-        "pick": "Choisir une couleur",
-        "hint": "Cliquez pour choisir une couleur ; confirmez pour remplacer le texte d'origine.",
+        "apply": "Appliquer",
+        "hint": "Faites glisser l'anneau de teinte, le triangle ou le curseur d'opacité pour choisir une couleur ; le texte d'origine est remplacé lors de l'application.",
         "invalid": "Impossible d'analyser la couleur actuelle"
+    },
+    "inlayPosition": {
+        "character": "Personnage",
+        "background": "Arrière-plan",
+        "start": "Position de départ",
+        "end": "Position d'arrivée",
+        "depth": "Profondeur / échelle",
+        "hint": "Faites glisser l'objet pour le déplacer ; utilisez la molette au-dessus de l'objet ou le curseur ci-dessous pour modifier la profondeur.",
+        "reset": "Réinitialiser",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "invalid": "Les coordonnées actuelles sont illisibles ; les coordonnées par défaut sont utilisées."
     },
     "diagnostic": {
         "undefined": {

@@ -26,6 +26,7 @@
 #include "YSS/DS_AStoryXDebugger.h"
 #include "YSS/ImageCacheHelper.h"
 #include "YSS/InlayColorProvider.h"
+#include "YSS/InlayPositionProvider.h"
 #include "YSS/LangServer_AStoryX.h"
 
 VI_DECLARE_LOGGER(StartupProbe, ASERStartupProbe, ASERStudio);
@@ -171,6 +172,10 @@ namespace ASERStudio {
 		setPluginVersion(Visindigo::General::Version(Visindigo_VERSION_MAJOR + 2, Visindigo_VERSION_MINOR - 13, Visindigo_VERSION_PATCH));
 		setPluginName("ASER Studio");
 		setPluginAuthor({ "Gra_dus", "Tsing Yayin" });
+		// 主插件在 onPluginEnable 中先设置模板优先级，随后才加载并合并插件模板。
+		// 在这里注册并追加 ASERStudio 模板，可以保证启动合并时把它一并纳入。
+		registerStyleTemplate(":/resource/cn.yxgeneral.aserstudio/vst/aserstudio.vst");
+		VISTM->addStyleTemplateToPriority("ASERStudio");
 	}
 
 	Main* Main::getInstance() {
@@ -196,6 +201,8 @@ namespace ASERStudio {
 		registerLangServer(new YSS::AStoryXLanguageServer(this));
 		registerInlayHintProvider(new YSS::InlayColorProvider(QStringLiteral("Inlay Color"),
 			YSS::InlayColorProviderID, this));
+		registerInlayHintProvider(new YSS::InlayPositionProvider(QStringLiteral("Inlay Position"),
+			YSS::InlayPositionProviderID, this));
 		registerFileServer(new YSS::FileServer_AStoryX(this));
 		registerFileServer(new YSS::FileServer_ASRuleJson(this));
 		registerFileServer(new YSS::FileServer_ASERProjectResourceBrowser(this));

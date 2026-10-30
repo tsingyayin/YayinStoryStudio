@@ -142,6 +142,8 @@
     <ClCompile Include="YSS\cpp\ImageCacheHelper.cpp" />
     <ClCompile Include="YSS\cpp\InlayColorHoverWidget.cpp" />
     <ClCompile Include="YSS\cpp\InlayColorProvider.cpp" />
+    <ClCompile Include="YSS\cpp\InlayPositionHoverWidget.cpp" />
+    <ClCompile Include="YSS\cpp\InlayPositionProvider.cpp" />
     <ClCompile Include="YSS\cpp\WAVViewHelper.cpp" />
     <ClCompile Include="YSS\cpp\DS_AStoryXDebugger.cpp" />
     <ClCompile Include="YSS\cpp\LangServer_AStoryX.cpp" />
@@ -168,6 +170,8 @@
     <QtMoc Include="YSS\ImageCacheHelper.h" />
     <QtMoc Include="YSS\InlayColorHoverWidget.h" />
     <QtMoc Include="YSS\InlayColorProvider.h" />
+    <QtMoc Include="YSS\InlayPositionHoverWidget.h" />
+    <QtMoc Include="YSS\InlayPositionProvider.h" />
     <QtMoc Include="YSS\ASERFileServer.h" />
     <QtMoc Include="YSS\private\ASERFileServer_p.h" />
     <QtMoc Include="AStorySyntax\AStoryXValueMeta.h" />

@@ -88,6 +88,10 @@
 		"configWidget":{
 			"restartRequired": "Redémarrage requis",
 			"restartRequiredDesc": "Certains éléments de cette page de paramètres ne prendront effet qu'après un redémarrage complet du programme. Veuillez redémarrer le programme manuellement plus tard pour appliquer ces paramètres."
+		},
+		"modernColor":{
+			"title": "Couleur",
+			"alphaDisabled": "La couleur actuelle n'a pas de canal alpha"
 		}
 	}
 }

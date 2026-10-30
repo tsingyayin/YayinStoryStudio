@@ -27,6 +27,7 @@ namespace YSSCore::Editor {
 		virtual void onHoverRequest() = 0;
 	signals:
 		void requestModify(qint32 startColumn, qint32 rawLength, QString& newContent);
+		void requestClose();
 	private:
 		InlayHintHoverWidgetPrivate* d;
 	};

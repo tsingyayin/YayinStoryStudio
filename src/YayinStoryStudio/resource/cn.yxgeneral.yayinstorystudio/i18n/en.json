@@ -483,6 +483,7 @@
 		"message": "The following plugins could not be loaded correctly. Their IDs and the reasons are listed below. Do you want to continue using the program?",
 		"pluginID": "Plugin ID",
 		"reason": "Reason",
+		"count": "Found %1 plugin(s) that failed to load.",
 		"continue": "Continue",
 		"quit": "Exit"
 	},

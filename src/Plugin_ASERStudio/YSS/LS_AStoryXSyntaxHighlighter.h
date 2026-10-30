@@ -28,6 +28,8 @@ namespace ASERStudio::YSS {
 			double scale, bool hasAlpha, qint32 components);
 		void addVectorColorInlayHint(const ASERStudio::AStorySyntax::AStoryXParameter& param,
 			qint32 contentOffset, bool acceptByControllerType);
+		void createPositionInlayHints(const QString& text,
+			const ASERStudio::AStorySyntax::AStoryXControllerParseData& parseData);
 	private:
 		LS_AStoryXSyntaxHighlighterPrivate* d;
 	};

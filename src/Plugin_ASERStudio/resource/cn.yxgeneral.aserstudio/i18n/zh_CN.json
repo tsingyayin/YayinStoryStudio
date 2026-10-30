@@ -1,9 +1,21 @@
 {
     "inlayColor": {
         "title": "颜色",
-        "pick": "选择颜色",
-        "hint": "点击选择颜色，确定后替换原文。",
+        "apply": "应用",
+        "hint": "拖动色相环、三角区域或透明度滑条选择颜色，应用后替换原文。",
         "invalid": "无法解析当前颜色"
+    },
+    "inlayPosition": {
+        "character": "立绘",
+        "background": "背景",
+        "start": "起始位置",
+        "end": "结束位置",
+        "depth": "深度 / 缩放",
+        "hint": "拖动对象调整位置；在对象上滚动鼠标滚轮，或拖动下方滑条调整深度。",
+        "reset": "重置",
+        "cancel": "取消",
+        "confirm": "确定",
+        "invalid": "当前坐标无法解析，已使用默认坐标。"
     },
     "diagnostic": {
         "undefined": {

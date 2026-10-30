@@ -20,8 +20,9 @@ namespace ASERStudio::YSS {
 
 		色块由 drawInlayHint 绘制，内容占绘制区域的60%，四周留出透明空隙；
 		富文本标签的色块位于颜色值之后、标签结束符 \c{>} 之前。
-		用户点击色块后由 InlayColorHoverWidget 打开颜色选择器，
-		确认后通过 InlayHintHoverWidget::requestModify 替换原文中的颜色值。
+		用户点击色块后，InlayColorHoverWidget 会直接在悬停浮窗内提供色相环、
+		明度三角、透明度滑条以及 RGB/HSL/HSV 与十六进制输入，
+		应用后通过 InlayHintHoverWidget::requestModify 替换原文中的颜色值。
 	*/
 	InlayColorProvider::InlayColorProvider(const QString& name, const QString& id, YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::InlayHintProvider(name, id, plugin) {

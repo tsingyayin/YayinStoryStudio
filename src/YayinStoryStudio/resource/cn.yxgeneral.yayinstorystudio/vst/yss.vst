@@ -301,3 +301,50 @@ QToolButton[projectAction="true"]:disabled {
 	color: $[Dim];
 	border-color: $[Border];
 }
+
+@Editor.PluginLoadFault
+QLabel#faultTitleLabel { color: $[WindowText]; font-size: 20px; font-weight: 600; }
+QLabel#faultSubtitleLabel { color: $[Dim]; }
+QLabel#faultCountLabel { color: $[Danger]; font-size: 12px; }
+
+QFrame#faultCard { background: $[Card]; border: 1px solid $[Border]; border-radius: 10px; }
+
+QTableWidget#faultTable {
+	background: transparent;
+	border: none;
+	color: $[WindowText];
+	outline: none;
+}
+QTableWidget#faultTable::item { padding: 6px 8px; }
+QHeaderView::section {
+	background: transparent;
+	border: none;
+	border-bottom: 1px solid $[Border];
+	color: $[Dim];
+	font-size: 12px;
+	padding: 4px 8px;
+}
+
+QPushButton[dialogRole="primary"] {
+	background: $[AccentFill];
+	color: $[HighlightedText];
+	border: 1px solid $[AccentFill];
+	border-radius: 6px;
+	padding: 8px 24px;
+	min-height: 24px;
+	min-width: 64px;
+	font-weight: 600;
+}
+QPushButton[dialogRole="primary"]:hover { background: $[AccentHover]; }
+QPushButton[dialogRole="primary"]:pressed { background: $[AccentPressed]; }
+
+QPushButton[dialogRole="secondary"] {
+	background: transparent;
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	padding: 8px 24px;
+	min-height: 24px;
+	min-width: 64px;
+	color: $[WindowText];
+}
+QPushButton[dialogRole="secondary"]:hover { background: $[Inset]; }

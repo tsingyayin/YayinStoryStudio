@@ -88,6 +88,10 @@
 		"configWidget":{
 			"restartRequired": "需要重启",
 			"restartRequiredDesc": "此设置页面部分设置项目需要完全重启程序才能生效。请您稍后手动重启程序以应用这些设置。"
+		},
+		"modernColor":{
+			"title": "颜色",
+			"alphaDisabled": "当前颜色不含透明度"
 		}
 	}
 }

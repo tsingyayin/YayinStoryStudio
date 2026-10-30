@@ -10,6 +10,7 @@
         <file>resource/cn.yxgeneral.aserstudio/template/3.0/newFile.astoryx</file>
         <file>resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json</file>
         <file>resource/cn.yxgeneral.aserstudio/config.json</file>
+        <file>resource/cn.yxgeneral.aserstudio/vst/aserstudio.vst</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/en.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/ja.json</file>
         <file>resource/cn.yxgeneral.aserstudio/i18n/jp_less_loanword.json</file>

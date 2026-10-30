@@ -88,6 +88,10 @@
 		"configWidget":{
 			"restartRequired": "다시 시작 필요",
 			"restartRequiredDesc": "이 설정 페이지의 일부 항목은 완전히 다시 시작한 후에만 적용됩니다. 이러한 설정을 적용하려면 나중에 수동으로 프로그램을 다시 시작하세요."
+		},
+		"modernColor":{
+			"title": "색상",
+			"alphaDisabled": "현재 색상에는 투명도가 없습니다"
 		}
 	}
 }

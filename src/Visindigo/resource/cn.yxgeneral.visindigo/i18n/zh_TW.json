@@ -88,6 +88,10 @@
 		"configWidget":{
 			"restartRequired": "需要重新啟動",
 			"restartRequiredDesc": "此設定頁面部分設定項目需要完全重新啟動程式才能生效。請您稍後手動重新啟動程式以套用這些設定。"
+		},
+		"modernColor":{
+			"title": "顏色",
+			"alphaDisabled": "目前顏色不含透明度"
 		}
 	}
 }

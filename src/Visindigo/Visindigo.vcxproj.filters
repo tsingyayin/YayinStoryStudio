@@ -71,6 +71,9 @@
     <ClCompile Include="Widgets\cpp\MultiButton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\cpp\ModernColorDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="General\cpp\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -397,6 +400,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\MultiButton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\ModernColorDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Widgets\private\ModernColorDialog_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Widgets\private\ConfigWidget_p.h">

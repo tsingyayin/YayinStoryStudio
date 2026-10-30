@@ -88,6 +88,10 @@
 		"configWidget":{
 			"restartRequired": "再起動が必要です",
 			"restartRequiredDesc": "この設定ページの一部の項目は、完全な再起動後にのみ有効になります。これらの設定を適用するには、後で手動でプログラムを再起動してください。"
+		},
+		"modernColor":{
+			"title": "色",
+			"alphaDisabled": "現在の色に透明度はありません"
 		}
 	}
 }

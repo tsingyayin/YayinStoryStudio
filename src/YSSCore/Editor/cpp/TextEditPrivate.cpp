@@ -46,7 +46,10 @@ namespace YSSCore::__Private__ {
 			if (TabCompleterWidget->isVisible()) {
 				TabCompleterWidget->hide();
 			}
-			hideInlayHintHover();
+			// 焦点进入图片提示浮窗内部的输入控件时不能收起浮窗，否则浮窗里的交互控件无法使用。
+			if (not isFocusInInlayHintHoverWidget()) {
+				hideInlayHintHover();
+			}
 			if (SgtKind != SuggestionKind::None) {
 				dismissSuggestion(true);
 			}
@@ -875,6 +878,9 @@ namespace YSSCore::__Private__ {
 				Text->setTextCursor(cursor);
 				hideInlayHintHover();
 			});
+		connect(widget, &YSSCore::Editor::InlayHintHoverWidget::requestClose, this, [this]() {
+			hideInlayHintHover();
+			});
 		connect(widget, &QObject::destroyed, this, [this, providerID, widget]() {
 			if (InlayHintHoverWidgets.value(providerID, nullptr) == widget) {
 				InlayHintHoverWidgets.remove(providerID);
@@ -966,6 +972,8 @@ namespace YSSCore::__Private__ {
 		if (InlayHintHoverTimer != nullptr) {
 			InlayHintHoverTimer->stop();
 		}
+		// 浮窗内的输入控件拿到焦点时，收起浮窗要把焦点还给编辑器，否则用户接下来无法继续输入。
+		const bool returnFocus = isFocusInInlayHintHoverWidget();
 		for (YSSCore::Editor::InlayHintHoverWidget* widget : InlayHintHoverWidgets) {
 			if (widget != nullptr and widget->isVisible()) {
 				widget->hide();
@@ -975,6 +983,23 @@ namespace YSSCore::__Private__ {
 		InlayHintHoverPendingMulti.clear();
 		InlayHintHoverPendingLine = -1;
 		InlayHintHoverPendingColumn = -1;
+		if (returnFocus and Text != nullptr) {
+			Text->setFocus(Qt::OtherFocusReason);
+		}
+	}
+
+	bool TextEditPrivate::isFocusInInlayHintHoverWidget() const {
+		const QWidget* focusWidget = QApplication::focusWidget();
+		if (focusWidget == nullptr) {
+			return false;
+		}
+		for (YSSCore::Editor::InlayHintHoverWidget* widget : InlayHintHoverWidgets) {
+			if (widget != nullptr and widget->isVisible()
+				and (widget == focusWidget or widget->isAncestorOf(focusWidget))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void TextEditPrivate::adjustInlayHintHoverPosition(QWidget* hoverWidget, qint32 lineNumber, qint32 column) {

@@ -1,0 +1,21 @@
+!TemplateName: ASER Studio Style Sheet
+!TemplateID: ASERStudio
+------
+!Namespace: ASERStudio
+
+@Editor.InlayPosition.Confirm
+QPushButton {
+	background: $[AccentFill];
+	color: $[HighlightedText];
+	border: 1px solid $[AccentPressed];
+	border-radius: 4px;
+	padding: 4px 16px;
+}
+QPushButton:hover {
+	background: $[AccentHover];
+	border-color: $[AccentHover];
+}
+QPushButton:pressed {
+	background: $[AccentPressed];
+	border-color: $[AccentPressed];
+}

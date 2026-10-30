@@ -26,6 +26,8 @@ namespace YSSCore::Editor {
 		Provider在用户要求修改文本时发出 requestModify 信号。TextEdit收到后会从
 		\a startColumn 开始、替换 \a rawLength 个字符为 \a newContent；列号以文本块为基准，
 		从0开始。
+
+		Provider在用户要求关闭浮窗时发出 requestClose 信号，TextEdit会把焦点交还给编辑器并收起浮窗。
 	*/
 	InlayHintHoverWidget::InlayHintHoverWidget(QWidget* parent) :QFrame(parent) {
 		d = new InlayHintHoverWidgetPrivate();

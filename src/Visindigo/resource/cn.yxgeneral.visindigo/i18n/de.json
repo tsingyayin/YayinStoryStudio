@@ -88,6 +88,10 @@
 		"configWidget":{
 			"restartRequired": "Neustart erforderlich",
 			"restartRequiredDesc": "Einige Einstellungen auf dieser Seite werden erst nach einem vollständigen Neustart des Programms wirksam. Bitte starten Sie das Programm später manuell neu, um diese Einstellungen anzuwenden."
+		},
+		"modernColor":{
+			"title": "Farbe",
+			"alphaDisabled": "Die aktuelle Farbe hat keinen Alphakanal"
 		}
 	}
 }

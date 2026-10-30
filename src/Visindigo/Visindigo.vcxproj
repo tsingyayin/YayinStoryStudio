@@ -179,6 +179,7 @@
     <ClCompile Include="Utility\cpp\JsonValueRef.cpp" />
     <ClCompile Include="Widgets\cpp\MultiLabel.cpp" />
     <ClCompile Include="Widgets\cpp\MultiButton.cpp" />
+    <ClCompile Include="Widgets\cpp\ModernColorDialog.cpp" />
     <ClCompile Include="Widgets\cpp\Terminal.cpp" />
     <ClCompile Include="Widgets\cpp\TitleWidget.cpp" />
     <ClCompile Include="Widgets\cpp\VIWidgets_p.cpp" />
@@ -257,6 +258,8 @@
     <QtMoc Include="Widgets\ShortcutSet.h" />
     <ClInclude Include="Widgets\StyleSheetTemplate.h" />
     <QtMoc Include="Widgets\MultiButton.h" />
+    <QtMoc Include="Widgets\ModernColorDialog.h" />
+    <QtMoc Include="Widgets\private\ModernColorDialog_p.h" />
     <ClInclude Include="General\Log.h" />
     <ClInclude Include="General\private\LoggerMsgHandler_impl.hpp" />
     <ClInclude Include="General\Logger.h" />

@@ -459,6 +459,7 @@
 		"message": "Les plugins suivants n'ont pas pu être chargés correctement. Leurs ID et les raisons sont indiqués ci-dessous. Voulez-vous continuer à utiliser le programme ?",
 		"pluginID": "ID du plugin",
 		"reason": "Raison de l'échec",
+		"count": "%1 plugin(s) n'ont pas pu être chargé(s).",
 		"continue": "Continuer",
 		"quit": "Quitter le programme"
 	},

@@ -22,6 +22,7 @@
 #include <QtWidgets/qtoolbutton.h>
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
+#include <Utility/ColorTool.h>
 #include <Widgets/LiquidGlassEffect.h>
 #include <Widgets/ThemeManager.h>
 #include "Editor/DocumentMessage.h"
@@ -38,14 +39,44 @@
 namespace YSSCore::__Private__ {
 	// 行号与编辑区之间的留白，以及行号栏至少预留的位数
 	// （行数少的文件也留够，免得多一位数字就贴边）
-	constexpr qint32 LineNumberBarPadding = 12;
+		constexpr qint32 LineNumberBarPadding = 12;
 	constexpr qint32 LineNumberBarMinDigits = 6;
+	// 浮窗自身表面的不透明度，剩下的部分留给下面的液态玻璃
+	constexpr qreal GlassSurfaceOpacity = 0.62;
+	constexpr qreal GlassSurfaceRadius = 6.0;
+
+	/*!
+		FindAndReplace 的玻璃表面。BorderFrame 在非 fusion 样式下不填背景，
+		只靠玻璃的话背景一平就看不见浮窗，所以这里自己铺一层半透明卡片。
+	*/
+	void TextEditFindAndReplace::paintEvent(QPaintEvent* event) {
+		Q_UNUSED(event);
+		QPainter painter(this);
+		painter.setRenderHint(QPainter::Antialiasing, true);
+		const QRectF box = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+		QColor surface = Visindigo::Utility::ColorTool::paletteColor(palette(),
+			Visindigo::Utility::ColorTool::PaletteColor::Card);
+		surface.setAlphaF(GlassSurfaceOpacity);
+		const QColor border = Visindigo::Utility::ColorTool::paletteColor(palette(),
+			Visindigo::Utility::ColorTool::PaletteColor::Border);
+		painter.setPen(QPen(border, 1.0));
+		painter.setBrush(surface);
+		painter.drawRoundedRect(box, GlassSurfaceRadius, GlassSurfaceRadius);
+	}
 
 	TextEditFindAndReplace::TextEditFindAndReplace(YSSCore::Editor::TextEdit* parent) : Visindigo::Widgets::BorderFrame(parent) {
 		this->parent = parent;
 		auto font = this->font();
 		font.setPointSizeF(font.pointSizeF() * 0.85);
 		this->setFont(font);
+		this->setFrameShape(QFrame::NoFrame);
+		auto* glass = new Visindigo::Widgets::LiquidGlassEffect(this);
+		glass->setBorderRadius(6);
+		glass->setBlurRadius(20);
+		glass->setLiquidDistortRadius(5);
+		glass->setLiquidDistortStrength(10);
+		this->setGraphicsEffect(glass);
+		Visindigo::Widgets::LiquidGlassEffect::applyForegroundAlpha(this);
 		layout = new QGridLayout(this);
 		titleLabel = new QLabel(VITRL("YSS::editor.far.title"), this);
 		closeButton = new QPushButton(VITRL("Visindigo::general.close"), this);

@@ -14,6 +14,7 @@
 #include "AStorySyntax/AStoryXRule.h"
 #include "AStorySyntax/AStoryXValueMeta.h"
 #include "YSS/InlayColorProvider.h"
+#include "YSS/InlayPositionProvider.h"
 #include "YSS/LangServer_AStoryX.h"
 #include "YSS/LS_AStoryXSyntaxHighlighter.h"
 namespace ASERStudio::YSS {
@@ -182,6 +183,7 @@ namespace ASERStudio::YSS {
 		}
 
 		createColorInlayHints(text, parseData);
+		createPositionInlayHints(text, parseData);
 
 		// 这三类占位符都以 & 或 $ 开头；行里没有它们时直接跳过三趟正则扫描。
 		if (text.contains(QLatin1Char('&')) || text.contains(QLatin1Char('$'))) {
@@ -304,6 +306,113 @@ namespace ASERStudio::YSS {
 		for (const ASERStudio::AStorySyntax::AStoryXParameter& optional : parseData.getOptionalParameters()) {
 			// 可选参数的 getIndex 指向前缀起点，内容从 prefix 之后开始。
 			addVectorColorInlayHint(optional, optional.getPrefix().size(), false);
+		}
+	}
+
+	void LS_AStoryXSyntaxHighlighter::createPositionInlayHints(const QString& text,
+		const ASERStudio::AStorySyntax::AStoryXControllerParseData& parseData) {
+		if (not parseData.isValid()) {
+			return;
+		}
+		const auto controllerType = parseData.getControllerType();
+		const bool isCharacter = controllerType == ASERStudio::AStorySyntax::AStoryXController::Character;
+		const bool isBackground = controllerType == ASERStudio::AStorySyntax::AStoryXController::Background;
+		if (not isCharacter and not isBackground) {
+			return;
+		}
+		qint32 slot = 0;
+		for (const ASERStudio::AStorySyntax::AStoryXParameter& optional : parseData.getOptionalParameters()) {
+			if (optional.getName().compare(QStringLiteral("SlotIndex"), Qt::CaseInsensitive) != 0) {
+				continue;
+			}
+			bool ok = false;
+			const qint32 value = optional.getContent().trimmed().toInt(&ok);
+			if (ok) {
+				slot = value;
+			}
+			break;
+		}
+		const QList<double> defaults = InlayPositionProvider::getDefaultPosition(isCharacter, slot);
+		const QList<ASERStudio::AStorySyntax::AStoryXParameter>& optionals = parseData.getOptionalParameters();
+		for (qint32 paramIndex = 0; paramIndex < optionals.size(); ++paramIndex) {
+			const ASERStudio::AStorySyntax::AStoryXParameter& optional = optionals[paramIndex];
+			if (optional.getName().compare(QStringLiteral("StartPosition"), Qt::CaseInsensitive) != 0
+				and optional.getName().compare(QStringLiteral("EndPosition"), Qt::CaseInsensitive) != 0) {
+				continue;
+			}
+			if (optional.getValue().getType() != ASERStudio::AStorySyntax::AStoryXValueMeta::Vector) {
+				continue;
+			}
+			// 直接按原文取得参数值区间，避免解析层还原占位符后长度与原文不一致。
+			qint32 rawContentStart = optional.getIndex() + optional.getPrefix().length();
+			qint32 rawContentEnd = text.length();
+			for (qint32 nextIndex = paramIndex + 1; nextIndex < optionals.size(); ++nextIndex) {
+				const qint32 nextPrefixIndex = optionals[nextIndex].getIndex();
+				if (nextPrefixIndex > optional.getIndex()) {
+					rawContentEnd = nextPrefixIndex;
+					break;
+				}
+			}
+			rawContentStart = qBound(0, rawContentStart, text.length());
+			rawContentEnd = qBound(rawContentStart, rawContentEnd, text.length());
+			const QString rawContent = text.mid(rawContentStart, rawContentEnd - rawContentStart);
+			qint32 leading = 0;
+			while (leading < rawContent.size() and rawContent.at(leading).isSpace()) {
+				++leading;
+			}
+			qint32 trailing = rawContent.size();
+			while (trailing > leading and rawContent.at(trailing - 1).isSpace()) {
+				--trailing;
+			}
+			const QString value = rawContent.mid(leading, trailing - leading);
+			const bool valid = InlayPositionProvider::parsePosition(value);
+			qint32 valueStart = rawContentStart;
+			qint32 valueLength = rawContent.size();
+			if (valid) {
+				valueStart += leading;
+				valueLength = trailing - leading;
+			}
+			valueStart = qBound(0, valueStart, text.length());
+			valueLength = qBound(0, valueLength, text.length() - valueStart);
+
+			// 图标放在参数值之后，避免与参数名内联提示共用同一个插入位置。
+			// 参数值为空时退到内容区间末尾；若连内容区间都没有，则放弃提示，
+			// 否则会和参数名提示落在同一个插入点上。
+			qint32 iconPosition = rawContentStart + trailing;
+			if (trailing <= leading) {
+				if (rawContentEnd <= rawContentStart) {
+					continue;
+				}
+				iconPosition = rawContentEnd;
+			}
+			if (iconPosition < 1 or iconPosition > text.length()) {
+				continue;
+			}
+
+			Visindigo::Utility::JsonConfig para;
+			para.setString(InlayPositionKeys::Kind,
+				isCharacter ? InlayPositionKeys::KindCharacter : InlayPositionKeys::KindBackground);
+			para.setString(InlayPositionKeys::Parameter, optional.getName());
+			para.setInt(InlayPositionKeys::Start, valueStart);
+			para.setInt(InlayPositionKeys::Length, valueLength);
+			para.setString(InlayPositionKeys::Value, value);
+			if (d->InlayHintColor.isValid()) {
+				para.setString(InlayPositionKeys::Color, d->InlayHintColor.name(QColor::HexArgb));
+			}
+			if (defaults.size() >= 3) {
+				para.setDouble(InlayPositionKeys::DefaultX, defaults[0]);
+				para.setDouble(InlayPositionKeys::DefaultY, defaults[1]);
+				para.setDouble(InlayPositionKeys::DefaultZ, defaults[2]);
+			}
+			YSSCore::Editor::VirtualFilePath path(InlayPositionProviderID,
+				isCharacter ? InlayPositionKeys::KindCharacter : InlayPositionKeys::KindBackground,
+				para);
+			if (not path.isValid()) {
+				continue;
+			}
+			YSSCore::Editor::InlayHint hint(iconPosition, QString(), QColor(), 8);
+			hint.setMulti(path.toString());
+			createInlayHint(hint);
 		}
 	}
 

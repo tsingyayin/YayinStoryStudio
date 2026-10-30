@@ -59,6 +59,12 @@
     <QtMoc Include="YSS\InlayColorProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="YSS\InlayPositionHoverWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="YSS\InlayPositionProvider.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <ClInclude Include="YSS\WAVViewHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -131,6 +137,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\InlayColorProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\InlayPositionHoverWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\InlayPositionProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\WAVViewHelper.cpp">
@@ -212,5 +224,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\cn.yxgeneral.aserstudio\astoryxMeta\default.json" />
+    <None Include="resource\cn.yxgeneral.aserstudio\vst\aserstudio.vst" />
   </ItemGroup>
 </Project>

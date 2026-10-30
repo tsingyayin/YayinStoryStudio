@@ -1,9 +1,21 @@
 {
     "inlayColor": {
         "title": "Farbe",
-        "pick": "Farbe wählen",
-        "hint": "Klicken Sie, um eine Farbe zu wählen; Bestätigen ersetzt den Originaltext.",
+        "apply": "Anwenden",
+        "hint": "Ziehe am Farbkreis, am Dreieck oder am Alpha-Regler, um eine Farbe zu wählen; beim Anwenden wird der Originaltext ersetzt.",
         "invalid": "Aktuelle Farbe kann nicht gelesen werden"
+    },
+    "inlayPosition": {
+        "character": "Charakter",
+        "background": "Hintergrund",
+        "start": "Startposition",
+        "end": "Endposition",
+        "depth": "Tiefe / Skalierung",
+        "hint": "Ziehen Sie das Objekt, um es zu verschieben; scrollen Sie mit dem Mausrad über dem Objekt oder verwenden Sie den Schieberegler unten, um die Tiefe zu ändern.",
+        "reset": "Zurücksetzen",
+        "cancel": "Abbrechen",
+        "confirm": "Bestätigen",
+        "invalid": "Die aktuellen Koordinaten können nicht gelesen werden; es werden Standardkoordinaten verwendet."
     },
     "diagnostic": {
         "undefined": {
