@@ -361,6 +361,8 @@
 				"same": "Der neue Name ist identisch mit dem alten. Bitte geben Sie einen anderen Namen ein.",
 				"exists": "Im selben Verzeichnis existiert bereits eine Datei mit diesem Namen. Bitte wählen Sie einen anderen Namen.",
 				"invalid": "Ungültiger Dateiname. Er darf die folgenden Zeichen nicht enthalten: \\ / : * ? \" < > |",
+				"invalidPosix": "Ungültiger Dateiname. Das folgende Zeichen ist nicht erlaubt: /",
+				"failed": "Umbenennen fehlgeschlagen: %1",
 				"extNotSame": {
 					"normal": "Die Erweiterung des neuen Namens unterscheidet sich von der ursprünglichen, was Probleme verursachen kann.",
 					"title": "Möchten Sie die Erweiterung wirklich ändern?",
@@ -393,7 +395,8 @@
 		},
 		"deleteFile": {
 			"title": "Löschen bestätigen",
-			"message": "Möchten Sie die Datei oder den Ordner %1 wirklich löschen? Sie wird in den System-Papierkorb verschoben, von wo aus Sie sie wiederherstellen können."
+			"message": "Möchten Sie die Datei oder den Ordner %1 wirklich löschen? Sie wird in den System-Papierkorb verschoben, von wo aus Sie sie wiederherstellen können.",
+			"permanentMessage": "Am Speicherort von %1 gibt es keinen Papierkorb (z. B. bei einem Remote-Projekt). Das Löschen kann nicht rückgängig gemacht werden. Fortfahren?"
 		}
 	},
 	"colorThemeSettings": {

@@ -47,6 +47,8 @@ namespace YSSCore::Editor {
 		bool isSaveSilent() const;
 		// 是否还有已提交但尚未完成的异步写入。
 		bool isSaving() const;
+		// 文件已在文件系统里改名后，把编辑器重定向到新 URI；不写盘。
+		bool applyRename(const YSSCore::General::YSSURI& newUri);
 		bool reloadFile();
 		void closeFile(bool autoAbandon = false);
 		QByteArray createFileBackup();

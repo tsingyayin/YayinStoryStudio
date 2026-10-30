@@ -361,6 +361,8 @@
 				"same": "Le nouveau nom est identique à l'ancien. Veuillez saisir un nom différent.",
 				"exists": "Un fichier portant ce nom existe déjà dans le même dossier. Veuillez choisir un autre nom.",
 				"invalid": "Nom de fichier invalide. Il ne peut pas contenir les caractères suivants : \\ / : * ? \" < > |",
+				"invalidPosix": "Nom de fichier non valide. Le caractère suivant n'est pas autorisé : /",
+				"failed": "Échec du renommage : %1",
 				"extNotSame": {
 					"normal": "L'extension du nouveau nom diffère de l'originale, ce qui peut poser problème.",
 					"title": "Voulez-vous vraiment changer l'extension ?",
@@ -393,7 +395,8 @@
 		},
 		"deleteFile": {
 			"title": "Confirmation de suppression",
-			"message": "Voulez-vous vraiment supprimer le fichier ou le dossier %1 ? Il sera déplacé vers la corbeille du système, d'où vous pourrez le restaurer."
+			"message": "Voulez-vous vraiment supprimer le fichier ou le dossier %1 ? Il sera déplacé vers la corbeille du système, d'où vous pourrez le restaurer.",
+			"permanentMessage": "L'emplacement de %1 ne dispose pas de corbeille (par exemple un projet distant). La suppression est irréversible. Continuer ?"
 		}
 	},
 	"colorThemeSettings": {

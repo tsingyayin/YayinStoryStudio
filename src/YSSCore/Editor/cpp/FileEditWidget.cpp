@@ -284,6 +284,10 @@ protected:
 		如果调用发生在关闭流程中（\c{WaitingSave}），保存成功后本函数会安排一次新的
 		关闭，调用方不需要再调用 \l{closeFile()}。
 
+		\a target 已经被另一个编辑器打开时，本次保存会被拒绝并返回 false：覆盖它会让
+		\l{FileServerManager} 的索引丢失那个编辑器。调用方应当先关闭目标编辑器，
+		或者改用别的目标。
+
 		虚拟文件会直接调用 \l{onVirtualSave()}，\a target 与 \a deleteWhenSaveAs 均无效。
 	*/
 	bool FileEditWidget::saveFile(const YSSCore::General::YSSURI& target, bool deleteWhenSaveAs, bool silent) {
@@ -296,6 +300,12 @@ protected:
 		}
 		const YSSCore::General::YSSURI targetUri = target.isValid() ? target : d->Uri;
 		if (!targetUri.isValid() || targetUri.isVirtual()) {
+			return false;
+		}
+		// 另存/改名到另一个编辑器已经打开的 URI 会覆盖 FileServerManager 的索引，
+		// 让那个编辑器从 getFileEditWidget() 里彻底消失，因此这里直接拒绝。
+		if (targetUri != d->Uri && FileServerManager::getInstance()->getFileEditWidget(targetUri) != nullptr) {
+			yWarningF << "Refuse to save to an already opened file:" << targetUri.toString();
 			return false;
 		}
 		d->saveSilent = silent;
@@ -364,6 +374,38 @@ protected:
 				}
 				emit fileSaveFailed(targetUri);
 			});
+		return true;
+	}
+
+	/*!
+		\since YSS 0.18.0
+		把编辑器的身份改到 \a newUri，用于文件已经在文件系统里完成改名的情况。
+
+		本函数不写盘，也不改变修改状态：它只更新 \l{getUri()} 并发出 \l{fileRenamed()}，
+		让页签、项目打开文件列表与文件服务器索引一起换到新路径。
+
+		真正的重命名由调用方完成（例如 \l{YSSUniqueFileSystem::rename()}），失败时不应
+		调用本函数。新 URI 已被别的编辑器打开时也会拒绝，否则 \l{FileServerManager}
+		的索引会被覆盖。
+
+		\a newUri 新的文件身份。
+
+		return 成功换到新 URI 时返回 true。
+	*/
+	bool FileEditWidget::applyRename(const YSSCore::General::YSSURI& newUri) {
+		if (d->Uri.isVirtual() || !newUri.isValid() || newUri.isVirtual()) {
+			return false;
+		}
+		const YSSCore::General::YSSURI oldUri = d->Uri;
+		if (oldUri == newUri) {
+			return false;
+		}
+		if (FileServerManager::getInstance()->getFileEditWidget(newUri) != nullptr) {
+			yWarningF << "Refuse to rename to an already opened file:" << newUri.toString();
+			return false;
+		}
+		d->Uri = newUri;
+		emit fileRenamed(oldUri, newUri);
 		return true;
 	}
 

@@ -1,26 +1,37 @@
 #ifndef YayinStoryStudio_Editor_MainEditor_SimpleFileDialog_h
 #define YayinStoryStudio_Editor_MainEditor_SimpleFileDialog_h
 #include <QtWidgets/qframe.h>
+#include <QtWidgets/qdialog.h>
 #include <QtCore/qstring.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtCore/qstringlist.h>
+#include <General/YSSURI.h>
 
 namespace YSS::Editor {
-	class RenameDialog :public QFrame {
+	class RenameDialog :public QDialog {
 		Q_OBJECT;
 	signals:
-		void renameConfirmed(const QString& absOldPath, const QString& newName);
+		void renameConfirmed(const YSSCore::General::YSSURI& oldUri,
+			const YSSCore::General::YSSURI& newUri, bool isDirectory);
 	public:
 		RenameDialog();
-		void setContext(const QString& absOldPath, const QString& newName = QString());
+		void setContext(const YSSCore::General::YSSURI& uri, const QString& newName = QString(),
+			bool isDirectory = false);
+	protected:
+		virtual void showEvent(QShowEvent* event) override;
 	private:
+		void applyStyle();
+		void setWarning(const QString& text, bool error);
+		void setConfirmEnabled(bool enabled);
 		void onNewNameChanged(const QString& newName);
+		YSSCore::General::YSSURI targetUri(const QString& newName) const;
 	private:
-		QString AbsOldPath;
+		YSSCore::General::YSSURI OldUri;
 		QLabel* TitleLabel;
+		QLabel* SubtitleLabel;
 		QLineEdit* Edit;
 		QLabel* WarningLabel;
 		QPushButton* ConfirmButton;
@@ -36,12 +47,12 @@ namespace YSS::Editor {
 		void confirmed(const QString& newName);
 	public:
 		NewFolderDialog();
-		void setContext(const QString& parentPath, const QStringList& existingNames);
+		void setContext(const YSSCore::General::YSSURI& parentUri, const QStringList& existingNames);
 	private:
 		void validateName();
 		void onConfirmClicked();
 	private:
-		QString ParentPath;
+		YSSCore::General::YSSURI ParentUri;
 		QStringList ExistingNames;
 		QLabel* DescriptionLabel;
 		QLineEdit* NameEdit;

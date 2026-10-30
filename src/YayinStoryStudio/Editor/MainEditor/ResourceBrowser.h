@@ -2,23 +2,21 @@
 #define YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h
 #include <QtCore/qdir.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qabstractitemmodel.h>
+#include <QtGui/qcolor.h>
 #include <QtWidgets/qwidget.h>
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServer.h>
-#include <QtWidgets/qabstractitemdelegate.h>
-class QListWidget;
-class QListWidgetItem;
-class QLineEdit;
-class QPushButton;
-class QToolButton;
-class QHBoxLayout;
-class QVBoxLayout;
-class QTreeView;
-class QFileSystemModel;
+#include <General/YSSURI.h>
+#include <General/YSSUniqueFileSystem.h>
+class QAction;
+class QMenu;
 class QToolBar;
-class QUndoCommand;
+class QTreeView;
+class QVBoxLayout;
 namespace YSS::Editor {
-	class FileOperationCommand;
+	class UfsTreeModel;
 	class ResourceBrowserVFS :public YSSCore::Editor::FileServer {
 		Q_OBJECT;
 	public:
@@ -29,45 +27,46 @@ namespace YSS::Editor {
 	class ResourceBrowser :public YSSCore::Editor::FileEditWidget {
 		Q_OBJECT;
 	private:
-		QTreeView* FileTree;
-		QFileSystemModel* FileModel;
-		QVBoxLayout* Layout;
-		QDir ProjectRootDir;
-		QToolBar* ToolBar;
-		QAction* ToolActionRefresh;
-		QAction* ToolActionExpand;
-		QAction* ToolActionShrink;
-		QAction* ToolActionNewFile;
-		QAction* ToolActionNewFolder;
+		QTreeView* FileTree = nullptr;
+		UfsTreeModel* FileModel = nullptr;
+		QVBoxLayout* Layout = nullptr;
+		QToolBar* ToolBar = nullptr;
+		QAction* ToolActionRefresh = nullptr;
+		QAction* ToolActionExpand = nullptr;
+		QAction* ToolActionShrink = nullptr;
+		QAction* ToolActionNewFile = nullptr;
+		QAction* ToolActionNewFolder = nullptr;
 		QColor TextColor;
-		QMenu* FileOptions;
-		QString CurrentFilePath;
+		QMenu* FileOptions = nullptr;
+		YSSCore::General::YSSURI ProjectRootUri;
+		YSSCore::General::YSSURI CurrentUri;
 		QPersistentModelIndex RightClickedIndex;
-		QAction* FileOptionOpen;
-		QAction* FileOptionRename;
-		QAction* FileOptionDelete;
-		QAction* FileOptionNewFile;
-		QAction* FileOptionNewFolder;
-		QAction* FileOptionCopyPath;
-		QAction* FileOptionCopyName;
-		QAction* FileOptionCopy;
-		QAction* FileOptionPaste;
-		QAction* FileOptionCut;
-		QAction* FileOptionRefresh;
-		QAction* FileOptionCompareAsOld;
-		QAction* FileOptionCompareAsNew;
+		QAction* FileOptionOpen = nullptr;
+		QAction* FileOptionRename = nullptr;
+		QAction* FileOptionDelete = nullptr;
+		QAction* FileOptionNewFile = nullptr;
+		QAction* FileOptionNewFolder = nullptr;
+		QAction* FileOptionCopyPath = nullptr;
+		QAction* FileOptionCopyName = nullptr;
+		QAction* FileOptionCopy = nullptr;
+		QAction* FileOptionPaste = nullptr;
+		QAction* FileOptionCut = nullptr;
+		QAction* FileOptionRefresh = nullptr;
+		QAction* FileOptionCompareAsOld = nullptr;
+		QAction* FileOptionCompareAsNew = nullptr;
+		QList<YSSCore::General::YSSURI> ClipboardUris;
+		bool ClipboardCut = false;
 	signals:
 		void visibilityChanged(bool visible);
-		void otherFileRenamed(const QString& path, const QString& oldName, const QString& newName);
-		void directoryRenamed(const QString& path, const QString& oldName, const QString& newName);
-		void fileOperationRequested(YSS::Editor::FileOperationCommand* command);
+		// 请求主窗口弹出重命名对话框；isDirectory 决定对话框是否做扩展名处理。
+		void renameRequested(const YSSCore::General::YSSURI& uri, bool isDirectory);
 	public:
 		static ResourceBrowser* getInstance();
 	public:
 		ResourceBrowser(QWidget* parent = nullptr);
 		virtual ~ResourceBrowser();
 		void refresh();
-		void setCurrentSelected(const QFileInfo& path);
+		void setCurrentSelected(const YSSCore::General::YSSURI& uri);
 	public:
 		virtual bool onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) override;
 	private:
@@ -78,6 +77,14 @@ namespace YSS::Editor {
 		void onFileTreeContextMenuRequested(const QPoint& pos);
 		void onRenameTriggered();
 		void onNewFolderTriggered();
+		void onDeleteTriggered();
+		void onCopyTriggered(bool cut);
+		void onPasteTriggered();
+		YSSCore::General::YSSURI targetDirectory() const;
+		void selectAndExpand(const QModelIndex& index);
+		void refreshParentOf(const YSSCore::General::YSSURI& uri);
+		void showOperationError(const YSSCore::General::YSSURI& uri,
+			const YSSCore::General::YSSFileError& error);
 	};
 }
 #endif // YayinStoryStudio_Editor_MainEditor_ResourceBrowser_h

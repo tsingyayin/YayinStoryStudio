@@ -194,21 +194,35 @@ namespace YSSCore::Editor {
 			const YSSURI uri = few->getUri();
 			OpenedFileEditWidgets.insert(keyOf(uri), few);
 			QObject::connect(few, &FileEditWidget::fileClosed, Instance, [this, few](const YSSURI& closedUri) {
-				OpenedFileEditWidgets.remove(keyOf(closedUri));
+				// 索引可能在改名时挪到了别的键上，只有仍然指向本编辑器时才摘除，
+				// 否则会误删占用该 URI 的另一个编辑器。
+				if (OpenedFileEditWidgets.value(keyOf(closedUri), nullptr) == few) {
+					OpenedFileEditWidgets.remove(keyOf(closedUri));
+				}
 				FileEditWidgetSourceServerMap.remove(few);
 				emit Instance->fileClosed(closedUri);
 				few->deleteLater();
 				yDebug << "File closed:" << closedUri.toString();
 				});
 			QObject::connect(few, &FileEditWidget::fileRenamed, Instance, [this, few](const YSSURI& rawUri, const YSSURI& changedUri) {
-				if (OpenedFileEditWidgets.contains(keyOf(rawUri))) {
-					OpenedFileEditWidgets.remove(keyOf(rawUri));
-					OpenedFileEditWidgets.insert(keyOf(changedUri), few);
-					emit Instance->fileRenamed(rawUri, changedUri);
+				const QString rawKey = keyOf(rawUri);
+				const QString changedKey = keyOf(changedUri);
+				if (!OpenedFileEditWidgets.contains(rawKey)) {
+					VI_Throw_ST(Visindigo::General::Exception::NotFound, "FileEditWidget emitted fileRenamed signal but the raw path is not found in OpenedFileEditWidgets.");
+					return;
+				}
+				OpenedFileEditWidgets.remove(rawKey);
+				FileEditWidget* const occupant = OpenedFileEditWidgets.value(changedKey, nullptr);
+				if (occupant != nullptr && occupant != few) {
+					// 目标 URI 已经被另一个编辑器占着。覆盖索引会让那个编辑器从
+					// getFileEditWidget() 里彻底消失，所以这里只报错，不抢占索引。
+					vgError << "Refuse to index" << changedUri.toString()
+						<< "because another editor is already open on it";
 				}
 				else {
-					VI_Throw_ST(Visindigo::General::Exception::NotFound, "FileEditWidget emitted fileRenamed signal but the raw path is not found in OpenedFileEditWidgets.");
+					OpenedFileEditWidgets.insert(changedKey, few);
 				}
+				emit Instance->fileRenamed(rawUri, changedUri);
 				});
 			QObject::connect(few, &FileEditWidget::fileChanged, Instance, [this](const YSSURI& uri) {
 				emit Instance->fileChanged(uri);

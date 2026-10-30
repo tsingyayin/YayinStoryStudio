@@ -173,7 +173,7 @@ namespace YSS::ProjectPage {
 		HistoryProjectArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 		NewsWidget = new QTextBrowser(this);
-		NewsWidget->setMaximumWidth(360);
+		// 不设最大宽度：右侧栏由 QGridLayout 的列拉伸控制，这里再限宽会让宽窗口下留出空白。
 
 		OptionWidget = new Visindigo::Widgets::BorderFrame(this);
 		CreateProjectButton = new QToolButton(OptionWidget);

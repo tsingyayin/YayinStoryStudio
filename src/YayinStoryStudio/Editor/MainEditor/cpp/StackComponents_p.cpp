@@ -404,10 +404,13 @@ namespace YSS::Editor {
 	}
 
 	void StackTag::contextMenuEvent(QContextMenuEvent* event) {
-		// 虚拟文件（设置页等）不参与比较；目录不能作为比较对象。
+		// 虚拟文件（设置页等）没有可比对的文件系统实体，直接把这两项从菜单里拿掉；
+		// 目录也不能作为比较对象。
 		const bool canCompare = Uri.isValid() && !Uri.isVirtual() && !Uri.isDir();
-		ActionCompareAsOld->setEnabled(canCompare);
-		ActionCompareAsNew->setEnabled(canCompare);
+		for (QAction* action : { ActionCompareAsOld, ActionCompareAsNew }) {
+			action->setVisible(canCompare);
+			action->setEnabled(canCompare);
+		}
 		QFrame::contextMenuEvent(event);
 	}
 

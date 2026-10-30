@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -130,7 +130,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DocumentMessageTracer.cpp" />
-    <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\UfsTreeModel.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainEditorBuiltinPlugin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWin.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MainWinMenu.cpp" />
@@ -166,6 +166,7 @@
     <QtMoc Include="Editor\MainEditor\DocumentMessageTracer.h" />
     <QtMoc Include="Editor\MainEditor\MainWin.h" />
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h" />
+    <QtMoc Include="Editor\MainEditor\UfsTreeModel.h" />
     <QtMoc Include="Editor\TitlePage\TitlePage.h" />
   </ItemGroup>
   <ItemGroup>
@@ -194,7 +195,6 @@
     <QtMoc Include="Editor\MainEditor\ColorThemeSettings.h" />
     <QtMoc Include="Editor\MainEditor\private\ColorThemeSettings_p.h" />
     <ClInclude Include="Editor\MainEditor\BottomInfoWidget_p.h" />
-    <ClInclude Include="Editor\MainEditor\FileOperationCommands.h" />
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />
     <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h" />

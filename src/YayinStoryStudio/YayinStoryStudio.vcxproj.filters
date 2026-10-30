@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -113,7 +113,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\MultiTerminal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\MainEditor\cpp\FileOperationCommands.cpp">
+    <ClCompile Include="Editor\MainEditor\cpp\UfsTreeModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\PreferenceEditWidget.cpp">
@@ -149,6 +149,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\MainEditor\ResourceBrowser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Editor\MainEditor\UfsTreeModel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Editor\TitlePage\TitlePage.h">
@@ -267,9 +270,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\YSSCommandHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Editor\MainEditor\FileOperationCommands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\MainEditor\DebugCommand.h">

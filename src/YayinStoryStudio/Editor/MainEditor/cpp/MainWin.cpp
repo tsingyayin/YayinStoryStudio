@@ -1,5 +1,6 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qjsonvalue.h>
+#include <QtCore/qpointer.h>
 #include <QtCore/qtimer.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qfiledialog.h>
@@ -17,6 +18,7 @@
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
 #include <General/YSSProject.h>
+#include <General/YSSUniqueFileSystem.h>
 #include <Utility/ColorTool.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
@@ -26,7 +28,6 @@
 #include "Editor/MainEditor/BottomInfoWidget.h"
 #include "Editor/MainEditor/DebugServerRouter.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
-#include "Editor/MainEditor/FileOperationCommands.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/MainWinMenu.h"
 #include "Editor/MainEditor/MessageCenter.h"
@@ -123,15 +124,73 @@ namespace YSS::Editor {
 		RenameDlg = new RenameDialog();
 		RenameDlg->hide();
 		
-		connect(RenameDlg, &RenameDialog::renameConfirmed, this, [this](const QString& oldName, const QString& newName) {
-			auto editor = YSSFSM->getFileEditWidget(oldName);
-			if (editor) {
-				editor->saveFile(YSSCore::General::YSSURI::fromLocalPath(newName), true);
-			}
-			if (auto browser = ResourceBrowser::getInstance()) {
-				browser->refresh();
-			}
+		connect(RenameDlg, &RenameDialog::renameConfirmed, this,
+			[this](const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri, bool isDirectory) {
+				YSSCore::Editor::FileEditWidget* editor = isDirectory ? nullptr : YSSFSM->getFileEditWidget(oldUri);
+				if (!isDirectory && editor == nullptr) {
+					yWarningF << "Rename requested for a file that is not open:" << oldUri.toString();
+					return;
+				}
+				if (YSSFSM->getFileEditWidget(newUri) != nullptr) {
+					// 目标路径已经有一个编辑器打开着，改名后两个编辑器会抢同一个索引。
+					QMessageBox::warning(this, VITRL("YSS::editor.renameDialog.title"),
+						VITRL("YSS::editor.renameDialog.warning.exists"), QMessageBox::Ok);
+					return;
+				}
+				// 重命名交给统一文件系统，本机与 SSH 走同一套逻辑；编辑器只负责跟着换 URI。
+				YSSCore::General::YSSFileSystemReply* reply =
+					YSSCore::General::YSSUniqueFileSystem::getInstance()->rename(oldUri, newUri);
+				if (reply == nullptr) {
+					QMessageBox::warning(this, VITRL("YSS::editor.renameDialog.title"),
+						VITRL("YSS::editor.renameDialog.warning.failed").arg(newUri.toString()), QMessageBox::Ok);
+					return;
+				}
+				QPointer<YSSCore::Editor::FileEditWidget> guard(editor);
+				connect(reply, &YSSCore::General::YSSFileSystemReply::succeeded, this,
+					[this, guard, oldUri, newUri, isDirectory]() {
+						if (isDirectory) {
+							// 目录改名：把该目录下所有已打开的编辑器一起搬到新位置。
+							const QList<YSSCore::Editor::FileEditWidget*> widgets = YSSFSM->getAllFileEditWidgets();
+							for (YSSCore::Editor::FileEditWidget* widget : widgets) {
+								const QString relative = widget->getUri().relativePathTo(oldUri);
+								if (relative.isEmpty()) {
+									continue;
+								}
+								if (!widget->applyRename(newUri.resolve(relative))) {
+									yWarningF << "Editor could not follow the renamed directory:"
+										<< widget->getUri().toString();
+								}
+							}
+						}
+						// 请求期间编辑器可能已经被关掉。
+						else if (!guard.isNull() && guard->getUri() != newUri
+							&& not guard->applyRename(newUri)) {
+							yWarningF << "The file was renamed but its editor could not follow:" << newUri.toString();
+						}
+						if (auto browser = ResourceBrowser::getInstance()) {
+							browser->refresh();
+						}
+					});
+				connect(reply, &YSSCore::General::YSSFileSystemReply::failed, this,
+					[this, oldUri, newUri](const YSSCore::General::YSSFileError& error) {
+						yWarningF << "Failed to rename" << oldUri.toString() << "to" << newUri.toString()
+							<< error.toString();
+						if (error.Type == YSSCore::General::YSSFileError::ErrorType::AlreadyExists) {
+							QMessageBox::warning(this, VITRL("YSS::editor.renameDialog.title"),
+								VITRL("YSS::editor.renameDialog.warning.exists"), QMessageBox::Ok);
+						}
+						else {
+							QMessageBox::warning(this, VITRL("YSS::editor.renameDialog.title"),
+								VITRL("YSS::editor.renameDialog.warning.failed").arg(newUri.toString()), QMessageBox::Ok);
+						}
+					});
 			});
+
+		// 资源浏览器通常是后打开的虚拟文件；已经有实例时在这里补上连接，构造顺序反过来时由它自己连。
+		if (auto browser = ResourceBrowser::getInstance()) {
+			connect(browser, &ResourceBrowser::renameRequested, this, &MainWin::showRenameDialog,
+				Qt::UniqueConnection);
+		}
 
 		connect(BottomFrame, &BottomInfoWidget::requestStatistic, this, [this]() {
 			auto currentEditWidget = FocusingFileEditWidgetNotTool;
@@ -423,6 +482,16 @@ namespace YSS::Editor {
 		}
 	}
 
+	void MainWin::showRenameDialog(const YSSCore::General::YSSURI& uri, bool isDirectory) {
+		if (RenameDlg == nullptr) {
+			return;
+		}
+		RenameDlg->setContext(uri, QString(), isDirectory);
+		RenameDlg->show();
+		RenameDlg->raise();
+		RenameDlg->activateWindow();
+	}
+
 	void MainWin::saveCurrentFocusedFile() {
 		if (FocusingFileEditWidgetNotTool) {
 			FocusingFileEditWidgetNotTool->saveFile();
@@ -461,6 +530,11 @@ namespace YSS::Editor {
 				return;
 			}
 			editor->closeFile();
+			// 编辑器没有真的关掉时不能再往下走：saveFile() 会拒绝写到已被占用的 URI。
+			if (YSSFSM->getFileEditWidget(newfilePath) != nullptr) {
+				QMessageBox::warning(this, VITRL("YSS::editor.saveAsConflict.title"), VITRL("YSS::editor.saveAsConflict.message").arg(newfilePath));
+				return;
+			}
 		}
 		editor = YSSFSM->getFileEditWidget(rawFilePath);
 		if (editor) {
@@ -692,8 +766,7 @@ namespace YSS::Editor {
 			BottomFrame->displayEditorInfo(cursor);
 			});
 		connect(area, &FileEditWidgetArea::renameRequested, this, [this](const YSSCore::General::YSSURI& uri) {
-			RenameDlg->setContext(uri.getLocalPath());
-			RenameDlg->show();
+			this->showRenameDialog(uri, false);
 			});
 		connect(area, &FileEditWidgetArea::saveAsRequested, this, [this](const YSSCore::General::YSSURI& uri) {
 			saveCurrentFocusedFileAs(uri.getLocalPath());
@@ -715,10 +788,9 @@ namespace YSS::Editor {
 			return;
 		}
 		// 当前文件要在资源浏览器里跟着选中（虚拟文件不在资源浏览器里，跳过）。
-		const QString filePath = widget->getFilePath();
-		if (not filePath.isEmpty() and not YSSCore::Editor::VirtualFilePath::isVirtualFilePath(filePath)) {
+		if (not widget->getUri().isVirtual()) {
 			if (auto browser = ResourceBrowser::getInstance()) {
-				browser->setCurrentSelected(QFileInfo(filePath));
+				browser->setCurrentSelected(widget->getUri());
 			}
 		}
 		YSSCore::Editor::FileServer* sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget);

@@ -385,6 +385,8 @@
 				"same": "New name is the same as the old name. Please enter a different name.",
 				"exists": "A file with this name already exists in the same directory. Please choose a different name.",
 				"invalid": "Invalid file name. It cannot contain the following characters: \\ / : * ? \" < > |",
+				"invalidPosix": "Invalid file name. It cannot contain the following character: /",
+				"failed": "Rename failed: %1",
 				"extNotSame": {
 					"normal": "The extension of the new name differs from the original, which may cause issues.",
 					"title": "Are you sure you want to change the extension?",
@@ -417,7 +419,8 @@
 		},
 		"deleteFile": {
 			"title": "Delete Confirmation",
-			"message": "Are you sure you want to delete the file or folder %1? It will be moved to the system recycle bin, from which you can restore it."
+			"message": "Are you sure you want to delete the file or folder %1? It will be moved to the system recycle bin, from which you can restore it.",
+			"permanentMessage": "The location of %1 has no recycle bin (for example a remote project), so deleting it cannot be undone. Continue?"
 		}
 	},
 	"colorThemeSettings": {

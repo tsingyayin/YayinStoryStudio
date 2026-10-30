@@ -67,6 +67,7 @@ namespace YSS::Editor {
 		void saveCurrentFocusedFileAs(QString rawFilePath = "");
 		void openFileDialog(const QString& startPath = "");
 		void openNewFileWindow(const YSSCore::General::YSSURI& startUri = YSSCore::General::YSSURI());
+		void showRenameDialog(const YSSCore::General::YSSURI& uri, bool isDirectory = false);
 		void help();
 		void setMenuShortcutTips();
 		FileEditWidgetArea* getLastFocusedFileEditArea() const;

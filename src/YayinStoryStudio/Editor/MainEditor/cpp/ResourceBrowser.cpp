@@ -2,32 +2,83 @@
 #include <QtCore/qmimedata.h>
 #include <QtCore/qurl.h>
 #include <QtGui/qclipboard.h>
-#include <QtGui/qevent.h>
-#include <QtGui/qpainter.h>
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qfilesystemmodel.h>
-#include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qmenu.h>
 #include <QtWidgets/qmessagebox.h>
-#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qtoolbar.h>
-#include <QtWidgets/qtoolbutton.h>
-#include <QtWidgets/qtreewidget.h>
+#include <QtWidgets/qtreeview.h>
 #include <Editor/FileServerManager.h>
-#include <Editor/FileTemplateManager.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 #include <General/YSSProject.h>
-#include <Utility/FileUtility.h>
+#include <General/YSSUniqueFileSystem.h>
 #include <Widgets/ThemeManager.h>
-#include "Editor/MainEditor/FileOperationCommands.h"
+#include <memory>
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/SimpleFileDialog.h"
+#include "Editor/MainEditor/UfsTreeModel.h"
+#include "Editor/SSHConnection/SSHConnectionWidget.h"
+
 namespace YSS::Editor {
 	static ResourceBrowser* Instance = nullptr;
+
+	namespace {
+		constexpr int DropEffectCopy = 1;
+		constexpr int DropEffectMove = 2;
+
+		QString dropEffectFormat() {
+			return QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\"");
+		}
+
+		YSSCore::General::YSSFileError notSupportedError(const YSSCore::General::YSSURI& uri) {
+			YSSCore::General::YSSFileError error;
+			error.Type = YSSCore::General::YSSFileError::ErrorType::NotSupported;
+			error.Message = QStringLiteral("No filesystem backend accepts this path");
+			error.Detail = uri.toString();
+			return error;
+		}
+
+		bool clipboardRequestsMove(const QMimeData* mime) {
+			if (mime == nullptr || !mime->hasFormat(dropEffectFormat())) {
+				return false;
+			}
+			QDataStream stream(mime->data(dropEffectFormat()));
+			int effect = 0;
+			stream >> effect;
+			return effect == DropEffectMove;
+		}
+
+		// 本机文件仍然写一份系统剪贴板，方便直接粘到资源管理器。
+		void setClipboardUrls(const YSSCore::General::YSSURI& uri, bool cut) {
+			auto* mime = new QMimeData();
+			mime->setUrls({ QUrl::fromLocalFile(uri.getLocalPath()) });
+			QByteArray effect;
+			QDataStream(&effect, QIODevice::WriteOnly) << (cut ? DropEffectMove : DropEffectCopy);
+			mime->setData(dropEffectFormat(), effect);
+			QApplication::clipboard()->setMimeData(mime);
+		}
+
+		// 目标目录已有同名项时生成 “name - Copy”、“name - Copy (2)”。
+		QString copyNameIn(const QString& name, const QStringList& existing) {
+			QString base = name;
+			QString suffix;
+			const qsizetype dot = name.lastIndexOf(QLatin1Char('.'));
+			if (dot > 0) {
+				base = name.left(dot);
+				suffix = name.mid(dot);
+			}
+			QString candidate = base + QStringLiteral(" - Copy") + suffix;
+			int index = 2;
+			while (existing.contains(candidate, Qt::CaseInsensitive)) {
+				candidate = base + QStringLiteral(" - Copy (%1)").arg(index++) + suffix;
+			}
+			return candidate;
+		}
+	}
+
 	ResourceBrowserVFS::ResourceBrowserVFS(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::FileServer("YSS Built-in Resource Browser", "cn.yxgeneral.yss_builtin.resourceBrowserVFS", plugin) {
 		setEditorType(YSSCore::Editor::FileServer::BuiltInEditor);
@@ -71,15 +122,46 @@ namespace YSS::Editor {
 		FileTree = new QTreeView(this);
 		FileTree->setContextMenuPolicy(Qt::CustomContextMenu);
 		FileTree->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		Layout->addWidget(FileTree);
-		
-		FileModel = new QFileSystemModel(this);
-		FileModel->setReadOnly(false);
-		FileTree->setModel(FileModel);
 		FileTree->setHeaderHidden(true);
-		
+		FileTree->setUniformRowHeights(true);
+		// 双击文件是打开，不是展开目录。
+		FileTree->setExpandsOnDoubleClick(false);
+		Layout->addWidget(FileTree);
+
+		FileModel = new UfsTreeModel(this);
+		FileTree->setModel(FileModel);
+
 		connect(FileTree, &QTreeView::doubleClicked, this, &ResourceBrowser::onItemDoubleClicked);
 		connect(FileTree, &QTreeView::customContextMenuRequested, this, &ResourceBrowser::onFileTreeContextMenuRequested);
+		connect(FileModel, &UfsTreeModel::directoryFailed, this,
+			[this](const YSSCore::General::YSSURI& dir, const YSSCore::General::YSSFileError& error) {
+				vgWarningF << "Failed to list" << dir.toString() << error.toString();
+				// 远端没登录时直接把连接对话框叫出来，比让目录一直空着好。
+				if (error.Type == YSSCore::General::YSSFileError::ErrorType::NeedsCredentials) {
+					SSHConnectionWidget::requestVerification(dir);
+				}
+			});
+		// 支持监听的后端（本机）在外部改动后自动刷新，保持以前 QFileSystemModel 的行为。
+		connect(YSSCore::General::YSSUniqueFileSystem::getInstance(),
+			&YSSCore::General::YSSUniqueFileSystem::directoryChanged, this,
+			[this](const YSSCore::General::YSSURI& dir) {
+				FileModel->refreshDirectory(dir);
+			});
+		// 远端登录成功后把之前因为未连接而列不出来的目录补上。
+		connect(YSSCore::General::YSSUniqueFileSystem::getInstance(),
+			&YSSCore::General::YSSUniqueFileSystem::sshReadyChanged, this,
+			[this](const QString& authority, bool ready) {
+				Q_UNUSED(authority);
+				if (ready) {
+					FileModel->refreshAll();
+				}
+			});
+
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+		ProjectRootUri = project != nullptr
+			? project->getProjectFolder()
+			: YSSCore::General::YSSURI::fromLocalPath(QDir::currentPath());
+		FileModel->setRoot(ProjectRootUri);
 
 		FileOptions = new QMenu(this);
 		FileOptionOpen = FileOptions->addAction(VITRL("Visindigo::general.open"));
@@ -98,184 +180,53 @@ namespace YSS::Editor {
 		FileOptionRefresh = FileOptions->addAction(VITRL("Visindigo::general.refresh"));
 		FileOptionCompareAsOld = FileOptions->addAction(VITRL("YSS::menu.file.compareAsOld"));
 		FileOptionCompareAsNew = FileOptions->addAction(VITRL("YSS::menu.file.compareAsNew"));
-		
-		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
-		if (project != nullptr) {
-			const QString projectRoot = project->getProjectFolder().getLocalPath();
-			ProjectRootDir.setPath(projectRoot);
-			FileTree->setRootIndex(FileModel->setRootPath(projectRoot));
-			for (int i = 1; i < FileModel->columnCount(); i++) {
-				FileTree->setColumnHidden(i, true);
-			}
-		}
-		else {
-			ProjectRootDir.setPath(QDir::currentPath());
-			FileTree->setRootIndex(FileModel->setRootPath(QDir::currentPath()));
-			for (int i = 1; i < FileModel->columnCount(); i++) {
-				FileTree->setColumnHidden(i, true);
-			}
-		}
-		
 
 		connect(FileOptionOpen, &QAction::triggered, this, [this]() {
-			auto fileInfo = QFileInfo(CurrentFilePath);
-			if (fileInfo.isFile()) {
-				YSSFSM->openFile(CurrentFilePath);
+			if (!CurrentUri.isValid()) {
+				return;
 			}
-			else if (fileInfo.isDir()) {
-				FileTree->expand(RightClickedIndex);
+			const QModelIndex index = RightClickedIndex;
+			if (FileModel->isDirectory(index)) {
+				if (index.isValid()) {
+					FileTree->setExpanded(index, !FileTree->isExpanded(index));
+				}
+				return;
 			}
+			YSSFSM->openFile(CurrentUri);
 			});
 		connect(FileOptionNewFile, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
 		connect(FileOptionNewFolder, &QAction::triggered, this, &ResourceBrowser::onNewFolderTriggered);
 		connect(FileOptionRename, &QAction::triggered, this, &ResourceBrowser::onRenameTriggered);
+		connect(FileOptionDelete, &QAction::triggered, this, &ResourceBrowser::onDeleteTriggered);
 		connect(FileOptionRefresh, &QAction::triggered, this, &ResourceBrowser::refreshFileList);
-		connect(FileOptionCompareAsOld, &QAction::triggered, this, [this]() {
-			MainWin::getInstance()->setCompareFileAsOld(YSSCore::General::YSSURI::fromLocalPath(CurrentFilePath));
-			});
-		connect(FileOptionCompareAsNew, &QAction::triggered, this, [this]() {
-			MainWin::getInstance()->setCompareFileAsNew(YSSCore::General::YSSURI::fromLocalPath(CurrentFilePath));
-			});
-		connect(FileOptionCopyPath, &QAction::triggered, this, [this]() {
-			QApplication::clipboard()->setText(CurrentFilePath);
-			});
-		connect(FileOptionCopyName, &QAction::triggered, this, [this]() {
-			QApplication::clipboard()->setText(QFileInfo(CurrentFilePath).fileName());
-			});
-		// ── file copy / cut / paste / delete (system-clipboard + QUndoCommand) ──
 		connect(FileOptionCopy, &QAction::triggered, this, [this]() {
-			auto* mime = new QMimeData();
-			mime->setUrls({ QUrl::fromLocalFile(CurrentFilePath) });
-			QByteArray effect;
-			QDataStream(&effect, QIODevice::WriteOnly) << (int)1;   // DROPEFFECT_COPY
-			mime->setData(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""), effect);
-			QApplication::clipboard()->setMimeData(mime);
+			onCopyTriggered(false);
 			});
 		connect(FileOptionCut, &QAction::triggered, this, [this]() {
-			auto* mime = new QMimeData();
-			mime->setUrls({ QUrl::fromLocalFile(CurrentFilePath) });
-			QByteArray effect;
-			QDataStream(&effect, QIODevice::WriteOnly) << (int)2;   // DROPEFFECT_MOVE
-			mime->setData(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""), effect);
-			QApplication::clipboard()->setMimeData(mime);
+			onCopyTriggered(true);
 			});
-		connect(FileOptionPaste, &QAction::triggered, this, [this]() {
-			const QMimeData* mime = QApplication::clipboard()->mimeData();
-			if (!mime || !mime->hasUrls()) return;
-
-			bool isCut = false;
-			if (mime->hasFormat(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""))) {
-				QByteArray data = mime->data(QStringLiteral("application/x-qt-windows-mime;value=\"Preferred DropEffect\""));
-				QDataStream stream(data);
-				int effect; stream >> effect;
-				isCut = (effect == 2);
-			}
-
-			const QFileInfo curInfo(CurrentFilePath);
-			const QString targetDir = curInfo.isDir() ? CurrentFilePath : curInfo.absolutePath();
-
-			for (const QUrl& url : mime->urls()) {
-				const QString src = url.toLocalFile();
-				if (src.isEmpty()) continue;
-
-				QString dst = targetDir + "/" + QFileInfo(src).fileName();
-				if (dst == src) continue;
-
-				if (QFileInfo::exists(dst)) {
-					const QString base = QFileInfo(src).completeBaseName();
-					const QString suf = QFileInfo(src).suffix();
-					int n = 1;
-					do {
-						dst = targetDir + "/" + base + " - Copy"
-							+ (n > 1 ? QString(" (%1)").arg(n) : QString())
-							+ (suf.isEmpty() ? "" : "." + suf);
-						++n;
-					} while (QFileInfo::exists(dst));
-				}
-
-				FileOperationCommand* cmd = isCut
-					? static_cast<FileOperationCommand*>(new FileMoveCommand(src, dst))
-					: static_cast<FileOperationCommand*>(new FileCopyCommand(src, dst));
-				emit fileOperationRequested(cmd);
-			}
+		connect(FileOptionPaste, &QAction::triggered, this, &ResourceBrowser::onPasteTriggered);
+		connect(FileOptionCompareAsOld, &QAction::triggered, this, [this]() {
+			MainWin::getInstance()->setCompareFileAsOld(CurrentUri);
 			});
-
-		connect(FileOptionDelete, &QAction::triggered, this, [this]() {
-			if (CurrentFilePath.isEmpty()) return;
-			auto projectFilePath = YSSCore::General::YSSProject::getCurrentProject()->getProjectFolder().resolve("project.yssp").getLocalPath();
-			if (QFileInfo(CurrentFilePath).absoluteFilePath() == QFileInfo(projectFilePath).absoluteFilePath()) {
-				QMessageBox::warning(this, VITRL("YSS::editor.deleteProjectFile.title"), VITRL("YSS::editor.deleteProjectFile.message"));
-				return;
-			}
-			auto rtn = QMessageBox::question(this, VITRL("YSS::editor.deleteFile.title"), VITRL("YSS::editor.deleteFile.message").arg(CurrentFilePath), QMessageBox::Yes | QMessageBox::No);
-			if (rtn == QMessageBox::Yes) {
-				emit fileOperationRequested(new FileDeleteCommand(CurrentFilePath));
-			}
+		connect(FileOptionCompareAsNew, &QAction::triggered, this, [this]() {
+			MainWin::getInstance()->setCompareFileAsNew(CurrentUri);
 			});
-
-		connect(FileModel, &QFileSystemModel::fileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
-			vgDebug << "ResourceBrowser: otherFileRenamed signal received: " << path << ", " << oldName << ", " << newName; 
-			vgDebug << QFileInfo(path + "/" + newName).isFile();
-			vgDebug << QFileInfo(path + "/" + newName).isDir();
-			if (QFileInfo(path + "/" + newName).isFile()) {
-				emit otherFileRenamed(path, oldName, newName);
-			}
-			else if (QFileInfo(path + "/" + newName).isDir()) {
-				emit directoryRenamed(path, oldName, newName);
-			}
+		connect(FileOptionCopyPath, &QAction::triggered, this, [this]() {
+			QApplication::clipboard()->setText(CurrentUri.toString());
 			});
-
-		connect(this, &ResourceBrowser::otherFileRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
-			const QString absOldPath = path + "/" + oldName;
-			if (QFileInfo(absOldPath).isFile()) {
-				auto editor = YSSFSM->getFileEditWidget(absOldPath);
-				if (editor) {
-					const QString absNewPath = path + "/" + newName;
-					editor->saveFile(YSSCore::General::YSSURI::fromLocalPath(absNewPath), true);
-				}
-			}
-			});
-		connect(this, &ResourceBrowser::directoryRenamed, this, [this](const QString& path, const QString& oldName, const QString& newName) {
-			const QString absOldPath = path + "/" + oldName;
-			const QString absNewPath = path + "/" + newName;
-			vgDebug << "Directory renamed from" << absOldPath << "to" << absNewPath;
-			if (QFileInfo(absNewPath).isDir()) {
-				auto newFileAbsPaths = Visindigo::Utility::FileUtility::fileFilter(absNewPath, { "*.*" }, true);
-				vgDebug << "Renamed directory" << absOldPath << "to" << absNewPath << ", found" << newFileAbsPaths.size() << "files";
-				for (auto newPath : newFileAbsPaths) {
-					QString newRelativePath = Visindigo::Utility::FileUtility::getRelativeIfStartWith(absNewPath, newPath);
-					newRelativePath = newRelativePath.mid(2);
-					QString oldFileAbsPath = absOldPath + "/" + newRelativePath;
-					auto editor = YSSFSM->getFileEditWidget(oldFileAbsPath);
-					if (editor) {
-						editor->saveFile(YSSCore::General::YSSURI::fromLocalPath(newPath), true);
-					}
-				}
-			}
-			});
-
-		// NOTICE: Bad design here. temporary pointer should never be used in signal-slot connection.
-		// If nobody handle the pointer, it will cause memory leak. And it`s ownership is not clear when
-		// multiple slots are connected to the same signal.
-		// As it`s not a public API, refactoring is not urgent.
-		// SHOULD BE SOLVED in 0.17~0.18 version.
-		connect(this, &ResourceBrowser::fileOperationRequested, this, [this](FileOperationCommand* cmd) {
-			cmd->redo();          // execute now
-			// TODO: push to global QUndoStack when ready
-			if (cmd->getErrorCode() != Visindigo::Utility::FileOperation::Success) {
-				// 这些操作以前是静默失败：用户点了删除/剪切/粘贴，磁盘上什么都没发生也没有提示。
-				vgWarningF << "Resource browser file operation failed on" << cmd->getTarget()
-					<< ", error:" << Visindigo::Utility::FileOperation::errorCodeName(cmd->getErrorCode());
-				QMessageBox::warning(this,
-					VITRL("YSS::editor.fileOperation.failed.title"),
-					VITRL("YSS::editor.fileOperation.failed.message").arg(QFileInfo(cmd->getTarget()).fileName()));
-			}
-			delete cmd;           // temporary — replace with stack management later
-			this->refresh();
+		connect(FileOptionCopyName, &QAction::triggered, this, [this]() {
+			QApplication::clipboard()->setText(CurrentUri.getFileName());
 			});
 
 		refreshFileList();
 		onThemeChanged();
+
+		// 重命名对话框归主窗口管，这里只负责发起请求。
+		if (MainWin* win = MainWin::getInstance()) {
+			connect(this, &ResourceBrowser::renameRequested, win, &MainWin::showRenameDialog,
+				Qt::UniqueConnection);
+		}
 	}
 
 	ResourceBrowser* ResourceBrowser::getInstance() {
@@ -290,35 +241,37 @@ namespace YSS::Editor {
 		refreshFileList();
 	}
 
-	void ResourceBrowser::setCurrentSelected(const QFileInfo& path) {
-		QModelIndex index = FileModel->index(path.absoluteFilePath());
-		if (!index.isValid())
+	void ResourceBrowser::refreshFileList() {
+		FileModel->refreshAll();
+	}
+
+	void ResourceBrowser::setCurrentSelected(const YSSCore::General::YSSURI& uri) {
+		if (!uri.isValid()) {
 			return;
-		// 展开祖先节点，确保该项可见
-		QModelIndex parent = index.parent();
-		while (parent.isValid()) {
+		}
+		FileModel->reveal(uri, [this](const QModelIndex& index) {
+			if (index.isValid()) {
+				selectAndExpand(index);
+			}
+			});
+	}
+
+	void ResourceBrowser::selectAndExpand(const QModelIndex& index) {
+		for (QModelIndex parent = index.parent(); parent.isValid(); parent = parent.parent()) {
 			FileTree->expand(parent);
-			parent = parent.parent();
 		}
 		FileTree->setCurrentIndex(index);
 		FileTree->scrollTo(index);
 	}
 
 	void ResourceBrowser::onNewButtonClicked() {
-		QString currentSelectedPath;
-		QModelIndex currentIndex = FileTree->currentIndex();
-		if (currentIndex.isValid()) {
-			currentSelectedPath = FileModel->filePath(currentIndex);
-			QFileInfo fileInfo(currentSelectedPath);
-			if (fileInfo.isFile()) {
-				currentSelectedPath = fileInfo.absoluteDir().absolutePath();
-			}
+		const YSSCore::General::YSSURI dir = targetDirectory();
+		if (!dir.isValid()) {
+			return;
 		}
-		else {
-			currentSelectedPath = ProjectRootDir.path();
+		if (MainWin* win = MainWin::getInstance()) {
+			win->openNewFileWindow(dir);
 		}
-		YSS::Editor::MainWin::getInstance()->openNewFileWindow(
-			YSSCore::General::YSSURI::fromLocalPath(currentSelectedPath));
 	}
 
 	void ResourceBrowser::onThemeChanged() {
@@ -334,9 +287,6 @@ namespace YSS::Editor {
 			FileOptionDelete->setIcon(VIApp->getNamedFontIcon("Delete", 64, { TextColor }));
 			FileOptionNewFile->setIcon(VIApp->getNamedFontIcon("SubscriptionAdd", 64, { TextColor }));
 			FileOptionNewFolder->setIcon(VIApp->getNamedFontIcon("NewFolder", 64, { TextColor }));
-			// These two icons may not satisfy.
-			//FileOptionCopyPath->setIcon(VIApp->getNamedFontIcon("HardDrive", 64, { TextColor }));
-			//FileOptionCopyName->setIcon(VIApp->getNamedFontIcon("Dictionary", 64, { TextColor }));
 			FileOptionCopy->setIcon(VIApp->getNamedFontIcon("Copy", 64, { TextColor }));
 			FileOptionPaste->setIcon(VIApp->getNamedFontIcon("Paste", 64, { TextColor }));
 			FileOptionCut->setIcon(VIApp->getNamedFontIcon("Cut", 64, { TextColor }));
@@ -344,97 +294,271 @@ namespace YSS::Editor {
 		}
 	}
 
-	void ResourceBrowser::refreshFileList() {
-		FileModel->setRootPath(ProjectRootDir.path());
-		FileTree->setRootIndex(FileModel->index(ProjectRootDir.path()));
-	}
-
 	void ResourceBrowser::onItemDoubleClicked(const QModelIndex& index) {
-		QModelIndex currentIndex = FileTree->currentIndex();
-		if (currentIndex.isValid()) {
-			QString filePath = FileModel->filePath(currentIndex);
-			QFileInfo fileInfo(filePath);
-			if (fileInfo.isFile()) {
-				YSSFSM->openFile(filePath);
-			}
+		if (!index.isValid()) {
+			return;
+		}
+		if (FileModel->isDirectory(index)) {
+			FileTree->setExpanded(index, !FileTree->isExpanded(index));
+			return;
+		}
+		const YSSCore::General::YSSURI uri = FileModel->uriOf(index);
+		if (uri.isValid()) {
+			YSSFSM->openFile(uri);
 		}
 	}
 
 	void ResourceBrowser::onFileTreeContextMenuRequested(const QPoint& pos) {
-		QModelIndex index = FileTree->indexAt(pos);
+		const QModelIndex index = FileTree->indexAt(pos);
 		const bool onItem = index.isValid();
 		if (onItem) {
-			CurrentFilePath = FileModel->filePath(index);
-			RightClickedIndex = index.siblingAtColumn(0);
-			FileTree->setCurrentIndex(RightClickedIndex);
+			CurrentUri = FileModel->uriOf(index);
+			RightClickedIndex = index;
+			FileTree->setCurrentIndex(index);
 		}
 		else {
-			// 空处右键：默认选中项目目录本身
-			CurrentFilePath = ProjectRootDir.path();
-			RightClickedIndex = FileModel->index(ProjectRootDir.path());
-			FileTree->setCurrentIndex(RightClickedIndex);
+			// 空处右键：所有"新建/粘贴"都落到项目根目录。
+			CurrentUri = ProjectRootUri;
+			RightClickedIndex = QModelIndex();
+			FileTree->setCurrentIndex(QModelIndex());
 		}
 
-		const QMimeData* clipMime = QApplication::clipboard()->mimeData();
-		const bool clipboardHasUrls = clipMime != nullptr && clipMime->hasUrls();
+		const bool isDir = onItem ? FileModel->isDirectory(index) : true;
+		bool clipboardHasFiles = !ClipboardUris.isEmpty();
+		if (!clipboardHasFiles) {
+			const QMimeData* mime = QApplication::clipboard()->mimeData();
+			if (mime != nullptr) {
+				for (const QUrl& url : mime->urls()) {
+					if (url.isLocalFile()) {
+						clipboardHasFiles = true;
+						break;
+					}
+				}
+			}
+		}
 
-		// 空处右键时只保留“新建文件 / 新建文件夹 / 刷新”可用
 		FileOptionOpen->setEnabled(onItem);
 		FileOptionRename->setEnabled(onItem);
 		FileOptionDelete->setEnabled(onItem);
-		FileOptionCopyPath->setEnabled(onItem);
+		FileOptionCopyPath->setEnabled(CurrentUri.isValid());
 		FileOptionCopyName->setEnabled(onItem);
 		FileOptionCopy->setEnabled(onItem);
 		FileOptionCut->setEnabled(onItem);
-		FileOptionPaste->setEnabled(clipboardHasUrls);
+		FileOptionPaste->setEnabled(clipboardHasFiles);
 		FileOptionNewFile->setEnabled(true);
 		FileOptionNewFolder->setEnabled(true);
 		FileOptionRefresh->setEnabled(true);
-		// 只有真实存在的单个文件才能参与比较。
-		const bool canCompare = onItem && QFileInfo(CurrentFilePath).isFile();
+		const bool canCompare = onItem && !isDir;
 		FileOptionCompareAsOld->setEnabled(canCompare);
 		FileOptionCompareAsNew->setEnabled(canCompare);
 
 		FileOptions->exec(FileTree->viewport()->mapToGlobal(pos));
 	}
 
+	YSSCore::General::YSSURI ResourceBrowser::targetDirectory() const {
+		const QModelIndex index = FileTree->currentIndex();
+		if (!index.isValid()) {
+			return ProjectRootUri;
+		}
+		const YSSCore::General::YSSURI uri = FileModel->uriOf(index);
+		if (!uri.isValid()) {
+			return ProjectRootUri;
+		}
+		return FileModel->isDirectory(index) ? uri : uri.parent();
+	}
+
 	void ResourceBrowser::onRenameTriggered() {
-		if (!RightClickedIndex.isValid())
+		if (!CurrentUri.isValid() || !RightClickedIndex.isValid()) {
 			return;
-		FileTree->scrollTo(RightClickedIndex);
-		FileTree->edit(RightClickedIndex);
+		}
+		emit renameRequested(CurrentUri, FileModel->isDirectory(RightClickedIndex));
 	}
 
 	void ResourceBrowser::onNewFolderTriggered() {
-		QString targetPath;
-		QModelIndex currentIndex = FileTree->currentIndex();
-		if (currentIndex.isValid()) {
-			targetPath = FileModel->filePath(currentIndex);
-			QFileInfo fileInfo(targetPath);
-			if (fileInfo.isFile()) {
-				targetPath = fileInfo.absoluteDir().absolutePath();
-			}
+		const YSSCore::General::YSSURI dir = targetDirectory();
+		if (!dir.isValid()) {
+			return;
 		}
-		else {
-			targetPath = ProjectRootDir.path();
-		}
-
-		QDir targetDir(targetPath);
-		QStringList existingNames = targetDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
-
 		NewFolderDialog* dialog = new NewFolderDialog();
 		dialog->setAttribute(Qt::WA_DeleteOnClose);
-		dialog->setContext(targetPath, existingNames);
-		connect(dialog, &NewFolderDialog::confirmed, this, [this, targetPath](const QString& newName) {
-			QDir dir(targetPath);
-			if (dir.mkdir(newName)) {
-				refreshFileList();
+		dialog->setContext(dir, FileModel->knownChildNames(dir));
+		connect(dialog, &NewFolderDialog::confirmed, this, [this, dir](const QString& newName) {
+			const YSSCore::General::YSSURI target = dir.resolve(newName);
+			YSSCore::General::YSSFileSystemReply* reply =
+				YSSCore::General::YSSUniqueFileSystem::getInstance()->mkdir(target);
+			if (reply == nullptr) {
+				showOperationError(target, notSupportedError(target));
+				return;
 			}
+			connect(reply, &YSSCore::General::YSSFileSystemReply::succeeded, this, [this, dir]() {
+				FileModel->refreshDirectory(dir);
+				});
+			connect(reply, &YSSCore::General::YSSFileSystemReply::failed, this,
+				[this, target](const YSSCore::General::YSSFileError& error) {
+					showOperationError(target, error);
+				});
 			});
 		dialog->show();
 	}
 
+	void ResourceBrowser::onDeleteTriggered() {
+		const YSSCore::General::YSSURI uri = CurrentUri;
+		if (!uri.isValid() || !RightClickedIndex.isValid()) {
+			return;
+		}
+		if (uri == ProjectRootUri.resolve(QStringLiteral("project.yssp"))) {
+			QMessageBox::warning(this, VITRL("YSS::editor.deleteProjectFile.title"),
+				VITRL("YSS::editor.deleteProjectFile.message"));
+			return;
+		}
+		YSSCore::General::YSSUniqueFileSystem* fileSystem = YSSCore::General::YSSUniqueFileSystem::getInstance();
+		const bool canRecycle = fileSystem->getCapabilities(uri)
+			.testFlag(YSSCore::General::YSSUniqueFileSystem::Capability::CanRecycle);
+		const QString question = canRecycle
+			? VITRL("YSS::editor.deleteFile.message").arg(uri.toString())
+			: VITRL("YSS::editor.deleteFile.permanentMessage").arg(uri.toString());
+		if (QMessageBox::question(this, VITRL("YSS::editor.deleteFile.title"), question,
+			QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) {
+			return;
+		}
+		YSSCore::General::YSSFileSystemReply* reply = canRecycle
+			? fileSystem->recycle(uri)
+			: fileSystem->remove(uri);
+		if (reply == nullptr) {
+			showOperationError(uri, notSupportedError(uri));
+			return;
+		}
+		connect(reply, &YSSCore::General::YSSFileSystemReply::succeeded, this, [this, uri]() {
+			refreshParentOf(uri);
+			});
+		connect(reply, &YSSCore::General::YSSFileSystemReply::failed, this,
+			[this, uri](const YSSCore::General::YSSFileError& error) {
+				showOperationError(uri, error);
+			});
+	}
+
+	void ResourceBrowser::onCopyTriggered(bool cut) {
+		if (!CurrentUri.isValid() || !RightClickedIndex.isValid()) {
+			return;
+		}
+		ClipboardUris = { CurrentUri };
+		ClipboardCut = cut;
+		if (CurrentUri.isLocal()) {
+			setClipboardUrls(CurrentUri, cut);
+		}
+	}
+
+	void ResourceBrowser::onPasteTriggered() {
+		const YSSCore::General::YSSURI dir = targetDirectory();
+		if (!dir.isValid()) {
+			return;
+		}
+
+		// 内部剪贴板负责 ssh:// 这种系统剪贴板装不下的 URI，同时仍然接受从资源管理器复制的本地文件。
+		QList<QPair<YSSCore::General::YSSURI, bool>> sources;
+		for (const YSSCore::General::YSSURI& source : ClipboardUris) {
+			sources.append(qMakePair(source, ClipboardCut));
+		}
+		if (const QMimeData* mime = QApplication::clipboard()->mimeData()) {
+			const bool systemCut = clipboardRequestsMove(mime);
+			for (const QUrl& url : mime->urls()) {
+				if (!url.isLocalFile()) {
+					continue;
+				}
+				const YSSCore::General::YSSURI source =
+					YSSCore::General::YSSURI::fromLocalPath(url.toLocalFile());
+				if (!source.isValid()) {
+					continue;
+				}
+				bool duplicated = false;
+				for (const QPair<YSSCore::General::YSSURI, bool>& existing : sources) {
+					if (existing.first == source) {
+						duplicated = true;
+						break;
+					}
+				}
+				if (!duplicated) {
+					sources.append(qMakePair(source, systemCut));
+				}
+			}
+		}
+		if (sources.isEmpty()) {
+			return;
+		}
+
+		const bool cut = ClipboardCut;
+		QStringList existingNames = FileModel->knownChildNames(dir);
+		// 一次粘贴可能提交多条请求：全部结束（成功或失败）后统一刷新一次目录。
+		auto remaining = std::make_shared<int>(0);
+		auto hadError = std::make_shared<bool>(false);
+		auto finishOne = [this, dir, remaining, hadError, cut](bool failed) {
+			if (failed) {
+				*hadError = true;
+			}
+			if (--(*remaining) > 0) {
+				return;
+			}
+			FileModel->refreshDirectory(dir);
+			if (cut && !*hadError) {
+				ClipboardUris.clear();
+				ClipboardCut = false;
+			}
+		};
+		YSSCore::General::YSSUniqueFileSystem* fileSystem = YSSCore::General::YSSUniqueFileSystem::getInstance();
+		for (const QPair<YSSCore::General::YSSURI, bool>& entry : sources) {
+			const YSSCore::General::YSSURI source = entry.first;
+			QString name = source.getFileName();
+			if (name.isEmpty()) {
+				continue;
+			}
+			YSSCore::General::YSSURI target = dir.resolve(name);
+			if (target == source) {
+				continue;
+			}
+			if (existingNames.contains(name, Qt::CaseInsensitive)) {
+				name = copyNameIn(name, existingNames);
+				target = dir.resolve(name);
+			}
+			existingNames.append(name);
+
+			YSSCore::General::YSSFileSystemReply* reply = entry.second
+				? fileSystem->move(source, target)
+				: fileSystem->copy(source, target);
+			if (reply == nullptr) {
+				showOperationError(target, notSupportedError(target));
+				continue;
+			}
+			++(*remaining);
+			connect(reply, &YSSCore::General::YSSFileSystemReply::succeeded, this,
+				[finishOne]() {
+					finishOne(false);
+				});
+			connect(reply, &YSSCore::General::YSSFileSystemReply::failed, this,
+				[this, target, finishOne](const YSSCore::General::YSSFileError& error) {
+					showOperationError(target, error);
+					finishOne(true);
+				});
+		}
+	}
+
+	void ResourceBrowser::refreshParentOf(const YSSCore::General::YSSURI& uri) {
+		const YSSCore::General::YSSURI parent = uri.parent();
+		if (parent.isValid()) {
+			FileModel->refreshDirectory(parent);
+		}
+	}
+
+	void ResourceBrowser::showOperationError(const YSSCore::General::YSSURI& uri,
+		const YSSCore::General::YSSFileError& error) {
+		vgWarningF << "Resource browser operation failed on" << uri.toString() << error.toString();
+		QMessageBox::warning(this,
+			VITRL("YSS::editor.fileOperation.failed.title"),
+			VITRL("YSS::editor.fileOperation.failed.message").arg(uri.getFileName()));
+	}
+
 	bool ResourceBrowser::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {
+		Q_UNUSED(fileName);
+		Q_UNUSED(param);
 		if (ext == "YSS.MainEditor.ResourceBrowser") {
 			return true;
 		}

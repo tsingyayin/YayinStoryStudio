@@ -1009,8 +1009,9 @@ namespace YSSCore::General {
 			d->ProjectConfig.setString("Editor.FocusedFile", "");
 			return;
 		}
-		// 虚拟文档没有文件系统实体，只要求其余类型确实存在。
-		if (not uri.isVirtual() and not uri.isFile()) {
+		// 虚拟文档没有文件系统实体；只有本机路径能同步探查存在性，远端 URI 由打开它的
+		// FileServer 保证存在（isFile() 对 ssh:// 恒为 false，不能拿来当校验）。
+		if (uri.isLocal() and not uri.isFile()) {
 			yErrorF << "Focused file does not exist:" << uri.toString();
 			return;
 		}
