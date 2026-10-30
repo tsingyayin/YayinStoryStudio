@@ -12,6 +12,7 @@
 #include <General/Log.h>
 #include <General/Plugin.h>
 #include <General/TranslationHost.h>
+#include <Widgets/ThemeManager.h>
 #include <General/VIApplication.h>
 #include <General/YSSUniqueFileSystem.h>
 #include <Utility/FileUtility.h>
@@ -78,12 +79,13 @@ namespace YSS::Editor {
 		QLabel* StatusLabel = nullptr;
 		QStringList SuffixFilters;
 		QString ListingUri;
+		bool ListingOk = false;
 
 		QString currentAuthentic() const {
 			return AuthenticBox->currentText().trimmed();
 		}
 
-		YSSCore::General::YSSURI currentUri() const {
+		YSSCore::General::YSSURI requestedUri() const {
 			QString user;
 			QString host;
 			qint32 port = 0;
@@ -95,6 +97,20 @@ namespace YSS::Editor {
 				path = QStringLiteral("/");
 			}
 			return YSSCore::General::YSSURI::fromSsh(user, host, port, path);
+		}
+
+		YSSCore::General::YSSURI currentUri() const {
+			if (!ListingOk) {
+				return YSSCore::General::YSSURI();
+			}
+			const YSSCore::General::YSSURI uri = requestedUri();
+			if (!uri.isValid()) {
+				return YSSCore::General::YSSURI();
+			}
+			if (!YSSCore::General::YSSUniqueFileSystem::getInstance()->isReady(uri)) {
+				return YSSCore::General::YSSURI();
+			}
+			return uri;
 		}
 
 		bool matchesFilter(const QString& fileName) const {
@@ -131,7 +147,8 @@ namespace YSS::Editor {
 
 		void refreshListing() {
 			EntryList->clear();
-			const YSSCore::General::YSSURI uri = currentUri();
+			ListingOk = false;
+			const YSSCore::General::YSSURI uri = requestedUri();
 			if (!uri.isValid()) {
 				StatusLabel->setText(VITRL("YSS::project.locate.remoteNotConnected"));
 				emit q->currentUriChanged(YSSCore::General::YSSURI());
@@ -150,6 +167,7 @@ namespace YSS::Editor {
 				YSSCore::General::YSSUniqueFileSystem::getInstance()->list(uri);
 			if (reply == nullptr) {
 				StatusLabel->setText(VITRL("YSS::project.locate.remoteNotConnected"));
+				emit q->currentUriChanged(YSSCore::General::YSSURI());
 				return;
 			}
 			QObject::connect(reply, &YSSCore::General::YSSFileSystemReply::finished, q,
@@ -193,6 +211,7 @@ namespace YSS::Editor {
 					}
 					StatusLabel->setText((directories.isEmpty() and files.isEmpty())
 						? VITRL("YSS::project.locate.remoteEmpty") : QString());
+					ListingOk = true;
 					emit q->currentUriChanged(currentUri());
 					emit q->selectionChanged();
 					});
@@ -282,86 +301,7 @@ namespace YSS::Editor {
 		}
 
 		void applyStyle() {
-			const QPalette pal = q->palette();
-			const QColor window = pal.color(QPalette::Window);
-			const QColor base = pal.color(QPalette::Base);
-			const QColor text = pal.color(QPalette::WindowText);
-			QColor accent = pal.color(QPalette::Highlight);
-			if (!accent.isValid()) {
-				accent = pal.color(QPalette::Accent);
-			}
-			const QColor onAccent = pal.color(QPalette::HighlightedText);
-			const bool lightTheme = window.lightness() > 128;
-			const QColor cardBg = lightTheme ? base : window.lighter(115);
-			const QColor insetBg = lightTheme ? window.darker(104) : base;
-			const QColor border = lightTheme ? window.darker(120) : window.lighter(140);
-			const auto blend = [](const QColor& from, const QColor& to, qreal ratio) {
-				return QColor::fromRgbF(
-					from.redF() * (1.0 - ratio) + to.redF() * ratio,
-					from.greenF() * (1.0 - ratio) + to.greenF() * ratio,
-					from.blueF() * (1.0 - ratio) + to.blueF() * ratio);
-				};
-			const QColor dim = blend(text, cardBg, 0.45);
-			const QColor accentFill = lightTheme ? accent : accent.darker(118);
-			QString qss = QStringLiteral(R"QSS(
-QComboBox#remoteAuthenticBox, QLineEdit#remotePathEdit {
-	background: @inset;
-	border: 1px solid @border;
-	border-radius: 6px;
-	padding: 6px 10px;
-	min-height: 22px;
-	color: @text;
-}
-QComboBox#remoteAuthenticBox:focus, QLineEdit#remotePathEdit:focus { border: 1px solid @accent; }
-QComboBox#remoteAuthenticBox QLineEdit { background: transparent; border: none; padding: 0; }
-QComboBox#remoteAuthenticBox::drop-down { border: none; width: 20px; }
-QComboBox#remoteAuthenticBox QAbstractItemView {
-	background: @card;
-	border: 1px solid @border;
-	color: @text;
-	selection-background-color: @accent;
-	selection-color: @onAccent;
-}
-QToolButton#remoteAddButton {
-	background: @inset;
-	border: 1px solid @border;
-	border-radius: 6px;
-	color: @text;
-	font-size: 16px;
-	font-weight: 600;
-	min-width: 34px;
-	min-height: 30px;
-}
-QToolButton#remoteAddButton:hover { border-color: @accent; color: @accent; }
-QListWidget#remoteEntryList {
-	background: @inset;
-	border: 1px solid @border;
-	border-radius: 8px;
-	color: @text;
-	padding: 4px;
-}
-QListWidget#remoteEntryList::item { padding: 5px 8px; border-radius: 4px; }
-QListWidget#remoteEntryList::item:selected { background: @accent; color: @onAccent; }
-QLabel#remoteStatusLabel { color: @dim; }
-QPushButton {
-	background: @inset;
-	border: 1px solid @border;
-	border-radius: 6px;
-	color: @text;
-	padding: 6px 16px;
-}
-QPushButton:hover { border-color: @accent; }
-QPushButton:disabled { color: @dim; }
-)QSS");
-			qss.replace(QLatin1String("@text"), text.name());
-			qss.replace(QLatin1String("@dim"), dim.name());
-			qss.replace(QLatin1String("@card"), cardBg.name());
-			qss.replace(QLatin1String("@inset"), insetBg.name());
-			qss.replace(QLatin1String("@border"), border.name());
-			qss.replace(QLatin1String("@accentFill"), accentFill.name());
-			qss.replace(QLatin1String("@accent"), accent.name());
-			qss.replace(QLatin1String("@onAccent"), onAccent.name());
-			q->setStyleSheet(qss);
+			q->setStyleSheet(VISTMGT("YSS::Editor.RemoteBrowser", q));
 		}
 
 		void buildUi() {

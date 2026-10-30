@@ -179,7 +179,20 @@ namespace Visindigo::Widgets {
 				border-radius: ${borderRadius}px;
 			}
 		\endcode
-		样式模板文件以.vst扩展名存储，它总是遵照这样的格式，即首先使用模板名称、模板ID以及六条横线分隔符作为文件开头
+
+		除上述两种写法外，还有第三种代换：\c{$[Name]}，用于从使用此样式表的QWidget组件自身的
+		QPalette推导界面用色。\c{Name} 必须是 Visindigo::Utility::ColorTool::PaletteColor 的
+		枚举名字面量，且首字母大写；其中前一部分与 QPalette::ColorRole 一一对应，另一部分是由
+		调色板算出派生色（卡片底、描边、次级文字色等），逐项含义见该枚举的说明。例如：
+		\badcode
+			QFrame#card{
+				background: $[Card];
+				border: 1px solid $[Border];
+			}
+			QLabel#caption{ color: $[Dim]; }
+		\endcode
+		这条通道不需要注册配色方案，因此它跟随系统与程序的调色板变化，适合那些不与特定配色方案
+		绑定、只要求跟随明暗模式的界面。		样式模板文件以.vst扩展名存储，它总是遵照这样的格式，即首先使用模板名称、模板ID以及六条横线分隔符作为文件开头
 		然后使用!Namespace定义命名空间，接着使用@StyleSheetName定义样式组名称，最后是样式组内容。
 
 		!Namespace是可选的，如果不定义，则样式表命名空间等同于模板ID。但样式组名称必须定义，用于引用这个样式组。

@@ -62,6 +62,7 @@ namespace YSS {
 		setPluginName("Yayin Story Studio");
 		setPluginAuthor({ "Tsing Yayin" });
 		registerColorScheme(":/resource/cn.yxgeneral.yayinstorystudio/vst/editorTheme.json");
+		registerStyleTemplate(":/resource/cn.yxgeneral.yayinstorystudio/vst/yss.vst");
 #ifdef Q_OS_ANDROID
 		try {
 #endif

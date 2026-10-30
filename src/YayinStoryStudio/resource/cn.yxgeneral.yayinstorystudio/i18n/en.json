@@ -83,6 +83,7 @@
 			"remoteLoading": "Reading directory...",
 			"remoteEmpty": "No subfolders in this directory.",
 			"remoteNotConnected": "The connection identity is invalid or not connected. Connect it on the SSH connection page first.",
+			"remoteTargetRequired": "Connect to the remote host and choose a usable target folder first.",
 			"where": "The project will be created at “%1”.",
 			"confirm": "Next"
 		},

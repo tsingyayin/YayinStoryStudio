@@ -83,6 +83,7 @@
 			"remoteLoading": "Lecture du dossier...",
 			"remoteEmpty": "Aucun sous-dossier dans ce dossier.",
 			"remoteNotConnected": "L'identité de connexion est invalide ou non connectée. Connectez-la d'abord depuis la page SSH.",
+			"remoteTargetRequired": "Connectez-vous d'abord à l'hôte distant et choisissez un dossier cible utilisable.",
 			"where": "Le projet sera créé dans “%1”.",
 			"confirm": "Suivant"
 		},

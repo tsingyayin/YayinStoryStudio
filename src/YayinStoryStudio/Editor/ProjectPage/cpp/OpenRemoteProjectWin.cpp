@@ -4,6 +4,7 @@
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
 #include <General/TranslationHost.h>
+#include <Widgets/ThemeManager.h>
 #include "Editor/SimpleWidget/RemoteBrowserWidget.h"
 #include "Editor/ProjectPage/OpenRemoteProjectWin.h"
 
@@ -72,60 +73,7 @@ namespace YSS::ProjectPage {
 	}
 
 	void OpenRemoteProjectWin::applyStyle() {
-		const QPalette pal = this->palette();
-		const QColor window = pal.color(QPalette::Window);
-		const QColor base = pal.color(QPalette::Base);
-		const QColor text = pal.color(QPalette::WindowText);
-		QColor accent = pal.color(QPalette::Highlight);
-		if (!accent.isValid()) {
-			accent = pal.color(QPalette::Accent);
-		}
-		const QColor onAccent = pal.color(QPalette::HighlightedText);
-		const bool lightTheme = window.lightness() > 128;
-		const QColor cardBg = lightTheme ? base : window.lighter(115);
-		const QColor insetBg = lightTheme ? window.darker(104) : base;
-		const QColor border = lightTheme ? window.darker(120) : window.lighter(140);
-		const auto blend = [](const QColor& from, const QColor& to, qreal ratio) {
-			return QColor::fromRgbF(
-				from.redF() * (1.0 - ratio) + to.redF() * ratio,
-				from.greenF() * (1.0 - ratio) + to.greenF() * ratio,
-				from.blueF() * (1.0 - ratio) + to.blueF() * ratio);
-			};
-		const QColor dim = blend(text, cardBg, 0.45);
-		const QColor accentFill = lightTheme ? accent : accent.darker(118);
-		QString qss = QStringLiteral(R"QSS(
-QLabel#remoteOpenTitleLabel { color: @text; font-size: 20px; font-weight: 600; }
-QLabel#remoteOpenSubtitleLabel { color: @dim; }
-QLabel#remoteOpenSelectionLabel { color: @dim; }
-
-QFrame#remoteOpenCard { background: @card; border: 1px solid @border; border-radius: 10px; }
-
-QPushButton {
-	background: @inset;
-	border: 1px solid @border;
-	border-radius: 6px;
-	color: @text;
-	padding: 6px 16px;
-}
-QPushButton:hover { border-color: @accent; }
-QPushButton:disabled { color: @dim; }
-QPushButton#remoteOpenConfirmButton {
-	background: @accentFill;
-	border-color: @accentFill;
-	color: @onAccent;
-	font-weight: 600;
-}
-QPushButton#remoteOpenConfirmButton:disabled { background: @inset; border-color: @border; color: @dim; }
-)QSS");
-		qss.replace(QLatin1String("@text"), text.name());
-		qss.replace(QLatin1String("@dim"), dim.name());
-		qss.replace(QLatin1String("@card"), cardBg.name());
-		qss.replace(QLatin1String("@inset"), insetBg.name());
-		qss.replace(QLatin1String("@border"), border.name());
-		qss.replace(QLatin1String("@accentFill"), accentFill.name());
-		qss.replace(QLatin1String("@accent"), accent.name());
-		qss.replace(QLatin1String("@onAccent"), onAccent.name());
-		this->setStyleSheet(qss);
+		setStyleSheet(VISTMGT("YSS::ProjectPage.OpenRemoteProject", this));
 	}
 
 	void OpenRemoteProjectWin::showEvent(QShowEvent* event) {

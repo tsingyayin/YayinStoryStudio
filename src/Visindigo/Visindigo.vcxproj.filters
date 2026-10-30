@@ -489,6 +489,9 @@
     <QtMoc Include="Utility\JsonConfig.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Utility\ColorTool.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="Widgets\private\DragWidget_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>

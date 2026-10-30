@@ -9,6 +9,7 @@
 #include <QtWidgets/qstackedwidget.h>
 #include <QtWidgets/qtoolbutton.h>
 #include <General/TranslationHost.h>
+#include <Widgets/ThemeManager.h>
 #include <Utility/FileUtility.h>
 #include "Editor/SimpleWidget/RemoteBrowserWidget.h"
 #include "Editor/NewProjectPage/ProjectLocateWin.h"
@@ -128,88 +129,7 @@ namespace YSS::NewProjectPage {
 	}
 
 	void ProjectLocateWin::applyStyle() {
-		const QPalette pal = this->palette();
-		const QColor window = pal.color(QPalette::Window);
-		const QColor base = pal.color(QPalette::Base);
-		const QColor text = pal.color(QPalette::WindowText);
-		QColor accent = pal.color(QPalette::Highlight);
-		if (!accent.isValid()) {
-			accent = pal.color(QPalette::Accent);
-		}
-		const QColor onAccent = pal.color(QPalette::HighlightedText);
-		const bool lightTheme = window.lightness() > 128;
-		const QColor cardBg = lightTheme ? base : window.lighter(115);
-		const QColor insetBg = lightTheme ? window.darker(104) : base;
-		const QColor border = lightTheme ? window.darker(120) : window.lighter(140);
-		const auto blend = [](const QColor& from, const QColor& to, qreal ratio) {
-			return QColor::fromRgbF(
-				from.redF() * (1.0 - ratio) + to.redF() * ratio,
-				from.greenF() * (1.0 - ratio) + to.greenF() * ratio,
-				from.blueF() * (1.0 - ratio) + to.blueF() * ratio);
-			};
-		const QColor dim = blend(text, cardBg, 0.45);
-		const QColor accentFill = lightTheme ? accent : accent.darker(118);
-		QString qss = QStringLiteral(R"QSS(
-QLabel#locateTitleLabel { color: @text; font-size: 20px; font-weight: 600; }
-QLabel#locateSubtitleLabel { color: @dim; }
-QLabel#locateCaption { color: @dim; font-size: 12px; }
-QLabel#locateWhereLabel { color: @dim; }
-
-QFrame#locateCard { background: @card; border: 1px solid @border; border-radius: 10px; }
-
-QLineEdit {
-	background: @inset;
-	border: 1px solid @border;
-	border-radius: 6px;
-	padding: 6px 10px;
-	min-height: 22px;
-	color: @text;
-}
-QLineEdit:focus { border: 1px solid @accent; }
-
-QToolButton#locateModeButton {
-	background: transparent;
-	border: 1px solid @border;
-	color: @dim;
-	padding: 6px 16px;
-}
-QToolButton#locateModeButton[segment="left"] { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
-QToolButton#locateModeButton[segment="right"] {
-	border-top-right-radius: 6px; border-bottom-right-radius: 6px;
-	border-left: none;
-}
-QToolButton#locateModeButton:checked {
-	background: @accentFill;
-	border-color: @accentFill;
-	color: @onAccent;
-}
-
-QPushButton {
-	background: @inset;
-	border: 1px solid @border;
-	border-radius: 6px;
-	color: @text;
-	padding: 6px 16px;
-}
-QPushButton:hover { border-color: @accent; }
-QPushButton:disabled { color: @dim; }
-QPushButton#locateConfirmButton {
-	background: @accentFill;
-	border-color: @accentFill;
-	color: @onAccent;
-	font-weight: 600;
-}
-QPushButton#locateConfirmButton:disabled { background: @inset; border-color: @border; color: @dim; }
-)QSS");
-		qss.replace(QLatin1String("@text"), text.name());
-		qss.replace(QLatin1String("@dim"), dim.name());
-		qss.replace(QLatin1String("@card"), cardBg.name());
-		qss.replace(QLatin1String("@inset"), insetBg.name());
-		qss.replace(QLatin1String("@border"), border.name());
-		qss.replace(QLatin1String("@accentFill"), accentFill.name());
-		qss.replace(QLatin1String("@accent"), accent.name());
-		qss.replace(QLatin1String("@onAccent"), onAccent.name());
-		this->setStyleSheet(qss);
+		setStyleSheet(VISTMGT("YSS::ProjectPage.ProjectLocate", this));
 	}
 
 	void ProjectLocateWin::setProjectName(const QString& name) {
@@ -252,7 +172,15 @@ QPushButton#locateConfirmButton:disabled { background: @inset; border-color: @bo
 	void ProjectLocateWin::updateWhereLabel() {
 		const QString name = Visindigo::Utility::FileUtility::toLegalFileName(NameEdit->text()).trimmed();
 		const YSSCore::General::YSSURI folder = getTargetFolder();
-		if (name.isEmpty() or !folder.isValid()) {
+		const bool remote = RemoteModeButton->isChecked();
+		if (!folder.isValid()) {
+			// 远端目标目录只有在连接就绪且成功列出之后才有效，否则下一步不应该放行。
+			WhereLabel->setText(remote
+				? VITRL("YSS::project.locate.remoteTargetRequired") : QString());
+			ConfirmButton->setEnabled(false);
+			return;
+		}
+		if (name.isEmpty()) {
 			WhereLabel->clear();
 			ConfirmButton->setEnabled(false);
 			return;

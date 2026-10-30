@@ -1,0 +1,255 @@
+!TemplateName: YSS Style Sheet
+!TemplateID: YSS
+------
+!Namespace: YSS
+
+@Editor.SSHConnection
+QLabel#sshTitleLabel { color: $[WindowText]; font-size: 20px; font-weight: 600; }
+QLabel#sshSubtitleLabel { color: $[Dim]; }
+QLabel#sshCaption { color: $[Dim]; font-size: 12px; }
+QLabel#sshStatusLabel { color: $[Dim]; }
+QLabel#sshStatusLabel[sshError="true"] { color: $[Danger]; }
+
+QFrame#sshCard { background: $[Card]; border: 1px solid $[Border]; border-radius: 10px; }
+
+QComboBox#sshAuthenticBox, QLineEdit#sshPasswordEdit, QLineEdit#sshKeyPathEdit {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	padding: 6px 10px;
+	min-height: 22px;
+	color: $[WindowText];
+}
+QComboBox#sshAuthenticBox:focus, QLineEdit#sshPasswordEdit:focus, QLineEdit#sshKeyPathEdit:focus {
+	border: 1px solid $[AccentFill];
+}
+QComboBox#sshAuthenticBox QLineEdit { background: transparent; border: none; padding: 0; }
+QComboBox#sshAuthenticBox::drop-down { border: none; width: 20px; }
+QComboBox#sshAuthenticBox QAbstractItemView {
+	background: $[Card];
+	border: 1px solid $[Border];
+	color: $[WindowText];
+	selection-background-color: $[AccentFill];
+	selection-color: $[HighlightedText];
+}
+
+QFrame#sshSegment { background: $[Inset]; border: 1px solid $[Border]; border-radius: 8px; }
+QToolButton#sshPasswordModeButton, QToolButton#sshKeyModeButton {
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	padding: 5px 12px;
+	min-height: 22px;
+	color: $[Dim];
+}
+QToolButton#sshPasswordModeButton:hover, QToolButton#sshKeyModeButton:hover { color: $[WindowText]; }
+QToolButton#sshPasswordModeButton:checked, QToolButton#sshKeyModeButton:checked {
+	background: $[AccentFill];
+	color: $[HighlightedText];
+	font-weight: 600;
+}
+
+QPushButton[sshRole="primary"] {
+	background: $[AccentFill];
+	color: $[HighlightedText];
+	border: none;
+	border-radius: 6px;
+	padding: 8px 24px;
+	min-height: 24px;
+	font-weight: 600;
+}
+QPushButton[sshRole="primary"]:hover { background: $[AccentHover]; }
+QPushButton[sshRole="primary"]:pressed { background: $[AccentPressed]; }
+
+QPushButton[sshRole="secondary"], QPushButton[sshRole="ghost"] {
+	background: transparent;
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	padding: 6px 14px;
+	min-height: 22px;
+	color: $[WindowText];
+}
+QPushButton[sshRole="secondary"]:hover, QPushButton[sshRole="ghost"]:hover { background: $[Inset]; }
+
+QPushButton[sshRole="danger"] {
+	background: transparent;
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	padding: 6px 14px;
+	min-height: 22px;
+	color: $[Danger];
+}
+QPushButton[sshRole="danger"]:hover { border: 1px solid $[Danger]; }
+
+QPushButton[sshMuted="true"] {
+	background: transparent;
+	border: 1px solid $[Border];
+	color: $[Dim];
+}
+
+QFrame#sshFingerprintPanel {
+	background: $[WarnBackground];
+	border: 1px solid $[WarnBorder];
+	border-radius: 10px;
+}
+QLabel#sshFingerprintLabel { color: $[WindowText]; }
+
+QListWidget#sshConnectionList { background: transparent; border: none; outline: none; }
+QListWidget#sshConnectionList::item { border-radius: 8px; margin: 2px 0; }
+QListWidget#sshConnectionList::item:hover { background: $[Inset]; }
+QListWidget#sshConnectionList::item:selected { background: $[Selection]; }
+
+QLabel#sshRowTitle { color: $[WindowText]; font-weight: 600; }
+QLabel#sshRowStateOn { color: $[Success]; font-size: 12px; }
+QLabel#sshRowStateOff { color: $[Dim]; font-size: 12px; }
+QLabel#sshRowDotOn { color: $[Success]; }
+QLabel#sshRowDotOff { color: $[Dim]; }
+QLabel#sshEmptyHint { color: $[Dim]; }
+
+@Editor.RemoteBrowser
+QComboBox#remoteAuthenticBox, QLineEdit#remotePathEdit {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	padding: 6px 10px;
+	min-height: 22px;
+	color: $[WindowText];
+}
+QComboBox#remoteAuthenticBox:focus, QLineEdit#remotePathEdit:focus { border: 1px solid $[Highlight]; }
+QComboBox#remoteAuthenticBox QLineEdit { background: transparent; border: none; padding: 0; }
+QComboBox#remoteAuthenticBox::drop-down { border: none; width: 20px; }
+QComboBox#remoteAuthenticBox QAbstractItemView {
+	background: $[Card];
+	border: 1px solid $[Border];
+	color: $[WindowText];
+	selection-background-color: $[Highlight];
+	selection-color: $[HighlightedText];
+}
+QToolButton#remoteAddButton {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	color: $[WindowText];
+	font-size: 16px;
+	font-weight: 600;
+	min-width: 34px;
+	min-height: 30px;
+}
+QToolButton#remoteAddButton:hover { border-color: $[Highlight]; color: $[Highlight]; }
+QListWidget#remoteEntryList {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 8px;
+	color: $[WindowText];
+	padding: 4px;
+}
+QListWidget#remoteEntryList::item { padding: 5px 8px; border-radius: 4px; }
+QListWidget#remoteEntryList::item:selected { background: $[Highlight]; color: $[HighlightedText]; }
+QLabel#remoteStatusLabel { color: $[Dim]; }
+QPushButton {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	color: $[WindowText];
+	padding: 6px 16px;
+}
+QPushButton:hover { border-color: $[Highlight]; }
+QPushButton:disabled { color: $[Dim]; }
+
+@ProjectPage.ProjectLocate
+QLabel#locateTitleLabel { color: $[WindowText]; font-size: 20px; font-weight: 600; }
+QLabel#locateSubtitleLabel { color: $[Dim]; }
+QLabel#locateCaption { color: $[Dim]; font-size: 12px; }
+QLabel#locateWhereLabel { color: $[Dim]; }
+
+QFrame#locateCard { background: $[Card]; border: 1px solid $[Border]; border-radius: 10px; }
+
+QLineEdit {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	padding: 6px 10px;
+	min-height: 22px;
+	color: $[WindowText];
+}
+QLineEdit:focus { border: 1px solid $[Highlight]; }
+
+QToolButton#locateModeButton {
+	background: transparent;
+	border: 1px solid $[Border];
+	color: $[Dim];
+	padding: 6px 16px;
+}
+QToolButton#locateModeButton[segment="left"] { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+QToolButton#locateModeButton[segment="right"] {
+	border-top-right-radius: 6px; border-bottom-right-radius: 6px;
+	border-left: none;
+}
+QToolButton#locateModeButton:checked {
+	background: $[AccentFill];
+	border-color: $[AccentFill];
+	color: $[HighlightedText];
+}
+
+QPushButton {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	color: $[WindowText];
+	padding: 6px 16px;
+}
+QPushButton:hover { border-color: $[Highlight]; }
+QPushButton:disabled { color: $[Dim]; }
+QPushButton#locateConfirmButton {
+	background: $[AccentFill];
+	border-color: $[AccentFill];
+	color: $[HighlightedText];
+	font-weight: 600;
+}
+QPushButton#locateConfirmButton:disabled { background: $[Inset]; border-color: $[Border]; color: $[Dim]; }
+
+@ProjectPage.OpenRemoteProject
+QLabel#remoteOpenTitleLabel { color: $[WindowText]; font-size: 20px; font-weight: 600; }
+QLabel#remoteOpenSubtitleLabel { color: $[Dim]; }
+QLabel#remoteOpenSelectionLabel { color: $[Dim]; }
+
+QFrame#remoteOpenCard { background: $[Card]; border: 1px solid $[Border]; border-radius: 10px; }
+
+QPushButton {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 6px;
+	color: $[WindowText];
+	padding: 6px 16px;
+}
+QPushButton:hover { border-color: $[Highlight]; }
+QPushButton:disabled { color: $[Dim]; }
+QPushButton#remoteOpenConfirmButton {
+	background: $[AccentFill];
+	border-color: $[AccentFill];
+	color: $[HighlightedText];
+	font-weight: 600;
+}
+QPushButton#remoteOpenConfirmButton:disabled { background: $[Inset]; border-color: $[Border]; color: $[Dim]; }
+
+@ProjectPage.ProjectOption
+QToolButton[projectAction="true"] {
+	background: $[Inset];
+	border: 1px solid $[Border];
+	border-radius: 10px;
+	color: $[WindowText];
+	padding: 6px;
+	font-size: 13px;
+}
+QToolButton[projectAction="true"]:hover {
+	background: $[Card];
+	border-color: $[Highlight];
+}
+QToolButton[projectAction="true"]:pressed {
+	background: $[Inset];
+	border-color: $[AccentFill];
+}
+QToolButton[projectAction="true"]:disabled {
+	color: $[Dim];
+	border-color: $[Border];
+}

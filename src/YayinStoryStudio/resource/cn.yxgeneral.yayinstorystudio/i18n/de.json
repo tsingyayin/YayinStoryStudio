@@ -83,6 +83,7 @@
 			"remoteLoading": "Verzeichnis wird gelesen...",
 			"remoteEmpty": "Keine Unterordner in diesem Verzeichnis.",
 			"remoteNotConnected": "Die Verbindungsidentität ist ungültig oder nicht verbunden. Stelle die Verbindung zuerst auf der SSH-Seite her.",
+			"remoteTargetRequired": "Stelle zuerst eine Verbindung zum Remote-Host her und wähle einen nutzbaren Zielordner.",
 			"where": "Das Projekt wird unter “%1” erstellt.",
 			"confirm": "Weiter"
 		},

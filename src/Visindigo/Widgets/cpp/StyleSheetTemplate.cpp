@@ -1,12 +1,57 @@
 #include <QtCore/qmap.h>
+#include <QtCore/qmetaobject.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qstring.h>
+#include <QtGui/qguiapplication.h>
 #include <QtWidgets/qwidget.h>
 #include "General/Log.h"
 #include "Utility/ColorTool.h"
 #include "Utility/JsonConfig.h"
 #include "Widgets/StyleSheetTemplate.h"
 #include "Widgets/ThemeManager.h"
+namespace {
+	QString paletteColorToStyleString(const Visindigo::Utility::ColorTool::PaletteColor color,
+		const QPalette& palette) {
+		const QColor derived = Visindigo::Utility::ColorTool::paletteColor(palette, color);
+		if (!derived.isValid()) {
+			return QString();
+		}
+		return derived.alpha() == 255
+			? Visindigo::Utility::ColorTool::toColorString(derived, Visindigo::Utility::ColorTool::rgbHex)
+			: Visindigo::Utility::ColorTool::toColorString(derived, Visindigo::Utility::ColorTool::rgbaCSS);
+	}
+
+	QString resolvePaletteColors(const QString& text, QWidget* getter) {
+		static const QRegularExpression paletteReg(QStringLiteral("\\$\\[([A-Za-z][A-Za-z0-9_]*)\\]"));
+		static const QMetaEnum paletteColorEnum =
+			QMetaEnum::fromType<Visindigo::Utility::ColorTool::PaletteColor>();
+		const QPalette palette = getter != nullptr ? getter->palette() : QGuiApplication::palette();
+		QString result;
+		result.reserve(text.size());
+		qsizetype last = 0;
+		QRegularExpressionMatchIterator matches = paletteReg.globalMatch(text);
+		while (matches.hasNext()) {
+			const QRegularExpressionMatch match = matches.next();
+			const QByteArray key = match.captured(1).toLatin1();
+			bool ok = false;
+			const int value = paletteColorEnum.keyToValue(key.constData(), &ok);
+			if (!ok) {
+				vgWarningF << "No such palette color" << match.captured(1);
+				continue;
+			}
+			const QString replacement = paletteColorToStyleString(
+				static_cast<Visindigo::Utility::ColorTool::PaletteColor>(value), palette);
+			if (replacement.isEmpty()) {
+				continue;
+			}
+			result += text.mid(last, match.capturedStart() - last);
+			result += replacement;
+			last = match.capturedEnd();
+		}
+		result += text.mid(last);
+		return result;
+	}
+}
 namespace Visindigo::Widgets {
 	class StyleSheetTemplatePrivate {
 		friend class StyleSheetTemplate;
@@ -254,6 +299,7 @@ namespace Visindigo::Widgets {
 				temp.replace(para, getter->property(para.mid(2, para.length() - 3).toUtf8().constData()).toString());
 			}
 		}
+		temp = resolvePaletteColors(temp, getter);
 		return temp;
 	}
 

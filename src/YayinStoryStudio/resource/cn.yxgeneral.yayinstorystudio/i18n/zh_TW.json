@@ -83,6 +83,7 @@
 			"remoteLoading": "正在讀取目錄...",
 			"remoteEmpty": "此目錄下沒有子資料夾。",
 			"remoteNotConnected": "連線身分無效或尚未連線，請先在 SSH 連線頁面建立連線。",
+			"remoteTargetRequired": "請先連線遠端主機，並選擇一個可用的目標資料夾。",
 			"where": "專案將建立在“%1”。",
 			"confirm": "下一步"
 		},

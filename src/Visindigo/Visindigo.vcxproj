@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -222,7 +222,6 @@
     <QtMoc Include="Utility\SevenZipBinder.h" />
     <QtMoc Include="General\TickObject.h" />
     <ClInclude Include="General\VirtualStorage.h" />
-    <ClInclude Include="Utility\ColorTool.h" />
     <ClInclude Include="Utility\ConsoleFormat.h" />
     <ClInclude Include="Utility\FileOperation.h" />
     <ClInclude Include="Utility\GeneralConfigParser.h" />
@@ -281,6 +280,7 @@
     <ClInclude Include="Utility\Console.h" />
     <ClInclude Include="Utility\ExtTool.h" />
     <QtMoc Include="Utility\JsonConfig.h" />
+    <QtMoc Include="Utility\ColorTool.h" />
     <ClInclude Include="Utility\JsonValueRef.h" />
     <QtMoc Include="Network\HttpTypes.h" />
     <QtMoc Include="Network\HttpRequest.h" />

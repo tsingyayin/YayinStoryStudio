@@ -12,6 +12,7 @@
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qtextbrowser.h>
+#include <QtWidgets/qtoolbutton.h>
 #include <General/Log.h>
 #include <General/Plugin.h>
 #include <General/TranslationHost.h>
@@ -39,6 +40,8 @@ VI_DECLARE_LOGGER(StartupProbe, YSSStartupProbe, YSS);
 
 namespace YSS::ProjectPage {
 	namespace {
+		constexpr int OptionIconSize = 40;
+
 		// 用于界面展示的项目位置文本：本地路径用原生分隔符，远端路径保留 ssh:// 形式。
 		QString displayablePath(const YSSCore::General::YSSURI& uri) {
 			const QString localPath = uri.getLocalPath();
@@ -173,28 +176,43 @@ namespace YSS::ProjectPage {
 		NewsWidget->setMaximumWidth(360);
 
 		OptionWidget = new Visindigo::Widgets::BorderFrame(this);
-		CreateProjectButton = new QPushButton(OptionWidget);
+		CreateProjectButton = new QToolButton(OptionWidget);
 		CreateProjectButton->setText(VITRL("YSS::project.createNewProject"));
 		CreateProjectButton->setToolTip(VITRL("YSS::tooltips.projectWin.createNewProject"));
-		OpenFolderButton = new QPushButton(OptionWidget);
+		OpenFolderButton = new QToolButton(OptionWidget);
 		OpenFolderButton->setText(VITRL("YSS::project.openFolder"));
 		OpenFolderButton->setToolTip(VITRL("YSS::tooltips.projectWin.openFolder"));
-		OpenRemoteButton = new QPushButton(OptionWidget);
+		OpenRemoteButton = new QToolButton(OptionWidget);
 		OpenRemoteButton->setText(VITRL("YSS::project.openRemoteProject"));
 		OpenRemoteButton->setToolTip(VITRL("YSS::tooltips.projectWin.openRemoteProject"));
 		CloneGitButton = new QPushButton(OptionWidget);
 		CloneGitButton->setText(VITRL("YSS::project.cloneFromGit"));
 		CloneGitButton->setToolTip(VITRL("YSS::tooltips.projectWin.cloneFromGit"));
 		CloneGitButton->hide();
-		SshConnectionButton = new QPushButton(OptionWidget);
+		SshConnectionButton = new QToolButton(OptionWidget);
 		SshConnectionButton->setText(VITRL("YSS::sshConnection.title"));
-		ButtonLayout = new QVBoxLayout(OptionWidget);
+		SshConnectionButton->setToolTip(VITRL("YSS::sshConnection.subtitle"));
+		for (QToolButton* button : { CreateProjectButton, OpenFolderButton,
+			OpenRemoteButton, SshConnectionButton }) {
+			button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+			button->setProperty("projectAction", true);
+			button->setIconSize(QSize(OptionIconSize, OptionIconSize));
+			button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+			button->setMinimumHeight(80);
+			button->setCursor(Qt::PointingHandCursor);
+		}
+		ButtonLayout = new QGridLayout(OptionWidget);
+		ButtonLayout->setContentsMargins(8, 8, 8, 8);
+		ButtonLayout->setSpacing(6);
+		ButtonLayout->addWidget(CreateProjectButton, 0, 0);
+		ButtonLayout->addWidget(OpenFolderButton, 0, 1);
+		ButtonLayout->addWidget(OpenRemoteButton, 1, 0);
+		ButtonLayout->addWidget(SshConnectionButton, 1, 1);
+		ButtonLayout->addWidget(CloneGitButton, 2, 0, 1, 2);
+		ButtonLayout->setColumnStretch(0, 1);
+		ButtonLayout->setColumnStretch(1, 1);
 		OptionWidget->setLayout(ButtonLayout);
-		ButtonLayout->addWidget(CreateProjectButton);
-		ButtonLayout->addWidget(OpenFolderButton);
-		ButtonLayout->addWidget(OpenRemoteButton);
-		ButtonLayout->addWidget(CloneGitButton);
-		ButtonLayout->addWidget(SshConnectionButton);
+		refreshOptionIcons();
 		InfoWidget = new ProjectInfoWidget(this);
 		InfoWidget->setMinimumHeight(160);
 		Layout = new QGridLayout(this);
@@ -218,11 +236,11 @@ namespace YSS::ProjectPage {
 		if (VIApp->getMainPlugin()->getPluginConfig()->getBool("Window.Project.Maximized")) {
 			this->showMaximized();
 		}
-		connect(CreateProjectButton, &QPushButton::clicked, this, &ProjectWin::onCreateProject);
+		connect(CreateProjectButton, &QToolButton::clicked, this, &ProjectWin::onCreateProject);
 		connect(InfoWidget, &ProjectInfoWidget::removeConfirmed, this, &ProjectWin::onProjectRemoved);
-		connect(OpenFolderButton, &QPushButton::clicked, this, &ProjectWin::onOpenProjectClicked);
-		connect(OpenRemoteButton, &QPushButton::clicked, this, &ProjectWin::onOpenRemoteProjectClicked);
-		connect(SshConnectionButton, &QPushButton::clicked, this, [this]() {
+		connect(OpenFolderButton, &QToolButton::clicked, this, &ProjectWin::onOpenProjectClicked);
+		connect(OpenRemoteButton, &QToolButton::clicked, this, &ProjectWin::onOpenRemoteProjectClicked);
+		connect(SshConnectionButton, &QToolButton::clicked, this, [this]() {
 			YSS::Editor::SSHConnectionWidget* page = YSS::Editor::SSHConnectionWidget::getInstance();
 			page->refreshConnectionList();
 			page->show();
@@ -748,13 +766,21 @@ namespace YSS::ProjectPage {
 	}
 
 	void ProjectWin::onThemeChanged() {
-		//yDebugF << VISTMGT("YSS::General.MultiButton.Normal",this);
-		//this->applyVIStyleTemplate("YSS::ProjectWin");
-		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
-			//label->setNormalStyleSheet(VISTMGT("YSS::General.MultiButton.Normal"));
-			//label->setHoverStyleSheet(VISTMGT("YSS::General.MultiButton.Hover"));
-			//label->setPressedStyleSheet(VISTMGT("YSS::General.MultiButton.Pressed"));
+		if (OptionWidget != nullptr) {
+			OptionWidget->setStyleSheet(VISTMGT("YSS::ProjectPage.ProjectOption", OptionWidget));
+			refreshOptionIcons();
 		}
+		for (Visindigo::Widgets::MultiButton* label : HistoryProjectLabelList) {
+
+		}
+	}
+
+	void ProjectWin::refreshOptionIcons() {
+		const QColor iconColor = this->palette().color(QPalette::WindowText);
+		CreateProjectButton->setIcon(VIApp->getNamedFontIcon("Add", OptionIconSize, { iconColor }));
+		OpenFolderButton->setIcon(VIApp->getNamedFontIcon("OpenFile", OptionIconSize, { iconColor }));
+		OpenRemoteButton->setIcon(VIApp->getNamedFontIcon("Cloud", OptionIconSize, { iconColor }));
+		SshConnectionButton->setIcon(VIApp->getNamedFontIcon("Connect", OptionIconSize, { iconColor }));
 	}
 
 	void ProjectWin::onNewsMetaGot(const Visindigo::Utility::JsonConfig& config) {

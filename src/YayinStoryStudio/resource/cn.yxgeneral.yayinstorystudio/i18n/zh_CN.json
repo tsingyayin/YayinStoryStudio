@@ -83,6 +83,7 @@
 				"remoteLoading": "正在读取目录...",
 				"remoteEmpty": "此目录下没有子文件夹。",
 				"remoteNotConnected": "连接身份无效或尚未连接，请先在 SSH 连接页面建立连接。",
+				"remoteTargetRequired": "请先连接远程主机，并选择一个可用的目标文件夹。",
 				"where": "项目将创建在\"%1\"。",
 				"confirm": "下一步"
 		},
