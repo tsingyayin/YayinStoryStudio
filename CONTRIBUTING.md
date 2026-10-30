@@ -51,7 +51,7 @@
 - 如果没有必要，不向私有类传递公共类的指针q。
 - 公共类尾部（`protected:`/`private:` 区）声明 `FooPrivate* d;`（星号贴类型）。
 - 私有类必须将全部成员声明为`protected`，并将可能访问它的其他类声明为`friend class`，以便访问私有成员。
-
+- 本项目不使用Qt的PIMPL宏是因为，本项目倾向于建议下游使用组合而非继承，因此即使是派生类，也不建议其访问基类中的私有成员。也不为基类超前假设潜在的继承需求。
 ---
 
 ## 2. 类的声明结构
@@ -145,22 +145,15 @@
 - 子类重写**必须同时写** `virtual` 与 `override`：`virtual void onThemeChanged() override;`。重写不加override视同非法。
 
 ### 2.5 静态成员与单例
-- 单例：`public:` 区声明 `static Foo* getInstance();`，类内 `static Foo* Instance;`。
-- cpp 中的定义与赋值：
-
-  ```cpp
-  Foo* Foo::Instance = nullptr;
-  Foo::Foo() {
-      Instance = this;
-      // ...
-  }
-  Foo* Foo::getInstance() { return Instance; }
-  ```
-
-- 常用宏辅助：`VIPlugin(PluginClass)`（见 `src/Visindigo/General/Plugin.h`）。
+- 一般来说，不对外暴露静态成员变量。
+- 对于单例，要求始终使用getInstance作为函数名，并且返回值类型为指针（`static T* getInstance();`），而不是引用。
+- 对于单例，如不存在跨线程访问的需求，要求在getInstance()中按静态变量是否为空来判断是否需要new，且在getInstance()中完成静态变量赋值，不允许在构造函数中赋值。
+- 对于带有私有类的单例，建议保存单例的静态变量设置为私有类的静态变量，不应将其直接放置在cpp的全局或命名空间中。
 
 ### 2.6 友元
-- `friend class` 常用，集中在类体顶部（公共类 friend 私有类、私有类 friend 公共类，双向）。
+- 友元只用于强调类之间的关系，一般不声明友元函数。
+- 对于公共类，只允许将其私有类、对应的上级管理类声明为友元。如果有其他情况下必须声明友元，应首先考虑API设计是否欠妥。
+- 对于私有类，只允许将其公共类、公共类对应的上级管理类，可以生产公共类且公共类为只读语义（无setter）的相关类声明为友元。如果有其他情况下必须声明友元，应首先考虑API设计是否欠妥。
 
 ### 2.7 导出宏
 - 每个库/插件一个 `XxxCompileMacro.h`，定义 `VisindigoAPI` / `YSSCoreAPI` / `ASERAPI` 等（见 `src/Visindigo/VICompileMacro.h`、`src/YSSCore/YSSCoreCompileMacro.h`）。
@@ -173,13 +166,13 @@
 ### 3.1 缩进、换行、编码
 | 项目 | 规则 |
 |---|---|
-| C++ 缩进 | **Tab**（不展开为空格） |
-| Python 缩进 | **4 空格** |
+| C++ 缩进 | **Tab**，也允许混合空格使用 |
+| Python 缩进 | **Tab**（不展开为空格），也允许混合空格使用 |
 | 换行 | **CRLF**（Windows） |
 | 源文件编码 | **UTF-8 无 BOM** |
 | 资源文件（含中文的 .rc 等） | **UTF-8 with BOM** + `#pragma code_page(65001)`，否则 rc.exe 中文乱码 |
 
-### 3.2 命名规范（自定义为主，注意与 Qt 惯例不同）
+### 3.2 命名规范
 - **类名**：PascalCase（`MultiButton`、`YSSProject`、`PluginManager`）。
 - **函数/方法**：**首字母小写**（维持Qt风格）：`getInstance()`、`loadProject()`、`toString()`；
     - 槽函数用 `onXxxChanged`，槽函数和信号函数中的动词应该与实际情况相符。例如，一个信号发射时，相关属性已经改变，则应使用过去式。一个槽函数被调用时，正在对某件事进行处理，则使用现在时。
@@ -202,10 +195,12 @@
   ```
 
 - **文件命名**：PascalCase（`MultiButton.h`、`YSSProject.cpp`），私有头 `Foo_p.h`。
-
+- PascalCase的缩写单词大小写规则定义如下：
+    - 如果缩写单词有2或3个字母，建议全部大写，也允许仅首字母大写。
+    - 如果缩写单词有4个或以上字母，如果有通用的整体发音，则视作普通单词，仅首字母大写，如`Json`，如果没有通用的整体发音，则建议全部大写，如`HTTP`。
 ### 3.3 指针 / 引用 / 默认参数
-- 星号贴类型：`QWidget* parent`、`MainWin* getInstance()`（**不写** `T *x`）。
-- 空指针默认 `= nullptr`；字符串默认 `= ""`；布尔默认 `= false`。
+- 星号、引用号（`*`、`&`）贴类型：`Foo* d;`、`const QString& str;`。
+- 默认参数写在头文件处，不写在cpp中。
 
 ### 3.4 大括号
 - **K&R**：`{` 与声明/函数同行（`class Foo {`、`Foo::Foo() {`）。
@@ -213,6 +208,7 @@
 
 ### 3.5 Lambda
 - 以 `[this](...)` 为主，用于 `connect`；无捕获的算法 lambda 用 `[](...)`。
+- 对于局部使用的重复逻辑，仍然是建议定义为私有类成员函数或者是所在命名空间在cpp单元中的静态函数，不建议使用`auto f = [](...) { ... };`的方式定义lambda函数。
 
 ### 3.6 空行与分节
 - 头文件用 `// Forward declarations` / `// Main` 分节并夹空行；同一命名空间可拆多个 `namespace ... { }` 块，中间空行分隔。
@@ -309,3 +305,7 @@
 - 如果一个类只存在一种构造函数（不计拷贝和移动），则允许在构造函数内初始化资源，而不必使用初始化列表
 - 除非重新赋值存在性能问题，不强制要求使用初始化列表写法。
 - 如果一个类内存在多种构造函数，且每种构造涉及的初始化资源不同，无法统一到一个init()函数中，则要求必须在声明值时就完成初始化。
+- 如果一个函数体内，有在堆上初始化的对象，且退出路径不唯一，则应考虑使用RAII封装。
+
+### 5.2 资源的释放
+- 

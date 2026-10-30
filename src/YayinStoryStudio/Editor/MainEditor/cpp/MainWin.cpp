@@ -278,6 +278,48 @@ namespace YSS::Editor {
 		return nullptr;
 	}
 
+	// 按首选方向给副区域打分；分数越高越合适，-1 表示该区域不符合首选方向。
+	static int scoreAreaForPreferredOrientation(FileEditWidgetArea* area,
+		YSSCore::Editor::FileServer::PreferredOrientation preferred, bool geometryReady) {
+		if (not geometryReady or area->width() <= 0 or area->height() <= 0) {
+			return 0;
+		}
+		const double w = area->width();
+		const double h = area->height();
+		const bool tall = h > w;
+		const bool wide = w > h;
+		switch (preferred) {
+		case YSSCore::Editor::FileServer::PreferredOrientation::Any:
+			return 0;
+		case YSSCore::Editor::FileServer::PreferredOrientation::Vertical:
+			return tall ? 2 : -1;
+		case YSSCore::Editor::FileServer::PreferredOrientation::Vertical_Wide:
+			if (not tall) {
+				return -1;
+			}
+			return (h / w < 2.0) ? 2 : 1;
+		case YSSCore::Editor::FileServer::PreferredOrientation::Vertical_Narrow:
+			if (not tall) {
+				return -1;
+			}
+			return (h / w > 2.0) ? 2 : 1;
+		case YSSCore::Editor::FileServer::PreferredOrientation::Horizontal:
+			return wide ? 2 : -1;
+		case YSSCore::Editor::FileServer::PreferredOrientation::Horizontal_Wide:
+			if (not wide) {
+				return -1;
+			}
+			return (w / h < 2.0) ? 2 : 1;
+		case YSSCore::Editor::FileServer::PreferredOrientation::Horizontal_Narrow:
+			if (not wide) {
+				return -1;
+			}
+			return (w / h > 2.0) ? 2 : 1;
+		default:
+			return 0;
+		}
+	}
+
 	YSS::Editor::FileEditWidgetArea* MainWin::selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget) {
 		const YSSCore::General::YSSURI fileUri = widget->getUri();
 		const QString filePath = widget->getFilePath();
@@ -311,46 +353,6 @@ namespace YSS::Editor {
 			// 界面尚未真正显示时，各区域还没有可用的宽高，无法判断方向。此时一律按“任意区域”
 			// 处理，避免程序启动、去恢复默认布局时误判长宽比而多创建一个副区域。
 			bool geometryReady = this->isVisible();
-			auto matchScore = [geometryReady, preferred](FileEditWidgetArea* area) -> int {
-				// 分数越高越合适；-1 表示该区域不符合首选方向，不应选中。
-				if (not geometryReady or area->width() <= 0 or area->height() <= 0) {
-					return 0;
-				}
-				const double w = area->width();
-				const double h = area->height();
-				const bool tall = h > w;
-				const bool wide = w > h;
-				switch (preferred) {
-				case PreferredOrientation::Any:
-					return 0;
-				case PreferredOrientation::Vertical:
-					return tall ? 2 : -1;
-				case PreferredOrientation::Vertical_Wide:
-					if (not tall) {
-						return -1;
-					}
-					return (h / w < 2.0) ? 2 : 1;
-				case PreferredOrientation::Vertical_Narrow:
-					if (not tall) {
-						return -1;
-					}
-					return (h / w > 2.0) ? 2 : 1;
-				case PreferredOrientation::Horizontal:
-					return wide ? 2 : -1;
-				case PreferredOrientation::Horizontal_Wide:
-					if (not wide) {
-						return -1;
-					}
-					return (w / h < 2.0) ? 2 : 1;
-				case PreferredOrientation::Horizontal_Narrow:
-					if (not wide) {
-						return -1;
-					}
-					return (w / h > 2.0) ? 2 : 1;
-				default:
-					return 0;
-				}
-			};
 
 			FileEditWidgetArea* best = nullptr;
 			int bestScore = -1;
@@ -358,7 +360,7 @@ namespace YSS::Editor {
 				if (area == mainArea) {
 					continue; // 工具永远不安排在主区域。
 				}
-				int score = matchScore(area);
+				int score = scoreAreaForPreferredOrientation(area, preferred, geometryReady);
 				if (score < 0) {
 					continue;
 				}

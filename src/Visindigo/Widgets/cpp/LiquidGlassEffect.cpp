@@ -132,6 +132,9 @@ namespace Visindigo::Widgets {
 		static constexpr qreal maxRimLightBlend = 0.5;
 		static void roundedRectField(const QSize& size, qreal radius, qreal px, qreal py,
 			qreal& distance, qreal& normalX, qreal& normalY, qreal& boundaryX, qreal& boundaryY);
+		// 全局光在 (x, y) 处的子采样覆盖量，已换算成 0-255 的 alpha；0 表示该像素不写入。
+		static quint32 globalRimCoverage(const QSize& size, qreal radius, qreal thickness,
+			qreal directionX, qreal directionY, qreal polarity, qreal baseAlpha, int x, int y);
 		static QImage buildGlobalRimSide(const QSize& size, int borderRadius, const QPointF& lightDirection, int thickness, qreal polarity, const QColor& color, QRect* dirtyRect = nullptr);
 		static QImage rimLightGlow(const QSize& size, int borderRadius, const QPoint& mousePosition, int thickness, int range, const QColor& color,
 			QRect* dirtyRect = nullptr);
@@ -695,6 +698,198 @@ namespace Visindigo::Widgets {
 		return LiquidGlassEffectPrivate::blurImageFull(image, radius);
 	}
 
+	namespace {
+		// distortImage() 的采样上下文：一次扭曲用到的源/目标像素与几何参数。
+		// 取样步骤都做成成员函数，避免在函数体里堆一串就地 lambda。
+		struct DistortSampler {
+			// 双线性取样的四个邻接像素与两个方向的小数权重。
+			struct Tap {
+				int x0;
+				int x1;
+				int y0;
+				int y1;
+				qreal fx;
+				qreal fy;
+			};
+
+			const quint32* SourceBits = nullptr;
+			quint32* ResultBits = nullptr;
+			qsizetype RowStep = 0;
+			int Width = 0;
+			int Height = 0;
+			qreal CenterX = 0.0;
+			qreal CenterY = 0.0;
+			qreal CoreHalfWidth = 0.0;
+			qreal CoreHalfHeight = 0.0;
+			qreal CornerRadius = 0.0;
+			qreal Radius = 0.0;
+			qreal DepthAtEdge = 0.0;
+			qreal DispersionShift = 0.0;
+			bool Dispersive = false;
+			int MaxTaps = 1;
+			qreal MaxEnergyGain = 0.0;
+			qreal Energy = 0.0;
+
+			void fieldAt(qreal px, qreal py, qreal& distance, qreal& normalX, qreal& normalY) const {
+				const qreal dx = px - CenterX;
+				const qreal dy = py - CenterY;
+				const qreal qx = std::abs(dx) - CoreHalfWidth;
+				const qreal qy = std::abs(dy) - CoreHalfHeight;
+				const qreal ox = std::max(qx, 0.0);
+				const qreal oy = std::max(qy, 0.0);
+				const qreal outside = std::sqrt(ox * ox + oy * oy);
+				distance = CornerRadius - outside - std::min(std::max(qx, qy), 0.0);
+				if (outside > 0.0) {
+					normalX = ox * (dx < 0.0 ? 1.0 : -1.0) / outside;
+					normalY = oy * (dy < 0.0 ? 1.0 : -1.0) / outside;
+				}
+				else if (qx > qy) {
+					normalX = dx < 0.0 ? 1.0 : -1.0;
+					normalY = 0.0;
+				}
+				else {
+					normalX = 0.0;
+					normalY = dy < 0.0 ? 1.0 : -1.0;
+				}
+			}
+
+			Tap makeTap(qreal sx, qreal sy) const {
+				const qreal cx = std::clamp(sx, 0.0, qreal(Width - 1));
+				const qreal cy = std::clamp(sy, 0.0, qreal(Height - 1));
+				const int xi = int(cx);
+				const int yi = int(cy);
+				return Tap{ xi, std::min(xi + 1, Width - 1), yi, std::min(yi + 1, Height - 1), cx - xi, cy - yi };
+			}
+
+			// 通道下标按 ARGB32 的字节序：0 = A、1 = R、2 = G、3 = B（与 quint32 的高位到低位一致）
+			qreal bilinearChannel(const Tap& tap, int channel) const {
+				const int bits = 24 - channel * 8;
+				const quint32* row0 = SourceBits + qsizetype(tap.y0) * RowStep;
+				const quint32* row1 = SourceBits + qsizetype(tap.y1) * RowStep;
+				const qreal v00 = qreal((row0[tap.x0] >> bits) & 0xFFu);
+				const qreal v10 = qreal((row0[tap.x1] >> bits) & 0xFFu);
+				const qreal v01 = qreal((row1[tap.x0] >> bits) & 0xFFu);
+				const qreal v11 = qreal((row1[tap.x1] >> bits) & 0xFFu);
+				const qreal top = v00 + (v10 - v00) * tap.fx;
+				const qreal bottom = v01 + (v11 - v01) * tap.fx;
+				return top + (bottom - top) * tap.fy;
+			}
+
+			void bilinearPixel(const Tap& tap, qreal channels[4]) const {
+				const quint32* row0 = SourceBits + qsizetype(tap.y0) * RowStep;
+				const quint32* row1 = SourceBits + qsizetype(tap.y1) * RowStep;
+				const quint32 p00 = row0[tap.x0];
+				const quint32 p10 = row0[tap.x1];
+				const quint32 p01 = row1[tap.x0];
+				const quint32 p11 = row1[tap.x1];
+				for (int channel = 0; channel < 4; channel++) {
+					const int bits = 24 - channel * 8;
+					const qreal v00 = qreal((p00 >> bits) & 0xFFu);
+					const qreal v10 = qreal((p10 >> bits) & 0xFFu);
+					const qreal v01 = qreal((p01 >> bits) & 0xFFu);
+					const qreal v11 = qreal((p11 >> bits) & 0xFFu);
+					const qreal top = v00 + (v10 - v00) * tap.fx;
+					const qreal bottom = v01 + (v11 - v01) * tap.fx;
+					channels[channel] = top + (bottom - top) * tap.fy;
+				}
+			}
+
+			void boxPixel(qreal px, qreal py, qreal normalX, qreal normalY,
+				qreal nearOffset, qreal farOffset, qreal channels[4]) const {
+				channels[0] = 0.0;
+				channels[1] = 0.0;
+				channels[2] = 0.0;
+				channels[3] = 0.0;
+				const qreal span = std::max(0.0, farOffset - nearOffset);
+				const int taps = std::clamp(int(std::ceil(span)), 1, MaxTaps);
+				qreal sample[4] = { 0.0, 0.0, 0.0, 0.0 };
+				for (int i = 0; i < taps; i++) {
+					const qreal offset = nearOffset + span * (i + 0.5) / taps;
+					bilinearPixel(makeTap(px + normalX * offset, py + normalY * offset), sample);
+					channels[0] += sample[0];
+					channels[1] += sample[1];
+					channels[2] += sample[2];
+					channels[3] += sample[3];
+				}
+				for (int channel = 0; channel < 4; channel++) {
+					channels[channel] /= taps;
+				}
+			}
+
+			qreal boxChannel(qreal px, qreal py, qreal normalX, qreal normalY,
+				qreal nearOffset, qreal farOffset, int channel) const {
+				const qreal span = std::max(0.0, farOffset - nearOffset);
+				const int taps = std::clamp(int(std::ceil(span)), 1, MaxTaps);
+				qreal sum = 0.0;
+				for (int i = 0; i < taps; i++) {
+					const qreal offset = nearOffset + span * (i + 0.5) / taps;
+					sum += bilinearChannel(makeTap(px + normalX * offset, py + normalY * offset), channel);
+				}
+				return sum / taps;
+			}
+
+			static quint32 toByte(qreal value) {
+				return quint32(std::clamp<long>(std::lround(value), 0, 255));
+			}
+
+			void writeSpan(int y, int xBegin, int xEnd) const {
+				quint32* resultRow = ResultBits + qsizetype(y) * RowStep;
+				const qreal py = y + 0.5;
+				for (int x = xBegin; x < xEnd; x++) {
+					const qreal px = x + 0.5;
+					qreal distance = 0.0;
+					qreal normalX = 0.0;
+					qreal normalY = 0.0;
+					fieldAt(px, py, distance, normalX, normalY);
+					if (distance <= 0.0 || distance >= Radius) {
+						continue;
+					}
+					qreal channels[4] = { 0.0, 0.0, 0.0, 0.0 };
+					qreal green[4] = { 0.0, 0.0, 0.0, 0.0 };
+					// falloff：该点到带内边界的相对位置，带内边界处为 0、最外那圈像素中心处为 1。
+					// 按像素中心归一（最外一圈的 distance 恒为 0.5），这样贴边处的取样深度就是设定的那个值，
+					// 不会被半径的取整吃掉。
+					const qreal falloffSpan = std::max(0.5, Radius - 0.5);
+					const qreal falloff = std::clamp(1.0 - (distance - 0.5) / falloffSpan, 0.0, 1.0);
+					const qreal falloff2 = falloff * falloff;
+					const qreal offset = DepthAtEdge * falloff2;
+					// 相邻输出像素跨过的源像素数（局部放大率）。按它做盒式平均：
+					// 核比它窄会欠采样出锯齿，比它宽则会把几十像素的内容糊成一团。
+					const qreal filterHalf = DepthAtEdge * falloff / Radius;
+					// compression：这一段里「一个输出像素压进了多少个源像素」。
+					// 玻璃把这么多份光通量挤到一个像素上，画面因此变亮；energy 控制把这个亮度还原多少。
+					const qreal compression = 2.0 * filterHalf;
+					const qreal channelShift = DispersionShift * falloff2;
+					boxPixel(px, py, normalX, normalY, offset - filterHalf, offset + filterHalf, green);
+					channels[0] = green[0];
+					channels[2] = green[2];
+					if (Dispersive) {
+						const qreal redOffset = (DepthAtEdge + channelShift) * falloff2;
+						const qreal blueOffset = std::max(0.0, DepthAtEdge - channelShift) * falloff2;
+						channels[1] = boxChannel(px, py, normalX, normalY, redOffset - filterHalf, redOffset + filterHalf, 1);
+						channels[3] = boxChannel(px, py, normalX, normalY, blueOffset - filterHalf, blueOffset + filterHalf, 3);
+					}
+					else {
+						channels[1] = green[1];
+						channels[3] = green[3];
+					}
+					// 能量补偿：一个输出像素吃了 compression 个源像素的光，聚光会让它变亮。
+					// 但真实玻璃的菲涅尔反射与吸收会吃掉大部分，而且人眼对边缘高光极敏感，
+					// 所以这里不按压缩倍数线性提亮，而是一条很快饱和的曲线：最多只提 maxEnergyGain。
+					// energy = 0 就是纯平均（亮度不变），只作用在颜色上，alpha 仍是覆盖率的平均。
+					if (Energy > 0.0 && compression > 1.0) {
+						const qreal gain = 1.0 + Energy * MaxEnergyGain * (1.0 - std::exp(-(compression - 1.0) / 2.0));
+						channels[0] *= gain;
+						channels[1] *= gain;
+						channels[2] *= gain;
+					}
+					resultRow[x] = (toByte(channels[0]) << 24) | (toByte(channels[1]) << 16)
+						| (toByte(channels[2]) << 8) | toByte(channels[3]);
+				}
+			}
+		};
+	}
+
 	/*!
 		\since Visindigo 0.13.0
 		对图像进行液体扭曲处理。
@@ -745,171 +940,32 @@ namespace Visindigo::Widgets {
 		const qreal maxEnergyGain = 0.18;
 		const qreal energy = std::clamp(energyRatio, 0.0, 1.0);
 
-		auto fieldAt = [&](qreal px, qreal py, qreal& distance, qreal& normalX, qreal& normalY) {
-			const qreal dx = px - centerX;
-			const qreal dy = py - centerY;
-			const qreal qx = std::abs(dx) - coreHalfWidth;
-			const qreal qy = std::abs(dy) - coreHalfHeight;
-			const qreal ox = std::max(qx, 0.0);
-			const qreal oy = std::max(qy, 0.0);
-			const qreal outside = std::sqrt(ox * ox + oy * oy);
-			distance = cornerRadius - outside - std::min(std::max(qx, qy), 0.0);
-			if (outside > 0.0) {
-				normalX = ox * (dx < 0.0 ? 1.0 : -1.0) / outside;
-				normalY = oy * (dy < 0.0 ? 1.0 : -1.0) / outside;
-			}
-			else if (qx > qy) {
-				normalX = dx < 0.0 ? 1.0 : -1.0;
-				normalY = 0.0;
-			}
-			else {
-				normalX = 0.0;
-				normalY = dy < 0.0 ? 1.0 : -1.0;
-			}
-		};
+		DistortSampler sampler;
+		sampler.SourceBits = sourceBits;
+		sampler.ResultBits = resultBits;
+		sampler.RowStep = rowStep;
+		sampler.Width = width;
+		sampler.Height = height;
+		sampler.CenterX = centerX;
+		sampler.CenterY = centerY;
+		sampler.CoreHalfWidth = coreHalfWidth;
+		sampler.CoreHalfHeight = coreHalfHeight;
+		sampler.CornerRadius = cornerRadius;
+		sampler.Radius = radius;
+		sampler.DepthAtEdge = depthAtEdge;
+		sampler.DispersionShift = dispersionShift;
+		sampler.Dispersive = dispersive;
+		sampler.MaxTaps = maxTaps;
+		sampler.MaxEnergyGain = maxEnergyGain;
+		sampler.Energy = energy;
 
-		struct SampleTap {
-			int x0;
-			int x1;
-			int y0;
-			int y1;
-			qreal fx;
-			qreal fy;
-		};
-		auto makeTap = [&](qreal sx, qreal sy) {
-			const qreal cx = std::clamp(sx, 0.0, qreal(width - 1));
-			const qreal cy = std::clamp(sy, 0.0, qreal(height - 1));
-			const int xi = int(cx);
-			const int yi = int(cy);
-			return SampleTap{ xi, std::min(xi + 1, width - 1), yi, std::min(yi + 1, height - 1), cx - xi, cy - yi };
-		};
-		// 通道下标按 ARGB32 的字节序：0 = A、1 = R、2 = G、3 = B（与 quint32 的高位到低位一致）
-		auto bilinearChannel = [&](const SampleTap& tap, int channel) {
-			const int bits = 24 - channel * 8;
-			const quint32* row0 = sourceBits + qsizetype(tap.y0) * rowStep;
-			const quint32* row1 = sourceBits + qsizetype(tap.y1) * rowStep;
-			const qreal v00 = qreal((row0[tap.x0] >> bits) & 0xFFu);
-			const qreal v10 = qreal((row0[tap.x1] >> bits) & 0xFFu);
-			const qreal v01 = qreal((row1[tap.x0] >> bits) & 0xFFu);
-			const qreal v11 = qreal((row1[tap.x1] >> bits) & 0xFFu);
-			const qreal top = v00 + (v10 - v00) * tap.fx;
-			const qreal bottom = v01 + (v11 - v01) * tap.fx;
-			return top + (bottom - top) * tap.fy;
-		};
-		auto bilinearPixel = [&](const SampleTap& tap, qreal channels[4]) {
-			const quint32* row0 = sourceBits + qsizetype(tap.y0) * rowStep;
-			const quint32* row1 = sourceBits + qsizetype(tap.y1) * rowStep;
-			const quint32 p00 = row0[tap.x0];
-			const quint32 p10 = row0[tap.x1];
-			const quint32 p01 = row1[tap.x0];
-			const quint32 p11 = row1[tap.x1];
-			for (int channel = 0; channel < 4; channel++) {
-				const int bits = 24 - channel * 8;
-				const qreal v00 = qreal((p00 >> bits) & 0xFFu);
-				const qreal v10 = qreal((p10 >> bits) & 0xFFu);
-				const qreal v01 = qreal((p01 >> bits) & 0xFFu);
-				const qreal v11 = qreal((p11 >> bits) & 0xFFu);
-				const qreal top = v00 + (v10 - v00) * tap.fx;
-				const qreal bottom = v01 + (v11 - v01) * tap.fx;
-				channels[channel] = top + (bottom - top) * tap.fy;
-			}
-		};
-
-		auto boxPixel = [&](qreal px, qreal py, qreal normalX, qreal normalY, qreal nearOffset, qreal farOffset, qreal channels[4]) {
-			channels[0] = 0.0;
-			channels[1] = 0.0;
-			channels[2] = 0.0;
-			channels[3] = 0.0;
-			const qreal span = std::max(0.0, farOffset - nearOffset);
-			const int taps = std::clamp(int(std::ceil(span)), 1, maxTaps);
-			qreal sample[4] = { 0.0, 0.0, 0.0, 0.0 };
-			for (int i = 0; i < taps; i++) {
-				const qreal offset = nearOffset + span * (i + 0.5) / taps;
-				bilinearPixel(makeTap(px + normalX * offset, py + normalY * offset), sample);
-				channels[0] += sample[0];
-				channels[1] += sample[1];
-				channels[2] += sample[2];
-				channels[3] += sample[3];
-			}
-			for (int channel = 0; channel < 4; channel++) {
-				channels[channel] /= taps;
-			}
-		};
-		auto boxChannel = [&](qreal px, qreal py, qreal normalX, qreal normalY, qreal nearOffset, qreal farOffset, int channel) {
-			const qreal span = std::max(0.0, farOffset - nearOffset);
-			const int taps = std::clamp(int(std::ceil(span)), 1, maxTaps);
-			qreal sum = 0.0;
-			for (int i = 0; i < taps; i++) {
-				const qreal offset = nearOffset + span * (i + 0.5) / taps;
-				sum += bilinearChannel(makeTap(px + normalX * offset, py + normalY * offset), channel);
-			}
-			return sum / taps;
-		};
-		auto toByte = [](qreal value) {
-			return quint32(std::clamp<long>(std::lround(value), 0, 255));
-		};
-		auto writeSpan = [&](int y, int xBegin, int xEnd) {
-			quint32* resultRow = resultBits + qsizetype(y) * rowStep;
-			const qreal py = y + 0.5;
-			for (int x = xBegin; x < xEnd; x++) {
-				const qreal px = x + 0.5;
-				qreal distance = 0.0;
-				qreal normalX = 0.0;
-				qreal normalY = 0.0;
-				fieldAt(px, py, distance, normalX, normalY);
-				if (distance <= 0.0 || distance >= radius) {
-					continue;
-				}
-				qreal channels[4] = { 0.0, 0.0, 0.0, 0.0 };
-				qreal green[4] = { 0.0, 0.0, 0.0, 0.0 };
-				// falloff：该点到带内边界的相对位置，带内边界处为 0、最外那圈像素中心处为 1。
-				// 按像素中心归一（最外一圈的 distance 恒为 0.5），这样贴边处的取样深度就是设定的那个值，
-				// 不会被半径的取整吃掉。
-				const qreal falloffSpan = std::max(0.5, qreal(radius) - 0.5);
-				const qreal falloff = std::clamp(1.0 - (distance - 0.5) / falloffSpan, 0.0, 1.0);
-				const qreal falloff2 = falloff * falloff;
-				const qreal offset = depthAtEdge * falloff2;
-				// 相邻输出像素跨过的源像素数（局部放大率）。按它做盒式平均：
-				// 核比它窄会欠采样出锯齿，比它宽则会把几十像素的内容糊成一团。
-				const qreal filterHalf = depthAtEdge * falloff / radius;
-				// compression：这一段里「一个输出像素压进了多少个源像素」。
-				// 玻璃把这么多份光通量挤到一个像素上，画面因此变亮；energy 控制把这个亮度还原多少。
-				const qreal compression = 2.0 * filterHalf;
-				const qreal channelShift = dispersionShift * falloff2;
-				boxPixel(px, py, normalX, normalY, offset - filterHalf, offset + filterHalf, green);
-				channels[0] = green[0];
-				channels[2] = green[2];
-				if (dispersive) {
-					const qreal redOffset = (depthAtEdge + channelShift) * falloff2;
-					const qreal blueOffset = std::max(0.0, depthAtEdge - channelShift) * falloff2;
-					channels[1] = boxChannel(px, py, normalX, normalY, redOffset - filterHalf, redOffset + filterHalf, 1);
-					channels[3] = boxChannel(px, py, normalX, normalY, blueOffset - filterHalf, blueOffset + filterHalf, 3);
-				}
-				else {
-					channels[1] = green[1];
-					channels[3] = green[3];
-				}
-				// 能量补偿：一个输出像素吃了 compression 个源像素的光，聚光会让它变亮。
-				// 但真实玻璃的菲涅尔反射与吸收会吃掉大部分，而且人眼对边缘高光极敏感，
-				// 所以这里不按压缩倍数线性提亮，而是一条很快饱和的曲线：最多只提 maxEnergyGain。
-				// energy = 0 就是纯平均（亮度不变），只作用在颜色上，alpha 仍是覆盖率的平均。
-				if (energy > 0.0 && compression > 1.0) {
-					const qreal gain = 1.0 + energy * maxEnergyGain * (1.0 - std::exp(-(compression - 1.0) / 2.0));
-					channels[0] *= gain;
-					channels[1] *= gain;
-					channels[2] *= gain;
-				}
-				resultRow[x] = (toByte(channels[0]) << 24) | (toByte(channels[1]) << 16)
-					| (toByte(channels[2]) << 8) | toByte(channels[3]);
-			}
-		};
 		for (int y = 0; y < height; y++) {
 			if (y < margin || y >= height - margin) {
-				writeSpan(y, 0, width);
+				sampler.writeSpan(y, 0, width);
 			}
 			else {
-				writeSpan(y, 0, std::min(margin, width));
-				writeSpan(y, std::max(width - margin, 0), width);
+				sampler.writeSpan(y, 0, std::min(margin, width));
+				sampler.writeSpan(y, std::max(width - margin, 0), width);
 			}
 		}
 		return result;
@@ -1595,6 +1651,47 @@ namespace Visindigo::Widgets {
 		所以明暗过渡和边界都不会出现台阶；往里则按厚度做平方衰减，外沿平滑归零。
 		一束光的两面由LiquidGlassEffect::globalRimImage()配对：本函数只生成其中一面，不负责调制。
 	*/
+	quint32 LiquidGlassEffectPrivate::globalRimCoverage(const QSize& size, qreal radius, qreal thickness,
+		qreal directionX, qreal directionY, qreal polarity, qreal baseAlpha, int x, int y) {
+		// 每个像素在 sampleGrid×sampleGrid 个子位置上各算一次再平均，理由同边缘光：
+		// 一像素宽的光带按中心单点采样会在圆弧上变成方块台阶，子采样得到的是真实覆盖量。
+		constexpr int sampleGrid = 4;
+		constexpr qreal sampleStep = 1.0 / sampleGrid;
+		qreal coverage = 0.0;
+		for (int subY = 0; subY < sampleGrid; subY++) {
+			const qreal sampleY = y + (subY + 0.5) * sampleStep;
+			for (int subX = 0; subX < sampleGrid; subX++) {
+				const qreal sampleX = x + (subX + 0.5) * sampleStep;
+				qreal distance = 0.0;
+				qreal normalX = 0.0;
+				qreal normalY = 0.0;
+				qreal boundaryX = 0.0;
+				qreal boundaryY = 0.0;
+				roundedRectField(size, radius, sampleX, sampleY, distance, normalX, normalY, boundaryX, boundaryY);
+				if (distance <= 0.0 || distance >= thickness + 0.5) {
+					continue;
+				}
+				// roundedRectField 给的是指向内部的法线，全局光要的是朝外的那一面：
+				// 光从控件指向光源，所以外法线与光方向点积为正的那条边就是迎光面。
+				const qreal dot = -(normalX * directionX + normalY * directionY);
+				const qreal facing = polarity > 0.0 ? dot : -dot;
+				if (facing <= 0.0) {
+					continue;
+				}
+				const qreal depth = std::clamp(1.0 - (distance - 0.5) / thickness, 0.0, 1.0);
+				if (depth <= 0.0) {
+					continue;
+				}
+				coverage += depth * depth * facing * facing;
+			}
+		}
+		if (coverage <= 0.0) {
+			return 0;
+		}
+		coverage /= qreal(sampleGrid) * sampleGrid;
+		return quint32(std::clamp(baseAlpha * coverage, 0.0, 255.0));
+	}
+
 	QImage LiquidGlassEffectPrivate::buildGlobalRimSide(const QSize& size, int borderRadius, const QPointF& lightDirection, int thickness, qreal polarity, const QColor& color, QRect* dirtyRect) {
 		if (dirtyRect) {
 			*dirtyRect = QRect();
@@ -1615,8 +1712,6 @@ namespace Visindigo::Widgets {
 		// 只在贴着边界的这一圈里扫：宽度取「厚度 + 圆角半径」，圆角外侧的斜向部分也包得住，
 		// 图中间的大片区域连距离场都不用算。
 		const int band = std::min(std::max(1, int(std::ceil(thicknessValue + radius))), std::max(width, height) / 2);
-		const int sampleGrid = 4;
-		const qreal sampleStep = 1.0 / sampleGrid;
 		QImage image(size, QImage::Format_ARGB32);
 		image.fill(0);
 		const qreal baseAlpha = color.alphaF() * 255.0;
@@ -1627,64 +1722,26 @@ namespace Visindigo::Widgets {
 		int writtenTop = height;
 		int writtenRight = -1;
 		int writtenBottom = -1;
-		auto paintPixel = [&](int x, int y) {
-			// 每个像素在 sampleGrid×sampleGrid 个子位置上各算一次再平均，理由同边缘光：
-			// 一像素宽的光带按中心单点采样会在圆弧上变成方块台阶，子采样得到的是真实覆盖量。
-			qreal coverage = 0.0;
-			for (int subY = 0; subY < sampleGrid; subY++) {
-				const qreal sampleY = y + (subY + 0.5) * sampleStep;
-				for (int subX = 0; subX < sampleGrid; subX++) {
-					const qreal sampleX = x + (subX + 0.5) * sampleStep;
-					qreal distance = 0.0;
-					qreal normalX = 0.0;
-					qreal normalY = 0.0;
-					qreal boundaryX = 0.0;
-					qreal boundaryY = 0.0;
-					roundedRectField(size, radius, sampleX, sampleY, distance, normalX, normalY, boundaryX, boundaryY);
-					if (distance <= 0.0 || distance >= thicknessValue + 0.5) {
-						continue;
-					}
-					// roundedRectField 给的是指向内部的法线，全局光要的是朝外的那一面：
-					// 光从控件指向光源，所以外法线与光方向点积为正的那条边就是迎光面。
-					const qreal dot = -(normalX * directionX + normalY * directionY);
-					const qreal facing = polarity > 0.0 ? dot : -dot;
-					if (facing <= 0.0) {
-						continue;
-					}
-					const qreal depth = std::clamp(1.0 - (distance - 0.5) / thicknessValue, 0.0, 1.0);
-					if (depth <= 0.0) {
-						continue;
-					}
-					coverage += depth * depth * facing * facing;
-				}
-			}
-			if (coverage <= 0.0) {
-				return;
-			}
-			coverage /= qreal(sampleGrid) * sampleGrid;
-			const quint8 alpha = quint8(std::clamp(baseAlpha * coverage, 0.0, 255.0));
-			if (alpha == 0) {
-				return;
-			}
-			imageBits[qsizetype(y) * rowStep + x] = (quint32(alpha) << 24) | rgb;
-			writtenLeft = std::min(writtenLeft, x);
-			writtenRight = std::max(writtenRight, x);
-			writtenTop = std::min(writtenTop, y);
-			writtenBottom = std::max(writtenBottom, y);
-		};
 		for (int y = 0; y < height; y++) {
 			const bool inVerticalBand = y < band || y >= height - band;
-			if (inVerticalBand) {
-				for (int x = 0; x < width; x++) {
-					paintPixel(x, y);
+			// 竖带内整行都要算，否则只算左右两条边；两段都用 [begin, end) 表示。
+			const int spans[2][2] = {
+				{ 0, inVerticalBand ? width : std::min(band, width) },
+				{ inVerticalBand ? width : std::max(width - band, 0), width },
+			};
+			for (const auto& span : spans) {
+				for (int x = span[0]; x < span[1]; x++) {
+					const quint32 alpha = globalRimCoverage(size, radius, thicknessValue, directionX, directionY,
+						polarity, baseAlpha, x, y);
+					if (alpha == 0) {
+						continue;
+					}
+					imageBits[qsizetype(y) * rowStep + x] = (alpha << 24) | rgb;
+					writtenLeft = std::min(writtenLeft, x);
+					writtenRight = std::max(writtenRight, x);
+					writtenTop = std::min(writtenTop, y);
+					writtenBottom = std::max(writtenBottom, y);
 				}
-				continue;
-			}
-			for (int x = 0; x < std::min(band, width); x++) {
-				paintPixel(x, y);
-			}
-			for (int x = std::max(width - band, 0); x < width; x++) {
-				paintPixel(x, y);
 			}
 		}
 		if (writtenRight < writtenLeft || writtenBottom < writtenTop) {

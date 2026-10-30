@@ -33,6 +33,12 @@ namespace YSSFileExt {
 		InAttrStringSingle, // 属性值字符串未闭合（'）——跨行延续
 	};
 
+	static void appendXmlDiagnostic(QList<YSSLangDiagnosticData>* diags, const QString& message, qint32 line,
+		qint32 col, qint32 len, YSSLangDiagnosticData::Severity sev = YSSLangDiagnosticData::Severity::Error,
+		const QString& code = QStringLiteral("XML")) {
+		diags->append(YSSLangDiagnosticData(message, line, col, qMax<qint32>(len, 1), sev, code));
+	}
+
 	// ---------------------------------------------------------------------------
 	// XML 全文档分析
 	// ---------------------------------------------------------------------------
@@ -52,11 +58,6 @@ namespace YSSFileExt {
 		struct OpenTag { QString name; qint32 line; qint32 col; };
 		QList<OpenTag> openTags;
 
-		auto diag = [&](const QString& msg, qint32 line, qint32 col, qint32 len,
-			YSSLangDiagnosticData::Severity sev = YSSLangDiagnosticData::Severity::Error, const QString& code = QStringLiteral("XML")) {
-			diags->append(YSSLangDiagnosticData(msg, line, col, qMax<qint32>(len, 1), sev, code));
-		};
-
 		for (qint32 li = 0; li < lines.size(); ++li) {
 			const QString& line = lines.at(li);
 			const qint32 n = line.length();
@@ -67,7 +68,7 @@ namespace YSSFileExt {
 				case S::Normal: {
 					if (ch == QLatin1Char('<')) {
 						if (i + 1 >= n) {
-							diag(QStringLiteral("'<' 后缺少标签名"), li, i, 1);
+							appendXmlDiagnostic(diags, QStringLiteral("'<' 后缺少标签名"), li, i, 1);
 							++i;
 							break;
 						}
@@ -86,7 +87,7 @@ namespace YSSFileExt {
 								i += 2;
 							}
 							else {
-								diag(QStringLiteral("无法识别的声明 '<!'"), li, i, 2);
+								appendXmlDiagnostic(diags, QStringLiteral("无法识别的声明 '<!'"), li, i, 2);
 								++i;
 							}
 						}
@@ -138,7 +139,7 @@ namespace YSSFileExt {
 							}
 						}
 						if (!validEntity) {
-							diag(QStringLiteral("文本中的 '&' 应转义为 &amp;"), li, i, 1,
+							appendXmlDiagnostic(diags, QStringLiteral("文本中的 '&' 应转义为 &amp;"), li, i, 1,
 								YSSLangDiagnosticData::Severity::Warning);
 						}
 						++i;
@@ -188,14 +189,14 @@ namespace YSSFileExt {
 						if (!currentTagName.isEmpty()) {
 							if (inClosingTag) {
 								if (openTags.isEmpty()) {
-									diag(QStringLiteral("意外的结束标签 </%1>，没有匹配的开始标签").arg(currentTagName),
+									appendXmlDiagnostic(diags, QStringLiteral("意外的结束标签 </%1>，没有匹配的开始标签").arg(currentTagName),
 										tagStartLine, tagStartCol, currentTagName.length() + 3);
 								}
 								else if (openTags.last().name == currentTagName) {
 									openTags.removeLast();
 								}
 								else {
-									diag(QStringLiteral("结束标签 </%1> 与开始标签 <%2> 不匹配").arg(currentTagName, openTags.last().name),
+									appendXmlDiagnostic(diags, QStringLiteral("结束标签 </%1> 与开始标签 <%2> 不匹配").arg(currentTagName, openTags.last().name),
 										tagStartLine, tagStartCol, currentTagName.length() + 3);
 									openTags.removeLast();
 								}
@@ -241,7 +242,7 @@ namespace YSSFileExt {
 						}
 						else {
 							if (currentAttrs.contains(name)) {
-								diag(QStringLiteral("标签 <%1> 中属性 \"%2\" 重复").arg(currentTagName, name),
+								appendXmlDiagnostic(diags, QStringLiteral("标签 <%1> 中属性 \"%2\" 重复").arg(currentTagName, name),
 									li, start, name.length(), YSSLangDiagnosticData::Severity::Warning);
 							}
 							currentAttrs.insert(name);
@@ -257,28 +258,34 @@ namespace YSSFileExt {
 
 		// 文档结束检查
 		if (state == S::Comment) {
-			diag(QStringLiteral("注释未闭合（缺少 -->）"), blockStartLine, blockStartCol, 1);
+			appendXmlDiagnostic(diags, QStringLiteral("注释未闭合（缺少 -->）"), blockStartLine, blockStartCol, 1);
 		}
 		else if (state == S::CDATA) {
-			diag(QStringLiteral("CDATA 段未闭合（缺少 ]]>）"), blockStartLine, blockStartCol, 1);
+			appendXmlDiagnostic(diags, QStringLiteral("CDATA 段未闭合（缺少 ]]>）"), blockStartLine, blockStartCol, 1);
 		}
 		else if (state == S::Prolog) {
-			diag(QStringLiteral("XML 声明未闭合（缺少 ?>）"), blockStartLine, blockStartCol, 1);
+			appendXmlDiagnostic(diags, QStringLiteral("XML 声明未闭合（缺少 ?>）"), blockStartLine, blockStartCol, 1);
 		}
 		else if (state == S::Doctype) {
-			diag(QStringLiteral("DOCTYPE 声明未闭合（缺少 >）"), blockStartLine, blockStartCol, 1);
+			appendXmlDiagnostic(diags, QStringLiteral("DOCTYPE 声明未闭合（缺少 >）"), blockStartLine, blockStartCol, 1);
 		}
 		else if (state == S::Tag) {
-			diag(QStringLiteral("标签未闭合（缺少 >）"), tagStartLine, tagStartCol, 1);
+			appendXmlDiagnostic(diags, QStringLiteral("标签未闭合（缺少 >）"), tagStartLine, tagStartCol, 1);
 		}
 		for (const OpenTag& ot : openTags) {
-			diag(QStringLiteral("标签 <%1> 未闭合").arg(ot.name), ot.line, ot.col, ot.name.length() + 2);
+			appendXmlDiagnostic(diags, QStringLiteral("标签 <%1> 未闭合").arg(ot.name), ot.line, ot.col, ot.name.length() + 2);
 		}
 	}
 
 	// ---------------------------------------------------------------------------
 	// 着色
 	// ---------------------------------------------------------------------------
+	static void applyXmlFormat(YSSConfigLangHighlighter* highlighter, qint32 start, qint32 len, const QString& key) {
+		if (len > 0) {
+			highlighter->setFormatWithColorKey(start, len, key);
+		}
+	}
+
 	static void colorXmlLine(YSSConfigLangHighlighter* highlighter, const QString& text) {
 		if (text.isEmpty()) {
 			const int previous = highlighter->getPreviousBlockState();
@@ -288,10 +295,6 @@ namespace YSSFileExt {
 		highlighter->setFormatWithColorKey(0, text.length(), "PlainText");
 		int state = highlighter->getPreviousBlockState();
 		if (state < 0) state = (int)XmlColorState::Normal;
-
-		auto apply = [&](qint32 start, qint32 len, const QString& key) {
-			if (len > 0) highlighter->setFormatWithColorKey(start, len, key);
-		};
 
 		const qint32 n = text.length();
 		qint32 i = 0;
@@ -304,56 +307,56 @@ namespace YSSFileExt {
 				if (text.at(next) == QLatin1Char('&')) {
 					const int semi = text.indexOf(QLatin1Char(';'), next);
 					if (semi >= 0 && semi - next <= 9) {
-						apply(next, semi - next + 1, "Entity");
+						applyXmlFormat(highlighter, next, semi - next + 1, "Entity");
 						i = semi + 1;
 					}
 					else { ++i; }
 					break;
 				}
 				if (text.mid(next, 4) == QStringLiteral("<!--")) {
-					apply(next, 4, "Comment"); i = next + 4; state = (int)XmlColorState::InComment;
+					applyXmlFormat(highlighter, next, 4, "Comment"); i = next + 4; state = (int)XmlColorState::InComment;
 				}
 				else if (text.mid(next, 9) == QStringLiteral("<![CDATA[")) {
-					apply(next, 9, "CData"); i = next + 9; state = (int)XmlColorState::InCDATA;
+					applyXmlFormat(highlighter, next, 9, "CData"); i = next + 9; state = (int)XmlColorState::InCDATA;
 				}
 				else if (text.mid(next, 2) == QStringLiteral("<?")) {
-					apply(next, 2, "Keyword"); i = next + 2; state = (int)XmlColorState::InProlog;
+					applyXmlFormat(highlighter, next, 2, "Keyword"); i = next + 2; state = (int)XmlColorState::InProlog;
 				}
 				else if (text.mid(next, 2) == QStringLiteral("<!")) {
-					apply(next, 2, "Keyword"); i = next + 2; state = (int)XmlColorState::InDoctype;
+					applyXmlFormat(highlighter, next, 2, "Keyword"); i = next + 2; state = (int)XmlColorState::InDoctype;
 				}
 				else if (text.mid(next, 2) == QStringLiteral("</")) {
-					apply(next, 2, "XmlTag"); i = next + 2; state = (int)XmlColorState::InTag;
+					applyXmlFormat(highlighter, next, 2, "XmlTag"); i = next + 2; state = (int)XmlColorState::InTag;
 				}
 				else {
 					// 普通 '<'：跳到 '<' 之后。必须用 next+1，而不是 ++i——
 					// 当 '<' 不在行首（i<next）时 ++i 会回退，把 '<' 前的文本误着色为标签名。
-					apply(next, 1, "XmlTag"); i = next + 1; state = (int)XmlColorState::InTag;
+					applyXmlFormat(highlighter, next, 1, "XmlTag"); i = next + 1; state = (int)XmlColorState::InTag;
 				}
 				break;
 			}
 			case XmlColorState::InComment: {
 				const int end = text.indexOf(QStringLiteral("-->"), i);
-				if (end >= 0) { apply(i, end - i + 3, "Comment"); i = end + 3; state = (int)XmlColorState::Normal; }
-				else { apply(i, n - i, "Comment"); i = n; }
+				if (end >= 0) { applyXmlFormat(highlighter, i, end - i + 3, "Comment"); i = end + 3; state = (int)XmlColorState::Normal; }
+				else { applyXmlFormat(highlighter, i, n - i, "Comment"); i = n; }
 				break;
 			}
 			case XmlColorState::InCDATA: {
 				const int end = text.indexOf(QStringLiteral("]]>"), i);
-				if (end >= 0) { apply(i, end - i + 3, "CData"); i = end + 3; state = (int)XmlColorState::Normal; }
-				else { apply(i, n - i, "CData"); i = n; }
+				if (end >= 0) { applyXmlFormat(highlighter, i, end - i + 3, "CData"); i = end + 3; state = (int)XmlColorState::Normal; }
+				else { applyXmlFormat(highlighter, i, n - i, "CData"); i = n; }
 				break;
 			}
 			case XmlColorState::InProlog: {
 				const int end = text.indexOf(QStringLiteral("?>"), i);
-				if (end >= 0) { apply(i, end - i + 2, "Keyword"); i = end + 2; state = (int)XmlColorState::Normal; }
-				else { apply(i, n - i, "Keyword"); i = n; }
+				if (end >= 0) { applyXmlFormat(highlighter, i, end - i + 2, "Keyword"); i = end + 2; state = (int)XmlColorState::Normal; }
+				else { applyXmlFormat(highlighter, i, n - i, "Keyword"); i = n; }
 				break;
 			}
 			case XmlColorState::InDoctype: {
 				const int end = text.indexOf(QLatin1Char('>'), i);
-				if (end >= 0) { apply(i, end - i + 1, "Keyword"); i = end + 1; state = (int)XmlColorState::Normal; }
-				else { apply(i, n - i, "Keyword"); i = n; }
+				if (end >= 0) { applyXmlFormat(highlighter, i, end - i + 1, "Keyword"); i = end + 1; state = (int)XmlColorState::Normal; }
+				else { applyXmlFormat(highlighter, i, n - i, "Keyword"); i = n; }
 				break;
 			}
 			case XmlColorState::InTag:
@@ -362,11 +365,11 @@ namespace YSSFileExt {
 				if (i >= n) { i = n; break; }
 				const QChar ch = text.at(i);
 				if (ch == QLatin1Char('>')) {
-					apply(i, 1, "XmlTag"); ++i; state = (int)XmlColorState::Normal; break;
+					applyXmlFormat(highlighter, i, 1, "XmlTag"); ++i; state = (int)XmlColorState::Normal; break;
 				}
 				if (ch == QLatin1Char('/')) {
 					if (i + 1 < n && text.at(i + 1) == QLatin1Char('>')) {
-						apply(i, 2, "XmlTag"); i += 2; state = (int)XmlColorState::Normal; break;
+						applyXmlFormat(highlighter, i, 2, "XmlTag"); i += 2; state = (int)XmlColorState::Normal; break;
 					}
 					++i; break;
 				}
@@ -386,7 +389,7 @@ namespace YSSFileExt {
 							? (int)XmlColorState::InAttrString
 							: (int)XmlColorState::InAttrStringSingle;
 					}
-					apply(start, i - start, "String");
+					applyXmlFormat(highlighter, start, i - start, "String");
 					break;
 				}
 				if (ch.isLetter() || ch == QLatin1Char('_') || ch == QLatin1Char(':') || ch == QLatin1Char('-')) {
@@ -397,11 +400,11 @@ namespace YSSFileExt {
 						++i;
 					}
 					if (state == (int)XmlColorState::InTag) {
-						apply(start, i - start, "XmlTag");
+						applyXmlFormat(highlighter, start, i - start, "XmlTag");
 						state = (int)XmlColorState::InTagAfterName;
 					}
 					else {
-						apply(start, i - start, "Attribute");
+						applyXmlFormat(highlighter, start, i - start, "Attribute");
 					}
 					break;
 				}
@@ -419,7 +422,7 @@ namespace YSSFileExt {
 					++p; // 本行闭合
 					state = (int)XmlColorState::InTagAfterName;
 				}
-				apply(0, p, "String");
+				applyXmlFormat(highlighter, 0, p, "String");
 				i = p;
 				break;
 			}

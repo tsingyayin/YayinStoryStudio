@@ -53,17 +53,28 @@ namespace ASERStudio::ASEREnv {
 			tryParseJson(ASERConfig, ASERResourceMoniter::getASERStandardConfigPath() + "/userData.json", true);
 		}
 
+		static constexpr const char* ProjectOverrideAliasesSuffix = "/Configs/override_aliases.json";
+		static constexpr const char* ProjectOverrideConfigsSuffix = "/Configs/override_userConfigs.json";
+
+		bool isProjectUsingOverrideConfigs() const {
+			if (ProjectPath.isEmpty()) return false;
+			return QFileInfo::exists(ProjectPath + ProjectOverrideAliasesSuffix)
+				&& QFileInfo::exists(ProjectPath + ProjectOverrideConfigsSuffix);
+		}
+
 		void refreshOfficial() {
 			auto collections = Visindigo::Utility::JsonConfig();
 			tryParseJson(collections, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_collections.json", true);
 
+			const bool useOverride = isProjectUsingOverrideConfigs();
+
 			auto aliases = Visindigo::Utility::JsonConfig();
-			if (not tryParseJson(aliases, ProjectPath + "/Configs/officialAssets_aliases.json", true)) {
+			if (not (useOverride && tryParseJson(aliases, ProjectPath + ProjectOverrideAliasesSuffix, true))) {
 				tryParseJson(aliases, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_aliases.json", true);
 			}
 
 			auto character = Visindigo::Utility::JsonConfig();
-			if (not tryParseJson(character, ProjectPath + "/Configs/officialAssets_userConfigs.json", true)) {
+			if (not (useOverride && tryParseJson(character, ProjectPath + ProjectOverrideConfigsSuffix, true))) {
 				tryParseJson(character, ASERResourceMoniter::getASERStandardConfigPath() + "/Configs/officialAssets_userConfigs.json", true);
 			}
 

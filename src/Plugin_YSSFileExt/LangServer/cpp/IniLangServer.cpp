@@ -32,24 +32,26 @@ namespace YSSFileExt {
 		qint32 length = 0;
 	};
 
+	static void appendIniDiagnostic(QList<YSSLangDiagnosticData>* diagnostics, qint32 baseLine,
+		const QString& message, qint32 col, qint32 len, YSSLangDiagnosticData::Severity sev) {
+		if (diagnostics) {
+			diagnostics->append(YSSLangDiagnosticData(message, baseLine, col, len, sev));
+		}
+	}
+
+	static IniToken makeIniToken(IniTokenType type, const QString& line, qint32 baseLine, qint32 col, qint32 len) {
+		IniToken token;
+		token.type = type;
+		token.line = baseLine;
+		token.column = col;
+		token.length = len;
+		token.text = line.mid(col, len);
+		return token;
+	}
+
 	// 对一行 INI 文本进行词法分析（供着色与诊断共用）。
 	static QList<IniToken> lexIniLine(const QString& line, qint32 baseLine, QList<YSSLangDiagnosticData>* diagnostics) {
 		QList<IniToken> tokens;
-		auto addDiag = [&](const QString& msg, qint32 col, qint32 len, YSSLangDiagnosticData::Severity sev) {
-			if (diagnostics) {
-				diagnostics->append(YSSLangDiagnosticData(msg, baseLine, col, len, sev));
-			}
-		};
-		auto makeTok = [&](IniTokenType type, qint32 col, qint32 len) {
-			IniToken t;
-			t.type = type;
-			t.line = baseLine;
-			t.column = col;
-			t.length = len;
-			t.text = line.mid(col, len);
-			return t;
-		};
-
 		const qint32 n = line.length();
 		qint32 i = 0;
 		while (i < n && line.at(i).isSpace()) ++i;
@@ -57,50 +59,50 @@ namespace YSSFileExt {
 
 		// 注释
 		if (line.at(i) == QLatin1Char(';') || line.at(i) == QLatin1Char('#')) {
-			tokens.append(makeTok(IniTokenType::Comment, i, n - i));
+			tokens.append(makeIniToken(IniTokenType::Comment, line, baseLine, i, n - i));
 			return tokens;
 		}
 		// 节
 		if (line.at(i) == QLatin1Char('[')) {
 			const int end = line.indexOf(QLatin1Char(']'), i);
 			if (end < 0) {
-				addDiag(QStringLiteral("节未闭合（缺少 ]）"), i, n - i, YSSLangDiagnosticData::Severity::Error);
-				tokens.append(makeTok(IniTokenType::Section, i, n - i));
+				appendIniDiagnostic(diagnostics, baseLine, QStringLiteral("节未闭合（缺少 ]）"), i, n - i, YSSLangDiagnosticData::Severity::Error);
+				tokens.append(makeIniToken(IniTokenType::Section, line, baseLine, i, n - i));
 				return tokens;
 			}
-			tokens.append(makeTok(IniTokenType::Section, i, end - i + 1));
+			tokens.append(makeIniToken(IniTokenType::Section, line, baseLine, i, end - i + 1));
 			int j = end + 1;
 			while (j < n && line.at(j).isSpace()) ++j;
 			if (j < n && (line.at(j) == QLatin1Char(';') || line.at(j) == QLatin1Char('#'))) {
-				tokens.append(makeTok(IniTokenType::Comment, j, n - j));
+				tokens.append(makeIniToken(IniTokenType::Comment, line, baseLine, j, n - j));
 			}
 			else if (j < n) {
-				addDiag(QStringLiteral("节标题后不应有其他内容"), j, n - j, YSSLangDiagnosticData::Severity::Error);
+				appendIniDiagnostic(diagnostics, baseLine, QStringLiteral("节标题后不应有其他内容"), j, n - j, YSSLangDiagnosticData::Severity::Error);
 			}
 			return tokens;
 		}
 		// 键 = 值
 		const int eq = line.indexOf(QLatin1Char('='), i);
 		if (eq < 0) {
-			tokens.append(makeTok(IniTokenType::Plain, i, n - i));
-			addDiag(QStringLiteral("缺少 '=' 分隔符（应为 键=值）"), i, n - i,
+			tokens.append(makeIniToken(IniTokenType::Plain, line, baseLine, i, n - i));
+			appendIniDiagnostic(diagnostics, baseLine, QStringLiteral("缺少 '=' 分隔符（应为 键=值）"), i, n - i,
 				YSSLangDiagnosticData::Severity::Warning);
 			return tokens;
 		}
 		int keyEnd = eq;
 		while (keyEnd > i && line.at(keyEnd - 1).isSpace()) --keyEnd;
 		if (keyEnd <= i) {
-			addDiag(QStringLiteral("键名不能为空"), i, eq - i, YSSLangDiagnosticData::Severity::Error);
+			appendIniDiagnostic(diagnostics, baseLine, QStringLiteral("键名不能为空"), i, eq - i, YSSLangDiagnosticData::Severity::Error);
 		}
-		tokens.append(makeTok(IniTokenType::Key, i, keyEnd - i));
-		tokens.append(makeTok(IniTokenType::Equals, eq, 1));
+		tokens.append(makeIniToken(IniTokenType::Key, line, baseLine, i, keyEnd - i));
+		tokens.append(makeIniToken(IniTokenType::Equals, line, baseLine, eq, 1));
 		int vs = eq + 1;
 		while (vs < n && line.at(vs).isSpace()) ++vs;
 		if (vs < n && (line.at(vs) == QLatin1Char(';') || line.at(vs) == QLatin1Char('#'))) {
-			tokens.append(makeTok(IniTokenType::Comment, vs, n - vs));
+			tokens.append(makeIniToken(IniTokenType::Comment, line, baseLine, vs, n - vs));
 		}
 		else {
-			tokens.append(makeTok(IniTokenType::Value, vs, n - vs));
+			tokens.append(makeIniToken(IniTokenType::Value, line, baseLine, vs, n - vs));
 		}
 		return tokens;
 	}

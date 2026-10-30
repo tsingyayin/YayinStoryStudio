@@ -27,6 +27,17 @@ namespace YSS::Editor {
 		QString authorityField() { return QStringLiteral("Authority"); }
 		QString keyTypeField() { return QStringLiteral("KeyType"); }
 		QString fingerprintField() { return QStringLiteral("FingerprintSha256"); }
+		// QSS 的 :disabled 伪状态和动态属性选择器一起用时不可靠，这里用自定义属性
+		// 显式驱动"不可用"外观，同时保留 setEnabled 控制交互。
+		void setActionMuted(QPushButton* button, bool muted) {
+			button->setEnabled(!muted);
+			if (button->property("sshMuted").toBool() == muted) {
+				return;
+			}
+			button->setProperty("sshMuted", muted);
+			button->style()->unpolish(button);
+			button->style()->polish(button);
+		}
 	}
 	SSHConnectionWidget* SSHConnectionWidget::getInstance() {
 		if (Instance == nullptr) {
@@ -270,19 +281,8 @@ namespace YSS::Editor {
 			this, &SSHConnectionWidget::onTrustFingerprintClicked);
 		connect(RejectFingerprintButton, &QPushButton::clicked,
 			this, &SSHConnectionWidget::onRejectFingerprintClicked);
-		// QSS 的 :disabled 伪状态和动态属性选择器一起用时不可靠，这里用自定义属性
-		// 显式驱动"不可用"外观，同时保留 setEnabled 控制交互。
-		const auto setActionMuted = [](QPushButton* button, bool muted) {
-			button->setEnabled(!muted);
-			if (button->property("sshMuted").toBool() == muted) {
-				return;
-			}
-			button->setProperty("sshMuted", muted);
-			button->style()->unpolish(button);
-			button->style()->polish(button);
-			};
 		connect(ConnectionList, &QListWidget::itemSelectionChanged, this,
-			[this, setActionMuted]() {
+			[this]() {
 				// 用选中项而不是当前项：列表首次填充时 Qt 会自动把第一项设为当前项，
 				// 那不算用户选中。
 				const bool muted = this->ConnectionList->selectedItems().isEmpty();

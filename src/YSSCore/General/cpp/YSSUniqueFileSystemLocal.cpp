@@ -747,6 +747,19 @@ namespace YSSCore::General {
 			return capabilities;
 		}
 
+	// 填充错误信息并返回 false，便于失败分支直接 return。
+	static bool failWatch(YSSFileError* error, YSSFileError::ErrorType type,
+		const QString& message, const QString& detail) {
+		if (error) {
+			YSSFileError value;
+			value.Type = type;
+			value.Message = message;
+			value.Detail = detail;
+			*error = value;
+		}
+		return false;
+	}
+
 	/*!
 		\since YSS 0.18.0
 
@@ -762,40 +775,29 @@ namespace YSSCore::General {
 		\return 登记成功返回 true。
 	*/
 	bool YSSLocalFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
-		const auto failWith = [error](YSSFileError::ErrorType type, const QString& message,
-			const QString& detail) {
-			if (error) {
-				YSSFileError value;
-				value.Type = type;
-				value.Message = message;
-				value.Detail = detail;
-				*error = value;
-			}
-			return false;
-		};
 		if (!uri.isValid() || !uri.isNotRemote()) {
-			return failWith(YSSFileError::ErrorType::InvalidConfiguration,
+			return failWatch(error, YSSFileError::ErrorType::InvalidConfiguration,
 				QStringLiteral("Only local directories can be watched"), uri.toString());
 		}
 		const QString path = QDir::cleanPath(uri.getLocalPath());
 		if (path.isEmpty()) {
-			return failWith(YSSFileError::ErrorType::InvalidConfiguration,
+			return failWatch(error, YSSFileError::ErrorType::InvalidConfiguration,
 				QStringLiteral("The URI carries no local path"), uri.toString());
 		}
 		const QFileInfo info(path);
 		if (!info.exists()) {
-			return failWith(YSSFileError::ErrorType::NotFound,
+			return failWatch(error, YSSFileError::ErrorType::NotFound,
 				QStringLiteral("No such directory"), path);
 		}
 		if (!info.isDir()) {
-			return failWith(YSSFileError::ErrorType::NotADirectory,
+			return failWatch(error, YSSFileError::ErrorType::NotADirectory,
 				QStringLiteral("Not a directory"), path);
 		}
 		if (this->d->WatchedByPath.contains(path)) {
 			return true;
 		}
 		if (this->d->WatchedByPath.size() >= LocalWatchMaxDirectories) {
-			return failWith(YSSFileError::ErrorType::NotSupported,
+			return failWatch(error, YSSFileError::ErrorType::NotSupported,
 				QStringLiteral("Too many watched directories"),
 				QStringLiteral("limit %1").arg(LocalWatchMaxDirectories));
 		}
@@ -811,7 +813,7 @@ namespace YSSCore::General {
 				[provider]() { provider->flushWatchedDirectories(); });
 		}
 		if (!this->d->Watcher->addPath(path)) {
-			return failWith(YSSFileError::ErrorType::PermissionDenied,
+			return failWatch(error, YSSFileError::ErrorType::PermissionDenied,
 				QStringLiteral("Cannot watch the directory"), path);
 		}
 		this->d->WatchedByPath.insert(path, uri);

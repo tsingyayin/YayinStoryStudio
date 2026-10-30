@@ -9,7 +9,7 @@
 #define Visindigo_VERSION_BUILD 266
 #define Visindigo_VERSION_STRING "0.18.0.266"
 #define Visindigo_VERSION_BUILD_DATE "2026-10-30"
-#define Visindigo_VERSION_BUILD_TIME "14:35:23"
+#define Visindigo_VERSION_BUILD_TIME "17:02:02"
 #define Visindigo_VERSION_NICKNAME "EA TP1"
 
 #endif // Visindigo_General_private_AUTO_VERSION_h

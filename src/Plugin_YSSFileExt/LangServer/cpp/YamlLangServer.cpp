@@ -50,35 +50,37 @@ namespace YSSFileExt {
 		qint32 length = 0;
 	};
 
+	static void appendYamlDiagnostic(QList<YSSLangDiagnosticData>* diagnostics, qint32 baseLine,
+		const QString& message, qint32 col, qint32 len, YSSLangDiagnosticData::Severity sev) {
+		if (diagnostics) {
+			diagnostics->append(YSSLangDiagnosticData(message, baseLine, col, len, sev));
+		}
+	}
+
+	static YamlToken makeYamlToken(YamlTokenType type, const QString& line, qint32 baseLine, qint32 col, qint32 len) {
+		YamlToken token;
+		token.type = type;
+		token.line = baseLine;
+		token.column = col;
+		token.length = len;
+		token.text = line.mid(col, len);
+		return token;
+	}
+
 	// 对一行 YAML 文本进行词法分析（供着色与诊断共用）。
 	static QList<YamlToken> lexYamlLine(const QString& line, qint32 baseLine, QList<YSSLangDiagnosticData>* diagnostics) {
 		QList<YamlToken> tokens;
-		auto addDiag = [&](const QString& msg, qint32 col, qint32 len, YSSLangDiagnosticData::Severity sev) {
-			if (diagnostics) {
-				diagnostics->append(YSSLangDiagnosticData(msg, baseLine, col, len, sev));
-			}
-		};
-		auto makeTok = [&](YamlTokenType type, qint32 col, qint32 len) {
-			YamlToken t;
-			t.type = type;
-			t.line = baseLine;
-			t.column = col;
-			t.length = len;
-			t.text = line.mid(col, len);
-			return t;
-		};
-
 		const qint32 n = line.length();
 		qint32 i = 0;
 		while (i < n && line.at(i).isSpace()) ++i;
 
 		// 文档开始 / 结束标记（须位于行首且后随空白或行尾）
 		if (i + 3 <= n && line.mid(i, 3) == QStringLiteral("---") && (i + 3 == n || line.at(i + 3).isSpace())) {
-			tokens.append(makeTok(YamlTokenType::DocumentStart, i, 3));
+			tokens.append(makeYamlToken(YamlTokenType::DocumentStart, line, baseLine, i, 3));
 			i += 3;
 		}
 		else if (i + 3 <= n && line.mid(i, 3) == QStringLiteral("...") && (i + 3 == n || line.at(i + 3).isSpace())) {
-			tokens.append(makeTok(YamlTokenType::DocumentEnd, i, 3));
+			tokens.append(makeYamlToken(YamlTokenType::DocumentEnd, line, baseLine, i, 3));
 			i += 3;
 		}
 
@@ -88,7 +90,7 @@ namespace YSSFileExt {
 			if (ch.isSpace()) { ++i; continue; }
 			// 注释：'#' 位于行首或前有空白
 			if (ch == QLatin1Char('#') && (i == 0 || line.at(i - 1).isSpace())) {
-				tokens.append(makeTok(YamlTokenType::Comment, i, n - i));
+				tokens.append(makeYamlToken(YamlTokenType::Comment, line, baseLine, i, n - i));
 				i = n;
 				break;
 			}
@@ -104,10 +106,10 @@ namespace YSSFileExt {
 					++i;
 				}
 				if (i == nameStart) {
-					addDiag(ch == QLatin1Char('&') ? QStringLiteral("锚点名称不能为空") : QStringLiteral("别名名称不能为空"),
+					appendYamlDiagnostic(diagnostics, baseLine, ch == QLatin1Char('&') ? QStringLiteral("锚点名称不能为空") : QStringLiteral("别名名称不能为空"),
 						start, 1, YSSLangDiagnosticData::Severity::Error);
 				}
-				tokens.append(makeTok(YamlTokenType::Anchor, start, i - start));
+				tokens.append(makeYamlToken(YamlTokenType::Anchor, line, baseLine, start, i - start));
 				continue;
 			}
 			// 标签
@@ -121,9 +123,9 @@ namespace YSSFileExt {
 					++i;
 				}
 				if (i == start + 1) {
-					addDiag(QStringLiteral("无效的标签 '!'"), start, 1, YSSLangDiagnosticData::Severity::Error);
+					appendYamlDiagnostic(diagnostics, baseLine, QStringLiteral("无效的标签 '!'"), start, 1, YSSLangDiagnosticData::Severity::Error);
 				}
-				tokens.append(makeTok(YamlTokenType::Tag, start, i - start));
+				tokens.append(makeYamlToken(YamlTokenType::Tag, line, baseLine, start, i - start));
 				continue;
 			}
 			// 引号字符串
@@ -150,10 +152,10 @@ namespace YSSFileExt {
 					++i;
 				}
 				if (!terminated) {
-					addDiag(QStringLiteral("字符串未闭合（缺少结尾引号）"),
+					appendYamlDiagnostic(diagnostics, baseLine, QStringLiteral("字符串未闭合（缺少结尾引号）"),
 						start, i - start, YSSLangDiagnosticData::Severity::Error);
 				}
-				tokens.append(makeTok(YamlTokenType::String, start, i - start));
+				tokens.append(makeYamlToken(YamlTokenType::String, line, baseLine, start, i - start));
 				continue;
 			}
 			// 块标量指示符
@@ -161,20 +163,20 @@ namespace YSSFileExt {
 				const qint32 start = i;
 				++i;
 				if (i < n && (line.at(i) == QLatin1Char('+') || line.at(i) == QLatin1Char('-'))) ++i;
-				tokens.append(makeTok(YamlTokenType::BlockScalar, start, i - start));
+				tokens.append(makeYamlToken(YamlTokenType::BlockScalar, line, baseLine, start, i - start));
 				continue;
 			}
 			// 标点
-			if (ch == QLatin1Char(':')) { tokens.append(makeTok(YamlTokenType::Colon, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char(',')) { tokens.append(makeTok(YamlTokenType::Comma, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char('[')) { tokens.append(makeTok(YamlTokenType::LBracket, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char(']')) { tokens.append(makeTok(YamlTokenType::RBracket, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char('{')) { tokens.append(makeTok(YamlTokenType::LBrace, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char('}')) { tokens.append(makeTok(YamlTokenType::RBrace, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char(':')) { tokens.append(makeYamlToken(YamlTokenType::Colon, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char(',')) { tokens.append(makeYamlToken(YamlTokenType::Comma, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char('[')) { tokens.append(makeYamlToken(YamlTokenType::LBracket, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char(']')) { tokens.append(makeYamlToken(YamlTokenType::RBracket, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char('{')) { tokens.append(makeYamlToken(YamlTokenType::LBrace, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char('}')) { tokens.append(makeYamlToken(YamlTokenType::RBrace, line, baseLine, i, 1)); ++i; continue; }
 			if (ch == QLatin1Char('-')) {
 				// '-' 后随空白/行尾为列表项标记，否则为普通标量（如负数）
 				if (i + 1 >= n || line.at(i + 1).isSpace()) {
-					tokens.append(makeTok(YamlTokenType::Hyphen, i, 1));
+					tokens.append(makeYamlToken(YamlTokenType::Hyphen, line, baseLine, i, 1));
 					++i;
 				}
 				else {
@@ -185,7 +187,7 @@ namespace YSSFileExt {
 						&& line.at(i) != QLatin1Char('{') && line.at(i) != QLatin1Char('}')) {
 						++i;
 					}
-					tokens.append(makeTok(YamlTokenType::Number, start, i - start));
+					tokens.append(makeYamlToken(YamlTokenType::Number, line, baseLine, start, i - start));
 				}
 				continue;
 			}
@@ -239,7 +241,7 @@ namespace YSSFileExt {
 						tt = YamlTokenType::Null;
 					}
 				}
-				tokens.append(makeTok(tt, start, i - start));
+				tokens.append(makeYamlToken(tt, line, baseLine, start, i - start));
 			}
 		}
 		return tokens;

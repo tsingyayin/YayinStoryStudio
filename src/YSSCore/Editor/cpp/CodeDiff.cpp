@@ -489,39 +489,40 @@ namespace YSSCore::Editor {
 		OldView->setPlainText(VITRL("YSS::editor.codeDiff.loading"));
 		NewView->clear();
 
-		auto* fs = YSSUniqueFileSystem::getInstance();
-		auto loadOne = [this, fs](const YSSURI& uri, bool isOldSide) {
-			YSSFileSystemReply* reply = fs->read(uri);
-			if (reply == nullptr) {
-				ReadFailed = true;
-				ReadError = VITRL("YSS::editor.codeDiff.readFailed").arg(uri.toString());
-				if (--PendingReads == 0) {
-					finishLoad();
-				}
-				return;
-			}
-			QObject::connect(reply, &YSSFileSystemReply::succeeded, q, [this, reply, isOldSide]() {
-				if (isOldSide) {
-					OldData = reply->getData();
-				}
-				else {
-					NewData = reply->getData();
-				}
-				if (--PendingReads == 0) {
-					finishLoad();
-				}
-				});
-			QObject::connect(reply, &YSSFileSystemReply::failed, q, [this, uri](const YSSFileError& error) {
-				Q_UNUSED(error);
-				ReadFailed = true;
-				ReadError = VITRL("YSS::editor.codeDiff.readFailed").arg(uri.toString());
-				if (--PendingReads == 0) {
-					finishLoad();
-				}
-				});
-		};
 		loadOne(oldUri, true);
 		loadOne(newUri, false);
+	}
+
+	void CodeDiffPrivate::loadOne(const YSSURI& uri, bool isOldSide) {
+		YSSUniqueFileSystem* fs = YSSUniqueFileSystem::getInstance();
+		YSSFileSystemReply* reply = fs->read(uri);
+		if (reply == nullptr) {
+			ReadFailed = true;
+			ReadError = VITRL("YSS::editor.codeDiff.readFailed").arg(uri.toString());
+			if (--PendingReads == 0) {
+				finishLoad();
+			}
+			return;
+		}
+		QObject::connect(reply, &YSSFileSystemReply::succeeded, q, [this, reply, isOldSide]() {
+			if (isOldSide) {
+				OldData = reply->getData();
+			}
+			else {
+				NewData = reply->getData();
+			}
+			if (--PendingReads == 0) {
+				finishLoad();
+			}
+			});
+		QObject::connect(reply, &YSSFileSystemReply::failed, q, [this, uri](const YSSFileError& error) {
+			Q_UNUSED(error);
+			ReadFailed = true;
+			ReadError = VITRL("YSS::editor.codeDiff.readFailed").arg(uri.toString());
+			if (--PendingReads == 0) {
+				finishLoad();
+			}
+			});
 	}
 
 	void CodeDiffPrivate::finishLoad() {

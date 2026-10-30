@@ -30,6 +30,27 @@ namespace ASERStudio::YSS {
 	InlayColorProvider::~InlayColorProvider() {
 	}
 
+	// 按分量量程把颜色分量换算成 0-255 的字节值。
+	static qint32 colorComponentToByte(double component, double componentScale) {
+		return qBound(0, qRound(component * 255.0 / componentScale), 255);
+	}
+
+	// 把颜色分量按 scale 放大，并去掉小数形式多余的尾随 0。
+	static QString formatColorComponent(double component, double scale) {
+		const double scaled = component * scale;
+		if (scale > 1.5) {
+			return QString::number(qRound(scaled));
+		}
+		QString text = QString::number(scaled, 'f', 3);
+		while (text.contains(QLatin1Char('.')) and text.endsWith(QLatin1Char('0'))) {
+			text.chop(1);
+		}
+		if (text.endsWith(QLatin1Char('.'))) {
+			text.chop(1);
+		}
+		return text;
+	}
+
 	QColor InlayColorProvider::colorFromString(const QString& value, double* scale) {
 		const QString text = value.trimmed();
 		if (text.isEmpty()) {
@@ -67,11 +88,10 @@ namespace ASERStudio::YSS {
 		if (scale != nullptr) {
 			*scale = componentScale;
 		}
-		auto toByte = [componentScale](double component) {
-			return qBound(0, qRound(component * 255.0 / componentScale), 255);
-			};
-		const qint32 alpha = values.size() >= 4 ? toByte(values[3]) : 255;
-		return QColor(toByte(values[0]), toByte(values[1]), toByte(values[2]), alpha);
+		const qint32 alpha = values.size() >= 4 ? colorComponentToByte(values[3], componentScale) : 255;
+		return QColor(colorComponentToByte(values[0], componentScale),
+			colorComponentToByte(values[1], componentScale),
+			colorComponentToByte(values[2], componentScale), alpha);
 	}
 
 	QString InlayColorProvider::colorToHex(const QColor& color, bool withAlpha) {
@@ -79,26 +99,12 @@ namespace ASERStudio::YSS {
 	}
 
 	QString InlayColorProvider::colorToVector(const QColor& color, double scale, int components) {
-		auto formatComponent = [scale](double component) {
-			const double scaled = component * scale;
-			if (scale > 1.5) {
-				return QString::number(qRound(scaled));
-			}
-			QString text = QString::number(scaled, 'f', 3);
-			while (text.contains(QLatin1Char('.')) and text.endsWith(QLatin1Char('0'))) {
-				text.chop(1);
-			}
-			if (text.endsWith(QLatin1Char('.'))) {
-				text.chop(1);
-			}
-			return text;
-			};
 		QStringList parts;
-		parts << formatComponent(color.redF());
-		parts << formatComponent(color.greenF());
-		parts << formatComponent(color.blueF());
+		parts << formatColorComponent(color.redF(), scale);
+		parts << formatColorComponent(color.greenF(), scale);
+		parts << formatColorComponent(color.blueF(), scale);
 		if (components >= 4) {
-			parts << formatComponent(color.alphaF());
+			parts << formatColorComponent(color.alphaF(), scale);
 		}
 		return parts.join(QLatin1Char(','));
 	}

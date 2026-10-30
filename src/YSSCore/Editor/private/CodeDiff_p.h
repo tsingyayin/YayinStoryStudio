@@ -129,6 +129,8 @@ namespace YSSCore::Editor {
 	protected:
 		void buildUi();
 		void startLoad(const YSSCore::General::YSSURI& oldUri, const YSSCore::General::YSSURI& newUri);
+		// 读取一侧的文本；两侧读完后由 finishLoad 接手。
+		void loadOne(const YSSCore::General::YSSURI& uri, bool isOldSide);
 		void finishLoad();
 		void setSource(const QStringList& oldLines, const QStringList& newLines);
 		void rebuildRows();

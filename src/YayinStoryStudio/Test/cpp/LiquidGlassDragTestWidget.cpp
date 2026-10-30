@@ -45,6 +45,56 @@ namespace YSS::Test {
 			int blur;
 		};
 
+		// 往四行的参数表里加一行：名称、滑块、当前值标签。
+		QSlider* addSliderRow(QWidget* parent, QGridLayout* grid, int& sliderIndex, const QString& name,
+			int minimum, int maximum, int value, const std::function<void(int)>& apply) {
+			const int column = (sliderIndex / 4) * 3;
+			const int row = sliderIndex % 4;
+			sliderIndex++;
+			QSlider* slider = new QSlider(Qt::Horizontal, parent);
+			slider->setRange(minimum, maximum);
+			slider->setValue(value);
+			slider->setMaximumWidth(110);
+			QLabel* valueLabel = new QLabel(QString::number(value), parent);
+			valueLabel->setMinimumWidth(34);
+			valueLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+			grid->addWidget(new QLabel(name, parent), row, column);
+			grid->addWidget(slider, row, column + 1);
+			grid->addWidget(valueLabel, row, column + 2);
+			QObject::connect(slider, &QSlider::valueChanged, parent, [valueLabel, apply](int current) {
+				valueLabel->setText(QString::number(current));
+				apply(current);
+			});
+			return slider;
+		}
+
+		// 深度是「贴边处取样到多深」，与带宽无关：强度 = 1 + 深度 / 半径
+		void applyDistortDepth(LGE* live, QSlider* radiusSlider, QSlider* depthSlider) {
+			const int radius = std::max(1, radiusSlider->value());
+			live->setLiquidDistortStrength(1.0 + depthSlider->value() / qreal(radius));
+		}
+
+		void applyGlassEffectTypes(LGE* live, QCheckBox* blurBox, QCheckBox* distortBox,
+			QCheckBox* dispersionBox, QCheckBox* rimBox, QCheckBox* globalRimBox) {
+			LGE::EffectTypes types;
+			if (blurBox->isChecked()) {
+				types |= LGE::EffectType::Blur;
+			}
+			if (distortBox->isChecked()) {
+				types |= LGE::EffectType::NormalDistort;
+			}
+			if (dispersionBox->isChecked()) {
+				types |= LGE::EffectType::DispersionDistort;
+			}
+			if (rimBox->isChecked()) {
+				types |= LGE::EffectType::RimLight;
+			}
+			if (globalRimBox->isChecked()) {
+				types |= LGE::EffectType::GlobalRim;
+			}
+			live->setEffectTypes(types);
+		}
+
 		// 可以按住左键拖着走的玻璃面板，用来试“玻璃压到别的控件上会怎样”。
 		class DragPanel :public QWidget {
 		public:
@@ -212,56 +262,32 @@ namespace YSS::Test {
 		grid->setHorizontalSpacing(8);
 		grid->setVerticalSpacing(3);
 		int sliderIndex = 0;
-		auto addSlider = [&](const QString& name, int minimum, int maximum, int value,
-			const std::function<void(int)>& apply) -> QSlider* {
-			const int column = (sliderIndex / 4) * 3;
-			const int row = sliderIndex % 4;
-			sliderIndex++;
-			QSlider* slider = new QSlider(Qt::Horizontal, controls);
-			slider->setRange(minimum, maximum);
-			slider->setValue(value);
-			slider->setMaximumWidth(110);
-			QLabel* valueLabel = new QLabel(QString::number(value), controls);
-			valueLabel->setMinimumWidth(34);
-			valueLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-			grid->addWidget(new QLabel(name, controls), row, column);
-			grid->addWidget(slider, row, column + 1);
-			grid->addWidget(valueLabel, row, column + 2);
-			QObject::connect(slider, &QSlider::valueChanged, controls, [valueLabel, apply](int current) {
-				valueLabel->setText(QString::number(current));
-				apply(current);
-			});
-			return slider;
-		};
-		QSlider* radiusSlider = addSlider("扭曲半径", 1, 60, 6, [live](int value) { live->setLiquidDistortRadius(value); });
-		// 深度是「贴边处取样到多深」，与带宽无关：强度 = 1 + 深度 / 半径
-		QSlider* depthSlider = addSlider("深度(px)", 0, 300, 60, [](int) {});
-		auto applyDepth = [live, radiusSlider, depthSlider]() {
-			const int radius = std::max(1, radiusSlider->value());
-			live->setLiquidDistortStrength(1.0 + depthSlider->value() / qreal(radius));
-		};
-		QObject::connect(radiusSlider, &QSlider::valueChanged, controls, [applyDepth](int) {
-			applyDepth();
+		QSlider* radiusSlider = addSliderRow(controls, grid, sliderIndex,
+			"扭曲半径", 1, 60, 6, [live](int value) { live->setLiquidDistortRadius(value); });
+		QSlider* depthSlider = addSliderRow(controls, grid, sliderIndex,
+			"深度(px)", 0, 300, 60, [](int) {});
+		QObject::connect(radiusSlider, &QSlider::valueChanged, controls, [live, radiusSlider, depthSlider](int) {
+			applyDistortDepth(live, radiusSlider, depthSlider);
 		});
-		QObject::connect(depthSlider, &QSlider::valueChanged, controls, [applyDepth](int) {
-			applyDepth();
+		QObject::connect(depthSlider, &QSlider::valueChanged, controls, [live, radiusSlider, depthSlider](int) {
+			applyDistortDepth(live, radiusSlider, depthSlider);
 		});
-		applyDepth();
-		addSlider("色散x100", 0, 100, 20, [live](int value) { live->setLiquidDistortDispersion(value / 100.0); });
-		addSlider("模糊半径", 0, 160, 13, [live](int value) { live->setBlurRadius(value); });
-		addSlider("圆角", 0, 100, 20, [live](int value) { live->setBorderRadius(value); });
-		addSlider("不透明度", 0, 100, 100, [live](int value) { live->setOpacity(value / 100.0); });
-		addSlider("着色", 0, 100, 10, [live](int value) { live->setColorMask(QColor(0, 0, 0), value / 100.0); });
-		addSlider("能量x100", 0, 100, 50, [live](int value) { live->setLiquidDistortEnergy(value / 100.0); });
-		addSlider("光源角度", 0, 360, 330, [live](int value) {
+		applyDistortDepth(live, radiusSlider, depthSlider);
+		addSliderRow(controls, grid, sliderIndex, "色散x100", 0, 100, 20, [live](int value) { live->setLiquidDistortDispersion(value / 100.0); });
+		addSliderRow(controls, grid, sliderIndex, "模糊半径", 0, 160, 13, [live](int value) { live->setBlurRadius(value); });
+		addSliderRow(controls, grid, sliderIndex, "圆角", 0, 100, 20, [live](int value) { live->setBorderRadius(value); });
+		addSliderRow(controls, grid, sliderIndex, "不透明度", 0, 100, 100, [live](int value) { live->setOpacity(value / 100.0); });
+		addSliderRow(controls, grid, sliderIndex, "着色", 0, 100, 10, [live](int value) { live->setColorMask(QColor(0, 0, 0), value / 100.0); });
+		addSliderRow(controls, grid, sliderIndex, "能量x100", 0, 100, 50, [live](int value) { live->setLiquidDistortEnergy(value / 100.0); });
+		addSliderRow(controls, grid, sliderIndex, "光源角度", 0, 360, 330, [live](int value) {
 			const qreal pi = 3.14159265358979323846;
 			const qreal radians = value * pi / 180.0;
 			live->setGlobalRimLightDirection(QPointF(std::sin(radians), -std::cos(radians)));
 		});
-		addSlider("亮面厚度", 0, 10, 1, [live](int value) { live->setGlobalRimLightThickness(value); });
-		addSlider("暗面厚度", 0, 10, 2, [live](int value) { live->setGlobalRimShadowThickness(value); });
-		addSlider("边缘光厚度", 0, 10, 1, [live](int value) { live->setRimLightThickness(value); });
-		addSlider("边缘光范围", 0, 200, 80, [live](int value) { live->setRimLightRange(value); });
+		addSliderRow(controls, grid, sliderIndex, "亮面厚度", 0, 10, 1, [live](int value) { live->setGlobalRimLightThickness(value); });
+		addSliderRow(controls, grid, sliderIndex, "暗面厚度", 0, 10, 2, [live](int value) { live->setGlobalRimShadowThickness(value); });
+		addSliderRow(controls, grid, sliderIndex, "边缘光厚度", 0, 10, 1, [live](int value) { live->setRimLightThickness(value); });
+		addSliderRow(controls, grid, sliderIndex, "边缘光范围", 0, 200, 80, [live](int value) { live->setRimLightRange(value); });
 
 		QCheckBox* blurBox = new QCheckBox("模糊", controls);
 		QCheckBox* distortBox = new QCheckBox("普通扭曲", controls);
@@ -276,29 +302,11 @@ namespace YSS::Test {
 		}
 		typeLayout->addStretch(1);
 		grid->addLayout(typeLayout, 4, 0, 1, 9);
-		auto applyTypes = [=]() {
-			LGE::EffectTypes types;
-			if (blurBox->isChecked()) {
-				types |= LGE::EffectType::Blur;
-			}
-			if (distortBox->isChecked()) {
-				types |= LGE::EffectType::NormalDistort;
-			}
-			if (dispersionBox->isChecked()) {
-				types |= LGE::EffectType::DispersionDistort;
-			}
-			if (rimBox->isChecked()) {
-				types |= LGE::EffectType::RimLight;
-			}
-			if (globalRimBox->isChecked()) {
-				types |= LGE::EffectType::GlobalRim;
-			}
-			live->setEffectTypes(types);
-		};
 		for (QCheckBox* box : { blurBox, distortBox, dispersionBox, rimBox, globalRimBox }) {
-			QObject::connect(box, &QCheckBox::toggled, controls, [applyTypes](bool) {
-				applyTypes();
-			});
+			QObject::connect(box, &QCheckBox::toggled, controls,
+				[live, blurBox, distortBox, dispersionBox, rimBox, globalRimBox](bool) {
+					applyGlassEffectTypes(live, blurBox, distortBox, dispersionBox, rimBox, globalRimBox);
+				});
 		}
 	}
 }

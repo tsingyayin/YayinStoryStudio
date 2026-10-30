@@ -92,25 +92,27 @@ namespace YSSFileExt {
 		return re.match(s).hasMatch();
 	}
 
+	static void appendTomlLexDiagnostic(QList<YSSLangDiagnosticData>* diagnostics, qint32 baseLine,
+		const QString& message, qint32 col, qint32 len) {
+		if (diagnostics) {
+			diagnostics->append(YSSLangDiagnosticData(message, baseLine, col, len,
+				YSSLangDiagnosticData::Severity::Error));
+		}
+	}
+
+	static TomlToken makeTomlToken(TomlTokenType type, const QString& line, qint32 baseLine, qint32 col, qint32 len) {
+		TomlToken token;
+		token.type = type;
+		token.line = baseLine;
+		token.column = col;
+		token.length = len;
+		token.text = line.mid(col, len);
+		return token;
+	}
+
 	// 对一行 TOML 文本进行词法分析（供着色与诊断共用）。
 	static QList<TomlToken> lexTomlLine(const QString& line, qint32 baseLine, QList<YSSLangDiagnosticData>* diagnostics) {
 		QList<TomlToken> tokens;
-		auto addDiag = [&](const QString& msg, qint32 col, qint32 len) {
-			if (diagnostics) {
-				diagnostics->append(YSSLangDiagnosticData(msg, baseLine, col, len,
-					YSSLangDiagnosticData::Severity::Error));
-			}
-		};
-		auto makeTok = [&](TomlTokenType type, qint32 col, qint32 len) {
-			TomlToken t;
-			t.type = type;
-			t.line = baseLine;
-			t.column = col;
-			t.length = len;
-			t.text = line.mid(col, len);
-			return t;
-		};
-
 		const qint32 n = line.length();
 		qint32 i = 0;
 		while (i < n && line.at(i).isSpace()) ++i;
@@ -119,7 +121,7 @@ namespace YSSFileExt {
 
 		// 注释行
 		if (line.at(i) == QLatin1Char('#')) {
-			tokens.append(makeTok(TomlTokenType::Comment, i, n - i));
+			tokens.append(makeTomlToken(TomlTokenType::Comment, line, baseLine, i, n - i));
 			return tokens;
 		}
 		// 表头（仅行首的 '['）
@@ -134,7 +136,7 @@ namespace YSSFileExt {
 					++i;
 					if (arr) {
 						if (i < n && line.at(i) == QLatin1Char(']')) ++i;
-						else addDiag(QStringLiteral("数组表头未闭合（缺少 ]]）"), start, i - start);
+						else appendTomlLexDiagnostic(diagnostics, baseLine, QStringLiteral("数组表头未闭合（缺少 ]]）"), start, i - start);
 					}
 					closed = true;
 					break;
@@ -147,11 +149,11 @@ namespace YSSFileExt {
 				}
 				else ++i;
 			}
-			if (!closed) addDiag(QStringLiteral("表头未闭合（缺少 ]）"), start, n - start);
-			tokens.append(makeTok(TomlTokenType::Header, start, i - start));
+			if (!closed) appendTomlLexDiagnostic(diagnostics, baseLine, QStringLiteral("表头未闭合（缺少 ]）"), start, n - start);
+			tokens.append(makeTomlToken(TomlTokenType::Header, line, baseLine, start, i - start));
 			while (i < n && line.at(i).isSpace()) ++i;
 			if (i < n && line.at(i) == QLatin1Char('#')) {
-				tokens.append(makeTok(TomlTokenType::Comment, i, n - i));
+				tokens.append(makeTomlToken(TomlTokenType::Comment, line, baseLine, i, n - i));
 			}
 			return tokens;
 		}
@@ -160,13 +162,13 @@ namespace YSSFileExt {
 		while (i < n) {
 			const QChar ch = line.at(i);
 			if (ch.isSpace()) { ++i; continue; }
-			if (ch == QLatin1Char('#')) { tokens.append(makeTok(TomlTokenType::Comment, i, n - i)); break; }
-			if (ch == QLatin1Char('=')) { tokens.append(makeTok(TomlTokenType::Equals, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char(',')) { tokens.append(makeTok(TomlTokenType::Comma, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char('[')) { tokens.append(makeTok(TomlTokenType::LBracket, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char(']')) { tokens.append(makeTok(TomlTokenType::RBracket, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char('{')) { tokens.append(makeTok(TomlTokenType::LBrace, i, 1)); ++i; continue; }
-			if (ch == QLatin1Char('}')) { tokens.append(makeTok(TomlTokenType::RBrace, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char('#')) { tokens.append(makeTomlToken(TomlTokenType::Comment, line, baseLine, i, n - i)); break; }
+			if (ch == QLatin1Char('=')) { tokens.append(makeTomlToken(TomlTokenType::Equals, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char(',')) { tokens.append(makeTomlToken(TomlTokenType::Comma, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char('[')) { tokens.append(makeTomlToken(TomlTokenType::LBracket, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char(']')) { tokens.append(makeTomlToken(TomlTokenType::RBracket, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char('{')) { tokens.append(makeTomlToken(TomlTokenType::LBrace, line, baseLine, i, 1)); ++i; continue; }
+			if (ch == QLatin1Char('}')) { tokens.append(makeTomlToken(TomlTokenType::RBrace, line, baseLine, i, 1)); ++i; continue; }
 			if (ch == QLatin1Char('"') || ch == QLatin1Char('\'')) {
 				// 字符串（含多行）
 				const qint32 start = i;
@@ -184,8 +186,8 @@ namespace YSSFileExt {
 					}
 					++i;
 				}
-				if (!terminated) addDiag(QStringLiteral("字符串未闭合"), start, i - start);
-				tokens.append(makeTok(TomlTokenType::String, start, i - start));
+				if (!terminated) appendTomlLexDiagnostic(diagnostics, baseLine, QStringLiteral("字符串未闭合"), start, i - start);
+				tokens.append(makeTomlToken(TomlTokenType::String, line, baseLine, start, i - start));
 				continue;
 			}
 			// 标量（数字 / 布尔 / 日期 / 裸串）
@@ -202,7 +204,7 @@ namespace YSSFileExt {
 				if (s == QStringLiteral("true") || s == QStringLiteral("false")) tt = TomlTokenType::Boolean;
 				else if (isTomlNumber(s)) tt = TomlTokenType::Number;
 				else if (isTomlDate(s)) tt = TomlTokenType::Date;
-				tokens.append(makeTok(tt, start, i - start));
+				tokens.append(makeTomlToken(tt, line, baseLine, start, i - start));
 			}
 		}
 		return tokens;
@@ -253,16 +255,18 @@ namespace YSSFileExt {
 	// ---------------------------------------------------------------------------
 	// TOML 全文档分析
 	// ---------------------------------------------------------------------------
+	static void appendTomlDiagnostic(QList<YSSLangDiagnosticData>* diags, const QString& message, qint32 line,
+		qint32 col, qint32 len, YSSLangDiagnosticData::Severity sev = YSSLangDiagnosticData::Severity::Error,
+		const QString& code = QStringLiteral("TOML")) {
+		diags->append(YSSLangDiagnosticData(message, line, col, qMax<qint32>(len, 1), sev, code));
+	}
+
 	static void analyzeTomlLines(const QStringList& lines, QList<YSSLangDiagnosticData>* diags) {
 		if (!diags) return;
 		QSet<QString> definedTables;
 		QSet<QString> definedArrayTables;
 		QMap<QString, QSet<QString>> tableKeys;
 		QString currentTable;
-		auto diag = [&](const QString& msg, qint32 line, qint32 col, qint32 len,
-			YSSLangDiagnosticData::Severity sev = YSSLangDiagnosticData::Severity::Error, const QString& code = QStringLiteral("TOML")) {
-			diags->append(YSSLangDiagnosticData(msg, line, col, qMax<qint32>(len, 1), sev, code));
-		};
 		for (qint32 i = 0; i < lines.size(); ++i) {
 			const QString& line = lines.at(i);
 			// 词法诊断
@@ -274,17 +278,17 @@ namespace YSSFileExt {
 			if (trimmed.startsWith(QStringLiteral("[["))) {
 				const int end = trimmed.indexOf(QStringLiteral("]]"));
 				if (end < 0) {
-					diag(QStringLiteral("数组表头未闭合（缺少 ]]）"), i, indentCol, 2);
+					appendTomlDiagnostic(diags, QStringLiteral("数组表头未闭合（缺少 ]]）"), i, indentCol, 2);
 					continue;
 				}
 				const QString path = trimmed.mid(2, end - 2).trimmed();
 				const QString pathKey = normalizeTomlPath(path);
 				if (pathKey.isEmpty()) {
-					diag(QStringLiteral("表名不能为空"), i, indentCol, 2);
+					appendTomlDiagnostic(diags, QStringLiteral("表名不能为空"), i, indentCol, 2);
 					continue;
 				}
 				if (definedTables.contains(pathKey)) {
-					diag(QStringLiteral("表 %1 已定义为普通表，不能再用 [[...]] 定义为数组表").arg(path),
+					appendTomlDiagnostic(diags, QStringLiteral("表 %1 已定义为普通表，不能再用 [[...]] 定义为数组表").arg(path),
 						i, indentCol, 2, YSSLangDiagnosticData::Severity::Error);
 				}
 				definedArrayTables.insert(pathKey);
@@ -296,21 +300,21 @@ namespace YSSFileExt {
 			if (trimmed.startsWith(QLatin1Char('['))) {
 				const int end = trimmed.indexOf(QLatin1Char(']'));
 				if (end < 0) {
-					diag(QStringLiteral("表头未闭合（缺少 ]）"), i, indentCol, 1);
+					appendTomlDiagnostic(diags, QStringLiteral("表头未闭合（缺少 ]）"), i, indentCol, 1);
 					continue;
 				}
 				const QString path = trimmed.mid(1, end - 1).trimmed();
 				const QString pathKey = normalizeTomlPath(path);
 				if (pathKey.isEmpty()) {
-					diag(QStringLiteral("表名不能为空"), i, indentCol, 1);
+					appendTomlDiagnostic(diags, QStringLiteral("表名不能为空"), i, indentCol, 1);
 					continue;
 				}
 				if (definedArrayTables.contains(pathKey)) {
-					diag(QStringLiteral("表 %1 已定义为数组表，不能再用 [...] 定义").arg(path),
+					appendTomlDiagnostic(diags, QStringLiteral("表 %1 已定义为数组表，不能再用 [...] 定义").arg(path),
 						i, indentCol, 1, YSSLangDiagnosticData::Severity::Error);
 				}
 				if (definedTables.contains(pathKey)) {
-					diag(QStringLiteral("表 %1 重复定义").arg(path), i, indentCol, 1,
+					appendTomlDiagnostic(diags, QStringLiteral("表 %1 重复定义").arg(path), i, indentCol, 1,
 						YSSLangDiagnosticData::Severity::Warning);
 				}
 				definedTables.insert(pathKey);
@@ -320,23 +324,23 @@ namespace YSSFileExt {
 			// 键 = 值
 			const int eq = findTomlEquals(trimmed);
 			if (eq < 0) {
-				diag(QStringLiteral("无效的 TOML 语句（应为「键 = 值」或表头）"), i, indentCol,
+				appendTomlDiagnostic(diags, QStringLiteral("无效的 TOML 语句（应为「键 = 值」或表头）"), i, indentCol,
 					trimmed.length(), YSSLangDiagnosticData::Severity::Error);
 				continue;
 			}
 			const QString key = unquoteTomlKey(trimmed.left(eq));
 			if (key.isEmpty()) {
-				diag(QStringLiteral("键名不能为空"), i, indentCol, eq);
+				appendTomlDiagnostic(diags, QStringLiteral("键名不能为空"), i, indentCol, eq);
 				continue;
 			}
 			QString value = trimmed.mid(eq + 1).trimmed();
 			if (value.isEmpty() || value.startsWith(QLatin1Char('#'))) {
-				diag(QStringLiteral("键 \"%1\" 缺少值").arg(key), i, indentCol + eq, 1,
+				appendTomlDiagnostic(diags, QStringLiteral("键 \"%1\" 缺少值").arg(key), i, indentCol + eq, 1,
 					YSSLangDiagnosticData::Severity::Error);
 				continue;
 			}
 			if (tableKeys[currentTable].contains(key)) {
-				diag(QStringLiteral("表 %1 中键 \"%2\" 重复").arg(
+				appendTomlDiagnostic(diags, QStringLiteral("表 %1 中键 \"%2\" 重复").arg(
 					currentTable.isEmpty() ? QStringLiteral("顶层") : currentTable, key),
 					i, indentCol, key.length(), YSSLangDiagnosticData::Severity::Warning);
 			}

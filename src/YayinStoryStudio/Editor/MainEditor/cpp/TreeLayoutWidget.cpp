@@ -109,10 +109,19 @@ namespace YSS::Editor {
 		void applyChildrenPercents(const QList<Visindigo::Utility::JsonConfig>& children);
 		void collectAreas(QList<FileEditWidgetArea*>& out) const;
 		void showDropIndicators();
+		// 为 \a zone 建一个拖放指示块，登记到 DropZones 并显示出来。
+		void createDropIndicator(TreeLayoutDropZone::DropZone zone, int childIndex, QWidget* childAnchor,
+			const QPainterPath& parentShape);
 		void hideDropIndicators();
 		void scheduleHideDropIndicators();
 		int indexOfChild(QWidget* child) const;
 		void handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QWidget* childAnchor, QDropEvent* event);
+		// 新建一个区域插到本布局的 \a index 处，并把拖动的文件移进去。
+		FileEditWidgetArea* createFilledArea(int index, FileEditWidgetArea* sourceArea,
+			const YSSCore::General::YSSURI& fileUri);
+		// 新建一个区域插到父布局中本布局的前/后，并把拖动的文件移进去。
+		void insertFilledAreaIntoParent(bool before, FileEditWidgetArea* sourceArea,
+			const YSSCore::General::YSSURI& fileUri);
 	};
 
 	TreeLayoutDropZone::TreeLayoutDropZone(TreeLayoutWidgetPrivate* owner, DropZone zone, int childIndex, QWidget* childAnchor)
@@ -903,6 +912,19 @@ namespace YSS::Editor {
 		}
 	}
 
+	void TreeLayoutWidgetPrivate::createDropIndicator(TreeLayoutDropZone::DropZone zone, int childIndex,
+		QWidget* childAnchor, const QPainterPath& parentShape) {
+		const QRectF bounds = parentShape.boundingRect();
+		TreeLayoutDropZone* indicator = new TreeLayoutDropZone(this, zone, childIndex, childAnchor);
+		indicator->setGeometry(bounds.toRect());
+		QPainterPath localShape = parentShape;
+		localShape.translate(-bounds.topLeft());
+		indicator->setZoneShape(localShape);
+		indicator->show();
+		indicator->raise();
+		DropZones.append(indicator);
+	}
+
 	void TreeLayoutWidgetPrivate::showDropIndicators() {
 		if (HideTimer) {
 			HideTimer->stop();
@@ -954,18 +976,6 @@ namespace YSS::Editor {
 				innerZones.append(qMakePair(TreeLayoutDropZone::DropZone::ItemRight, i));
 			}
 		}
-
-		auto createIndicator = [this](TreeLayoutDropZone::DropZone zone, int childIndex, QWidget* childAnchor, const QPainterPath& parentShape) {
-			QRectF bounds = parentShape.boundingRect();
-			TreeLayoutDropZone* indicator = new TreeLayoutDropZone(this, zone, childIndex, childAnchor);
-			indicator->setGeometry(bounds.toRect());
-			QPainterPath localShape = parentShape;
-			localShape.translate(-bounds.topLeft());
-			indicator->setZoneShape(localShape);
-			indicator->show();
-			indicator->raise();
-			DropZones.append(indicator);
-			};
 
 		for (const auto& zone : innerZones) {
 			int index = zone.second;
@@ -1039,7 +1049,7 @@ namespace YSS::Editor {
 					shape.addRect(w - 2 * thickness, yTop, thickness, yBottom - yTop);
 				}
 			}
-			createIndicator(zone.first, index, child, shape);
+			createDropIndicator(zone.first, index, child, shape);
 		}
 
 		if (Childrens.size() > 1) {
@@ -1062,7 +1072,7 @@ namespace YSS::Editor {
 					int centerY = (firstBottom + secondTopY) / 2;
 					shape.addRoundedRect(QRectF(thickness, centerY - seamHalf, w - 2 * thickness, seamHalf * 2), 4, 4);
 				}
-				createIndicator(TreeLayoutDropZone::DropZone::Seam, i + 1, secondChild, shape);
+				createDropIndicator(TreeLayoutDropZone::DropZone::Seam, i + 1, secondChild, shape);
 			}
 		}
 
@@ -1099,7 +1109,7 @@ namespace YSS::Editor {
 					shape.addRect(0, h - thickness, w, thickness);
 				}
 			}
-			createIndicator(zone.first, -1, nullptr, shape);
+			createDropIndicator(zone.first, -1, nullptr, shape);
 		}
 	}
 
@@ -1118,6 +1128,35 @@ namespace YSS::Editor {
 		if (HideTimer) {
 			HideTimer->start();
 		}
+	}
+
+	FileEditWidgetArea* TreeLayoutWidgetPrivate::createFilledArea(int index, FileEditWidgetArea* sourceArea,
+		const YSSCore::General::YSSURI& fileUri) {
+		FileEditWidgetArea* area = new FileEditWidgetArea();
+		insertChildAt(index, area, false);
+		if (sourceArea != area) {
+			sourceArea->moveWidgetTo(fileUri, area);
+		}
+		return area;
+	}
+
+	void TreeLayoutWidgetPrivate::insertFilledAreaIntoParent(bool before, FileEditWidgetArea* sourceArea,
+		const YSSCore::General::YSSURI& fileUri) {
+		if (not ParentLayout) {
+			return;
+		}
+		int parentIndex = -1;
+		for (int i = 0; i < ParentLayout->d->Childrens.size(); ++i) {
+			if (ParentLayout->d->Childrens[i].widget == q) {
+				parentIndex = i;
+				break;
+			}
+		}
+		if (parentIndex < 0) {
+			return;
+		}
+		const int insertIndex = before ? parentIndex : parentIndex + 1;
+		ParentLayout->d->createFilledArea(insertIndex, sourceArea, fileUri);
 	}
 
 	void TreeLayoutWidgetPrivate::handleDrop(TreeLayoutDropZone::DropZone zone, int childIndex, QWidget* childAnchor, QDropEvent* event) {
@@ -1142,37 +1181,6 @@ namespace YSS::Editor {
 		}
 		const YSSCore::General::YSSURI fileUri = selfLabel->getUri();
 
-		auto createAndFill = [this, sourceArea, fileUri](int index) -> FileEditWidgetArea* {
-			FileEditWidgetArea* area = new FileEditWidgetArea();
-			insertChildAt(index, area, false);
-			if (sourceArea != area) {
-				sourceArea->moveWidgetTo(fileUri, area);
-			}
-			return area;
-			};
-
-		auto insertIntoParent = [this, sourceArea, fileUri](bool before) {
-			if (not ParentLayout) {
-				return;
-			}
-			int parentIndex = -1;
-			for (int i = 0; i < ParentLayout->d->Childrens.size(); ++i) {
-				if (ParentLayout->d->Childrens[i].widget == q) {
-					parentIndex = i;
-					break;
-				}
-			}
-			if (parentIndex < 0) {
-				return;
-			}
-			int insertIndex = before ? parentIndex : parentIndex + 1;
-			FileEditWidgetArea* area = new FileEditWidgetArea();
-			ParentLayout->d->insertChildAt(insertIndex, area, false);
-			if (sourceArea != area) {
-				sourceArea->moveWidgetTo(fileUri, area);
-			}
-			};
-
 		switch (zone) {
 		case TreeLayoutDropZone::DropZone::OuterLeft:
 		case TreeLayoutDropZone::DropZone::OuterRight: {
@@ -1180,13 +1188,13 @@ namespace YSS::Editor {
 			if (notSelectOrientation) {
 				Orientation = Qt::Horizontal;
 				notSelectOrientation = false;
-				createAndFill(left ? 0 : Childrens.size());
+				createFilledArea(left ? 0 : Childrens.size(), sourceArea, fileUri);
 			}
 			else if (Orientation == Qt::Horizontal) {
-				createAndFill(left ? 0 : Childrens.size());
+				createFilledArea(left ? 0 : Childrens.size(), sourceArea, fileUri);
 			}
 			else {
-				insertIntoParent(left);
+				insertFilledAreaIntoParent(left, sourceArea, fileUri);
 			}
 			break;
 		}
@@ -1196,13 +1204,13 @@ namespace YSS::Editor {
 			if (notSelectOrientation) {
 				Orientation = Qt::Vertical;
 				notSelectOrientation = false;
-				createAndFill(top ? 0 : Childrens.size());
+				createFilledArea(top ? 0 : Childrens.size(), sourceArea, fileUri);
 			}
 			else if (Orientation == Qt::Vertical) {
-				createAndFill(top ? 0 : Childrens.size());
+				createFilledArea(top ? 0 : Childrens.size(), sourceArea, fileUri);
 			}
 			else {
-				insertIntoParent(top);
+				insertFilledAreaIntoParent(top, sourceArea, fileUri);
 			}
 			break;
 		}
@@ -1237,7 +1245,7 @@ namespace YSS::Editor {
 			break;
 		}
 		case TreeLayoutDropZone::DropZone::Seam: {
-			createAndFill(childIndex);
+			createFilledArea(childIndex, sourceArea, fileUri);
 			break;
 		}
 		default:

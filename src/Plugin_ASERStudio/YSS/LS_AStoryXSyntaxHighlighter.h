@@ -6,6 +6,7 @@
 #include <Editor/TextEdit.h>
 namespace ASERStudio::AStorySyntax {
 	class AStoryXControllerParseData;
+	class AStoryXParameter;
 }
 namespace ASERStudio::YSS {
 	class LS_AStoryXSyntaxHighlighterPrivate;
@@ -23,6 +24,10 @@ namespace ASERStudio::YSS {
 	private:
 		void createColorInlayHints(const QString& text,
 			const ASERStudio::AStorySyntax::AStoryXControllerParseData& parseData);
+		void addColorInlayHint(qint32 position, qint32 start, qint32 length, const QString& value,
+			double scale, bool hasAlpha, qint32 components);
+		void addVectorColorInlayHint(const ASERStudio::AStorySyntax::AStoryXParameter& param,
+			qint32 contentOffset, bool acceptByControllerType);
 	private:
 		LS_AStoryXSyntaxHighlighterPrivate* d;
 	};

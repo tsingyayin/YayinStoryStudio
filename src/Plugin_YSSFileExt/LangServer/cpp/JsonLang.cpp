@@ -85,23 +85,25 @@ namespace YSSFileExt {
 		\a diagnostics 非空时，将词法级错误（未闭合字符串、无效数字等）追加到其中。
 		return 该行的词法单元列表（不含 EndOfFile）。
 	*/
+	static void appendJsonDiagnostic(QList<JsonLangDiagnosticData>* diagnostics, qint32 baseLine,
+		const QString& message, qint32 col, qint32 len, JsonLangDiagnosticData::DiagnosticType type) {
+		if (diagnostics) {
+			diagnostics->append(JsonLangDiagnosticData(message, baseLine, col, len, type));
+		}
+	}
+
+	static JsonToken makeJsonPunctuation(JsonTokenType type, const QString& line, qint32 baseLine, qint32 col) {
+		JsonToken token;
+		token.type = type;
+		token.line = baseLine;
+		token.column = col;
+		token.length = 1;
+		token.text = line.mid(col, 1);
+		return token;
+	}
+
 	QList<JsonToken> lexJsonLine(const QString& line, qint32 baseLine, QList<JsonLangDiagnosticData>* diagnostics) {
 		QList<JsonToken> tokens;
-		auto addDiag = [&](const QString& msg, qint32 col, qint32 len, JsonLangDiagnosticData::DiagnosticType type) {
-			if (diagnostics) {
-				diagnostics->append(JsonLangDiagnosticData(msg, baseLine, col, len, type));
-			}
-		};
-		auto makePunct = [&](JsonTokenType type, qint32 col) {
-			JsonToken t;
-			t.type = type;
-			t.line = baseLine;
-			t.column = col;
-			t.length = 1;
-			t.text = line.mid(col, 1);
-			return t;
-		};
-
 		const qint32 n = line.length();
 		qint32 i = 0;
 		while (i < n) {
@@ -124,7 +126,7 @@ namespace YSSFileExt {
 						if (e == QLatin1Char('u')) {
 							if (i + 5 >= n || !isHexChar(line.at(i + 2)) || !isHexChar(line.at(i + 3))
 								|| !isHexChar(line.at(i + 4)) || !isHexChar(line.at(i + 5))) {
-								addDiag(QStringLiteral("无效的 Unicode 转义（\\u 后应为 4 位十六进制数字）"),
+								appendJsonDiagnostic(diagnostics, baseLine, QStringLiteral("无效的 Unicode 转义（\\u 后应为 4 位十六进制数字）"),
 									i, qMin<qint32>(6, n - i), JsonLangDiagnosticData::InvalidEscape);
 								escapeError = true;
 								i += 2;
@@ -138,7 +140,7 @@ namespace YSSFileExt {
 							i += 2;
 							continue;
 						default:
-							addDiag(QStringLiteral("无效的转义字符 '\\%1'").arg(e),
+							appendJsonDiagnostic(diagnostics, baseLine, QStringLiteral("无效的转义字符 '\\%1'").arg(e),
 								i, 2, JsonLangDiagnosticData::InvalidEscape);
 							escapeError = true;
 							i += 2;
@@ -151,7 +153,7 @@ namespace YSSFileExt {
 						break;
 					}
 					if (c.unicode() < 0x20) { // JSON 字符串内不允许原始控制字符
-						addDiag(QStringLiteral("字符串内不允许出现控制字符"),
+						appendJsonDiagnostic(diagnostics, baseLine, QStringLiteral("字符串内不允许出现控制字符"),
 							i, 1, JsonLangDiagnosticData::UnexpectedToken);
 					}
 					++i;
@@ -163,19 +165,19 @@ namespace YSSFileExt {
 				t.length = i - start;
 				t.text = line.mid(start, i - start);
 				if (!terminated && !escapeError) {
-					addDiag(QStringLiteral("字符串未闭合（缺少结尾引号）"),
+					appendJsonDiagnostic(diagnostics, baseLine, QStringLiteral("字符串未闭合（缺少结尾引号）"),
 						start, t.length, JsonLangDiagnosticData::UnterminatedString);
 				}
 				tokens.append(t);
 				continue;
 			}
 
-			if (ch == QLatin1Char('{')) { tokens.append(makePunct(JsonTokenType::LBrace, start)); ++i; continue; }
-			if (ch == QLatin1Char('}')) { tokens.append(makePunct(JsonTokenType::RBrace, start)); ++i; continue; }
-			if (ch == QLatin1Char('[')) { tokens.append(makePunct(JsonTokenType::LBracket, start)); ++i; continue; }
-			if (ch == QLatin1Char(']')) { tokens.append(makePunct(JsonTokenType::RBracket, start)); ++i; continue; }
-			if (ch == QLatin1Char(':')) { tokens.append(makePunct(JsonTokenType::Colon, start)); ++i; continue; }
-			if (ch == QLatin1Char(',')) { tokens.append(makePunct(JsonTokenType::Comma, start)); ++i; continue; }
+			if (ch == QLatin1Char('{')) { tokens.append(makeJsonPunctuation(JsonTokenType::LBrace, line, baseLine, start)); ++i; continue; }
+			if (ch == QLatin1Char('}')) { tokens.append(makeJsonPunctuation(JsonTokenType::RBrace, line, baseLine, start)); ++i; continue; }
+			if (ch == QLatin1Char('[')) { tokens.append(makeJsonPunctuation(JsonTokenType::LBracket, line, baseLine, start)); ++i; continue; }
+			if (ch == QLatin1Char(']')) { tokens.append(makeJsonPunctuation(JsonTokenType::RBracket, line, baseLine, start)); ++i; continue; }
+			if (ch == QLatin1Char(':')) { tokens.append(makeJsonPunctuation(JsonTokenType::Colon, line, baseLine, start)); ++i; continue; }
+			if (ch == QLatin1Char(',')) { tokens.append(makeJsonPunctuation(JsonTokenType::Comma, line, baseLine, start)); ++i; continue; }
 
 			if (ch == QLatin1Char('-') || isDigitChar(ch)) {
 				// 数字
@@ -231,7 +233,7 @@ namespace YSSFileExt {
 				}
 				else {
 					t.type = JsonTokenType::Unexpected;
-					addDiag(QStringLiteral("无效的数字 '%1'").arg(t.text),
+					appendJsonDiagnostic(diagnostics, baseLine, QStringLiteral("无效的数字 '%1'").arg(t.text),
 						start, t.length, JsonLangDiagnosticData::InvalidNumber);
 				}
 				tokens.append(t);
@@ -269,7 +271,7 @@ namespace YSSFileExt {
 				t.column = start;
 				t.length = i - start;
 				t.text = line.mid(start, i - start);
-				addDiag(QStringLiteral("无效的字面量 '%1'").arg(t.text),
+				appendJsonDiagnostic(diagnostics, baseLine, QStringLiteral("无效的字面量 '%1'").arg(t.text),
 					start, t.length, JsonLangDiagnosticData::UnexpectedToken);
 				tokens.append(t);
 				continue;
@@ -282,7 +284,7 @@ namespace YSSFileExt {
 			t.column = start;
 			t.length = 1;
 			t.text = line.mid(start, 1);
-			addDiag(QStringLiteral("意外的字符 '%1'").arg(t.text),
+			appendJsonDiagnostic(diagnostics, baseLine, QStringLiteral("意外的字符 '%1'").arg(t.text),
 				start, 1, JsonLangDiagnosticData::UnexpectedToken);
 			tokens.append(t);
 			++i;

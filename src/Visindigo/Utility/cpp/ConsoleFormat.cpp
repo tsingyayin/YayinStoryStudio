@@ -101,6 +101,13 @@ namespace Visindigo::Utility {
 		return QStringLiteral("\033[0m");
 	}
 
+	// 向 SGR 参数串追加一个参数，参数之间以分号分隔。
+	static void appendAnsiCode(QString& codes, const QString& code) {
+		if (not codes.isEmpty())
+			codes += QChar(';');
+		codes += code;
+	}
+
 	/*!
 		\since Visindigo 0.17.0
 
@@ -112,36 +119,31 @@ namespace Visindigo::Utility {
 			return Text;
 		}
 		QString codes;
-		auto appendCode = [&codes](const QString& code) {
-			if (not codes.isEmpty())
-				codes += QChar(';');
-			codes += code;
-		};
 		if (TextColorEnabled && TextColor.isValid())
-			appendCode(QString::asprintf("38;2;%d;%d;%d", TextColor.red(), TextColor.green(), TextColor.blue()));
+			appendAnsiCode(codes, QString::asprintf("38;2;%d;%d;%d", TextColor.red(), TextColor.green(), TextColor.blue()));
 		if (BackgroundColorEnabled && BackgroundColor.isValid())
-			appendCode(QString::asprintf("48;2;%d;%d;%d", BackgroundColor.red(), BackgroundColor.green(), BackgroundColor.blue()));
+			appendAnsiCode(codes, QString::asprintf("48;2;%d;%d;%d", BackgroundColor.red(), BackgroundColor.green(), BackgroundColor.blue()));
 		for (Style style : StyleList) {
 			switch (style) {
 			case Style::Normal:
 				break; // 不输出 0，避免覆盖上面的颜色设置
 			case Style::Bold:
-				appendCode(QStringLiteral("1"));
+				appendAnsiCode(codes, QStringLiteral("1"));
 				break;
 			case Style::Italic:
-				appendCode(QStringLiteral("3"));
+				appendAnsiCode(codes, QStringLiteral("3"));
 				break;
 			case Style::Underline:
-				appendCode(QStringLiteral("4"));
+				appendAnsiCode(codes, QStringLiteral("4"));
 				break;
 			case Style::Splash:
-				appendCode(QStringLiteral("5"));
+				appendAnsiCode(codes, QStringLiteral("5"));
 				break;
 			case Style::Inverse:
-				appendCode(QStringLiteral("7"));
+				appendAnsiCode(codes, QStringLiteral("7"));
 				break;
 			case Style::Strikethrough:
-				appendCode(QStringLiteral("9"));
+				appendAnsiCode(codes, QStringLiteral("9"));
 				break;
 			}
 		}

@@ -160,6 +160,8 @@ namespace YSSCore::General {
 		void onProviderFinished(quint64 id, bool ok);
 		// 同一 URI（含重命名/复制的目标）上的请求串行执行所需的身份键。
 		QStringList taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const;
+		// 把一个 URI 的身份键追加到 \a keys；后端不区分大小写时折叠成小写并去重。
+		void appendTaskKey(QStringList& keys, const YSSURI& value) const;
 		void schedulePending();
 		// 开始一条门面中继的复制/移动。
 		void startTransfer(quint64 id);
@@ -197,6 +199,12 @@ namespace YSSCore::General {
 			ConnectionRequiredAt.insert(key, now);
 			return true;
 		}
+		// 信号里用连接自己的 authority（保留原始大小写）以便界面直接展示与比较；
+		// 尚未配置的后端退回使用登记的键。authority 可能在建后端之后才设置，
+		// 所以这里在每次发信号时现取。
+		static QString authorityOf(YSSSshFileSystemProvider* provider, const QString& key) {
+			return provider->isConfigured() ? provider->getConnectConfig().getAuthority() : key;
+		}
 		// 取得 authority 对应的 SSH 后端；\a create 为真时不存在就新建一个。
 		// 新建的后端会立即挂上 Started / Progressed / Finished 三个信号。
 		YSSSshFileSystemProvider* sshProvider(const QString& authority, bool create) {
@@ -213,39 +221,33 @@ namespace YSSCore::General {
 			}
 			YSSSshFileSystemProvider* provider = new YSSSshFileSystemProvider(Owner);
 			SshProviders.insert(key, provider);
-			// 信号里用连接自己的 authority（保留原始大小写）以便界面直接展示与比较；
-			// 尚未配置的后端退回使用登记的键。注意 authority 可能在建后端之后才设置，
-			// 所以这里在每次发信号时现取。
-			const auto authorityOf = [provider, key]() {
-				return provider->isConfigured() ? provider->getConnectConfig().getAuthority() : key;
-			};
 			QObject::connect(provider, &YSSSshFileSystemProvider::readyChanged, Owner,
-				[this, authorityOf, key](bool ready) {
+				[this, provider, key](bool ready) {
 					if (ready) {
 						// 连上之后重置窗口，下次断开再失败时还要能提示。
 						this->ConnectionRequiredAt.remove(key);
 					}
-					emit Owner->sshReadyChanged(authorityOf(), ready);
+					emit Owner->sshReadyChanged(authorityOf(provider, key), ready);
 				});
 			QObject::connect(provider, &YSSSshFileSystemProvider::connectFinished, Owner,
-				[this, authorityOf](bool ok, const QString& message) {
-					emit Owner->sshConnectFinished(authorityOf(), ok, message);
+				[this, provider, key](bool ok, const QString& message) {
+					emit Owner->sshConnectFinished(authorityOf(provider, key), ok, message);
 				});
 			QObject::connect(provider, &YSSSshFileSystemProvider::disconnected, Owner,
-				[this, authorityOf](bool expected) {
-					emit Owner->sshDisconnected(authorityOf(), expected);
+				[this, provider, key](bool expected) {
+					emit Owner->sshDisconnected(authorityOf(provider, key), expected);
 				});
 			QObject::connect(provider, &YSSSshFileSystemProvider::hostKeyAccepted, Owner,
-				[this, authorityOf](const Visindigo::Network::SshHostKeyInfo& info) {
-					emit Owner->sshHostKeyAccepted(authorityOf(), info);
+				[this, provider, key](const Visindigo::Network::SshHostKeyInfo& info) {
+					emit Owner->sshHostKeyAccepted(authorityOf(provider, key), info);
 				});
 			QObject::connect(provider, &YSSSshFileSystemProvider::hostKeyRejected, Owner,
-				[this, authorityOf](const Visindigo::Network::SshHostKeyInfo& info) {
-					emit Owner->sshHostKeyRejected(authorityOf(), info);
+				[this, provider, key](const Visindigo::Network::SshHostKeyInfo& info) {
+					emit Owner->sshHostKeyRejected(authorityOf(provider, key), info);
 				});
 			QObject::connect(provider, &YSSSshFileSystemProvider::connectionRequired, Owner,
-				[this, authorityOf]() {
-					const QString authority = authorityOf();
+				[this, provider, key]() {
+					const QString authority = authorityOf(provider, key);
 					if (!this->shouldReportConnectionRequired(authority)) {
 						return;
 					}
@@ -2852,23 +2854,24 @@ namespace YSSCore::General {
 		复制/移动还会占用目标 URI 的键。后端不区分大小写时把键折叠成小写，避免
 		\c{C:/A.txt} 与 \c{c:/a.txt} 被当成两个目标。
 	*/
+	void YSSUniqueFileSystemPrivate::appendTaskKey(QStringList& keys, const YSSURI& value) const {
+		if (!value.isValid()) {
+			return;
+		}
+		QString key = value.toString();
+		if (!this->Owner->getCapabilities(value).testFlag(
+			YSSUniqueFileSystem::Capability::PathCaseSensitive)) {
+			key = key.toCaseFolded();
+		}
+		if (!keys.contains(key)) {
+			keys.append(key);
+		}
+	}
+
 	QStringList YSSUniqueFileSystemPrivate::taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const {
 		QStringList keys;
-		const auto appendKey = [this, &keys](const YSSURI& value) {
-			if (!value.isValid()) {
-				return;
-			}
-			QString key = value.toString();
-			if (!this->Owner->getCapabilities(value).testFlag(
-				YSSUniqueFileSystem::Capability::PathCaseSensitive)) {
-				key = key.toCaseFolded();
-			}
-			if (!keys.contains(key)) {
-				keys.append(key);
-			}
-		};
-		appendKey(uri);
-		appendKey(targetUri);
+		appendTaskKey(keys, uri);
+		appendTaskKey(keys, targetUri);
 		return keys;
 	}
 
