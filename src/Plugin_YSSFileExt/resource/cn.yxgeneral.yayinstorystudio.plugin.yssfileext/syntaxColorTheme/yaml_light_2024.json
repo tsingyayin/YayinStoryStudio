@@ -15,7 +15,7 @@
         "Key": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Key",
             "identifierType": "SpecialString",
-            "textColor": "#D9AC5E",
+            "textColor": "#8A6D00",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -26,7 +26,7 @@
         "String": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.String",
             "identifierType": "String",
-            "textColor": "#D69D85",
+            "textColor": "#A31515",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -37,7 +37,7 @@
         "Number": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Number",
             "identifierType": "Number",
-            "textColor": "#829479",
+            "textColor": "#098658",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -48,7 +48,7 @@
         "Comment": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Comment",
             "identifierType": "Comment",
-            "textColor": "#57A64A",
+            "textColor": "#008000",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -59,7 +59,7 @@
         "Keyword": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Keyword",
             "identifierType": "Keyword",
-            "textColor": "#569CD6",
+            "textColor": "#0033B3",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -70,7 +70,7 @@
         "Anchor": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Anchor",
             "identifierType": "Macro",
-            "textColor": "#C586C0",
+            "textColor": "#8E44AD",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -81,7 +81,7 @@
         "YamlTag": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.YamlTag",
             "identifierType": "Parameter",
-            "textColor": "#FFFF37",
+            "textColor": "#001080",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",

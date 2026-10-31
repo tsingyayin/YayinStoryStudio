@@ -1,5 +1,5 @@
 
-<img width="1800" height="600" alt="yayinstorystudio" src="https://github.com/user-attachments/assets/f5df1f1f-92c7-476e-8792-621b03a48606" />
+<img width="1800" height="600" alt="yayinstorystudio" src="src/YayinStoryStudio/resource/cn.yxgeneral.yayinstorystudio/yayinstorystudio.png" />
 
 ![](https://img.shields.io/badge/Project-Visindigo-purple)
 ![](https://img.shields.io/badge/Python-3.12%2B-blue)
@@ -12,15 +12,24 @@
 # Yayin Story Studio 项目简介
 Yayin Story Studio （简称YSS）是一个基于Qt/Visindigo的代码编辑器。目前以支持明日方舟剧情编辑器重制版（Arknights Story Editor Remake）（简称ASE-Remake 或 ASER）的AStoryX脚本为主要开发目标。未来引入Git支持，AI Agent支持后，YSS将成为一个通用的代码编辑器。
 
+与市面上平均来说性能最高的代码编辑器VS Code相比（注意，这里考虑的是代码编辑器，而非集成开发环境），YSS目前在性能上仍然存在明显劣势（在五万行文件的Demo测试中平均耗时是VS Code的6倍左右），但得益于YSS完全是基于C++/Qt/Visindigo开发的原生应用，其内存占用远低于VS Code，预计在YSS支持Git和AI Agent后，大部分场景下内存占用大约恰好也小于VS Code 6倍（现在为10倍，因为YSS功能相对较少），使得其虽然慢了点，但在内存占用上却有着明显优势。
+
+因此，在内存堪比黄金的今天，即使不考虑YSS对于明日方舟二创的特殊价值，只是作为代码编辑器来算，倒也算有个独特的亮点。开发者已经将其作为自己服务器使用SSH不方便而必须在线运维时的代码编辑器使用，以节省服务器少得可怜的内存资源。
+
 ## Project Visindigo - 全面的明日方舟剧情二创工具集
 整个Project Visindigo项目自2021年启动以来，先后产出了Yayin Story Player（YSP）、Arknights Story Editor（ASE）、Arknights Story Editor Remake（ASER）和Yayin Story Studio（YSS）四个主要项目。时至今日，它们仍然是整个明日方舟二创社区最好用、最全面的剧情编辑工具集。
 
-| <img width="128" height="128" alt="YSP" src="https://github.com/user-attachments/assets/1161e562-410b-4093-8caa-32423c23c22e" /><br>**YSP** | <img width="128" height="128" alt="ASE" src="https://github.com/user-attachments/assets/b10641f0-29b2-4dd8-ab89-20e4cd4fa3a3" /><br>**ASE** |
-| --- | --- |
-| <img width="128" height="128" alt="ASER" src="https://github.com/user-attachments/assets/9ff66188-0126-4835-8abb-8d050fa90a4b" /><br>**ASER** | <img width="128" height="128" alt="YSS" src="https://github.com/user-attachments/assets/75b619a8-2ee9-4c58-a07a-1ab3e644670a" /><br>**YSS** |
+<table>
+  <tr>
+    <td align="center"><img width="128" height="128" alt="YSP" src="https://github.com/user-attachments/assets/1161e562-410b-4093-8caa-32423c23c22e" /><br><b>YSP</b></td>
+    <td align="center"><img width="128" height="128" alt="ASE" src="https://github.com/user-attachments/assets/b10641f0-29b2-4dd8-ab89-20e4cd4fa3a3" /><br><b>ASE</b></td>
+    <td align="center"><img width="128" height="128" alt="ASER" src="https://github.com/user-attachments/assets/9ff66188-0126-4835-8abb-8d050fa90a4b" /><br><b>ASER</b></td>
+    <td align="center"><img width="128" height="128" alt="YSS" src="https://github.com/user-attachments/assets/75b619a8-2ee9-4c58-a07a-1ab3e644670a" /><br><b>YSS</b></td>
+  </tr>
+</table>
 
 
-YSP从Python脚本和明日方舟官方剧情脚本中汲取灵感，首创了专用于明日方舟二创的SPOL脚本语言，并在SPOL中定义和规范了数种常用的演出功能为“控制器”。YSP的出现让明日方舟二创社区的剧情创作门槛大幅降低，极大地丰富了社区的剧情创作内容。基于这些概念基础，谷雨暮歌的新作ASE则进一步实现了更多的播放功能——其基于Unity而非Qt的技术栈天然兼容来自明日方舟的各种官方资源，并在AStory脚本的自定义Rules设计中实现了对SPOL的兼容。ASER则在ASE基础上进一步发展出AStoryX，虽然没有太多新特性，语法也与AStory本身近似，但ASER在播放功能、性能与素材兼容性上则有十分显著的提升。与此同时，为了解决自ASE时代（2023年以后）以来，AStory/AStoryX编辑体验不佳的问题，Project Visindigo开发了Yayin Story Studio，转为AStoryX编写提供支持。
+YSP从Python脚本和明日方舟官方剧情脚本中汲取灵感，首创了专用于明日方舟二创的SPOL脚本语言，并在SPOL中定义和规范了数种常用的演出功能为“控制器”。YSP的出现让明日方舟二创社区的剧情创作门槛大幅降低，极大地丰富了社区的剧情创作内容。基于这些概念基础，谷雨暮歌的新作ASE则进一步实现了更多的播放功能——其基于Unity而非Qt的技术栈天然兼容来自明日方舟的各种官方资源，并在AStory脚本的自定义Rules设计中实现了对SPOL的兼容。ASER则在ASE基础上进一步发展出AStoryX，虽然没有太多新特性，语法也与AStory本身近似，但ASER在播放功能、性能与素材兼容性上则有十分显著的提升。与此同时，为了解决自ASE时代（2023年以后）以来，AStory/AStoryX编辑体验不佳的问题，Project Visindigo开发了Yayin Story Studio，为AStoryX编写提供支持。
 
 ## 获取Project Visindigo系列软件以及使用教程
 YSP项目已经于2023年底停止维护（Python版本早在2021年中旬就不再更新），但其源代码仍然可以在[cYSP](https://github.com/tsingyayin/cYSP)和[YSP-Yayin_Story_Player](https://github.com/tsingyayin/YSP-Yayin_Story_Player)中获取。Release中也有最新的程序文件。

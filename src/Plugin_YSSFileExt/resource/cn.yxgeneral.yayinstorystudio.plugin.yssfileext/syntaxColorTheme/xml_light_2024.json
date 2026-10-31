@@ -15,7 +15,7 @@
         "XmlTag": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.XmlTag",
             "identifierType": "Vector",
-            "textColor": "#4EC9B0",
+            "textColor": "#0F7B6C",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -26,7 +26,7 @@
         "Attribute": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Attribute",
             "identifierType": "SpecialString",
-            "textColor": "#D9AC5E",
+            "textColor": "#8A6D00",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -37,7 +37,7 @@
         "String": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.String",
             "identifierType": "String",
-            "textColor": "#D69D85",
+            "textColor": "#A31515",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -48,7 +48,7 @@
         "Comment": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Comment",
             "identifierType": "Comment",
-            "textColor": "#57A64A",
+            "textColor": "#008000",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -59,7 +59,7 @@
         "Keyword": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Keyword",
             "identifierType": "Keyword",
-            "textColor": "#569CD6",
+            "textColor": "#0033B3",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -70,7 +70,7 @@
         "CData": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.CData",
             "identifierType": "Macro",
-            "textColor": "#C586C0",
+            "textColor": "#8E44AD",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -81,7 +81,7 @@
         "Entity": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Entity",
             "identifierType": "Parameter",
-            "textColor": "#FFFF37",
+            "textColor": "#001080",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",

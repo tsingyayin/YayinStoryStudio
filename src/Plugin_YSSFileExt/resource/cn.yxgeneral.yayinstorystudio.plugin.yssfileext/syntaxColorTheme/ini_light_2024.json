@@ -15,7 +15,7 @@
         "Key": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Key",
             "identifierType": "SpecialString",
-            "textColor": "#D9AC5E",
+            "textColor": "#8A6D00",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -26,7 +26,7 @@
         "String": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.String",
             "identifierType": "String",
-            "textColor": "#D69D85",
+            "textColor": "#A31515",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -37,7 +37,7 @@
         "Comment": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Comment",
             "identifierType": "Comment",
-            "textColor": "#57A64A",
+            "textColor": "#008000",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -48,7 +48,7 @@
         "Section": {
             "styleName": "i18n:YSSFileExt::syntaxColorTheme.Section",
             "identifierType": "Vector",
-            "textColor": "#4EC9B0",
+            "textColor": "#0F7B6C",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",

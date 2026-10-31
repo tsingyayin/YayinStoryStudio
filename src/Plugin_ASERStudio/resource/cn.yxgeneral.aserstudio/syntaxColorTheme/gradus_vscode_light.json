@@ -15,7 +15,7 @@
         "Function": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Function",
             "identifierType": "Function",
-            "textColor": "#FF00FF",
+            "textColor": "#B0009E",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -26,7 +26,7 @@
         "String": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.String",
             "identifierType": "String",
-            "textColor": "#D69D85",
+            "textColor": "#A31515",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -37,7 +37,7 @@
         "SpecialString": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.SpecialString",
             "identifierType": "SpecialString",
-            "textColor": "#D9AC5E",
+            "textColor": "#8A6D00",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -48,7 +48,7 @@
         "Number": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Number",
             "identifierType": "Number",
-            "textColor": "#829479",
+            "textColor": "#098658",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -59,7 +59,7 @@
         "Parameter": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Parameter",
             "identifierType": "Parameter",
-            "textColor": "#BDBD29",
+            "textColor": "#001080",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -70,7 +70,7 @@
         "Keyword": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Keyword",
             "identifierType": "Keyword",
-            "textColor": "#569CD6",
+            "textColor": "#0033B3",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -81,7 +81,7 @@
         "Vector": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Vector",
             "identifierType": "Vector",
-            "textColor": "#4EC9B0",
+            "textColor": "#0F7B6C",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -92,7 +92,7 @@
         "Comment": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Comment",
             "identifierType": "Comment",
-            "textColor": "#57A64A",
+            "textColor": "#008000",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -103,7 +103,7 @@
         "Enum": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Enum",
             "identifierType": "Enum",
-            "textColor": "#768A68",
+            "textColor": "#2E7D32",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -114,7 +114,7 @@
         "Macro": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Macro",
             "identifierType": "Macro",
-            "textColor": "#C586C0",
+            "textColor": "#8E44AD",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -136,7 +136,7 @@
         "Background": {
             "styleName": "i18n:ASERStudio::controller.Background",
             "identifierType": "Keyword",
-            "textColor": "#80C0FF",
+            "textColor": "#1565C0",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -147,7 +147,7 @@
         "Music": {
             "styleName": "i18n:ASERStudio::controller.Music",
             "identifierType": "Keyword",
-            "textColor": "#FFFF80",
+            "textColor": "#806000",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -158,7 +158,7 @@
         "SoundEffect": {
             "styleName": "i18n:ASERStudio::controller.SoundEffect",
             "identifierType": "Keyword",
-            "textColor": "#C0C080",
+            "textColor": "#667A2A",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -169,7 +169,7 @@
         "Mask": {
             "styleName": "i18n:ASERStudio::controller.Mask",
             "identifierType": "Keyword",
-            "textColor": "#80E0C0",
+            "textColor": "#00796B",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -180,7 +180,7 @@
         "Character": {
             "styleName": "i18n:ASERStudio::controller.Character",
             "identifierType": "Keyword",
-            "textColor": "#A0E0FF",
+            "textColor": "#0277BD",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -191,7 +191,7 @@
         "Choice": {
             "styleName": "i18n:ASERStudio::controller.Choice",
             "identifierType": "Keyword",
-            "textColor": "#E080C0",
+            "textColor": "#A0247A",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -202,7 +202,7 @@
         "Delay": {
             "styleName": "i18n:ASERStudio::controller.Delay",
             "identifierType": "Keyword",
-            "textColor": "#8080C0",
+            "textColor": "#5148A8",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -213,7 +213,7 @@
         "VisualEffect": {
             "styleName": "i18n:ASERStudio::controller.VisualEffect",
             "identifierType": "Keyword",
-            "textColor": "#8080FF",
+            "textColor": "#4338CA",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -224,7 +224,7 @@
         "Interlude": {
             "styleName": "i18n:ASERStudio::controller.Interlude",
             "identifierType": "Keyword",
-            "textColor": "#B0E57C",
+            "textColor": "#3E7A15",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -235,7 +235,7 @@
         "ColorMask": {
             "styleName": "i18n:ASERStudio::controller.ColorMask",
             "identifierType": "Keyword",
-            "textColor": "#80E0C0",
+            "textColor": "#00796B",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -246,7 +246,7 @@
         "Shake": {
             "styleName": "i18n:ASERStudio::controller.Shake",
             "identifierType": "Keyword",
-            "textColor": "#8080FF",
+            "textColor": "#4338CA",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -257,7 +257,7 @@
         "FreeText": {
             "styleName": "i18n:ASERStudio::controller.FreeText",
             "identifierType": "Keyword",
-            "textColor": "#C0FFC0",
+            "textColor": "#2E7D32",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -268,7 +268,7 @@
         "Cut": {
             "styleName": "i18n:ASERStudio::controller.Cut",
             "identifierType": "Keyword",
-            "textColor": "#D06060",
+            "textColor": "#B3261E",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -279,7 +279,7 @@
         "Filter": {
             "styleName": "i18n:ASERStudio::controller.Filter",
             "identifierType": "Keyword",
-            "textColor": "#8080FF",
+            "textColor": "#4338CA",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -290,7 +290,7 @@
         "AnimatedText": {
             "styleName": "i18n:ASERStudio::controller.AnimatedText",
             "identifierType": "Keyword",
-            "textColor": "#DDA0DD",
+            "textColor": "#7B1FA2",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -301,7 +301,7 @@
         "Sign": {
             "styleName": "i18n:ASERStudio::controller.Sign",
             "identifierType": "Keyword",
-            "textColor": "#00FFC0",
+            "textColor": "#00695C",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -312,7 +312,7 @@
         "Variable": {
             "styleName": "i18n:ASERStudio::controller.Variable",
             "identifierType": "Keyword",
-            "textColor": "#00C0FF",
+            "textColor": "#01579B",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -323,7 +323,7 @@
         "Judge": {
             "styleName": "i18n:ASERStudio::controller.Judge",
             "identifierType": "Keyword",
-            "textColor": "#E080C0",
+            "textColor": "#A0247A",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -334,7 +334,7 @@
         "Branch": {
             "styleName": "i18n:ASERStudio::controller.Branch",
             "identifierType": "Keyword",
-            "textColor": "#E080C0",
+            "textColor": "#A0247A",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -345,7 +345,7 @@
         "Narration": {
             "styleName": "i18n:ASERStudio::controller.Narration",
             "identifierType": "Keyword",
-            "textColor": "#80C0E0",
+            "textColor": "#1B5E8C",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -356,7 +356,7 @@
         "Dialog": {
             "styleName": "i18n:ASERStudio::controller.Dialog",
             "identifierType": "Keyword",
-            "textColor": "#80C0E0",
+            "textColor": "#1B5E8C",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -367,7 +367,7 @@
         "Preprocessor": {
             "styleName": "i18n:ASERStudio::controller.Preprocessor",
             "identifierType": "Keyword",
-            "textColor": "#D06060",
+            "textColor": "#B3261E",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -378,7 +378,7 @@
         "Aliases": {
             "styleName": "i18n:ASERStudio::controller.Aliases",
             "identifierType": "Keyword",
-            "textColor": "#D06060",
+            "textColor": "#B3261E",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",

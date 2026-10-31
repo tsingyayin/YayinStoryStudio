@@ -15,7 +15,7 @@
         "Function": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Function",
             "identifierType": "Function",
-            "textColor": "#FF00FF",
+            "textColor": "#B0009E",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -26,7 +26,7 @@
         "String": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.String",
             "identifierType": "String",
-            "textColor": "#D69D85",
+            "textColor": "#A31515",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -37,7 +37,7 @@
         "SpecialString": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.SpecialString",
             "identifierType": "SpecialString",
-            "textColor": "#D9AC5E",
+            "textColor": "#8A6D00",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -48,7 +48,7 @@
         "Number": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Number",
             "identifierType": "Number",
-            "textColor": "#829479",
+            "textColor": "#098658",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -59,7 +59,7 @@
         "Parameter": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Parameter",
             "identifierType": "Parameter",
-            "textColor": "#BDBD29",
+            "textColor": "#001080",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -70,7 +70,7 @@
         "Keyword": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Keyword",
             "identifierType": "Keyword",
-            "textColor": "#569CD6",
+            "textColor": "#0033B3",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -81,7 +81,7 @@
         "Vector": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Vector",
             "identifierType": "Vector",
-            "textColor": "#4EC9B0",
+            "textColor": "#0F7B6C",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -92,7 +92,7 @@
         "Comment": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Comment",
             "identifierType": "Comment",
-            "textColor": "#57A64A",
+            "textColor": "#008000",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -103,7 +103,7 @@
         "Enum": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Enum",
             "identifierType": "Enum",
-            "textColor": "#768A68",
+            "textColor": "#2E7D32",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
@@ -114,7 +114,7 @@
         "Macro": {
             "styleName": "i18n:ASERStudio::syntaxColorTheme.Macro",
             "identifierType": "Macro",
-            "textColor": "#C586C0",
+            "textColor": "#8E44AD",
             "bgColor": "#000000",
             "bgColorEnabled": false,
             "lineColor": "#000000",
