@@ -15,6 +15,14 @@
         "reset": "初期化",
         "cancel": "取り消し",
         "confirm": "決定",
+        "play": "再生",
+        "pause": "停止",
+        "gridSnap": "目盛り吸着",
+        "axisSnap": "軸吸着",
+        "snapHint": "目盛り吸着は基点を最寄りの目盛りや線に合わせます。軸吸着は基点を反対側の座標と横または縦に揃えようとします。",
+        "gridStep": "目盛り間隔",
+        "gridStepWidth": "幅の1/%1",
+        "gridStepUnit": "%1 単位",
         "invalid": "現在の座標を読み取れないため、既定の座標を使います。"
     },
     "diagnostic": {

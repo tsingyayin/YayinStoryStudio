@@ -275,6 +275,8 @@ namespace YSSCore::__Private__ {
 		qint32 InlayHintHoverPendingColumn = -1;
 		QString InlayHintHoverCurrentID;
 		bool InlayHintHoverDirty = true;
+		// 光标移出浮窗后不立刻收起，留一小段时间给用户把光标移回来。
+		QTimer* InlayHintHoverHideTimer = nullptr;
 		// 待抉择建议：SgtLine 在 Inline/Remove 时是目标行，在 Block 时是要在其之前插入的行号。
 		// SgtItems 中每一项都是一条建议，行内建议只有一行，多行建议有多行；删除建议没有候选内容。
 		SuggestionKind SgtKind = SuggestionKind::None;
@@ -293,6 +295,8 @@ namespace YSSCore::__Private__ {
 		YSSCore::Editor::TabCompleterItem::CompleterLevel CompleterLevel = YSSCore::Editor::TabCompleterItem::CompleterLevel::All;
 		QTimer* HoverTimer = nullptr;
 		QPoint LastMousePos;
+		// 光标离开图片提示浮窗后延迟收起的时长，期间移回浮窗即取消。
+		qint32 InlayHintHoverLeaveDelay = 300;
 		QWidget* HoverArea = nullptr;
 		QList<QTextEdit::ExtraSelection> AltMultiSelections;
 		QList<QTextEdit::ExtraSelection> FindAllMultiSelections;
@@ -329,6 +333,8 @@ namespace YSSCore::__Private__ {
 		void adjustTabCompleterPosition();
 		void adjustHoverInfoPosition(const QTextCursor& cursor);
 		void onInlayHintHoverTimeout();
+		void onInlayHintHoverHideTimeout();
+		void cancelInlayHintHoverHide();
 		void syncInlayHintHoverWidgets();
 		void ensureInlayHintHoverWidget(const QString& providerID);
 		void showInlayHintHover(qint32 lineNumber, qint32 column, const QString& multi);

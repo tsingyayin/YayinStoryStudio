@@ -12,14 +12,20 @@
 */
 #ifndef Plugin_ASERStudio_YSS_InlayPositionHoverWidget_h
 #define Plugin_ASERStudio_YSS_InlayPositionHoverWidget_h
+#include <QtCore/qelapsedtimer.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qstringlist.h>
 #include <Editor/InlayHintHoverWidget.h>
+#include "YSS/InlayPositionCurve.h"
 // Forward declarations
+class QCheckBox;
+class QComboBox;
 class QEvent;
 class QKeyEvent;
 class QLabel;
 class QPushButton;
 class QSlider;
+class QTimer;
 // Main
 namespace ASERStudio::YSS {
 	class PositionCanvas;
@@ -44,6 +50,30 @@ namespace ASERStudio::YSS {
 		double DefaultY = 0.0;
 		double DefaultZ = 10.0;
 		bool UpdatingUi = false;
+		qint32 TileCount = 1;
+		bool StitchVertically = true;
+		qint32 StitchColumnCount = 0;
+		bool EditingStart = true;
+		bool HasStartValue = false;
+		bool HasEndValue = false;
+		QString GhostLabel;
+		QList<double> StartPosition;
+		QList<double> EndPosition;
+		bool HasPlayback = false;
+		double MoveTime = 0.0;
+		double PlayheadTime = 0.0;
+		bool Playing = false;
+		InlayPositionCurve::MoveCurveSet MoveCurves;
+		QCheckBox* GridSnapBox = nullptr;
+		QCheckBox* AxisSnapBox = nullptr;
+		QComboBox* StepBox = nullptr;
+		QLabel* SnapHintLabel = nullptr;
+		QWidget* PlaybackRow = nullptr;
+		QPushButton* PlayButton = nullptr;
+		QSlider* TimeSlider = nullptr;
+		QLabel* TimeLabel = nullptr;
+		QTimer* PlaybackTimer = nullptr;
+		QElapsedTimer PlaybackClock;
 	public:
 		InlayPositionHoverWidget(QWidget* parent = nullptr);
 		virtual ~InlayPositionHoverWidget();
@@ -54,12 +84,21 @@ namespace ASERStudio::YSS {
 		virtual void changeEvent(QEvent* event) override;
 	private:
 		void buildUi();
+		QLabel* createHintLabel(const QString& text);
 		void updateConfirmButtonStyle();
 		void updateCoordinateText();
 		void updateDepthControls();
 		void setPosition(double x, double y, double z);
 		void onCanvasPositionChanged();
 		void onDepthSliderChanged(qint32 value);
+		void onPlayToggled();
+		void onPlaybackTick();
+		void onTimeSliderChanged(qint32 value);
+		void pausePlayback();
+		void updatePlaybackControls();
+		void updatePlayhead();
+		void syncGhost();
+		QList<double> evaluateMovePosition(double progress) const;
 		void onResetClicked();
 		void onCancelClicked();
 		void onConfirmClicked();

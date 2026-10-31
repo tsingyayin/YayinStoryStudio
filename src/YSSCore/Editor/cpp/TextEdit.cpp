@@ -187,6 +187,9 @@ namespace YSSCore::Editor {
 		d->HoverTimer->setInterval(d->HoverTimeout);
 		d->InlayHintHoverTimer = new QTimer(this);
 		d->InlayHintHoverTimer->setInterval(d->HoverTimeout);
+		d->InlayHintHoverHideTimer = new QTimer(this);
+		d->InlayHintHoverHideTimer->setSingleShot(true);
+		d->InlayHintHoverHideTimer->setInterval(d->InlayHintHoverLeaveDelay);
 
 		d->FindAndReplaceWidget = new YSSCore::__Private__::TextEditFindAndReplace(this);
 		d->FindAndReplaceWidget->resize(340, 180);
@@ -204,6 +207,7 @@ namespace YSSCore::Editor {
 		connect(d->Text, &QPlainTextEdit::cursorPositionChanged, this->d, &YSSCore::__Private__::TextEditPrivate::onCursorPositionChanged);
 		connect(d->HoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onHoverTimeout);
 		connect(d->InlayHintHoverTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onInlayHintHoverTimeout);
+		connect(d->InlayHintHoverHideTimer, &QTimer::timeout, this->d, &YSSCore::__Private__::TextEditPrivate::onInlayHintHoverHideTimeout);
 		connect(d->Text, &QPlainTextEdit::textChanged, [this]() {
 			// 整篇着色期间文档会短暂处于"还没有格式"的状态，此时不要去刷新缩略图，
 			// 否则拿到的是空数据、缩略图会整片变白；着色结束后由 wholeDocumentHighlighted 刷新一次。

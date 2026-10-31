@@ -142,6 +142,7 @@
     <ClCompile Include="YSS\cpp\ImageCacheHelper.cpp" />
     <ClCompile Include="YSS\cpp\InlayColorHoverWidget.cpp" />
     <ClCompile Include="YSS\cpp\InlayColorProvider.cpp" />
+    <ClCompile Include="YSS\cpp\InlayPositionCurve.cpp" />
     <ClCompile Include="YSS\cpp\InlayPositionHoverWidget.cpp" />
     <ClCompile Include="YSS\cpp\InlayPositionProvider.cpp" />
     <ClCompile Include="YSS\cpp\WAVViewHelper.cpp" />
@@ -170,6 +171,7 @@
     <QtMoc Include="YSS\ImageCacheHelper.h" />
     <QtMoc Include="YSS\InlayColorHoverWidget.h" />
     <QtMoc Include="YSS\InlayColorProvider.h" />
+    <ClInclude Include="YSS\InlayPositionCurve.h" />
     <QtMoc Include="YSS\InlayPositionHoverWidget.h" />
     <QtMoc Include="YSS\InlayPositionProvider.h" />
     <QtMoc Include="YSS\ASERFileServer.h" />

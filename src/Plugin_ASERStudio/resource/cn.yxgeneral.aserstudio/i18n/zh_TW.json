@@ -15,6 +15,14 @@
         "reset": "重設",
         "cancel": "取消",
         "confirm": "確定",
+        "play": "播放",
+        "pause": "暫停",
+        "gridSnap": "網格吸附",
+        "axisSnap": "平直吸附",
+        "snapHint": "網格吸附會把錨點吸到最近的格點或格線；平直吸附會嘗試讓錨點與另一端的座標在水平或垂直方向上對齊。",
+        "gridStep": "網格間距",
+        "gridStepWidth": "1/%1 寬",
+        "gridStepUnit": "%1 單位",
         "invalid": "目前座標無法解析，已使用預設座標。"
     },
     "diagnostic": {

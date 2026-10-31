@@ -13,6 +13,7 @@
 #include <cmath>
 #include <functional>
 #include <QtCore/qstringlist.h>
+#include <QtCore/qtimer.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qfontdatabase.h>
@@ -22,6 +23,8 @@
 #include <QtGui/qpen.h>
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qslider.h>
@@ -29,6 +32,7 @@
 #include <Widgets/LiquidGlassEffect.h>
 #include <Widgets/ThemeManager.h>
 #include <General/TranslationHost.h>
+#include "YSS/InlayPositionCurve.h"
 #include "YSS/InlayPositionHoverWidget.h"
 #include "YSS/InlayPositionProvider.h"
 namespace ASERStudio::YSS {
@@ -43,15 +47,40 @@ namespace ASERStudio::YSS {
 		double X = 0.0;
 		double Y = 0.0;
 		double Z = 10.0;
+		qint32 TileCount = 1;
+		bool StitchVertically = true;
+		qint32 StitchColumnCount = 0;
+		bool GhostVisible = false;
+		double GhostX = 0.0;
+		double GhostY = 0.0;
+		double GhostZ = 10.0;
+		QString GhostLabel;
+		bool PlayheadVisible = false;
+		double PlayheadX = 0.0;
+		double PlayheadY = 0.0;
+		double PlayheadZ = 10.0;
+		bool PathVisible = false;
+		QList<QPointF> MotionPath;
+		bool GridSnapEnabled = true;
+		bool AxisSnapEnabled = true;
+		// 网格步长直接用ASER坐标单位表示，绘制与吸附共用同一个值。
+		double GridStep = InlayPositionGeometry::ScreenWidth / 8.0;
 		bool Dragging = false;
 		QPointF DragStartMouse;
 		double DragStartX = 0.0;
 		double DragStartY = 0.0;
+		// 吸附判定按屏幕像素算，这样不同窗口大小下手感一致。
+		static constexpr qreal SnapThresholdPixels = 7.0;
+		// 低于该间距时网格改用淡实线绘制。
+		static constexpr qreal CoarseGridPixels = 6.0;
+		// 网格线的最小可见间距，达不到就直接不画。
+		static constexpr qreal MinimumGridPixels = 2.0;
 	public:
 		std::function<void()> PositionChanged;
 	public:
 		PositionCanvas(QWidget* parent = nullptr) :QWidget(parent) {
-			this->setMinimumSize(480, 270);
+			// 高度不能太矮，否则按三分之一算出来的屏幕预览会小到难以拖动。
+			this->setMinimumSize(480, 340);
 			this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			this->setMouseTracking(true);
 			this->setFocusPolicy(Qt::StrongFocus);
@@ -83,6 +112,43 @@ namespace ASERStudio::YSS {
 		double getZ() const {
 			return Z;
 		}
+		void setStitchLayout(qint32 tileCount, bool stitchVertically, qint32 columnCount) {
+			// 上限只用于防御异常行，正常背景不会有这么多张图。
+			TileCount = qBound(1, tileCount, 64);
+			StitchVertically = stitchVertically;
+			StitchColumnCount = columnCount;
+			this->update();
+		}
+		void setGhost(bool visible, double x, double y, double z, const QString& label) {
+			GhostVisible = visible;
+			GhostX = x;
+			GhostY = y;
+			GhostZ = qBound(0.1, z, 100.0);
+			GhostLabel = label;
+			this->update();
+		}
+		void setMotionPath(const QList<QPointF>& pathInUnits) {
+			MotionPath = pathInUnits;
+			PathVisible = pathInUnits.size() >= 2;
+			this->update();
+		}
+		void setPlayhead(bool visible, double x, double y, double z) {
+			PlayheadVisible = visible;
+			PlayheadX = x;
+			PlayheadY = y;
+			PlayheadZ = qBound(0.1, z, 100.0);
+			this->update();
+		}
+		void setGridSnapEnabled(bool enabled) {
+			GridSnapEnabled = enabled;
+		}
+		void setAxisSnapEnabled(bool enabled) {
+			AxisSnapEnabled = enabled;
+		}
+		void setGridStep(double step) {
+			GridStep = qBound(0.01, step, InlayPositionGeometry::ScreenWidth);
+			this->update();
+		}
 	protected:
 		virtual void paintEvent(QPaintEvent* event) override {
 			Q_UNUSED(event);
@@ -106,38 +172,111 @@ namespace ASERStudio::YSS {
 			painter.setPen(Qt::NoPen);
 			painter.drawRect(screen);
 
-			painter.save();
-			painter.setClipRect(screen);
-			const qreal pixelsPerUnit = getPixelsPerUnit();
-			QColor gridColor = textColor;
-			gridColor.setAlpha(30);
-			painter.setPen(QPen(gridColor, 1.0, Qt::DotLine));
-			for (qint32 i = -6; i <= 6; ++i) {
-				const qreal x = screen.center().x() + i * pixelsPerUnit;
-				painter.drawLine(QPointF(x, screen.top()), QPointF(x, screen.bottom()));
-			}
-			for (qint32 i = -3; i <= 3; ++i) {
-				const qreal y = screen.center().y() - i * pixelsPerUnit;
-				painter.drawLine(QPointF(screen.left(), y), QPointF(screen.right(), y));
+			// 网格铺满整个画布而不是只画在屏幕内，屏幕外的对象也能按格对齐。
+			// 密度按屏幕宽度的等分计算，格子在世界坐标里是正方形，和吸附步长一致。
+			const QRectF canvasRect = QRectF(this->rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+			// 网格按实际步长绘制，间距小到画不出来时就不画，不做抽稀。
+			const qreal step = GridStep * getPixelsPerUnit();
+			if (step >= MinimumGridPixels) {
+				QColor gridColor = textColor;
+				if (step >= CoarseGridPixels) {
+					gridColor.setAlpha(30);
+					painter.setPen(QPen(gridColor, 1.0, Qt::DotLine));
+				}
+				else {
+					// 极密的网格改用更淡的实线，点线在这个间距下会糊成一片。
+					gridColor.setAlpha(14);
+					painter.setPen(QPen(gridColor, 1.0, Qt::SolidLine));
+				}
+				const qint32 leftCount = qint32(std::ceil((screen.center().x() - canvasRect.left()) / step));
+				const qint32 rightCount = qint32(std::ceil((canvasRect.right() - screen.center().x()) / step));
+				for (qint32 i = -leftCount; i <= rightCount; ++i) {
+					const qreal x = screen.center().x() + i * step;
+					painter.drawLine(QPointF(x, canvasRect.top()), QPointF(x, canvasRect.bottom()));
+				}
+				const qint32 topCount = qint32(std::ceil((screen.center().y() - canvasRect.top()) / step));
+				const qint32 bottomCount = qint32(std::ceil((canvasRect.bottom() - screen.center().y()) / step));
+				for (qint32 i = -topCount; i <= bottomCount; ++i) {
+					const qreal y = screen.center().y() + i * step;
+					painter.drawLine(QPointF(canvasRect.left(), y), QPointF(canvasRect.right(), y));
+				}
 			}
 			QColor axisColor = textColor;
 			axisColor.setAlpha(90);
 			painter.setPen(QPen(axisColor, 1.0));
-			painter.drawLine(QPointF(screen.center().x(), screen.top()),
-				QPointF(screen.center().x(), screen.bottom()));
-			painter.drawLine(QPointF(screen.left(), screen.center().y()),
-				QPointF(screen.right(), screen.center().y()));
-			painter.restore();
+			painter.drawLine(QPointF(screen.center().x(), canvasRect.top()),
+				QPointF(screen.center().x(), canvasRect.bottom()));
+			painter.drawLine(QPointF(canvasRect.left(), screen.center().y()),
+				QPointF(canvasRect.right(), screen.center().y()));
 
-			const QRectF object = getObjectRect();
-			if (not object.isEmpty()) {
-				QColor objectFill = accent;
-				objectFill.setAlpha(Kind == ObjectKind::Character ? 70 : 55);
-				QColor objectBorder = accent;
-				objectBorder.setAlpha(230);
+			// 对照对象（另一端坐标）在最低层，用中性的灰色描出，避免和正在编辑的对象抢注意力。
+			if (GhostVisible) {
+				QColor ghostFill = textColor;
+				ghostFill.setAlpha(22);
+				QColor ghostBorder = textColor;
+				ghostBorder.setAlpha(130);
+				painter.setBrush(ghostFill);
+				painter.setPen(QPen(ghostBorder, 1.4, Qt::DotLine));
+				const QList<QRectF> ghostRects = buildObjectRects(GhostX, GhostY, GhostZ);
+				for (const QRectF& rect : ghostRects) {
+					painter.drawRect(rect);
+				}
+				if (not ghostRects.isEmpty() and not GhostLabel.isEmpty()) {
+					QFont ghostFont = this->font();
+					ghostFont.setPointSizeF(qMax(7.0, ghostFont.pointSizeF() * 0.85));
+					painter.setFont(ghostFont);
+					QColor ghostText = textColor;
+					ghostText.setAlpha(190);
+					painter.setPen(ghostText);
+					const QFontMetricsF ghostMetrics(ghostFont);
+					painter.drawText(QPointF(ghostRects.first().left(),
+						ghostRects.first().top() - ghostMetrics.descent() - 2.0), GhostLabel);
+				}
+			}
+
+			// 运动轨迹：按曲线采样，帮助判断缓动后的速度分布。
+			if (PathVisible) {
+				QColor pathColor = accent;
+				pathColor.setAlpha(70);
+				painter.setBrush(Qt::NoBrush);
+				painter.setPen(QPen(pathColor, 1.2, Qt::DotLine));
+				QPolygonF polyline;
+				polyline.reserve(MotionPath.size());
+				for (const QPointF& point : MotionPath) {
+					polyline.append(toWidget(point.x(), point.y()));
+				}
+				painter.drawPolyline(polyline);
+			}
+
+			// 播放游标，与正在编辑的对象区分开，用虚线描边。
+			if (PlayheadVisible) {
+				QColor playheadFill = accent;
+				playheadFill.setAlpha(34);
+				QColor playheadBorder = accent;
+				playheadBorder.setAlpha(190);
+				painter.setBrush(playheadFill);
+				painter.setPen(QPen(playheadBorder, 1.6, Qt::DashLine));
+				const QList<QRectF> playheadRects = buildObjectRects(PlayheadX, PlayheadY, PlayheadZ);
+				for (const QRectF& rect : playheadRects) {
+					painter.drawRect(rect);
+				}
+			}
+
+			const QList<QRectF> objectRects = buildObjectRects(X, Y, Z);
+			if (not objectRects.isEmpty()) {
+				// 播放游标出现时，正在编辑的对象退成灰色实线框，把强调色让给动画对象。
+				const bool muted = PlayheadVisible;
+				const QColor objectColor = muted ? textColor : accent;
+				QColor objectFill = objectColor;
+				objectFill.setAlpha(muted ? 20 : (Kind == ObjectKind::Character ? 70 : 55));
+				QColor objectBorder = objectColor;
+				objectBorder.setAlpha(muted ? 150 : 230);
 				painter.setBrush(objectFill);
-				painter.setPen(QPen(objectBorder, 2.0));
-				painter.drawRect(object);
+				// 拼贴时每格各自描边，格与格之间的边就是分界线。
+				painter.setPen(QPen(objectBorder, objectRects.size() > 1 ? 1.6 : 2.0));
+				for (const QRectF& rect : objectRects) {
+					painter.drawRect(rect);
+				}
 
 				QColor anchorColor = accent;
 				anchorColor.setAlpha(230);
@@ -187,7 +326,7 @@ namespace ASERStudio::YSS {
 				Qt::AlignLeft | Qt::AlignVCenter, rightText);
 		}
 		virtual void mousePressEvent(QMouseEvent* event) override {
-			if (event->button() == Qt::LeftButton and getObjectRect().contains(event->position())) {
+			if (event->button() == Qt::LeftButton and getObjectBounds(X, Y, Z).contains(event->position())) {
 				Dragging = true;
 				DragStartMouse = event->position();
 				DragStartX = X;
@@ -203,6 +342,7 @@ namespace ASERStudio::YSS {
 			if (Dragging) {
 				const qreal pixelsPerUnit = getPixelsPerUnit();
 				if (pixelsPerUnit > 0.0) {
+					// 拖动过程保持完全自由，吸附只在松开鼠标时生效，避免手上有格点感。
 					X = DragStartX + (event->position().x() - DragStartMouse.x()) / pixelsPerUnit;
 					Y = DragStartY - (event->position().y() - DragStartMouse.y()) / pixelsPerUnit;
 					this->update();
@@ -213,14 +353,23 @@ namespace ASERStudio::YSS {
 				event->accept();
 				return;
 			}
-			this->setCursor(getObjectRect().contains(event->position())
+			this->setCursor(getObjectBounds(X, Y, Z).contains(event->position())
 				? Qt::OpenHandCursor : Qt::ArrowCursor);
 			QWidget::mouseMoveEvent(event);
 		}
 		virtual void mouseReleaseEvent(QMouseEvent* event) override {
 			if (Dragging and event->button() == Qt::LeftButton) {
 				Dragging = false;
-				this->setCursor(getObjectRect().contains(event->position())
+				const QPointF snapped = snapPosition(X, Y);
+				if (snapped.x() != X or snapped.y() != Y) {
+					X = snapped.x();
+					Y = snapped.y();
+					this->update();
+					if (PositionChanged) {
+						PositionChanged();
+					}
+				}
+				this->setCursor(getObjectBounds(X, Y, Z).contains(event->position())
 					? Qt::OpenHandCursor : Qt::ArrowCursor);
 				event->accept();
 				return;
@@ -228,7 +377,7 @@ namespace ASERStudio::YSS {
 			QWidget::mouseReleaseEvent(event);
 		}
 		virtual void wheelEvent(QWheelEvent* event) override {
-			if (not getObjectRect().contains(event->position())) {
+			if (not getObjectBounds(X, Y, Z).contains(event->position())) {
 				QWidget::wheelEvent(event);
 				return;
 			}
@@ -251,21 +400,16 @@ namespace ASERStudio::YSS {
 			if (area.width() <= 1.0 or area.height() <= 1.0) {
 				return QRectF();
 			}
-			// 屏幕预览占画布面积的一半，同时保持16:9的宽高比与X/Y等比例。
-			const qreal targetArea = area.width() * area.height() * 0.5;
-			qreal width = std::sqrt(targetArea * InlayPositionGeometry::ScreenWidth
-				/ InlayPositionGeometry::ScreenHeight);
-			qreal height = width * InlayPositionGeometry::ScreenHeight
-				/ InlayPositionGeometry::ScreenWidth;
-			if (width > area.width()) {
-				width = area.width();
-				height = width * InlayPositionGeometry::ScreenHeight
-					/ InlayPositionGeometry::ScreenWidth;
-			}
-			if (height > area.height()) {
-				height = area.height();
-				width = height * InlayPositionGeometry::ScreenWidth
-					/ InlayPositionGeometry::ScreenHeight;
+			// 屏幕四周至少留出一倍屏幕宽高的空间，所以预览最多只占可用区域的三分之一。
+			// 画布通常是横向偏扁的，只按面积比例算会让屏幕在高方向上占掉大半，这里按边分别约束。
+			const qreal maxWidth = area.width() / 3.0;
+			const qreal maxHeight = area.height() / 3.0;
+			const qreal aspectRatio = InlayPositionGeometry::ScreenWidth / InlayPositionGeometry::ScreenHeight;
+			qreal width = maxWidth;
+			qreal height = width / aspectRatio;
+			if (height > maxHeight) {
+				height = maxHeight;
+				width = height * aspectRatio;
 			}
 			return QRectF(area.center().x() - width / 2.0, area.center().y() - height / 2.0,
 				width, height);
@@ -283,21 +427,79 @@ namespace ASERStudio::YSS {
 			return QPointF(screen.center().x() + x * pixelsPerUnit,
 				screen.center().y() - y * pixelsPerUnit);
 		}
-		QRectF getObjectRect() const {
-			const QRectF screen = getScreenRect();
-			if (screen.isEmpty()) {
-				return QRectF();
-			}
+		// 网格吸附先做，平直吸附后做，两者同时命中时以对齐另一端为准。
+		QPointF snapPosition(double x, double y) const {
 			const qreal pixelsPerUnit = getPixelsPerUnit();
-			double width = 0.0;
-			double height = 0.0;
-			InlayPositionProvider::getObjectSize(Kind == ObjectKind::Character, Z, &width, &height);
-			const double offsetY = Kind == ObjectKind::Character
-				? InlayPositionProvider::getCharacterAnchorOffsetY(Z) : 0.0;
-			const QPointF center = toWidget(X, Y + offsetY);
-			return QRectF(center.x() - width * pixelsPerUnit / 2.0,
-				center.y() - height * pixelsPerUnit / 2.0,
-				width * pixelsPerUnit, height * pixelsPerUnit);
+			if (pixelsPerUnit <= 0.0) {
+				return QPointF(x, y);
+			}
+			const double threshold = SnapThresholdPixels / pixelsPerUnit;
+			if (GridSnapEnabled) {
+				const double gridX = std::round(x / GridStep) * GridStep;
+				const double gridY = std::round(y / GridStep) * GridStep;
+				if (std::abs(x - gridX) <= threshold) {
+					x = gridX;
+				}
+				if (std::abs(y - gridY) <= threshold) {
+					y = gridY;
+				}
+			}
+			if (AxisSnapEnabled and GhostVisible) {
+				if (std::abs(x - GhostX) <= threshold) {
+					x = GhostX;
+				}
+				if (std::abs(y - GhostY) <= threshold) {
+					y = GhostY;
+				}
+			}
+			return QPointF(x, y);
+		}
+		qint32 getCellsPerLine() const {
+			return StitchColumnCount > 0 ? StitchColumnCount : qMax(1, TileCount);
+		}
+		// 背景拼贴时每张图片各占一格，第一格的中心就是坐标点本身。
+		QList<QRectF> buildObjectRects(double x, double y, double z) const {
+			QList<QRectF> rects;
+			const QRectF screen = getScreenRect();
+			const qreal pixelsPerUnit = getPixelsPerUnit();
+			if (screen.isEmpty() or pixelsPerUnit <= 0.0) {
+				return rects;
+			}
+			if (Kind == ObjectKind::Character) {
+				double width = 0.0;
+				double height = 0.0;
+				InlayPositionProvider::getObjectSize(true, z, &width, &height);
+				const QPointF center = toWidget(x, y + InlayPositionProvider::getCharacterAnchorOffsetY(z));
+				rects.append(QRectF(center.x() - width * pixelsPerUnit / 2.0,
+					center.y() - height * pixelsPerUnit / 2.0,
+					width * pixelsPerUnit, height * pixelsPerUnit));
+				return rects;
+			}
+			double cellWidth = 0.0;
+			double cellHeight = 0.0;
+			InlayPositionProvider::getObjectSize(false, z, &cellWidth, &cellHeight);
+			const qint32 perLine = getCellsPerLine();
+			const qint32 count = qMax(1, TileCount);
+			for (qint32 index = 0; index < count; ++index) {
+				const qint32 line = index / perLine;
+				const qint32 indexInLine = index % perLine;
+				// 垂直拼贴沿+Y向上铺，铺满一行后向右另起一列；水平拼贴则相反。
+				const double offsetX = StitchVertically ? line * cellWidth : indexInLine * cellWidth;
+				const double offsetY = StitchVertically ? indexInLine * cellHeight : line * cellHeight;
+				const QPointF center = toWidget(x + offsetX, y + offsetY);
+				rects.append(QRectF(center.x() - cellWidth * pixelsPerUnit / 2.0,
+					center.y() - cellHeight * pixelsPerUnit / 2.0,
+					cellWidth * pixelsPerUnit, cellHeight * pixelsPerUnit));
+			}
+			return rects;
+		}
+		QRectF getObjectBounds(double x, double y, double z) const {
+			QRectF bounds;
+			const QList<QRectF> rects = buildObjectRects(x, y, z);
+			for (const QRectF& rect : rects) {
+				bounds = bounds.isNull() ? rect : bounds.united(rect);
+			}
+			return bounds;
 		}
 	};
 
@@ -307,9 +509,19 @@ namespace ASERStudio::YSS {
 		\since ASERStudio 2.5.0
 		\inmodule ASERStudio
 
-		浮窗显示一个按ASE Remake坐标约定绘制的屏幕预览。用户可以直接拖动立绘或背景对象，
+		浮窗显示一个按ASE Remake坐标约定绘制的屏幕预览。屏幕只占画布的一小块，
+		四周留有空间摆放屏幕外的对象。用户可以直接拖动立绘或背景对象，
 		也可以通过鼠标滚轮或下方的深度滑条调整Z。按“重置”回到当前插槽的默认坐标，
 		按“取消”关闭浮窗，按“确定”把坐标写回原文中的StartPosition或EndPosition参数。
+
+		画布背景带有可调间距的网格。拖动过程始终是自由的，只在松开鼠标时按“网格吸附”
+		对齐到附近的格点，或按“平直吸附”对齐到另一端的水平、垂直位置。
+
+		背景在必填参数中写有多张图片时会按StitchVertically和StitchColumnCount拼贴成一整块，
+		每张图片各自用边框分出边界。另一端的坐标始终以灰色虚线画在底层，方便对照起止位置。
+		参数中设置了MoveTime时，浮窗底部会出现播放按钮和时间轴，可以按MoveCurve给出的曲线
+		预览对象在该段时间内的移动过程。动画对象用强调色虚线表示，正在编辑的对象此时会退成灰色，
+		避免两者叠在一起看不清。
 	*/
 	InlayPositionHoverWidget::InlayPositionHoverWidget(QWidget* parent) :
 		InlayHintHoverWidget(parent) {
@@ -361,16 +573,71 @@ namespace ASERStudio::YSS {
 		depthLayout->addWidget(DepthValueLabel);
 		layout->addLayout(depthLayout);
 
-		HintLabel = new QLabel(VITRL("ASERStudio::inlayPosition.hint"), this);
-		HintLabel->setWordWrap(true);
-		QFont hintFont = HintLabel->font();
-		hintFont.setPointSizeF(hintFont.pointSizeF() * 0.9);
-		HintLabel->setFont(hintFont);
-		QPalette hintPalette = HintLabel->palette();
-		QColor hintColor = hintPalette.color(QPalette::WindowText);
-		hintColor.setAlpha(170);
-		hintPalette.setColor(QPalette::WindowText, hintColor);
-		HintLabel->setPalette(hintPalette);
+		auto* snapLayout = new QHBoxLayout();
+		snapLayout->setContentsMargins(0, 0, 0, 0);
+		snapLayout->setSpacing(12);
+		GridSnapBox = new QCheckBox(VITRL("ASERStudio::inlayPosition.gridSnap"), this);
+		GridSnapBox->setCursor(Qt::PointingHandCursor);
+		GridSnapBox->setChecked(true);
+		AxisSnapBox = new QCheckBox(VITRL("ASERStudio::inlayPosition.axisSnap"), this);
+		AxisSnapBox->setCursor(Qt::PointingHandCursor);
+		AxisSnapBox->setChecked(true);
+		auto* stepLabel = new QLabel(VITRL("ASERStudio::inlayPosition.gridStep"), this);
+		StepBox = new QComboBox(this);
+		StepBox->setCursor(Qt::PointingHandCursor);
+		const QString widthFormat = VITRL("ASERStudio::inlayPosition.gridStepWidth");
+		const QString unitFormat = VITRL("ASERStudio::inlayPosition.gridStepUnit");
+		auto addWidthStep = [this, &widthFormat](qint32 divisor) {
+			StepBox->addItem(widthFormat.arg(divisor),
+				InlayPositionGeometry::ScreenWidth / divisor);
+			};
+		auto addUnitStep = [this, &unitFormat](const QString& text, double step) {
+			StepBox->addItem(unitFormat.arg(text), step);
+			};
+		// 按实际网格宽度从大到小排列，便于直观比较间距。
+		addWidthStep(8);
+		addUnitStep(QStringLiteral("1"), 1.0);
+		addWidthStep(16);
+		addUnitStep(QStringLiteral("0.5"), 0.5);
+		addWidthStep(32);
+		addUnitStep(QStringLiteral("0.25"), 0.25);
+		addUnitStep(QStringLiteral("0.1"), 0.1);
+		StepBox->setCurrentIndex(0);
+		snapLayout->addWidget(GridSnapBox);
+		snapLayout->addWidget(AxisSnapBox);
+		snapLayout->addStretch(1);
+		snapLayout->addWidget(stepLabel);
+		snapLayout->addWidget(StepBox);
+		layout->addLayout(snapLayout);
+		SnapHintLabel = createHintLabel(VITRL("ASERStudio::inlayPosition.snapHint"));
+		// 说明较长，按两行预留高度，窗口被压扁时也不会裁掉文字。
+		SnapHintLabel->setMinimumHeight(QFontMetrics(SnapHintLabel->font()).lineSpacing() * 2);
+		layout->addWidget(SnapHintLabel);
+
+		// 只有在设置了移动时间时才显示动画速览。
+		PlaybackRow = new QWidget(this);
+		auto* playbackLayout = new QHBoxLayout(PlaybackRow);
+		playbackLayout->setContentsMargins(0, 0, 0, 0);
+		playbackLayout->setSpacing(8);
+		PlayButton = new QPushButton(VITRL("ASERStudio::inlayPosition.play"), PlaybackRow);
+		PlayButton->setCursor(Qt::PointingHandCursor);
+		PlayButton->setMinimumHeight(26);
+		PlayButton->setMinimumWidth(64);
+		TimeSlider = new QSlider(Qt::Horizontal, PlaybackRow);
+		TimeSlider->setRange(0, 1000);
+		TimeSlider->setSingleStep(5);
+		TimeSlider->setPageStep(100);
+		TimeLabel = new QLabel(PlaybackRow);
+		TimeLabel->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+		TimeLabel->setMinimumWidth(104);
+		TimeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+		playbackLayout->addWidget(PlayButton);
+		playbackLayout->addWidget(TimeSlider, 1);
+		playbackLayout->addWidget(TimeLabel);
+		PlaybackRow->setVisible(false);
+		layout->addWidget(PlaybackRow);
+
+		HintLabel = createHintLabel(VITRL("ASERStudio::inlayPosition.hint"));
 		// 预留两行，避免较长的译文在浮窗里被裁掉。
 		HintLabel->setMinimumHeight(QFontMetrics(HintLabel->font()).lineSpacing() * 2);
 		layout->addWidget(HintLabel);
@@ -399,8 +666,29 @@ namespace ASERStudio::YSS {
 		connect(ResetButton, &QPushButton::clicked, this, &InlayPositionHoverWidget::onResetClicked);
 		connect(CancelButton, &QPushButton::clicked, this, &InlayPositionHoverWidget::onCancelClicked);
 		connect(ConfirmButton, &QPushButton::clicked, this, &InlayPositionHoverWidget::onConfirmClicked);
+		connect(GridSnapBox, &QCheckBox::toggled, this, [this](bool checked) {
+			if (Canvas != nullptr) {
+				Canvas->setGridSnapEnabled(checked);
+			}
+			});
+		connect(AxisSnapBox, &QCheckBox::toggled, this, [this](bool checked) {
+			if (Canvas != nullptr) {
+				Canvas->setAxisSnapEnabled(checked);
+			}
+			});
+		connect(StepBox, &QComboBox::currentIndexChanged, this, [this](qint32 index) {
+			if (Canvas == nullptr or StepBox == nullptr) {
+				return;
+			}
+			Canvas->setGridStep(StepBox->itemData(index).toDouble());
+			});
+		connect(PlayButton, &QPushButton::clicked, this, &InlayPositionHoverWidget::onPlayToggled);
+		connect(TimeSlider, &QSlider::valueChanged, this, &InlayPositionHoverWidget::onTimeSliderChanged);
+		PlaybackTimer = new QTimer(this);
+		PlaybackTimer->setInterval(16);
+		connect(PlaybackTimer, &QTimer::timeout, this, &InlayPositionHoverWidget::onPlaybackTick);
 		// changeEvent 不一定会把应用级调色板变化送到带显式调色板的子控件。
-		// 主题切换走 ThemeManager 信号，系统调色板变化再监听 Qt 信号兜底。
+		// 主题切换走ThemeManager 信号，系统调色板变化再监听Qt 信号兜底。
 		connect(VISTM, &Visindigo::Widgets::ThemeManager::programThemeChanged,
 			this, &InlayPositionHoverWidget::updateConfirmButtonStyle);
 		connect(qApp, &QGuiApplication::paletteChanged,
@@ -416,18 +704,33 @@ namespace ASERStudio::YSS {
 		Visindigo::Widgets::LiquidGlassEffect::applyForegroundAlpha(this);
 	}
 
+	// 说明文字统一用略小、半透明的样式，避免和参数内容抢视线。
+	QLabel* InlayPositionHoverWidget::createHintLabel(const QString& text) {
+		auto* label = new QLabel(text, this);
+		label->setWordWrap(true);
+		QFont hintFont = label->font();
+		hintFont.setPointSizeF(hintFont.pointSizeF() * 0.9);
+		label->setFont(hintFont);
+		QPalette hintPalette = label->palette();
+		QColor hintColor = hintPalette.color(QPalette::WindowText);
+		hintColor.setAlpha(170);
+		hintPalette.setColor(QPalette::WindowText, hintColor);
+		label->setPalette(hintPalette);
+		return label;
+	}
+
 	void InlayPositionHoverWidget::updateConfirmButtonStyle() {
 		if (ConfirmButton == nullptr) {
 			return;
 		}
-		// 正常路径由 ThemeManager 的 VST 令牌解析颜色；这里传 nullptr，让 $[...]
+		// 正常路径用ThemeManager 的VST 令牌解析颜色；这里传 nullptr，让 $[...]
 		// 按应用调色板而不是浮窗自己的显式调色板取值。
 		const QString themeStyle = VISTMGT("ASERStudio::Editor.InlayPosition.Confirm", nullptr);
 		if (not themeStyle.isEmpty()) {
 			ConfirmButton->setStyleSheet(themeStyle);
 			return;
 		}
-		// 模板未注册时（例如独立测试）退回 ColorTool 推导，保证按钮仍有可读样式。
+		// 模板未注册时（例如独立测试）退回ColorTool 推导，保证按钮仍有可读样式。
 		const QPalette currentPalette = QApplication::palette();
 		const QColor accent = Visindigo::Utility::ColorTool::paletteColor(
 			currentPalette, Visindigo::Utility::ColorTool::PaletteColor::AccentFill);
@@ -452,6 +755,11 @@ namespace ASERStudio::YSS {
 			or event->type() == QEvent::StyleChange
 			or event->type() == QEvent::ThemeChange) {
 			updateConfirmButtonStyle();
+		}
+		// 浮窗收起后没有必要继续空转定时器。
+		if (event->type() == QEvent::Hide) {
+			pausePlayback();
+			updatePlaybackControls();
 		}
 		InlayHintHoverWidget::changeEvent(event);
 	}
@@ -490,8 +798,13 @@ namespace ASERStudio::YSS {
 	}
 
 	void InlayPositionHoverWidget::onCanvasPositionChanged() {
+		// 用户开始编辑时先停住速览，避免游标与拖动的对象各说各话。
+		pausePlayback();
 		updateCoordinateText();
 		updateDepthControls();
+		syncGhost();
+		updatePlaybackControls();
+		updatePlayhead();
 	}
 
 	void InlayPositionHoverWidget::onDepthSliderChanged(qint32 value) {
@@ -503,10 +816,151 @@ namespace ASERStudio::YSS {
 		if (DepthValueLabel != nullptr) {
 			DepthValueLabel->setText(InlayPositionProvider::formatCoordinate(Canvas->getZ()));
 		}
+		syncGhost();
+		updatePlayhead();
+	}
+
+	// 拖动后正在编辑的一端跟着变，另一端若没有显式写死就跟着起点走，与ASE的默认值一致。
+	void InlayPositionHoverWidget::syncGhost() {
+		if (Canvas == nullptr) {
+			return;
+		}
+		const QList<double> current = { Canvas->getX(), Canvas->getY(), Canvas->getZ() };
+		if (EditingStart) {
+			StartPosition = current;
+			if (not HasEndValue) {
+				EndPosition = StartPosition;
+			}
+		}
+		else {
+			EndPosition = current;
+		}
+		const QList<double> ghost = EditingStart ? EndPosition : StartPosition;
+		if (ghost.size() < 3) {
+			return;
+		}
+		Canvas->setGhost(true, ghost.at(0), ghost.at(1), ghost.at(2), GhostLabel);
+	}
+
+	QList<double> InlayPositionHoverWidget::evaluateMovePosition(double progress) const {
+		QList<double> result;
+		if (StartPosition.size() < 3 or EndPosition.size() < 3) {
+			return result;
+		}
+		const double progressX = InlayPositionCurve::evaluate(MoveCurves.X, progress);
+		const double progressY = InlayPositionCurve::evaluate(MoveCurves.Y, progress);
+		const double progressZ = InlayPositionCurve::evaluate(MoveCurves.Z, progress);
+		auto lerp = [](double from, double to, double ratio) {
+			return from + (to - from) * ratio;
+			};
+		result << lerp(StartPosition.at(0), EndPosition.at(0), progressX)
+			<< lerp(StartPosition.at(1), EndPosition.at(1), progressY)
+			<< lerp(StartPosition.at(2), EndPosition.at(2), progressZ);
+		return result;
+	}
+
+	void InlayPositionHoverWidget::updatePlayhead() {
+		if (Canvas == nullptr) {
+			return;
+		}
+		if (not HasPlayback or StartPosition.size() < 3 or EndPosition.size() < 3) {
+			Canvas->setMotionPath(QList<QPointF>());
+			Canvas->setPlayhead(false, 0.0, 0.0, 10.0);
+			return;
+		}
+		const double progress = MoveTime > 0.0 ? qBound(0.0, PlayheadTime / MoveTime, 1.0) : 1.0;
+		const QList<double> position = evaluateMovePosition(progress);
+		QList<QPointF> path;
+		constexpr qint32 PathSamples = 48;
+		path.reserve(PathSamples + 1);
+		for (qint32 index = 0; index <= PathSamples; ++index) {
+			const QList<double> sample = evaluateMovePosition(double(index) / PathSamples);
+			if (sample.size() >= 2) {
+				path.append(QPointF(sample.at(0), sample.at(1)));
+			}
+		}
+		Canvas->setMotionPath(path);
+		Canvas->setPlayhead(Playing or PlayheadTime > 0.0,
+			position.value(0), position.value(1), position.value(2));
+	}
+
+	void InlayPositionHoverWidget::updatePlaybackControls() {
+		if (PlayButton == nullptr or TimeSlider == nullptr) {
+			return;
+		}
+		UpdatingUi = true;
+		const qint32 sliderValue = MoveTime > 0.0
+			? qRound(PlayheadTime / MoveTime * TimeSlider->maximum())
+			: TimeSlider->minimum();
+		TimeSlider->setValue(qBound(TimeSlider->minimum(), sliderValue, TimeSlider->maximum()));
+		UpdatingUi = false;
+		PlayButton->setText(Playing ? VITRL("ASERStudio::inlayPosition.pause")
+			: VITRL("ASERStudio::inlayPosition.play"));
+		if (TimeLabel != nullptr) {
+			TimeLabel->setText(QStringLiteral("%1 / %2 s")
+				.arg(InlayPositionProvider::formatCoordinate(PlayheadTime),
+					InlayPositionProvider::formatCoordinate(MoveTime)));
+		}
+	}
+
+	void InlayPositionHoverWidget::pausePlayback() {
+		Playing = false;
+		if (PlaybackTimer != nullptr) {
+			PlaybackTimer->stop();
+		}
+	}
+
+	void InlayPositionHoverWidget::onPlayToggled() {
+		if (not HasPlayback or MoveTime <= 0.0) {
+			return;
+		}
+		if (Playing) {
+			pausePlayback();
+			updatePlaybackControls();
+			return;
+		}
+		// 播到末尾后再按播放，从头开始。
+		if (PlayheadTime >= MoveTime) {
+			PlayheadTime = 0.0;
+		}
+		Playing = true;
+		PlaybackClock.restart();
+		if (PlaybackTimer != nullptr) {
+			PlaybackTimer->start();
+		}
+		updatePlaybackControls();
+		updatePlayhead();
+	}
+
+	void InlayPositionHoverWidget::onPlaybackTick() {
+		if (not Playing or MoveTime <= 0.0) {
+			return;
+		}
+		PlayheadTime += PlaybackClock.restart() / 1000.0;
+		if (PlayheadTime >= MoveTime) {
+			PlayheadTime = MoveTime;
+			pausePlayback();
+		}
+		updatePlaybackControls();
+		updatePlayhead();
+	}
+
+	void InlayPositionHoverWidget::onTimeSliderChanged(qint32 value) {
+		if (UpdatingUi or not HasPlayback) {
+			return;
+		}
+		pausePlayback();
+		PlayheadTime = MoveTime * double(value) / qMax(1, TimeSlider->maximum());
+		updatePlaybackControls();
+		updatePlayhead();
 	}
 
 	void InlayPositionHoverWidget::onResetClicked() {
+		pausePlayback();
 		setPosition(DefaultX, DefaultY, DefaultZ);
+		syncGhost();
+		updatePlaybackControls();
+		updatePlayhead();
 	}
 
 	void InlayPositionHoverWidget::onCancelClicked() {
@@ -581,10 +1035,54 @@ namespace ASERStudio::YSS {
 
 		Canvas->setObjectKind(IsCharacter ? PositionCanvas::ObjectKind::Character
 			: PositionCanvas::ObjectKind::Background);
+		const qint64 tileCountValue = para.getInt(InlayPositionKeys::TileCount, &ok);
+		TileCount = ok ? qint32(qBound<qint64>(qint64(1), tileCountValue, qint64(1024))) : 1;
+		StitchVertically = para.getBool(InlayPositionKeys::StitchVertically, &ok);
+		if (not ok) {
+			StitchVertically = true;
+		}
+		const qint64 columnCountValue = para.getInt(InlayPositionKeys::StitchColumnCount, &ok);
+		StitchColumnCount = ok ? qint32(qBound<qint64>(qint64(0), columnCountValue, qint64(1024))) : 0;
+		Canvas->setStitchLayout(TileCount, StitchVertically, StitchColumnCount);
+
+		EditingStart = ParameterName.compare(QStringLiteral("StartPosition"), Qt::CaseInsensitive) == 0;
+		QList<double> startComponents;
+		QList<double> endComponents;
+		HasStartValue = InlayPositionProvider::parsePosition(
+			para.getString(InlayPositionKeys::StartValue), &startComponents);
+		HasEndValue = InlayPositionProvider::parsePosition(
+			para.getString(InlayPositionKeys::EndValue), &endComponents);
+		StartPosition = HasStartValue and startComponents.size() >= 3
+			? startComponents.mid(0, 3) : QList<double>{ DefaultX, DefaultY, DefaultZ };
+		EndPosition = HasEndValue and endComponents.size() >= 3
+			? endComponents.mid(0, 3) : StartPosition;
+		GhostLabel = EditingStart ? VITRL("ASERStudio::inlayPosition.end")
+			: VITRL("ASERStudio::inlayPosition.start");
+
+		MoveTime = para.getDouble(InlayPositionKeys::MoveTime, &ok);
+		if (not ok or not std::isfinite(MoveTime) or MoveTime <= 0.0) {
+			MoveTime = 0.0;
+			HasPlayback = false;
+		}
+		else {
+			HasPlayback = true;
+		}
+		if (para.contains(InlayPositionKeys::MoveCurve)) {
+			MoveCurves = InlayPositionCurve::parseMoveCurve(para.getString(InlayPositionKeys::MoveCurve));
+		}
+		else {
+			MoveCurves = InlayPositionCurve::defaultMoveCurve();
+		}
+		PlayheadTime = 0.0;
+		pausePlayback();
+		if (PlaybackRow != nullptr) {
+			PlaybackRow->setVisible(HasPlayback);
+		}
+
 		const QString typeText = IsCharacter ? VITRL("ASERStudio::inlayPosition.character")
 			: VITRL("ASERStudio::inlayPosition.background");
 		QString parameterText = ParameterName;
-		if (ParameterName.compare(QStringLiteral("StartPosition"), Qt::CaseInsensitive) == 0) {
+		if (EditingStart) {
 			parameterText = VITRL("ASERStudio::inlayPosition.start");
 		}
 		else if (ParameterName.compare(QStringLiteral("EndPosition"), Qt::CaseInsensitive) == 0) {
@@ -600,6 +1098,9 @@ namespace ASERStudio::YSS {
 			HintLabel->setText(VITRL("ASERStudio::inlayPosition.hint"));
 		}
 		setPosition(x, y, z);
+		syncGhost();
+		updatePlaybackControls();
+		updatePlayhead();
 	}
 
 	void InlayPositionHoverWidget::keyPressEvent(QKeyEvent* event) {

@@ -59,6 +59,9 @@
     <QtMoc Include="YSS\InlayColorProvider.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <ClInclude Include="YSS\InlayPositionCurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <QtMoc Include="YSS\InlayPositionHoverWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -137,6 +140,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\InlayColorProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\InlayPositionCurve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\InlayPositionHoverWidget.cpp">

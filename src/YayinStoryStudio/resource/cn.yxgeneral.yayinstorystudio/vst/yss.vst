@@ -178,7 +178,7 @@ QToolButton#remoteAddButton {
 	border: 1px solid $[Border];
 	border-radius: 6px;
 	color: $[WindowText];
-	font-size: 16px;
+	font-size: 12pt;
 	font-weight: 600;
 	min-width: 34px;
 	min-height: 30px;
@@ -287,7 +287,7 @@ QToolButton[projectAction="true"] {
 	border-radius: 10px;
 	color: $[WindowText];
 	padding: 6px;
-	font-size: 13px;
+	font-size: 9.75pt;
 }
 QToolButton[projectAction="true"]:hover {
 	background: $[Card];

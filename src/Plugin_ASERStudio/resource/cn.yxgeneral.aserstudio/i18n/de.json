@@ -15,6 +15,14 @@
         "reset": "Zurücksetzen",
         "cancel": "Abbrechen",
         "confirm": "Bestätigen",
+        "play": "Abspielen",
+        "pause": "Pause",
+        "gridSnap": "Rastereinrastung",
+        "axisSnap": "Achsenausrichtung",
+        "snapHint": "Die Rastereinrastung zieht den Anker auf den nächsten Rasterpunkt oder die nächste Rasterlinie; die Achsenausrichtung versucht, ihn horizontal oder vertikal an der anderen Position auszurichten.",
+        "gridStep": "Rasterabstand",
+        "gridStepWidth": "1/%1 der Breite",
+        "gridStepUnit": "%1 Einheiten",
         "invalid": "Die aktuellen Koordinaten können nicht gelesen werden; es werden Standardkoordinaten verwendet."
     },
     "diagnostic": {

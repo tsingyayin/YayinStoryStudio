@@ -38,6 +38,13 @@ namespace ASERStudio::YSS {
 		inline constexpr const char* DefaultX = "defaultX";
 		inline constexpr const char* DefaultY = "defaultY";
 		inline constexpr const char* DefaultZ = "defaultZ";
+		inline constexpr const char* StartValue = "startValue";
+		inline constexpr const char* EndValue = "endValue";
+		inline constexpr const char* TileCount = "tileCount";
+		inline constexpr const char* StitchVertically = "stitchVertically";
+		inline constexpr const char* StitchColumnCount = "stitchColumnCount";
+		inline constexpr const char* MoveTime = "moveTime";
+		inline constexpr const char* MoveCurve = "moveCurve";
 	}
 
 	class InlayPositionProvider :public YSSCore::Editor::InlayHintProvider {

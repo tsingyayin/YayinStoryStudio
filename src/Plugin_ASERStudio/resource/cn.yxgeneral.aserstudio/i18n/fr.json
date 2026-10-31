@@ -15,6 +15,14 @@
         "reset": "Réinitialiser",
         "cancel": "Annuler",
         "confirm": "Confirmer",
+        "play": "Lecture",
+        "pause": "Pause",
+        "gridSnap": "Aimantation à la grille",
+        "axisSnap": "Alignement sur les axes",
+        "snapHint": "L'aimantation à la grille amène l'ancre sur le point ou la ligne de grille le plus proche ; l'alignement sur les axes tente de l'aligner horizontalement ou verticalement avec l'autre position.",
+        "gridStep": "Pas de la grille",
+        "gridStepWidth": "1/%1 de la largeur",
+        "gridStepUnit": "%1 unités",
         "invalid": "Les coordonnées actuelles sont illisibles ; les coordonnées par défaut sont utilisées."
     },
     "diagnostic": {

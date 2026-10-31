@@ -15,6 +15,14 @@
         "reset": "Reset",
         "cancel": "Cancel",
         "confirm": "Confirm",
+        "play": "Play",
+        "pause": "Pause",
+        "gridSnap": "Grid snap",
+        "axisSnap": "Axis snap",
+        "snapHint": "Grid snap pulls the anchor onto the nearest grid point or line; axis snap tries to align the anchor with the other position horizontally or vertically.",
+        "gridStep": "Grid spacing",
+        "gridStepWidth": "1/%1 of width",
+        "gridStepUnit": "%1 units",
         "invalid": "The current position cannot be parsed; default coordinates are used."
     },
     "diagnostic": {

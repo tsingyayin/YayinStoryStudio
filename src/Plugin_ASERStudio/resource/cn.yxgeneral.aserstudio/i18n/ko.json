@@ -15,6 +15,14 @@
         "reset": "초기화",
         "cancel": "취소",
         "confirm": "확인",
+        "play": "재생",
+        "pause": "일시 정지",
+        "gridSnap": "격자 흡착",
+        "axisSnap": "축 흡착",
+        "snapHint": "격자 흡착은 기준점을 가장 가까운 격자점이나 격자선에 맞춥니다. 축 흡착은 기준점을 반대쪽 좌표와 수평 또는 수직으로 정렬합니다.",
+        "gridStep": "격자 간격",
+        "gridStepWidth": "너비의 1/%1",
+        "gridStepUnit": "%1 단위",
         "invalid": "현재 좌표를 해석할 수 없어 기본 좌표를 사용합니다."
     },
     "diagnostic": {

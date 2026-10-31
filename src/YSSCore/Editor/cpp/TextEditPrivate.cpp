@@ -175,7 +175,9 @@ namespace YSSCore::__Private__ {
 			else if (event->type() == QEvent::Leave) {
 				YSSCore::Editor::InlayHintHoverWidget* visibleWidget =
 					InlayHintHoverWidgets.value(InlayHintHoverCurrentID, nullptr);
-				if (visibleWidget != nullptr and visibleWidget->isVisible()) {
+				// 按住鼠标时不做判定：拖出浮窗再松手是正常操作，不能因此收起。
+				if (visibleWidget != nullptr and visibleWidget->isVisible()
+					and QApplication::mouseButtons() == Qt::NoButton) {
 					QWidget* underMouse = QApplication::widgetAt(QCursor::pos());
 					if (underMouse != visibleWidget and (underMouse == nullptr or not visibleWidget->isAncestorOf(underMouse))) {
 						hideInlayHintHover();
@@ -706,12 +708,22 @@ namespace YSSCore::__Private__ {
 		YSSCore::Editor::InlayHintHoverWidget* visibleWidget =
 			InlayHintHoverWidgets.value(InlayHintHoverCurrentID, nullptr);
 		if (visibleWidget != nullptr and visibleWidget->isVisible()) {
-			if (moveVectorPointTo(lastPos, currentPos, visibleWidget)
+			// 按住鼠标时视为仍在操作浮窗：拖动色轮这类操作很容易跑出浮窗范围，松手前不能收起。
+			const bool holdingButton = QApplication::mouseButtons() != Qt::NoButton;
+			if (holdingButton
+				or moveVectorPointTo(lastPos, currentPos, visibleWidget)
 				or nearArea(visibleWidget, event->globalPosition())) {
+				cancelInlayHintHoverHide();
 				LastMousePos = currentPos;
 				return;
 			}
-			hideInlayHintHover();
+			// 移开时不立刻收起，留一段时间让光标移回来；期间继续更新采样点，
+			// 避免下一次朝向判定仍然拿浮窗弹出时的旧坐标当起点。
+			LastMousePos = currentPos;
+			if (not InlayHintHoverHideTimer->isActive()) {
+				InlayHintHoverHideTimer->start();
+			}
+			return;
 		}
 
 		float dist = std::sqrt(std::pow(lastPos.x() - currentPos.x(), 2) + std::pow(lastPos.y() - currentPos.y(), 2));
@@ -954,6 +966,17 @@ namespace YSSCore::__Private__ {
 				other->hide();
 			}
 		}
+		// 图片提示浮窗显示期间独占浮层，补全与悬停信息必须收起来，避免三层浮窗互相遮挡、抢键盘。
+		if (TabCompleterWidget != nullptr and TabCompleterWidget->isVisible()) {
+			TabCompleterWidget->hide();
+		}
+		if (HoverInfoWidget != nullptr and HoverInfoWidget->isVisible()) {
+			HoverInfoWidget->hide();
+		}
+		if (HoverTimer != nullptr) {
+			HoverTimer->stop();
+		}
+		cancelInlayHintHoverHide();
 		widget->setTargetFile(q->getUri());
 		widget->setBlockNumber(lineNumber);
 		widget->setColumn(column);
@@ -969,6 +992,7 @@ namespace YSSCore::__Private__ {
 	}
 
 	void TextEditPrivate::hideInlayHintHover() {
+		cancelInlayHintHoverHide();
 		if (InlayHintHoverTimer != nullptr) {
 			InlayHintHoverTimer->stop();
 		}
@@ -1044,6 +1068,34 @@ namespace YSSCore::__Private__ {
 				widget->setParent(nullptr);
 				delete widget;
 			}
+		}
+	}
+
+	// 延迟收起到期：确认光标真的不在浮窗上了才收起，期间移回浮窗就当作没离开。
+	void TextEditPrivate::onInlayHintHoverHideTimeout() {
+		YSSCore::Editor::InlayHintHoverWidget* visibleWidget =
+			InlayHintHoverWidgets.value(InlayHintHoverCurrentID, nullptr);
+		if (visibleWidget == nullptr or not visibleWidget->isVisible()) {
+			return;
+		}
+		// 还在拖动（例如在浮窗里拖动色轮）就继续等，松手后再判断。
+		if (QApplication::mouseButtons() != Qt::NoButton) {
+			return;
+		}
+		const QPoint globalPos = QCursor::pos();
+		QWidget* underMouse = QApplication::widgetAt(globalPos);
+		const bool onWidget = underMouse != nullptr
+			and (underMouse == visibleWidget or visibleWidget->isAncestorOf(underMouse));
+		if (onWidget or nearArea(visibleWidget, globalPos)) {
+			LastMousePos = globalPos;
+			return;
+		}
+		hideInlayHintHover();
+	}
+
+	void TextEditPrivate::cancelInlayHintHoverHide() {
+		if (InlayHintHoverHideTimer != nullptr) {
+			InlayHintHoverHideTimer->stop();
 		}
 	}
 

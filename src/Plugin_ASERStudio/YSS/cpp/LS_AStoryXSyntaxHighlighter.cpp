@@ -1,4 +1,5 @@
-﻿#include <QtCore/qmetaobject.h>
+﻿#include <cmath>
+#include <QtCore/qmetaobject.h>
 #include <QtCore/qregularexpression.h>
 #include <QtCore/qset.h>
 #include <QtCore/qstringlist.h>
@@ -321,16 +322,66 @@ namespace ASERStudio::YSS {
 			return;
 		}
 		qint32 slot = 0;
+		// 拼贴与移动动画的附加参数，浮窗绘制对照对象和播放速览时要用。
+		bool stitchVertically = true;
+		qint32 stitchColumnCount = 0;
+		double moveTime = 0.0;
+		bool hasMoveCurve = false;
+		QString moveCurve;
+		QString startValue;
+		QString endValue;
 		for (const ASERStudio::AStorySyntax::AStoryXParameter& optional : parseData.getOptionalParameters()) {
-			if (optional.getName().compare(QStringLiteral("SlotIndex"), Qt::CaseInsensitive) != 0) {
-				continue;
+			const QString name = optional.getName();
+			const QString content = optional.getContent().trimmed();
+			if (name.compare(QStringLiteral("SlotIndex"), Qt::CaseInsensitive) == 0) {
+				bool ok = false;
+				const qint32 value = content.toInt(&ok);
+				if (ok) {
+					slot = value;
+				}
 			}
-			bool ok = false;
-			const qint32 value = optional.getContent().trimmed().toInt(&ok);
-			if (ok) {
-				slot = value;
+			else if (name.compare(QStringLiteral("StitchVertically"), Qt::CaseInsensitive) == 0) {
+				stitchVertically = content.compare(QStringLiteral("true"), Qt::CaseInsensitive) == 0
+					or content == QStringLiteral("1");
 			}
-			break;
+			else if (name.compare(QStringLiteral("StitchColumnCount"), Qt::CaseInsensitive) == 0) {
+				bool ok = false;
+				const qint32 value = content.toInt(&ok);
+				if (ok) {
+					// ASE 会把 0 及负数当成 1，只有完全没写时才是单条排到底。
+					stitchColumnCount = value > 0 ? value : 1;
+				}
+			}
+			else if (name.compare(QStringLiteral("MoveTime"), Qt::CaseInsensitive) == 0) {
+				bool ok = false;
+				const double value = content.toDouble(&ok);
+				if (ok and std::isfinite(value) and value > 0.0) {
+					moveTime = value;
+				}
+			}
+			else if (name.compare(QStringLiteral("MoveCurve"), Qt::CaseInsensitive) == 0) {
+				hasMoveCurve = true;
+				moveCurve = content;
+			}
+			else if (name.compare(QStringLiteral("StartPosition"), Qt::CaseInsensitive) == 0) {
+				startValue = content;
+			}
+			else if (name.compare(QStringLiteral("EndPosition"), Qt::CaseInsensitive) == 0) {
+				endValue = content;
+			}
+		}
+		// 背景的必填参数可以写多张图片，用规则里的分隔符连接，此时会拼贴成一整块背景。
+		qint32 tileCount = 1;
+		if (isBackground) {
+			const ASERStudio::AStorySyntax::AStoryXParameter& required = parseData.getRequiredParameter();
+			const QString requiredContent = required.getContent().trimmed();
+			const QString separator = required.getSeparator();
+			if (not requiredContent.isEmpty()) {
+				const QStringList tiles = separator.isEmpty()
+					? QStringList{ requiredContent }
+					: requiredContent.split(separator, Qt::SkipEmptyParts);
+				tileCount = qMax(1, qint32(tiles.size()));
+			}
 		}
 		const QList<double> defaults = InlayPositionProvider::getDefaultPosition(isCharacter, slot);
 		const QList<ASERStudio::AStorySyntax::AStoryXParameter>& optionals = parseData.getOptionalParameters();
@@ -403,6 +454,23 @@ namespace ASERStudio::YSS {
 				para.setDouble(InlayPositionKeys::DefaultX, defaults[0]);
 				para.setDouble(InlayPositionKeys::DefaultY, defaults[1]);
 				para.setDouble(InlayPositionKeys::DefaultZ, defaults[2]);
+			}
+			if (not startValue.isEmpty()) {
+				para.setString(InlayPositionKeys::StartValue, startValue);
+			}
+			if (not endValue.isEmpty()) {
+				para.setString(InlayPositionKeys::EndValue, endValue);
+			}
+			if (isBackground) {
+				para.setInt(InlayPositionKeys::TileCount, tileCount);
+				para.setBool(InlayPositionKeys::StitchVertically, stitchVertically);
+				para.setInt(InlayPositionKeys::StitchColumnCount, stitchColumnCount);
+			}
+			if (moveTime > 0.0) {
+				para.setDouble(InlayPositionKeys::MoveTime, moveTime);
+			}
+			if (hasMoveCurve) {
+				para.setString(InlayPositionKeys::MoveCurve, moveCurve);
 			}
 			YSSCore::Editor::VirtualFilePath path(InlayPositionProviderID,
 				isCharacter ? InlayPositionKeys::KindCharacter : InlayPositionKeys::KindBackground,

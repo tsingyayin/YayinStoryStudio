@@ -15,6 +15,14 @@
         "reset": "リセット",
         "cancel": "キャンセル",
         "confirm": "確定",
+        "play": "再生",
+        "pause": "一時停止",
+        "gridSnap": "グリッド吸着",
+        "axisSnap": "軸吸着",
+        "snapHint": "グリッド吸着はアンカーを最寄りのグリッド点または線に合わせます。軸吸着はアンカーを反対側の座標と水平または垂直に揃えようとします。",
+        "gridStep": "グリッド間隔",
+        "gridStepWidth": "幅の1/%1",
+        "gridStepUnit": "%1 単位",
         "invalid": "現在の座標を解析できないため、既定の座標を使用します。"
     },
     "diagnostic": {
