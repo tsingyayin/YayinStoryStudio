@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper":{
-            "title": "ASER包裝器"
+            "title": "ASER嵌入台",
+            "waitingTitle": "尚未捕獲 ASE-Remake",
+            "waitingMessage": "ASER Studio 每 5 秒檢查一次 ASE-Remake 是否正在執行。偵測到視窗後會自動嵌入到這裡。",
+            "pausedTitle": "自動偵測已暫停",
+            "pausedMessage": "恢復偵測後才會自動捕獲 ASE-Remake 的視窗。",
+            "runningTitle": "正在等待 ASE-Remake 視窗",
+            "runningMessage": "偵測到 ASE-Remake 處理程序，但還沒有找到它的主視窗。視窗出現後會自動嵌入。",
+            "captured": "ASE-Remake 已嵌入。關閉本頁會把視窗分離為獨立視窗。",
+            "launch": "啟動 ASE-Remake",
+            "launchMissingTitle": "尚未指定 ASE-Remake 路徑",
+            "launchMissingMessage": "請先在此外掛設定中指定 ASE-Remake.exe 的路徑，然後再啟動。",
+            "pauseMonitor": "暫停偵測",
+            "resumeMonitor": "恢復偵測",
+            "detach": "分離視窗"
         }
     },
     "project":{

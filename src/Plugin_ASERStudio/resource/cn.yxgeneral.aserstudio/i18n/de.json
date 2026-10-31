@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper": {
-            "title": "ASER-Wrapper"
+            "title": "ASER-Einbettung",
+            "waitingTitle": "ASE-Remake noch nicht eingebettet",
+            "waitingMessage": "ASER Studio prüft alle 5 Sekunden, ob ASE-Remake läuft. Das Fenster wird hier eingebettet, sobald es gefunden wird.",
+            "pausedTitle": "Automatische Erkennung pausiert",
+            "pausedMessage": "Setze die Erkennung fort, um das ASE-Remake-Fenster automatisch einzubetten.",
+            "runningTitle": "Warte auf das ASE-Remake-Fenster",
+            "runningMessage": "Der ASE-Remake-Prozess läuft, sein Hauptfenster ist aber noch nicht verfügbar. Es wird eingebettet, sobald es erscheint.",
+            "captured": "ASE-Remake ist eingebettet. Beim Schließen dieser Seite wird das Fenster als eigenständiges Fenster abgetrennt.",
+            "launch": "ASE-Remake starten",
+            "launchMissingTitle": "Kein ASE-Remake-Pfad konfiguriert",
+            "launchMissingMessage": "Lege zuerst den Pfad zu ASE-Remake.exe in den Plugin-Einstellungen fest.",
+            "pauseMonitor": "Erkennung pausieren",
+            "resumeMonitor": "Erkennung fortsetzen",
+            "detach": "Fenster abtrennen"
         }
     },
     "project": {

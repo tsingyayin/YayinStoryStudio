@@ -251,6 +251,8 @@ namespace YSSCore::__Private__ {
 		qint8 TabWidth = 4;
 		bool ReloadTab = false;
 		bool useKeyboardToMoveCursor = false;
+		// 程序化定位光标时为真：此时不弹出补全与悬浮提示。
+		bool relocateCursorSilently = false;
 		bool Rehighlighting = false;
 		// 打开文件时探测到的编码与换行符，保存时按原样写回：否则会把 UTF-16 文件写成
 		// UTF-8、或者把 CRLF 文档悄悄改成 LF。Encoding 为 Unsupported 表示这种编码

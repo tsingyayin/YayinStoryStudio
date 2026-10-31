@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper": {
-            "title": "ASER 래퍼"
+            "title": "ASER 임베드 스테이션",
+            "waitingTitle": "ASE-Remake가 아직 캡처되지 않았습니다",
+            "waitingMessage": "ASER Studio는 5초마다 ASE-Remake가 실행 중인지 확인하고, 창을 찾으면 여기에 포함합니다.",
+            "pausedTitle": "자동 감지가 일시 중지되었습니다",
+            "pausedMessage": "감지를 다시 시작하면 ASE-Remake 창을 자동으로 캡처합니다.",
+            "runningTitle": "ASE-Remake 창을 기다리는 중",
+            "runningMessage": "ASE-Remake 프로세스는 실행 중이지만 아직 기본 창을 찾지 못했습니다. 창이 나타나면 여기에 포함합니다.",
+            "captured": "ASE-Remake가 포함되었습니다. 이 페이지를 닫으면 창이 독립 창으로 분리됩니다.",
+            "launch": "ASE-Remake 실행",
+            "launchMissingTitle": "ASE-Remake 경로가 설정되지 않았습니다",
+            "launchMissingMessage": "플러그인 설정에서 ASE-Remake.exe 경로를 먼저 지정한 뒤 실행하세요.",
+            "pauseMonitor": "감지 일시 중지",
+            "resumeMonitor": "감지 다시 시작",
+            "detach": "창 분리"
         }
     },
     "project": {

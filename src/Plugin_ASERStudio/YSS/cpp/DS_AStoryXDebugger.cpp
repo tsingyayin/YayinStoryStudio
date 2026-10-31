@@ -1,5 +1,6 @@
 #include <QtGui/qwindow.h>
 #include <QtWidgets/qmessagebox.h>
+#include <Editor/FileServerManager.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <General/YSSProject.h>
@@ -17,6 +18,7 @@ namespace ASERStudio::YSS {
 		bool isDebugMode = false;
 		bool isRunning = false;
 		QString launchFileName;
+		YSSCore::General::YSSURI LaunchUri;
 	};
 	DS_AStoryXDebugger::DS_AStoryXDebugger(YSSCore::Editor::EditorPlugin* plugin) :
 		YSSCore::Editor::DebugServer("AStoryXDebugger", ASERStudio_AStoryXDebuggerID, plugin) {
@@ -36,6 +38,7 @@ namespace ASERStudio::YSS {
 			return;
 		}
 		d->launchFileName = launchFileName.left(launchFileName.length() - 8);
+		d->LaunchUri = YSSCore::General::YSSProject::getCurrentProject()->getFocusedFile();
 		this->onStop();
 		if (not d->signalConnected) {
 			connect(ASERStudio::Main::getInstance()->getASERProgram(), &ASERStudio::ASEREnv::ASERProgram::programStopped, this, [this](qint64 exitCode) {
@@ -78,6 +81,14 @@ namespace ASERStudio::YSS {
 					emit actionMessage(d->isDebugMode ? DebugRun : Run, VITRL("ASERStudio::debugger.executing.started").arg(name));
 					emit actionPercent(d->isDebugMode ? DebugRun : Run, -1, -1);
 				}
+				});
+			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::lineStackChanged,
+				this, [this](const QList<qint32>& lineStack) {
+					if (lineStack.isEmpty() || !d->LaunchUri.isValid()) {
+						return;
+					}
+					// ASE-Remake 的行号从1开始，光标定位接口从0开始。
+					emit YSSFSM->focusOnFile(d->LaunchUri, lineStack.last() - 1, 0);
 				});
 			connect(ASERStudio::Main::getInstance()->getASERDebugIO(), &ASERStudio::ASEREnv::ASERDebugIO::storyExited, this, [this](const QString& name) {
 				if (d->isRunning) {

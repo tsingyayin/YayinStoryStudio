@@ -31,6 +31,7 @@ namespace ASERStudio::ASEREnv {
 		else if (context.startsWith("StoryExited:")) {
 			QString storyName = context.mid(QString("StoryExited:").length());
 			CurrentPage = ASERDebugIO::Page::storyset;
+			LineStack.clear();
 			emit q->storyExited(storyName);
 		}
 		else if (context.startsWith("OptionsActivated:")) {
@@ -44,6 +45,23 @@ namespace ASERStudio::ASEREnv {
 		else if (context.startsWith("ErrorMessageShown:")) {
 			QString message = context.mid(QString("ErrorMessageShown:").length());
 			emit q->errorMessageShown(message);
+		}
+		else if (context.startsWith("Line:")) {
+			QString lineStr = context.mid(QString("Line:").length());
+			QList<qint32> lineStack;
+			const QStringList parts = lineStr.split(",", Qt::SkipEmptyParts);
+			for (const QString& part : parts) {
+				bool ok = false;
+				const qint32 line = part.trimmed().toInt(&ok);
+				if (ok && line > 0) {
+					lineStack.append(line);
+				}
+			}
+			if (lineStack.isEmpty() || lineStack == LineStack) {
+				return;
+			}
+			LineStack = lineStack;
+			emit q->lineStackChanged(LineStack);
 		}
 	}
 
@@ -62,6 +80,17 @@ namespace ASERStudio::ASEREnv {
 		所以，这类也未设置任何与具名管道相关的控制或响应API，它只是依附于ASERProgram来工作的。
 
 		如果没有有效的ASERProgram设置，这类的任何设置函数均无效，也不会有信号发出。
+	*/
+
+	/*!
+		\fn void ASERStudio::ASEREnv::ASERDebugIO::lineStackChanged(const QList<qint32>& lineStack)
+		\since ASERStudio 2.5.0
+		\a lineStack 当前行与它的跳转来源。
+
+		ASE-Remake播放剧情时会上报当前正在执行的行号。最右侧的元素是当前正在执行的行，
+		往左依次是跳转到它的来源行号；因此没有发生块展开时这个列表只有一个元素。
+
+		只有在上报内容与上一次不同时才会发出。剧情退出或程序停止后会回到空列表。
 	*/
 
 	/*!
@@ -101,6 +130,7 @@ namespace ASERStudio::ASEREnv {
 				d->requestingStoryName = "";
 				d->lastStorySetPath = "";
 				d->lastStoryName = "";
+				d->LineStack.clear();
 				});
 		}
 	}
@@ -184,6 +214,30 @@ namespace ASERStudio::ASEREnv {
 		if (d->Program) {
 			d->Program->writeNamedPipe("stop");
 		}
+	}
+
+	/*!
+		\since ASERStudio 2.5.0
+		return 最近一次上报的行号列表。
+
+		最右侧的元素是当前正在执行的行，往左依次是跳转到它的来源行号。
+		尚未收到上报、剧情已退出或程序已停止时返回空列表。
+	*/
+	QList<qint32> ASERDebugIO::getLineStack() const {
+		return d->LineStack;
+	}
+
+	/*!
+		\since ASERStudio 2.5.0
+		return 当前正在执行的行号。
+
+		等同于 \l{getLineStack()} 的最后一个元素；没有可用行号时返回-1。
+	*/
+	qint32 ASERDebugIO::getCurrentLine() const {
+		if (d->LineStack.isEmpty()) {
+			return -1;
+		}
+		return d->LineStack.last();
 	}
 
 	/*!

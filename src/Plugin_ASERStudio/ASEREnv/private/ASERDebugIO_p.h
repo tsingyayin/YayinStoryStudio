@@ -1,5 +1,6 @@
 #ifndef Plugin_ASERStudio_ASEREnv_private_ASERDebugIO_p_h
 #define Plugin_ASERStudio_ASEREnv_private_ASERDebugIO_p_h
+#include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
 #include "ASEREnv/ASERDebugIO.h"
 namespace ASERStudio::ASEREnv {
@@ -16,6 +17,7 @@ namespace ASERStudio::ASEREnv {
 		QString requestingStoryName;
 		QString lastStorySetPath;
 		QString lastStoryName;
+		QList<qint32> LineStack;
 	public:
 		void handleNamedPipeReadable(const QString& context);
 	};

@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper": {
-            "title": "Обёртка ASER"
+            "title": "ASER-встраивание",
+            "waitingTitle": "ASE-Remake ещё не захвачен",
+            "waitingMessage": "ASER Studio каждые 5 секунд проверяет, запущен ли ASE-Remake, и встраивает окно сюда, как только оно найдено.",
+            "pausedTitle": "Автоматическое обнаружение приостановлено",
+            "pausedMessage": "Возобновите обнаружение, чтобы автоматически захватывать окно ASE-Remake.",
+            "runningTitle": "Ожидание окна ASE-Remake",
+            "runningMessage": "Процесс ASE-Remake запущен, но его главное окно пока не найдено. Окно будет встроено, как только появится.",
+            "captured": "ASE-Remake встроен. При закрытии этой страницы окно станет отдельным.",
+            "launch": "Запустить ASE-Remake",
+            "launchMissingTitle": "Путь к ASE-Remake не задан",
+            "launchMissingMessage": "Сначала укажите путь к ASE-Remake.exe в настройках плагина.",
+            "pauseMonitor": "Приостановить обнаружение",
+            "resumeMonitor": "Возобновить обнаружение",
+            "detach": "Отделить окно"
         }
     },
     "project": {

@@ -119,6 +119,16 @@ namespace YSS::Editor {
 				FocusingFileEditWidgetNotTool = nullptr;
 			}
 			});
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::focusOnFile, this,
+			[](const YSSCore::General::YSSURI& uri, qint32 lineNumber, qint32 column) {
+				// 文件可能被拖到任意区域，因此按 URI 找到持有它的区域再切换。
+				for (FileEditWidgetArea* area : FileEditWidgetArea::getAllAreas()) {
+					if (area->containsWidget(uri)) {
+						area->setCurrentWidget(uri, lineNumber, column);
+						return;
+					}
+				}
+			});
 		this->CentralWidget->resize(this->width(), this->height() - Menu->height());
 
 		RenameDlg = new RenameDialog();

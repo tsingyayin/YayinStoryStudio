@@ -780,7 +780,7 @@ namespace YSS::ProjectPage {
 		CreateProjectButton->setIcon(VIApp->getNamedFontIcon("Add", OptionIconSize, { iconColor }));
 		OpenFolderButton->setIcon(VIApp->getNamedFontIcon("OpenFile", OptionIconSize, { iconColor }));
 		OpenRemoteButton->setIcon(VIApp->getNamedFontIcon("Cloud", OptionIconSize, { iconColor }));
-		SshConnectionButton->setIcon(VIApp->getNamedFontIcon("Connect", OptionIconSize, { iconColor }));
+		SshConnectionButton->setIcon(VIApp->getNamedFontIcon("Remote", OptionIconSize, { iconColor }));
 	}
 
 	void ProjectWin::onNewsMetaGot(const Visindigo::Utility::JsonConfig& config) {

@@ -117,6 +117,8 @@ namespace YSS::Editor {
 			emit closeClicked(Uri);
 			});
 
+		// ActionsContextMenu：菜单直接由 actions() 生成，QMenu 会跳过 setVisible(false) 的项。
+		// 因此"哪些项对当前 URI 可用"必须在 setUri() 里定好，写 contextMenuEvent() 是无效的。
 		setContextMenuPolicy(Qt::ActionsContextMenu);
 		ActionClose = new QAction(VITRL("Visindigo::general.close"), this);
 		ActionPin = new QAction(VITRL("Visindigo::general.pin"), this);
@@ -265,6 +267,14 @@ namespace YSS::Editor {
 		ActionRename->setEnabled(!virtualFile);
 		ActionSaveAs->setEnabled(!virtualFile);
 		ActionShowInExplorer->setEnabled(!virtualFile);
+		// 比较只对真实文件有意义，虚拟文档（设置页、资源浏览器等）没有可比对的实体。
+		// 菜单由 Qt::ActionsContextMenu 直接按 actions() 生成，不会经过 contextMenuEvent()，
+		// 因此可见性必须在这里定好：QMenu 会跳过不可见的 action。
+		const bool canCompare = uri.isValid() && !virtualFile && !uri.isDir();
+		for (QAction* action : { ActionCompareAsOld, ActionCompareAsNew }) {
+			action->setVisible(canCompare);
+			action->setEnabled(canCompare);
+		}
 	}
 
 	YSSCore::General::YSSURI StackTag::getUri() const {
@@ -401,17 +411,6 @@ namespace YSS::Editor {
 		Hovering = false;
 		updateButtonVisibility();
 		updateToolTip();
-	}
-
-	void StackTag::contextMenuEvent(QContextMenuEvent* event) {
-		// 虚拟文件（设置页等）没有可比对的文件系统实体，直接把这两项从菜单里拿掉；
-		// 目录也不能作为比较对象。
-		const bool canCompare = Uri.isValid() && !Uri.isVirtual() && !Uri.isDir();
-		for (QAction* action : { ActionCompareAsOld, ActionCompareAsNew }) {
-			action->setVisible(canCompare);
-			action->setEnabled(canCompare);
-		}
-		QFrame::contextMenuEvent(event);
 	}
 
 	void StackTag::paintEvent(QPaintEvent* event) {

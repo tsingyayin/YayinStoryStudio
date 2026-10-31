@@ -300,7 +300,10 @@ namespace YSSCore::Editor {
 		QTextCursor cursor = d->Text->textCursor();
 		cursor.movePosition(QTextCursor::Start);
 		cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, lineNumber - 1);
+		d->relocateCursorSilently = true;
 		d->Text->setTextCursor(cursor);
+		d->relocateCursorSilently = false;
+		d->Text->centerCursor();
 	}
 
 	/*!
@@ -793,7 +796,11 @@ namespace YSSCore::Editor {
 		}
 		QTextCursor cursor(block);
 		cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, column);
+		d->relocateCursorSilently = true;
 		d->Text->setTextCursor(cursor);
+		d->relocateCursorSilently = false;
+		// 目标行滚动到视口正中间，跳转后能同时看到上下文。
+		d->Text->centerCursor();
 		return true;
 	}
 

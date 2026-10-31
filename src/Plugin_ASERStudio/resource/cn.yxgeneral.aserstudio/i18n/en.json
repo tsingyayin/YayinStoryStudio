@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper": {
-            "title": "ASER Wrapper"
+            "title": "ASER Embed Station",
+            "waitingTitle": "ASE-Remake not captured yet",
+            "waitingMessage": "ASER Studio checks for a running ASE-Remake every 5 seconds. The window is embedded here as soon as it is found.",
+            "pausedTitle": "Automatic detection paused",
+            "pausedMessage": "Resume detection to capture the ASE-Remake window automatically.",
+            "runningTitle": "Waiting for the ASE-Remake window",
+            "runningMessage": "The ASE-Remake process is running, but its main window is not available yet. It will be embedded as soon as it appears.",
+            "captured": "ASE-Remake is embedded. Closing this page detaches it into a separate window.",
+            "launch": "Launch ASE-Remake",
+            "launchMissingTitle": "ASE-Remake path is not configured",
+            "launchMissingMessage": "Set the path of ASE-Remake.exe in the plugin settings before launching.",
+            "pauseMonitor": "Pause detection",
+            "resumeMonitor": "Resume detection",
+            "detach": "Detach window"
         }
     },
     "project": {

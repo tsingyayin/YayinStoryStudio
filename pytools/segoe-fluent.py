@@ -1,12 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+从微软 Segoe Fluent Icons 文档页面抓取图标清单，导出 Visindigo 使用的 IconName 枚举。
+
+用法：
+    python pytools/segoe-fluent.py [输出路径]
+
+不传输出路径时直接覆盖 src/Visindigo/Widgets/private/IconNameEnum.hpp。
+"""
+
 import re
+import sys
 import html
 import urllib.request
 from collections import Counter
+from pathlib import Path
 
 URL = "https://learn.microsoft.com/en-us/windows/apps/design/iconography/segoe-fluent-icons-font"
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parent
+DEFAULT_OUTPUT = REPO_ROOT / "src" / "Visindigo" / "Widgets" / "private" / "IconNameEnum.hpp"
+
+ENUM_HEADER = """/*
+\tWarning: This File COULD ONLY be included by Widgets/IconFontRouter.h
+*/
+enum IconName : quint32 {
+"""
 
 
 def download_page(url: str) -> str:
@@ -136,39 +157,90 @@ def find_icon_entries(page: str):
     return results
 
 
-def main():
-    print("Downloading page...")
+def merge_entries(entries):
+    """
+    按码位去重并升序排列。
 
-    page = download_page(URL)
+    页面在图标总表之前还有一张“新增图标”汇总表，同一码位会出现多次；
+    总表在页面中位置更靠后，因此以后出现的记录为准。
+    """
 
-    entries = find_icon_entries(page)
+    by_codepoint = {}
 
-    print(f"Found {len(entries)} icon entries.\n")
+    for enum_name, codepoint, desc in entries:
+        by_codepoint[codepoint] = (enum_name, codepoint, desc)
 
-    with open("SegoeFluentIcons.h", "w", encoding="utf-8") as f:
-        f.write("enum IconName : quint32 {\n")
+    return sorted(by_codepoint.values(), key=lambda e: int(e[1], 16))
+
+
+def resolve_names(entries):
+    """
+    微软文档中个别图标会以同一个名称占据两个码位（如 DefenderApp 的 E83D 与 F08A），
+    C++ 枚举不允许重名，保留码位较小的一个，其余记录在案。
+    """
+
+    used = {}
+    icons = []
+    skipped = []
+
+    for entry in entries:
+        enum_name, codepoint, _ = entry
+
+        if enum_name in used:
+            skipped.append((enum_name, codepoint, used[enum_name]))
+            continue
+
+        used[enum_name] = codepoint
+        icons.append(entry)
+
+    return icons, skipped
+
+
+def write_enum(entries, output_path):
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(ENUM_HEADER)
 
         for enum_name, codepoint, _ in entries:
             f.write(f"    {enum_name} = 0x{codepoint},\n")
 
         f.write("};\n")
 
-    print("\n\n// Duplicate enum names:\n")
+
+def main():
+    output_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUTPUT
+
+    print("Downloading page...")
+
+    page = download_page(URL)
+
+    entries = find_icon_entries(page)
+
+    print(f"Found {len(entries)} table rows.")
+
+    icons, skipped = resolve_names(merge_entries(entries))
+
+    write_enum(icons, output_path)
+
+    print(f"Wrote {len(icons)} icons to {output_path}")
+
+    print(f"\nDuplicate enum names ({len(skipped)}):")
+
+    if not skipped:
+        print("// No duplicates found.")
+    else:
+        for enum_name, codepoint, kept_codepoint in skipped:
+            print(f"// {enum_name}: 0x{codepoint} skipped, 0x{kept_codepoint} kept")
 
     counter = Counter(
         enum_name
         for enum_name, _, _ in entries
     )
 
-    dup_count = 0
+    repeated = sorted(
+        (name, count) for name, count in counter.items() if count > 1
+    )
 
-    for name, count in sorted(counter.items()):
-        if count > 1:
-            dup_count += 1
-            print(f"// {name} ({count} occurrences)")
-
-    if dup_count == 0:
-        print("// No duplicates found.")
+    print(f"\nNames repeated across tables: {len(repeated)}")
 
 
 if __name__ == "__main__":

@@ -50,6 +50,9 @@
     <QtMoc Include="YSS\ASERProjectResourceBrowser.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="YSS\ASERWarpperEditor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="YSS\ImageCacheHelper.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -131,6 +134,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\ASERProjectResourceBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YSS\cpp\ASERWarpperEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="YSS\cpp\ImageCacheHelper.cpp">

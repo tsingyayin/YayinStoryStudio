@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper": {
-            "title": "ASERラッパー"
+            "title": "ASER埋め込み台",
+            "waitingTitle": "ASE-Remake はまだ取り込まれていません",
+            "waitingMessage": "ASER Studio は 5 秒ごとに ASE-Remake の起動を確認し、ウィンドウが見つかるとここに埋め込みます。",
+            "pausedTitle": "自動検出を一時停止中",
+            "pausedMessage": "検出を再開すると ASE-Remake のウィンドウを自動的に取り込みます。",
+            "runningTitle": "ASE-Remake のウィンドウを待機中",
+            "runningMessage": "ASE-Remake のプロセスは動作していますが、メインウィンドウがまだ見つかりません。表示され次第ここに埋め込みます。",
+            "captured": "ASE-Remake を埋め込みました。このページを閉じると独立したウィンドウに分離します。",
+            "launch": "ASE-Remake を起動",
+            "launchMissingTitle": "ASE-Remake のパスが未設定です",
+            "launchMissingMessage": "プラグイン設定で ASE-Remake.exe のパスを指定してから起動してください。",
+            "pauseMonitor": "検出を一時停止",
+            "resumeMonitor": "検出を再開",
+            "detach": "ウィンドウを分離"
         }
     },
     "project": {

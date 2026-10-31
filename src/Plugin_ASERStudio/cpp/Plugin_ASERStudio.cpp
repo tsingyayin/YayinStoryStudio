@@ -23,6 +23,7 @@
 #include "YSS/ASERFileTemplate.h"
 #include "YSS/ASERProjectResourceBrowser.h"
 #include "YSS/ASERProjectTemplate.h"
+#include "YSS/ASERWarpperEditor.h"
 #include "YSS/DS_AStoryXDebugger.h"
 #include "YSS/ImageCacheHelper.h"
 #include "YSS/InlayColorProvider.h"
@@ -192,8 +193,6 @@ namespace ASERStudio {
 	void Main::onPluginEnable() {
 		Visindigo::Utility::JsonConfig config = VISTM->getMergedColorScheme();
 		//vgDebug << "Merged Color Scheme:" << config;
-		// not prepared.
-		//registerToolWidget("cn.yxgeneral.aserstudio.aser_warpper", "i18n:ASERStudio::toolWidget.aserWarpper.title");
 		registerPluginModule(new ASERStudioTranslator(this));
 		registerProjectTemplateProvider(new YSS::ProjectTemplate_AStoryX(this));
 		registerProjectTemplateProvider(new YSS::ProjectTemplate_AStoryX_3_6_7(this));
@@ -206,6 +205,7 @@ namespace ASERStudio {
 		registerFileServer(new YSS::FileServer_AStoryX(this));
 		registerFileServer(new YSS::FileServer_ASRuleJson(this));
 		registerFileServer(new YSS::FileServer_ASERProjectResourceBrowser(this));
+		registerFileServer(new YSS::FileServer_ASERWarpper(this));
 		registerDebugServer(new YSS::DS_AStoryXDebugger(this));
 		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
 		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.aserstudio/configWidget/pluginConfig.json");

@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper": {
-            "title": "Wrapper ASER"
+            "title": "Intégration ASER",
+            "waitingTitle": "ASE-Remake pas encore intégré",
+            "waitingMessage": "ASER Studio vérifie toutes les 5 secondes si ASE-Remake est en cours d'exécution. La fenêtre est intégrée ici dès qu'elle est détectée.",
+            "pausedTitle": "Détection automatique en pause",
+            "pausedMessage": "Reprenez la détection pour intégrer automatiquement la fenêtre d'ASE-Remake.",
+            "runningTitle": "En attente de la fenêtre ASE-Remake",
+            "runningMessage": "Le processus ASE-Remake est en cours d'exécution, mais sa fenêtre principale n'est pas encore disponible. Elle sera intégrée dès son apparition.",
+            "captured": "ASE-Remake est intégré. Fermer cette page détache la fenêtre pour la rendre indépendante.",
+            "launch": "Lancer ASE-Remake",
+            "launchMissingTitle": "Chemin d'ASE-Remake non configuré",
+            "launchMissingMessage": "Indiquez d'abord le chemin d'ASE-Remake.exe dans les paramètres du plugin.",
+            "pauseMonitor": "Suspendre la détection",
+            "resumeMonitor": "Reprendre la détection",
+            "detach": "Détacher la fenêtre"
         }
     },
     "project": {

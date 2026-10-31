@@ -288,10 +288,29 @@ namespace YSSCore::__Private__ {
 		
 		QTextCursor cursor = Text->textCursor();
 		int index = cursor.block().blockNumber();
-		int column = cursor.positionInBlock();
 		int selection = cursor.selectedText().length();
 		if (index >= Text->document()->blockCount()) {
 			onBlockCountChanged(index + 1);
+		}
+		const bool relocateSilently = relocateCursorSilently;
+		relocateCursorSilently = false;
+		if (relocateSilently) {
+			// 程序化定位光标只是把视图带到目标行，不应该顺带弹出补全或悬浮提示。
+			if (TabCompleterWidget->isVisible()) {
+				TabCompleterWidget->hide();
+			}
+			if (HoverInfoWidget->isVisible()) {
+				HoverInfoWidget->hide();
+			}
+			hideInlayHintHover();
+			syncInlayHintHoverWidgets();
+			CurrentLineSelection.cursor = cursor;
+			CurrentLineSelection.cursor.clearSelection();
+			CurrentLineSelection.format.setBackground(Text->palette().color(QPalette::AlternateBase).lighter(100));
+			CurrentLineSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+			onMultiSelectionChanged();
+			emit q->cursorPositionChanged(cursor);
+			return;
 		}
 		if (useKeyboardToMoveCursor) {
 			if (TabCompleterWidget->isVisible()) {

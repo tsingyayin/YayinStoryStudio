@@ -1,6 +1,7 @@
 #ifndef Plugin_ASERStudio_ASEREnv_ASERDebugIO_h
 #define Plugin_ASERStudio_ASEREnv_ASERDebugIO_h
 #include "ASERStudioCompileMacro.h"
+#include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
 
 namespace ASERStudio::ASEREnv {
@@ -32,6 +33,7 @@ namespace ASERStudio::ASEREnv {
 		void storyExited(const QString& storyName);
 		void optionsActivated(qint32 optionCount);
 		void errorMessageShown(const QString& message);
+		void lineStackChanged(const QList<qint32>& lineStack);
 	public:
 		ASERDebugIO();
 		virtual ~ASERDebugIO();
@@ -44,6 +46,8 @@ namespace ASERStudio::ASEREnv {
 		void play(const QString& fileName);
 		void stop();
 		void select(qint32 branchIndex);
+		QList<qint32> getLineStack() const;
+		qint32 getCurrentLine() const;
 		void changeDirectory(const QString& directoryPath);
 		void selectBranch(qint32 branchIndex);
 		void changeSpeed();

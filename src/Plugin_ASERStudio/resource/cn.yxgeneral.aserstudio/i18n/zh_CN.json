@@ -541,7 +541,20 @@
     },
     "toolWidget": {
         "aserWarpper":{
-            "title": "ASER包装器"
+            "title": "ASER嵌入台",
+            "waitingTitle": "尚未捕获 ASE-Remake",
+            "waitingMessage": "ASER Studio 每 5 秒检查一次 ASE-Remake 是否正在运行。检测到窗口后会自动嵌入到这里。",
+            "pausedTitle": "自动检测已暂停",
+            "pausedMessage": "恢复检测后才会自动捕获 ASE-Remake 的窗口。",
+            "runningTitle": "正在等待 ASE-Remake 窗口",
+            "runningMessage": "检测到 ASE-Remake 进程，但还没有找到它的主窗口。窗口出现后会自动嵌入。",
+            "captured": "ASE-Remake 已嵌入。关闭本页会把窗口分离为独立窗口。",
+            "launch": "启动 ASE-Remake",
+            "launchMissingTitle": "尚未指定 ASE-Remake 路径",
+            "launchMissingMessage": "请先在插件设置中指定 ASE-Remake.exe 的路径，然后再启动。",
+            "pauseMonitor": "暂停检测",
+            "resumeMonitor": "恢复检测",
+            "detach": "分离窗口"
         }
     },
     "project":{

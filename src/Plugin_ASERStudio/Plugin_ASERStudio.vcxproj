@@ -139,6 +139,7 @@
     <ClCompile Include="YSS\cpp\ASERFileTemplate.cpp" />
     <ClCompile Include="YSS\cpp\ASERProjectResourceBrowser.cpp" />
     <ClCompile Include="YSS\cpp\ASERProjectTemplate.cpp" />
+    <ClCompile Include="YSS\cpp\ASERWarpperEditor.cpp" />
     <ClCompile Include="YSS\cpp\ImageCacheHelper.cpp" />
     <ClCompile Include="YSS\cpp\InlayColorHoverWidget.cpp" />
     <ClCompile Include="YSS\cpp\InlayColorProvider.cpp" />
@@ -168,6 +169,7 @@
     <QtMoc Include="YSS\ASERFileTemplate.h" />
     <QtMoc Include="YSS\ASERProjectResourceBrowser.h" />
     <QtMoc Include="YSS\ASERProjectTemplate.h" />
+    <QtMoc Include="YSS\ASERWarpperEditor.h" />
     <QtMoc Include="YSS\ImageCacheHelper.h" />
     <QtMoc Include="YSS\InlayColorHoverWidget.h" />
     <QtMoc Include="YSS\InlayColorProvider.h" />
