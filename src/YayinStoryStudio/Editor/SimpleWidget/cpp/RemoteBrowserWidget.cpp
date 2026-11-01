@@ -14,7 +14,7 @@
 #include <General/TranslationHost.h>
 #include <Widgets/ThemeManager.h>
 #include <General/VIApplication.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
 #include "Editor/SSHConnection/SSHConnectionWidget.h"
@@ -107,7 +107,7 @@ namespace YSS::Editor {
 			if (!uri.isValid()) {
 				return YSSCore::General::YSSURI();
 			}
-			if (!YSSCore::General::YSSUniqueFileSystem::getInstance()->isReady(uri)) {
+			if (!YSSCore::General::YSSUnifiedFileSystem::getInstance()->isReady(uri)) {
 				return YSSCore::General::YSSURI();
 			}
 			return uri;
@@ -128,7 +128,7 @@ namespace YSS::Editor {
 		void refreshAuthentics() {
 			const QString current = currentAuthentic();
 			QStringList authorities =
-				YSSCore::General::YSSUniqueFileSystem::getInstance()->getSshAuthorities();
+				YSSCore::General::YSSUnifiedFileSystem::getInstance()->getSshAuthorities();
 			for (const QString& authority : loadKnownAuthentics()) {
 				if (!authorities.contains(authority)) {
 					authorities.append(authority);
@@ -154,7 +154,7 @@ namespace YSS::Editor {
 				emit q->currentUriChanged(YSSCore::General::YSSURI());
 				return;
 			}
-			if (!YSSCore::General::YSSUniqueFileSystem::getInstance()->isReady(uri)) {
+			if (!YSSCore::General::YSSUnifiedFileSystem::getInstance()->isReady(uri)) {
 				// 未连接时不去触发列目录请求，免得统一文件系统发出的“需要凭据”信号把连接页弹出来。
 				StatusLabel->setText(VITRL("YSS::project.locate.remoteNotConnected"));
 				emit q->currentUriChanged(YSSCore::General::YSSURI());
@@ -164,7 +164,7 @@ namespace YSS::Editor {
 			const QString requested = uri.toString();
 			ListingUri = requested;
 			YSSCore::General::YSSFileSystemReply* reply =
-				YSSCore::General::YSSUniqueFileSystem::getInstance()->list(uri);
+				YSSCore::General::YSSUnifiedFileSystem::getInstance()->list(uri);
 			if (reply == nullptr) {
 				StatusLabel->setText(VITRL("YSS::project.locate.remoteNotConnected"));
 				emit q->currentUriChanged(YSSCore::General::YSSURI());
@@ -281,7 +281,7 @@ namespace YSS::Editor {
 			}
 			const YSSCore::General::YSSURI target = base.resolve(name);
 			YSSCore::General::YSSFileSystemReply* reply =
-				YSSCore::General::YSSUniqueFileSystem::getInstance()->mkdir(target);
+				YSSCore::General::YSSUnifiedFileSystem::getInstance()->mkdir(target);
 			if (reply == nullptr) {
 				QMessageBox::warning(q, VITRL("YSS::project.locate.newFolderDialog.failedTitle"),
 					VITRL("YSS::project.locate.newFolderDialog.failedMessage").arg(target.toString()));
@@ -393,7 +393,7 @@ namespace YSS::Editor {
 		默认只列出子文件夹。用 \l{setFileSuffixFilters()} 给出后缀后，匹配的文件也会出现在
 		列表里，双击这类文件会发出 \l{fileActivated()}。
 
-		本控件只负责展示与选择，不会写盘；需要建目录时会通过 \l{YSSUniqueFileSystem::mkdir()}
+		本控件只负责展示与选择，不会写盘；需要建目录时会通过 \l{YSSUnifiedFileSystem::mkdir()}
 		提交请求。
 	*/
 

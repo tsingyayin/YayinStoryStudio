@@ -9,7 +9,7 @@
 #include <Editor/FileEditWidget.h>
 #include <Editor/FileServer.h>
 #include <General/YSSURI.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 class QAction;
 class QMenu;
 class QToolBar;

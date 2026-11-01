@@ -40,7 +40,7 @@ namespace YSS::Editor {
 		统一文件系统的传输监视。
 
 		显示成功读写的累计量（合计 + 按 Provider 分项）、当前正在执行的操作及其
-		进度、以及排队中的任务数。浮窗可见时按固定间隔从 UniqueFileSystem 拉取
+		进度、以及排队中的任务数。浮窗可见时按固定间隔从 UnifiedFileSystem 拉取
 		快照，隐藏后停止轮询。
 
 		外观同样对标 TextEdit 的悬浮窗，见 \l{EditorHintSettingsPopup}。

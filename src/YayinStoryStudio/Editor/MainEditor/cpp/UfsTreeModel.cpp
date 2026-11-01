@@ -143,7 +143,7 @@ namespace YSS::Editor {
 		node->ListingToken = token;
 		const YSSCore::General::YSSURI dirUri = node->Uri;
 		YSSCore::General::YSSFileSystemReply* reply =
-			YSSCore::General::YSSUniqueFileSystem::getInstance()->list(dirUri);
+			YSSCore::General::YSSUnifiedFileSystem::getInstance()->list(dirUri);
 		if (reply == nullptr) {
 			node->Loading = false;
 			node->ChildrenLoaded = true;
@@ -166,7 +166,7 @@ namespace YSS::Editor {
 				// 本机后端支持监听时顺手挂上，外部改动也能自动刷新（QFileSystemModel 以前白送的能力）。
 				if (!self->Watching) {
 					YSSCore::General::YSSFileError watchError;
-					self->Watching = YSSCore::General::YSSUniqueFileSystem::getInstance()->watchDirectory(dirUri, &watchError);
+					self->Watching = YSSCore::General::YSSUnifiedFileSystem::getInstance()->watchDirectory(dirUri, &watchError);
 				}
 				this->processReveals();
 				if (self->ReloadPending) {

@@ -1,7 +1,7 @@
 #ifndef YayinStoryStudio_Editor_MainEditor_UfsTreeModel_h
 #define YayinStoryStudio_Editor_MainEditor_UfsTreeModel_h
 #include <General/YSSURI.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <QtCore/qabstractitemmodel.h>
 #include <QtCore/qstringlist.h>
 #include <functional>
@@ -10,7 +10,7 @@ namespace YSS::Editor {
 	class UfsTreeModelPrivate;
 
 	/*
-		基于 YSSUniqueFileSystem 的目录树模型。
+		基于 YSSUnifiedFileSystem 的目录树模型。
 
 		节点身份是 YSSURI，目录在展开时才异步列目录，因此本机与 SSH 项目共用同一套
 		视图代码。模型本身不做任何写操作，重命名/删除/复制交给调用方，完成后调用

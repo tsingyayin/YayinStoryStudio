@@ -20,7 +20,7 @@
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
 #include <General/YSSProject.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/FileOperation.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
@@ -708,7 +708,7 @@ namespace YSS::ProjectPage {
 		if (not uri.isRemote()) {
 			return true;
 		}
-		if (YSSCore::General::YSSUniqueFileSystem::getInstance()->isReady(uri)) {
+		if (YSSCore::General::YSSUnifiedFileSystem::getInstance()->isReady(uri)) {
 			return true;
 		}
 		YSS::Editor::SSHConnectionWidget::requestVerification(uri);

@@ -21,17 +21,20 @@
 #include <algorithm>
 #include <tuple>
 #include "General/Log.h"
-#include "General/YSSUniqueFileSystem.h"
-#include "General/private/YSSUniqueFileSystem_p.h"
+#include "General/YSSUnifiedFileSystem.h"
+#include "General/private/YSSFileSystemReply_p.h"
+#include "General/private/YSSFileSystemRequest_p.h"
+#include "General/private/YSSUnifiedFileSystem_p.h"
 
-// 独立日志命名空间：日志前缀只显示 (YSSUniqueFileSystem)，不带函数签名与行号。
-VI_DECLARE_LOGGER(YSSUniqueFileSystem, YSSUFS, YSSCore::General);
+// 独立日志命名空间：日志前缀只显示 (YSSUnifiedFileSystem)，不带函数签名与行号。
+VI_DECLARE_LOGGER(YSSUnifiedFileSystem, YSSUFS, YSSCore::General);
 
+namespace YSSCore::General {
 namespace {
 	// 会修改文件系统的操作。资源（qrc）只读，这类操作在门面层就拒绝，
 	// 不需要每个后端各写一遍。
-	bool isWriteOperation(YSSCore::General::YSSUniqueFileSystem::Operation operation) {
-		using Operation = YSSCore::General::YSSUniqueFileSystem::Operation;
+	bool isWriteOperation(YSSCore::General::YSSUnifiedFileSystem::Operation operation) {
+		using Operation = YSSCore::General::YSSUnifiedFileSystem::Operation;
 		switch (operation) {
 		case Operation::Write:
 		case Operation::Remove:
@@ -48,8 +51,8 @@ namespace {
 	}
 
 	// 日志里使用的操作名。
-	const char* operationName(YSSCore::General::YSSUniqueFileSystem::Operation operation) {
-		using Operation = YSSCore::General::YSSUniqueFileSystem::Operation;
+	const char* operationName(YSSCore::General::YSSUnifiedFileSystem::Operation operation) {
+		using Operation = YSSCore::General::YSSUnifiedFileSystem::Operation;
 		switch (operation) {
 		case Operation::Stat: return "stat";
 		case Operation::Read: return "read";
@@ -68,7 +71,7 @@ namespace {
 
 	// 日志里统一的任务描述："read #12 ssh://user@host:22/a.txt"，
 	// 重命名再追加目标："rename #7 <from> -> <to>"。
-	QString describeRequest(quint64 id, YSSCore::General::YSSUniqueFileSystem::Operation operation,
+	QString describeRequest(quint64 id, YSSCore::General::YSSUnifiedFileSystem::Operation operation,
 		const YSSCore::General::YSSURI& uri, const YSSCore::General::YSSURI& target = YSSCore::General::YSSURI()) {
 		QString text = QStringLiteral("%1 #%2 %3")
 			.arg(QLatin1String(operationName(operation)))
@@ -81,54 +84,15 @@ namespace {
 	}
 }
 
-namespace YSSCore::General {
-	class YSSFileAttributesPrivate {
-		friend class YSSFileAttributes;
-	protected:
-		YSSFileAttributes::Fields KnownFields = YSSFileAttributes::Field::None;
-		quint64 Size = 0;
-		qint64 ModifiedMs = 0;
-		qint64 CreatedMs = 0;
-		qint64 AccessedMs = 0;
-		bool IsDirectory = false;
-		bool IsSymlink = false;
-		bool IsHidden = false;
-		bool IsReadOnly = false;
-		bool IsExecutable = false;
-		quint32 Permissions = 0;
-		quint32 OwnerId = 0;
-		quint32 GroupId = 0;
-		QString LinkTarget;
-	};
-
-	class YSSFileSystemReplyPrivate {
-		friend class YSSFileSystemReply;
-		friend class YSSUniqueFileSystem;
-		friend class YSSUniqueFileSystemPrivate;
-		friend class YSSUniqueFileSystemProvider;
-	protected:
-		quint64 Id = 0;
-		YSSCore::General::YSSURI Uri;
-		YSSUniqueFileSystem::Operation Operation = YSSUniqueFileSystem::Operation::Unknown;
-		QByteArray Data;
-		QList<YSSFileEntry> Entries;
-		YSSFileAttributes Attributes;
-		qint64 BytesTransferred = 0;
-		qint64 TotalBytes = -1;
-		YSSFileError Error;
-		bool Finished = false;
-		bool AutoDelete = true;
-	};
-
-	class YSSUniqueFileSystemPrivate {
-		friend class YSSUniqueFileSystem;
+	class YSSUnifiedFileSystemPrivate {
+		friend class YSSUnifiedFileSystem;
 	protected:
 		// 已被受理、等待调度（或正在被调度器放行）的请求。
 		struct PendingTask {
 			quint64 Id = 0;
 			YSSFileSystemRequest Request;
 			QPointer<YSSFileSystemReply> Reply;
-			YSSUniqueFileSystemProvider* Provider = nullptr;
+			YSSUnifiedFileSystemProvider* Provider = nullptr;
 			QStringList Keys;
 		};
 		// 一条跨后端（或后端不原生支持）的复制/移动。门面按块在源与目标之间中继，
@@ -137,8 +101,8 @@ namespace YSSCore::General {
 			quint64 Id = 0;
 			YSSURI Source;
 			YSSURI Target;
-			YSSUniqueFileSystemProvider* SourceProvider = nullptr;
-			YSSUniqueFileSystemProvider* TargetProvider = nullptr;
+			YSSUnifiedFileSystemProvider* SourceProvider = nullptr;
+			YSSUnifiedFileSystemProvider* TargetProvider = nullptr;
 			QPointer<YSSFileSystemReply> Reply;
 			// 偏移 0 处的中继读写已经在进行，后续可以继续用区间请求。
 			bool Started = false;
@@ -253,22 +217,22 @@ namespace YSSCore::General {
 					}
 					emit Owner->sshConnectionRequired(authority);
 				});
-			QObject::connect(provider, &YSSUniqueFileSystemProvider::started, Owner,
+			QObject::connect(provider, &YSSUnifiedFileSystemProvider::started, Owner,
 				[this](quint64 id) { Owner->d->onProviderStarted(id); });
-			QObject::connect(provider, &YSSUniqueFileSystemProvider::progressed, Owner,
+			QObject::connect(provider, &YSSUnifiedFileSystemProvider::progressed, Owner,
 				[this](quint64 id, qint64 transferred, qint64 total) {
 					Owner->d->onProviderProgressed(id, transferred, total);
 				});
-			QObject::connect(provider, &YSSUniqueFileSystemProvider::finished, Owner,
+			QObject::connect(provider, &YSSUnifiedFileSystemProvider::finished, Owner,
 				[this](quint64 id, bool ok) { Owner->d->onProviderFinished(id, ok); });
-			QObject::connect(provider, &YSSUniqueFileSystemProvider::watchedDirectoryChanged, Owner,
+			QObject::connect(provider, &YSSUnifiedFileSystemProvider::watchedDirectoryChanged, Owner,
 				[this](const YSSURI& uri) { emit Owner->directoryChanged(uri); });
 			return provider;
 		}
 		// URI 的路由：本机/资源走 Local，远端按 authority 找对应的 SSH 后端。
 		// 远端找不到时按需新建一个未配置的后端，让请求以"未连接"失败，
 		// 而不是在门面层凭空丢掉一个可连接的结果对象。
-		YSSUniqueFileSystemProvider* providerFor(const YSSURI& uri) {
+		YSSUnifiedFileSystemProvider* providerFor(const YSSURI& uri) {
 			if (uri.isNotRemote()) {
 				return Local;
 			}
@@ -295,17 +259,17 @@ namespace YSSCore::General {
 			return it != SshProviders.constEnd() ? it.value() : nullptr;
 		}
 		// 把一笔已完成读写记到合计与对应 Provider 两个地方。\a providerId 为空时只记合计。
-		void addTransfer(const QString& providerId, YSSUniqueFileSystem::Operation operation,
+		void addTransfer(const QString& providerId, YSSUnifiedFileSystem::Operation operation,
 			qint64 readBytes, qint64 writeBytes) {
 			switch (operation) {
-			case YSSUniqueFileSystem::Operation::Read:
+			case YSSUnifiedFileSystem::Operation::Read:
 				BytesRead += readBytes;
 				break;
-			case YSSUniqueFileSystem::Operation::Write:
+			case YSSUnifiedFileSystem::Operation::Write:
 				BytesWritten += writeBytes;
 				break;
-			case YSSUniqueFileSystem::Operation::Copy:
-			case YSSUniqueFileSystem::Operation::Move:
+			case YSSUnifiedFileSystem::Operation::Copy:
+			case YSSUnifiedFileSystem::Operation::Move:
 				// 复制与需要搬运数据的移动同时读源、写目标。
 				BytesRead += readBytes;
 				BytesWritten += writeBytes;
@@ -328,7 +292,7 @@ namespace YSSCore::General {
 		// 旧的不带 authority 的连接接口作用在这条"默认连接"上。
 		QString DefaultSshKey;
 		// 反向指回门面，创建后端时用来挂信号。
-		YSSUniqueFileSystem* Owner = nullptr;
+		YSSUnifiedFileSystem* Owner = nullptr;
 		quint64 NextId = 1;
 		// 按提交顺序保存尚未结束的任务。
 		QMap<quint64, YSSFileSystemTask> Tasks;
@@ -349,1058 +313,14 @@ namespace YSSCore::General {
 		qint64 BytesRead = 0;
 		qint64 BytesWritten = 0;
 		QHash<QString, YSSFileSystemTransferStats> ProviderStats;
-		static YSSUniqueFileSystem* Instance;
+		static YSSUnifiedFileSystem* Instance;
 	};
 
-	YSSUniqueFileSystem* YSSUniqueFileSystemPrivate::Instance = nullptr;
+	YSSUnifiedFileSystem* YSSUnifiedFileSystemPrivate::Instance = nullptr;
 
 	/*!
-		\struct YSSCore::General::YSSFileError
-		\inheaderfile General/YSSUniqueFileSystem.h
-		\since YSS 0.18.0
-		\inmodule YSSCore
-		\brief 文件系统层的统一错误信息.
-
-		与 \l{Visindigo::Network::SshError} 同一形状：错误是可预期结果，不走异常，
-		可以跨线程、跨信号传递。本机与远端后端都使用这一套分类，调用方不必知道
-		当前后端是本机文件还是 SSH 上的文件。
-
-		\list
-		\li \b{Type} 错误分类，取值见 \l{YSSFileError::ErrorType}。
-		\li \b{Message} 面向用户的简短描述。
-		\li \b{Detail} 后端给出的原始信息，用于排查。
-		\endlist
-	*/
-
-	/*!
-		\enum YSSCore::General::YSSFileError::ErrorType
-		\since YSS 0.18.0
-
-		错误分类。
-
-		\value NoError 无错误。
-		\value NotFound 文件或目录不存在。
-		\value PermissionDenied 权限不足。
-		\value AlreadyExists 目标已存在（例如创建已存在的目录）。
-		\value NotADirectory 路径中有一段不是目录。
-		\value IoError 底层读写失败。
-		\value NotSupported 当前后端不支持该操作，参见 \l{YSSUniqueFileSystem::getCapabilities()}。
-		\value Aborted 操作在完成前被中止（会话关闭、对象销毁等）。
-		\value InvalidConfiguration 路径或参数不合法。
-		\value FileTooLarge 文件超过后端配置的大小上限。
-		\value NeedsCredentials 连接当前不可用，需要用户提供凭据。
-		\value Unknown 未归类的错误。
-	*/
-
-	/*!
-		\class YSSCore::General::YSSFileAttributes
-		\inheaderfile General/YSSUniqueFileSystem.h
-		\since YSS 0.18.0
-		\inmodule YSSCore
-		\brief 文件属性.
-
-		值类型 + PIMPL。包含本机与远端后端能够给出的通用字段，以及若干按后端
-		能力尽量补齐的字段。每个字段是否可信由 \l{Field} 位掩码单独记录，调用方
-		用 \l{getKnownFields()} 或 \l{hasField()} 判断，不要用数值是否为 0 来猜：
-		空文件和 uid 0 都是合法取值。
-
-		掩码底层是 \c quint64，最多可以登记 64 个字段，当前只用了 13 个。
-		要求"全部字段都可信"是不现实的（SFTP 没有创建时间，本机没有可移植的
-		inode 语义），因此缺字段是正常状态，不是错误。
-
-		SFTP 的时间戳精度通常只到秒，因此 \l{ModifiedMs} 只能当作"大概什么时候"用，
-		不能作为变更检测的唯一依据。
-
-		\list
-		\li \l{Field::Size} 字节数；目录为 0。
-		\li \l{Field::ModifiedMs} 修改时间的 UTC 毫秒数。
-		\li \l{Field::CreatedMs} 创建时间的 UTC 毫秒数；SFTP 给不出，通常只有本机可用。
-		\li \l{Field::AccessedMs} 最后访问时间的 UTC 毫秒数。
-		\li \l{Field::IsDirectory} 是否为目录。
-		\li \l{Field::IsSymlink} 是否为符号链接。
-		\li \l{Field::IsHidden} 是否为隐藏项。本机取平台隐藏属性，远端按 POSIX
-			的点号前缀约定。
-		\li \l{Field::IsReadOnly} 是否只读。本机取当前进程的有效权限，远端只能按
-			权限位推断（没有写位即为只读）。
-		\li \l{Field::IsExecutable} 是否可执行。本机取平台判定，远端按权限位推断。
-		\li \l{Field::Permissions} 原生权限位。本机由 \l{QFileDevice::Permissions}
-			映射成 POSIX mode，远端为 SFTP 原样给出的 mode。
-		\li \l{Field::OwnerId} / \l{Field::GroupId} 所属用户 / 组的数字 id。
-		\li \l{Field::LinkTarget} 符号链接指向的路径。
-		\endlist
-	*/
-
-	/*!
-		\enum YSSCore::General::YSSFileAttributes::Field
-		\since YSS 0.18.0
-
-		属性的字段标识，同时用作"哪些字段可信"的位掩码。
-
-		\value None 没有字段。作为掩码时表示空集合。
-		\value Size 大小。
-		\value ModifiedMs 修改时间。
-		\value CreatedMs 创建时间。
-		\value AccessedMs 访问时间。
-		\value IsDirectory 目录标志。
-		\value IsSymlink 符号链接标志。
-		\value IsHidden 隐藏标志。
-		\value IsReadOnly 只读标志。
-		\value IsExecutable 可执行标志。
-		\value Permissions 原生权限位。
-		\value OwnerId 所有者 id。
-		\value GroupId 所属组 id。
-		\value LinkTarget 符号链接目标。
-	*/
-
-	/*!
-		\since YSS 0.18.0
-
-		构造一个空属性对象：所有字段都不可信。
-	*/
-	YSSFileAttributes::YSSFileAttributes() {
-		this->d = new YSSFileAttributesPrivate();
-	}
-
-	VICopyable_Impl(YSSFileAttributes);
-	VIMoveable_Impl(YSSFileAttributes);
-
-	/*!
-		\since YSS 0.18.0
-
-		析构函数。
-	*/
-	YSSFileAttributes::~YSSFileAttributes() {
-		delete this->d;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取可信字段集合。
-
-		\return 后端真正给出的字段；空对象返回 \l{Field::None}。
-	*/
-	YSSFileAttributes::Fields YSSFileAttributes::getKnownFields() const {
-		return this->d ? this->d->KnownFields : Fields(Field::None);
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断单个字段是否可信。
-
-		\a field 字段标识。传 \l{Field::None} 时返回"没有任何字段可信"。
-
-		\return 字段可信时返回 true。
-	*/
-	bool YSSFileAttributes::hasField(Field field) const {
-		if (this->d == nullptr) {
-			return false;
-		}
-		if (field == Field::None) {
-			return this->d->KnownFields == Field::None;
-		}
-		return this->d->KnownFields.testFlag(field);
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断一组字段是否全部可信。
-
-		\a fields 字段集合。
-
-		\return 全部可信时返回 true；空集合返回 true。
-	*/
-	bool YSSFileAttributes::hasFields(Fields fields) const {
-		if (this->d == nullptr) {
-			return false;
-		}
-		return (this->d->KnownFields & fields) == fields;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		手工调整某个字段的可信状态。后端的适配层在字段缺失时用它把 setter
-		写入的值重新标记为不可信。
-
-		\a field 字段标识，不能是 \l{Field::None}。
-		\a known 是否可信。
-	*/
-	void YSSFileAttributes::setFieldKnown(Field field, bool known) {
-		if (this->d == nullptr || field == Field::None) {
-			return;
-		}
-		this->d->KnownFields.setFlag(field, known);
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 字节数；不可信时为 0。
-	*/
-	quint64 YSSFileAttributes::getSize() const {
-		return this->d ? this->d->Size : 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 修改时间的 UTC 毫秒数；不可信时为 0。
-	*/
-	qint64 YSSFileAttributes::getModifiedMs() const {
-		return this->d ? this->d->ModifiedMs : 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 创建时间的 UTC 毫秒数；不可信时为 0。
-	*/
-	qint64 YSSFileAttributes::getCreatedMs() const {
-		return this->d ? this->d->CreatedMs : 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 访问时间的 UTC 毫秒数；不可信时为 0。
-	*/
-	qint64 YSSFileAttributes::getAccessedMs() const {
-		return this->d ? this->d->AccessedMs : 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 是否为目录；不可信时为 false。
-	*/
-	bool YSSFileAttributes::isDirectory() const {
-		return this->d ? this->d->IsDirectory : false;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 是否为符号链接；不可信时为 false。
-	*/
-	bool YSSFileAttributes::isSymlink() const {
-		return this->d ? this->d->IsSymlink : false;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 是否为隐藏项；不可信时为 false。
-	*/
-	bool YSSFileAttributes::isHidden() const {
-		return this->d ? this->d->IsHidden : false;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 是否只读；不可信时为 false。
-	*/
-	bool YSSFileAttributes::isReadOnly() const {
-		return this->d ? this->d->IsReadOnly : false;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 是否可执行；不可信时为 false。
-	*/
-	bool YSSFileAttributes::isExecutable() const {
-		return this->d ? this->d->IsExecutable : false;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 原生权限位；不可信时为 0。
-	*/
-	quint32 YSSFileAttributes::getPermissions() const {
-		return this->d ? this->d->Permissions : 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 所有者 id；不可信时为 0。
-	*/
-	quint32 YSSFileAttributes::getOwnerId() const {
-		return this->d ? this->d->OwnerId : 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 所属组 id；不可信时为 0。
-	*/
-	quint32 YSSFileAttributes::getGroupId() const {
-		return this->d ? this->d->GroupId : 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-		\return 符号链接目标；不可信或不是链接时为空。
-	*/
-	QString YSSFileAttributes::getLinkTarget() const {
-		return this->d ? this->d->LinkTarget : QString();
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置大小，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setSize(quint64 size) {
-		this->d->Size = size;
-		this->d->KnownFields |= Field::Size;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置修改时间，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setModifiedMs(qint64 modifiedMs) {
-		this->d->ModifiedMs = modifiedMs;
-		this->d->KnownFields |= Field::ModifiedMs;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置创建时间，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setCreatedMs(qint64 createdMs) {
-		this->d->CreatedMs = createdMs;
-		this->d->KnownFields |= Field::CreatedMs;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置访问时间，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setAccessedMs(qint64 accessedMs) {
-		this->d->AccessedMs = accessedMs;
-		this->d->KnownFields |= Field::AccessedMs;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置目录标志，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setIsDirectory(bool isDirectory) {
-		this->d->IsDirectory = isDirectory;
-		this->d->KnownFields |= Field::IsDirectory;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置符号链接标志，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setIsSymlink(bool isSymlink) {
-		this->d->IsSymlink = isSymlink;
-		this->d->KnownFields |= Field::IsSymlink;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置隐藏标志，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setIsHidden(bool isHidden) {
-		this->d->IsHidden = isHidden;
-		this->d->KnownFields |= Field::IsHidden;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置只读标志，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setIsReadOnly(bool isReadOnly) {
-		this->d->IsReadOnly = isReadOnly;
-		this->d->KnownFields |= Field::IsReadOnly;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置可执行标志，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setIsExecutable(bool isExecutable) {
-		this->d->IsExecutable = isExecutable;
-		this->d->KnownFields |= Field::IsExecutable;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置原生权限位，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setPermissions(quint32 permissions) {
-		this->d->Permissions = permissions;
-		this->d->KnownFields |= Field::Permissions;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置所有者 id，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setOwnerId(quint32 ownerId) {
-		this->d->OwnerId = ownerId;
-		this->d->KnownFields |= Field::OwnerId;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置所属组 id，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setGroupId(quint32 groupId) {
-		this->d->GroupId = groupId;
-		this->d->KnownFields |= Field::GroupId;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置符号链接目标，并标记该字段可信。
-	*/
-	void YSSFileAttributes::setLinkTarget(const QString& linkTarget) {
-		this->d->LinkTarget = linkTarget;
-		this->d->KnownFields |= Field::LinkTarget;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断属性是否携带了有效信息。
-
-		\return 至少有一个字段可信时返回 true。
-	*/
-	bool YSSFileAttributes::isValid() const {
-		return this->d != nullptr && this->d->KnownFields != Field::None;
-	}
-
-	/*!
-		\struct YSSCore::General::YSSFileSystemResult
-		\inheaderfile General/YSSUniqueFileSystem.h
-		\since YSS 0.18.0
-		\inmodule YSSCore
-		\brief 一次操作的结果快照.
-
-		以值传递进 \l{YSSFileSystemReply::then()}，所以回调里不需要持有 reply 对象，
-		也不存在生命周期问题。
-
-		\list
-		\li \b{Uri} 操作的绝对 URI，见 \l{YSSFileSystemReply::getUri()}。
-		\li \b{Error} 失败原因；成功时为 \l{YSSFileError::ErrorType::NoError}。
-		\li \b{Data} \l{YSSUniqueFileSystem::Operation::Read} 读到的内容，其它操作保持空。
-		\li \b{Entries} \l{YSSUniqueFileSystem::Operation::List} 得到的条目。
-		\li \b{Attributes} \l{YSSUniqueFileSystem::Operation::Stat} 查到的属性。
-		\li \b{BytesTransferred} 实际传输的字节数，读与写都有值。
-		\li \b{TotalBytes} 传输总量；-1 表示后端没有给出。
-		\endlist
-	*/
-
-	/*!
-		\since YSS 0.18.0
-
-		判断结果是否表示失败。
-
-		\return \l{Error} 的 \c{Type} 不是 \l{YSSFileError::ErrorType::NoError} 时返回 true。
-	*/
-	bool YSSFileSystemResult::isError() const {
-		return Error.isError();
-	}
-
-	/*!
-		\struct YSSCore::General::YSSFileEntry
-		\inheaderfile General/YSSUniqueFileSystem.h
-		\since YSS 0.18.0
-		\inmodule YSSCore
-		\brief 目录列表中的一项.
-
-		\list
-		\li \b{Name} 名称，不含路径。
-		\li \b{Attributes} 该项的属性。
-		\endlist
-	*/
-
-	/*!
-		\since YSS 0.18.0
-
-		返回枚举值对应的名字字符串；传入未收录的取值时返回 \c "Unknown"。
-	*/
-	QString YSSFileError::errorTypeName(ErrorType type) {
-		const QMetaEnum metaEnum = QMetaEnum::fromType<ErrorType>();
-		const char* key = metaEnum.valueToKey(static_cast<int>(type));
-		return key != nullptr ? QString::fromUtf8(key) : QStringLiteral("Unknown");
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断本结构是否表示一个错误。
-
-		\return \c{Type} 不是 \l{ErrorType::NoError} 时返回 true。
-	*/
-	bool YSSFileError::isError() const {
-		return Type != ErrorType::NoError;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		生成适合写入日志的单行描述。
-
-		\return 形如 \c{[NotFound] no such file: a.txt} 的文本。
-	*/
-	QString YSSFileError::toString() const {
-		return QStringLiteral("[%1] %2").arg(errorTypeName(Type), Message);
-	}
-
-	/*!
-		\struct YSSCore::General::YSSFileSystemTask
-		\inheaderfile General/YSSUniqueFileSystem.h
-		\since YSS 0.18.0
-		\inmodule YSSCore
-		\brief UFS 中一个尚未结束的任务.
-
-		\l{YSSUniqueFileSystem::getTasks()} 返回该结构的快照列表，按提交顺序排列。
-		任务在 \l{YSSUniqueFileSystem::execute()} 成功受理时出现，在
-		\l{YSSUniqueFileSystem::taskFinished()} 之后被移除。
-
-		\list
-		\li \b{Id} 请求编号，与 \l{YSSFileSystemReply::getId()} 相同。
-		\li \b{Uri} / \b{TargetUri} 操作目标与重命名目标。
-		\li \b{Operation} 操作类型。
-		\li \b{QueuedAtMs} 提交时间（UTC 毫秒）。
-		\li \b{StartedAtMs} 开始执行的时间；0 表示仍在排队（可能是在等线程池，
-			也可能是在等同一个 URI 上的前一个任务结束）。
-		\li \b{BytesTransferred} / \b{TotalBytes} 进度；\b{TotalBytes} 为 -1 表示总长度未知。
-		\endlist
-	*/
-
-	/*!
-		\since YSS 0.18.0
-
-		判断任务是否已经开始执行。
-
-		\return 已开始返回 true。
-	*/
-	bool YSSFileSystemTask::isRunning() const {
-		return this->StartedAtMs != 0;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		计算进度百分比。用浮点数是为了不把 \c{3/7} 这类进度提前截断，
-		小文件上尤其明显。
-
-		\return 0.0..100.0；总长度未知或为 0 时返回 -1.0。
-	*/
-	qreal YSSFileSystemTask::progressPercent() const {
-		if (this->TotalBytes <= 0) {
-			return -1.0;
-		}
-		const qint64 clamped = qBound<qint64>(0, this->BytesTransferred, this->TotalBytes);
-		return static_cast<qreal>(clamped) * 100.0 / static_cast<qreal>(this->TotalBytes);
-	}
-
-	/*!
-		\class YSSCore::General::YSSFileSystemRequest
-		\inheaderfile General/YSSUniqueFileSystem.h
-		\since YSS 0.18.0
-		\inmodule YSSCore
-		\brief 一次文件系统操作的参数.
-
-		值类型。文件身份只有一种表示：\l{YSSURI}。本层不持有"根"，也没有相对路径
-		的解析规则，所以不存在第二个路径字段——一个目标一个 URI，重命名时再加一个
-		目标 URI。
-
-		\list
-		\li \l{YSSUniqueFileSystem::Operation::Stat} 只读 \l{Uri}。
-		\li \l{YSSUniqueFileSystem::Operation::Read} 读 \l{Uri}，结果在 \l{YSSFileSystemReply::getData()}。
-		\li \l{YSSUniqueFileSystem::Operation::Write} 把 \l{Data} 整体覆盖写入 \l{Uri}。
-		\li \l{YSSUniqueFileSystem::Operation::List} 列 \l{Uri} 下的条目。
-		\li \l{YSSUniqueFileSystem::Operation::Remove} 删除 \l{Uri}。
-		\li \l{YSSUniqueFileSystem::Operation::Rename} 把 \l{Uri} 移动到 \l{TargetUri}。
-		\li \l{YSSUniqueFileSystem::Operation::Mkdir} / \l{YSSUniqueFileSystem::Operation::Rmdir} 建目录 / 删空目录。
-		\endlist
-	*/
-
-	/*!
-		\since YSS 0.18.0
-
-		构造一个空请求。
-	*/
-	YSSFileSystemRequest::YSSFileSystemRequest() {
-		this->d = new YSSFileSystemRequestPrivate();
-	}
-
-	VICopyable_Impl(YSSFileSystemRequest);
-	VIMoveable_Impl(YSSFileSystemRequest);
-
-	/*!
-		\since YSS 0.18.0
-
-		析构函数。
-	*/
-	YSSFileSystemRequest::~YSSFileSystemRequest() {
-		delete this->d;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置操作类型。
-
-		\a operation 操作类型。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemRequest& YSSFileSystemRequest::setOperation(YSSUniqueFileSystem::Operation operation) {
-		this->d->Operation = operation;
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置操作目标的绝对 URI。
-
-		\a uri 目标 URI。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemRequest& YSSFileSystemRequest::setUri(const YSSURI& uri) {
-		this->d->Uri = uri;
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置重命名/移动的绝对目标 URI。
-
-		\a uri 目标 URI。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemRequest& YSSFileSystemRequest::setTargetUri(const YSSURI& uri) {
-		this->d->TargetUri = uri;
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置待写入内容，仅 \l{YSSUniqueFileSystem::Operation::Write} 使用。
-
-		\a data 内容。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemRequest& YSSFileSystemRequest::setData(const QByteArray& data) {
-		this->d->Data = data;
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置结果对象是否自动回收。
-
-		\a autoDelete 是否自动回收。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemRequest& YSSFileSystemRequest::setAutoDelete(bool autoDelete) {
-		this->d->AutoDelete = autoDelete;
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取操作类型。
-
-		\return 操作类型。
-	*/
-	YSSUniqueFileSystem::Operation YSSFileSystemRequest::getOperation() const {
-		return this->d->Operation;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取操作目标的绝对 URI。
-
-		\return 目标 URI；未设置时为空。
-	*/
-	YSSURI YSSFileSystemRequest::getUri() const {
-		return this->d->Uri;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取重命名/移动的绝对目标 URI。
-
-		\return 目标 URI；未设置时为空。
-	*/
-	YSSURI YSSFileSystemRequest::getTargetUri() const {
-		return this->d->TargetUri;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断本请求是否用绝对 URI 指定目标。
-
-		\return 设置了 URI 时返回 true。
-	*/
-	bool YSSFileSystemRequest::hasUri() const {
-		return this->d->Uri.isValid();
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断本请求是否用绝对 URI 指定重命名目标。
-
-		\return 设置了目标 URI 时返回 true。
-	*/
-	bool YSSFileSystemRequest::hasTargetUri() const {
-		return this->d->TargetUri.isValid();
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取待写入内容。
-
-		\return 内容。
-	*/
-	QByteArray YSSFileSystemRequest::getData() const {
-		return this->d->Data;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断结果对象是否自动回收。
-
-		\return 自动回收时返回 true。
-	*/
-	bool YSSFileSystemRequest::isAutoDelete() const {
-		return this->d->AutoDelete;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断参数是否自洽：必须有操作类型，重命名必须有目标 URI。
-
-		\return 参数自洽时返回 true。
-	*/
-	bool YSSFileSystemRequest::isValid() const {
-		if (this->d->Operation == YSSUniqueFileSystem::Operation::Unknown) {
-			return false;
-		}
-		switch (this->d->Operation) {
-		case YSSUniqueFileSystem::Operation::Rename:
-		case YSSUniqueFileSystem::Operation::Copy:
-		case YSSUniqueFileSystem::Operation::Move:
-			if (!this->d->TargetUri.isValid()) {
-				return false;
-			}
-			break;
-		default:
-			break;
-		}
-		return true;
-	}
-
-	/*!
-		\class YSSCore::General::YSSFileSystemReply
-		\inheaderfile General/YSSUniqueFileSystem.h
-		\since YSS 0.18.0
-		\inmodule YSSCore
-		\brief 一次文件系统操作的结果句柄.
-
-		与 \l{Visindigo::Network::SftpReply} 同一形状：\l{succeeded()}、
-		\l{failed()}、\l{finished()}，外加 then / onError / onFinally 的糖。
-		所有操作都是异步的，调用返回时结果一定还没到。
-
-		两种用法等价，选一种即可。连接信号时本对象是发送者，回调执行期间它一定还活着；
-		用 \l{then()} 时拿到的是一份结果快照，根本不需要持有本对象：
-
-		\code
-			// 信号
-			auto* reply = fs.read("docs/a.md");
-			QObject::connect(reply, &YSSFileSystemReply::succeeded, [reply]() {
-				use(reply->getData());
-			});
-
-			// 糖。fs.read() 返回指针，then() 返回引用，所以后续链接用点号。
-			fs.read("docs/a.md")->then([](const YSSFileSystemResult& result) {
-				use(result.Data);
-			}).onError([](const YSSFileError& error) {
-				report(error.toString());
-			});
-		\endcode
-
-		默认 \l{setAutoDelete()} 为 true，对象在 \l{finished()} 之后自行回收，
-		所以不要在回调之外长期保存这个指针。
-	*/
-
-	/*!
-		\fn void YSSCore::General::YSSFileSystemReply::succeeded()
-		\since YSS 0.18.0
-
-		操作成功，结果已可取。
-	*/
-
-	/*!
-		\fn void YSSCore::General::YSSFileSystemReply::failed(const YSSFileError& error)
-		\since YSS 0.18.0
-
-		操作失败。
-
-		\a error 失败原因。
-	*/
-
-	/*!
-		\fn void YSSCore::General::YSSFileSystemReply::finished()
-		\since YSS 0.18.0
-
-		操作结束，无论成功还是失败。
-	*/
-
-	/*!
-		\fn void YSSCore::General::YSSFileSystemReply::progressed(qint64 transferred, qint64 total)
-		\since YSS 0.18.0
-
-		传输进度。仅 Read / Write 会发；中间值按字节节流，结束时一定再发一次终值。
-
-		\a transferred 已传输字节数。
-		\a total 总字节数；后端没有给出时为 -1。
-	*/
-
-	/*!
-		\since YSS 0.18.0
-
-		取请求编号，在同一文件系统对象内唯一。
-
-		\return 请求编号。
-	*/
-	quint64 YSSFileSystemReply::getId() const {
-		return this->d->Id;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取本次操作的绝对 URI。
-
-		这就是提交请求时使用的 URI，本层不会改写它——没有根，也就没有"解析后"
-		的另一种形态。
-
-		\return 操作的绝对 URI。
-	*/
-	YSSURI YSSFileSystemReply::getUri() const {
-		return this->d->Uri;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取本次操作类型。
-
-		\return 操作类型。
-	*/
-	YSSUniqueFileSystem::Operation YSSFileSystemReply::getOperation() const {
-		return this->d->Operation;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取读取到的内容，仅 \l{YSSUniqueFileSystem::Operation::Read} 有值。
-
-		\return 文件内容。
-	*/
-	QByteArray YSSFileSystemReply::getData() const {
-		return this->d->Data;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取目录条目，仅 \l{YSSUniqueFileSystem::Operation::List} 有值。
-
-		\return 条目列表。
-	*/
-	QList<YSSFileEntry> YSSFileSystemReply::getEntries() const {
-		return this->d->Entries;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取文件属性，仅 \l{YSSUniqueFileSystem::Operation::Stat} 有值。
-
-		\return 属性。
-	*/
-	YSSFileAttributes YSSFileSystemReply::getAttributes() const {
-		return this->d->Attributes;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取已传输的字节数。读取/写入期间随 \l{progressed()} 更新，结束后为终值；
-		其它操作恒为 0。
-
-		\return 字节数。
-	*/
-	qint64 YSSFileSystemReply::getBytesTransferred() const {
-		return this->d->BytesTransferred;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取本次传输的总字节数。后端没有给出时为 -1。
-
-		\return 总字节数或 -1。
-	*/
-	qint64 YSSFileSystemReply::getTotalBytes() const {
-		return this->d->TotalBytes;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		取失败原因。
-
-		\return 错误；成功时 \c{Type} 为 \l{YSSFileError::ErrorType::NoError}。
-	*/
-	YSSFileError YSSFileSystemReply::getError() const {
-		return this->d->Error;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断操作是否已结束。
-
-		\return 已结束返回 true。
-	*/
-	bool YSSFileSystemReply::isFinished() const {
-		return this->d->Finished;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		注册成功回调。
-
-		\a fn 回调，参数为本次操作的结果快照。快照是值，回调不需要持有本对象，
-		也不需要担心本对象何时被回收。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemReply& YSSFileSystemReply::then(std::function<void(const YSSFileSystemResult& result)> fn) {
-		QObject::connect(this, &YSSFileSystemReply::succeeded, this, [this, fn]() {
-			YSSFileSystemResult result;
-			result.Uri = this->d->Uri;
-			result.Error = this->d->Error;
-			result.Data = this->d->Data;
-			result.Entries = this->d->Entries;
-			result.Attributes = this->d->Attributes;
-			result.BytesTransferred = this->d->BytesTransferred;
-			result.TotalBytes = this->d->TotalBytes;
-			fn(result);
-		});
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		注册失败回调。
-
-		\a fn 回调，参数为失败原因。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemReply& YSSFileSystemReply::onError(std::function<void(const YSSFileError& error)> fn) {
-		QObject::connect(this, &YSSFileSystemReply::failed, this, [fn](const YSSFileError& error) { fn(error); });
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		注册结束回调，成功与失败都会调用。
-
-		\a fn 回调。
-
-		\return 自身引用。
-	*/
-	YSSFileSystemReply& YSSFileSystemReply::onFinally(std::function<void()> fn) {
-		QObject::connect(this, &YSSFileSystemReply::finished, this, [fn]() { fn(); });
-		return *this;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		判断结果对象是否自动回收。
-
-		\return 自动回收时返回 true。
-	*/
-	bool YSSFileSystemReply::isAutoDelete() const {
-		return this->d->AutoDelete;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		设置是否在结束后自动回收。必须在结束前调用。
-
-		\a autoDelete 是否自动回收。
-	*/
-	void YSSFileSystemReply::setAutoDelete(bool autoDelete) {
-		this->d->AutoDelete = autoDelete;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		构造结果对象。只由 \l{YSSUniqueFileSystem} 创建。
-
-		\a id 请求编号。
-	*/
-	YSSFileSystemReply::YSSFileSystemReply(quint64 id) {
-		this->d = new YSSFileSystemReplyPrivate();
-		this->d->Id = id;
-	}
-
-	/*!
-		\since YSS 0.18.0
-
-		析构函数。
-	*/
-	YSSFileSystemReply::~YSSFileSystemReply() {
-		delete this->d;
-	}
-
-	/*!
-		\class YSSCore::General::YSSUniqueFileSystemProvider
-		\inheaderfile General/YSSUniqueFileSystem.h
+		\class YSSCore::General::YSSUnifiedFileSystemProvider
+		\inheaderfile General/private/YSSUnifiedFileSystem_p.h
 		\since YSS 0.18.0
 		\inmodule YSSCore
 		\brief 文件系统后端接口.
@@ -1421,7 +341,7 @@ namespace YSSCore::General {
 
 		\a parent 父对象。
 	*/
-	YSSUniqueFileSystemProvider::YSSUniqueFileSystemProvider(QObject* parent) : QObject(parent) {
+	YSSUnifiedFileSystemProvider::YSSUnifiedFileSystemProvider(QObject* parent) : QObject(parent) {
 	}
 
 	/*!
@@ -1429,7 +349,7 @@ namespace YSSCore::General {
 
 		析构函数。
 	*/
-	YSSUniqueFileSystemProvider::~YSSUniqueFileSystemProvider() {
+	YSSUnifiedFileSystemProvider::~YSSUnifiedFileSystemProvider() {
 	}
 
 	/*!
@@ -1439,15 +359,15 @@ namespace YSSCore::General {
 
 		\a reply 结果对象。
 	*/
-	qint64 YSSUniqueFileSystemProvider::requestDataOffset(const YSSFileSystemRequest& request) {
+	qint64 YSSUnifiedFileSystemProvider::requestDataOffset(const YSSFileSystemRequest& request) {
 		return request.d->DataOffset;
 	}
 
-	qint64 YSSUniqueFileSystemProvider::requestDataLength(const YSSFileSystemRequest& request) {
+	qint64 YSSUnifiedFileSystemProvider::requestDataLength(const YSSFileSystemRequest& request) {
 		return request.d->DataLength;
 	}
 
-	bool YSSUniqueFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
+	bool YSSUnifiedFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
 		if (error) {
 			YSSFileError value;
 			value.Type = YSSFileError::ErrorType::NotSupported;
@@ -1458,12 +378,12 @@ namespace YSSCore::General {
 		return false;
 	}
 
-	bool YSSUniqueFileSystemProvider::unwatchDirectory(const YSSURI& uri) {
+	bool YSSUnifiedFileSystemProvider::unwatchDirectory(const YSSURI& uri) {
 		Q_UNUSED(uri);
 		return false;
 	}
 
-	void YSSUniqueFileSystemProvider::markStarted(YSSFileSystemReply* reply) {		if (reply == nullptr) {
+	void YSSUnifiedFileSystemProvider::markStarted(YSSFileSystemReply* reply) {		if (reply == nullptr) {
 			return;
 		}
 		emit this->started(reply->getId());
@@ -1478,7 +398,7 @@ namespace YSSCore::General {
 		\a transferred 已传输字节数。
 		\a total 总字节数；未知时传 -1。
 	*/
-	void YSSUniqueFileSystemProvider::reportProgress(YSSFileSystemReply* reply, qint64 transferred, qint64 total) {
+	void YSSUnifiedFileSystemProvider::reportProgress(YSSFileSystemReply* reply, qint64 transferred, qint64 total) {
 		if (reply == nullptr) {
 			return;
 		}
@@ -1507,7 +427,7 @@ namespace YSSCore::General {
 		\a bytesTransferred 实际传输字节数。
 		\a totalBytes 传输总量；未知时传 -1。
 	*/
-	void YSSUniqueFileSystemProvider::complete(YSSFileSystemReply* reply, const QByteArray& data,
+	void YSSUnifiedFileSystemProvider::complete(YSSFileSystemReply* reply, const QByteArray& data,
 		const QList<YSSFileEntry>& entries, const YSSFileAttributes& attributes,
 		qint64 bytesTransferred, qint64 totalBytes) {
 		if (reply == nullptr) {
@@ -1523,21 +443,21 @@ namespace YSSCore::General {
 			reply->d->BytesTransferred = bytesTransferred;
 			reply->d->TotalBytes = totalBytes;
 			reply->d->Finished = true;
-			if (reply->d->Operation == YSSUniqueFileSystem::Operation::Read
-				|| reply->d->Operation == YSSUniqueFileSystem::Operation::Write) {
+			if (reply->d->Operation == YSSUnifiedFileSystem::Operation::Read
+				|| reply->d->Operation == YSSUnifiedFileSystem::Operation::Write) {
 				emit reply->progressed(bytesTransferred, totalBytes);
 			}
 			const quint64 id = reply->d->Id;
 			QString result;
 			switch (reply->d->Operation) {
-			case YSSUniqueFileSystem::Operation::Read:
-			case YSSUniqueFileSystem::Operation::Write:
+			case YSSUnifiedFileSystem::Operation::Read:
+			case YSSUnifiedFileSystem::Operation::Write:
 				result = QStringLiteral("ok, %1 bytes").arg(bytesTransferred >= 0 ? bytesTransferred : data.size());
 				break;
-			case YSSUniqueFileSystem::Operation::List:
+			case YSSUnifiedFileSystem::Operation::List:
 				result = QStringLiteral("ok, %1 entries").arg(entries.size());
 				break;
-			case YSSUniqueFileSystem::Operation::Stat:
+			case YSSUnifiedFileSystem::Operation::Stat:
 				result = QStringLiteral("ok, %1").arg(attributes.isDirectory() ? "directory" : "file");
 				break;
 			default:
@@ -1562,7 +482,7 @@ namespace YSSCore::General {
 		\a reply 结果对象。
 		\a error 失败原因。
 	*/
-	void YSSUniqueFileSystemProvider::fail(YSSFileSystemReply* reply, const YSSFileError& error) {
+	void YSSUnifiedFileSystemProvider::fail(YSSFileSystemReply* reply, const YSSFileError& error) {
 		if (reply == nullptr) {
 			return;
 		}
@@ -1597,14 +517,14 @@ namespace YSSCore::General {
 	}
 
 	/*!
-		\class YSSCore::General::YSSUniqueFileSystem
-		\inheaderfile General/YSSUniqueFileSystem.h
+		\class YSSCore::General::YSSUnifiedFileSystem
+		\inheaderfile General/YSSUnifiedFileSystem.h
 		\since YSS 0.18.0
 		\inmodule YSSCore
 		\brief 统一文件系统门面.
 
 		进程内单例。调用方只面对这一层：给它 \l{YSSURI}，它按 scheme 把请求交给对应的
-		后端，所有操作都是异步的。本机与远端的差异被 \l{YSSUniqueFileSystemProvider}
+		后端，所有操作都是异步的。本机与远端的差异被 \l{YSSUnifiedFileSystemProvider}
 		完全吸收，因此"把项目放到 SSH 上"不会让上层代码分叉。
 
 		两个后端共存，不是二选一：本机后端始终可用；SSH 后端只有在
@@ -1634,26 +554,9 @@ namespace YSSCore::General {
 		版本，否则读远端文件会卡住界面。
 	*/
 
-	/*!
-		\enum YSSCore::General::YSSUniqueFileSystem::Operation
-		\since YSS 0.18.0
-
-		文件系统操作类型，写在 \l{YSSFileSystemRequest} 上。
-
-		\value Unknown 未指定，这样的请求会被拒绝。
-		\value Stat 读取属性。
-		\value Read 读取整个文件。
-		\value Write 整体覆盖写入。
-		\value List 列出目录条目。
-		\value Remove 删除文件或符号链接，或者是整个目录树（递归）。不经过回收站。
-		\value Recycle 移入后端提供的回收站。需要 \l{CanRecycle} 能力，且不保证能恢复。
-		\value Rename 重命名或移动，需要同时给出 \l{YSSFileSystemRequest::setTargetUri()}。
-		\value Mkdir 创建目录。
-		\value Rmdir 删除空目录。目录非空时失败，需要连内容一起删请用 \l{Remove}。
-	*/
 
 	/*!
-		\enum YSSCore::General::YSSUniqueFileSystem::Capability
+		\enum YSSCore::General::YSSUnifiedFileSystem::Capability
 		\since YSS 0.18.0
 
 		后端支持的能力集合，用 \l{Capabilities} 做位运算判断。不同后端的支持范围不同，
@@ -1674,7 +577,7 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::sshReadyChanged(const QString& authority, bool ready)
+		\fn void YSSCore::General::YSSUnifiedFileSystem::sshReadyChanged(const QString& authority, bool ready)
 		\since YSS 0.18.0
 
 		某条 SSH 连接的就绪状态变化。界面可借此启用/禁用对应的远端操作。
@@ -1684,7 +587,7 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::sshConnectFinished(const QString& authority, bool ok, const QString& message)
+		\fn void YSSCore::General::YSSUnifiedFileSystem::sshConnectFinished(const QString& authority, bool ok, const QString& message)
 		\since YSS 0.18.0
 
 		某条 SSH 连接尝试结束。
@@ -1695,7 +598,7 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::sshDisconnected(const QString& authority, bool expected)
+		\fn void YSSCore::General::YSSUnifiedFileSystem::sshDisconnected(const QString& authority, bool expected)
 		\since YSS 0.18.0
 
 		某条原本已建立的 SSH 连接断开。
@@ -1709,7 +612,7 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::taskQueued(const YSSFileSystemTask& task)
+		\fn void YSSCore::General::YSSUnifiedFileSystem::taskQueued(const YSSFileSystemTask& task)
 		\since YSS 0.18.0
 
 		任务已被受理，进入队列。此时 \l{YSSFileSystemTask::isRunning()} 为假。
@@ -1719,7 +622,7 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::taskStarted(const YSSFileSystemTask& task)
+		\fn void YSSCore::General::YSSUnifiedFileSystem::taskStarted(const YSSFileSystemTask& task)
 		\since YSS 0.18.0
 
 		后端真正开始处理该任务。
@@ -1728,7 +631,7 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::taskProgressed(quint64 id, qint64 transferred, qint64 total)
+		\fn void YSSCore::General::YSSUnifiedFileSystem::taskProgressed(quint64 id, qint64 transferred, qint64 total)
 		\since YSS 0.18.0
 
 		读写进度。仅 Read / Write 会发；\a total 为 -1 表示总长度未知。
@@ -1739,7 +642,7 @@ namespace YSSCore::General {
 	*/
 
 	/*!
-		\fn void YSSCore::General::YSSUniqueFileSystem::taskFinished(quint64 id, bool ok)
+		\fn void YSSCore::General::YSSUnifiedFileSystem::taskFinished(quint64 id, bool ok)
 		\since YSS 0.18.0
 
 		任务结束。发出时该任务已经不在 \l{getTasks()} 里。
@@ -1755,11 +658,11 @@ namespace YSSCore::General {
 
 		\return 单例指针。
 	*/
-	YSSUniqueFileSystem* YSSUniqueFileSystem::getInstance() {
-		if (YSSUniqueFileSystemPrivate::Instance == nullptr) {
-			YSSUniqueFileSystemPrivate::Instance = new YSSUniqueFileSystem();
+	YSSUnifiedFileSystem* YSSUnifiedFileSystem::getInstance() {
+		if (YSSUnifiedFileSystemPrivate::Instance == nullptr) {
+			YSSUnifiedFileSystemPrivate::Instance = new YSSUnifiedFileSystem();
 		}
-		return YSSUniqueFileSystemPrivate::Instance;
+		return YSSUnifiedFileSystemPrivate::Instance;
 	}
 
 	/*!
@@ -1768,21 +671,21 @@ namespace YSSCore::General {
 		构造单例。本机后端在这里创建并且始终存在；SSH 后端按需创建——每当出现
 		一条新的远端连接身份或一个指向未登记 authority 的请求时才会新建。
 	*/
-	YSSUniqueFileSystem::YSSUniqueFileSystem() : QObject(nullptr) {
-		this->d = new YSSUniqueFileSystemPrivate();
+	YSSUnifiedFileSystem::YSSUnifiedFileSystem() : QObject(nullptr) {
+		this->d = new YSSUnifiedFileSystemPrivate();
 		this->d->Owner = this;
 		this->d->Local = new YSSLocalFileSystemProvider(this);
 		// 后端可能在任意线程上发出这三个信号：同一线程内直接更新，跨线程自动排队。
-		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::started, this,
+		QObject::connect(this->d->Local, &YSSUnifiedFileSystemProvider::started, this,
 			[this](quint64 id) { this->d->onProviderStarted(id); });
-		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::progressed, this,
+		QObject::connect(this->d->Local, &YSSUnifiedFileSystemProvider::progressed, this,
 			[this](quint64 id, qint64 transferred, qint64 total) {
 				this->d->onProviderProgressed(id, transferred, total);
 			});
-		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::finished, this,
+		QObject::connect(this->d->Local, &YSSUnifiedFileSystemProvider::finished, this,
 			[this](quint64 id, bool ok) { this->d->onProviderFinished(id, ok); });
 		// 目录变化：后端自己已经做了去抖，这里只做转发。
-		QObject::connect(this->d->Local, &YSSUniqueFileSystemProvider::watchedDirectoryChanged, this,
+		QObject::connect(this->d->Local, &YSSUnifiedFileSystemProvider::watchedDirectoryChanged, this,
 			[this](const YSSURI& uri) { emit this->directoryChanged(uri); });
 	}
 
@@ -1791,7 +694,7 @@ namespace YSSCore::General {
 
 		析构函数。本机后端与所有 SSH 后端会被一并销毁。
 	*/
-	YSSUniqueFileSystem::~YSSUniqueFileSystem() {
+	YSSUnifiedFileSystem::~YSSUnifiedFileSystem() {
 		delete this->d->Local;
 		this->d->Local = nullptr;
 		for (YSSSshFileSystemProvider* provider : this->d->SshProviders) {
@@ -1814,7 +717,7 @@ namespace YSSCore::General {
 
 		\return 能力标志。
 	*/
-	YSSUniqueFileSystem::Capabilities YSSUniqueFileSystem::getCapabilities(const YSSURI& uri) const {
+	YSSUnifiedFileSystem::Capabilities YSSUnifiedFileSystem::getCapabilities(const YSSURI& uri) const {
 		if (uri.isResource()) {
 			const Capabilities local = this->d->Local->getCapabilities(uri);
 			return (local & (CanRead | CanList)) | PathCaseSensitive | ReadOnly;
@@ -1842,7 +745,7 @@ namespace YSSCore::General {
 
 		\return 可用返回 true。
 	*/
-	bool YSSUniqueFileSystem::isReady(const YSSURI& uri) const {
+	bool YSSUnifiedFileSystem::isReady(const YSSURI& uri) const {
 		if (uri.isNotRemote()) {
 			return this->d->Local->isReady();
 		}
@@ -1865,7 +768,7 @@ namespace YSSCore::General {
 
 		\return 配置是否自洽；不自洽时不会创建任何后端。
 	*/
-	bool YSSUniqueFileSystem::addSshConnection(const Visindigo::Network::SshConnectConfig& config) {
+	bool YSSUnifiedFileSystem::addSshConnection(const Visindigo::Network::SshConnectConfig& config) {
 		if (!config.isValid()) {
 			YSSUFS->warning() << "refused to add an invalid SSH connection";
 			return false;
@@ -1890,8 +793,8 @@ namespace YSSCore::General {
 
 		\return 该连接存在并已移除返回 true。
 	*/
-	bool YSSUniqueFileSystem::removeSshConnection(const QString& authority) {
-		const QString key = YSSUniqueFileSystemPrivate::sshKey(authority);
+	bool YSSUnifiedFileSystem::removeSshConnection(const QString& authority) {
+		const QString key = YSSUnifiedFileSystemPrivate::sshKey(authority);
 		auto it = this->d->SshProviders.find(key);
 		if (it == this->d->SshProviders.end()) {
 			return false;
@@ -1904,7 +807,7 @@ namespace YSSCore::General {
 
 		// 还排着队的请求不可能再执行了，直接以 Aborted 结束，避免留下悬空的后端指针。
 		for (int i = this->d->Pending.size() - 1; i >= 0; --i) {
-			const YSSUniqueFileSystemPrivate::PendingTask item = this->d->Pending.at(i);
+			const YSSUnifiedFileSystemPrivate::PendingTask item = this->d->Pending.at(i);
 			if (item.Provider != provider) {
 				continue;
 			}
@@ -1924,8 +827,8 @@ namespace YSSCore::General {
 		const QString providerId = provider->getConnectConfig().getAuthority();
 		const QList<quint64> runningIds = this->d->TaskProviderIds.keys();
 		for (quint64 id : runningIds) {
-			if (YSSUniqueFileSystemPrivate::sshKey(this->d->TaskProviderIds.value(id))
-				!= YSSUniqueFileSystemPrivate::sshKey(providerId)) {
+			if (YSSUnifiedFileSystemPrivate::sshKey(this->d->TaskProviderIds.value(id))
+				!= YSSUnifiedFileSystemPrivate::sshKey(providerId)) {
 				continue;
 			}
 			const QStringList keys = this->d->RunningKeys.take(id);
@@ -1951,7 +854,7 @@ namespace YSSCore::General {
 		只列出真正配置过的连接；为某个未登记 authority 路由请求时临时创建的后端
 		不算连接，不会出现在这里。
 	*/
-	QStringList YSSUniqueFileSystem::getSshAuthorities() const {
+	QStringList YSSUnifiedFileSystem::getSshAuthorities() const {
 		QStringList authorities;
 		for (const YSSSshFileSystemProvider* provider : this->d->SshProviders) {
 			if (!provider->isConfigured()) {
@@ -1972,7 +875,7 @@ namespace YSSCore::General {
 
 		\return 已配置返回 true。
 	*/
-	bool YSSUniqueFileSystem::isSshConfigured(const QString& authority) const {
+	bool YSSUnifiedFileSystem::isSshConfigured(const QString& authority) const {
 		const YSSSshFileSystemProvider* provider =
 			this->d->findSshProvider(authority);
 		return provider != nullptr && provider->isConfigured();
@@ -1987,7 +890,7 @@ namespace YSSCore::General {
 
 		\return 就绪返回 true。
 	*/
-	bool YSSUniqueFileSystem::isSshReady(const QString& authority) const {
+	bool YSSUnifiedFileSystem::isSshReady(const QString& authority) const {
 		const YSSSshFileSystemProvider* provider =
 			this->d->findSshProvider(authority);
 		return provider != nullptr && provider->isReady();
@@ -2001,7 +904,7 @@ namespace YSSCore::General {
 
 		\a authority 连接身份。
 	*/
-	void YSSUniqueFileSystem::connectSsh(const QString& authority) {
+	void YSSUnifiedFileSystem::connectSsh(const QString& authority) {
 		YSSSshFileSystemProvider* provider = this->d->sshProvider(authority, false);
 		if (provider == nullptr) {
 			YSSUFS->warning() << "connect requested for unknown SSH connection" << authority;
@@ -2019,7 +922,7 @@ namespace YSSCore::General {
 
 		\a authority 连接身份。
 	*/
-	void YSSUniqueFileSystem::disconnectSsh(const QString& authority) {
+	void YSSUnifiedFileSystem::disconnectSsh(const QString& authority) {
 		YSSSshFileSystemProvider* provider = this->d->sshProvider(authority, false);
 		if (provider != nullptr) {
 			provider->disconnect();
@@ -2038,12 +941,12 @@ namespace YSSCore::General {
 
 		\return 配置是否自洽。
 	*/
-	bool YSSUniqueFileSystem::setSshConnectConfig(const Visindigo::Network::SshConnectConfig& config) {
+	bool YSSUnifiedFileSystem::setSshConnectConfig(const Visindigo::Network::SshConnectConfig& config) {
 		const QString authority = config.getAuthority();
 		if (!this->addSshConnection(config)) {
 			return false;
 		}
-		this->d->DefaultSshKey = YSSUniqueFileSystemPrivate::sshKey(authority);
+		this->d->DefaultSshKey = YSSUnifiedFileSystemPrivate::sshKey(authority);
 		return true;
 	}
 
@@ -2054,7 +957,7 @@ namespace YSSCore::General {
 
 		\return 已配置返回 true；没有默认连接时返回 false。
 	*/
-	bool YSSUniqueFileSystem::isSshConfigured() const {
+	bool YSSUnifiedFileSystem::isSshConfigured() const {
 		const YSSSshFileSystemProvider* provider =
 			this->d->findSshProvider(this->getDefaultSshAuthority());
 		return provider != nullptr && provider->isConfigured();
@@ -2067,7 +970,7 @@ namespace YSSCore::General {
 
 		\return 就绪返回 true；没有默认连接时返回 false。
 	*/
-	bool YSSUniqueFileSystem::isSshReady() const {
+	bool YSSUnifiedFileSystem::isSshReady() const {
 		const YSSSshFileSystemProvider* provider =
 			this->d->findSshProvider(this->getDefaultSshAuthority());
 		return provider != nullptr && provider->isReady();
@@ -2079,7 +982,7 @@ namespace YSSCore::General {
 		开始连接默认连接。配置不完整时不会发起连接，而是立刻发出
 		\l{sshConnectFinished()} 失败信号。
 	*/
-	void YSSUniqueFileSystem::connectSsh() {
+	void YSSUnifiedFileSystem::connectSsh() {
 		this->connectSsh(this->getDefaultSshAuthority());
 	}
 
@@ -2088,7 +991,7 @@ namespace YSSCore::General {
 
 		关闭默认连接。已连接的会话会被断开，之后的 SSH 请求以失败返回。
 	*/
-	void YSSUniqueFileSystem::disconnectSsh() {
+	void YSSUnifiedFileSystem::disconnectSsh() {
 		this->disconnectSsh(this->getDefaultSshAuthority());
 	}
 
@@ -2097,7 +1000,7 @@ namespace YSSCore::General {
 
 		\return 默认连接的身份 user@host:port；没有默认连接时返回空字符串。
 	*/
-	QString YSSUniqueFileSystem::getDefaultSshAuthority() const {
+	QString YSSUnifiedFileSystem::getDefaultSshAuthority() const {
 		if (this->d->DefaultSshKey.isEmpty()) {
 			return QString();
 		}
@@ -2123,14 +1026,14 @@ namespace YSSCore::General {
 
 		\return 结果句柄；无法提交时为空。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::execute(const YSSFileSystemRequest& request) {
+	YSSFileSystemReply* YSSUnifiedFileSystem::execute(const YSSFileSystemRequest& request) {
 		if (!request.isValid() || !request.hasUri()) {
 			YSSUFS->warning() << "rejected" << operationName(request.getOperation())
 				<< "request without a valid URI";
 			return nullptr;
 		}
 		const YSSURI uri = request.getUri();
-		YSSUniqueFileSystemProvider* provider = this->d->providerFor(uri);
+		YSSUnifiedFileSystemProvider* provider = this->d->providerFor(uri);
 		if (provider == nullptr) {
 			YSSUFS->warning() << "no provider for" << operationName(request.getOperation())
 				<< "request on" << uri.toString();
@@ -2217,7 +1120,7 @@ namespace YSSCore::General {
 				provider->fail(reply, error);
 				return reply;
 			}
-			YSSUniqueFileSystemProvider* targetProvider = this->d->providerFor(targetUri);
+			YSSUnifiedFileSystemProvider* targetProvider = this->d->providerFor(targetUri);
 			if (targetProvider == nullptr) {
 				YSSFileError error;
 				error.Type = YSSFileError::ErrorType::NotSupported;
@@ -2244,7 +1147,7 @@ namespace YSSCore::General {
 					? provider->supportsNativeCopy()
 					: provider->supportsNativeMove());
 			if (!native) {
-				YSSUniqueFileSystemPrivate::TransferTask transfer;
+				YSSUnifiedFileSystemPrivate::TransferTask transfer;
 				transfer.Id = task.Id;
 				transfer.Source = uri;
 				transfer.Target = targetUri;
@@ -2256,7 +1159,7 @@ namespace YSSCore::General {
 			}
 		}
 
-		YSSUniqueFileSystemPrivate::PendingTask pending;
+		YSSUnifiedFileSystemPrivate::PendingTask pending;
 		pending.Id = task.Id;
 		pending.Request = request;
 		pending.Reply = reply;
@@ -2275,20 +1178,20 @@ namespace YSSCore::General {
 
 		\a uri 操作目标。
 		\a operation 操作类型。
-		\a data 写入内容，仅 \l{YSSUniqueFileSystem::Operation::Write} 使用。
-		\a target 重命名的目标 URI，仅 \l{YSSUniqueFileSystem::Operation::Rename} 使用。
+		\a data 写入内容，仅 \l{YSSUnifiedFileSystem::Operation::Write} 使用。
+		\a target 重命名的目标 URI，仅 \l{YSSUnifiedFileSystem::Operation::Rename} 使用。
 
 		\return 结果句柄；URI 无效或 scheme 不受支持时为空。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::execute(const YSSURI& uri, YSSUniqueFileSystem::Operation operation,
+	YSSFileSystemReply* YSSUnifiedFileSystem::execute(const YSSURI& uri, YSSUnifiedFileSystem::Operation operation,
 		const QByteArray& data, const YSSURI& target) {
 		YSSFileSystemRequest request;
 		request.setOperation(operation);
 		request.setUri(uri);
 		request.setData(data);
-		if (operation == YSSUniqueFileSystem::Operation::Rename
-			|| operation == YSSUniqueFileSystem::Operation::Copy
-			|| operation == YSSUniqueFileSystem::Operation::Move) {
+		if (operation == YSSUnifiedFileSystem::Operation::Rename
+			|| operation == YSSUnifiedFileSystem::Operation::Copy
+			|| operation == YSSUnifiedFileSystem::Operation::Move) {
 			request.setTargetUri(target);
 		}
 		return this->execute(request);
@@ -2297,61 +1200,61 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		读取属性。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Stat} 请求。
+		读取属性。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Stat} 请求。
 
 		\a uri 文件身份。
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::stat(const YSSURI& uri) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Stat);
+	YSSFileSystemReply* YSSUnifiedFileSystem::stat(const YSSURI& uri) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Stat);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		读取整个文件。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Read} 请求。
+		读取整个文件。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Read} 请求。
 
 		\a uri 文件身份。
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::read(const YSSURI& uri) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Read);
+	YSSFileSystemReply* YSSUnifiedFileSystem::read(const YSSURI& uri) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Read);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		整体覆盖写入文件。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Write} 请求。
+		整体覆盖写入文件。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Write} 请求。
 
 		\a uri 文件身份。
 		\a data 内容。
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::write(const YSSURI& uri, const QByteArray& data) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Write, data);
+	YSSFileSystemReply* YSSUnifiedFileSystem::write(const YSSURI& uri, const QByteArray& data) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Write, data);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		列出目录。等价于提交一条 \l{YSSUniqueFileSystem::Operation::List} 请求。
+		列出目录。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::List} 请求。
 
 		\a uri 目录身份。
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::list(const YSSURI& uri) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::List);
+	YSSFileSystemReply* YSSUnifiedFileSystem::list(const YSSURI& uri) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::List);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
 		删除文件或符号链接，或者是整个目录树。等价于提交一条
-		\l{YSSUniqueFileSystem::Operation::Remove} 请求。
+		\l{YSSUnifiedFileSystem::Operation::Remove} 请求。
 
 		目录是递归删除的：先删子项，最后删自己。符号链接本身会被删除，链接指向的
 		目标不受影响。删除不经过回收站，不可恢复；需要回收语义请用 \l{recycle()}。
@@ -2360,15 +1263,15 @@ namespace YSSCore::General {
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::remove(const YSSURI& uri) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Remove);
+	YSSFileSystemReply* YSSUnifiedFileSystem::remove(const YSSURI& uri) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Remove);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
 		把文件、符号链接或整个目录树移入后端提供的回收站。等价于提交一条
-		\l{YSSUniqueFileSystem::Operation::Recycle} 请求。
+		\l{YSSUnifiedFileSystem::Operation::Recycle} 请求。
 
 		只有 \l{getCapabilities()} 里带 \l{CanRecycle} 的位置才可能成功。不支持回收的
 		位置会以 \l{YSSFileError::ErrorType::NotSupported} 失败，而**不会**退化成永久
@@ -2382,29 +1285,29 @@ namespace YSSCore::General {
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::recycle(const YSSURI& uri) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Recycle);
+	YSSFileSystemReply* YSSUnifiedFileSystem::recycle(const YSSURI& uri) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Recycle);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		重命名或移动。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Rename} 请求。
+		重命名或移动。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Rename} 请求。
 
 		\a uri 源身份。
 		\a target 目标身份。
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::rename(const YSSURI& uri, const YSSURI& target) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Rename, QByteArray(), target);
+	YSSFileSystemReply* YSSUnifiedFileSystem::rename(const YSSURI& uri, const YSSURI& target) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Rename, QByteArray(), target);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
 		复制文件、符号链接或整个目录树。等价于提交一条
-		\l{YSSUniqueFileSystem::Operation::Copy} 请求。
+		\l{YSSUnifiedFileSystem::Operation::Copy} 请求。
 
 		目标必须不存在，目录不会与已有目标合并。同一后端内由后端直接完成；跨后端时
 		由门面按块中继，因此本机与远端之间、两条 SSH 连接之间都可以复制，内存占用
@@ -2415,15 +1318,15 @@ namespace YSSCore::General {
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::copy(const YSSURI& uri, const YSSURI& target) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Copy, QByteArray(), target);
+	YSSFileSystemReply* YSSUnifiedFileSystem::copy(const YSSURI& uri, const YSSURI& target) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Copy, QByteArray(), target);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
 		移动文件、符号链接或整个目录树。等价于提交一条
-		\l{YSSUniqueFileSystem::Operation::Move} 请求。
+		\l{YSSUnifiedFileSystem::Operation::Move} 请求。
 
 		同一后端内优先使用后端的重命名（SSH 上不搬运任何数据）；跨后端时退化为复制
 		后删除源，中途失败会保留源，只清理写在目标上的半成品。目标必须不存在。
@@ -2433,34 +1336,34 @@ namespace YSSCore::General {
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::move(const YSSURI& uri, const YSSURI& target) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Move, QByteArray(), target);
+	YSSFileSystemReply* YSSUnifiedFileSystem::move(const YSSURI& uri, const YSSURI& target) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Move, QByteArray(), target);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		创建目录。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Mkdir} 请求。
+		创建目录。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Mkdir} 请求。
 
 		\a uri 目录身份。
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::mkdir(const YSSURI& uri) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Mkdir);
+	YSSFileSystemReply* YSSUnifiedFileSystem::mkdir(const YSSURI& uri) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Mkdir);
 	}
 
 	/*!
 		\since YSS 0.18.0
 
-		删除空目录。等价于提交一条 \l{YSSUniqueFileSystem::Operation::Rmdir} 请求。
+		删除空目录。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Rmdir} 请求。
 
 		\a uri 目录身份。
 
 		\return 结果句柄。
 	*/
-	YSSFileSystemReply* YSSUniqueFileSystem::rmdir(const YSSURI& uri) {
-		return this->execute(uri, YSSUniqueFileSystem::Operation::Rmdir);
+	YSSFileSystemReply* YSSUnifiedFileSystem::rmdir(const YSSURI& uri) {
+		return this->execute(uri, YSSUnifiedFileSystem::Operation::Rmdir);
 	}
 
 	/*!
@@ -2477,7 +1380,7 @@ namespace YSSCore::General {
 		后端的完成通知是排队投递的，因此这里通常真的会进一次嵌套事件循环。超时的请求
 		不会被取消——后端可能仍在执行，所以调用方不能直接销毁 reply。
 	*/
-	bool YSSUniqueFileSystemPrivate::waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs) {
+	bool YSSUnifiedFileSystemPrivate::waitForReply(YSSFileSystemReply* reply, YSSFileError* error, int timeoutMs) {
 		if (reply == nullptr) {
 			if (error) {
 				YSSFileError noBackend;
@@ -2521,7 +1424,7 @@ namespace YSSCore::General {
 
 		同步读取整个文件。
 
-		内部提交一条 \l{YSSUniqueFileSystem::Operation::Read} 请求并等待它结束，
+		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Read} 请求并等待它结束，
 		因此会阻塞调用线程。界面线程上读远端文件应当改用 \l{read()} 异步版本。
 
 		\a uri 文件身份。
@@ -2530,12 +1433,12 @@ namespace YSSCore::General {
 
 		\return 读取成功返回 true。
 	*/
-	bool YSSUniqueFileSystem::readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error) {
+	bool YSSUnifiedFileSystem::readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error) {
 		if (data == nullptr) {
 			return false;
 		}
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Read);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Read);
 		request.setUri(uri);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);
@@ -2560,7 +1463,7 @@ namespace YSSCore::General {
 
 		同步整体覆盖写入文件。
 
-		内部提交一条 \l{YSSUniqueFileSystem::Operation::Write} 请求并等待它结束，
+		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Write} 请求并等待它结束，
 		因此会阻塞调用线程。界面线程上写远端文件应当改用 \l{write()} 异步版本。
 
 		\a uri 文件身份。
@@ -2569,9 +1472,9 @@ namespace YSSCore::General {
 
 		\return 写入成功返回 true。
 	*/
-	bool YSSUniqueFileSystem::writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error) {
+	bool YSSUnifiedFileSystem::writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error) {
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Write);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Write);
 		request.setUri(uri);
 		request.setData(data);
 		request.setAutoDelete(false);
@@ -2593,7 +1496,7 @@ namespace YSSCore::General {
 
 		同步删除文件/链接，或者是整个目录树。
 
-		内部提交一条 \l{YSSUniqueFileSystem::Operation::Remove} 请求并等待它结束，
+		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Remove} 请求并等待它结束，
 		因此会阻塞调用线程。界面线程上删远端文件应当改用 \l{remove()} 异步版本。
 
 		\a uri 文件身份。
@@ -2601,9 +1504,9 @@ namespace YSSCore::General {
 
 		\return 删除成功返回 true。
 	*/
-	bool YSSUniqueFileSystem::removeSync(const YSSURI& uri, YSSFileError* error) {
+	bool YSSUnifiedFileSystem::removeSync(const YSSURI& uri, YSSFileError* error) {
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Remove);
 		request.setUri(uri);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);
@@ -2624,7 +1527,7 @@ namespace YSSCore::General {
 
 		同步移入回收站。
 
-		内部提交一条 \l{YSSUniqueFileSystem::Operation::Recycle} 请求并等待它结束，
+		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Recycle} 请求并等待它结束，
 		因此会阻塞调用线程。语义与 \l{recycle()} 相同：不支持回收的位置以
 		\l{YSSFileError::ErrorType::NotSupported} 失败，不会退化成永久删除。
 
@@ -2633,9 +1536,9 @@ namespace YSSCore::General {
 
 		\return 移入回收站成功返回 true。
 	*/
-	bool YSSUniqueFileSystem::recycleSync(const YSSURI& uri, YSSFileError* error) {
+	bool YSSUnifiedFileSystem::recycleSync(const YSSURI& uri, YSSFileError* error) {
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Recycle);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Recycle);
 		request.setUri(uri);
 		request.setAutoDelete(false);
 		YSSFileSystemReply* reply = this->execute(request);
@@ -2668,8 +1571,8 @@ namespace YSSCore::General {
 
 		\return 登记成功返回 true。
 	*/
-	bool YSSUniqueFileSystem::watchDirectory(const YSSURI& uri, YSSFileError* error) {
-		YSSUniqueFileSystemProvider* provider = this->d->providerFor(uri);
+	bool YSSUnifiedFileSystem::watchDirectory(const YSSURI& uri, YSSFileError* error) {
+		YSSUnifiedFileSystemProvider* provider = this->d->providerFor(uri);
 		if (provider == nullptr || !provider->supportsDirectoryWatch()) {
 			if (error) {
 				YSSFileError value;
@@ -2692,8 +1595,8 @@ namespace YSSCore::General {
 
 		\return 确实取消了一条登记时返回 true。
 	*/
-	bool YSSUniqueFileSystem::unwatchDirectory(const YSSURI& uri) {
-		YSSUniqueFileSystemProvider* provider = this->d->providerFor(uri);
+	bool YSSUnifiedFileSystem::unwatchDirectory(const YSSURI& uri) {
+		YSSUnifiedFileSystemProvider* provider = this->d->providerFor(uri);
 		if (provider == nullptr || !provider->supportsDirectoryWatch()) {
 			return false;
 		}
@@ -2705,7 +1608,7 @@ namespace YSSCore::General {
 
 		return 所有后端当前正在监听的目录。
 	*/
-	QList<YSSURI> YSSUniqueFileSystem::getWatchedDirectories() const {
+	QList<YSSURI> YSSUnifiedFileSystem::getWatchedDirectories() const {
 		QList<YSSURI> result;
 		if (this->d->Local != nullptr) {
 			result += this->d->Local->getWatchedDirectories();
@@ -2726,7 +1629,7 @@ namespace YSSCore::General {
 
 		\return 任务列表；没有未结束任务时为空。
 	*/
-	QList<YSSFileSystemTask> YSSUniqueFileSystem::getTasks() const {
+	QList<YSSFileSystemTask> YSSUnifiedFileSystem::getTasks() const {
 		return this->d->Tasks.values();
 	}
 
@@ -2737,7 +1640,7 @@ namespace YSSCore::General {
 
 		\return 任务数量。
 	*/
-	int YSSUniqueFileSystem::getTaskCount() const {
+	int YSSUnifiedFileSystem::getTaskCount() const {
 		return this->d->Tasks.size();
 	}
 
@@ -2748,7 +1651,7 @@ namespace YSSCore::General {
 
 		\return 排队任务数量。
 	*/
-	int YSSUniqueFileSystem::getQueuedTaskCount() const {
+	int YSSUnifiedFileSystem::getQueuedTaskCount() const {
 		int count = 0;
 		for (const YSSFileSystemTask& task : this->d->Tasks) {
 			if (!task.isRunning()) {
@@ -2779,7 +1682,7 @@ namespace YSSCore::General {
 
 		\note 与其它查询接口一样，请在门面对象所属线程调用。
 	*/
-	std::tuple<qint64, qint64> YSSUniqueFileSystem::getTransferredBytes() const {
+	std::tuple<qint64, qint64> YSSUnifiedFileSystem::getTransferredBytes() const {
 		return std::make_tuple(this->d->BytesRead, this->d->BytesWritten);
 	}
 
@@ -2793,7 +1696,7 @@ namespace YSSCore::General {
 		自己的 \c{user@host:port}。各项之和等于合计值；连接被移除后它的历史统计
 		仍留在列表里。
 	*/
-	QList<YSSFileSystemTransferStats> YSSUniqueFileSystem::getTransferredBytesByProvider() const {
+	QList<YSSFileSystemTransferStats> YSSUnifiedFileSystem::getTransferredBytesByProvider() const {
 		QList<YSSFileSystemTransferStats> stats = this->d->ProviderStats.values();
 		std::sort(stats.begin(), stats.end(),
 			[](const YSSFileSystemTransferStats& left, const YSSFileSystemTransferStats& right) {
@@ -2810,11 +1713,11 @@ namespace YSSCore::General {
 		\return 该 URI 会交给哪个 Provider 处理：本机资源为 \c{"local"}，
 		远端为 \c{user@host:port}；无法归类时返回空字符串。
 	*/
-	QString YSSUniqueFileSystem::providerIdOf(const YSSURI& uri) const {
+	QString YSSUnifiedFileSystem::providerIdOf(const YSSURI& uri) const {
 		return this->d->providerIdOf(uri);
 	}
 
-	void YSSUniqueFileSystemPrivate::onProviderStarted(quint64 id) {
+	void YSSUnifiedFileSystemPrivate::onProviderStarted(quint64 id) {
 		auto it = this->Tasks.find(id);
 		if (it == this->Tasks.end() || it->StartedAtMs != 0) {
 			return;
@@ -2822,7 +1725,7 @@ namespace YSSCore::General {
 		it->StartedAtMs = QDateTime::currentMSecsSinceEpoch();
 		emit this->Owner->taskStarted(it.value());
 	}
-	void YSSUniqueFileSystemPrivate::onProviderProgressed(quint64 id, qint64 transferred, qint64 total) {
+	void YSSUnifiedFileSystemPrivate::onProviderProgressed(quint64 id, qint64 transferred, qint64 total) {
 		auto it = this->Tasks.find(id);
 		if (it == this->Tasks.end()) {
 			return;
@@ -2834,7 +1737,7 @@ namespace YSSCore::General {
 		emit this->Owner->taskProgressed(id, transferred, it->TotalBytes);
 	}
 
-	void YSSUniqueFileSystemPrivate::onProviderFinished(quint64 id, bool ok) {
+	void YSSUnifiedFileSystemPrivate::onProviderFinished(quint64 id, bool ok) {
 		const QStringList keys = this->RunningKeys.take(id);
 		for (const QString& key : keys) {
 			this->BusyKeys.remove(key);
@@ -2854,13 +1757,13 @@ namespace YSSCore::General {
 		复制/移动还会占用目标 URI 的键。后端不区分大小写时把键折叠成小写，避免
 		\c{C:/A.txt} 与 \c{c:/a.txt} 被当成两个目标。
 	*/
-	void YSSUniqueFileSystemPrivate::appendTaskKey(QStringList& keys, const YSSURI& value) const {
+	void YSSUnifiedFileSystemPrivate::appendTaskKey(QStringList& keys, const YSSURI& value) const {
 		if (!value.isValid()) {
 			return;
 		}
 		QString key = value.toString();
 		if (!this->Owner->getCapabilities(value).testFlag(
-			YSSUniqueFileSystem::Capability::PathCaseSensitive)) {
+			YSSUnifiedFileSystem::Capability::PathCaseSensitive)) {
 			key = key.toCaseFolded();
 		}
 		if (!keys.contains(key)) {
@@ -2868,7 +1771,7 @@ namespace YSSCore::General {
 		}
 	}
 
-	QStringList YSSUniqueFileSystemPrivate::taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const {
+	QStringList YSSUnifiedFileSystemPrivate::taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const {
 		QStringList keys;
 		appendTaskKey(keys, uri);
 		appendTaskKey(keys, targetUri);
@@ -2881,7 +1784,7 @@ namespace YSSCore::General {
 		先取一次源的属性拿到总大小（拿不到就按未知处理），然后逐块读 → 写。
 		整个过程只保留一块数据，因此内存占用与文件大小无关。
 	*/
-	void YSSUniqueFileSystemPrivate::startTransfer(quint64 id) {
+	void YSSUnifiedFileSystemPrivate::startTransfer(quint64 id) {
 		auto it = this->Transfers.find(id);
 		if (it == this->Transfers.end()) {
 			return;
@@ -2901,17 +1804,17 @@ namespace YSSCore::General {
 
 		const YSSURI source = it->Source;
 		const YSSURI target = it->Target;
-		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
-		YSSUniqueFileSystemProvider* targetProvider = it->TargetProvider;
+		YSSUnifiedFileSystemProvider* provider = it->SourceProvider;
+		YSSUnifiedFileSystemProvider* targetProvider = it->TargetProvider;
 
 		// 目标必须不存在。先查一次，避免 Truncate 掉用户已有的文件。
 		YSSFileSystemRequest targetStat;
-		targetStat.setOperation(YSSUniqueFileSystem::Operation::Stat);
+		targetStat.setOperation(YSSUnifiedFileSystem::Operation::Stat);
 		targetStat.setUri(target);
 		targetStat.setAutoDelete(true);
 		YSSFileSystemReply* targetStatReply = new YSSFileSystemReply(this->NextId++);
 		targetStatReply->d->Uri = target;
-		targetStatReply->d->Operation = YSSUniqueFileSystem::Operation::Stat;
+		targetStatReply->d->Operation = YSSUnifiedFileSystem::Operation::Stat;
 		targetStatReply->d->AutoDelete = true;
 		QObject::connect(targetStatReply, &YSSFileSystemReply::finished, this->Owner,
 			[this, id, targetStatReply]() {
@@ -2935,20 +1838,20 @@ namespace YSSCore::General {
 	}
 
 	// 目标确认不存在之后，取一次源的大小让进度有总量，再开始搬运。
-	void YSSUniqueFileSystemPrivate::beginTransferStat(quint64 id) {
+	void YSSUnifiedFileSystemPrivate::beginTransferStat(quint64 id) {
 		auto it = this->Transfers.find(id);
 		if (it == this->Transfers.end()) {
 			return;
 		}
 		const YSSURI source = it->Source;
-		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
+		YSSUnifiedFileSystemProvider* provider = it->SourceProvider;
 		YSSFileSystemRequest statRequest;
-		statRequest.setOperation(YSSUniqueFileSystem::Operation::Stat);
+		statRequest.setOperation(YSSUnifiedFileSystem::Operation::Stat);
 		statRequest.setUri(source);
 		statRequest.setAutoDelete(true);
 		YSSFileSystemReply* statReply = new YSSFileSystemReply(this->NextId++);
 		statReply->d->Uri = source;
-		statReply->d->Operation = YSSUniqueFileSystem::Operation::Stat;
+		statReply->d->Operation = YSSUnifiedFileSystem::Operation::Stat;
 		statReply->d->AutoDelete = true;
 		QObject::connect(statReply, &YSSFileSystemReply::finished, this->Owner, [this, id, statReply]() {
 			auto current = this->Transfers.find(id);
@@ -2965,17 +1868,17 @@ namespace YSSCore::General {
 	}
 
 	// 从源读下一块。返回空块表示源已经读完。
-	void YSSUniqueFileSystemPrivate::submitRelayRead(quint64 id) {
+	void YSSUnifiedFileSystemPrivate::submitRelayRead(quint64 id) {
 		auto it = this->Transfers.find(id);
 		if (it == this->Transfers.end()) {
 			return;
 		}
 		const YSSURI source = it->Source;
-		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
+		YSSUnifiedFileSystemProvider* provider = it->SourceProvider;
 		const qint64 offset = it->Offset;
 
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Read);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Read);
 		request.setUri(source);
 		request.d->DataOffset = offset;
 		request.d->DataLength = RelayChunkBytes;
@@ -2983,7 +1886,7 @@ namespace YSSCore::General {
 
 		YSSFileSystemReply* chunk = new YSSFileSystemReply(this->NextId++);
 		chunk->d->Uri = source;
-		chunk->d->Operation = YSSUniqueFileSystem::Operation::Read;
+		chunk->d->Operation = YSSUnifiedFileSystem::Operation::Read;
 		chunk->d->AutoDelete = true;
 		QObject::connect(chunk, &YSSFileSystemReply::finished, this->Owner, [this, id, chunk]() {
 			if (this->Transfers.find(id) == this->Transfers.end()) {
@@ -3004,18 +1907,18 @@ namespace YSSCore::General {
 		provider->execute(request, chunk);
 	}
 
-	void YSSUniqueFileSystemPrivate::submitRelayWrite(quint64 id, const QByteArray& data) {
+	void YSSUnifiedFileSystemPrivate::submitRelayWrite(quint64 id, const QByteArray& data) {
 		auto it = this->Transfers.find(id);
 		if (it == this->Transfers.end()) {
 			return;
 		}
 		const YSSURI target = it->Target;
-		YSSUniqueFileSystemProvider* provider = it->TargetProvider;
+		YSSUnifiedFileSystemProvider* provider = it->TargetProvider;
 		const qint64 offset = it->Offset;
 		const qint64 chunkBytes = data.size();
 
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Write);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Write);
 		request.setUri(target);
 		request.setData(data);
 		// 偏移 0 处覆盖并截断，后续块接着写。
@@ -3024,7 +1927,7 @@ namespace YSSCore::General {
 
 		YSSFileSystemReply* chunk = new YSSFileSystemReply(this->NextId++);
 		chunk->d->Uri = target;
-		chunk->d->Operation = YSSUniqueFileSystem::Operation::Write;
+		chunk->d->Operation = YSSUnifiedFileSystem::Operation::Write;
 		chunk->d->AutoDelete = true;
 		QObject::connect(chunk, &YSSFileSystemReply::finished, this->Owner, [this, id, chunk, chunkBytes]() {
 			auto current = this->Transfers.find(id);
@@ -3044,7 +1947,7 @@ namespace YSSCore::General {
 	}
 
 	// 移动：复制已经完成，删除源。删除成功才算移动成功。
-	void YSSUniqueFileSystemPrivate::submitSourceRemoval(quint64 id) {
+	void YSSUnifiedFileSystemPrivate::submitSourceRemoval(quint64 id) {
 		auto it = this->Transfers.find(id);
 		if (it == this->Transfers.end()) {
 			return;
@@ -3058,16 +1961,16 @@ namespace YSSCore::General {
 		}
 		it->SourceRemovalSubmitted = true;
 		const YSSURI source = it->Source;
-		YSSUniqueFileSystemProvider* provider = it->SourceProvider;
+		YSSUnifiedFileSystemProvider* provider = it->SourceProvider;
 
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Remove);
 		request.setUri(source);
 		request.setAutoDelete(true);
 
 		YSSFileSystemReply* removal = new YSSFileSystemReply(this->NextId++);
 		removal->d->Uri = source;
-		removal->d->Operation = YSSUniqueFileSystem::Operation::Remove;
+		removal->d->Operation = YSSUnifiedFileSystem::Operation::Remove;
 		removal->d->AutoDelete = true;
 		QObject::connect(removal, &YSSFileSystemReply::finished, this->Owner, [this, id, removal]() {
 			if (this->Transfers.find(id) == this->Transfers.end()) {
@@ -3083,7 +1986,7 @@ namespace YSSCore::General {
 		provider->execute(request, removal);
 	}
 
-	void YSSUniqueFileSystemPrivate::reportTransferProgress(quint64 id) {
+	void YSSUnifiedFileSystemPrivate::reportTransferProgress(quint64 id) {
 		const auto it = this->Transfers.constFind(id);
 		if (it == this->Transfers.constEnd()) {
 			return;
@@ -3110,20 +2013,20 @@ namespace YSSCore::General {
 		目标在开始时被要求不存在，因此这里删掉的只可能是本次中继的产物；
 		但如果是 Write 的第一块就覆盖了一个已存在的文件，删除它同样比留下半截内容好。
 	*/
-	void YSSUniqueFileSystemPrivate::discardTransferTarget(quint64 id, const YSSFileError& error) {
+	void YSSUnifiedFileSystemPrivate::discardTransferTarget(quint64 id, const YSSFileError& error) {
 		const auto it = this->Transfers.constFind(id);
 		if (it == this->Transfers.constEnd()) {
 			return;
 		}
 		const YSSURI target = it->Target;
-		YSSUniqueFileSystemProvider* provider = it->TargetProvider;
+		YSSUnifiedFileSystemProvider* provider = it->TargetProvider;
 		YSSFileSystemRequest request;
-		request.setOperation(YSSUniqueFileSystem::Operation::Remove);
+		request.setOperation(YSSUnifiedFileSystem::Operation::Remove);
 		request.setUri(target);
 		request.setAutoDelete(true);
 		YSSFileSystemReply* removal = new YSSFileSystemReply(this->NextId++);
 		removal->d->Uri = target;
-		removal->d->Operation = YSSUniqueFileSystem::Operation::Remove;
+		removal->d->Operation = YSSUnifiedFileSystem::Operation::Remove;
 		removal->d->AutoDelete = true;
 		QObject::connect(removal, &YSSFileSystemReply::finished, this->Owner, [this, id, error]() {
 			this->finishTransfer(id, false, error);
@@ -3131,20 +2034,20 @@ namespace YSSCore::General {
 		provider->execute(request, removal);
 	}
 
-	void YSSUniqueFileSystemPrivate::finishTransfer(quint64 id, bool ok, const YSSFileError& error) {
+	void YSSUnifiedFileSystemPrivate::finishTransfer(quint64 id, bool ok, const YSSFileError& error) {
 		const auto found = this->Transfers.constFind(id);
 		if (found == this->Transfers.constEnd()) {
 			return;
 		}
 		if (!ok && found->TargetWritten) {
 			// 先把状态换成"已经在清理"，避免重复进入。
-			YSSUniqueFileSystemPrivate::TransferTask snapshot = found.value();
+			YSSUnifiedFileSystemPrivate::TransferTask snapshot = found.value();
 			snapshot.TargetWritten = false;
 			this->Transfers.insert(id, snapshot);
 			this->discardTransferTarget(id, error);
 			return;
 		}
-		const YSSUniqueFileSystemPrivate::TransferTask transfer = found.value();
+		const YSSUnifiedFileSystemPrivate::TransferTask transfer = found.value();
 		this->Transfers.remove(id);
 
 		const QStringList keys = this->RunningKeys.take(id);
@@ -3183,7 +2086,7 @@ namespace YSSCore::General {
 		}
 		if (ok) {
 			const QString providerId = this->providerIdOf(transfer.Source);
-			this->addTransfer(providerId, YSSUniqueFileSystem::Operation::Copy,
+			this->addTransfer(providerId, YSSUnifiedFileSystem::Operation::Copy,
 				transfer.Offset, transfer.Offset);
 		}
 		if (tracked) {
@@ -3201,7 +2104,7 @@ namespace YSSCore::General {
 		不同 URI 之间不互相阻塞。FIFO 的实现方式是：一旦某个待调度请求因为键被占用
 		而等待，它的键也会加入本轮阻塞集合，后续同键请求不能越过它先跑。
 	*/
-	void YSSUniqueFileSystemPrivate::schedulePending() {
+	void YSSUnifiedFileSystemPrivate::schedulePending() {
 		if (this->Scheduling) {
 			return;
 		}

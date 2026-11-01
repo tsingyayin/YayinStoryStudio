@@ -77,13 +77,31 @@
     <ClCompile Include="General\cpp\YSSURI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="General\cpp\YSSUniqueFileSystem.cpp">
+    <ClCompile Include="General\cpp\YSSUnifiedFileSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="General\cpp\YSSUniqueFileSystemLocal.cpp">
+    <ClCompile Include="General\cpp\YSSUnifiedFileSystemLocal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="General\cpp\YSSUniqueFileSystemSsh.cpp">
+    <ClCompile Include="General\cpp\YSSUnifiedFileSystemSsh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSFileEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSFileError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSFileSystemReply.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSFileSystemRequest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSFileSystemResult.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="General\cpp\YSSFileSystemTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="General\cpp\YSSLogger.cpp">
@@ -169,15 +187,39 @@
     <QtMoc Include="General\YSSProject.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="General\YSSUniqueFileSystem.h">
+    <QtMoc Include="General\YSSUnifiedFileSystem.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="General\private\YSSUniqueFileSystem_p.h">
+    <QtMoc Include="General\private\YSSUnifiedFileSystem_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="General\YSSURI.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="General\YSSFileEntry.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\YSSFileSystemRequest.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\YSSFileError.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="General\YSSFileSystemReply.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="General\YSSFileSystemResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\YSSFileSystemTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\private\YSSFileSystemReply_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="General\private\YSSFileSystemRequest_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Editor\EditorProjectHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -90,7 +90,7 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 		\inmodule YSSCore
 
-		自0.18.0起，为了使YSS能支持SSH，引入了YSSURI+UniqueFileSystem类以统一标识
+		自0.18.0起，为了使YSS能支持SSH，引入了YSSURI+UnifiedFileSystem类以统一标识
 		本机资源、远程资源、虚拟文档和QRC资源。此YSSURI类用于标识资源的身份，并且
 		提供良好的比较和哈希行为。
 
@@ -110,7 +110,7 @@ namespace YSSCore::General {
 		\endlist
 		
 		\section1 YSSURI下的文件读写
-		YSSURI本身并不不负责读写。将YSSURI传递给UniqueFileSystem类的相关函数，才能真正读写文件。
+		YSSURI本身并不不负责读写。将YSSURI传递给UnifiedFileSystem类的相关函数，才能真正读写文件。
 
 		自0.18.0引入YSSURI后，YSS将具有原生的操作SSH远程文件的能力，因此建议下游使用YSSURI来标识文件，
 		而不是直接使用QString或QFileInfo（除非解析后是本地资源文件）。

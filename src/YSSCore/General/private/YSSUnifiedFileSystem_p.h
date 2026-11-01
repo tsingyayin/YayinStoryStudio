@@ -10,9 +10,9 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef YSSCore_General_private_YSSUniqueFileSystem_p_h
-#define YSSCore_General_private_YSSUniqueFileSystem_p_h
-#include "General/YSSUniqueFileSystem.h"
+#ifndef YSSCore_General_private_YSSUnifiedFileSystem_p_h
+#define YSSCore_General_private_YSSUnifiedFileSystem_p_h
+#include "General/YSSUnifiedFileSystem.h"
 #include "YSSCoreCompileMacro.h"
 #include <Network/SshSession.h>
 #include <Network/SshTypes.h>
@@ -24,35 +24,15 @@ namespace YSSCore::General {
 }
 // Main
 namespace YSSCore::General {
-	// 请求的内部状态。放在私有头里，是因为后端与门面都要读写数据区间
-	// （跨后端中继按块搬运时必须指定偏移），而这些字段不对外公开。
-	class YSSFileSystemRequestPrivate {
-		friend class YSSFileSystemRequest;
-		friend class YSSUniqueFileSystem;
-		friend class YSSUniqueFileSystemPrivate;
-		friend class YSSUniqueFileSystemProvider;
-	protected:
-		YSSUniqueFileSystem::Operation Operation = YSSUniqueFileSystem::Operation::Unknown;
-		YSSURI Uri;
-		YSSURI TargetUri;
-		QByteArray Data;
-		// 读写的起始偏移。Read 从 Offset 开始读；Write 从 Offset 开始写，
-		// Offset 为 0 表示整文件覆盖并截断。
-		qint64 DataOffset = 0;
-		// Read 本次最多读取的字节数；负数表示读到文件末尾。
-		qint64 DataLength = -1;
-		bool AutoDelete = true;
-	};
-
-	// 文件系统后端接口。只在本模块内部可见：调用方永远只面对 YSSUniqueFileSystem。
+	// 文件系统后端接口。只在本模块内部可见：调用方永远只面对 YSSUnifiedFileSystem。
 	//
 	// 一个后端对应一种 scheme，不持有"根"——身份完全由请求里的绝对 URI 决定。
 	// 实现方在 execute() 里把 URI 换成自己的绝对路径并执行，然后调用 complete()
 	// 或 fail() 结束请求。两者都可以从任意线程调用，内部会投递回结果对象所属线程。
-	class YSSUniqueFileSystemProvider : public QObject {
+	class YSSUnifiedFileSystemProvider : public QObject {
 		Q_OBJECT;
-		friend class YSSUniqueFileSystem;
-		friend class YSSUniqueFileSystemPrivate;
+		friend class YSSUnifiedFileSystem;
+		friend class YSSUnifiedFileSystemPrivate;
 		friend class YSSFileSystemReply;
 	signals:
 		// 后端真正开始处理该请求。只带 id，避免结果对象在排队期间被销毁后留下悬空指针。
@@ -62,13 +42,13 @@ namespace YSSCore::General {
 		// 请求已经结束（成功或失败）。
 		void finished(quint64 id, bool ok);
 		// 后端监听的一个目录内容发生了变化。门面把它转成公开的
-		// YSSUniqueFileSystem::directoryChanged()。
+		// YSSUnifiedFileSystem::directoryChanged()。
 		void watchedDirectoryChanged(const YSSURI& uri);
 	public:
-		YSSUniqueFileSystemProvider(QObject* parent = nullptr);
-		virtual ~YSSUniqueFileSystemProvider();
+		YSSUnifiedFileSystemProvider(QObject* parent = nullptr);
+		virtual ~YSSUnifiedFileSystemProvider();
 	public:
-		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const = 0;
+		virtual YSSUnifiedFileSystem::Capabilities getCapabilities(const YSSURI& uri) const = 0;
 		virtual bool isReady() const = 0;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) = 0;
 	public:
@@ -101,14 +81,14 @@ namespace YSSCore::General {
 
 	// 本机目录后端。文件 IO 落在通用工作线程池里，调用方线程不会被阻塞。
 	// 本机后端始终可用，不依赖任何配置。
-	class YSSLocalFileSystemProvider : public YSSUniqueFileSystemProvider {
+	class YSSLocalFileSystemProvider : public YSSUnifiedFileSystemProvider {
 		Q_OBJECT;
 		friend class YSSLocalFileSystemProviderPrivate;
 	public:
 		YSSLocalFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSLocalFileSystemProvider();
 	public:
-		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
+		virtual YSSUnifiedFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
 		virtual bool isReady() const override;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) override;
 	public:
@@ -132,7 +112,7 @@ namespace YSSCore::General {
 
 	// SSH 远端目录后端。把通用文件操作翻译成 SFTP 请求，连接交给
 	// Visindigo::Network::SshSession。只有配置了连接信息并且连接成功时 isReady() 才为真。
-	class YSSSshFileSystemProvider : public YSSUniqueFileSystemProvider {
+	class YSSSshFileSystemProvider : public YSSUnifiedFileSystemProvider {
 		Q_OBJECT;
 		friend class YSSSshFileSystemProviderPrivate;
 	signals:
@@ -140,17 +120,17 @@ namespace YSSCore::General {
 		void connectFinished(bool ok, const QString& message);
 		// 连接从就绪变为断开。expected 为真表示是本机调用 disconnect() 造成的。
 		void disconnected(bool expected);
-		// 远端主机密钥被接受 / 被拒绝。门面转成 YSSUniqueFileSystem 的同名信号。
+		// 远端主机密钥被接受 / 被拒绝。门面转成 YSSUnifiedFileSystem 的同名信号。
 		void hostKeyAccepted(const Visindigo::Network::SshHostKeyInfo& info);
 		void hostKeyRejected(const Visindigo::Network::SshHostKeyInfo& info);
 		// 有请求因为本连接不可用而被拒绝，需要凭据。门面转成
-		// YSSUniqueFileSystem::sshConnectionRequired() 并负责节流。
+		// YSSUnifiedFileSystem::sshConnectionRequired() 并负责节流。
 		void connectionRequired();
 	public:
 		YSSSshFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSSshFileSystemProvider();
 	public:
-		virtual YSSUniqueFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
+		virtual YSSUnifiedFileSystem::Capabilities getCapabilities(const YSSURI& uri) const override;
 		virtual bool isReady() const override;
 		virtual void execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) override;
 	public:
@@ -167,4 +147,4 @@ namespace YSSCore::General {
 		YSSSshFileSystemProviderPrivate* d;
 	};
 }
-#endif // YSSCore_General_private_YSSUniqueFileSystem_p_h
+#endif // YSSCore_General_private_YSSUnifiedFileSystem_p_h

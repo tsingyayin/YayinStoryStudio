@@ -13,7 +13,7 @@
 #include <General/TranslationHost.h>
 #include <General/VIApplication.h>
 #include <General/YSSProject.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Widgets/ThemeManager.h>
 #include <memory>
 #include "Editor/MainEditor/MainWin.h"
@@ -142,14 +142,14 @@ namespace YSS::Editor {
 				}
 			});
 		// 支持监听的后端（本机）在外部改动后自动刷新，保持以前 QFileSystemModel 的行为。
-		connect(YSSCore::General::YSSUniqueFileSystem::getInstance(),
-			&YSSCore::General::YSSUniqueFileSystem::directoryChanged, this,
+		connect(YSSCore::General::YSSUnifiedFileSystem::getInstance(),
+			&YSSCore::General::YSSUnifiedFileSystem::directoryChanged, this,
 			[this](const YSSCore::General::YSSURI& dir) {
 				FileModel->refreshDirectory(dir);
 			});
 		// 远端登录成功后把之前因为未连接而列不出来的目录补上。
-		connect(YSSCore::General::YSSUniqueFileSystem::getInstance(),
-			&YSSCore::General::YSSUniqueFileSystem::sshReadyChanged, this,
+		connect(YSSCore::General::YSSUnifiedFileSystem::getInstance(),
+			&YSSCore::General::YSSUnifiedFileSystem::sshReadyChanged, this,
 			[this](const QString& authority, bool ready) {
 				Q_UNUSED(authority);
 				if (ready) {
@@ -385,7 +385,7 @@ namespace YSS::Editor {
 		connect(dialog, &NewFolderDialog::confirmed, this, [this, dir](const QString& newName) {
 			const YSSCore::General::YSSURI target = dir.resolve(newName);
 			YSSCore::General::YSSFileSystemReply* reply =
-				YSSCore::General::YSSUniqueFileSystem::getInstance()->mkdir(target);
+				YSSCore::General::YSSUnifiedFileSystem::getInstance()->mkdir(target);
 			if (reply == nullptr) {
 				showOperationError(target, notSupportedError(target));
 				return;
@@ -411,9 +411,9 @@ namespace YSS::Editor {
 				VITRL("YSS::editor.deleteProjectFile.message"));
 			return;
 		}
-		YSSCore::General::YSSUniqueFileSystem* fileSystem = YSSCore::General::YSSUniqueFileSystem::getInstance();
+		YSSCore::General::YSSUnifiedFileSystem* fileSystem = YSSCore::General::YSSUnifiedFileSystem::getInstance();
 		const bool canRecycle = fileSystem->getCapabilities(uri)
-			.testFlag(YSSCore::General::YSSUniqueFileSystem::Capability::CanRecycle);
+			.testFlag(YSSCore::General::YSSUnifiedFileSystem::Capability::CanRecycle);
 		const QString question = canRecycle
 			? VITRL("YSS::editor.deleteFile.message").arg(uri.toString())
 			: VITRL("YSS::editor.deleteFile.permanentMessage").arg(uri.toString());
@@ -504,7 +504,7 @@ namespace YSS::Editor {
 				ClipboardCut = false;
 			}
 		};
-		YSSCore::General::YSSUniqueFileSystem* fileSystem = YSSCore::General::YSSUniqueFileSystem::getInstance();
+		YSSCore::General::YSSUnifiedFileSystem* fileSystem = YSSCore::General::YSSUnifiedFileSystem::getInstance();
 		for (const QPair<YSSCore::General::YSSURI, bool>& entry : sources) {
 			const YSSCore::General::YSSURI source = entry.first;
 			QString name = source.getFileName();

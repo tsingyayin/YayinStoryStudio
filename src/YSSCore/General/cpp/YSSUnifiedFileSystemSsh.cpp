@@ -16,10 +16,10 @@
 #include <Network/SftpRequest.h>
 #include <Network/SshPath.h>
 #include <optional>
-#include "General/private/YSSUniqueFileSystem_p.h"
+#include "General/private/YSSUnifiedFileSystem_p.h"
 
 namespace {
-	using FileOperation = YSSCore::General::YSSUniqueFileSystem::Operation;
+	using FileOperation = YSSCore::General::YSSUnifiedFileSystem::Operation;
 
 	// 判断一个 SSH 目标 URI 是否属于本后端：必须与连接配置同一主机、同一端口。
 	// URI 未写端口时按默认端口比较，否则 ssh://host/x 永远找不到默认端口的连接。
@@ -310,7 +310,7 @@ namespace YSSCore::General {
 
 	/*!
 		\class YSSCore::General::YSSSshFileSystemProvider
-		\inheaderfile General/YSSUniqueFileSystemSsh.h
+		\inheaderfile General/YSSUnifiedFileSystemSsh.h
 		\since YSS 0.18.0
 		\inmodule YSSCore
 		\brief SSH 远端目录后端.
@@ -332,7 +332,7 @@ namespace YSSCore::General {
 		\a parent 父对象。
 	*/
 	YSSSshFileSystemProvider::YSSSshFileSystemProvider(QObject* parent)
-		: YSSUniqueFileSystemProvider(parent) {
+		: YSSUnifiedFileSystemProvider(parent) {
 		this->d = new YSSSshFileSystemProviderPrivate();
 	}
 
@@ -354,15 +354,15 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		SSH 后端支持全部操作能力。远端按 POSIX 处理，因此置
-		\l{YSSUniqueFileSystem::PathCaseSensitive}。
+		\l{YSSUnifiedFileSystem::PathCaseSensitive}。
 
 		\return 能力集合。
 		*/
-		YSSUniqueFileSystem::Capabilities YSSSshFileSystemProvider::getCapabilities(const YSSURI& uri) const {
+		YSSUnifiedFileSystem::Capabilities YSSSshFileSystemProvider::getCapabilities(const YSSURI& uri) const {
 			// SFTP 没有回收站，因此不置 CanRecycle：Recycle 请求会在门面层就以
 			// NotSupported 失败，而不是在这里退化成 unlink。
 			Q_UNUSED(uri);
-			return YSSUniqueFileSystem::AllCapabilities | YSSUniqueFileSystem::Capability::PathCaseSensitive;
+			return YSSUnifiedFileSystem::AllCapabilities | YSSUnifiedFileSystem::Capability::PathCaseSensitive;
 		}
 
 	/*!

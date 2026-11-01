@@ -24,10 +24,10 @@
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #endif
-#include "General/private/YSSUniqueFileSystem_p.h"
+#include "General/private/YSSUnifiedFileSystem_p.h"
 
 namespace {
-	using FileOperation = YSSCore::General::YSSUniqueFileSystem::Operation;
+	using FileOperation = YSSCore::General::YSSUnifiedFileSystem::Operation;
 	using ProgressCallback = std::function<void(qint64, qint64)>;
 
 	// 读写分块大小与进度节流阈值。
@@ -683,7 +683,7 @@ namespace YSSCore::General {
 
 	/*!
 		\class YSSCore::General::YSSLocalFileSystemProvider
-		\inheaderfile General/YSSUniqueFileSystemLocal.h
+		\inheaderfile General/YSSUnifiedFileSystemLocal.h
 		\since YSS 0.18.0
 		\inmodule YSSCore
 		\brief 本机目录后端.
@@ -703,7 +703,7 @@ namespace YSSCore::General {
 		\a parent 父对象。
 	*/
 	YSSLocalFileSystemProvider::YSSLocalFileSystemProvider(QObject* parent)
-		: YSSUniqueFileSystemProvider(parent) {
+		: YSSUnifiedFileSystemProvider(parent) {
 		this->d = new YSSLocalFileSystemProviderPrivate();
 	}
 
@@ -720,29 +720,29 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		本机后端支持全部操作能力。Windows 的盘符路径不区分大小写，因此不置
-		\l{YSSUniqueFileSystem::PathCaseSensitive}。
+		\l{YSSUnifiedFileSystem::PathCaseSensitive}。
 
 		回收站能力按 URI 判定：只有固定盘和可移动盘才置
-		\l{YSSUniqueFileSystem::CanRecycle}，网络映射盘、光驱等位置没有回收站。
+		\l{YSSUnifiedFileSystem::CanRecycle}，网络映射盘、光驱等位置没有回收站。
 		Qt 资源（\c{qrc}）解析出来的不是本机路径，因此也不会置这一位。
 
 		\a uri 文件身份。
 
 		\return 能力集合。
 		*/
-		YSSUniqueFileSystem::Capabilities YSSLocalFileSystemProvider::getCapabilities(const YSSURI& uri) const {
-			YSSUniqueFileSystem::Capabilities capabilities = YSSUniqueFileSystem::AllCapabilities;
+		YSSUnifiedFileSystem::Capabilities YSSLocalFileSystemProvider::getCapabilities(const YSSURI& uri) const {
+			YSSUnifiedFileSystem::Capabilities capabilities = YSSUnifiedFileSystem::AllCapabilities;
 			if (localPathIsCaseSensitive()) {
-				capabilities |= YSSUniqueFileSystem::Capability::PathCaseSensitive;
+				capabilities |= YSSUnifiedFileSystem::Capability::PathCaseSensitive;
 			}
 			// 回收站是卷级别特性，只能按 URI 判定；资源（qrc）与不存在的盘符不行。
 			if (localPathSupportsRecycle(uri.getLocalPath())) {
-				capabilities |= YSSUniqueFileSystem::Capability::CanRecycle;
+				capabilities |= YSSUnifiedFileSystem::Capability::CanRecycle;
 			}
 			// 目录监听只对真实存在的本机目录有意义。
 			const QString watchPath = uri.getLocalPath();
 			if (!watchPath.isEmpty() && QFileInfo(watchPath).isDir()) {
-				capabilities |= YSSUniqueFileSystem::Capability::CanWatchDirectory;
+				capabilities |= YSSUnifiedFileSystem::Capability::CanWatchDirectory;
 			}
 			return capabilities;
 		}

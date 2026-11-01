@@ -18,7 +18,7 @@
 #include <QtWidgets/qtextedit.h>
 #include <General/TranslationHost.h>
 #include <General/YSSURI.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/JsonConfig.h>
 #include "Editor/CodeDiff.h"
 #include "Editor/private/CodeDiff_p.h"
@@ -494,7 +494,7 @@ namespace YSSCore::Editor {
 	}
 
 	void CodeDiffPrivate::loadOne(const YSSURI& uri, bool isOldSide) {
-		YSSUniqueFileSystem* fs = YSSUniqueFileSystem::getInstance();
+		YSSUnifiedFileSystem* fs = YSSUnifiedFileSystem::getInstance();
 		YSSFileSystemReply* reply = fs->read(uri);
 		if (reply == nullptr) {
 			ReadFailed = true;

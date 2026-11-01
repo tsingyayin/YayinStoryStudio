@@ -10,8 +10,14 @@
 	   generations; it only guarantees that the corresponding program
 	   features remain basically stable.
 */
-#ifndef YSSCore_General_YSSUniqueFileSystem_h
-#define YSSCore_General_YSSUniqueFileSystem_h
+#ifndef YSSCore_General_YSSUnifiedFileSystem_h
+#define YSSCore_General_YSSUnifiedFileSystem_h
+#include "General/YSSFileEntry.h"
+#include "General/YSSFileError.h"
+#include "General/YSSFileSystemReply.h"
+#include "General/YSSFileSystemRequest.h"
+#include "General/YSSFileSystemResult.h"
+#include "General/YSSFileSystemTask.h"
 #include "General/YSSURI.h"
 #include "YSSCoreCompileMacro.h"
 #include <Network/SshTypes.h>
@@ -23,132 +29,14 @@
 #include <tuple>
 // Forward declarations
 namespace YSSCore::General {
-	class YSSFileAttributesPrivate;
-	class YSSFileSystemReply;
-	class YSSFileSystemReplyPrivate;
-	class YSSFileSystemRequest;
-	class YSSFileSystemRequestPrivate;
-	struct YSSFileSystemTask;
 	struct YSSFileSystemTransferStats;
-	class YSSUniqueFileSystemPrivate;
-	class YSSUniqueFileSystemProvider;
+	class YSSUnifiedFileSystemPrivate;
 }
 // Main
 namespace YSSCore::General {
-	struct YSSCoreAPI YSSFileError {
-		Q_GADGET;
-	public:
-		enum class ErrorType {
-			NoError = 0,
-			NotFound,
-			PermissionDenied,
-			AlreadyExists,
-			NotADirectory,
-			IoError,
-			NotSupported,
-			Aborted,
-			InvalidConfiguration,
-			FileTooLarge,
-			NeedsCredentials,
-			Unknown
-		};
-		Q_ENUM(ErrorType)
-		ErrorType Type = ErrorType::NoError;
-		QString Message;
-		QString Detail;
-	public:
-		static QString errorTypeName(ErrorType type);
-		bool isError() const;
-		QString toString() const;
-	};
-
-	class YSSCoreAPI YSSFileAttributes {
-		Q_GADGET;
-	public:
-		enum class Field : quint64 {
-			None = 0,
-			Size = 1ull << 0,
-			ModifiedMs = 1ull << 1,
-			CreatedMs = 1ull << 2,
-			AccessedMs = 1ull << 3,
-			IsDirectory = 1ull << 4,
-			IsSymlink = 1ull << 5,
-			IsHidden = 1ull << 6,
-			IsReadOnly = 1ull << 7,
-			IsExecutable = 1ull << 8,
-			Permissions = 1ull << 9,
-			OwnerId = 1ull << 10,
-			GroupId = 1ull << 11,
-			LinkTarget = 1ull << 12
-		};
-		Q_ENUM(Field)
-		Q_DECLARE_FLAGS(Fields, Field)
-		Q_FLAG(Fields)
-	public:
-		YSSFileAttributes();
-		VICopyable(YSSFileAttributes);
-		VIMoveable(YSSFileAttributes);
-		~YSSFileAttributes();
-	public:
-		Fields getKnownFields() const;
-		bool hasField(Field field) const;
-		bool hasFields(Fields fields) const;
-		void setFieldKnown(Field field, bool known);
-	public:
-		quint64 getSize() const;
-		qint64 getModifiedMs() const;
-		qint64 getCreatedMs() const;
-		qint64 getAccessedMs() const;
-		bool isDirectory() const;
-		bool isSymlink() const;
-		bool isHidden() const;
-		bool isReadOnly() const;
-		bool isExecutable() const;
-		quint32 getPermissions() const;
-		quint32 getOwnerId() const;
-		quint32 getGroupId() const;
-		QString getLinkTarget() const;
-	public:
-		void setSize(quint64 size);
-		void setModifiedMs(qint64 modifiedMs);
-		void setCreatedMs(qint64 createdMs);
-		void setAccessedMs(qint64 accessedMs);
-		void setIsDirectory(bool isDirectory);
-		void setIsSymlink(bool isSymlink);
-		void setIsHidden(bool isHidden);
-		void setIsReadOnly(bool isReadOnly);
-		void setIsExecutable(bool isExecutable);
-		void setPermissions(quint32 permissions);
-		void setOwnerId(quint32 ownerId);
-		void setGroupId(quint32 groupId);
-		void setLinkTarget(const QString& linkTarget);
-	public:
-		bool isValid() const;
-	private:
-		YSSFileAttributesPrivate* d;
-	};
-	Q_DECLARE_OPERATORS_FOR_FLAGS(YSSFileAttributes::Fields)
-
-	struct YSSCoreAPI YSSFileEntry {
-		QString Name;
-		YSSFileAttributes Attributes;
-	};
-
-	struct YSSCoreAPI YSSFileSystemResult {
-		YSSURI Uri;
-		YSSFileError Error;
-		QByteArray Data;
-		QList<YSSFileEntry> Entries;
-		YSSFileAttributes Attributes;
-		qint64 BytesTransferred = 0;
-		qint64 TotalBytes = -1;
-	public:
-		bool isError() const;
-	};
-
-	class YSSCoreAPI YSSUniqueFileSystem : public QObject {
+	class YSSCoreAPI YSSUnifiedFileSystem : public QObject {
 		Q_OBJECT;
-		friend class YSSUniqueFileSystemPrivate;
+		friend class YSSUnifiedFileSystemPrivate;
 	signals:
 		void sshReadyChanged(const QString& authority, bool ready);
 		void sshConnectFinished(const QString& authority, bool ok, const QString& message);
@@ -162,21 +50,9 @@ namespace YSSCore::General {
 		void taskFinished(quint64 id, bool ok);
 		void directoryChanged(const YSSURI& uri);
 	public:
-		enum class Operation {
-			Unknown = 0,
-			Stat,
-			Read,
-			Write,
-			List,
-			Remove,
-			Recycle,
-			Rename,
-			Copy,
-			Move,
-			Mkdir,
-			Rmdir
-		};
-		Q_ENUM(Operation)
+		// 类型定义在 YSSFileSystemRequest 上：请求、回复、任务都要用它，
+		// 这里只是给调用方保留原来的写法。
+		using Operation = YSSFileSystemRequest::Operation;
 		enum Capability {
 			NoCapability = 0x0000,
 			CanRead = 0x0001,
@@ -195,10 +71,10 @@ namespace YSSCore::General {
 		Q_DECLARE_FLAGS(Capabilities, Capability)
 		Q_FLAG(Capabilities)
 	public:
-		static YSSUniqueFileSystem* getInstance();
-		virtual ~YSSUniqueFileSystem();
+		static YSSUnifiedFileSystem* getInstance();
+		virtual ~YSSUnifiedFileSystem();
 	private:
-		YSSUniqueFileSystem();
+		YSSUnifiedFileSystem();
 	public:
 		Capabilities getCapabilities(const YSSURI& uri) const;
 		bool isReady(const YSSURI& uri) const;
@@ -250,93 +126,14 @@ namespace YSSCore::General {
 		bool removeSync(const YSSURI& uri, YSSFileError* error = nullptr);
 		bool recycleSync(const YSSURI& uri, YSSFileError* error = nullptr);
 	private:
-		YSSUniqueFileSystemPrivate* d;
+		YSSUnifiedFileSystemPrivate* d;
 	};
-	Q_DECLARE_OPERATORS_FOR_FLAGS(YSSUniqueFileSystem::Capabilities)
-
-	struct YSSCoreAPI YSSFileSystemTask {
-		quint64 Id = 0;
-		YSSURI Uri;
-		YSSURI TargetUri;
-		YSSUniqueFileSystem::Operation Operation = YSSUniqueFileSystem::Operation::Unknown;
-		qint64 QueuedAtMs = 0;
-		qint64 StartedAtMs = 0;
-		qint64 BytesTransferred = 0;
-		qint64 TotalBytes = -1;
-	public:
-		bool isRunning() const;
-		qreal progressPercent() const;
-	};
+	Q_DECLARE_OPERATORS_FOR_FLAGS(YSSUnifiedFileSystem::Capabilities)
 
 	struct YSSCoreAPI YSSFileSystemTransferStats {
 		QString ProviderId;
 		qint64 BytesRead = 0;
 		qint64 BytesWritten = 0;
 	};
-
-	class YSSCoreAPI YSSFileSystemRequest {
-	public:
-		YSSFileSystemRequest();
-		VICopyable(YSSFileSystemRequest);
-		VIMoveable(YSSFileSystemRequest);
-		~YSSFileSystemRequest();
-	public:
-		YSSFileSystemRequest& setOperation(YSSUniqueFileSystem::Operation operation);
-		YSSFileSystemRequest& setUri(const YSSURI& uri);
-		YSSFileSystemRequest& setTargetUri(const YSSURI& uri);
-		YSSFileSystemRequest& setData(const QByteArray& data);
-		YSSFileSystemRequest& setAutoDelete(bool autoDelete);
-	public:
-		YSSUniqueFileSystem::Operation getOperation() const;
-		YSSURI getUri() const;
-		YSSURI getTargetUri() const;
-		bool hasUri() const;
-		bool hasTargetUri() const;
-		QByteArray getData() const;
-		bool isAutoDelete() const;
-	public:
-		bool isValid() const;
-	private:
-		friend class YSSUniqueFileSystemPrivate;
-		friend class YSSUniqueFileSystemProvider;
-		YSSFileSystemRequestPrivate* d;
-	};
-
-	class YSSCoreAPI YSSFileSystemReply : public QObject {
-		Q_OBJECT;
-		friend class YSSUniqueFileSystem;
-		friend class YSSUniqueFileSystemPrivate;
-		friend class YSSUniqueFileSystemProvider;
-	signals:
-		void succeeded();
-		void failed(const YSSFileError& error);
-		void finished();
-		void progressed(qint64 transferred, qint64 total);
-	public:
-		quint64 getId() const;
-		YSSURI getUri() const;
-		YSSUniqueFileSystem::Operation getOperation() const;
-		QByteArray getData() const;
-		QList<YSSFileEntry> getEntries() const;
-		YSSFileAttributes getAttributes() const;
-		qint64 getBytesTransferred() const;
-		qint64 getTotalBytes() const;
-		YSSFileError getError() const;
-		bool isFinished() const;
-	public:
-		YSSFileSystemReply& then(std::function<void(const YSSFileSystemResult& result)> fn);
-		YSSFileSystemReply& onError(std::function<void(const YSSFileError& error)> fn);
-		YSSFileSystemReply& onFinally(std::function<void()> fn);
-	public:
-		bool isAutoDelete() const;
-		void setAutoDelete(bool autoDelete);
-	protected:
-		explicit YSSFileSystemReply(quint64 id);
-	public:
-		virtual ~YSSFileSystemReply();
-	private:
-		YSSFileSystemReplyPrivate* d;
-	};
 }
-Q_DECLARE_METATYPE(YSSCore::General::YSSFileSystemTask)
-#endif // YSSCore_General_YSSUniqueFileSystem_h
+#endif // YSSCore_General_YSSUnifiedFileSystem_h

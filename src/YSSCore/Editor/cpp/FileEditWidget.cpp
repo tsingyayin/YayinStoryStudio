@@ -6,7 +6,7 @@
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <General/YSSLogger.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include "Editor/FileEditWidget.h"
 #include "Editor/FileServerManager.h"
 #include "Editor/VirtualFilePath.h"
@@ -46,7 +46,7 @@ protected:
 		从0.18.0开始，因为要同时支持本地文件和远程文件，YSS改用统一文件系统，因此
 		此类的文件身份从QString/QFileInfo标识，转为使用YSSURI标识。且文件的实际IO
 		不再由此类直接处理。FileEditWidget现在只需要在合适的时机，接受QByteArray作为
-		文件输入，返回QByteArray作为文件输出即可。实际的文件IO将由YSSUniqueFileSystem类处理。
+		文件输入，返回QByteArray作为文件输出即可。实际的文件IO将由YSSUnifiedFileSystem类处理。
 
 		\note 这类在0.15.0因引入虚拟文件概念而变更了虚函数顺序和声明，0.18.0又因引入 URI
 		身份再次变更，因此ABI与此前不兼容。
@@ -214,7 +214,7 @@ protected:
 		\since YSS 0.18.0
 		用身份与内容打开一个真实文件。
 		\a uri 文件身份。
-		\a data 文件内容，由 \l{FileServerManager} 从 \l{YSSUniqueFileSystem} 读好后给出。
+		\a data 文件内容，由 \l{FileServerManager} 从 \l{YSSUnifiedFileSystem} 读好后给出。
 
 		return 如果 \l{onOpen()} 成功则返回true。
 
@@ -235,7 +235,7 @@ protected:
 
 	/*!
 		\since YSS 0.18.0
-		用身份打开一个文件。内容由本类通过 \l{YSSUniqueFileSystem} 同步读取。
+		用身份打开一个文件。内容由本类通过 \l{YSSUnifiedFileSystem} 同步读取。
 
 		\a uri 文件身份。
 
@@ -256,7 +256,7 @@ protected:
 			return onVirtualOpen(uri.getHost(), uri.getFileName(), uri.getQuery());
 		}
 		QByteArray data;
-		if (!YSSCore::General::YSSUniqueFileSystem::getInstance()->readSync(uri, &data)) {
+		if (!YSSCore::General::YSSUnifiedFileSystem::getInstance()->readSync(uri, &data)) {
 			yWarningF << "Failed to read file content for" << uri.toString();
 			return false;
 		}
@@ -275,7 +275,7 @@ protected:
 		写入失败不会再把编辑器标脏，但也不会发出成功信号，而是发出 \l{fileSaveFailed()}。
 
 		派生类只负责在 \l{onSave()} 里把内容返回，写盘由本类通过
-		\l{YSSUniqueFileSystem} 完成。写入成功后依次触发 \l{fileChangeCanceled()}、
+		\l{YSSUnifiedFileSystem} 完成。写入成功后依次触发 \l{fileChangeCanceled()}、
 		\l{fileSaved()}，路径变化时再触发 \l{fileRenamed()}。
 
 		写入期间如果内容又被修改，本次保存不会清除修改状态，也不会发出
@@ -322,7 +322,7 @@ protected:
 		}
 		const YSSCore::General::YSSURI oldUri = d->Uri;
 		const quint64 serial = d->changeSerial;
-		YSSCore::General::YSSFileSystemReply* reply = YSSCore::General::YSSUniqueFileSystem::getInstance()->write(targetUri, produced.value());
+		YSSCore::General::YSSFileSystemReply* reply = YSSCore::General::YSSUnifiedFileSystem::getInstance()->write(targetUri, produced.value());
 		if (reply == nullptr) {
 			yWarningF << "Failed to submit write request for" << targetUri.toString();
 			return false;
@@ -342,7 +342,7 @@ protected:
 				}
 				if (oldUri != targetUri) {
 					if (deleteWhenSaveAs) {
-						if (auto* removal = YSSCore::General::YSSUniqueFileSystem::getInstance()->remove(oldUri)) {
+						if (auto* removal = YSSCore::General::YSSUnifiedFileSystem::getInstance()->remove(oldUri)) {
 							QObject::connect(removal, &YSSCore::General::YSSFileSystemReply::failed, this,
 								[oldUri](const YSSCore::General::YSSFileError& error) {
 									yWarningF << "Failed to remove old file" << oldUri.toString() << error.toString();
@@ -384,7 +384,7 @@ protected:
 		本函数不写盘，也不改变修改状态：它只更新 \l{getUri()} 并发出 \l{fileRenamed()}，
 		让页签、项目打开文件列表与文件服务器索引一起换到新路径。
 
-		真正的重命名由调用方完成（例如 \l{YSSUniqueFileSystem::rename()}），失败时不应
+		真正的重命名由调用方完成（例如 \l{YSSUnifiedFileSystem::rename()}），失败时不应
 		调用本函数。新 URI 已被别的编辑器打开时也会拒绝，否则 \l{FileServerManager}
 		的索引会被覆盖。
 
@@ -437,14 +437,14 @@ protected:
 		return 如果文件成功重新加载，返回true。
 
 		虚拟文件路由到 \l{onVirtualReload()}；真实文件由本类通过
-		\l{YSSCore::General::YSSUniqueFileSystem} 同步重新读取内容后交给 \l{onReload()}。
+		\l{YSSCore::General::YSSUnifiedFileSystem} 同步重新读取内容后交给 \l{onReload()}。
 	*/
 	bool FileEditWidget::reloadFile() {
 		if (d->Uri.isVirtual()) {
 			return onVirtualReload();
 		}
 		QByteArray data;
-		if (!YSSCore::General::YSSUniqueFileSystem::getInstance()->readSync(d->Uri, &data)) {
+		if (!YSSCore::General::YSSUnifiedFileSystem::getInstance()->readSync(d->Uri, &data)) {
 			return false;
 		}
 		return onReload(data);
@@ -566,7 +566,7 @@ protected:
 		失败时不会写盘，也不会发出任何保存信号。
 
 		这里只产出内容，不要自己写文件——写盘由 \l{saveFile()} 交给
-		\l{YSSUniqueFileSystem} 完成，这样 SSH 上的文件也能保存。
+		\l{YSSUnifiedFileSystem} 完成，这样 SSH 上的文件也能保存。
 	*/
 	std::expected<QByteArray, bool> FileEditWidget::onSave(const YSSCore::General::YSSURI& uri) {
 		Q_UNUSED(uri);

@@ -18,7 +18,7 @@
 #include <General/VIApplication.h>
 #include <General/YSSLogger.h>
 #include <General/YSSProject.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/ColorTool.h>
 #include <Utility/FileUtility.h>
 #include <Utility/JsonConfig.h>
@@ -149,7 +149,7 @@ namespace YSS::Editor {
 				}
 				// 重命名交给统一文件系统，本机与 SSH 走同一套逻辑；编辑器只负责跟着换 URI。
 				YSSCore::General::YSSFileSystemReply* reply =
-					YSSCore::General::YSSUniqueFileSystem::getInstance()->rename(oldUri, newUri);
+					YSSCore::General::YSSUnifiedFileSystem::getInstance()->rename(oldUri, newUri);
 				if (reply == nullptr) {
 					QMessageBox::warning(this, VITRL("YSS::editor.renameDialog.title"),
 						VITRL("YSS::editor.renameDialog.warning.failed").arg(newUri.toString()), QMessageBox::Ok);

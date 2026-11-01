@@ -11,7 +11,7 @@
 #include <General/Log.h>
 #include <General/TranslationHost.h>
 #include <General/YSSLogger.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/FileUtility.h>
 #include <Widgets/BorderLabel.h>
 #include <Widgets/MultiButton.h>
@@ -154,11 +154,11 @@ namespace YSS::NewFilePage {
 				VITRL("YSS::project.newFile.invalidName.message"));
 			return;
 		}
-		YSSCore::General::YSSUniqueFileSystem* fs =
-			YSSCore::General::YSSUniqueFileSystem::getInstance();
+		YSSCore::General::YSSUnifiedFileSystem* fs =
+			YSSCore::General::YSSUnifiedFileSystem::getInstance();
 		// 先探一次目标：存在就报错，绝不能覆盖已有文件。
 		YSSCore::General::YSSFileSystemReply* statReply =
-			fs->execute(uri, YSSCore::General::YSSUniqueFileSystem::Operation::Stat);
+			fs->execute(uri, YSSCore::General::YSSUnifiedFileSystem::Operation::Stat);
 		if (statReply == nullptr) {
 			this->reportCreateFailure(VITRL("YSS::project.newFile.failed.title"),
 				VITRL("YSS::project.newFile.failed.message").arg(uri.toString()));
@@ -177,8 +177,8 @@ namespace YSS::NewFilePage {
 					return;
 				}
 				YSSCore::General::YSSFileSystemReply* writeReply =
-					YSSCore::General::YSSUniqueFileSystem::getInstance()->execute(
-						uri, YSSCore::General::YSSUniqueFileSystem::Operation::Write, content);
+					YSSCore::General::YSSUnifiedFileSystem::getInstance()->execute(
+						uri, YSSCore::General::YSSUnifiedFileSystem::Operation::Write, content);
 				if (writeReply == nullptr) {
 					this->reportCreateFailure(VITRL("YSS::project.newFile.failed.title"),
 						VITRL("YSS::project.newFile.failed.message").arg(uri.toString()));

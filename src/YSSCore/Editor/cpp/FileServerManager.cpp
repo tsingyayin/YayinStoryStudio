@@ -5,7 +5,7 @@
 #include <General/Exception.h>
 #include <General/Log.h>
 #include <General/TranslationHost.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/FileUtility.h>
 #include "Editor/FileServer.h"
 #include "Editor/FileServerManager.h"
@@ -99,7 +99,7 @@ namespace YSSCore::Editor {
 			const QString key = keyOf(uri);
 			const quint64 epoch = PendingOpenEpoch;
 			PendingOpens.insert(key);
-			YSSUniqueFileSystem* fs = YSSUniqueFileSystem::getInstance();
+			YSSUnifiedFileSystem* fs = YSSUnifiedFileSystem::getInstance();
 			YSSFileSystemReply* reply = fs->read(uri);
 			if (reply == nullptr) {
 				PendingOpens.remove(key);
@@ -263,7 +263,7 @@ namespace YSSCore::Editor {
 		\list
 		\li 1. 根据扩展名给出候选FileServer，顺序为：preferredServerId → 特别关注强度 → 优先级列表 / 注册顺序。
 		\li 2. 没有任何候选时不读文件，直接按 useFallback 决定是否询问用内置编辑器。
-		\li 3. 有候选时通过 \l{YSSCore::General::YSSUniqueFileSystem} 异步读取内容；
+		\li 3. 有候选时通过 \l{YSSCore::General::YSSUnifiedFileSystem} 异步读取内容；
 		读取失败则本次打开结束，不再创建编辑器。
 		\li 4. 内容到达后按候选顺序逐个创建编辑器并调用 \l{FileEditWidget::openFile}，
 		第一个成功者即为结果，其余候选不再尝试。
@@ -440,7 +440,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		打开一个文件。这是 openFile 的主实现版本。
 
-		\a uri 文件身份。真实文件的内容由本类通过 \l{YSSCore::General::YSSUniqueFileSystem}
+		\a uri 文件身份。真实文件的内容由本类通过 \l{YSSCore::General::YSSUnifiedFileSystem}
 		异步读取，再连同 URI 一起交给 FileEditWidget；虚拟文件不读内容。
 		\a preferredServerId 优先使用的FileServer ID。
 		\a useFallback 是否在没有任何FileServer接受文件时使用内置文本编辑器打开文件。默认为true。

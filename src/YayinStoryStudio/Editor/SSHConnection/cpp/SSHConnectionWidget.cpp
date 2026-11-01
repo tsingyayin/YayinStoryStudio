@@ -15,7 +15,7 @@
 #include <General/TranslationHost.h>
 #include <Widgets/ThemeManager.h>
 #include <General/VIApplication.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/JsonConfig.h>
 #include "Editor/SSHConnection/SSHConnectionWidget.h"
 namespace YSS::Editor {
@@ -54,17 +54,17 @@ namespace YSS::Editor {
 		:QDialog(parent) {
 		Instance = this;
 		this->buildUi();
-		YSSCore::General::YSSUniqueFileSystem* fs =
-			YSSCore::General::YSSUniqueFileSystem::getInstance();
-		connect(fs, &YSSCore::General::YSSUniqueFileSystem::sshHostKeyAccepted,
+		YSSCore::General::YSSUnifiedFileSystem* fs =
+			YSSCore::General::YSSUnifiedFileSystem::getInstance();
+		connect(fs, &YSSCore::General::YSSUnifiedFileSystem::sshHostKeyAccepted,
 			this, &SSHConnectionWidget::onHostKeyAccepted);
-		connect(fs, &YSSCore::General::YSSUniqueFileSystem::sshHostKeyRejected,
+		connect(fs, &YSSCore::General::YSSUnifiedFileSystem::sshHostKeyRejected,
 			this, &SSHConnectionWidget::onHostKeyRejected);
-		connect(fs, &YSSCore::General::YSSUniqueFileSystem::sshConnectFinished,
+		connect(fs, &YSSCore::General::YSSUnifiedFileSystem::sshConnectFinished,
 			this, &SSHConnectionWidget::onConnectFinished);
-		connect(fs, &YSSCore::General::YSSUniqueFileSystem::sshReadyChanged,
+		connect(fs, &YSSCore::General::YSSUnifiedFileSystem::sshReadyChanged,
 			this, &SSHConnectionWidget::onSshReadyChanged);
-		connect(fs, &YSSCore::General::YSSUniqueFileSystem::sshConnectionRequired,
+		connect(fs, &YSSCore::General::YSSUnifiedFileSystem::sshConnectionRequired,
 			this, &SSHConnectionWidget::onConnectionRequired);
 		this->refreshAuthenticBox();
 		this->refreshConnectionList();
@@ -363,8 +363,8 @@ namespace YSS::Editor {
 	}
 
 	void SSHConnectionWidget::refreshConnectionList() {
-		YSSCore::General::YSSUniqueFileSystem* fs =
-			YSSCore::General::YSSUniqueFileSystem::getInstance();
+		YSSCore::General::YSSUnifiedFileSystem* fs =
+			YSSCore::General::YSSUnifiedFileSystem::getInstance();
 		QListWidgetItem* previous = ConnectionList->currentItem();
 		const QString previousAuthority = previous == nullptr
 			? QString()
@@ -496,8 +496,8 @@ namespace YSS::Editor {
 			this->setStatus(VITRL("YSS::sshConnection.status.invalidAuthentic"), true);
 			return;
 		}
-		YSSCore::General::YSSUniqueFileSystem* fs =
-			YSSCore::General::YSSUniqueFileSystem::getInstance();
+		YSSCore::General::YSSUnifiedFileSystem* fs =
+			YSSCore::General::YSSUnifiedFileSystem::getInstance();
 		if (fs->isSshReady(authority)) {
 			this->setStatus(VITRL("YSS::sshConnection.status.alreadyReady").arg(authority));
 			this->refreshConnectionList();
@@ -553,7 +553,7 @@ namespace YSS::Editor {
 		if (authority.isEmpty()) {
 			return;
 		}
-		YSSCore::General::YSSUniqueFileSystem::getInstance()->disconnectSsh(authority);
+		YSSCore::General::YSSUnifiedFileSystem::getInstance()->disconnectSsh(authority);
 		this->setStatus(VITRL("YSS::sshConnection.status.disconnected").arg(authority));
 		this->refreshConnectionList();
 	}
@@ -567,7 +567,7 @@ namespace YSS::Editor {
 		if (authority.isEmpty()) {
 			return;
 		}
-		YSSCore::General::YSSUniqueFileSystem::getInstance()->removeSshConnection(authority);
+		YSSCore::General::YSSUnifiedFileSystem::getInstance()->removeSshConnection(authority);
 		SSHConnectionWidget::forgetFingerprint(authority);
 		SSHConnectionWidget::forgetAuthentic(authority);
 		this->refreshAuthenticBox();
@@ -634,7 +634,7 @@ namespace YSS::Editor {
 		// 未记录或与记录不符：先断开，避免在未确认的主机上继续使用连接。
 		AwaitingFingerprint = authority;
 		PendingHostKey = info;
-		YSSCore::General::YSSUniqueFileSystem::getInstance()->disconnectSsh(authority);
+		YSSCore::General::YSSUnifiedFileSystem::getInstance()->disconnectSsh(authority);
 		this->setBusy(false);
 		this->showFingerprintPrompt(authority, info);
 		this->setStatus(VITRL("YSS::sshConnection.status.needFingerprint").arg(authority));

@@ -16,7 +16,7 @@
 #include "Editor/VirtualFilePath.h"
 #include "General/YSSLogger.h"
 #include "General/YSSProject.h"
-#include "General/YSSUniqueFileSystem.h"
+#include "General/YSSUnifiedFileSystem.h"
 namespace YSSCore::General {
 	class YSSProjectPrivate {
 		friend class YSSProject;
@@ -379,7 +379,7 @@ namespace YSSCore::General {
 		\since YSS 0.13.0
 		析构函数。
 
-		析构时若仍有保存请求在途，写入本身不会被打断（数据已交给 UniqueFileSystem），
+		析构时若仍有保存请求在途，写入本身不会被打断（数据已交给 UnifiedFileSystem），
 		只是 \l{projectSaved()} / \l{projectSaveFailed()} 不会再发给这个对象。
 	*/
 	YSSProject::~YSSProject() {
@@ -410,7 +410,7 @@ namespace YSSCore::General {
 			emit projectLoadFailed(d->LastLoadError);
 			return;
 		}
-		YSSFileSystemReply* reply = YSSUniqueFileSystem::getInstance()->read(configPath);
+		YSSFileSystemReply* reply = YSSUnifiedFileSystem::getInstance()->read(configPath);
 		if (reply == nullptr) {
 			yErrorF << "Failed to request project config: " << configPath.toString();
 			d->Loaded = false;
@@ -491,7 +491,7 @@ namespace YSSCore::General {
 		d->SavePending = false;
 		d->updateLastModifyTime();
 		const QByteArray content = d->ProjectConfig.toString().toUtf8();
-		YSSFileSystemReply* reply = YSSUniqueFileSystem::getInstance()->write(d->ConfigPath, content);
+		YSSFileSystemReply* reply = YSSUnifiedFileSystem::getInstance()->write(d->ConfigPath, content);
 		if (reply == nullptr) {
 			yErrorF << "Failed to request project config write: " << d->ConfigPath.toString();
 			d->Saving = false;
@@ -552,7 +552,7 @@ namespace YSSCore::General {
 		本函数只在内存里准备项目配置，并把配置路径设为 \c{folder/project.yssp}：
 		不创建文件夹、不检查文件夹是否为空、也不写盘。
 
-		\note 文件夹的创建与所有文件的写入都由调用方通过 \l{YSSUniqueFileSystem} 完成，
+		\note 文件夹的创建与所有文件的写入都由调用方通过 \l{YSSUnifiedFileSystem} 完成，
 		这样本地项目与远端项目走同一条路径。
 		\note 初始化完成后调用方需要自行调用 \l{saveProject()} 把配置写到目标位置。
 

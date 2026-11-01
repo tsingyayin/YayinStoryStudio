@@ -15,7 +15,7 @@
 #include <General/TranslationHost.h>
 #include <General/YSSLogger.h>
 #include <General/YSSProject.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Utility/JsonConfig.h>
 #include <Widgets/BorderLabel.h>
 #include <Widgets/MultiButton.h>
@@ -44,7 +44,7 @@ namespace YSS::NewProjectPage {
 		private:
 			void checkTarget() {
 				YSSCore::General::YSSFileSystemReply* reply =
-					YSSCore::General::YSSUniqueFileSystem::getInstance()->list(TargetUri);
+					YSSCore::General::YSSUnifiedFileSystem::getInstance()->list(TargetUri);
 				if (reply == nullptr) {
 					fail(TargetUri.toString(), false);
 					return;
@@ -94,7 +94,7 @@ namespace YSS::NewProjectPage {
 				const QString relative = DirQueue.takeFirst();
 				const YSSCore::General::YSSURI uri = relative.isEmpty() ? TargetUri : TargetUri.resolve(relative);
 				YSSCore::General::YSSFileSystemReply* reply =
-					YSSCore::General::YSSUniqueFileSystem::getInstance()->mkdir(uri);
+					YSSCore::General::YSSUnifiedFileSystem::getInstance()->mkdir(uri);
 				if (reply == nullptr) {
 					fail(uri.toString(), false);
 					return;
@@ -117,7 +117,7 @@ namespace YSS::NewProjectPage {
 				const QString relative = FileQueue.takeFirst();
 				const YSSCore::General::YSSURI uri = TargetUri.resolve(relative);
 				YSSCore::General::YSSFileSystemReply* reply =
-					YSSCore::General::YSSUniqueFileSystem::getInstance()->write(uri, Files.value(relative));
+					YSSCore::General::YSSUnifiedFileSystem::getInstance()->write(uri, Files.value(relative));
 				if (reply == nullptr) {
 					fail(uri.toString(), false);
 					return;

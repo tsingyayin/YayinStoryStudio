@@ -8,7 +8,7 @@
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qprogressbar.h>
 #include <General/TranslationHost.h>
-#include <General/YSSUniqueFileSystem.h>
+#include <General/YSSUnifiedFileSystem.h>
 #include <Widgets/LiquidGlassEffect.h>
 #include "Editor/MainEditor/BottomInfoWidget_p.h"
 #include "Editor/MainEditor/TextEditConfigOperator.h"
@@ -95,8 +95,8 @@ namespace YSS::Editor {
 		}
 
 		// 日志与后端里的操作名保持英文，界面里也直接显示，避免再造一套翻译。
-		QString operationName(YSSCore::General::YSSUniqueFileSystem::Operation operation) {
-			using Operation = YSSCore::General::YSSUniqueFileSystem::Operation;
+		QString operationName(YSSCore::General::YSSUnifiedFileSystem::Operation operation) {
+			using Operation = YSSCore::General::YSSUnifiedFileSystem::Operation;
 			switch (operation) {
 			case Operation::Stat: return QStringLiteral("stat");
 			case Operation::Read: return QStringLiteral("read");
@@ -255,8 +255,8 @@ namespace YSS::Editor {
 	}
 
 	void TransferMonitorPopup::refresh() {
-		using YSSCore::General::YSSUniqueFileSystem;
-		YSSUniqueFileSystem* ufs = YSSUniqueFileSystem::getInstance();
+		using YSSCore::General::YSSUnifiedFileSystem;
+		YSSUnifiedFileSystem* ufs = YSSUnifiedFileSystem::getInstance();
 		const auto [readBytes, writtenBytes] = ufs->getTransferredBytes();
 		// ↑ 写出（上传），↓ 读入（下载）。
 		TotalLabel->setText(QStringLiteral("%1 %2 ↑ / %3 ↓")
@@ -268,8 +268,8 @@ namespace YSS::Editor {
 	}
 
 	void TransferMonitorPopup::refreshProviders() {
-		using YSSCore::General::YSSUniqueFileSystem;
-		YSSUniqueFileSystem* ufs = YSSUniqueFileSystem::getInstance();
+		using YSSCore::General::YSSUnifiedFileSystem;
+		YSSUnifiedFileSystem* ufs = YSSUnifiedFileSystem::getInstance();
 		const QList<YSSCore::General::YSSFileSystemTransferStats> stats =
 			ufs->getTransferredBytesByProvider();
 
@@ -320,8 +320,8 @@ namespace YSS::Editor {
 	}
 
 	void TransferMonitorPopup::refreshTasks() {
-		using YSSCore::General::YSSUniqueFileSystem;
-		YSSUniqueFileSystem* ufs = YSSUniqueFileSystem::getInstance();
+		using YSSCore::General::YSSUnifiedFileSystem;
+		YSSUnifiedFileSystem* ufs = YSSUnifiedFileSystem::getInstance();
 		const QList<YSSCore::General::YSSFileSystemTask> tasks = ufs->getTasks();
 		const YSSCore::General::YSSFileSystemTask* running = nullptr;
 		for (const auto& task : tasks) {
