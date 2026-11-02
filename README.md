@@ -4,7 +4,7 @@
 ![](https://img.shields.io/badge/Project-Visindigo-purple)
 ![](https://img.shields.io/badge/Python-3.12%2B-blue)
 ![](https://img.shields.io/badge/Qt-6.10.3%2B-lightgreen)
-![](https://img.shields.io/badge/LGPL-2.1-green)
+![](https://img.shields.io/badge/LGPL-3.0-green)
 ![](https://img.shields.io/badge/Support-CMake-yellow)
 ![](https://img.shields.io/badge/Support-Visual_Studio_2026-purple)
 ![](https://img.shields.io/badge/Support-Qt_Creator-green)
