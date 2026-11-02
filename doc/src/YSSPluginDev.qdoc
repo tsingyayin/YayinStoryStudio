@@ -2,7 +2,7 @@
 	\page YSSPluginDev.html
 	\title YSSPluginDev
 	\brief Yayin Story Studio 插件开发文档
-	\ingroup YSSCore
+	\inmodule YSSCore
 
 	\section1 YSS插件开发
 	要编写一个能成功运行的YSS插件，需要参考类Visindigo::General::Plugin和YSSCore::Editor::EditorPlugin的文档。

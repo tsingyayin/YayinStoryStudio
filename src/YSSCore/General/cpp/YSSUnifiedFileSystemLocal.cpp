@@ -52,9 +52,9 @@ namespace {
 	YSSCore::General::YSSFileError makeLocalError(YSSCore::General::YSSFileError::ErrorType type,
 		const QString& message, const QString& detail = QString()) {
 		YSSCore::General::YSSFileError error;
-		error.Type = type;
-		error.Message = message;
-		error.Detail = detail;
+		error.setType(type);
+		error.setMessage(message);
+		error.setDetail(detail);
 		return error;
 	}
 
@@ -174,9 +174,26 @@ namespace {
 	// QFileInfo::ownerId() / groupId() 在不支持 owner 的平台上返回 (uint)-2。
 	const quint32 InvalidFileId = static_cast<quint32>(-2);
 
-	// 把 Qt 的跨平台权限集合映射成 POSIX mode，至少与 SFTP 给出的权限位可比。
-	quint32 posixModeOf(QFileDevice::Permissions permissions) {
+	// 把 QFileInfo 能拿到的信息拼成与 POSIX st_mode 同构的值，使本机与远端给出的
+	// mode 可以直接比对：类型位来自文件类型判定，权限位来自 QFileDevice::Permissions。
+	// 特殊位（setuid / setgid / sticky）Qt 没有对应接口，恒为 0；FIFO、socket 与
+	// 设备文件在跨平台层面无法区分，类型位留空。
+	//
+	// 两个已知的语义偏差：类型位按链接本身给出（lstat 语义），但权限位是 Qt 的
+	// 判定结果，在跟随链接的平台上取的是目标权限；另外 IsDirectory 沿用 Qt 的
+	// 跟随语义，所以"指向目录的链接"会同时是 TypeSymlink 与目录。
+	YSSCore::General::YSSFileAttributes::Permissions permissionsOf(const QFileInfo& info) {
 		quint32 mode = 0;
+		if (info.isSymLink()) {
+			mode |= 0120000;
+		}
+		else if (info.isDir()) {
+			mode |= 0040000;
+		}
+		else if (info.isFile()) {
+			mode |= 0100000;
+		}
+		const QFileDevice::Permissions permissions = info.permissions();
 		if (permissions.testFlag(QFileDevice::ReadOwner) || permissions.testFlag(QFileDevice::ReadUser)) {
 			mode |= 0400;
 		}
@@ -204,7 +221,7 @@ namespace {
 		if (permissions.testFlag(QFileDevice::ExeOther)) {
 			mode |= 0001;
 		}
-		return mode;
+		return YSSCore::General::YSSFileAttributes::permissionsOf(mode);
 	}
 
 	YSSCore::General::YSSFileAttributes attributesOf(const QFileInfo& info) {
@@ -216,7 +233,7 @@ namespace {
 		attributes.setIsHidden(info.isHidden());
 		attributes.setIsReadOnly(!info.isWritable());
 		attributes.setIsExecutable(info.isExecutable());
-		attributes.setPermissions(posixModeOf(info.permissions()));
+		attributes.setPermissions(permissionsOf(info));
 		if (info.birthTime().isValid()) {
 			attributes.setCreatedMs(info.birthTime().toMSecsSinceEpoch());
 		}
@@ -551,8 +568,9 @@ namespace {
 			const QFileInfoList infos = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries);
 			for (const QFileInfo& child : infos) {
 				YSSFileEntry entry;
-				entry.Name = child.fileName();
-				entry.Attributes = attributesOf(child);
+				entry.setName(child.fileName());
+				entry.setUri(request.getUri().resolve(child.fileName()));
+				entry.setAttributes(attributesOf(child));
 				outcome.Entries.append(entry);
 			}
 			outcome.Ok = true;
@@ -562,7 +580,7 @@ namespace {
 			YSSFileError removeError;
 			if (!removeLocalRecursive(target, &removeError)) {
 				outcome.Error = removeError;
-				outcome.Error.Detail = detail;
+				outcome.Error.setDetail(detail);
 				return outcome;
 			}
 			outcome.Ok = true;
@@ -752,9 +770,9 @@ namespace YSSCore::General {
 		const QString& message, const QString& detail) {
 		if (error) {
 			YSSFileError value;
-			value.Type = type;
-			value.Message = message;
-			value.Detail = detail;
+			value.setType(type);
+			value.setMessage(message);
+			value.setDetail(detail);
 			*error = value;
 		}
 		return false;
@@ -892,9 +910,11 @@ namespace YSSCore::General {
 		提交操作。实际的读写在工作线程池里执行，结果通过 \l{YSSFileSystemReply} 返回。
 
 		\a request 操作参数。
+		\a range 本次要读写的区间，只对 Read/Write 有意义。
 		\a reply 结果对象。
 	*/
-	void YSSLocalFileSystemProvider::execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) {
+	void YSSLocalFileSystemProvider::execute(const YSSFileSystemRequest& request,
+		const YSSFileSystemDataRange& range, YSSFileSystemReply* reply) {
 		if (reply == nullptr) {
 			return;
 		}
@@ -908,8 +928,8 @@ namespace YSSCore::General {
 			this->d->Outcomes.remove(reply);
 		});
 		YSSLocalFileSystemProvider* provider = this;
-		QThreadPool::globalInstance()->start(new YSSLambdaRunnable([provider, request, reply]() {
-			provider->runRequest(request, reply);
+		QThreadPool::globalInstance()->start(new YSSLambdaRunnable([provider, request, range, reply]() {
+			provider->runRequest(request, range, reply);
 		}));
 	}
 
@@ -920,14 +940,16 @@ namespace YSSCore::General {
 		本函数由线程池调用，不要在调用方线程直接调用。
 
 		\a request 操作参数。
+		\a range 本次要读写的区间。
 		\a reply 结果对象。
 	*/
-	void YSSLocalFileSystemProvider::runRequest(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) {
+	void YSSLocalFileSystemProvider::runRequest(const YSSFileSystemRequest& request,
+		const YSSFileSystemDataRange& range, YSSFileSystemReply* reply) {
 		this->markStarted(reply);
 		const YSSLocalOutcome outcome = computeLocal(request,
 			[this, reply](qint64 transferred, qint64 total) {
 				this->reportProgress(reply, transferred, total);
-			}, requestDataOffset(request), requestDataLength(request));
+			}, range.Offset, range.Length);
 		{
 			QMutexLocker locker(&this->d->Mutex);
 			this->d->Outcomes.insert(reply, outcome);

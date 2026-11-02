@@ -20,6 +20,14 @@
 
 namespace {
 	using FileOperation = YSSCore::General::YSSUnifiedFileSystem::Operation;
+	using FileAttributes = YSSCore::General::YSSFileAttributes;
+	using Permission = FileAttributes::Permission;
+
+	// 三组写位 / 三组执行位。SFTP 不给单独的只读标志，只能按 rwx 推断。
+	const FileAttributes::Permissions WritePermissions = Permission::OwnerWrite
+		| Permission::GroupWrite | Permission::OtherWrite;
+	const FileAttributes::Permissions ExecutePermissions = Permission::OwnerExecute
+		| Permission::GroupExecute | Permission::OtherExecute;
 
 	// 判断一个 SSH 目标 URI 是否属于本后端：必须与连接配置同一主机、同一端口。
 	// URI 未写端口时按默认端口比较，否则 ssh://host/x 永远找不到默认端口的连接。
@@ -36,44 +44,44 @@ namespace {
 	// 连接不可用时统一用这一条错误：配置可能没问题，只是需要重新登录。
 	YSSCore::General::YSSFileError notConnectedError() {
 		YSSCore::General::YSSFileError error;
-		error.Type = YSSCore::General::YSSFileError::ErrorType::NeedsCredentials;
-		error.Message = QStringLiteral("The SSH filesystem is not connected");
+		error.setType(YSSCore::General::YSSFileError::ErrorType::NeedsCredentials);
+		error.setMessage(QStringLiteral("The SSH filesystem is not connected"));
 		return error;
 	}
 
 	YSSCore::General::YSSFileError mapSshError(const Visindigo::Network::SshError& source) {
 		using YSSError = YSSCore::General::YSSFileError;
 		YSSError error;
-		error.Message = source.Message;
-		error.Detail = source.Detail;
+		error.setMessage(source.Message);
+		error.setDetail(source.Detail);
 		switch (source.Type) {
 		case Visindigo::Network::SshError::ErrorType::NoError:
-			error.Type = YSSError::ErrorType::NoError;
+			error.setType(YSSError::ErrorType::NoError);
 			break;
 		case Visindigo::Network::SshError::ErrorType::FileNotFound:
-			error.Type = YSSError::ErrorType::NotFound;
+			error.setType(YSSError::ErrorType::NotFound);
 			break;
 		case Visindigo::Network::SshError::ErrorType::PermissionDenied:
 		case Visindigo::Network::SshError::ErrorType::AuthenticationFailed:
-			error.Type = YSSError::ErrorType::PermissionDenied;
+			error.setType(YSSError::ErrorType::PermissionDenied);
 			break;
 		case Visindigo::Network::SshError::ErrorType::FileExists:
-			error.Type = YSSError::ErrorType::AlreadyExists;
+			error.setType(YSSError::ErrorType::AlreadyExists);
 			break;
 		case Visindigo::Network::SshError::ErrorType::FileTooLarge:
-			error.Type = YSSError::ErrorType::FileTooLarge;
+			error.setType(YSSError::ErrorType::FileTooLarge);
 			break;
 		case Visindigo::Network::SshError::ErrorType::ChannelRejected:
-			error.Type = YSSError::ErrorType::NotSupported;
+			error.setType(YSSError::ErrorType::NotSupported);
 			break;
 		case Visindigo::Network::SshError::ErrorType::Aborted:
-			error.Type = YSSError::ErrorType::Aborted;
+			error.setType(YSSError::ErrorType::Aborted);
 			break;
 		case Visindigo::Network::SshError::ErrorType::InvalidConfiguration:
-			error.Type = YSSError::ErrorType::InvalidConfiguration;
+			error.setType(YSSError::ErrorType::InvalidConfiguration);
 			break;
 		default:
-			error.Type = YSSError::ErrorType::IoError;
+			error.setType(YSSError::ErrorType::IoError);
 			break;
 		}
 		return error;
@@ -127,24 +135,28 @@ namespace {
 		}
 		// SFTP 只用 permissions 表达文件类型；没有 permissions 时目录/链接标志也不可信。
 		if (source.Permissions != 0) {
-			attributes.setPermissions(source.Permissions);
+			const FileAttributes::Permissions permissions = FileAttributes::permissionsOf(source.Permissions);
+			attributes.setPermissions(permissions);
 			attributes.setIsDirectory(source.IsDirectory);
 			attributes.setIsSymlink(source.IsSymlink);
-			attributes.setIsReadOnly((source.Permissions & 0222u) == 0);
-			attributes.setIsExecutable((source.Permissions & 0111u) != 0);
+			attributes.setIsReadOnly(!permissions.testAnyFlags(WritePermissions));
+			attributes.setIsExecutable(permissions.testAnyFlags(ExecutePermissions));
 		}
 		return attributes;
 	}
 
-	QList<YSSCore::General::YSSFileEntry> toEntries(const QList<Visindigo::Network::SftpEntry>& source) {
+	QList<YSSCore::General::YSSFileEntry> toEntries(const QList<Visindigo::Network::SftpEntry>& source,
+		const YSSCore::General::YSSURI& parent) {
 		QList<YSSCore::General::YSSFileEntry> entries;
 		entries.reserve(source.size());
 		for (const Visindigo::Network::SftpEntry& item : source) {
 			YSSCore::General::YSSFileEntry entry;
-			entry.Name = item.Name;
-			entry.Attributes = toAttributes(item.Attributes);
+			YSSCore::General::YSSFileAttributes attributes = toAttributes(item.Attributes);
 			// POSIX 的隐藏属性由文件名决定，SFTP 属性里没有，只能在列表这一层补。
-			entry.Attributes.setIsHidden(item.Name.startsWith(QChar('.')));
+			attributes.setIsHidden(item.Name.startsWith(QChar('.')));
+			entry.setName(item.Name);
+			entry.setUri(parent.resolve(item.Name));
+			entry.setAttributes(attributes);
 			entries.append(entry);
 		}
 		return entries;
@@ -483,9 +495,11 @@ namespace YSSCore::General {
 		提交操作。未连接或路径越界时立刻失败。
 
 		\a request 操作参数。
+		\a range 本次要读写的区间，只对 Read/Write 有意义。
 		\a reply 结果对象。
 	*/
-	void YSSSshFileSystemProvider::execute(const YSSFileSystemRequest& request, YSSFileSystemReply* reply) {
+	void YSSSshFileSystemProvider::execute(const YSSFileSystemRequest& request,
+		const YSSFileSystemDataRange& range, YSSFileSystemReply* reply) {
 		if (reply == nullptr) {
 			return;
 		}
@@ -497,17 +511,17 @@ namespace YSSCore::General {
 		}
 		if (!request.hasUri()) {
 			YSSFileError error;
-			error.Type = YSSFileError::ErrorType::InvalidConfiguration;
-			error.Message = QStringLiteral("The request carries no absolute URI");
+			error.setType(YSSFileError::ErrorType::InvalidConfiguration);
+			error.setMessage(QStringLiteral("The request carries no absolute URI"));
 			this->fail(reply, error);
 			return;
 		}
 		const YSSURI target = request.getUri();
 		if (!isAcceptableSshTarget(this->d->Config, target)) {
 			YSSFileError error;
-			error.Type = YSSFileError::ErrorType::InvalidConfiguration;
-			error.Message = QStringLiteral("URI does not belong to this SSH connection");
-			error.Detail = target.toString();
+			error.setType(YSSFileError::ErrorType::InvalidConfiguration);
+			error.setMessage(QStringLiteral("URI does not belong to this SSH connection"));
+			error.setDetail(target.toString());
 			this->fail(reply, error);
 			return;
 		}
@@ -515,9 +529,9 @@ namespace YSSCore::General {
 		if (request.getOperation() == FileOperation::Recycle) {
 			// SFTP 没有回收站。绝不能用 unlink 将就——那等于永久删除，而调用方以为能恢复。
 			YSSFileError error;
-			error.Type = YSSFileError::ErrorType::NotSupported;
-			error.Message = QStringLiteral("The SSH filesystem cannot recycle files");
-			error.Detail = target.toString();
+			error.setType(YSSFileError::ErrorType::NotSupported);
+			error.setMessage(QStringLiteral("The SSH filesystem cannot recycle files"));
+			error.setDetail(target.toString());
 			this->fail(reply, error);
 			return;
 		}
@@ -547,19 +561,19 @@ namespace YSSCore::General {
 		sftpRequest.setAutoDelete(false);
 		if (request.getOperation() == FileOperation::Write) {
 			sftpRequest.setData(request.getData());
-			sftpRequest.setRange(requestDataOffset(request), -1);
+			sftpRequest.setRange(range.Offset, -1);
 		}
 		else if (request.getOperation() == FileOperation::Read) {
-			sftpRequest.setRange(requestDataOffset(request), requestDataLength(request));
+			sftpRequest.setRange(range.Offset, range.Length);
 		}
 		else if (request.getOperation() == FileOperation::Rename
 			|| request.getOperation() == FileOperation::Move) {
 			const YSSURI targetPath = request.getTargetUri();
 			if (!isAcceptableSshTarget(this->d->Config, targetPath)) {
 				YSSFileError error;
-				error.Type = YSSFileError::ErrorType::InvalidConfiguration;
-				error.Message = QStringLiteral("Target URI does not belong to this SSH connection");
-				error.Detail = targetPath.toString();
+				error.setType(YSSFileError::ErrorType::InvalidConfiguration);
+				error.setMessage(QStringLiteral("Target URI does not belong to this SSH connection"));
+				error.setDetail(targetPath.toString());
 				this->fail(reply, error);
 				return;
 			}
@@ -569,8 +583,8 @@ namespace YSSCore::General {
 		Visindigo::Network::SftpReply* sftpReply = this->d->Session->sftp(sftpRequest);
 		if (sftpReply == nullptr) {
 			YSSFileError error;
-			error.Type = YSSFileError::ErrorType::InvalidConfiguration;
-			error.Message = QStringLiteral("The SSH session rejected the SFTP request");
+			error.setType(YSSFileError::ErrorType::InvalidConfiguration);
+			error.setMessage(QStringLiteral("The SSH session rejected the SFTP request"));
 			this->fail(reply, error);
 			return;
 		}
@@ -582,8 +596,8 @@ namespace YSSCore::General {
 				provider->reportProgress(reply, transferred, total);
 			});
 		QObject::connect(sftpReply, &Visindigo::Network::SftpReply::succeeded, this,
-			[provider, reply, sftpReply]() {
-				provider->complete(reply, sftpReply->getData(), toEntries(sftpReply->getEntries()),
+			[provider, reply, sftpReply, target]() {
+				provider->complete(reply, sftpReply->getData(), toEntries(sftpReply->getEntries(), target),
 					toAttributes(sftpReply->getAttributes()), sftpReply->getBytesTransferred(),
 					sftpReply->getTotalBytes());
 			});

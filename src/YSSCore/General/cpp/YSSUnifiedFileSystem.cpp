@@ -23,7 +23,6 @@
 #include "General/Log.h"
 #include "General/YSSUnifiedFileSystem.h"
 #include "General/private/YSSFileSystemReply_p.h"
-#include "General/private/YSSFileSystemRequest_p.h"
 #include "General/private/YSSUnifiedFileSystem_p.h"
 
 // 独立日志命名空间：日志前缀只显示 (YSSUnifiedFileSystem)，不带函数签名与行号。
@@ -355,24 +354,17 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		标记请求已经开始执行。可从任意线程调用；门面会排队回自己的线程再更新任务表。
+		默认实现：本后端不支持目录监听，以 \l{YSSFileError::ErrorType::NotSupported} 返回 false。
 
-		\a reply 结果对象。
+		\a uri 要监听的目录。
+		\a error 失败原因；成功时不被修改。
 	*/
-	qint64 YSSUnifiedFileSystemProvider::requestDataOffset(const YSSFileSystemRequest& request) {
-		return request.d->DataOffset;
-	}
-
-	qint64 YSSUnifiedFileSystemProvider::requestDataLength(const YSSFileSystemRequest& request) {
-		return request.d->DataLength;
-	}
-
 	bool YSSUnifiedFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
 		if (error) {
 			YSSFileError value;
-			value.Type = YSSFileError::ErrorType::NotSupported;
-			value.Message = QStringLiteral("This backend cannot watch directories");
-			value.Detail = uri.toString();
+			value.setType(YSSFileError::ErrorType::NotSupported);
+			value.setMessage(QStringLiteral("This backend cannot watch directories"));
+			value.setDetail(uri.toString());
 			*error = value;
 		}
 		return false;
@@ -383,7 +375,15 @@ namespace {
 		return false;
 	}
 
-	void YSSUnifiedFileSystemProvider::markStarted(YSSFileSystemReply* reply) {		if (reply == nullptr) {
+	/*!
+		\since YSS 0.18.0
+
+		标记请求已经开始执行。可从任意线程调用；门面会排队回自己的线程再更新任务表。
+
+		\a reply 结果对象。
+	*/
+	void YSSUnifiedFileSystemProvider::markStarted(YSSFileSystemReply* reply) {
+		if (reply == nullptr) {
 			return;
 		}
 		emit this->started(reply->getId());
@@ -496,7 +496,7 @@ namespace {
 			const QString line = describeRequest(id, reply->d->Operation, reply->d->Uri);
 			// 这些失败是正常业务结果（探测文件是否存在、只读后端等），用调试级别记录；
 			// 其余视为异常，用警告级别，便于在日志里一眼看到。
-			switch (error.Type) {
+			switch (error.getType()) {
 			case YSSFileError::ErrorType::NotFound:
 			case YSSFileError::ErrorType::NotSupported:
 			case YSSFileError::ErrorType::AlreadyExists:
@@ -816,9 +816,9 @@ namespace {
 			this->d->TaskProviderIds.remove(item.Id);
 			if (item.Reply) {
 				YSSFileError error;
-				error.Type = YSSFileError::ErrorType::Aborted;
-				error.Message = QStringLiteral("The SSH connection was removed");
-				error.Detail = authority;
+				error.setType(YSSFileError::ErrorType::Aborted);
+				error.setMessage(QStringLiteral("The SSH connection was removed"));
+				error.setDetail(authority);
 				provider->fail(item.Reply.data(), error);
 			}
 		}
@@ -1091,18 +1091,18 @@ namespace {
 			}
 			if (!writable) {
 				YSSFileError error;
-				error.Type = YSSFileError::ErrorType::NotSupported;
-				error.Message = QStringLiteral("The backend is read-only");
-				error.Detail = uri.toString();
+				error.setType(YSSFileError::ErrorType::NotSupported);
+				error.setMessage(QStringLiteral("The backend is read-only"));
+				error.setDetail(uri.toString());
 				provider->fail(reply, error);
 				return reply;
 			}
 			// 回收站不在通用写能力里：不支持的后端必须明确失败，绝不能退化成永久删除。
 			if (request.getOperation() == Operation::Recycle && !capabilities.testFlag(CanRecycle)) {
 				YSSFileError error;
-				error.Type = YSSFileError::ErrorType::NotSupported;
-				error.Message = QStringLiteral("This location cannot be recycled");
-				error.Detail = uri.toString();
+				error.setType(YSSFileError::ErrorType::NotSupported);
+				error.setMessage(QStringLiteral("This location cannot be recycled"));
+				error.setDetail(uri.toString());
 				provider->fail(reply, error);
 				return reply;
 			}
@@ -1114,18 +1114,18 @@ namespace {
 			const YSSURI targetUri = request.getTargetUri();
 			if (uri == targetUri) {
 				YSSFileError error;
-				error.Type = YSSFileError::ErrorType::InvalidConfiguration;
-				error.Message = QStringLiteral("Source and target are the same URI");
-				error.Detail = uri.toString();
+				error.setType(YSSFileError::ErrorType::InvalidConfiguration);
+				error.setMessage(QStringLiteral("Source and target are the same URI"));
+				error.setDetail(uri.toString());
 				provider->fail(reply, error);
 				return reply;
 			}
 			YSSUnifiedFileSystemProvider* targetProvider = this->d->providerFor(targetUri);
 			if (targetProvider == nullptr) {
 				YSSFileError error;
-				error.Type = YSSFileError::ErrorType::NotSupported;
-				error.Message = QStringLiteral("No filesystem backend handles the target URI");
-				error.Detail = targetUri.toString();
+				error.setType(YSSFileError::ErrorType::NotSupported);
+				error.setMessage(QStringLiteral("No filesystem backend handles the target URI"));
+				error.setDetail(targetUri.toString());
 				provider->fail(reply, error);
 				return reply;
 			}
@@ -1136,9 +1136,9 @@ namespace {
 				: sourceCapabilities.testFlag(CanRemove) && targetCapabilities.testFlag(CanWrite);
 			if (!needed) {
 				YSSFileError error;
-				error.Type = YSSFileError::ErrorType::NotSupported;
-				error.Message = QStringLiteral("The operation is not supported by the backend");
-				error.Detail = uri.toString() + QStringLiteral(" -> ") + targetUri.toString();
+				error.setType(YSSFileError::ErrorType::NotSupported);
+				error.setMessage(QStringLiteral("The operation is not supported by the backend"));
+				error.setDetail(uri.toString() + QStringLiteral(" -> ") + targetUri.toString());
 				provider->fail(reply, error);
 				return reply;
 			}
@@ -1384,8 +1384,8 @@ namespace {
 		if (reply == nullptr) {
 			if (error) {
 				YSSFileError noBackend;
-				noBackend.Type = YSSFileError::ErrorType::NotSupported;
-				noBackend.Message = QStringLiteral("No filesystem backend handles this URI");
+				noBackend.setType(YSSFileError::ErrorType::NotSupported);
+				noBackend.setMessage(QStringLiteral("No filesystem backend handles this URI"));
 				*error = noBackend;
 			}
 			return false;
@@ -1410,9 +1410,9 @@ namespace {
 			}
 			else {
 				YSSFileError timeout;
-				timeout.Type = YSSFileError::ErrorType::IoError;
-				timeout.Message = QStringLiteral("Timed out while waiting for the filesystem");
-				timeout.Detail = reply->getUri().toString();
+				timeout.setType(YSSFileError::ErrorType::IoError);
+				timeout.setMessage(QStringLiteral("Timed out while waiting for the filesystem"));
+				timeout.setDetail(reply->getUri().toString());
 				*error = timeout;
 			}
 		}
@@ -1576,9 +1576,9 @@ namespace {
 		if (provider == nullptr || !provider->supportsDirectoryWatch()) {
 			if (error) {
 				YSSFileError value;
-				value.Type = YSSFileError::ErrorType::NotSupported;
-				value.Message = QStringLiteral("This location cannot be watched");
-				value.Detail = uri.toString();
+				value.setType(YSSFileError::ErrorType::NotSupported);
+				value.setMessage(QStringLiteral("This location cannot be watched"));
+				value.setDetail(uri.toString());
 				*error = value;
 			}
 			return false;
@@ -1791,8 +1791,8 @@ namespace {
 		}
 		if (it->Reply.isNull()) {
 			YSSFileError error;
-			error.Type = YSSFileError::ErrorType::Aborted;
-			error.Message = QStringLiteral("The reply was destroyed before the transfer started");
+			error.setType(YSSFileError::ErrorType::Aborted);
+			error.setMessage(QStringLiteral("The reply was destroyed before the transfer started"));
 			this->finishTransfer(id, false, error);
 			return;
 		}
@@ -1823,18 +1823,18 @@ namespace {
 				}
 				if (!targetStatReply->getError().isError()) {
 					YSSFileError error;
-					error.Type = YSSFileError::ErrorType::AlreadyExists;
-					error.Message = QStringLiteral("The target already exists");
+					error.setType(YSSFileError::ErrorType::AlreadyExists);
+					error.setMessage(QStringLiteral("The target already exists"));
 					const auto current = this->Transfers.constFind(id);
 					if (current != this->Transfers.constEnd()) {
-						error.Detail = current->Target.toString();
+						error.setDetail(current->Target.toString());
 					}
 					this->finishTransfer(id, false, error);
 					return;
 				}
 				this->beginTransferStat(id);
 			});
-		targetProvider->execute(targetStat, targetStatReply);
+		targetProvider->execute(targetStat, YSSFileSystemDataRange(), targetStatReply);
 	}
 
 	// 目标确认不存在之后，取一次源的大小让进度有总量，再开始搬运。
@@ -1864,7 +1864,7 @@ namespace {
 			}
 			this->submitRelayRead(id);
 		});
-		provider->execute(statRequest, statReply);
+		provider->execute(statRequest, YSSFileSystemDataRange(), statReply);
 	}
 
 	// 从源读下一块。返回空块表示源已经读完。
@@ -1880,9 +1880,11 @@ namespace {
 		YSSFileSystemRequest request;
 		request.setOperation(YSSUnifiedFileSystem::Operation::Read);
 		request.setUri(source);
-		request.d->DataOffset = offset;
-		request.d->DataLength = RelayChunkBytes;
 		request.setAutoDelete(true);
+
+		YSSFileSystemDataRange range;
+		range.Offset = offset;
+		range.Length = RelayChunkBytes;
 
 		YSSFileSystemReply* chunk = new YSSFileSystemReply(this->NextId++);
 		chunk->d->Uri = source;
@@ -1904,7 +1906,7 @@ namespace {
 			}
 			this->submitRelayWrite(id, data);
 		});
-		provider->execute(request, chunk);
+		provider->execute(request, range, chunk);
 	}
 
 	void YSSUnifiedFileSystemPrivate::submitRelayWrite(quint64 id, const QByteArray& data) {
@@ -1921,9 +1923,11 @@ namespace {
 		request.setOperation(YSSUnifiedFileSystem::Operation::Write);
 		request.setUri(target);
 		request.setData(data);
-		// 偏移 0 处覆盖并截断，后续块接着写。
-		request.d->DataOffset = offset;
 		request.setAutoDelete(true);
+
+		// 偏移 0 处覆盖并截断，后续块接着写；写操作不用 Length，长度由 Data 决定。
+		YSSFileSystemDataRange range;
+		range.Offset = offset;
 
 		YSSFileSystemReply* chunk = new YSSFileSystemReply(this->NextId++);
 		chunk->d->Uri = target;
@@ -1943,7 +1947,7 @@ namespace {
 			this->reportTransferProgress(id);
 			this->submitRelayRead(id);
 		});
-		provider->execute(request, chunk);
+		provider->execute(request, range, chunk);
 	}
 
 	// 移动：复制已经完成，删除源。删除成功才算移动成功。
@@ -1983,7 +1987,7 @@ namespace {
 			}
 			this->finishTransfer(id, true, YSSFileError());
 		});
-		provider->execute(request, removal);
+		provider->execute(request, YSSFileSystemDataRange(), removal);
 	}
 
 	void YSSUnifiedFileSystemPrivate::reportTransferProgress(quint64 id) {
@@ -2031,7 +2035,7 @@ namespace {
 		QObject::connect(removal, &YSSFileSystemReply::finished, this->Owner, [this, id, error]() {
 			this->finishTransfer(id, false, error);
 		});
-		provider->execute(request, removal);
+		provider->execute(request, YSSFileSystemDataRange(), removal);
 	}
 
 	void YSSUnifiedFileSystemPrivate::finishTransfer(quint64 id, bool ok, const YSSFileError& error) {
@@ -2152,7 +2156,7 @@ namespace {
 				this->startTransfer(item.Id);
 				continue;
 			}
-			item.Provider->execute(item.Request, item.Reply.data());
+			item.Provider->execute(item.Request, YSSFileSystemDataRange(), item.Reply.data());
 		}
 		this->Scheduling = false;
 	}

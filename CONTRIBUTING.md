@@ -5,14 +5,16 @@
 ## 1. 声明的位置
 
 ### 1.1 模块目录结构
-- 项目基本全部采用PIMPL模式，公共头文件放在模块根目录或对应子目录：`src/Visindigo/General/`、`src/Visindigo/Widgets/`、`src/YSSCore/General/`、`src/YSSCore/Editor/`、`src/YayinStoryStudio/Editor/` 等。
+- 项目基本上全部采用PIMPL模式，PIMPL中公共头文件应放在模块根目录或对应子目录，例如`src/Visindigo/General/`、`src/Visindigo/Widgets/`、`src/YSSCore/General/`、`src/YSSCore/Editor/`、`src/YayinStoryStudio/Editor/` 等。
+- 如果出于性能或其他因素考虑，或者类不做公开API使用，则也可以不使用PIMPL。使用PIMPL是主流推荐，但不是必选项。
+- 一般不在公开类使用struct，以避免成员变更时破坏ABI。仅将struct用于模板和私有实现。
 - 源文件统一放在**与头文件同名模块的 `folder/cpp/` 子目录**下：如 `Widgets/cpp/MultiButton.cpp`、`YSSCore/General/cpp/YSSProject.cpp`、`Editor/MainEditor/cpp/MainWin.cpp`、`Plugin_ASERStudio/cpp/*.cpp`。
 - 对于PIMPL模式中的私有类，如果：
     - **仅在单个 `.cpp` 内使用**，则直接内联写在 `.cpp` 里。
     - **有多个 `.cpp` 需要引用，或私有类也是QObject，需要MOC生成代码**，则需要单独写一个私有实现头文件（`*_p.h`），并放在 `folder/private/` 子目录下。
 - 请注意，除PIMPL之外的，其他外部不常直接使用（如测试代码的头文件、部分特殊的宏定义等）但某些时候确有引用必要的文件，也应放在`folder/private`目录中，但不应该以`_p.h`结尾，以便打包工具可以正常将其输出。（这种情况极少）
 - `*_p.h`的实现可直接写在对应外部实现的 `.cpp` 里，也可以写在`*_p.cpp`里，但无论如何都必须放置在`folder/cpp/`目录下。
-
+- 只要一个类是QObject派生类，就必须声明Q_OBJECT宏，不能因为不使用信号槽而省略。即使是私有类，也必须声明Q_OBJECT宏。
 ### 1.2 头文件保护（include guard）
 - 一律用 `#ifndef`（**不用 `#pragma once`**）。
 - guard 名 = 文件相对 `src/` 的路径下划线化 + `_h`：
@@ -44,6 +46,7 @@
         - 本项目当前模块的头文件
 ### 1.4 前置声明
 - 头文件内尽量前置声明而非 include 重型头：`class QString;`、`namespace Visindigo::Utility { class JsonConfig; }`。
+- 如果使用前置声明，会使下游代码造成不便。譬如，类B需要使用类A，且下游使用类B时也不可避免的要使用类A，则如果可用的话，类B的头文件不建议使用前置声明，而应直接include类A的头文件。
 - 用 `// Forward declarations` 与 `// Main` 分节注释标出（见 `src/Visindigo/General/Translator.h`、`Plugin.h`）。
 
 ### 1.5 pimpl（d 指针）
@@ -52,7 +55,6 @@
 - 公共类尾部（`protected:`/`private:` 区）声明 `FooPrivate* d;`（星号贴类型）。
 - 私有类必须将全部成员声明为`protected`，并将可能访问它的其他类声明为`friend class`，以便访问私有成员。
 - 本项目不使用Qt的PIMPL宏是因为，本项目倾向于建议下游使用组合而非继承，因此即使是派生类，也不建议其访问基类中的私有成员。也不为基类超前假设潜在的继承需求。
----
 
 ## 2. 类的声明结构
 
@@ -132,13 +134,11 @@
     请注意，对于非PIMPL的类，私有成员变量放在比较靠前的位置，私有成员函数则放在末尾。本项目中也有私有成员变量放在私有成员函数之后的情况，但不推荐。
 
 ### 2.2 Qt 宏
-- `Q_OBJECT;`、 `Q_GADGET;`、`Q_ENUM(...)`、`Q_PROPERTY(...)` 等 Qt 宏 末尾应带分号。
+- `Q_OBJECT;`、 `Q_GADGET;`、`Q_ENUM(...);`、`Q_PROPERTY(...);` 等 Qt 宏 末尾应带分号。
 
 ### 2.3 访问限定符
 - `public:` / `protected:` / `private:` / `signals:` **顶格**（与类名同级），类内成员缩进 1 个 tab。
-- 常用顺序：`friend` → Qt 宏 → `signals:` → `public:` → `protected:` → `private:`。
-- 同一限定符可按功能分段；`public:` 优先。
-- Qt 小写关键字直接使用（`signals:`、`public slots:`）。
+- 同一限定符可按功能分段重新标注限定符。
 
 ### 2.4 虚函数、override
 - 基类虚函数声明带 `virtual`；空实现可 inline 在头文件并带分号：`virtual void onPluginEnable() {};`，也可以在 cpp 中实现。
@@ -158,8 +158,6 @@
 ### 2.7 导出宏
 - 每个库/插件一个 `XxxCompileMacro.h`，定义 `VisindigoAPI` / `YSSCoreAPI` / `ASERAPI` 等（见 `src/Visindigo/VICompileMacro.h`、`src/YSSCore/YSSCoreCompileMacro.h`）。
 - 类声明前写：`class VisindigoAPI Foo {`。
-
----
 
 ## 3. 约定俗成的写法习惯
 
@@ -195,7 +193,7 @@
   ```
 
 - **文件命名**：PascalCase（`MultiButton.h`、`YSSProject.cpp`），私有头 `Foo_p.h`。
-- PascalCase的缩写单词大小写规则定义如下：
+- **PascalCase的缩写单词大小写规则** 定义如下：
     - 如果缩写单词有2或3个字母，建议全部大写，也允许仅首字母大写。
     - 如果缩写单词有4个或以上字母，如果有通用的整体发音，则视作普通单词，仅首字母大写，如`Json`，如果没有通用的整体发音，则建议全部大写，如`HTTP`。
 ### 3.3 指针 / 引用 / 默认参数
@@ -229,9 +227,8 @@
 - 插件入口导出固定函数：`extern "C" ASERAPI Visindigo::General::Plugin* VisindigoPluginMain() { ... }`。
 
 ### 3.9 QObject 与构建登记（硬性）
-- **带 `Q_OBJECT` 的类（含 `*_p.h` 私有头）必须在对应 `.vcxproj` 登记 `<QtMoc Include="...">`**，漏登记则 moc 不生成、链接报错；`.vcxproj.filters` 同步加条目。
+- **带 `Q_OBJECT` 的类（含 `*_p.h` 私有头）必须在对应 `.vcxproj` 登记 `<QtMoc Include="...">`**，且不能重复登记为普通头文件，否则会造成项目无法打开。
 
----
 
 ## 4. 注释的使用
 
@@ -284,7 +281,7 @@
     features remain basically stable.
     ```
     注：由人类设计API，人类指导大部分细节的文件，即使由AI完成实现，也不需要加入上述声明。
-- 标注有以上声明的文件，只要参与生成它的开发者亲自审阅并基本完全理解了实现逻辑和代码结构，并且后续一段时间内不会对代码进行重大修改的前提下，就可以将注释变更为以下内容：
+- 标注有以上声明的文件，只要参与生成它的开发者亲自审阅并基本完全理解了实现逻辑和代码结构，并且后续一段时间内不会对代码进行重大修改的前提下，就可以将注释变更为以下内容，也可以选择直接删除注释。
     ```plain
     Visindigo Project AI Assisted Declaration
 
@@ -306,6 +303,17 @@
 - 除非重新赋值存在性能问题，不强制要求使用初始化列表写法。
 - 如果一个类内存在多种构造函数，且每种构造涉及的初始化资源不同，无法统一到一个init()函数中，则要求必须在声明值时就完成初始化。
 - 如果一个函数体内，有在堆上初始化的对象，且退出路径不唯一，则应考虑使用RAII封装。
+- 禁止将一个刚刚new出来的指针直接用于信号的传递，除非new出来的对象已经被函数所在对象正确记录或与函数所在对象已经形成父子关系。
+- 除非不便确定语义，否则建议类提供默认构造函数或可不传参数的构造函数。
 
 ### 5.2 资源的释放
-- 
+- 如果不对内存产生巨大负担，一般不建议指针在类的生命周期中途释放。同样的，也不建议这些资源在中途初始化。
+- 对于成员是QObject派生类且自己也是QObject派生类，已经形成父子关系的结构，不必手动释放对象。
+- 对于需要手动释放的QObject派生类，如果释放时已经明确稍后事件循环会暂停或中止，则使用delete直接释放，否则应调用deleteLater()函数。
+- 除非函数在注释中明确写明返回的指针需要被转移所有权，否则不得释放其他类的函数返回的指针。
+- 在除了析构函数的任何其他地方释放成员指针，都必须立即将其置为nullptr。在本项目中，可以考虑使用VI_Delete、VI_DeleteArray、VI_DeleteQObject等快捷宏。
+- 如果一个指针必须在类的生命周期中途初始化或释放，建议成对的统一该资源在类内的中途初始化/中途释放逻辑。
+
+### 5.3 资源的持有和索引
+- 对于需要同时List存储并按Map索引其他关联对象的指针资源，语义上以List为指针的所有者。
+- 对于一种资源，关联了多个Map以索引多个其他资源的，应考虑使用结构体合并Map的值。对于关联的多种其他资源如果类型各不相同的情况，允许使用std::tuple替代结构体，但不建议使用std::pair，即使只有两种资源。

@@ -177,7 +177,7 @@ namespace YSS::Editor {
 					}
 					const YSSCore::General::YSSFileError error = reply->getError();
 					if (error.isError()) {
-						if (error.Type == YSSCore::General::YSSFileError::ErrorType::NeedsCredentials) {
+						if (error.getType() == YSSCore::General::YSSFileError::ErrorType::NeedsCredentials) {
 							StatusLabel->setText(VITRL("YSS::project.locate.remoteNotConnected"));
 						}
 						else {
@@ -189,11 +189,12 @@ namespace YSS::Editor {
 					QStringList directories;
 					QStringList files;
 					for (const YSSCore::General::YSSFileEntry& entry : reply->getEntries()) {
-						if (entry.Attributes.isDirectory()) {
-							directories.append(entry.Name);
+						const QString name = entry.getName();
+						if (entry.getAttributes().isDirectory()) {
+							directories.append(name);
 						}
-						else if (matchesFilter(entry.Name)) {
-							files.append(entry.Name);
+						else if (matchesFilter(name)) {
+							files.append(name);
 						}
 					}
 					directories.sort(Qt::CaseInsensitive);
@@ -291,7 +292,7 @@ namespace YSS::Editor {
 				[this, reply, target]() {
 					const YSSCore::General::YSSFileError error = reply->getError();
 					if (error.isError()
-						and error.Type != YSSCore::General::YSSFileError::ErrorType::AlreadyExists) {
+						and error.getType() != YSSCore::General::YSSFileError::ErrorType::AlreadyExists) {
 						QMessageBox::warning(q, VITRL("YSS::project.locate.newFolderDialog.failedTitle"),
 							VITRL("YSS::project.locate.newFolderDialog.failedMessage").arg(target.toString()));
 						return;

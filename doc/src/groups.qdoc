@@ -75,3 +75,15 @@
     CreateService模块包含了YSS创建服务框架的核心实现类，这些类使得开发者可以
     自行根据需要注册不同的创建（创建项目、文件等）服务，从而实现对不同创建需求的支持。
 */
+
+/*!
+    \group YSSUFS
+    \title YSS统一文件系统
+    \since YSS 0.18.0
+    \inmodule YSSCore
+    \brief YSSUFS是对YSSCore::General中有关统一文件系统实现类的总称。
+
+    YSSUFS模块包含了YSS统一文件系统的核心实现类，这组类通过一个YSSCore::General::YSSUnifiedFileSystem类
+    提供了一个统一的对文件系统的访问，使得用户在不必关心文件本身到底是存储于本地、SSH远端，就可以通过统一
+    的方式访问和操作文件。
+*/

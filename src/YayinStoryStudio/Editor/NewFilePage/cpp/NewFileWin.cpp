@@ -171,7 +171,7 @@ namespace YSS::NewFilePage {
 		connect(statReply, &YSSCore::General::YSSFileSystemReply::failed, this,
 			[this, uri, content](const YSSCore::General::YSSFileError& error) {
 				using ErrorType = YSSCore::General::YSSFileError::ErrorType;
-				if (error.Type != ErrorType::NotFound) {
+				if (error.getType() != ErrorType::NotFound) {
 					this->reportCreateFailure(VITRL("YSS::project.newFile.failed.title"),
 						VITRL("YSS::project.newFile.failed.message").arg(error.toString()));
 					return;

@@ -1,0 +1,90 @@
+/*!
+    \page YSSStructure.html
+    \title Yayin Story Studio 结构
+    \inmodule YSSCore
+    \brief Yayin Story Studio 的整体结构和设计原则。
+
+    \section1 YSS的整体结构
+    Yayin Story Studio （YSS）是一个基于Qt/Visindigo的代码编辑器。其充分利用了Visindigo的插件系统，将整个
+    代码编辑器的功能拆分为多个可扩展的模块接口，允许第三方向YSS提供插件从而扩展YSS的功能。
+
+    为了限制插件的自由度，避免其过多的更改YSS主程序，YSS只将必须暴露的核心功能作为公开API提供给插件使用，
+    这部分即核心模块YSSCore。至于YSS本身的页面逻辑、前端逻辑等则不对插件开放，不过自0.16.0开始，前端逻辑在
+    编写过程中也尽可能的使用二进制兼容的方法进行更改，以便部分插件在必须的情况下用非常手段相对稳定的访问未开放的前端逻辑。
+    \note 即便如此，YSS仍然不对前端API/ABI稳定性做保证，只是尽可能的保持二进制兼容性。
+    插件开发者仍然需要注意，YSS的前端逻辑可能会在不通知的情况下发生更改，因此归根结底还是不建议插件开发者去访问未开放的前端逻辑。
+
+    \section1 YSS内核的功能划分
+    由于最开始，Yayin Story Studio项目还试图重构以前的老项目Yayin Story Player，因此YSSCore中的内容大致分为两类，
+    即同时适用于Player/Editor的General模块，提供通用功能；以及专用于编辑器的Editor模块，提供编辑器的相关功能。
+
+    YSP仍有可能在未来继续引入开发，不过就目前来看可能不会再往YSSCore中添加此部分逻辑。因此在下面的讨论中，我们不考虑
+    General/Editor模块的划分，归根结底他俩目前都是给YSS用的。
+
+    总的来说，YSS将一个编辑器的主要功能架构分为以下几个组：
+    \list
+        \li \l {YSSUFS}{YSSUFS} - YSS统一文件系统，此抽象统一了不同文件系统的访问方式，允许上层在不考虑底层文件系统的情况下访问不同的文件系统。
+        \li \l {LangService}{LangService} - 语言服务框架，允许上层为不同的编程语言提供不同的语言服务。
+        \li \l {FileService}{FileService} - 文件服务框架，允许上层为不同的文件类型提供不同的打开方式。
+        \li \l {CreateService}{CreateService} - 创建服务框架，允许上层为不同的项目/文件创建提供不同的创建服务。
+    \endlist
+
+    下面将对这些组进行详细的介绍。
+
+    \section2 YSS统一文件系统（YSSUFS）
+    YSS统一文件系统（YSSUFS）是对不同文件系统的访问的统一抽象。它允许上层在不考虑底层文件系统的情况下访问不同的文件系统。
+    在YSSUFS中，所有资源统一使用YSSCore::General::YSSURI标识。值得注意的是，它本身确实是UFS中的统一资源标识符，
+    但并不提供统一的字面表达规则。也就是说，来自本地的文件路径会以本机原生的方式记录在URI中，来自SSH的文件路径
+    会以ssh://user@host:port/...的格式记录在URI中，虚拟文件路径、QRC资源更是分别以自己的格式直接记录在YSSURI类中，
+    YSSURI并没有在形式上统一它们。不过，只要把这些源转换为YSSURI对象，就可以在UFS中统一访问它们。
+
+    在YSSUFS中，要对文件进行操作，应当建立YSSCore::General::YSSFileSystemRequest对象，将其转递给
+    YSSCore::General::YSSUnifiedFileSystem::execute()方法。该方法会返回一个YSSCore::General::YSSFileSystemReply对象，
+    这对象便代表一个操作的过程与结果。当然，如果不想独立创建Request对象，UFS也提供了简化接口，譬如stat、read、write、copy、rename、move、remove等方法，直接返回一个Reply对象。
+
+    Reply对象在被返回后，并不是立即拥有数据，它是异步的。在完成操作后，会发出相关信号，也可以调用提前注册的回调函数，详见YSSCore::General::YSSFileSystemReply类的文档。
+
+    在一个操作的进行过程中，还可以从UFS处获取操作的信息，即YSSCore::General::YSSFileSystemTask，这类与对应的Reply相关联但并不绑定，
+    生命周期是另行处理的。通过Task对象，可以获取操作的原URI、目标URI、操作类型、排队开始时间、启动开始时间、已传输字节、总字节等信息。
+
+    在YSS UFS中，一个文件的信息通过YSSCore::General::YSSFileEntry表示，包括对象的名称、URI和属性信息。属性信息即
+    YSSCore::General::YSSFileAttributes类的实例，包含文件的大小、时间戳、权限等信息。
+
+    在UFS内部，其通过不同的Provider，将文件操作请求路由给不同的后端处理，目前UFS提供一个本机后端，和根据
+    已经建立的连接提供的不同SSH后端实例，暂不支持其他后端，也暂时不允许扩展后端。在未来，可能会考虑官方支持
+    一种适用于SQLite3数据库的后端，以及一种适用于内存的后端。
+
+    实际上，这类的设计理念与QIODevice是一致的。即，将不同的数据交换需求，抽象为统一的交换接口。
+    只不过没有直接采用Qt已经提供的接口去实现。
+
+    \section2 语言服务框架（LangService）
+    在YSS中，将对某种语言的支持抽象为以下几个组成部分：
+	\list
+	\li 1. 语法高亮和错误检查，由类YSSCore::Editor::SyntaxHighlighter支持，此类还用于支持内联提示。
+	\li 2. Tab补全，由类YSSCore::Editor::TabCompleterProvider支持，提供在按下Tab键时的补全选项
+	\li 3. 悬浮提示，由类YSSCore::Editor::HoverInfoProvider支持，提供在鼠标悬浮时以及键入过程中的额外信息提示
+    \li 4. 自定义的内联提示，由类YSSCore::Editor::InlayHintProvider支持，提供在编辑器中显示自定义的内联提示。
+    \li 5. 调试器，由类YSSCore::Editor::DebugServer支持，提供在运行时的调试功能。
+    \endlist
+
+    以下支持是在其他代码编辑器中存在的功能，但因为YSS目前支持ASE-Remake的AStoryX语言还暂时不需要它们，
+    因此暂未实现：
+    \list
+	\li 1. 格式规范器，由类YSSCore::Editor::FormatNormalizer支持，用于在一行编辑完毕之后触发自动格式化。
+	\li 2. 符号解析器，由类YSSCore::Editor::SymbolParser支持，用于提供查找引用、转到定义、重命名符号等功能。
+	\endlist
+
+	以上主要是关于编辑时的支持，要正确激活他们，需要实现类
+	YSSCore::Editor::LangServer的扩展，并在其中正确返回这些支持类的实例。
+
+	\section2 文件服务框架（FileService）
+	至于打开文件，则需要实现类YSSCore::Editor::FileServer。如果不能使用
+	内置的代码编辑器，而需要自己重新实现一个编辑区域的话，就需要
+	额外实现类YSSCore::Editor::FileEditWidget。
+    
+    \section2 创建服务框架（CreateService）
+	要提供文件模板，则需要实现类YSSCore::Editor::FileTemplateProvider。
+
+	要提供项目模板，则需要实现类YSSCore::Editor::ProjectTemplateProvider。
+
+*/

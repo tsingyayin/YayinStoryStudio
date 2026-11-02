@@ -102,7 +102,7 @@ namespace YSS::NewProjectPage {
 				connect(reply, &YSSCore::General::YSSFileSystemReply::finished, this, [this, reply, uri]() {
 					const YSSCore::General::YSSFileError error = reply->getError();
 					if (error.isError()
-						and error.Type != YSSCore::General::YSSFileError::ErrorType::AlreadyExists) {
+						and error.getType() != YSSCore::General::YSSFileError::ErrorType::AlreadyExists) {
 						fail(uri.toString(), false);
 						return;
 					}

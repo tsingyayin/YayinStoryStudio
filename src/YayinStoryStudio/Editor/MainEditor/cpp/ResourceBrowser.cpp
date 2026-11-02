@@ -35,9 +35,9 @@ namespace YSS::Editor {
 
 		YSSCore::General::YSSFileError notSupportedError(const YSSCore::General::YSSURI& uri) {
 			YSSCore::General::YSSFileError error;
-			error.Type = YSSCore::General::YSSFileError::ErrorType::NotSupported;
-			error.Message = QStringLiteral("No filesystem backend accepts this path");
-			error.Detail = uri.toString();
+			error.setType(YSSCore::General::YSSFileError::ErrorType::NotSupported);
+			error.setMessage(QStringLiteral("No filesystem backend accepts this path"));
+			error.setDetail(uri.toString());
 			return error;
 		}
 
@@ -137,7 +137,7 @@ namespace YSS::Editor {
 			[this](const YSSCore::General::YSSURI& dir, const YSSCore::General::YSSFileError& error) {
 				vgWarningF << "Failed to list" << dir.toString() << error.toString();
 				// 远端没登录时直接把连接对话框叫出来，比让目录一直空着好。
-				if (error.Type == YSSCore::General::YSSFileError::ErrorType::NeedsCredentials) {
+				if (error.getType() == YSSCore::General::YSSFileError::ErrorType::NeedsCredentials) {
 					SSHConnectionWidget::requestVerification(dir);
 				}
 			});

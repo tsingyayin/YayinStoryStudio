@@ -86,6 +86,9 @@
     <ClCompile Include="General\cpp\YSSUnifiedFileSystemSsh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="General\cpp\YSSFileAttributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="General\cpp\YSSFileEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -196,9 +199,12 @@
     <QtMoc Include="General\YSSURI.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="General\YSSFileEntry.h">
+    <QtMoc Include="General\YSSFileAttributes.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <ClInclude Include="General\YSSFileEntry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <QtMoc Include="General\YSSFileSystemRequest.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -215,9 +221,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="General\private\YSSFileSystemReply_p.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="General\private\YSSFileSystemRequest_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorProjectHelper.h">

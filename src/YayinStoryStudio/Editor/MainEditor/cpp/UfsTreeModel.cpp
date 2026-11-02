@@ -23,12 +23,12 @@ namespace YSS::Editor {
 
 		// 目录优先，其次按名称不区分大小写排序。
 		bool entryLess(const YSSCore::General::YSSFileEntry& left, const YSSCore::General::YSSFileEntry& right) {
-			const bool leftDir = left.Attributes.isDirectory();
-			const bool rightDir = right.Attributes.isDirectory();
+			const bool leftDir = left.getAttributes().isDirectory();
+			const bool rightDir = right.getAttributes().isDirectory();
 			if (leftDir != rightDir) {
 				return leftDir;
 			}
-			return left.Name.compare(right.Name, Qt::CaseInsensitive) < 0;
+			return left.getName().compare(right.getName(), Qt::CaseInsensitive) < 0;
 		}
 
 		UfsTreeNode* findChildNode(UfsTreeNode* node, const YSSCore::General::YSSURI& uri) {
@@ -148,9 +148,9 @@ namespace YSS::Editor {
 			node->Loading = false;
 			node->ChildrenLoaded = true;
 			YSSCore::General::YSSFileError error;
-			error.Type = YSSCore::General::YSSFileError::ErrorType::NotSupported;
-			error.Message = QStringLiteral("No filesystem backend accepts this path");
-			error.Detail = dirUri.toString();
+			error.setType(YSSCore::General::YSSFileError::ErrorType::NotSupported);
+			error.setMessage(QStringLiteral("No filesystem backend accepts this path"));
+			error.setDetail(dirUri.toString());
 			emit q->directoryFailed(dirUri, error);
 			return;
 		}
@@ -193,11 +193,13 @@ namespace YSS::Editor {
 		QList<YSSCore::General::YSSFileEntry> sorted;
 		sorted.reserve(entries.size());
 		for (const YSSCore::General::YSSFileEntry& entry : entries) {
-			if (entry.Name.isEmpty() or entry.Name == QLatin1String(".") or entry.Name == QLatin1String("..")) {
+			const QString name = entry.getName();
+			const YSSCore::General::YSSFileAttributes attributes = entry.getAttributes();
+			if (name.isEmpty() or name == QLatin1String(".") or name == QLatin1String("..")) {
 				continue;
 			}
-			if (entry.Attributes.hasField(YSSCore::General::YSSFileAttributes::Field::IsHidden)
-				and entry.Attributes.isHidden()) {
+			if (attributes.hasField(YSSCore::General::YSSFileAttributes::Field::IsHidden)
+				and attributes.isHidden()) {
 				continue;
 			}
 			sorted.append(entry);
@@ -211,7 +213,7 @@ namespace YSS::Editor {
 			const QString name = node->Children[row]->Name;
 			bool stillThere = false;
 			for (const YSSCore::General::YSSFileEntry& entry : sorted) {
-				if (entry.Name == name) {
+				if (entry.getName() == name) {
 					stillThere = true;
 					break;
 				}
@@ -226,16 +228,17 @@ namespace YSS::Editor {
 		// 再按顺序补齐缺失项，保留已有节点（连同它们的子树与展开状态）。
 		for (int row = 0; row < static_cast<int>(sorted.size()); ++row) {
 			const YSSCore::General::YSSFileEntry& entry = sorted.at(row);
-			if (row < static_cast<int>(node->Children.size()) && node->Children[row]->Name == entry.Name) {
-				node->Children[row]->IsDir = entry.Attributes.isDirectory();
+			const QString name = entry.getName();
+			if (row < static_cast<int>(node->Children.size()) && node->Children[row]->Name == name) {
+				node->Children[row]->IsDir = entry.getAttributes().isDirectory();
 				continue;
 			}
 			q->beginInsertRows(parentIndex, row, row);
 			auto child = std::make_unique<UfsTreeNode>();
 			child->Parent = node;
-			child->Name = entry.Name;
-			child->Uri = node->Uri.resolve(entry.Name);
-			child->IsDir = entry.Attributes.isDirectory();
+			child->Name = name;
+			child->Uri = entry.getUri().isValid() ? entry.getUri() : node->Uri.resolve(name);
+			child->IsDir = entry.getAttributes().isDirectory();
 			node->Children.insert(node->Children.begin() + row, std::move(child));
 			q->endInsertRows();
 		}

@@ -422,7 +422,7 @@ namespace YSSCore::General {
 			const YSSFileError fileError = reply->getError();
 			if (fileError.isError()) {
 				d->Loaded = false;
-				d->LastLoadError = (fileError.Type == YSSFileError::ErrorType::NotFound)
+				d->LastLoadError = (fileError.getType() == YSSFileError::ErrorType::NotFound)
 					? LoadError::NotFound : LoadError::ReadFailed;
 				yErrorF << "Failed to read project config: " << configPath.toString()
 					<< ", error: " << fileError.toString();

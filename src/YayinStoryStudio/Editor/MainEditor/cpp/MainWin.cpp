@@ -185,7 +185,7 @@ namespace YSS::Editor {
 					[this, oldUri, newUri](const YSSCore::General::YSSFileError& error) {
 						yWarningF << "Failed to rename" << oldUri.toString() << "to" << newUri.toString()
 							<< error.toString();
-						if (error.Type == YSSCore::General::YSSFileError::ErrorType::AlreadyExists) {
+						if (error.getType() == YSSCore::General::YSSFileError::ErrorType::AlreadyExists) {
 							QMessageBox::warning(this, VITRL("YSS::editor.renameDialog.title"),
 								VITRL("YSS::editor.renameDialog.warning.exists"), QMessageBox::Ok);
 						}

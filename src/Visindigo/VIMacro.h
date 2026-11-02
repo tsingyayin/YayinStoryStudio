@@ -154,4 +154,9 @@
 	void set##singular(const type& value); \
 	void remove##singular(const type& value); \
 	bool is##plural##Contains(const type& value) const;
+
+#define VFlagU8(index) (quint8)1 << index
+#define VFlagU16(index) (quint16)1 << index
+#define VFlagU32(index) (quint32)1 << index
+#define VFlagU64(index) (quint64)1 << index
 #endif // Visindigo_VIMacro_h

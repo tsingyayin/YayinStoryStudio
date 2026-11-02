@@ -151,6 +151,7 @@
     <ClCompile Include="Editor\cpp\TextEditPrivateWidget.cpp" />
     <ClCompile Include="Editor\cpp\VirtualFilePath.cpp" />
     <ClCompile Include="Editor\cpp\YSSCoreBuiltinPlugin.cpp" />
+    <ClCompile Include="General\cpp\YSSFileAttributes.cpp" />
     <ClCompile Include="General\cpp\YSSFileEntry.cpp" />
     <ClCompile Include="General\cpp\YSSFileError.cpp" />
     <ClCompile Include="General\cpp\YSSFileSystemReply.cpp" />
@@ -197,14 +198,14 @@
     <QtMoc Include="General\private\YSSUnifiedFileSystem_p.h" />
     <QtMoc Include="General\YSSUnifiedFileSystem.h" />
     <QtMoc Include="General\YSSURI.h" />
-    <QtMoc Include="General\YSSFileEntry.h" />
+    <QtMoc Include="General\YSSFileAttributes.h" />
     <QtMoc Include="General\YSSFileSystemRequest.h" />
     <QtMoc Include="General\YSSFileError.h" />
     <QtMoc Include="General\YSSFileSystemReply.h" />
+    <ClInclude Include="General\YSSFileEntry.h" />
     <ClInclude Include="General\YSSFileSystemResult.h" />
     <ClInclude Include="General\YSSFileSystemTask.h" />
     <ClInclude Include="General\private\YSSFileSystemReply_p.h" />
-    <ClInclude Include="General\private\YSSFileSystemRequest_p.h" />
     <ClInclude Include="Mystery.h" />
     <ClInclude Include="YSSCoreCompileMacro.h" />
     <QtMoc Include="Editor\TextEdit.h" />
