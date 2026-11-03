@@ -57,26 +57,6 @@
 */
 
 /*!
-	\module ASERStudio
-	\title ASE-Remake Studio 模块
-	\brief YSS重要插件，提供了ASE-Remake开发环境.
-	\since Yayin Story Studio 0.13.0
-
-	ASE-Remake Studio模块是重要的Yayin Story Studio插件，提供了ASE-Remake开发环境，
-	允许用户在Yayin Story Studio中开发ASE-Remake项目。
-
-	ASERStudio模块也被设计用于在C++上提供对ASE-Ramake核心功能的访问，以及
-	对AStoryX脚本的解析。虽然它使用了一些来自Visindigo的组件，但并不依赖于
-	Visindigo的整个框架体系。用户只需要简单的将此文件和Visindigo相关组件的
-	头包括在项目中并动态链接二进制库，就可以在任何Qt应用中使用ASERStudio模块提供
-	的有关AStoryX解析的基础功能，而不需要完全开发为Visindigo应用程序。
-
-	\section1 实用链接
-	\l {aserstudio-astoryx-diagnostic.html}{ASERStudio 诊断信息}
-
-*/
-
-/*!
 	\module YSSFileExt
 	\title YSS File Extensions 模块
 	\brief Yayin Story Studio 的文件扩展插件模块，提供多种文本格式的语言服务与文件模板.

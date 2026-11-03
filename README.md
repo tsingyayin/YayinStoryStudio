@@ -51,6 +51,10 @@ YSS的使用教程请参见[Yayin Story Studio 使用教程](https://www.yuque.c
 我们坚信开发者是某种将咖啡因转换为代码的生物，您的支持将帮助我们持续从咖啡因中汲取代码之力！
 
 # YSS 使用指南
+## 许可证的变更
+因YSS项目原有许可证低于Qt 6推荐的版本，且随着近期ASER工具链的深度更新，存在代码滥用的可能。因此2026年11月2~3日深夜前后（北京时间），Yayin Story Studio的许可证从LGPLv2.1升级到LGPLv3，并启动ASER Studio的剥离过程，自本次调整之后，原有代码、原有许可证和现有代码、现有许可证授权处理如下，请务必遵守：
+1. YSS仓库中的ASER Studio部分，今后使用其他仓库进行开发和维护，YSS仓库中不再包括ASER Studio的源代码，且ASER Studio此后不再开源。本仓库历史记录中的ASER Studio源代码仍然可在历史记录中获取，但本仓库对ASER Studio的LGPLv2.1许可自2026年11月3日（北京时间）后终止。从本仓库处获取的ASER Studio源代码仅允许查看与自行使用，不得以任何方式传播、修改、再发布或用于其他商业用途。不过请注意，在2026年11月3日（北京时间）之前已经通过LGPLv2.1许可获得了ASER Studio源代码的用户仍然可以继续使用LGPLv2.1许可下的ASER Studio源代码。
+2. YSS仓库中非ASER Studio部分的历史代码，除了按LGPLv2.1协议授权之外，也追加允许在LGPLv3协议下使用。已经通过LGPLv2.1许可获得的YSS源代码的用户仍然可以继续使用LGPLv2.1许可下的YSS源代码，也可以选择将其转换到LGPLv3许可。
 ## 运行程序
 **建议非技术用户直接从Release下载已编译的版本。**，并主要参考[Yayin Story Studio 使用教程](https://www.yuque.com/tsingyayin/yss)进行使用。下面的内容主要面向开发者，介绍如何从源代码构建YSS。
 
@@ -91,7 +95,6 @@ YSS的使用教程请参见[Yayin Story Studio 使用教程](https://www.yuque.c
     生成时依赖的资源文件。
 * pytools - 存放用于辅助开发的Python脚本，这些脚本不参与到最终程序，只在开发和编译过程中使用。
 * src - 存放Visual Studio项目的目录。每个Visual Studio项目都在src目录下有一个独立的子目录。
-    * Plugin_ASERStudio - 为ASE-Remake开发提供支持的插件，提供对AStoryX的解析、着色和纠正功能。
     * Plugin_YSSFileExt - 为YSS本体提供一些常见文件格式（图片除外）的打开支持
     * Plugin_ImageViewer - 为YSS提供一个通用的图片查看器插件，支持多种图片格式的打开和预览。
     * Visindigo - Visindigo库项目。Visindigo是一个通用的Qt库，提供了日志记录、异常处理、文件操作等功能。YSSCore和YayinStoryStudio都依赖于此项目。
@@ -100,7 +103,7 @@ YSS的使用教程请参见[Yayin Story Studio 使用教程](https://www.yuque.c
     * (其他未提及的项目) - 有设想，但暂未投入开发的项目，这里不再赘述。
   
 ### 对于每个Visual Studio项目
-* resource - 存放要参与编译的资源，他们应该都被记录在qrc文件内。请注意，目前所有项目都遵守Visindigo的资源约定，这就需要在resource目录下直接创建一个和该项目ID（比如cn.yxgeneral.aserstudio）相同名称的子目录，然后再在其中放置资源文件。
+* resource - 存放要参与编译的资源，他们应该都被记录在qrc文件内。请注意，目前所有项目都遵守Visindigo的资源约定，这就需要在resource目录下直接创建一个和该项目ID（比如cn.yxgeneral.yayinstorystudio）相同名称的子目录，然后再在其中放置资源文件。
 * pytools(如果有) - 存放用于辅助开发的Python脚本，它们不参与到最终程序，只在开发和编译过程中使用。
 Yayin Story Studio的cpp与h文件的管理采用相对紧密的模式，即所有的cpp文件都在h文件所在目录的`cpp`子目录下。这样做的目的是为了便于管理和查找相关文件。
 

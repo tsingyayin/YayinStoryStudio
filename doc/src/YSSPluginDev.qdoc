@@ -48,15 +48,14 @@
 	最少的文档变化。因此，用户完全可以通过SyntaxHighlighter来实现对文档的感知，并在其中缓存
 	相关数据，以供其他类使用。
 
-	有关此内容的良好实践，可以参见ASER Studio的实现。在ASER Studio中，
-	ASERStudio::YSS::LS_AStoryXSyntaxHighlighter中就负责操作一个
-	ASERStudio::AStorySyntax::AStoryXDocument实例，在唤起着色时更新该的相关数据，
-	随后该实例又被ASERStudio::YSS::LS_AStoryXHoverInfoProvider和
-	ASERStudio::YSS::LS_AStoryXTabCompleter使用，以提供悬浮提示和Tab补全功能。
+	有关此内容的良好实践，可以参见 YSSFileExt 插件的实现。在 YSSFileExt 中，
+	YSSFileExt::YSSConfigLangHighlighter 在唤起着色时更新
+	YSSFileExt::YSSConfigLangDocument 中记录的解析数据，其他的语言服务
+	（悬浮提示、Tab 补全等）可以复用同一份数据。
 
-	由此，ASER Studio就不必每次都重新解析整个文段，只按需更新相关数据，从而实现了高性能的语言支持。
+	由此，YSSFileExt 就不必每次都重新解析整个文段，只按需更新相关数据，从而实现了高性能的语言支持。
 
-	不过，ASER Studio的这种记录数据的方法倒是不怎么符合Qt的理念。
+	不过，YSSFileExt的这种记录数据的方法倒是不怎么符合Qt的理念。
 	如果按Qt的理念来实现的话，理应是实现QTextBlockUserData的扩展，
 	然后将其记录到QTextBlock中，这样就可以直接通过QSyntaxHighlight
 	提供的接口访问这些数据，且拥有更明确的所有权语义。YSS当前还未拥有采用这种方式的实践，

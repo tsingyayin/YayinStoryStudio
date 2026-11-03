@@ -71,41 +71,9 @@
 */
 
 /*!
-	\inmodule ASERStudio
-	\namespace ASERStudio
-	\brief ASER Studio 模块根命名空间.
-
-	所有 ASER Studio 插件的组件均在此命名空间下。
-*/
-
-/*!
-	\inmodule ASERStudio
-	\namespace ASERStudio::AStorySyntax
-	\brief ASER Studio 中有关AStoryX但无关ASE-Remake的组件命名空间.
-
-	所有 ASER Studio 中有关AStoryX但无关ASE-Remake的组件都在此命名空间下。
-*/
-
-/*!
-	\inmodule ASERStudio
-	\namespace ASERStudio::ASEREnv
-	\brief ASER Studio 中有关ASE-Remake但无关AStoryX的组件命名空间.
-
-	所有 ASER Studio 中有关ASE-Remake但无关AStoryX的组件都在此命名空间下。
-*/
-
-/*!
 	\inmodule YSSFileExt
 	\namespace YSSFileExt
 	\brief Yayin Story Studio 文件扩展插件（YSS File Extensions）的根命名空间.
 
 	所有 YSS File Extensions 插件的组件均在此命名空间下。
-*/
-
-/*!
-	\inmodule ASERStudio
-	\namespace ASERStudio::YSS
-	\brief ASER Studio 中与YayinStoryStudio API强相关的组件命名空间.
-
-	所有 ASER Studio 中与YayinStoryStudio API强相关的组件都在此命名空间下。
 */

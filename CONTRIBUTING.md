@@ -8,7 +8,7 @@
 - 项目基本上全部采用PIMPL模式，PIMPL中公共头文件应放在模块根目录或对应子目录，例如`src/Visindigo/General/`、`src/Visindigo/Widgets/`、`src/YSSCore/General/`、`src/YSSCore/Editor/`、`src/YayinStoryStudio/Editor/` 等。
 - 如果出于性能或其他因素考虑，或者类不做公开API使用，则也可以不使用PIMPL。使用PIMPL是主流推荐，但不是必选项。
 - 一般不在公开类使用struct，以避免成员变更时破坏ABI。仅将struct用于模板和私有实现。
-- 源文件统一放在**与头文件同名模块的 `folder/cpp/` 子目录**下：如 `Widgets/cpp/MultiButton.cpp`、`YSSCore/General/cpp/YSSProject.cpp`、`Editor/MainEditor/cpp/MainWin.cpp`、`Plugin_ASERStudio/cpp/*.cpp`。
+- 源文件统一放在**与头文件同名模块的 `folder/cpp/` 子目录**下：如 `Widgets/cpp/MultiButton.cpp`、`YSSCore/General/cpp/YSSProject.cpp`、`Editor/MainEditor/cpp/MainWin.cpp`、`Plugin_YSSFileExt/LangServer/cpp/JsonLang.cpp`。
 - 对于PIMPL模式中的私有类，如果：
     - **仅在单个 `.cpp` 内使用**，则直接内联写在 `.cpp` 里。
     - **有多个 `.cpp` 需要引用，或私有类也是QObject，需要MOC生成代码**，则需要单独写一个私有实现头文件（`*_p.h`），并放在 `folder/private/` 子目录下。

@@ -36,16 +36,15 @@ if(ANDROID)
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
     )
 
-    # 插件随 APK 的 lib/<abi>/ 打包(Android 官方加载方式)：把三个插件链接进主程序，
+    # 插件随 APK 的 lib/<abi>/ 打包(Android 官方加载方式)：把插件链接进主程序，
     # 使其成为 DT_NEEDED 并被 androiddeployqt 收进 APK；运行时由 main.cpp 用各插件的
-    # 唯一导出入口(VisindigoPluginMain_*)注册为依赖插件(依赖序：YSSFileExt → ImageViewer → ASERStudio)。
+    # 唯一导出入口(VisindigoPluginMain_*)注册为依赖插件(依赖序：YSSFileExt → ImageViewer)。
     target_link_libraries(YayinStoryStudio PRIVATE
         Plugin_YSSFileExt
         Plugin_ImageViewer
-        Plugin_ASERStudio
     )
 
-    # 内嵌三个插件的元数据 json(qrc prefix /plugins)：运行时 PluginManager 经
+    # 内嵌插件的元数据 json(qrc prefix /plugins)：运行时 PluginManager 经
     # setPluginLoadPath(..., ":/plugins/Plugin_*.vpl.json") 读取 ID/Dependencies 做依赖排序/去活。
     # 绝对路径的资源需配 QT_RESOURCE_ALIAS，才能以相对名(即 /plugins/<文件名>)访问。
     set_source_files_properties(
@@ -54,14 +53,10 @@ if(ANDROID)
     set_source_files_properties(
         "${CMAKE_SOURCE_DIR}/plugins/Plugin_ImageViewer/Plugin_ImageViewer.vpl.json"
         PROPERTIES QT_RESOURCE_ALIAS "Plugin_ImageViewer.vpl.json")
-    set_source_files_properties(
-        "${CMAKE_SOURCE_DIR}/plugins/Plugin_ASERStudio/Plugin_ASERStudio.vpl.json"
-        PROPERTIES QT_RESOURCE_ALIAS "Plugin_ASERStudio.vpl.json")
     qt_add_resources(YayinStoryStudio "YSSBundledPluginsMeta"
         PREFIX "/plugins"
         FILES
             "${CMAKE_SOURCE_DIR}/plugins/Plugin_YSSFileExt/Plugin_YSSFileExt.vpl.json"
             "${CMAKE_SOURCE_DIR}/plugins/Plugin_ImageViewer/Plugin_ImageViewer.vpl.json"
-            "${CMAKE_SOURCE_DIR}/plugins/Plugin_ASERStudio/Plugin_ASERStudio.vpl.json"
     )
 endif()

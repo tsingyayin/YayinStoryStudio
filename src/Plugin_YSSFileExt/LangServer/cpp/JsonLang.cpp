@@ -24,7 +24,7 @@ namespace YSSFileExt {
 		\since YSS 0.16.0
 		\inmodule YSSFileExt
 
-		模仿 ASERStudio::AStorySyntax::AStoryXDiagnosticData 的简单值类型。
+		简单的值类型：只保存诊断数据，不持有额外状态。
 	*/
 	JsonLangDiagnosticData::JsonLangDiagnosticData() {}
 	JsonLangDiagnosticData::JsonLangDiagnosticData(const QString& message, qint32 line, qint32 column, qint32 length,

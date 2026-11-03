@@ -18,7 +18,6 @@ includepaths += .\
 	../../src/YSSCore \
 	../../src/VIAgent \
 	../../src/YayinStoryStudio \
-	../../src/Plugin_ASERStudio \
 	../../src/Plugin_YSSFileExt \
 	D:/Qt/6.10.3/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.3/msvc2022_64/include/QtGui \
@@ -32,7 +31,6 @@ headerdirs += .\
 	../../src/YSSCore \
 	../../src/VIAgent \
 	../../src/YayinStoryStudio \
-	../../src/Plugin_ASERStudio \
 	../../src/Plugin_YSSFileExt \
 	D:/Qt/6.10.3/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.3/msvc2022_64/include/QtGui \
@@ -47,7 +45,6 @@ sourcedirs +=.\
 	../../src/YSSCore \
 	../../src/VIAgent \
 	../../src/YayinStoryStudio \
-	../../src/Plugin_ASERStudio \
 	../../src/Plugin_YSSFileExt
 
 headers.fileextensions  = "*.h *.hpp"

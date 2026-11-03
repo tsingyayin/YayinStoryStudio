@@ -8,7 +8,7 @@
 #           │
 #      YSSCore(编辑器核心库, 依赖 Visindigo)
 #           │
-#      YayinStoryStudio(主程序)          Plugin_* (三个运行时插件)
+#      YayinStoryStudio(主程序)          Plugin_* (两个运行时插件)
 #
 #  用法：
 #    1. 用 Qt Creator 打开本文件 (File → Open File or Project → 选本 CMakeLists.txt)
@@ -66,9 +66,8 @@ add_subdirectory(modules/YSSCore)
 add_subdirectory(app/YayinStoryStudio)
 
 # 运行时插件（桌面形态为 *.vpl，Android 形态为 lib*.so 共享库）
-option(YSS_BUILD_PLUGINS "构建三个运行时插件 (ASERStudio / ImageViewer / YSSFileExt)" ON)
+option(YSS_BUILD_PLUGINS "构建运行时插件 (YSSFileExt / ImageViewer)" ON)
 if(YSS_BUILD_PLUGINS)
     add_subdirectory(plugins/Plugin_YSSFileExt)
     add_subdirectory(plugins/Plugin_ImageViewer)
-    add_subdirectory(plugins/Plugin_ASERStudio)
 endif()

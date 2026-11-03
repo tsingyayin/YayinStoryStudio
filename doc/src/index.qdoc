@@ -16,7 +16,6 @@
     \li Yayin Story Studio Core 模块：Yayin Story Studio 的核心模块，提供了Yayin Story Studio本体的基础功能。根命名空间为 YSSCore 。
     \li Yayin Story Studio 模块：Yayin Story Studio 本体模块，YSS的GUI实现大多在此，根命名空间为YSS 。
     Yayin Story Studio 没有太多文档，因为它基本上不作为开放API供外部使用。
-    \li Plugin_ASERStudio 模块：ASE Studio 插件模块，提供了 ASE Studio 插件的实现。根命名空间为 ASERStudio 。
     \endlist
 
     \section1 开发Visindigo/YSS插件

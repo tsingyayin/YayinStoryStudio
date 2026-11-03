@@ -26,7 +26,6 @@ graph TD
     C --> A[YayinStoryStudio<br/>APK / 主程序]
     C --> P1[Plugin_YSSFileExt]
     C --> P2[Plugin_ImageViewer]
-    C --> P3[Plugin_ASERStudio]
 ```
 
 ## 快速开始
@@ -72,12 +71,11 @@ graph TD
 ## 为兼容 Android 而对 `../src` 做的最小改动
 
 > 全部改动都保持 **MSVC 桌面构建行为不变**（多数只在非 MSVC/Android 分支生效）。
-> 用 `git diff` 可精确核对这 8 处。
+> 用 `git diff` 可精确核对这 7 处。
 
 | 文件 | 改动 |
 |---|---|
 | `src/YSSCore/YSSCoreCompileMacro.h` | `__declspec` 导出宏包进 `#ifdef _MSC_VER`；非 MSVC 置空（对齐 Visindigo 写法） |
-| `src/Plugin_ASERStudio/ASERStudioCompileMacro.h` | 同上，加平台分支 |
 | `src/Plugin_ImageViewer/ImageViewerCompileMacro.h` | 同上，加平台分支 |
 | `src/Plugin_YSSFileExt/Macro.h` | 同上，加平台分支 |
 | `src/YSSCore/Editor/cpp/EditorPlugin.cpp` | 修复 include 笔误 `#include <General/TranslationHost.h.>` → 去掉尾随点 |
@@ -107,10 +105,9 @@ graph TD
 
 1. **YSSInstaller 不参与**：它是 Windows 桌面"更新/遥测后台服务"伴生 EXE，
    概念上不存在于 Android，已整体排除。
-2. **ASE-Remake 引擎联动不可用**：`Plugin_ASERStudio` 的
-   `ASEREnv/ASERProgram.cpp` 中与 Windows Unity 引擎的进程/窗口/命名管道桥接
-   在非 Windows 下是桩实现。AStoryX 语言工具（语法/补全/高亮）可正常编译保留，
-   但"启动引擎播放"功能在 Android 上无意义。
+2. **ASER Studio 不参与**：`Plugin_ASERStudio` 已剥离到独立仓库单独构建
+   （其 `ASEREnv/ASERProgram.cpp` 与 Windows Unity 引擎的进程/窗口/命名管道桥接
+   依赖桌面环境）。本工程不再包含该插件，APK 中不含 ASE-Remake 开发环境。
 3. **运行时插件发现机制（架构级，下一步重点）**：
    - 桌面：`PluginManager` 递归扫描 `*.vpl` 目录 + 同名 `.vpl.json`（读 ID/依赖）
      → `QLibrary::load` → `resolve("VisindigoPluginMain")`，默认目录
@@ -142,22 +139,16 @@ graph TD
    `MANAGE_EXTERNAL_STORAGE` 授权；`QDir::setCurrent` 在 Android 上语义弱化。
 6. **资源**：`.qrc` 内嵌的多语言 json、主题 json、字体（HarmonyOS、Segoe Fluent
    Icons.ttf）、png 均可跨平台复用；`.ico` 仅作字节嵌入；发布图标建议另备 png。
-   ASER 项目模板资源 `Plugin_ASERStudio_assets1.qrc`（约 21MB，含示例 wav/png/Spine/
-   视觉特效）**已在 Android 目标内嵌进插件 .so**（见
-   `qt_creator/plugins/Plugin_ASERStudio/CMakeLists.txt` 的 `ANDROID` 分支）：桌面仍用
-   rcc 旁路成外部 `ASERStudio_assets1.rcc` + `QResource::registerResource`，Android 无该
-   外部文件，故直接 qrc 内嵌——插件随进程(DT_NEEDED)加载时即自动注册。APK 因此增大约
-   21MB；若不需要 ASER 项目模板可去掉该 qrc 减小体积。
 7. **权限**：`INTERNET`（新闻/上报）、`MANAGE_EXTERNAL_STORAGE`（「管理全部文件」，
    用于共享存储读写）已在 `app/YayinStoryStudio/android/AndroidManifest.xml` 声明；
    `MANAGE_EXTERNAL_STORAGE` 需要用户在系统设置里开启，主程序首次启动会自动跳转引导。
 8. **构建规模与内存**：整个编辑栈编译进一个 APK 较大；后续可按需裁剪
-   （如去掉 `Plugin_ASERStudio` 可 `-DYSS_BUILD_PLUGINS=OFF`）。
+   （如只要主程序可 `-DYSS_BUILD_PLUGINS=OFF`）。
 
 ## 桌面构建验证（已实测通过）
 
 本工程已用 **MSVC + Qt 6.10.3 (msvc2022_64)** 在桌面环境完整 Configure + Build 通过全部 7 个目标
-（`Visindigo.dll` → `YSSCore.dll` → `YayinStoryStudio.exe` + 三个 `Plugin_*.dll`）。
+（`Visindigo.dll` → `YSSCore.dll` → `YayinStoryStudio.exe` + 两个 `Plugin_*.dll`）。
 过程中补充了两个 CMake 级处理（均在目标 CMakeLists 内，不动源码）：
 
 - **automoc 注释误报**：Qt 的 AUTOMOC 会把 `JsonConfig.cpp` / `ColorThemeProvider.cpp`
@@ -171,10 +162,10 @@ graph TD
 
 ## 插件发布包（plugin_build）
 
-构建三个插件目标后，会按发布布局自动导出到本工程 `qt_creator/plugin_build/`：
+构建插件目标后，会按发布布局自动导出到本工程 `qt_creator/plugin_build/`：
 
 ```
-plugin_build/<ASERStudio|ImageViewer|YSSFileExt>/
+plugin_build/<ImageViewer|YSSFileExt>/
     Plugin_*.vpl        # 沿用 .vpl 后缀约定（本工程 Android 目标下内容为 lib*.so 改名）
     Plugin_*.vpl.json   # 元数据 ID/Dependencies（源在 qt_creator/plugins/<插件>/*.vpl.json）
 ```
@@ -185,7 +176,7 @@ plugin_build/<ASERStudio|ImageViewer|YSSFileExt>/
 > **Android 运行时已改为“插件随 APK 的 `lib/<abi>/` 打包”**：插件目标被主程序链接并随
 > `androiddeployqt` 收进 APK（成为主程序的 DT_NEEDED）。插件库**已随进程加载、无法再 dlopen**，
 > 因此主程序(Q_OS_ANDROID)启动时改用**入口函数指针注入**：
-> `PluginManager::setPluginEntryPoint(&VisindigoPluginMain_<Name>, ":/plugins/<Name>.vpl.json")` ×3
+> `PluginManager::setPluginEntryPoint(&VisindigoPluginMain_<Name>, ":/plugins/<Name>.vpl.json")` ×2
 > （取各插件导出的 `VisindigoPluginMain_<Name>` 地址，仅取址不调用）。`PluginManager` 内部对这类
 > 源跳过 `QLibrary::load`/`resolve`，直接用入口建插件实例——依赖排序/去活/加载/启用仍与目录插件
 > 走同一套统一流程（主插件之后、统一调度），不破坏插件化封装，主程序不 `new` 具体插件。插件
@@ -197,7 +188,7 @@ plugin_build/<ASERStudio|ImageViewer|YSSFileExt>/
 
 | 开关 | 默认 | 说明 |
 |---|---|---|
-| `YSS_BUILD_PLUGINS` | `ON` | 是否构建三个运行时插件目标 |
+| `YSS_BUILD_PLUGINS` | `ON` | 是否构建运行时插件目标 |
 
 ## 备注
 

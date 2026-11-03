@@ -71,7 +71,6 @@ HTML.postheader = \
     "      <a href=\"visindigo-module.html\">Visindigo</a>\n" \
     "      <a href=\"ysscore-module.html\">YSSCore</a>\n" \
     "      <a href=\"yayinstorystudio-module.html\">YayinStoryStudio</a>\n" \
-    "      <a href=\"aserstudio-module.html\">ASERStudio</a>\n" \
     "      <a href=\"yssfileext-module.html\">YSSFileExt</a>\n" \
     "    </nav>\n" \
     "    <div class=\"yss-tools\">\n" \

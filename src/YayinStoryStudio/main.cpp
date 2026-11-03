@@ -24,7 +24,6 @@
 
 extern "C" Visindigo::General::Plugin* VisindigoPluginMain_YSSFileExt(void);
 extern "C" Visindigo::General::Plugin* VisindigoPluginMain_ImageViewer(void);
-extern "C" Visindigo::General::Plugin* VisindigoPluginMain_ASERStudio(void);
 
 namespace YSSAndroid {
 	static QString externalStorageRoot() {
@@ -125,8 +124,6 @@ R"(警告！
 			QStringLiteral(":/plugins/Plugin_YSSFileExt.vpl.json"));
         pluginManager->addPluginEntryPoint(&VisindigoPluginMain_ImageViewer,
 			QStringLiteral(":/plugins/Plugin_ImageViewer.vpl.json"));
-        pluginManager->addPluginEntryPoint(&VisindigoPluginMain_ASERStudio,
-			QStringLiteral(":/plugins/Plugin_ASERStudio.vpl.json"));
 	}
 #endif
 
