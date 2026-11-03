@@ -4,6 +4,10 @@ include(D:\Qt\Docs\Qt-6.10.3\global\qt-cpp-defines.qdocconf)
 
 project = Yayin Story Studio
 
+# 文档站对外的基地址。写入 .index 文件，供其它 QDoc 工程跨站链接
+# （ASER Studio 的文档依赖本工程的 index，链接会指向这里）。
+url = http://prts.site
+
 indexes = \
 	D:/Qt/Docs/Qt-6.10.3/qtcore/qtcore.index \
 	D:/Qt/Docs/Qt-6.10.3/qtgui/qtgui.index \

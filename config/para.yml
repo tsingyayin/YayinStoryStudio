@@ -4,5 +4,17 @@ qt:
   translationCN: true
 site:
   # 文档站对外地址。用于生成 robots.txt / sitemap.xml 里的绝对链接，
-  # 换成 https 或换域名时改这里就行。
+  # 换成 https 或换域名时改这里就行（须与 doc/src/config.qdocconf 的 url 一致）。
   baseUrl: "http://prts.site"
+docs:
+  # 顶栏里指向其它文档站的外部模块（不参与本工程构建）
+  externalModules:
+    - title: "ASERStudio"
+      url: "http://prts.site/aserstudio-module.html"
+  # 顶栏顺序，合并站点时两边保持一致
+  navOrder:
+    - "Visindigo"
+    - "YSSCore"
+    - "YayinStoryStudio"
+    - "ASERStudio"
+    - "YSSFileExt"
