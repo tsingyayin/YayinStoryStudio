@@ -128,11 +128,8 @@ namespace Visindigo::__Private__ {
 		return color.isValid();
 	}
 
-	/*!
-		\class Visindigo::__Private__::ModernColorPicker_Preview
-		\brief ModernColorPicker 底部的颜色预览块。
-		\since Visindigo 0.18.0
-		\inmodule Visindigo
+	/*
+		ModernColorPicker 底部的颜色预览块。
 
 		预览块用棋盘格打底再叠当前颜色，半透明颜色也能看清楚。
 	*/
@@ -176,9 +173,9 @@ namespace Visindigo::__Private__ {
 		QColor Color = QColor(255, 255, 255);
 	};
 
-	/*!
+	/*
 		\class Visindigo::__Private__::ModernColorPicker_Slider
-		\brief ModernColorPicker 内部使用的渐变滑条。
+		\brief ModernColorPicker 内部使用的渐变滑条.
 		\since Visindigo 0.18.0
 		\inmodule Visindigo
 
@@ -358,9 +355,9 @@ namespace Visindigo::__Private__ {
 		emit valueChanged(Value);
 	}
 
-	/*!
+	/*
 		\class Visindigo::__Private__::ModernColorPicker_Wheel
-		\brief ModernColorPicker 内部使用的色相环与明度三角。
+		\brief ModernColorPicker 内部使用的色相环与明度三角.
 		\since Visindigo 0.18.0
 		\inmodule Visindigo
 
@@ -1132,7 +1129,7 @@ namespace Visindigo::__Private__ {
 namespace Visindigo::Widgets {
 	/*!
 		\class Visindigo::Widgets::ModernColorPicker
-		\brief 现代风格的取色面板。
+		\brief 现代风格的取色面板.
 		\since Visindigo 0.18.0
 		\inmodule Visindigo
 
@@ -1221,7 +1218,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\class Visindigo::Widgets::ModernColorDialog
-		\brief 把 ModernColorPicker 包装成对话框。
+		\brief 把 ModernColorPicker 包装成对话框.
 		\since Visindigo 0.18.0
 		\inmodule Visindigo
 

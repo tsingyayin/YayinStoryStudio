@@ -125,7 +125,7 @@ namespace YSSCore::Editor {
 		d->doHighlightBlock(currentBlock(), text);
 	}
 
-	/*!
+	/*
 		\since YSS 0.18.0
 		\a block 要着色的文本块。
 		\a text 该文本块的内容。
@@ -301,7 +301,7 @@ namespace YSSCore::Editor {
 		d->stepProgressiveHighlight();
 	}
 
-	/*!
+	/*
 		\since YSS 0.18.0
 
 		分片着色的单步：在时间预算内尽量多地着色，做完就发出 wholeDocumentHighlighted()。
@@ -484,7 +484,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		\a blockNumber 块号，从 0 开始。
 
-		\return 该文本块上的内联提示。没有提示时返回空列表。
+		return 该文本块上的内联提示。没有提示时返回空列表。
 	*/
 	QList<InlayHint> SyntaxHighlighter::getInlayHints(qint32 blockNumber) const {
 		__Private__::InlayHintList* list = d->Parent->getBlockData<__Private__::InlayHintList>(blockNumber);
@@ -497,7 +497,7 @@ namespace YSSCore::Editor {
 	/*!
 		\fn QMap<qint32, QList<InlayHint>> SyntaxHighlighter::getAllInlayHints() const
 		\since YSS 0.18.0
-		\return 文档中所有需要显示的内联提示，以块号为键。
+		return 文档中所有需要显示的内联提示，以块号为键。
 
 		只有确实带有提示的文本块才会出现在结果里。
 	*/
@@ -544,7 +544,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否自动创建并渲染内联提示。
+		return 是否自动创建并渲染内联提示。
 	*/
 	bool SyntaxHighlighter::isAutoRenderInlayHint() const {
 		return d->AutoRenderInlayHint;

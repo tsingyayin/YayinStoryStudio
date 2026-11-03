@@ -11,10 +11,13 @@ docs:
   externalModules:
     - title: "ASERStudio"
       url: "http://prts.site/aserstudio-module.html"
-  # 顶栏顺序，合并站点时两边保持一致
+    - title: "YSSSpineViewer"
+      url: "http://prts.site/yssspineviewer-module.html"
+  # 顶栏顺序，合并站点时各工程保持一致
   navOrder:
     - "Visindigo"
     - "YSSCore"
     - "YayinStoryStudio"
-    - "ASERStudio"
     - "YSSFileExt"
+    - "ASERStudio"
+    - "YSSSpineViewer"

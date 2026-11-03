@@ -16,20 +16,20 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		\inmodule YSSCore
 		\ingroup FileService
-		\brief 以只读方式展示两份文本行的差异，并可逐个差异询问取舍。
+		\brief 以只读方式展示两份文本行的差异，并可逐个差异询问取舍.
 
 		\section1 两种工作状态
 
 		\list
 		\li 普通状态：左右并列显示两份文本，并把每一处差异以行背景标出。
-		\li 取舍状态（\l{setConflictModeEnable(true)}）：在普通状态之上显示取舍栏，
-			按 \l{getDiffRanges()} 的顺序逐处询问"取左侧还是取右侧"，
-			选择结果由 \l{getConflictSelection()} 取回，合并结果由 \l{getConflictMerged()} 取回。
+		\li 取舍状态（setConflictModeEnable(true)）：在普通状态之上显示取舍栏，
+			按 getDiffRanges() 的顺序逐处询问"取左侧还是取右侧"，
+			选择结果由 getConflictSelection() 取回，合并结果由 getConflictMerged() 取回。
 		\endlist
 
 		\section1 虚拟文件
 
-		调用 \l{FileEditWidget::openFile} 打开形如
+		调用 FileEditWidget::openFile 打开形如
 		\c{@YSS.MainEditor.CodeDiff!文件名?{"old_uri":"...","new_uri":"..."}}
 		的虚拟文件时，会自动异步读取两侧文件并立即开始比较。
 	*/

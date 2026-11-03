@@ -38,14 +38,14 @@ namespace Visindigo::Agent {
 
 		Center 集中保存模型池、服务商、技能、工具服务器、函数、提示模板以及
 		全部对话，并提供唯一的进程级实例。它是一个单例，但不是一个"什么都干"
-		的类：它只负责按 id 存取与给出默认项，真正的执行逻辑在 \l Dialog::run()
+		的类：它只负责按 id 存取与给出默认项，真正的执行逻辑在 Dialog::run()
 		里，这样想换一套执行策略时不必改动注册表。
 
 		按 id 索引而不是按名称，是因为名称是给人看的，可能重复、可能改名，
 		而 id 一旦生成就稳定。凭据也都集中在模型池里，Provider 与 Dialog 只保存
 		id，于是轮换一次密钥只需要改一处。
 
-		\warning 传入指针的接口（\l{addFunction()}、\l{createDialog()} 等）转移所有权。
+		\warning 传入指针的接口（addFunction()、createDialog() 等）转移所有权。
 		销毁必须走对应的 \c remove 接口，直接 \c delete 会让注册表留下悬空指针。
 	*/
 
@@ -64,7 +64,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		注册一个模型，以 \l Model::getId() 为键。同 id 会覆盖旧项。
+		注册一个模型，以 Model::getId() 为键。同 id 会覆盖旧项。
 
 		\note 注册时会保留传入对象原有的 id，因此"先取出、改一改、再放回"是可用的
 		更新方式。
@@ -94,7 +94,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		按 id 返回模型。不存在时返回一个 \l Model::isValid() 为 \c false 的空模型，
+		按 id 返回模型。不存在时返回一个 Model::isValid() 为 \c false 的空模型，
 		因此判断"有没有"请用 \c isValid() 而不是别的字段。
 
 		\a id 模型 id。
@@ -124,7 +124,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		注册一个服务商，以 \l Provider::getId() 为键。同 id 会覆盖旧项。
+		注册一个服务商，以 Provider::getId() 为键。同 id 会覆盖旧项。
 
 		\a provider 要注册的服务商；其 id 为空时会被忽略。
 	*/
@@ -154,7 +154,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		按 id 返回服务商。不存在时返回一个 \l Provider::isValid() 为 \c false
+		按 id 返回服务商。不存在时返回一个 Provider::isValid() 为 \c false
 		的空对象。
 		\a id 服务商 id。	*/
 	Provider Center::getProvider(const QString& id) const {
@@ -199,7 +199,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		按名称返回全局技能。不存在时返回一个 \l Skill::isValid() 为 \c false 的空对象。
+		按名称返回全局技能。不存在时返回一个 Skill::isValid() 为 \c false 的空对象。
 
 		\a name 技能名称。
 	*/
@@ -245,7 +245,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		按名称返回全局工具服务器配置。不存在时返回一个 \l MCP::isValid() 为
+		按名称返回全局工具服务器配置。不存在时返回一个 MCP::isValid() 为
 		\c false 的空对象。
 
 		\a name 工具服务器名称。
@@ -266,7 +266,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		注册一个全局函数，以 \l Function::getId() 为键，所有权转移给 Center。
+		注册一个全局函数，以 Function::getId() 为键，所有权转移给 Center。
 
 		同 id 会替换旧项并释放旧对象。传入 \c nullptr 什么也不做。
 
@@ -353,7 +353,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		按名称返回全局提示模板。不存在时返回一个 \l Prompt::isValid() 为 \c false
+		按名称返回全局提示模板。不存在时返回一个 Prompt::isValid() 为 \c false
 		的空对象。
 
 		\a name 模板名称。
@@ -478,7 +478,7 @@ namespace Visindigo::Agent {
 
 		以现有对话为模板建立一条新对话，返回新对话的指针；原对话保留。
 
-		新对话的 \l Dialog::getBranchFromID() 指向原对话。两条对话各自独立演化，
+		新对话的 Dialog::getBranchFromID() 指向原对话。两条对话各自独立演化，
 		互不影响。
 
 		\a dialogId 不存在时返回 \c nullptr。
@@ -501,7 +501,7 @@ namespace Visindigo::Agent {
 
 		结果是一条新对话，它不是"修改了原对话"，而是取代了原对话——原对话连同
 		那次被否决的回答一起留在注册表里，随时可以翻回去看。分支关系记录在新对话
-		的 \l Dialog::getBranchFromID() 上，因此不需要额外的版本列表。
+		的 Dialog::getBranchFromID() 上，因此不需要额外的版本列表。
 
 		\a dialogId 不存在时返回 \c nullptr。原对话没有助手消息时，等同于一次
 		普通的重新执行。
@@ -528,7 +528,7 @@ namespace Visindigo::Agent {
 		序列化整个注册表：模型池、服务商、技能、工具服务器、提示模板、默认服务商
 		以及全部对话。
 
-		\warning 产物中含有模型凭据，见 \l Model::setToken() 的警告。
+		\warning 产物中含有模型凭据，见 Model::setToken() 的警告。
 	*/
 	Visindigo::Utility::JsonConfig Center::toJson() const {
 		Visindigo::Utility::JsonConfig config;

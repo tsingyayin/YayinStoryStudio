@@ -263,70 +263,74 @@ namespace YSSCore::Editor {
 		\list
 		\li 1. 根据扩展名给出候选FileServer，顺序为：preferredServerId → 特别关注强度 → 优先级列表 / 注册顺序。
 		\li 2. 没有任何候选时不读文件，直接按 useFallback 决定是否询问用内置编辑器。
-		\li 3. 有候选时通过 \l{YSSCore::General::YSSUnifiedFileSystem} 异步读取内容；
+		\li 3. 有候选时通过 YSSCore::General::YSSUnifiedFileSystem 异步读取内容；
 		读取失败则本次打开结束，不再创建编辑器。
-		\li 4. 内容到达后按候选顺序逐个创建编辑器并调用 \l{FileEditWidget::openFile}，
+		\li 4. 内容到达后按候选顺序逐个创建编辑器并调用 FileEditWidget::openFile，
 		第一个成功者即为结果，其余候选不再尝试。
 		\li 5. 全部候选都拒绝内容时，按 useFallback 询问是否用内置文本编辑器打开。
 		\endlist
 
-		因此 \l{openFile} 的返回值只表示"是否受理"：真实文件的实际打开结果在
-		异步读取完成后由 \l{fileOpened()} 信号体现。
+		因此 openFile 的返回值只表示"是否受理"：真实文件的实际打开结果在
+		异步读取完成后由 fileOpened() 信号体现。
 
 		有关特别关注、首选ID、优先级列表等概念的详细信息，请参见相关函数的文档说明。
 	*/
 
 	/*!
-		\fn FileServerManager::fileOpened(const QString& filePath)
+		\fn FileServerManager::fileOpened(const YSSCore::General::YSSURI& uri)
 		\since YSS 0.15.0
-		\a filePath 是被打开的文件的绝对路径。
+		\a uri 被打开的文件的身份。
 
 		当一个文件被成功打开时发出的信号。
 	*/
 
 	/*!
-		\fn FileServerManager::fileClosed(const QString& filePath)
+		\fn FileServerManager::fileClosed(const YSSCore::General::YSSURI& uri)
 		\since YSS 0.15.0
-		\a filePath 是被关闭的文件的绝对路径。
+		\a uri 被关闭的文件的身份。
 
 		当一个文件被关闭时发出的信号。
 	*/
 
 	/*!
-		\fn FileServerManager::fileRenamed(const QString& raw, const QString& changed)
+		\fn FileServerManager::fileRenamed(const YSSCore::General::YSSURI& rawUri, const YSSCore::General::YSSURI& changedUri)
 		\since YSS 0.15.0
-		\a raw 是文件重命名前的绝对路径
-		\a changed 是文件重命名后的绝对路径。
+		\a rawUri 文件重命名前的身份。
+		\a changedUri 文件重命名后的身份。
 
-		当一个文件被重命名时发出的信号。参数
+		当一个文件被重命名时发出的信号。
 	*/
 
 	/*!
-		\fn FileServerManager::fileChanged(const QString& filePath)
+		\fn FileServerManager::fileChanged(const YSSCore::General::YSSURI& uri)
 		\since YSS 0.15.0
-		\a filePath 是被修改的文件的绝对路径。
+		\a uri 被修改的文件的身份。
 
 		当一个文件被修改时发出的信号。
 	*/
 
 	/*!
-		\fn FileServerManager::fileChangeCanceled(const QString& filePath)
+		\fn FileServerManager::fileChangeCanceled(const YSSCore::General::YSSURI& uri)
 		\since YSS 0.15.0
-		\a filePath 是被撤销修改的文件的绝对路径。
+		\a uri 被撤销修改的文件的身份。
 
 		当一个文件的修改被撤销时发出的信号。
 	*/
 
 	/*!
-		\fn FileServerManager::fileSaved(const QString& filePath)
+		\fn FileServerManager::fileSaved(const YSSCore::General::YSSURI& uri)
 		\since YSS 0.15.0
-		当一个文件被保存时发出的信号。参数 \a filePath 是被保存的文件的绝对路径。
+		\a uri 被保存的文件的身份。
+
+		当一个文件被保存时发出的信号。
 	*/
 
 	/*!
-		\fn FileServerManager::focusOnFile(const QString& filePath, qint32 lineNumber, qint32 column)
+		\fn FileServerManager::focusOnFile(const YSSCore::General::YSSURI& uri, qint32 lineNumber, qint32 column)
 		\since YSS 0.15.0
-		\a filePath 被聚焦的文件的绝对路径， \a lineNumber 聚焦的行号， \a column 聚焦的列号。
+		\a uri 被聚焦的文件的身份。
+		\a lineNumber 聚焦的行号。
+		\a column 聚焦的列号。
 
 		请求聚焦一个文件时应该尝试发出此信号。
 
@@ -440,21 +444,21 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		打开一个文件。这是 openFile 的主实现版本。
 
-		\a uri 文件身份。真实文件的内容由本类通过 \l{YSSCore::General::YSSUnifiedFileSystem}
+		\a uri 文件身份。真实文件的内容由本类通过 YSSCore::General::YSSUnifiedFileSystem
 		异步读取，再连同 URI 一起交给 FileEditWidget；虚拟文件不读内容。
 		\a preferredServerId 优先使用的FileServer ID。
 		\a useFallback 是否在没有任何FileServer接受文件时使用内置文本编辑器打开文件。默认为true。
 
 		return 是否已经受理这次打开请求：URI 合法、已经打开过、或找到了愿意尝试的
 		FileServer 时返回 true。读取失败或所有候选 FileServer 都拒绝内容发生在
-		\l{openFile} 返回之后，不会反映在返回值里，此时由 \l{fileOpened()} 是否发出
+		openFile 返回之后，不会反映在返回值里，此时由 fileOpened() 是否发出
 		和日志体现。
 
 		候选顺序：优先使用的FileServerID → 特别关注强度（除非为该扩展名禁用）→
 		优先级列表 / 注册顺序。选择阶段不读文件；没有任何候选时才直接询问是否用
 		内置编辑器兜底。所有候选都拒绝内容时同样会询问兜底。
 
-		虚拟文件（\l{YSSCore::General::YSSURI::Scheme::VirtualFile}）只匹配支持该虚拟文件的FileServer，
+		虚拟文件（YSSCore::General::YSSURI::Scheme::VirtualFile）只匹配支持该虚拟文件的FileServer，
 		不考虑 \a preferredServerId 、特别关注强度、优先级列表、 \a useFallback 等因素。
 	*/
 	bool FileServerManager::openFile(const YSSURI& uri, const QString& preferredServerId, bool useFallback) {
@@ -505,12 +509,12 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		打开一个文件。路径字符串形式的便利版本，内部转成 \l{YSSCore::General::YSSURI}。
+		打开一个文件。路径字符串形式的便利版本，内部转成 YSSCore::General::YSSURI。
 		\a filePath 文件路径。虚拟文件用 \c{@ext!name?param}，其余按本机绝对路径处理。
 		\a preferredServerId 优先使用的FileServer ID。
 		\a useFallback 是否使用内置文本编辑器兜底。
 
-		return 是否已经受理这次打开请求；实际读取结果见 \l{fileOpened()}。
+		return 是否已经受理这次打开请求；实际读取结果见 fileOpened()。
 	*/
 	bool FileServerManager::openFile(const QString& filePath, const QString& preferredServerId, bool useFallback) {
 		if (filePath.isEmpty()) {
@@ -525,12 +529,12 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.16.0
-		打开一个文件。QFileInfo 形式的便利版本，内部转成 \l{YSSCore::General::YSSURI}。
+		打开一个文件。QFileInfo 形式的便利版本，内部转成 YSSCore::General::YSSURI。
 		\a fileInfo 文件信息对象。
 		\a preferredServerId 优先使用的FileServer ID。
 		\a useFallback 是否使用内置文本编辑器兜底。
 
-		return 是否已经受理这次打开请求；实际读取结果见 \l{fileOpened()}。
+		return 是否已经受理这次打开请求；实际读取结果见 fileOpened()。
 
 		\warning QFileInfo不处理虚拟文件路径，虚拟文件请用 openFile(const QString&) 或 URI 版本。
 	*/
@@ -550,7 +554,7 @@ namespace YSSCore::Editor {
 		真实文件的打开是"先异步读取、读完再创建编辑器"的两段流程。调用方（例如项目窗口）
 		可能要在这段读取结束之前就关闭，此时如果读完之后照旧创建 FileEditWidget，这个控件
 		既不会出现在任何区域里，也不会被谁负责关闭，等于一直留在 FileServerManager 里。
-		本函数让这些已经受理的请求在回调到达时直接作废，同时清空 \l{openFile()} 用来去重的
+		本函数让这些已经受理的请求在回调到达时直接作废，同时清空 openFile() 用来去重的
 		受理记录。
 
 		\note 本函数只影响尚未读完的请求，已经打开的编辑器不受影响。

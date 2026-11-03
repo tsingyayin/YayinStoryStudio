@@ -883,7 +883,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		return 每一处差异的取舍结果，与 \l{getDiffRanges()} 一一对应。
+		return 每一处差异的取舍结果，与 getDiffRanges() 一一对应。
 		true 表示取右侧（新），false 表示取左侧（旧）。尚未询问的差异保持 false。
 	*/
 	QList<bool> CodeDiff::getConflictSelection() const {

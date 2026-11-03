@@ -3,7 +3,7 @@
 
 /*!
 	\class YSS::Editor::DocumentMessageTracer
-	\brief 跟踪某一行消息所在行号的变化，并记下这一行的消息数量。
+	\brief 跟踪某一行消息所在行号的变化，并记下这一行的消息数量.
 	\since YSS 0.17.0
 	\inmodule YayinStoryStudio
 
@@ -33,7 +33,7 @@ YSS::Editor::DocumentMessageTracer::~DocumentMessageTracer() {
 
 /*!
 	\since YSS 0.17.0
-	\return 界面上当前显示的行号。未显示时返回 -1。
+	return 界面上当前显示的行号。未显示时返回 -1。
 */
 qint32 YSS::Editor::DocumentMessageTracer::getShownLine() const {
 	return ShownLine;
@@ -51,7 +51,7 @@ void YSS::Editor::DocumentMessageTracer::setShownLine(qint32 line) {
 
 /*!
 	\since YSS 0.17.0
-	\return 这一行上错误消息的数量。
+	return 这一行上错误消息的数量。
 */
 qint32 YSS::Editor::DocumentMessageTracer::getErrorCount() const {
 	return ErrorCount;
@@ -59,7 +59,7 @@ qint32 YSS::Editor::DocumentMessageTracer::getErrorCount() const {
 
 /*!
 	\since YSS 0.17.0
-	\return 这一行上警告消息的数量。
+	return 这一行上警告消息的数量。
 */
 qint32 YSS::Editor::DocumentMessageTracer::getWarningCount() const {
 	return WarningCount;
@@ -67,7 +67,7 @@ qint32 YSS::Editor::DocumentMessageTracer::getWarningCount() const {
 
 /*!
 	\since YSS 0.17.0
-	\return 这一行上信息消息的数量。
+	return 这一行上信息消息的数量。
 */
 qint32 YSS::Editor::DocumentMessageTracer::getInfoCount() const {
 	return InfoCount;

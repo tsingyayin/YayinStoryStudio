@@ -43,7 +43,7 @@ namespace YSS::Editor {
 		进度、以及排队中的任务数。浮窗可见时按固定间隔从 UnifiedFileSystem 拉取
 		快照，隐藏后停止轮询。
 
-		外观同样对标 TextEdit 的悬浮窗，见 \l{EditorHintSettingsPopup}。
+		外观同样对标 TextEdit 的悬浮窗，见 EditorHintSettingsPopup。
 	*/
 	class TransferMonitorPopup : public Visindigo::Widgets::BorderFrame {
 	public:

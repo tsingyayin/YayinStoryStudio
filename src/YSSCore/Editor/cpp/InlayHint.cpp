@@ -8,7 +8,7 @@
 
 /*!
 	\class YSSCore::Editor::InlayHint
-	\brief 一条内联提示，用于在文本流里插入不属于文档内容的辅助文字。
+	\brief 一条内联提示，用于在文本流里插入不属于文档内容的辅助文字.
 	\since YSS 0.18.0
 	\inmodule YSSCore
 
@@ -69,6 +69,8 @@ YSSCore::Editor::InlayHint::~InlayHint() {
 /*!
 	\since YSS 0.18.0
 	设置提示插入的位置（块内字符偏移）。
+
+	\a positionInBlock 块内字符偏移。
 */
 void YSSCore::Editor::InlayHint::setPositionInBlock(qint32 positionInBlock) {
 	this->PositionInBlock = positionInBlock;
@@ -77,6 +79,8 @@ void YSSCore::Editor::InlayHint::setPositionInBlock(qint32 positionInBlock) {
 /*!
 	\since YSS 0.18.0
 	设置提示文字。Multi 为空或无效时显示这段文字。
+
+	\a text 提示文字。
 */
 void YSSCore::Editor::InlayHint::setText(const QString& text) {
 	this->Text = text;
@@ -95,6 +99,8 @@ void YSSCore::Editor::InlayHint::setMulti(const QString& multi) {
 /*!
 	\since YSS 0.18.0
 	设置提示文字颜色。设置为无效颜色时使用编辑器默认的弱化文字颜色。
+
+	\a color 提示文字颜色。
 */
 void YSSCore::Editor::InlayHint::setColor(const QColor& color) {
 	this->Color = color;
@@ -103,6 +109,8 @@ void YSSCore::Editor::InlayHint::setColor(const QColor& color) {
 /*!
 	\since YSS 0.18.0
 	设置提示文字左右两侧的内边距（像素）。
+
+	\a paddings 左右内边距（像素）。
 */
 void YSSCore::Editor::InlayHint::setPaddings(qint32 paddings) {
 	this->Paddings = qMax(0, paddings);
@@ -110,7 +118,7 @@ void YSSCore::Editor::InlayHint::setPaddings(qint32 paddings) {
 
 /*!
 	\since YSS 0.18.0
-	\return 提示文字。
+	return 提示文字。
 */
 QString YSSCore::Editor::InlayHint::getText() const {
 	return this->Text;
@@ -118,7 +126,7 @@ QString YSSCore::Editor::InlayHint::getText() const {
 
 /*!
 	\since YSS 0.18.0
-	\return 图片提示描述。未设置时返回空字符串。
+	return 图片提示描述。未设置时返回空字符串。
 */
 QString YSSCore::Editor::InlayHint::getMulti() const {
 	return this->Multi;
@@ -126,7 +134,7 @@ QString YSSCore::Editor::InlayHint::getMulti() const {
 
 /*!
 	\since YSS 0.18.0
-	\return 提示文字颜色。未设置时返回无效颜色。
+	return 提示文字颜色。未设置时返回无效颜色。
 */
 QColor YSSCore::Editor::InlayHint::getColor() const {
 	return this->Color;
@@ -134,7 +142,7 @@ QColor YSSCore::Editor::InlayHint::getColor() const {
 
 /*!
 	\since YSS 0.18.0
-	\return 提示插入的位置（块内字符偏移）。
+	return 提示插入的位置（块内字符偏移）。
 */
 qint32 YSSCore::Editor::InlayHint::getPositionInBlock() const {
 	return this->PositionInBlock;
@@ -142,7 +150,7 @@ qint32 YSSCore::Editor::InlayHint::getPositionInBlock() const {
 
 /*!
 	\since YSS 0.18.0
-	\return 提示文字左右两侧的内边距（像素）。
+	return 提示文字左右两侧的内边距（像素）。
 */
 qint32 YSSCore::Editor::InlayHint::getPaddings() const {
 	return this->Paddings;

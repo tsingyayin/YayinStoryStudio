@@ -28,7 +28,7 @@ namespace Visindigo::Agent {
 
 		MCP 保存"如何连上某个工具服务器"，包含传输方式、地址或可执行文件、以及
 		环境变量与请求头。服务器自身提供的工具会在连接后由 Visindigo 转换成
-		\l{Function}，从而和本地函数走同一套调用路径。
+		Function，从而和本地函数走同一套调用路径。
 
 		\note 本版本只实现配置的保存与读取，尚未建立实际连接。字段的含义已经按
 		约定固定下来，补齐传输层时不需要改动现有的配置格式。
@@ -51,7 +51,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		构造一个空配置，默认使用 \l{Transport::Stdio}。
+		构造一个空配置，默认使用 Transport::Stdio。
 	*/
 	MCP::MCP() {
 		d = new MCPPrivate();
@@ -94,8 +94,8 @@ namespace Visindigo::Agent {
 
 		设置传输方式。
 
-		\note 切换传输方式不会清空另一种方式专用的字段（例如从 \l{Transport::Stdio}
-		换成 \l{Transport::Sse} 后，原有的 command 仍然留着）。这样在两种配置之间
+		\note 切换传输方式不会清空另一种方式专用的字段（例如从 Transport::Stdio
+		换成 Transport::Sse 后，原有的 command 仍然留着）。这样在两种配置之间
 		来回切换时不必重新填写，代价是序列化结果里会同时出现两种字段。
 
 		\a transport 传输方式。
@@ -108,7 +108,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置远程服务器的地址。仅对 \l Transport::Sse 与 \l Transport::StreamableHttp 有意义。
+		设置远程服务器的地址。仅对 Transport::Sse 与 Transport::StreamableHttp 有意义。
 
 		\a url 远程服务器地址。
 	*/
@@ -120,7 +120,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置要启动的可执行文件。仅对 \l Transport::Stdio 有意义。
+		设置要启动的可执行文件。仅对 Transport::Stdio 有意义。
 
 		\warning 该字段会在启动服务器时被当作程序路径直接执行。它只应来自用户
 		自己的配置文件，不应该来自网络内容或项目文件，否则等同于开放任意代码执行。
@@ -186,7 +186,7 @@ namespace Visindigo::Agent {
 
 		设置是否在应用启动时自动连接，默认开启。
 
-		\warning \l Transport::Stdio 的自动启动意味着每次开程序都会拉起一批子进程。
+		\warning Transport::Stdio 的自动启动意味着每次开程序都会拉起一批子进程。
 		如果服务器启动缓慢或会常驻，应关掉它改为按需连接。
 
 		\a autoStart 是否随程序启动自动连接。
@@ -285,7 +285,7 @@ namespace Visindigo::Agent {
 		\since Visindigo 0.17.0
 
 		判断配置是否足够建立一次连接：名称非空，且按传输方式提供了必需的目标
-		（\l Transport::Stdio 需要可执行文件，其余需要合法的绝对 URL）。
+		（Transport::Stdio 需要可执行文件，其余需要合法的绝对 URL）。
 
 		return 配置足够建立一次连接时返回 true。
 	*/
@@ -332,7 +332,7 @@ namespace Visindigo::Agent {
 
 		从 JSON 对象恢复。
 
-		未知的 \c transport 取值按 \l Transport::Stdio 处理，同时保留 \c command 与
+		未知的 \c transport 取值按 Transport::Stdio 处理，同时保留 \c command 与
 		\c url 两个字段，因此配置文件里多写的字段不会造成信息丢失。
 
 		\a json 已解析的 JSON 对象。

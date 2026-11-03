@@ -17,7 +17,7 @@ namespace YSSCore::General {
 		\inheaderfile General/YSSFileSystemRequest.h
 		\since YSS 0.18.0
 		\inmodule YSSCore
-		\brief UFS中的文件操作请求
+		\brief UFS中的文件操作请求.
 		\ingroup YSSUFS
 
 		此类代表UFS中的文件操作请求。它包含操作类型、操作URI、目标URI（可选URI）、可选的写入内容，以及是否自动回收结果对象。
@@ -39,7 +39,6 @@ namespace YSSCore::General {
 
 	/*!
 	\enum YSSCore::General::YSSFileSystemRequest::Operation
-	\inheaderfile General/YSSFileSystemRequest.h
 	\since YSS 0.18.0
 
 	文件系统操作类型
@@ -50,10 +49,12 @@ namespace YSSCore::General {
 	\value Write 整体覆盖写入。
 	\value List 列出目录条目。
 	\value Remove 删除文件或符号链接，或者是整个目录树（递归）。不经过回收站。
-	\value Recycle 移入后端提供的回收站。需要 \l{CanRecycle} 能力，且不保证能恢复。
-	\value Rename 重命名或移动，需要同时给出 \l{YSSFileSystemRequest::setTargetUri()}。
+	\value Recycle 移入后端提供的回收站。需要 \c{CanRecycle} 能力，且不保证能恢复。
+	\value Rename 重命名或移动，需要同时给出 YSSFileSystemRequest::setTargetUri()。
+	\value Copy 复制，需要同时给出 setTargetUri()。
+	\value Move 移动，需要同时给出 setTargetUri()。
 	\value Mkdir 创建目录。
-	\value Rmdir 删除空目录。目录非空时失败，需要连内容一起删请用 \l{Remove}。
+	\value Rmdir 删除空目录。目录非空时失败，需要连内容一起删请用 Remove。
 */
 
 	/*!
@@ -84,7 +85,7 @@ namespace YSSCore::General {
 
 		\a operation 操作类型。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemRequest& YSSFileSystemRequest::setOperation(YSSFileSystemRequest::Operation operation) {
 		this->d->Operation = operation;
@@ -98,7 +99,7 @@ namespace YSSCore::General {
 
 		\a uri 目标 URI。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemRequest& YSSFileSystemRequest::setUri(const YSSURI& uri) {
 		this->d->Uri = uri;
@@ -112,7 +113,7 @@ namespace YSSCore::General {
 
 		\a uri 目标 URI。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemRequest& YSSFileSystemRequest::setTargetUri(const YSSURI& uri) {
 		this->d->TargetUri = uri;
@@ -122,11 +123,11 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		设置待写入内容，仅 \l{YSSUnifiedFileSystem::Operation::Write} 使用。
+		设置待写入内容，仅 YSSFileSystemRequest::Operation::Write 使用。
 
 		\a data 内容。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemRequest& YSSFileSystemRequest::setData(const QByteArray& data) {
 		this->d->Data = data;
@@ -140,7 +141,7 @@ namespace YSSCore::General {
 
 		\a autoDelete 是否自动回收。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemRequest& YSSFileSystemRequest::setAutoDelete(bool autoDelete) {
 		this->d->AutoDelete = autoDelete;
@@ -152,7 +153,7 @@ namespace YSSCore::General {
 
 		取操作类型。
 
-		\return 操作类型。
+		return 操作类型。
 	*/
 	YSSFileSystemRequest::Operation YSSFileSystemRequest::getOperation() const {
 		return this->d->Operation;
@@ -163,7 +164,7 @@ namespace YSSCore::General {
 
 		取操作目标的绝对 URI。
 
-		\return 目标 URI；未设置时为空。
+		return 目标 URI；未设置时为空。
 	*/
 	YSSURI YSSFileSystemRequest::getUri() const {
 		return this->d->Uri;
@@ -174,7 +175,7 @@ namespace YSSCore::General {
 
 		取重命名/移动的绝对目标 URI。
 
-		\return 目标 URI；未设置时为空。
+		return 目标 URI；未设置时为空。
 	*/
 	YSSURI YSSFileSystemRequest::getTargetUri() const {
 		return this->d->TargetUri;
@@ -185,7 +186,7 @@ namespace YSSCore::General {
 
 		判断本请求是否用绝对 URI 指定目标。
 
-		\return 设置了 URI 时返回 true。
+		return 设置了 URI 时返回 true。
 	*/
 	bool YSSFileSystemRequest::hasUri() const {
 		return this->d->Uri.isValid();
@@ -196,7 +197,7 @@ namespace YSSCore::General {
 
 		判断本请求是否用绝对 URI 指定重命名目标。
 
-		\return 设置了目标 URI 时返回 true。
+		return 设置了目标 URI 时返回 true。
 	*/
 	bool YSSFileSystemRequest::hasTargetUri() const {
 		return this->d->TargetUri.isValid();
@@ -207,7 +208,7 @@ namespace YSSCore::General {
 
 		取待写入内容。
 
-		\return 内容。
+		return 内容。
 	*/
 	QByteArray YSSFileSystemRequest::getData() const {
 		return this->d->Data;
@@ -218,7 +219,7 @@ namespace YSSCore::General {
 
 		判断结果对象是否自动回收。
 
-		\return 自动回收时返回 true。
+		return 自动回收时返回 true。
 	*/
 	bool YSSFileSystemRequest::isAutoDelete() const {
 		return this->d->AutoDelete;
@@ -229,7 +230,7 @@ namespace YSSCore::General {
 
 		判断参数是否自洽，即必须有操作类型，重命名、复制、移动必须有目标 URI（即可选URI）。
 
-		\return 参数自洽时返回 true。
+		return 参数自洽时返回 true。
 	*/
 	bool YSSFileSystemRequest::isValid() const {
 		if (this->d->Operation == YSSFileSystemRequest::Operation::Unknown) {

@@ -209,9 +209,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置请求方法。默认是 \l{Method::Get}。
+		设置请求方法。默认是 Method::Get。
 
-		需要注意的是：把方法改为非幂等方法（如 POST）后，\l{RetryPolicy} 中
+		需要注意的是：把方法改为非幂等方法（如 POST）后，RetryPolicy 中
 		默认开启的 \c{RetryPolicy::RetryIdempotentOnly} 会导致该请求不再被重试。
 		这是刻意设计，避免重复提交造成服务端重复处理。
 
@@ -225,7 +225,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置自定义方法名，配合 \l Method::Custom 使用。典型场景是 WebDAV 的
+		设置自定义方法名，配合 Method::Custom 使用。典型场景是 WebDAV 的
 		PROPFIND / MKCOL 这类不在标准枚举内的动词。
 
 		方法名必须是合法的 HTTP token（RFC 7230），即只允许字母、数字与
@@ -522,7 +522,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置响应体的消费方式。详见 \l BodySink 的说明。
+		设置响应体的消费方式。详见 BodySink 的说明。
 
 		\a sink 响应体消费方式。
 	*/
@@ -534,7 +534,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		指定下载文件的落盘路径，并隐含地把消费方式设为 \l{BodySink::ToFile}。
+		指定下载文件的落盘路径，并隐含地把消费方式设为 BodySink::ToFile。
 
 		落盘采用原子替换语义：数据先写入同目录下的临时文件，全部成功后才覆盖目标，
 		因此不会出现"看起来完整但实际残缺"的文件。失败或中止时目标路径保持原样。
@@ -554,7 +554,7 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置内存缓存上限，默认 64 MiB。超出上限时请求以
-		\l HttpError::ErrorType::ResponseTooLarge 失败。
+		HttpError::ErrorType::ResponseTooLarge 失败。
 
 		这个上限存在的意义是防御：若不加限制，一个恶意的或错误的超长响应
 		可以直接把进程的内存吃光。
@@ -571,7 +571,7 @@ namespace Visindigo::Network {
 
 		设置落盘总字节上限，0 表示不限，默认不限。
 
-		它作用于 \l{BodySink::ToFile}，用于避免下载任务被一个无限增长的服务端响应
+		它作用于 BodySink::ToFile，用于避免下载任务被一个无限增长的服务端响应
 		拖垮磁盘。
 
 		\a bytes 落盘总字节上限；0 表示不限。
@@ -585,10 +585,10 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		挂载流帧解码器。挂载之后，响应的字节流会按该解码器切分成
-		Visindigo::Network::StreamFrame，并经 \l HttpReply::frameReceived 交付。
+		Visindigo::Network::StreamFrame，并经 HttpReply::frameReceived 交付。
 
 		对于 NDJSON 可以直接使用 Visindigo::Network::JsonLinesDecoder；
-		对于 SSE 通常不必手动设置，\l SSERequest 会自动挂载 SseDecoder。
+		对于 SSE 通常不必手动设置，SSERequest 会自动挂载 SseDecoder。
 
         请注意，被挂载的decoder其所有权由调用方负责，HttpRequest不会对其进行管理。
 		\a decoder 解码器实例，所有权由调用方持有。
@@ -602,7 +602,7 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置单帧上限，默认 16 MiB。解码器缓冲超过该长度仍未见分帧符时，
-		视图以 \l HttpError::ErrorType::ParseError 失败。
+		视图以 HttpError::ErrorType::ParseError 失败。
 
 		它防的是"服务端迟迟不发换行"这一种情况：此时解码器的内部缓冲会无限增长。
 
@@ -660,7 +660,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置重定向跟随策略，默认 \l{RedirectPolicy::Safe}。
+		设置重定向跟随策略，默认 RedirectPolicy::Safe。
 
 		\a policy 重定向跟随策略。
 	*/
@@ -673,7 +673,7 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		设置最大跟随跳数，默认 5。超出后请求以
-		\l HttpError::ErrorType::TooManyRedirects 失败。
+		HttpError::ErrorType::TooManyRedirects 失败。
 
 		这个上限同时也是一个安全边界：没有它，两个互相指向对方的地址可以构成
 		无限跳转，从而把请求永久卡死。
@@ -688,7 +688,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置调度优先级，默认 \l{Priority::Normal}。
+		设置调度优先级，默认 Priority::Normal。
 
 		\a priority 调度优先级。
 	*/
@@ -855,18 +855,18 @@ namespace Visindigo::Network {
 		\brief HTTP 响应描述对象.
 
 		HttpResponse 是值类型，可以自由拷贝与传递。它同时承担两个角色：在请求
-		进行中作为"已到达的元数据"载体（由 \l HttpReply::headersReceived 交付），
-		在请求结束后作为"最终结果"载体（由 \l HttpReply::finished 交付）。
+		进行中作为"已到达的元数据"载体（由 HttpReply::headersReceived 交付），
+		在请求结束后作为"最终结果"载体（由 HttpReply::finished 交付）。
 
-		消息体在何时可用，取决于请求设置的 \l{HttpRequest::BodySink}：
+		消息体在何时可用，取决于请求设置的 HttpRequest::BodySink：
 		\list
-		\li \l{HttpRequest::BodySink::Auto}、\l{HttpRequest::BodySink::Buffer}：
+		\li HttpRequest::BodySink::Auto、HttpRequest::BodySink::Buffer：
 			请求结束后可通过 getBody() 取得。
-		\li \l{HttpRequest::BodySink::ToFile}：getBody() 始终为空，消息体的载体是文件，
+		\li HttpRequest::BodySink::ToFile：getBody() 始终为空，消息体的载体是文件，
 			路径由 getDownloadFilePath() 给出。
 		\endlist
-		流式请求在结束前消息体也尚未收齐，应通过 \l HttpReply::bodyChunkReceived
-		或 \l HttpReply::frameReceived 增量消费。
+		流式请求在结束前消息体也尚未收齐，应通过 HttpReply::bodyChunkReceived
+		或 HttpReply::frameReceived 增量消费。
 
 		\note 头部键名统一以小写形式保存，getHeader() 的查找不区分大小写，
 		这与 HTTP 规范一致。
@@ -892,7 +892,7 @@ namespace Visindigo::Network {
 		判断本对象是否已经承载了有效的响应，即响应头是否已经到达。
 
 		它表示的是"是否收到响应头"，而不是"请求是否已经完成"。因此
-		\l HttpReply::headersReceived 交付的对象其 isValid() 为 \c true ，
+		HttpReply::headersReceived 交付的对象其 isValid() 为 \c true ，
 		此时消息体可能还没有任何数据。若想知道请求整体是否结束，应查看
 		Visindigo::Network::HttpReply::getState()。
 
@@ -958,8 +958,8 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		返回消息体。仅在 \l HttpRequest::BodySink::Auto 与
-		\l HttpRequest::BodySink::Buffer 两种方式下有内容，其余情况返回空字节数组。
+		返回消息体。仅在 HttpRequest::BodySink::Auto 与
+		HttpRequest::BodySink::Buffer 两种方式下有内容，其余情况返回空字节数组。
 	*/
 	QByteArray HttpResponse::getBody() const {
 		return d->Body;
@@ -1030,7 +1030,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		返回下载文件的实际落盘路径。仅在 \l HttpRequest::BodySink::ToFile 且
+		返回下载文件的实际落盘路径。仅在 HttpRequest::BodySink::ToFile 且
 		请求成功时有值。
 	*/
 	QString HttpResponse::getDownloadFilePath() const {
@@ -1134,7 +1134,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		返回本次请求的错误信息。请求成功时其 \l HttpError::isError() 为 \c false。
+		返回本次请求的错误信息。请求成功时其 HttpError::isError() 为 \c false。
 	*/
 	HttpError HttpResponse::getError() const {
 		return d->Error;

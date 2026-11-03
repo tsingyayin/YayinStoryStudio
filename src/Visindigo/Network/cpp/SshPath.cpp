@@ -186,7 +186,7 @@ namespace Visindigo::Network {
 		\class Visindigo::Network::SshPath
 		\since Visindigo 0.18.0
 		\inmodule Visindigo
-		\brief SSH 远端路径：连接身份（authority）加绝对 POSIX 路径。
+		\brief SSH 远端路径：连接身份（authority）加绝对 POSIX 路径.
 
 		本类只描述"哪个连接上的哪个路径"，不持有连接、凭据或会话。
 		它用于给 YSSURI 提供 SSH 分支的身份，也用于连接索引与文件索引。
@@ -217,11 +217,11 @@ namespace Visindigo::Network {
 		\since Visindigo 0.18.0
 
 		判断文本是否以 \c{ssh://} 开头。本函数不做完整校验，是否合法请用
-		\l{fromString()} 判断。
+		fromString() 判断。
 
 		\a text 待检测文本。
 
-		\return 前缀匹配返回 true。
+		return 前缀匹配返回 true。
 	*/
 	bool SshPath::isSshPath(const QString& text) {
 		return text.trimmed().startsWith(sshSchemePrefix(), Qt::CaseInsensitive);
@@ -238,7 +238,7 @@ namespace Visindigo::Network {
 
 		\a text 文本形式。
 
-		\return 解析结果；无法解析时返回无效对象。
+		return 解析结果；无法解析时返回无效对象。
 	*/
 	SshPath SshPath::fromString(const QString& text) {
 		SshPathPrivate* data = new SshPathPrivate();
@@ -263,7 +263,7 @@ namespace Visindigo::Network {
 		\a port 端口，小于等于 0 表示默认值。
 		\a path 远端路径。
 
-		\return 构造结果；参数不合法时返回无效对象。
+		return 构造结果；参数不合法时返回无效对象。
 	*/
 	SshPath SshPath::fromParts(const QString& user, const QString& host, qint32 port, const QString& path) {
 		if (port > 65535) {
@@ -319,7 +319,7 @@ namespace Visindigo::Network {
 		\fn bool Visindigo::Network::SshPath::isValid() const
 		\since Visindigo 0.18.0
 
-		\return 主机与绝对路径都存在时返回 true。
+		return 主机与绝对路径都存在时返回 true。
 	*/
 	bool SshPath::isValid() const {
 		return d != nullptr and not d->Host.isEmpty() and d->Path.startsWith(QChar('/'));
@@ -329,7 +329,7 @@ namespace Visindigo::Network {
 		\fn QString Visindigo::Network::SshPath::getUser() const
 		\since Visindigo 0.18.0
 
-		\return SSH 用户名；未指定时为空字符串。
+		return SSH 用户名；未指定时为空字符串。
 	*/
 	QString SshPath::getUser() const {
 		return d == nullptr ? QString() : d->User;
@@ -339,7 +339,7 @@ namespace Visindigo::Network {
 		\fn QString Visindigo::Network::SshPath::getHost() const
 		\since Visindigo 0.18.0
 
-		\return 小写主机名；IPv6 字面量包含方括号。
+		return 小写主机名；IPv6 字面量包含方括号。
 	*/
 	QString SshPath::getHost() const {
 		return d == nullptr ? QString() : d->Host;
@@ -349,7 +349,7 @@ namespace Visindigo::Network {
 		\fn qint32 Visindigo::Network::SshPath::getPort() const
 		\since Visindigo 0.18.0
 
-		\return 显式给出的端口；未指定时返回 -1。
+		return 显式给出的端口；未指定时返回 -1。
 	*/
 	qint32 SshPath::getPort() const {
 		return d == nullptr ? -1 : d->Port;
@@ -359,7 +359,7 @@ namespace Visindigo::Network {
 		\fn qint32 Visindigo::Network::SshPath::getEffectivePort() const
 		\since Visindigo 0.18.0
 
-		\return 实际使用的端口；未指定时返回 22，无效对象返回 -1。
+		return 实际使用的端口；未指定时返回 22，无效对象返回 -1。
 	*/
 	qint32 SshPath::getEffectivePort() const {
 		return this->isValid() ? d->effectivePort() : -1;
@@ -369,7 +369,7 @@ namespace Visindigo::Network {
 		\fn QString Visindigo::Network::SshPath::getAuthority() const
 		\since Visindigo 0.18.0
 
-		\return 连接身份 \c{user@host:port}；端口总是写出（缺省 22）。
+		return 连接身份 \c{user@host:port}；端口总是写出（缺省 22）。
 	*/
 	QString SshPath::getAuthority() const {
 		if (not this->isValid()) {
@@ -390,7 +390,7 @@ namespace Visindigo::Network {
 		\fn QString Visindigo::Network::SshPath::getPath() const
 		\since Visindigo 0.18.0
 
-		\return 规范化的远端 POSIX 绝对路径。
+		return 规范化的远端 POSIX 绝对路径。
 	*/
 	QString SshPath::getPath() const {
 		return d == nullptr ? QString() : d->Path;
@@ -400,7 +400,7 @@ namespace Visindigo::Network {
 		\fn QString Visindigo::Network::SshPath::getFileName() const
 		\since Visindigo 0.18.0
 
-		\return 路径的最后一段；根路径返回空字符串。
+		return 路径的最后一段；根路径返回空字符串。
 	*/
 	QString SshPath::getFileName() const {
 		if (not this->isValid() or d->Path == QStringLiteral("/")) {
@@ -414,7 +414,7 @@ namespace Visindigo::Network {
 		\fn Visindigo::Network::SshPath Visindigo::Network::SshPath::parent() const
 		\since Visindigo 0.18.0
 
-		\return 上一级路径；根路径或无效对象返回无效对象。
+		return 上一级路径；根路径或无效对象返回无效对象。
 	*/
 	SshPath SshPath::parent() const {
 		if (not this->isValid() or d->Path == QStringLiteral("/")) {
@@ -437,7 +437,7 @@ namespace Visindigo::Network {
 
 		\a root 作为根的路径。
 
-		\return 在根之下返回 true。
+		return 在根之下返回 true。
 	*/
 	bool SshPath::isUnder(const SshPath& root) const {
 		if (not this->isValid() or not root.isValid() or not d->isSameAuthorityAs(*root.d)) {
@@ -459,7 +459,7 @@ namespace Visindigo::Network {
 
 		\a root 作为根的路径。
 
-		\return 相对 \a root 的路径；相等、不在其下或 authority 不同时返回空字符串。
+		return 相对 \a root 的路径；相等、不在其下或 authority 不同时返回空字符串。
 	*/
 	QString SshPath::relativePathTo(const SshPath& root) const {
 		if (not this->isValid() or not root.isValid() or not d->isSameAuthorityAs(*root.d)) {
@@ -487,7 +487,7 @@ namespace Visindigo::Network {
 		\a relativePath 相对路径；若传入 \c{ssh://} 文本或绝对路径，则直接按对应形式解析。
 		\c{..} 越过根时返回无效对象。
 
-		\return 解析结果。
+		return 解析结果。
 	*/
 	SshPath SshPath::resolve(const QString& relativePath) const {
 		if (not this->isValid()) {
@@ -528,7 +528,7 @@ namespace Visindigo::Network {
 		\fn QString Visindigo::Network::SshPath::toString() const
 		\since Visindigo 0.18.0
 
-		\return 规范形式 \c{ssh://user@host:port/path}；无效对象返回空字符串。
+		return 规范形式 \c{ssh://user@host:port/path}；无效对象返回空字符串。
 	*/
 	QString SshPath::toString() const {
 		if (not this->isValid()) {
@@ -541,7 +541,7 @@ namespace Visindigo::Network {
 		\fn QString Visindigo::Network::SshPath::toKey() const
 		\since Visindigo 0.18.0
 
-		\return 用于比较与哈希的规范键；当前与 \l{toString()} 相同。
+		return 用于比较与哈希的规范键；当前与 toString() 相同。
 	*/
 	QString SshPath::toKey() const {
 		return this->toString();
@@ -551,7 +551,7 @@ namespace Visindigo::Network {
 		\fn std::size_t Visindigo::Network::SshPath::hash() const
 		\since Visindigo 0.18.0
 
-		\return 与 qHash() 一致的哈希值。
+		return 与 qHash() 一致的哈希值。
 	*/
 	std::size_t SshPath::hash() const {
 		return ::qHash(this->toKey(), 0);
@@ -563,7 +563,7 @@ namespace Visindigo::Network {
 
 		\a other 另一个路径。
 
-		\return 两者是否表示同一个远端文件。
+		return 两者是否表示同一个远端文件。
 	*/
 	bool SshPath::operator==(const SshPath& other) const {
 		return this->toKey() == other.toKey();
@@ -575,7 +575,7 @@ namespace Visindigo::Network {
 
 		\a other 另一个路径。
 
-		\return 两者是否表示不同文件。
+		return 两者是否表示不同文件。
 	*/
 	bool SshPath::operator!=(const SshPath& other) const {
 		return not (*this == other);
@@ -587,7 +587,7 @@ namespace Visindigo::Network {
 
 		\a other 另一个路径。
 
-		\return 便于放进 QMap 的字典序比较结果。
+		return 便于放进 QMap 的字典序比较结果。
 	*/
 	bool SshPath::operator<(const SshPath& other) const {
 		return this->toKey() < other.toKey();

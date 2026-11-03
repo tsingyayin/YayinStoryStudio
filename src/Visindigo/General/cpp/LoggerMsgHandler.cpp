@@ -4,7 +4,7 @@
 #include "General/LoggerMsgHandler.h"
 #include "Utility/Console.h"
 namespace Visindigo::General {
-	/*!
+	/*
 		\class Visindigo::General::LoggerMsgHandler
 		\inheaderfile General/LoggerMsgHandler.h
 		\inmodule Visindigo

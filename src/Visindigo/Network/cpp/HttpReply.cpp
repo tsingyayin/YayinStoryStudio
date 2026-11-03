@@ -100,19 +100,19 @@ namespace Visindigo::Network {
 		无法自行构造。
 
 		底层传输天然是字节流，"一次性请求""文件下载""文本流"在本模块里都是同一个
-		类，差别只在请求上设置的 \l HttpRequest::BodySink 与
+		类，差别只在请求上设置的 HttpRequest::BodySink 与
 		Visindigo::Network::HttpRequest::setStreamDecoder()：
 
 		\list
-		\li \l{HttpRequest::BodySink::Auto}、\l{HttpRequest::BodySink::Buffer}：
-			请求结束后从 \l getResponse() 的 \l HttpResponse::getBody() 取走内容。
-		\li \l{HttpRequest::BodySink::ToFile}：内容增量写入磁盘，
-			\l downloadProgress 可作为进度显示，文件路径见
+		\li HttpRequest::BodySink::Auto、HttpRequest::BodySink::Buffer：
+			请求结束后从 getResponse() 的 HttpResponse::getBody() 取走内容。
+		\li HttpRequest::BodySink::ToFile：内容增量写入磁盘，
+			downloadProgress 可作为进度显示，文件路径见
 			Visindigo::Network::HttpResponse::getDownloadFilePath()。
-		\li 挂了解码器时：字节按帧切分，经 \l frameReceived 交付。
+		\li 挂了解码器时：字节按帧切分，经 frameReceived 交付。
 		\endlist
 
-		除信号之外还提供一组回调糖（\l{then}、\l{onError}、\l{onFrame} 等），
+		除信号之外还提供一组回调糖（then、onError、onFrame 等），
 		它们等价于连接对应信号，只是为了链式书写与集中阅读：
 		\code
 			center->request(request)
@@ -121,14 +121,14 @@ namespace Visindigo::Network {
 		\endcode
 		带 context 的重载遵循 Qt 惯例，context 销毁后连接自动断开，因此不会在对象
 		已销毁之后回调。但要注意"不再回调"并不等于"连接已关闭"，长连接场景应当
-		使用 \l bindLifecycleTo() 才能真正把请求停掉。
+		使用 bindLifecycleTo() 才能真正把请求停掉。
 
-		\note 请求结束时若 \l isAutoDelete() 为 \c true （默认值），句柄会自动
+		\note 请求结束时若 isAutoDelete() 为 \c true （默认值），句柄会自动
 		deleteLater，因此不要在提交后长期保存这个指针；需要事后查询结果时，
 		应先调用 \c{setAutoDelete(false)} 并自行负责释放。
 
-		\note 对设置了流式解码器的请求，\l then 的语义是"流正常结束"，而不是
-		"已经拿到了全部内容"——内容是在 \l frameReceived 中陆续交付的。
+		\note 对设置了流式解码器的请求，then 的语义是"流正常结束"，而不是
+		"已经拿到了全部内容"——内容是在 frameReceived 中陆续交付的。
 
 		\sa Visindigo::Network::HttpRequest
 		\sa Visindigo::Network::HttpResponse
@@ -139,7 +139,7 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::HttpReply::queued(quint64 id)
 		\since Visindigo 0.17.0
 
-		请求已进入中心队列但尚未发出。\a id 是句柄编号，与 \l getId() 一致。
+		请求已进入中心队列但尚未发出。\a id 是句柄编号，与 getId() 一致。
 	*/
 
 	/*!
@@ -156,10 +156,10 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::HttpReply::headersReceived(const HttpResponse& response)
 		\since Visindigo 0.17.0
 
-		响应头到达。此时 \a response 的 \l HttpResponse::isValid() 为 \c true，
-		但消息体尚未入场，\l HttpResponse::getBody() 还是空的。
+		响应头到达。此时 \a response 的 HttpResponse::isValid() 为 \c true，
+		但消息体尚未入场，HttpResponse::getBody() 还是空的。
 
-		这是下载开始之前校验状态码、并据此决定要不要 \l abort() 的唯一时机。
+		这是下载开始之前校验状态码、并据此决定要不要 abort() 的唯一时机。
 	*/
 
 	/*!
@@ -197,14 +197,14 @@ namespace Visindigo::Network {
 		未被缓存到内存的原始增量字节。
 
 		\note \a chunk 的切分位置没有任何语义，不能假定它与协议边界对齐；
-		需要按帧处理时请使用 \l{frameReceived}。
+		需要按帧处理时请使用 frameReceived。
 	*/
 
 	/*!
 		\fn void Visindigo::Network::HttpReply::frameReceived(const StreamFrame& frame)
 		\since Visindigo 0.17.0
 
-		解码器切出的完整帧。仅在请求挂了 \l Visindigo::Network::IStreamDecoder 时发出。
+		解码器切出的完整帧。仅在请求挂了 Visindigo::Network::IStreamDecoder 时发出。
 
 		\a frame 已切出的完整帧。
 	*/
@@ -230,7 +230,7 @@ namespace Visindigo::Network {
 		\since Visindigo 0.17.0
 
 		请求结束，成功与失败都会发出。"无论如何都要收尾"的逻辑（例如解除加载状态）
-		挂在这里，比同时连接 \l succeeded 与 \l failed 更不容易漏掉分支。
+		挂在这里，比同时连接 succeeded 与 failed 更不容易漏掉分支。
 
 		\a response 最终响应。
 	*/
@@ -239,9 +239,9 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::HttpReply::aborted()
 		\since Visindigo 0.17.0
 
-		请求被中止。主动 \l abort() 与上下文销毁导致的自动中止都会发出它。
+		请求被中止。主动 abort() 与上下文销毁导致的自动中止都会发出它。
 
-		\note 中止之后不会再发出 \l{succeeded} 或 \l{failed}。
+		\note 中止之后不会再发出 succeeded 或 failed。
 	*/
 
 	HttpReply::HttpReply() : d(nullptr) {
@@ -1070,7 +1070,7 @@ namespace Visindigo::Network {
 
 		中止请求。若请求尚在队列中则直接出队，若已发出则关闭底层传输。
 
-		中止后句柄会依次发出 \l{aborted} 与 \l{finished} 信号，但不会发出 \l{failed}，
+		中止后句柄会依次发出 aborted 与 finished 信号，但不会发出 failed，
 		因为"被调用方主动放弃"与"请求失败"是两件事，用同一个信号表达会让错误处理
 		逻辑无法区分二者。
 	*/
@@ -1113,7 +1113,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		注册请求开始发出的回调，等价于连接 \l started 信号。
+		注册请求开始发出的回调，等价于连接 started 信号。
 
 		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
 		\a fn 回调函数。
@@ -1126,7 +1126,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		注册响应头到达的回调，等价于连接 \l headersReceived 信号。
+		注册响应头到达的回调，等价于连接 headersReceived 信号。
 
 		这是校验状态码的最佳时机：对下载任务而言，此刻一个字节都还没有写入目标文件，
 		发现状态码不对就直接 abort()，不会留下任何残缺文件。
@@ -1182,7 +1182,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		注册失败回调，等价于连接 \l failed 信号。主动 abort() 不会触发本回调。
+		注册失败回调，等价于连接 failed 信号。主动 abort() 不会触发本回调。
 
 		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
 		\a fn 回调函数。
@@ -1226,7 +1226,7 @@ namespace Visindigo::Network {
 		注册成功回调。
 
 		\note 对流式请求而言，本回调表示"流正常结束"，而不是"一次性拿到了全部内容"。
-		流中的每个事件应当通过 \l{onFrame} 或 \c{when()} 消费。
+		流中的每个事件应当通过 onFrame 或 \c{when()} 消费。
 
 		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
 		\a fn 回调函数。
@@ -1243,7 +1243,7 @@ namespace Visindigo::Network {
 		这是流式解析中最常用的提前退出手段——例如已经解析到需要的字段时。
 
 		\note 只有字节未被完整缓存时才逐块交付，即落盘或流式场景。若响应走内存缓存，
-		用 \l then 一次性取走即可，逐块回调反而是多余的拷贝。
+		用 then 一次性取走即可，逐块回调反而是多余的拷贝。
 
 		\a context 回调的宿主对象；传 \c nullptr 表示使用句柄自身。
 		\a fn 回调函数，返回 \c false 表示立即中止请求。

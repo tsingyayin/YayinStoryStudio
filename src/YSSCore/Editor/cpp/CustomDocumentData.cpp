@@ -9,7 +9,7 @@
 
 /*!
    \class YSSCore::Editor::ICustomDocumentData
-   \brief 可挂在文本编辑器某一行上的自定义数据的基类。
+   \brief 可挂在文本编辑器某一行上的自定义数据的基类.
    \since YSS 0.17.0
    \inmodule YSSCore
 
@@ -33,7 +33,7 @@ YSSCore::Editor::ICustomDocumentData::~ICustomDocumentData() {
 
 /*!
    \since YSS 0.17.0
-   \return 数据当前所在的文本块。
+   return 数据当前所在的文本块。
 */
 QTextBlock YSSCore::Editor::ICustomDocumentData::getBlock() const {
 	return Block;
@@ -41,7 +41,7 @@ QTextBlock YSSCore::Editor::ICustomDocumentData::getBlock() const {
 
 /*!
    \since YSS 0.17.0
-   \return 数据当前所在的行号。如果数据所在的块已经不存在，则返回 -1。
+   return 数据当前所在的行号。如果数据所在的块已经不存在，则返回 -1。
 */
 qint32 YSSCore::Editor::ICustomDocumentData::getBlockNumber() const {
 	return Block.blockNumber();
@@ -49,7 +49,7 @@ qint32 YSSCore::Editor::ICustomDocumentData::getBlockNumber() const {
 
 /*!
    \since YSS 0.17.0
-   \return 上一次同步时记录的行号。
+   return 上一次同步时记录的行号。
 */
 qint32 YSSCore::Editor::ICustomDocumentData::getLastBlockNumber() const {
 	return LastBlockNumber;
@@ -57,7 +57,7 @@ qint32 YSSCore::Editor::ICustomDocumentData::getLastBlockNumber() const {
 
 /*!
    \since YSS 0.17.0
-   \return 自上次同步以来，数据所在的行号是否发生了变化。
+   return 自上次同步以来，数据所在的行号是否发生了变化。
 */
 bool YSSCore::Editor::ICustomDocumentData::isBlockNumberChanged() const {
 	return LastBlockNumber != getBlockNumber();
@@ -97,7 +97,7 @@ void YSSCore::Editor::ICustomDocumentData::setBlock(const QTextBlock& block) {
 }
 
 namespace YSSCore::Editor {
-	/*!
+	/*
 	   挂在文本块上的数据容器。
 
 	   QTextBlock 只允许挂一个 QTextBlockUserData，为了让多个组件的数据共存，
@@ -157,7 +157,7 @@ namespace YSSCore::Editor {
 	   \since YSS 0.17.0
 	   \a blockNumber 行号，从 0 开始。
 
-	   \return 指定行上挂着的 T 类型数据；该行不存在、或者该行没挂 T 类型的数据时返回空指针。
+	   return 指定行上挂着的 T 类型数据；该行不存在、或者该行没挂 T 类型的数据时返回空指针。
 
 	   类型在编译期已知时用这个重载：不必自己给出类型标识，返回值也已经是 T*。
 	*/
@@ -168,7 +168,7 @@ namespace YSSCore::Editor {
 	   \a blockNumber 行号，从 0 开始。
 	   \a type 数据的类型标识，用 std::type_index(typeid(YourDataType)) 得到。
 
-	   \return 指定行上挂着的数据。如果该行不存在，或者这一行没挂这种类型的数据，则返回空指针。
+	   return 指定行上挂着的数据。如果该行不存在，或者这一行没挂这种类型的数据，则返回空指针。
 
 	   取到之后可以直接转换成你自己继承 ICustomDocumentData 的类型使用。
 	   类型在编译期已知时，直接用带类型参数的模板重载即可，不必自己构造类型标识。
@@ -194,7 +194,7 @@ namespace YSSCore::Editor {
 	   \since YSS 0.17.0
 	   \a blockNumber 行号，从 0 开始。
 
-	   \return 指定行上是否挂着 T 类型的数据。
+	   return 指定行上是否挂着 T 类型的数据。
 	*/
 
 	/*!
@@ -203,7 +203,7 @@ namespace YSSCore::Editor {
 	   \a blockNumber 行号，从 0 开始。
 	   \a type 数据的类型标识。
 
-	   \return 指定行上是否挂着这种类型的数据。
+	   return 指定行上是否挂着这种类型的数据。
 	   类型在编译期已知时改用带类型参数的模板重载。
 	*/
 	bool TextEdit::hasBlockData(qint32 blockNumber, const std::type_index& type) const {
@@ -316,7 +316,7 @@ namespace YSSCore::Editor {
 	   \fn template<typename T> QMap<qint32, T*> TextEdit::getAllBlockData() const
 	   \since YSS 0.17.0
 
-	   \return 整个文档中所有 T 类型的数据，以行号为键。
+	   return 整个文档中所有 T 类型的数据，以行号为键。
 
 	   类型在编译期已知时用这个重载：拿到的就是一份 T* 的映射，不用再转换。
 	*/
@@ -326,7 +326,7 @@ namespace YSSCore::Editor {
 	   \since YSS 0.17.0
 	   \a type 数据的类型标识。
 
-	   \return 整个文档中所有这种类型的数据，以行号为键。
+	   return 整个文档中所有这种类型的数据，以行号为键。
 
 	   返回的是一份快照，键是取数据那一刻的行号；数据本身仍然由编辑器管理，不要手动删除。
 	*/

@@ -20,15 +20,15 @@ namespace YSSCore::General {
 		\inmodule YSSCore
 		\brief 一次操作的结果快照.
 
-		以值传递进 \l{YSSFileSystemReply::then()}，所以回调里不需要持有 reply 对象，
+		以值传递进 YSSFileSystemReply::then()，所以回调里不需要持有 reply 对象，
 		也不存在生命周期问题。
 
 		\list
-		\li \b{Uri} 操作的绝对 URI，见 \l{YSSFileSystemReply::getUri()}。
-		\li \b{Error} 失败原因；成功时为 \l{YSSFileError::ErrorType::NoError}。
-		\li \b{Data} \l{YSSUnifiedFileSystem::Operation::Read} 读到的内容，其它操作保持空。
-		\li \b{Entries} \l{YSSUnifiedFileSystem::Operation::List} 得到的条目。
-		\li \b{Attributes} \l{YSSUnifiedFileSystem::Operation::Stat} 查到的属性。
+		\li \b{Uri} 操作的绝对 URI，见 YSSFileSystemReply::getUri()。
+		\li \b{Error} 失败原因；成功时为 YSSFileError::ErrorType::NoError。
+		\li \b{Data} YSSFileSystemRequest::Operation::Read 读到的内容，其它操作保持空。
+		\li \b{Entries} YSSFileSystemRequest::Operation::List 得到的条目。
+		\li \b{Attributes} YSSFileSystemRequest::Operation::Stat 查到的属性。
 		\li \b{BytesTransferred} 实际传输的字节数，读与写都有值。
 		\li \b{TotalBytes} 传输总量；-1 表示后端没有给出。
 		\endlist
@@ -39,7 +39,7 @@ namespace YSSCore::General {
 
 		判断结果是否表示失败。
 
-		\return \l{Error} 的 \c{Type} 不是 \l{YSSFileError::ErrorType::NoError} 时返回 true。
+		return \c{Error} 的 \c{Type} 不是 YSSFileError::ErrorType::NoError 时返回 true。
 	*/
 	bool YSSFileSystemResult::isError() const {
 		return Error.isError();

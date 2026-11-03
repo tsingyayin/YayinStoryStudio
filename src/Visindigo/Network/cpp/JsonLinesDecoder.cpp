@@ -33,7 +33,7 @@ namespace Visindigo::Network {
 		\note 本类只负责切分，不解析 JSON。行内容是否合法由调用方判断，
 		这样解码器无需关心负载语义，也不会因为 JSON 库的选择而影响接口。
 
-		\note 当累计缓冲超过 \l setMaxFrameBytes 设定的上限仍未见换行时，
+		\note 当累计缓冲超过 setMaxFrameBytes 设定的上限仍未见换行时，
 		超限部分会被丢弃，以避免无换行的响应把内存吃光。
 	*/
 

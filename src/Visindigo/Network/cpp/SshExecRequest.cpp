@@ -31,12 +31,12 @@ namespace Visindigo::Network {
 		\inmodule Visindigo
 		\brief 一次远端命令执行的参数.
 
-		一个值类型，可以自由拷贝和修改后再提交给 \l{SshSession::exec()}。
+		一个值类型，可以自由拷贝和修改后再提交给 SshSession::exec()。
 
 		远端命令不是本机 shell：没有管道、没有环境继承、没有工作目录，服务端通常直接用
 		登录 shell 的 \c{-c} 形式执行。需要重定向或串接请自己写进命令字符串。
 
-		\l{TimeoutMs} 到时会中止整条通道，适合给 \c{git} 这类可能卡住的操作兜底；
+		\c{TimeoutMs} 到时会中止整条通道，适合给 \c{git} 这类可能卡住的操作兜底；
 		0 表示不限时。
 
 		\list
@@ -87,7 +87,7 @@ namespace Visindigo::Network {
 
 		\a command 命令文本。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshExecRequest& SshExecRequest::setCommand(const QString& command) {
 		this->d->Command = command;
@@ -102,7 +102,7 @@ namespace Visindigo::Network {
 		\a name 变量名。
 		\a value 变量值。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshExecRequest& SshExecRequest::addEnvironment(const QString& name, const QString& value) {
 		this->d->Environment.insert(name, value);
@@ -112,11 +112,11 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		设置执行超时，超时后通道会被中止并报告 \l{SshError::ErrorType::Timeout}。
+		设置执行超时，超时后通道会被中止并报告 SshError::ErrorType::Timeout。
 
 		\a ms 毫秒数，0 表示不限。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshExecRequest& SshExecRequest::setTimeoutMs(qint32 ms) {
 		this->d->TimeoutMs = ms;
@@ -132,7 +132,7 @@ namespace Visindigo::Network {
 
 		\a autoDelete 是否自动回收。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshExecRequest& SshExecRequest::setAutoDelete(bool autoDelete) {
 		this->d->AutoDelete = autoDelete;
@@ -144,7 +144,7 @@ namespace Visindigo::Network {
 
 		取命令文本。
 
-		\return 命令文本。
+		return 命令文本。
 	*/
 	QString SshExecRequest::getCommand() const {
 		return this->d->Command;
@@ -155,7 +155,7 @@ namespace Visindigo::Network {
 
 		取环境变量表。
 
-		\return 环境变量。
+		return 环境变量。
 	*/
 	QMap<QString, QString> SshExecRequest::getEnvironment() const {
 		return this->d->Environment;
@@ -166,7 +166,7 @@ namespace Visindigo::Network {
 
 		取执行超时。
 
-		\return 毫秒数，0 表示不限。
+		return 毫秒数，0 表示不限。
 	*/
 	qint32 SshExecRequest::getTimeoutMs() const {
 		return this->d->TimeoutMs;
@@ -177,7 +177,7 @@ namespace Visindigo::Network {
 
 		判断结果对象是否自动回收。
 
-		\return 自动回收时返回 true。
+		return 自动回收时返回 true。
 	*/
 	bool SshExecRequest::isAutoDelete() const {
 		return this->d->AutoDelete;
@@ -190,15 +190,15 @@ namespace Visindigo::Network {
 		\inmodule Visindigo
 		\brief 一条远端命令的执行结果句柄.
 
-		SshExecReply 是 \l{SshChannel} 的特化：除了通道本身的流式数据，它会把
+		SshExecReply 是 SshChannel 的特化：除了通道本身的流式数据，它会把
 		stdout 与 stderr 各自累积起来，并在通道关闭后给出退出码。
 
-		想在数据到达时立刻处理，连 \l{dataReceived()}；想拿完整结果，等
-		\l{finished()} 之后读 \l{getStandardOutput()} 与 \l{getStandardError()}。
+		想在数据到达时立刻处理，连 dataReceived()；想拿完整结果，等
+		finished() 之后读 getStandardOutput() 与 getStandardError()。
 		两者可以同时使用。
 
-		默认在结束（\l{finished()} 或 \l{failed()}）后自动 deleteLater；需要长期持有
-		结果请用 \l{setAutoDelete()} 关闭，或通过 \l{SshExecRequest::setAutoDelete()}
+		默认在结束（finished() 或 failed()）后自动 deleteLater；需要长期持有
+		结果请用 setAutoDelete() 关闭，或通过 SshExecRequest::setAutoDelete()
 		在提交时指定。
 	*/
 
@@ -217,7 +217,7 @@ namespace Visindigo::Network {
 
 		命令执行失败：通道出错、被中止，或退出码不为 0。
 
-		\a error 失败原因；非零退出码会被描述成 \l{SshError::ErrorType::CommandFailed}。
+		\a error 失败原因；非零退出码会被描述成 SshError::ErrorType::CommandFailed。
 	*/
 
 	/*!
@@ -234,7 +234,7 @@ namespace Visindigo::Network {
 
 		取完整的标准输出。
 
-		\return stdout 数据。
+		return stdout 数据。
 	*/
 	QByteArray SshExecReply::getStandardOutput() const {
 		return this->d->StandardOutput;
@@ -245,7 +245,7 @@ namespace Visindigo::Network {
 
 		取完整的标准错误。
 
-		\return stderr 数据。
+		return stderr 数据。
 	*/
 	QByteArray SshExecReply::getStandardError() const {
 		return this->d->StandardError;
@@ -256,7 +256,7 @@ namespace Visindigo::Network {
 
 		取标准输出并按 UTF-8 解码。
 
-		\return stdout 文本。
+		return stdout 文本。
 	*/
 	QString SshExecReply::getStandardOutputText() const {
 		return QString::fromUtf8(this->d->StandardOutput);
@@ -267,7 +267,7 @@ namespace Visindigo::Network {
 
 		取标准错误并按 UTF-8 解码。
 
-		\return stderr 文本。
+		return stderr 文本。
 	*/
 	QString SshExecReply::getStandardErrorText() const {
 		return QString::fromUtf8(this->d->StandardError);
@@ -280,7 +280,7 @@ namespace Visindigo::Network {
 
 		\a fn 回调，参数为退出码。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshExecReply& SshExecReply::then(std::function<void(qint32 exitStatus)> fn) {
 		QObject::connect(this, &SshExecReply::succeeded, this, [fn](qint32 exitStatus) { fn(exitStatus); });
@@ -294,7 +294,7 @@ namespace Visindigo::Network {
 
 		\a fn 回调，参数为失败原因。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshExecReply& SshExecReply::onError(std::function<void(const SshError& error)> fn) {
 		QObject::connect(this, &SshExecReply::failed, this, [fn](const SshError& error) { fn(error); });
@@ -308,7 +308,7 @@ namespace Visindigo::Network {
 
 		\a fn 回调。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshExecReply& SshExecReply::onFinally(std::function<void()> fn) {
 		QObject::connect(this, &SshExecReply::finished, this, [fn](qint32) { fn(); });
@@ -320,7 +320,7 @@ namespace Visindigo::Network {
 
 		判断结果对象是否自动回收。
 
-		\return 自动回收时返回 true。
+		return 自动回收时返回 true。
 	*/
 	bool SshExecReply::isAutoDelete() const {
 		return this->d->AutoDelete;
@@ -340,7 +340,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		构造结果对象。只由 \l{SshSession::exec()} 调用。
+		构造结果对象。只由 SshSession::exec() 调用。
 
 		\a id 通道编号。
 	*/

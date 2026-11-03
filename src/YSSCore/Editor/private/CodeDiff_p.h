@@ -23,10 +23,10 @@ namespace YSSCore::Editor {
 	// (oldStart, oldSize, newStart, newSize)，下标均从 0 开始。
 	using CodeDiffRange = std::tuple<qint32, qint32, qint32, qint32>;
 
-	/*!
+	/*
 		\class YSSCore::Editor::CodeDiffProvider
 		\since YSS 0.18.0
-		\brief 差异分析提供者。
+		\brief 差异分析提供者.
 
 		给定两侧的文本行，返回按 oldStart 升序排列的相异范围。
 		每一项依次为：旧侧起始行、旧侧行数、新侧起始行、新侧行数。
@@ -38,10 +38,10 @@ namespace YSSCore::Editor {
 		virtual QList<CodeDiffRange> compute(const QStringList& oldLines, const QStringList& newLines) = 0;
 	};
 
-	/*!
+	/*
 		\class YSSCore::Editor::BuiltinCodeDiffProvider
 		\since YSS 0.18.0
-		\brief 默认的差异分析器，使用 Myers 最短编辑脚本算法。
+		\brief 默认的差异分析器，使用 Myers 最短编辑脚本算法.
 
 		差异数过大（超过内部上限）时退化为"整篇替换"，以避免内存与耗时失控。
 	*/
@@ -53,9 +53,9 @@ namespace YSSCore::Editor {
 	// 将来提供基于 Git 的分析器时，实现同一个 CodeDiffProvider 接口即可：
 	// class GitCodeDiffProvider final : public CodeDiffProvider { ... };
 
-	/*!
+	/*
 		\class YSSCore::Editor::DiffRow
-		\brief 比较器实际显示的一行：左右两侧各一个格子。
+		\brief 比较器实际显示的一行：左右两侧各一个格子.
 
 		OldNumber/NewNumber 为 -1 表示该侧在这一行没有内容（显示为空行占位），
 		这样两侧的块数严格相等，滚动位置天然一一对应。
@@ -69,9 +69,9 @@ namespace YSSCore::Editor {
 		qint32 RangeIndex = -1;
 	};
 
-	/*!
+	/*
 		\class YSSCore::Editor::DiffPane
-		\brief 比较器的单侧文本面板：只读、不折行，并在朝向中缝的一侧显示行号。
+		\brief 比较器的单侧文本面板：只读、不折行，并在朝向中缝的一侧显示行号.
 	*/
 	class DiffPane;
 

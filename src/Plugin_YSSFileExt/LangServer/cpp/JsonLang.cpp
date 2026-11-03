@@ -49,7 +49,7 @@ namespace YSSFileExt {
 
 	/*!
 		\enum YSSFileExt::JsonTokenType
-		\brief JSON 词法单元类型。
+		\brief JSON 词法单元类型.
 		\since YSS 0.16.0
 		\inmodule YSSFileExt
 
@@ -78,7 +78,7 @@ namespace YSSFileExt {
 
 	/*!
 		\fn QList<JsonToken> YSSFileExt::lexJsonLine(const QString& line, qint32 baseLine, QList<JsonLangDiagnosticData>* diagnostics)
-		\brief 对一行 JSON 文本进行词法分析。
+		\brief 对一行 JSON 文本进行词法分析.
 		\since YSS 0.16.0
 
 		\a line 待分析的单行文本；\a baseLine 该行在文档中的 0-based 行号。

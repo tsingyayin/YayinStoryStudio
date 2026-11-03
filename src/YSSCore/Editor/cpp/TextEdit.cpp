@@ -474,7 +474,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 内联提示字号相对正文字号的缩放比例。
+		return 内联提示字号相对正文字号的缩放比例。
 	*/
 	qreal TextEdit::getInlayHintFontScale() const {
 		return d->InlayHintFontScale;
@@ -500,7 +500,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否显示内联提示。
+		return 是否显示内联提示。
 	*/
 	bool TextEdit::isInlayHintVisible() const {
 		return d->InlayHintVisible;
@@ -564,7 +564,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 当前是否处于待抉择状态。
+		return 当前是否处于待抉择状态。
 	*/
 	bool TextEdit::hasActiveSuggestions() const {
 		return d->SgtKind != YSSCore::__Private__::SuggestionKind::None;
@@ -804,9 +804,16 @@ namespace YSSCore::Editor {
 		return true;
 	}
 
+	// 用"解码再编码是否还原"判断字节流是不是合法 UTF-8：非法字节会被解码器替换成 U+FFFD，
+	// 再编码回去就对不上了；合法的 UTF-8（包括本身就含有 U+FFFD 的文本）可以精确还原。
+	static bool isStrictUtf8(const QByteArray& bytes) {
+		return QString::fromUtf8(bytes).toUtf8() == bytes;
+	}
+
 	/*!
 		\since YSS 0.13.0
-		\a path 文件路径
+		\a uri 文件身份。
+		\a data 文件内容。
 
 		打开一个文件。
 
@@ -814,12 +821,6 @@ namespace YSSCore::Editor {
 
 		这是对基类纯虚函数的实现，不应直接调用此函数。请使用openFile()函数。
 	*/
-	// 用"解码再编码是否还原"判断字节流是不是合法 UTF-8：非法字节会被解码器替换成 U+FFFD，
-	// 再编码回去就对不上了；合法的 UTF-8（包括本身就含有 U+FFFD 的文本）可以精确还原。
-	static bool isStrictUtf8(const QByteArray& bytes) {
-		return QString::fromUtf8(bytes).toUtf8() == bytes;
-	}
-
 	bool TextEdit::onOpen(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
 		const QString ext = uri.getFileExt();
 		const QByteArray bytes = data;
@@ -936,7 +937,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		\a path 文件路径
+		\a uri 要保存到的目标身份。
 
 		保存当前文件。
 
@@ -1003,6 +1004,8 @@ namespace YSSCore::Editor {
 	/*!
 		\since YSS 0.13.0
 		重新加载当前文件。
+
+		\a data 重新读取到的文件内容。
 
 		return 当文件成功重新加载时才会返回true，其他任何失败情况均返回false。
 

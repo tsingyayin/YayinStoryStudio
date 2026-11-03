@@ -20,7 +20,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::InlayHintManager
-		\brief InlayHintManager保存图片内联提示Provider的实例。
+		\brief InlayHintManager保存图片内联提示Provider的实例.
 		\since YSS 0.18.0
 		\inmodule YSSCore
 
@@ -40,7 +40,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 单例实例。
+		return 单例实例。
 	*/
 	InlayHintManager* InlayHintManager::getInstance() {
 		if (InlayHintManagerPrivate::Instance == nullptr) {
@@ -51,7 +51,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 当前注册的全部 Provider。
+		return 当前注册的全部 Provider。
 	*/
 	QList<InlayHintProvider*> InlayHintManager::getProviders() {
 		return d->ProviderMap.values();
@@ -61,7 +61,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		\a id Provider 的模块ID。
 
-		\return 对应 Provider；没有注册时返回nullptr。
+		return 对应 Provider；没有注册时返回nullptr。
 	*/
 	InlayHintProvider* InlayHintManager::getProvider(const QString& id) {
 		return d->ProviderMap.value(id, nullptr);

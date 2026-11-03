@@ -989,7 +989,7 @@ namespace Visindigo::__Private__ {
 }
 
 namespace Visindigo::General {
-	/*!
+	/*
 		\class Visindigo::General::CrashGateway
 		\inheaderfile General/CrashGateway.h
 		\since Visindigo 0.17.0
@@ -1141,7 +1141,7 @@ namespace Visindigo::General {
 		\since Visindigo 0.17.0
 		\a type 转储类型标志
 
-		设置进程转储的类型标志，取值含义由平台决定。默认值见 \l{defaultMiniDumpType()}。
+		设置进程转储的类型标志，取值含义由平台决定。默认值见 defaultMiniDumpType()。
 	*/
 	void CrashGateway::setMiniDumpType(quint32 type) {
 		__Private__::state.MiniDumpType.store(type);

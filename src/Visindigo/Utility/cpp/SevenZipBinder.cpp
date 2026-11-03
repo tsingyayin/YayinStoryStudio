@@ -54,7 +54,7 @@ namespace Visindigo::Utility {
 
 	/*!
 		\enum Visindigo::Utility::SevenZipBinder::CompressFormat
-		\brief 定义了支持的压缩格式。
+		\brief 定义了支持的压缩格式.
 		\value __Both__ 支持压缩和解压的格式的起始符，不应直接使用。
 		\value sevenz 7z格式。
 		\value xz xz格式。

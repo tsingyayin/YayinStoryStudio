@@ -12,15 +12,15 @@ namespace YSSCore::General {
 	};
 
 	/*!
-		\struct YSSCore::General::YSSFileError
+		\class YSSCore::General::YSSFileError
 		\inheaderfile General/YSSFileError.h
 		\since YSS 0.18.0
 		\inmodule YSSCore
 		\ingroup YSSUFS
-		\brief UFS中对文件操作错误的表示
+		\brief UFS中对文件操作错误的表示.
 
 		此类在UFS中，表达一种操作上的异常。它包含错误类型、错误消息和可选的详细信息。
-		值类型 + PIMPL，可以自由拷贝，也会按值存进 \l{YSSFileSystemResult}。
+		值类型 + PIMPL，可以自由拷贝，也会按值存进 YSSFileSystemResult。
 	*/
 
 	/*!
@@ -35,7 +35,7 @@ namespace YSSCore::General {
 		\value AlreadyExists 目标已存在（例如创建已存在的目录）。
 		\value NotADirectory 路径中有一段不是目录。
 		\value IoError 底层读写失败。
-		\value NotSupported 当前后端不支持该操作，参见 \l{YSSUnifiedFileSystem::getCapabilities()}。
+		\value NotSupported 当前后端不支持该操作，参见 YSSUnifiedFileSystem::getCapabilities()。
 		\value Aborted 操作在完成前被中止（会话关闭、对象销毁等）。
 		\value InvalidConfiguration 路径或参数不合法。
 		\value FileTooLarge 文件超过后端配置的大小上限。
@@ -46,7 +46,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		构造一个"没有错误"的对象：类型为 \l{ErrorType::NoError}，消息与详情为空。
+		构造一个"没有错误"的对象：类型为 ErrorType::NoError，消息与详情为空。
 	*/
 	YSSFileError::YSSFileError() {
 		this->d = new YSSFileErrorPrivate();
@@ -68,6 +68,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		返回枚举值对应的名字字符串；传入未收录的取值时返回 \c "Unknown"。
+
+		\a type 错误类型。
 	*/
 	QString YSSFileError::errorTypeName(ErrorType type) {
 		const QMetaEnum metaEnum = QMetaEnum::fromType<ErrorType>();
@@ -80,7 +82,7 @@ namespace YSSCore::General {
 
 		取错误分类。
 
-		\return 错误类型；没有错误时为 \l{ErrorType::NoError}。
+		return 错误类型；没有错误时为 ErrorType::NoError。
 	*/
 	YSSFileError::ErrorType YSSFileError::getType() const {
 		return this->d ? this->d->Type : ErrorType::NoError;
@@ -91,7 +93,7 @@ namespace YSSCore::General {
 
 		取面向用户的消息。
 
-		\return 简短描述；未设置时为空串。
+		return 简短描述；未设置时为空串。
 	*/
 	QString YSSFileError::getMessage() const {
 		return this->d ? this->d->Message : QString();
@@ -102,7 +104,7 @@ namespace YSSCore::General {
 
 		取后端给出的原始信息，用于排查。
 
-		\return 详情；未设置时为空串。
+		return 详情；未设置时为空串。
 	*/
 	QString YSSFileError::getDetail() const {
 		return this->d ? this->d->Detail : QString();
@@ -113,7 +115,7 @@ namespace YSSCore::General {
 
 		设置错误分类。
 
-		\a type 错误类型；传 \l{ErrorType::NoError} 表示清除错误。
+		\a type 错误类型；传 ErrorType::NoError 表示清除错误。
 	*/
 	void YSSFileError::setType(ErrorType type) {
 		this->d->Type = type;
@@ -146,7 +148,7 @@ namespace YSSCore::General {
 
 		判断本对象是否表示一个错误。
 
-		\return 类型不是 \l{ErrorType::NoError} 时返回 true。
+		return 类型不是 ErrorType::NoError 时返回 true。
 	*/
 	bool YSSFileError::isError() const {
 		return this->d && this->d->Type != ErrorType::NoError;
@@ -157,7 +159,7 @@ namespace YSSCore::General {
 
 		生成适合写入日志的单行描述。
 
-		\return 形如 \c{[NotFound] no such file: a.txt} 的文本。
+		return 形如 \c{[NotFound] no such file: a.txt} 的文本。
 	*/
 	QString YSSFileError::toString() const {
 		return QStringLiteral("[%1] %2").arg(errorTypeName(getType()), getMessage());

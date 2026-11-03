@@ -223,6 +223,9 @@
     <ClInclude Include="General\private\YSSFileSystemReply_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\private\YSSFileSystemTask_p.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Editor\EditorProjectHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>

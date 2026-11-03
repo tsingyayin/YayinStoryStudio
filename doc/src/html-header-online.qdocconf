@@ -73,6 +73,7 @@ HTML.postheader = \
     "      <a href=\"yayinstorystudio-module.html\">YayinStoryStudio</a>\n" \
     "      <a href=\"http://prts.site/aserstudio-module.html\">ASERStudio</a>\n" \
     "      <a href=\"yssfileext-module.html\">YSSFileExt</a>\n" \
+    "      <a href=\"http://prts.site/yssspineviewer-module.html\">YSSSpineViewer</a>\n" \
     "    </nav>\n" \
     "    <div class=\"yss-tools\">\n" \
     "      <button id=\"yss-theme-toggle\" class=\"yss-iconbtn\" type=\"button\" title=\"切换深浅色\" aria-label=\"切换深浅色\">☾</button>\n" \

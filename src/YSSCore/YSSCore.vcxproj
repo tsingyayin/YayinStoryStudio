@@ -206,6 +206,7 @@
     <ClInclude Include="General\YSSFileSystemResult.h" />
     <ClInclude Include="General\YSSFileSystemTask.h" />
     <ClInclude Include="General\private\YSSFileSystemReply_p.h" />
+    <ClInclude Include="General\private\YSSFileSystemTask_p.h" />
     <ClInclude Include="Mystery.h" />
     <ClInclude Include="YSSCoreCompileMacro.h" />
     <QtMoc Include="Editor\TextEdit.h" />

@@ -1,7 +1,7 @@
 #include "General/LogMetaData.h"
 
 namespace Visindigo::General {
-	/*!
+	/*
 		\class Visindigo::General::LogMetaData
 		\inheaderfile General/LogMetaData.h
 		\brief 日志元数据类，用于存储日志消息的附加信息.

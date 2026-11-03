@@ -13,16 +13,17 @@ indexes = \
 	D:/Qt/Docs/Qt-6.10.3/qtgui/qtgui.index \
 	D:/Qt/Docs/Qt-6.10.3/qtwidgets/qtwidgets.index \
 	D:/Qt/Docs/Qt-6.10.3/qtnetwork/qtnetwork.index
-	
-depends = *
 
 includepaths += .\
-	.. \
 	../../src/Visindigo \
 	../../src/YSSCore \
 	../../src/VIAgent \
 	../../src/YayinStoryStudio \
 	../../src/Plugin_YSSFileExt \
+	../../src/Plugin_YSSMediaPlayer \
+	../../src/Plugin_ImageViewer \
+	../../src/YayinStoryPlayer \
+	../../src/YSSInstaller \
 	D:/Qt/6.10.3/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.3/msvc2022_64/include/QtGui \
 	D:/Qt/6.10.3/msvc2022_64/include/QtWidgets \
@@ -30,12 +31,15 @@ includepaths += .\
 	D:/Qt/Docs/Qt-6.10.3
 
 headerdirs += .\
-	.. \
 	../../src/Visindigo \
 	../../src/YSSCore \
 	../../src/VIAgent \
 	../../src/YayinStoryStudio \
 	../../src/Plugin_YSSFileExt \
+	../../src/Plugin_YSSMediaPlayer \
+	../../src/Plugin_ImageViewer \
+	../../src/YayinStoryPlayer \
+	../../src/YSSInstaller \
 	D:/Qt/6.10.3/msvc2022_64/include/QtCore \
 	D:/Qt/6.10.3/msvc2022_64/include/QtGui \
 	D:/Qt/6.10.3/msvc2022_64/include/QtWidgets \
@@ -43,13 +47,15 @@ headerdirs += .\
 
 
 sourcedirs +=.\
-	.. \
-	../../src \
 	../../src/Visindigo \
 	../../src/YSSCore \
 	../../src/VIAgent \
 	../../src/YayinStoryStudio \
-	../../src/Plugin_YSSFileExt
+	../../src/Plugin_YSSFileExt \
+	../../src/Plugin_YSSMediaPlayer \
+	../../src/Plugin_ImageViewer \
+	../../src/YayinStoryPlayer \
+	../../src/YSSInstaller
 
 headers.fileextensions  = "*.h *.hpp"
 sources.fileextensions  = "*.cpp *.qml *.qdoc"

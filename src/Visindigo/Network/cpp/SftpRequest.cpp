@@ -35,7 +35,7 @@ namespace Visindigo::Network {
 		\brief 远端文件或目录的属性.
 
 		SFTP 的属性集比本机 \c{stat} 窄：没有 inode、没有链接计数，时间戳精度通常只到秒，
-		因此 \l{ModifiedMs} 只能当作"大概什么时候"用，不能当作变更检测的唯一依据。
+		因此 \c{ModifiedMs} 只能当作"大概什么时候"用，不能当作变更检测的唯一依据。
 
 		\list
 		\li \b{Size} 文件字节数；目录为 0。
@@ -68,19 +68,20 @@ namespace Visindigo::Network {
 		\inmodule Visindigo
 		\brief 一次 SFTP 操作的参数.
 
-		值类型，可以自由拷贝后提交给 \l{SshSession::sftp()}。一次请求只做一件事：
-		\l{SftpOperation} 决定其余字段里哪些有意义。
+		值类型，可以自由拷贝后提交给 SshSession::sftp()。一次请求只做一件事：
+		\c{SftpOperation} 决定其余字段里哪些有意义。
 
 		\list
-		\li \l{SftpOperation::Stat} 只读 \l{Path}。
-		\li \l{SftpOperation::Read} 读 \l{Path}，结果在 \l{SftpReply::getData()}。
-		\li \l{SftpOperation::Write} 把 \l{Data} 整体写入 \l{Path}（覆盖）。		\li \l{SftpOperation::List} 列 \l{Path} 下的条目。
-		\li \l{SftpOperation::Remove} 删除 \l{Path}。
-		\li \l{SftpOperation::Rename} 把 \l{Path} 改名或移动到 \l{TargetPath}。
-		\li \l{SftpOperation::Mkdir} / \l{SftpOperation::Rmdir} 建目录 / 删空目录。
+		\li \c{SftpOperation::Stat} 只读 \c{Path}。
+		\li \c{SftpOperation::Read} 读 \c{Path}，结果在 SftpReply::getData()。
+		\li \c{SftpOperation::Write} 把 \c{Data} 整体写入 \c{Path}（覆盖）。
+		\li \c{SftpOperation::List} 列 \c{Path} 下的条目。
+		\li \c{SftpOperation::Remove} 删除 \c{Path}。
+		\li \c{SftpOperation::Rename} 把 \c{Path} 改名或移动到 \c{TargetPath}。
+		\li \c{SftpOperation::Mkdir} / \c{SftpOperation::Rmdir} 建目录 / 删空目录。
 		\endlist
 
-		\l{Build} 与 \l{Delete} 不在本结构的字段里：写入用 \l{setData()} 提供内容，
+		\c{Build} 与 \c{Delete} 不在本结构的字段里：写入用 setData() 提供内容，
 		不再需要额外的构造参数。
 	*/
 
@@ -89,7 +90,7 @@ namespace Visindigo::Network {
 
 		判断属性是否携带了有效信息。
 
-		\return 尺寸、时间、权限、所有者或类型标志至少有一项非默认值时返回 true。
+		return 尺寸、时间、权限、所有者或类型标志至少有一项非默认值时返回 true。
 	*/
 	bool SftpAttributes::isValid() const {
 		return Size != 0 || ModifiedMs != 0 || AccessedMs != 0 || Permissions != 0
@@ -138,7 +139,7 @@ namespace Visindigo::Network {
 
 		\a operation 操作类型。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpRequest& SftpRequest::setOperation(SftpOperation operation) {
 		this->d->Operation = operation;
@@ -152,7 +153,7 @@ namespace Visindigo::Network {
 
 		\a path 路径。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpRequest& SftpRequest::setPath(const QString& path) {
 		this->d->Path = path;
@@ -162,11 +163,11 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		设置重命名/移动的目标路径，仅 \l{SftpOperation::Rename} 使用。
+		设置重命名/移动的目标路径，仅 \c{SftpOperation::Rename} 使用。
 
 		\a targetPath 目标路径。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpRequest& SftpRequest::setTargetPath(const QString& targetPath) {
 		this->d->TargetPath = targetPath;
@@ -176,11 +177,11 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		设置要写入的内容，仅 \l{SftpOperation::Write} 使用。写入是整体覆盖，不做追加。
+		设置要写入的内容，仅 \c{SftpOperation::Write} 使用。写入是整体覆盖，不做追加。
 
 		\a data 内容。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpRequest& SftpRequest::setData(const QByteArray& data) {
 		this->d->Data = data;
@@ -194,7 +195,7 @@ namespace Visindigo::Network {
 
 		\a autoDelete 是否自动回收。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpRequest& SftpRequest::setAutoDelete(bool autoDelete) {
 		this->d->AutoDelete = autoDelete;
@@ -208,9 +209,9 @@ namespace Visindigo::Network {
 
 		\a offset 起始偏移，负数按 0 处理。
 		\a length 对 Read 是本次最多读取的字节数，负数表示读到文件末尾；
-		对 Write 不使用，写入长度由 \l{setData()} 决定。
+		对 Write 不使用，写入长度由 setData() 决定。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpRequest& SftpRequest::setRange(qint64 offset, qint64 length) {
 		this->d->Offset = offset < 0 ? 0 : offset;
@@ -223,7 +224,7 @@ namespace Visindigo::Network {
 
 		取操作类型。
 
-		\return 操作类型。
+		return 操作类型。
 	*/
 	SftpOperation SftpRequest::getOperation() const {
 		return this->d->Operation;
@@ -234,7 +235,7 @@ namespace Visindigo::Network {
 
 		取目标路径。
 
-		\return 路径。
+		return 路径。
 	*/
 	QString SftpRequest::getPath() const {
 		return this->d->Path;
@@ -245,7 +246,7 @@ namespace Visindigo::Network {
 
 		取重命名目标路径。
 
-		\return 目标路径。
+		return 目标路径。
 	*/
 	QString SftpRequest::getTargetPath() const {
 		return this->d->TargetPath;
@@ -256,7 +257,7 @@ namespace Visindigo::Network {
 
 		取待写入内容。
 
-		\return 内容。
+		return 内容。
 	*/
 	QByteArray SftpRequest::getData() const {
 		return this->d->Data;
@@ -267,7 +268,7 @@ namespace Visindigo::Network {
 
 		取读写起始偏移。
 
-		\return 偏移字节数。
+		return 偏移字节数。
 	*/
 	qint64 SftpRequest::getOffset() const {
 		return this->d->Offset;
@@ -278,7 +279,7 @@ namespace Visindigo::Network {
 
 		取读取长度上限。
 
-		\return 最多读取的字节数，负值表示读到末尾。
+		return 最多读取的字节数，负值表示读到末尾。
 	*/
 	qint64 SftpRequest::getLength() const {
 		return this->d->Length;
@@ -289,7 +290,7 @@ namespace Visindigo::Network {
 
 		判断结果对象是否自动回收。
 
-		\return 自动回收时返回 true。
+		return 自动回收时返回 true。
 	*/
 	bool SftpRequest::isAutoDelete() const {
 		return this->d->AutoDelete;
@@ -300,7 +301,7 @@ namespace Visindigo::Network {
 
 		判断参数是否自洽：必须有路径，重命名必须有目标路径。
 
-		\return 参数自洽时返回 true。
+		return 参数自洽时返回 true。
 	*/
 	bool SftpRequest::isValid() const {
 		if (this->d->Operation == SftpOperation::Unknown || this->d->Path.isEmpty()) {
@@ -319,9 +320,9 @@ namespace Visindigo::Network {
 		\inmodule Visindigo
 		\brief 一次 SFTP 操作的结果句柄.
 
-		与 \l{HttpReply} 同一形状：\l{succeeded()} / \l{failed()} / \l{finished()}，
+		与 HttpReply 同一形状：succeeded() / failed() / finished()，
 		外加 then / onError / onFinally 的糖。结果按操作类型从
-		\l{getData()}、\l{getEntries()}、\l{getAttributes()} 读取。
+		getData()、getEntries()、getAttributes() 读取。
 
 		SFTP 的请求在一条会话上串行执行（这是协议本身的有序通道决定的），
 		因此同一会话上并发提交多个请求不会提高吞吐，只会排队。跨会话才是并行的。
@@ -338,7 +339,7 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::SftpReply::failed(const SshError& error)
 		\since Visindigo 0.18.0
 
-		操作失败。文件不存在、权限不足都走这里，参见 \l{SshError::ErrorType::PermissionDenied}。
+		操作失败。文件不存在、权限不足都走这里，参见 SshError::ErrorType::PermissionDenied。
 
 		\a error 失败原因。
 	*/
@@ -355,7 +356,7 @@ namespace Visindigo::Network {
 
 		取请求编号，在同一会话内唯一。
 
-		\return 请求编号。
+		return 请求编号。
 	*/
 	quint64 SftpReply::getId() const {
 		return this->d->Id;
@@ -366,7 +367,7 @@ namespace Visindigo::Network {
 
 		取本次操作类型。
 
-		\return 操作类型。
+		return 操作类型。
 	*/
 	SftpOperation SftpReply::getOperation() const {
 		return this->d->Operation;
@@ -377,7 +378,7 @@ namespace Visindigo::Network {
 
 		取本次操作的目标路径。
 
-		\return 路径。
+		return 路径。
 	*/
 	QString SftpReply::getPath() const {
 		return this->d->Path;
@@ -386,9 +387,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		取读取到的内容，仅 \l{SftpOperation::Read} 有值。
+		取读取到的内容，仅 \c{SftpOperation::Read} 有值。
 
-		\return 文件内容。
+		return 文件内容。
 	*/
 	QByteArray SftpReply::getData() const {
 		return this->d->Data;
@@ -397,9 +398,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		取目录条目，仅 \l{SftpOperation::List} 有值。
+		取目录条目，仅 \c{SftpOperation::List} 有值。
 
-		\return 条目列表。
+		return 条目列表。
 	*/
 	QList<SftpEntry> SftpReply::getEntries() const {
 		return this->d->Entries;
@@ -408,9 +409,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		取文件属性，仅 \l{SftpOperation::Stat} 有值。
+		取文件属性，仅 \c{SftpOperation::Stat} 有值。
 
-		\return 属性。
+		return 属性。
 	*/
 	SftpAttributes SftpReply::getAttributes() const {
 		return this->d->Attributes;
@@ -419,9 +420,9 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		取已传输的字节数。传输期间随 \l{progressed()} 更新，结束后为终值。
+		取已传输的字节数。传输期间随 progressed() 更新，结束后为终值。
 
-		\return 字节数。
+		return 字节数。
 	*/
 	qint64 SftpReply::getBytesTransferred() const {
 		return this->d->BytesTransferred;
@@ -432,7 +433,7 @@ namespace Visindigo::Network {
 
 		取本次传输的总字节数；服务端没有给出时为 -1。
 
-		\return 总字节数或 -1。
+		return 总字节数或 -1。
 	*/
 	qint64 SftpReply::getTotalBytes() const {
 		return this->d->TotalBytes;
@@ -443,7 +444,7 @@ namespace Visindigo::Network {
 
 		取失败原因。
 
-		\return 错误；成功时 \c{Type} 为 \l{SshError::ErrorType::NoError}。
+		return 错误；成功时 \c{Type} 为 SshError::ErrorType::NoError。
 	*/
 	SshError SftpReply::getError() const {
 		return this->d->Error;
@@ -454,7 +455,7 @@ namespace Visindigo::Network {
 
 		判断操作是否已经结束。
 
-		\return 已结束返回 true。
+		return 已结束返回 true。
 	*/
 	bool SftpReply::isFinished() const {
 		return this->d->Finished;
@@ -467,7 +468,7 @@ namespace Visindigo::Network {
 
 		\a fn 回调。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpReply& SftpReply::then(std::function<void()> fn) {
 		QObject::connect(this, &SftpReply::succeeded, this, [fn]() { fn(); });
@@ -481,7 +482,7 @@ namespace Visindigo::Network {
 
 		\a fn 回调，参数为失败原因。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpReply& SftpReply::onError(std::function<void(const SshError& error)> fn) {
 		QObject::connect(this, &SftpReply::failed, this, [fn](const SshError& error) { fn(error); });
@@ -495,7 +496,7 @@ namespace Visindigo::Network {
 
 		\a fn 回调。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SftpReply& SftpReply::onFinally(std::function<void()> fn) {
 		QObject::connect(this, &SftpReply::finished, this, [fn]() { fn(); });
@@ -507,7 +508,7 @@ namespace Visindigo::Network {
 
 		判断结果对象是否自动回收。
 
-		\return 自动回收时返回 true。
+		return 自动回收时返回 true。
 	*/
 	bool SftpReply::isAutoDelete() const {
 		return this->d->AutoDelete;
@@ -527,7 +528,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		构造结果对象。只由 \l{SshSession::sftp()} 调用。
+		构造结果对象。只由 SshSession::sftp() 调用。
 
 		\a id 请求编号。
 	*/

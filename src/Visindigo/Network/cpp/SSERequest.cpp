@@ -266,8 +266,8 @@ namespace Visindigo::Network {
 		出处，避免两边描述日久失配。
 
 		其中三个方法的语义与 HttpRequest 上的同名者并不完全一致，已在本类上
-		单独说明：\l{setTimeoutMs}（长连接不应使用）、\l{setStreamDecoder}
-		（默认已挂载 SseDecoder）与 \l{setMaxFrameBytes}。
+		单独说明：setTimeoutMs（长连接不应使用）、setStreamDecoder
+		（默认已挂载 SseDecoder）与 setMaxFrameBytes。
 
 		\sa Visindigo::Network::SSEReply
 	*/
@@ -447,7 +447,7 @@ namespace Visindigo::Network {
 		\note 与 HttpRequest 不同：SSE 请求提交时中心会自动挂载 SseDecoder，
 		通常不需要调用本函数。只有在服务端发的并不是标准 SSE、需要自定切分规则时
 		才用得上；此时务必确认自定解码器能处理 \c event / \c data 字段，
-		否则 \l SSEReply::when() 就无从匹配。
+		否则 SSEReply::when() 就无从匹配。
 
 		\a decoder 自定义解码器。
 	*/

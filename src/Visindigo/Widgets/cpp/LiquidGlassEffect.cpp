@@ -647,7 +647,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.17.0
-		\brief 获取液态玻璃效果的整体透明度。
+		\brief 获取液态玻璃效果的整体透明度.
 
 		返回值范围为0到1，默认值为1。该值同时作用于液态玻璃效果及其上层源控件内容的最终绘制结果。
 	*/
@@ -657,7 +657,7 @@ namespace Visindigo::Widgets {
 
 	/*!
 		\since Visindigo 0.17.0
-		\brief 设置液态玻璃效果的整体透明度。
+		\brief 设置液态玻璃效果的整体透明度.
 
 		\a opacity 透明度，取值范围为0到1，超出范围的值会被自动限制。
 		0表示完全不绘制，1表示保持原始不透明度。
@@ -895,8 +895,8 @@ namespace Visindigo::Widgets {
 		对图像进行液体扭曲处理。
 		\a coverdArea 要扭曲的图像。
 		\a liquidDistortRadius 扭曲效果的半径，值越大扭曲的绘制范围越大。
-		\a liquidDistortDispersion 色散强度，取值 0 到 1，默认0（不做色散）。
-		\a liquidDistortStrength 扭曲强度，取值 1 到 64，默认1.5。1 表示完全不扭曲（一个像素都不动）。
+		\a dispersion 色散强度，取值 0 到 1，默认0（不做色散）。
+		\a strength 扭曲强度，取值 1 到 64，默认1.5。1 表示完全不扭曲（一个像素都不动）。
 		\a borderRadius 图像四角的圆角半径，单位为像素，默认0。
 		\a energyRatio 能量补偿强度，取值 0 到 1。
 		
@@ -1232,6 +1232,8 @@ namespace Visindigo::Widgets {
 		\a watched 事件的目标对象。\a event 待处理的事件。
 
 		重写了QObject的eventFilter()方法，用于在启用边缘光时跟踪鼠标位置。
+
+		return 事件已被处理时返回 true，否则返回 false。
 	*/
 	bool LiquidGlassEffect::eventFilter(QObject* watched, QEvent* event) {
 		if (watched == d->trackedWindow.data()) {

@@ -1699,7 +1699,7 @@ namespace YSSCore::__Private__ {
 	}
 
 	/*!
-		\return 当前建议的文字。行内建议取第一行，多行建议返回全部行；删除建议没有文字，返回空。
+		return 当前建议的文字。行内建议取第一行，多行建议返回全部行；删除建议没有文字，返回空。
 	*/
 	QString TextEditPrivate::currentSuggestionText() const {
 		if (SgtKind == SuggestionKind::Remove or SgtIndex < 0 or SgtIndex >= SgtItems.size()) {
@@ -1711,7 +1711,7 @@ namespace YSSCore::__Private__ {
 	/*!
 		\a above 目标行在视口上方时为 true，在视口下方时为 false（仅当返回 false 时有意义）。
 
-		\return 目标行是否至少有一部分落在视口内。
+		return 目标行是否至少有一部分落在视口内。
 	*/
 	bool TextEditPrivate::isSuggestionLineVisible(bool& above) const {
 		above = false;

@@ -48,7 +48,7 @@ namespace Visindigo::Utility {
 		\inmodule Visindigo
 
 		ColorTool集中了与颜色相关的纯函数工具。除了把颜色序列化成字符串以外，它还提供了一套
-		从QPalette推导界面用色的规则，见 \l{PaletteColor}。
+		从QPalette推导界面用色的规则，见 PaletteColor。
 	*/
 
 	/*!
@@ -142,7 +142,7 @@ namespace Visindigo::Utility {
 
 		return 该调色板是否是浅色系。
 
-		判定依据是 \c{QPalette::Window}，与 \l{paletteColor()} 内部使用的判据一致。
+		判定依据是 \c{QPalette::Window}，与 paletteColor() 内部使用的判据一致。
 	*/
 	bool ColorTool::isLightPalette(const QPalette& palette) noexcept {
 		return isLightColor(palette.color(QPalette::Window));
@@ -155,7 +155,7 @@ namespace Visindigo::Utility {
 
 		return 从 \a palette 推导出的颜色。
 
-		与QPalette::ColorRole对应的项直接读取对应颜色；派生项的算法见 \l{PaletteColor} 的逐项说明。
+		与QPalette::ColorRole对应的项直接读取对应颜色；派生项的算法见 PaletteColor 的逐项说明。
 		传入无效调色板时返回无效颜色。
 	*/
 	QColor ColorTool::paletteColor(const QPalette& palette, PaletteColor color) noexcept {

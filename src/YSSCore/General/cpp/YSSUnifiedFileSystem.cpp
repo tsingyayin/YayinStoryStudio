@@ -23,6 +23,7 @@
 #include "General/Log.h"
 #include "General/YSSUnifiedFileSystem.h"
 #include "General/private/YSSFileSystemReply_p.h"
+#include "General/private/YSSFileSystemTask_p.h"
 #include "General/private/YSSUnifiedFileSystem_p.h"
 
 // 独立日志命名空间：日志前缀只显示 (YSSUnifiedFileSystem)，不带函数签名与行号。
@@ -317,7 +318,7 @@ namespace {
 
 	YSSUnifiedFileSystem* YSSUnifiedFileSystemPrivate::Instance = nullptr;
 
-	/*!
+	/*
 		\class YSSCore::General::YSSUnifiedFileSystemProvider
 		\inheaderfile General/private/YSSUnifiedFileSystem_p.h
 		\since YSS 0.18.0
@@ -325,11 +326,11 @@ namespace {
 		\brief 文件系统后端接口.
 
 		所有真实后端都实现本接口：本机目录与 SSH 远端目录各有一份实现。虚拟文档不实现
-		本接口——它们由 \l{YSSCore::Editor::VirtualFilePath} 与 FileServer 体系承担，
+		本接口——它们由 YSSCore::Editor::VirtualFilePath 与 FileServer 体系承担，
 		没有文件系统语义。
 
-		实现方只需要在 \l{execute()} 里做两件事：把请求里的绝对 URI 换成自己的原生路径并执行操作，
-		然后调用 \l{complete()} 或 \l{fail()} 结束这一条请求。两者都可以从任意线程调用，
+		实现方只需要在 execute() 里做两件事：把请求里的绝对 URI 换成自己的原生路径并执行操作，
+		然后调用 complete() 或 fail() 结束这一条请求。两者都可以从任意线程调用，
 		内部会投递回结果对象所属线程。
 	*/
 
@@ -354,10 +355,12 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		默认实现：本后端不支持目录监听，以 \l{YSSFileError::ErrorType::NotSupported} 返回 false。
+		默认实现：本后端不支持目录监听，以 YSSFileError::ErrorType::NotSupported 返回 false。
 
 		\a uri 要监听的目录。
 		\a error 失败原因；成功时不被修改。
+
+		return 当前后端支持监听时返回 true；默认实现不支持，返回 false。
 	*/
 	bool YSSUnifiedFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
 		if (error) {
@@ -523,33 +526,33 @@ namespace {
 		\inmodule YSSCore
 		\brief 统一文件系统门面.
 
-		进程内单例。调用方只面对这一层：给它 \l{YSSURI}，它按 scheme 把请求交给对应的
-		后端，所有操作都是异步的。本机与远端的差异被 \l{YSSUnifiedFileSystemProvider}
+		进程内单例。调用方只面对这一层：给它 YSSURI，它按 scheme 把请求交给对应的
+		后端，所有操作都是异步的。本机与远端的差异被 YSSUnifiedFileSystemProvider
 		完全吸收，因此"把项目放到 SSH 上"不会让上层代码分叉。
 
 		两个后端共存，不是二选一：本机后端始终可用；SSH 后端只有在
-		\l{setSshConnectConfig()} 配好连接信息并且 \l{connectSsh()} 成功之后才参与路由。
+		setSshConnectConfig() 配好连接信息并且 connectSsh() 成功之后才参与路由。
 		在它可用之前，\c{ssh:} 的请求会以
-		\l{YSSFileError::ErrorType::NeedsCredentials} 立刻失败，而不是排队等待，
-		同时发出 \l{sshConnectionRequired()} 提示界面去登录。
+		YSSFileError::ErrorType::NeedsCredentials 立刻失败，而不是排队等待，
+		同时发出 sshConnectionRequired() 提示界面去登录。
 
 		虚拟文档不在本类范围内：\c{@ext!name?param} 这类标识没有文件系统语义，
-		它们走 \l{YSSCore::Editor::VirtualFilePath} 与 FileServer 体系。
+		它们走 YSSCore::Editor::VirtualFilePath 与 FileServer 体系。
 
 		路径语义：URI 自带 scheme 与 authority，因此本层没有"根"的概念。限定范围
 		（工作区、项目）属于上层的语义，由上层自己换算成绝对 URI。
 
-		任务视图：所有已提交但未结束的请求都登记在门面里，可用 \l{getTasks()} /
-		\l{getTaskCount()} / \l{getQueuedTaskCount()} 查看；进出队列、开始执行、进度
-		和结束分别由 \l{taskQueued()}、\l{taskStarted()}、\l{taskProgressed()}、
-		\l{taskFinished()} 告知，因此上层可以在不持有 reply 的情况下做队列界面或
+		任务视图：所有已提交但未结束的请求都登记在门面里，可用 getTasks() /
+		getTaskCount() / getQueuedTaskCount() 查看；进出队列、开始执行、进度
+		和结束分别由 taskQueued()、taskStarted()、taskProgressed()、
+		taskFinished() 告知，因此上层可以在不持有 reply 的情况下做队列界面或
 		进度条。
 
 		并发语义：同一个 URI 上的请求严格按提交顺序串行执行，后一个要等前一个结束
 		才会开始；重命名按源与目标两个 URI 一起判定。不同 URI 之间不互相阻塞。因此
 		对同一文件先写后读一定读到新内容，不会读到被覆盖一半的文件。
 
-		同步便捷接口：\l{readSync()}、\l{writeSync()}、\l{removeSync()} 在内部等待请求
+		同步便捷接口：readSync()、writeSync()、removeSync() 在内部等待请求
 		结束，适合启动、退出这类本来就要阻塞的流程；界面线程上的常规读写请用异步
 		版本，否则读远端文件会卡住界面。
 	*/
@@ -559,7 +562,7 @@ namespace {
 		\enum YSSCore::General::YSSUnifiedFileSystem::Capability
 		\since YSS 0.18.0
 
-		后端支持的能力集合，用 \l{Capabilities} 做位运算判断。不同后端的支持范围不同，
+		后端支持的能力集合，用 \c{Capabilities} 做位运算判断。不同后端的支持范围不同，
 		上层可以据此决定某个操作是否可用，而不是试一次再报错。
 
 		\value NoCapability 什么都不支持。
@@ -573,7 +576,9 @@ namespace {
 		\value ReadOnly 只读后端，写类操作一律以 NotSupported 失败。
 		\value CanRecycle 该位置可以把文件移入回收站。逐 URI 判定，不在 AllCapabilities 里；
 		没置位时 Recycle 请求以 NotSupported 失败，绝不退化成永久删除。
-		\value AllCapabilities 全部操作能力，不含 PathCaseSensitive / ReadOnly / CanRecycle。
+		\value CanWatchDirectory 支持监听目录内容变化。
+		\value AllCapabilities 全部操作能力，不含 PathCaseSensitive / ReadOnly / CanRecycle /
+		CanWatchDirectory。
 	*/
 
 	/*!
@@ -603,11 +608,11 @@ namespace {
 
 		某条原本已建立的 SSH 连接断开。
 
-		只在“已连接 -> 未连接”时发出，并且与 \l{sshReadyChanged()}(authority, false)
+		只在“已连接 -> 未连接”时发出，并且与 sshReadyChanged()(authority, false)
 		成对出现：后者表达状态变化，本信号额外说明这是不是本机主动断开。
 
 		\a authority 连接身份 user@host:port。
-		\a expected 为真表示由 \l{disconnectSsh()} / \l{removeSshConnection()} 发起；
+		\a expected 为真表示由 disconnectSsh() / removeSshConnection() 发起；
 		为假表示对端关闭、保活超时或网络中断。
 	*/
 
@@ -615,7 +620,7 @@ namespace {
 		\fn void YSSCore::General::YSSUnifiedFileSystem::taskQueued(const YSSFileSystemTask& task)
 		\since YSS 0.18.0
 
-		任务已被受理，进入队列。此时 \l{YSSFileSystemTask::isRunning()} 为假。
+		任务已被受理，进入队列。此时 YSSFileSystemTask::isRunning() 为假。
 		同一 URI 上已有任务在跑时，新任务会先停在这个状态等待。
 
 		\a task 任务快照。
@@ -627,7 +632,7 @@ namespace {
 
 		后端真正开始处理该任务。
 
-		\a task 任务快照，\c{StartedAtMs} 已填充。
+		\a task 任务快照，YSSFileSystemTask::getStartedAtMs() 已填充。
 	*/
 
 	/*!
@@ -645,7 +650,7 @@ namespace {
 		\fn void YSSCore::General::YSSUnifiedFileSystem::taskFinished(quint64 id, bool ok)
 		\since YSS 0.18.0
 
-		任务结束。发出时该任务已经不在 \l{getTasks()} 里。
+		任务结束。发出时该任务已经不在 getTasks() 里。
 
 		\a id 任务编号。
 		\a ok 是否成功。
@@ -656,7 +661,7 @@ namespace {
 
 		取单例。首次调用时创建，进程内只有一份；对象没有父对象，随进程退出。
 
-		\return 单例指针。
+		return 单例指针。
 	*/
 	YSSUnifiedFileSystem* YSSUnifiedFileSystem::getInstance() {
 		if (YSSUnifiedFileSystemPrivate::Instance == nullptr) {
@@ -708,14 +713,14 @@ namespace {
 		\since YSS 0.18.0
 
 		取指定 URI 所属后端的能力集合。虚拟文件不属于任何后端，返回
-		\l{NoCapability}。
+		NoCapability。
 
 		Qt 资源（\c{qrc}）由本机后端读取，但永远不可写，因此额外去掉写类能力
-		并置 \l{ReadOnly}。资源路径区分大小写。
+		并置 ReadOnly。资源路径区分大小写。
 
 		\a uri 文件身份。
 
-		\return 能力标志。
+		return 能力标志。
 	*/
 	YSSUnifiedFileSystem::Capabilities YSSUnifiedFileSystem::getCapabilities(const YSSURI& uri) const {
 		if (uri.isResource()) {
@@ -743,7 +748,7 @@ namespace {
 
 		\a uri 文件身份。
 
-		\return 可用返回 true。
+		return 可用返回 true。
 	*/
 	bool YSSUnifiedFileSystem::isReady(const YSSURI& uri) const {
 		if (uri.isNotRemote()) {
@@ -766,7 +771,7 @@ namespace {
 
 		\a config 连接配置。
 
-		\return 配置是否自洽；不自洽时不会创建任何后端。
+		return 配置是否自洽；不自洽时不会创建任何后端。
 	*/
 	bool YSSUnifiedFileSystem::addSshConnection(const Visindigo::Network::SshConnectConfig& config) {
 		if (!config.isValid()) {
@@ -791,7 +796,7 @@ namespace {
 
 		\a authority 连接身份 user@host:port。
 
-		\return 该连接存在并已移除返回 true。
+		return 该连接存在并已移除返回 true。
 	*/
 	bool YSSUnifiedFileSystem::removeSshConnection(const QString& authority) {
 		const QString key = YSSUnifiedFileSystemPrivate::sshKey(authority);
@@ -849,7 +854,7 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		\return 当前登记的所有 SSH 连接身份 user@host:port。
+		return 当前登记的所有 SSH 连接身份 user@host:port。
 
 		只列出真正配置过的连接；为某个未登记 authority 路由请求时临时创建的后端
 		不算连接，不会出现在这里。
@@ -873,7 +878,7 @@ namespace {
 
 		\a authority 连接身份。
 
-		\return 已配置返回 true。
+		return 已配置返回 true。
 	*/
 	bool YSSUnifiedFileSystem::isSshConfigured(const QString& authority) const {
 		const YSSSshFileSystemProvider* provider =
@@ -888,7 +893,7 @@ namespace {
 
 		\a authority 连接身份。
 
-		\return 就绪返回 true。
+		return 就绪返回 true。
 	*/
 	bool YSSUnifiedFileSystem::isSshReady(const QString& authority) const {
 		const YSSSshFileSystemProvider* provider =
@@ -900,7 +905,7 @@ namespace {
 		\since YSS 0.18.0
 
 		开始连接指定的远端。配置不完整时不会发起连接，而是立刻发出
-		\l{sshConnectFinished()} 失败信号。
+		sshConnectFinished() 失败信号。
 
 		\a authority 连接身份。
 	*/
@@ -932,14 +937,14 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		设置默认 SSH 连接（含凭据）。等价于 \l{addSshConnection()} 并把该连接记为
+		设置默认 SSH 连接（含凭据）。等价于 addSshConnection() 并把该连接记为
 		默认；之后不带 authority 的那组接口都作用在它上面。
 
-		设置成功之后仍需 \l{connectSsh()} 才会真正连上。
+		设置成功之后仍需 connectSsh() 才会真正连上。
 
 		\a config 连接配置。
 
-		\return 配置是否自洽。
+		return 配置是否自洽。
 	*/
 	bool YSSUnifiedFileSystem::setSshConnectConfig(const Visindigo::Network::SshConnectConfig& config) {
 		const QString authority = config.getAuthority();
@@ -955,7 +960,7 @@ namespace {
 
 		判断默认连接的配置是否完整。
 
-		\return 已配置返回 true；没有默认连接时返回 false。
+		return 已配置返回 true；没有默认连接时返回 false。
 	*/
 	bool YSSUnifiedFileSystem::isSshConfigured() const {
 		const YSSSshFileSystemProvider* provider =
@@ -968,7 +973,7 @@ namespace {
 
 		判断默认连接是否已经建立。
 
-		\return 就绪返回 true；没有默认连接时返回 false。
+		return 就绪返回 true；没有默认连接时返回 false。
 	*/
 	bool YSSUnifiedFileSystem::isSshReady() const {
 		const YSSSshFileSystemProvider* provider =
@@ -980,7 +985,7 @@ namespace {
 		\since YSS 0.18.0
 
 		开始连接默认连接。配置不完整时不会发起连接，而是立刻发出
-		\l{sshConnectFinished()} 失败信号。
+		sshConnectFinished() 失败信号。
 	*/
 	void YSSUnifiedFileSystem::connectSsh() {
 		this->connectSsh(this->getDefaultSshAuthority());
@@ -998,7 +1003,7 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		\return 默认连接的身份 user@host:port；没有默认连接时返回空字符串。
+		return 默认连接的身份 user@host:port；没有默认连接时返回空字符串。
 	*/
 	QString YSSUnifiedFileSystem::getDefaultSshAuthority() const {
 		if (this->d->DefaultSshKey.isEmpty()) {
@@ -1016,15 +1021,15 @@ namespace {
 
 		请求必须自带 URI：本层没有根，无法从相对路径推出文件身份。
 		只读后端上的写操作不会被提交，而是返回一个以
-		\l{YSSFileError::ErrorType::NotSupported} 完成的 reply——调用方拿到的始终
+		YSSFileError::ErrorType::NotSupported 完成的 reply——调用方拿到的始终
 		是一个可连接的结果对象，不需要额外判断空指针。
 
 		提交成功不代表立刻执行：与同一 URI 上已有任务冲突时，请求会先进入等待队列，
-		此时 \l{getTasks()} 能看到它，`StartedAtMs` 为 0。
+		此时 getTasks() 能看到它，YSSFileSystemTask::getStartedAtMs() 为 0。
 
 		\a request 操作参数。
 
-		\return 结果句柄；无法提交时为空。
+		return 结果句柄；无法提交时为空。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::execute(const YSSFileSystemRequest& request) {
 		if (!request.isValid() || !request.hasUri()) {
@@ -1060,14 +1065,15 @@ namespace {
 		}
 
 		YSSFileSystemTask task;
-		task.Id = reply->d->Id;
-		task.Uri = uri;
-		task.TargetUri = request.getTargetUri();
-		task.Operation = request.getOperation();
-		task.QueuedAtMs = QDateTime::currentMSecsSinceEpoch();
-		YSSUFS->debug() << "submit" << describeRequest(task.Id, task.Operation, task.Uri, task.TargetUri);
-		this->d->Tasks.insert(task.Id, task);
-		this->d->TaskProviderIds.insert(task.Id, this->d->providerIdOf(uri));
+		task.d->Id = reply->d->Id;
+		task.d->Uri = uri;
+		task.d->TargetUri = request.getTargetUri();
+		task.d->Operation = request.getOperation();
+		task.d->QueuedAtMs = QDateTime::currentMSecsSinceEpoch();
+		YSSUFS->debug() << "submit" << describeRequest(task.getId(), task.getOperation(),
+			task.getUri(), task.getTargetUri());
+		this->d->Tasks.insert(task.getId(), task);
+		this->d->TaskProviderIds.insert(task.getId(), this->d->providerIdOf(uri));
 		emit this->taskQueued(task);
 
 		if (isWriteOperation(request.getOperation())) {
@@ -1148,19 +1154,19 @@ namespace {
 					: provider->supportsNativeMove());
 			if (!native) {
 				YSSUnifiedFileSystemPrivate::TransferTask transfer;
-				transfer.Id = task.Id;
+				transfer.Id = task.getId();
 				transfer.Source = uri;
 				transfer.Target = targetUri;
 				transfer.SourceProvider = provider;
 				transfer.TargetProvider = targetProvider;
 				transfer.Reply = reply;
 				transfer.RemoveSource = operation == Operation::Move;
-				this->d->Transfers.insert(task.Id, transfer);
+				this->d->Transfers.insert(task.getId(), transfer);
 			}
 		}
 
 		YSSUnifiedFileSystemPrivate::PendingTask pending;
-		pending.Id = task.Id;
+		pending.Id = task.getId();
 		pending.Request = request;
 		pending.Reply = reply;
 		pending.Provider = provider;
@@ -1178,10 +1184,10 @@ namespace {
 
 		\a uri 操作目标。
 		\a operation 操作类型。
-		\a data 写入内容，仅 \l{YSSUnifiedFileSystem::Operation::Write} 使用。
-		\a target 重命名的目标 URI，仅 \l{YSSUnifiedFileSystem::Operation::Rename} 使用。
+		\a data 写入内容，仅 YSSFileSystemRequest::Operation::Write 使用。
+		\a target 重命名的目标 URI，仅 YSSFileSystemRequest::Operation::Rename 使用。
 
-		\return 结果句柄；URI 无效或 scheme 不受支持时为空。
+		return 结果句柄；URI 无效或 scheme 不受支持时为空。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::execute(const YSSURI& uri, YSSUnifiedFileSystem::Operation operation,
 		const QByteArray& data, const YSSURI& target) {
@@ -1200,11 +1206,11 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		读取属性。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Stat} 请求。
+		读取属性。等价于提交一条 YSSFileSystemRequest::Operation::Stat 请求。
 
 		\a uri 文件身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::stat(const YSSURI& uri) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Stat);
@@ -1213,11 +1219,11 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		读取整个文件。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Read} 请求。
+		读取整个文件。等价于提交一条 YSSFileSystemRequest::Operation::Read 请求。
 
 		\a uri 文件身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::read(const YSSURI& uri) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Read);
@@ -1226,12 +1232,12 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		整体覆盖写入文件。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Write} 请求。
+		整体覆盖写入文件。等价于提交一条 YSSFileSystemRequest::Operation::Write 请求。
 
 		\a uri 文件身份。
 		\a data 内容。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::write(const YSSURI& uri, const QByteArray& data) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Write, data);
@@ -1240,11 +1246,11 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		列出目录。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::List} 请求。
+		列出目录。等价于提交一条 YSSFileSystemRequest::Operation::List 请求。
 
 		\a uri 目录身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::list(const YSSURI& uri) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::List);
@@ -1254,14 +1260,14 @@ namespace {
 		\since YSS 0.18.0
 
 		删除文件或符号链接，或者是整个目录树。等价于提交一条
-		\l{YSSUnifiedFileSystem::Operation::Remove} 请求。
+		YSSFileSystemRequest::Operation::Remove 请求。
 
 		目录是递归删除的：先删子项，最后删自己。符号链接本身会被删除，链接指向的
-		目标不受影响。删除不经过回收站，不可恢复；需要回收语义请用 \l{recycle()}。
+		目标不受影响。删除不经过回收站，不可恢复；需要回收语义请用 recycle()。
 
 		\a uri 文件身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::remove(const YSSURI& uri) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Remove);
@@ -1271,10 +1277,10 @@ namespace {
 		\since YSS 0.18.0
 
 		把文件、符号链接或整个目录树移入后端提供的回收站。等价于提交一条
-		\l{YSSUnifiedFileSystem::Operation::Recycle} 请求。
+		YSSFileSystemRequest::Operation::Recycle 请求。
 
-		只有 \l{getCapabilities()} 里带 \l{CanRecycle} 的位置才可能成功。不支持回收的
-		位置会以 \l{YSSFileError::ErrorType::NotSupported} 失败，而**不会**退化成永久
+		只有 getCapabilities() 里带 CanRecycle 的位置才可能成功。不支持回收的
+		位置会以 YSSFileError::ErrorType::NotSupported 失败，而**不会**退化成永久
 		删除——是否改为永久删除由调用方询问用户之后自己决定。
 
 		能进回收站不代表能恢复：多数平台上回收站里的真实位置是拿不到的（Windows 的
@@ -1283,7 +1289,7 @@ namespace {
 
 		\a uri 文件身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::recycle(const YSSURI& uri) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Recycle);
@@ -1292,12 +1298,12 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		重命名或移动。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Rename} 请求。
+		重命名或移动。等价于提交一条 YSSFileSystemRequest::Operation::Rename 请求。
 
 		\a uri 源身份。
 		\a target 目标身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::rename(const YSSURI& uri, const YSSURI& target) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Rename, QByteArray(), target);
@@ -1307,7 +1313,7 @@ namespace {
 		\since YSS 0.18.0
 
 		复制文件、符号链接或整个目录树。等价于提交一条
-		\l{YSSUnifiedFileSystem::Operation::Copy} 请求。
+		YSSFileSystemRequest::Operation::Copy 请求。
 
 		目标必须不存在，目录不会与已有目标合并。同一后端内由后端直接完成；跨后端时
 		由门面按块中继，因此本机与远端之间、两条 SSH 连接之间都可以复制，内存占用
@@ -1316,7 +1322,7 @@ namespace {
 		\a uri 源身份。
 		\a target 目标身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::copy(const YSSURI& uri, const YSSURI& target) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Copy, QByteArray(), target);
@@ -1326,7 +1332,7 @@ namespace {
 		\since YSS 0.18.0
 
 		移动文件、符号链接或整个目录树。等价于提交一条
-		\l{YSSUnifiedFileSystem::Operation::Move} 请求。
+		YSSFileSystemRequest::Operation::Move 请求。
 
 		同一后端内优先使用后端的重命名（SSH 上不搬运任何数据）；跨后端时退化为复制
 		后删除源，中途失败会保留源，只清理写在目标上的半成品。目标必须不存在。
@@ -1334,7 +1340,7 @@ namespace {
 		\a uri 源身份。
 		\a target 目标身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::move(const YSSURI& uri, const YSSURI& target) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Move, QByteArray(), target);
@@ -1343,11 +1349,11 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		创建目录。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Mkdir} 请求。
+		创建目录。等价于提交一条 YSSFileSystemRequest::Operation::Mkdir 请求。
 
 		\a uri 目录身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::mkdir(const YSSURI& uri) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Mkdir);
@@ -1356,17 +1362,17 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		删除空目录。等价于提交一条 \l{YSSUnifiedFileSystem::Operation::Rmdir} 请求。
+		删除空目录。等价于提交一条 YSSFileSystemRequest::Operation::Rmdir 请求。
 
 		\a uri 目录身份。
 
-		\return 结果句柄。
+		return 结果句柄。
 	*/
 	YSSFileSystemReply* YSSUnifiedFileSystem::rmdir(const YSSURI& uri) {
 		return this->execute(uri, YSSUnifiedFileSystem::Operation::Rmdir);
 	}
 
-	/*!
+	/*
 		\since YSS 0.18.0
 
 		等一条请求结束。
@@ -1375,7 +1381,7 @@ namespace {
 		\a error 输出参数，失败原因，可为 nullptr。
 		\a timeoutMs 超时毫秒数。
 
-		\return 请求完成且没有错误时返回 true。
+		return 请求完成且没有错误时返回 true。
 
 		后端的完成通知是排队投递的，因此这里通常真的会进一次嵌套事件循环。超时的请求
 		不会被取消——后端可能仍在执行，所以调用方不能直接销毁 reply。
@@ -1424,14 +1430,14 @@ namespace {
 
 		同步读取整个文件。
 
-		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Read} 请求并等待它结束，
-		因此会阻塞调用线程。界面线程上读远端文件应当改用 \l{read()} 异步版本。
+		内部提交一条 YSSFileSystemRequest::Operation::Read 请求并等待它结束，
+		因此会阻塞调用线程。界面线程上读远端文件应当改用 read() 异步版本。
 
 		\a uri 文件身份。
 		\a data 输出参数，读到的内容。
 		\a error 输出参数，失败原因，可为 nullptr。
 
-		\return 读取成功返回 true。
+		return 读取成功返回 true。
 	*/
 	bool YSSUnifiedFileSystem::readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error) {
 		if (data == nullptr) {
@@ -1463,14 +1469,14 @@ namespace {
 
 		同步整体覆盖写入文件。
 
-		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Write} 请求并等待它结束，
-		因此会阻塞调用线程。界面线程上写远端文件应当改用 \l{write()} 异步版本。
+		内部提交一条 YSSFileSystemRequest::Operation::Write 请求并等待它结束，
+		因此会阻塞调用线程。界面线程上写远端文件应当改用 write() 异步版本。
 
 		\a uri 文件身份。
 		\a data 内容。
 		\a error 输出参数，失败原因，可为 nullptr。
 
-		\return 写入成功返回 true。
+		return 写入成功返回 true。
 	*/
 	bool YSSUnifiedFileSystem::writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error) {
 		YSSFileSystemRequest request;
@@ -1496,13 +1502,13 @@ namespace {
 
 		同步删除文件/链接，或者是整个目录树。
 
-		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Remove} 请求并等待它结束，
-		因此会阻塞调用线程。界面线程上删远端文件应当改用 \l{remove()} 异步版本。
+		内部提交一条 YSSFileSystemRequest::Operation::Remove 请求并等待它结束，
+		因此会阻塞调用线程。界面线程上删远端文件应当改用 remove() 异步版本。
 
 		\a uri 文件身份。
 		\a error 输出参数，失败原因，可为 nullptr。
 
-		\return 删除成功返回 true。
+		return 删除成功返回 true。
 	*/
 	bool YSSUnifiedFileSystem::removeSync(const YSSURI& uri, YSSFileError* error) {
 		YSSFileSystemRequest request;
@@ -1527,14 +1533,14 @@ namespace {
 
 		同步移入回收站。
 
-		内部提交一条 \l{YSSUnifiedFileSystem::Operation::Recycle} 请求并等待它结束，
-		因此会阻塞调用线程。语义与 \l{recycle()} 相同：不支持回收的位置以
-		\l{YSSFileError::ErrorType::NotSupported} 失败，不会退化成永久删除。
+		内部提交一条 YSSFileSystemRequest::Operation::Recycle 请求并等待它结束，
+		因此会阻塞调用线程。语义与 recycle() 相同：不支持回收的位置以
+		YSSFileError::ErrorType::NotSupported 失败，不会退化成永久删除。
 
 		\a uri 文件身份。
 		\a error 输出参数，失败原因，可为 nullptr。
 
-		\return 移入回收站成功返回 true。
+		return 移入回收站成功返回 true。
 	*/
 	bool YSSUnifiedFileSystem::recycleSync(const YSSURI& uri, YSSFileError* error) {
 		YSSFileSystemRequest request;
@@ -1562,14 +1568,14 @@ namespace {
 		只监听该目录自身的直接内容变化，不递归；重复调用无副作用。目录树应当随展开/
 		折叠成对调用，避免累积无用监听。
 
-		不支持监听的位置（\l{getCapabilities()} 里没有 \l{CanWatchDirectory}）返回
-		false，并以 \l{YSSFileError::ErrorType::NotSupported} 填充 error。登记是纯本地
+		不支持监听的位置（getCapabilities() 里没有 CanWatchDirectory）返回
+		false，并以 YSSFileError::ErrorType::NotSupported 填充 error。登记是纯本地
 		操作，因此这是同步接口。
 
 		\a uri 目录身份。
 		\a error 输出参数，失败原因，可为 nullptr。
 
-		\return 登记成功返回 true。
+		return 登记成功返回 true。
 	*/
 	bool YSSUnifiedFileSystem::watchDirectory(const YSSURI& uri, YSSFileError* error) {
 		YSSUnifiedFileSystemProvider* provider = this->d->providerFor(uri);
@@ -1593,7 +1599,7 @@ namespace {
 
 		\a uri 目录身份。
 
-		\return 确实取消了一条登记时返回 true。
+		return 确实取消了一条登记时返回 true。
 	*/
 	bool YSSUnifiedFileSystem::unwatchDirectory(const YSSURI& uri) {
 		YSSUnifiedFileSystemProvider* provider = this->d->providerFor(uri);
@@ -1624,10 +1630,10 @@ namespace {
 
 		取尚未结束的任务快照，按提交顺序（编号）排列。只能在门面对象所属线程调用。
 
-		\c{StartedAtMs} 为 0 的任务可能在等线程池，也可能在等同一个 URI 上的前一个
-		任务结束——两者对外都是"排队"，用 \l{getQueuedTaskCount()} 一并统计。
+		YSSFileSystemTask::getStartedAtMs() 为 0 的任务可能在等线程池，也可能在等同一个 URI 上的前一个
+		任务结束——两者对外都是"排队"，用 getQueuedTaskCount() 一并统计。
 
-		\return 任务列表；没有未结束任务时为空。
+		return 任务列表；没有未结束任务时为空。
 	*/
 	QList<YSSFileSystemTask> YSSUnifiedFileSystem::getTasks() const {
 		return this->d->Tasks.values();
@@ -1638,7 +1644,7 @@ namespace {
 
 		取未结束任务的数量（排队 + 正在执行）。
 
-		\return 任务数量。
+		return 任务数量。
 	*/
 	int YSSUnifiedFileSystem::getTaskCount() const {
 		return this->d->Tasks.size();
@@ -1649,7 +1655,7 @@ namespace {
 
 		取仍在排队、尚未开始执行的任务数量。
 
-		\return 排队任务数量。
+		return 排队任务数量。
 	*/
 	int YSSUnifiedFileSystem::getQueuedTaskCount() const {
 		int count = 0;
@@ -1666,7 +1672,7 @@ namespace {
 
 		取自本对象创建以来成功读入与写出的字节总数。
 
-		\return 顺序为 (read, write) 的字节数。
+		return 顺序为 (read, write) 的字节数。
 
 		这是在总线上跑过的数据量的粗略计数，用于状态展示或排查"到底传了多少"：
 		\list
@@ -1689,9 +1695,9 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
-		把 \l{getTransferredBytes()} 的数字按 Provider 拆开。
+		把 getTransferredBytes() 的数字按 Provider 拆开。
 
-		\return 每个 Provider 一条记录，按 \c{ProviderId} 的字母序排列。
+		return 每个 Provider 一条记录，按 \c{ProviderId} 的字母序排列。
 		本机资源与 Qt 资源的 \c{ProviderId} 都是 \c{"local"}，每条 SSH 连接是
 		自己的 \c{user@host:port}。各项之和等于合计值；连接被移除后它的历史统计
 		仍留在列表里。
@@ -1710,7 +1716,7 @@ namespace {
 
 		\a uri 文件身份。
 
-		\return 该 URI 会交给哪个 Provider 处理：本机资源为 \c{"local"}，
+		return 该 URI 会交给哪个 Provider 处理：本机资源为 \c{"local"}，
 		远端为 \c{user@host:port}；无法归类时返回空字符串。
 	*/
 	QString YSSUnifiedFileSystem::providerIdOf(const YSSURI& uri) const {
@@ -1719,10 +1725,10 @@ namespace {
 
 	void YSSUnifiedFileSystemPrivate::onProviderStarted(quint64 id) {
 		auto it = this->Tasks.find(id);
-		if (it == this->Tasks.end() || it->StartedAtMs != 0) {
+		if (it == this->Tasks.end() || it->d->StartedAtMs != 0) {
 			return;
 		}
-		it->StartedAtMs = QDateTime::currentMSecsSinceEpoch();
+		it->d->StartedAtMs = QDateTime::currentMSecsSinceEpoch();
 		emit this->Owner->taskStarted(it.value());
 	}
 	void YSSUnifiedFileSystemPrivate::onProviderProgressed(quint64 id, qint64 transferred, qint64 total) {
@@ -1730,11 +1736,11 @@ namespace {
 		if (it == this->Tasks.end()) {
 			return;
 		}
-		it->BytesTransferred = transferred;
+		it->d->BytesTransferred = transferred;
 		if (total >= 0) {
-			it->TotalBytes = total;
+			it->d->TotalBytes = total;
 		}
-		emit this->Owner->taskProgressed(id, transferred, it->TotalBytes);
+		emit this->Owner->taskProgressed(id, transferred, it->d->TotalBytes);
 	}
 
 	void YSSUnifiedFileSystemPrivate::onProviderFinished(quint64 id, bool ok) {
@@ -1750,7 +1756,7 @@ namespace {
 		this->schedulePending();
 	}
 
-	/*!
+	/*
 		\since YSS 0.18.0
 
 		计算一个请求用于串行化的身份键。同一 URI 上的请求共用同一个键；重命名与
@@ -1999,11 +2005,11 @@ namespace {
 		const qint64 total = it->TotalBytes;
 		auto taskIt = this->Tasks.find(id);
 		if (taskIt != this->Tasks.end()) {
-			taskIt->BytesTransferred = transferred;
+			taskIt->d->BytesTransferred = transferred;
 			if (total >= 0) {
-				taskIt->TotalBytes = total;
+				taskIt->d->TotalBytes = total;
 			}
-			emit this->Owner->taskProgressed(id, transferred, taskIt->TotalBytes);
+			emit this->Owner->taskProgressed(id, transferred, taskIt->d->TotalBytes);
 		}
 		const QPointer<YSSFileSystemReply> reply = it->Reply;
 		if (!reply.isNull()) {
@@ -2099,7 +2105,7 @@ namespace {
 		this->schedulePending();
 	}
 
-	/*!
+	/*
 		\since YSS 0.18.0
 
 		按提交顺序放行不与运行中任务冲突的请求。
@@ -2145,7 +2151,7 @@ namespace {
 				qint64 waitedMs = 0;
 				const auto taskIt = this->Tasks.constFind(item.Id);
 				if (taskIt != this->Tasks.constEnd()) {
-					waitedMs = QDateTime::currentMSecsSinceEpoch() - taskIt.value().QueuedAtMs;
+					waitedMs = QDateTime::currentMSecsSinceEpoch() - taskIt.value().getQueuedAtMs();
 				}
 				YSSUFS->debug() << "dispatch" << describeRequest(item.Id, item.Request.getOperation(),
 					item.Request.getUri(), item.Request.getTargetUri())

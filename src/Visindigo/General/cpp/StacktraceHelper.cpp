@@ -222,7 +222,7 @@ namespace Visindigo::General {
 #endif
 #endif
 
-	/*!
+	/*
 		\class Visindigo::General::StacktraceHelper
 		\inheaderfile General/StacktraceHelper.h
 		\brief 堆栈跟踪帮助类.

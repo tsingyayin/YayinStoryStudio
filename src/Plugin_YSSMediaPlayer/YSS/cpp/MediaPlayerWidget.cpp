@@ -713,9 +713,9 @@ namespace YSS::MediaPlayer {
 		扩展名必须保留：QMediaPlayer 靠它挑选解复用器。
 
 		\a uri 媒体文件身份，仅用于生成临时文件名与诊断信息。
-		\a data 已经由 \l{YSSCore::General::YSSUnifiedFileSystem} 读到的内容。
+		\a data 已经由 YSSCore::General::YSSUnifiedFileSystem 读到的内容。
 
-		\return 临时文件的绝对路径；内容为空或写入失败时返回空字符串。
+		return 临时文件的绝对路径；内容为空或写入失败时返回空字符串。
 	*/
 	QString MediaPlayerWidget::materializeTempMediaFile(const YSSCore::General::YSSURI& uri, const QByteArray& data) {
 		if (data.isEmpty()) {

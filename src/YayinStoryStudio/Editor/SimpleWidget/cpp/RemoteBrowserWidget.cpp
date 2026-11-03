@@ -391,10 +391,10 @@ namespace YSS::Editor {
 		连接身份下拉框合并了统一文件系统里已连接的连接与主插件配置里 \c{SSH.Authentics}
 		记录的历史连接；右侧的加号可以直接打开 SSH 连接页建立新连接。
 
-		默认只列出子文件夹。用 \l{setFileSuffixFilters()} 给出后缀后，匹配的文件也会出现在
-		列表里，双击这类文件会发出 \l{fileActivated()}。
+		默认只列出子文件夹。用 setFileSuffixFilters() 给出后缀后，匹配的文件也会出现在
+		列表里，双击这类文件会发出 fileActivated()。
 
-		本控件只负责展示与选择，不会写盘；需要建目录时会通过 \l{YSSUnifiedFileSystem::mkdir()}
+		本控件只负责展示与选择，不会写盘；需要建目录时会通过 YSSUnifiedFileSystem::mkdir()
 		提交请求。
 	*/
 

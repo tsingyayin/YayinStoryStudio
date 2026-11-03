@@ -23,9 +23,9 @@ namespace Visindigo::Network {
 		\brief 打开一条 SSH 通道所需的参数.
 
 		SSH 的通道类型与启动方式在协议上都是字符串，因此本结构本身就是可扩展的：
-		\l{ChannelType} 取 \c{session} 这类通道类型，\l{Startup} 取 \c{exec}、
-		\c{shell} 或 \c{subsystem}，\l{StartupArgument} 放命令或子系统名。
-		端口转发这类通道（\c{direct-tcpip}）不经过 startup，用 \l{Extra} 传它自己的参数。
+		\c{ChannelType} 取 \c{session} 这类通道类型，\c{Startup} 取 \c{exec}、
+		\c{shell} 或 \c{subsystem}，\c{StartupArgument} 放命令或子系统名。
+		端口转发这类通道（\c{direct-tcpip}）不经过 startup，用 \c{Extra} 传它自己的参数。
 
 		\list
 		\li \b{ChannelType} 通道类型，默认 \c{session}。
@@ -42,7 +42,7 @@ namespace Visindigo::Network {
 		判断参数是否足以打开一条通道。\c{session} 通道必须给出启动方式，
 		且 \c{exec} 与 \c{subsystem} 必须有参数；其它通道类型允许不带启动方式。
 
-		\return 参数自洽时返回 true。
+		return 参数自洽时返回 true。
 	*/
 	bool SshChannelSpec::isValid() const {
 		if (ChannelType.trimmed().isEmpty()) {
@@ -66,7 +66,7 @@ namespace Visindigo::Network {
 
 		返回适合写日志的单行描述，形如 \c{exec: git status}。
 
-		\return 启动方式描述；未设置启动方式时返回通道类型本身。
+		return 启动方式描述；未设置启动方式时返回通道类型本身。
 	*/
 	QString SshChannelSpec::getStartupDescription() const {
 		if (Startup.isEmpty()) {
@@ -83,18 +83,18 @@ namespace Visindigo::Network {
 		\inheaderfile Network/SshChannel.h
 		\since Visindigo 0.18.0
 		\inmodule Visindigo
-		\brief SSH 会话上的一条通道。
+		\brief SSH 会话上的一条通道.
 
 		通道是 SSH 复用连接的基本单位：同一个会话可以同时开多条通道，彼此的数据互不干扰。
-		本类把通道抽象成"双向字节流 + 结束语义"——数据通过 \l{dataReceived()} 与
-		\l{extendedDataReceived()} 分段送达，服务端关闭后发出 \l{closed()}。
+		本类把通道抽象成"双向字节流 + 结束语义"——数据通过 dataReceived() 与
+		extendedDataReceived() 分段送达，服务端关闭后发出 closed()。
 
-		通道对象由 \l{SshSession::openChannel()} 创建，生命周期归调用方。通道所属的会话
-		销毁时，通道会随之失效。通道的方法都是异步的：\l{write()} 只是把数据排入队列，
+		通道对象由 SshSession::openChannel() 创建，生命周期归调用方。通道所属的会话
+		销毁时，通道会随之失效。通道的方法都是异步的：write() 只是把数据排入队列，
 		真正的发送发生在会话的工作线程里。
 
 		不要用它来做 SFTP：SFTP 有自己的请求/响应语义，libssh2 也要求 SFTP 独占一条
-		通道，因此 \l{SftpReply} 是通道的兄弟而不是子类。
+		通道，因此 SftpReply 是通道的兄弟而不是子类。
 	*/
 
 	/*!
@@ -119,7 +119,7 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::SshChannel::closed(qint32 exitStatus, bool hasExitStatus)
 		\since Visindigo 0.18.0
 
-		通道已关闭。无论正常结束还是被 \l{abort()} 中止，本信号都只发出一次。
+		通道已关闭。无论正常结束还是被 abort() 中止，本信号都只发出一次。
 
 		\a exitStatus 退出码；\a hasExitStatus 为 false 时该值无意义（通道没有返回退出码）。
 		\a hasExitStatus 通道是否收到了退出码。
@@ -129,7 +129,7 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::SshChannel::errorOccurred(const SshError& error)
 		\since Visindigo 0.18.0
 
-		通道上发生了错误。正常情况下随后会收到 \l{closed()}。
+		通道上发生了错误。正常情况下随后会收到 closed()。
 
 		\a error 错误内容。
 	*/
@@ -139,7 +139,7 @@ namespace Visindigo::Network {
 
 		取通道编号。它在所属会话内唯一，便于日志关联。
 
-		\return 通道编号。
+		return 通道编号。
 	*/
 	quint64 SshChannel::getId() const {
 		return this->d->Id;
@@ -150,7 +150,7 @@ namespace Visindigo::Network {
 
 		判断通道是否仍然可写。
 
-		\return 通道已打开且尚未关闭时返回 true。
+		return 通道已打开且尚未关闭时返回 true。
 	*/
 	bool SshChannel::isOpen() const {
 		return this->d->Owner != nullptr && !this->d->Closed;
@@ -161,7 +161,7 @@ namespace Visindigo::Network {
 
 		判断通道是否已关闭。
 
-		\return 已发出 \l{closed()} 时返回 true。
+		return 已发出 closed() 时返回 true。
 	*/
 	bool SshChannel::isClosed() const {
 		return this->d->Closed;
@@ -172,7 +172,7 @@ namespace Visindigo::Network {
 
 		取退出码。只有服务端返回过退出码时才有意义。
 
-		\return 退出码；未收到时为 -1。
+		return 退出码；未收到时为 -1。
 	*/
 	qint32 SshChannel::getExitStatus() const {
 		return this->d->ExitStatus;
@@ -183,7 +183,7 @@ namespace Visindigo::Network {
 
 		判断是否收到了退出码。
 
-		\return 收到退出码时返回 true。
+		return 收到退出码时返回 true。
 	*/
 	bool SshChannel::hasExitStatus() const {
 		return this->d->HasExitStatus;
@@ -221,7 +221,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		立即中止通道，不等待对端。发出 \l{closed()} 时 \c{hasExitStatus} 为 false。
+		立即中止通道，不等待对端。发出 closed() 时 \c{hasExitStatus} 为 false。
 	*/
 	void SshChannel::abort() {
 		if (this->d->Owner == nullptr || this->d->Closed) {
@@ -237,7 +237,7 @@ namespace Visindigo::Network {
 
 		\a context 生命周期参照对象；为空时不做任何绑定。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshChannel& SshChannel::bindLifecycleTo(QObject* context) {
 		if (context == nullptr) {
@@ -250,7 +250,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.18.0
 
-		构造通道对象。只由 \l{SshSession} 调用。
+		构造通道对象。只由 SshSession 调用。
 
 		\a id 通道编号。
 	*/

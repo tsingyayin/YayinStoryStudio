@@ -17,7 +17,7 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 		\inmodule YSSCore
 		\ingroup YSSUFS
-		\brief 一份完整的文件信息
+		\brief 一份完整的文件信息.
 
 		此类包括文件的文件名、URI和文件属性，用于代表除了文件内容之外的完整文件信息。
 	*/
@@ -50,6 +50,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		拷贝赋值运算符。
+
+		\a other 另一个条目。
 	*/
 
 	/*!
@@ -57,6 +59,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		移动赋值运算符。
+
+		\a other 另一个条目。
 	*/
 
 	VICopyable_Impl(YSSFileEntry);
@@ -76,7 +80,7 @@ namespace YSSCore::General {
 
 		取条目名。
 
-		\return 叶子名；空条目的名字为空串。
+		return 叶子名；空条目的名字为空串。
 	*/
 	QString YSSFileEntry::getName() const {
 		return this->d ? this->d->Name : QString();
@@ -87,7 +91,7 @@ namespace YSSCore::General {
 
 		取条目 URI。
 
-		\return 条目的绝对 URI；未设置时返回空 URI。
+		return 条目的绝对 URI；未设置时返回空 URI。
 	*/
 	YSSURI YSSFileEntry::getUri() const {
 		return this->d ? this->d->Uri : YSSURI();
@@ -98,7 +102,7 @@ namespace YSSCore::General {
 
 		取条目属性。
 
-		\return 属性副本；空条目返回全部字段不可信的空属性。
+		return 属性副本；空条目返回全部字段不可信的空属性。
 	*/
 	YSSFileAttributes YSSFileEntry::getAttributes() const {
 		return this->d ? this->d->Attributes : YSSFileAttributes();
@@ -120,7 +124,7 @@ namespace YSSCore::General {
 
 		设置条目 URI。
 
-		\a uri 条目的绝对 URI，通常由父目录的 URI 与叶子名 \l{YSSURI::resolve()} 得到。
+		\a uri 条目的绝对 URI，通常由父目录的 URI 与叶子名 YSSURI::resolve() 得到。
 	*/
 	void YSSFileEntry::setUri(const YSSURI& uri) {
 		this->d->Uri = uri;

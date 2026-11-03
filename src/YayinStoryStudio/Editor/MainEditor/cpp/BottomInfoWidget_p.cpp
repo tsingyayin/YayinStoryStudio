@@ -26,7 +26,7 @@ namespace YSS::Editor {
 
 			那三个控件都是 TextEdit 的子控件，玻璃直接采样父控件背景；底栏这两个是顶层
 			弹窗，没有父控件可采样，所以改用 BackgroundPolicy::CustomImage，由
-			\l{attachWindowBackground()} 在弹出时补一张窗口截图。
+			attachWindowBackground() 在弹出时补一张窗口截图。
 		*/
 		Visindigo::Widgets::LiquidGlassEffect* applyGlassStyle(QWidget* widget) {
 			auto* glass = new Visindigo::Widgets::LiquidGlassEffect(widget);
@@ -336,8 +336,8 @@ namespace YSS::Editor {
 		}
 		else {
 			CurrentLabel->setText(VITRL("YSS::editor.bottomInfoWidget.transfer.current")
-				.arg(running->Uri.toString())
-				.arg(operationName(running->Operation)));
+				.arg(running->getUri().toString())
+				.arg(operationName(running->getOperation())));
 			const qreal percent = running->progressPercent();
 			CurrentProgress->setVisible(true);
 			if (percent < 0) {

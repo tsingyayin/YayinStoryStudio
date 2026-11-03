@@ -625,7 +625,7 @@ namespace Visindigo::Widgets {
 		\note 实际上，内部逻辑是，只有检测到data项目时，再根据不同的type来初始化数据控件。因此当type不为
 		Frame且漏写data时，其效果如同使用Frame，即没有输入功能，仅作为容器使用。
 
-		title和text支持YSS翻译系统，当其以“i18n:”开头时，会自动进行翻译，具体参见 \l Visindigo::General::TranslationHost
+		title和text支持YSS翻译系统，当其以“i18n:”开头时，会自动进行翻译，具体参见 Visindigo::General::TranslationHost
 
 		不同的控件类型有不同的data格式，ComboBox的格式已经在上面给出，RadioButton的格式如下：
 		\badcode

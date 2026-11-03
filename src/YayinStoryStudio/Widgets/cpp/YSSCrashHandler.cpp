@@ -8,7 +8,8 @@ namespace YSS::Widgets {
 	/*!
 		\class YSS::Widgets::YSSCrashHandler
 		\since YayinStoryStudio 0.17.0
-		\brief 崩溃发生后的最后一道处理：存证、托付安装程序、抢救用户成果。
+		\inmodule YayinStoryStudio
+		\brief 崩溃发生后的最后一道处理：存证、托付安装程序、抢救用户成果.
 
 		YSSCrashHandler 是 Visindigo::General::ApplicationExceptionMessageHandler 的实现，
 		由 VIApplication::setExceptionMessageHandler 注册为异常消息处理器。

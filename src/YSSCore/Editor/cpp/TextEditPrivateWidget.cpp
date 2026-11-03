@@ -960,7 +960,7 @@ namespace YSSCore::__Private__ {
 		\a lastLine 视口内最后一行的行号。
 		\a clipRect 视口坐标下的关注区域。
 
-		\return 文档中是否存在与 \a clipRect 相交的行。
+		return 文档中是否存在与 \a clipRect 相交的行。
 	*/
 	bool InlayHintTextEdit::visibleLines(qint32& firstLine, qint32& lastLine, const QRect& clipRect) const {
 		QTextDocument* document = this->document();

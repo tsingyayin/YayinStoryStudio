@@ -26,13 +26,13 @@ namespace YSSCore::General {
 		\inheaderfile General/YSSFileAttributes.h
 		\since YSS 0.18.0
 		\inmodule YSSCore
-		\brief UFS中对文件属性的表示
+		\brief UFS中对文件属性的表示.
 		\ingroup YSSUFS
 
 		此类是UFS中，用于提供文件相关属性的类。
 
 		由于UFS的后端是多样的，不同后端可能提供不同的属性支持，因此
-		在使用本类时，建议使用 \l{Field} 位掩码来判断某个字段是否可信。
+		在使用本类时，建议使用 Field 位掩码来判断某个字段是否可信。
 
 		一般来说，如果UFS访问一个本机URI，则此类的绝大部分字段应该都可用，
 		且应该与原生API提供一致的语义和值。但如果是访问远端URI，则一般
@@ -90,12 +90,15 @@ namespace YSSCore::General {
 		\value OwnerRead 所有者可读。
 		\value OwnerWrite 所有者可写。
 		\value OwnerExecute 所有者可执行；目录上表示可进入。
+		\value OwnerAll 所有者可读、可写、可执行。
 		\value GroupRead 所属组可读。
 		\value GroupWrite 所属组可写。
 		\value GroupExecute 所属组可执行。
+		\value GroupAll 所属组可读、可写、可执行。
 		\value OtherRead 其他人可读。
 		\value OtherWrite 其他人可写。
 		\value OtherExecute 其他人可执行。
+		\value OtherAll 其他人可读、可写、可执行。
 	*/
 
 	/*!
@@ -124,7 +127,7 @@ namespace YSSCore::General {
 
 		取可信字段集合。
 
-		return 后端真正给出的字段；空对象返回 \l{Field::None}。
+		return 后端真正给出的字段；空对象返回 Field::None。
 	*/
 	YSSFileAttributes::Fields YSSFileAttributes::getKnownFields() const {
 		return this->d ? this->d->KnownFields : Fields(Field::None);
@@ -135,7 +138,7 @@ namespace YSSCore::General {
 
 		判断单个字段是否可信。
 
-		\a field 字段标识。传 \l{Field::None} 时返回"没有任何字段可信"。
+		\a field 字段标识。传 Field::None 时返回"没有任何字段可信"。
 
 		return 字段可信时返回 true。
 	*/
@@ -171,7 +174,7 @@ namespace YSSCore::General {
 		手工调整某个字段的可信状态。后端的适配层在字段缺失时用它把 setter
 		写入的值重新标记为不可信。
 
-		\a field 字段标识，不能是 \l{Field::None}。
+		\a field 字段标识，不能是 Field::None。
 		\a known 是否可信。
 	*/
 	void YSSFileAttributes::setFieldKnown(Field field, bool known) {
@@ -258,7 +261,7 @@ namespace YSSCore::General {
 
 		取原生 POSIX mode，包含文件类型位与特殊位。
 
-		return 完整 mode；不可信时为 \l{Permission::None}。
+		return 完整 mode；不可信时为 Permission::None。
 	*/
 	YSSFileAttributes::Permissions YSSFileAttributes::getPermissions() const {
 		return permissionsOf(this->d ? this->d->Permissions : 0);
@@ -269,7 +272,7 @@ namespace YSSCore::General {
 
 		取 mode 里的文件类型段（即 \c{mode & 0170000}）。
 
-		return 某个 \c{Type*} 取值；类型未知时返回 \l{Permission::None}。
+		return 某个 \c{Type*} 取值；类型未知时返回 Permission::None。
 	*/
 	YSSFileAttributes::Permission YSSFileAttributes::getFileType() const {
 		const quint32 mode = this->d ? this->d->Permissions : 0;
@@ -304,6 +307,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置大小，并标记该字段可信。
+
+		\a size 文件字节数。
 	*/
 	void YSSFileAttributes::setSize(quint64 size) {
 		this->d->Size = size;
@@ -314,6 +319,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置修改时间，并标记该字段可信。
+
+		\a modifiedMs 修改时间（UTC 毫秒）。
 	*/
 	void YSSFileAttributes::setModifiedMs(qint64 modifiedMs) {
 		this->d->ModifiedMs = modifiedMs;
@@ -324,6 +331,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置创建时间，并标记该字段可信。
+
+		\a createdMs 创建时间（UTC 毫秒）。
 	*/
 	void YSSFileAttributes::setCreatedMs(qint64 createdMs) {
 		this->d->CreatedMs = createdMs;
@@ -334,6 +343,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置访问时间，并标记该字段可信。
+
+		\a accessedMs 访问时间（UTC 毫秒）。
 	*/
 	void YSSFileAttributes::setAccessedMs(qint64 accessedMs) {
 		this->d->AccessedMs = accessedMs;
@@ -344,6 +355,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置目录标志，并标记该字段可信。
+
+		\a isDirectory 是否为目录。
 	*/
 	void YSSFileAttributes::setIsDirectory(bool isDirectory) {
 		this->d->IsDirectory = isDirectory;
@@ -354,6 +367,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置符号链接标志，并标记该字段可信。
+
+		\a isSymlink 是否为符号链接。
 	*/
 	void YSSFileAttributes::setIsSymlink(bool isSymlink) {
 		this->d->IsSymlink = isSymlink;
@@ -364,6 +379,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置隐藏标志，并标记该字段可信。
+
+		\a isHidden 是否隐藏。
 	*/
 	void YSSFileAttributes::setIsHidden(bool isHidden) {
 		this->d->IsHidden = isHidden;
@@ -374,6 +391,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置只读标志，并标记该字段可信。
+
+		\a isReadOnly 是否只读。
 	*/
 	void YSSFileAttributes::setIsReadOnly(bool isReadOnly) {
 		this->d->IsReadOnly = isReadOnly;
@@ -384,6 +403,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置可执行标志，并标记该字段可信。
+
+		\a isExecutable 是否可执行。
 	*/
 	void YSSFileAttributes::setIsExecutable(bool isExecutable) {
 		this->d->IsExecutable = isExecutable;
@@ -393,7 +414,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		把 POSIX \c{st_mode} 原始值包装成 \l{Permissions}。只保留低 16 位，
+		把 POSIX \c{st_mode} 原始值包装成 Permissions。只保留低 16 位，
 		多余的高位会被丢弃，因此不要求调用方先做截断。
 
 		\a rawMode 后端给出的 mode 原值。
@@ -406,6 +427,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置原生 POSIX mode，并标记该字段可信。
+
+		\a permissions POSIX 权限位。
 	*/
 	void YSSFileAttributes::setPermissions(Permissions permissions) {
 		this->d->Permissions = permissions.toInt();
@@ -416,6 +439,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置所有者 id，并标记该字段可信。
+
+		\a ownerId 所有者数字 id。
 	*/
 	void YSSFileAttributes::setOwnerId(quint32 ownerId) {
 		this->d->OwnerId = ownerId;
@@ -426,6 +451,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置所属组 id，并标记该字段可信。
+
+		\a groupId 所属组数字 id。
 	*/
 	void YSSFileAttributes::setGroupId(quint32 groupId) {
 		this->d->GroupId = groupId;
@@ -436,6 +463,8 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		设置符号链接目标，并标记该字段可信。
+
+		\a linkTarget 符号链接目标。
 	*/
 	void YSSFileAttributes::setLinkTarget(const QString& linkTarget) {
 		this->d->LinkTarget = linkTarget;

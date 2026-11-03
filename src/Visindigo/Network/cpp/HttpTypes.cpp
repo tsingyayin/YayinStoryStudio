@@ -48,7 +48,7 @@ namespace Visindigo::Network {
 		栈展开意外绕过——异常在 Qt 的信号槽中传播本身就是不推荐的用法。
 
 		\list
-		\li \b{Type} 错误分类，取值见 \l{HttpError::ErrorType}。
+		\li \b{Type} 错误分类，取值见 HttpError::ErrorType。
 		\li \b{HttpStatus} 有 HTTP 响应时为状态码，否则为 0。
 		\li \b{Message} 面向用户的简短错误描述。
 		\li \b{Detail} 服务端返回的原始错误体（已按上限截断），常用于展示 4xx/5xx 的具体原因。
@@ -106,7 +106,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		判断本结构是否真的表示一个错误，即 \c{Type} 不等于 \l{ErrorType::NoError}。
+		判断本结构是否真的表示一个错误，即 \c{Type} 不等于 ErrorType::NoError。
 
 		return 不是 NoError 时返回 true。
 	*/
@@ -140,7 +140,7 @@ namespace Visindigo::Network {
 		\brief 与具体协议无关的流帧.
 
 		请求中心不关心帧来自哪种文本流格式，只负责把字节流切成帧，
-		切分规则由 \l{IStreamDecoder} 的实现决定：
+		切分规则由 IStreamDecoder 的实现决定：
 
 		\list
 		\li SSE（W3C text/event-stream）：\c{Event} 为 \c{event:} 字段（可能为空），
@@ -182,12 +182,12 @@ namespace Visindigo::Network {
 
 		\list
 		\li \b{必须能处理任意切分点}。TCP 是字节流协议，分包边界与帧边界毫无关系，
-			一个帧可能被拆到任意多次 \l{feed()} 中到达，也可能一次到达包含多个帧。
+			一个帧可能被拆到任意多次 feed() 中到达，也可能一次到达包含多个帧。
 			实现必须自行缓存不完整的尾部，而不能假设"每次调用恰好是一个完整帧"。
-		\li \b{状态必须可重置}。请求因重试或重定向需要重发时，中心会调用 \l{reset()}
+		\li \b{状态必须可重置}。请求因重试或重定向需要重发时，中心会调用 reset()
 			让解码器丢掉上一跳的残留缓冲，因此实现不能把"第一次调用"作为初始状态
 			的来源。
-		\li \b{必须尊重单帧上限}。当缓存超过 \l{setMaxFrameBytes()} 设定的长度仍未
+		\li \b{必须尊重单帧上限}。当缓存超过 setMaxFrameBytes() 设定的长度仍未
 			出现分帧符时，实现应当丢弃该部分而不是继续累积——否则一个始终不发换行
 			的恶意响应就能把进程内存吃光。本模块自带的两个实现都采用"清空缓冲"的
 			策略。
@@ -195,7 +195,7 @@ namespace Visindigo::Network {
 
 		\note 同一实例不会被两个请求同时使用，因此实现无需考虑并发访问；但也不应
 		依赖"只会被一个请求用到底"，重试会复用同一个 shared_ptr 实例，这也是要求
-		实现支持 \l{reset()} 的原因。
+		实现支持 reset() 的原因。
 
 		内置实现见 Visindigo::Network::SseDecoder（W3C text/event-stream）与
 		Visindigo::Network::JsonLinesDecoder（NDJSON）。
@@ -245,7 +245,7 @@ namespace Visindigo::Network {
 		在流结束时调用一次，返回缓冲中剩余内容所能构成的帧。
 
 		之所以需要这个独立的入口，是因为不少服务端在发出最后一个事件后直接断开
-		连接，而不补上作为结束标记的空行（SSE）或换行（NDJSON）。若只靠 \l{feed()}
+		连接，而不补上作为结束标记的空行（SSE）或换行（NDJSON）。若只靠 feed()
 		分帧，这最后一份数据就会被永远留在缓冲区里。
 	*/
 

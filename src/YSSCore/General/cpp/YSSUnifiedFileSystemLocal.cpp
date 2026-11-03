@@ -699,7 +699,7 @@ namespace YSSCore::General {
 		QSet<QString> PendingPaths;
 	};
 
-	/*!
+	/*
 		\class YSSCore::General::YSSLocalFileSystemProvider
 		\inheaderfile General/YSSUnifiedFileSystemLocal.h
 		\since YSS 0.18.0
@@ -709,7 +709,7 @@ namespace YSSCore::General {
 		把相对根的路径映射到本机绝对路径，读写落在 Qt 的工作线程池里，调用方线程
 		不会被文件 IO 阻塞。文件属性直接来自 QFileInfo。
 
-		根必须是 \l{YSSURI::Scheme::Local}。越出根的相对路径（例如 \c{../..}）
+		根必须是 YSSURI::Scheme::Local。越出根的相对路径（例如 \c{../..}）
 		会被判为无效，而不是被钳制到根。
 	*/
 
@@ -738,15 +738,15 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		本机后端支持全部操作能力。Windows 的盘符路径不区分大小写，因此不置
-		\l{YSSUnifiedFileSystem::PathCaseSensitive}。
+		YSSUnifiedFileSystem::PathCaseSensitive。
 
 		回收站能力按 URI 判定：只有固定盘和可移动盘才置
-		\l{YSSUnifiedFileSystem::CanRecycle}，网络映射盘、光驱等位置没有回收站。
+		YSSUnifiedFileSystem::CanRecycle，网络映射盘、光驱等位置没有回收站。
 		Qt 资源（\c{qrc}）解析出来的不是本机路径，因此也不会置这一位。
 
 		\a uri 文件身份。
 
-		\return 能力集合。
+		return 能力集合。
 		*/
 		YSSUnifiedFileSystem::Capabilities YSSLocalFileSystemProvider::getCapabilities(const YSSURI& uri) const {
 			YSSUnifiedFileSystem::Capabilities capabilities = YSSUnifiedFileSystem::AllCapabilities;
@@ -784,13 +784,13 @@ namespace YSSCore::General {
 		开始监听一个本机目录。重复登记同一目录无副作用。
 
 		监听由 QFileSystemWatcher 驱动，同一目录在一小段时间内的多次变化会被合并成
-		一次 \l{watchedDirectoryChanged()}。同时监听的目录数有上限，超出时以
-		\l{YSSFileError::ErrorType::NotSupported} 失败，由调用方退化为手动刷新。
+		一次 watchedDirectoryChanged()。同时监听的目录数有上限，超出时以
+		YSSFileError::ErrorType::NotSupported 失败，由调用方退化为手动刷新。
 
 		\a uri 目录身份，必须属于本机。
 		\a error 输出参数，失败原因，可为 nullptr。
 
-		\return 登记成功返回 true。
+		return 登记成功返回 true。
 	*/
 	bool YSSLocalFileSystemProvider::watchDirectory(const YSSURI& uri, YSSFileError* error) {
 		if (!uri.isValid() || !uri.isNotRemote()) {
@@ -845,7 +845,7 @@ namespace YSSCore::General {
 
 		\a uri 目录身份。
 
-		\return 确实取消了一条登记时返回 true。
+		return 确实取消了一条登记时返回 true。
 	*/
 	bool YSSLocalFileSystemProvider::unwatchDirectory(const YSSURI& uri) {
 		const QString path = QDir::cleanPath(uri.getLocalPath());
@@ -898,7 +898,7 @@ namespace YSSCore::General {
 
 		本机后端不持有任何"根"：身份完全来自请求携带的绝对 URI，因此始终可用。
 
-		\return 恒为 true。
+		return 恒为 true。
 	*/
 	bool YSSLocalFileSystemProvider::isReady() const {
 		return true;
@@ -907,7 +907,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		提交操作。实际的读写在工作线程池里执行，结果通过 \l{YSSFileSystemReply} 返回。
+		提交操作。实际的读写在工作线程池里执行，结果通过 YSSFileSystemReply 返回。
 
 		\a request 操作参数。
 		\a range 本次要读写的区间，只对 Read/Write 有意义。

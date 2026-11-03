@@ -159,7 +159,7 @@ namespace YSSCore::General {
 			\li 与之同一 authority 的远端路径按上面的本地规则处理，即项目文件夹内记
 				\c{./相对路径}，否则记远端绝对路径；
 			\li 其它 authority 的远端路径记作远程绝对路径；
-			\li 本地路径加上 \l{RemoteLocalPrefix} 前缀后记录，表示"执行保存的这台
+			\li 本地路径加上 RemoteLocalPrefix 前缀后记录，表示"执行保存的这台
 				机器上的绝对路径"。
 			\endlist
 
@@ -191,11 +191,11 @@ namespace YSSCore::General {
 		}
 
 		/*
-			\l{uriToStr()} 的逆过程。
+			uriToStr() 的逆过程。
 
 			\c{./} 开头的文本按项目文件夹解析，因此 ConfigPath 为远端时得到同一个
-			authority 的远端 URI；其余文本交给 \l{YSSURI::fromString()}。带
-			\l{RemoteLocalPrefix} 前缀的文本会被还原成本机绝对路径——无论当前
+			authority 的远端 URI；其余文本交给 YSSURI::fromString()。带
+			RemoteLocalPrefix 前缀的文本会被还原成本机绝对路径——无论当前
 			ConfigPath 是本地还是远端：配置文件里写着"某台机器的本机路径"，在本机
 			打开时指的就是同一个本机路径。
 
@@ -230,7 +230,7 @@ namespace YSSCore::General {
 		}
 
 		/*
-			读取一个路径列表节点，其中每项都是 \l{uriToStr()} 的产物。
+			读取一个路径列表节点，其中每项都是 uriToStr() 的产物。
 		*/
 		QList<YSSURI> readUriList(const QString& key) const {
 			QList<YSSURI> files;
@@ -317,11 +317,11 @@ namespace YSSCore::General {
 		YSSProject类代表YSS项目数据。它是作为project.yssp文件的API操作以及读写使用，只负责数据操作，
 		不负责在程序中充当一个关于项目各项内容更改时的数据集散中心。
 
-		自YSS 0.18.0起，项目位置由 \l{YSSURI} 标识，因此本地项目与SSH远端项目使用同一套API。
-		YSSProject是QObject派生类，因为读写都是异步的：\l{loadProject()} 不会同步返回结果，
-		调用方需要连接 \l{projectLoaded()} / \l{projectLoadFailed()} 获取结论；
-		\l{saveProject()} 同理，写盘期间 \l{isSaving()} 为 true，结束后由
-		\l{projectSaved()} / \l{projectSaveFailed()} 通知。
+		自YSS 0.18.0起，项目位置由 YSSURI 标识，因此本地项目与SSH远端项目使用同一套API。
+		YSSProject是QObject派生类，因为读写都是异步的：loadProject() 不会同步返回结果，
+		调用方需要连接 projectLoaded() / projectLoadFailed() 获取结论；
+		saveProject() 同理，写盘期间 isSaving() 为 true，结束后由
+		projectSaved() / projectSaveFailed() 通知。
 
 		譬如，如果调用此类的setFocusedFile函数，它只会修改对应yssp文件中记录的数据，
 		不会真的使YSS编辑器变更当前打开的文件。这个需求需要用户调用FileServerManager
@@ -339,7 +339,7 @@ namespace YSSCore::General {
 		\enum YSSCore::General::YSSProject::LoadError
 		\since YSS 0.13.0
 
-		\value None 没有错误。加载成功后 \l{getLoadError()} 返回此值。
+		\value None 没有错误。加载成功后 getLoadError() 返回此值。
 		\value Unknown 未知的加载结果
 		\value InvalidUri 传入的配置路径不是合法的URI
 		\value NotFound 配置文件不存在
@@ -369,7 +369,9 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		构造函数，创建一个空的项目
+		构造函数，创建一个空的项目。
+
+		\a parent 父对象。
 	*/
 	YSSProject::YSSProject(QObject* parent) : QObject(parent) {
 		d = new YSSProjectPrivate();
@@ -380,7 +382,7 @@ namespace YSSCore::General {
 		析构函数。
 
 		析构时若仍有保存请求在途，写入本身不会被打断（数据已交给 UnifiedFileSystem），
-		只是 \l{projectSaved()} / \l{projectSaveFailed()} 不会再发给这个对象。
+		只是 projectSaved() / projectSaveFailed() 不会再发给这个对象。
 	*/
 	YSSProject::~YSSProject() {
 		if (YSSProjectPrivate::CurrentProject == this) {
@@ -396,11 +398,11 @@ namespace YSSCore::General {
 
 		本函数立即返回，结果通过信号通知：
 		\list
-		\li 成功时发出 \l{projectLoaded()}，此时 \l{getProjectPath()} 为 \a configPath；
-		\li 失败时发出 \l{projectLoadFailed()}，参数给出原因。
+		\li 成功时发出 projectLoaded()，此时 getProjectPath() 为 \c{configPath}；
+		\li 失败时发出 projectLoadFailed()，参数给出原因。
 		\endlist
 
-		失败时 \l{isLoaded()} 为 false，且不会修改已有的 \l{getProjectPath()}。
+		失败时 isLoaded() 为 false，且不会修改已有的 getProjectPath()。
 	*/
 	void YSSProject::loadProject(const YSSURI& configPath) {
 		if (not configPath.isValid()) {
@@ -470,9 +472,9 @@ namespace YSSCore::General {
 		\a configPath 默认为无效URI，代表在加载位置原地保存。如果传入其它值，
 		就相当于另存为，之后的保存都会写到这里。
 
-		本函数立即返回。写盘期间 \l{isSaving()} 为 true；若在写入结束前再次调用，
+		本函数立即返回。写盘期间 isSaving() 为 true；若在写入结束前再次调用，
 		不会重复排队，而是在当前写入结束后按最新内容再写一次。
-		写盘结束发出 \l{projectSaved()} 或 \l{projectSaveFailed()}。
+		写盘结束发出 projectSaved() 或 projectSaveFailed()。
 	*/
 	void YSSProject::saveProject(const YSSURI& configPath) {
 		if (configPath.isValid()) {
@@ -521,9 +523,9 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.13.0
-		return 是否已加载（含由 \l{initConfig()} 初始化）了项目配置。
+		return 是否已加载（含由 initConfig() 初始化）了项目配置。
 
-		这里只反映最近一次加载的结果；要拿到失败原因请用 \l{getLoadError()}。
+		这里只反映最近一次加载的结果；要拿到失败原因请用 getLoadError()。
 	*/
 	bool YSSProject::isLoaded() const {
 		return d->Loaded;
@@ -539,7 +541,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		return 最近一次 \l{loadProject()} 的结果；成功时为 \l{LoadError::None}。
+		return 最近一次 loadProject() 的结果；成功时为 LoadError::None。
 	*/
 	YSSProject::LoadError YSSProject::getLoadError() const {
 		return d->LastLoadError;
@@ -552,9 +554,9 @@ namespace YSSCore::General {
 		本函数只在内存里准备项目配置，并把配置路径设为 \c{folder/project.yssp}：
 		不创建文件夹、不检查文件夹是否为空、也不写盘。
 
-		\note 文件夹的创建与所有文件的写入都由调用方通过 \l{YSSUnifiedFileSystem} 完成，
+		\note 文件夹的创建与所有文件的写入都由调用方通过 YSSUnifiedFileSystem 完成，
 		这样本地项目与远端项目走同一条路径。
-		\note 初始化完成后调用方需要自行调用 \l{saveProject()} 把配置写到目标位置。
+		\note 初始化完成后调用方需要自行调用 saveProject() 把配置写到目标位置。
 
 		return 是否成功初始化项目配置
 	*/
@@ -583,7 +585,7 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 		return 整份项目配置的副本。
 
-		项目模板用它把准备好的配置导出给调用方，调用方再通过 \l{setYSSProjectContent()}
+		项目模板用它把准备好的配置导出给调用方，调用方再通过 setYSSProjectContent()
 		设置到新建的 YSSProject 上。本函数不写盘。
 	*/
 	Visindigo::Utility::JsonConfig YSSProject::getYSSProjectContent() const {
@@ -594,7 +596,7 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 		\a config 整份项目配置
 
-		用 \a config 替换当前的项目配置。本函数不写盘，需要落盘时自行调用 \l{saveProject()}。
+		用 \a config 替换当前的项目配置。本函数不写盘，需要落盘时自行调用 saveProject()。
 	*/
 	void YSSProject::setYSSProjectContent(const Visindigo::Utility::JsonConfig& config) {
 		d->ProjectConfig = config;
@@ -621,7 +623,7 @@ namespace YSSCore::General {
 		return 当前项目的文件夹路径。
 
 		项目文件夹就是配置文件所在目录。返回的URI跟随项目位置：本地项目是本地目录，
-		远端项目是远端主机上的目录。需要本地路径时请用 \l{YSSURI::getLocalPath()}。
+		远端项目是远端主机上的目录。需要本地路径时请用 YSSURI::getLocalPath()。
 	*/
 	YSSURI YSSProject::getProjectFolder() {
 		return d->projectFolder();
@@ -688,7 +690,7 @@ namespace YSSCore::General {
 		\since YSS 0.13.0
 		设置项目图标路径为 \a iconPath
 
-		路径按 \l{uriToStr()} 的规则记录：落在项目文件夹内的图标存成相对路径，
+		路径按 \c{uriToStr()} 的规则记录：落在项目文件夹内的图标存成相对路径，
 		因此项目整体搬迁后依然有效。
 	*/
 	void YSSProject::setProjectIconPath(const YSSURI& iconPath) {
@@ -835,7 +837,7 @@ namespace YSSCore::General {
 		\since YSS 0.13.0
 
 		return 项目中编辑器当前打开的文件列表。本机文件、远端文件、虚拟文档、
-		Qt 资源都以 \l{YSSURI} 返回，不再压平成字符串。
+		Qt 资源都以 YSSURI 返回，不再压平成字符串。
 
 		这个函数不区分区域，它会自动检索所有区域的打开文件列表，返回所有文件。
 
@@ -853,7 +855,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.17.0
 
-		return 项目中编辑器当前打开的文件列表，按区域区分。元素为 \l{YSSURI}。
+		return 项目中编辑器当前打开的文件列表，按区域区分。元素为 YSSURI。
 	*/
 	QMap<QString, QList<YSSURI>> YSSProject::getEditorOpenedFilesInArea() {
 		QMap<QString, QList<YSSURI>> areaFiles;
@@ -873,7 +875,7 @@ namespace YSSCore::General {
 		\a areaID 编辑器打开文件所在的区域ID，默认为空字符串。
 
 		向项目中添加一个编辑器打开的文件。如果这个文件落在项目文件夹内，则
-		转换为相对路径存储，否则以绝对形式存储；具体规则见 \l{uriToStr()}。
+		转换为相对路径存储，否则以绝对形式存储；具体规则见 \c{uriToStr()}。
 
 		这个API和YSSCore::Editor::FileServerManager中的编辑器打开文件列表是分离的。
 		它只是单纯地修改项目文件中的数据，告诉项目这个文件被打开了，但它并不会真的使编辑器打开这个文件。
@@ -1352,6 +1354,8 @@ namespace YSSCore::General {
 		\since YSS 0.17.0
 
 		添加一个项目所需的插件ID到项目配置中。如果插件ID已存在，则不会重复添加。
+
+		\a pluginID 插件 ID。
 	*/
 	void YSSProject::addRequiredPlugin(const QString& pluginID) {
 		QStringList requiredPlugins = d->ProjectConfig.getStringList("Project.RequiredPlugins");
@@ -1364,6 +1368,8 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.17.0
 		移除一个项目所需的插件ID从项目配置中。如果插件ID不存在，则不会有任何操作。
+
+		\a pluginID 插件 ID。
 	*/
 	void YSSProject::removeRequiredPlugin(const QString& pluginID) {
 		QStringList requiredPlugins = d->ProjectConfig.getStringList("Project.RequiredPlugins");
@@ -1376,6 +1382,8 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.17.0
 		设置项目所需的插件ID列表到项目配置中。这个函数会覆盖原有的列表。
+
+		\a pluginIDs 插件 ID 列表。
 	*/
 	void YSSProject::setRequiredPlugins(const QStringList& pluginIDs) {
 		d->ProjectConfig.setStringList("Project.RequiredPlugins", pluginIDs);
@@ -1410,7 +1418,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.17.0
-		为指定文件\a uri 记录偏好的文件服务ID \a serverID。
+		为指定文件记录偏好的文件服务 ID。
+
+		\a uri 文件身份。
+		\a serverID 文件服务 ID。
 	*/
 	void YSSProject::setFilePreferredFileServer(const YSSURI& uri, const QString& serverID) {
 		if (not uri.isValid()) {

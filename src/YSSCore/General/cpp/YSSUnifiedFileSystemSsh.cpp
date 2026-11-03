@@ -320,7 +320,7 @@ namespace YSSCore::General {
 		bool CloseRequested = false;
 	};
 
-	/*!
+	/*
 		\class YSSCore::General::YSSSshFileSystemProvider
 		\inheaderfile General/YSSUnifiedFileSystemSsh.h
 		\since YSS 0.18.0
@@ -328,11 +328,11 @@ namespace YSSCore::General {
 		\brief SSH 远端目录后端.
 
 		把通用文件操作翻译成 SFTP 请求，连接与认证交给
-		\l{Visindigo::Network::SshSession}。相对根的路径先经 \l{YSSURI::resolve()}
+		Visindigo::Network::SshSession。相对根的路径先经 YSSURI::resolve()
 		拼成远端绝对路径，再交给 SFTP。
 
-		连接是显式的：先 \l{setConnectConfig()} 给出凭据，再 \l{connect()}。
-		连接成功之前提交的操作会直接以 \l{YSSFileError::ErrorType::NeedsCredentials}
+		连接是显式的：先 setConnectConfig() 给出凭据，再 connect()。
+		连接成功之前提交的操作会直接以 YSSFileError::ErrorType::NeedsCredentials
 		失败，而不是排队——静默排队会让调用方误以为操作已经生效。
 	*/
 
@@ -366,9 +366,11 @@ namespace YSSCore::General {
 		\since YSS 0.18.0
 
 		SSH 后端支持全部操作能力。远端按 POSIX 处理，因此置
-		\l{YSSUnifiedFileSystem::PathCaseSensitive}。
+		YSSUnifiedFileSystem::PathCaseSensitive。
 
-		\return 能力集合。
+		\a uri 文件身份。
+
+		return 能力集合。
 		*/
 		YSSUnifiedFileSystem::Capabilities YSSSshFileSystemProvider::getCapabilities(const YSSURI& uri) const {
 			// SFTP 没有回收站，因此不置 CanRecycle：Recycle 请求会在门面层就以
@@ -383,7 +385,7 @@ namespace YSSCore::General {
 
 		判断后端是否可用。只有连接建立之后才为真；配置完整但未连接时为假。
 
-		\return 就绪返回 true。
+		return 就绪返回 true。
 	*/
 	bool YSSSshFileSystemProvider::isReady() const {
 		return this->d->Session != nullptr && this->d->Session->isReady();
@@ -394,7 +396,7 @@ namespace YSSCore::General {
 
 		判断连接信息是否已经配置完整。配置完整不代表已经连上。
 
-		\return 已配置返回 true。
+		return 已配置返回 true。
 	*/
 	bool YSSSshFileSystemProvider::isConfigured() const {
 		return this->d->Config.isValid();
@@ -403,11 +405,11 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		设置连接配置（含凭据）。设置后再调用 \l{connect()}。
+		设置连接配置（含凭据）。设置后再调用 connect()。
 
 		\a config 连接配置。
 
-		\return 配置是否自洽。
+		return 配置是否自洽。
 	*/
 	bool YSSSshFileSystemProvider::setConnectConfig(const Visindigo::Network::SshConnectConfig& config) {
 		this->d->Config = config;
@@ -419,7 +421,7 @@ namespace YSSCore::General {
 
 		取当前连接配置。
 
-		\return 连接配置的副本。
+		return 连接配置的副本。
 	*/
 	Visindigo::Network::SshConnectConfig YSSSshFileSystemProvider::getConnectConfig() const {
 		return this->d->Config;
@@ -428,7 +430,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		开始连接。配置不完整时不会发起连接，而是直接发出 \l{connectFinished()} 失败信号。
+		开始连接。配置不完整时不会发起连接，而是直接发出 connectFinished() 失败信号。
 		根是可选的：没有根时必须显式设置连接配置。
 	*/
 	void YSSSshFileSystemProvider::connect() {

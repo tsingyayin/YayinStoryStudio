@@ -86,7 +86,7 @@ namespace YSSCore::General {
 
 	/*!
 		\class YSSCore::General::YSSURI
-		\brief 对本地资源、远端资源、虚拟文档和QRC资源的统一标识。
+		\brief 对本地资源、远端资源、虚拟文档和QRC资源的统一标识.
 		\since YSS 0.18.0
 		\inmodule YSSCore
 
@@ -188,9 +188,9 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a path 本机路径，可以是绝对路径或相对路径，也可以直接是虚拟文档路径或QRC资源路径。
-		\return 对应的YSSURI；无法解析时返回无效URI。
+		return 对应的YSSURI；无法解析时返回无效URI。
 
-		本机路径交给 \l{QFileInfo::absoluteFilePath()}：相对路径按当前工作目录转成绝对路径，
+		本机路径交给 QFileInfo::absoluteFilePath()：相对路径按当前工作目录转成绝对路径，
 		Windows 上的反斜杠一并转成正斜杠，随后原样存储这个绝对路径。虚拟文档与 QRC 资源
 		不经过 QFileInfo。
 	*/
@@ -223,10 +223,10 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a text 任意形式的资源标识：虚拟文档路径、\c{ssh://} 远端路径、QRC 资源路径，或普通本机路径。
-		\return 解析结果；无法识别时返回无效URI。
+		return 解析结果；无法识别时返回无效URI。
 
 		识别顺序固定为虚拟文档、远端路径、QRC 资源、本机路径。本机路径不再接受任何
-		自定义的 scheme 前缀，原样交给 \l{QFileInfo}。
+		自定义的 scheme 前缀，原样交给 QFileInfo。
 	*/
 	YSSURI YSSURI::fromString(const QString& text) {
 		const QString trimmed = text.trimmed();
@@ -253,7 +253,7 @@ namespace YSSCore::General {
 		\fn YSSCore::General::YSSURI YSSCore::General::YSSURI::fromVirtualPath(const QString& virtualPath)
 		\since YSS 0.18.0
 		\a virtualPath 形如 \c{@ext!name?param} 的虚拟文档路径。
-		\return 对应的YSSURI；格式不合法时返回无效URI。
+		return 对应的YSSURI；格式不合法时返回无效URI。
 	*/
 	YSSURI YSSURI::fromVirtualPath(const QString& virtualPath) {
 		const QString trimmed = virtualPath.trimmed();
@@ -272,7 +272,7 @@ namespace YSSCore::General {
 		\a host 主机名或带方括号的 IPv6 字面量，不能带端口。
 		\a port 端口，小于等于0表示默认端口。
 		\a path 远端绝对路径。
-		\return 对应的YSSURI；主机名为空或路径越界时返回无效URI。
+		return 对应的YSSURI；主机名为空或路径越界时返回无效URI。
 	*/
 	YSSURI YSSURI::fromSsh(const QString& user, const QString& host, qint32 port, const QString& path) {
 		const Visindigo::Network::SshPath sshPath = Visindigo::Network::SshPath::fromParts(user, host, port, path);
@@ -287,7 +287,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否是一个可用的URI。
+		return 是否是一个可用的URI。
 	*/
 	bool YSSURI::isValid() const {
 		return d->SchemeType != Scheme::Unknown;
@@ -295,7 +295,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 该URI的scheme。
+		return 该URI的scheme。
 	*/
 	YSSURI::Scheme YSSURI::getScheme() const {
 		return d->SchemeType;
@@ -303,11 +303,11 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否是本机文件，即 scheme 为 \l{Scheme::Local}。
-		请注意，虽然QRC文件肯定也只能通过本地读取，但它属于 \l{Scheme::Resource}，
+		return 是否是本机文件，即 scheme 为 Scheme::Local。
+		请注意，虽然QRC文件肯定也只能通过本地读取，但它属于 Scheme::Resource，
 		不在此函数的判断范围内。
 
-		如果要判断从本地读取的文件，应该使用 \l{isNotRemote()}。
+		如果要判断从本地读取的文件，应该使用 isNotRemote()。
 	*/
 	bool YSSURI::isLocal() const {
 		return this->getScheme() == Scheme::Local;
@@ -315,7 +315,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否指向 Qt 资源（qrc）。
+		return 是否指向 Qt 资源（qrc）。
 	*/
 	bool YSSURI::isResource() const {
 		return this->getScheme() == Scheme::Resource;
@@ -323,7 +323,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否指向SSH远端文件。
+		return 是否指向SSH远端文件。
 	*/
 	bool YSSURI::isRemote() const {
 		return this->getScheme() == Scheme::SSH;
@@ -331,7 +331,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否由本机后端处理，即 \l{Scheme::Local} 或 \l{Scheme::Resource}
+		return 是否由本机后端处理，即 Scheme::Local 或 Scheme::Resource
 	*/
 	bool YSSURI::isNotRemote() const {
 		const Scheme scheme = this->getScheme();
@@ -340,7 +340,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否指向虚拟文档。
+		return 是否指向虚拟文档。
 	*/
 	bool YSSURI::isVirtual() const {
 		return this->getScheme() == Scheme::VirtualFile;
@@ -348,10 +348,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否指向一个存在的普通文件。
+		return 是否指向一个存在的普通文件。
 
-		只有 \l{Scheme::Local} 会真的查询文件系统（\l{QFileInfo::isFile()}）；远端、
-		虚拟文档与 QRC 资源没有同步的文件系统信息，恒为 false。目录请用 \l{isDir()}。
+		只有 Scheme::Local 会真的查询文件系统（QFileInfo::isFile()）；远端、
+		虚拟文档与 QRC 资源没有同步的文件系统信息，恒为 false。目录请用 isDir()。
 	*/
 	bool YSSURI::isFile() const {
 		const QFileInfo* info = d->local();
@@ -360,10 +360,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 是否指向一个存在的目录。
+		return 是否指向一个存在的目录。
 
-		只有 \l{Scheme::Local} 会真的查询文件系统（\l{QFileInfo::isDir()}）；远端、
-		虚拟文档与 QRC 资源恒为 false。文件请用 \l{isFile()}。
+		只有 Scheme::Local 会真的查询文件系统（QFileInfo::isDir()）；远端、
+		虚拟文档与 QRC 资源恒为 false。文件请用 isFile()。
 	*/
 	bool YSSURI::isDir() const {
 		const QFileInfo* info = d->local();
@@ -372,7 +372,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 本机文件信息；scheme 不是 \l{Scheme::Local} 时返回 \c{std::nullopt}。
+		return 本机文件信息；scheme 不是 Scheme::Local 时返回 \c{std::nullopt}。
 	*/
 	std::optional<QFileInfo> YSSURI::getLocalFileInfo() const {
 		const QFileInfo* info = d->local();
@@ -384,7 +384,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 远端路径；scheme 不是 \l{Scheme::SSH} 时返回 \c{std::nullopt}。
+		return 远端路径；scheme 不是 Scheme::SSH 时返回 \c{std::nullopt}。
 	*/
 	std::optional<Visindigo::Network::SshPath> YSSURI::getSshPath() const {
 		const Visindigo::Network::SshPath* path = d->sshPath();
@@ -396,7 +396,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 虚拟文档路径；scheme 不是 \l{Scheme::VirtualFile} 时返回 \c{std::nullopt}。
+		return 虚拟文档路径；scheme 不是 Scheme::VirtualFile 时返回 \c{std::nullopt}。
 	*/
 	std::optional<YSSCore::Editor::VirtualFilePath> YSSURI::getVirtualFilePath() const {
 		const YSSCore::Editor::VirtualFilePath* path = d->virtualPath();
@@ -408,10 +408,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return QRC 资源的 \c{:} 前缀形式（与 \l{QFile} 接受的形式一致，形如 \c{:/x}）；
+		return QRC 资源的 \c{:} 前缀形式（与 QFile 接受的形式一致，形如 \c{:/x}）；
 		其余scheme返回空字符串。
 
-		Qt 把资源路径写成 \c{:/x}，把这个字符串直接交给 \l{QFile} 就能打开。
+		Qt 把资源路径写成 \c{:/x}，把这个字符串直接交给 QFile 就能打开。
 	*/
 	QString YSSURI::getResourcePath() const {
 		return d->resourcePathText();
@@ -419,7 +419,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return SSH用户名；其余scheme返回空字符串。
+		return SSH用户名；其余scheme返回空字符串。
 	*/
 	QString YSSURI::getUser() const {
 		const Visindigo::Network::SshPath* path = d->sshPath();
@@ -428,9 +428,9 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 虚拟文档的扩展名（FileServer ID），或 SSH 主机名；其余scheme返回空字符串。
+		return 虚拟文档的扩展名（FileServer ID），或 SSH 主机名；其余scheme返回空字符串。
 
-		本机路径没有主机概念：\l{QFileInfo} 不区分 UNC 的主机名与共享名，因此这里也
+		本机路径没有主机概念：QFileInfo 不区分 UNC 的主机名与共享名，因此这里也
 		不额外拆分。
 	*/
 	QString YSSURI::getHost() const {
@@ -445,9 +445,9 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return SSH显式端口；未指定或其余scheme返回-1。
+		return SSH显式端口；未指定或其余scheme返回-1。
 
-		需要"实际使用哪个端口"时请改用 \l{Visindigo::Network::SshPath::getEffectivePort()}。
+		需要"实际使用哪个端口"时请改用 \c{SshPath::getEffectivePort()}。
 	*/
 	qint32 YSSURI::getPort() const {
 		const Visindigo::Network::SshPath* path = d->sshPath();
@@ -456,7 +456,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 规范化的路径：本机为绝对路径（正斜杠），远端为 POSIX 绝对路径，
+		return 规范化的路径：本机为绝对路径（正斜杠），远端为 POSIX 绝对路径，
 		虚拟文档为名称部分，QRC 为 \c{:} 前缀的资源路径（\c{:/x}）。
 	*/
 	QString YSSURI::getPath() const {
@@ -474,7 +474,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 虚拟文档的参数部分（紧凑 JSON）；其余scheme返回空字符串。
+		return 虚拟文档的参数部分（紧凑 JSON）；其余scheme返回空字符串。
 	*/
 	QString YSSURI::getQuery() const {
 		const YSSCore::Editor::VirtualFilePath* path = d->virtualPath();
@@ -483,7 +483,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 本机路径（原生分隔符）或 QRC 的 \c{:} 前缀形式；其余scheme返回空字符串。
+		return 本机路径（原生分隔符）或 QRC 的 \c{:} 前缀形式；其余scheme返回空字符串。
 	*/
 	QString YSSURI::getLocalPath() const {
 		if (const QFileInfo* info = d->local()) {
@@ -497,7 +497,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return \c doc scheme的 \c{@ext!name?param} 字符串；其余scheme返回空字符串。
+		return \c doc scheme的 \c{@ext!name?param} 字符串；其余scheme返回空字符串。
 	*/
 	QString YSSURI::getVirtualPath() const {
 		const YSSCore::Editor::VirtualFilePath* path = d->virtualPath();
@@ -506,9 +506,9 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 文件名；虚拟文档返回其名称部分。
+		return 文件名；虚拟文档返回其名称部分。
 
-		本机路径直接使用 \l{QFileInfo::fileName()}，因此以分隔符结尾的路径没有文件名。
+		本机路径直接使用 QFileInfo::fileName()，因此以分隔符结尾的路径没有文件名。
 	*/
 	QString YSSURI::getFileName() const {
 		if (const QFileInfo* info = d->local()) {
@@ -525,10 +525,10 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 去掉扩展名后的文件名，满足 \c{getFileMainName() + "." + getFileExt() == getFileName()}
-		（无扩展名时等于 \l{getFileName()}）。
+		return 去掉扩展名后的文件名，满足 \c{getFileMainName() + "." + getFileExt() == getFileName()}
+		（无扩展名时等于 getFileName()）。
 
-		本机路径用 \l{QFileInfo::completeBaseName()}，因此 \c{a.tar.gz} 的主名是 \c{a.tar}；
+		本机路径用 QFileInfo::completeBaseName()，因此 \c{a.tar.gz} 的主名是 \c{a.tar}；
 		远端与 QRC 资源按同样的规则切分自己的文件名；虚拟文档没有扩展名，返回整个名称。
 	*/
 	QString YSSURI::getFileMainName() const {
@@ -543,9 +543,9 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 扩展名，不含点，保持原始大小写；没有扩展名时返回空字符串。
+		return 扩展名，不含点，保持原始大小写；没有扩展名时返回空字符串。
 
-		虚拟文档没有扩展名概念，返回空字符串；它的 FileServer ID 用 \l{getHost()} 取。
+		虚拟文档没有扩展名概念，返回空字符串；它的 FileServer ID 用 getHost() 取。
 	*/
 	QString YSSURI::getFileExt() const {
 		if (const QFileInfo* info = d->local()) {
@@ -559,7 +559,7 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 上一级目录的URI；已在根上、或是虚拟文档/QRC 资源时返回无效URI。
+		return 上一级目录的URI；已在根上、或是虚拟文档/QRC 资源时返回无效URI。
 	*/
 	YSSURI YSSURI::parent() const {
 		if (const QFileInfo* info = d->local()) {
@@ -584,7 +584,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a root 作为根的URI。
-		\return 本URI是否与 \a root 同scheme、同authority，且路径在 \a root 之下（含相等）。
+		return 本URI是否与 \a root 同scheme、同authority，且路径在 \a root 之下（含相等）。
 
 		只有本机路径与远端路径有目录层级；虚拟文档既没有 authority 也没有目录，
 		与 QRC 资源一样总是返回 false。
@@ -621,7 +621,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a root 作为根的URI。
-		\return 相对 \a root 的路径；本URI与 \a root 相等、或不在其下时返回空字符串。
+		return 相对 \a root 的路径；本URI与 \a root 相等、或不在其下时返回空字符串。
 	*/
 	QString YSSURI::relativePathTo(const YSSURI& root) const {
 		if (d->SchemeType != root.d->SchemeType) {
@@ -658,10 +658,10 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a relativePath 相对于本URI的路径；若传入完整URI或虚拟文档路径，则直接返回解析结果。
-		\return 解析后的URI；越出根、或本位虚拟文档/QRC 资源时返回无效URI。
+		return 解析后的URI；越出根、或本位虚拟文档/QRC 资源时返回无效URI。
 
-		本机路径的拼接与规范化交给 \l{QFileInfo::absoluteFilePath()}；远端路径交给
-		\l{Visindigo::Network::SshPath::resolve()}。
+		本机路径的拼接与规范化交给 \c{QFileInfo::absoluteFilePath()}；远端路径交给
+		\c{SshPath::resolve()}。
 	*/
 	YSSURI YSSURI::resolve(const QString& relativePath) const {
 		if (d->SchemeType == Scheme::Unknown or d->SchemeType == Scheme::VirtualFile
@@ -702,12 +702,12 @@ namespace YSSCore::General {
 
 	/*!
 		\since YSS 0.18.0
-		\return 对应类型自己的规范字符串，可被 \l{fromString()} 原样解析回来。
+		return 对应类型自己的规范字符串，可被 fromString() 原样解析回来。
 
-		本机路径就是 \l{QFileInfo::absoluteFilePath()}，远端是
-		\l{Visindigo::Network::SshPath::toString()}，虚拟文档是
-		\l{YSSCore::Editor::VirtualFilePath::toString()}，QRC 是 \c{:/x}
-		（\l{QFile} 与 \l{QFileInfo} 接受的资源路径形式）。
+		本机路径就是 \c{QFileInfo::absoluteFilePath()}，远端是
+		\c{SshPath::toString()}，虚拟文档是
+		\c{VirtualFilePath::toString()}，QRC 是 \c{:/x}
+		（QFile 与 QFileInfo 接受的资源路径形式）。
 	*/
 	QString YSSURI::toString() const {
 		if (const QFileInfo* info = d->local()) {
@@ -728,9 +728,9 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a seed 哈希种子。
-		\return 与 qHash() 一致的哈希值。
+		return 与 qHash() 一致的哈希值。
 
-		取值来自 \l{toString()}。Windows 上的本机路径不区分大小写，因此这里对哈希输入
+		取值来自 toString()。Windows 上的本机路径不区分大小写，因此这里对哈希输入
 		也做同样的折叠，保证 \c{a == b} 蕴含 \c{hash(a) == hash(b)}。
 	*/
 	std::size_t YSSURI::hash(std::size_t seed) const {
@@ -744,14 +744,14 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a other 另一个URI。
-		\return 两者是否指向同一资源。
+		return 两者是否指向同一资源。
 
 		先比较 scheme，再交给该 scheme 自己的相等语义：
 		\list
-		\li \l{Scheme::Local} 用 \l{QFileInfo::absoluteFilePath()}，Windows 上不区分大小写。
-		\li \l{Scheme::SSH} 用 \l{Visindigo::Network::SshPath::operator==()}。
-		\li \l{Scheme::VirtualFile} 逐项比较扩展名、名称与参数。
-		\li \l{Scheme::Resource} 比较 \c{:} 前缀的资源路径，区分大小写。
+		\li Scheme::Local 用 \c{QFileInfo::absoluteFilePath()}，Windows 上不区分大小写。
+		\li Scheme::SSH 用 \c{SshPath::operator==()}。
+		\li Scheme::VirtualFile 逐项比较扩展名、名称与参数。
+		\li Scheme::Resource 比较 \c{:} 前缀的资源路径，区分大小写。
 		\endlist
 
 		scheme 不同一律不相等；两个无效URI相等。
@@ -797,7 +797,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a other 另一个URI。
-		\return 两者是否指向不同资源。
+		return 两者是否指向不同资源。
 	*/
 	bool YSSURI::operator!=(const YSSURI& other) const {
 		return not (*this == other);
@@ -806,10 +806,10 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 		\a other 另一个URI。
-		\return 便于放进 QMap 的字典序比较结果，按 \l{toString()} 比较。
+		return 便于放进 QMap 的字典序比较结果，按 toString() 比较。
 
-		\note Windows 上本机路径按 \l{absoluteFilePath()} 的原样比较，未折叠大小写；
-		需要与 \l{operator==()} 完全一致的容器请使用 \l{hash()} 配对的哈希容器。
+		\note Windows 上本机路径按 \c{absoluteFilePath()} 的原样比较，未折叠大小写；
+		需要与 operator==() 完全一致的容器请使用 hash() 配对的哈希容器。
 	*/
 	bool YSSURI::operator<(const YSSURI& other) const {
 		return this->toString() < other.toString();

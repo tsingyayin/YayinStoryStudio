@@ -246,7 +246,7 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::HttpCenter::requestFailed(quint64 id, const HttpError& error)
 		\since Visindigo 0.17.0
 
-		请求失败。被中止的请求不计入其中，它们只走 \l{HttpReply::aborted}。
+		请求失败。被中止的请求不计入其中，它们只走 HttpReply::aborted。
 
 		\a id 请求编号。
 		\a error 失败原因。

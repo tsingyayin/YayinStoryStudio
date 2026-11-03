@@ -7,7 +7,9 @@
 namespace YSS::Editor {
 	/*!
 		\class YSS::Editor::MessageCenter
-		\brief 主程序的消息响应层。
+		\since YayinStoryStudio 0.17.0
+		\inmodule YayinStoryStudio
+		\brief 主程序的消息响应层.
 
 		它以单例常驻，跟踪当前聚焦的非工具编辑器，把它发出的消息变化转发给消息查看器，并维护当前文件的
 		错误、警告、信息数量。消息查看器与底部的计数显示都只查这一层，不再各自去连编辑器。

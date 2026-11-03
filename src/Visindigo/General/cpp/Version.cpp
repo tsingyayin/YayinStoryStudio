@@ -104,18 +104,36 @@ namespace Visindigo::General {
 	}
 
 	/*!
+		\fn Version::Version(const Version& other)
 		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		复制构造函数与复制赋值运算符，创建一个与 \a other 相同的版本号对象。
+		复制构造函数，创建一个与 \a other 相同的版本号对象。
+	*/
+
+	/*!
+		\fn Version& Version::operator=(const Version& other)
+		\since Visindigo 0.13.0
+		\a other 另一个版本号对象。
+
+		复制赋值运算符，创建一个与 \a other 相同的版本号对象。
 	*/
 	VICopyable_Impl(Version);
 
 	/*!
+		\fn Version::Version(Version&& other) noexcept
 		\since Visindigo 0.13.0
 		\a other 另一个版本号对象。
 
-		移动构造函数与移动赋值运算符，转移 \a other 的资源到新对象中， \a other 变为空对象。
+		移动构造函数，转移 \a other 的资源到新对象中， \a other 变为空对象。
+	*/
+
+	/*!
+		\fn Version& Version::operator=(Version&& other) noexcept
+		\since Visindigo 0.13.0
+		\a other 另一个版本号对象。
+
+		移动赋值运算符，转移 \a other 的资源到新对象中， \a other 变为空对象。
 	*/
 	VIMoveable_Impl(Version);
 

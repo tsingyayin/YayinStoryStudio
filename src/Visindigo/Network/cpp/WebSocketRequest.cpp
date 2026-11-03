@@ -228,10 +228,10 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::WebSocketSession::errorOccurred(const HttpError& error)
 		\since Visindigo 0.17.0
 
-		发生错误。错误分类与 HTTP 侧共用同一套 \l{HttpError}，处理逻辑可以直接复用。
+		发生错误。错误分类与 HTTP 侧共用同一套 HttpError，处理逻辑可以直接复用。
 
 		\note 它不表示会话已经结束：开启了自动重连时会话会继续尝试，最终的结局仍然
-		由 \l disconnected 或 \l connected 给出。
+		由 disconnected 或 connected 给出。
 
 		\a error 错误分类与描述。
 	*/
@@ -300,7 +300,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		发送 ping 帧。对端应当回以 pong，后者经 \l pingReceived 信号通知。
+		发送 ping 帧。对端应当回以 pong，后者经 pingReceived 信号通知。
 
 		\a payload 心跳帧载荷，可为空。
 	*/

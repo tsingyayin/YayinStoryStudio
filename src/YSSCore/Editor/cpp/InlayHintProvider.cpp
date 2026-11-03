@@ -8,7 +8,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::InlayHintProvider
-		\brief InlayHintProvider为图片内联提示提供绘制与悬停交互。
+		\brief InlayHintProvider为图片内联提示提供绘制与悬停交互.
 		\since YSS 0.18.0
 		\inmodule YSSCore
 
@@ -41,7 +41,7 @@ namespace YSSCore::Editor {
 		\a name Multi 中 \c{!} 与 \c{?} 之间的部分。
 		\a para Multi 中 \c{?} 后面的JSON参数。
 
-		\return 要绘制到内联区域的图片。返回的引用必须在本次调用期间保持有效；
+		return 要绘制到内联区域的图片。返回的引用必须在本次调用期间保持有效；
 		调用方会在绘制前立即使用它。
 
 		\note 该函数会在每次重绘提示时调用，Provider应自行缓存耗时的绘制结果。
@@ -61,7 +61,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		\a targetFile 当前文本编辑器的文件URI。
 
-		\return 新建的悬停浮窗。返回nullptr表示该 Provider 不需要悬停交互。
+		return 新建的悬停浮窗。返回nullptr表示该 Provider 不需要悬停交互。
 		返回的实例所有权归调用它的 TextEdit，Provider 不应再管理它。
 	*/
 	InlayHintHoverWidget* InlayHintProvider::createHoverWidget(const YSSCore::General::YSSURI& targetFile) {

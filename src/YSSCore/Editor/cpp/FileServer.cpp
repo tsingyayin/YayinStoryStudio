@@ -187,7 +187,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.13.0
-		\a filePath 要打开的文件路径。
+		\a uri 要打开的文件身份。
 
 		这是个有意思的函数，允许你在一定程度上影响文件打开时使用的文件服务的优先级。
 

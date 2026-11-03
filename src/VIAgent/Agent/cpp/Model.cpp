@@ -28,18 +28,18 @@ namespace Visindigo::Agent {
 		\brief 一个可被请求的模型端点.
 
 		Model 描述"请求该发到哪里、用哪个凭据、默认参数是什么"，它不持有任何会话
-		状态。会话状态属于 \l{Dialog}。
+		状态。会话状态属于 Dialog。
 
-		模型用 \l getId() 返回的 UUID 作为唯一标识，并注册在
-		Visindigo::Agent::Center 的模型池里；\l Provider 与 \l Dialog 都只持有
+		模型用 getId() 返回的 UUID 作为唯一标识，并注册在
+		Visindigo::Agent::Center 的模型池里；Provider 与 Dialog 都只持有
 		这个 id。之所以不把 Model 直接嵌进 Provider，是因为 Model 里带着凭据：
 		如果 Provider 持有 Model 的副本，那么 token 会随 Provider 的每一次拷贝、
 		每一次序列化扩散到各处，轮换凭据时就必须把所有副本翻出来改。id 索引把
 		凭据收敛到唯一一份。
 
-		\l Capability 描述该端点能接受哪些类型的输入。它不是装饰性的自我声明，
-		而是给 \l Provider::pickFirst() 用来筛选的：当一次对话需要图片输入，而
-		当前模型只声明了 \l Capability::Text 时，正确的做法是换一个模型，而不是
+		Capability 描述该端点能接受哪些类型的输入。它不是装饰性的自我声明，
+		而是给 Provider::pickFirst() 用来筛选的：当一次对话需要图片输入，而
+		当前模型只声明了 Capability::Text 时，正确的做法是换一个模型，而不是
 		把图片发给一个不支持它的端点——后者通常会得到一句含糊的 400。
 
 		\note 这里只描述 OpenAI 兼容的请求形态。Model 不区分厂商，凡是遵循同一套
@@ -65,7 +65,7 @@ namespace Visindigo::Agent {
 
 		构造一个空模型，并立即分配一个新的 UUID。
 
-		\note id 在构造时一次性生成，之后不再由外部修改；\l fromJson() 是唯一的
+		\note id 在构造时一次性生成，之后不再由外部修改；fromJson() 是唯一的
 		例外，它会用存档里的 id 覆盖当前值。
 	*/
 	Model::Model() {
@@ -139,7 +139,7 @@ namespace Visindigo::Agent {
 		设置单次请求的总时长上限，单位毫秒。\c 0 表示不限。
 
 		\warning 对话请求通常是流式的，总时长上限会随模型输出长度自然增长。
-		对流式请求应当依赖 \l setIdleTimeoutMs() 而不是这个值，否则一段较长的
+		对流式请求应当依赖 setIdleTimeoutMs() 而不是这个值，否则一段较长的
 		回答会在中途被整体掐断。
 
 		\a ms 总时长上限，单位毫秒；\c 0 表示不限。
@@ -167,8 +167,8 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		整体替换能力声明。传入 \l Capability::None 相当于声明"什么都不能做"，
-		该模型将无法被任何 \l Provider::pickFirst() 选中。
+		整体替换能力声明。传入 Capability::None 相当于声明"什么都不能做"，
+		该模型将无法被任何 Provider::pickFirst() 选中。
 
 		\a capabilities 完整的能力位组合。
 	*/
@@ -210,7 +210,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置 \c temperature。等价于 \l setParameter() 写入 \c "temperature"。
+		设置 \c temperature。等价于 setParameter() 写入 \c "temperature"。
 
 		这是常用的采样参数，因此单独给一个入口，省得调用方自己拼 JSON 值。
 
@@ -224,7 +224,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置 \c top_p。等价于 \l setParameter() 写入 \c "top_p"。
+		设置 \c top_p。等价于 setParameter() 写入 \c "top_p"。
 
 		\a value top_p 取值。
 	*/
@@ -236,7 +236,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置单次回复的输出上限。等价于 \l setParameter() 写入 \c "max_tokens"。
+		设置单次回复的输出上限。等价于 setParameter() 写入 \c "max_tokens"。
 
 		\note 这是输出上限，不是上下文上限；两者的字段名在不同服务端并不统一，
 		因此这里只提供最常见的一种写法。
@@ -262,7 +262,7 @@ namespace Visindigo::Agent {
 
 		返回模型名。
 
-		\note 它是服务端的模型标识，不是本地别名。见 \l{setName()}。
+		\note 它是服务端的模型标识，不是本地别名。见 setName()。
 	*/
 	QString Model::getName() const {
 		return d->Name;
@@ -362,7 +362,7 @@ namespace Visindigo::Agent {
 
 		序列化为 JSON 对象，包含 id、连接信息、能力位与全部模型参数。
 
-		\warning 返回值里含有明文凭据，见 \l setToken() 的警告。
+		\warning 返回值里含有明文凭据，见 setToken() 的警告。
 	*/
 	Visindigo::Utility::JsonConfig Model::toJson() const {
 		Visindigo::Utility::JsonConfig config;
@@ -386,7 +386,7 @@ namespace Visindigo::Agent {
 		当前（新生成的）id，因而把一个只写了连接信息的手写配置文件读进来也能得到
 		一个可用的模型。
 
-		\a json 应当是 \l toJson() 的输出，或者结构相同的手写配置。
+		\a json 应当是 toJson() 的输出，或者结构相同的手写配置。
 
 		return 读到了非空的 id 时返回 true。
 	*/

@@ -25,10 +25,10 @@ namespace Visindigo::Agent {
 		\brief 一段可复用的行为说明，用于给对话注入领域知识.
 
 		一个 Skill 就是"当用户提出这类问题时应遵守的规则"的载体：它由一段说明
-		文本（\l{setInstruction()}）加上若干可选的能力声明组成，在构造请求时被
+		文本（setInstruction()）加上若干可选的能力声明组成，在构造请求时被
 		拼进系统提示。
 
-		它和 \l Prompt 的区别在于谁决定内容：Prompt 由用户显式触发，模板里有
+		它和 Prompt 的区别在于谁决定内容：Prompt 由用户显式触发，模板里有
 		变量占位符，渲染出的是对话中的某一条消息；Skill 是常驻的，只要被挂上且
 		处于启用状态，就会一直参与系统提示的拼装，不需要用户逐次点名。
 
@@ -40,7 +40,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		构造一个空技能。空技能 \l isValid() 为 \c false，需要至少设置名称与说明。
+		构造一个空技能。空技能 isValid() 为 \c false，需要至少设置名称与说明。
 	*/
 	Skill::Skill() {
 		d = new SkillPrivate();
@@ -83,7 +83,7 @@ namespace Visindigo::Agent {
 
 		设置一句话描述，用于在界面或日志里说明这个技能是做什么的。
 
-		\note 描述不会进入系统提示；进入提示的是 \l setInstruction() 的内容。
+		\note 描述不会进入系统提示；进入提示的是 setInstruction() 的内容。
 
 		\a description 一句话描述。
 	*/

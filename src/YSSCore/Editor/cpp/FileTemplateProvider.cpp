@@ -35,8 +35,8 @@ namespace YSSCore::Editor {
 		\warning 请注意，为了不对实现造成过多压力，这个类不要求自己直接把文件写入目标位置。
 		因此，虽然此类提供YSSURI作为目标路径，但它仅用于展示和校验，不要自己写盘。
 
-		只要在这个页面上收集到其他必须的信息，然后用 \l{setTargetName()} 给出目标文件名、
-		用 \l{setBinaryContent()} 给出文件内容，然后发出 \l{contentPrepared()} 信号即可。
+		只要在这个页面上收集到其他必须的信息，然后用 setTargetName() 给出目标文件名、
+		用 setBinaryContent() 给出文件内容，然后发出 contentPrepared() 信号即可。
 		
 		YSS会在收到这个信号后将文件内容写入到指定的位置。并在写入成功后再用标准的打开流程打开这个新文件。
 		这样无论目标是本机还是远端，写盘都由统一文件系统完成，模板本身不需要关心路径与传输细节。
@@ -56,7 +56,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 
 		内容准备就绪时（如用户点击了“创建”按钮）发出这个信号。发出之前应当先用
-		\l{setTargetName()} 与 \l{setBinaryContent()} 把结果填好。
+		setTargetName() 与 setBinaryContent() 把结果填好。
 	*/
 
 	/*!
@@ -104,7 +104,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		\a content 待写入文件的原始内容
 
-		设置待写入文件的内容。编辑器会在收到 \l{contentPrepared()} 后把它写到目标 URI。
+		设置待写入文件的内容。编辑器会在收到 contentPrepared() 后把它写到目标 URI。
 	*/
 	void FileTemplateInitWidget::setBinaryContent(QByteArray& content) {
 		d->BinaryContent = content;
@@ -235,8 +235,8 @@ namespace YSSCore::Editor {
 		值得指出的是，YSS假定了所有创建操作都需要通过一个UI来解决，所以这个Provider类本身主要用于记录
 		文件的相关信息（如图标、ID、名称、描述、标签、扩展名等），以及提供一个UI界面来引导用户完成创建过程。真正的创建逻辑应该在FileTemplateInitWidget中实现。
 
-		如果模板不需要任何自定义输入，可以什么都不做：\l{fileInitWidget()} 的默认实现会返回一个
-		只输入文件名的界面，扩展名取自 \l{setFileExt()} 设置的值。
+		如果模板不需要任何自定义输入，可以什么都不做：fileInitWidget() 的默认实现会返回一个
+		只输入文件名的界面，扩展名取自 setFileExt() 设置的值。
 
 		\warning 这类在0.14.0完善了const语义，因此ABI与此前不兼容。
 	*/
@@ -367,7 +367,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		\a ext 文件扩展名，不含点
 
-		设置模板产出的文件扩展名。默认的 \l{fileInitWidget()} 实现会用它拼目标文件名。
+		设置模板产出的文件扩展名。默认的 fileInitWidget() 实现会用它拼目标文件名。
 		传入带前导点的值（如 \c{".json"}）也会被规范化成 \c{"json"}。
 	*/
 	void FileTemplateProvider::setFileExt(const QString& ext) {
@@ -384,7 +384,7 @@ namespace YSSCore::Editor {
 
 		return 模板的初始化界面。
 
-		默认实现返回一个只输入文件名的界面，扩展名取自 \l{getFileExt()}，主名称预填一个
+		默认实现返回一个只输入文件名的界面，扩展名取自 getFileExt()，主名称预填一个
 		通用默认值（"新建"）。内容为空，因此这类模板不需要写任何代码就能创建空文件。
 
 		需要自定义输入或内容时，重写本函数返回自己的 FileTemplateInitWidget；返回 nullptr

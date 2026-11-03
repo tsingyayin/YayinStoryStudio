@@ -12,7 +12,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\class YSSCore::Editor::InlayHintHoverWidget
-		\brief 图片内联提示的悬停浮窗基类。
+		\brief 图片内联提示的悬停浮窗基类.
 		\since YSS 0.18.0
 		\inmodule YSSCore
 
@@ -53,7 +53,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 当前文本编辑器的文件URI。
+		return 当前文本编辑器的文件URI。
 	*/
 	YSSCore::General::YSSURI InlayHintHoverWidget::getTargetFile() const {
 		return d->TargetFile;
@@ -69,7 +69,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 当前内联提示所在的文本块号。
+		return 当前内联提示所在的文本块号。
 	*/
 	qint32 InlayHintHoverWidget::getBlockNumber() const {
 		return d->BlockNumber;
@@ -85,7 +85,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 当前文本块内的字符位置。
+		return 当前文本块内的字符位置。
 	*/
 	qint32 InlayHintHoverWidget::getColumn() const {
 		return d->Column;
@@ -101,7 +101,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return 当前文本块的完整原文。
+		return 当前文本块的完整原文。
 	*/
 	QString InlayHintHoverWidget::getRawText() const {
 		return d->RawText;
@@ -117,7 +117,7 @@ namespace YSSCore::Editor {
 
 	/*!
 		\since YSS 0.18.0
-		\return Multi 中 \c{?} 后面的JSON参数。
+		return Multi 中 \c{?} 后面的JSON参数。
 	*/
 	Visindigo::Utility::JsonConfig InlayHintHoverWidget::getPara() const {
 		return d->Para;

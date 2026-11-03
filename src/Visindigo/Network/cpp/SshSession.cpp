@@ -1027,10 +1027,10 @@ namespace Visindigo::Network {
 		握手与认证一次。这一点与 HTTP 不同：HTTP 的连接池对调用方不可见，而 SSH
 		的连接必须由调用方显式持有和关闭。
 
-		连接过程是异步的：调用 open() 之后依次收到 \l{stateChanged()}、可能的
-		\l{hostKeyAccepted()} 或 \l{hostKeyRejected()}，最后是 \l{ready()} 或
-		\l{failed()}。失败时连接不会自动重试，是否重试由调用方根据
-		\l{SshError::Retryable} 决定——自动重连在"密码错了"这种场景下只会
+		连接过程是异步的：调用 open() 之后依次收到 stateChanged()、可能的
+		hostKeyAccepted() 或 hostKeyRejected()，最后是 ready() 或
+		failed()。失败时连接不会自动重试，是否重试由调用方根据
+		\c{SshError::Retryable} 决定——自动重连在"密码错了"这种场景下只会
 		放大失败，而且会掩盖真正的问题。
 
 		SshSession 内部独占一个工作线程，因为底层 SSH 库的接口是阻塞式的。
@@ -1038,22 +1038,22 @@ namespace Visindigo::Network {
 		信号槽里做耗时操作。
 
 		SshSession 不做主机地址与路径的解析，它只接受已经拆好的
-		\l{SshConnectConfig}。把 \c{ssh://} URI 翻译成配置是上层的事。
+		SshConnectConfig。把 \c{ssh://} URI 翻译成配置是上层的事。
 	*/
 
 	/*!
 		\enum Visindigo::Network::SshSession::State
 		\since Visindigo 0.18.0
 
-		连接状态。取值只前进不跳跃：\l{Connecting} 之后只可能是
-		\l{Authenticating}、\l{Failed} 或 \l{Closing}。
+		连接状态。取值只前进不跳跃：Connecting 之后只可能是
+		Authenticating、Failed 或 Closing。
 
 		\value Disconnected 未连接。初始状态，关闭或连接丢失后回到这里。
 		\value Connecting 正在建立 TCP 连接并协商算法。
 		\value Authenticating 算法协商完成，正在进行用户认证。
 		\value Ready 连接已就绪，可以在上面开通道。
 		\value Closing 正在关闭。
-		\value Failed 连接失败。详见 \l{getLastError()}。
+		\value Failed 连接失败。详见 getLastError()。
 	*/
 
 	/*!
@@ -1079,9 +1079,9 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::SshSession::hostKeyRejected(const SshHostKeyInfo& info)
 		\since Visindigo 0.18.0
 
-		本次连接的主机密钥被拒绝，连接随后以 \l{SshError::ErrorType::HostKeyUnknown}
-		或 \l{SshError::ErrorType::HostKeyChanged} 失败。不要自动替用户接受，尤其是
-		\l{SshHostKeyInfo::Changed} 为 true 的情况。
+		本次连接的主机密钥被拒绝，连接随后以 SshError::ErrorType::HostKeyUnknown
+		或 SshError::ErrorType::HostKeyChanged 失败。不要自动替用户接受，尤其是
+		\c{SshHostKeyInfo::Changed} 为 true 的情况。
 
 		\a info 主机密钥指纹信息。
 	*/
@@ -1097,7 +1097,7 @@ namespace Visindigo::Network {
 		\fn void Visindigo::Network::SshSession::failed(const SshError& error)
 		\since Visindigo 0.18.0
 
-		连接失败。发出本信号时状态已经变为 \l{State::Failed}。
+		连接失败。发出本信号时状态已经变为 State::Failed。
 
 		\a error 失败原因。
 	*/
@@ -1107,7 +1107,7 @@ namespace Visindigo::Network {
 		\since Visindigo 0.18.0
 
 		连接已断开。无论调用方主动 close() 还是连接意外丢失，本信号都会在状态
-		回到 \l{State::Disconnected} 之后发出；意外丢失时 \l{getLastError()}
+		回到 State::Disconnected 之后发出；意外丢失时 getLastError()
 		会给出原因。
 	*/
 
@@ -1168,7 +1168,7 @@ namespace Visindigo::Network {
 
 		取当前连接参数。
 
-		\return 连接参数的副本。
+		return 连接参数的副本。
 	*/
 	SshConnectConfig SshSession::getConfig() const {
 		return this->d->Config;
@@ -1179,7 +1179,7 @@ namespace Visindigo::Network {
 
 		取 \c{user@host:port} 形式的连接标识。
 
-		\return 连接标识文本。
+		return 连接标识文本。
 	*/
 	QString SshSession::getAuthority() const {
 		return this->d->Config.getAuthority();
@@ -1192,7 +1192,7 @@ namespace Visindigo::Network {
 
 		已经处于连接中或已连接状态时调用不会有任何效果，因此重复调用是安全的。
 		参数不完整时不会发起连接，而是直接以
-		\l{SshError::ErrorType::InvalidConfiguration} 失败。
+		SshError::ErrorType::InvalidConfiguration 失败。
 	*/
 	void SshSession::open() {
 		if (this->d->CurrentState == State::Connecting || this->d->CurrentState == State::Authenticating
@@ -1243,11 +1243,11 @@ namespace Visindigo::Network {
 		在已就绪的会话上打开一条通道。
 
 		参数不合法、或会话尚未就绪时返回空指针。返回的通道归调用方所有，
-		需要时自行 delete；通道所属的会话关闭时，通道会先收到 \l{SshChannel::closed()}。
+		需要时自行 delete；通道所属的会话关闭时，通道会先收到 SshChannel::closed()。
 
 		\a spec 通道参数。
 
-		\return 通道对象；无法打开时为空。
+		return 通道对象；无法打开时为空。
 	*/
 	SshChannel* SshSession::openChannel(const SshChannelSpec& spec) {
 		if (!this->isReady() || !spec.isValid() || this->d->Worker == nullptr) {
@@ -1268,7 +1268,7 @@ namespace Visindigo::Network {
 
 		\a request 执行参数。
 
-		\return 结果句柄；无法发起时为空。
+		return 结果句柄；无法发起时为空。
 	*/
 	SshExecReply* SshSession::exec(const SshExecRequest& request) {
 		if (!this->isReady() || request.getCommand().isEmpty() || this->d->Worker == nullptr) {
@@ -1294,7 +1294,7 @@ namespace Visindigo::Network {
 
 		\a request 操作参数。
 
-		\return 结果句柄；无法提交时为空。
+		return 结果句柄；无法提交时为空。
 	*/
 	SftpReply* SshSession::sftp(const SftpRequest& request) {
 		if (!this->isReady() || !request.isValid() || this->d->Worker == nullptr) {
@@ -1313,7 +1313,7 @@ namespace Visindigo::Network {
 
 		取当前状态。
 
-		\return 连接状态。
+		return 连接状态。
 	*/
 	SshSession::State SshSession::getState() const {
 		return this->d->CurrentState;
@@ -1324,7 +1324,7 @@ namespace Visindigo::Network {
 
 		判断连接是否已经就绪。
 
-		\return 状态为 \l{State::Ready} 时返回 true。
+		return 状态为 State::Ready 时返回 true。
 	*/
 	bool SshSession::isReady() const {
 		return this->d->CurrentState == State::Ready;
@@ -1335,7 +1335,7 @@ namespace Visindigo::Network {
 
 		取最近一次失败的原因。连接成功后本值会被清空。
 
-		\return 错误信息；没有错误时 \c{Type} 为 \l{SshError::ErrorType::NoError}。
+		return 错误信息；没有错误时 \c{Type} 为 SshError::ErrorType::NoError。
 	*/
 	SshError SshSession::getLastError() const {
 		return this->d->LastError;
@@ -1346,7 +1346,7 @@ namespace Visindigo::Network {
 
 		取本次连接使用的主机密钥信息。
 
-		\return 主机密钥信息；尚未完成主机密钥校验时各字段为空。
+		return 主机密钥信息；尚未完成主机密钥校验时各字段为空。
 	*/
 	SshHostKeyInfo SshSession::getHostKeyInfo() const {
 		return this->d->HostKey;
@@ -1358,7 +1358,7 @@ namespace Visindigo::Network {
 		取服务端的版本横幅，形如 \c{SSH-2.0-OpenSSH_9.6}。它常用来判断服务端是否
 		支持某个扩展，排查"为什么某台机器行为不一样"。
 
-		\return 版本横幅；尚未收到时为空字符串。
+		return 版本横幅；尚未收到时为空字符串。
 	*/
 	QString SshSession::getServerBanner() const {
 		return this->d->Banner;
@@ -1372,7 +1372,7 @@ namespace Visindigo::Network {
 
 		\a context 生命周期参照对象；为空时不做任何绑定。
 
-		\return 自身引用，便于链式调用。
+		return 自身引用，便于链式调用。
 	*/
 	SshSession& SshSession::bindLifecycleTo(QObject* context) {
 		if (context == nullptr) {

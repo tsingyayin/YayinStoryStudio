@@ -60,23 +60,23 @@ protected:
 		\endlist
 
 		\section1 虚拟文件
-		虚拟文件用 \l{YSSCore::General::YSSURI::Scheme::VirtualFile} 表示，其字符串形式
-		仍是 \c{@ext!name?param}。虚拟文件没有二进制内容，因此 \l{onOpen()} 不会被调用，
-		而是走 \l{onVirtualOpen()}。
+		虚拟文件用 YSSCore::General::YSSURI::Scheme::VirtualFile 表示，其字符串形式
+		仍是 \c{@ext!name?param}。虚拟文件没有二进制内容，因此 onOpen() 不会被调用，
+		而是走 onVirtualOpen()。
 
-		外部调用者无需区分两者：依然调用 \l{openFile()}，本类按 URI 的 scheme 分发。
+		外部调用者无需区分两者：依然调用 openFile()，本类按 URI 的 scheme 分发。
 		\section1 文件关闭的行为
-		只有 \l{closeFile()} 是void类型，无法通过返回值判断是否真的关闭。关闭统一在
-		\l{closeEvent()} 里处理，状态通过 \l{fileClosed()} 信号通知。
+		只有 closeFile() 是void类型，无法通过返回值判断是否真的关闭。关闭统一在
+		closeEvent() 里处理，状态通过 fileClosed() 信号通知。
 
-		真实文件有未保存修改时，\l{closeEvent()} 负责询问保存。选择保存后本次关闭会先
-		被放弃，保存成功后再排队触发一次新的关闭；\l{onClose()} 因此不再承担询问，
+		真实文件有未保存修改时，closeEvent() 负责询问保存。选择保存后本次关闭会先
+		被放弃，保存成功后再排队触发一次新的关闭；onClose() 因此不再承担询问，
 		只作为"真正关闭前"的清理与否决钩子，并且总是在保存完成之后调用。
 
-		写盘是异步的，\l{isSaving()} 表示还有写入没有落地。负责退出进程的代码必须先
+		写盘是异步的，isSaving() 表示还有写入没有落地。负责退出进程的代码必须先
 		等它变成 false，否则程序可能先于写盘结束而退出。
 		\section1 文件备份的行为
-		\l{createFileBackup()} 调用 \l{onBackup()}，返回当前文件的完整内容用于备份。
+		createFileBackup() 调用 onBackup()，返回当前文件的完整内容用于备份。
 	*/
 
 	/*!
@@ -100,7 +100,7 @@ protected:
 	/*!
 		\since YSS 0.18.0
 		取当前文件的身份。
-		\return 当前文件的 URI；没有打开文件时为空。
+		return 当前文件的 URI；没有打开文件时为空。
 	*/
 	YSSCore::General::YSSURI FileEditWidget::getUri() const {
 		return d->Uri;
@@ -111,7 +111,7 @@ protected:
 		return 当前文件的路径字符串。
 
 		真实文件返回本机绝对路径；虚拟文件返回 \c{@ext!name?param} 形式的字符串。
-		这只是给界面显示和旧调用点用的便利函数，身份请用 \l{getUri()}。
+		这只是给界面显示和旧调用点用的便利函数，身份请用 getUri()。
 	*/
 	QString FileEditWidget::getFilePath() const {
 		if (d->Uri.isVirtual()) {
@@ -165,7 +165,7 @@ protected:
 		\since YSS 0.15.0
 		return 当前虚拟文件的参数部分。
 
-		不是虚拟文件时返回空字符串。解析方式参见 \l{VirtualFilePath}。
+		不是虚拟文件时返回空字符串。解析方式参见 VirtualFilePath。
 	*/
 	QString FileEditWidget::getVirtualFileParam() const {
 		if (!d->Uri.isVirtual()) {
@@ -176,7 +176,7 @@ protected:
 
 	/*!
 		\since YSS 0.13.0
-		将当前文件内容标记为已修改状态，并触发 \l{fileChanged()} 信号。
+		将当前文件内容标记为已修改状态，并触发 fileChanged() 信号。
 	*/
 	void FileEditWidget::setFileChanged() {
 		d->fileChanged = true;
@@ -186,7 +186,7 @@ protected:
 
 	/*!
 		\since YSS 0.13.0
-		将当前文件内容标记为未修改状态，并触发 \l{fileChangeCanceled()} 信号。
+		将当前文件内容标记为未修改状态，并触发 fileChangeCanceled() 信号。
 	*/
 	void FileEditWidget::cancelFileChanged() {
 		d->fileChanged = false;
@@ -214,9 +214,9 @@ protected:
 		\since YSS 0.18.0
 		用身份与内容打开一个真实文件。
 		\a uri 文件身份。
-		\a data 文件内容，由 \l{FileServerManager} 从 \l{YSSUnifiedFileSystem} 读好后给出。
+		\a data 文件内容，由 FileServerManager 从 YSSCore::General::YSSUnifiedFileSystem 读好后给出。
 
-		return 如果 \l{onOpen()} 成功则返回true。
+		return 如果 onOpen() 成功则返回true。
 
 		虚拟文件请用不带 \a data 的重载。
 	*/
@@ -235,14 +235,14 @@ protected:
 
 	/*!
 		\since YSS 0.18.0
-		用身份打开一个文件。内容由本类通过 \l{YSSUnifiedFileSystem} 同步读取。
+		用身份打开一个文件。内容由本类通过 YSSCore::General::YSSUnifiedFileSystem 同步读取。
 
 		\a uri 文件身份。
 
 		return 读取并打开成功时返回true。
 
 		这是给"自己创建、不经过 FileServerManager 管理"的编辑器用的便利重载（例如偏好设置里的
-		预览窗口）。由 \l{FileServerManager} 打开的常规路径仍然是它读好内容后调用带 \a data
+		预览窗口）。由 FileServerManager 打开的常规路径仍然是它读好内容后调用带数据参数
 		的重载，这样异步化和后端差异都在那一层处理。
 	*/
 	bool FileEditWidget::openFile(const YSSCore::General::YSSURI& uri) {
@@ -268,27 +268,27 @@ protected:
 		保存当前文件编辑器的内容。
 		\a target 保存到的目标 URI。为空时保存到当前 URI。
 		\a deleteWhenSaveAs 另存为时是否删除原文件。
-		\a silent 静默保存。为真时 \l{onSave()}/\l{onVirtualSave()} 不应弹出任何界面。
+		\a silent 静默保存。为真时 onSave()/onVirtualSave() 不应弹出任何界面。
 
-		return 是否已经受理这次保存：\l{onSave()} 产出了内容并成功提交写入时返回 true。
-		真正写盘是异步的，结果通过 \l{fileSaved()}、\l{fileRenamed()} 或日志体现；
-		写入失败不会再把编辑器标脏，但也不会发出成功信号，而是发出 \l{fileSaveFailed()}。
+		return 是否已经受理这次保存：onSave() 产出了内容并成功提交写入时返回 true。
+		真正写盘是异步的，结果通过 fileSaved()、fileRenamed() 或日志体现；
+		写入失败不会再把编辑器标脏，但也不会发出成功信号，而是发出 fileSaveFailed()。
 
-		派生类只负责在 \l{onSave()} 里把内容返回，写盘由本类通过
-		\l{YSSUnifiedFileSystem} 完成。写入成功后依次触发 \l{fileChangeCanceled()}、
-		\l{fileSaved()}，路径变化时再触发 \l{fileRenamed()}。
+		派生类只负责在 onSave() 里把内容返回，写盘由本类通过
+		YSSCore::General::YSSUnifiedFileSystem 完成。写入成功后依次触发 fileChangeCanceled()、
+		fileSaved()，路径变化时再触发 fileRenamed()。
 
 		写入期间如果内容又被修改，本次保存不会清除修改状态，也不会发出
-		\l{fileChangeCanceled()}；只有保存发起时的那份内容被持久化。
+		fileChangeCanceled()；只有保存发起时的那份内容被持久化。
 
 		如果调用发生在关闭流程中（\c{WaitingSave}），保存成功后本函数会安排一次新的
-		关闭，调用方不需要再调用 \l{closeFile()}。
+		关闭，调用方不需要再调用 closeFile()。
 
 		\a target 已经被另一个编辑器打开时，本次保存会被拒绝并返回 false：覆盖它会让
-		\l{FileServerManager} 的索引丢失那个编辑器。调用方应当先关闭目标编辑器，
+		FileServerManager 的索引丢失那个编辑器。调用方应当先关闭目标编辑器，
 		或者改用别的目标。
 
-		虚拟文件会直接调用 \l{onVirtualSave()}，\a target 与 \a deleteWhenSaveAs 均无效。
+		虚拟文件会直接调用 onVirtualSave()，\a target 与 \a deleteWhenSaveAs 均无效。
 	*/
 	bool FileEditWidget::saveFile(const YSSCore::General::YSSURI& target, bool deleteWhenSaveAs, bool silent) {
 		d->saveSkipped = false;
@@ -379,13 +379,13 @@ protected:
 
 	/*!
 		\since YSS 0.18.0
-		把编辑器的身份改到 \a newUri，用于文件已经在文件系统里完成改名的情况。
+		把编辑器的身份改到新的文件身份，用于文件已经在文件系统里完成改名的情况。
 
-		本函数不写盘，也不改变修改状态：它只更新 \l{getUri()} 并发出 \l{fileRenamed()}，
+		本函数不写盘，也不改变修改状态：它只更新 getUri() 并发出 fileRenamed()，
 		让页签、项目打开文件列表与文件服务器索引一起换到新路径。
 
-		真正的重命名由调用方完成（例如 \l{YSSUnifiedFileSystem::rename()}），失败时不应
-		调用本函数。新 URI 已被别的编辑器打开时也会拒绝，否则 \l{FileServerManager}
+		真正的重命名由调用方完成（例如 YSSCore::General::YSSUnifiedFileSystem::rename()），失败时不应
+		调用本函数。新 URI 已被别的编辑器打开时也会拒绝，否则 FileServerManager
 		的索引会被覆盖。
 
 		\a newUri 新的文件身份。
@@ -413,7 +413,7 @@ protected:
 		\since YSS 0.17.0
 		return 当前这次保存是否为静默保存。
 
-		只在 \l{onSave()}/\l{onVirtualSave()} 执行期间为真。派生类在这两个函数里需要
+		只在 onSave()/onVirtualSave() 执行期间为真。派生类在这两个函数里需要
 		弹窗询问或提示时，应当先查这个值。
 	*/
 	bool FileEditWidget::isSaveSilent() const {
@@ -436,8 +436,8 @@ protected:
 
 		return 如果文件成功重新加载，返回true。
 
-		虚拟文件路由到 \l{onVirtualReload()}；真实文件由本类通过
-		\l{YSSCore::General::YSSUnifiedFileSystem} 同步重新读取内容后交给 \l{onReload()}。
+		虚拟文件路由到 onVirtualReload()；真实文件由本类通过
+		YSSCore::General::YSSUnifiedFileSystem 同步重新读取内容后交给 onReload()。
 	*/
 	bool FileEditWidget::reloadFile() {
 		if (d->Uri.isVirtual()) {
@@ -470,6 +470,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		复制当前选中的内容到剪贴板。
+
+		return 成功复制时返回 true。
 	*/
 	bool FileEditWidget::copy() {
 		return onCopy();
@@ -478,6 +480,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		剪切当前选中的内容到剪贴板。
+
+		return 成功剪切时返回 true。
 	*/
 	bool FileEditWidget::cut() {
 		return onCut();
@@ -486,6 +490,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		从剪贴板粘贴内容到当前光标位置。
+
+		return 成功粘贴时返回 true。
 	*/
 	bool FileEditWidget::paste() {
 		return onPaste();
@@ -494,6 +500,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		撤销上一次编辑操作。
+
+		return 成功撤销时返回 true。
 	*/
 	bool FileEditWidget::undo() {
 		return onUndo();
@@ -502,6 +510,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		重做上一次被撤销的编辑操作。
+
+		return 成功重做时返回 true。
 	*/
 	bool FileEditWidget::redo() {
 		return onRedo();
@@ -510,6 +520,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		全选当前编辑器的内容。
+
+		return 成功全选时返回 true。
 	*/
 	bool FileEditWidget::selectAll() {
 		return onSelectAll();
@@ -518,6 +530,11 @@ protected:
 	/*!
 		\since YSS 0.15.0
 		把光标移动到指定行列。
+
+		\a lineNumber 行号。
+		\a column 列号。
+
+		return 成功移动光标时返回 true。
 	*/
 	bool FileEditWidget::cursorToPosition(qint32 lineNumber, qint32 column) {
 		return onCursorToPosition(lineNumber, column);
@@ -545,8 +562,8 @@ protected:
 
 		return 如果文件编辑器可以关闭，返回true；否则返回false。
 
-		调用时机是"已经确定要关闭、并且保存已经完成"之后、\l{fileClosed()} 之前，
-		因此适合做资源清理或最后一道否决。未保存修改的询问由 \l{closeEvent()} 负责，
+		调用时机是"已经确定要关闭、并且保存已经完成"之后、fileClosed() 之前，
+		因此适合做资源清理或最后一道否决。未保存修改的询问由 closeEvent() 负责，
 		这里不要再弹保存对话框。
 
 		\warning 不要在这个函数里调用close或deleteLater，会造成递归爆栈。
@@ -565,8 +582,8 @@ protected:
 		内容生成出错等），\c{false} 是本来就不打算保存（只读视图之类），应当静默跳过。
 		失败时不会写盘，也不会发出任何保存信号。
 
-		这里只产出内容，不要自己写文件——写盘由 \l{saveFile()} 交给
-		\l{YSSUnifiedFileSystem} 完成，这样 SSH 上的文件也能保存。
+		这里只产出内容，不要自己写文件——写盘由 saveFile() 交给
+		YSSCore::General::YSSUnifiedFileSystem 完成，这样 SSH 上的文件也能保存。
 	*/
 	std::expected<QByteArray, bool> FileEditWidget::onSave(const YSSCore::General::YSSURI& uri) {
 		Q_UNUSED(uri);
@@ -580,7 +597,7 @@ protected:
 
 		return 如果文件成功重新加载，返回true。
 
-		默认实现用当前 URI 与给定内容重新调用 \l{onOpen()}。
+		默认实现用当前 URI 与给定内容重新调用 onOpen()。
 	*/
 	bool FileEditWidget::onReload(const QByteArray& data) {
 		if (!d->Uri.isValid()) {
@@ -592,6 +609,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		派生类实现此虚函数以处理复制逻辑。
+
+		return 成功时返回 true。默认返回 false。
 	*/
 	bool FileEditWidget::onCopy() {
 		return false;
@@ -600,6 +619,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		派生类实现此虚函数以处理剪切逻辑。
+
+		return 成功时返回 true。默认返回 false。
 	*/
 	bool FileEditWidget::onCut() {
 		return false;
@@ -608,6 +629,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		派生类实现此虚函数以处理粘贴逻辑。
+
+		return 成功时返回 true。默认返回 false。
 	*/
 	bool FileEditWidget::onPaste() {
 		return false;
@@ -616,6 +639,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		派生类实现此虚函数以处理撤销逻辑。
+
+		return 成功时返回 true。默认返回 false。
 	*/
 	bool FileEditWidget::onUndo() {
 		return false;
@@ -624,6 +649,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		派生类实现此虚函数以处理重做逻辑。
+
+		return 成功时返回 true。默认返回 false。
 	*/
 	bool FileEditWidget::onRedo() {
 		return false;
@@ -632,6 +659,8 @@ protected:
 	/*!
 		\since YSS 0.13.0
 		派生类实现此虚函数以处理全选逻辑。
+
+		return 成功时返回 true。默认返回 false。
 	*/
 	bool FileEditWidget::onSelectAll() {
 		return false;
@@ -642,6 +671,8 @@ protected:
 		派生类实现此虚函数以处理光标定位逻辑。
 		\a lineNumber 行号。
 		\a column 列号。
+
+		return 成功移动光标时返回 true。默认返回 false。
 	*/
 	bool FileEditWidget::onCursorToPosition(qint32 lineNumber, qint32 column) {
 		return false;
@@ -680,7 +711,9 @@ protected:
 
 	/*!
 		\since YSS 0.15.0
-		处理虚拟文件的重新加载逻辑。默认重新调用 \l{onVirtualOpen()}。
+		处理虚拟文件的重新加载逻辑。默认重新调用 onVirtualOpen()。
+
+		return 重新加载成功时返回 true。
 	*/
 	bool FileEditWidget::onVirtualReload() {
 		return onVirtualOpen(getFileExt(), getFileName(), getVirtualFileParam());
@@ -690,11 +723,11 @@ protected:
 		\since YSS 0.13.0
 		\a event 关闭事件对象。
 
-		处理文件编辑器关闭事件。虚拟文件由 \l{onVirtualClose()} 决定；真实文件在有
-		未保存修改时先询问保存：选择保存则放弃本次关闭，等 \l{saveFile()} 成功后由
-		\l{finishClose()} 重新发起关闭。允许关闭时发出 \l{fileClosed()}。
+		处理文件编辑器关闭事件。虚拟文件由 onVirtualClose() 决定；真实文件在有
+		未保存修改时先询问保存：选择保存则放弃本次关闭，等 saveFile() 成功后由
+		finishClose() 重新发起关闭。允许关闭时发出 fileClosed()。
 
-		\l{onClose()} 只在真正关闭前调用一次，此时保存已经完成。
+		onClose() 只在真正关闭前调用一次，此时保存已经完成。
 	*/
 	void FileEditWidget::closeEvent(QCloseEvent* event) {
 		if (d->Uri.isVirtual()) {
@@ -768,7 +801,7 @@ protected:
 	/*!
 		\since YSS 0.18.0
 
-		由 \l{saveFile()} 在写入成功后调用。只有本次关闭正处于等待保存状态时才生效：
+		由 saveFile() 在写入成功后调用。只有本次关闭正处于等待保存状态时才生效：
 		把状态推进到 \c{Saved}，并排队触发一次新的关闭，避免在 closeEvent 的调用栈内
 		重入关闭。
 

@@ -228,19 +228,28 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <!--
-    可选：ASER Studio 已剥离到同级仓库 ../ASER_Studio（闭源），
-    若其工程存在，则在 YSS 构建完成后一并重建该插件（插件会自动部署回本程序的运行目录）。
-    外部克隆者没有该仓库时会静默跳过；用 /p:BuildASERStudioPlugin=false 可显式关闭，
-    或用 /p:ASERStudioProject=<路径> 指定其它位置。
+    可选：ASER Studio 与 VisindigoSpine 已剥离到同级仓库（../ASER_Studio、../VisindigoSpine），
+    若其工程存在，则在 YSS 构建完成后一并重建这些插件（插件会自动部署回本程序的运行目录）。
+    外部克隆者没有这些仓库时会静默跳过；用 /p:BuildASERStudioPlugin=false、
+    /p:BuildVisindigoSpine=false 可分别关闭，或用 /p:ASERStudioProject=...、
+    /p:VisindigoSpineSolution=... 指定其它位置。
   -->
   <PropertyGroup>
     <YSSRepoRoot>$(MSBuildProjectDirectory)\..\..</YSSRepoRoot>
     <ASERStudioProject Condition="'$(ASERStudioProject)' == ''">$(YSSRepoRoot)\..\ASER_Studio\Plugin_ASERStudio\Plugin_ASERStudio.vcxproj</ASERStudioProject>
+    <VisindigoSpineSolution Condition="'$(VisindigoSpineSolution)' == ''">$(YSSRepoRoot)\..\VisindigoSpine\VisindigoSpine.slnx</VisindigoSpineSolution>
   </PropertyGroup>
   <Target Name="BuildASERStudioPlugin"
           AfterTargets="Build"
           Condition="'$(BuildASERStudioPlugin)' != 'false' AND Exists('$(ASERStudioProject)')">
     <MSBuild Projects="$(ASERStudioProject)"
+             Targets="Build"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);YSSRoot=$(YSSRepoRoot);YSSLibDir=$(YSSRepoRoot)\$(Platform)\$(Configuration)" />
+  </Target>
+  <Target Name="BuildVisindigoSpine"
+          AfterTargets="Build"
+          Condition="'$(BuildVisindigoSpine)' != 'false' AND Exists('$(VisindigoSpineSolution)')">
+    <MSBuild Projects="$(VisindigoSpineSolution)"
              Targets="Build"
              Properties="Configuration=$(Configuration);Platform=$(Platform);YSSRoot=$(YSSRepoRoot);YSSLibDir=$(YSSRepoRoot)\$(Platform)\$(Configuration)" />
   </Target>

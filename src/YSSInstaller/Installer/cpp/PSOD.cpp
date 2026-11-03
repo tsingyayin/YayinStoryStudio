@@ -364,7 +364,7 @@ namespace YSS::Installer {
 		\class YSS::Installer::PSOD
 		\inmodule YSSInstaller
 		\since YSSInstaller 0.17.0
-		\brief 紫屏崩溃页面。
+		\brief 紫屏崩溃页面.
 
 		崩溃页面由安装程序而不是崩溃进程自己显示：进程在捕获到异常之后还能做什么并不可靠，
 		而安装程序此刻是健康的，手里又已经拿到了打包好的崩溃产物。

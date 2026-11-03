@@ -48,8 +48,8 @@ namespace Visindigo::Network {
 		本类继承自 Visindigo::Network::HttpReply，因此状态机、进度、错误、中止与
 		生命周期绑定等能力全部复用，只额外提供按事件名或谓词分派的帧路由。
 
-		\note 流式请求下 \l HttpReply::then 表示"流正常结束"，而不是"取到了完整
-		内容"。事件应当通过 \l when 或 \l HttpReply::onFrame 消费。
+		\note 流式请求下 HttpReply::then 表示"流正常结束"，而不是"取到了完整
+		内容"。事件应当通过 when 或 HttpReply::onFrame 消费。
 
 		\sa Visindigo::Network::SSERequest
 		\sa Visindigo::Network::HttpReply
@@ -122,7 +122,7 @@ namespace Visindigo::Network {
 	/*!
 		\since Visindigo 0.17.0
 
-		与 \l when 相同，但只在首次命中时触发一次。适用于"只关心第一次出现的
+		与 when 相同，但只在首次命中时触发一次。适用于"只关心第一次出现的
 		某个事件"的场景，例如服务端在流开始时推送的一次性元信息。
 
 		\a eventName 要监听的事件名。

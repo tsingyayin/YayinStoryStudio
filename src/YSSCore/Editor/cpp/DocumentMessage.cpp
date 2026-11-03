@@ -24,7 +24,7 @@ namespace YSSCore::Editor {
 	*/
 
 	/*!
-		\brief 构造一个DocumentMessage对象。
+		\brief 构造一个DocumentMessage对象.
 		\a type 消息类型，如错误、警告或信息。
 		\a message 消息文本内容。
 		\a lineNumber 消息所在的行号（从0开始），默认为-1表示未知。
@@ -198,7 +198,7 @@ namespace YSSCore::Editor {
 	/*!
 		\fn bool TextEdit::hasMessage() const
 		\since YSS 0.17.0
-		\return 文档中是否有消息。
+		return 文档中是否有消息。
 	*/
 	bool TextEdit::hasMessage() const {
 		return not getAllMessages().isEmpty();
@@ -209,7 +209,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.17.0
 		\a lineNumber 行号，从 0 开始。
 
-		\return 该行上是否有消息。
+		return 该行上是否有消息。
 	*/
 	bool TextEdit::hasMessage(qint32 lineNumber) const {
 		__Private__::DocumentMessageList* list = getBlockData<__Private__::DocumentMessageList>(lineNumber);
@@ -221,7 +221,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.17.0
 		\a lineNumber 行号，从 0 开始。
 
-		\return 该行上的消息。该行没有消息时返回空列表。
+		return 该行上的消息。该行没有消息时返回空列表。
 
 		返回的消息里的行号总是当前的行号，可以直接用于显示。
 	*/
@@ -241,7 +241,7 @@ namespace YSSCore::Editor {
 	/*!
 		\fn QMap<qint32, QList<DocumentMessage>> TextEdit::getAllMessages() const
 		\since YSS 0.17.0
-		\return 文档中所有需要显示的消息，以行号为键。
+		return 文档中所有需要显示的消息，以行号为键。
 
 		只有确实带有消息的行才会出现在结果里。
 	*/
@@ -266,7 +266,7 @@ namespace YSSCore::Editor {
 	/*!
 		\fn std::tuple<qint32, qint32, qint32> TextEdit::getMessageCount()
 		\since YSS 0.17.0
-		\return 文档中错误、警告、信息三类消息的数量，顺序为错误、警告、信息。
+		return 文档中错误、警告、信息三类消息的数量，顺序为错误、警告、信息。
 
 		每次调用都会遍历整个文档，频繁取值时请调用方自行缓存。
 	*/

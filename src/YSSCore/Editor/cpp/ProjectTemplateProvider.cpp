@@ -26,20 +26,20 @@ namespace YSSCore::Editor {
 		一些必要的配置（如目标引擎版本等），然后点击“创建”按钮。
 
 		\warning 与文件模板一致，此类不负责写盘。项目文件夹的创建、所有文件的写入以及项目配置
-		的保存都由编辑器通过 \l{YSSUnifiedFileSystem} 完成，因此本地项目与远端项目走同一条路径。
+		的保存都由编辑器通过 YSSCore::General::YSSUnifiedFileSystem 完成，因此本地项目与远端项目走同一条路径。
 
 		你只需要在这个页面上收集信息，然后：
 		\list
-		\li 用 \l{setYSSProjectContent()} 给出项目配置。通常先用 \l{YSSProject::initConfig()}
+		\li 用 setYSSProjectContent() 给出项目配置。通常先用 \c{YSSProject::initConfig()}
 			建一份基础配置，再按模板需要修改插件配置。
-		\li 用 \l{setFileContent()} 逐个给出项目内文件的内容，路径相对于项目文件夹。
-		\li 用 \l{setDefaultOpenFiles()} 给出项目首次打开时要显示的文件。
+		\li 用 setFileContent() 逐个给出项目内文件的内容，路径相对于项目文件夹。
+		\li 用 setDefaultOpenFiles() 给出项目首次打开时要显示的文件。
 		\endlist
 
-		准备好之后发出 \l{projectPrepared()} 信号即可。编辑器会在收到信号后按上述内容
+		准备好之后发出 projectPrepared() 信号即可。编辑器会在收到信号后按上述内容
 		创建项目文件夹、写入文件、保存 \c{project.yssp}，然后用标准的项目打开流程打开它。
 
-		目标位置由调用方通过构造函数传入，用 \l{getTargetUri()} 读取。它只用于展示与校验，
+		目标位置由调用方通过构造函数传入，用 getTargetUri() 读取。它只用于展示与校验，
 		不要自己写盘。
 
 		至于此类的生命周期，编辑器会在显示它之前通过QWidget::setAttribute将其设置为关闭时自动销毁。
@@ -55,7 +55,7 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 
 		项目内容准备就绪时（如用户点击了“创建”按钮）发出这个信号。发出之前应当先用
-		\l{setYSSProjectContent()}、\l{setFileContent()} 与 \l{setDefaultOpenFiles()}
+		setYSSProjectContent()、setFileContent() 与 setDefaultOpenFiles()
 		把结果填好。
 	*/
 
@@ -153,8 +153,8 @@ namespace YSSCore::Editor {
 		\since YSS 0.18.0
 		\a config 整份项目配置。
 
-		设置项目配置。通常先用 \l{YSSProject::initConfig()} 建一份基础配置，再按模板需要修改，
-		最后用 \l{YSSProject::getYSSProjectContent()} 取出交给本函数。
+		设置项目配置。通常先用 \c{YSSProject::initConfig()} 建一份基础配置，再按模板需要修改，
+		最后用 \c{YSSProject::getYSSProjectContent()} 取出交给本函数。
 	*/
 	void ProjectTemplateInitWidget::setYSSProjectContent(const Visindigo::Utility::JsonConfig& config) {
 		d->ProjectConfig = config;
@@ -193,7 +193,7 @@ namespace YSSCore::Editor {
 		模板的输入逻辑在ProjectTemplateInitWidget中实现，写盘由编辑器统一完成。
 
 		\warning 这类在0.14.0完善了const语义，因此ABI与此前不兼容。
-		\warning 这类在0.18.0把写盘交给编辑器，\l{projectInitWidget()} 因此多了一个目标 URI 参数，ABI与此前不兼容。
+		\warning 这类在0.18.0把写盘交给编辑器，projectInitWidget() 因此多了一个目标 URI 参数，ABI与此前不兼容。
 	*/
 
 	/*!

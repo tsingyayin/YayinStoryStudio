@@ -48,7 +48,7 @@ namespace YSSCore::__Private__ {
 	class HoverInfoWidget;
 	class SuggestionWidget;
 
-	/*!
+	/*
 		建议的呈现方式。
 		\list
 		\li Inline 行内建议：只作用于目标行，不增加行。pureAdd 时把文字追加到行尾，否则替换整行。
@@ -95,7 +95,7 @@ namespace YSSCore::__Private__ {
 		void paintEvent(QPaintEvent* event) override;
 	};
 
-	/*!
+	/*
 		行号栏。
 
 		旧实现用 QTextBrowser 承载行号，每新增一行就要 append 一次并顺带
@@ -156,7 +156,7 @@ namespace YSSCore::__Private__ {
 		void updateViewportIndicator();
 	};
 
-	/*!
+	/*
 		文本编辑区的实际控件。重写paintEvent是为了在文本之上绘制内联提示：
 		QPlainTextEdit::paintEvent里创建的QPainter作用于viewport，因此这里同样作用于viewport，
 		并直接使用光标矩形（也是viewport坐标）定位提示，不需要自己做滚动偏移换算。
@@ -192,7 +192,7 @@ namespace YSSCore::__Private__ {
 		bool visibleLines(qint32& firstLine, qint32& lastLine, const QRect& clipRect) const;
 	};
 
-	/*!
+	/*
 		待抉择建议的浮窗。三种建议共用这一个控件：
 		\list
 		\li 行内建议：显示序号与建议文字（pureAdd 时文字也画在行尾，这里仍保留一份便于行外查看）。

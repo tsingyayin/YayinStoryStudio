@@ -498,7 +498,7 @@ namespace Visindigo::General {
 		指定的目录下的所有插件，并根据插件的依赖关系决定加载顺序。
 
 		加载顺序保证：只要依赖存在且可用，任何插件的全部依赖都会先于该插件被加载。
-		反之，\l disableAllPlugin() 与 \l unloadAllPlugin() 按相反顺序处理，即先处理依赖者。
+		反之，disableAllPlugin() 与 unloadAllPlugin() 按相反顺序处理，即先处理依赖者。
 		如果依赖链中存在环，则环上的插件会被记录一条错误日志，且环上的插件及依赖它的插件都无法加载。
 
 		\warning 一般不手动调用此函数，其调用由Visindigo::General::VIApplication在恰当时机自动完成。
@@ -815,7 +815,7 @@ namespace Visindigo::General {
 		与插件的启用状态无关：即使插件在启用阶段失败，只要它被成功加载到内存，这里仍会返回它的实例。
 		需要确认插件当前是否可用时，请另外调用isPluginEnable()。
 
-		\sa getLoadedPlugins()、isPluginEnable()、getPluginBinaryFolder()
+		\sa getLoadedPlugins(), isPluginEnable(), getPluginBinaryFolder()
 	*/
 	Plugin* PluginManager::getPluginByID(const QString& id) const {
 		if (d->PluginManage.contains(id) && 
@@ -850,8 +850,6 @@ namespace Visindigo::General {
 		获取插件 \a plugin 的配置/数据文件夹。
 
 		这是 Plugin::getPluginFolder() 的便捷包装。如果 \a plugin 为nullptr，则返回空的QDir。
-
-		\sa PluginManager::getPluginFolder(const QString&, Plugin::LoadType)
 	*/
 	QDir PluginManager::getPluginFolder(Plugin* plugin) const {
 		if (plugin == nullptr) {

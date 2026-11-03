@@ -34,10 +34,10 @@ namespace Visindigo::Agent {
 			{{text}}
 		\endcode
 
-		调用 \l render() 时传入同名变量即可得到填好的 \l{Message}。把常用的提问
+		调用 render() 时传入同名变量即可得到填好的 Message。把常用的提问
 		方式固化成模板，比每次重新打一遍更不容易漏掉约束条件。
 
-		Prompt 与 \l Skill 的分工：Prompt 由用户在需要时显式插入对话，渲染结果
+		Prompt 与 Skill 的分工：Prompt 由用户在需要时显式插入对话，渲染结果
 		是一条普通消息，因此它会留在会话记录里；Skill 是常驻的系统提示片段，
 		不产生消息。前者用于"这次我想按这个格式问"，后者用于"这个助手一贯如此"。
 	*/
@@ -100,7 +100,7 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		设置模板正文。其中的双花括号占位符会被 \l getVariables() 与 \l render() 识别。
+		设置模板正文。其中的双花括号占位符会被 getVariables() 与 render() 识别。
 
 		\a content 模板正文。
 	*/
@@ -191,13 +191,13 @@ namespace Visindigo::Agent {
 	/*!
 		\since Visindigo 0.17.0
 
-		用 \a variables 填充占位符，得到一条角色为 \l Message::Role::Prompt 的消息。
+		用 \a variables 填充占位符，得到一条角色为 Message::Role::Prompt 的消息。
 
 		\a variables 中未提供的占位符会原样留在结果里。这是刻意的：模板填了一半
 		就发出去，模型多半会自行猜测缺失的内容，而把占位符摆在明面上至少
 		能让人一眼看出哪儿漏了。
 
-		\note 渲染结果的角色是 \l Message::Role::Prompt 而不是 \l{Message::Role::User}，
+		\note 渲染结果的角色是 Message::Role::Prompt 而不是 Message::Role::User，
 		以便在会话记录里区分"用户手打的"和"模板生成的"。发往服务端时两者都会被
 		当作 \c user 角色。
 	*/

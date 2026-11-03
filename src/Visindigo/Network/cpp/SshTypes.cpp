@@ -22,15 +22,15 @@ namespace Visindigo::Network {
 		\inmodule Visindigo
 		\brief SSH 层统一错误信息.
 
-		与 \l{HttpError} 保持同一套形状：错误是可预期结果，不走异常，
+		与 HttpError 保持同一套形状：错误是可预期结果，不走异常，
 		可以在信号里跨线程传递。
 
 		SSH 的错误比 HTTP 多一层语义：连接一旦建立就会长期存在，因此除了
-		"请求失败"，还需要表达"连接掉了"。\l{Retryable} 因此指代的是
+		"请求失败"，还需要表达"连接掉了"。\c{Retryable} 因此指代的是
 		"重新建立连接是否有意义"，而不是"重发同一个请求是否有意义"。
 
 		\list
-		\li \b{Type} 错误分类，取值见 \l{SshError::ErrorType}。
+		\li \b{Type} 错误分类，取值见 SshError::ErrorType。
 		\li \b{Message} 面向用户的简短错误描述。
 		\li \b{Detail} 底层库给出的原始描述，常用于排查算法协商一类的问题。
 		\li \b{Retryable} 重新连接是否可能成功。
@@ -46,7 +46,7 @@ namespace Visindigo::Network {
 
 		\value NoError 无错误。
 		\value Aborted 调用方主动中止。
-		\value InvalidConfiguration 连接参数不完整或不合法，见 \l{SshConnectConfig::isValid()}。
+		\value InvalidConfiguration 连接参数不完整或不合法，见 SshConnectConfig::isValid()。
 		\value HostKeyUnknown 主机密钥不在 known_hosts 中，且策略不允许自动记录。
 		\value HostKeyChanged 主机密钥与 known_hosts 中记录的不一致。这通常意味着服务端密钥被替换，
 			也可能是中间人攻击，不应静默忽略。
@@ -54,7 +54,7 @@ namespace Visindigo::Network {
 		\value PermissionDenied 认证通过，但操作被服务端拒绝（多见于文件权限不足）。
 		\value FileNotFound 远端文件或目录不存在。
 		\value FileExists 远端已存在同名文件或目录（例如创建已存在的目录）。
-		\value FileTooLarge 文件超过 \l{SshConnectConfig::MaxSftpFileBytes} 设定的上限。
+		\value FileTooLarge 文件超过 \c{SshConnectConfig::MaxSftpFileBytes} 设定的上限。
 			读操作在传输前按远端报告的大小判定，写操作在打开远端文件前按内容长度判定。
 		\value CommandFailed 远端命令执行完毕，但退出码不为 0。
 		\value ConnectionRefused 连接被拒绝。
@@ -79,7 +79,7 @@ namespace Visindigo::Network {
 
 		返回枚举值对应的名字字符串；传入未收录的取值时返回 \c "Unknown"。
 
-		实现走 QMetaEnum 反射而不是手写 switch，理由与 \l{HttpError::errorTypeName()}
+		实现走 QMetaEnum 反射而不是手写 switch，理由与 HttpError::errorTypeName()
 		相同：枚举名只有一个来源，新增取值时不会出现"日志里显示 Unknown"这类遗漏。
 
 		\a type 错误类型取值。
@@ -95,7 +95,7 @@ namespace Visindigo::Network {
 
 		判断本结构是否真的表示一个错误。
 
-		\return \c{Type} 不是 \l{ErrorType::NoError} 时返回 true。
+		return \c{Type} 不是 ErrorType::NoError 时返回 true。
 	*/
 	bool SshError::isError() const {
 		return Type != ErrorType::NoError;
@@ -118,13 +118,13 @@ namespace Visindigo::Network {
 		\enum Visindigo::Network::SshHostKeyPolicy
 		\since Visindigo 0.18.0
 
-		主机密钥的校验策略。默认取 \l{Strict}：SSH 的保密性完全建立在
+		主机密钥的校验策略。默认取 Strict：SSH 的保密性完全建立在
 		"这次连到的确实是那台机器"这一前提上，跳过校验等于放弃中间人防护，
 		因此任何不校验的取值都必须由调用方显式指定。
 
-		\value Unknown 未指定，与 \l{Strict} 等价。
+		\value Unknown 未指定，与 Strict 等价。
 		\value Strict 主机密钥必须已存在于 known_hosts，否则连接失败。
-		\value TrustOnFirstUse 首次连接时记录主机密钥，此后按 \l{Strict} 校验。
+		\value TrustOnFirstUse 首次连接时记录主机密钥，此后按 Strict 校验。
 		\value Insecure 完全不校验主机密钥。仅用于用户明确确认的临时场景。
 	*/
 
@@ -132,12 +132,12 @@ namespace Visindigo::Network {
 		\enum Visindigo::Network::SshAuthMethod
 		\since Visindigo 0.18.0
 
-		认证方式。密码与私钥是互斥的两条通路，\l{PasswordOrPublicKey}
+		认证方式。密码与私钥是互斥的两条通路，PasswordOrPublicKey
 		表示两者都提供、由服务端决定接受哪一个。
 
 		\value Unknown 未指定。
-		\value Password 使用 \l{SshConnectConfig::Password} 认证。
-		\value PublicKey 使用 \l{SshConnectConfig::PrivateKeyPath} 指定的私钥认证。
+		\value Password 使用 \c{SshConnectConfig::Password} 认证。
+		\value PublicKey 使用 \c{SshConnectConfig::PrivateKeyPath} 指定的私钥认证。
 		\value PasswordOrPublicKey 两者皆可。
 	*/
 
@@ -148,7 +148,7 @@ namespace Visindigo::Network {
 		\inmodule Visindigo
 		\brief 主机密钥的指纹信息.
 
-		用 \l{SshSession::hostKeyAccepted()} 与 \l{SshSession::hostKeyRejected()}
+		用 SshSession::hostKeyAccepted() 与 SshSession::hostKeyRejected()
 		信号携带，供界面展示"你连到的是哪台机器"，也供用户在首次连接时确认。
 
 		指纹使用 SHA256 的 base64 形式（与 \c{ssh-keygen -l} 的输出一致），
@@ -171,7 +171,7 @@ namespace Visindigo::Network {
 		\inmodule Visindigo
 		\brief SSH 连接参数.
 
-		纯值类型，可以随意拷贝与修改。\l{SshSession::setConfig()} 只在会话未连接时生效，
+		纯值类型，可以随意拷贝与修改。SshSession::setConfig() 只在会话未连接时生效，
 		因为连接一旦建立，改主机或凭据没有任何意义。
 
 		超时与保活都有默认值：\c{ConnectTimeoutMs} 15 秒足够跨洲握手，
@@ -203,7 +203,7 @@ namespace Visindigo::Network {
 		它只检查"填没填全、取值合不合法"，不检查文件是否存在、主机是否可达——
 		那些要等真正连接时才可能知道。
 
-		\return 参数完整且自洽时返回 true。
+		return 参数完整且自洽时返回 true。
 	*/
 	bool SshConnectConfig::isValid() const {
 		if (Host.trimmed().isEmpty() || User.trimmed().isEmpty()) {
@@ -232,7 +232,7 @@ namespace Visindigo::Network {
 		用户名可能为空（沿用本地用户名），此时省略用户名部分。端口始终给出，
 		因为同一个主机上的不同端口是不同的会话，省略会让日志难以区分。
 
-		\return 连接标识文本。
+		return 连接标识文本。
 	*/
 	QString SshConnectConfig::getAuthority() const {
 		QString text;

@@ -19,8 +19,8 @@ namespace YSSFileExt {
 		\since YSS 0.16.0
 		\inmodule YSSFileExt
 
-		只登记模板的元信息与扩展名，不覆盖 \l{fileInitWidget()}。编辑器会使用默认实现，
-		即一个只输入文件名的界面，扩展名由 \l{setFileExt()} 给出。
+		只登记模板的元信息与扩展名，不覆盖 fileInitWidget()。编辑器会使用默认实现，
+		即一个只输入文件名的界面，扩展名由 setFileExt() 给出。
 	*/
 	SimpleFileTemplateProvider::SimpleFileTemplateProvider(YSSCore::Editor::EditorPlugin* plugin,
 		const QString& name, const QString& id, const QString& templateID,

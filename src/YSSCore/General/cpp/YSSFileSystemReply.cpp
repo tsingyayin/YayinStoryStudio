@@ -23,12 +23,12 @@ namespace YSSCore::General {
 		\inmodule YSSCore
 		\brief 一次文件系统操作的结果句柄.
 
-		与 \l{Visindigo::Network::SftpReply} 同一形状：\l{succeeded()}、
-		\l{failed()}、\l{finished()}，外加 then / onError / onFinally 的糖。
+		与 Visindigo::Network::SftpReply 同一形状：succeeded()、
+		failed()、finished()，外加 then / onError / onFinally 的糖。
 		所有操作都是异步的，调用返回时结果一定还没到。
 
 		两种用法等价，选一种即可。连接信号时本对象是发送者，回调执行期间它一定还活着；
-		用 \l{then()} 时拿到的是一份结果快照，根本不需要持有本对象：
+		用 then() 时拿到的是一份结果快照，根本不需要持有本对象：
 
 		\code
 			// 信号
@@ -45,7 +45,7 @@ namespace YSSCore::General {
 			});
 		\endcode
 
-		默认 \l{setAutoDelete()} 为 true，对象在 \l{finished()} 之后自行回收，
+		默认 setAutoDelete() 为 true，对象在 finished() 之后自行回收，
 		所以不要在回调之外长期保存这个指针。
 	*/
 
@@ -87,7 +87,7 @@ namespace YSSCore::General {
 
 		取请求编号，在同一文件系统对象内唯一。
 
-		\return 请求编号。
+		return 请求编号。
 	*/
 	quint64 YSSFileSystemReply::getId() const {
 		return this->d->Id;
@@ -101,7 +101,7 @@ namespace YSSCore::General {
 		这就是提交请求时使用的 URI，本层不会改写它——没有根，也就没有"解析后"
 		的另一种形态。
 
-		\return 操作的绝对 URI。
+		return 操作的绝对 URI。
 	*/
 	YSSURI YSSFileSystemReply::getUri() const {
 		return this->d->Uri;
@@ -112,7 +112,7 @@ namespace YSSCore::General {
 
 		取本次操作类型。
 
-		\return 操作类型。
+		return 操作类型。
 	*/
 	YSSFileSystemRequest::Operation YSSFileSystemReply::getOperation() const {
 		return this->d->Operation;
@@ -121,9 +121,9 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		取读取到的内容，仅 \l{YSSUnifiedFileSystem::Operation::Read} 有值。
+		取读取到的内容，仅 YSSFileSystemRequest::Operation::Read 有值。
 
-		\return 文件内容。
+		return 文件内容。
 	*/
 	QByteArray YSSFileSystemReply::getData() const {
 		return this->d->Data;
@@ -132,9 +132,9 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		取目录条目，仅 \l{YSSUnifiedFileSystem::Operation::List} 有值。
+		取目录条目，仅 YSSFileSystemRequest::Operation::List 有值。
 
-		\return 条目列表。
+		return 条目列表。
 	*/
 	QList<YSSFileEntry> YSSFileSystemReply::getEntries() const {
 		return this->d->Entries;
@@ -143,9 +143,9 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		取文件属性，仅 \l{YSSUnifiedFileSystem::Operation::Stat} 有值。
+		取文件属性，仅 YSSFileSystemRequest::Operation::Stat 有值。
 
-		\return 属性。
+		return 属性。
 	*/
 	YSSFileAttributes YSSFileSystemReply::getAttributes() const {
 		return this->d->Attributes;
@@ -154,10 +154,10 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		取已传输的字节数。读取/写入期间随 \l{progressed()} 更新，结束后为终值；
+		取已传输的字节数。读取/写入期间随 progressed() 更新，结束后为终值；
 		其它操作恒为 0。
 
-		\return 字节数。
+		return 字节数。
 	*/
 	qint64 YSSFileSystemReply::getBytesTransferred() const {
 		return this->d->BytesTransferred;
@@ -168,7 +168,7 @@ namespace YSSCore::General {
 
 		取本次传输的总字节数。后端没有给出时为 -1。
 
-		\return 总字节数或 -1。
+		return 总字节数或 -1。
 	*/
 	qint64 YSSFileSystemReply::getTotalBytes() const {
 		return this->d->TotalBytes;
@@ -179,7 +179,7 @@ namespace YSSCore::General {
 
 		取失败原因。
 
-		\return 错误；成功时 \c{Type} 为 \l{YSSFileError::ErrorType::NoError}。
+		return 错误；成功时 \c{Type} 为 YSSFileError::ErrorType::NoError。
 	*/
 	YSSFileError YSSFileSystemReply::getError() const {
 		return this->d->Error;
@@ -190,7 +190,7 @@ namespace YSSCore::General {
 
 		判断操作是否已结束。
 
-		\return 已结束返回 true。
+		return 已结束返回 true。
 	*/
 	bool YSSFileSystemReply::isFinished() const {
 		return this->d->Finished;
@@ -204,7 +204,7 @@ namespace YSSCore::General {
 		\a fn 回调，参数为本次操作的结果快照。快照是值，回调不需要持有本对象，
 		也不需要担心本对象何时被回收。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemReply& YSSFileSystemReply::then(std::function<void(const YSSFileSystemResult& result)> fn) {
 		QObject::connect(this, &YSSFileSystemReply::succeeded, this, [this, fn]() {
@@ -228,7 +228,7 @@ namespace YSSCore::General {
 
 		\a fn 回调，参数为失败原因。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemReply& YSSFileSystemReply::onError(std::function<void(const YSSFileError& error)> fn) {
 		QObject::connect(this, &YSSFileSystemReply::failed, this, [fn](const YSSFileError& error) { fn(error); });
@@ -242,7 +242,7 @@ namespace YSSCore::General {
 
 		\a fn 回调。
 
-		\return 自身引用。
+		return 自身引用。
 	*/
 	YSSFileSystemReply& YSSFileSystemReply::onFinally(std::function<void()> fn) {
 		QObject::connect(this, &YSSFileSystemReply::finished, this, [fn]() { fn(); });
@@ -254,7 +254,7 @@ namespace YSSCore::General {
 
 		判断结果对象是否自动回收。
 
-		\return 自动回收时返回 true。
+		return 自动回收时返回 true。
 	*/
 	bool YSSFileSystemReply::isAutoDelete() const {
 		return this->d->AutoDelete;
@@ -274,7 +274,7 @@ namespace YSSCore::General {
 	/*!
 		\since YSS 0.18.0
 
-		构造结果对象。只由 \l{YSSUnifiedFileSystem} 创建。
+		构造结果对象。只由 YSSUnifiedFileSystem 创建。
 
 		\a id 请求编号。
 	*/
