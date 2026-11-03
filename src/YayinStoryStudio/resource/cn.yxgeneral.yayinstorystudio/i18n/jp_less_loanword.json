@@ -352,6 +352,17 @@
 			"title": "今すぐ再読み込みしますか？",
 			"message": "%1 が変更されています。今すぐ再読み込みすると、この変更は失われます。再読み込みしますか？"
 		},
+		"externalChange": {
+			"project": {
+				"title": "Project file modified outside the app",
+				"message": "The project file %1 was modified outside Yayin Story Studio. Discard the changes in this project and reload it from disk?",
+				"informative": "Reloading closes the current editor window (unsaved files are still asked about one by one), then reopens the project from what is on disk."
+			},
+			"reopenFailed": {
+				"title": "Failed to reload the project",
+				"message": "Could not reload the project file %1. Returning to the project page."
+			}
+		},
 		"renameDialog": {
 			"title": "名前の変更",
 			"rename": "%1 の名前を変更しています",

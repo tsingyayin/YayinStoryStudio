@@ -41,6 +41,10 @@ namespace YSSCore::Editor {
 
 		QMap<QString, FileEditWidget*> OpenedFileEditWidgets;
 		QMap<FileEditWidget*, FileServer*> FileEditWidgetSourceServerMap;
+		// 当前全局获得焦点的编辑器；可能是工具页签里的编辑器。
+		FileEditWidget* CurrentFocusedWidget = nullptr;
+		// 最后一个获得焦点的非工具编辑器。焦点落到工具页签时保持指向上一个文档编辑器。
+		FileEditWidget* CurrentFocusedWidgetNotTool = nullptr;
 		// 已经受理、正在异步读取的文件。用来防止同一个 URI 在读取完成前被重复打开。
 		QSet<QString> PendingOpens;
 		// 每次 clearPendingOpens() 递增。回调带着提交时的值，值对不上就说明这次打开已经被作废。
@@ -201,6 +205,15 @@ namespace YSSCore::Editor {
 				}
 				FileEditWidgetSourceServerMap.remove(few);
 				emit Instance->fileClosed(closedUri);
+				// 关闭的编辑器可能正是"当前"或"最后一个非工具"编辑器。前者通常已经由
+				// 界面层调用 setCurrentFocusedFileEditWidget(nullptr) 清掉，这里兜底保证
+				// 不会留下悬空指针；后者按原有行为静默清除，不再补发信号。
+				if (CurrentFocusedWidget == few) {
+					CurrentFocusedWidget = nullptr;
+				}
+				if (CurrentFocusedWidgetNotTool == few) {
+					CurrentFocusedWidgetNotTool = nullptr;
+				}
 				few->deleteLater();
 				yDebug << "File closed:" << closedUri.toString();
 				});
@@ -805,5 +818,56 @@ namespace YSSCore::Editor {
 			return d->FileEditWidgetSourceServerMap[few];
 		}
 		return nullptr;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		当前全局获得焦点的编辑器。可能是工具页签里的编辑器。
+
+		return 当前焦点编辑器；没有焦点时返回 nullptr。
+	*/
+	FileEditWidget* FileServerManager::getCurrentFocusedFileEditWidget() const {
+		return d->CurrentFocusedWidget;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		最后一个获得焦点的非工具编辑器。
+
+		焦点落到工具页签（例如图片查看器、媒体播放器）时这个值保持不变，因此"保存当前文件"、
+		"字数统计"之类的操作仍然作用在最近编辑过的文档上。
+
+		return 最近的文档编辑器；没有时返回 nullptr。
+	*/
+	FileEditWidget* FileServerManager::getCurrentFocusedFileEditWidgetNotTool() const {
+		return d->CurrentFocusedWidgetNotTool;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		更新当前焦点编辑器。由界面层在焦点变化时调用。
+
+		同一身份重复设置也会照常发信号：区域切换时焦点编辑器可能没变，但界面仍需刷新。
+		传入工具编辑器时只更新当前焦点，不改变"最后一个非工具编辑器"。
+
+		\a widget 新的焦点编辑器，可为 nullptr 表示失去焦点。
+	*/
+	void FileServerManager::setCurrentFocusedFileEditWidget(FileEditWidget* widget) {
+		d->CurrentFocusedWidget = widget;
+		emit this->currentFileEditWidgetChanged(widget);
+		if (widget == nullptr) {
+			d->CurrentFocusedWidgetNotTool = nullptr;
+			emit this->currentFileEditWidgetChangedNotTool(nullptr);
+			return;
+		}
+		FileServer* server = this->getFileEditWidgetSourceServer(widget);
+		if (server != nullptr && server->isListAsTool()) {
+			return;
+		}
+		d->CurrentFocusedWidgetNotTool = widget;
+		emit this->currentFileEditWidgetChangedNotTool(widget);
 	}
 }

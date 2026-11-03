@@ -58,6 +58,9 @@ namespace YSSCore::General {
 		// 后端监听的一个目录内容发生了变化。门面把它转成公开的
 		// YSSUnifiedFileSystem::directoryChanged()。
 		void watchedDirectoryChanged(const YSSURI& uri);
+		// 后端监听的一个文件内容发生了变化。门面把它转成公开的
+		// YSSUnifiedFileSystem::fileChanged()。
+		void watchedFileChanged(const YSSURI& uri);
 	public:
 		YSSUnifiedFileSystemProvider(QObject* parent = nullptr);
 		virtual ~YSSUnifiedFileSystemProvider();
@@ -83,6 +86,15 @@ namespace YSSCore::General {
 		virtual bool unwatchDirectory(const YSSURI& uri);
 		// 该后端当前正在监听的目录。用于门面汇总。
 		virtual QList<YSSURI> getWatchedDirectories() const { return QList<YSSURI>(); };
+	public:
+		// 后端能否监听单个文件的变化。为真时 getCapabilities() 必须按 URI 给出
+		// CanWatchFile，并且 watchFile() 要真正生效。
+		virtual bool supportsFileWatch() const { return false; };
+		// 开始监听一个文件。默认实现以 NotSupported 失败。
+		virtual bool watchFile(const YSSURI& uri, YSSFileError* error);
+		virtual bool unwatchFile(const YSSURI& uri);
+		// 该后端当前正在监听的文件。用于门面汇总。
+		virtual QList<YSSURI> getWatchedFiles() const { return QList<YSSURI>(); };
 	protected:
 		void markStarted(YSSFileSystemReply* reply);
 		void reportProgress(YSSFileSystemReply* reply, qint64 transferred, qint64 total);
@@ -113,14 +125,22 @@ namespace YSSCore::General {
 		virtual bool watchDirectory(const YSSURI& uri, YSSFileError* error) override;
 		virtual bool unwatchDirectory(const YSSURI& uri) override;
 		virtual QList<YSSURI> getWatchedDirectories() const override;
+	public:
+		virtual bool supportsFileWatch() const override { return true; };
+		virtual bool watchFile(const YSSURI& uri, YSSFileError* error) override;
+		virtual bool unwatchFile(const YSSURI& uri) override;
+		virtual QList<YSSURI> getWatchedFiles() const override;
 	protected:
 		void runRequest(const YSSFileSystemRequest& request, const YSSFileSystemDataRange& range,
 			YSSFileSystemReply* reply);
 		void deliverResult(YSSFileSystemReply* reply);
+		// 首次登记监听时创建 QFileSystemWatcher 与去抖定时器。
+		void ensureWatcher();
 		// QFileSystemWatcher 的原始回调：登记路径，等去抖窗口结束再统一发信号。
 		void onWatchedDirectoryChanged(const QString& path);
-		// 把去抖窗口内累积的变化逐目录发出 watchedDirectoryChanged。
-		void flushWatchedDirectories();
+		void onWatchedFileChanged(const QString& path);
+		// 把去抖窗口内累积的变化逐目录、逐文件发出对应信号。
+		void flushWatchedPaths();
 	private:
 		YSSLocalFileSystemProviderPrivate* d;
 	};

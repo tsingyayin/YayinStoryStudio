@@ -352,6 +352,17 @@
 			"title": "Jetzt neu laden?",
 			"message": "Die Datei %1 wurde geändert. Wenn Sie jetzt neu laden, gehen Ihre Änderungen an dieser Datei verloren. Möchten Sie neu laden?"
 		},
+		"externalChange": {
+			"project": {
+				"title": "Project file modified outside the app",
+				"message": "The project file %1 was modified outside Yayin Story Studio. Discard the changes in this project and reload it from disk?",
+				"informative": "Reloading closes the current editor window (unsaved files are still asked about one by one), then reopens the project from what is on disk."
+			},
+			"reopenFailed": {
+				"title": "Failed to reload the project",
+				"message": "Could not reload the project file %1. Returning to the project page."
+			}
+		},
 		"renameDialog": {
 			"title": "Umbenennen",
 			"rename": "Datei %1 wird umbenannt",

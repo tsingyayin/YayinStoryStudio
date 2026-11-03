@@ -19,6 +19,7 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qtimer.h>
 #include <algorithm>
+#include <memory>
 #include <tuple>
 #include "General/Log.h"
 #include "General/YSSUnifiedFileSystem.h"
@@ -122,6 +123,11 @@ namespace {
 		void onProviderStarted(quint64 id);
 		void onProviderProgressed(quint64 id, qint64 transferred, qint64 total);
 		void onProviderFinished(quint64 id, bool ok);
+		// 后端报告某个被监听的文件变化。自己发起的写入在窗口期内会被吞掉。
+		void onWatchedFileChanged(const YSSURI& uri);
+		// 记录/解除"本进程正在写这个 URI"，用于把自身写入从外部变更里排除。
+		void addSelfWrite(const YSSURI& uri);
+		void releaseSelfWrite(const QStringList& keys);
 		// 同一 URI（含重命名/复制的目标）上的请求串行执行所需的身份键。
 		QStringList taskKeysOf(const YSSURI& uri, const YSSURI& targetUri) const;
 		// 把一个 URI 的身份键追加到 \a keys；后端不区分大小写时折叠成小写并去重。
@@ -227,6 +233,8 @@ namespace {
 				[this](quint64 id, bool ok) { Owner->d->onProviderFinished(id, ok); });
 			QObject::connect(provider, &YSSUnifiedFileSystemProvider::watchedDirectoryChanged, Owner,
 				[this](const YSSURI& uri) { emit Owner->directoryChanged(uri); });
+			QObject::connect(provider, &YSSUnifiedFileSystemProvider::watchedFileChanged, Owner,
+				[this](const YSSURI& uri) { this->onWatchedFileChanged(uri); });
 			return provider;
 		}
 		// URI 的路由：本机/资源走 Local，远端按 authority 找对应的 SSH 后端。
@@ -308,6 +316,11 @@ namespace {
 		bool Scheduling = false;
 		// 每条连接上一次"缺少凭据"上报的时间戳，用于节流。
 		QHash<QString, qint64> ConnectionRequiredAt;
+		// 本进程经本类发起、尚未结束的写入计数；计数为正时该 URI 的变更不算外部改动。
+		QHash<QString, int> SelfWriteCounts;
+		// 写入结束之后的抑制窗口。文件系统通知往往晚于写入返回，用一个短窗口收尾。
+		QHash<QString, qint64> SelfWriteGraceUntil;
+		static constexpr qint64 SelfWriteGraceMs = 1500;
 		// 成功结束的读写操作累计字节数，见 getTransferredBytes()。
 		// 合计与按 Provider 分项各存一份：删除连接后历史统计仍然保留。
 		qint64 BytesRead = 0;
@@ -374,6 +387,32 @@ namespace {
 	}
 
 	bool YSSUnifiedFileSystemProvider::unwatchDirectory(const YSSURI& uri) {
+		Q_UNUSED(uri);
+		return false;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		默认实现：本后端不支持文件监听，以 YSSFileError::ErrorType::NotSupported 返回 false。
+
+		\a uri 要监听的文件。
+		\a error 失败原因；成功时不被修改。
+
+		return 当前后端支持监听时返回 true；默认实现不支持，返回 false。
+	*/
+	bool YSSUnifiedFileSystemProvider::watchFile(const YSSURI& uri, YSSFileError* error) {
+		if (error) {
+			YSSFileError value;
+			value.setType(YSSFileError::ErrorType::NotSupported);
+			value.setMessage(QStringLiteral("This backend cannot watch files"));
+			value.setDetail(uri.toString());
+			*error = value;
+		}
+		return false;
+	}
+
+	bool YSSUnifiedFileSystemProvider::unwatchFile(const YSSURI& uri) {
 		Q_UNUSED(uri);
 		return false;
 	}
@@ -577,8 +616,21 @@ namespace {
 		\value CanRecycle 该位置可以把文件移入回收站。逐 URI 判定，不在 AllCapabilities 里；
 		没置位时 Recycle 请求以 NotSupported 失败，绝不退化成永久删除。
 		\value CanWatchDirectory 支持监听目录内容变化。
+		\value CanWatchFile 支持监听单个文件内容变化。
 		\value AllCapabilities 全部操作能力，不含 PathCaseSensitive / ReadOnly / CanRecycle /
-		CanWatchDirectory。
+		CanWatchDirectory / CanWatchFile。
+	*/
+
+	/*!
+		\fn void YSSCore::General::YSSUnifiedFileSystem::fileChanged(const YSSURI& uri)
+		\since YSS 0.18.0
+
+		一个被监听的文件内容发生了变化。
+
+		只有经 watchFile() 登记过、且变化来自本进程之外时才会发出；本进程通过本类
+		自己写盘引起的改动不会通知，因此调用方不需要再自行区分"是不是我写的"。
+
+		\a uri 发生变化的文件身份。
 	*/
 
 	/*!
@@ -692,6 +744,9 @@ namespace {
 		// 目录变化：后端自己已经做了去抖，这里只做转发。
 		QObject::connect(this->d->Local, &YSSUnifiedFileSystemProvider::watchedDirectoryChanged, this,
 			[this](const YSSURI& uri) { emit this->directoryChanged(uri); });
+		// 文件变化：同样只转发，自身写入的过滤在私有类里完成。
+		QObject::connect(this->d->Local, &YSSUnifiedFileSystemProvider::watchedFileChanged, this,
+			[this](const YSSURI& uri) { this->d->onWatchedFileChanged(uri); });
 	}
 
 	/*!
@@ -1048,6 +1103,30 @@ namespace {
 		reply->d->Uri = uri;
 		reply->d->Operation = request.getOperation();
 		reply->d->AutoDelete = request.isAutoDelete();
+		// 自己写盘期间与结束后的一小段时间内，被监听文件的变化不当作外部改动上报。
+		{
+			QStringList selfWriteKeys;
+			if (isWriteOperation(request.getOperation())) {
+				this->d->addSelfWrite(uri);
+				selfWriteKeys.append(uri.toString());
+				if (request.hasTargetUri()) {
+					this->d->addSelfWrite(request.getTargetUri());
+					selfWriteKeys.append(request.getTargetUri().toString());
+				}
+			}
+			if (!selfWriteKeys.isEmpty()) {
+				auto released = std::make_shared<bool>(false);
+				auto release = [this, selfWriteKeys, released]() {
+					if (*released) {
+						return;
+					}
+					*released = true;
+					this->d->releaseSelfWrite(selfWriteKeys);
+				};
+				QObject::connect(reply, &YSSFileSystemReply::finished, this, release);
+				QObject::connect(reply, &QObject::destroyed, this, release);
+			}
+		}
 		// 累计读写字节：只认整笔成功结束的操作，因此等 finished 一次性加。
 		// 写入大小在提交时就已经确定，不必依赖后端回报。
 		{
@@ -1628,6 +1707,71 @@ namespace {
 	/*!
 		\since YSS 0.18.0
 
+		开始监听一个文件。
+
+		只在该文件内容被改动时通知，不看它所在目录的其它变化；重复调用无副作用。
+		由本进程自己经本类发起的写入（保存、删除、改名、复制、移动等）不会触发通知，
+		因此 fileChanged() 报的都是外部改动。
+
+		不支持监听的位置（getCapabilities() 里没有 CanWatchFile）返回 false，并以
+		YSSFileError::ErrorType::NotSupported 填充 error。登记是纯本地操作，因此这是同步接口。
+
+		\a uri 文件身份。
+		\a error 输出参数，失败原因，可为 nullptr。
+
+		return 登记成功返回 true。
+	*/
+	bool YSSUnifiedFileSystem::watchFile(const YSSURI& uri, YSSFileError* error) {
+		YSSUnifiedFileSystemProvider* provider = this->d->providerFor(uri);
+		if (provider == nullptr || !provider->supportsFileWatch()) {
+			if (error) {
+				YSSFileError value;
+				value.setType(YSSFileError::ErrorType::NotSupported);
+				value.setMessage(QStringLiteral("This location cannot be watched"));
+				value.setDetail(uri.toString());
+				*error = value;
+			}
+			return false;
+		}
+		return provider->watchFile(uri, error);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		停止监听一个文件。没有登记过的文件返回 false，不报错。
+
+		\a uri 文件身份。
+
+		return 确实取消了一条登记时返回 true。
+	*/
+	bool YSSUnifiedFileSystem::unwatchFile(const YSSURI& uri) {
+		YSSUnifiedFileSystemProvider* provider = this->d->providerFor(uri);
+		if (provider == nullptr || !provider->supportsFileWatch()) {
+			return false;
+		}
+		return provider->unwatchFile(uri);
+	}
+
+	/*!
+		\since YSS 0.18.0
+
+		return 所有后端当前正在监听的文件。
+	*/
+	QList<YSSURI> YSSUnifiedFileSystem::getWatchedFiles() const {
+		QList<YSSURI> result;
+		if (this->d->Local != nullptr) {
+			result += this->d->Local->getWatchedFiles();
+		}
+		for (const auto& provider : this->d->SshProviders) {
+			result += provider->getWatchedFiles();
+		}
+		return result;
+	}
+
+	/*!
+		\since YSS 0.18.0
+
 		取尚未结束的任务快照，按提交顺序（编号）排列。只能在门面对象所属线程调用。
 
 		YSSFileSystemTask::getStartedAtMs() 为 0 的任务可能在等线程池，也可能在等同一个 URI 上的前一个
@@ -1754,6 +1898,53 @@ namespace {
 		this->TaskProviderIds.remove(id);
 		emit this->Owner->taskFinished(id, ok);
 		this->schedulePending();
+	}
+
+	// 本进程正在写这个 URI：记一次占用。写入期间与结束后的短窗口内，
+	// 后端报告的变化都当作自身写入，不再向上转发。
+	void YSSUnifiedFileSystemPrivate::addSelfWrite(const YSSURI& uri) {
+		if (!uri.isValid()) {
+			return;
+		}
+		const QString key = uri.toString();
+		this->SelfWriteCounts[key] += 1;
+	}
+
+	void YSSUnifiedFileSystemPrivate::releaseSelfWrite(const QStringList& keys) {
+		if (keys.isEmpty()) {
+			return;
+		}
+		const qint64 until = QDateTime::currentMSecsSinceEpoch() + SelfWriteGraceMs;
+		for (const QString& key : keys) {
+			auto it = this->SelfWriteCounts.find(key);
+			if (it != this->SelfWriteCounts.end()) {
+				it.value() -= 1;
+				if (it.value() <= 0) {
+					this->SelfWriteCounts.erase(it);
+				}
+			}
+			this->SelfWriteGraceUntil.insert(key, until);
+		}
+	}
+
+	void YSSUnifiedFileSystemPrivate::onWatchedFileChanged(const YSSURI& uri) {
+		const QString key = uri.toString();
+		const qint64 now = QDateTime::currentMSecsSinceEpoch();
+		// 顺手清掉过期的窗口，避免这张表随保存次数无限增长。
+		for (auto it = this->SelfWriteGraceUntil.begin(); it != this->SelfWriteGraceUntil.end();) {
+			if (it.value() <= now) {
+				it = this->SelfWriteGraceUntil.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+		if (this->SelfWriteCounts.contains(key) || this->SelfWriteGraceUntil.contains(key)) {
+			YSSUFS->debug() << "ignored self-initiated change of" << key;
+			return;
+		}
+		YSSUFS->debug() << "file changed externally" << key;
+		emit this->Owner->fileChanged(uri);
 	}
 
 	/*

@@ -49,6 +49,7 @@ namespace YSSCore::General {
 		void taskProgressed(quint64 id, qint64 transferred, qint64 total);
 		void taskFinished(quint64 id, bool ok);
 		void directoryChanged(const YSSURI& uri);
+		void fileChanged(const YSSURI& uri);
 	public:
 		// 类型定义在 YSSFileSystemRequest 上：请求、回复、任务都要用它，
 		// 这里只是给调用方保留原来的写法。
@@ -65,6 +66,7 @@ namespace YSSCore::General {
 			ReadOnly = 0x0080,
 			CanRecycle = 0x0100,
 			CanWatchDirectory = 0x0200,
+			CanWatchFile = 0x0400,
 			AllCapabilities = CanRead | CanWrite | CanList | CanRemove | CanRename | CanMakeDirectory
 		};
 		Q_ENUM(Capability)
@@ -120,6 +122,10 @@ namespace YSSCore::General {
 		bool watchDirectory(const YSSURI& uri, YSSFileError* error = nullptr);
 		bool unwatchDirectory(const YSSURI& uri);
 		QList<YSSURI> getWatchedDirectories() const;
+	public:
+		bool watchFile(const YSSURI& uri, YSSFileError* error = nullptr);
+		bool unwatchFile(const YSSURI& uri);
+		QList<YSSURI> getWatchedFiles() const;
 	public:
 		bool readSync(const YSSURI& uri, QByteArray* data, YSSFileError* error = nullptr);
 		bool writeSync(const YSSURI& uri, const QByteArray& data, YSSFileError* error = nullptr);

@@ -26,6 +26,8 @@ namespace YSSCore::Editor {
 		void fileChangeCanceled(const YSSCore::General::YSSURI& uri);
 		void fileSaved(const YSSCore::General::YSSURI& uri);
 		void focusOnFile(const YSSCore::General::YSSURI& uri, qint32 lineNumber = 0, qint32 column = 0);
+		void currentFileEditWidgetChanged(FileEditWidget* widget);
+		void currentFileEditWidgetChangedNotTool(FileEditWidget* widget);
 	private:
 		FileServerManager();
 	public:
@@ -57,6 +59,9 @@ namespace YSSCore::Editor {
 		FileServer* getFileEditWidgetSourceServer(const QString& filePath) const;
 		FileServer* getFileEditWidgetSourceServer(const QFileInfo& fileInfo) const;
 		FileServer* getFileEditWidgetSourceServer(FileEditWidget* widget) const;
+		FileEditWidget* getCurrentFocusedFileEditWidget() const;
+		FileEditWidget* getCurrentFocusedFileEditWidgetNotTool() const;
+		void setCurrentFocusedFileEditWidget(FileEditWidget* widget);
 	private:
 		FileServerManagerPrivate* d;
 	};

@@ -352,6 +352,17 @@
 			"title": "지금 다시 로드하시겠습니까?",
 			"message": "파일 %1이(가) 수정되었습니다. 지금 다시 로드하면 이 파일에 대한 변경 사항이 손실됩니다. 다시 로드하시겠습니까?"
 		},
+		"externalChange": {
+			"project": {
+				"title": "Project file modified outside the app",
+				"message": "The project file %1 was modified outside Yayin Story Studio. Discard the changes in this project and reload it from disk?",
+				"informative": "Reloading closes the current editor window (unsaved files are still asked about one by one), then reopens the project from what is on disk."
+			},
+			"reopenFailed": {
+				"title": "Failed to reload the project",
+				"message": "Could not reload the project file %1. Returning to the project page."
+			}
+		},
 		"renameDialog": {
 			"title": "이름 바꾸기",
 			"rename": "파일 %1의 이름을 바꾸는 중",

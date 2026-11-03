@@ -38,6 +38,8 @@ namespace {
 	constexpr int LocalWatchDebounceMs = 200;
 	// 同时监听的目录上限。Windows 上每个目录占一个目录变更句柄，不能无限加。
 	constexpr int LocalWatchMaxDirectories = 512;
+	// 同时监听的文件上限。每个打开的文件都会占一项，给足常用编辑器的数量。
+	constexpr int LocalWatchMaxFiles = 1024;
 
 	struct YSSLocalOutcome {
 		bool Ok = false;
@@ -694,9 +696,12 @@ namespace YSSCore::General {
 		// 发信号时用原始 URI，保证调用方拿到的身份与它登记时一致。
 		QFileSystemWatcher* Watcher = nullptr;
 		QHash<QString, YSSURI> WatchedByPath;
+		// 文件监听与目录监听共用同一个 watcher，只是分开登记，避免两边的上限互相挤占。
+		QHash<QString, YSSURI> WatchedFilesByPath;
 		// 去抖：一批变化在 DebounceMs 后合并成每个路径一次通知。
 		QTimer* DebounceTimer = nullptr;
 		QSet<QString> PendingPaths;
+		QSet<QString> PendingFilePaths;
 	};
 
 	/*
@@ -762,6 +767,10 @@ namespace YSSCore::General {
 			if (!watchPath.isEmpty() && QFileInfo(watchPath).isDir()) {
 				capabilities |= YSSUnifiedFileSystem::Capability::CanWatchDirectory;
 			}
+			// 文件监听只对真实存在的本机文件有意义。
+			if (!watchPath.isEmpty() && QFileInfo(watchPath).isFile()) {
+				capabilities |= YSSUnifiedFileSystem::Capability::CanWatchFile;
+			}
 			return capabilities;
 		}
 
@@ -778,7 +787,25 @@ namespace YSSCore::General {
 		return false;
 	}
 
-	/*!
+	// 首次登记监听时创建 watcher 与去抖定时器。目录与文件共用同一个 watcher。
+	void YSSLocalFileSystemProvider::ensureWatcher() {
+		if (this->d->Watcher != nullptr) {
+			return;
+		}
+		this->d->Watcher = new QFileSystemWatcher(this);
+		YSSLocalFileSystemProvider* provider = this;
+		QObject::connect(this->d->Watcher, &QFileSystemWatcher::directoryChanged, this,
+			[provider](const QString& changed) { provider->onWatchedDirectoryChanged(changed); });
+		QObject::connect(this->d->Watcher, &QFileSystemWatcher::fileChanged, this,
+			[provider](const QString& changed) { provider->onWatchedFileChanged(changed); });
+		this->d->DebounceTimer = new QTimer(this);
+		this->d->DebounceTimer->setSingleShot(true);
+		this->d->DebounceTimer->setInterval(LocalWatchDebounceMs);
+		QObject::connect(this->d->DebounceTimer, &QTimer::timeout, this,
+			[provider]() { provider->flushWatchedPaths(); });
+	}
+
+	/*
 		\since YSS 0.18.0
 
 		开始监听一个本机目录。重复登记同一目录无副作用。
@@ -819,17 +846,7 @@ namespace YSSCore::General {
 				QStringLiteral("Too many watched directories"),
 				QStringLiteral("limit %1").arg(LocalWatchMaxDirectories));
 		}
-		if (this->d->Watcher == nullptr) {
-			this->d->Watcher = new QFileSystemWatcher(this);
-			YSSLocalFileSystemProvider* provider = this;
-			QObject::connect(this->d->Watcher, &QFileSystemWatcher::directoryChanged, this,
-				[provider](const QString& changed) { provider->onWatchedDirectoryChanged(changed); });
-			this->d->DebounceTimer = new QTimer(this);
-			this->d->DebounceTimer->setSingleShot(true);
-			this->d->DebounceTimer->setInterval(LocalWatchDebounceMs);
-			QObject::connect(this->d->DebounceTimer, &QTimer::timeout, this,
-				[provider]() { provider->flushWatchedDirectories(); });
-		}
+		this->ensureWatcher();
 		if (!this->d->Watcher->addPath(path)) {
 			return failWatch(error, YSSFileError::ErrorType::PermissionDenied,
 				QStringLiteral("Cannot watch the directory"), path);
@@ -838,7 +855,7 @@ namespace YSSCore::General {
 		return true;
 	}
 
-	/*!
+	/*
 		\since YSS 0.18.0
 
 		停止监听一个目录。没有登记过的目录直接返回 false，不报错。
@@ -864,6 +881,72 @@ namespace YSSCore::General {
 		return this->d->WatchedByPath.values();
 	}
 
+	/*
+		开始监听一个本机文件。重复登记同一文件无副作用。
+
+		监听由 QFileSystemWatcher 驱动，同一文件在一小段时间内的多次变化会被合并成
+		一次通知。同时监听的文件数有上限，超出时以 NotSupported 失败。
+
+		return 登记成功返回 true。
+	*/
+	bool YSSLocalFileSystemProvider::watchFile(const YSSURI& uri, YSSFileError* error) {
+		if (!uri.isValid() || !uri.isNotRemote()) {
+			return failWatch(error, YSSFileError::ErrorType::InvalidConfiguration,
+				QStringLiteral("Only local files can be watched"), uri.toString());
+		}
+		const QString path = QDir::cleanPath(uri.getLocalPath());
+		if (path.isEmpty()) {
+			return failWatch(error, YSSFileError::ErrorType::InvalidConfiguration,
+				QStringLiteral("The URI carries no local path"), uri.toString());
+		}
+		const QFileInfo info(path);
+		if (!info.exists()) {
+			return failWatch(error, YSSFileError::ErrorType::NotFound,
+				QStringLiteral("No such file"), path);
+		}
+		if (!info.isFile()) {
+			return failWatch(error, YSSFileError::ErrorType::InvalidConfiguration,
+				QStringLiteral("Not a file"), path);
+		}
+		if (this->d->WatchedFilesByPath.contains(path)) {
+			return true;
+		}
+		if (this->d->WatchedFilesByPath.size() >= LocalWatchMaxFiles) {
+			return failWatch(error, YSSFileError::ErrorType::NotSupported,
+				QStringLiteral("Too many watched files"),
+				QStringLiteral("limit %1").arg(LocalWatchMaxFiles));
+		}
+		this->ensureWatcher();
+		if (!this->d->Watcher->addPath(path)) {
+			return failWatch(error, YSSFileError::ErrorType::PermissionDenied,
+				QStringLiteral("Cannot watch the file"), path);
+		}
+		this->d->WatchedFilesByPath.insert(path, uri);
+		return true;
+	}
+
+	/*
+		停止监听一个文件。没有登记过的文件直接返回 false，不报错。
+
+		return 确实取消了一条登记时返回 true。
+	*/
+	bool YSSLocalFileSystemProvider::unwatchFile(const YSSURI& uri) {
+		const QString path = QDir::cleanPath(uri.getLocalPath());
+		if (path.isEmpty() || !this->d->WatchedFilesByPath.contains(path)) {
+			return false;
+		}
+		this->d->WatchedFilesByPath.remove(path);
+		this->d->PendingFilePaths.remove(path);
+		if (this->d->Watcher != nullptr) {
+			this->d->Watcher->removePath(path);
+		}
+		return true;
+	}
+
+	QList<YSSURI> YSSLocalFileSystemProvider::getWatchedFiles() const {
+		return this->d->WatchedFilesByPath.values();
+	}
+
 	// QFileSystemWatcher 的原始回调：只登记路径，由去抖定时器统一发信号。
 	void YSSLocalFileSystemProvider::onWatchedDirectoryChanged(const QString& path) {
 		if (!this->d->WatchedByPath.contains(path)) {
@@ -875,12 +958,21 @@ namespace YSSCore::General {
 		}
 	}
 
-	// 把去抖窗口内累积的变化逐目录发出去。目录已被删除时同时取消监听，
-	// 调用方随后 list() 会拿到 NotFound，据此丢弃节点。
-	void YSSLocalFileSystemProvider::flushWatchedDirectories() {
-		const QSet<QString> pending = this->d->PendingPaths;
+	void YSSLocalFileSystemProvider::onWatchedFileChanged(const QString& path) {
+		if (!this->d->WatchedFilesByPath.contains(path)) {
+			return;
+		}
+		this->d->PendingFilePaths.insert(path);
+		if (this->d->DebounceTimer != nullptr) {
+			this->d->DebounceTimer->start();
+		}
+	}
+
+	// 把去抖窗口内累积的变化逐目录、逐文件发出去。路径已被删除时同时取消监听。
+	void YSSLocalFileSystemProvider::flushWatchedPaths() {
+		const QSet<QString> pendingDirectories = this->d->PendingPaths;
 		this->d->PendingPaths.clear();
-		for (const QString& path : pending) {
+		for (const QString& path : pendingDirectories) {
 			const auto it = this->d->WatchedByPath.constFind(path);
 			if (it == this->d->WatchedByPath.constEnd()) {
 				continue;
@@ -890,6 +982,26 @@ namespace YSSCore::General {
 				this->unwatchDirectory(uri);
 			}
 			emit this->watchedDirectoryChanged(uri);
+		}
+		const QSet<QString> pendingFiles = this->d->PendingFilePaths;
+		this->d->PendingFilePaths.clear();
+		for (const QString& path : pendingFiles) {
+			const auto it = this->d->WatchedFilesByPath.constFind(path);
+			if (it == this->d->WatchedFilesByPath.constEnd()) {
+				continue;
+			}
+			const YSSURI uri = it.value();
+			if (!QFileInfo::exists(path)) {
+				// 文件被删除或改名后 QFileSystemWatcher 会自己丢掉这条路径，这里同步登记表，
+				// 并仍然通知一次，让上层有机会把编辑器标成缺失。
+				this->unwatchFile(uri);
+			}
+			else if (this->d->Watcher != nullptr && !this->d->Watcher->files().contains(path)) {
+				// 有的写入方式是"先写临时文件再改名替换"，watcher 会丢掉原路径。
+				// 文件还在时重新登记，保证后续改动仍然收得到。
+				this->d->Watcher->addPath(path);
+			}
+			emit this->watchedFileChanged(uri);
 		}
 	}
 

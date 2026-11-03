@@ -21,7 +21,6 @@ namespace YSS::Editor {
 	protected:
 		FileEditWidgetArea* mainArea = nullptr;
 		FileEditWidgetArea* currentArea = nullptr;
-		YSSCore::Editor::FileEditWidget* currentFocusedWidget = nullptr;
 		QSet<QString> usedIDs;
 		QMap<QString, FileEditWidgetArea*> areas;
 	public:
@@ -62,12 +61,8 @@ namespace YSS::Editor {
 		FileEditWidgetArea* current() const {
 			return currentArea;
 		}
-		YSSCore::Editor::FileEditWidget* currentWidget() const {
-			return currentFocusedWidget;
-		}
-		void setCurrent(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget) {
+		void setCurrentArea(FileEditWidgetArea* area) {
 			currentArea = area;
-			currentFocusedWidget = widget;
 		}
 		QList<FileEditWidgetArea*> allAreas() const {
 			return areas.values();
@@ -242,23 +237,25 @@ namespace YSS::Editor {
 	}
 
 	YSSCore::Editor::FileEditWidget* FileEditWidgetArea::getCurrentFocusedWidget() {
-		return AreaRegistry::instance().currentWidget();
+		return YSSFSM->getCurrentFocusedFileEditWidget();
 	}
 
 	void FileEditWidgetArea::setCurrentFocusedWidget(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget) {
 		AreaRegistry& registry = AreaRegistry::instance();
-		if (registry.current() == area and registry.currentWidget() == widget) {
+		if (registry.current() == area and YSSFSM->getCurrentFocusedFileEditWidget() == widget) {
 			return;
 		}
-		registry.setCurrent(area, widget);
+		registry.setCurrentArea(area);
 		// The "current" tag highlight is global: only the tag matching the globally
 		// focused widget keeps the close button and bottom accent line.
 		const YSSCore::General::YSSURI currentUri = widget ? widget->getUri() : YSSCore::General::YSSURI();
 		for (FileEditWidgetArea* target : registry.allAreas()) {
 			target->d->TagArea->setGlobalCurrentUri(currentUri);
 		}
+		// 当前编辑器的数据与信号统一由文件服务管理器维护，这里只负责界面侧的关注点。
+		YSSFSM->setCurrentFocusedFileEditWidget(widget);
 		if (MainWin* win = MainWin::getInstance()) {
-			win->onGlobalCurrentChanged(area, widget);
+			win->onGlobalCurrentChanged(area);
 		}
 	}
 

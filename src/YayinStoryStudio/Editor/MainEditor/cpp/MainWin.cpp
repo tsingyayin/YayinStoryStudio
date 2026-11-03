@@ -2,6 +2,7 @@
 #include <QtCore/qjsonvalue.h>
 #include <QtCore/qpointer.h>
 #include <QtCore/qtimer.h>
+#include <QtWidgets/qapplication.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qfiledialog.h>
 #include <QtWidgets/qmessagebox.h>
@@ -80,8 +81,34 @@ namespace YSS::Editor {
 		connect(MessageCenter::getInstance(), &MessageCenter::messageCountChanged, this, [this]() {
 			BottomFrame->displayFileMessageCount(MessageCenter::getInstance()->getMessageCount());
 			});
-		connect(this, &MainWin::currentFileEditWidgetChangedNotTool,
+		// 当前编辑器由文件服务管理器统一维护，界面层只跟随它的信号刷新。
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::currentFileEditWidgetChangedNotTool,
 			MessageCenter::getInstance(), &MessageCenter::onCurrentFileEditWidgetChanged);
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::currentFileEditWidgetChanged, this,
+			[](YSSCore::Editor::FileEditWidget* widget) {
+				// 当前文件要在资源浏览器里跟着选中（虚拟文件不在资源浏览器里，跳过）。
+				if (widget == nullptr || widget->getUri().isVirtual()) {
+					return;
+				}
+				if (auto browser = ResourceBrowser::getInstance()) {
+					browser->setCurrentSelected(widget->getUri());
+				}
+			});
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::currentFileEditWidgetChangedNotTool, this,
+			[this](YSSCore::Editor::FileEditWidget* widget) {
+				if (widget == nullptr) {
+					BottomFrame->setEditorInfoEnable(false);
+					return;
+				}
+				auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
+				if (textEdit) {
+					BottomFrame->displayEditorInfo(textEdit->getTextCursor());
+					BottomFrame->setEditorInfoEnable(true);
+				}
+				else {
+					BottomFrame->setEditorInfoEnable(false);
+				}
+			});
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileOpened, this, &MainWin::onFileEditOpened);
 
 		initTreeLayout();
@@ -112,13 +139,26 @@ namespace YSS::Editor {
 		}
 
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileClosed, this, [this](const YSSCore::General::YSSURI& uri) {
+			unwatchFileForExternalChange(uri);
 			if (auto* current = FileEditWidgetArea::getCurrentFocusedWidget(); current && current->getUri() == uri) {
 				FileEditWidgetArea::setCurrentFocusedWidget(FileEditWidgetArea::getCurrentArea(), nullptr);
 			}
-			if (FocusingFileEditWidgetNotTool && FocusingFileEditWidgetNotTool->getUri() == uri) {
-				FocusingFileEditWidgetNotTool = nullptr;
-			}
 			});
+		connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileRenamed, this,
+			[this](const YSSCore::General::YSSURI& rawUri, const YSSCore::General::YSSURI& changedUri) {
+				// 改名后旧路径不再存在，监听要跟着换到新身份上。
+				unwatchFileForExternalChange(rawUri);
+				watchFileForExternalChange(changedUri);
+			});
+		// 外部改动监视：1 秒内没有新的改动才集中询问，避免一次保存触发一串提示。
+		ExternalChangeTimer = new QTimer(this);
+		ExternalChangeTimer->setSingleShot(true);
+		ExternalChangeTimer->setInterval(1000);
+		connect(ExternalChangeTimer, &QTimer::timeout, this, &MainWin::processExternalChangeQueue);
+		connect(YSSCore::General::YSSUnifiedFileSystem::getInstance(),
+			&YSSCore::General::YSSUnifiedFileSystem::fileChanged, this, &MainWin::onWatchedFileChanged);
+		// 项目文件从窗口存在开始就一直被监视，直到窗口关闭。
+		watchFileForExternalChange(YSSCore::General::YSSProject::getCurrentProject()->getProjectPath());
 		connect(YSSFSM, &YSSCore::Editor::FileServerManager::focusOnFile, this,
 			[](const YSSCore::General::YSSURI& uri, qint32 lineNumber, qint32 column) {
 				// 文件可能被拖到任意区域，因此按 URI 找到持有它的区域再切换。
@@ -203,8 +243,8 @@ namespace YSS::Editor {
 		}
 
 		connect(BottomFrame, &BottomInfoWidget::requestStatistic, this, [this]() {
-			auto currentEditWidget = FocusingFileEditWidgetNotTool;
-			if (not FocusingFileEditWidgetNotTool) {
+			auto currentEditWidget = YSSFSM->getCurrentFocusedFileEditWidgetNotTool();
+			if (not currentEditWidget) {
 				return;
 			}
 			auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(currentEditWidget);
@@ -469,6 +509,7 @@ namespace YSS::Editor {
 	void MainWin::onFileEditOpened(const YSSCore::General::YSSURI& uri) {
 		YSSStartupProbe->debug() << "file opened:" << uri.toString()
 			<< "elapsed(ms):" << StartupProbeTimer.elapsed();
+		watchFileForExternalChange(uri);
 		auto widget = YSSFSM->getFileEditWidget(uri);
 		if (not widget) {
 			return;
@@ -492,6 +533,188 @@ namespace YSS::Editor {
 		}
 	}
 
+	// 只有本机普通文件才登记外部改动监视。远端后端目前不支持文件监听，
+	// 虚拟文件与资源也没有"外部改动"这个概念，一律静默跳过。
+	void MainWin::watchFileForExternalChange(const YSSCore::General::YSSURI& uri) {
+		if (ClosingDown || !uri.isValid() || !uri.isLocal()) {
+			return;
+		}
+		const QString key = uri.toString();
+		if (WatchedFiles.contains(key)) {
+			return;
+		}
+		YSSCore::General::YSSFileError error;
+		if (!YSSCore::General::YSSUnifiedFileSystem::getInstance()->watchFile(uri, &error)) {
+			yWarningF << "Failed to watch file" << key << error.toString();
+			return;
+		}
+		WatchedFiles.insert(key, uri);
+	}
+
+	void MainWin::unwatchFileForExternalChange(const YSSCore::General::YSSURI& uri) {
+		const QString key = uri.toString();
+		if (!WatchedFiles.contains(key)) {
+			return;
+		}
+		WatchedFiles.remove(key);
+		YSSCore::General::YSSUnifiedFileSystem::getInstance()->unwatchFile(uri);
+	}
+
+	void MainWin::unwatchAllFilesForExternalChange() {
+		const QList<YSSCore::General::YSSURI> uris = WatchedFiles.values();
+		WatchedFiles.clear();
+		for (const YSSCore::General::YSSURI& uri : uris) {
+			YSSCore::General::YSSUnifiedFileSystem::getInstance()->unwatchFile(uri);
+		}
+	}
+
+	// 程序在前台时 activeWindow 是当前活动窗口；弹窗期间它是弹窗本身，同样算前台。
+	static bool IsApplicationActive() {
+		return QApplication::activeWindow() != nullptr;
+	}
+
+	static bool IsProjectFile(const YSSCore::General::YSSURI& uri) {
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+		return project != nullptr && project->getProjectPath().isValid()
+			&& project->getProjectPath() == uri;
+	}
+
+	void MainWin::onWatchedFileChanged(const YSSCore::General::YSSURI& uri) {
+		// 已经决定重载项目时，关窗过程不需要再打扰用户。
+		if (ReloadProjectAfterClose) {
+			return;
+		}
+		if (!WatchedFiles.contains(uri.toString())) {
+			return;
+		}
+		enqueueExternalChange(uri);
+	}
+
+	void MainWin::enqueueExternalChange(const YSSCore::General::YSSURI& uri) {
+		const bool isProject = IsProjectFile(uri);
+		if (!isProject && YSSFSM->getFileEditWidget(uri) == nullptr) {
+			// 没有对应的编辑器（例如刚关掉这一页），不必打扰用户。
+			return;
+		}
+		// 同一个身份已经在队列里时把旧的那条顶掉：新事件说明文件刚刚又变了一次，
+		// 应当按最新一次的时间重新排队，原来的位置不再保留。文件插在项目之前，
+		// 项目永远排在队尾——先问完所有文件，最后才问项目。
+		ChangedExternalList.removeAll(uri);
+		if (isProject) {
+			ChangedExternalList.append(uri);
+		}
+		else {
+			int insertAt = ChangedExternalList.size();
+			if (insertAt > 0 && IsProjectFile(ChangedExternalList.last())) {
+				insertAt -= 1;
+			}
+			ChangedExternalList.insert(insertAt, uri);
+		}
+
+		// 正在询问项目时又来了文件改动：关掉项目弹窗，把文件排到前面重新问。
+		if (!isProject && !ProjectReloadDialog.isNull()) {
+			ProjectReloadDialogPreempting = true;
+			ProjectReloadDialog->reject();
+		}
+
+		if (!IsApplicationActive()) {
+			// 程序不在前台时不打扰用户，等重新获得焦点再开始计时。
+			ExternalPromptWaitingForActivation = true;
+			return;
+		}
+		ExternalPromptWaitingForActivation = false;
+		if (ExternalChangeTimer != nullptr) {
+			ExternalChangeTimer->start();
+		}
+	}
+
+	void MainWin::processExternalChangeQueue() {
+		if (ExternalPromptRunning || ChangedExternalList.isEmpty()) {
+			return;
+		}
+		ExternalPromptRunning = true;
+		while (!ChangedExternalList.isEmpty()) {
+			const YSSCore::General::YSSURI uri = ChangedExternalList.first();
+			if (IsProjectFile(uri)) {
+				if (ChangedExternalList.size() > 1) {
+					// 项目永远最后问：还有文件就先让文件走。
+					ChangedExternalList.removeFirst();
+					ChangedExternalList.append(uri);
+					continue;
+				}
+				ChangedExternalList.removeFirst();
+				// 询问是异步的，结束时会复位 ExternalPromptRunning。
+				promptReloadProject(uri);
+				return;
+			}
+			ChangedExternalList.removeFirst();
+			if (YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri)) {
+				// 文件直接走编辑器自己的重新加载逻辑；有未保存修改时它会自带确认弹窗。
+				widget->reloadFile();
+			}
+		}
+		ExternalPromptRunning = false;
+		// reloadFile() 的模态弹窗期间可能又进了新改动，那一轮定时器已经被消耗掉了，
+		// 这里补一次，保证它们不会被漏掉。
+		if (!ChangedExternalList.isEmpty()) {
+			ExternalChangeTimer->start();
+		}
+	}
+
+	void MainWin::promptReloadProject(const YSSCore::General::YSSURI& uri) {
+		QMessageBox* box = new QMessageBox(this);
+		box->setIcon(QMessageBox::Question);
+		box->setWindowTitle(VITRL("YSS::editor.externalChange.project.title"));
+		box->setText(VITRL("YSS::editor.externalChange.project.message")
+			.arg(QFileInfo(uri.getLocalPath()).fileName()));
+		box->setInformativeText(VITRL("YSS::editor.externalChange.project.informative"));
+		box->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		box->setDefaultButton(QMessageBox::No);
+		box->setAttribute(Qt::WA_DeleteOnClose);
+		ProjectReloadDialog = box;
+		connect(box, &QMessageBox::finished, this, [this, box, uri](int result) {
+			if (ProjectReloadDialog == box) {
+				ProjectReloadDialog = nullptr;
+			}
+			const bool preempted = ProjectReloadDialogPreempting;
+			ProjectReloadDialogPreempting = false;
+			if (preempted) {
+				// 用户还没回答就被更紧急的文件改动顶掉：项目重新排回队尾。
+				if (!ChangedExternalList.contains(uri)) {
+					ChangedExternalList.append(uri);
+				}
+				ExternalPromptRunning = false;
+				processExternalChangeQueue();
+				return;
+			}
+			ExternalPromptRunning = false;
+			if (result == QMessageBox::Yes) {
+				startProjectReload(uri);
+				return;
+			}
+			if (!ChangedExternalList.isEmpty()) {
+				ExternalChangeTimer->start();
+			}
+			});
+		box->open();
+	}
+
+	/*
+		用户确认丢弃当前项目内容、重新从磁盘读取：先按正常关闭流程关掉编辑器窗口
+		（仍然逐个询问文件是否保存），窗口销毁后再用同一路径重建项目并重开窗口。
+	*/
+	void MainWin::startProjectReload(const YSSCore::General::YSSURI& uri) {
+		ReloadProjectUri = uri;
+		ReloadProjectAfterClose = true;
+		CloseForBack = false;
+		if (ExternalChangeTimer != nullptr) {
+			ExternalChangeTimer->stop();
+		}
+		ChangedExternalList.clear();
+		ExternalPromptWaitingForActivation = false;
+		this->close();
+	}
+
 	void MainWin::showRenameDialog(const YSSCore::General::YSSURI& uri, bool isDirectory) {
 		if (RenameDlg == nullptr) {
 			return;
@@ -503,8 +726,8 @@ namespace YSS::Editor {
 	}
 
 	void MainWin::saveCurrentFocusedFile() {
-		if (FocusingFileEditWidgetNotTool) {
-			FocusingFileEditWidgetNotTool->saveFile();
+		if (YSSCore::Editor::FileEditWidget* notTool = YSSFSM->getCurrentFocusedFileEditWidgetNotTool()) {
+			notTool->saveFile();
 		}
 		else if (YSSCore::Editor::FileEditWidget* current = FileEditWidgetArea::getCurrentFocusedWidget()) {
 			current->saveFile();
@@ -516,7 +739,9 @@ namespace YSS::Editor {
 
 	void MainWin::saveCurrentFocusedFileAs(QString rawFilePath) {
 		if (rawFilePath.isEmpty()) {
-			rawFilePath = FocusingFileEditWidgetNotTool ? FocusingFileEditWidgetNotTool->getFilePath() : "";
+			if (YSSCore::Editor::FileEditWidget* notTool = YSSFSM->getCurrentFocusedFileEditWidgetNotTool()) {
+				rawFilePath = notTool->getFilePath();
+			}
 		}
 		if (rawFilePath.isEmpty()) {
 			yDebugF << "No file to save as";
@@ -664,6 +889,7 @@ namespace YSS::Editor {
 				CloseAwaitingSaves = false;
 				CloseApproved = false;
 				CloseForBack = false;
+				ReloadProjectAfterClose = false;
 				QMessageBox::warning(this, VITRL("YSS::editor.fileOperation.failed.title"),
 					VITRL("YSS::editor.fileOperation.failed.message").arg(CloseSaveFailedUri));
 				return;
@@ -696,14 +922,6 @@ namespace YSS::Editor {
 
 	FileEditWidgetArea* MainWin::getLastFocusedFileEditArea() const {
 		return FileEditWidgetArea::getCurrentArea();
-	}
-
-	YSSCore::Editor::FileEditWidget* MainWin::getCurrentFocusedFileEditWidget() const {
-		return FileEditWidgetArea::getCurrentFocusedWidget();
-	}
-
-	YSSCore::Editor::FileEditWidget* MainWin::getCurrentFocusedFileEditWidgetNotTool() const {
-		return FocusingFileEditWidgetNotTool;
 	}
 
 	void MainWin::initTreeLayout() {
@@ -788,35 +1006,9 @@ namespace YSS::Editor {
 			});
 	}
 
-	void MainWin::onGlobalCurrentChanged(FileEditWidgetArea* area, YSSCore::Editor::FileEditWidget* widget) {
-		emit currentFileEditWidgetChanged(widget);
+	void MainWin::onGlobalCurrentChanged(FileEditWidgetArea* area) {
+		// 编辑器本身的数据与信号由 FileServerManager 维护，这里只广播区域变化。
 		emit currentFileEditWidgetAreaChanged(area);
-		if (widget == nullptr) {
-			FocusingFileEditWidgetNotTool = nullptr;
-			BottomFrame->setEditorInfoEnable(false);
-			emit currentFileEditWidgetChangedNotTool(nullptr);
-			return;
-		}
-		// 当前文件要在资源浏览器里跟着选中（虚拟文件不在资源浏览器里，跳过）。
-		if (not widget->getUri().isVirtual()) {
-			if (auto browser = ResourceBrowser::getInstance()) {
-				browser->setCurrentSelected(widget->getUri());
-			}
-		}
-		YSSCore::Editor::FileServer* sourceServer = YSSFSM->getFileEditWidgetSourceServer(widget);
-		if (sourceServer and sourceServer->isListAsTool()) {
-			return;
-		}
-		FocusingFileEditWidgetNotTool = widget;
-		auto textEdit = qobject_cast<YSSCore::Editor::TextEdit*>(widget);
-		if (textEdit) {
-			BottomFrame->displayEditorInfo(textEdit->getTextCursor());
-			BottomFrame->setEditorInfoEnable(true);
-		}
-		else {
-			BottomFrame->setEditorInfoEnable(false);
-		}
-		emit currentFileEditWidgetChangedNotTool(widget);
 	}
 
 	void MainWin::onFileEditWidgetAreaFocusIn(const QString& areaID) {
@@ -838,6 +1030,44 @@ namespace YSS::Editor {
 		//Visindigo::Widgets::DesktopHacker::getInstance()->suspendQWidget(this);
 	}
 
+	void MainWin::changeEvent(QEvent* event) {
+		QFrame::changeEvent(event);
+		if (event->type() != QEvent::ActivationChange) {
+			return;
+		}
+		if (ExternalPromptWaitingForActivation && !ChangedExternalList.isEmpty()
+			&& IsApplicationActive() && ExternalChangeTimer != nullptr) {
+			ExternalPromptWaitingForActivation = false;
+			ExternalChangeTimer->start();
+		}
+	}
+
+	/*
+		项目按磁盘内容重载：窗口已经关掉、旧项目也已销毁，这里重新建一个项目并直接
+		打开编辑器窗口。加载失败时退回项目页面，避免留下一个没有任何内容的空窗口。
+	*/
+	static void ReopenProjectAfterReload(const YSSCore::General::YSSURI& uri) {
+		YSSCore::General::YSSProject* project = new YSSCore::General::YSSProject();
+		QObject::connect(project, &YSSCore::General::YSSProject::projectLoaded, project, [project]() {
+			YSSCore::General::YSSProject::setCurrentProject(project);
+			YSS::Editor::MainWin* win = new YSS::Editor::MainWin();
+			win->show();
+			});
+		QObject::connect(project, &YSSCore::General::YSSProject::projectLoadFailed, project,
+			[project](YSSCore::General::YSSProject::LoadError error) {
+				yErrorF << "Failed to reload project" << project->getProjectPath().toString()
+					<< "error:" << static_cast<int>(error);
+				QMessageBox::critical(nullptr,
+					VITRL("YSS::editor.externalChange.reopenFailed.title"),
+					VITRL("YSS::editor.externalChange.reopenFailed.message")
+						.arg(project->getProjectPath().toString()));
+				project->deleteLater();
+				YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
+				win->show();
+			});
+		project->loadProject(uri);
+	}
+
 	void MainWin::closeEvent(QCloseEvent* event) {
 		yDebugF << "MainWin Close Event";
 		if (CloseAwaitingSaves) {
@@ -855,23 +1085,28 @@ namespace YSS::Editor {
 						if (not okToClose) {
 							event->ignore();
 							CloseForBack = false;
+							ReloadProjectAfterClose = false;
 							return;
 						}
 					}
 				}
 			}
 
-			QMessageBox::StandardButton result = QMessageBox::question(this, VITRL("YSS::project.saveQuestion.title"),
-				VITRL("YSS::project.saveQuestion.text").arg(project->getProjectName()),
-				QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-				QMessageBox::Yes);
-			if (result == QMessageBox::Cancel) {
-				event->ignore();
-				CloseForBack = false;
-				return;
-			}
-			else if (result == QMessageBox::Yes) {
-				saveProject();
+			// 重载项目时磁盘上的项目文件才是要读的那一份，再写一次会把它覆盖掉。
+			if (not ReloadProjectAfterClose) {
+				QMessageBox::StandardButton result = QMessageBox::question(this, VITRL("YSS::project.saveQuestion.title"),
+					VITRL("YSS::project.saveQuestion.text").arg(project->getProjectName()),
+					QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+					QMessageBox::Yes);
+				if (result == QMessageBox::Cancel) {
+					event->ignore();
+					CloseForBack = false;
+					ReloadProjectAfterClose = false;
+					return;
+				}
+				else if (result == QMessageBox::Yes) {
+					saveProject();
+				}
 			}
 		}
 
@@ -884,6 +1119,7 @@ namespace YSS::Editor {
 
 		// 用户已经确认关闭，此后不再需要为这个项目打开任何文件。还没读完的打开请求要在这里
 		// 作废，否则它们读完后仍会创建编辑器，而那时已经没有区域能接管这些控件了。
+		ClosingDown = true;
 		YSSFSM->clearPendingOpens();
 
 		for (TreeLayoutWidget* layout : TreeLayoutWidget::getAllTopLevelLayouts()) {
@@ -896,6 +1132,8 @@ namespace YSS::Editor {
 				else {
 					CloseApproved = false;
 					CloseForBack = false;
+					ReloadProjectAfterClose = false;
+					ClosingDown = false;
 				}
 				return;
 			}
@@ -913,14 +1151,27 @@ namespace YSS::Editor {
 			if (not layout->close()) {
 				event->ignore();
 				CloseForBack = false;
+				ReloadProjectAfterClose = false;
+				ClosingDown = false;
 				return;
 			}
 		}
 		// 本窗口的编辑器都关掉了，而消息中心会活到下一个项目，必须让它忘掉这些编辑器。
 		MessageCenter::getInstance()->onCurrentFileEditWidgetChanged(nullptr);
+		unwatchAllFilesForExternalChange();
+		if (ExternalChangeTimer != nullptr) {
+			ExternalChangeTimer->stop();
+		}
+		ChangedExternalList.clear();
 		Instance = nullptr;
+		const bool reopenProject = ReloadProjectAfterClose;
+		const YSSCore::General::YSSURI reopenProjectUri = ReloadProjectUri;
 		delete YSSCore::General::YSSProject::getCurrentProject();
 		this->deleteLater();
+		if (reopenProject) {
+			QTimer::singleShot(0, [reopenProjectUri]() { ReopenProjectAfterReload(reopenProjectUri); });
+			return;
+		}
 		if (CloseForBack) {
 			YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 			win->show();
@@ -948,8 +1199,9 @@ namespace YSS::Editor {
 		}
 		YSSCore::General::YSSProject::getCurrentProject()->setTreeLayoutConfig(treeConfig);
 
+		YSSCore::Editor::FileEditWidget* focusedNotTool = YSSFSM->getCurrentFocusedFileEditWidgetNotTool();
 		YSSCore::General::YSSProject::getCurrentProject()->setFocusedFile(
-			FocusingFileEditWidgetNotTool ? FocusingFileEditWidgetNotTool->getUri() : YSSCore::General::YSSURI());
+			focusedNotTool ? focusedNotTool->getUri() : YSSCore::General::YSSURI());
 		Visindigo::Utility::JsonConfig* config = VIApp->getMainPlugin()->getPluginConfig();
 		if (this->isMaximized()) {
 			config->setBool("Window.Editor.Maximized", true);

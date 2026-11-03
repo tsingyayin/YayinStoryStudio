@@ -55,6 +55,7 @@ YSS的使用教程请参见[Yayin Story Studio 使用教程](https://www.yuque.c
 因YSS项目原有许可证低于Qt 6推荐的版本，且随着近期ASER工具链的深度更新，存在代码滥用的可能。因此2026年11月2~3日深夜前后（北京时间），Yayin Story Studio的许可证从LGPLv2.1升级到LGPLv3，并启动ASER Studio的剥离过程，自本次调整之后，原有代码、原有许可证和现有代码、现有许可证授权处理如下，请务必遵守：
 1. YSS仓库中的ASER Studio部分，今后使用其他仓库进行开发和维护，YSS仓库中不再包括ASER Studio的源代码，且ASER Studio此后不再开源。本仓库历史记录中的ASER Studio源代码仍然可在历史记录中获取，但本仓库对ASER Studio的LGPLv2.1许可自2026年11月3日（北京时间）后终止。从本仓库处获取的ASER Studio源代码仅允许查看与自行使用，不得以任何方式传播、修改、再发布或用于其他商业用途。不过请注意，在2026年11月3日（北京时间）之前已经通过LGPLv2.1许可获得了ASER Studio源代码的用户仍然可以继续使用LGPLv2.1许可下的ASER Studio源代码。
 2. YSS仓库中非ASER Studio部分的历史代码，除了按LGPLv2.1协议授权之外，也追加允许在LGPLv3协议下使用。已经通过LGPLv2.1许可获得的YSS源代码的用户仍然可以继续使用LGPLv2.1许可下的YSS源代码，也可以选择将其转换到LGPLv3许可。
+3. ASER Studio可能会在一年内重新开源，但不做出任何承诺。若ASER Studio重新开源，可能会使用GPLv3甚至是其他更严格的许可证。
 ## 运行程序
 **建议非技术用户直接从Release下载已编译的版本。**，并主要参考[Yayin Story Studio 使用教程](https://www.yuque.com/tsingyayin/yss)进行使用。下面的内容主要面向开发者，介绍如何从源代码构建YSS。
 
