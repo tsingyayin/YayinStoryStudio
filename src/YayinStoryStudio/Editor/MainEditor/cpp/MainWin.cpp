@@ -44,6 +44,28 @@ VI_DECLARE_LOGGER(StartupProbe, YSSStartupProbe, YSS);
 namespace YSS::Editor {
 	MainWin* MainWin::Instance = nullptr;
 
+	// 项目重载会先关掉唯一的主窗口，再异步加载并重建窗口。Qt 默认在最后一个可见窗口
+	// 关闭时退出进程，这里临时关掉该行为；新窗口显示（或退回项目页）后恢复原设置。
+	static bool ProjectReloadKeepAlive = false;
+	static bool ProjectReloadSavedQuitOnLastWindowClosed = true;
+
+	static void SetProjectReloadKeepAlive(bool enable) {
+		if (enable) {
+			if (ProjectReloadKeepAlive) {
+				return;
+			}
+			ProjectReloadSavedQuitOnLastWindowClosed = QApplication::quitOnLastWindowClosed();
+			QApplication::setQuitOnLastWindowClosed(false);
+			ProjectReloadKeepAlive = true;
+			return;
+		}
+		if (!ProjectReloadKeepAlive) {
+			return;
+		}
+		QApplication::setQuitOnLastWindowClosed(ProjectReloadSavedQuitOnLastWindowClosed);
+		ProjectReloadKeepAlive = false;
+	}
+
 	MainWin* MainWin::getInstance() {
 		return Instance;
 	}
@@ -330,7 +352,10 @@ namespace YSS::Editor {
 		// 所以这里同步销毁，保证它一定被释放。
 		delete RenameDlg;
 		RenameDlg = nullptr;
-		Instance = nullptr;
+		// 项目重载时旧窗口的 deleteLater 可能晚于新窗口创建，只有确实指向自己时才清空。
+		if (Instance == this) {
+			Instance = nullptr;
+		}
 	}
 
 	// 在树形布局中查找直接包含 \a area 的布局，并把该区域在其中的下标写入 \a index。
@@ -712,6 +737,8 @@ namespace YSS::Editor {
 		}
 		ChangedExternalList.clear();
 		ExternalPromptWaitingForActivation = false;
+		// 窗口关掉之后要靠异步加载重建，期间必须阻止"最后一个窗口关闭即退出"。
+		SetProjectReloadKeepAlive(true);
 		this->close();
 	}
 
@@ -890,6 +917,7 @@ namespace YSS::Editor {
 				CloseApproved = false;
 				CloseForBack = false;
 				ReloadProjectAfterClose = false;
+				SetProjectReloadKeepAlive(false);
 				QMessageBox::warning(this, VITRL("YSS::editor.fileOperation.failed.title"),
 					VITRL("YSS::editor.fileOperation.failed.message").arg(CloseSaveFailedUri));
 				return;
@@ -1052,6 +1080,7 @@ namespace YSS::Editor {
 			YSSCore::General::YSSProject::setCurrentProject(project);
 			YSS::Editor::MainWin* win = new YSS::Editor::MainWin();
 			win->show();
+			SetProjectReloadKeepAlive(false);
 			});
 		QObject::connect(project, &YSSCore::General::YSSProject::projectLoadFailed, project,
 			[project](YSSCore::General::YSSProject::LoadError error) {
@@ -1064,6 +1093,7 @@ namespace YSS::Editor {
 				project->deleteLater();
 				YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 				win->show();
+				SetProjectReloadKeepAlive(false);
 			});
 		project->loadProject(uri);
 	}
@@ -1086,6 +1116,7 @@ namespace YSS::Editor {
 							event->ignore();
 							CloseForBack = false;
 							ReloadProjectAfterClose = false;
+							SetProjectReloadKeepAlive(false);
 							return;
 						}
 					}
@@ -1134,6 +1165,7 @@ namespace YSS::Editor {
 					CloseForBack = false;
 					ReloadProjectAfterClose = false;
 					ClosingDown = false;
+					SetProjectReloadKeepAlive(false);
 				}
 				return;
 			}
@@ -1153,6 +1185,7 @@ namespace YSS::Editor {
 				CloseForBack = false;
 				ReloadProjectAfterClose = false;
 				ClosingDown = false;
+				SetProjectReloadKeepAlive(false);
 				return;
 			}
 		}
@@ -1167,11 +1200,16 @@ namespace YSS::Editor {
 		const bool reopenProject = ReloadProjectAfterClose;
 		const YSSCore::General::YSSURI reopenProjectUri = ReloadProjectUri;
 		delete YSSCore::General::YSSProject::getCurrentProject();
-		this->deleteLater();
 		if (reopenProject) {
-			QTimer::singleShot(0, [reopenProjectUri]() { ReopenProjectAfterReload(reopenProjectUri); });
+			// 等窗口连同它持有的 FileEditWidgetArea 真正销毁后再重建，否则新旧两套区域
+			// 会同时占用相同的区域 ID，恢复出来的布局和文件列表会错位。
+			QObject::connect(this, &QObject::destroyed, [reopenProjectUri]() {
+				QTimer::singleShot(0, [reopenProjectUri]() { ReopenProjectAfterReload(reopenProjectUri); });
+				});
+			this->deleteLater();
 			return;
 		}
+		this->deleteLater();
 		if (CloseForBack) {
 			YSS::ProjectPage::ProjectWin* win = new YSS::ProjectPage::ProjectWin();
 			win->show();
