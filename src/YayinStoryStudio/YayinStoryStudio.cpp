@@ -38,7 +38,9 @@
 #include <Widgets/LiquidGlassEffect.h>
 #include <Widgets/Terminal.h>
 #include "Editor/InstallerClient.h"
+#include "Editor/MainEditor/FileTypeOpenWith.h"
 #include "Editor/MainEditor/MainWin.h"
+#include "Editor/MainEditor/ProgramSettingsWidget.h"
 #include "Editor/PluginLoadFaultDialog.h"
 #include "Editor/ProjectPage/ProjectWin.h"
 #include "Editor/YSSCommandHandler.h"
@@ -49,7 +51,8 @@ namespace YSS {
 	class MainPrivate {
 		friend class Main;
 	protected:
-		Visindigo::Widgets::ConfigWidget* ConfigWidget = nullptr;
+		Visindigo::Widgets::ConfigWidget* GeneralConfigWidget = nullptr;
+		YSS::Editor::ProgramSettingsWidget* ConfigWidget = nullptr;
 		static Main* Instance;
 	};
 	Main* MainPrivate::Instance = nullptr;
@@ -105,16 +108,16 @@ namespace YSS {
 		
 		registerPluginModule(new YSS::Editor::YSSCommandHandler(this));
 		registerPluginModule(new YSS::Editor::YSSTranslator(this));
-		d->ConfigWidget = new Visindigo::Widgets::ConfigWidget();
+		d->GeneralConfigWidget = new Visindigo::Widgets::ConfigWidget();
 		Visindigo::Utility::FileOperation::Errorable<QString> cwJsonResult = Visindigo::Utility::FileOperation::readAll(":/resource/cn.yxgeneral.yayinstorystudio/configWidget/programConfig.json");
 		if (cwJsonResult) {
-			d->ConfigWidget->loadCWJson(cwJsonResult.value());
+			d->GeneralConfigWidget->loadCWJson(cwJsonResult.value());
 		}
 		else {
 			vgErrorF << "Failed to read program config widget json, error: " << Visindigo::Utility::FileOperation::errorCodeName(cwJsonResult.error());
 		}
-		d->ConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
-		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged, this, [](const QString& node, int index, QString data) {
+		d->GeneralConfigWidget->setTargetConfig(getPluginFolder().filePath("config.json"));
+		connect(d->GeneralConfigWidget, &Visindigo::Widgets::ConfigWidget::comboBoxIndexChanged, this, [](const QString& node, int index, QString data) {
 			vgDebug << node;
 			if (node == "General.Theme") {
 				VISTM->changeColorTheme(data);
@@ -128,7 +131,8 @@ namespace YSS {
 				}
 			}
 			});
-		connect(d->ConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, this, &Visindigo::General::Plugin::reloadPluginConfig);
+		connect(d->GeneralConfigWidget, &Visindigo::Widgets::ConfigWidget::saved, this, &Visindigo::General::Plugin::reloadPluginConfig);
+		d->ConfigWidget = new YSS::Editor::ProgramSettingsWidget(d->GeneralConfigWidget);
 		vgDebug << getPluginFolder().filePath("config.json");
 		VISTM->setStyleTemplatePriority({ "YSS" });
 		VISTM->setColorSchemePriority({ "YSSEditor", "#Default" }); // NOTE: YSS does not have color scheme yet, this is for future us
@@ -136,6 +140,8 @@ namespace YSS {
 
 	void Main::onApplicationInit() {
 		VISTM->changeColorTheme(getPluginConfig()->getString("Settings.General.Theme"));
+		// 所有插件的 FileServer 都已注册完成，现在才能把用户保存的打开方式顺序应用回去。
+		YSS::Editor::FileTypeOpenWith::applySavedOrders();
 		const QMap<QString, Visindigo::General::PluginManager::LoadPluginResult> loadResults = VIPLM->getAllPluginLoadResults();
 		if (YSS::Editor::PluginLoadFaultDialog::hasLoadFault(loadResults)) {
 			YSS::Editor::PluginLoadFaultDialog dialog(loadResults);
@@ -189,6 +195,19 @@ namespace YSS {
 	}
 	QWidget* Main::getConfigWidget() {
 		return d->ConfigWidget;
+	}
+
+	void Main::showConfigWidget(int page) {
+		if (d->ConfigWidget == nullptr) {
+			return;
+		}
+		if (page >= 0) {
+			d->ConfigWidget->showPage(page);
+		}
+		d->ConfigWidget->setWindowModality(Qt::ApplicationModal);
+		d->ConfigWidget->show();
+		d->ConfigWidget->raise();
+		d->ConfigWidget->activateWindow();
 	}
 
 	Main::~Main() {

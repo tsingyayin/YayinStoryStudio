@@ -1,6 +1,10 @@
 ﻿{
 	"config": {
 		"title": "Yayin Story Studio Preferences",
+		"category": {
+			"general": "General",
+			"fileTypes": "File Types and Open With"
+		},
 		"general": {
 			"title": "General",
 			"text": "General application settings",
@@ -613,5 +617,16 @@
 			"hostKeyRejected": "The host key of %1 was rejected (%2 %3).",
 			"alreadyReady": "%1 is already connected."
 		}
+	},
+	"fileTypeSettings": {
+		"description": "Select a file type to change the order of its default opening methods. Methods higher in the list are tried first. Changes take effect and are saved immediately.",
+		"blockTitle": "File Types",
+		"filterPlaceholder": "Filter file types",
+		"openWith": "Open with (top first)",
+		"moveUp": "Move Up",
+		"moveDown": "Move Down",
+		"resetOrder": "Restore Default Order",
+		"singleServerHint": "This file type has only one opening method, so the order cannot be changed.",
+		"noServerHint": "No component can open this file type."
 	}
 }

@@ -27,19 +27,8 @@
 #include "Editor/MainEditor/private/ColorThemeSettings_p.h"
 #include "Editor/MainEditor/TextEditConfigOperator.h"
 namespace YSS::Editor {
-	ColorThemeSettingsVFServer::ColorThemeSettingsVFServer(YSSCore::Editor::EditorPlugin* plugin) :
-		YSSCore::Editor::FileServer("Color Theme Settings Virtual File Server", "cn.yxgeneral.yss_builtin.colorThemeSettingsVFS", plugin) {
-		setEditorType(EditorType::BuiltInEditor);
-		setSupportedFileExts({ "YSS.MainEditor.ColorThemeSettings" });
-		setAsVitrualFileServer(true);
-	}
-
-	YSSCore::Editor::FileEditWidget* ColorThemeSettingsVFServer::onCreateFileEditWidget() {
-		return new ColorThemeSettingsEditWidget();
-	}
-
-	class ColorThemeSettingsEditWidgetPrivate {
-		friend class ColorThemeSettingsEditWidget;
+	class ColorThemeSettingsWidgetPrivate {
+		friend class ColorThemeSettingsWidget;
 	protected:
 		bool changed = false;
 	
@@ -312,8 +301,8 @@ namespace YSS::Editor {
 		}
 	};
 
-	ColorThemeSettingsEditWidget::ColorThemeSettingsEditWidget(QWidget* parent) : YSSCore::Editor::FileEditWidget(parent) {
-		d = new ColorThemeSettingsEditWidgetPrivate;
+	ColorThemeSettingsWidget::ColorThemeSettingsWidget(QWidget* parent) : QWidget(parent) {
+		d = new ColorThemeSettingsWidgetPrivate;
 
 		// main layout
 		d->mainLayout = new QGridLayout(this);
@@ -438,8 +427,8 @@ namespace YSS::Editor {
 		d->mainLayout->addWidget(d->documentPreviewTextEdit, 4, 0);
 		d->mainLayout->addWidget(d->editFrame, 4, 1, 1, -1);
 		d->mainLayout->addWidget(d->staticWarningLabel, 5, 0);
-		d->mainLayout->addWidget(d->saveButton, 5, 1, Qt::AlignRight);
-		d->mainLayout->addWidget(d->resetButton, 5, 2, Qt::AlignRight);
+		d->mainLayout->addWidget(d->resetButton, 5, 1, Qt::AlignRight);
+		d->mainLayout->addWidget(d->saveButton, 5, 2, Qt::AlignRight);
 		d->mainLayout->setRowStretch(4, 1);
 
 		connect(d->langServerComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
@@ -544,27 +533,12 @@ namespace YSS::Editor {
 		}
 	}
 
-	ColorThemeSettingsEditWidget::~ColorThemeSettingsEditWidget() {
+	ColorThemeSettingsWidget::~ColorThemeSettingsWidget() {
 		delete d;
 	}
 
-	void ColorThemeSettingsEditWidget::resizeEvent(QResizeEvent* event) {
+	void ColorThemeSettingsWidget::resizeEvent(QResizeEvent* event) {
 		QWidget::resizeEvent(event);
 		d->nothingToEditLabel->setGeometry(0, 0, width(), height());
-	}
-
-	bool ColorThemeSettingsEditWidget::onVirtualOpen(const QString& ext, const QString& fileName, const QString& param) {
-		if (ext == "YSS.MainEditor.ColorThemeSettings") {
-			return true;
-		}
-		return false;
-	}
-
-	bool ColorThemeSettingsEditWidget::onVirtualClose() {
-		return true;
-	}
-
-	bool ColorThemeSettingsEditWidget::onVirtualSave() {
-		return true;
 	}
 }

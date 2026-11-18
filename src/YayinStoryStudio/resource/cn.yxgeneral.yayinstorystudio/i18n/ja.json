@@ -1,6 +1,10 @@
 ﻿{
 	"config": {
 		"title": "Yayin Story Studio 設定",
+		"category": {
+			"general": "一般",
+			"fileTypes": "ファイルの種類と開き方"
+		},
 		"general": {
 			"title": "全般",
 			"text": "プログラムの全般的な設定",
@@ -589,5 +593,16 @@
 			"hostKeyRejected": "%1 のホスト鍵が拒否されました (%2 %3)。",
 			"alreadyReady": "%1 はすでに接続されています。"
 		}
+	},
+	"fileTypeSettings": {
+		"description": "ファイルの種類を選ぶと、既定の開き方の順序を変更できます。上にあるものほど優先されます。変更はすぐに適用され保存されます。",
+		"blockTitle": "ファイルの種類",
+		"filterPlaceholder": "ファイルの種類を絞り込む",
+		"openWith": "開き方（上が優先）",
+		"moveUp": "上へ",
+		"moveDown": "下へ",
+		"resetOrder": "既定の順序に戻す",
+		"singleServerHint": "このファイルの種類には開き方が 1 つしかないため、順序を変更できません。",
+		"noServerHint": "このファイルの種類を開けるコンポーネントがありません。"
 	}
 }

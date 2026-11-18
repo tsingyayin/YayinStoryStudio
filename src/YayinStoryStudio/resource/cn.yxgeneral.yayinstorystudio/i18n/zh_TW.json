@@ -1,6 +1,10 @@
 ﻿{
 	"config":{
 		"title": "Yayin Story Studio 程式設定",
+		"category":{
+			"general": "一般",
+			"fileTypes": "檔案類型與開啟方式"
+		},
 		"general":{
 			"title":"一般",
 			"text":"一些一般的程式設定",
@@ -589,5 +593,16 @@
 			"hostKeyRejected": "%1 的主機金鑰被拒絕（%2 %3）。",
 			"alreadyReady": "%1 已經連線。"
 		}
+	},
+	"fileTypeSettings": {
+		"description": "選擇檔案類型後，可以調整它的預設開啟方式順序；排在上面的開啟方式會優先使用。修改會立即生效並儲存。",
+		"blockTitle": "檔案類型",
+		"filterPlaceholder": "篩選檔案類型",
+		"openWith": "開啟方式（由上而下依序優先）",
+		"moveUp": "上移",
+		"moveDown": "下移",
+		"resetOrder": "恢復預設順序",
+		"singleServerHint": "這種檔案類型只有一種開啟方式，無需調整順序。",
+		"noServerHint": "目前沒有可以開啟這種檔案類型的元件。"
 	}
 }

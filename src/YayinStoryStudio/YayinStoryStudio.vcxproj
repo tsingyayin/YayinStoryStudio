@@ -60,11 +60,15 @@
     <IncludePath>$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;$(SolutionDir)src\VIAgent;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)$(Platform)\$(Configuration)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)src\Visindigo;$(SolutionDir)src\YSSCore;$(SolutionDir)src\VIAgent;</IncludePath>
     <LibraryPath>$(LibraryPath);$(SolutionDir)$(Platform)\$(Configuration)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
@@ -74,10 +78,6 @@
       <LanguageStandard>stdcpp23</LanguageStandard>
       <PreprocessorDefinitions>$(Qt_DEFINES_);%(PreprocessorDefinitions);DEBUG</PreprocessorDefinitions>
     </ClCompile>
-    <PostBuildEvent>
-      <Command>python.exe "$(SolutionDir)pytools\deriveLib.py"</Command>
-      <Message>���� Visindigo/YSSCore/VIAgent �Ķ�������ͷ�ļ��� binary Ŀ¼</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -89,9 +89,24 @@
       <MapExports>true</MapExports>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
+  </ItemDefinitionGroup>
+  <!--
+    Exec 任务默认按宿主控制台的 ANSI 代码页（简体中文系统为 936）解码子进程输出，
+    而 MSBuild 子进程在输出被重定向时一律写 UTF-8，直接转发就会变成乱码。
+    这里显式声明 StdOutEncoding/StdErrEncoding，让 VS 生成输出按 UTF-8 解码。
+  -->
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>if exist "$(ASERStudioProject)" "$(MSBuildBinPath)\MSBuild.exe" "$(ASERStudioProject)" /t:Build /nologo /v:m /p:Configuration=$(Configuration) /p:Platform=$(Platform) /p:YSSRoot=$(SolutionDir). /p:YSSLibDir=$(SolutionDir)$(Platform)\$(Configuration) "/p:QtMsBuild=$(QtMsBuild)"</Command>
+      <Message>Building ASER Studio plugin</Message>
+      <StdOutEncoding>UTF-8</StdOutEncoding>
+      <StdErrEncoding>UTF-8</StdErrEncoding>
+    </PreBuildEvent>
     <PostBuildEvent>
-      <Command>python.exe "$(SolutionDir)pytools\deriveLib.py"</Command>
-      <Message>���� Visindigo/YSSCore/VIAgent �Ķ�������ͷ�ļ��� binary Ŀ¼</Message>
+      <Command>if exist "$(VisindigoSpineSolution)" "$(MSBuildBinPath)\MSBuild.exe" "$(VisindigoSpineSolution)" /t:Build /nologo /v:m /p:Configuration=Release /p:Platform=$(Platform) /p:YSSRoot=$(SolutionDir). "/p:QtMsBuild=$(QtMsBuild)"</Command>
+      <Message>Building VisindigoSpine plugin (Release only)</Message>
+      <StdOutEncoding>UTF-8</StdOutEncoding>
+      <StdErrEncoding>UTF-8</StdErrEncoding>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -127,6 +142,8 @@
     <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget_p.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings_p.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\FileTypeOpenWith.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\FileTypeSettingsWidget.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DebugServerRouter.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\DocumentMessageTracer.cpp" />
@@ -138,6 +155,7 @@
     <ClCompile Include="Editor\MainEditor\cpp\MessageViewer.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\MultiTerminal.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\PreferenceEditWidget.cpp" />
+    <ClCompile Include="Editor\MainEditor\cpp\ProgramSettingsWidget.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\SimpleFileDialog.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\ResourceBrowser.cpp" />
     <ClCompile Include="Editor\MainEditor\cpp\FileEditWidgetArea.cpp" />
@@ -194,8 +212,11 @@
     <QtMoc Include="Editor\PluginLoadFaultDialog.h" />
     <QtMoc Include="Editor\MainEditor\ColorThemeSettings.h" />
     <QtMoc Include="Editor\MainEditor\private\ColorThemeSettings_p.h" />
+    <QtMoc Include="Editor\MainEditor\FileTypeSettingsWidget.h" />
+    <ClInclude Include="Editor\MainEditor\FileTypeOpenWith.h" />
     <ClInclude Include="Editor\MainEditor\BottomInfoWidget_p.h" />
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h" />
+    <QtMoc Include="Editor\MainEditor\ProgramSettingsWidget.h" />
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h" />
     <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h" />
     <QtMoc Include="Editor\MainEditor\private\TreeLayoutWidget_p.h" />
@@ -228,29 +249,21 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <!--
-    可选：ASER Studio 与 VisindigoSpine 已剥离到同级仓库（../ASER_Studio、../VisindigoSpine），
-    若其工程存在，则在 YSS 构建完成后一并重建这些插件（插件会自动部署回本程序的运行目录）。
-    外部克隆者没有这些仓库时会静默跳过；用 /p:BuildASERStudioPlugin=false、
-    /p:BuildVisindigoSpine=false 可分别关闭，或用 /p:ASERStudioProject=...、
-    /p:VisindigoSpineSolution=... 指定其它位置。
+    可选：ASER Studio 与 VisindigoSpine 已剥离到同级仓库（../ASER_Studio、../VisindigoSpine）。
+    在“项目属性 → 配置属性 → 生成事件”中用标准复选框控制，两个开关按配置分别保存：
+      - 生成前事件 → 在生成中使用：控制 ASER Studio 自动构建（跟随当前配置 Debug/Release）
+      - 生成后事件 → 在生成中使用：控制 VisindigoSpine 自动构建
+    VisindigoSpine 只提供 Release 构建，因此无论当前配置如何都按 Release 构建。
+    当前 Release 的生成后事件是关闭的，需要更新 Spine 插件时再把复选框勾上。
+    外部克隆者没有这些仓库时事件会静默跳过（命令里带 if exist 判断）。
+    工程路径可用 /p:ASERStudioProject=...、/p:VisindigoSpineSolution=... 覆盖。
   -->
   <PropertyGroup>
     <YSSRepoRoot>$(MSBuildProjectDirectory)\..\..</YSSRepoRoot>
     <ASERStudioProject Condition="'$(ASERStudioProject)' == ''">$(YSSRepoRoot)\..\ASER_Studio\Plugin_ASERStudio\Plugin_ASERStudio.vcxproj</ASERStudioProject>
     <VisindigoSpineSolution Condition="'$(VisindigoSpineSolution)' == ''">$(YSSRepoRoot)\..\VisindigoSpine\VisindigoSpine.slnx</VisindigoSpineSolution>
   </PropertyGroup>
-  <Target Name="BuildASERStudioPlugin"
-          AfterTargets="Build"
-          Condition="'$(BuildASERStudioPlugin)' != 'false' AND Exists('$(ASERStudioProject)')">
-    <MSBuild Projects="$(ASERStudioProject)"
-             Targets="Build"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);YSSRoot=$(YSSRepoRoot);YSSLibDir=$(YSSRepoRoot)\$(Platform)\$(Configuration)" />
-  </Target>
-  <Target Name="BuildVisindigoSpine"
-          AfterTargets="Build"
-          Condition="'$(BuildVisindigoSpine)' != 'false' AND Exists('$(VisindigoSpineSolution)')">
-    <MSBuild Projects="$(VisindigoSpineSolution)"
-             Targets="Build"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);YSSRoot=$(YSSRepoRoot);YSSLibDir=$(YSSRepoRoot)\$(Platform)\$(Configuration)" />
+  <Target Name="DeriveLibAfterBuild" AfterTargets="Build">
+    <Exec Command="python.exe &quot;$(SolutionDir)pytools\deriveLib.py&quot;" />
   </Target>
 </Project>

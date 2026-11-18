@@ -1,6 +1,10 @@
 ﻿{
 	"config": {
 		"title": "Préférences de Yayin Story Studio",
+		"category": {
+			"general": "Général",
+			"fileTypes": "Types de fichiers et ouvrir avec"
+		},
 		"general": {
 			"title": "Général",
 			"text": "Paramètres généraux de l'application",
@@ -589,5 +593,16 @@
 			"hostKeyRejected": "La clé d'hôte de %1 a été refusée (%2 %3).",
 			"alreadyReady": "%1 est déjà connecté."
 		}
+	},
+	"fileTypeSettings": {
+		"description": "Sélectionnez un type de fichier pour modifier l'ordre de ses modes d'ouverture par défaut. Les modes en haut de la liste sont essayés en premier. Les modifications sont appliquées et enregistrées immédiatement.",
+		"blockTitle": "Types de fichiers",
+		"filterPlaceholder": "Filtrer les types de fichiers",
+		"openWith": "Ouvrir avec (priorité du haut vers le bas)",
+		"moveUp": "Monter",
+		"moveDown": "Descendre",
+		"resetOrder": "Rétablir l'ordre par défaut",
+		"singleServerHint": "Ce type de fichier n'a qu'un seul mode d'ouverture, l'ordre ne peut pas être modifié.",
+		"noServerHint": "Aucun composant ne peut ouvrir ce type de fichier."
 	}
 }

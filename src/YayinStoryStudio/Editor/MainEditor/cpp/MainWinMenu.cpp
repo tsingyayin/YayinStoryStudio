@@ -27,7 +27,9 @@
 #include "Editor/MainEditor/FileEditWidgetArea.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/MainWinMenu.h"
+#include "Editor/MainEditor/ProgramSettingsWidget.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
+#include "YayinStoryStudio.h"
 namespace YSS::Editor {
 #ifdef Q_OS_ANDROID
 	// Android 顶部安全区高度(px)：取系统状态栏(含刘海)高度。Qt for Android 默认让窗口
@@ -397,7 +399,7 @@ namespace YSS::Editor {
 	}
 
 	void MainWinMenu::file_program_colorThemeSettings() {
-		YSSFSM->openFile(QString("@YSS.MainEditor.ColorThemeSettings!%1?").arg(VITRL("YSS::menu.file.colorThemeSettings")));
+		YSSApp->showConfigWidget(YSS::Editor::ProgramSettingsWidget::ColorThemeSettings);
 	}
 
 	void MainWinMenu::file_program_about() {

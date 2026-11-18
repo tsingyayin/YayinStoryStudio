@@ -119,6 +119,9 @@
     <ClCompile Include="Editor\MainEditor\cpp\PreferenceEditWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\ProgramSettingsWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\TextEditConfigOperator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -134,10 +137,19 @@
     <ClCompile Include="Editor\MainEditor\cpp\ColorThemeSettings_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\FileTypeOpenWith.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\FileTypeSettingsWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\MainEditor\cpp\DebugCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Test\cpp\LiquidGlassDragTestWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\MainEditor\cpp\BottomInfoWidget_p.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -229,6 +241,9 @@
     <QtMoc Include="Editor\MainEditor\PreferenceEditWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\MainEditor\ProgramSettingsWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="Editor\MainEditor\TextEditConfigOperator.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -244,6 +259,12 @@
     <QtMoc Include="Editor\MainEditor\private\ColorThemeSettings_p.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Editor\MainEditor\FileTypeSettingsWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <ClInclude Include="Editor\MainEditor\FileTypeOpenWith.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <QtMoc Include="Editor\MainEditor\TreeLayoutWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -276,6 +297,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\YSSCrashHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\MainEditor\BottomInfoWidget_p.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

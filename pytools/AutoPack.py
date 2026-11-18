@@ -9,6 +9,7 @@ AutoPack.py - YSS 自动打包脚本
          - EA Release（昵称等于 "EA" 或含 "Release"）：只保留 "EA" → YSS_V0.16.0.193 EA
          - 历史兼容：昵称等于 "SEA" 时只保留 "SEA"（日后不再使用）
   2. 清空 user_data/logs、user_data/repos、user_data/third_party 的内容（保留目录本身），
+     清空 user_data/config 三个分类（depends/plugins/program）中已有的配置文件（保留目录结构），
      并删除程序根目录下的 last_crash.zip / last_crash.txt（本地运行遗留的崩溃文件）
   3. 删除新文件夹中的 *.ilk；将 *.exp / *.lib / *.map / *.pdb 收集并压缩为
      YSSDbg_V<版本号>_MSVC_AMD64.zip，之后从新文件夹中移除
@@ -49,6 +50,8 @@ BZ_EXE = os.environ.get("BZ_EXE") or shutil.which("bz.exe") or "bz.exe"
 DBG_EXTS = (".exp", ".lib", ".map", ".pdb")
 # 需要清空内容但保留目录的 user_data 子目录
 CLEAR_DIRS = ("logs", "repos", "third_party")
+# user_data/config 下的三个分类：清空其中已有的配置文件（保留目录结构）
+CONFIG_CATEGORIES = ("depends", "plugins", "program")
 # 需要从发布文件夹根目录删除的运行时残留（崩溃处理器留下的文件）
 ROOT_RESIDUE_FILES = ("last_crash.zip", "last_crash.txt")
 
@@ -142,6 +145,7 @@ def step1_copy_release(plan):
 def step2_clear_user_data(plan):
     """
     清空 user_data/logs、repos、third_party 的内容（保留目录本身），
+    清空 user_data/config 三个分类（depends/plugins/program）中已有的配置文件（保留目录结构），
     并删除程序根目录下的 last_crash.zip / last_crash.txt。
     """
     for sub in CLEAR_DIRS:
@@ -158,6 +162,20 @@ def step2_clear_user_data(plan):
                 os.remove(ep)
             count += 1
         log("已清空 %s （移除 %d 项）" % (os.path.relpath(p, plan["new_folder"]), count))
+
+    # 清空 user_data/config 三个分类中已有的配置文件（保留分类及插件子目录）
+    config_root = os.path.join(plan["new_folder"], "user_data", "config")
+    for category in CONFIG_CATEGORIES:
+        p = os.path.join(config_root, category)
+        if not os.path.isdir(p):
+            log("跳过（目录不存在）: %s" % os.path.relpath(p, plan["new_folder"]))
+            continue
+        removed = 0
+        for root, _dirs, files in os.walk(p):
+            for f in files:
+                os.remove(os.path.join(root, f))
+                removed += 1
+        log("已清除配置文件 %s （移除 %d 个文件）" % (os.path.relpath(p, plan["new_folder"]), removed))
 
     for name in ROOT_RESIDUE_FILES:
         p = os.path.join(plan["new_folder"], name)

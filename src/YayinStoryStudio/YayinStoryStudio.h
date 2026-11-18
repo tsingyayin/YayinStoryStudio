@@ -16,6 +16,7 @@ namespace YSS {
 		virtual void onPluginDisable() override;
 		virtual void onTest() override;
 		virtual QWidget* getConfigWidget() override;
+		void showConfigWidget(int page = -1);
 		void releaseInstaller();
 		static Main* getInstance();
 	private:

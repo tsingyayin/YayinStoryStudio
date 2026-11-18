@@ -1,4 +1,3 @@
-#include "Editor/MainEditor/ColorThemeSettings.h"
 #include "Editor/MainEditor/DebugCommand.h"
 #include "Editor/MainEditor/MainEditorBuiltinPlugin.h"
 #include "Editor/MainEditor/MessageViewer.h"
@@ -36,7 +35,6 @@ namespace YSS::Editor {
 		registerFileServer(new MultiTerminalVFS(this));
 		registerFileServer(new ResourceBrowserVFS(this));
 		registerFileServer(new PreferenceVFServer(this));
-		registerFileServer(new ColorThemeSettingsVFServer(this));
 		registerFileServer(new CodeDiffVirtualFileServer(this));
 		registerPluginModule(new DebugCommand(this));
 	}
