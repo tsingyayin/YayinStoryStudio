@@ -136,6 +136,7 @@ namespace YSS::Editor {
 			});
 
 		ActionReload = new QAction(VITRL("Visindigo::general.reload"), this);
+		ActionReopenWith = new QAction(VITRL("YSS::stackTag.reopenWith"), this);
 		ActionRename = new QAction(VITRL("Visindigo::general.rename"), this);
 		ActionSave = new QAction(VITRL("Visindigo::general.save"), this);
 		ActionSaveAs = new QAction(VITRL("Visindigo::general.saveAs"), this);
@@ -146,6 +147,9 @@ namespace YSS::Editor {
 			if (editor) {
 				editor->reloadFile();
 			}
+			});
+		connect(ActionReopenWith, &QAction::triggered, this, [this]() {
+			MainWin::getInstance()->reopenFileWithFileServer(Uri);
 			});
 		connect(ActionRename, &QAction::triggered, this, [this]() {
 			emit renameRequested(Uri);
@@ -172,7 +176,7 @@ namespace YSS::Editor {
 			MainWin::getInstance()->setCompareFileAsNew(Uri);
 			});
 
-		this->addActions({ ActionClose, ActionPin, ActionReload,
+		this->addActions({ ActionClose, ActionPin, ActionReload, ActionReopenWith,
 			ActionRename, ActionSave, ActionSaveAs, ActionShowInExplorer,
 			ActionCloseAll, ActionCloseSaved, ActionCompareAsOld, ActionCompareAsNew });
 	}
@@ -275,6 +279,10 @@ namespace YSS::Editor {
 			action->setVisible(canCompare);
 			action->setEnabled(canCompare);
 		}
+		// 指定打开方式同样只对真实文件有意义，而且只有该扩展名存在多个候选时才值得提供。
+		const bool canReopenWith = canCompare && YSSFSM->getFileServersForFileExt(uri.getFileExt()).size() > 1;
+		ActionReopenWith->setVisible(canReopenWith);
+		ActionReopenWith->setEnabled(canReopenWith);
 	}
 
 	YSSCore::General::YSSURI StackTag::getUri() const {

@@ -4,6 +4,7 @@
 #include <QtCore/qdir.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qfileinfo.h>
+#include <QtCore/qpair.h>
 #include <QtCore/qstring.h>
 #include <General/Log.h>
 #include <General/Plugin.h>
@@ -44,6 +45,32 @@ namespace YSSCore::General {
 
 		void updateLastModifyTime() {
 			ProjectConfig.setString("Project.LastModifyTime", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+		}
+
+		/*
+			读取全部"文件打开方式偏好"记录，返回 (已存储路径, 文件服务 ID)。
+
+			记录以 \c{FilePreferredFileServers.filePath.N} / \c{.serverID.N} 两条等长数组存放。
+			这里按实际存在的索引名遍历，不假设索引连续——旧版本删除中间项会在索引上留下空洞，
+			按 \c{size()} 推算新索引会撞上已有记录，把别人的偏好覆盖掉。
+		*/
+		QList<QPair<QString, QString>> preferredFileServerEntries() const {
+			QList<QPair<QString, QString>> entries;
+			const QStringList indexes = ProjectConfig.keys("FilePreferredFileServers.filePath");
+			for (const QString& index : indexes) {
+				entries.append({ ProjectConfig.getString("FilePreferredFileServers.filePath." + index),
+					ProjectConfig.getString("FilePreferredFileServers.serverID." + index) });
+			}
+			return entries;
+		}
+
+		// 整体重写偏好记录，索引重新从 0 连续排列；为空时移除整个节点。
+		void writePreferredFileServerEntries(const QList<QPair<QString, QString>>& entries) {
+			ProjectConfig.remove("FilePreferredFileServers");
+			for (int i = 0; i < entries.size(); ++i) {
+				ProjectConfig.setString("FilePreferredFileServers.filePath." + QString::number(i), entries.at(i).first);
+				ProjectConfig.setString("FilePreferredFileServers.serverID." + QString::number(i), entries.at(i).second);
+			}
 		}
 
 		/*
@@ -1429,21 +1456,16 @@ namespace YSSCore::General {
 			return;
 		}
 		const QString storedPath = d->uriToStr(uri);
-		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
-		if (hasFilePreferredFileServer(uri)) {
-			for (int i = 0; i < count; ++i) {
-				const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
-				if (path == uri) {
-					d->ProjectConfig.setString("FilePreferredFileServers.serverID." + QString::number(i), serverID);
-					break;
-				}
+		QList<QPair<QString, QString>> entries = d->preferredFileServerEntries();
+		for (int i = 0; i < entries.size(); ++i) {
+			if (d->strToUri(entries.at(i).first) == uri) {
+				entries[i].second = serverID;
+				d->writePreferredFileServerEntries(entries);
+				return;
 			}
 		}
-		else {
-		
-			d->ProjectConfig.setString("FilePreferredFileServers.filePath." + QString::number(count), storedPath);
-			d->ProjectConfig.setString("FilePreferredFileServers.serverID." + QString::number(count), serverID);
-		}
+		entries.append({ storedPath, serverID });
+		d->writePreferredFileServerEntries(entries);
 	}
 
 	/*!
@@ -1455,11 +1477,10 @@ namespace YSSCore::General {
 		if (not uri.isValid()) {
 			return QString();
 		}
-		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
-		for (int i = 0; i < count; ++i) {
-			const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
-			if (path == uri) {
-				return d->ProjectConfig.getString("FilePreferredFileServers.serverID." + QString::number(i));
+		const QList<QPair<QString, QString>> entries = d->preferredFileServerEntries();
+		for (const auto& entry : entries) {
+			if (d->strToUri(entry.first) == uri) {
+				return entry.second;
 			}
 		}
 		return QString();
@@ -1471,20 +1492,19 @@ namespace YSSCore::General {
 
 		删除指定文件的偏好文件服务设置。如果指定文件没有偏好文件服务，则不会有任何操作。
 
-		值得指出的是，使用removeEditorOpenedFile活removeEditorOpenedFilesInArea函数清除
-		已打开文件记录时，将会自动调用此函数移除偏好记录。
+		偏好只在这一处被删除：关闭编辑器不会清掉它，项目里记录的是"这个文件习惯用什么打开"，
+		与当前是否打开无关。
 	*/
 	void YSSProject::removeFilePreferredFileServer(const YSSURI& uri) {
 		if (not uri.isValid()) {
 			return;
 		}
-		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
-		for (int i = 0; i < count; ++i) {
-			const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
-			if (path == uri) {
-				d->ProjectConfig.remove("FilePreferredFileServers.filePath." + QString::number(i));
-				d->ProjectConfig.remove("FilePreferredFileServers.serverID." + QString::number(i));
-				break;
+		QList<QPair<QString, QString>> entries = d->preferredFileServerEntries();
+		for (int i = 0; i < entries.size(); ++i) {
+			if (d->strToUri(entries.at(i).first) == uri) {
+				entries.removeAt(i);
+				d->writePreferredFileServerEntries(entries);
+				return;
 			}
 		}
 	}
@@ -1494,14 +1514,13 @@ namespace YSSCore::General {
 		\a uri 指定的文件。
 		return 如果指定文件有偏好文件服务，则返回true，否则返回false。
 	*/
-	bool YSSProject::hasFilePreferredFileServer(const YSSURI& uri) {
+	bool YSSProject::isFileHasPreferredFileServer(const YSSURI& uri) {
 		if (not uri.isValid()) {
 			return false;
 		}
-		auto count = d->ProjectConfig.keys("FilePreferredFileServers.filePath").size();
-		for (int i = 0; i < count; ++i) {
-			const YSSURI path = d->strToUri(d->ProjectConfig.getString("FilePreferredFileServers.filePath." + QString::number(i)));
-			if (path == uri) {
+		const QList<QPair<QString, QString>> entries = d->preferredFileServerEntries();
+		for (const auto& entry : entries) {
+			if (d->strToUri(entry.first) == uri) {
 				return true;
 			}
 		}

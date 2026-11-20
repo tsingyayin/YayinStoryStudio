@@ -56,6 +56,7 @@ namespace YSS::Editor {
 		QAction* ActionClose;
 		QAction* ActionPin;
 		QAction* ActionReload;
+		QAction* ActionReopenWith;
 		QAction* ActionRename;
 		QAction* ActionSave;
 		QAction* ActionSaveAs;

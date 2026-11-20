@@ -604,5 +604,10 @@
 		"resetOrder": "Rétablir l'ordre par défaut",
 		"singleServerHint": "Ce type de fichier n'a qu'un seul mode d'ouverture, l'ordre ne peut pas être modifié.",
 		"noServerHint": "Aucun composant ne peut ouvrir ce type de fichier."
+	},
+	"stackTag": {
+		"reopenWith": "Rouvrir avec…",
+		"reopenWithDescription": "Choisissez le composant utilisé pour ouvrir « %1 » :",
+		"reopenWithReset": "Rouvrir par défaut"
 	}
 }

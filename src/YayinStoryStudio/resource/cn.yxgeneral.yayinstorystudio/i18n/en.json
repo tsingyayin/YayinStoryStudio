@@ -628,5 +628,10 @@
 		"resetOrder": "Restore Default Order",
 		"singleServerHint": "This file type has only one opening method, so the order cannot be changed.",
 		"noServerHint": "No component can open this file type."
+	},
+	"stackTag": {
+		"reopenWith": "Reopen With…",
+		"reopenWithDescription": "Choose the component used to open \"%1\":",
+		"reopenWithReset": "Reopen Using Default"
 	}
 }

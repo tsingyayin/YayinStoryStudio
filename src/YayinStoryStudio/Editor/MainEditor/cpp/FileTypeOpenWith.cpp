@@ -14,6 +14,7 @@ features remain basically stable.
 #include <Utility/JsonConfig.h>
 #include <Editor/FileServer.h>
 #include <Editor/FileServerManager.h>
+#include "General/YSSProject.h"
 #include "Editor/MainEditor/FileTypeOpenWith.h"
 #include "YayinStoryStudio.h"
 namespace YSS::Editor::FileTypeOpenWith {
@@ -129,5 +130,15 @@ namespace YSS::Editor::FileTypeOpenWith {
 			appliedCount++;
 		}
 		vgInfo << "Applied saved open-with order for" << appliedCount << "file type(s).";
+	}
+
+	bool openFile(const YSSCore::General::YSSURI& uri, const QString& preferredServerId, bool useFallback) {
+		QString serverId = preferredServerId;
+		if (serverId.isEmpty() and uri.isValid() and not uri.isVirtual()) {
+			if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+				serverId = project->getFilePreferredFileServer(uri);
+			}
+		}
+		return YSSFSM->openFile(uri, serverId, useFallback);
 	}
 }

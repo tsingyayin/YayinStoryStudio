@@ -604,5 +604,10 @@
 		"resetOrder": "既定の順序に戻す",
 		"singleServerHint": "このファイルの種類は開き方が一つしかないため、順序を変えられません。",
 		"noServerHint": "このファイルの種類を開けるものがありません。"
+	},
+	"stackTag": {
+		"reopenWith": "開き方を指定して開き直す",
+		"reopenWithDescription": "「%1」を開くものを選択：",
+		"reopenWithReset": "既定の方法で開き直す"
 	}
 }

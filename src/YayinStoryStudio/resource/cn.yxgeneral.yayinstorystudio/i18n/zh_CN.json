@@ -629,5 +629,10 @@
 		"resetOrder": "恢复默认顺序",
 		"singleServerHint": "这种文件类型只有一种打开方式，无需调整顺序。",
 		"noServerHint": "当前没有可以打开这种文件类型的组件。"
+	},
+	"stackTag": {
+		"reopenWith": "指定打开方式重新打开",
+		"reopenWithDescription": "选择用来打开“%1”的组件：",
+		"reopenWithReset": "重新按默认方式打开"
 	}
 }

@@ -604,5 +604,10 @@
 		"resetOrder": "Standardreihenfolge wiederherstellen",
 		"singleServerHint": "Für diesen Dateityp gibt es nur eine Öffnungsmethode, die Reihenfolge kann nicht geändert werden.",
 		"noServerHint": "Keine Komponente kann diesen Dateityp öffnen."
+	},
+	"stackTag": {
+		"reopenWith": "Mit anderer Methode öffnen…",
+		"reopenWithDescription": "Wählen Sie die Komponente zum Öffnen von „%1“:",
+		"reopenWithReset": "Standardmäßig öffnen"
 	}
 }

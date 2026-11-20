@@ -14,6 +14,7 @@ features remain basically stable.
 #define YayinStoryStudio_Editor_MainEditor_FileTypeOpenWith_h
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
+#include <General/YSSURI.h>
 namespace YSS::Editor {
 	/*
 		FSM 只维护运行期的打开方式顺序，配置的读写由 YSS 自己完成，
@@ -35,6 +36,14 @@ namespace YSS::Editor {
 		void resetOrder(const QString& fileExt);
 		// 把配置中保存的全部顺序应用到 FSM。需在所有插件注册完 FileServer 之后调用。
 		void applySavedOrders();
+		/*
+			打开文件，并应用项目里记录的"这个文件用哪个 FileServer 打开"偏好。
+
+			FSM 只接受调用方给出的 preferredServerId，本身不读项目配置，
+			因此偏好必须由这里读出再传进去。\a preferredServerId 非空时直接使用它。
+		*/
+		bool openFile(const YSSCore::General::YSSURI& uri,
+			const QString& preferredServerId = QString(), bool useFallback = true);
 	}
 }
 #endif // YayinStoryStudio_Editor_MainEditor_FileTypeOpenWith_h

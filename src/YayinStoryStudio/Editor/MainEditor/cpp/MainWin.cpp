@@ -4,8 +4,13 @@
 #include <QtCore/qtimer.h>
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qdialog.h>
+#include <QtWidgets/qdialogbuttonbox.h>
 #include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qlabel.h>
 #include <QtWidgets/qmessagebox.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qsplitter.h>
 #include <Editor/EditorPlugin.h>
 #include <Editor/CodeDiff.h>
@@ -29,6 +34,7 @@
 #include "Editor/MainEditor/BottomInfoWidget.h"
 #include "Editor/MainEditor/DebugServerRouter.h"
 #include "Editor/MainEditor/FileEditWidgetArea.h"
+#include "Editor/MainEditor/FileTypeOpenWith.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/MainWinMenu.h"
 #include "Editor/MainEditor/MessageCenter.h"
@@ -64,6 +70,73 @@ namespace YSS::Editor {
 		}
 		QApplication::setQuitOnLastWindowClosed(ProjectReloadSavedQuitOnLastWindowClosed);
 		ProjectReloadKeepAlive = false;
+	}
+
+	/*
+		「指定打开方式重新打开」的弹窗。
+
+		只要用户在这里选过一次，这个文件就会有明确的打开方式记录，因此还需要一个
+		显式的入口把记录清掉——「重新按默认方式打开」。该按钮在没有记录时置灰，
+		避免让人误以为当前打开方式受记录影响。
+	*/
+	namespace {
+	class ReopenWithDialog : public QDialog {
+	public:
+		enum Choice {
+			Canceled,
+			UseServer,
+			ResetToDefault
+		};
+	private:
+		QComboBox* ServerCombo = nullptr;
+		Choice Result = Canceled;
+	public:
+		ReopenWithDialog(const QString& fileName, const QStringList& items, int currentIndex,
+			bool hasPreference, QWidget* parent) : QDialog(parent) {
+			setWindowTitle(VITRL("YSS::stackTag.reopenWith"));
+			QLabel* label = new QLabel(VITRL("YSS::stackTag.reopenWithDescription").arg(fileName), this);
+			label->setWordWrap(true);
+			ServerCombo = new QComboBox(this);
+			ServerCombo->addItems(items);
+			if (currentIndex >= 0 and currentIndex < ServerCombo->count()) {
+				ServerCombo->setCurrentIndex(currentIndex);
+			}
+			QPushButton* resetButton = new QPushButton(VITRL("YSS::stackTag.reopenWithReset"), this);
+			resetButton->setEnabled(hasPreference);
+			QDialogButtonBox* buttonBox = new QDialogButtonBox(
+				QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+
+			QHBoxLayout* buttonLayout = new QHBoxLayout();
+			buttonLayout->setContentsMargins(0, 0, 0, 0);
+			buttonLayout->addWidget(resetButton);
+			buttonLayout->addStretch();
+			buttonLayout->addWidget(buttonBox);
+
+			QVBoxLayout* layout = new QVBoxLayout(this);
+			layout->setContentsMargins(12, 12, 12, 12);
+			layout->setSpacing(8);
+			layout->addWidget(label);
+			layout->addWidget(ServerCombo);
+			layout->addLayout(buttonLayout);
+			setMinimumWidth(360);
+
+			connect(buttonBox, &QDialogButtonBox::accepted, this, [this]() {
+				Result = UseServer;
+				accept();
+				});
+			connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+			connect(resetButton, &QPushButton::clicked, this, [this]() {
+				Result = ResetToDefault;
+				accept();
+				});
+		}
+		Choice getChoice() const {
+			return Result;
+		}
+		int getSelectedIndex() const {
+			return ServerCombo->currentIndex();
+		}
+	};
 	}
 
 	MainWin* MainWin::getInstance() {
@@ -318,7 +391,7 @@ namespace YSS::Editor {
 		for (auto areaID : openedFilesInArea.keys()) {
 			QList<YSSCore::General::YSSURI> stillOKFiles;
 			for (const YSSCore::General::YSSURI& fileUri : openedFilesInArea[areaID]) {
-				bool okToOpen = YSSFSM->openFile(fileUri);
+				bool okToOpen = FileTypeOpenWith::openFile(fileUri);
 				YSSStartupProbe->debug() << "restore file request:" << fileUri.toString()
 					<< "accepted:" << okToOpen << "elapsed(ms):" << StartupProbeTimer.elapsed();
 				if (okToOpen) {
@@ -825,7 +898,7 @@ namespace YSS::Editor {
 			CurrentDir.absolutePath(),
 			"All Files (*)");
 		if (not filePath.isEmpty()) {
-			YSSFSM->openFile(filePath);
+			FileTypeOpenWith::openFile(YSSCore::General::YSSURI::fromLocalPath(filePath));
 		}
 	}
 
@@ -845,7 +918,7 @@ namespace YSS::Editor {
 		connect(newFileWin, &YSS::NewFilePage::NewFileWin::filePrepared, this,
 			[](const YSSCore::General::YSSURI& uri) {
 				// 文件刚刚由新建窗口写好，直接交给文件服务管理器打开。
-				YSSFSM->openFile(uri);
+				FileTypeOpenWith::openFile(uri);
 			});
 		newFileWin->show();
 	}
@@ -1261,6 +1334,131 @@ namespace YSS::Editor {
 		CompareOldUri = uri;
 		HasCompareOld = true;
 		launchComparisonIfReady();
+	}
+
+	/*
+		让用户为这个文件指定打开方式。
+
+		候选按"文件类型和打开方式"里设定的顺序排列，第一项标注为默认项。用户选中任何一项
+		都会把它显式记录为该文件的打开方式（包括正好等于默认项的情况）；想回到"跟随文件类型
+		默认顺序"要用弹窗里的「重新按默认方式打开」，它会清除记录。
+
+		选定之后需要换掉当前的编辑器实现，因此先关闭旧编辑器，等它的 fileClosed 到达
+		再用选定的 FileServer 重新打开。关闭过程中用户可能取消（包括拒绝保存），
+		这时要丢掉挂起的请求。
+	*/
+	void MainWin::reopenFileWithFileServer(const YSSCore::General::YSSURI& uri) {
+		if (!uri.isValid() || uri.isVirtual() || uri.isDir()) {
+			return;
+		}
+		const QString ext = uri.getFileExt();
+		if (YSSFSM->getFileServersForFileExt(ext).size() < 2) {
+			return;
+		}
+		QStringList orderedIds = FileTypeOpenWith::getEffectiveOrder(ext);
+		if (orderedIds.isEmpty()) {
+			for (YSSCore::Editor::FileServer* server : YSSFSM->getFileServersForFileExt(ext)) {
+				orderedIds.append(server->getModuleID());
+			}
+		}
+		// 预选当前实际在用的打开方式；文件没打开时退回项目里记录的偏好。
+		QString currentId;
+		if (YSSCore::Editor::FileEditWidget* widget = YSSFSM->getFileEditWidget(uri)) {
+			if (YSSCore::Editor::FileServer* server = YSSFSM->getFileEditWidgetSourceServer(widget)) {
+				currentId = server->getModuleID();
+			}
+		}
+		if (currentId.isEmpty()) {
+			if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
+				currentId = project->getFilePreferredFileServer(uri);
+			}
+		}
+		QStringList items;
+		for (int i = 0; i < orderedIds.size(); i++) {
+			YSSCore::Editor::FileServer* server = YSSFSM->getFileServerById(orderedIds[i]);
+			QString name = server != nullptr ? server->getModuleNameI18N() : QString();
+			if (name.isEmpty()) {
+				name = orderedIds[i];
+			}
+			items.append(name);
+		}
+		int currentIndex = orderedIds.indexOf(currentId);
+		if (currentIndex < 0) {
+			currentIndex = 0;
+		}
+		YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject();
+		const bool hasPreference = project != nullptr && project->isFileHasPreferredFileServer(uri);
+
+		ReopenWithDialog dialog(uri.getFileName(), items, currentIndex, hasPreference, this);
+		if (dialog.exec() != QDialog::Accepted) {
+			return;
+		}
+		if (dialog.getChoice() == ReopenWithDialog::ResetToDefault) {
+			if (project != nullptr) {
+				project->removeFilePreferredFileServer(uri);
+			}
+			reopenFileWithServer(uri, QString());
+			return;
+		}
+		const int chosenIndex = dialog.getSelectedIndex();
+		if (chosenIndex < 0 || chosenIndex >= orderedIds.size()) {
+			return;
+		}
+		const QString chosenId = orderedIds.at(chosenIndex);
+		if (project != nullptr) {
+			project->setFilePreferredFileServer(uri, chosenId);
+		}
+		reopenFileWithServer(uri, chosenId);
+	}
+
+	/*
+		用指定 FileServer 重新打开文件，\a serverId 为空表示按文件类型的默认顺序。
+		当前没有打开时直接打开；已经打开时先关闭，等 fileClosed 到达再打开。
+	*/
+	void MainWin::reopenFileWithServer(const YSSCore::General::YSSURI& uri, const QString& serverId) {
+		YSSCore::Editor::FileEditWidget* editor = YSSFSM->getFileEditWidget(uri);
+		if (editor == nullptr) {
+			FileTypeOpenWith::openFile(uri, serverId);
+			return;
+		}
+		dropPendingReopenWith();
+		ReopenWithUri = uri;
+		ReopenWithServerId = serverId;
+		ReopenWithClosedConn = connect(YSSFSM, &YSSCore::Editor::FileServerManager::fileClosed, this,
+			[this](const YSSCore::General::YSSURI& closedUri) {
+				if (!(closedUri == ReopenWithUri)) {
+					return;
+				}
+				const YSSCore::General::YSSURI target = ReopenWithUri;
+				const QString pendingServerId = ReopenWithServerId;
+				dropPendingReopenWith();
+				FileTypeOpenWith::openFile(target, pendingServerId);
+			});
+		// 关闭流程里的保存可能失败，失败后编辑器会留在原处、也不会再发出 fileClosed。
+		ReopenWithSaveFailedConn = connect(editor, &YSSCore::Editor::FileEditWidget::fileSaveFailed, this,
+			[this](const YSSCore::General::YSSURI& failedUri) {
+				if (failedUri == ReopenWithUri) {
+					dropPendingReopenWith();
+				}
+			});
+		editor->closeFile();
+		// 用户放弃了这次关闭：编辑器还在，也没有在等保存，直接丢掉请求。
+		if (YSSFSM->getFileEditWidget(uri) == editor && !editor->isSaving()) {
+			dropPendingReopenWith();
+		}
+	}
+
+	void MainWin::dropPendingReopenWith() {
+		if (ReopenWithClosedConn) {
+			disconnect(ReopenWithClosedConn);
+			ReopenWithClosedConn = QMetaObject::Connection();
+		}
+		if (ReopenWithSaveFailedConn) {
+			disconnect(ReopenWithSaveFailedConn);
+			ReopenWithSaveFailedConn = QMetaObject::Connection();
+		}
+		ReopenWithUri = YSSCore::General::YSSURI();
+		ReopenWithServerId.clear();
 	}
 
 	void MainWin::setCompareFileAsNew(const YSSCore::General::YSSURI& uri) {

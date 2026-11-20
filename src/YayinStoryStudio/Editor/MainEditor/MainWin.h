@@ -61,6 +61,12 @@ namespace YSS::Editor {
 		bool ReloadProjectAfterClose = false;
 		bool ClosingDown = false;
 		YSSCore::General::YSSURI ReloadProjectUri;
+		// 「指定打开方式重新打开」的挂起请求：关闭有提示的旧编辑器是异步的（可能还要等保存），
+		// 只有真的收到 fileClosed 才能用选定的 FileServer 重新打开。
+		YSSCore::General::YSSURI ReopenWithUri;
+		QString ReopenWithServerId;
+		QMetaObject::Connection ReopenWithClosedConn;
+		QMetaObject::Connection ReopenWithSaveFailedConn;
 		static MainWin* Instance;
 	private:
 		YSS::Editor::FileEditWidgetArea* selectFileEditWidgetAreaForNewFile(YSSCore::Editor::FileEditWidget* widget);
@@ -73,8 +79,10 @@ namespace YSS::Editor {
 		void onWatchedFileChanged(const YSSCore::General::YSSURI& uri);
 		void enqueueExternalChange(const YSSCore::General::YSSURI& uri);
 		void processExternalChangeQueue();
-		void promptReloadProject(const YSSCore::General::YSSURI& uri);
+	void promptReloadProject(const YSSCore::General::YSSURI& uri);
 		void startProjectReload(const YSSCore::General::YSSURI& uri);
+		void reopenFileWithServer(const YSSCore::General::YSSURI& uri, const QString& serverId);
+		void dropPendingReopenWith();
 	signals:
 		void currentFileEditWidgetAreaChanged(FileEditWidgetArea* area);
 	public:
@@ -97,6 +105,7 @@ namespace YSS::Editor {
 	public:
 		void setCompareFileAsOld(const YSSCore::General::YSSURI& uri);
 		void setCompareFileAsNew(const YSSCore::General::YSSURI& uri);
+		void reopenFileWithFileServer(const YSSCore::General::YSSURI& uri);
 	public slots:
 		void onFileEditWidgetAreaCreated(FileEditWidgetArea* widget);
 		void onFileEditWidgetAreaFocusIn(const QString& areaID);

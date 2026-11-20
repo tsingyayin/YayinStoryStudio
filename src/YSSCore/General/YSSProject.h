@@ -110,7 +110,7 @@ namespace YSSCore::General {
 		void setFilePreferredFileServer(const YSSURI& uri, const QString& serverID);
 		QString getFilePreferredFileServer(const YSSURI& uri);
 		void removeFilePreferredFileServer(const YSSURI& uri);
-		bool hasFilePreferredFileServer(const YSSURI& uri);
+		bool isFileHasPreferredFileServer(const YSSURI& uri);
 	private:
 		YSSProjectPrivate* d;
 	};

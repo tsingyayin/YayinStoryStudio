@@ -604,5 +604,10 @@
 		"resetOrder": "恢復預設順序",
 		"singleServerHint": "這種檔案類型只有一種開啟方式，無需調整順序。",
 		"noServerHint": "目前沒有可以開啟這種檔案類型的元件。"
+	},
+	"stackTag": {
+		"reopenWith": "指定開啟方式重新開啟",
+		"reopenWithDescription": "選擇用來開啟「%1」的元件：",
+		"reopenWithReset": "重新依預設方式開啟"
 	}
 }

@@ -16,6 +16,7 @@
 #include <General/YSSUnifiedFileSystem.h>
 #include <Widgets/ThemeManager.h>
 #include <memory>
+#include "Editor/MainEditor/FileTypeOpenWith.h"
 #include "Editor/MainEditor/MainWin.h"
 #include "Editor/MainEditor/ResourceBrowser.h"
 #include "Editor/MainEditor/SimpleFileDialog.h"
@@ -192,7 +193,7 @@ namespace YSS::Editor {
 				}
 				return;
 			}
-			YSSFSM->openFile(CurrentUri);
+			FileTypeOpenWith::openFile(CurrentUri);
 			});
 		connect(FileOptionNewFile, &QAction::triggered, this, &ResourceBrowser::onNewButtonClicked);
 		connect(FileOptionNewFolder, &QAction::triggered, this, &ResourceBrowser::onNewFolderTriggered);
@@ -304,7 +305,7 @@ namespace YSS::Editor {
 		}
 		const YSSCore::General::YSSURI uri = FileModel->uriOf(index);
 		if (uri.isValid()) {
-			YSSFSM->openFile(uri);
+			FileTypeOpenWith::openFile(uri);
 		}
 	}
 
