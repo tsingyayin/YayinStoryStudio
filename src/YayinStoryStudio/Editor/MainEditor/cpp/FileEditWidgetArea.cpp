@@ -336,6 +336,12 @@ namespace YSS::Editor {
 		connect(widget, &YSSCore::Editor::FileEditWidget::fileClosed, this, [this, widget]() {
 			const YSSCore::General::YSSURI closedUri = widget->getUri();
 			d->TagArea->removeStackLabel(closedUri); // this function handle re-choice if the closed widget is current one
+			// removeStackLabel() 只在标签仍是当前选中项时才切换内容区。改名等情况下
+			// 它可能匹配不到，此时 ContentArea 还指着即将被销毁的控件，必须在这里复位。
+			// deleteLater() 是排队执行的，走到这里时 widget 本身仍然有效。
+			if (d->ContentArea == widget) {
+				setCurrentWidget(YSSCore::General::YSSURI());
+			}
 			if (YSSCore::General::YSSProject* project = YSSCore::General::YSSProject::getCurrentProject()) {
 				project->removeEditorOpenedFile(closedUri);
 			}

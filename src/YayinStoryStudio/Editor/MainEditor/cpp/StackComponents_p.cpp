@@ -659,6 +659,11 @@ namespace YSS::Editor {
 		if (GlobalCurrentUri.toString() == oldUri.toString()) {
 			GlobalCurrentUri = newUri;
 		}
+		// 改名后关闭时 removeStackLabel() 要用新 URI 判断它是否仍是当前项，
+		// 不同步的话关闭当前标签不会触发切换，内容区会一直指着已销毁的编辑器。
+		if (CurrentSelected.toString() == oldUri.toString()) {
+			CurrentSelected = newUri;
+		}
 		const QString oldKey = oldUri.toString();
 		for (int i = 0; i < WidgetSelectorModel->rowCount(); ++i) {
 			QStandardItem* item = WidgetSelectorModel->item(i);

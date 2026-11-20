@@ -217,6 +217,26 @@ namespace YSSCore::Editor {
 				few->deleteLater();
 				yDebug << "File closed:" << closedUri.toString();
 				});
+			// 兜底：编辑器也可能被父控件连带销毁，没走 closeEvent，不会发出 fileClosed。
+			// destroyed 在 ~QObject 里发出，此时派生类已经析构，不能再读 few 的 URI，
+			// 因此按值扫描全部索引，只摘除仍然指向它的条目。
+			QObject::connect(few, &QObject::destroyed, Instance, [this, few]() {
+				for (auto it = OpenedFileEditWidgets.begin(); it != OpenedFileEditWidgets.end();) {
+					if (it.value() == few) {
+						it = OpenedFileEditWidgets.erase(it);
+					}
+					else {
+						++it;
+					}
+				}
+				FileEditWidgetSourceServerMap.remove(few);
+				if (CurrentFocusedWidget == few) {
+					CurrentFocusedWidget = nullptr;
+				}
+				if (CurrentFocusedWidgetNotTool == few) {
+					CurrentFocusedWidgetNotTool = nullptr;
+				}
+				});
 			QObject::connect(few, &FileEditWidget::fileRenamed, Instance, [this, few](const YSSURI& rawUri, const YSSURI& changedUri) {
 				const QString rawKey = keyOf(rawUri);
 				const QString changedKey = keyOf(changedUri);
